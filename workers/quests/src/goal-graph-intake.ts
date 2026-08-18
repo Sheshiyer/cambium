@@ -11,6 +11,7 @@
 import { createHash } from 'node:crypto';
 import { buildNode } from './goal-graph/identity.ts';
 import { compileGoalGraph } from './goal-graph/compiler.ts';
+import { validateAuthoritativeInput } from './goal-graph/projection-contract.ts';
 import type {
   GoalGraphCompileInput,
   GoalGraphCompileResult,
@@ -330,13 +331,6 @@ function normalizeInput(input: unknown): TelegramGoalGraphIntent {
   return { schema: TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA, version: TELEGRAM_GOAL_GRAPH_INTENT_VERSION, tenantId, source, goal };
 }
 
-function projectionLike(input: unknown): boolean {
-  if (!isRecord(input)) return false;
-  const schema = typeof input.schema === 'string' ? input.schema.toLowerCase() : '';
-  if (schema.includes('projection') || schema.includes('goal-graph-projection')) return true;
-  return Object.keys(input).some((key) => ['payload', 'origin', 'graph_version', 'graph_digest', 'source_ref'].includes(key.toLowerCase()));
-}
-
 /** Canonical serializer for an already-normalized intent. */
 export function canonicalizeTelegramGoalGraphIntent(value: TelegramGoalGraphIntent): string {
   return stableJson(value);
@@ -376,7 +370,8 @@ function rejectionFromError(error: unknown): TelegramGoalGraphRejected {
  */
 export function parseTelegramGoalGraphIntentBoundary(input: unknown): TelegramGoalGraphBoundaryResult {
   try {
-    if (projectionLike(input)) return reject('projection_input', ['goal-graph projection-shaped input cannot enter Telegram intake']);
+    const authority = validateAuthoritativeInput(input);
+    if (!authority.accepted) return reject('projection_input', authority.errors.slice(0, 8));
     const rawCanonical = stableJson(input);
     if (byteLength(rawCanonical) > TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes) return reject('bounds_exceeded', [`intent payload exceeds ${TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes} bytes`]);
     const forbidden: string[] = [];

@@ -1,5 +1,16 @@
 # Project handoff
 
+### 2026-08-18 Phase 4 intent-graph acceptance checkpoint
+
+- Plan 04-03 publishes and closes only the bounded Phase 4 repository range: the compiler/test/contract and generated readbacks from Plans 04-01/04-02; `docs/architecture/README.md`, `docs/README.md`, `docs/architecture/loops-to-graphs.md`, and `docs/architecture/goal-graph-operating-model.md`; active Phase 4 evidence in `ISA.md`; this additive checkpoint; and required GSD progress artifacts under `.planning/`. No other path class is admitted.
+- The generated machine artifact is `docs/architecture/intent-graph.v1.json`; the matching human artifact is `docs/architecture/intent-graph.md`. Both derive from one source model and read back graph digest `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45` plus source-set digest `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`.
+- Committed Task 1 head `e84af22` passed 22/22 focused graph/generator tests, `node scripts/generate-intent-graph.mjs --check`, rendered-doc synchronization, direct discovery-link checks, normalized copied-anchor rejection, and diff hygiene. The pre-closure head then passed 27/27 combined anchor/intent tests, double generator checks, `npm test` 1808/1808, drift audit, rendered-doc synchronization for 6 pages / 91 components, JSON/Markdown parity for 19 nodes / 25 edges, added-line privacy, exact allowed-range, deletion/rename, and forbidden-category gates.
+- Base-sync checkpoint: PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd` is the Phase 4 branch base. The isolated lane rebased cleanly with twelve patch-equivalent commits and no changed-path overlap; completed summary commit references were reconciled to the rewritten SHAs. PR #350 affects Portfolio skill-repository resolution only and does not change the D1/Vault/Hermes/Intent Graph authority model. Phase 4 must finish verification before `/gsd:ship 4` opens the guarded PR; no direct push to `main` is allowed.
+- Authority remains separated: root `VISION.md` and `MISSION.md` own doctrine; `ISA.md` owns approved goals and acceptance; GSD under `.planning/` owns finite planning; the generated Intent Graph is a deterministic read-only inspection projection; the D1 Goal Graph remains sole operational writer for revisions, approvals, leases, and receipts.
+- Close, produce, and renew edges are observations for explicit review. Neither valid nor malformed intent projections can enter D1's command lane, mutate root anchors or Repository Mission, approve work, create operational nodes, or replace ISA/GSD planning authority.
+- This checkpoint performs no Worker/runtime, D1/KV/R2/schema, Telegram, UI, package/lockfile, `.temperance`, deployment, provider, credential, connected-repository, or external mutation. The user-owned root checkout and held worktrees remain untouched.
+- Independent continuation is `/gsd:verify-work 4`.
+
 ### 2026-08-18 Phase 4 planning-ready checkpoint
 
 - Branch `codex/phase-4-intent-graph-plan-20260818` starts from exact `origin/main` `8747d24d6581edb0184404f9e81fc09b0a7f2ae0` and owns only the Phase 4 planning packet: `.planning/STATE.md`, `.planning/ROADMAP.md`, `.planning/phases/04-provenance-preserving-intent-graph/{04-01-PLAN.md,04-02-PLAN.md,04-03-PLAN.md}`, `ISA.md`, this checkpoint, and the coherent-state guard in `scripts/infinite-game-anchors.test.mjs`.
@@ -1706,3 +1717,44 @@ mutation has been performed by drafting this packet.
 - This checkpoint performs no runtime, package, lockfile, provider,
   deployment, credential, `.temperance`, connected-repository, relocation,
   or destructive corpus mutation.
+
+### 2026-08-18 Phase 4 D1 intent-projection foldback correction checkpoint
+
+- The prior Phase 4 green claim was false at the verified gap head: the
+  compiler-local foldback check passed, but the executable D1 authority guard
+  still accepted both valid-shaped and malformed
+  `cambium.intent-graph-projection.v1` inputs. The immutable
+  `04-VERIFICATION.md` records that original `gaps_found` diagnosis.
+- RED commit `44f35026eee8267c18999f30b844741c5cf97301` reopens only
+  ISC-1280 and binds the shared contract, pure intake/source wiring, and
+  authenticated pre-D1 route behavior. GREEN commit
+  `f5a58505544e024069a451fbcc44a20da66c30ec` adds the Intent Graph family
+  discriminator and wires `validateAuthoritativeInput` before
+  canonicalization or normalization.
+- The bounded change set is the shared projection contract, Telegram intake,
+  their contract/route tests, the ISA lifecycle test, ISA evidence, and this
+  handoff. It adds no handler production edit, D1 schema or migration, package,
+  lockfile, generated graph, root-anchor, provider, deployment, or connected
+  repository change.
+- Both HTTP fixtures reject with `projection_input` before any D1 read or
+  task/idempotency persistence. Each request may persist only one bounded
+  redacted `cambium.goal-graph-intake-rejection.v1` receipt; raw nodes, edges,
+  digests, and payload markers are absent. The in-memory D1 head and nodes are
+  byte-equivalent before and after each rejection.
+- Verification passes: shared contract/intake 20/20, intake/approval 18/18,
+  combined anchor/compiler/generator 27/27, complete repository suite
+  1812/1812, double generator checks at graph digest
+  `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45`
+  and source-set digest
+  `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`,
+  drift audit, rendered-doc synchronization, immutable report/root/generated
+  readbacks, allowed-path and deletion gates, forbidden-category scan, and
+  added-line privacy scan.
+- ISA is returned to verification evidence state, not phase completion. The
+  execute-phase orchestrator must apply its verification hold, run code review,
+  and then invoke the built-in independent `gsd-verifier`; only a fresh
+  `status: passed` verdict may complete Phase 4. `/gsd:verify-work 4` remains
+  optional manual re-verification, not a normal gap-cycle prerequisite.
+- No D1/KV/R2/Telegram/provider state, production deployment, external
+  repository, credential, registry, Vault, or generated projection was
+  mutated by this correction.

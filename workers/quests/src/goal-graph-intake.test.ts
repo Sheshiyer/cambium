@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA,
@@ -14,6 +15,47 @@ const minimal = {
   source: { kind: 'telegram', chatId: '-100123', messageId: '42', updateId: '9001' },
   goal: { desiredState: 'publish the approved launch note' },
 };
+
+const intentProjectionFixtures = [
+  {
+    schema: 'cambium.intent-graph-projection.v1',
+    projectionAuthority: 'read_only',
+    sourceSetDigest: `sha256:${'a'.repeat(64)}`,
+    graphDigest: `sha256:${'b'.repeat(64)}`,
+    nodes: [],
+    edges: [],
+  },
+  { schema: 'cambium.intent-graph-projection.v1', payload: { marker: 'malformed-intent-projection' } },
+];
+
+test('derived projection identities fail closed at the pure Telegram intake boundary', () => {
+  for (const fixture of intentProjectionFixtures) {
+    const result = parseTelegramGoalGraphIntentBoundary(fixture);
+    assert.equal(result.accepted, false);
+    assert.equal(result.rejected, true);
+    assert.equal(result.code, 'projection_input');
+  }
+});
+
+test('shared guard wiring precedes Telegram intake canonicalization and normalization', () => {
+  const source = readFileSync(new URL('./goal-graph-intake.ts', import.meta.url), 'utf8');
+  assert.match(
+    source,
+    /import\s*{[^}]*validateAuthoritativeInput[^}]*}\s*from\s*['"]\.\/goal-graph\/projection-contract\.ts['"]/s,
+    'not ok: shared guard wiring requires validateAuthoritativeInput import',
+  );
+  const boundaryStart = source.indexOf('export function parseTelegramGoalGraphIntentBoundary');
+  const boundaryEnd = source.indexOf('\nexport function parseTelegramGoalGraphIntent(', boundaryStart);
+  assert.ok(boundaryStart >= 0 && boundaryEnd > boundaryStart);
+  const boundary = source.slice(boundaryStart, boundaryEnd);
+  const guard = boundary.indexOf('validateAuthoritativeInput(input)');
+  const canonical = boundary.indexOf('stableJson(input)');
+  const normalized = boundary.indexOf('normalizeInput(input)');
+  assert.ok(guard >= 0, 'the shared guard must run in the intake boundary');
+  assert.ok(guard < canonical, 'the shared guard must run before stableJson');
+  assert.ok(guard < normalized, 'the shared guard must run before normalizeInput');
+  assert.doesNotMatch(source, /function\s+projectionLike\b|\bprojectionLike\s*\(/);
+});
 
 test('minimal Telegram intent is accepted, compiled, and provenance-bound', () => {
   const result = parseTelegramGoalGraphIntent(minimal);

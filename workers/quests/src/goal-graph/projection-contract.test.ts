@@ -64,6 +64,30 @@ test('unrelated authoritative records are not mistaken for projections', () => {
   assert.deepEqual(validateAuthoritativeInput(record), { accepted: true, value: record, errors: [] });
 });
 
+test('intent projection identities are rejected by the shared authoritative-input guard', () => {
+  const fixtures = [
+    {
+      schema: 'cambium.intent-graph-projection.v1',
+      projectionAuthority: 'read_only',
+      sourceSetDigest: digest,
+      graphDigest: digest,
+      nodes: [],
+      edges: [],
+    },
+    { schema: 'cambium.intent-graph-projection.v1', payload: { marker: 'malformed-intent-projection' } },
+  ];
+
+  for (const fixture of fixtures) {
+    const authority = validateAuthoritativeInput(fixture);
+    assert.equal(authority.accepted, false);
+    assert.equal(authority.reason, 'intent_graph_projection_is_not_authoritative');
+    assert.match(authority.errors[0], /intent graph projection cannot be accepted as fresh authoritative input/i);
+  }
+
+  const unrelated = { kind: 'goal-command', tenant: 'tenant-alpha', command: 'add-node' };
+  assert.deepEqual(validateAuthoritativeInput(unrelated), { accepted: true, value: unrelated, errors: [] });
+});
+
 test('unchanged mappings preserve proof', () => {
   const result = reconcileNodeMapping(['goal-a'], ['goal-a']);
   assert.equal(result.classification, 'unchanged');

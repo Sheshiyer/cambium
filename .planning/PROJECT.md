@@ -17,6 +17,7 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ REQ-01–REQ-06 prove one replay-safe D1-leased synthetic service-agreement draft from strict intake through immutable artifact readback.
 - ✓ REQ-07–REQ-11 expose that same slice through feature-gated Telegram intake and a redacted D1 status projection, with live replay, rollback, allowlist, and access-revocation proof.
 - ✓ ANCHOR-01–ANCHOR-04 establish canonical root `VISION.md` and renewable `MISSION.md`, distinguish repository Mission from bounded `FabricMission` records, and make supporting doctrine reference rather than duplicate those authorities — Phase 3 verification.
+- ✓ GRAPH-01–GRAPH-05 establish a deterministic 19-node/25-edge read-only Intent Graph with source provenance, canonical overlay references, explicit lifecycle/gate semantics, and a shared boundary that prevents derived projections from re-entering the operational Goal Graph authority lane — Phase 4 verification.
 
 ### Out of Scope
 
@@ -36,7 +37,8 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Accepted process debt:** the historical phases predate current GSD `VERIFICATION.md` files; their live evidence remains summary-attested and is archived in the milestone audit.
 - **Active authority:** the root `ISA.md` owns the approved infinite-game documentation goal. This planning file does not replace it.
 - **Phase 3 complete:** canonical Vision and Mission anchors, inherited doctrine overlays, Mission terminology boundaries, and deterministic anchor validation shipped on 2026-08-18.
-- **Next:** Phase 4 projects those anchors through a provenance-preserving intent graph without adding an operational writer.
+- **Phase 4 complete locally:** the provenance-preserving Intent Graph and shared projection foldback boundary passed independent verification 5/5 on 2026-08-18.
+- **Delivery hold:** `/gsd:ship 4` must land the exact verified head through the protected main PR and CI gate before Phase 5 planning begins.
 
 ## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
@@ -53,7 +55,6 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 ## Active Requirements
 
 - Keep ISA and GSD as the only goal and planning authorities.
-- Model vision → mission → finite goals → tasks → evidence → learning as a provenance-preserving fractal graph.
 - Expose Ralph next actions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into the manifest.
 - Consolidate and reorganize the named root, `MEMORY/`, and `docs/` corpus without deleting historical evidence or promoting plans into current instructions.
 
@@ -95,6 +96,8 @@ This document evolves at phase transitions and milestone boundaries.
 | Root-anchor plus inherited-overlay doctrine | Keeps one canonical vision and mission while allowing bounded contexts to inherit without copying authority | Approved for v0.4 |
 | ISA and GSD remain the only goal/planning authorities | Prevents the manifest, Ralph loop, or documentation graph from becoming a third writer | Approved for v0.4 |
 | Continue roadmap numbering at Phase 3 | Preserves the historical v0.3 phase lineage and avoids deleting retained phase evidence | Approved for v0.4 |
+| Keep the Intent Graph a deterministic read-only projection | Preserves ISA/GSD/doctrine authority and prevents generated evidence from becoming a third writer | ✓ Proven in Phase 4 |
+| Reject Goal Graph and Intent Graph projections at the shared fresh-authority boundary | Prevents derived evidence from folding back as a new operational command while ordinary authoritative intake remains accepted | ✓ Proven in Phase 4 |
 
 ---
-*Last updated: 2026-08-18 after Phase 3 verification*
+*Last updated: 2026-08-18 after Phase 4 independent verification*

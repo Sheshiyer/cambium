@@ -25,6 +25,8 @@ Root doctrine files are catalogued under [`doctrine/`](doctrine/) so they stay a
 | Need | Canonical location |
 | --- | --- |
 | Implementation acceptance and verification | [`../ISA.md`](../ISA.md) |
+| Finite planning state | [GSD under `../.planning/`](../.planning/) |
+| Provenance-preserving intent graph | Generated, read-only, non-authoritative inspection only: [machine JSON](architecture/intent-graph.v1.json) · [human readback](architecture/intent-graph.md) · [v1 contract](architecture/contracts/intent-graph-v1.md) · [source model](../scripts/intent-graph-sources.mjs) · [generator](../scripts/generate-intent-graph.mjs) · check with `node scripts/generate-intent-graph.mjs --check` |
 | Runtime and data contracts | [`architecture/contracts/`](architecture/contracts/) |
 | Operator procedures | [`runbooks/`](runbooks/) |
 | System design and operating maps | [`architecture/`](architecture/) |

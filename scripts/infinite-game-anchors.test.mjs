@@ -28,10 +28,13 @@ function checkbox(source, id) {
 function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks) {
   const phase3Complete = Object.values(phase3Checks).every(Boolean);
   const phase4Pending = Object.values(phase4Checks).every((value) => !value);
+  const phase4GapExecution = ['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1281'].every((id) => phase4Checks[id] === true)
+    && phase4Checks['ISC-1280'] === false;
   const phase4Complete = Object.values(phase4Checks).every(Boolean);
   return (
     (/^phase: verify$/m.test(frontmatter) && /^progress: 4\/4$/m.test(frontmatter) && phase3Complete && phase4Pending)
     || (/^(?:phase: plan|phase: execute)$/m.test(frontmatter) && /^progress: 0\/5$/m.test(frontmatter) && phase3Complete && phase4Pending)
+    || (/^phase: execute$/m.test(frontmatter) && /^progress: 4\/5$/m.test(frontmatter) && phase3Complete && phase4GapExecution)
     || (/^phase: verify$/m.test(frontmatter) && /^progress: 5\/5$/m.test(frontmatter) && phase3Complete && phase4Complete)
   );
 }
@@ -39,14 +42,18 @@ function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks) {
 test('ISA lifecycle accepts only coherent completed Phase 3 and Phase 4 states', () => {
   const phase3Complete = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, true]));
   const phase4Pending = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, false]));
+  const phase4GapExecution = { ...Object.fromEntries(Object.keys(phase4Pending).map((id) => [id, true])), 'ISC-1280': false };
   const phase4Complete = Object.fromEntries(Object.keys(phase4Pending).map((id) => [id, true]));
 
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Pending), true);
   assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/5', phase3Complete, phase4Pending), true);
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/5', phase3Complete, phase4Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 4/5', phase3Complete, phase4GapExecution), true);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 5/5', phase3Complete, phase4Complete), true);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete), false);
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 1/5', phase3Complete, phase4Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 4/5', phase3Complete, phase4Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 4/5', phase3Complete, phase4Complete), false);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 5/5', phase3Complete, phase4Pending), false);
 });
 

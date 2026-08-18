@@ -14,11 +14,11 @@
 
 ### Intent Graph
 
-- [ ] **GRAPH-01**: An operator can inspect a deterministic graph that maps vision → renewable mission → finite goals → tasks → evidence → learning with stable node and edge semantics.
-- [ ] **GRAPH-02**: Every graph node exposes its source path, source authority, lifecycle state, and content digest so the projection preserves provenance.
-- [ ] **GRAPH-03**: The graph represents inherited overlays as references to canonical root anchors and never as independent vision or mission authorities.
-- [ ] **GRAPH-04**: Evidence and learning edges can close or renew finite goals without mutating the canonical vision or silently rewriting the mission.
-- [ ] **GRAPH-05**: The graph explicitly represents approval gates, freshness, stop conditions, and blocked states without treating a blocked action as complete.
+- [x] **GRAPH-01**: An operator can inspect a deterministic graph that maps vision → renewable mission → finite goals → tasks → evidence → learning with stable node and edge semantics.
+- [x] **GRAPH-02**: Every graph node exposes its source path, source authority, lifecycle state, and content digest so the projection preserves provenance.
+- [x] **GRAPH-03**: The graph represents inherited overlays as references to canonical root anchors and never as independent vision or mission authorities.
+- [x] **GRAPH-04**: Evidence and learning edges can close or renew finite goals without mutating the canonical vision or silently rewriting the mission.
+- [x] **GRAPH-05**: The graph explicitly represents approval gates, freshness, stop conditions, and blocked states without treating a blocked action as complete.
 
 ### Ralph and Temperance Flow
 
@@ -66,11 +66,11 @@
 | ANCHOR-02 | Phase 3 | Complete |
 | ANCHOR-03 | Phase 3 | Complete |
 | ANCHOR-04 | Phase 3 | Complete |
-| GRAPH-01 | Phase 4 | Pending |
-| GRAPH-02 | Phase 4 | Pending |
-| GRAPH-03 | Phase 4 | Pending |
-| GRAPH-04 | Phase 4 | Pending |
-| GRAPH-05 | Phase 4 | Pending |
+| GRAPH-01 | Phase 4 | Complete |
+| GRAPH-02 | Phase 4 | Complete |
+| GRAPH-03 | Phase 4 | Complete |
+| GRAPH-04 | Phase 4 | Complete |
+| GRAPH-05 | Phase 4 | Complete |
 | FLOW-01 | Phase 5 | Pending |
 | FLOW-02 | Phase 5 | Pending |
 | FLOW-03 | Phase 5 | Pending |
@@ -88,4 +88,4 @@
 
 ---
 *Requirements defined: 2026-08-17*
-*Last updated: 2026-08-18 after v0.4 roadmap creation*
+*Last updated: 2026-08-18 after independent Phase 4 verification passed 5/5*
