@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
-status: verifying
-stopped_at: "Phase 4 plan 04-04 executed; built-in gsd-verifier pending"
-last_updated: "2026-08-18T14:09:18.406Z"
-last_activity: 2026-08-18 -- Phase 4 plan 04-04 executed; built-in gsd-verifier pending
+status: ready_to_ship
+stopped_at: "Phase 4 verified 5/5; delivery gate pending /gsd:ship 4"
+last_updated: 2026-08-18T14:27:00.000Z
+last_activity: 2026-08-18 -- Phase 4 independently verified 5/5; delivery pending
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 6
   completed_plans: 6
-  percent: 20
+  percent: 40
 ---
 
 # Project State
@@ -23,23 +23,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
-**Current focus:** Phase 4 — Provenance-Preserving Intent Graph verification
+**Current focus:** Phase 4 — verified delivery through the protected main PR gate
 
 ## Current Position
 
 Phase: 4 of 7 (Provenance-Preserving Intent Graph)
-Plan: 4 of 4 (awaiting verification)
-Status: Awaiting built-in gsd-verifier
-Last activity: 2026-08-18 -- Phase 4 plan 04-04 executed; built-in gsd-verifier pending
+Plan: 4 of 4 (verified)
+Status: Ready to ship
+Last activity: 2026-08-18 -- independent verifier passed 5/5
 
-Progress: [████████░░] 83%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
 - Historical plans completed: 2
-- v0.4 plans completed: 5
+- v0.4 plans completed: 6
 - Historical average duration: 39 min
 - Historical execution time: 0.65 hours
 
@@ -63,8 +63,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Plan 04-04 is executed and committed. The built-in `gsd-verifier` now owns the Phase 4 report replacement. A passed verdict advances through `phase.complete`; `gaps_found` returns to gap planning.
-- After a passed verifier, hold delivery at `/gsd:ship 4`: fetch and require current `origin/main` ancestry, rerun the full verifier if any post-verification rebase is required, run the exact release gate, create a PR, push the ship receipt, require exact-head CI, squash-merge through `main-pr-and-ci`, and prove the merge tree plus main CI before Phase 5 planning.
+- Phase 4 passed independent verification 5/5 and GRAPH-04 is complete.
+- Hold delivery at `/gsd:ship 4`: fetch and require current `origin/main` ancestry, rerun the full verifier if any post-verification rebase is required, run the exact release gate, create a PR, push the ship receipt, require exact-head CI, squash-merge through `main-pr-and-ci`, and prove the merge tree plus main CI before Phase 5 planning.
 
 ### Blockers/Concerns
 
@@ -84,13 +84,13 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-08-18T05:34:55.844Z
-Stopped at: Phase 4 plan 04-04 executed; built-in gsd-verifier pending
+Stopped at: Phase 4 verified 5/5; delivery gate pending /gsd:ship 4
 Resume file: None
 
 ## Operator Next Step
 
-Built-in `gsd-verifier` inside the active execute-phase workflow.
+`/gsd:ship 4`
 
-All four Phase 4 plans and summaries are committed. Phase 4 and GRAPH-04 remain open while execute-phase's built-in independent gsd-verifier owns the replacement report. `status: passed` may advance through `phase.complete`; `gaps_found` routes back to `/gsd:plan-phase 4 --gaps`. `/gsd:verify-work 4` remains an optional manual re-verification command.
+All four Phase 4 plans and summaries are committed. The independent verifier replaced the held report with `status: passed`, scored the phase 5/5, and closed GRAPH-04. Phase 5 remains blocked on the delivery gate.
 
 The Phase 4 branch is rebased cleanly onto PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd`; its twelve patches are range-diff equivalent and share no changed path with PR #350. After a passed verifier, do not begin Phase 5 until `/gsd:ship 4` completes the exact-head PR, squash merge, remote-tree readback, and main-CI proof described by `04-04-PLAN.md`.
