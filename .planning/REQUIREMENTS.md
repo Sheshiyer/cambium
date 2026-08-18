@@ -69,7 +69,7 @@
 | GRAPH-01 | Phase 4 | Complete |
 | GRAPH-02 | Phase 4 | Complete |
 | GRAPH-03 | Phase 4 | Complete |
-| GRAPH-04 | Phase 4 | Gap closure ready |
+| GRAPH-04 | Phase 4 | Awaiting verification |
 | GRAPH-05 | Phase 4 | Complete |
 | FLOW-01 | Phase 5 | Pending |
 | FLOW-02 | Phase 5 | Pending |
@@ -88,4 +88,4 @@
 
 ---
 *Requirements defined: 2026-08-17*
-*Last updated: 2026-08-18 after Phase 4 verification reopened GRAPH-04*
+*Last updated: 2026-08-18 after Phase 4 gap execution; GRAPH-04 awaits independent verification*
