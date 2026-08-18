@@ -64,6 +64,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ### Pending Todos
 
 - Execute only gap plan 04-04 with `/gsd:execute-phase 4 --gaps-only`; the built-in gsd-verifier then replaces the Phase 4 report. A passed verdict advances through `phase.complete`; `gaps_found` returns to gap planning.
+- After a passed verifier, hold delivery at `/gsd:ship 4`: fetch and require current `origin/main` ancestry, rerun the full verifier if any post-verification rebase is required, run the exact release gate, create a PR, push the ship receipt, require exact-head CI, squash-merge through `main-pr-and-ci`, and prove the merge tree plus main CI before Phase 5 planning.
 
 ### Blockers/Concerns
 
@@ -91,3 +92,5 @@ Resume file: None
 `/gsd:execute-phase 4 --gaps-only`
 
 Plans 04-01 through 04-03 remain shipped evidence. Plan 04-04 is the only pending execution unit. Gap-only execution must leave Phase 4 and GRAPH-04 open through executor SUMMARY/metadata, after which execute-phase's built-in independent gsd-verifier owns the replacement report. `status: passed` may advance through `phase.complete`; `gaps_found` routes back to `/gsd:plan-phase 4 --gaps`. `/gsd:verify-work 4` remains an optional manual re-verification command.
+
+The Phase 4 branch is rebased cleanly onto PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd`; its twelve patches are range-diff equivalent and share no changed path with PR #350. After a passed verifier, do not begin Phase 5 until `/gsd:ship 4` completes the exact-head PR, squash merge, remote-tree readback, and main-CI proof described by `04-04-PLAN.md`.

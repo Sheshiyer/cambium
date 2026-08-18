@@ -64,8 +64,8 @@ completed: 2026-08-18
 
 Each task was committed atomically:
 
-1. **Task 1: Commit the RED generator and readback-parity contract** — `20f5a61` (`test`)
-2. **Task 2: Generate the canonical repository projection and matching readback** — `976854a` (`feat`)
+1. **Task 1: Commit the RED generator and readback-parity contract** — `bbba424` (`test`)
+2. **Task 2: Generate the canonical repository projection and matching readback** — `b67bc2c` (`feat`)
 
 ## Projection Receipt
 
@@ -126,7 +126,7 @@ Exact selected source paths:
 - **Fix:** Reconstructed the candidate path from the nearest existing ancestor's realpath before applying the repository containment boundary.
 - **Files modified:** `scripts/generate-intent-graph.mjs`
 - **Verification:** Temporary-root write/idempotence/check tests and external-output rejection both pass.
-- **Committed in:** `976854a`
+- **Committed in:** `b67bc2c`
 
 **2. [Rule 1 - Missing-source diagnostic bug] Replaced raw filesystem errors with bounded provenance diagnostics**
 
@@ -135,7 +135,7 @@ Exact selected source paths:
 - **Fix:** The source resolver now reports `source <path>#<selector> is missing` and fails closed before compilation.
 - **Files modified:** `scripts/intent-graph-sources.mjs`
 - **Verification:** Missing-source integration test passes and reports the exact Phase 3 verification path.
-- **Committed in:** `976854a`
+- **Committed in:** `b67bc2c`
 
 ---
 
@@ -144,7 +144,7 @@ Exact selected source paths:
 
 ## Issues Encountered
 
-- A first post-commit scope probe compared the entire Phase 4 branch to `origin/main`, so it correctly included Plan 04-01 planning-state changes. Re-running the same forbidden-path assertion across exact Plan 04-02 boundary `79c44bd..976854a` passed.
+- A first post-commit scope probe compared the entire Phase 4 branch to `origin/main`, so it correctly included Plan 04-01 planning-state changes. Re-running the same forbidden-path assertion across exact Plan 04-02 boundary `3fc00e6..b67bc2c` passed.
 
 ## User Setup Required
 
@@ -157,7 +157,11 @@ None — no dependency, service, credential, provider, or deployment configurati
 
 ## Self-Check: PASSED
 
-All five created implementation/readback files and this summary exist. Commits `20f5a61ee325af828dfad891b46009f102cedce6` and `976854a21286343680d0df631ba4ea85ef000121` resolve as repository commits, and the committed generator reports both readbacks current.
+All five created implementation/readback files and this summary exist. Commits `bbba424d4537973beaaec7c1d611ab7b503c8d69` and `b67bc2ce4075460bbc53105babc02d55e59e731b` resolve as repository commits, and the committed generator reports both readbacks current.
+
+## Base-Sync Reconciliation
+
+PR #350 (`36087111d48bf298443fc427eb32baad6bed11bd`) became the new `main` base after this plan completed. The isolated Phase 4 branch was rebased onto that squash merge; `git range-diff` mapped `20f5a61` → `bbba424`, `976854a` → `b67bc2c`, and the preceding metadata boundary `79c44bd` → `3fc00e6` patch-equivalently. PR #350 touched no generator, source-model, readback, D1, Vault, Hermes, or Goal Graph path, so the recorded digests and acceptance claims remain unchanged.
 
 ---
 *Phase: 04-provenance-preserving-intent-graph*

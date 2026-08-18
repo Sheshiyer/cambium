@@ -72,7 +72,9 @@ Plans:
 - [x] 04-03-PLAN.md — Publish discovery and D1 distinctions, then close ISA evidence and the bounded handoff from full gates.
 
 **Wave 4** *(blocked on Wave 3 execution and the Phase 4 verification gap)*
-- [ ] 04-04-PLAN.md — Enforce the shared D1 Intent Graph foldback guard, prove production intake rejection, and repair ISC-1280 evidence. Execute with `/gsd:execute-phase 4 --gaps-only`; the built-in verifier then owns the replacement verdict and passed-only phase completion.
+- [ ] 04-04-PLAN.md — Enforce the shared D1 Intent Graph foldback guard, prove production intake rejection, and repair ISC-1280 evidence. Execute with `/gsd:execute-phase 4 --gaps-only`; the built-in verifier owns passed-only phase completion, then `/gsd:ship 4` owns current-main ancestry, exact-head PR checks, squash merge, and main readback before Phase 5.
+
+**Delivery gate:** The Phase 4 stack is rebased onto PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd`. A passed local phase is not yet proof of delivery: Phase 5 remains blocked until the verified exact head is shipped through `main-pr-and-ci`, squash-merged, and read back from `origin/main` with successful main CI.
 
 ### Phase 5: Ralph and Temperance Flow Projection
 **Goal**: Operators and fresh iterations can derive one dependency-safe next action and its execution route from durable planning sources.

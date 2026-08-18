@@ -62,8 +62,8 @@ completed: 2026-08-18
 
 Each task was committed atomically:
 
-1. **Task 1: Commit the RED adversarial intent-graph contract** — `080793b` (`test`)
-2. **Task 2: Implement the pure compiler and authority contract** — `d7c4958` (`feat`)
+1. **Task 1: Commit the RED adversarial intent-graph contract** — `66bd34e` (`test`)
+2. **Task 2: Implement the pure compiler and authority contract** — `f13773f` (`feat`)
 
 The initial RED proof failed through named GRAPH assertions because the compiler was absent and contained none of `SyntaxError`, `ERR_MODULE_NOT_FOUND`, `ENOENT`, or missing-file failures. After the test-fixture consistency repair, the committed test-only archive was executed without the implementation and re-proved the same semantic RED gate before GREEN.
 
@@ -124,7 +124,7 @@ It also exports the closed node-kind, source-authority, lifecycle, completion, a
 - **Fix:** Refreshed both declarations from one hand-derived literal digest; no semantic assertion was weakened or removed.
 - **Files modified:** `scripts/intent-graph.test.mjs`
 - **Verification:** Re-ran the amended test-only commit from an archive without the compiler to prove semantic RED, then passed focused and full GREEN gates.
-- **Committed in:** `080793b`
+- **Committed in:** `66bd34e`
 
 ---
 
@@ -146,7 +146,11 @@ Plan 04-02 can now declare one repository source model against the committed com
 
 ## Self-Check: PASSED
 
-All three created contract files and this summary exist, and commits `080793b` and `d7c4958` resolve as repository commits.
+All three created contract files and this summary exist, and commits `66bd34e` and `f13773f` resolve as repository commits.
+
+## Base-Sync Reconciliation
+
+PR #350 (`36087111d48bf298443fc427eb32baad6bed11bd`) became the new `main` base after this plan completed. The isolated Phase 4 branch was rebased onto that squash merge; `git range-diff` mapped the original task commits `080793b` and `d7c4958` patch-equivalently to `66bd34e` and `f13773f`. PR #350 changed only disjoint Portfolio skill-repository resolution paths, so no Plan 04-01 acceptance claim or authority boundary changed.
 
 ---
 *Phase: 04-provenance-preserving-intent-graph*

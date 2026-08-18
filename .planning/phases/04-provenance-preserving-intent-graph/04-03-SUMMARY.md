@@ -70,8 +70,8 @@ completed: 2026-08-18
 
 Each task was committed atomically:
 
-1. **Task 1: Publish graph discovery and the D1 authority distinction** — `1d3046c` (`docs`)
-2. **Task 2: Close Phase 4 acceptance from full committed evidence** — `73630c6` (`docs`)
+1. **Task 1: Publish graph discovery and the D1 authority distinction** — `e84af22` (`docs`)
+2. **Task 2: Close Phase 4 acceptance from full committed evidence** — `9979226` (`docs`)
 
 ## Projection Receipt
 
@@ -130,7 +130,7 @@ Generated close, produce, and renew edges remain observations for explicit revie
 **1. [Rule 3 - Blocking plan allowlist omission] Added one required GSD progress path to the range gate**
 
 - **Found during:** Task 2 pre-closure exact allowed-path membership
-- **Issue:** The plan's literal range allowlist omitted `.planning/REQUIREMENTS.md`, although Plan 04-01's standard metadata commit `79c44bd` had already changed only GRAPH-01..05 checkbox and traceability statuses from Pending to Complete.
+- **Issue:** The plan's literal range allowlist omitted `.planning/REQUIREMENTS.md`, although Plan 04-01's standard metadata commit `3fc00e6` had already changed only GRAPH-01..05 checkbox and traceability statuses from Pending to Complete.
 - **Fix:** After coordinator inspection and explicit authorization, the gate admitted exactly `.planning/REQUIREMENTS.md` as a required GSD progress artifact for the Phase 4 range check. The file was not reverted or otherwise changed for this deviation, and no other path or forbidden category was broadened.
 - **Files modified:** None
 - **Verification:** Adjusted exact membership, deletion/rename, forbidden-category, privacy, generator, full-suite, drift, and rendered-doc gates all passed from committed HEAD.
@@ -161,4 +161,8 @@ None — no dependency, credential, service, provider, deployment, runtime, or c
 
 ## Self-Check: PASSED
 
-All six plan-declared files and this summary exist. Commits `1d3046c195798ab7e2e808856eb9f7a773e8fd56` and `73630c61aa29c37b57062720306d839e23892bf7` resolve as repository commits, the worktree was clean before this metadata artifact, and the committed generator reported both readbacks current.
+All six plan-declared files and this summary exist. Commits `e84af22b25a2ac0eb8b693e95b2a3febff08cfbe` and `997922621928d1b8c8287115bdc31ba1a856439f` resolve as repository commits, the worktree was clean before this metadata artifact, and the committed generator reported both readbacks current.
+
+## Base-Sync Reconciliation
+
+PR #350 (`36087111d48bf298443fc427eb32baad6bed11bd`) became the new `main` base after this plan completed. The isolated Phase 4 branch was rebased onto that squash merge; `git range-diff` mapped `1d3046c` → `e84af22`, `73630c6` → `9979226`, and `79c44bd` → `3fc00e6` patch-equivalently. The upstream change was confined to Portfolio skill-repository resolution, so the D1 authority distinction, Vault/Hermes boundary, graph digests, and Plan 04-03 acceptance evidence remain unchanged.
