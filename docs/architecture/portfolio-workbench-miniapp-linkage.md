@@ -112,7 +112,10 @@ The current Thoughtseed root has 62 depth-one folders. The reconciled proposal m
 |---|---|---|
 | `meristem` | `program:meristem-brand-system`, awaiting ingestion | Its project packet supplies exact repository and WorkObject evidence; the mapping still grants no D1 admission. |
 | `session-atlas` | Internal Program, awaiting ingestion, no `workId` yet | Its project-birth packet is pending Cambium ingestion; TeamForge identity must precede a canonical catalog row. |
-| `scroll-world` | Infrastructure/external skill reference | External upstream repository; not a Thoughtseed WorkObject. |
+| `scroll-world` | Infrastructure/external skill reference | External upstream repository; not a Thoughtseed WorkObject. Live checkout is `thoughtseed/skills/scroll-world`. |
+| `motionsites-skills` | Internal program / skill nest | Relocated to `thoughtseed/skills/motionsites-skills`. Census keeps the shallow folder name and resolves the nest. |
+| `professional-headshot-suite` | Internal program / skill nest | Relocated to `thoughtseed/skills/professional-headshot-suite`. |
+| `readme-skill` | Internal program / skill nest | Relocated to `thoughtseed/skills/readme-skill`. |
 | `klear-karma` | `branch:klear-karma` | The unsupported fourth root kind and orphan `co-founded-venture:*` ID were removed; its co-founded relationship remains account/provenance context, not a new WorkObject grammar. |
 
 The machine report now covers, in one read-only result:
