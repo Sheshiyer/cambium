@@ -45,6 +45,12 @@ includes malformed projection-shaped values. That rule prevents Cortex
 foldback, a Telegram refresh, or a fallback lane from feeding its own read model
 back into the writer and creating a feedback loop.
 
+### Intent projection boundary
+
+The separate [Intent Graph v1 contract](./contracts/intent-graph-v1.md) defines a deterministic cross-authority read projection. D1 remains the sole operational writer: neither a valid nor a malformed intent projection can enter its authoritative command lane, create operational nodes, revise status, approve work, acquire a lease, or mint a receipt.
+
+Intent-projection evidence and learning may inform a separately reviewed intent only through the existing Gate approval and D1 compare-and-set path. They cannot fold back into D1, ISA, GSD, `VISION.md`, or `MISSION.md` as fresh authority.
+
 ## Approval-bound commits
 
 An intent is not a graph change. Before a commit, D1 binds the exact tenant,

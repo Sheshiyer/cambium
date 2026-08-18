@@ -52,6 +52,7 @@ Multiple specialties, dependencies, or durable operational identity:
 | Graph | Cambium surface | Nodes / edges |
 |---|---|---|
 | Goal Graph | D1 sole writer | tasks · approvals · versions · CAS edges |
+| Intent Graph | generated cross-authority read projection | doctrine · finite planning · evidence · learning, observed by repository reference and digest |
 | Mission Fabric | projection | WorkObject · missions · KPIs · gaps |
 | Portfolio identity | catalog + root map | sapling/branch/program · provenance |
 | Integration spine | INTEGRATION.md 8 nodes | Workbench → data → FS → R2 → Hermes → Plexus → TG → MCP |
@@ -60,6 +61,8 @@ Multiple specialties, dependencies, or durable operational identity:
 | Temperance fleet | te-dispatch-paid | seats ranked by live quota (host TE) |
 
 **58% of graph failures are wrong-agent selection** (article). Cambium’s answer is already: pin specialty (`resolve-task` / loadout / organ), not “generic agent + more context.”
+
+The **Intent Graph** and **D1 Goal Graph** are separate surfaces. The Intent Graph observes doctrine, finite planning, evidence, and learning by repository reference and digest. It does not select agents, create operational nodes, write status, approve work, or replace the D1 Goal Graph, ISA acceptance, or GSD planning state.
 
 ## Quest arcs as a dependency graph (from QUESTLOG)
 
@@ -106,6 +109,7 @@ Do **not** “add more Opus instructions” for held stages — that is L1 failu
 | Planning slice STATE | `.planning/` | L4 GSD loop |
 | Acceptance | `ISA.md` | L4 exit rubric |
 | Operational graph | D1 Goal Graph | L5 |
+| Cross-authority inspection | generated Intent Graph | read-only projection |
 | Quest display | pure fold over world | L4 |
 
 ## Practical checklist for new quests
