@@ -30,6 +30,11 @@ export const TEMPERANCE_FLOW_LIFECYCLE_STEPS = Object.freeze([
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const GSD_COMMAND = /^\/gsd:(?:execute-phase|verify-phase|plan-phase) [0-9]+(?:\.[0-9]+)?$/;
+const COMMAND_ROUTES = Object.freeze({
+  'execute-phase': { skillClusters: ['gsd-execute-phase', 'cambium'], lane: 'paid_execution' },
+  'verify-phase': { skillClusters: ['gsd-verify-work', 'cambium'], lane: 'native_orchestrator' },
+  'plan-phase': { skillClusters: ['gsd-plan-phase', 'cambium'], lane: 'native_orchestrator' },
+});
 const SAFE_RECEIPT_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
 const DEPENDENCY_STATUSES = Object.freeze(['complete', 'satisfied', 'pending', 'blocked']);
 const BLOCK_REASON_CODES = Object.freeze([
@@ -555,6 +560,9 @@ export function validateTemperanceFlowProjection(value) {
       if (!DEPENDENCY_STATUSES.includes(dependency.status) || dependencyIds.has(dependency.id)) throw new TypeError('selected task dependency is invalid or duplicated');
       dependencyIds.add(dependency.id);
     }
+    if (value.result.task.dependencies.some(({ status }) => status !== 'complete' && status !== 'satisfied')) {
+      throw new TypeError('ready result cannot retain an incomplete dependency');
+    }
   } else {
     if (value.result.task !== null || value.result.command !== null || value.result.reasons.length === 0) {
       throw new TypeError('blocked result requires zero commands, no task, and at least one reason');
@@ -571,11 +579,32 @@ export function validateTemperanceFlowProjection(value) {
   assertClosedKeys(value.route, ['intent', 'resolved'], 'projection route');
   validateProjectionRouteIntent(value.route.intent);
   validateProjectionResolved(value.route.resolved);
+  if (value.result.status === 'ready' && value.route.intent === null) throw new TypeError('ready result requires one route intent');
   if (value.result.status === 'blocked' && value.route.resolved !== null) throw new TypeError('blocked result cannot expose resolved attribution');
   if (value.route.resolved && value.route.intent?.receiptRef !== value.route.resolved.receiptRef) throw new TypeError('resolved attribution must bind the route receiptRef');
   if (!Array.isArray(value.gates) || !Array.isArray(value.stops) || value.gates.length > 256 || value.stops.length > 256) throw new TypeError('gates and stops must be bounded arrays');
   value.gates.forEach((entry) => validateProjectionGateOrStop(entry, TEMPERANCE_FLOW_GATE_KINDS, 'projection gate'));
   value.stops.forEach((entry) => validateProjectionGateOrStop(entry, TEMPERANCE_FLOW_STOP_KINDS, 'projection stop'));
+  if (value.result.status === 'ready') {
+    if (canonicalJson(value.result.task.source) !== canonicalJson(value.references.plan)) throw new TypeError('ready task source must equal the declared active plan reference');
+    const commandKind = /^\/gsd:([a-z-]+)/.exec(value.result.command)?.[1];
+    const expectedRoute = COMMAND_ROUTES[commandKind];
+    if (!expectedRoute || !expectedRoute.skillClusters.includes(value.route.intent.skillCluster) || value.route.intent.lane !== expectedRoute.lane) {
+      throw new TypeError('ready task command and route intent are incoherent');
+    }
+    const declaredVerification = value.gates.filter(({ kind }) => kind === 'declared_verification');
+    const approvalBoundaries = value.gates.filter(({ kind }) => kind === 'approval_boundary');
+    if (declaredVerification.length === 0 || declaredVerification.some(({ satisfied }) => satisfied)) {
+      throw new TypeError('ready result requires pending declared verification gates');
+    }
+    if (approvalBoundaries.length !== Number(value.route.intent.approvalRequired)
+        || approvalBoundaries.some(({ satisfied }) => satisfied)) {
+      throw new TypeError('ready route approval requirement must match its approval gate');
+    }
+    if (value.stops.length !== 1 || value.stops[0].kind !== 'external_verification' || value.stops[0].satisfied) {
+      throw new TypeError('ready result requires one pending external verification stop');
+    }
+  }
   assertClosedKeys(value.freshness, ['authorities', 'receipt'], 'projection freshness');
   assertClosedKeys(value.freshness.authorities, ['isa', 'gsd', 'plan'], 'authority freshness');
   for (const freshness of Object.values(value.freshness.authorities)) if (!TEMPERANCE_FLOW_RECEIPT_FRESHNESS.includes(freshness)) throw new TypeError('authority freshness is invalid');
@@ -584,8 +613,12 @@ export function validateTemperanceFlowProjection(value) {
   const sourceValues = [];
   for (const key of ['isa', 'gsd', 'plan']) if (value.references[key]) sourceValues.push(value.references[key]);
   sourceValues.push(value.references.intentGraph, ...value.references.supporting);
+  const declaredReferences = new Set(sourceValues.map((entry) => canonicalJson(entry)));
   if (value.result.task) sourceValues.push(value.result.task.source);
   sourceValues.push(...value.gates.map(({ source }) => source), ...value.stops.map(({ source }) => source));
+  if ([...(value.gates ?? []), ...(value.stops ?? [])].some(({ source }) => !declaredReferences.has(canonicalJson(source)))) {
+    throw new TypeError('projection gate or stop source is not a declared reference');
+  }
   const unique = new Map(sourceValues.map((entry) => [canonicalJson(entry), entry]));
   const sourceLabels = new Set(sourceValues.map((entry) => sourceLabel(entry)));
   for (const entry of value.result.reasons) {

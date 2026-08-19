@@ -490,3 +490,30 @@ test('FLOW-04 / WR-01: public validation rejects malformed dependency and reason
     assert.throws(() => api.validateTemperanceFlowProjection(rehash(candidate)), /reason|source|field|unique|declared/i);
   }
 });
+
+test('FLOW-04 / WR-02: ready projections reject recomputed semantic contradictions', (t) => {
+  const repo = makeRepository();
+  t.after(repo.cleanup);
+  const api = requireSubject('FLOW-04 / WR-02');
+  const ready = readyProjection(repo);
+  const unrelated = source('.planning/phases/04/04-VERIFICATION.md', 'verification_evidence', repo.files['.planning/phases/04/04-VERIFICATION.md']);
+  const mutations = [
+    (value) => { value.result.task.dependencies = [{ id: 'blocked-plan', status: 'pending' }]; },
+    (value) => { value.route.intent = null; },
+    (value) => { value.route.intent.skillCluster = 'gsd-plan-phase'; },
+    (value) => { value.route.intent.lane = 'native_orchestrator'; },
+    (value) => { value.result.task.source = unrelated; },
+    (value) => { value.gates = value.gates.filter(({ kind }) => kind !== 'declared_verification'); },
+    (value) => { value.route.intent.approvalRequired = true; },
+    (value) => { value.gates[0].source = { ...unrelated, selector: 'text.line:attacker' }; },
+    (value) => { value.stops = []; },
+  ];
+  for (const mutate of mutations) {
+    const candidate = structuredClone(ready);
+    mutate(candidate);
+    assert.throws(
+      () => api.validateTemperanceFlowProjection(rehash(candidate)),
+      /dependency|route|command|source|plan|verification|approval|stop|declared/i,
+    );
+  }
+});
