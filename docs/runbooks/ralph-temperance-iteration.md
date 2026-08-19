@@ -7,25 +7,27 @@ the orchestrator and babysitter; the repository projection remains read-only.
 ## Seven-step loop
 
 1. **Reread durable truth.** Read `ISA.md`, `.planning/STATE.md`, the active
-   Phase 5 plan, committed evidence summaries, and `.project/HANDOFF.md` afresh.
+   Phase 5 plans, committed evidence summaries, and `.project/HANDOFF.md` afresh.
    Do not reuse process-local state from a previous invocation.
 2. **Freeze and project.** Capture one immutable pre-effect snapshot, including
    per-file digests and the expected preimage of every persistence surface.
    Regenerate or check `docs/architecture/temperance-flow.v1.json` and its
    matching Markdown readback from the declared source set.
 3. **Inspect action or stop.** Continue only when the projection exposes exactly
-   one dependency-ready plan unit and exact GSD phase command. Internal plan
-   tasks are not represented as separately executable units. Authority disagreement,
+   one dependency-ready remaining-phase unit and exact GSD phase command. The
+   unit source-digests every incomplete plan the phase command may execute;
+   internal plan tasks are not represented as separately executable units. Authority disagreement,
    blocked dependencies, terminal work, or multiple ready units stop with no
    command. `temperance-next-wave` is proposal-only.
 4. **Verify route and approval.** For `te-dispatch-paid`, obtain fresh bounded
    host and owner-approval verification results through the fixed host-owned
-   Manifest verifier. They must bind the selected plan unit, exact command, route,
+   Manifest verifier. They must bind the remaining-phase unit, exact command, route,
    projection digest, and immutable source-set digest. Route intent never proves
    provider resolution, and raw receipts or caller-selected trust are rejected.
 5. **Revalidate and execute once.** Immediately before the irreversible effect,
    reread the complete snapshot and stop on any drift. Then dispatch exactly one
-   plan unit through `te-dispatch-paid`; no second plan may be selected or executed.
+   remaining-phase unit through `te-dispatch-paid`; the fixed phase command may
+   execute only the incomplete plans already bound into that unit.
 6. **Verify and persist.** Resolve the executor-owned durable receipt by the
    iteration digest before executing. The fixed executor enforces that digest as
    its idempotency key. Resolve declared verification the same way, or run it
@@ -33,7 +35,7 @@ the orchestrator and babysitter; the repository projection remains read-only.
    append the same stable iteration and result digests using compare-and-swap in
    strict plan-summary → `.planning/STATE.md` → reviewed-handoff order. Regenerate
    the machine and human flow readbacks only after those durable bytes settle.
-7. **Exit.** Exit after one unit whether it completes or stops. The next fresh
+7. **Exit.** Exit after the one remaining-phase unit completes or stops. The next fresh
    invocation starts again at durable reread and owns no independent state.
 
 ## Partial-persistence recovery

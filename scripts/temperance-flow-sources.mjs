@@ -295,24 +295,24 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   });
   const incomplete = planRecords.filter(({ complete }) => !complete);
   const active = incomplete[0] ?? planRecords.at(-1);
-  const planDependenciesSatisfied = active.dependsOn.every((identity) => {
-    const dependency = planRecords.find((entry) => entry.identity === identity);
-    return Boolean(dependency?.complete);
-  });
   const receiptReference = options.receiptReference ?? null;
   if (receiptReference !== null && !SAFE_REFERENCE.test(receiptReference)) throw new TypeError('receipt reference must be a bounded opaque Manifest reference');
 
   const activePlanSource = sourceReference(reader, active.relativePath, 'active_plan', 'whole-file');
-  const activePlanId = `phase5-plan${active.plan}`;
-  const planDependencies = active.dependsOn.map((identity) => {
+  const incompleteIdentities = new Set(incomplete.map(({ identity }) => identity));
+  const phaseDependencies = [...new Set(incomplete.flatMap(({ dependsOn }) => dependsOn))]
+    .filter((identity) => !incompleteIdentities.has(identity));
+  const planDependencies = phaseDependencies.map((identity) => {
     const dependency = planRecords.find((candidate) => candidate.identity === identity);
     return { id: `phase5-plan${dependency?.plan ?? identity.slice(3)}`, status: dependency?.complete ? 'complete' : 'pending' };
   });
+  const phaseDependenciesSatisfied = planDependencies.every(({ status }) => status === 'complete');
+  const phaseUnitName = `Remaining Phase 5 execution (${incomplete.map(({ identity }) => identity).join(', ')})`;
   const tasks = incomplete.length === 0 ? [] : [{
-    id: activePlanId,
-    name: `Plan ${active.identity}`,
+    id: 'phase5-remaining-plans',
+    name: phaseUnitName,
     source: activePlanSource,
-    status: planDependenciesSatisfied && handoffReviewed ? 'ready' : 'pending',
+    status: phaseDependenciesSatisfied && handoffReviewed ? 'ready' : 'pending',
     dependencies: planDependencies,
     command: '/gsd:execute-phase 5',
     route: {
@@ -323,7 +323,11 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
       receiptRef: receiptReference,
     },
     gates: [
-      { kind: 'declared_verification', source: activePlanSource, satisfied: false },
+      ...incomplete.map((record) => ({
+        kind: 'declared_verification',
+        source: sourceReference(reader, record.relativePath, 'verification_evidence', 'whole-file'),
+        satisfied: false,
+      })),
       { kind: 'approval_boundary', source: activePlanSource, satisfied: false },
     ],
     stop: { kind: 'external_verification', source: activePlanSource, satisfied: false },
@@ -338,6 +342,7 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
     sourceReference(reader, 'ISA.md', 'verification_evidence', isaDecisionSelector),
     sourceReference(reader, '.planning/STATE.md', 'verification_evidence', statePhaseSelector),
     sourceReference(reader, '.project/HANDOFF.md', 'reviewed_handoff', handoffSelector),
+    ...incomplete.map((record) => sourceReference(reader, record.relativePath, 'verification_evidence', 'whole-file')),
     ...planRecords.filter(({ completionSource }) => completionSource).map(({ completionSource }) => completionSource),
   ];
 

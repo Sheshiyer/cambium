@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import { compileTemperanceFlow } from './temperance-flow.mjs';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const generatorPath = path.join(repositoryRoot, 'scripts/generate-temperance-flow.mjs');
@@ -132,18 +133,22 @@ test('FLOW-01 / D-01 / D-02: actual repository sources produce exactly one ready
   assert.equal(model.intentGraphRef.schema, 'cambium.intent-graph-projection.v1');
 });
 
-test('FLOW-01 / CR-06: the authoritative executable unit is one whole plan, never an internal task mislabeled with a phase command', (t) => {
-  const api = requireSourceApi('whole-plan unit');
+test('FLOW-01 / CR-04: the phase-wide command binds one phase-wide remaining-plan unit', (t) => {
+  const api = requireSourceApi('phase-wide unit');
   const fixture = makeFixture();
   t.after(fixture.cleanup);
   const model = api.buildTemperanceFlowSources(fixture.root);
   assert.equal(model.tasks.length, 1);
-  assert.equal(model.tasks[0].id, 'phase5-plan02');
-  assert.equal(model.tasks[0].name, 'Plan 05-02');
+  assert.equal(model.tasks[0].id, 'phase5-remaining-plans');
+  assert.match(model.tasks[0].name, /05-02, 05-03/);
   assert.equal(model.tasks[0].source.selector, 'whole-file');
   assert.equal(model.tasks[0].command, '/gsd:execute-phase 5');
-  const internalTasks = [...readFileSync(path.join(fixture.root, model.tasks[0].source.path), 'utf8').matchAll(/<task\b/g)];
-  assert.ok(internalTasks.length > 1, 'fixture must prove a multi-task plan is represented as one plan unit');
+  assert.equal(model.tasks[0].gates.filter(({ kind }) => kind === 'declared_verification').length, 2);
+  const before = compileTemperanceFlow({ repositoryRoot: fixture.root, ...model });
+  const laterPlan = path.join(fixture.root, '.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md');
+  writeFileSync(laterPlan, `${readFileSync(laterPlan, 'utf8')}\n<!-- phase-wide binding probe -->\n`);
+  const after = compileTemperanceFlow({ repositoryRoot: fixture.root, ...api.buildTemperanceFlowSources(fixture.root) });
+  assert.notEqual(after.sourceSetDigest, before.sourceSetDigest, 'every remaining plan must be approval-bound');
 });
 
 test('FLOW-04 / D-09 / D-10 / D-11: write/check are deterministic and JSON/Markdown stay digest-identical', (t) => {

@@ -17,8 +17,9 @@ The precedence order is closed and exact:
 1. `isa_goal` — the approved goal in root `ISA.md`.
 2. `gsd_state` — the live transition and canonical command in
    `.planning/STATE.md`.
-3. `active_plan` — one dependency-ready whole-plan unit. Internal `<task>`
-   blocks are plan instructions, not independently dispatched units.
+3. `active_plan` — the first plan anchors one dependency-ready remaining-phase
+   unit. Every incomplete plan is also source-digested into that unit. Internal
+   `<task>` blocks are plan instructions, not independently dispatched units.
 
 Verified evidence and a reviewed handoff may establish readiness, blocking,
 gates, and stops. They cannot define a goal, transition, plan, or command.
@@ -29,8 +30,9 @@ never falls through to supporting prose or a generated projection.
 
 The `result` field is one of:
 
-- `ready`: exactly one selected plan unit and exactly one canonical GSD command,
-  with no blocked reasons.
+- `ready`: exactly one remaining-phase unit and exactly one canonical GSD phase
+  command, with no blocked reasons. The unit binds every incomplete plan that
+  the phase command can execute.
 - `blocked`: no selected task, no command, and one or more source-backed
   reasons.
 
@@ -67,7 +69,7 @@ Repository-owned route intent contains only:
 
 Route intent is inspectable without a receipt and never proves which provider
 ran. Resolved provider/model attribution appears only when a bounded source
-adapter supplies a `verified`, `fresh` result bound to the exact plan unit, command,
+adapter supplies a `verified`, `fresh` result bound to the exact remaining-phase unit, command,
 route, and receipt reference. That result carries an observed time or age,
 evidence pointer, and redacted attribution. Cryptographic issuer, audience,
 signature, freshness, and replay verification belong to the fixed host-owned
