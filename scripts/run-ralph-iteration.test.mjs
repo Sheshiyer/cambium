@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -65,6 +65,16 @@ function fixture() {
   writeFileSync(path.join(root, projectionPath), `${JSON.stringify(flow, null, 2)}\n`);
   writeFileSync(path.join(root, 'docs/architecture/temperance-flow.md'), renderTemperanceFlowMarkdown(flow));
   writeFileSync(path.join(root, summaryPath), '# Plan 05-03 Summary\n');
+  for (const args of [
+    ['init', '-q'],
+    ['config', 'user.email', 'fixture@example.invalid'],
+    ['config', 'user.name', 'Fixture'],
+    ['add', '.'],
+    ['commit', '-qm', 'reviewed fixture checkout'],
+  ]) {
+    const result = spawnSync('/usr/bin/git', ['-C', root, ...args], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+  }
   return {
     root, summaryPath, statePath: '.planning/STATE.md', handoffPath: '.project/HANDOFF.md', projectionPath,
     executable, verifier, effects, executionReceipt: path.join(hostRoot, 'execution-receipt.json'),
@@ -86,6 +96,7 @@ function verificationResults(expected, overrides = {}) {
       taskId: expected.taskId, command: expected.command, route: expected.route,
       projectionDigest: expected.projectionDigest, sourceSetDigest: expected.sourceSetDigest,
       persistencePaths: expected.persistencePaths,
+      checkout: expected.checkout,
       evidenceRef: 'manifest:event/task01', payloadDigest: digest('host-payload'),
     },
     approval: {
@@ -95,6 +106,7 @@ function verificationResults(expected, overrides = {}) {
       taskId: expected.taskId, command: expected.command, route: expected.route,
       projectionDigest: expected.projectionDigest, sourceSetDigest: expected.sourceSetDigest,
       persistencePaths: expected.persistencePaths,
+      checkout: expected.checkout,
       evidenceRef: 'manifest:event/approval-task01', payloadDigest: digest('approval-payload'),
     },
     ...overrides,
@@ -110,11 +122,16 @@ function adapters(fx, options = {}) {
     approvalVerifier: async (expected) => (get() ?? verificationResults(expected)).approval,
     executionReceiptResolver: async () => existsSync(fx.executionReceipt) ? JSON.parse(readFileSync(fx.executionReceipt, 'utf8')) : null,
     executor: async (request) => {
+      assert.equal(request.schema, 'cambium.ralph-execution-request.v2');
+      assert.equal(request.sourceSnapshot.digest, objectDigest(request.sourceSnapshot.files));
+      for (const [relative, expectedDigest] of Object.entries(request.sourceSnapshot.files)) {
+        assert.equal(digest(readFileSync(path.join(fx.root, relative))), expectedDigest, relative);
+      }
       const result = spawnSync(process.execPath, [fx.executable, fx.effects], { encoding: 'utf8' });
       const receipt = {
         schema: 'temperance.execution-receipt.v1', status: result.status === 0 ? 'succeeded' : 'failed',
         idempotencyKey: request.idempotencyKey, taskId: request.taskId, command: request.command,
-        route: request.route, sourceSnapshotDigest: request.sourceSnapshotDigest,
+        route: request.route, checkout: request.checkout, sourceSnapshotDigest: request.sourceSnapshot.digest,
         evidenceRef: 'temperance:execution/task01', payloadDigest: digest('execution-payload'),
       };
       if (receipt.status === 'succeeded') writeFileSync(fx.executionReceipt, JSON.stringify(receipt));
@@ -126,6 +143,7 @@ function adapters(fx, options = {}) {
       const receipt = {
         schema: 'temperance.declared-verification-receipt.v1', status: result.status === 0 ? 'passed' : 'failed',
         idempotencyKey: request.idempotencyKey, taskId: request.taskId,
+        checkout: request.checkout,
         declaredVerificationDigest: objectDigest(request.declaredVerification),
         executionEvidenceRef: request.executionEvidenceRef,
         evidenceRef: 'temperance:verification/task01', payloadDigest: digest('verification-payload'),
@@ -310,6 +328,7 @@ test('FLOW-03 / ISC-1284 / D-08: fixed-boundary approval rejects attacker trust,
     (x) => ({ ...x, taskId: 'other-task' }),
     (x) => ({ ...x, status: 'denied' }),
     (x) => ({ ...x, route: { ...x.route, combo: 'te-fast' } }),
+    (x) => ({ ...x, checkout: { ...x.checkout, rootDigest: digest('other-root') } }),
   ]) {
     const fx = fixture(); t.after(fx.cleanup);
     const custom = adapters(fx);
@@ -340,6 +359,28 @@ test('FLOW-03 / CR-02: freshness clocks are factory-owned and sampled after each
   assert.equal(samples.length, 0, 'both verifier responses must receive an independent post-response clock sample');
 });
 
+test('FLOW-02 / CR-02: checkout identity drift and clone replay stop before execution', async (t) => {
+  const first = fixture(); const second = fixture();
+  t.after(first.cleanup); t.after(second.cleanup);
+  const firstAction = await requireRunner('first checkout identity')({ ...runOptions(first), dryRun: undefined });
+  const secondAction = await requireRunner('second checkout identity')({ ...runOptions(second), dryRun: undefined });
+  assert.notEqual(firstAction.checkout.repositoryId, secondAction.checkout.repositoryId);
+  assert.notEqual(firstAction.checkout.rootDigest, secondAction.checkout.rootDigest);
+  assert.notEqual(firstAction.iterationDigest, secondAction.iterationDigest);
+
+  const custom = adapters(first);
+  const originalApproval = custom.approvalVerifier;
+  custom.approvalVerifier = async (expected) => {
+    const approved = await originalApproval(expected);
+    const changed = spawnSync('/usr/bin/git', ['-C', first.root, 'commit', '--allow-empty', '-qm', 'concurrent HEAD drift'], { encoding: 'utf8' });
+    assert.equal(changed.status, 0, changed.stderr || changed.stdout);
+    return approved;
+  };
+  const stopped = await requireRunner('checkout HEAD revalidation')(runOptions(first, { testAdapters: custom }));
+  assert.equal(stopped.reason, 'source_drift');
+  assert.equal(existsSync(first.effects), false);
+});
+
 test('FLOW-02 / CR-01: production-equivalent execution resolves owner-protected digest-bound host commands', async (t) => {
   const fx = fixture(); t.after(fx.cleanup);
   const { testAdapters: _ignored, ...publicOptions } = runOptions(fx, { dryRun: undefined });
@@ -350,6 +391,7 @@ test('FLOW-02 / CR-01: production-equivalent execution resolves owner-protected 
     taskId: action.task.id, command: action.command, route: action.route,
     projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest,
     persistencePaths: { summary: fx.summaryPath, state: fx.statePath, handoff: fx.handoffPath },
+    checkout: action.checkout,
   });
   writeFileSync(configPath, JSON.stringify(currentBindings));
   const node = process.execPath;
@@ -357,9 +399,9 @@ test('FLOW-02 / CR-01: production-equivalent execution resolves owner-protected 
     'temperance-manifest-verify': `#!${node}
 import{appendFileSync,readFileSync}from'node:fs';const u=new URL('.',import.meta.url);appendFileSync(new URL('environment.log',u),process.env.CAMBIUM_ATTACKER_VALUE??'scrubbed');const c=JSON.parse(readFileSync(new URL('fixed-config.json',u),'utf8'));const k=process.argv[process.argv.indexOf('--kind')+1];process.stdout.write(JSON.stringify(k==='approval'?c.approval:c.host));\n`,
     'temperance-ralph-execute': `#!${node}
-import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const u=new URL('.',import.meta.url),p=new URL('execution-receipt.json',u);const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(p))process.exit(3);process.stdout.write(readFileSync(p,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(new URL('effects.log',u),'execute\\n');const out={schema:'temperance.execution-receipt.v1',status:'succeeded',idempotencyKey:r.idempotencyKey,taskId:r.taskId,command:r.command,route:r.route,sourceSnapshotDigest:r.sourceSnapshotDigest,evidenceRef:'temperance:execution/task01',payloadDigest:'${digest('execution-payload')}'};writeFileSync(p,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
+import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const u=new URL('.',import.meta.url),p=new URL('execution-receipt.json',u);const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(p))process.exit(3);process.stdout.write(readFileSync(p,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(new URL('effects.log',u),'execute\\n');appendFileSync(new URL('cwd.log',u),process.cwd()+'\\n');const out={schema:'temperance.execution-receipt.v1',status:'succeeded',idempotencyKey:r.idempotencyKey,taskId:r.taskId,command:r.command,route:r.route,checkout:r.checkout,sourceSnapshotDigest:r.sourceSnapshot.digest,evidenceRef:'temperance:execution/task01',payloadDigest:'${digest('execution-payload')}'};writeFileSync(p,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
     'temperance-ralph-verify': `#!${node}
-import{createHash}from'node:crypto';import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const u=new URL('.',import.meta.url),p=new URL('verification-receipt.json',u);const cj=v=>Array.isArray(v)?'['+v.map(cj).join(',')+']':v===null||typeof v!=='object'?JSON.stringify(v):'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+cj(v[k])).join(',')+'}';const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(p))process.exit(3);process.stdout.write(readFileSync(p,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(new URL('effects.log',u),'verify\\n');const out={schema:'temperance.declared-verification-receipt.v1',status:'passed',idempotencyKey:r.idempotencyKey,taskId:r.taskId,declaredVerificationDigest:'sha256:'+createHash('sha256').update(cj(r.declaredVerification)).digest('hex'),executionEvidenceRef:r.executionEvidenceRef,evidenceRef:'temperance:verification/task01',payloadDigest:'${digest('verification-payload')}'};writeFileSync(p,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
+import{createHash}from'node:crypto';import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const u=new URL('.',import.meta.url),p=new URL('verification-receipt.json',u);const cj=v=>Array.isArray(v)?'['+v.map(cj).join(',')+']':v===null||typeof v!=='object'?JSON.stringify(v):'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+cj(v[k])).join(',')+'}';const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(p))process.exit(3);process.stdout.write(readFileSync(p,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(new URL('effects.log',u),'verify\\n');const out={schema:'temperance.declared-verification-receipt.v1',status:'passed',idempotencyKey:r.idempotencyKey,taskId:r.taskId,checkout:r.checkout,declaredVerificationDigest:'sha256:'+createHash('sha256').update(cj(r.declaredVerification)).digest('hex'),executionEvidenceRef:r.executionEvidenceRef,evidenceRef:'temperance:verification/task01',payloadDigest:'${digest('verification-payload')}'};writeFileSync(p,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
   };
   const descriptors = {};
   for (const [name, body] of Object.entries(commands)) {
@@ -385,6 +427,7 @@ import{createHash}from'node:crypto';import{appendFileSync,existsSync,readFileSyn
   const result = await protectedRunner({ ...publicOptions, dryRun: false });
   assert.equal(result.reason, 'iteration_complete');
   assert.deepEqual(readFileSync(fx.effects, 'utf8').trim().split('\n'), ['execute', 'verify']);
+  assert.equal(readFileSync(path.join(hostRoot, 'cwd.log'), 'utf8').trim(), realpathSync(fx.root));
   assert.equal(readFileSync(path.join(hostRoot, 'environment.log'), 'utf8'), 'scrubbedscrubbed');
 
   const tampered = `${commands['temperance-ralph-execute']}\n// attacker mutation\n`;
@@ -426,6 +469,9 @@ test('FLOW-02 / CR-01: public dry-run is host-independent and absent host execut
   const { testAdapters: _ignored, ...publicOptions } = runOptions(fx, { dryRun: undefined });
   const inspected = await subject.runRalphIteration(publicOptions);
   assert.equal(inspected.status, 'action');
+  assert.match(inspected.checkout.repositoryId, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(inspected.checkout.reviewedCommit, spawnSync('/usr/bin/git', ['-C', fx.root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim());
+  assert.match(inspected.checkout.rootDigest, /^sha256:[a-f0-9]{64}$/);
   assert.equal(existsSync(fx.effects), false);
 
   const stopped = await subject.runRalphIteration({ ...publicOptions, dryRun: false });

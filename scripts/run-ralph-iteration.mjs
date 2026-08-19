@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { deriveRalphIteration, validateRalphIteration } from './ralph-iteration.mjs';
@@ -57,6 +58,28 @@ function snapshot(root, relativePaths) {
   return { files, digest: digestObject(files) };
 }
 
+function gitValue(root, args, label, { optional = false } = {}) {
+  const result = spawnSync('/usr/bin/git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const value = result.status === 0 ? result.stdout.trim() : '';
+  if (!value && !optional) throw new TypeError(`runner cannot resolve ${label} from the reviewed checkout`);
+  return value || null;
+}
+
+function resolveCheckoutIdentity(root) {
+  const topLevel = realpathSync(gitValue(root, ['rev-parse', '--show-toplevel'], 'repository root'));
+  if (topLevel !== root) throw new TypeError('runner root must equal the reviewed Git checkout root');
+  const reviewedCommit = gitValue(root, ['rev-parse', 'HEAD'], 'reviewed commit');
+  if (!/^[a-f0-9]{40,64}$/.test(reviewedCommit)) throw new TypeError('runner reviewed commit is invalid');
+  const commonRaw = gitValue(root, ['rev-parse', '--git-common-dir'], 'repository identity');
+  const commonDirectory = realpathSync(path.resolve(root, commonRaw));
+  const origin = gitValue(root, ['config', '--get', 'remote.origin.url'], 'repository origin', { optional: true });
+  return Object.freeze({
+    repositoryId: digestObject({ commonDirectory: digestBytes(commonDirectory), origin: origin === null ? null : digestBytes(origin) }),
+    reviewedCommit,
+    rootDigest: digestBytes(root),
+  });
+}
+
 function markerFor(record, surface) {
   return `\n<!-- ${MARKER} ${JSON.stringify({ ...record, surface })} -->\n`;
 }
@@ -92,7 +115,7 @@ function verifyBoundary(value, expected, kind, now) {
   const allowed = new Set([
     'schema', 'verified', 'status', 'issuer', 'audience', 'issuedAt', 'expiresAt', 'nonce',
     refKey, 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
-    'persistencePaths', 'evidenceRef', 'payloadDigest',
+    'persistencePaths', 'checkout', 'evidenceRef', 'payloadDigest',
   ]);
   if (!value || Object.keys(value).some((key) => !allowed.has(key))) return null;
   if (value.schema !== schema || value.verified !== true || value.status !== status
@@ -105,6 +128,7 @@ function verifyBoundary(value, expected, kind, now) {
       || value.taskId !== expected.taskId || value.command !== expected.command
       || value.projectionDigest !== expected.projectionDigest || value.sourceSetDigest !== expected.sourceSetDigest
       || !same(value.route, expected.route) || !same(value.persistencePaths, expected.persistencePaths)
+      || !same(value.checkout, expected.checkout)
       || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
       || typeof value.nonce !== 'string' || value.nonce.length === 0 || !DIGEST.test(value.payloadDigest ?? '')) return null;
   return {
@@ -113,13 +137,13 @@ function verifyBoundary(value, expected, kind, now) {
     bindingDigest: digestObject({
       schema, status, reference: value[refKey], taskId: value.taskId, command: value.command,
       route: value.route, projectionDigest: value.projectionDigest, sourceSetDigest: value.sourceSetDigest,
-      persistencePaths: value.persistencePaths, nonce: value.nonce, payloadDigest: value.payloadDigest,
+      persistencePaths: value.persistencePaths, checkout: value.checkout, nonce: value.nonce, payloadDigest: value.payloadDigest,
     }),
   };
 }
 
-function protectedIntegrations(boundaryOptions) {
-  const run = createTemperanceHostCommandRunner(boundaryOptions);
+function protectedIntegrations(root, boundaryOptions) {
+  const run = createTemperanceHostCommandRunner({ ...boundaryOptions, workingDirectory: root });
   const jsonInput = (value) => `${canonicalJson(value)}\n`;
   return Object.freeze({
     manifestVerifier: async (_expected, reference) => run('manifestVerifier', ['--json', '--reference', reference, '--kind', 'receipt']),
@@ -136,20 +160,22 @@ function protectedIntegrations(boundaryOptions) {
 }
 
 function validateExecutionReceipt(value, action, sourceSnapshotDigest) {
-  const allowed = ['schema', 'status', 'idempotencyKey', 'taskId', 'command', 'route', 'sourceSnapshotDigest', 'evidenceRef', 'payloadDigest'];
+  const allowed = ['schema', 'status', 'idempotencyKey', 'taskId', 'command', 'route', 'checkout', 'sourceSnapshotDigest', 'evidenceRef', 'payloadDigest'];
   if (!value || Object.keys(value).sort().join() !== allowed.sort().join()) throw new TypeError('execution receipt must use the closed schema');
   if (value.schema !== EXECUTION_SCHEMA || value.status !== 'succeeded' || value.idempotencyKey !== action.iterationDigest
       || value.taskId !== action.task.id || value.command !== action.command || !same(value.route, action.route)
+      || !same(value.checkout, action.checkout)
       || value.sourceSnapshotDigest !== sourceSnapshotDigest || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
       || !DIGEST.test(value.payloadDigest ?? '')) throw new TypeError('execution receipt is not bound to the Ralph iteration');
   return value;
 }
 
 function validateVerificationReceipt(value, action, execution) {
-  const allowed = ['schema', 'status', 'idempotencyKey', 'taskId', 'declaredVerificationDigest', 'executionEvidenceRef', 'evidenceRef', 'payloadDigest'];
+  const allowed = ['schema', 'status', 'idempotencyKey', 'taskId', 'checkout', 'declaredVerificationDigest', 'executionEvidenceRef', 'evidenceRef', 'payloadDigest'];
   if (!value || Object.keys(value).sort().join() !== allowed.sort().join()) throw new TypeError('verification receipt must use the closed schema');
   if (value.schema !== VERIFICATION_SCHEMA || value.status !== 'passed' || value.idempotencyKey !== action.iterationDigest
       || value.taskId !== action.task.id || value.declaredVerificationDigest !== digestObject(action.declaredVerification)
+      || !same(value.checkout, action.checkout)
       || value.executionEvidenceRef !== execution.evidenceRef || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
       || !DIGEST.test(value.payloadDigest ?? '')) throw new TypeError('verification receipt is not bound to the Ralph iteration');
   return value;
@@ -203,11 +229,12 @@ function validateRecoveryRecord(record, action, expected, paths, host, approved)
   const allowed = [
     'surface', 'schema', 'iterationDigest', 'resultDigest', 'sourceSnapshotDigest', 'sourceFiles',
     'preimages', 'persistencePaths', 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
-    'hostEvidenceRef', 'approvalEvidenceRef', 'executionEvidenceRef', 'verificationEvidenceRef', 'outcome',
+    'checkout', 'hostEvidenceRef', 'approvalEvidenceRef', 'executionEvidenceRef', 'verificationEvidenceRef', 'outcome',
   ];
   if (!record || Object.keys(record).sort().join() !== allowed.sort().join()) throw new TypeError('Ralph recovery record must use the closed schema');
   if (record.surface !== 'summary' || record.schema !== MARKER || record.iterationDigest !== action.iterationDigest
       || record.taskId !== action.task.id || record.command !== action.command || !same(record.route, action.route)
+      || !same(record.checkout, action.checkout)
       || !same(record.persistencePaths, paths)
       || record.projectionDigest !== action.projectionDigest || record.sourceSetDigest !== action.sourceSetDigest
       || record.hostEvidenceRef !== host.evidenceRef || record.approvalEvidenceRef !== approved.evidenceRef) {
@@ -235,6 +262,7 @@ function approvalFor(action, approved) {
   return {
     status: 'approved', taskId: action.task.id, command: action.command, route: action.route,
     projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest,
+    checkout: action.checkout,
     approvalDigest: approved.bindingDigest, evidenceRef: approved.evidenceRef,
   };
 }
@@ -251,8 +279,10 @@ async function runWithIntegrations(options, integrations, clock) {
   if (!statSync(root).isDirectory()) throw new TypeError('runner root must be a directory');
   contained(root, options.projectionPath);
   if (!SAFE_REFERENCE.test(options.receiptReference ?? '') || !SAFE_REFERENCE.test(options.approvalReference ?? '')) throw new TypeError('runner requires opaque host receipt and approval references');
+  const resolveCheckout = integrations?.checkoutIdentityResolver ?? resolveCheckoutIdentity;
+  const checkout = resolveCheckout(root);
   const flow = JSON.parse(readRelative(root, options.projectionPath));
-  const action = deriveRalphIteration(flow);
+  const action = deriveRalphIteration(flow, undefined, { checkout });
   if (action.status === 'stop') return action;
   if (options.dryRun !== false) return action;
   const paths = persistencePathsFor(action);
@@ -276,6 +306,7 @@ async function runWithIntegrations(options, integrations, clock) {
     projectionDigest: action.projectionDigest,
     sourceSetDigest: action.sourceSetDigest,
     persistencePaths: paths,
+    checkout,
   };
   const manifestRaw = await integrations.manifestVerifier(expected, options.receiptReference);
   const host = verifyBoundary(manifestRaw, { ...expected, reference: options.receiptReference }, 'host', clock());
@@ -294,31 +325,33 @@ async function runWithIntegrations(options, integrations, clock) {
     const immediate = snapshot(root, sourcePaths);
     if (!same(initial.files, immediate.files) || initial.digest !== immediate.digest) return stopFromAction(action, 'source_drift');
   }
+  if (!same(resolveCheckout(root), checkout)) return stopFromAction(action, 'source_drift');
 
-  let execution = await integrations.executionReceiptResolver({ iterationDigest: action.iterationDigest });
+  let execution = await integrations.executionReceiptResolver({ iterationDigest: action.iterationDigest, checkout });
   if (execution === null || execution === undefined) {
     execution = await integrations.executor({
-      schema: 'cambium.ralph-execution-request.v1', idempotencyKey: action.iterationDigest,
-      taskId: action.task.id, command: action.command, route: action.route, sourceSnapshotDigest: initial.digest,
+      schema: 'cambium.ralph-execution-request.v2', idempotencyKey: action.iterationDigest,
+      taskId: action.task.id, command: action.command, route: action.route, checkout,
+      sourceSnapshot: initial,
     });
   }
   try { execution = validateExecutionReceipt(execution, action, initial.digest); } catch {
-    return deriveRalphIteration(flow, { approval: approvalFor(action, approved), execution: { status: 'failed', evidenceRef: null } });
+    return deriveRalphIteration(flow, { approval: approvalFor(action, approved), execution: { status: 'failed', evidenceRef: null } }, { checkout });
   }
 
-  let verification = await integrations.verificationReceiptResolver({ iterationDigest: action.iterationDigest });
+  let verification = await integrations.verificationReceiptResolver({ iterationDigest: action.iterationDigest, checkout });
   if (verification === null || verification === undefined) {
     verification = await integrations.verification({
       schema: 'cambium.ralph-verification-request.v1', idempotencyKey: action.iterationDigest,
-      taskId: action.task.id, declaredVerification: action.declaredVerification,
+      taskId: action.task.id, checkout, declaredVerification: action.declaredVerification,
       executionEvidenceRef: execution.evidenceRef,
     });
   }
   try { verification = validateVerificationReceipt(verification, action, execution); } catch {
-    return deriveRalphIteration(flow, { approval: approvalFor(action, approved), execution, verification: { status: 'failed', evidenceRef: null } });
+    return deriveRalphIteration(flow, { approval: approvalFor(action, approved), execution, verification: { status: 'failed', evidenceRef: null } }, { checkout });
   }
   const approval = approvalFor(action, approved);
-  const completed = deriveRalphIteration(flow, { approval, execution, verification, persistence: { summary: true, state: true, handoff: true } });
+  const completed = deriveRalphIteration(flow, { approval, execution, verification, persistence: { summary: true, state: true, handoff: true } }, { checkout });
   const record = {
     schema: MARKER,
     iterationDigest: completed.iterationDigest,
@@ -332,6 +365,7 @@ async function runWithIntegrations(options, integrations, clock) {
     route: expected.route,
     projectionDigest: action.projectionDigest,
     sourceSetDigest: action.sourceSetDigest,
+    checkout,
     hostEvidenceRef: host.evidenceRef,
     approvalEvidenceRef: approved.evidenceRef,
     executionEvidenceRef: execution.evidenceRef,
@@ -359,7 +393,7 @@ export async function runRalphIteration(options) {
   }
   let integrations;
   try {
-    integrations = protectedIntegrations();
+    integrations = protectedIntegrations(realpathSync(options.root));
   } catch {
     const action = await runWithIntegrations({ ...options, dryRun: true }, null, () => new Date().toISOString());
     if (action.status === 'stop') return action;
@@ -376,7 +410,7 @@ export async function runRalphIteration(options) {
 
 export function createProtectedRalphIterationRunnerForTesting(boundaryOptions, clock) {
   if (typeof clock !== 'function') throw new TypeError('protected boundary test runner requires a deterministic clock');
-  return (options) => runWithIntegrations(options, protectedIntegrations(boundaryOptions), clock);
+  return (options) => runWithIntegrations(options, protectedIntegrations(realpathSync(options.root), boundaryOptions), clock);
 }
 
 export function createRalphIterationRunnerForTesting(integrations) {

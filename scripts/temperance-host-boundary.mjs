@@ -80,7 +80,10 @@ export function resolveTemperanceHostBoundary({
 }
 
 export function createTemperanceHostCommandRunner(options) {
-  const boundary = resolveTemperanceHostBoundary(options);
+  const { workingDirectory = process.cwd(), ...boundaryOptions } = options ?? {};
+  const boundary = resolveTemperanceHostBoundary(boundaryOptions);
+  const cwd = realpathSync(workingDirectory);
+  if (!statSync(cwd).isDirectory()) throw new TypeError('Temperance host working directory must be a directory');
   const environment = Object.freeze({
     HOME: userInfo().homedir,
     LANG: 'C',
@@ -96,6 +99,7 @@ export function createTemperanceHostCommandRunner(options) {
       env: environment,
       input,
       stdio: ['pipe', 'pipe', 'pipe'],
+      cwd,
     });
     if (allowMissing && result.status === 3) return null;
     if (result.error || result.status !== 0) throw new TypeError(`protected Temperance host command ${commandKey} failed`);

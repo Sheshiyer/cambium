@@ -43,8 +43,9 @@ function validateAction(value) {
   exactKeys(value, [
     'schema', 'status', 'iterationDigest', 'projectionDigest', 'sourceSetDigest', 'task', 'command',
     'route', 'receiptGate', 'approvalGate', 'declaredVerification', 'persistenceSurfaces',
-    'externalStopCondition',
+    'externalStopCondition', ...(value.checkout === undefined ? [] : ['checkout']),
   ], 'Ralph action');
+  if (value.checkout !== undefined) validateCheckout(value.checkout);
   if (!DIGEST.test(value.projectionDigest) || !DIGEST.test(value.sourceSetDigest)) throw new TypeError('Ralph action projection identity is invalid');
   if (!GSD_COMMAND.test(value.command)) throw new TypeError('Ralph action command is invalid');
   exactKeys(value.task, ['id', 'name', 'source', 'dependencies'], 'Ralph action task');
@@ -104,6 +105,13 @@ function validateAction(value) {
   }
   const { iterationDigest: _ignored, ...identity } = value;
   if (digestObject(identity) !== value.iterationDigest) throw new TypeError('Ralph action iterationDigest does not match canonical identity');
+}
+
+function validateCheckout(value) {
+  exactKeys(value, ['repositoryId', 'reviewedCommit', 'rootDigest'], 'Ralph checkout identity');
+  if (!DIGEST.test(value.repositoryId) || !/^[a-f0-9]{40,64}$/.test(value.reviewedCommit) || !DIGEST.test(value.rootDigest)) {
+    throw new TypeError('Ralph checkout identity is invalid');
+  }
 }
 
 function validateEvidenceReference(value, label, { nullable = true } = {}) {
@@ -203,6 +211,7 @@ function approvalMatches(value, action) {
     && same(value.route, action.route)
     && value.projectionDigest === action.projectionDigest
     && value.sourceSetDigest === action.sourceSetDigest
+    && (action.checkout === undefined || same(value.checkout, action.checkout))
     && DIGEST.test(value.approvalDigest ?? '')
     && typeof value.evidenceRef === 'string'
     && value.evidenceRef.length > 0;
@@ -224,14 +233,16 @@ export function validateRalphIteration(value, options = {}) {
   return value;
 }
 
-export function deriveRalphIteration(flowInput, externalResult) {
+export function deriveRalphIteration(flowInput, externalResult, context = {}) {
   const flow = validateTemperanceFlowProjection(structuredClone(flowInput));
+  if (context.checkout !== undefined) validateCheckout(context.checkout);
   const blockedIdentity = {
     projectionDigest: flow.flowDigest,
     sourceSetDigest: flow.sourceSetDigest,
     taskId: flow.result.task?.id ?? null,
     command: flow.result.command,
     route: flow.route.intent,
+    ...(context.checkout === undefined ? {} : { checkout: structuredClone(context.checkout) }),
   };
   const blockedIterationDigest = digestObject(blockedIdentity);
   if (flow.result.status === 'blocked') {
@@ -257,6 +268,7 @@ export function deriveRalphIteration(flowInput, externalResult) {
     declaredVerification: structuredClone(flow.gates.filter(({ kind }) => kind === 'declared_verification')),
     persistenceSurfaces: ['summary', 'state', 'handoff'],
     externalStopCondition: 'exit_after_one_unit',
+    ...(context.checkout === undefined ? {} : { checkout: structuredClone(context.checkout) }),
   };
   const action = deepFreeze({ ...actionWithoutDigest, iterationDigest: digestObject(actionWithoutDigest) });
   const iterationDigest = action.iterationDigest;

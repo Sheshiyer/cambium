@@ -11,6 +11,8 @@ the orchestrator and babysitter; the repository projection remains read-only.
    Do not reuse process-local state from a previous invocation.
 2. **Freeze and project.** Capture one immutable pre-effect snapshot, including
    per-file digests and the expected preimage of every persistence surface.
+   Bind the action and idempotency key to an opaque repository identity, the
+   reviewed Git commit, and a digest of the canonical checkout root.
    Regenerate or check `docs/architecture/temperance-flow.v1.json` and its
    matching Markdown readback from the declared source set.
 3. **Inspect action or stop.** Continue only when the projection exposes exactly
@@ -25,7 +27,10 @@ the orchestrator and babysitter; the repository projection remains read-only.
    projection digest, and immutable source-set digest. Route intent never proves
    provider resolution, and raw receipts or caller-selected trust are rejected.
 5. **Revalidate and execute once.** Immediately before the irreversible effect,
-   reread the complete snapshot and stop on any drift. Then dispatch exactly one
+   reread the checkout identity and complete snapshot and stop on any drift. The
+   protected executor starts with that checkout as its working directory and
+   receives the bound relative-path snapshot so it can repeat the same reread
+   before mutation. Then dispatch exactly one
    remaining-phase unit through `te-dispatch-paid`; the fixed phase command may
    execute only the incomplete plans already bound into that unit.
 6. **Verify and persist.** Resolve the executor-owned durable receipt by the
