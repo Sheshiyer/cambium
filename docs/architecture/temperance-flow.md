@@ -4,8 +4,8 @@
 
 - Schema: `cambium.temperance-flow-projection.v1`
 - Projection authority: `read_only`
-- Source-set digest: `sha256:0d8a8cea74c8919801daf4450bc280ed2970d52dadd2bcdc114141672d226fb0`
-- Flow digest: `sha256:47d5cfc212403e53e901f4d0d5538830901d52c01934d0187f7db1c54a3f3e77`
+- Source-set digest: `sha256:bfe89dbeb5fb9d7b58c6103b3d2f847c1dbdccf42bec1df8ed15701cf0cabb58`
+- Flow digest: `sha256:0d88bf437c800c8ddfd7e7df61a68fc9baefd7a9eb7e554ce317f5c4826e8a88`
 - Result: `blocked`
 - Command: `—`
 - Selected task: `—`
@@ -20,15 +20,16 @@
 
 | Role | Reference |
 | --- | --- |
-| ISA | `ISA.md#frontmatter.task@sha256:6b14cd9a8118f0d0c44375d6446373cc429da72dc96826b253951dff8f9f153e` |
+| ISA | `ISA.md#markdown.heading:Active Phase 5 acceptance@sha256:264114bc093ab190200c0f3ca851b381682ac6c61f0ee854f1a431bd8ee98dd6` |
 | GSD state | `.planning/STATE.md#markdown.heading:Operator Next Step@sha256:25ac5c3c1a2e47b639a209fd25b84e67a31e69dbe15fafd51d5e7a2c90d33062` |
-| Active plan | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#frontmatter.plan@sha256:975e3ce7895709086885a1273896c35226eac177d62b417f47ff5c301af91502` |
+| Active plan | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#whole-file@sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c` |
 | Intent Graph | `docs/architecture/intent-graph.v1.json#cambium.intent-graph-projection.v1@sha256:4eedd6d5868c20eb4dfbccfbcb9bfe25175b7fdfd782d98145bf94f3c899c1c7` |
 | Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-01-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:25f36a44be0521ae96aad2d9cc918ab9ffe7c88b588ee0fb411505e8784180db` |
-| Supporting evidence | `.project/HANDOFF.md#markdown.list-item:- This checkpoint contains planning and acceptance artifacts only.@sha256:29534505390bea7223b7cd476c5af2edd993eb81d948fffb058c2068aef9cc01` |
-| Supporting evidence | `.project/HANDOFF.md#markdown.list-item:- Exact continuation is `/gsd:execute-phase 5`;@sha256:8a1d11934b5d10b39e1930eb8624d00eadc3332c76ba5de4fc81565bbd407794` |
+| Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:27343c0d8e4f6757f35dd803bb456638f3a894ec5ac5569863e37c53d7dae3f9` |
+| Supporting evidence | `.planning/STATE.md#text.line:Phase:@sha256:46a18b363a9c891c55e15dc593f9c74e14396d81b6aa6c7c8e0139c630adf0c0` |
+| Supporting evidence | `.project/HANDOFF.md#text.line:### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate@sha256:79fd1acb1e866620beddfd998bf0e29b9931628e3d461a5ecc33a56d798f1266` |
+| Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:8b9cb73161e7932994b9362203f6a9a773a8fb14a33bef791b91edf09d94bf74` |
 | Supporting evidence | `ISA.md#markdown.list-item:- 2026-08-19 11:06: refined:@sha256:c2d03b18eb3e9725e1f1e498b17d2a394a3c5a9a5a4dc4932c45f8bb5bc447ba` |
-| Supporting evidence | `.project/HANDOFF.md#markdown.list-item:- Isolated branch `codex/phase-5-decisions`@sha256:ff708ba71645e20ec0e1c26acf0d730c08b907e043fe7ba95075841202be8529` |
 
 ## Lifecycle
 
@@ -56,7 +57,7 @@
 
 ## Blocked reasons
 
-- `active_plan_not_unique_or_active`: .planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#frontmatter.plan@sha256:975e3ce7895709086885a1273896c35226eac177d62b417f47ff5c301af91502
+- `active_plan_not_unique_or_active`: .planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#whole-file@sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c
 - `no_dependency_ready_task`: source unavailable
 
 Source bodies and host routing policy remain in their owning systems.

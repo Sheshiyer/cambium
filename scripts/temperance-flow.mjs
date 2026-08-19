@@ -145,6 +145,7 @@ function validateSelector(selector) {
   if (/^frontmatter\.[A-Za-z][A-Za-z0-9_-]*$/.test(selector)) return;
   if (selector.startsWith('markdown.heading:') && nonEmptyString(selector.slice('markdown.heading:'.length))) return;
   if (selector.startsWith('markdown.list-item:') && nonEmptyString(selector.slice('markdown.list-item:'.length))) return;
+  if (selector.startsWith('text.line:') && nonEmptyString(selector.slice('text.line:'.length))) return;
   if (selector.startsWith('xml.task-name:') && nonEmptyString(selector.slice('xml.task-name:'.length))) return;
   throw new TypeError(`unknown or unsafe selector ${selector}`);
 }
@@ -188,6 +189,10 @@ function selectContent(raw, selector) {
   }
   if (selector.startsWith('markdown.list-item:')) {
     const prefix = selector.slice('markdown.list-item:'.length);
+    return exactMatch(text.split('\n').filter((line) => line.startsWith(prefix)), selector);
+  }
+  if (selector.startsWith('text.line:')) {
+    const prefix = selector.slice('text.line:'.length);
     return exactMatch(text.split('\n').filter((line) => line.startsWith(prefix)), selector);
   }
   if (selector.startsWith('xml.task-name:')) {

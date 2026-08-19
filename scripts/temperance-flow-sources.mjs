@@ -145,6 +145,10 @@ function select(raw, selector, relativePath) {
     const prefix = selector.slice('markdown.list-item:'.length);
     return exactlyOne(text.split('\n').filter((line) => line.startsWith(prefix)), `${relativePath}#${selector}`);
   }
+  if (selector.startsWith('text.line:')) {
+    const prefix = selector.slice('text.line:'.length);
+    return exactlyOne(text.split('\n').filter((line) => line.startsWith(prefix)), `${relativePath}#${selector}`);
+  }
   if (selector.startsWith('xml.task-name:')) {
     const name = selector.slice('xml.task-name:'.length);
     const matches = [];
@@ -248,22 +252,34 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   const stateRaw = reader.read('.planning/STATE.md');
   const handoffRaw = reader.read('.project/HANDOFF.md');
   const goal = frontmatterField(isaRaw, 'task', 'ISA.md');
-  const isaApproved = /### Active Phase 5 acceptance[\s\S]*ISC-1282/.test(isaRaw)
-    && /2026-08-19 11:06: refined: Phase 5 is an authority-resolution projection/.test(isaRaw);
+  const isaAcceptanceSelector = 'markdown.heading:Active Phase 5 acceptance';
+  const isaDecisionSelector = 'markdown.list-item:- 2026-08-19 11:06: refined:';
+  const isaAcceptance = select(isaRaw, isaAcceptanceSelector, 'ISA.md');
+  const isaDecision = select(isaRaw, isaDecisionSelector, 'ISA.md');
+  const isaApproved = /ISC-1282/.test(isaAcceptance)
+    && /Phase 5 is an authority-resolution projection/.test(isaDecision);
   const nextSection = exactlyOne(headingSections(stateRaw, 'Operator Next Step'), '.planning/STATE.md#Operator Next Step');
   const commands = [...nextSection.matchAll(/`(\/gsd:[^`]+)`/g)].map((entry) => entry[1]);
   const command = commands.length === 1 ? commands[0] : '/gsd:execute-phase 5';
   const transition = /^\/gsd:([a-z-]+)/.exec(command)?.[1]?.replace('-phase', '') ?? 'unknown';
-  const stateLive = commands.length === 1 && /Phase:\s*5 of 7/.test(stateRaw);
+  const statePhaseSelector = 'text.line:Phase:';
+  const statePhase = select(stateRaw, statePhaseSelector, '.planning/STATE.md');
+  const stateLive = commands.length === 1 && /^Phase: 5 of 7 \(/.test(statePhase);
   const handoffHeading = /^###\s+(.+)$/m.exec(handoffRaw)?.[1] ?? '';
-  const handoffReviewed = /Phase 5 decisions and reviewed planning checkpoint/.test(handoffHeading)
+  const handoffSelector = `text.line:### ${handoffHeading}`;
+  const handoffCheckpoint = select(handoffRaw, handoffSelector, '.project/HANDOFF.md');
+  const handoffReviewed = /Phase 5 decisions and reviewed planning checkpoint/.test(handoffCheckpoint)
     && !/unreviewed/i.test(handoffHeading);
 
   const planRecords = PLAN_PATHS.map((relativePath, planIndex) => {
     const raw = reader.read(relativePath);
     const identity = phasePlanIdentity(relativePath);
     const summaryPath = SUMMARY_PATHS[planIndex];
-    const complete = existsSync(path.join(reader.root, summaryPath));
+    const summaryExists = existsSync(path.join(reader.root, summaryPath));
+    const completionSource = summaryExists
+      ? sourceReference(reader, summaryPath, 'verification_evidence', 'markdown.heading:Self-Check: PASSED')
+      : null;
+    const complete = completionSource !== null;
     return {
       relativePath,
       raw,
@@ -273,6 +289,7 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
       dependsOn: frontmatterArray(raw, 'depends_on'),
       tasks: parseTasks(raw, relativePath),
       summaryPath,
+      completionSource,
       complete,
     };
   });
@@ -285,53 +302,32 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   const receiptReference = options.receiptReference ?? null;
   if (receiptReference !== null && !SAFE_REFERENCE.test(receiptReference)) throw new TypeError('receipt reference must be a bounded opaque Manifest reference');
 
-  const taskIds = new Map();
-  for (const record of planRecords) {
-    for (const entry of record.tasks) taskIds.set(`${record.identity}:${entry.index}`, `phase5-plan${record.plan}-task${String(entry.index).padStart(2, '0')}`);
-  }
-  const tasks = [];
-  for (const record of planRecords) {
-    for (const entry of record.tasks) {
-      const id = taskIds.get(`${record.identity}:${entry.index}`);
-      const preceding = entry.index > 1 ? taskIds.get(`${record.identity}:${entry.index - 1}`) : null;
-      const dependencies = [];
-      if (preceding) dependencies.push({ id: preceding, status: record.complete ? 'complete' : 'pending' });
-      else for (const dependencyIdentity of record.dependsOn) {
-        const dependency = planRecords.find((candidate) => candidate.identity === dependencyIdentity);
-        dependencies.push({ id: dependencyIdentity, status: dependency?.complete ? 'complete' : 'pending' });
-      }
-      const isSelected = record === active && entry.index === 1;
-      const status = record.complete
-        ? 'complete'
-        : isSelected && planDependenciesSatisfied && handoffReviewed
-          ? 'ready'
-          : 'pending';
-      const taskSource = sourceReference(reader, record.relativePath, 'active_plan', `xml.task-name:${entry.name}`);
-      const verificationSource = record.complete
-        ? sourceReference(reader, record.summaryPath, 'verification_evidence', 'markdown.heading:Self-Check: PASSED')
-        : taskSource;
-      tasks.push({
-        id,
-        name: entry.name,
-        source: taskSource,
-        status,
-        dependencies,
-        command: '/gsd:execute-phase 5',
-        route: {
-          skillCluster: 'gsd-execute-phase',
-          combo: 'te-dispatch-paid',
-          lane: 'paid_execution',
-          approvalRequired: true,
-          receiptRef: isSelected ? receiptReference : null,
-        },
-        gates: [
-          { kind: 'declared_verification', source: taskSource, satisfied: record.complete },
-          { kind: 'approval_boundary', source: taskSource, satisfied: false },
-        ],
-        stop: { kind: 'external_verification', source: verificationSource, satisfied: record.complete },
-      });
-    }
-  }
+  const activePlanSource = sourceReference(reader, active.relativePath, 'active_plan', 'whole-file');
+  const activePlanId = `phase5-plan${active.plan}`;
+  const planDependencies = active.dependsOn.map((identity) => {
+    const dependency = planRecords.find((candidate) => candidate.identity === identity);
+    return { id: `phase5-plan${dependency?.plan ?? identity.slice(3)}`, status: dependency?.complete ? 'complete' : 'pending' };
+  });
+  const tasks = incomplete.length === 0 ? [] : [{
+    id: activePlanId,
+    name: `Plan ${active.identity}`,
+    source: activePlanSource,
+    status: planDependenciesSatisfied && handoffReviewed ? 'ready' : 'pending',
+    dependencies: planDependencies,
+    command: '/gsd:execute-phase 5',
+    route: {
+      skillCluster: 'gsd-execute-phase',
+      combo: 'te-dispatch-paid',
+      lane: 'paid_execution',
+      approvalRequired: true,
+      receiptRef: receiptReference,
+    },
+    gates: [
+      { kind: 'declared_verification', source: activePlanSource, satisfied: false },
+      { kind: 'approval_boundary', source: activePlanSource, satisfied: false },
+    ],
+    stop: { kind: 'external_verification', source: activePlanSource, satisfied: false },
+  }];
 
   const intentGraphRaw = reader.read(INTENT_GRAPH_PATH);
   const intentGraph = JSON.parse(intentGraphRaw);
@@ -339,19 +335,16 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
     throw new TypeError('Intent Graph reference is malformed');
   }
   const supportingSources = [
-    sourceReference(reader, 'ISA.md', 'verification_evidence', 'markdown.list-item:- 2026-08-19 11:06: refined:'),
-    sourceReference(reader, `${PHASE_DIR}/05-01-SUMMARY.md`, 'verification_evidence', 'markdown.heading:Self-Check: PASSED'),
-    sourceReference(reader, '.project/HANDOFF.md', 'reviewed_handoff', 'markdown.list-item:- Isolated branch `codex/phase-5-decisions`'),
-    sourceReference(reader, '.project/HANDOFF.md', 'reviewed_handoff', 'markdown.list-item:- Exact continuation is `/gsd:execute-phase 5`;'),
-    sourceReference(reader, '.project/HANDOFF.md', 'reviewed_handoff', 'markdown.list-item:- This checkpoint contains planning and acceptance artifacts only.'),
+    sourceReference(reader, 'ISA.md', 'verification_evidence', isaDecisionSelector),
+    sourceReference(reader, '.planning/STATE.md', 'verification_evidence', statePhaseSelector),
+    sourceReference(reader, '.project/HANDOFF.md', 'reviewed_handoff', handoffSelector),
+    ...planRecords.filter(({ completionSource }) => completionSource).map(({ completionSource }) => completionSource),
   ];
-  const activeTaskId = incomplete.length > 0 ? taskIds.get(`${active.identity}:1`) : null;
-  const projectedTasks = activeTaskId ? tasks.filter(({ id }) => id === activeTaskId) : [];
 
   return {
     authorities: {
       isa: {
-        source: sourceReference(reader, 'ISA.md', 'isa_goal', 'frontmatter.task'),
+        source: sourceReference(reader, 'ISA.md', 'isa_goal', isaAcceptanceSelector),
         status: isaApproved ? 'approved' : 'unapproved',
         goal,
       },
@@ -363,7 +356,7 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
         command,
       },
       plan: {
-        source: sourceReference(reader, active.relativePath, 'active_plan', 'frontmatter.plan'),
+        source: activePlanSource,
         status: incomplete.length > 0 ? 'active' : 'terminal',
         phase: active.phase,
         plan: active.plan,
@@ -375,7 +368,7 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
       schema: intentGraph.schema,
       digest: digestText(intentGraphRaw),
     },
-    tasks: projectedTasks,
+    tasks,
     receiptVerification: options.receiptVerification ?? null,
   };
 }

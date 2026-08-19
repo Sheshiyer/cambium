@@ -132,6 +132,20 @@ test('FLOW-01 / D-01 / D-02: actual repository sources produce exactly one ready
   assert.equal(model.intentGraphRef.schema, 'cambium.intent-graph-projection.v1');
 });
 
+test('FLOW-01 / CR-06: the authoritative executable unit is one whole plan, never an internal task mislabeled with a phase command', (t) => {
+  const api = requireSourceApi('whole-plan unit');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  const model = api.buildTemperanceFlowSources(fixture.root);
+  assert.equal(model.tasks.length, 1);
+  assert.equal(model.tasks[0].id, 'phase5-plan02');
+  assert.equal(model.tasks[0].name, 'Plan 05-02');
+  assert.equal(model.tasks[0].source.selector, 'whole-file');
+  assert.equal(model.tasks[0].command, '/gsd:execute-phase 5');
+  const internalTasks = [...readFileSync(path.join(fixture.root, model.tasks[0].source.path), 'utf8').matchAll(/<task\b/g)];
+  assert.ok(internalTasks.length > 1, 'fixture must prove a multi-task plan is represented as one plan unit');
+});
+
 test('FLOW-04 / D-09 / D-10 / D-11: write/check are deterministic and JSON/Markdown stay digest-identical', (t) => {
   requireSourceApi('parity');
   const fixture = makeFixture();
@@ -289,6 +303,30 @@ test('FLOW-04: generated-digest receipts are excluded from source identity while
   writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8').replace('reviewed planning checkpoint', 'unreviewed planning checkpoint'));
   const changed = api.buildTemperanceFlowSources(fixture.root);
   assert.notDeepEqual(changed, initial);
+});
+
+test('FLOW-04 / WR-03: every readiness decision byte has a named source digest', (t) => {
+  const api = requireSourceApi('decision provenance');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  const cases = [
+    ['ISA.md', 'ISC-1282', 'ISC-9999', (model) => model.authorities.isa.source],
+    ['.planning/STATE.md', 'Phase: 5 of 7', 'Phase: 4 of 7', (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === '.planning/STATE.md' && selector.startsWith('text.line:Phase:'))],
+    ['.project/HANDOFF.md', 'reviewed planning checkpoint', 'unreviewed planning checkpoint', (model) => model.supportingSources.find(({ path: pathname }) => pathname === '.project/HANDOFF.md')],
+    ['.planning/phases/05-ralph-and-temperance-flow-projection/05-01-SUMMARY.md', 'Self-Check: PASSED', 'Self-Check: PASSED\n\nDecision evidence changed.', (model) => model.supportingSources.find(({ path: pathname }) => pathname.endsWith('05-01-SUMMARY.md'))],
+  ];
+  for (const [relative, beforeText, afterText, pick] of cases) {
+    const before = api.buildTemperanceFlowSources(fixture.root);
+    const beforeRef = pick(before);
+    assert.ok(beforeRef, `${relative} must have a named decision reference`);
+    const target = path.join(fixture.root, relative);
+    writeFileSync(target, readFileSync(target, 'utf8').replace(beforeText, afterText));
+    const after = api.buildTemperanceFlowSources(fixture.root);
+    const afterRef = pick(after);
+    assert.ok(afterRef, `${relative} reference must remain addressable after mutation`);
+    assert.notEqual(afterRef.digest, beforeRef.digest, `${relative} decision mutation must change its named digest`);
+    writeFileSync(target, readFileSync(target, 'utf8').replace(afterText, beforeText));
+  }
 });
 
 test('FLOW-04: JSON output is private, source-bounded, and performs zero runtime writes', (t) => {

@@ -10,8 +10,8 @@
     "isa": {
       "path": "ISA.md",
       "kind": "isa_goal",
-      "selector": "frontmatter.task",
-      "digest": "sha256:6b14cd9a8118f0d0c44375d6446373cc429da72dc96826b253951dff8f9f153e"
+      "selector": "markdown.heading:Active Phase 5 acceptance",
+      "digest": "sha256:264114bc093ab190200c0f3ca851b381682ac6c61f0ee854f1a431bd8ee98dd6"
     },
     "gsd": {
       "path": ".planning/STATE.md",
@@ -22,8 +22,8 @@
     "plan": {
       "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md",
       "kind": "active_plan",
-      "selector": "frontmatter.plan",
-      "digest": "sha256:975e3ce7895709086885a1273896c35226eac177d62b417f47ff5c301af91502"
+      "selector": "whole-file",
+      "digest": "sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c"
     },
     "intentGraph": {
       "path": "docs/architecture/intent-graph.v1.json",
@@ -38,28 +38,34 @@
         "digest": "sha256:25f36a44be0521ae96aad2d9cc918ab9ffe7c88b588ee0fb411505e8784180db"
       },
       {
-        "path": ".project/HANDOFF.md",
-        "kind": "reviewed_handoff",
-        "selector": "markdown.list-item:- This checkpoint contains planning and acceptance artifacts only.",
-        "digest": "sha256:29534505390bea7223b7cd476c5af2edd993eb81d948fffb058c2068aef9cc01"
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-SUMMARY.md",
+        "kind": "verification_evidence",
+        "selector": "markdown.heading:Self-Check: PASSED",
+        "digest": "sha256:27343c0d8e4f6757f35dd803bb456638f3a894ec5ac5569863e37c53d7dae3f9"
+      },
+      {
+        "path": ".planning/STATE.md",
+        "kind": "verification_evidence",
+        "selector": "text.line:Phase:",
+        "digest": "sha256:46a18b363a9c891c55e15dc593f9c74e14396d81b6aa6c7c8e0139c630adf0c0"
       },
       {
         "path": ".project/HANDOFF.md",
         "kind": "reviewed_handoff",
-        "selector": "markdown.list-item:- Exact continuation is `/gsd:execute-phase 5`;",
-        "digest": "sha256:8a1d11934b5d10b39e1930eb8624d00eadc3332c76ba5de4fc81565bbd407794"
+        "selector": "text.line:### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate",
+        "digest": "sha256:79fd1acb1e866620beddfd998bf0e29b9931628e3d461a5ecc33a56d798f1266"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md",
+        "kind": "verification_evidence",
+        "selector": "markdown.heading:Self-Check: PASSED",
+        "digest": "sha256:8b9cb73161e7932994b9362203f6a9a773a8fb14a33bef791b91edf09d94bf74"
       },
       {
         "path": "ISA.md",
         "kind": "verification_evidence",
         "selector": "markdown.list-item:- 2026-08-19 11:06: refined:",
         "digest": "sha256:c2d03b18eb3e9725e1f1e498b17d2a394a3c5a9a5a4dc4932c45f8bb5bc447ba"
-      },
-      {
-        "path": ".project/HANDOFF.md",
-        "kind": "reviewed_handoff",
-        "selector": "markdown.list-item:- Isolated branch `codex/phase-5-decisions`",
-        "digest": "sha256:ff708ba71645e20ec0e1c26acf0d730c08b907e043fe7ba95075841202be8529"
       }
     ]
   },
@@ -79,7 +85,7 @@
       {
         "code": "active_plan_not_unique_or_active",
         "sources": [
-          ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#frontmatter.plan@sha256:975e3ce7895709086885a1273896c35226eac177d62b417f47ff5c301af91502"
+          ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#whole-file@sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c"
         ]
       },
       {
@@ -102,6 +108,6 @@
     "receipt": "missing"
   },
   "stops": [],
-  "sourceSetDigest": "sha256:0d8a8cea74c8919801daf4450bc280ed2970d52dadd2bcdc114141672d226fb0",
-  "flowDigest": "sha256:47d5cfc212403e53e901f4d0d5538830901d52c01934d0187f7db1c54a3f3e77"
+  "sourceSetDigest": "sha256:bfe89dbeb5fb9d7b58c6103b3d2f847c1dbdccf42bec1df8ed15701cf0cabb58",
+  "flowDigest": "sha256:0d88bf437c800c8ddfd7e7df61a68fc9baefd7a9eb7e554ce317f5c4826e8a88"
 }
