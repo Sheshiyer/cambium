@@ -25,36 +25,64 @@ function checkbox(source, id) {
   return match[1] === 'x';
 }
 
-function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks) {
+const PHASE5_CRITERIA = ['ISC-1282', 'ISC-1283', 'ISC-1284', 'ISC-1285'];
+
+function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks = {}) {
   const phase3Complete = Object.values(phase3Checks).every(Boolean);
   const phase4Pending = Object.values(phase4Checks).every((value) => !value);
   const phase4GapExecution = ['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1281'].every((id) => phase4Checks[id] === true)
     && phase4Checks['ISC-1280'] === false;
   const phase4Complete = Object.values(phase4Checks).every(Boolean);
+  const phase5Pending = PHASE5_CRITERIA.every((id) => phase5Checks[id] === false);
+  const phase5Complete = PHASE5_CRITERIA.every((id) => phase5Checks[id] === true);
+  const phase5AnyChecked = PHASE5_CRITERIA.some((id) => phase5Checks[id] === true);
+  const phase5Prefix = PHASE5_CRITERIA.findIndex((id) => phase5Checks[id] !== true);
+  const checkedPrefix = phase5Prefix === -1 ? PHASE5_CRITERIA.length : phase5Prefix;
+  const progress = frontmatter.match(/^progress: (\d+)\/4$/m);
+  const phase5Progress = progress ? Number(progress[1]) : null;
+  const phase5PlanStart = /^phase: plan$/m.test(frontmatter) && phase5Progress === 0 && phase5Pending;
+  const phase5ExecuteStart = /^phase: execute$/m.test(frontmatter) && phase5Progress === 0 && phase5Pending;
+  const phase5ExecutePrefix = /^phase: execute$/m.test(frontmatter)
+    && phase5Progress === checkedPrefix
+    && checkedPrefix > 0
+    && checkedPrefix === PHASE5_CRITERIA.filter((id) => phase5Checks[id] === true).length;
+  const phase5Verified = /^phase: verify$/m.test(frontmatter) && phase5Progress === 4 && phase5Complete;
   return (
-    (/^phase: verify$/m.test(frontmatter) && /^progress: 4\/4$/m.test(frontmatter) && phase3Complete && phase4Pending)
-    || (/^(?:phase: plan|phase: execute)$/m.test(frontmatter) && /^progress: 0\/5$/m.test(frontmatter) && phase3Complete && phase4Pending)
-    || (/^phase: execute$/m.test(frontmatter) && /^progress: 4\/5$/m.test(frontmatter) && phase3Complete && phase4GapExecution)
-    || (/^phase: verify$/m.test(frontmatter) && /^progress: 5\/5$/m.test(frontmatter) && phase3Complete && phase4Complete)
+    (!phase5AnyChecked && phase3Complete && phase4Pending && /^phase: verify$/m.test(frontmatter) && /^progress: 4\/4$/m.test(frontmatter))
+    || (!phase5AnyChecked && phase3Complete && phase4Pending && /^(?:phase: plan|phase: execute)$/m.test(frontmatter) && /^progress: 0\/5$/m.test(frontmatter))
+    || (!phase5AnyChecked && phase3Complete && phase4GapExecution && /^phase: execute$/m.test(frontmatter) && /^progress: 4\/5$/m.test(frontmatter))
+    || (!phase5AnyChecked && phase3Complete && phase4Complete && /^phase: verify$/m.test(frontmatter) && /^progress: 5\/5$/m.test(frontmatter) && phase5Pending)
+    || (phase3Complete && phase4Complete && (phase5PlanStart || phase5ExecuteStart || phase5ExecutePrefix || phase5Verified))
   );
 }
 
-test('ISA lifecycle accepts only coherent completed Phase 3 and Phase 4 states', () => {
+test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, and Phase 5 states', () => {
   const phase3Complete = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, true]));
   const phase4Pending = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, false]));
   const phase4GapExecution = { ...Object.fromEntries(Object.keys(phase4Pending).map((id) => [id, true])), 'ISC-1280': false };
   const phase4Complete = Object.fromEntries(Object.keys(phase4Pending).map((id) => [id, true]));
+  const phase5Pending = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, false]));
+  const phase5Prefix2 = { ...Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, false])), 'ISC-1282': true, 'ISC-1283': true };
+  const phase5Complete = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, true]));
 
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Pending), true);
   assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/5', phase3Complete, phase4Pending), true);
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/5', phase3Complete, phase4Pending), true);
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 4/5', phase3Complete, phase4GapExecution), true);
-  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 5/5', phase3Complete, phase4Complete), true);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 5/5', phase3Complete, phase4Complete, phase5Pending), true);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete), false);
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 1/5', phase3Complete, phase4Pending), false);
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 4/5', phase3Complete, phase4Pending), false);
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 4/5', phase3Complete, phase4Complete), false);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 5/5', phase3Complete, phase4Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/4', phase3Complete, phase4Complete, phase5Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Prefix2), true);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete), true);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 1/4', phase3Complete, phase4Complete, phase5Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Pending, phase5Complete), false);
 });
 
 // ANCHOR-01 and ANCHOR-02: one enduring Vision and one renewable Mission.
@@ -115,9 +143,10 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
 
   const phase3Checks = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, checkbox(isa, id)]));
   const phase4Checks = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, checkbox(isa, id)]));
+  const phase5Checks = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, checkbox(isa, id)]));
   assert.ok(
-    isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks),
-    'ISA must be coherent at completed Phase 3, active Phase 4, or verified Phase 4',
+    isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks),
+    'ISA must be coherent at completed Phase 3, active or verified Phase 4, or active/verified Phase 5',
   );
 });
 
