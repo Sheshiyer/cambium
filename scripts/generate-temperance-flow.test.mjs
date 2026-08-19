@@ -186,7 +186,8 @@ test('FLOW-01: missing selected state and selected-source drift fail closed with
   let result = runGenerator(fixture.root, outputArgs(fixture, '--check'), { succeeds: false });
   assert.match(result.stderr, /STATE\.md|missing/i);
   copyPath(fixture.root, '.planning/STATE.md');
-  writeFileSync(path.join(fixture.root, '.planning/STATE.md'), readFileSync(path.join(fixture.root, '.planning/STATE.md'), 'utf8').replace('/gsd:plan-phase 5', '/gsd:verify-phase 5'));
+  writeFileSync(path.join(fixture.root, '.planning/STATE.md'), readFileSync(path.join(fixture.root, '.planning/STATE.md'), 'utf8')
+    .replace(/\/gsd:[^`]+/, '/gsd:verify-phase 999'));
   result = runGenerator(fixture.root, outputArgs(fixture, '--check'), { succeeds: false });
   assert.match(result.stderr, /STATE\.md|Operator Next Step|source changed|stale/i);
 });
@@ -314,9 +315,11 @@ test('FLOW-04 / WR-03: every readiness decision byte has a named source digest',
   const api = requireSourceApi('decision provenance');
   const fixture = makeFixture();
   t.after(fixture.cleanup);
+  const statePhaseLine = /^Phase: [^\n]+$/m.exec(readFileSync(path.join(fixture.root, '.planning/STATE.md'), 'utf8'))?.[0];
+  assert.ok(statePhaseLine, 'STATE must expose one selected Phase line');
   const cases = [
     ['ISA.md', 'ISC-1282', 'ISC-9999', (model) => model.authorities.isa.source],
-    ['.planning/STATE.md', 'Phase: 5 of 7', 'Phase: 4 of 7', (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === '.planning/STATE.md' && selector.startsWith('text.line:Phase:'))],
+    ['.planning/STATE.md', statePhaseLine, statePhaseLine.replace(/^Phase: \d+/, 'Phase: 999'), (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === '.planning/STATE.md' && selector.startsWith('text.line:Phase:'))],
     ['.project/HANDOFF.md', 'reviewed planning checkpoint', 'unreviewed planning checkpoint', (model) => model.supportingSources.find(({ path: pathname }) => pathname === '.project/HANDOFF.md')],
     ['.planning/phases/05-ralph-and-temperance-flow-projection/05-01-SUMMARY.md', 'Self-Check: PASSED', 'Self-Check: PASSED\n\nDecision evidence changed.', (model) => model.supportingSources.find(({ path: pathname }) => pathname.endsWith('05-01-SUMMARY.md'))],
   ];
