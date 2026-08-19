@@ -5,6 +5,7 @@ import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, re
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { validateRalphIteration } from './ralph-iteration.mjs';
 import { compileTemperanceFlow, renderTemperanceFlowMarkdown } from './temperance-flow.mjs';
 import { buildTemperanceFlowSources } from './temperance-flow-sources.mjs';
 
@@ -338,6 +339,7 @@ test('FLOW-03 / ISC-1284 / D-08: fixed-boundary approval rejects attacker trust,
     custom.approvalVerifier = async (expected) => mutate(await original(expected));
     const result = await requireRunner('approval rejection')(runOptions(fx, { testAdapters: custom }));
     assert.equal(result.reason, 'approval_required');
+    assert.doesNotThrow(() => validateRalphIteration(result));
     assert.equal(existsSync(fx.effects), false);
   }
   const fx = fixture(); t.after(fx.cleanup);

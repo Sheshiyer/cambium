@@ -187,7 +187,9 @@ function validateVerificationReceipt(value, action, execution) {
 
 function stopFromAction(action, reason, facts = {}) {
   const base = { schema: 'cambium.ralph-iteration.v1', status: 'stop', iterationDigest: action.iterationDigest, reason, ...facts };
-  return Object.freeze({ ...base, resultDigest: digestObject(base) });
+  const result = { ...base, resultDigest: digestObject(base) };
+  validateRalphIteration(result);
+  return Object.freeze(result);
 }
 
 async function persistOne({ root, relative, surface, expectedDigest, record, adapter, writer }) {
@@ -323,7 +325,7 @@ async function runWithIntegrations(options, integrations, clock) {
   const host = verifyBoundary(manifestRaw, { ...expected, reference: options.receiptReference }, 'host', clock());
   const approvalRaw = await integrations.approvalVerifier(expected, options.approvalReference);
   const approved = verifyBoundary(approvalRaw, { ...expected, reference: options.approvalReference }, 'approval', clock());
-  if (!host || !approved) return stopFromAction(action, 'approval_required');
+  if (!host || !approved) return stopFromAction(action, 'approval_required', { approvalEvidenceRef: null });
 
   if (prior) {
     try {
