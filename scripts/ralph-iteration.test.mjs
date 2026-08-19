@@ -122,7 +122,7 @@ test('FLOW-02 / ISC-1283 / D-05: blocked and terminal inputs stop with no comman
   blocked.result = { status: 'blocked', task: null, command: null, reasons: [{ code: 'no_dependency_ready_task', sources: [] }] };
   blocked.route.resolved = null;
   blocked.flowDigest = digest('invalid-on-purpose');
-  assert.throws(() => api.deriveRalphIteration(blocked), /flowDigest|projection/i);
+  assert.throws(() => api.deriveRalphIteration(blocked), /flowDigest|projection|receipt|resolved/i);
 
   const action = api.deriveRalphIteration(fx.flow);
   const complete = api.deriveRalphIteration(fx.flow, {

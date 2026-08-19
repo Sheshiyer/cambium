@@ -330,6 +330,11 @@ function activePlanPhase(sourcePath) {
   return value === undefined ? null : String(Number(value));
 }
 
+function authorityPhase(value) {
+  const match = /^0*([0-9]+)(?:\.0*([0-9]+))?/.exec(String(value ?? ''));
+  return match ? [String(Number(match[1])), ...(match[2] === undefined ? [] : [String(Number(match[2]))])].join('.') : null;
+}
+
 function compileAuthority(repositoryRoot, value, kind, allowedStatus, fields) {
   if (value === undefined) return null;
   if (projectionShaped(value)) throw new TypeError(`${kind} authority rejects projection foldback`);
@@ -454,8 +459,8 @@ export function compileTemperanceFlow(input) {
   if (selectedTask && gsd && plan) {
     const phases = [
       commandPhase(selectedTask.command),
-      String(Number(gsd.values.phase)),
-      String(Number(plan.values.phase)),
+      authorityPhase(gsd.values.phase),
+      authorityPhase(plan.values.phase),
       activePlanPhase(selectedTask.source.path),
     ];
     if (phases.some((phase) => phase === null || phase !== phases[0])) {
