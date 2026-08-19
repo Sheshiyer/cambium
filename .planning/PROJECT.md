@@ -18,6 +18,7 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ REQ-07–REQ-11 expose that same slice through feature-gated Telegram intake and a redacted D1 status projection, with live replay, rollback, allowlist, and access-revocation proof.
 - ✓ ANCHOR-01–ANCHOR-04 establish canonical root `VISION.md` and renewable `MISSION.md`, distinguish repository Mission from bounded `FabricMission` records, and make supporting doctrine reference rather than duplicate those authorities — Phase 3 verification.
 - ✓ GRAPH-01–GRAPH-05 establish a deterministic 19-node/25-edge read-only Intent Graph with source provenance, canonical overlay references, explicit lifecycle/gate semantics, and a shared boundary that prevents derived projections from re-entering the operational Goal Graph authority lane — Phase 4 verification.
+- ✓ FLOW-01–FLOW-04 establish one deterministic Temperance next-action projection, a bounded execute/verify/CAS-persist/exit Ralph lifecycle, receipt-gated host attribution, and fail-closed non-authority boundaries without adding a mutable ledger or operational writer — Phase 5 verification.
 
 ### Out of Scope
 
@@ -33,12 +34,13 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 ## Current State
 
 - **Shipped:** v0.3 Managerial Control Loop on 2026-08-17.
-- **Historical proof:** two completed phases, two plans, and eleven checked requirements.
+- **Historical proof:** two completed v0.3 phases, two plans, and eleven checked requirements.
 - **Accepted process debt:** the historical phases predate current GSD `VERIFICATION.md` files; their live evidence remains summary-attested and is archived in the milestone audit.
 - **Active authority:** the root `ISA.md` owns the approved infinite-game documentation goal. This planning file does not replace it.
 - **Phase 3 complete:** canonical Vision and Mission anchors, inherited doctrine overlays, Mission terminology boundaries, and deterministic anchor validation shipped on 2026-08-18.
 - **Phase 4 shipped:** the provenance-preserving Intent Graph and shared projection foldback boundary passed independent verification 5/5, landed through protected PR #351 as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`, and passed exact-main CI run `32152942949` on 2026-08-18.
-- **Next phase:** Phase 5 planning may begin with `/gsd:plan-phase 5`.
+- **Phase 5 complete:** Ralph and Temperance Flow Projection passed independent verification 4/4, completed FLOW-01–FLOW-04, and closed an 18-file code review with zero findings. Host command installation remains separately owner-approved and the repository fails closed when it is absent.
+- **Next phase:** Phase 6 planning may begin with `/gsd:plan-phase 6`.
 
 ## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
@@ -55,7 +57,6 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 ## Active Requirements
 
 - Keep ISA and GSD as the only goal and planning authorities.
-- Expose Ralph next actions, skill-cluster and OmniRoute routes, gates, freshness, and stop conditions through Temperance without copying doctrine into the manifest.
 - Consolidate and reorganize the named root, `MEMORY/`, and `docs/` corpus without deleting historical evidence or promoting plans into current instructions.
 
 ## Evolution
@@ -98,6 +99,8 @@ This document evolves at phase transitions and milestone boundaries.
 | Continue roadmap numbering at Phase 3 | Preserves the historical v0.3 phase lineage and avoids deleting retained phase evidence | Approved for v0.4 |
 | Keep the Intent Graph a deterministic read-only projection | Preserves ISA/GSD/doctrine authority and prevents generated evidence from becoming a third writer | ✓ Proven in Phase 4 |
 | Reject Goal Graph and Intent Graph projections at the shared fresh-authority boundary | Prevents derived evidence from folding back as a new operational command while ordinary authoritative intake remains accepted | ✓ Proven in Phase 4 |
+| Keep Temperance flow and Ralph iteration read-only, finite, and content-addressed | Derives one approved action or fail-closed stop without creating a planner, queue, or mutable ledger | ✓ Proven in Phase 5 |
+| Keep host/provider resolution outside Cambium and receipt-gated | Preserves owner-protected runtime policy while binding repository actions to verified task, route, snapshot, checkout, and evidence | ✓ Proven in Phase 5 |
 
 ---
-*Last updated: 2026-08-18 after Phase 4 protected delivery and exact-main CI proof*
+*Last updated: 2026-08-19 after Phase 5 independent verification and clean code review*
