@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: think
-progress: 5/5
+phase: plan
+progress: 0/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-19T05:36:04Z
+updated: 2026-08-19T06:36:38Z
 ---
 
 ## Problem
@@ -195,13 +195,20 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 - [x] ISC-1275: ANCHOR-03 proves the Repository Mission and bounded `FabricMission` authority distinction through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 - [x] ISC-1276: ANCHOR-04 proves reference-only discovery of both canonical anchors through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 
-### Active Phase 4 acceptance
+### Completed Phase 4 acceptance
 
 - [x] ISC-1277: GRAPH-01 proves one deterministic projection with stable node and labeled-edge semantics for Vision → Mission → finite goals → tasks → evidence → learning.
 - [x] ISC-1278: GRAPH-02 proves every projected node exposes an exact repository-relative source path, named source authority, lifecycle state, and content digest.
 - [x] ISC-1279: GRAPH-03 proves inherited overlays reference canonical root anchors and cannot declare themselves Vision or Repository Mission authorities.
 - [x] ISC-1280: GRAPH-04 proves evidence and learning edges close or renew finite goals without mutating `VISION.md` or silently rewriting `MISSION.md`.
 - [x] ISC-1281: GRAPH-05 proves approval gates, freshness, stop conditions, and blocked states remain explicit, with blocked work never projected as complete.
+
+### Active Phase 5 acceptance
+
+- [ ] ISC-1282: FLOW-01 proves one exact next GSD command is derived from the approved ISA goal, live GSD transition, and active-plan dependencies, while ambiguity or authority conflict yields `blocked` instead of a competing plan.
+- [ ] ISC-1283: FLOW-02 proves a fresh Ralph iteration rereads durable goal, plan, task, evidence, and reviewed handoff state; selects exactly one dependency-ready unit; verifies and persists through existing GSD/handoff surfaces; then exits on an external stop condition without owning a mutable ledger.
+- [ ] ISC-1284: FLOW-03 proves the projection exposes skill-cluster and OmniRoute combo intent plus the native-orchestrator/paid-execution boundary, while only a fresh host receipt supplies resolved provider attribution.
+- [ ] ISC-1285: FLOW-04 proves deterministic machine and human readbacks expose matching references, digests, routes, next action or blocked reason, gates, freshness, and stop conditions without copying doctrine or host policy, extending the Phase 4 graph vocabulary, or becoming an operational writer.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
