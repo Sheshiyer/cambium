@@ -10,6 +10,7 @@
 export const GOAL_GRAPH_PROJECTION_SCHEMA = 'cambium.goal-graph-projection.v1' as const;
 export const GOAL_GRAPH_PROJECTION_SCHEMA_VERSION = 'goal-graph-projection@1.0.0' as const;
 export const INTENT_GRAPH_PROJECTION_SCHEMA = 'cambium.intent-graph-projection.v1' as const;
+export const TEMPERANCE_FLOW_PROJECTION_SCHEMA = 'cambium.temperance-flow-projection.v1' as const;
 
 /** Origins are intentionally extensible: adapters name themselves, while the
  * schema and provenance fields remain closed and versioned. */
@@ -45,6 +46,7 @@ export interface AuthoritativeInputValidationResult<TInput = unknown> {
   reason?:
     | 'goal_graph_projection_is_not_authoritative'
     | 'intent_graph_projection_is_not_authoritative'
+    | 'temperance_flow_projection_is_not_authoritative'
     | 'invalid_projection_envelope';
   errors: readonly string[];
 }
@@ -148,9 +150,22 @@ export function isIntentGraphProjection(input: unknown): boolean {
   return namesIntentGraph && schema.includes('projection');
 }
 
+/** Temperance flow readbacks are inspection-only projections. Exact,
+ * malformed, and normalized future schema markers all stay out of D1. */
+export function isTemperanceFlowProjection(input: unknown): boolean {
+  if (!isRecord(input)) return false;
+  if (input.schema === TEMPERANCE_FLOW_PROJECTION_SCHEMA) return true;
+  const schema = typeof input.schema === 'string'
+    ? input.schema.toLowerCase().replace(/[_\s]+/g, '-')
+    : '';
+  return schema.includes('temperance-flow') && schema.includes('projection');
+}
+
 /** One family discriminator shared by every fresh-authority boundary. */
 export function isDerivedGraphProjection(input: unknown): boolean {
-  return isGoalGraphProjection(input) || isIntentGraphProjection(input);
+  return isGoalGraphProjection(input)
+    || isIntentGraphProjection(input)
+    || isTemperanceFlowProjection(input);
 }
 
 /**
@@ -179,6 +194,13 @@ export function validateAuthoritativeInput<TInput = unknown>(
       accepted: false,
       reason: 'intent_graph_projection_is_not_authoritative',
       errors: ['intent graph projection cannot be accepted as fresh authoritative input'],
+    };
+  }
+  if (isTemperanceFlowProjection(input)) {
+    return {
+      accepted: false,
+      reason: 'temperance_flow_projection_is_not_authoritative',
+      errors: ['Temperance flow projection cannot be accepted as fresh authoritative input'],
     };
   }
   return { accepted: true, value: input, errors: [] };
