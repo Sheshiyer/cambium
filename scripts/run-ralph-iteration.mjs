@@ -16,7 +16,7 @@ const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const SAFE_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
 const ALLOWED_OPTIONS = new Set([
   'root', 'projectionPath', 'receiptReference', 'approvalReference', 'summaryPath', 'statePath',
-  'handoffPath', 'now', 'dryRun',
+  'handoffPath', 'dryRun',
 ]);
 
 function canonicalJson(value) {
@@ -238,7 +238,7 @@ function approvalFor(action, approved) {
   };
 }
 
-async function runWithIntegrations(options, integrations) {
+async function runWithIntegrations(options, integrations, clock) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) throw new TypeError('runner options must be an object');
   const extras = Object.keys(options).filter((key) => !ALLOWED_OPTIONS.has(key));
   if (extras.length > 0) throw new TypeError(`runner options contain forbidden field(s): ${extras.join(', ')}`);
@@ -271,9 +271,9 @@ async function runWithIntegrations(options, integrations) {
     sourceSetDigest: action.sourceSetDigest,
   };
   const manifestRaw = await integrations.manifestVerifier(expected, options.receiptReference);
+  const host = verifyBoundary(manifestRaw, { ...expected, reference: options.receiptReference }, 'host', clock());
   const approvalRaw = await integrations.approvalVerifier(expected, options.approvalReference);
-  const host = verifyBoundary(manifestRaw, { ...expected, reference: options.receiptReference }, 'host', options.now ?? new Date().toISOString());
-  const approved = verifyBoundary(approvalRaw, { ...expected, reference: options.approvalReference }, 'approval', options.now ?? new Date().toISOString());
+  const approved = verifyBoundary(approvalRaw, { ...expected, reference: options.approvalReference }, 'approval', clock());
   if (!host || !approved) return stopFromAction(action, 'approval_required');
 
   if (prior) {
@@ -345,7 +345,7 @@ async function runWithIntegrations(options, integrations) {
 }
 
 export async function runRalphIteration(options) {
-  return runWithIntegrations(options, PRODUCTION_INTEGRATIONS);
+  return runWithIntegrations(options, PRODUCTION_INTEGRATIONS, () => new Date().toISOString());
 }
 
 export function createRalphIterationRunnerForTesting(integrations) {
@@ -353,6 +353,8 @@ export function createRalphIterationRunnerForTesting(integrations) {
     'manifestVerifier', 'approvalVerifier', 'executionReceiptResolver', 'executor',
     'verificationReceiptResolver', 'verification',
   ];
-  if (!integrations || required.some((key) => typeof integrations[key] !== 'function')) throw new TypeError('test runner requires complete explicit integrations');
-  return (options) => runWithIntegrations(options, integrations);
+  if (!integrations || required.some((key) => typeof integrations[key] !== 'function') || typeof integrations.clock !== 'function') {
+    throw new TypeError('test runner requires complete explicit integrations and a deterministic clock');
+  }
+  return (options) => runWithIntegrations(options, integrations, integrations.clock);
 }

@@ -103,6 +103,7 @@ function adapters(fx, options = {}) {
   let bindings;
   const get = () => bindings ??= options.results ?? null;
   return {
+    clock: () => '2026-08-19T08:30:00.000Z',
     manifestVerifier: async (expected) => (get() ?? verificationResults(expected)).host,
     approvalVerifier: async (expected) => (get() ?? verificationResults(expected)).approval,
     executionReceiptResolver: async () => existsSync(fx.executionReceipt) ? JSON.parse(readFileSync(fx.executionReceipt, 'utf8')) : null,
@@ -141,7 +142,7 @@ function runOptions(fx, extra = {}) {
   return {
     root: fx.root, projectionPath: fx.projectionPath, receiptReference: 'manifest:phase5/task01',
     approvalReference: 'manifest:approval/task01', summaryPath: fx.summaryPath,
-    statePath: fx.statePath, handoffPath: fx.handoffPath, now: '2026-08-19T08:30:00.000Z',
+    statePath: fx.statePath, handoffPath: fx.handoffPath,
     dryRun: false, testAdapters: adapters(fx), ...extra,
   };
 }
@@ -296,9 +297,22 @@ test('FLOW-03 / ISC-1284 / D-08: fixed-boundary approval rejects attacker trust,
   const fx = fixture(); t.after(fx.cleanup);
   await assert.rejects(requireRunner('caller trust rejection')({ ...runOptions(fx), trustRoot: 'attacker.pem' }), /forbidden|trust|option/i);
   await assert.rejects(requireRunner('alternate verifier rejection')({ ...runOptions(fx), verifier: 'attacker-command' }), /forbidden|verifier|option/i);
+  const { testAdapters: _testOnly, ...publicOptions } = runOptions(fx);
+  await assert.rejects(subject.runRalphIteration({ ...publicOptions, now: '2026-08-19T08:30:00.000Z' }), /forbidden|now|option/i);
   for (const injected of ['testAdapters', 'manifestVerifier', 'approvalVerifier', 'executor', 'verification']) {
     await assert.rejects(subject.runRalphIteration({ ...runOptions(fx), [injected]: () => ({}) }), /forbidden|option/i);
   }
+});
+
+test('FLOW-03 / CR-02: freshness clocks are factory-owned and sampled after each verifier response', async (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const custom = adapters(fx);
+  const samples = ['2026-08-19T08:30:00.000Z', '2026-08-19T09:00:00.000Z'];
+  custom.clock = () => samples.shift() ?? '2026-08-19T09:00:00.000Z';
+  const result = await requireRunner('per-response freshness clock')(runOptions(fx, { testAdapters: custom }));
+  assert.equal(result.reason, 'approval_required');
+  assert.equal(existsSync(fx.effects), false);
+  assert.equal(samples.length, 0, 'both verifier responses must receive an independent post-response clock sample');
 });
 
 test('FLOW-02 / CR-01: the public runner completes only through fixed host command integrations', async (t) => {
@@ -307,10 +321,15 @@ test('FLOW-02 / CR-01: the public runner completes only through fixed host comma
   const action = await subject.runRalphIteration(publicOptions);
   const hostRoot = path.dirname(fx.executable);
   const configPath = path.join(hostRoot, 'fixed-config.json');
-  writeFileSync(configPath, JSON.stringify(verificationResults({
+  const currentIssuedAt = new Date(Date.now() - 60_000).toISOString();
+  const currentExpiresAt = new Date(Date.now() + 60_000).toISOString();
+  const currentBindings = verificationResults({
     taskId: action.task.id, command: action.command, route: action.route,
     projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest,
-  })));
+  });
+  currentBindings.host = { ...currentBindings.host, issuedAt: currentIssuedAt, expiresAt: currentExpiresAt };
+  currentBindings.approval = { ...currentBindings.approval, issuedAt: currentIssuedAt, expiresAt: currentExpiresAt };
+  writeFileSync(configPath, JSON.stringify(currentBindings));
   const commands = {
     'temperance-manifest-verify': `#!/usr/bin/env node
 import{readFileSync}from'node:fs';const c=JSON.parse(readFileSync(process.env.CAMBIUM_FIXED_TEST_CONFIG,'utf8'));const k=process.argv[process.argv.indexOf('--kind')+1];process.stdout.write(JSON.stringify(k==='approval'?c.approval:c.host));\n`,
