@@ -377,7 +377,8 @@ test('FLOW-04 / WR-03: reviewed readiness binds the full checkpoint, implementat
   assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'pending');
   git('checkout', '--', 'scripts/runtime.mjs');
   assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'ready');
-  writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8').replace('The pure interpreter', 'The changed interpreter'));
+  writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8')
+    .replace('- Generated flowDigest:', '- Semantic checkpoint evidence changed.\n- Generated flowDigest:'));
   model = api.buildTemperanceFlowSources(fixture.root);
   assert.notEqual(model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff').digest, reviewedRef.digest);
   git('add', '.project/HANDOFF.md');
