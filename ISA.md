@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: verify
+phase: think
 progress: 5/5
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-18T14:01:31Z
+updated: 2026-08-19T05:36:04Z
 ---
 
 ## Problem
@@ -1981,6 +1981,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-08-08: Advisor preflight and post-deliverable review were unavailable because the local OAuth session expired and could not refresh. No substitute external mutation was attempted; deterministic repository, filesystem, digest, and boundary probes provide the completion evidence.
 
 - 2026-08-13 14:06: The required post-deliverable advisor call fired but the local OAuth session was expired and could not refresh. No substitute external mutation was attempted; exact production readbacks, independent Forge promotion review, mandatory Cato `PASS-WITH-P2`, strict ISA completeness, and the explicit founder-visibility/rollback-rehearsal holds remain the completion evidence.
+
+- 2026-08-19 11:06: refined: Phase 5 is an authority-resolution projection, not a scheduler or mutable Ralph ledger. Each fresh iteration rereads the approved goal from `ISA.md`, the exact GSD transition and active plan, verified evidence, and the reviewed handoff; selects one dependency-ready unit; persists through existing GSD and handoff surfaces; and stops on a source-backed gate. Cambium records skill-cluster and OmniRoute intent, while fresh host receipts alone supply resolved provider attribution and freshness. The dedicated deterministic machine/human flow readbacks reference the closed Phase 4 Intent Graph without extending its vocabulary, copying doctrine, provider stacks, credentials, quotas, or failover policy, or becoming operational authority.
 
 ## Changelog
 
