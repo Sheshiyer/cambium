@@ -15,8 +15,7 @@ const MARKER = 'cambium-ralph-result-v1';
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const SAFE_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
 const ALLOWED_OPTIONS = new Set([
-  'root', 'projectionPath', 'receiptReference', 'approvalReference', 'summaryPath', 'statePath',
-  'handoffPath', 'dryRun',
+  'root', 'projectionPath', 'receiptReference', 'approvalReference', 'dryRun',
 ]);
 
 function canonicalJson(value) {
@@ -63,6 +62,18 @@ function markerFor(record, surface) {
   return `\n<!-- ${MARKER} ${JSON.stringify({ ...record, surface })} -->\n`;
 }
 
+function persistencePathsFor(action) {
+  const planPath = action.task.source.path;
+  if (!/^\.planning\/phases\/[^/]+\/[^/]+-PLAN\.md$/.test(planPath)) {
+    throw new TypeError('Ralph action plan source cannot derive its summary persistence surface');
+  }
+  return Object.freeze({
+    summary: planPath.replace(/-PLAN\.md$/, '-SUMMARY.md'),
+    state: '.planning/STATE.md',
+    handoff: '.project/HANDOFF.md',
+  });
+}
+
 function findRecord(body) {
   const matches = [...body.matchAll(new RegExp(`<!-- ${MARKER} (\\{[^\\n]+\\}) -->`, 'g'))];
   const markerCount = body.split(`<!-- ${MARKER}`).length - 1;
@@ -82,7 +93,7 @@ function verifyBoundary(value, expected, kind, now) {
   const allowed = new Set([
     'schema', 'verified', 'status', 'issuer', 'audience', 'issuedAt', 'expiresAt', 'nonce',
     refKey, 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
-    'evidenceRef', 'payloadDigest',
+    'persistencePaths', 'evidenceRef', 'payloadDigest',
   ]);
   if (!value || Object.keys(value).some((key) => !allowed.has(key))) return null;
   if (value.schema !== schema || value.verified !== true || value.status !== status
@@ -94,7 +105,8 @@ function verifyBoundary(value, expected, kind, now) {
   if (!SAFE_REFERENCE.test(value[refKey] ?? '') || value[refKey] !== expected.reference
       || value.taskId !== expected.taskId || value.command !== expected.command
       || value.projectionDigest !== expected.projectionDigest || value.sourceSetDigest !== expected.sourceSetDigest
-      || !same(value.route, expected.route) || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
+      || !same(value.route, expected.route) || !same(value.persistencePaths, expected.persistencePaths)
+      || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
       || typeof value.nonce !== 'string' || value.nonce.length === 0 || !DIGEST.test(value.payloadDigest ?? '')) return null;
   return {
     status,
@@ -102,7 +114,7 @@ function verifyBoundary(value, expected, kind, now) {
     bindingDigest: digestObject({
       schema, status, reference: value[refKey], taskId: value.taskId, command: value.command,
       route: value.route, projectionDigest: value.projectionDigest, sourceSetDigest: value.sourceSetDigest,
-      nonce: value.nonce, payloadDigest: value.payloadDigest,
+      persistencePaths: value.persistencePaths, nonce: value.nonce, payloadDigest: value.payloadDigest,
     }),
   };
 }
@@ -172,14 +184,15 @@ async function persistOne({ root, relative, surface, expectedDigest, record, ada
   const target = contained(root, relative);
   const current = readFileSync(target, 'utf8');
   const existing = findRecord(current);
-  if (existing?.iterationDigest === record.iterationDigest && existing?.resultDigest === record.resultDigest) return { status: 'already_applied' };
+  const expectedRecord = { ...record, surface };
+  if (existing && same(existing, expectedRecord)) return { status: 'already_applied' };
   if (digestBytes(current) !== expectedDigest) return { status: 'cas_conflict' };
   const append = markerFor(record, surface);
   const next = adapter ? await adapter({ surface, path: relative, current, append, expectedDigest, record: structuredClone(record) }) : `${current}${append}`;
   if (typeof next !== 'string') throw new TypeError(`${surface} adapter must return complete text`);
   const nextRecord = findRecord(next);
-  if (nextRecord?.iterationDigest !== record.iterationDigest || nextRecord?.resultDigest !== record.resultDigest) {
-    throw new TypeError(`${surface} adapter must preserve the stable Ralph receipt`);
+  if (!same(nextRecord, expectedRecord)) {
+    throw new TypeError(`${surface} adapter must preserve the complete stable Ralph receipt`);
   }
   if (digestBytes(readFileSync(target, 'utf8')) !== expectedDigest) return { status: 'cas_conflict' };
   writer(target, next);
@@ -187,12 +200,13 @@ async function persistOne({ root, relative, surface, expectedDigest, record, ada
 }
 
 function recoverySourceCheck(root, record, surfaces) {
+  const { surface: _summarySurface, ...baseRecord } = record;
   for (const [relative, expectedDigest] of Object.entries(record.sourceFiles)) {
     const current = readRelative(root, relative);
     const surface = Object.entries(surfaces).find(([, pathname]) => pathname === relative)?.[0];
     if (surface) {
       const applied = findRecord(current);
-      if (applied?.iterationDigest === record.iterationDigest && applied?.resultDigest === record.resultDigest) continue;
+      if (applied && same(applied, { ...baseRecord, surface })) continue;
     }
     if (digestBytes(current) !== expectedDigest) return false;
   }
@@ -202,12 +216,13 @@ function recoverySourceCheck(root, record, surfaces) {
 function validateRecoveryRecord(record, action, expected, paths, host, approved) {
   const allowed = [
     'surface', 'schema', 'iterationDigest', 'resultDigest', 'sourceSnapshotDigest', 'sourceFiles',
-    'preimages', 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
+    'preimages', 'persistencePaths', 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
     'hostEvidenceRef', 'approvalEvidenceRef', 'executionEvidenceRef', 'verificationEvidenceRef', 'outcome',
   ];
   if (!record || Object.keys(record).sort().join() !== allowed.sort().join()) throw new TypeError('Ralph recovery record must use the closed schema');
   if (record.surface !== 'summary' || record.schema !== MARKER || record.iterationDigest !== action.iterationDigest
       || record.taskId !== action.task.id || record.command !== action.command || !same(record.route, action.route)
+      || !same(record.persistencePaths, paths)
       || record.projectionDigest !== action.projectionDigest || record.sourceSetDigest !== action.sourceSetDigest
       || record.hostEvidenceRef !== host.evidenceRef || record.approvalEvidenceRef !== approved.evidenceRef) {
     throw new TypeError('Ralph recovery record is not bound to the approved action');
@@ -244,22 +259,23 @@ async function runWithIntegrations(options, integrations, clock) {
   if (extras.length > 0) throw new TypeError(`runner options contain forbidden field(s): ${extras.join(', ')}`);
   const root = realpathSync(options.root);
   if (!statSync(root).isDirectory()) throw new TypeError('runner root must be a directory');
-  const paths = {
-    summary: options.summaryPath,
-    state: options.statePath,
-    handoff: options.handoffPath,
-  };
-  for (const relative of [options.projectionPath, ...Object.values(paths)]) contained(root, relative);
+  contained(root, options.projectionPath);
   if (!SAFE_REFERENCE.test(options.receiptReference ?? '') || !SAFE_REFERENCE.test(options.approvalReference ?? '')) throw new TypeError('runner requires opaque host receipt and approval references');
   const flow = JSON.parse(readRelative(root, options.projectionPath));
   const action = deriveRalphIteration(flow);
   if (action.status === 'stop') return action;
   if (options.dryRun !== false) return action;
+  const paths = persistencePathsFor(action);
+  const resolvedPaths = Object.values(paths).map((relative) => contained(root, relative));
+  if (new Set(resolvedPaths).size !== resolvedPaths.length) throw new TypeError('Ralph persistence surfaces must resolve to three distinct files');
   if (options.receiptReference !== action.route.receiptRef) throw new TypeError('runner receipt reference must exactly match the projected route intent');
 
   const sourcePaths = [options.projectionPath, ...allProjectionPaths(flow), ...Object.values(paths)];
   const summaryBody = readRelative(root, paths.summary);
   const prior = findRecord(summaryBody);
+  if (!prior && ['state', 'handoff'].some((surface) => findRecord(readRelative(root, paths[surface])) !== null)) {
+    return stopFromAction(action, 'source_drift');
+  }
   const initial = prior
     ? { files: prior.sourceFiles, digest: prior.sourceSnapshotDigest }
     : snapshot(root, sourcePaths);
@@ -269,6 +285,7 @@ async function runWithIntegrations(options, integrations, clock) {
     route: action.route,
     projectionDigest: action.projectionDigest,
     sourceSetDigest: action.sourceSetDigest,
+    persistencePaths: paths,
   };
   const manifestRaw = await integrations.manifestVerifier(expected, options.receiptReference);
   const host = verifyBoundary(manifestRaw, { ...expected, reference: options.receiptReference }, 'host', clock());
@@ -319,6 +336,7 @@ async function runWithIntegrations(options, integrations, clock) {
     sourceSnapshotDigest: initial.digest,
     sourceFiles: initial.files,
     preimages: Object.fromEntries(Object.entries(paths).map(([surface, relative]) => [surface, initial.files[relative]])),
+    persistencePaths: paths,
     taskId: action.task.id,
     command: action.command,
     route: expected.route,

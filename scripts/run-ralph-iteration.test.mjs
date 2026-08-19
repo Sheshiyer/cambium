@@ -85,6 +85,7 @@ function verificationResults(expected, overrides = {}) {
       expiresAt: '2026-08-19T09:00:00.000Z', nonce: 'host-nonce', receiptRef: 'manifest:phase5/task01',
       taskId: expected.taskId, command: expected.command, route: expected.route,
       projectionDigest: expected.projectionDigest, sourceSetDigest: expected.sourceSetDigest,
+      persistencePaths: expected.persistencePaths,
       evidenceRef: 'manifest:event/task01', payloadDigest: digest('host-payload'),
     },
     approval: {
@@ -93,6 +94,7 @@ function verificationResults(expected, overrides = {}) {
       expiresAt: '2026-08-19T09:00:00.000Z', nonce: 'approval-nonce', approvalRef: 'manifest:approval/task01',
       taskId: expected.taskId, command: expected.command, route: expected.route,
       projectionDigest: expected.projectionDigest, sourceSetDigest: expected.sourceSetDigest,
+      persistencePaths: expected.persistencePaths,
       evidenceRef: 'manifest:event/approval-task01', payloadDigest: digest('approval-payload'),
     },
     ...overrides,
@@ -141,8 +143,7 @@ function adapters(fx, options = {}) {
 function runOptions(fx, extra = {}) {
   return {
     root: fx.root, projectionPath: fx.projectionPath, receiptReference: 'manifest:phase5/task01',
-    approvalReference: 'manifest:approval/task01', summaryPath: fx.summaryPath,
-    statePath: fx.statePath, handoffPath: fx.handoffPath,
+    approvalReference: 'manifest:approval/task01',
     dryRun: false, testAdapters: adapters(fx), ...extra,
   };
 }
@@ -276,6 +277,30 @@ test('FLOW-02 / CR-02: forged, partial, duplicated, and field-tampered summary r
   await assert.rejects(requireRunner('reject duplicate marker')(runOptions(duplicate)), /exactly one|well-formed/i);
 });
 
+test('FLOW-02 / CR-03: production derives three fixed surfaces and rejects digest-only replay markers', async (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const options = runOptions(fx);
+  for (const injected of [
+    { summaryPath: fx.statePath },
+    { statePath: fx.summaryPath },
+    { handoffPath: fx.summaryPath },
+  ]) {
+    await assert.rejects(requireRunner('caller persistence path rejection')({ ...options, ...injected }), /forbidden|path|option/i);
+  }
+
+  const action = await requireRunner('derive fixed persistence identity')({ ...options, dryRun: undefined });
+  const stateTarget = path.join(fx.root, fx.statePath);
+  writeFileSync(stateTarget, `${readFileSync(stateTarget, 'utf8')}\n<!-- cambium-ralph-result-v1 ${JSON.stringify({
+    iterationDigest: action.iterationDigest,
+    resultDigest: digest('attacker-result'),
+    surface: 'state',
+  })} -->\n`);
+  const stopped = await requireRunner('reject digest-only state replay')(options);
+  assert.equal(stopped.reason, 'source_drift');
+  assert.equal(existsSync(fx.effects), false);
+  assert.equal(readFileSync(path.join(fx.root, fx.handoffPath), 'utf8').includes(action.iterationDigest), false);
+});
+
 test('FLOW-03 / ISC-1284 / D-08: fixed-boundary approval rejects attacker trust, stale, denied, mismatched, and replay-conflicting results', async (t) => {
   for (const mutate of [
     (x) => ({ ...x, issuer: 'attacker-verifier' }),
@@ -326,6 +351,7 @@ test('FLOW-02 / CR-01: the public runner completes only through fixed host comma
   const currentBindings = verificationResults({
     taskId: action.task.id, command: action.command, route: action.route,
     projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest,
+    persistencePaths: { summary: fx.summaryPath, state: fx.statePath, handoff: fx.handoffPath },
   });
   currentBindings.host = { ...currentBindings.host, issuedAt: currentIssuedAt, expiresAt: currentExpiresAt };
   currentBindings.approval = { ...currentBindings.approval, issuedAt: currentIssuedAt, expiresAt: currentExpiresAt };
