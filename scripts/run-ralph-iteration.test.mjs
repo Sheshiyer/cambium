@@ -53,7 +53,9 @@ function fixture() {
   const summaryPath = '.planning/phases/05-ralph-and-temperance-flow-projection/05-03-SUMMARY.md';
   // Make the copied durable state agree with the executable transition.
   const statePath = path.join(root, '.planning/STATE.md');
-  writeFileSync(statePath, readFileSync(statePath, 'utf8').replace(/\/gsd:[^`]+/, '/gsd:execute-phase 5'));
+  writeFileSync(statePath, readFileSync(statePath, 'utf8')
+    .replace(/^Phase: \d+ of 7 \([^\n]+\)$/m, 'Phase: 5 of 7 (Ralph and Temperance Flow Projection)')
+    .replace(/\/gsd:[^`]+/, '/gsd:execute-phase 5'));
   const executable = path.join(hostRoot, 'fixture-executor.mjs');
   const verifier = path.join(hostRoot, 'fixture-verifier.mjs');
   writeFileSync(executable, "import{appendFileSync}from'node:fs';appendFileSync(process.argv[2],'execute\\n');\n");
