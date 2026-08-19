@@ -14,6 +14,15 @@ try {
 }
 
 const digest = (value) => `sha256:${createHash('sha256').update(value).digest('hex')}`;
+const canonicalJson = (value) => {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+};
+const rehashAction = (value) => {
+  const { iterationDigest: _ignored, ...identity } = value;
+  return { ...value, iterationDigest: digest(canonicalJson(identity)) };
+};
 
 function requireSubject(label) {
   assert.equal(typeof subject?.deriveRalphIteration, 'function', `${label}: Ralph derivation is not implemented`);
@@ -172,6 +181,7 @@ test('FLOW-02 / WR-02: serialized actions reject mutated identity, gates, nested
     { ...action, command: '/gsd:execute-phase 6' },
     { ...action, route: { ...action.route, combo: 'te-fast' } },
     { ...action, task: { ...action.task, id: 'other-task' } },
+    { ...action, task: { ...action.task, source: { ...action.task.source, selector: 'text.line:attacker' } } },
     { ...action, receiptGate: { ...action.receiptGate, status: 'bypassed' } },
     { ...action, approvalGate: { ...action.approvalGate, required: 'yes' } },
     { ...action, persistenceSurfaces: ['summary'] },
@@ -179,6 +189,24 @@ test('FLOW-02 / WR-02: serialized actions reject mutated identity, gates, nested
     { ...action, attackerField: true },
   ];
   for (const mutation of mutations) assert.throws(() => api.validateRalphIteration(mutation), /action|schema|identity|digest|gate|route|task|persist/i);
+});
+
+test('FLOW-02 / WR-01: recomputed action digests cannot hide contradictory executable facts', (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const api = requireSubject('cross-field action validation');
+  const action = api.deriveRalphIteration(fx.flow);
+  const mutations = [
+    (value) => { value.task.dependencies = [{ id: 'pending-plan', status: 'pending' }]; },
+    (value) => { value.declaredVerification = []; },
+    (value) => { value.receiptGate.required = false; },
+    (value) => { value.receiptGate.status = 'required'; },
+    (value) => { value.approvalGate.required = false; value.approvalGate.status = 'not_required'; },
+  ];
+  for (const mutate of mutations) {
+    const candidate = structuredClone(action);
+    mutate(candidate);
+    assert.throws(() => api.validateRalphIteration(rehashAction(candidate)), /dependency|verification|receipt|approval|identity|digest|source/i);
+  }
 });
 
 test('FLOW-02 / ISC-1283: pure interpreter source contains no side-effect or mutable-ledger dependencies', () => {

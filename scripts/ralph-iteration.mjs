@@ -60,6 +60,9 @@ function validateAction(value) {
     }
     dependencyIds.add(dependency.id);
   }
+  if (value.task.dependencies.some(({ status }) => status !== 'complete' && status !== 'satisfied')) {
+    throw new TypeError('Ralph action cannot retain an incomplete dependency');
+  }
   exactKeys(value.route, ['skillCluster', 'combo', 'lane', 'approvalRequired', 'receiptRef'], 'Ralph action route');
   safeString(value.route.skillCluster, 'Ralph action route skillCluster');
   safeString(value.route.combo, 'Ralph action route combo');
@@ -74,25 +77,31 @@ function validateAction(value) {
       || (value.receiptGate.evidenceRef !== null && !SAFE_REFERENCE.test(value.receiptGate.evidenceRef))) {
     throw new TypeError('Ralph receipt gate is invalid');
   }
+  const paidLane = value.route.lane === 'paid_execution';
+  if (value.receiptGate.required !== paidLane || (paidLane && value.route.receiptRef === null)
+      || (value.receiptGate.status === 'satisfied') !== (value.receiptGate.evidenceRef !== null)) {
+    throw new TypeError('Ralph paid route and receipt gate are incoherent');
+  }
   exactKeys(value.approvalGate, ['required', 'status'], 'Ralph approval gate');
   if (typeof value.approvalGate.required !== 'boolean'
       || !['required', 'not_required'].includes(value.approvalGate.status)) throw new TypeError('Ralph approval gate is invalid');
+  if (value.approvalGate.required !== value.route.approvalRequired
+      || value.approvalGate.status !== (value.route.approvalRequired ? 'required' : 'not_required')) {
+    throw new TypeError('Ralph route approval and approval gate are incoherent');
+  }
   if (!Array.isArray(value.declaredVerification) || value.declaredVerification.length > 256) throw new TypeError('Ralph declared verification is invalid');
   for (const gate of value.declaredVerification) {
     exactKeys(gate, ['kind', 'source', 'satisfied'], 'Ralph declared verification gate');
     if (gate.kind !== 'declared_verification' || typeof gate.satisfied !== 'boolean') throw new TypeError('Ralph declared verification gate is invalid');
     validateSource(gate.source, 'Ralph declared verification source');
   }
+  if (value.declaredVerification.length === 0 || value.declaredVerification.some(({ satisfied }) => satisfied)) {
+    throw new TypeError('Ralph action requires pending declared projection verification');
+  }
   if (!same(value.persistenceSurfaces, ['summary', 'state', 'handoff']) || value.externalStopCondition !== 'exit_after_one_unit') {
     throw new TypeError('Ralph action persistence or external stop is invalid');
   }
-  const identity = {
-    projectionDigest: value.projectionDigest,
-    sourceSetDigest: value.sourceSetDigest,
-    taskId: value.task.id,
-    command: value.command,
-    route: value.route,
-  };
+  const { iterationDigest: _ignored, ...identity } = value;
   if (digestObject(identity) !== value.iterationDigest) throw new TypeError('Ralph action iterationDigest does not match canonical identity');
 }
 
@@ -155,21 +164,20 @@ export function validateRalphIteration(value, options = {}) {
 
 export function deriveRalphIteration(flowInput, externalResult) {
   const flow = validateTemperanceFlowProjection(structuredClone(flowInput));
-  const identity = {
+  const blockedIdentity = {
     projectionDigest: flow.flowDigest,
     sourceSetDigest: flow.sourceSetDigest,
     taskId: flow.result.task?.id ?? null,
     command: flow.result.command,
     route: flow.route.intent,
   };
-  const iterationDigest = digestObject(identity);
+  const blockedIterationDigest = digestObject(blockedIdentity);
   if (flow.result.status === 'blocked') {
-    return stop(iterationDigest, 'flow_blocked', { blockedReasons: structuredClone(flow.result.reasons) });
+    return stop(blockedIterationDigest, 'flow_blocked', { blockedReasons: structuredClone(flow.result.reasons) });
   }
-  const action = deepFreeze({
+  const actionWithoutDigest = {
     schema: RALPH_ITERATION_SCHEMA,
     status: 'action',
-    iterationDigest,
     projectionDigest: flow.flowDigest,
     sourceSetDigest: flow.sourceSetDigest,
     task: structuredClone(flow.result.task),
@@ -187,7 +195,9 @@ export function deriveRalphIteration(flowInput, externalResult) {
     declaredVerification: structuredClone(flow.gates.filter(({ kind }) => kind === 'declared_verification')),
     persistenceSurfaces: ['summary', 'state', 'handoff'],
     externalStopCondition: 'exit_after_one_unit',
-  });
+  };
+  const action = deepFreeze({ ...actionWithoutDigest, iterationDigest: digestObject(actionWithoutDigest) });
+  const iterationDigest = action.iterationDigest;
   if (externalResult === undefined) return validateRalphIteration(action);
   if (externalResult?.status === 'stop') throw new TypeError('terminal Ralph result cannot be revived');
   if (action.approvalGate.required && !approvalMatches(externalResult?.approval, action)) {
