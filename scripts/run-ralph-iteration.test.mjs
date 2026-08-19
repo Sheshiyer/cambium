@@ -340,57 +340,61 @@ test('FLOW-03 / CR-02: freshness clocks are factory-owned and sampled after each
   assert.equal(samples.length, 0, 'both verifier responses must receive an independent post-response clock sample');
 });
 
-test('FLOW-02 / CR-01: the public runner completes only through fixed host command integrations', async (t) => {
+test('FLOW-02 / CR-01: production-equivalent execution resolves owner-protected digest-bound host commands', async (t) => {
   const fx = fixture(); t.after(fx.cleanup);
   const { testAdapters: _ignored, ...publicOptions } = runOptions(fx, { dryRun: undefined });
-  const action = await subject.runRalphIteration(publicOptions);
+  const action = await requireRunner('derive protected boundary bindings')(runOptions(fx, { dryRun: undefined }));
   const hostRoot = path.dirname(fx.executable);
   const configPath = path.join(hostRoot, 'fixed-config.json');
-  const currentIssuedAt = new Date(Date.now() - 60_000).toISOString();
-  const currentExpiresAt = new Date(Date.now() + 60_000).toISOString();
   const currentBindings = verificationResults({
     taskId: action.task.id, command: action.command, route: action.route,
     projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest,
     persistencePaths: { summary: fx.summaryPath, state: fx.statePath, handoff: fx.handoffPath },
   });
-  currentBindings.host = { ...currentBindings.host, issuedAt: currentIssuedAt, expiresAt: currentExpiresAt };
-  currentBindings.approval = { ...currentBindings.approval, issuedAt: currentIssuedAt, expiresAt: currentExpiresAt };
   writeFileSync(configPath, JSON.stringify(currentBindings));
+  const node = process.execPath;
   const commands = {
-    'temperance-manifest-verify': `#!/usr/bin/env node
-import{readFileSync}from'node:fs';const c=JSON.parse(readFileSync(process.env.CAMBIUM_FIXED_TEST_CONFIG,'utf8'));const k=process.argv[process.argv.indexOf('--kind')+1];process.stdout.write(JSON.stringify(k==='approval'?c.approval:c.host));\n`,
-    'temperance-ralph-execute': `#!/usr/bin/env node
-import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(process.env.CAMBIUM_FIXED_EXECUTION_RECEIPT))process.exit(3);process.stdout.write(readFileSync(process.env.CAMBIUM_FIXED_EXECUTION_RECEIPT,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(process.env.CAMBIUM_FIXED_EFFECTS,'execute\\n');const out={schema:'temperance.execution-receipt.v1',status:'succeeded',idempotencyKey:r.idempotencyKey,taskId:r.taskId,command:r.command,route:r.route,sourceSnapshotDigest:r.sourceSnapshotDigest,evidenceRef:'temperance:execution/task01',payloadDigest:'${digest('execution-payload')}'};writeFileSync(process.env.CAMBIUM_FIXED_EXECUTION_RECEIPT,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
-    'temperance-ralph-verify': `#!/usr/bin/env node
-import{createHash}from'node:crypto';import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const cj=v=>Array.isArray(v)?'['+v.map(cj).join(',')+']':v===null||typeof v!=='object'?JSON.stringify(v):'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+cj(v[k])).join(',')+'}';const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(process.env.CAMBIUM_FIXED_VERIFICATION_RECEIPT))process.exit(3);process.stdout.write(readFileSync(process.env.CAMBIUM_FIXED_VERIFICATION_RECEIPT,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(process.env.CAMBIUM_FIXED_EFFECTS,'verify\\n');const out={schema:'temperance.declared-verification-receipt.v1',status:'passed',idempotencyKey:r.idempotencyKey,taskId:r.taskId,declaredVerificationDigest:'sha256:'+createHash('sha256').update(cj(r.declaredVerification)).digest('hex'),executionEvidenceRef:r.executionEvidenceRef,evidenceRef:'temperance:verification/task01',payloadDigest:'${digest('verification-payload')}'};writeFileSync(process.env.CAMBIUM_FIXED_VERIFICATION_RECEIPT,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
+    'temperance-manifest-verify': `#!${node}
+import{appendFileSync,readFileSync}from'node:fs';const u=new URL('.',import.meta.url);appendFileSync(new URL('environment.log',u),process.env.CAMBIUM_ATTACKER_VALUE??'scrubbed');const c=JSON.parse(readFileSync(new URL('fixed-config.json',u),'utf8'));const k=process.argv[process.argv.indexOf('--kind')+1];process.stdout.write(JSON.stringify(k==='approval'?c.approval:c.host));\n`,
+    'temperance-ralph-execute': `#!${node}
+import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const u=new URL('.',import.meta.url),p=new URL('execution-receipt.json',u);const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(p))process.exit(3);process.stdout.write(readFileSync(p,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(new URL('effects.log',u),'execute\\n');const out={schema:'temperance.execution-receipt.v1',status:'succeeded',idempotencyKey:r.idempotencyKey,taskId:r.taskId,command:r.command,route:r.route,sourceSnapshotDigest:r.sourceSnapshotDigest,evidenceRef:'temperance:execution/task01',payloadDigest:'${digest('execution-payload')}'};writeFileSync(p,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
+    'temperance-ralph-verify': `#!${node}
+import{createHash}from'node:crypto';import{appendFileSync,existsSync,readFileSync,writeFileSync}from'node:fs';const u=new URL('.',import.meta.url),p=new URL('verification-receipt.json',u);const cj=v=>Array.isArray(v)?'['+v.map(cj).join(',')+']':v===null||typeof v!=='object'?JSON.stringify(v):'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+cj(v[k])).join(',')+'}';const lookup=process.argv.includes('--lookup');if(lookup){if(!existsSync(p))process.exit(3);process.stdout.write(readFileSync(p,'utf8'));}else{let b='';for await(const c of process.stdin)b+=c;const r=JSON.parse(b);appendFileSync(new URL('effects.log',u),'verify\\n');const out={schema:'temperance.declared-verification-receipt.v1',status:'passed',idempotencyKey:r.idempotencyKey,taskId:r.taskId,declaredVerificationDigest:'sha256:'+createHash('sha256').update(cj(r.declaredVerification)).digest('hex'),executionEvidenceRef:r.executionEvidenceRef,evidenceRef:'temperance:verification/task01',payloadDigest:'${digest('verification-payload')}'};writeFileSync(p,JSON.stringify(out));process.stdout.write(JSON.stringify(out));}\n`,
   };
+  const descriptors = {};
   for (const [name, body] of Object.entries(commands)) {
     const pathname = path.join(hostRoot, name);
     writeFileSync(pathname, body);
     chmodSync(pathname, 0o700);
+    descriptors[name === 'temperance-manifest-verify' ? 'manifestVerifier' : name === 'temperance-ralph-execute' ? 'ralphExecutor' : 'ralphVerifier'] = {
+      path: name,
+      digest: digest(body),
+    };
   }
-  const saved = {
-    PATH: process.env.PATH,
-    config: process.env.CAMBIUM_FIXED_TEST_CONFIG,
-    execution: process.env.CAMBIUM_FIXED_EXECUTION_RECEIPT,
-    verification: process.env.CAMBIUM_FIXED_VERIFICATION_RECEIPT,
-    effects: process.env.CAMBIUM_FIXED_EFFECTS,
-  };
-  t.after(() => {
-    process.env.PATH = saved.PATH;
-    for (const [key, value] of [
-      ['CAMBIUM_FIXED_TEST_CONFIG', saved.config], ['CAMBIUM_FIXED_EXECUTION_RECEIPT', saved.execution],
-      ['CAMBIUM_FIXED_VERIFICATION_RECEIPT', saved.verification], ['CAMBIUM_FIXED_EFFECTS', saved.effects],
-    ]) value === undefined ? delete process.env[key] : process.env[key] = value;
-  });
-  process.env.PATH = `${hostRoot}${path.delimiter}${saved.PATH}`;
-  process.env.CAMBIUM_FIXED_TEST_CONFIG = configPath;
-  process.env.CAMBIUM_FIXED_EXECUTION_RECEIPT = fx.executionReceipt;
-  process.env.CAMBIUM_FIXED_VERIFICATION_RECEIPT = fx.verificationReceipt;
-  process.env.CAMBIUM_FIXED_EFFECTS = fx.effects;
-  const result = await subject.runRalphIteration({ ...publicOptions, dryRun: false });
+  const manifestPath = path.join(hostRoot, 'boundary.v1.json');
+  writeFileSync(manifestPath, JSON.stringify({
+    schema: 'temperance.cambium-ralph-boundary.v1', issuer: 'temperance-engine', audience: 'cambium-ralph-iteration', commands: descriptors,
+  }));
+  chmodSync(hostRoot, 0o700);
+  const savedAttacker = process.env.CAMBIUM_ATTACKER_VALUE;
+  process.env.CAMBIUM_ATTACKER_VALUE = 'leaked';
+  t.after(() => savedAttacker === undefined ? delete process.env.CAMBIUM_ATTACKER_VALUE : process.env.CAMBIUM_ATTACKER_VALUE = savedAttacker);
+  const protectedRunner = subject.createProtectedRalphIterationRunnerForTesting(
+    { installationRoot: hostRoot, manifestPath }, () => '2026-08-19T08:30:00.000Z',
+  );
+  const result = await protectedRunner({ ...publicOptions, dryRun: false });
   assert.equal(result.reason, 'iteration_complete');
   assert.deepEqual(readFileSync(fx.effects, 'utf8').trim().split('\n'), ['execute', 'verify']);
+  assert.equal(readFileSync(path.join(hostRoot, 'environment.log'), 'utf8'), 'scrubbedscrubbed');
+
+  const tampered = `${commands['temperance-ralph-execute']}\n// attacker mutation\n`;
+  writeFileSync(path.join(hostRoot, 'temperance-ralph-execute'), tampered);
+  await assert.rejects(
+    async () => subject.createProtectedRalphIterationRunnerForTesting(
+      { installationRoot: hostRoot, manifestPath }, () => '2026-08-19T08:30:00.000Z',
+    )({ ...publicOptions, dryRun: undefined }),
+    /digest does not match/i,
+  );
 });
 
 test('FLOW-02 / ISC-1283: executor failure, verification failure, terminal flow, and second-ready-unit never persist', async (t) => {

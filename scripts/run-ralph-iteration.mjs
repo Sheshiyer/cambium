@@ -1,10 +1,9 @@
 import { createHash } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { deriveRalphIteration, validateRalphIteration } from './ralph-iteration.mjs';
+import { createTemperanceHostCommandRunner } from './temperance-host-boundary.mjs';
 
-const FIXED_VERIFIER = 'temperance-manifest-verify';
 const FIXED_ISSUER = 'temperance-manifest-bridge';
 const FIXED_AUDIENCE = 'cambium-ralph-iteration';
 const HOST_SCHEMA = 'temperance.manifest-verification.v1';
@@ -119,35 +118,22 @@ function verifyBoundary(value, expected, kind, now) {
   };
 }
 
-function fixedVerify(reference, kind) {
-  const result = spawnSync(FIXED_VERIFIER, ['--json', '--reference', reference, '--kind', kind], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-  if (result.error || result.status !== 0) throw new TypeError(`fixed host Manifest verifier failed for ${reference}`);
-  try { return JSON.parse(result.stdout); } catch { throw new TypeError('fixed host Manifest verifier returned invalid JSON'); }
-}
-
-function fixedJsonCommand(command, args, input, { allowMissing = false } = {}) {
-  const result = spawnSync(command, args, {
-    encoding: 'utf8',
-    input: input === undefined ? undefined : `${canonicalJson(input)}\n`,
-    stdio: ['pipe', 'pipe', 'pipe'],
+function protectedIntegrations(boundaryOptions) {
+  const run = createTemperanceHostCommandRunner(boundaryOptions);
+  const jsonInput = (value) => `${canonicalJson(value)}\n`;
+  return Object.freeze({
+    manifestVerifier: async (_expected, reference) => run('manifestVerifier', ['--json', '--reference', reference, '--kind', 'receipt']),
+    approvalVerifier: async (_expected, reference) => run('manifestVerifier', ['--json', '--reference', reference, '--kind', 'approval']),
+    executionReceiptResolver: async ({ iterationDigest }) => run(
+      'ralphExecutor', ['--json', '--lookup', '--idempotency-key', iterationDigest], undefined, { allowMissing: true },
+    ),
+    executor: async (request) => run('ralphExecutor', ['--json', '--execute'], jsonInput(request)),
+    verificationReceiptResolver: async ({ iterationDigest }) => run(
+      'ralphVerifier', ['--json', '--lookup', '--idempotency-key', iterationDigest], undefined, { allowMissing: true },
+    ),
+    verification: async (request) => run('ralphVerifier', ['--json', '--verify'], jsonInput(request)),
   });
-  if (allowMissing && result.status === 3) return null;
-  if (result.error || result.status !== 0) throw new TypeError(`fixed host command ${command} failed`);
-  try { return JSON.parse(result.stdout); } catch { throw new TypeError(`fixed host command ${command} returned invalid JSON`); }
 }
-
-const PRODUCTION_INTEGRATIONS = Object.freeze({
-  manifestVerifier: async (_expected, reference) => fixedVerify(reference, 'receipt'),
-  approvalVerifier: async (_expected, reference) => fixedVerify(reference, 'approval'),
-  executionReceiptResolver: async ({ iterationDigest }) => fixedJsonCommand(
-    'temperance-ralph-execute', ['--json', '--lookup', '--idempotency-key', iterationDigest], undefined, { allowMissing: true },
-  ),
-  executor: async (request) => fixedJsonCommand('temperance-ralph-execute', ['--json', '--execute'], request),
-  verificationReceiptResolver: async ({ iterationDigest }) => fixedJsonCommand(
-    'temperance-ralph-verify', ['--json', '--lookup', '--idempotency-key', iterationDigest], undefined, { allowMissing: true },
-  ),
-  verification: async (request) => fixedJsonCommand('temperance-ralph-verify', ['--json', '--verify'], request),
-});
 
 function validateExecutionReceipt(value, action, sourceSnapshotDigest) {
   const allowed = ['schema', 'status', 'idempotencyKey', 'taskId', 'command', 'route', 'sourceSnapshotDigest', 'evidenceRef', 'payloadDigest'];
@@ -253,10 +239,14 @@ function approvalFor(action, approved) {
   };
 }
 
-async function runWithIntegrations(options, integrations, clock) {
+function validateOptionsShape(options) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) throw new TypeError('runner options must be an object');
   const extras = Object.keys(options).filter((key) => !ALLOWED_OPTIONS.has(key));
   if (extras.length > 0) throw new TypeError(`runner options contain forbidden field(s): ${extras.join(', ')}`);
+}
+
+async function runWithIntegrations(options, integrations, clock) {
+  validateOptionsShape(options);
   const root = realpathSync(options.root);
   if (!statSync(root).isDirectory()) throw new TypeError('runner root must be a directory');
   contained(root, options.projectionPath);
@@ -363,7 +353,13 @@ async function runWithIntegrations(options, integrations, clock) {
 }
 
 export async function runRalphIteration(options) {
-  return runWithIntegrations(options, PRODUCTION_INTEGRATIONS, () => new Date().toISOString());
+  validateOptionsShape(options);
+  return runWithIntegrations(options, protectedIntegrations(), () => new Date().toISOString());
+}
+
+export function createProtectedRalphIterationRunnerForTesting(boundaryOptions, clock) {
+  if (typeof clock !== 'function') throw new TypeError('protected boundary test runner requires a deterministic clock');
+  return (options) => runWithIntegrations(options, protectedIntegrations(boundaryOptions), clock);
 }
 
 export function createRalphIterationRunnerForTesting(integrations) {

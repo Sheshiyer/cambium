@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
 import {
   existsSync,
   lstatSync,
@@ -12,9 +11,9 @@ import { fileURLToPath } from 'node:url';
 import { compileTemperanceFlow, renderTemperanceFlowMarkdown, validateTemperanceFlowProjection } from './temperance-flow.mjs';
 import { buildTemperanceFlowSources, normalizeVerifiedManifestResult } from './temperance-flow-sources.mjs';
 import { publishFilePair } from './two-file-transaction.mjs';
+import { createTemperanceHostCommandRunner } from './temperance-host-boundary.mjs';
 
 const scriptRoot = realpathSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'));
-const FIXED_MANIFEST_VERIFIER = 'temperance-manifest-verify';
 
 function usage(message) {
   throw new TypeError(message ?? 'usage: generate-temperance-flow.mjs (--write|--check|--json) [--root PATH] [--json-output PATH] [--markdown-output PATH] [--receipt-ref REFERENCE]');
@@ -111,14 +110,7 @@ function checkFile(root, pathname, expected, flow, json) {
 }
 
 function verifyAtFixedManifestBoundary(receiptReference) {
-  const result = spawnSync(FIXED_MANIFEST_VERIFIER, ['--json', '--reference', receiptReference], {
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  if (result.error || result.status !== 0) {
-    throw new TypeError(`fixed host Manifest verifier failed for ${receiptReference}`);
-  }
-  try { return JSON.parse(result.stdout); } catch { throw new TypeError('fixed host Manifest verifier returned invalid JSON'); }
+  return createTemperanceHostCommandRunner()('manifestVerifier', ['--json', '--reference', receiptReference]);
 }
 
 function compile(options) {
