@@ -1,21 +1,17 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 import {
-  closeSync,
   existsSync,
   lstatSync,
   mkdirSync,
-  openSync,
   readFileSync,
   realpathSync,
-  renameSync,
-  unlinkSync,
-  writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compileTemperanceFlow, renderTemperanceFlowMarkdown } from './temperance-flow.mjs';
+import { compileTemperanceFlow, renderTemperanceFlowMarkdown, validateTemperanceFlowProjection } from './temperance-flow.mjs';
 import { buildTemperanceFlowSources, normalizeVerifiedManifestResult } from './temperance-flow-sources.mjs';
+import { publishFilePair } from './two-file-transaction.mjs';
 
 const scriptRoot = realpathSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'));
 const FIXED_MANIFEST_VERIFIER = 'temperance-manifest-verify';
@@ -85,26 +81,6 @@ function containedOutput(root, configuredPath, label) {
 
 function repositoryRelative(root, pathname) {
   return path.relative(root, pathname).split(path.sep).join('/');
-}
-
-function atomicWrite(root, target, bytes) {
-  const parent = path.dirname(target);
-  mkdirSync(parent, { recursive: true });
-  const actualParent = realpathSync(parent);
-  if (!insideRoot(root, actualParent)) throw new TypeError(`${repositoryRelative(root, target)} escapes the repository root`);
-  const temporary = path.join(parent, `.${path.basename(target)}.tmp-${process.pid}-${Date.now()}`);
-  let descriptor = null;
-  try {
-    descriptor = openSync(temporary, 'wx', 0o600);
-    writeFileSync(descriptor, bytes, 'utf8');
-    closeSync(descriptor);
-    descriptor = null;
-    renameSync(temporary, target);
-  } catch (error) {
-    if (descriptor !== null) closeSync(descriptor);
-    if (existsSync(temporary)) unlinkSync(temporary);
-    throw error;
-  }
 }
 
 function sourceTuples(flow) {
@@ -177,8 +153,17 @@ function main() {
     return;
   }
   if (options.mode === 'write') {
-    atomicWrite(options.root, jsonOutput, json);
-    atomicWrite(options.root, markdownOutput, markdown);
+    for (const target of [jsonOutput, markdownOutput]) {
+      const parent = path.dirname(target);
+      mkdirSync(parent, { recursive: true });
+      if (!insideRoot(options.root, realpathSync(parent))) throw new TypeError(`${repositoryRelative(options.root, target)} escapes the repository root`);
+    }
+    publishFilePair([
+      { target: jsonOutput, bytes: json, validate: (bytes) => validateTemperanceFlowProjection(JSON.parse(bytes)) },
+      { target: markdownOutput, bytes: markdown, validate: (bytes) => {
+        for (const value of [flow.schema, flow.flowDigest, flow.sourceSetDigest]) if (!bytes.includes(value)) throw new TypeError('staged Markdown does not match the staged projection');
+      } },
+    ]);
     process.stdout.write(`wrote ${repositoryRelative(options.root, jsonOutput)} and ${repositoryRelative(options.root, markdownOutput)}\n`);
     return;
   }

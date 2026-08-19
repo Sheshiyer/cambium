@@ -9,6 +9,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  renameSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -26,9 +27,11 @@ const FIXED_ISSUER = 'temperance-manifest-bridge';
 const FIXED_AUDIENCE = 'cambium-temperance-flow';
 const digest = (value) => `sha256:${createHash('sha256').update(value).digest('hex')}`;
 let sourceApi = null;
+let transactionApi = null;
 
 try {
   sourceApi = await import('./temperance-flow-sources.mjs');
+  transactionApi = await import('./two-file-transaction.mjs');
 } catch {
   // Semantic RED failures below must name the missing contract.
 }
@@ -299,4 +302,29 @@ test('FLOW-04: JSON output is private, source-bounded, and performs zero runtime
   assert.doesNotMatch(result.stdout, /\/Users\/|\/Volumes\/|credential|api[_-]?key|promptBody|responseBody|providerStack|quota|failoverPolicy/i);
   assert.equal(JSON.stringify(graph).includes('Consolidate Cambium\'s doctrine into'), false);
   assert.deepEqual(snapshot(fixture.root), before);
+});
+
+test('FLOW-04 / WR-04: a second publication rename failure restores the prior JSON/Markdown pair', (t) => {
+  assert.equal(typeof transactionApi?.publishFilePair, 'function');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  runGenerator(fixture.root, outputArgs(fixture, '--write'));
+  const priorJson = readFileSync(fixture.json, 'utf8');
+  const priorMarkdown = readFileSync(fixture.markdown, 'utf8');
+  let stagedRenames = 0;
+  assert.throws(() => transactionApi.publishFilePair([
+    { target: fixture.json, bytes: '{"next":true}\n', validate: JSON.parse },
+    { target: fixture.markdown, bytes: '# next\n', validate: () => {} },
+  ], {
+    rename(from, to) {
+      if (from.endsWith('.stage')) {
+        stagedRenames += 1;
+        if (stagedRenames === 2) throw new Error('forced second rename failure');
+      }
+      return renameSync(from, to);
+    },
+  }), /forced second rename failure/);
+  assert.equal(readFileSync(fixture.json, 'utf8'), priorJson);
+  assert.equal(readFileSync(fixture.markdown, 'utf8'), priorMarkdown);
+  assert.equal(walkFiles(fixture.root).some((name) => /\.(?:stage|backup)$/.test(name)), false);
 });
