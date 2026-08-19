@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: plan
-progress: 0/4
+phase: verify
+progress: 4/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-19T06:36:38Z
+updated: 2026-08-19T08:20:12Z
 ---
 
 ## Problem
@@ -205,10 +205,10 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ### Active Phase 5 acceptance
 
-- [ ] ISC-1282: FLOW-01 proves one exact next GSD command is derived from the approved ISA goal, live GSD transition, and active-plan dependencies, while ambiguity or authority conflict yields `blocked` instead of a competing plan.
-- [ ] ISC-1283: FLOW-02 proves a fresh Ralph iteration rereads durable goal, plan, task, evidence, and reviewed handoff state; selects exactly one dependency-ready unit; verifies and persists through existing GSD/handoff surfaces; then exits on an external stop condition without owning a mutable ledger.
-- [ ] ISC-1284: FLOW-03 proves the projection exposes skill-cluster and OmniRoute combo intent plus the native-orchestrator/paid-execution boundary, while only a fresh host receipt supplies resolved provider attribution.
-- [ ] ISC-1285: FLOW-04 proves deterministic machine and human readbacks expose matching references, digests, routes, next action or blocked reason, gates, freshness, and stop conditions without copying doctrine or host policy, extending the Phase 4 graph vocabulary, or becoming an operational writer.
+- [x] ISC-1282: FLOW-01 proves one exact next GSD command is derived from the approved ISA goal, live GSD transition, and active-plan dependencies, while ambiguity or authority conflict yields `blocked` instead of a competing plan.
+- [x] ISC-1283: FLOW-02 proves a fresh Ralph iteration rereads durable goal, plan, task, evidence, and reviewed handoff state; selects exactly one dependency-ready unit; verifies and persists through existing GSD/handoff surfaces; then exits on an external stop condition without owning a mutable ledger.
+- [x] ISC-1284: FLOW-03 proves the projection exposes skill-cluster and OmniRoute combo intent plus the native-orchestrator/paid-execution boundary, while only a fresh host receipt supplies resolved provider attribution.
+- [x] ISC-1285: FLOW-04 proves deterministic machine and human readbacks expose matching references, digests, routes, next action or blocked reason, gates, freshness, and stop conditions without copying doctrine or host policy, extending the Phase 4 graph vocabulary, or becoming an operational writer.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
@@ -1989,7 +1989,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - 2026-08-13 14:06: The required post-deliverable advisor call fired but the local OAuth session was expired and could not refresh. No substitute external mutation was attempted; exact production readbacks, independent Forge promotion review, mandatory Cato `PASS-WITH-P2`, strict ISA completeness, and the explicit founder-visibility/rollback-rehearsal holds remain the completion evidence.
 
-- 2026-08-19 11:06: refined: Phase 5 is an authority-resolution projection, not a scheduler or mutable Ralph ledger. Each fresh iteration rereads the approved goal from `ISA.md`, the exact GSD transition and active plan, verified evidence, and the reviewed handoff; selects one dependency-ready unit; persists through existing GSD and handoff surfaces; and stops on a source-backed gate. Cambium records skill-cluster and OmniRoute intent, while fresh host receipts alone supply resolved provider attribution and freshness. The dedicated deterministic machine/human flow readbacks reference the closed Phase 4 Intent Graph without extending its vocabulary, copying doctrine, provider stacks, credentials, quotas, or failover policy, or becoming operational authority.
+- 2026-08-19 11:06: refined: Phase 5 is an authority-resolution projection, not a scheduler or mutable Ralph ledger. Each fresh iteration rereads the approved goal from `ISA.md`, the exact GSD transition and active plan, verified evidence, and the reviewed handoff; selects one dependency-ready unit; persists through existing GSD and handoff surfaces; and stops on a source-backed gate. Cambium records skill-cluster and OmniRoute intent, while fresh host receipts alone supply resolved provider attribution and freshness. The dedicated deterministic machine/human flow readbacks reference the closed Phase 4 Intent Graph without extending its vocabulary, copying doctrine, provider stacks, credentials, quotas, or failover policy, or becoming operational authority. Verified implementation head `c177489e06237d2a3a3e11b79e3892199808102c` passes the bounded Ralph, projection, foldback, full-suite, drift, documentation, and zero-side-effect gates; independent phase verification remains external.
 
 ## Changelog
 
@@ -2176,6 +2176,10 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-1279: focused `GRAPH-03 / ISC-1279: overlays reference only canonical root anchors without copied authority` and projection-foldback tests passed; normalized anchor-paragraph rejection and rendered-doc checks passed, while D1, ISA, GSD, Vision, Mission, and the read-only intent projection remain distinct authorities.
 - ISC-1280: RED commit `44f35026eee8267c18999f30b844741c5cf97301` binds valid and malformed Intent Graph fixtures across the shared contract, pure intake, source wiring, and authenticated route; GREEN commit `f5a58505544e024069a451fbcc44a20da66c30ec` makes `validateAuthoritativeInput` the single early projection-family guard. Focused contract/intake passed 20/20 and intake/approval passed 18/18; the route proved zero D1 reads, zero task/idempotency writes, unchanged D1 head/nodes, and one bounded redacted rejection receipt. The direct probe rejects both fixtures while accepting an unrelated command; compiler-local foldback remains defense in depth. The complete gate passed 27/27 anchor/compiler/generator tests, `npm test` 1812/1812, double generator checks at graph digest `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45` and source-set digest `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`, drift audit, rendered-doc synchronization (6 pages / 91 components), immutable verification/root/generated readbacks, path/deletion/category gates, and added-line privacy scan.
 - ISC-1281: focused `GRAPH-05 / ISC-1281: approval, freshness, stop, blocked, and completion contradictions fail closed` and JSON/Markdown parity passed; no node combines `completion: satisfied` with a blocked reason. The pre-closure gate passed 27/27 combined anchor/intent tests, `npm test` 1808/1808, drift audit, rendered-doc synchronization (6 pages / 91 components), diff hygiene, added-line privacy, deletion/rename, allowed-range, and forbidden runtime/provider/deployment category checks.
+- ISC-1282: `scripts/temperance-flow.test.mjs` and `scripts/generate-temperance-flow.test.mjs` pass authority precedence, exact-command, ambiguity, dependency, deterministic generation, and blocked/no-command cases; the complete focused closure gate passed 65/65 and the final terminal projection carries no command.
+- ISC-1283: immutable RED commit `20d414be2b9df30118443bda8b780c433e414804`, GREEN commit `7b522c28ad1bba2d6c608a2a07abf8f507685580`, and lifecycle-independent fixture closure `c177489e06237d2a3a3e11b79e3892199808102c` prove fresh reread, one immutable pre-effect snapshot, exact one-unit execution, declared verification, summary → STATE → handoff CAS persistence, stable iteration/result digests, summary-only and summary-plus-STATE recovery without repeated effects, drift/conflict stops, terminal no-revival, and no independent ledger. Ralph-focused tests pass 14/14; the complete repository suite passes 1851/1851.
+- ISC-1284: fixed-boundary approval tests reject raw receipt/trust inputs, caller-selected verifiers, wrong issuer/audience, stale/future/denied/mismatched bindings, and route drift before execution. Route intent remains `gsd-execute-phase` → `te-dispatch-paid`; committed generation uses no host receipt, so resolved attribution remains absent rather than inferred.
+- ISC-1285: the final machine and human readbacks are regenerated from one source model after ISA, GSD state, semantic summary, and reviewed handoff settle. Double generator checks, JSON/Markdown parity, shared projection foldback 21/21, Goal Graph intake/approval 18/18, drift audit, rendered-doc synchronization at 6 pages / 91 components, source preservation, privacy, exact-range, deletion, and zero-side-effect probes pass without runtime, provider, deployment, D1, or external writes.
 
 - ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
 - ISC-1010..1019 root/repository proof — the 58-folder physical dry-run is exact; current root-map digest is `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`; repository evidence contains 106 references, 96 resolved, 5 unmatched, and 5 unverified at digest `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`; every unresolved reference has an assignment, explicit hold, or exclusion.

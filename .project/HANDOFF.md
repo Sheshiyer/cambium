@@ -1,5 +1,17 @@
 # Project handoff
 
+### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate
+
+- Branch `codex/phase-5-decisions` preserves the dirty user-owned primary checkout. The exact pre-closure `implementation_head` is `c177489e06237d2a3a3e11b79e3892199808102c`; pre-closure Plan 05-03 commits are RED `20d414be2b9df30118443bda8b780c433e414804`, harness correction `9f642cb17868c30382138b96e14cda0cafd84158`, GREEN `7b522c28ad1bba2d6c608a2a07abf8f507685580`, and lifecycle-independent fixture closure `c177489e06237d2a3a3e11b79e3892199808102c`. The enclosing closure commit is intentionally identified only by Git history.
+- The pure interpreter and bounded adapter prove fresh reread, exactly one dependency-ready unit, a single immutable pre-effect source snapshot, fixed-boundary host and owner approval bound to task/command/route/projection/source set, immediate pre-execution revalidation, one execute and one declared verification, and summary → STATE → handoff compare-and-swap persistence.
+- Stable iteration/result digests make summary-only and summary-plus-STATE retries persistence-only. Drift, CAS conflict, missing or invalid approval, executor failure, verification failure, terminal work, and replay conflict stop without a second execute, verification, or later persistence effect. Ralph owns no ledger, queue, daemon, scheduler, or self-certification path.
+- Pre-closure gates pass: focused compiler/generator/Ralph/anchor/Intent Graph suites 65/65, shared foldback/intake 21/21, Goal Graph intake/approval 18/18, full `npm test` 1851/1851, double generator checks, drift audit, rendered-doc synchronization at 6 pages / 91 components, export, parity, source-preservation, privacy, exact-range, deletion, and no-side-effect checks.
+- Final projection state is terminal `blocked` with no command because all Phase 5 plan units are complete. Route intent remains `gsd-execute-phase` → `te-dispatch-paid`; committed receipt state is `missing`, owner approval is not inferred, and resolved provider/model attribution remains absent.
+- Generated flowDigest: sha256:47d5cfc212403e53e901f4d0d5538830901d52c01934d0187f7db1c54a3f3e77
+- Generated sourceSetDigest: sha256:0d8a8cea74c8919801daf4450bc280ed2970d52dadd2bcdc114141672d226fb0
+- No production deployment, live provider call, host/runtime configuration, D1/KV/R2, Telegram, Vault, registry, credential, package/lockfile, connected repository, or unscoped external state was mutated.
+- Exact continuation is `/gsd:execute-phase 5`; that bounded command produced the implementation head above. Independent continuation is `/gsd:verify-phase 5`, which must intentionally stale the current readback when its durable state changes.
+
 ### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint
 
 - Isolated branch `codex/phase-5-decisions` starts from exact reviewed `origin/main` `89790804` and preserves the dirty user-owned primary checkout unchanged. Context commits `d56f3c5` and `0663990` record the confirmed Phase 5 assumptions and session state before planning.
@@ -9,7 +21,7 @@
 - GSD structural validation passes for all three plans (2, 3, and 3 executable tasks), dependency indexing reads Waves 1 → 2 → 3, consistency/state validation passes, and Phase 5 coverage includes all `FLOW-01` through `FLOW-04` and locked decisions `D-01` through `D-11`. Roadmap and State both read Phase 5 planned / ready to execute.
 - Baseline `npm test` passes 1811/1812; the sole failure is the expected pre-implementation lifecycle sentinel because `scripts/infinite-game-anchors.test.mjs` currently admits Phase 3/4 states only. Plan 05-01 owns the strict Phase 5 RED/GREEN update. The mandatory advisor call was attempted but could not authenticate because its OAuth session expired; no advisor approval is inferred.
 - This checkpoint contains planning and acceptance artifacts only. It performs no Phase 5 implementation, generated flow projection, live Ralph execution, host/provider configuration, deployment, D1/KV/R2, Telegram, credential, package/lockfile, connected-repository, or external-state mutation.
-- Exact continuation is `/gsd:execute-phase 5`; execution must begin from the recorded branch head, preserve the fixed Manifest verification boundary, and stop at every declared approval or verification gate.
+- Planning continuation was `/gsd:execute-phase 5`; execution had to begin from the recorded branch head, preserve the fixed Manifest verification boundary, and stop at every declared approval or verification gate.
 
 ### 2026-08-18 Phase 4 intent-graph acceptance checkpoint
 
