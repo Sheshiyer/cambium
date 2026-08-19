@@ -2,7 +2,7 @@
 
 ### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — review-fix iteration 3
 
-- The reviewed repository implementation is complete at exact `implementation_head` is `ae2d5a687098f64f49d219e0cc1282bd4437e72a`. Iteration 3 closes all repository-owned portions of CR-01 through CR-04 and WR-01 through WR-04: lazy dry-run inspection, fail-closed host-boundary reporting, checkout/root/head/cwd binding and revalidation, lock-held versioned CAS, canonical projection families, closed ready/stop semantics, dirty-handoff invalidation, and serialized generator publication.
+- The reviewed repository implementation is complete at exact `implementation_head` is `1aff7d79a942317ddfe5ef626c53dde2639a9504`. Iteration 3 closes all repository-owned portions of CR-01 through CR-04 and WR-01 through WR-04: lazy dry-run inspection, fail-closed host-boundary reporting, checkout/root/head/cwd binding and revalidation, lock-held versioned CAS, canonical projection families, closed ready/stop semantics, dirty-handoff invalidation, and serialized generator publication.
 - Focused adversarial suites pass for projection compilation, Ralph execution, CAS contention, and concurrent generator publication. The complete `npm test` suite passes 1872/1872 before this bounded checkpoint; final generator and rendered-document checks remain part of checkpoint publication.
 - Generated flowDigest: sha256:3983cf1ab48f6433887a6934ea9706f754f5dcdacc05f8a9294cc36abce1a0dd
 - Generated sourceSetDigest: sha256:2b0d3c0d71937c8714d0ae9ba1643d8f2d74d8a00eb20ca6f7eadcd19d4fbcbe
