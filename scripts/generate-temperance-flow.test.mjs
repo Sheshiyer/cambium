@@ -413,3 +413,64 @@ test('FLOW-04 / WR-04: a second publication rename failure restores the prior JS
   assert.equal(readFileSync(fixture.markdown, 'utf8'), priorMarkdown);
   assert.equal(walkFiles(fixture.root).some((name) => /\.(?:stage|backup)$/.test(name)), false);
 });
+
+test('FLOW-04 / WR-04: restore failure preserves the durable journal and backups for retry', (t) => {
+  assert.equal(typeof transactionApi?.recoverFilePair, 'function');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  runGenerator(fixture.root, outputArgs(fixture, '--write'));
+  const priorJson = readFileSync(fixture.json, 'utf8');
+  const priorMarkdown = readFileSync(fixture.markdown, 'utf8');
+  const entries = [
+    { target: fixture.json, bytes: '{"next":true}\n', validate: JSON.parse },
+    { target: fixture.markdown, bytes: '# next\n', validate: () => {} },
+  ];
+  let stagedRenames = 0;
+  assert.throws(() => transactionApi.publishFilePair(entries, {
+    rename(from, to) {
+      if (from.endsWith('.stage') && ++stagedRenames === 2) throw new Error('forced publish failure');
+      if (from.endsWith('.backup')) throw new Error('forced restore failure');
+      return renameSync(from, to);
+    },
+  }), /recovery remains pending.*forced restore failure/i);
+  const pending = walkFiles(fixture.root);
+  assert.equal(pending.some((name) => name.endsWith('.backup')), true);
+  assert.equal(pending.some((name) => name.endsWith('.publication-transaction.json')), true);
+
+  assert.equal(transactionApi.recoverFilePair(entries).status, 'rolled_back');
+  assert.equal(readFileSync(fixture.json, 'utf8'), priorJson);
+  assert.equal(readFileSync(fixture.markdown, 'utf8'), priorMarkdown);
+  assert.equal(walkFiles(fixture.root).some((name) => /\.(?:stage|backup)$|publication-transaction\.json$/.test(name)), false);
+});
+
+test('FLOW-04 / WR-04: startup recovery repairs a process killed between pair renames', (t) => {
+  assert.equal(typeof transactionApi?.recoverFilePair, 'function');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  runGenerator(fixture.root, outputArgs(fixture, '--write'));
+  const priorJson = readFileSync(fixture.json, 'utf8');
+  const priorMarkdown = readFileSync(fixture.markdown, 'utf8');
+  const entries = [
+    { target: fixture.json, bytes: '{"next":true}\n' },
+    { target: fixture.markdown, bytes: '# next\n' },
+  ];
+  const transactionUrl = new URL('./two-file-transaction.mjs', import.meta.url).href;
+  const child = `
+    import { renameSync } from 'node:fs';
+    const { publishFilePair } = await import(${JSON.stringify(transactionUrl)});
+    const entries = ${JSON.stringify(entries)};
+    let published = 0;
+    publishFilePair(entries, { rename(from, to) {
+      renameSync(from, to);
+      if (from.endsWith('.stage') && ++published === 1) process.kill(process.pid, 'SIGKILL');
+    }});
+  `;
+  const interrupted = spawnSync(process.execPath, ['--input-type=module', '--eval', child], { encoding: 'utf8' });
+  assert.equal(interrupted.signal, 'SIGKILL', interrupted.stderr || interrupted.stdout);
+  assert.equal(walkFiles(fixture.root).some((name) => name.endsWith('.publication-transaction.json')), true);
+
+  assert.equal(transactionApi.recoverFilePair(entries).status, 'rolled_back');
+  assert.equal(readFileSync(fixture.json, 'utf8'), priorJson);
+  assert.equal(readFileSync(fixture.markdown, 'utf8'), priorMarkdown);
+  assert.equal(walkFiles(fixture.root).some((name) => /\.(?:stage|backup)$|publication-transaction\.json$/.test(name)), false);
+});
