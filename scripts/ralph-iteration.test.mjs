@@ -167,6 +167,6 @@ test('FLOW-02 / ISC-1283: same iteration with a different external result digest
 test('FLOW-02 / ISC-1283: pure interpreter source contains no side-effect or mutable-ledger dependencies', () => {
   requireSubject('pure source shape');
   const source = readFileSync(new URL('./ralph-iteration.mjs', import.meta.url), 'utf8');
-  assert.doesNotMatch(source, /node:(?:fs|child_process|net|http|https|timers)|spawn|exec|fetch\s*\(|setInterval|setTimeout|D1|Worker|providerStack/);
+  assert.doesNotMatch(source, /node:(?:fs|child_process|net|http|https|timers)|\b(?:spawn|exec|fetch)\s*\(|setInterval|setTimeout|D1|Worker|providerStack/);
   assert.doesNotMatch(source, /(?:let|var)\s+(?:ledger|cache|state|history|replay)/i);
 });

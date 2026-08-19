@@ -41,8 +41,6 @@ function fixture() {
   // Make the copied durable state agree with the executable transition.
   const statePath = path.join(root, '.planning/STATE.md');
   writeFileSync(statePath, readFileSync(statePath, 'utf8').replace('/gsd:plan-phase 5', '/gsd:execute-phase 5'));
-  const handoffPath = path.join(root, '.project/HANDOFF.md');
-  writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8').replace('planning and acceptance artifacts only', 'execution is approved for the bounded fixture only'));
   const executable = path.join(root, 'fixture-executor.mjs');
   const verifier = path.join(root, 'fixture-verifier.mjs');
   writeFileSync(executable, "import{appendFileSync}from'node:fs';appendFileSync(process.argv[2],'execute\\n');\n");
