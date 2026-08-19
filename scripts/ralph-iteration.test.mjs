@@ -164,6 +164,23 @@ test('FLOW-02 / ISC-1283: same iteration with a different external result digest
   assert.throws(() => api.validateRalphIteration({ ...first, resultDigest: digest('conflict') }, { expectedResultDigest: first.resultDigest }), /replay|digest|conflict/i);
 });
 
+test('FLOW-02 / WR-02: serialized actions reject mutated identity, gates, nested fields, and extras', (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const api = requireSubject('closed action validation');
+  const action = api.deriveRalphIteration(fx.flow);
+  const mutations = [
+    { ...action, command: '/gsd:execute-phase 6' },
+    { ...action, route: { ...action.route, combo: 'te-fast' } },
+    { ...action, task: { ...action.task, id: 'other-task' } },
+    { ...action, receiptGate: { ...action.receiptGate, status: 'bypassed' } },
+    { ...action, approvalGate: { ...action.approvalGate, required: 'yes' } },
+    { ...action, persistenceSurfaces: ['summary'] },
+    { ...action, iterationDigest: digest('forged') },
+    { ...action, attackerField: true },
+  ];
+  for (const mutation of mutations) assert.throws(() => api.validateRalphIteration(mutation), /action|schema|identity|digest|gate|route|task|persist/i);
+});
+
 test('FLOW-02 / ISC-1283: pure interpreter source contains no side-effect or mutable-ledger dependencies', () => {
   requireSubject('pure source shape');
   const source = readFileSync(new URL('./ralph-iteration.mjs', import.meta.url), 'utf8');

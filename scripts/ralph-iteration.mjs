@@ -14,6 +14,87 @@ export const RALPH_STOP_REASONS = Object.freeze([
 ]);
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
+const SAFE_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
+const GSD_COMMAND = /^\/gsd:(?:execute-phase|verify-phase|plan-phase) [0-9]+(?:\.[0-9]+)?$/;
+
+function exactKeys(value, keys, label) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError(`${label} must be an object`);
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  if (!same(actual, expected)) throw new TypeError(`${label} must use the closed schema`);
+}
+
+function safeString(value, label) {
+  if (typeof value !== 'string' || value.length === 0 || value.length > 1024 || /[\0\r\n]/.test(value)) {
+    throw new TypeError(`${label} is invalid`);
+  }
+}
+
+function validateSource(value, label) {
+  exactKeys(value, ['path', 'kind', 'selector', 'digest'], label);
+  safeString(value.path, `${label} path`);
+  safeString(value.kind, `${label} kind`);
+  safeString(value.selector, `${label} selector`);
+  if (!DIGEST.test(value.digest)) throw new TypeError(`${label} digest is invalid`);
+}
+
+function validateAction(value) {
+  exactKeys(value, [
+    'schema', 'status', 'iterationDigest', 'projectionDigest', 'sourceSetDigest', 'task', 'command',
+    'route', 'receiptGate', 'approvalGate', 'declaredVerification', 'persistenceSurfaces',
+    'externalStopCondition',
+  ], 'Ralph action');
+  if (!DIGEST.test(value.projectionDigest) || !DIGEST.test(value.sourceSetDigest)) throw new TypeError('Ralph action projection identity is invalid');
+  if (!GSD_COMMAND.test(value.command)) throw new TypeError('Ralph action command is invalid');
+  exactKeys(value.task, ['id', 'name', 'source', 'dependencies'], 'Ralph action task');
+  safeString(value.task.id, 'Ralph action task id');
+  safeString(value.task.name, 'Ralph action task name');
+  validateSource(value.task.source, 'Ralph action task source');
+  if (!Array.isArray(value.task.dependencies) || value.task.dependencies.length > 4096) throw new TypeError('Ralph action dependencies are invalid');
+  const dependencyIds = new Set();
+  for (const dependency of value.task.dependencies) {
+    exactKeys(dependency, ['id', 'status'], 'Ralph action dependency');
+    safeString(dependency.id, 'Ralph action dependency id');
+    if (!['complete', 'satisfied', 'pending', 'blocked'].includes(dependency.status) || dependencyIds.has(dependency.id)) {
+      throw new TypeError('Ralph action dependency is invalid');
+    }
+    dependencyIds.add(dependency.id);
+  }
+  exactKeys(value.route, ['skillCluster', 'combo', 'lane', 'approvalRequired', 'receiptRef'], 'Ralph action route');
+  safeString(value.route.skillCluster, 'Ralph action route skillCluster');
+  safeString(value.route.combo, 'Ralph action route combo');
+  if (!['native_orchestrator', 'paid_execution'].includes(value.route.lane)
+      || typeof value.route.approvalRequired !== 'boolean'
+      || (value.route.receiptRef !== null && !SAFE_REFERENCE.test(value.route.receiptRef))) {
+    throw new TypeError('Ralph action route is invalid');
+  }
+  exactKeys(value.receiptGate, ['required', 'status', 'evidenceRef'], 'Ralph receipt gate');
+  if (typeof value.receiptGate.required !== 'boolean'
+      || !['required', 'satisfied'].includes(value.receiptGate.status)
+      || (value.receiptGate.evidenceRef !== null && !SAFE_REFERENCE.test(value.receiptGate.evidenceRef))) {
+    throw new TypeError('Ralph receipt gate is invalid');
+  }
+  exactKeys(value.approvalGate, ['required', 'status'], 'Ralph approval gate');
+  if (typeof value.approvalGate.required !== 'boolean'
+      || !['required', 'not_required'].includes(value.approvalGate.status)) throw new TypeError('Ralph approval gate is invalid');
+  if (!Array.isArray(value.declaredVerification) || value.declaredVerification.length > 256) throw new TypeError('Ralph declared verification is invalid');
+  for (const gate of value.declaredVerification) {
+    exactKeys(gate, ['kind', 'source', 'satisfied'], 'Ralph declared verification gate');
+    if (gate.kind !== 'declared_verification' || typeof gate.satisfied !== 'boolean') throw new TypeError('Ralph declared verification gate is invalid');
+    validateSource(gate.source, 'Ralph declared verification source');
+  }
+  if (!same(value.persistenceSurfaces, ['summary', 'state', 'handoff']) || value.externalStopCondition !== 'exit_after_one_unit') {
+    throw new TypeError('Ralph action persistence or external stop is invalid');
+  }
+  const identity = {
+    projectionDigest: value.projectionDigest,
+    sourceSetDigest: value.sourceSetDigest,
+    taskId: value.task.id,
+    command: value.command,
+    route: value.route,
+  };
+  if (digestObject(identity) !== value.iterationDigest) throw new TypeError('Ralph action iterationDigest does not match canonical identity');
+}
 
 function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
@@ -58,10 +139,7 @@ export function validateRalphIteration(value, options = {}) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new TypeError('Ralph iteration must be an object');
   if (value.schema !== RALPH_ITERATION_SCHEMA || !DIGEST.test(value.iterationDigest ?? '')) throw new TypeError('Ralph iteration schema or digest is invalid');
   if (value.status === 'action') {
-    if (!value.task || typeof value.command !== 'string' || !value.route || value.externalStopCondition !== 'exit_after_one_unit') {
-      throw new TypeError('Ralph action must contain exactly one task, command, route, and external stop');
-    }
-    if (!Array.isArray(value.declaredVerification) || !Array.isArray(value.persistenceSurfaces)) throw new TypeError('Ralph action gates are invalid');
+    validateAction(value);
   } else if (value.status === 'stop') {
     if (!RALPH_STOP_REASONS.includes(value.reason) || !DIGEST.test(value.resultDigest ?? '')) throw new TypeError('Ralph stop is invalid');
     const { resultDigest, ...digestable } = value;
