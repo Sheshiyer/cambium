@@ -219,6 +219,40 @@ test('FLOW-02 / WR-02: every stop variant uses a closed reason-specific safe sch
   );
 });
 
+test('FLOW-02 / WR-01: reducer rejects unsafe or open external results before constructing stops', (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const api = requireSubject('safe reducer outputs');
+  const action = api.deriveRalphIteration(fx.flow);
+  const approved = approval(action);
+  const cases = [
+    {
+      approval: approved,
+      execution: { status: 'failed', evidenceRef: 'Bearer injected-secret' },
+    },
+    {
+      approval: approved,
+      execution: { status: 'succeeded', evidenceRef: 'temperance:execution/task01' },
+      verification: { status: 'failed', evidenceRef: 'Bearer injected-secret' },
+    },
+    {
+      approval: { ...approved, evidenceRef: 'Bearer injected-secret' },
+      execution: { status: 'succeeded', evidenceRef: 'temperance:execution/task01' },
+      verification: { status: 'passed', evidenceRef: 'temperance:verification/task01' },
+      persistence: { summary: true, state: true, handoff: true },
+    },
+    {
+      approval: approved,
+      execution: { status: 'succeeded', evidenceRef: 'temperance:execution/task01', attacker: true },
+      verification: { status: 'passed', evidenceRef: 'temperance:verification/task01' },
+      persistence: { summary: true, state: true, handoff: true },
+      secret: 'Bearer injected-secret',
+    },
+  ];
+  for (const externalResult of cases) {
+    assert.throws(() => api.deriveRalphIteration(fx.flow, externalResult), /closed|evidence|external|invalid/i);
+  }
+});
+
 test('FLOW-02 / WR-01: recomputed action digests cannot hide contradictory executable facts', (t) => {
   const fx = fixture(); t.after(fx.cleanup);
   const api = requireSubject('cross-field action validation');

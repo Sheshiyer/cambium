@@ -457,6 +457,22 @@ test('FLOW-04 / ISC-1285: read-only validation rejects foldback, unknown fields,
   assert.throws(() => compile(repo, folded), /projection|authority|foldback|schema/i);
 });
 
+test('FLOW-04 / WR-02: compiler authority lanes reject collapsed projection-family spellings', (t) => {
+  const repo = makeRepository();
+  t.after(repo.cleanup);
+  for (const schema of [
+    'cambium.temperanceflow-projection.v2',
+    'cambium.intentgraph.projection.v9',
+    'cambium.goalgraph_projection_future',
+  ]) {
+    const body = `${JSON.stringify({ schema, projectionAuthority: 'read_only' })}\n`;
+    writeFileSync(path.join(repo.root, 'ISA.md'), body);
+    const input = validInput(repo);
+    input.authorities.isa.source = source('ISA.md', 'isa_goal', body);
+    assert.throws(() => compile(repo, input), /projection|authority|foldback|schema/i, schema);
+  }
+});
+
 test('FLOW-04 / WR-01: public validation rejects malformed dependency and reason entries after digest recomputation', (t) => {
   const repo = makeRepository();
   t.after(repo.cleanup);

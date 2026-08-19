@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { deriveRalphIteration, validateRalphIteration } from './ralph-iteration.mjs';
+import { validateTemperanceFlowProjectionSources } from './temperance-flow.mjs';
 import { createTemperanceHostCommandRunner } from './temperance-host-boundary.mjs';
 import { compareAndSwapTextFile } from './versioned-file-cas.mjs';
 
@@ -116,7 +117,7 @@ function verifyBoundary(value, expected, kind, now) {
   const allowed = new Set([
     'schema', 'verified', 'status', 'issuer', 'audience', 'issuedAt', 'expiresAt', 'nonce',
     refKey, 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
-    'persistencePaths', 'checkout', 'evidenceRef', 'payloadDigest',
+    'sourceSnapshotDigest', 'persistencePaths', 'checkout', 'evidenceRef', 'payloadDigest',
   ]);
   if (!value || Object.keys(value).some((key) => !allowed.has(key))) return null;
   if (value.schema !== schema || value.verified !== true || value.status !== status
@@ -128,6 +129,7 @@ function verifyBoundary(value, expected, kind, now) {
   if (!SAFE_REFERENCE.test(value[refKey] ?? '') || value[refKey] !== expected.reference
       || value.taskId !== expected.taskId || value.command !== expected.command
       || value.projectionDigest !== expected.projectionDigest || value.sourceSetDigest !== expected.sourceSetDigest
+      || value.sourceSnapshotDigest !== expected.sourceSnapshotDigest
       || !same(value.route, expected.route) || !same(value.persistencePaths, expected.persistencePaths)
       || !same(value.checkout, expected.checkout)
       || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
@@ -138,7 +140,8 @@ function verifyBoundary(value, expected, kind, now) {
     bindingDigest: digestObject({
       schema, status, reference: value[refKey], taskId: value.taskId, command: value.command,
       route: value.route, projectionDigest: value.projectionDigest, sourceSetDigest: value.sourceSetDigest,
-      persistencePaths: value.persistencePaths, checkout: value.checkout, nonce: value.nonce, payloadDigest: value.payloadDigest,
+      sourceSnapshotDigest: value.sourceSnapshotDigest, persistencePaths: value.persistencePaths,
+      checkout: value.checkout, nonce: value.nonce, payloadDigest: value.payloadDigest,
     }),
   };
 }
@@ -284,15 +287,22 @@ async function runWithIntegrations(options, integrations, clock) {
   const flow = JSON.parse(readRelative(root, options.projectionPath));
   const action = deriveRalphIteration(flow, undefined, { checkout });
   if (action.status === 'stop') return action;
-  if (options.dryRun !== false) return action;
   const paths = persistencePathsFor(action);
   const resolvedPaths = Object.values(paths).map((relative) => contained(root, relative));
   if (new Set(resolvedPaths).size !== resolvedPaths.length) throw new TypeError('Ralph persistence surfaces must resolve to three distinct files');
+  const summaryBody = readRelative(root, paths.summary);
+  const prior = findRecord(summaryBody);
+  if (!prior) {
+    try {
+      validateTemperanceFlowProjectionSources(flow, root);
+    } catch {
+      return stopFromAction(action, 'source_drift');
+    }
+  }
+  if (options.dryRun !== false) return action;
   if (options.receiptReference !== action.route.receiptRef) throw new TypeError('runner receipt reference must exactly match the projected route intent');
 
   const sourcePaths = [options.projectionPath, ...allProjectionPaths(flow), ...Object.values(paths)];
-  const summaryBody = readRelative(root, paths.summary);
-  const prior = findRecord(summaryBody);
   if (!prior && ['state', 'handoff'].some((surface) => findRecord(readRelative(root, paths[surface])) !== null)) {
     return stopFromAction(action, 'source_drift');
   }
@@ -305,6 +315,7 @@ async function runWithIntegrations(options, integrations, clock) {
     route: action.route,
     projectionDigest: action.projectionDigest,
     sourceSetDigest: action.sourceSetDigest,
+    sourceSnapshotDigest: initial.digest,
     persistencePaths: paths,
     checkout,
   };
@@ -348,10 +359,21 @@ async function runWithIntegrations(options, integrations, clock) {
     });
   }
   try { verification = validateVerificationReceipt(verification, action, execution); } catch {
-    return deriveRalphIteration(flow, { approval: approvalFor(action, approved), execution, verification: { status: 'failed', evidenceRef: null } }, { checkout });
+    return deriveRalphIteration(flow, {
+      approval: approvalFor(action, approved),
+      execution: { status: execution.status, evidenceRef: execution.evidenceRef },
+      verification: { status: 'failed', evidenceRef: null },
+    }, { checkout });
   }
   const approval = approvalFor(action, approved);
-  const completed = deriveRalphIteration(flow, { approval, execution, verification, persistence: { summary: true, state: true, handoff: true } }, { checkout });
+  const reducedExecution = { status: execution.status, evidenceRef: execution.evidenceRef };
+  const reducedVerification = { status: verification.status, evidenceRef: verification.evidenceRef };
+  const completed = deriveRalphIteration(flow, {
+    approval,
+    execution: reducedExecution,
+    verification: reducedVerification,
+    persistence: { summary: true, state: true, handoff: true },
+  }, { checkout });
   const record = {
     schema: MARKER,
     iterationDigest: completed.iterationDigest,

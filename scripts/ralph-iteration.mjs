@@ -201,7 +201,36 @@ function same(left, right) {
 
 function stop(iterationDigest, reason, facts = {}) {
   const base = { schema: RALPH_ITERATION_SCHEMA, status: 'stop', iterationDigest, reason, ...facts };
-  return deepFreeze({ ...base, resultDigest: digestObject(base) });
+  const result = { ...base, resultDigest: digestObject(base) };
+  validateRalphIteration(result);
+  return deepFreeze(result);
+}
+
+function validateExternalResult(value) {
+  exactKeys(value, Object.keys(value).filter((key) => ['approval', 'execution', 'verification', 'persistence'].includes(key)), 'Ralph external result');
+  const extras = Object.keys(value).filter((key) => !['approval', 'execution', 'verification', 'persistence'].includes(key));
+  if (extras.length > 0) throw new TypeError('Ralph external result must use the closed schema');
+  if (value.approval !== undefined) {
+    exactKeys(value.approval, [
+      'status', 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
+      'approvalDigest', 'evidenceRef', ...(value.approval.checkout === undefined ? [] : ['checkout']),
+    ], 'Ralph external approval');
+    validateEvidenceReference(value.approval.evidenceRef, 'Ralph approval evidence', { nullable: false });
+  }
+  for (const key of ['execution', 'verification']) {
+    const result = value[key];
+    if (result === undefined) continue;
+    exactKeys(result, ['status', 'evidenceRef'], `Ralph external ${key}`);
+    if (!['succeeded', 'failed', 'passed'].includes(result.status)) throw new TypeError(`Ralph external ${key} status is invalid`);
+    validateEvidenceReference(result.evidenceRef, `Ralph ${key} evidence`, { nullable: result.status === 'failed' });
+  }
+  if (value.persistence !== undefined) {
+    if (!value.persistence || typeof value.persistence !== 'object' || Array.isArray(value.persistence)) throw new TypeError('Ralph external persistence is invalid');
+    const extras = Object.keys(value.persistence).filter((key) => !['summary', 'state', 'handoff'].includes(key));
+    if (extras.length > 0 || Object.values(value.persistence).some((entry) => typeof entry !== 'boolean')) {
+      throw new TypeError('Ralph external persistence must use the closed schema');
+    }
+  }
 }
 
 function approvalMatches(value, action) {
@@ -274,6 +303,7 @@ export function deriveRalphIteration(flowInput, externalResult, context = {}) {
   const iterationDigest = action.iterationDigest;
   if (externalResult === undefined) return validateRalphIteration(action);
   if (externalResult?.status === 'stop') throw new TypeError('terminal Ralph result cannot be revived');
+  validateExternalResult(externalResult);
   if (action.approvalGate.required && !approvalMatches(externalResult?.approval, action)) {
     return stop(iterationDigest, 'approval_required', { approvalEvidenceRef: null });
   }

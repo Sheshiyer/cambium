@@ -95,6 +95,7 @@ function verificationResults(expected, overrides = {}) {
       expiresAt: '2026-08-19T09:00:00.000Z', nonce: 'host-nonce', receiptRef: 'manifest:phase5/task01',
       taskId: expected.taskId, command: expected.command, route: expected.route,
       projectionDigest: expected.projectionDigest, sourceSetDigest: expected.sourceSetDigest,
+      sourceSnapshotDigest: expected.sourceSnapshotDigest,
       persistencePaths: expected.persistencePaths,
       checkout: expected.checkout,
       evidenceRef: 'manifest:event/task01', payloadDigest: digest('host-payload'),
@@ -105,6 +106,7 @@ function verificationResults(expected, overrides = {}) {
       expiresAt: '2026-08-19T09:00:00.000Z', nonce: 'approval-nonce', approvalRef: 'manifest:approval/task01',
       taskId: expected.taskId, command: expected.command, route: expected.route,
       projectionDigest: expected.projectionDigest, sourceSetDigest: expected.sourceSetDigest,
+      sourceSnapshotDigest: expected.sourceSnapshotDigest,
       persistencePaths: expected.persistencePaths,
       checkout: expected.checkout,
       evidenceRef: 'manifest:event/approval-task01', payloadDigest: digest('approval-payload'),
@@ -390,6 +392,28 @@ test('FLOW-02 / CR-01: production-equivalent execution resolves owner-protected 
   const currentBindings = verificationResults({
     taskId: action.task.id, command: action.command, route: action.route,
     projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest,
+    sourceSnapshotDigest: (() => {
+      const flow = JSON.parse(readFileSync(path.join(fx.root, fx.projectionPath), 'utf8'));
+      const sourcePaths = [
+        fx.projectionPath,
+        flow.references.isa?.path,
+        flow.references.gsd?.path,
+        flow.references.plan?.path,
+        flow.references.intentGraph.path,
+        ...flow.references.supporting.map(({ path: pathname }) => pathname),
+        flow.result.task?.source.path,
+        ...flow.gates.map(({ source }) => source.path),
+        ...flow.stops.map(({ source }) => source.path),
+        fx.summaryPath,
+        fx.statePath,
+        fx.handoffPath,
+      ].filter(Boolean);
+      const sourceFiles = Object.fromEntries([...new Set(sourcePaths)].sort().map((relative) => [
+        relative,
+        digest(readFileSync(path.join(fx.root, relative))),
+      ]));
+      return objectDigest(sourceFiles);
+    })(),
     persistencePaths: { summary: fx.summaryPath, state: fx.statePath, handoff: fx.handoffPath },
     checkout: action.checkout,
   });
@@ -462,6 +486,24 @@ test('FLOW-02 / ISC-1283: dry-run is the default and creates no effect, ledger, 
   assert.equal(existsSync(fx.effects), false);
   assert.deepEqual(Object.fromEntries(files(fx.root).map((p) => [p, readFileSync(path.join(fx.root, p))])), before);
   assert.equal(files(fx.root).some((p) => /ralph.*(?:state|ledger|queue)/i.test(p)), false);
+});
+
+test('FLOW-02 / CR-01: live selected-source drift blocks dry-run and execution before any effect', async (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const projection = JSON.parse(readFileSync(path.join(fx.root, fx.projectionPath), 'utf8'));
+  const planPath = projection.references.plan.path;
+  const planTarget = path.join(fx.root, planPath);
+  writeFileSync(planTarget, `${readFileSync(planTarget, 'utf8')}\n<!-- revoked after projection -->\n`);
+
+  const { testAdapters: _ignored, ...publicOptions } = runOptions(fx, { dryRun: undefined });
+  const inspected = await subject.runRalphIteration(publicOptions);
+  assert.equal(inspected.status, 'stop');
+  assert.equal(inspected.reason, 'source_drift');
+
+  const attempted = await requireRunner('live source parity')(runOptions(fx));
+  assert.equal(attempted.status, 'stop');
+  assert.equal(attempted.reason, 'source_drift');
+  assert.equal(existsSync(fx.effects), false);
 });
 
 test('FLOW-02 / CR-01: public dry-run is host-independent and absent host execution fails closed', async (t) => {

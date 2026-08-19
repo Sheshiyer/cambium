@@ -111,11 +111,12 @@ function digestObject(value) {
 
 function projectionShaped(value) {
   if (!isRecord(value)) return false;
-  const schema = typeof value.schema === 'string' ? value.schema.toLowerCase().replace(/[_\s]+/g, '-') : '';
+  const schema = typeof value.schema === 'string' ? value.schema.toLowerCase() : '';
+  const family = schema.replace(/[^a-z0-9]+/g, '');
   return schema === TEMPERANCE_FLOW_SCHEMA
-    || (schema.includes('temperance-flow') && schema.includes('projection'))
-    || (schema.includes('intent-graph') && schema.includes('projection'))
-    || (schema.includes('goal-graph') && schema.includes('projection'));
+    || (family.includes('temperanceflow') && family.includes('projection'))
+    || (family.includes('intentgraph') && family.includes('projection'))
+    || (family.includes('goalgraph') && family.includes('projection'));
 }
 
 function normalizeRelativePath(value, label) {
@@ -674,6 +675,21 @@ export function validateTemperanceFlowProjection(value) {
   const { flowDigest: _ignored, ...digestable } = value;
   if (digestObject(digestable) !== value.flowDigest) throw new TypeError('flowDigest does not match canonical projection facts');
   return value;
+}
+
+export function validateTemperanceFlowProjectionSources(value, repositoryRoot) {
+  const flow = validateTemperanceFlowProjection(value);
+  for (const [key, kind] of [['isa', 'isa_goal'], ['gsd', 'gsd_state'], ['plan', 'active_plan']]) {
+    if (flow.references[key] !== null) compileSource(repositoryRoot, flow.references[key], [kind]);
+  }
+  for (const source of flow.references.supporting) {
+    compileSource(repositoryRoot, source, ['verification_evidence', 'reviewed_handoff']);
+  }
+  compileIntentGraphReference(repositoryRoot, flow.references.intentGraph);
+  if (flow.result.task?.source) compileSource(repositoryRoot, flow.result.task.source, ['active_plan']);
+  for (const gate of flow.gates) compileSource(repositoryRoot, gate.source);
+  for (const stopCondition of flow.stops) compileSource(repositoryRoot, stopCondition.source);
+  return flow;
 }
 
 function cell(value) {
