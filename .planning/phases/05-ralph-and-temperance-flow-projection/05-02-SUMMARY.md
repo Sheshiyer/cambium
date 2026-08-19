@@ -42,7 +42,7 @@ patterns-established:
 
 requirements-completed: [FLOW-01, FLOW-03, FLOW-04]
 
-duration: 10 min
+duration: 15 min
 completed: 2026-08-19
 ---
 
@@ -52,7 +52,7 @@ completed: 2026-08-19
 
 ## Performance
 
-- **Duration:** 10 min
+- **Duration:** 15 min
 - **Started:** 2026-08-19T07:45:11Z
 - **Completed:** 2026-08-19T07:54:53Z
 - **Tasks:** 3
@@ -69,9 +69,8 @@ completed: 2026-08-19
 
 - Machine output: `docs/architecture/temperance-flow.v1.json`
 - Human output: `docs/architecture/temperance-flow.md`
-- Flow digest: `sha256:407df726a144aaec0350839fa4a9a4331e53ef62546fbc78dbe651b15c913e99`
-- Source-set digest: `sha256:fe621307b020cfe5423a2e21bd861bb7853af9b59af5e5a7a80bf82fc5f3576d`
-- Current result: `blocked` because committed `.planning/STATE.md` still names `/gsd:plan-phase 5` while the active dependency-ready unit requires `/gsd:execute-phase 5`.
+- Final flow and source-set digests are carried by both generated readbacks; the summary does not duplicate them inside its selected self-check evidence.
+- Current result: `blocked` because committed `.planning/STATE.md` still names `/gsd:plan-phase 5` while the dependency-ready Plan 05-03 unit requires `/gsd:execute-phase 5`.
 - Route intent: skill cluster `gsd-execute-phase`, combo `te-dispatch-paid`, lane `paid_execution`, approval required.
 - Receipt state: `missing`; resolved provider/model attribution is `null` and was not inferred.
 
@@ -82,6 +81,7 @@ Each task was committed atomically:
 1. **Task 1: Commit RED source, generator, receipt, parity, and foldback contracts** - `6aa1292` (`test`)
 2. **Task 2: Build bounded sources and deterministic flow readbacks** - `adfaacf` (`feat`)
 3. **Task 3: Reject flow projections at the shared authoritative boundary** - `45185f6` (`fix`)
+4. **Post-summary closure refresh** - closure fix after pre-closure head `f286110` (`fix`; SHA intentionally not self-embedded)
 
 ## Files Created/Modified
 
@@ -114,7 +114,21 @@ Each task was committed atomically:
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] Refreshed readbacks after durable plan-summary evidence changed the ready frontier**
+
+- **Found during:** Post-wave clean-head verification after the original Plan 05-02 summary commit.
+- **Issue:** Creating `05-02-SUMMARY.md` correctly completed the Plan 05-02 dependency, so the declared-source adapter selected Plan 05-03. The already committed readbacks still referenced Plan 05-02 and failed `--check` as stale.
+- **Fix:** Settled the selected `Self-Check: PASSED` summary bytes without embedding the closure commit SHA or generated digests, then regenerated only the machine and human readbacks from the new durable frontier.
+- **Files modified:** `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md`, `docs/architecture/temperance-flow.v1.json`, `docs/architecture/temperance-flow.md`.
+- **Verification:** Post-commit generator checks pass twice; parity/privacy, focused generator tests, full suite, diff hygiene, exact closure-path membership, and clean status pass.
+- **Committed in:** Closure fix after pre-closure head `f286110`; the commit SHA is intentionally not copied into its own selected source bytes.
+
+---
+
+**Total deviations:** 1 auto-fixed (1 Rule 1 bug).
+**Impact on plan:** The repair restores the promised clean-head deterministic readback invariant without widening sources, changing authority, or beginning Plan 05-03.
 
 ## Issues Encountered
 
@@ -145,7 +159,7 @@ None - no external service configuration required.
 - All seven planned implementation artifacts exist.
 - Commits `6aa1292`, `adfaacf`, and `45185f6` exist in order and are ancestors of this summary.
 - Focused 24/24, shared 21/21, route 18/18, and full 1837/1837 gates passed.
-- Both generated outputs contain `sha256:407df726a144aaec0350839fa4a9a4331e53ef62546fbc78dbe651b15c913e99` and `sha256:fe621307b020cfe5423a2e21bd861bb7853af9b59af5e5a7a80bf82fc5f3576d`.
+- Both generated outputs contain identical final flow/source-set digests and select the durable Plan 05-03 frontier after Plan 05-02 summary closure.
 - Plan 05-02 made no deletions and leaves no untracked generated artifact after this summary is committed.
 
 ---

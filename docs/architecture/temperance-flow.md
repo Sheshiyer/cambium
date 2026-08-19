@@ -4,8 +4,8 @@
 
 - Schema: `cambium.temperance-flow-projection.v1`
 - Projection authority: `read_only`
-- Source-set digest: `sha256:fe621307b020cfe5423a2e21bd861bb7853af9b59af5e5a7a80bf82fc5f3576d`
-- Flow digest: `sha256:407df726a144aaec0350839fa4a9a4331e53ef62546fbc78dbe651b15c913e99`
+- Source-set digest: `sha256:bac2655e0d11d5c452ff43211b8ce1e94b6ea9fbc662560d81617029126d005a`
+- Flow digest: `sha256:47a40b583cc23c216b4051faf85e4622ecd93a5697db29ae60197fb914e569ce`
 - Result: `blocked`
 - Command: `—`
 - Selected task: `—`
@@ -22,7 +22,7 @@
 | --- | --- |
 | ISA | `ISA.md#frontmatter.task@sha256:6b14cd9a8118f0d0c44375d6446373cc429da72dc96826b253951dff8f9f153e` |
 | GSD state | `.planning/STATE.md#markdown.heading:Operator Next Step@sha256:91f2284945b4bfb5a95e4ffdcb7c1ce9aa339bf11740154c947a90f1b990a6e3` |
-| Active plan | `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-PLAN.md#frontmatter.plan@sha256:4999d3c4a78b6df5c7fb319715fb152753c8f04e5ace52a676d92ef129fd3b83` |
+| Active plan | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#frontmatter.plan@sha256:975e3ce7895709086885a1273896c35226eac177d62b417f47ff5c301af91502` |
 | Intent Graph | `docs/architecture/intent-graph.v1.json#cambium.intent-graph-projection.v1@sha256:4eedd6d5868c20eb4dfbccfbcb9bfe25175b7fdfd782d98145bf94f3c899c1c7` |
 | Supporting evidence | `.project/HANDOFF.md#markdown.list-item:- Exact continuation is `/gsd:execute-phase 5`;@sha256:2123b640e300f4495aefe8658531ae095b193a679c757117f8542dcb71e28a11` |
 | Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-01-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:25f36a44be0521ae96aad2d9cc918ab9ffe7c88b588ee0fb411505e8784180db` |
@@ -53,12 +53,12 @@
 
 | Type | Kind | Satisfied | Source |
 | --- | --- | --- | --- |
-| Gate | approval_boundary | false | `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-PLAN.md#xml.task-name:Task 1: Commit RED source, generator, receipt, parity, and foldback contracts@sha256:1b57692db7d941b99581341421b089eb57ae91b432e45d47bba21f97839c4695` |
-| Gate | declared_verification | false | `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-PLAN.md#xml.task-name:Task 1: Commit RED source, generator, receipt, parity, and foldback contracts@sha256:1b57692db7d941b99581341421b089eb57ae91b432e45d47bba21f97839c4695` |
-| Stop | external_verification | false | `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-PLAN.md#xml.task-name:Task 1: Commit RED source, generator, receipt, parity, and foldback contracts@sha256:1b57692db7d941b99581341421b089eb57ae91b432e45d47bba21f97839c4695` |
+| Gate | approval_boundary | false | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#xml.task-name:Task 1: Commit RED stateless and bounded integration contracts@sha256:6918deb75f0939ea57541e17a93eca841fa7d1b6c230cab4fdbdcd766de884e4` |
+| Gate | declared_verification | false | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#xml.task-name:Task 1: Commit RED stateless and bounded integration contracts@sha256:6918deb75f0939ea57541e17a93eca841fa7d1b6c230cab4fdbdcd766de884e4` |
+| Stop | external_verification | false | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#xml.task-name:Task 1: Commit RED stateless and bounded integration contracts@sha256:6918deb75f0939ea57541e17a93eca841fa7d1b6c230cab4fdbdcd766de884e4` |
 
 ## Blocked reasons
 
-- `selected_command_conflicts_with_gsd_transition`: .planning/STATE.md#markdown.heading:Operator Next Step@sha256:91f2284945b4bfb5a95e4ffdcb7c1ce9aa339bf11740154c947a90f1b990a6e3, .planning/phases/05-ralph-and-temperance-flow-projection/05-02-PLAN.md#xml.task-name:Task 1: Commit RED source, generator, receipt, parity, and foldback contracts@sha256:1b57692db7d941b99581341421b089eb57ae91b432e45d47bba21f97839c4695
+- `selected_command_conflicts_with_gsd_transition`: .planning/STATE.md#markdown.heading:Operator Next Step@sha256:91f2284945b4bfb5a95e4ffdcb7c1ce9aa339bf11740154c947a90f1b990a6e3, .planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#xml.task-name:Task 1: Commit RED stateless and bounded integration contracts@sha256:6918deb75f0939ea57541e17a93eca841fa7d1b6c230cab4fdbdcd766de884e4
 
 Source bodies and host routing policy remain in their owning systems.
