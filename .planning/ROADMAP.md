@@ -23,7 +23,7 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 
 - [x] **Phase 3: Canonical Infinite-Game Anchors** - Establish one enduring vision, one renewable mission, and unambiguous Mission terminology. (completed 2026-08-17)
 - [x] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority. (shipped 2026-08-18)
-- [ ] **Phase 5: Ralph and Temperance Flow Projection** - Derive dependency-safe next actions, routes, gates, freshness, and stopping conditions from durable sources.
+- [x] **Phase 5: Ralph and Temperance Flow Projection** - Derive dependency-safe next actions, routes, gates, freshness, and stopping conditions from durable sources. (completed 2026-08-19)
 - [ ] **Phase 6: Documentation Stewardship** - Inventory and connect the doctrine corpus through a non-destructive authority and lifecycle map.
 - [ ] **Phase 7: Deterministic Safety and Handoff** - Reject authority drift, stale or sensitive projections, and leave a reviewed continuation boundary.
 
@@ -104,15 +104,15 @@ Plans:
 
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Define the coherent Phase 5 ISA lifecycle and prove the pure read-only authority-resolution compiler contract.
+- [x] 05-01-PLAN.md — Define the coherent Phase 5 ISA lifecycle and prove the pure read-only authority-resolution compiler contract.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md — Compile bounded durable sources into matching flow readbacks, authenticate host attribution, and reject projection foldback.
+- [x] 05-02-PLAN.md — Compile bounded durable sources into matching flow readbacks, authenticate host attribution, and reject projection foldback.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-03-PLAN.md — Execute one bounded Ralph unit through authenticated gates, verify and persist existing surfaces, regenerate readbacks, and close acceptance.
+- [x] 05-03-PLAN.md — Execute one bounded Ralph unit through authenticated gates, verify and persist existing surfaces, regenerate readbacks, and close acceptance.
 
 ### Phase 6: Documentation Stewardship
 
@@ -153,6 +153,6 @@ Plans:
 | 2. Telegram Operator Intake | v0.3 | 1/1 | Complete | 2026-07-17 |
 | 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
 | 4. Provenance-Preserving Intent Graph | v0.4 | 4/4 | Complete | 2026-08-18 |
-| 5. Ralph and Temperance Flow Projection | v0.4 | 0/3 | Planned    |  |
+| 5. Ralph and Temperance Flow Projection | v0.4 | 3/3 | Complete    | 2026-08-19 |
 | 6. Documentation Stewardship | v0.4 | 0/TBD | Not started | - |
 | 7. Deterministic Safety and Handoff | v0.4 | 0/TBD | Not started | - |
