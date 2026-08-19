@@ -100,6 +100,8 @@ test('FLOW-04 / ISC-1285: Temperance flow projections are rejected by the shared
     },
     { schema: 'cambium.temperance-flow-projection.v1', payload: { marker: 'malformed-flow-projection' } },
     { schema: 'cambium.temperance_flow_projection.v2', payload: { marker: 'future-flow-projection' } },
+    { schema: 'cambium.temperanceflow-projection.v2', projectionAuthority: 'read_only' },
+    { schema: 'CAMBIUM.TEMPERANCE/FLOW PROJECTION.V99', payload: {} },
     { schema: 'temperance flow projection experimental', payload: {} },
   ];
 

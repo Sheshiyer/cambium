@@ -57,6 +57,11 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const nonEmptyString = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0;
 
+/** Canonical family spelling for fail-closed projection discrimination. */
+function canonicalProjectionFamily(value: unknown): string {
+  return typeof value === 'string' ? value.toLowerCase().replace(/[^a-z0-9]+/g, '') : '';
+}
+
 /**
  * Build an envelope without calculating a digest.  Digest calculation belongs
  * to the D1 writer; accepting a caller-supplied digest here would blur that
@@ -122,15 +127,11 @@ export function isGoalGraphProjection(input: unknown): boolean {
   if (!isRecord(input)) return false;
   if (input.schema === GOAL_GRAPH_PROJECTION_SCHEMA) return true;
   if (input.schema === GOAL_GRAPH_PROJECTION_SCHEMA_VERSION) return true;
-  const schema = typeof input.schema === 'string'
-    ? input.schema.toLowerCase().replace(/[_\s]+/g, '-')
-    : '';
-  const origin = typeof input.origin === 'string'
-    ? input.origin.toLowerCase().replace(/[_\s]+/g, '-')
-    : '';
-  const namesGoalGraph = schema.includes('goal-graph') || schema.includes('goalgraph');
+  const schema = canonicalProjectionFamily(input.schema);
+  const origin = canonicalProjectionFamily(input.origin);
+  const namesGoalGraph = schema.includes('goalgraph');
   if (namesGoalGraph && schema.includes('projection')) return true;
-  if (origin.includes('goal-graph') || origin.includes('goalgraph') || origin.includes('d1-goal')) return true;
+  if (origin.includes('goalgraph') || origin.includes('d1goal')) return true;
   // A future projection schema or a malformed envelope still carries the
   // distinctive graph provenance tuple.  Keep it out of the writer while the
   // projection validator reports the precise schema/field failures.
@@ -143,10 +144,8 @@ export function isGoalGraphProjection(input: unknown): boolean {
 export function isIntentGraphProjection(input: unknown): boolean {
   if (!isRecord(input)) return false;
   if (input.schema === INTENT_GRAPH_PROJECTION_SCHEMA) return true;
-  const schema = typeof input.schema === 'string'
-    ? input.schema.toLowerCase().replace(/[_\s]+/g, '-')
-    : '';
-  const namesIntentGraph = schema.includes('intent-graph') || schema.includes('intentgraph');
+  const schema = canonicalProjectionFamily(input.schema);
+  const namesIntentGraph = schema.includes('intentgraph');
   return namesIntentGraph && schema.includes('projection');
 }
 
@@ -155,10 +154,8 @@ export function isIntentGraphProjection(input: unknown): boolean {
 export function isTemperanceFlowProjection(input: unknown): boolean {
   if (!isRecord(input)) return false;
   if (input.schema === TEMPERANCE_FLOW_PROJECTION_SCHEMA) return true;
-  const schema = typeof input.schema === 'string'
-    ? input.schema.toLowerCase().replace(/[_\s]+/g, '-')
-    : '';
-  return schema.includes('temperance-flow') && schema.includes('projection');
+  const schema = canonicalProjectionFamily(input.schema);
+  return schema.includes('temperanceflow') && schema.includes('projection');
 }
 
 /** One family discriminator shared by every fresh-authority boundary. */
