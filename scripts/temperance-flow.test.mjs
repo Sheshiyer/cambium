@@ -507,13 +507,28 @@ test('FLOW-04 / WR-02: ready projections reject recomputed semantic contradictio
     (value) => { value.route.intent.approvalRequired = true; },
     (value) => { value.gates[0].source = { ...unrelated, selector: 'text.line:attacker' }; },
     (value) => { value.stops = []; },
+    (value) => { value.result.command = '/gsd:execute-phase 999'; },
+    (value) => { value.freshness.authorities = { isa: 'missing', gsd: 'missing', plan: 'missing' }; },
+    (value) => { value.freshness.receipt = 'fresh'; value.route.resolved = null; },
   ];
   for (const mutate of mutations) {
     const candidate = structuredClone(ready);
     mutate(candidate);
     assert.throws(
       () => api.validateTemperanceFlowProjection(rehash(candidate)),
-      /dependency|route|command|source|plan|verification|approval|stop|declared/i,
+      /dependency|route|command|source|plan|phase|fresh|authorit|receipt|verification|approval|stop|declared/i,
+    );
+  }
+
+  const resolvedInput = validInput(repo);
+  resolvedInput.receiptVerification = freshReceipt(resolvedInput);
+  const resolved = compile(repo, resolvedInput);
+  for (const freshness of ['missing', 'stale']) {
+    const candidate = structuredClone(resolved);
+    candidate.freshness.receipt = freshness;
+    assert.throws(
+      () => api.validateTemperanceFlowProjection(rehash(candidate)),
+      /fresh|receipt|resolved/i,
     );
   }
 });

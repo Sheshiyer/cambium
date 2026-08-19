@@ -320,6 +320,16 @@ function sourceLabel(value) {
   return value ? `${value.path}#${value.selector}@${value.digest}` : null;
 }
 
+function commandPhase(command) {
+  const value = /^\/gsd:[a-z-]+ ([0-9]+(?:\.[0-9]+)?)$/.exec(command ?? '')?.[1];
+  return value === undefined ? null : value.split('.').map((part) => String(Number(part))).join('.');
+}
+
+function activePlanPhase(sourcePath) {
+  const value = /^\.planning\/phases\/([0-9]+)(?:-[^/]+)?\/[0-9]+-[0-9]+-PLAN\.md$/.exec(sourcePath ?? '')?.[1];
+  return value === undefined ? null : String(Number(value));
+}
+
 function compileAuthority(repositoryRoot, value, kind, allowedStatus, fields) {
   if (value === undefined) return null;
   if (projectionShaped(value)) throw new TypeError(`${kind} authority rejects projection foldback`);
@@ -441,6 +451,17 @@ export function compileTemperanceFlow(input) {
   if (selectedTask && gsd && selectedTask.command !== gsd.values.command) {
     reasons.push(reason('selected_command_conflicts_with_gsd_transition', [sourceLabel(selectedTask.source), sourceLabel(gsd.source)]));
   }
+  if (selectedTask && gsd && plan) {
+    const phases = [
+      commandPhase(selectedTask.command),
+      String(Number(gsd.values.phase)),
+      String(Number(plan.values.phase)),
+      activePlanPhase(selectedTask.source.path),
+    ];
+    if (phases.some((phase) => phase === null || phase !== phases[0])) {
+      reasons.push(reason('selected_command_conflicts_with_gsd_transition', [sourceLabel(selectedTask.source), sourceLabel(gsd.source), sourceLabel(plan.source)]));
+    }
+  }
 
   const routeTask = selectedTask ?? (tasks.length === 1 ? tasks[0] : null);
   const expectedCommand = gsd?.values.command ?? selectedTask?.command ?? null;
@@ -468,7 +489,7 @@ export function compileTemperanceFlow(input) {
       gsd: gsd?.validStatus ? 'fresh' : gsd ? 'stale' : 'missing',
       plan: plan?.validStatus ? 'fresh' : plan ? 'stale' : 'missing',
     },
-    receipt: resolved?.freshness ?? (input.receiptVerification?.freshness ?? 'missing'),
+    receipt: resolved?.freshness ?? (input.receiptVerification?.status === 'verified' ? 'stale' : 'missing'),
   };
   const sourceSetDigest = digestObject(canonicalSourceSet(references, tasks));
   const withoutDigest = {
@@ -609,11 +630,25 @@ export function validateTemperanceFlowProjection(value) {
     if (value.stops.length !== 1 || value.stops[0].kind !== 'external_verification' || value.stops[0].satisfied) {
       throw new TypeError('ready result requires one pending external verification stop');
     }
+    const commandPhaseValue = commandPhase(value.result.command);
+    const planPhaseValue = activePlanPhase(value.references.plan?.path);
+    if (commandPhaseValue === null || planPhaseValue === null || commandPhaseValue !== planPhaseValue) {
+      throw new TypeError('ready command phase must equal the declared active-plan phase');
+    }
   }
   assertClosedKeys(value.freshness, ['authorities', 'receipt'], 'projection freshness');
   assertClosedKeys(value.freshness.authorities, ['isa', 'gsd', 'plan'], 'authority freshness');
   for (const freshness of Object.values(value.freshness.authorities)) if (!TEMPERANCE_FLOW_RECEIPT_FRESHNESS.includes(freshness)) throw new TypeError('authority freshness is invalid');
   if (!TEMPERANCE_FLOW_RECEIPT_FRESHNESS.includes(value.freshness.receipt)) throw new TypeError('receipt freshness is invalid');
+  if (value.result.status === 'ready' && Object.values(value.freshness.authorities).some((freshness) => freshness !== 'fresh')) {
+    throw new TypeError('ready result requires every decision authority to be fresh');
+  }
+  if ((value.freshness.receipt === 'fresh') !== (value.route.resolved !== null)) {
+    throw new TypeError('fresh receipt status requires one bound resolved receipt');
+  }
+  if (value.freshness.receipt === 'missing' && value.route.resolved !== null) {
+    throw new TypeError('missing receipt status cannot expose resolved attribution');
+  }
 
   const sourceValues = [];
   for (const key of ['isa', 'gsd', 'plan']) if (value.references[key]) sourceValues.push(value.references[key]);
