@@ -37,7 +37,8 @@ the orchestrator and babysitter; the repository projection remains read-only.
    iteration digest before executing. The fixed executor enforces that digest as
    its idempotency key. Resolve declared verification the same way, or run it
    once against the execution receipt. On success,
-   append the same stable iteration and result digests using compare-and-swap in
+   append the same stable iteration and result digests using a per-checkpoint
+   exclusive lock and versioned compare-and-swap (inode metadata plus digest) in
    strict plan-summary → `.planning/STATE.md` → reviewed-handoff order. Regenerate
    the machine and human flow readbacks only after those durable bytes settle.
 7. **Exit.** Exit after the one remaining-phase unit completes or stops. The next fresh

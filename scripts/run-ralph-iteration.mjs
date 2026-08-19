@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { existsSync, lstatSync, readFileSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { deriveRalphIteration, validateRalphIteration } from './ralph-iteration.mjs';
 import { createTemperanceHostCommandRunner } from './temperance-host-boundary.mjs';
+import { compareAndSwapTextFile } from './versioned-file-cas.mjs';
 
 const FIXED_ISSUER = 'temperance-manifest-bridge';
 const FIXED_AUDIENCE = 'cambium-ralph-iteration';
@@ -181,34 +182,33 @@ function validateVerificationReceipt(value, action, execution) {
   return value;
 }
 
-function atomicWrite(target, content) {
-  const temporary = `${target}.tmp-${process.pid}-${Date.now()}`;
-  writeFileSync(temporary, content, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
-  renameSync(temporary, target);
-}
-
 function stopFromAction(action, reason, facts = {}) {
   const base = { schema: 'cambium.ralph-iteration.v1', status: 'stop', iterationDigest: action.iterationDigest, reason, ...facts };
   return Object.freeze({ ...base, resultDigest: digestObject(base) });
 }
 
-async function persistOne({ root, relative, surface, expectedDigest, record, adapter, writer = atomicWrite }) {
+async function persistOne({ root, relative, surface, expectedDigest, record, adapter, writer }) {
   const target = contained(root, relative);
-  const current = readFileSync(target, 'utf8');
-  const existing = findRecord(current);
   const expectedRecord = { ...record, surface };
-  if (existing && same(existing, expectedRecord)) return { status: 'already_applied' };
-  if (digestBytes(current) !== expectedDigest) return { status: 'cas_conflict' };
-  const append = markerFor(record, surface);
-  const next = adapter ? await adapter({ surface, path: relative, current, append, expectedDigest, record: structuredClone(record) }) : `${current}${append}`;
-  if (typeof next !== 'string') throw new TypeError(`${surface} adapter must return complete text`);
-  const nextRecord = findRecord(next);
-  if (!same(nextRecord, expectedRecord)) {
-    throw new TypeError(`${surface} adapter must preserve the complete stable Ralph receipt`);
-  }
-  if (digestBytes(readFileSync(target, 'utf8')) !== expectedDigest) return { status: 'cas_conflict' };
-  writer(target, next);
-  return { status: 'applied' };
+  return compareAndSwapTextFile({
+    target,
+    expectedDigest,
+    ...(writer === undefined ? {} : { writer }),
+    isAlreadyApplied: (current) => {
+      const existing = findRecord(current);
+      return existing !== null && same(existing, expectedRecord);
+    },
+    buildNext: async (current) => {
+      const append = markerFor(record, surface);
+      const next = adapter ? await adapter({ surface, path: relative, current, append, expectedDigest, record: structuredClone(record) }) : `${current}${append}`;
+      if (typeof next !== 'string') throw new TypeError(`${surface} adapter must return complete text`);
+      const nextRecord = findRecord(next);
+      if (!same(nextRecord, expectedRecord)) {
+        throw new TypeError(`${surface} adapter must preserve the complete stable Ralph receipt`);
+      }
+      return next;
+    },
+  });
 }
 
 function recoverySourceCheck(root, record, surfaces) {
