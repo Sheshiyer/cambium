@@ -420,3 +420,22 @@ test('FLOW-02 / ISC-1283: dry-run is the default and creates no effect, ledger, 
   assert.deepEqual(Object.fromEntries(files(fx.root).map((p) => [p, readFileSync(path.join(fx.root, p))])), before);
   assert.equal(files(fx.root).some((p) => /ralph.*(?:state|ledger|queue)/i.test(p)), false);
 });
+
+test('FLOW-02 / CR-01: public dry-run is host-independent and absent host execution fails closed', async (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const { testAdapters: _ignored, ...publicOptions } = runOptions(fx, { dryRun: undefined });
+  const inspected = await subject.runRalphIteration(publicOptions);
+  assert.equal(inspected.status, 'action');
+  assert.equal(existsSync(fx.effects), false);
+
+  const stopped = await subject.runRalphIteration({ ...publicOptions, dryRun: false });
+  assert.equal(stopped.status, 'stop');
+  assert.equal(stopped.reason, 'host_boundary_unavailable');
+  assert.deepEqual(stopped.hostBoundary, {
+    status: 'unavailable',
+    owner: 'temperance_engine',
+    requiredAction: 'separately_authorized_installation',
+  });
+  assert.equal(existsSync(fx.effects), false);
+  assert.doesNotMatch(JSON.stringify(stopped), /\/Users\/|\/Volumes\/|\.temperance_engine|credential|secret/i);
+});

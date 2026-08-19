@@ -52,6 +52,14 @@ CAS mismatch stops recovery for independent review.
 
 ## Held boundaries
 
+Dry-run and read-only inspection resolve entirely from repository sources and
+do not initialize the protected host command boundary. Non-dry execution fails
+closed with `host_boundary_unavailable` when that boundary is absent or
+unusable. The returned status names Temperance Engine as owner and requires a
+`separately_authorized_installation`; Cambium never creates, repairs, or writes
+the host manifest or its commands. Installation and live integration testing
+are a separate owner-approved host task.
+
 This procedure does not authorize deployment, provider or failover-policy
 changes, D1/KV/R2 writes, Telegram mutation, credentials, vault changes, or any
 unscoped external effect. The host owns runtime resolution and authenticated

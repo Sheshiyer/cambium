@@ -161,8 +161,8 @@ function atomicWrite(target, content) {
   renameSync(temporary, target);
 }
 
-function stopFromAction(action, reason) {
-  const base = { schema: 'cambium.ralph-iteration.v1', status: 'stop', iterationDigest: action.iterationDigest, reason };
+function stopFromAction(action, reason, facts = {}) {
+  const base = { schema: 'cambium.ralph-iteration.v1', status: 'stop', iterationDigest: action.iterationDigest, reason, ...facts };
   return Object.freeze({ ...base, resultDigest: digestObject(base) });
 }
 
@@ -354,7 +354,24 @@ async function runWithIntegrations(options, integrations, clock) {
 
 export async function runRalphIteration(options) {
   validateOptionsShape(options);
-  return runWithIntegrations(options, protectedIntegrations(), () => new Date().toISOString());
+  if (options.dryRun !== false) {
+    return runWithIntegrations(options, null, () => new Date().toISOString());
+  }
+  let integrations;
+  try {
+    integrations = protectedIntegrations();
+  } catch {
+    const action = await runWithIntegrations({ ...options, dryRun: true }, null, () => new Date().toISOString());
+    if (action.status === 'stop') return action;
+    return stopFromAction(action, 'host_boundary_unavailable', {
+      hostBoundary: {
+        status: 'unavailable',
+        owner: 'temperance_engine',
+        requiredAction: 'separately_authorized_installation',
+      },
+    });
+  }
+  return runWithIntegrations(options, integrations, () => new Date().toISOString());
 }
 
 export function createProtectedRalphIterationRunnerForTesting(boundaryOptions, clock) {
