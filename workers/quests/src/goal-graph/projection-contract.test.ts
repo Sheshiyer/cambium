@@ -5,6 +5,7 @@ import {
   createProjectionEnvelope,
   validateProjectionEnvelope,
   validateAuthoritativeInput,
+  isDerivedGraphProjection,
   isGoalGraphProjection,
   reconcileNodeMapping,
   classifyNodeMapping,
@@ -86,6 +87,32 @@ test('intent projection identities are rejected by the shared authoritative-inpu
 
   const unrelated = { kind: 'goal-command', tenant: 'tenant-alpha', command: 'add-node' };
   assert.deepEqual(validateAuthoritativeInput(unrelated), { accepted: true, value: unrelated, errors: [] });
+});
+
+test('FLOW-04 / ISC-1285: Temperance flow projections are rejected by the shared authoritative-input guard', () => {
+  const fixtures = [
+    {
+      schema: 'cambium.temperance-flow-projection.v1',
+      projectionAuthority: 'read_only',
+      sourceSetDigest: digest,
+      flowDigest: digest,
+      result: { status: 'blocked', task: null, command: null, reasons: [{ code: 'fixture', sources: [] }] },
+    },
+    { schema: 'cambium.temperance-flow-projection.v1', payload: { marker: 'malformed-flow-projection' } },
+    { schema: 'cambium.temperance_flow_projection.v2', payload: { marker: 'future-flow-projection' } },
+    { schema: 'temperance flow projection experimental', payload: {} },
+  ];
+
+  for (const fixture of fixtures) {
+    assert.equal(isDerivedGraphProjection(fixture), true, fixture.schema);
+    const authority = validateAuthoritativeInput(fixture);
+    assert.equal(authority.accepted, false, fixture.schema);
+    assert.equal(authority.reason, 'temperance_flow_projection_is_not_authoritative', fixture.schema);
+    assert.match(authority.errors[0], /Temperance flow projection cannot be accepted as fresh authoritative input/i);
+  }
+
+  const ordinary = { kind: 'goal-command', tenant: 'tenant-alpha', command: 'add-node' };
+  assert.deepEqual(validateAuthoritativeInput(ordinary), { accepted: true, value: ordinary, errors: [] });
 });
 
 test('unchanged mappings preserve proof', () => {
