@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 
@@ -166,6 +167,50 @@ function sourceReference(reader, relativePath, kind, selector) {
   return { path: relativePath, kind, selector, digest: digestText(select(raw, selector, relativePath)) };
 }
 
+function normalizedHandoffCheckpoint(value) {
+  return canonicalText(value)
+    .replace(/(`implementation_head` is `)[a-f0-9]{40}(`)/, '$1<reviewed-implementation-head>$2')
+    .replace(/^(- Generated (?:flowDigest|sourceSetDigest): )sha256:[a-f0-9]{64}$/gm, '$1<reviewed-generated-digest>');
+}
+
+function reviewedHandoffReference(reader, selector, checkpoint) {
+  return {
+    path: '.project/HANDOFF.md',
+    kind: 'reviewed_handoff',
+    selector,
+    digest: digestText(normalizedHandoffCheckpoint(checkpoint)),
+  };
+}
+
+function latestImplementationHead(repositoryRoot) {
+  if (!existsSync(path.join(repositoryRoot, '.git'))) return null;
+  const result = spawnSync('/usr/bin/git', [
+    '-C', repositoryRoot, 'log', '-1', '--format=%H', '--', '.', ':(exclude).project/HANDOFF.md',
+  ], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const head = result.status === 0 ? result.stdout.trim() : '';
+  return /^[a-f0-9]{40}$/.test(head) ? head : null;
+}
+
+function reviewedCheckpointBindings(repositoryRoot, checkpoint, reference) {
+  const implementationHead = /`implementation_head` is `([a-f0-9]{40})`/.exec(checkpoint)?.[1] ?? null;
+  const flowDigest = /^- Generated flowDigest: (sha256:[a-f0-9]{64})$/m.exec(checkpoint)?.[1] ?? null;
+  const sourceSetDigest = /^- Generated sourceSetDigest: (sha256:[a-f0-9]{64})$/m.exec(checkpoint)?.[1] ?? null;
+  const currentHead = latestImplementationHead(repositoryRoot);
+  if (currentHead === null) return { enforceable: false, matches: true };
+  const projectionPath = path.join(repositoryRoot, 'docs/architecture/temperance-flow.v1.json');
+  let projection = null;
+  try { projection = JSON.parse(readFileSync(projectionPath, 'utf8')); } catch { /* missing or malformed is stale */ }
+  return {
+    enforceable: true,
+    matches: implementationHead === currentHead
+      && projection?.flowDigest === flowDigest
+      && projection?.sourceSetDigest === sourceSetDigest
+      && projection?.references?.supporting?.some((candidate) => candidate.path === reference.path
+        && candidate.kind === reference.kind && candidate.selector === reference.selector
+        && candidate.digest === reference.digest),
+  };
+}
+
 function parseTasks(raw, relativePath) {
   const tasks = [];
   let index = 0;
@@ -266,10 +311,13 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   const statePhase = select(stateRaw, statePhaseSelector, '.planning/STATE.md');
   const stateLive = commands.length === 1 && /^Phase: 5 of 7 \(/.test(statePhase);
   const handoffHeading = /^###\s+(.+)$/m.exec(handoffRaw)?.[1] ?? '';
-  const handoffSelector = `text.line:### ${handoffHeading}`;
+  const handoffSelector = `markdown.heading:${handoffHeading}`;
   const handoffCheckpoint = select(handoffRaw, handoffSelector, '.project/HANDOFF.md');
+  const handoffReference = reviewedHandoffReference(reader, handoffSelector, handoffCheckpoint);
+  const handoffBindings = reviewedCheckpointBindings(reader.root, handoffCheckpoint, handoffReference);
   const handoffReviewed = /Phase 5 decisions and reviewed planning checkpoint/.test(handoffCheckpoint)
-    && !/unreviewed/i.test(handoffHeading);
+    && !/unreviewed/i.test(handoffHeading)
+    && handoffBindings.matches;
 
   const planRecords = PLAN_PATHS.map((relativePath, planIndex) => {
     const raw = reader.read(relativePath);
@@ -341,7 +389,7 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   const supportingSources = [
     sourceReference(reader, 'ISA.md', 'verification_evidence', isaDecisionSelector),
     sourceReference(reader, '.planning/STATE.md', 'verification_evidence', statePhaseSelector),
-    sourceReference(reader, '.project/HANDOFF.md', 'reviewed_handoff', handoffSelector),
+    handoffReference,
     ...incomplete.map((record) => sourceReference(reader, record.relativePath, 'verification_evidence', 'whole-file')),
     ...planRecords.filter(({ completionSource }) => completionSource).map(({ completionSource }) => completionSource),
   ];

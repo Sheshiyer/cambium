@@ -221,7 +221,12 @@ function compileSource(repositoryRoot, value, expectedKinds = TEMPERANCE_FLOW_SO
   if (projectionShaped(parseJsonIfPossible(selected))) {
     throw new TypeError(`source ${normalized} is a projection and cannot enter an authority lane`);
   }
-  const actualDigest = digestText(selected);
+  const digestable = value.kind === 'reviewed_handoff'
+    ? selected
+      .replace(/(`implementation_head` is `)[a-f0-9]{40}(`)/, '$1<reviewed-implementation-head>$2')
+      .replace(/^(- Generated (?:flowDigest|sourceSetDigest): )sha256:[a-f0-9]{64}$/gm, '$1<reviewed-generated-digest>')
+    : selected;
+  const actualDigest = digestText(digestable);
   if (actualDigest !== value.digest) throw new TypeError(`source digest mismatch for ${normalized}#${value.selector}`);
   return { path: normalized, kind: value.kind, selector: value.selector, digest: actualDigest };
 }

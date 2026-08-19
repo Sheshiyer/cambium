@@ -44,16 +44,16 @@
         "digest": "sha256:27343c0d8e4f6757f35dd803bb456638f3a894ec5ac5569863e37c53d7dae3f9"
       },
       {
+        "path": ".project/HANDOFF.md",
+        "kind": "reviewed_handoff",
+        "selector": "markdown.heading:2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate",
+        "digest": "sha256:305c910cc008678545dee619746611dff528473dcb63d6ce5da8e1cbc50459fa"
+      },
+      {
         "path": ".planning/STATE.md",
         "kind": "verification_evidence",
         "selector": "text.line:Phase:",
         "digest": "sha256:46a18b363a9c891c55e15dc593f9c74e14396d81b6aa6c7c8e0139c630adf0c0"
-      },
-      {
-        "path": ".project/HANDOFF.md",
-        "kind": "reviewed_handoff",
-        "selector": "text.line:### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate",
-        "digest": "sha256:79fd1acb1e866620beddfd998bf0e29b9931628e3d461a5ecc33a56d798f1266"
       },
       {
         "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md",
@@ -108,6 +108,6 @@
     "receipt": "missing"
   },
   "stops": [],
-  "sourceSetDigest": "sha256:bfe89dbeb5fb9d7b58c6103b3d2f847c1dbdccf42bec1df8ed15701cf0cabb58",
-  "flowDigest": "sha256:0d88bf437c800c8ddfd7e7df61a68fc9baefd7a9eb7e554ce317f5c4826e8a88"
+  "sourceSetDigest": "sha256:0fb8238ba40db2c805e357658e23491cc7d06a23330d7e4518a18352a66a31ba",
+  "flowDigest": "sha256:415ba6af4be5b2e0429da564aaa896f91b4efc9ed26845c8e1b988db4213e9e5"
 }

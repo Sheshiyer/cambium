@@ -4,8 +4,8 @@
 
 - Schema: `cambium.temperance-flow-projection.v1`
 - Projection authority: `read_only`
-- Source-set digest: `sha256:bfe89dbeb5fb9d7b58c6103b3d2f847c1dbdccf42bec1df8ed15701cf0cabb58`
-- Flow digest: `sha256:0d88bf437c800c8ddfd7e7df61a68fc9baefd7a9eb7e554ce317f5c4826e8a88`
+- Source-set digest: `sha256:0fb8238ba40db2c805e357658e23491cc7d06a23330d7e4518a18352a66a31ba`
+- Flow digest: `sha256:415ba6af4be5b2e0429da564aaa896f91b4efc9ed26845c8e1b988db4213e9e5`
 - Result: `blocked`
 - Command: `—`
 - Selected task: `—`
@@ -26,8 +26,8 @@
 | Intent Graph | `docs/architecture/intent-graph.v1.json#cambium.intent-graph-projection.v1@sha256:4eedd6d5868c20eb4dfbccfbcb9bfe25175b7fdfd782d98145bf94f3c899c1c7` |
 | Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-01-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:25f36a44be0521ae96aad2d9cc918ab9ffe7c88b588ee0fb411505e8784180db` |
 | Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:27343c0d8e4f6757f35dd803bb456638f3a894ec5ac5569863e37c53d7dae3f9` |
+| Supporting evidence | `.project/HANDOFF.md#markdown.heading:2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate@sha256:305c910cc008678545dee619746611dff528473dcb63d6ce5da8e1cbc50459fa` |
 | Supporting evidence | `.planning/STATE.md#text.line:Phase:@sha256:46a18b363a9c891c55e15dc593f9c74e14396d81b6aa6c7c8e0139c630adf0c0` |
-| Supporting evidence | `.project/HANDOFF.md#text.line:### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate@sha256:79fd1acb1e866620beddfd998bf0e29b9931628e3d461a5ecc33a56d798f1266` |
 | Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:8b9cb73161e7932994b9362203f6a9a773a8fb14a33bef791b91edf09d94bf74` |
 | Supporting evidence | `ISA.md#markdown.list-item:- 2026-08-19 11:06: refined:@sha256:c2d03b18eb3e9725e1f1e498b17d2a394a3c5a9a5a4dc4932c45f8bb5bc447ba` |
 

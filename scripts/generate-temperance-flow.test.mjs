@@ -299,10 +299,10 @@ test('FLOW-04: generated-digest receipts are excluded from source identity while
   const initial = api.buildTemperanceFlowSources(fixture.root);
   const handoffPath = path.join(fixture.root, '.project/HANDOFF.md');
   const original = readFileSync(handoffPath, 'utf8');
-  writeFileSync(handoffPath, original.replace(
-    '- Exact continuation is `/gsd:execute-phase 5`;',
-    `- Generated flowDigest: ${digest('generated-flow')}\n- Generated sourceSetDigest: ${digest('generated-source')}\n- Exact continuation is \`/gsd:execute-phase 5\`;`,
-  ));
+  writeFileSync(handoffPath, original
+    .replace(/- Generated flowDigest: sha256:[a-f0-9]{64}/, `- Generated flowDigest: ${digest('generated-flow')}`)
+    .replace(/- Generated sourceSetDigest: sha256:[a-f0-9]{64}/, `- Generated sourceSetDigest: ${digest('generated-source')}`)
+    .replace(/(`implementation_head` is `)[a-f0-9]{40}(`)/, `$1${'a'.repeat(40)}$2`));
   const excluded = api.buildTemperanceFlowSources(fixture.root);
   assert.deepEqual(excluded, initial);
   writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8').replace('reviewed planning checkpoint', 'unreviewed planning checkpoint'));
@@ -332,6 +332,48 @@ test('FLOW-04 / WR-03: every readiness decision byte has a named source digest',
     assert.notEqual(afterRef.digest, beforeRef.digest, `${relative} decision mutation must change its named digest`);
     writeFileSync(target, readFileSync(target, 'utf8').replace(afterText, beforeText));
   }
+});
+
+test('FLOW-04 / WR-03: reviewed readiness binds the full checkpoint, implementation head, and generated pair', (t) => {
+  const api = requireSourceApi('reviewed checkpoint binding');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  runGenerator(fixture.root, outputArgs(fixture, '--write'));
+  const git = (...args) => {
+    const result = spawnSync('/usr/bin/git', ['-C', fixture.root, ...args], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    return result.stdout.trim();
+  };
+  git('init', '-q');
+  git('config', 'user.email', 'fixture@example.invalid');
+  git('config', 'user.name', 'Fixture');
+  git('add', '.');
+  git('reset', '-q', '--', '.project/HANDOFF.md');
+  git('commit', '-qm', 'fixture implementation');
+  const implementationHead = git('rev-parse', 'HEAD');
+  const projection = JSON.parse(readFileSync(fixture.json, 'utf8'));
+  const handoffPath = path.join(fixture.root, '.project/HANDOFF.md');
+  writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8')
+    .replace(/(`implementation_head` is `)[a-f0-9]{40}(`)/, `$1${implementationHead}$2`)
+    .replace(/- Generated flowDigest: sha256:[a-f0-9]{64}/, `- Generated flowDigest: ${projection.flowDigest}`)
+    .replace(/- Generated sourceSetDigest: sha256:[a-f0-9]{64}/, `- Generated sourceSetDigest: ${projection.sourceSetDigest}`));
+  git('add', '.project/HANDOFF.md');
+  git('commit', '-qm', 'review fixture checkpoint');
+
+  let model = api.buildTemperanceFlowSources(fixture.root);
+  assert.equal(model.tasks[0].status, 'ready');
+  const reviewedRef = model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff');
+  assert.match(reviewedRef.selector, /^markdown\.heading:/);
+  writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8').replace('The pure interpreter', 'The changed interpreter'));
+  model = api.buildTemperanceFlowSources(fixture.root);
+  assert.notEqual(model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff').digest, reviewedRef.digest);
+  git('add', '.project/HANDOFF.md');
+  git('commit', '-qm', 'change reviewed evidence');
+  assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'pending');
+
+  git('reset', '--hard', 'HEAD^');
+  writeFileSync(fixture.json, `${JSON.stringify({ ...projection, flowDigest: digest('stale-flow') }, null, 2)}\n`);
+  assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'pending');
 });
 
 test('FLOW-04: JSON output is private, source-bounded, and performs zero runtime writes', (t) => {
