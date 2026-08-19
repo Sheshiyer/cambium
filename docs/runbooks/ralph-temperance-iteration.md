@@ -14,18 +14,22 @@ the orchestrator and babysitter; the repository projection remains read-only.
    Regenerate or check `docs/architecture/temperance-flow.v1.json` and its
    matching Markdown readback from the declared source set.
 3. **Inspect action or stop.** Continue only when the projection exposes exactly
-   one dependency-ready task and exact GSD command. Authority disagreement,
+   one dependency-ready plan unit and exact GSD phase command. Internal plan
+   tasks are not represented as separately executable units. Authority disagreement,
    blocked dependencies, terminal work, or multiple ready units stop with no
    command. `temperance-next-wave` is proposal-only.
 4. **Verify route and approval.** For `te-dispatch-paid`, obtain fresh bounded
    host and owner-approval verification results through the fixed host-owned
-   Manifest verifier. They must bind the selected task, exact command, route,
+   Manifest verifier. They must bind the selected plan unit, exact command, route,
    projection digest, and immutable source-set digest. Route intent never proves
    provider resolution, and raw receipts or caller-selected trust are rejected.
 5. **Revalidate and execute once.** Immediately before the irreversible effect,
    reread the complete snapshot and stop on any drift. Then dispatch exactly one
-   unit through `te-dispatch-paid`; no second task may be selected or executed.
-6. **Verify and persist.** Run the task's declared verification. On success,
+   plan unit through `te-dispatch-paid`; no second plan may be selected or executed.
+6. **Verify and persist.** Resolve the executor-owned durable receipt by the
+   iteration digest before executing. The fixed executor enforces that digest as
+   its idempotency key. Resolve declared verification the same way, or run it
+   once against the execution receipt. On success,
    append the same stable iteration and result digests using compare-and-swap in
    strict plan-summary → `.planning/STATE.md` → reviewed-handoff order. Regenerate
    the machine and human flow readbacks only after those durable bytes settle.
@@ -35,11 +39,14 @@ the orchestrator and babysitter; the repository projection remains read-only.
 ## Partial-persistence recovery
 
 Each completed surface records the stable iteration/result digest and its
-pre-effect CAS evidence. If interruption occurs after the summary alone or after
-the summary plus STATE, the next invocation validates that record and resumes
-only the missing persistence steps. It must never repeat external execution or
-declared verification. Drift, a conflicting result digest, or a CAS mismatch
-stops recovery for independent review.
+pre-effect CAS evidence. Before any repository marker is trusted, the next
+invocation repeats fixed host and owner verification, validates the marker's
+closed schema and canonical digests, and resolves the executor-owned execution
+and verification receipts by the iteration idempotency key. This also recovers
+an interruption before the first summary rename: the missing repository writes
+resume without repeating either external effect. Drift, an absent or mismatched
+host receipt, a conflicting result digest, a duplicate/malformed marker, or a
+CAS mismatch stops recovery for independent review.
 
 ## Held boundaries
 

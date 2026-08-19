@@ -106,7 +106,7 @@ test('FLOW-02 / ISC-1283 / D-05: blocked and terminal inputs stop with no comman
   const fx = fixture(); t.after(fx.cleanup);
   const api = requireSubject('blocked and terminal');
   const blocked = structuredClone(fx.flow);
-  blocked.result = { status: 'blocked', task: null, command: null, reasons: [{ code: 'dependency_blocked', sources: [] }] };
+  blocked.result = { status: 'blocked', task: null, command: null, reasons: [{ code: 'no_dependency_ready_task', sources: [] }] };
   blocked.route.resolved = null;
   blocked.flowDigest = digest('invalid-on-purpose');
   assert.throws(() => api.deriveRalphIteration(blocked), /flowDigest|projection/i);

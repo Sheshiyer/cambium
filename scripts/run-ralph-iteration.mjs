@@ -2,19 +2,21 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { deriveRalphIteration } from './ralph-iteration.mjs';
+import { deriveRalphIteration, validateRalphIteration } from './ralph-iteration.mjs';
 
 const FIXED_VERIFIER = 'temperance-manifest-verify';
 const FIXED_ISSUER = 'temperance-manifest-bridge';
 const FIXED_AUDIENCE = 'cambium-ralph-iteration';
 const HOST_SCHEMA = 'temperance.manifest-verification.v1';
 const APPROVAL_SCHEMA = 'temperance.owner-approval.v1';
+const EXECUTION_SCHEMA = 'temperance.execution-receipt.v1';
+const VERIFICATION_SCHEMA = 'temperance.declared-verification-receipt.v1';
 const MARKER = 'cambium-ralph-result-v1';
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const SAFE_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
 const ALLOWED_OPTIONS = new Set([
   'root', 'projectionPath', 'receiptReference', 'approvalReference', 'summaryPath', 'statePath',
-  'handoffPath', 'now', 'dryRun', 'testAdapters',
+  'handoffPath', 'now', 'dryRun',
 ]);
 
 function canonicalJson(value) {
@@ -46,7 +48,7 @@ function readRelative(root, relative) {
 }
 
 function allProjectionPaths(flow) {
-  const values = [flow.references.isa, flow.references.gsd, flow.references.plan, ...flow.references.supporting];
+  const values = [flow.references.isa, flow.references.gsd, flow.references.plan, flow.references.intentGraph, ...flow.references.supporting];
   if (flow.result.task?.source) values.push(flow.result.task.source);
   values.push(...flow.gates.map(({ source }) => source), ...flow.stops.map(({ source }) => source));
   return [...new Set(values.filter(Boolean).map(({ path: pathname }) => pathname))].sort();
@@ -58,14 +60,15 @@ function snapshot(root, relativePaths) {
 }
 
 function markerFor(record, surface) {
-  return `\n<!-- ${MARKER} ${JSON.stringify({ surface, ...record })} -->\n`;
+  return `\n<!-- ${MARKER} ${JSON.stringify({ ...record, surface })} -->\n`;
 }
 
 function findRecord(body) {
   const matches = [...body.matchAll(new RegExp(`<!-- ${MARKER} (\\{[^\\n]+\\}) -->`, 'g'))];
-  if (matches.length === 0) return null;
-  const parsed = JSON.parse(matches.at(-1)[1]);
-  return parsed;
+  const markerCount = body.split(`<!-- ${MARKER}`).length - 1;
+  if (markerCount === 0) return null;
+  if (markerCount !== 1 || matches.length !== 1) throw new TypeError('Ralph recovery surface must contain exactly one well-formed result marker');
+  try { return JSON.parse(matches[0][1]); } catch { throw new TypeError('Ralph recovery marker is not valid JSON'); }
 }
 
 function same(left, right) {
@@ -110,6 +113,50 @@ function fixedVerify(reference, kind) {
   try { return JSON.parse(result.stdout); } catch { throw new TypeError('fixed host Manifest verifier returned invalid JSON'); }
 }
 
+function fixedJsonCommand(command, args, input, { allowMissing = false } = {}) {
+  const result = spawnSync(command, args, {
+    encoding: 'utf8',
+    input: input === undefined ? undefined : `${canonicalJson(input)}\n`,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  if (allowMissing && result.status === 3) return null;
+  if (result.error || result.status !== 0) throw new TypeError(`fixed host command ${command} failed`);
+  try { return JSON.parse(result.stdout); } catch { throw new TypeError(`fixed host command ${command} returned invalid JSON`); }
+}
+
+const PRODUCTION_INTEGRATIONS = Object.freeze({
+  manifestVerifier: async (_expected, reference) => fixedVerify(reference, 'receipt'),
+  approvalVerifier: async (_expected, reference) => fixedVerify(reference, 'approval'),
+  executionReceiptResolver: async ({ iterationDigest }) => fixedJsonCommand(
+    'temperance-ralph-execute', ['--json', '--lookup', '--idempotency-key', iterationDigest], undefined, { allowMissing: true },
+  ),
+  executor: async (request) => fixedJsonCommand('temperance-ralph-execute', ['--json', '--execute'], request),
+  verificationReceiptResolver: async ({ iterationDigest }) => fixedJsonCommand(
+    'temperance-ralph-verify', ['--json', '--lookup', '--idempotency-key', iterationDigest], undefined, { allowMissing: true },
+  ),
+  verification: async (request) => fixedJsonCommand('temperance-ralph-verify', ['--json', '--verify'], request),
+});
+
+function validateExecutionReceipt(value, action, sourceSnapshotDigest) {
+  const allowed = ['schema', 'status', 'idempotencyKey', 'taskId', 'command', 'route', 'sourceSnapshotDigest', 'evidenceRef', 'payloadDigest'];
+  if (!value || Object.keys(value).sort().join() !== allowed.sort().join()) throw new TypeError('execution receipt must use the closed schema');
+  if (value.schema !== EXECUTION_SCHEMA || value.status !== 'succeeded' || value.idempotencyKey !== action.iterationDigest
+      || value.taskId !== action.task.id || value.command !== action.command || !same(value.route, action.route)
+      || value.sourceSnapshotDigest !== sourceSnapshotDigest || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
+      || !DIGEST.test(value.payloadDigest ?? '')) throw new TypeError('execution receipt is not bound to the Ralph iteration');
+  return value;
+}
+
+function validateVerificationReceipt(value, action, execution) {
+  const allowed = ['schema', 'status', 'idempotencyKey', 'taskId', 'declaredVerificationDigest', 'executionEvidenceRef', 'evidenceRef', 'payloadDigest'];
+  if (!value || Object.keys(value).sort().join() !== allowed.sort().join()) throw new TypeError('verification receipt must use the closed schema');
+  if (value.schema !== VERIFICATION_SCHEMA || value.status !== 'passed' || value.idempotencyKey !== action.iterationDigest
+      || value.taskId !== action.task.id || value.declaredVerificationDigest !== digestObject(action.declaredVerification)
+      || value.executionEvidenceRef !== execution.evidenceRef || !SAFE_REFERENCE.test(value.evidenceRef ?? '')
+      || !DIGEST.test(value.payloadDigest ?? '')) throw new TypeError('verification receipt is not bound to the Ralph iteration');
+  return value;
+}
+
 function atomicWrite(target, content) {
   const temporary = `${target}.tmp-${process.pid}-${Date.now()}`;
   writeFileSync(temporary, content, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
@@ -121,7 +168,7 @@ function stopFromAction(action, reason) {
   return Object.freeze({ ...base, resultDigest: digestObject(base) });
 }
 
-async function persistOne({ root, relative, surface, expectedDigest, record, adapter }) {
+async function persistOne({ root, relative, surface, expectedDigest, record, adapter, writer = atomicWrite }) {
   const target = contained(root, relative);
   const current = readFileSync(target, 'utf8');
   const existing = findRecord(current);
@@ -135,7 +182,7 @@ async function persistOne({ root, relative, surface, expectedDigest, record, ada
     throw new TypeError(`${surface} adapter must preserve the stable Ralph receipt`);
   }
   if (digestBytes(readFileSync(target, 'utf8')) !== expectedDigest) return { status: 'cas_conflict' };
-  atomicWrite(target, next);
+  writer(target, next);
   return { status: 'applied' };
 }
 
@@ -152,7 +199,46 @@ function recoverySourceCheck(root, record, surfaces) {
   return true;
 }
 
-export async function runRalphIteration(options) {
+function validateRecoveryRecord(record, action, expected, paths, host, approved) {
+  const allowed = [
+    'surface', 'schema', 'iterationDigest', 'resultDigest', 'sourceSnapshotDigest', 'sourceFiles',
+    'preimages', 'taskId', 'command', 'route', 'projectionDigest', 'sourceSetDigest',
+    'hostEvidenceRef', 'approvalEvidenceRef', 'executionEvidenceRef', 'verificationEvidenceRef', 'outcome',
+  ];
+  if (!record || Object.keys(record).sort().join() !== allowed.sort().join()) throw new TypeError('Ralph recovery record must use the closed schema');
+  if (record.surface !== 'summary' || record.schema !== MARKER || record.iterationDigest !== action.iterationDigest
+      || record.taskId !== action.task.id || record.command !== action.command || !same(record.route, action.route)
+      || record.projectionDigest !== action.projectionDigest || record.sourceSetDigest !== action.sourceSetDigest
+      || record.hostEvidenceRef !== host.evidenceRef || record.approvalEvidenceRef !== approved.evidenceRef) {
+    throw new TypeError('Ralph recovery record is not bound to the approved action');
+  }
+  if (!record.sourceFiles || typeof record.sourceFiles !== 'object' || Array.isArray(record.sourceFiles)
+      || Object.keys(record.sourceFiles).length === 0
+      || Object.values(record.sourceFiles).some((digest) => !DIGEST.test(digest))) throw new TypeError('Ralph recovery source snapshot is invalid');
+  if (digestObject(record.sourceFiles) !== record.sourceSnapshotDigest) throw new TypeError('Ralph recovery source snapshot digest is invalid');
+  if (!record.preimages || Object.keys(record.preimages).sort().join() !== ['handoff', 'state', 'summary'].sort().join()) throw new TypeError('Ralph recovery preimages are invalid');
+  for (const [surface, relative] of Object.entries(paths)) {
+    if (record.preimages[surface] !== record.sourceFiles[relative]) throw new TypeError('Ralph recovery preimage is not in the approved source snapshot');
+  }
+  const outcome = validateRalphIteration(record.outcome, { expectedResultDigest: record.resultDigest });
+  if (outcome.status !== 'stop' || outcome.reason !== 'iteration_complete'
+      || outcome.iterationDigest !== record.iterationDigest || outcome.resultDigest !== record.resultDigest
+      || !SAFE_REFERENCE.test(record.executionEvidenceRef ?? '') || !SAFE_REFERENCE.test(record.verificationEvidenceRef ?? '')) {
+    throw new TypeError('Ralph recovery outcome is not a completed bounded iteration');
+  }
+  if (!same(expected.route, record.route)) throw new TypeError('Ralph recovery route differs from the approved projection');
+  return record;
+}
+
+function approvalFor(action, approved) {
+  return {
+    status: 'approved', taskId: action.task.id, command: action.command, route: action.route,
+    projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest,
+    approvalDigest: approved.bindingDigest, evidenceRef: approved.evidenceRef,
+  };
+}
+
+async function runWithIntegrations(options, integrations) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) throw new TypeError('runner options must be an object');
   const extras = Object.keys(options).filter((key) => !ALLOWED_OPTIONS.has(key));
   if (extras.length > 0) throw new TypeError(`runner options contain forbidden field(s): ${extras.join(', ')}`);
@@ -169,54 +255,62 @@ export async function runRalphIteration(options) {
   const action = deriveRalphIteration(flow);
   if (action.status === 'stop') return action;
   if (options.dryRun !== false) return action;
+  if (options.receiptReference !== action.route.receiptRef) throw new TypeError('runner receipt reference must exactly match the projected route intent');
 
   const sourcePaths = [options.projectionPath, ...allProjectionPaths(flow), ...Object.values(paths)];
-  const initial = snapshot(root, sourcePaths);
   const summaryBody = readRelative(root, paths.summary);
   const prior = findRecord(summaryBody);
-  if (prior) {
-    if (prior.iterationDigest !== action.iterationDigest || !DIGEST.test(prior.resultDigest ?? '') || !recoverySourceCheck(root, prior, paths)) {
-      return stopFromAction(action, 'source_drift');
-    }
-    for (const surface of ['summary', 'state', 'handoff']) {
-      const outcome = await persistOne({
-        root, relative: paths[surface], surface, expectedDigest: prior.preimages[surface], record: prior,
-        adapter: options.testAdapters?.[`${surface}Adapter`],
-      });
-      if (outcome.status === 'cas_conflict') return stopFromAction(action, 'cas_conflict');
-    }
-    return prior.outcome;
-  }
-
+  const initial = prior
+    ? { files: prior.sourceFiles, digest: prior.sourceSnapshotDigest }
+    : snapshot(root, sourcePaths);
   const expected = {
     taskId: action.task.id,
     command: action.command,
-    route: { ...action.route, receiptRef: options.receiptReference },
+    route: action.route,
     projectionDigest: action.projectionDigest,
     sourceSetDigest: action.sourceSetDigest,
   };
-  const adapters = options.testAdapters ?? {};
-  const manifestRaw = adapters.manifestVerifier
-    ? await adapters.manifestVerifier(expected)
-    : fixedVerify(options.receiptReference, 'receipt');
-  const approvalRaw = adapters.approvalVerifier
-    ? await adapters.approvalVerifier(expected)
-    : fixedVerify(options.approvalReference, 'approval');
+  const manifestRaw = await integrations.manifestVerifier(expected, options.receiptReference);
+  const approvalRaw = await integrations.approvalVerifier(expected, options.approvalReference);
   const host = verifyBoundary(manifestRaw, { ...expected, reference: options.receiptReference }, 'host', options.now ?? new Date().toISOString());
   const approved = verifyBoundary(approvalRaw, { ...expected, reference: options.approvalReference }, 'approval', options.now ?? new Date().toISOString());
   if (!host || !approved) return stopFromAction(action, 'approval_required');
 
-  const immediate = snapshot(root, sourcePaths);
-  if (!same(initial.files, immediate.files) || initial.digest !== immediate.digest) return stopFromAction(action, 'source_drift');
-  if (typeof adapters.executor !== 'function' || typeof adapters.verification !== 'function') throw new TypeError('bounded executor and verification adapters are required');
-  const execution = await adapters.executor({ taskId: action.task.id, command: action.command, route: expected.route, sourceSnapshotDigest: initial.digest });
-  if (execution?.status !== 'succeeded') return deriveRalphIteration(flow, {
-    approval: { status: 'approved', taskId: action.task.id, command: action.command, route: action.route, projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest, approvalDigest: approved.bindingDigest, evidenceRef: approved.evidenceRef },
-    execution,
-  });
-  const verification = await adapters.verification({ taskId: action.task.id, declaredVerification: action.declaredVerification, executionEvidenceRef: execution.evidenceRef });
-  const approval = { status: 'approved', taskId: action.task.id, command: action.command, route: action.route, projectionDigest: action.projectionDigest, sourceSetDigest: action.sourceSetDigest, approvalDigest: approved.bindingDigest, evidenceRef: approved.evidenceRef };
-  if (verification?.status !== 'passed') return deriveRalphIteration(flow, { approval, execution, verification });
+  if (prior) {
+    try {
+      validateRecoveryRecord(prior, action, expected, paths, host, approved);
+    } catch {
+      return stopFromAction(action, 'source_drift');
+    }
+    if (!recoverySourceCheck(root, prior, paths)) return stopFromAction(action, 'source_drift');
+  } else {
+    const immediate = snapshot(root, sourcePaths);
+    if (!same(initial.files, immediate.files) || initial.digest !== immediate.digest) return stopFromAction(action, 'source_drift');
+  }
+
+  let execution = await integrations.executionReceiptResolver({ iterationDigest: action.iterationDigest });
+  if (execution === null || execution === undefined) {
+    execution = await integrations.executor({
+      schema: 'cambium.ralph-execution-request.v1', idempotencyKey: action.iterationDigest,
+      taskId: action.task.id, command: action.command, route: action.route, sourceSnapshotDigest: initial.digest,
+    });
+  }
+  try { execution = validateExecutionReceipt(execution, action, initial.digest); } catch {
+    return deriveRalphIteration(flow, { approval: approvalFor(action, approved), execution: { status: 'failed', evidenceRef: null } });
+  }
+
+  let verification = await integrations.verificationReceiptResolver({ iterationDigest: action.iterationDigest });
+  if (verification === null || verification === undefined) {
+    verification = await integrations.verification({
+      schema: 'cambium.ralph-verification-request.v1', idempotencyKey: action.iterationDigest,
+      taskId: action.task.id, declaredVerification: action.declaredVerification,
+      executionEvidenceRef: execution.evidenceRef,
+    });
+  }
+  try { verification = validateVerificationReceipt(verification, action, execution); } catch {
+    return deriveRalphIteration(flow, { approval: approvalFor(action, approved), execution, verification: { status: 'failed', evidenceRef: null } });
+  }
+  const approval = approvalFor(action, approved);
   const completed = deriveRalphIteration(flow, { approval, execution, verification, persistence: { summary: true, state: true, handoff: true } });
   const record = {
     schema: MARKER,
@@ -236,12 +330,29 @@ export async function runRalphIteration(options) {
     verificationEvidenceRef: verification.evidenceRef,
     outcome: completed,
   };
+  if (prior && (prior.executionEvidenceRef !== execution.evidenceRef
+      || prior.verificationEvidenceRef !== verification.evidenceRef
+      || prior.resultDigest !== record.resultDigest)) return stopFromAction(action, 'source_drift');
   for (const surface of ['summary', 'state', 'handoff']) {
     const outcome = await persistOne({
       root, relative: paths[surface], surface, expectedDigest: record.preimages[surface], record,
-      adapter: adapters[`${surface}Adapter`],
+      adapter: integrations[`${surface}Adapter`],
+      writer: integrations.atomicWriter,
     });
     if (outcome.status === 'cas_conflict') return stopFromAction(action, 'cas_conflict');
   }
   return completed;
+}
+
+export async function runRalphIteration(options) {
+  return runWithIntegrations(options, PRODUCTION_INTEGRATIONS);
+}
+
+export function createRalphIterationRunnerForTesting(integrations) {
+  const required = [
+    'manifestVerifier', 'approvalVerifier', 'executionReceiptResolver', 'executor',
+    'verificationReceiptResolver', 'verification',
+  ];
+  if (!integrations || required.some((key) => typeof integrations[key] !== 'function')) throw new TypeError('test runner requires complete explicit integrations');
+  return (options) => runWithIntegrations(options, integrations);
 }
