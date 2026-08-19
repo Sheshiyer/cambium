@@ -14,6 +14,8 @@ import path from 'node:path';
 
 const JOURNAL_SCHEMA = 'cambium.paired-publication-transaction.v1';
 const TRANSACTION_ID = /^txn-[0-9]+-[0-9]+-[a-f0-9]{12}$/;
+const LOCK_WAIT_MS = 2_000;
+const LOCK_STALE_MS = 30_000;
 
 const digest = (bytes) => `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
 
@@ -51,6 +53,63 @@ function transactionPaths(entries, transactionId) {
 function journalPath(entries) {
   const names = entries.map(({ target }) => path.basename(target)).sort().join('.');
   return path.join(path.dirname(entries[0].target), `.${names}.publication-transaction.json`);
+}
+
+function lockPath(entries) {
+  return `${journalPath(entries)}.lock`;
+}
+
+function ownerAlive(pid) {
+  if (!Number.isSafeInteger(pid) || pid <= 0) return false;
+  try { process.kill(pid, 0); return true; } catch (error) { return error?.code === 'EPERM'; }
+}
+
+function sleep(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+function acquirePublicationLock(entries, options = {}) {
+  const pathname = lockPath(entries);
+  const waitMs = options.lockWaitMs ?? LOCK_WAIT_MS;
+  const staleMs = options.lockStaleMs ?? LOCK_STALE_MS;
+  if (!Number.isSafeInteger(waitMs) || waitMs < 0 || waitMs > 60_000
+      || !Number.isSafeInteger(staleMs) || staleMs < 1_000 || staleMs > 3_600_000) {
+    throw new TypeError('paired publication lock bounds are invalid');
+  }
+  const deadline = Date.now() + waitMs;
+  const token = randomBytes(12).toString('hex');
+  while (true) {
+    try {
+      const descriptor = openSync(pathname, 'wx', 0o600);
+      try {
+        writeFileSync(descriptor, `${JSON.stringify({ schema: 'cambium.paired-publication-lock.v1', pid: process.pid, token })}\n`, 'utf8');
+        fsyncSync(descriptor);
+      } finally {
+        closeSync(descriptor);
+      }
+      syncDirectory(path.dirname(pathname));
+      return () => {
+        let owner;
+        try { owner = JSON.parse(readFileSync(pathname, 'utf8')); } catch { throw new TypeError('paired publication lock ownership changed'); }
+        if (owner.token !== token || owner.pid !== process.pid) throw new TypeError('paired publication lock ownership changed');
+        removeDurably(pathname);
+      };
+    } catch (error) {
+      if (error?.code !== 'EEXIST') throw error;
+      const metadata = lstatSync(pathname, { throwIfNoEntry: false });
+      if (!metadata) continue;
+      let owner = null;
+      try { owner = JSON.parse(readFileSync(pathname, 'utf8')); } catch { /* malformed fresh locks remain owned until stale */ }
+      const abandoned = owner !== null && !ownerAlive(owner.pid);
+      const expiredMalformed = owner === null && Date.now() - metadata.mtimeMs > staleMs;
+      if (abandoned || expiredMalformed) {
+        try { removeDurably(pathname); } catch (removeError) { if (removeError?.code !== 'ENOENT') throw removeError; }
+        continue;
+      }
+      if (Date.now() >= deadline) throw new TypeError('paired publication lock is busy; retry after the active writer exits');
+      sleep(Math.min(20, Math.max(1, deadline - Date.now())));
+    }
+  }
 }
 
 function syncDirectory(directory) {
@@ -125,8 +184,7 @@ function cleanupTransaction(pathname, transaction) {
   removeDurably(pathname);
 }
 
-export function recoverFilePair(rawEntries, options = {}) {
-  const entries = validateEntries(rawEntries);
+function recoverFilePairUnlocked(entries, options = {}) {
   const pathname = journalPath(entries);
   if (!existsSync(pathname)) return Object.freeze({ status: 'none' });
   const transaction = readJournal(pathname, entries);
@@ -162,9 +220,17 @@ export function recoverFilePair(rawEntries, options = {}) {
   return Object.freeze({ status: 'rolled_back' });
 }
 
+export function recoverFilePair(rawEntries, options = {}) {
+  const entries = validateEntries(rawEntries);
+  const release = acquirePublicationLock(entries, options);
+  try { return recoverFilePairUnlocked(entries, options); } finally { release(); }
+}
+
 export function publishFilePair(rawEntries, options = {}) {
   const entries = validateEntries(rawEntries);
-  recoverFilePair(entries, options);
+  const release = acquirePublicationLock(entries, options);
+  try {
+  recoverFilePairUnlocked(entries, options);
   const transactionId = `txn-${process.pid}-${Date.now()}-${randomBytes(6).toString('hex')}`;
   const pathname = journalPath(entries);
   const paths = transactionPaths(entries, transactionId);
@@ -197,10 +263,13 @@ export function publishFilePair(rawEntries, options = {}) {
     cleanupTransaction(pathname, transaction);
   } catch (publishError) {
     try {
-      recoverFilePair(entries, options);
+      recoverFilePairUnlocked(entries, options);
     } catch (recoveryError) {
       throw new AggregateError([publishError, recoveryError], `paired publication failed and recovery remains pending: ${publishError.message}; ${recoveryError.message}`);
     }
     throw publishError;
+  }
+  } finally {
+    release();
   }
 }
