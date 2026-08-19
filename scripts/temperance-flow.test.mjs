@@ -43,6 +43,22 @@ function digest(value) {
   return `sha256:${createHash('sha256').update(canonicalText(value), 'utf8').digest('hex')}`;
 }
 
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+}
+
+function objectDigest(value) {
+  return `sha256:${createHash('sha256').update(canonicalJson(value)).digest('hex')}`;
+}
+
+function rehash(value) {
+  const { flowDigest: _ignored, ...digestable } = value;
+  value.flowDigest = objectDigest(digestable);
+  return value;
+}
+
 function source(pathname, kind, body) {
   return { path: pathname, kind, selector: 'whole-file', digest: digest(body) };
 }
@@ -439,4 +455,38 @@ test('FLOW-04 / ISC-1285: read-only validation rejects foldback, unknown fields,
   const folded = validInput(repo);
   folded.authorities.isa = structuredClone(flow);
   assert.throws(() => compile(repo, folded), /projection|authority|foldback|schema/i);
+});
+
+test('FLOW-04 / WR-01: public validation rejects malformed dependency and reason entries after digest recomputation', (t) => {
+  const repo = makeRepository();
+  t.after(repo.cleanup);
+  const api = requireSubject('FLOW-04 / WR-01');
+  const ready = readyProjection(repo);
+  for (const dependency of [
+    { id: 'dep', status: 'invented' },
+    { id: 'dep', status: 'pending', extra: true },
+    { id: '', status: 'pending' },
+  ]) {
+    const candidate = structuredClone(ready);
+    candidate.result.task.dependencies = [dependency];
+    assert.throws(() => api.validateTemperanceFlowProjection(rehash(candidate)), /dependency|schema|invalid/i);
+  }
+  const duplicate = structuredClone(ready);
+  duplicate.result.task.dependencies = [{ id: 'dep', status: 'pending' }, { id: 'dep', status: 'blocked' }];
+  assert.throws(() => api.validateTemperanceFlowProjection(rehash(duplicate)), /dependency|duplicate/i);
+
+  const blockedInput = validInput(repo);
+  blockedInput.tasks[0].status = 'pending';
+  const blocked = compile(repo, blockedInput);
+  const cases = [
+    [{ code: 'invented_reason', sources: [] }],
+    [{ code: blocked.result.reasons[0].code, sources: ['not-a-declared-source'] }],
+    [{ code: blocked.result.reasons[0].code, sources: ['not-a-declared-source', 'not-a-declared-source'] }],
+    [{ code: blocked.result.reasons[0].code, sources: [], extra: true }],
+  ];
+  for (const reasons of cases) {
+    const candidate = structuredClone(blocked);
+    candidate.result.reasons = reasons;
+    assert.throws(() => api.validateTemperanceFlowProjection(rehash(candidate)), /reason|source|field|unique|declared/i);
+  }
 });

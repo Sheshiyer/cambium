@@ -31,6 +31,13 @@ export const TEMPERANCE_FLOW_LIFECYCLE_STEPS = Object.freeze([
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const GSD_COMMAND = /^\/gsd:(?:execute-phase|verify-phase|plan-phase) [0-9]+(?:\.[0-9]+)?$/;
 const SAFE_RECEIPT_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
+const DEPENDENCY_STATUSES = Object.freeze(['complete', 'satisfied', 'pending', 'blocked']);
+const BLOCK_REASON_CODES = Object.freeze([
+  'missing_isa_goal', 'isa_goal_not_approved', 'missing_gsd_state', 'gsd_state_not_live',
+  'missing_active_plan', 'active_plan_not_unique_or_active', 'gsd_plan_phase_conflict',
+  'no_dependency_ready_task', 'multiple_dependency_ready_tasks',
+  'selected_command_conflicts_with_gsd_transition', 'receipt_not_fresh_or_bound',
+]);
 const SECRET_TEXT = /(?:\/Users\/|\/Volumes\/|BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|Bearer [A-Za-z0-9._~-]{8,}|\b(?:api[_-]?key|credential|secret|token)[=:][^\s]+)/i;
 const FORBIDDEN_KEYS = new Set([
   'queue',
@@ -268,7 +275,7 @@ function compileTask(repositoryRoot, value) {
   const dependencies = value.dependencies.map((dependency) => {
     assertClosedKeys(dependency, ['id', 'status'], 'task dependency');
     safeText(dependency.id, 'dependency id');
-    if (!['complete', 'satisfied', 'pending', 'blocked'].includes(dependency.status)) throw new TypeError('dependency status is invalid');
+    if (!DEPENDENCY_STATUSES.includes(dependency.status)) throw new TypeError('dependency status is invalid');
     return { id: dependency.id, status: dependency.status };
   }).sort((left, right) => left.id.localeCompare(right.id));
   if (new Set(dependencies.map(({ id }) => id)).size !== dependencies.length) throw new TypeError('duplicate dependency identity');
@@ -524,18 +531,25 @@ export function validateTemperanceFlowProjection(value) {
     if (value.references[key] !== null) validateProjectionSource(value.references[key], [kind]);
   }
   validateProjectionIntentGraph(value.references.intentGraph);
-  if (!Array.isArray(value.references.supporting)) throw new TypeError('supporting references must be an array');
+  if (!Array.isArray(value.references.supporting) || value.references.supporting.length > 4096) throw new TypeError('supporting references must be a bounded array');
   value.references.supporting.forEach((entry) => validateProjectionSource(entry, ['verification_evidence', 'reviewed_handoff']));
 
   assertClosedKeys(value.result, ['status', 'task', 'command', 'reasons'], 'flow result');
-  if (!TEMPERANCE_FLOW_STATUSES.includes(value.result.status) || !Array.isArray(value.result.reasons)) throw new TypeError('flow result status or reasons are invalid');
+  if (!TEMPERANCE_FLOW_STATUSES.includes(value.result.status) || !Array.isArray(value.result.reasons) || value.result.reasons.length > 256) throw new TypeError('flow result status or reasons are invalid');
   if (value.result.status === 'ready') {
     if (!isRecord(value.result.task) || !GSD_COMMAND.test(value.result.command) || value.result.reasons.length !== 0) throw new TypeError('ready result requires exactly one task and one command');
     assertClosedKeys(value.result.task, ['id', 'name', 'source', 'dependencies'], 'selected task');
     safeText(value.result.task.id, 'selected task id');
     safeText(value.result.task.name, 'selected task name');
     validateProjectionSource(value.result.task.source, ['active_plan']);
-    if (!Array.isArray(value.result.task.dependencies)) throw new TypeError('selected task dependencies must be an array');
+    if (!Array.isArray(value.result.task.dependencies) || value.result.task.dependencies.length > 4096) throw new TypeError('selected task dependencies must be a bounded array');
+    const dependencyIds = new Set();
+    for (const dependency of value.result.task.dependencies) {
+      assertClosedKeys(dependency, ['id', 'status'], 'selected task dependency');
+      safeText(dependency.id, 'selected task dependency id');
+      if (!DEPENDENCY_STATUSES.includes(dependency.status) || dependencyIds.has(dependency.id)) throw new TypeError('selected task dependency is invalid or duplicated');
+      dependencyIds.add(dependency.id);
+    }
   } else {
     if (value.result.task !== null || value.result.command !== null || value.result.reasons.length === 0) {
       throw new TypeError('blocked result requires zero commands, no task, and at least one reason');
@@ -543,8 +557,10 @@ export function validateTemperanceFlowProjection(value) {
   }
   for (const entry of value.result.reasons) {
     assertClosedKeys(entry, ['code', 'sources'], 'blocked reason');
-    safeText(entry.code, 'blocked reason code');
-    if (!Array.isArray(entry.sources)) throw new TypeError('blocked reason sources must be an array');
+    if (!BLOCK_REASON_CODES.includes(entry.code)) throw new TypeError('blocked reason code is invalid');
+    if (!Array.isArray(entry.sources) || entry.sources.length > 4096) throw new TypeError('blocked reason sources must be a bounded array');
+    if (new Set(entry.sources).size !== entry.sources.length) throw new TypeError('blocked reason sources must be unique');
+    for (const source of entry.sources) safeText(source, 'blocked reason source');
   }
 
   assertClosedKeys(value.route, ['intent', 'resolved'], 'projection route');
@@ -552,7 +568,7 @@ export function validateTemperanceFlowProjection(value) {
   validateProjectionResolved(value.route.resolved);
   if (value.result.status === 'blocked' && value.route.resolved !== null) throw new TypeError('blocked result cannot expose resolved attribution');
   if (value.route.resolved && value.route.intent?.receiptRef !== value.route.resolved.receiptRef) throw new TypeError('resolved attribution must bind the route receiptRef');
-  if (!Array.isArray(value.gates) || !Array.isArray(value.stops)) throw new TypeError('gates and stops must be arrays');
+  if (!Array.isArray(value.gates) || !Array.isArray(value.stops) || value.gates.length > 256 || value.stops.length > 256) throw new TypeError('gates and stops must be bounded arrays');
   value.gates.forEach((entry) => validateProjectionGateOrStop(entry, TEMPERANCE_FLOW_GATE_KINDS, 'projection gate'));
   value.stops.forEach((entry) => validateProjectionGateOrStop(entry, TEMPERANCE_FLOW_STOP_KINDS, 'projection stop'));
   assertClosedKeys(value.freshness, ['authorities', 'receipt'], 'projection freshness');
@@ -566,6 +582,10 @@ export function validateTemperanceFlowProjection(value) {
   if (value.result.task) sourceValues.push(value.result.task.source);
   sourceValues.push(...value.gates.map(({ source }) => source), ...value.stops.map(({ source }) => source));
   const unique = new Map(sourceValues.map((entry) => [canonicalJson(entry), entry]));
+  const sourceLabels = new Set(sourceValues.map((entry) => sourceLabel(entry)));
+  for (const entry of value.result.reasons) {
+    for (const source of entry.sources) if (!sourceLabels.has(source)) throw new TypeError('blocked reason source is not a declared projection reference');
+  }
   const expectedSourceSet = digestObject([...unique.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, entry]) => entry));
   if (expectedSourceSet !== value.sourceSetDigest) throw new TypeError('sourceSetDigest does not match projection references');
   const { flowDigest: _ignored, ...digestable } = value;
