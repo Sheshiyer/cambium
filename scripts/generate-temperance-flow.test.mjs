@@ -339,6 +339,9 @@ test('FLOW-04 / WR-03: reviewed readiness binds the full checkpoint, implementat
   const fixture = makeFixture();
   t.after(fixture.cleanup);
   runGenerator(fixture.root, outputArgs(fixture, '--write'));
+  mkdirSync(path.join(fixture.root, 'scripts'), { recursive: true });
+  const runtimePath = path.join(fixture.root, 'scripts/runtime.mjs');
+  writeFileSync(runtimePath, 'export const runtime = true;\n');
   const git = (...args) => {
     const result = spawnSync('/usr/bin/git', ['-C', fixture.root, ...args], { encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr || result.stdout);
@@ -364,6 +367,10 @@ test('FLOW-04 / WR-03: reviewed readiness binds the full checkpoint, implementat
   assert.equal(model.tasks[0].status, 'ready');
   const reviewedRef = model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff');
   assert.match(reviewedRef.selector, /^markdown\.heading:/);
+  writeFileSync(runtimePath, 'export const runtime = false;\n');
+  assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'pending');
+  git('checkout', '--', 'scripts/runtime.mjs');
+  assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'ready');
   writeFileSync(handoffPath, readFileSync(handoffPath, 'utf8').replace('The pure interpreter', 'The changed interpreter'));
   model = api.buildTemperanceFlowSources(fixture.root);
   assert.notEqual(model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff').digest, reviewedRef.digest);

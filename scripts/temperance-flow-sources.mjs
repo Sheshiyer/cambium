@@ -19,6 +19,10 @@ const FLOW_OUTPUTS = new Set([
   'docs/architecture/temperance-flow.v1.json',
   'docs/architecture/temperance-flow.md',
 ]);
+const REVIEW_OUTPUTS = new Set([
+  `${PHASE_DIR}/05-REVIEW.md`,
+  `${PHASE_DIR}/05-REVIEW-FIX.md`,
+]);
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const SAFE_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
 const SAFE_POINTER = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
@@ -191,6 +195,17 @@ function latestImplementationHead(repositoryRoot) {
   return /^[a-f0-9]{40}$/.test(head) ? head : null;
 }
 
+function trackedImplementationChanges(repositoryRoot) {
+  if (!existsSync(path.join(repositoryRoot, '.git'))) return [];
+  const result = spawnSync('/usr/bin/git', [
+    '-C', repositoryRoot, 'diff', '--name-only', '--relative', 'HEAD', '--', '.',
+    ':(exclude).project/HANDOFF.md',
+    ...[...FLOW_OUTPUTS, ...REVIEW_OUTPUTS].map((pathname) => `:(exclude)${pathname}`),
+  ], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  if (result.status !== 0) return ['<git-diff-unavailable>'];
+  return result.stdout.split(/\r?\n/).filter(nonEmpty).sort();
+}
+
 function reviewedCheckpointBindings(repositoryRoot, checkpoint, reference) {
   const implementationHead = /`implementation_head` is `([a-f0-9]{40})`/.exec(checkpoint)?.[1] ?? null;
   const flowDigest = /^- Generated flowDigest: (sha256:[a-f0-9]{64})$/m.exec(checkpoint)?.[1] ?? null;
@@ -203,6 +218,7 @@ function reviewedCheckpointBindings(repositoryRoot, checkpoint, reference) {
   return {
     enforceable: true,
     matches: implementationHead === currentHead
+      && trackedImplementationChanges(repositoryRoot).length === 0
       && projection?.flowDigest === flowDigest
       && projection?.sourceSetDigest === sourceSetDigest
       && projection?.references?.supporting?.some((candidate) => candidate.path === reference.path
