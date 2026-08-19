@@ -189,7 +189,9 @@ function reviewedHandoffReference(reader, selector, checkpoint) {
 function latestImplementationHead(repositoryRoot) {
   if (!existsSync(path.join(repositoryRoot, '.git'))) return null;
   const result = spawnSync('/usr/bin/git', [
-    '-C', repositoryRoot, 'log', '-1', '--format=%H', '--', '.', ':(exclude).project/HANDOFF.md',
+    '-C', repositoryRoot, 'log', '-1', '--format=%H', '--', '.',
+    ':(exclude).project/HANDOFF.md',
+    ...[...FLOW_OUTPUTS, ...REVIEW_OUTPUTS].map((pathname) => `:(exclude)${pathname}`),
   ], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   const head = result.status === 0 ? result.stdout.trim() : '';
   return /^[a-f0-9]{40}$/.test(head) ? head : null;

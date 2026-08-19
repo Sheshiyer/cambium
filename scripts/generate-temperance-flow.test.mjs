@@ -367,6 +367,12 @@ test('FLOW-04 / WR-03: reviewed readiness binds the full checkpoint, implementat
   assert.equal(model.tasks[0].status, 'ready');
   const reviewedRef = model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff');
   assert.match(reviewedRef.selector, /^markdown\.heading:/);
+  const reviewPath = path.join(fixture.root, '.planning/phases/05-ralph-and-temperance-flow-projection/05-REVIEW.md');
+  writeFileSync(reviewPath, '# Derived review artifact\n');
+  writeFileSync(fixture.markdown, `${readFileSync(fixture.markdown, 'utf8')}\nDerived publication note.\n`);
+  git('add', reviewPath, fixture.markdown);
+  git('commit', '-qm', 'publish derived review artifacts');
+  assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'ready');
   writeFileSync(runtimePath, 'export const runtime = false;\n');
   assert.equal(api.buildTemperanceFlowSources(fixture.root).tasks[0].status, 'pending');
   git('checkout', '--', 'scripts/runtime.mjs');
