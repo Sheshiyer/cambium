@@ -11,6 +11,7 @@ export const RALPH_STOP_REASONS = Object.freeze([
   'iteration_complete',
   'source_drift',
   'cas_conflict',
+  'host_boundary_unavailable',
 ]);
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
@@ -105,6 +106,69 @@ function validateAction(value) {
   if (digestObject(identity) !== value.iterationDigest) throw new TypeError('Ralph action iterationDigest does not match canonical identity');
 }
 
+function validateEvidenceReference(value, label, { nullable = true } = {}) {
+  if (value === null && nullable) return;
+  if (!SAFE_REFERENCE.test(value ?? '')) throw new TypeError(`${label} is invalid`);
+}
+
+function validatePersistence(value) {
+  exactKeys(value, ['summary', 'state', 'handoff'], 'Ralph stop persistence');
+  if (Object.values(value).some((status) => typeof status !== 'boolean')) {
+    throw new TypeError('Ralph stop persistence is invalid');
+  }
+}
+
+function validateStop(value) {
+  const common = ['schema', 'status', 'iterationDigest', 'reason', 'resultDigest'];
+  const factsByReason = {
+    flow_blocked: ['blockedReasons'],
+    approval_required: ['approvalEvidenceRef'],
+    verification_failed: ['executionEvidenceRef', 'verificationEvidenceRef'],
+    persist_required: ['approvalEvidenceRef', 'executionEvidenceRef', 'verificationEvidenceRef', 'persistence'],
+    terminal: ['executionEvidenceRef'],
+    iteration_complete: ['approvalEvidenceRef', 'executionEvidenceRef', 'verificationEvidenceRef', 'persistence'],
+    source_drift: [],
+    cas_conflict: [],
+    host_boundary_unavailable: ['hostBoundary'],
+  };
+  if (!RALPH_STOP_REASONS.includes(value.reason)) throw new TypeError('Ralph stop reason is invalid');
+  exactKeys(value, [...common, ...factsByReason[value.reason]], 'Ralph stop');
+  if (!DIGEST.test(value.resultDigest ?? '')) throw new TypeError('Ralph stop result digest is invalid');
+
+  if (value.reason === 'flow_blocked') {
+    if (!Array.isArray(value.blockedReasons) || value.blockedReasons.length === 0 || value.blockedReasons.length > 4096) {
+      throw new TypeError('Ralph blocked reasons are invalid');
+    }
+    for (const reason of value.blockedReasons) {
+      exactKeys(reason, ['code', 'sources'], 'Ralph blocked reason');
+      safeString(reason.code, 'Ralph blocked reason code');
+      if (!Array.isArray(reason.sources) || reason.sources.length > 4096) throw new TypeError('Ralph blocked reason sources are invalid');
+      for (const source of reason.sources) safeString(source, 'Ralph blocked reason source');
+    }
+  } else if (value.reason === 'approval_required') {
+    validateEvidenceReference(value.approvalEvidenceRef, 'Ralph approval evidence');
+  } else if (value.reason === 'verification_failed') {
+    validateEvidenceReference(value.executionEvidenceRef, 'Ralph execution evidence', { nullable: false });
+    validateEvidenceReference(value.verificationEvidenceRef, 'Ralph verification evidence');
+  } else if (value.reason === 'terminal') {
+    validateEvidenceReference(value.executionEvidenceRef, 'Ralph execution evidence');
+  } else if (value.reason === 'persist_required' || value.reason === 'iteration_complete') {
+    validateEvidenceReference(value.approvalEvidenceRef, 'Ralph approval evidence');
+    validateEvidenceReference(value.executionEvidenceRef, 'Ralph execution evidence', { nullable: false });
+    validateEvidenceReference(value.verificationEvidenceRef, 'Ralph verification evidence', { nullable: false });
+    validatePersistence(value.persistence);
+  } else if (value.reason === 'host_boundary_unavailable') {
+    exactKeys(value.hostBoundary, ['status', 'owner', 'requiredAction'], 'Ralph host boundary status');
+    if (value.hostBoundary.status !== 'unavailable' || value.hostBoundary.owner !== 'temperance_engine'
+        || value.hostBoundary.requiredAction !== 'separately_authorized_installation') {
+      throw new TypeError('Ralph host boundary status is invalid');
+    }
+  }
+
+  const { resultDigest, ...digestable } = value;
+  if (digestObject(digestable) !== resultDigest) throw new TypeError('Ralph replay result digest conflict');
+}
+
 function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -150,9 +214,7 @@ export function validateRalphIteration(value, options = {}) {
   if (value.status === 'action') {
     validateAction(value);
   } else if (value.status === 'stop') {
-    if (!RALPH_STOP_REASONS.includes(value.reason) || !DIGEST.test(value.resultDigest ?? '')) throw new TypeError('Ralph stop is invalid');
-    const { resultDigest, ...digestable } = value;
-    if (digestObject(digestable) !== resultDigest) throw new TypeError('Ralph replay result digest conflict');
+    validateStop(value);
   } else {
     throw new TypeError('Ralph iteration status must be action or stop');
   }

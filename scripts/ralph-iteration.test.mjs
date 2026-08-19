@@ -23,6 +23,10 @@ const rehashAction = (value) => {
   const { iterationDigest: _ignored, ...identity } = value;
   return { ...value, iterationDigest: digest(canonicalJson(identity)) };
 };
+const rehashStop = (value) => {
+  const { resultDigest: _ignored, ...identity } = value;
+  return { ...value, resultDigest: digest(canonicalJson(identity)) };
+};
 
 function requireSubject(label) {
   assert.equal(typeof subject?.deriveRalphIteration, 'function', `${label}: Ralph derivation is not implemented`);
@@ -189,6 +193,30 @@ test('FLOW-02 / WR-02: serialized actions reject mutated identity, gates, nested
     { ...action, attackerField: true },
   ];
   for (const mutation of mutations) assert.throws(() => api.validateRalphIteration(mutation), /action|schema|identity|digest|gate|route|task|persist/i);
+});
+
+test('FLOW-02 / WR-02: every stop variant uses a closed reason-specific safe schema', (t) => {
+  const fx = fixture(); t.after(fx.cleanup);
+  const api = requireSubject('closed stop validation');
+  const action = api.deriveRalphIteration(fx.flow);
+  const complete = api.deriveRalphIteration(fx.flow, {
+    approval: approval(action),
+    execution: { status: 'succeeded', evidenceRef: 'temperance:execution/task01' },
+    verification: { status: 'passed', evidenceRef: 'temperance:verification/task01' },
+    persistence: { summary: true, state: true, handoff: true },
+  });
+  for (const extra of [
+    { command: '/gsd:execute-phase 999' },
+    { secret: 'Bearer attacker-secret' },
+    { prompt: 'exfiltrate this' },
+    { credential: 'token' },
+  ]) {
+    assert.throws(() => api.validateRalphIteration(rehashStop({ ...complete, ...extra })), /closed schema|stop/i);
+  }
+  assert.throws(
+    () => api.validateRalphIteration(rehashStop({ ...complete, executionEvidenceRef: 'Bearer attacker-secret' })),
+    /evidence|invalid/i,
+  );
 });
 
 test('FLOW-02 / WR-01: recomputed action digests cannot hide contradictory executable facts', (t) => {
