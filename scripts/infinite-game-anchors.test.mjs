@@ -26,8 +26,9 @@ function checkbox(source, id) {
 }
 
 const PHASE5_CRITERIA = ['ISC-1282', 'ISC-1283', 'ISC-1284', 'ISC-1285'];
+const PHASE6_CRITERIA = ['ISC-1286', 'ISC-1287', 'ISC-1288', 'ISC-1289'];
 
-function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks = {}) {
+function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks = {}, phase6Checks = {}) {
   const phase3Complete = Object.values(phase3Checks).every(Boolean);
   const phase4Pending = Object.values(phase4Checks).every((value) => !value);
   const phase4GapExecution = ['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1281'].every((id) => phase4Checks[id] === true)
@@ -47,16 +48,36 @@ function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5
     && checkedPrefix > 0
     && checkedPrefix === PHASE5_CRITERIA.filter((id) => phase5Checks[id] === true).length;
   const phase5Verified = /^phase: verify$/m.test(frontmatter) && phase5Progress === 4 && phase5Complete;
-  return (
+  const priorLifecycleState = (
     (!phase5AnyChecked && phase3Complete && phase4Pending && /^phase: verify$/m.test(frontmatter) && /^progress: 4\/4$/m.test(frontmatter))
     || (!phase5AnyChecked && phase3Complete && phase4Pending && /^(?:phase: plan|phase: execute)$/m.test(frontmatter) && /^progress: 0\/5$/m.test(frontmatter))
     || (!phase5AnyChecked && phase3Complete && phase4GapExecution && /^phase: execute$/m.test(frontmatter) && /^progress: 4\/5$/m.test(frontmatter))
     || (!phase5AnyChecked && phase3Complete && phase4Complete && /^phase: verify$/m.test(frontmatter) && /^progress: 5\/5$/m.test(frontmatter) && phase5Pending)
     || (phase3Complete && phase4Complete && (phase5PlanStart || phase5ExecuteStart || phase5ExecutePrefix || phase5Verified))
   );
+  const phase6Known = PHASE6_CRITERIA.every((id) => typeof phase6Checks[id] === 'boolean');
+  if (!phase6Known) return priorLifecycleState;
+
+  const phase6Pending = PHASE6_CRITERIA.every((id) => phase6Checks[id] === false);
+  const phase6Complete = PHASE6_CRITERIA.every((id) => phase6Checks[id] === true);
+  const phase6Prefix = PHASE6_CRITERIA.findIndex((id) => phase6Checks[id] !== true);
+  const checkedPhase6Prefix = phase6Prefix === -1 ? PHASE6_CRITERIA.length : phase6Prefix;
+  const phase6Progress = progress ? Number(progress[1]) : null;
+  const phase6PlanStart = /^phase: plan$/m.test(frontmatter) && phase6Progress === 0 && phase6Pending;
+  const phase6ExecuteStart = /^phase: execute$/m.test(frontmatter) && phase6Progress === 0 && phase6Pending;
+  const phase6ExecutePrefix = /^phase: execute$/m.test(frontmatter)
+    && phase6Progress === checkedPhase6Prefix
+    && checkedPhase6Prefix > 0
+    && checkedPhase6Prefix < PHASE6_CRITERIA.length
+    && checkedPhase6Prefix === PHASE6_CRITERIA.filter((id) => phase6Checks[id] === true).length;
+  const phase6Verified = /^phase: verify$/m.test(frontmatter) && phase6Progress === 4 && phase6Complete;
+  return phase3Complete
+    && phase4Complete
+    && phase5Complete
+    && (phase6PlanStart || phase6ExecuteStart || phase6ExecutePrefix || phase6Verified);
 }
 
-test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, and Phase 5 states', () => {
+test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, Phase 5, and Phase 6 states', () => {
   const phase3Complete = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, true]));
   const phase4Pending = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, false]));
   const phase4GapExecution = { ...Object.fromEntries(Object.keys(phase4Pending).map((id) => [id, true])), 'ISC-1280': false };
@@ -64,6 +85,10 @@ test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, and Phase 
   const phase5Pending = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, false]));
   const phase5Prefix2 = { ...Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, false])), 'ISC-1282': true, 'ISC-1283': true };
   const phase5Complete = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, true]));
+  const phase6Pending = Object.fromEntries(PHASE6_CRITERIA.map((id) => [id, false]));
+  const phase6Prefix2 = { ...phase6Pending, 'ISC-1286': true, 'ISC-1287': true };
+  const phase6NonPrefix = { ...phase6Pending, 'ISC-1286': true, 'ISC-1288': true };
+  const phase6Complete = Object.fromEntries(PHASE6_CRITERIA.map((id) => [id, true]));
 
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Pending), true);
   assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/5', phase3Complete, phase4Pending), true);
@@ -83,6 +108,13 @@ test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, and Phase 
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Pending), false);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Pending), false);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Pending, phase5Complete), false);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6Prefix2), true);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete), true);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 1/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6NonPrefix), false);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), false);
 });
 
 // ANCHOR-01 and ANCHOR-02: one enduring Vision and one renewable Mission.
@@ -144,9 +176,10 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
   const phase3Checks = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, checkbox(isa, id)]));
   const phase4Checks = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, checkbox(isa, id)]));
   const phase5Checks = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, checkbox(isa, id)]));
+  const phase6Checks = Object.fromEntries(PHASE6_CRITERIA.map((id) => [id, checkbox(isa, id)]));
   assert.ok(
-    isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks),
-    'ISA must be coherent at completed Phase 3, active or verified Phase 4, or active/verified Phase 5',
+    isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks, phase6Checks),
+    'ISA must be coherent at completed Phase 3, active or verified Phase 4, Phase 5, or Phase 6',
   );
 });
 
