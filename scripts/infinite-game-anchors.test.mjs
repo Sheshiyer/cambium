@@ -784,3 +784,23 @@ test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensi
   violations.push(...privacyViolations('<inventory-markdown-stdout>', markdown));
   assert.deepEqual([...new Set(violations)], [], `T-06-22 privacy violations: ${[...new Set(violations)].join(', ')}`);
 });
+
+test('SAFE-01 / D-01: SHA-bound safety:check fails copied doctrine and passes unmodified HEAD', () => {
+  assert.fail('phase-wide SAFE-01 sentinel not implemented');
+});
+
+test('SAFE-02 / D-02: SHA-bound safety:check fails D-05 self-claims and keeps ISA/STATE/LIFECYCLE allowlists', () => {
+  assert.fail('phase-wide SAFE-02 sentinel not implemented');
+});
+
+test('SAFE-03 / D-03: SHA-bound safety:check fails stale selectors and privacy tokens without D-11 false hits', () => {
+  assert.fail('phase-wide SAFE-03 sentinel not implemented');
+});
+
+test('SAFE-04 / D-16: reviewed handoff records write set, fixtures, D-15 holds, D-16 identities, and verify-work 7', () => {
+  assert.fail('phase-wide SAFE-04 sentinel not implemented');
+});
+
+test('SAFE-PRIVACY / T-07: Phase 7 bytes and safety:check stdout expose no sensitive local state', () => {
+  assert.fail('phase-wide T-07 sentinel not implemented');
+});
