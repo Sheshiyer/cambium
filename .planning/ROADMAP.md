@@ -24,7 +24,7 @@ Cambium v0.4 turns the approved infinite-game doctrine into a bounded, verifiabl
 - [x] **Phase 3: Canonical Infinite-Game Anchors** - Establish one enduring vision, one renewable mission, and unambiguous Mission terminology. (completed 2026-08-17)
 - [x] **Phase 4: Provenance-Preserving Intent Graph** - Project canonical intent through goals, tasks, evidence, and learning without creating another authority. (shipped 2026-08-18)
 - [x] **Phase 5: Ralph and Temperance Flow Projection** - Derive dependency-safe next actions, routes, gates, freshness, and stopping conditions from durable sources. (completed 2026-08-19)
-- [x] **Phase 6: Documentation Stewardship** - Inventory and connect the doctrine corpus through a non-destructive authority and lifecycle map. (completed 2026-08-20)
+- [ ] **Phase 6: Documentation Stewardship** - Inventory and connect the doctrine corpus through a non-destructive authority and lifecycle map.
 - [ ] **Phase 7: Deterministic Safety and Handoff** - Reject authority drift, stale or sensitive projections, and leave a reviewed continuation boundary.
 
 ## Phase Details
@@ -170,5 +170,5 @@ Plans:
 | 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
 | 4. Provenance-Preserving Intent Graph | v0.4 | 4/4 | Complete | 2026-08-18 |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 3/3 | Complete    | 2026-08-19 |
-| 6. Documentation Stewardship | v0.4 | 4/4 | Complete   | 2026-08-20 |
+| 6. Documentation Stewardship | v0.4 | 4/4 | Verification pending | - |
 | 7. Deterministic Safety and Handoff | v0.4 | 0/TBD | Not started | - |
