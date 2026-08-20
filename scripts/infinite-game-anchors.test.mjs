@@ -1,9 +1,180 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 import test from 'node:test';
+import {
+  renderDocumentationInventoryMarkdown,
+  validateDocumentationInventory,
+} from './documentation-inventory.mjs';
 
 const root = new URL('..', import.meta.url);
+const repositoryRoot = fs.realpathSync(path.resolve(new URL('.', root).pathname));
 const approvedGoal = "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.";
+
+function run(command, args, { encoding = 'utf8' } = {}) {
+  const result = spawnSync(command, args, {
+    cwd: repositoryRoot,
+    encoding,
+    maxBuffer: 256 * 1024 * 1024,
+    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
+  });
+  assert.equal(result.status, 0, Buffer.isBuffer(result.stderr) ? result.stderr.toString('utf8') : result.stderr || result.stdout);
+  return result.stdout;
+}
+
+function git(...args) {
+  return String(run('/usr/bin/git', args)).trim();
+}
+
+function digest(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+function nulList(value) {
+  return String(value).split('\0').filter(Boolean);
+}
+
+function repositorySnapshot() {
+  const files = nulList(run('/usr/bin/git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard']));
+  const records = files.map((relativePath) => {
+    const absolute = path.join(repositoryRoot, relativePath);
+    const metadata = fs.lstatSync(absolute, { bigint: true });
+    return {
+      path: relativePath,
+      mode: metadata.mode.toString(),
+      mtimeNs: metadata.mtimeNs.toString(),
+      bytes: metadata.isSymbolicLink() ? `link:${fs.readlinkSync(absolute)}` : digest(fs.readFileSync(absolute)),
+    };
+  });
+  const indexPath = git('rev-parse', '--git-path', 'index');
+  const absoluteIndex = path.isAbsolute(indexPath) ? indexPath : path.join(repositoryRoot, indexPath);
+  const index = fs.readFileSync(absoluteIndex);
+  return {
+    records,
+    index: digest(index),
+    status: run('/usr/bin/git', ['status', '--porcelain=v1', '-z']),
+  };
+}
+
+function runInventoryCommand(script, revision) {
+  const before = repositorySnapshot();
+  const result = spawnSync('npm', ['run', '--silent', script, '--', '--source-revision', revision], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    maxBuffer: 256 * 1024 * 1024,
+    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.deepEqual(repositorySnapshot(), before, `${script} must not write repository or Git-index state`);
+  return result.stdout;
+}
+
+function corpusPathsAt(revision) {
+  return nulList(run('/usr/bin/git', ['ls-tree', '-r', '-z', '--name-only', revision]))
+    .filter((relativePath) => (
+      (!relativePath.includes('/') && relativePath.endsWith('.md'))
+      || relativePath.startsWith('docs/')
+      || relativePath.startsWith('.planning/')
+    ))
+    .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)));
+}
+
+function markdownLinks(source) {
+  return [...source.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map((match) => match[1]);
+}
+
+function assertRepositoryLinksResolve(relativePath, source) {
+  for (const target of markdownLinks(source)) {
+    if (/^(?:https?:|mailto:|#)/.test(target)) continue;
+    const withoutFragment = target.split('#', 1)[0];
+    if (withoutFragment.length === 0 || /[<{]/.test(withoutFragment)) continue;
+    const resolved = path.resolve(repositoryRoot, path.dirname(relativePath), decodeURIComponent(withoutFragment));
+    assert.equal(resolved === repositoryRoot || resolved.startsWith(`${repositoryRoot}${path.sep}`), true, `${relativePath} link escapes repository: ${target}`);
+    assert.equal(fs.existsSync(resolved), true, `${relativePath} contains unresolved link ${target}`);
+  }
+}
+
+function assertNonAuthoritativeProjection(inventory) {
+  assert.equal(inventory.projectionAuthority, 'read_only');
+  for (const entry of inventory.entries) {
+    assert.match(entry.recommendedDisposition, /^retain-/);
+    assert.doesNotMatch(entry.recommendedDisposition, /delete|move|relocate|externalize|archive/i);
+  }
+}
+
+function phaseBaseSha() {
+  const summary = read('.planning/phases/06-documentation-stewardship/06-01-SUMMARY.md');
+  const matches = [...summary.matchAll(/^phase_base_sha: ([0-9a-f]{40})$/gm)];
+  assert.equal(matches.length, 1, '06-01 summary must declare one unique full phase_base_sha');
+  assert.equal(spawnSync('/usr/bin/git', ['merge-base', '--is-ancestor', matches[0][1], 'HEAD'], { cwd: repositoryRoot }).status, 0,
+    'phase_base_sha must be an ancestor of current HEAD');
+  return matches[0][1];
+}
+
+function nameStatus(rangeArgs) {
+  return nulList(run('/usr/bin/git', ['diff', '--name-status', '-z', ...rangeArgs]));
+}
+
+function changedPathsAndKinds(baseSha) {
+  const collections = [
+    nameStatus([`${baseSha}...HEAD`]),
+    nameStatus(['--cached']),
+    nameStatus([]),
+  ];
+  const paths = new Set(nulList(run('/usr/bin/git', ['ls-files', '-z', '--others', '--exclude-standard'])));
+  for (const records of collections) {
+    for (let index = 0; index < records.length;) {
+      const status = records[index++];
+      assert.doesNotMatch(status, /^[DR]/, `Phase 6 must not delete or rename paths (${status})`);
+      const relativePath = records[index++];
+      if (relativePath) paths.add(relativePath);
+    }
+  }
+  return [...paths].sort();
+}
+
+const syntheticPrivacyFixtures = new Map([
+  ['scripts/documentation-inventory.test.mjs', [
+    /presentPurpose = 'Bearer abcdefghijklmnop'/,
+    /promptBody = 'private prompt'/,
+  ]],
+  ['scripts/generate-documentation-inventory.test.mjs', [
+    /docs\/private-shaped-body\.md.*fixture-private-value/,
+    /assert\.doesNotMatch.*(?:Users|Volumes|Bearer|promptBody|responseBody)/,
+  ]],
+  ['scripts/generate-temperance-flow.test.mjs', [
+    /credential.*promptBody.*responseBody/,
+    /nativeSessionId.*receiptPath/,
+    /normalizeVerifiedManifestResult.*Bearer.*top-secret-token/,
+  ]],
+  ['scripts/infinite-game-anchors.test.mjs', [
+    /presentPurpose.*Bearer abcdefghijklmnop/,
+    /promptBody.*private prompt/,
+    /(?:credential|nativeSessionId|normalizeVerifiedManifestResult).*top-secret-token/,
+  ]],
+]);
+
+function privacyViolations(relativePath, source) {
+  const fixtureRules = syntheticPrivacyFixtures.get(relativePath) ?? [];
+  const patterns = [
+    new RegExp(`(?:file:\\/\\/(?:\\/|[A-Za-z]:)|\\/(?:${'Us' + 'ers'}|${'Vol' + 'umes'}|home)\\/[A-Za-z0-9._~-][^\\s'\"]*|[A-Za-z]:\\\\${'Us' + 'ers'}\\\\)`, 'i'),
+    /\b(?:authorization\s*[:=]\s*|bearer\s+)[A-Za-z0-9._~-]{12,}/i,
+    /\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|native[_-]?session(?:[_-]?(?:id|token))?)\s*[:=]\s*['"]?[A-Za-z0-9._~+\/-]{8,}/i,
+    /\b(?:prompt|request|response|message)[_-]?(?:body|content|payload)\s*[:=]\s*['"{\[]/i,
+    new RegExp(`(?:\\.${'claude'}\\/${'MEMORY'}|${'MEMORY'}\\/(?:LEARNING|SIGNALS|STATE))`, 'i'),
+    /\b(?:rawMemory|raw_memory|serializedMemory)\s*[:=]/i,
+  ];
+  const violations = [];
+  for (const [index, line] of source.split(/\r?\n/).entries()) {
+    if (fixtureRules.some((rule) => rule.test(line))) continue;
+    for (const pattern of patterns) {
+      if (pattern.test(line)) violations.push(`${relativePath}:${index + 1}`);
+    }
+  }
+  return violations;
+}
 
 function read(path) {
   const file = new URL(path, root);
@@ -241,21 +412,173 @@ test('Repository Mission and FabricMission remain distinct', () => {
 });
 
 test('DOCS-01 / D-01: documentation stewardship preserves the closed lifecycle and owner precedence', () => {
-  assert.fail('phase-wide DOCS-01 sentinel not implemented');
+  const lifecycle = read('docs/LIFECYCLE.md');
+  const classes = ['canonical', 'derived', 'historical', 'evidentiary', 'local-only'];
+  assert.match(lifecycle, /lifecycle vocabulary is closed/i);
+  for (const lifecycleClass of classes) {
+    assert.equal(lifecycle.split(/\r?\n/).filter((line) => line.startsWith(`| \`${lifecycleClass}\` |`)).length, 1,
+      `${lifecycleClass} must have exactly one lifecycle definition`);
+  }
+  const orderedOwners = [
+    ['VISION.md', /Near-invariant enduring repository doctrine/i],
+    ['MISSION.md', /Renewable repository doctrine horizon/i],
+    ['ISA.md', /Approved goals, acceptance, and verification/i],
+    ['.planning/STATE.md', /Current finite planning transition/i],
+    ['docs/architecture/contracts/', /Runtime and data contracts/i],
+    ['docs/runbooks/', /Operator procedures/i],
+  ];
+  let prior = -1;
+  for (const [owner, truth] of orderedOwners) {
+    const index = lifecycle.indexOf(owner);
+    assert.ok(index > prior, `${owner} must appear once in owner precedence after the prior owner`);
+    assert.match(lifecycle.slice(index, index + 240), truth, `${owner} must retain its bounded authority`);
+    prior = index;
+  }
+  assert.match(lifecycle, /Classification is descriptive and non-destructive/i);
+  assert.match(lifecycle, /never treat the view as authority/i);
+
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  const inventory = validateDocumentationInventory(JSON.parse(runInventoryCommand('docs:inventory:json', revision)));
+  assert.deepEqual(inventory.lifecycleClasses, classes);
+  assertNonAuthoritativeProjection(inventory);
+
+  const elevated = structuredClone(inventory);
+  elevated.projectionAuthority = 'planning';
+  assert.throws(() => validateDocumentationInventory(elevated), /read_only|authority/i);
+  const destructive = structuredClone(inventory);
+  destructive.entries[0].recommendedDisposition = 'delete';
+  assert.throws(() => validateDocumentationInventory(destructive), /disposition|retain/i);
+  const copiedStatus = structuredClone(inventory);
+  copiedStatus.entries[0].command = '/gsd:execute-phase 7';
+  assert.throws(() => validateDocumentationInventory(copiedStatus), /forbidden field command/i);
 });
 
 test('DOCS-02 / D-02: explicit-revision inventory is exhaustive, deterministic, matching, and zero-write', () => {
-  assert.fail('phase-wide DOCS-02 sentinel not implemented');
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  assert.match(revision, /^[0-9a-f]{40}$/);
+  const jsonOne = runInventoryCommand('docs:inventory:json', revision);
+  const jsonTwo = runInventoryCommand('docs:inventory:json', revision);
+  const markdownOne = runInventoryCommand('docs:inventory:markdown', revision);
+  const markdownTwo = runInventoryCommand('docs:inventory:markdown', revision);
+  const check = runInventoryCommand('docs:inventory:check', revision);
+  assert.equal(jsonTwo, jsonOne);
+  assert.equal(markdownTwo, markdownOne);
+  assert.match(check, new RegExp(`^documentation inventory check passed: ${revision} sha256:[0-9a-f]{64} entries=\\d+\\n$`));
+
+  const inventory = validateDocumentationInventory(JSON.parse(jsonOne));
+  assert.equal(inventory.sourceRevision, revision);
+  assert.equal(markdownOne, renderDocumentationInventoryMarkdown(inventory));
+  assert.match(inventory.schema, /^cambium\.documentation-inventory\.v1$/);
+  assert.match(inventory.sourceSetDigest, /^sha256:[0-9a-f]{64}$/);
+  assert.match(inventory.inventoryDigest, /^sha256:[0-9a-f]{64}$/);
+  assert.equal(typeof inventory.rootMemory.tracked, 'boolean');
+
+  const expectedPaths = corpusPathsAt(revision);
+  const actualPaths = inventory.entries.map((entry) => entry.path);
+  assert.deepEqual(actualPaths, expectedPaths);
+  assert.equal(new Set(actualPaths).size, actualPaths.length);
+  for (const entry of inventory.entries) {
+    const committedBytes = run('/usr/bin/git', ['show', `${revision}:${entry.path}`], { encoding: null });
+    assert.equal(entry.provenance.sourceRevision, revision);
+    assert.equal(entry.provenance.contentDigest, `sha256:${digest(committedBytes)}`);
+    assert.equal(entry.provenance.bytes, committedBytes.length);
+  }
+  assert.doesNotMatch(jsonOne, /(?:sourceBody|promptBody|requestBody|responseBody|messageBody)/i);
+  assert.doesNotMatch(markdownOne, /(?:sourceBody|promptBody|requestBody|responseBody|messageBody)/i);
 });
 
 test('DOCS-03 / D-03: additive navigation resolves direct owners without copied live state', () => {
-  assert.fail('phase-wide DOCS-03 sentinel not implemented');
+  const indexes = [
+    'PROJECT.md',
+    'README.md',
+    'docs/README.md',
+    'docs/doctrine/README.md',
+    '.planning/README.md',
+    'docs/plans/README.md',
+    'docs/plans/product-branches/index.md',
+  ];
+  const sources = new Map(indexes.map((relativePath) => [relativePath, read(relativePath)]));
+  for (const [relativePath, source] of sources) {
+    assertRepositoryLinksResolve(relativePath, source);
+    assert.doesNotMatch(source, /documentation-inventory(?:\.v1)?\.(?:json|md)/i, `${relativePath} must not link a generated inventory readback`);
+    assert.doesNotMatch(source, /^progress:\s*\d+\/\d+|^status:\s*(?:active|blocked|complete)|next (?:command|step) (?:is|:)\s*`/gim,
+      `${relativePath} must not freeze mutable STATE values`);
+  }
+  assert.match(sources.get('PROJECT.md'), /docs\/LIFECYCLE\.md/);
+  assert.match(sources.get('PROJECT.md'), /documentation-inventory-v1\.md/);
+  assert.match(sources.get('docs/README.md'), /\.planning\/STATE\.md/);
+  assert.match(sources.get('.planning/README.md'), /\[.*STATE\.md.*\]\(STATE\.md\)/);
+  assert.match(sources.get('docs/doctrine/README.md'), /VISION\.md[\s\S]*MISSION\.md/);
+  assert.match(read('.planning/STATE.md'), /^# Project State$/m);
+
+  const rejectCopiedLiveStatus = (source) => {
+    if (/^progress:\s*\d+\/\d+|^status:\s*(?:active|blocked|complete)|next command is/mi.test(source)) {
+      throw new TypeError('navigation must delegate mutable status to STATE');
+    }
+  };
+  assert.throws(() => rejectCopiedLiveStatus('status: active\nnext command is `/gsd:execute-phase 7`'), /delegate mutable status/i);
 });
 
 test('DOCS-04 / D-04: evidence stays recoverable and exceptions remain source-backed and non-destructive', () => {
-  assert.fail('phase-wide DOCS-04 sentinel not implemented');
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  const inventory = validateDocumentationInventory(JSON.parse(runInventoryCommand('docs:inventory:json', revision)));
+  assertNonAuthoritativeProjection(inventory);
+  const indexed = read('docs/plans/product-branches/index.md');
+  const exceptionEntries = inventory.entries.filter((entry) => entry.exception !== null);
+  assert.ok(exceptionEntries.length > 0, 'product-branch evidence index must yield explicit item exceptions');
+  for (const entry of exceptionEntries) {
+    assert.equal(entry.lifecycle, 'evidentiary');
+    assert.equal(entry.exception.kind, 'indexed-product-branch-packet');
+    assert.equal(entry.exception.evidencePath, 'docs/plans/product-branches/index.md');
+    assert.equal(entry.exception.directoryDefault, 'historical');
+    assert.equal(indexed.includes(path.posix.basename(entry.path)), true, `${entry.path} exception must be named by its evidence index`);
+  }
+  const unindexedHistorical = inventory.entries.filter((entry) => entry.path.startsWith('docs/plans/product-branches/') && entry.exception === null);
+  for (const entry of unindexedHistorical) assert.equal(entry.lifecycle, entry.path.endsWith('/index.md') ? 'historical' : 'historical');
+
+  const recoverable = inventory.entries.filter((entry) => ['historical', 'evidentiary'].includes(entry.lifecycle));
+  assert.ok(recoverable.length > 0);
+  for (const entry of recoverable) {
+    assert.equal(spawnSync('/usr/bin/git', ['cat-file', '-e', `${revision}:${entry.path}`], { cwd: repositoryRoot }).status, 0,
+      `${entry.path} must remain recoverable at the selected revision`);
+  }
+  changedPathsAndKinds(phaseBaseSha());
+
+  const rejectUnindexedPromotion = (entry) => {
+    if (entry.path.startsWith('docs/plans/product-branches/') && entry.lifecycle === 'evidentiary' && entry.exception === null) {
+      throw new TypeError('unindexed exception promotion is forbidden');
+    }
+  };
+  assert.throws(() => rejectUnindexedPromotion({ path: 'docs/plans/product-branches/lookalike.md', lifecycle: 'evidentiary', exception: null }),
+    /unindexed exception promotion/i);
 });
 
 test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensitive local state', () => {
-  assert.fail('phase-wide T-06-22 sentinel not implemented');
+  const baseSha = phaseBaseSha();
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  const auditedPaths = changedPathsAndKinds(baseSha);
+  const violations = [];
+  for (const relativePath of auditedPaths) {
+    const absolute = path.join(repositoryRoot, relativePath);
+    if (!fs.existsSync(absolute)) continue;
+    const bytes = fs.readFileSync(absolute);
+    const body = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    violations.push(...privacyViolations(relativePath, body));
+  }
+
+  for (const args of [[`${baseSha}...HEAD`], ['--cached'], []]) {
+    const diff = run('/usr/bin/git', ['diff', '--unified=0', '--no-ext-diff', ...args]);
+    let currentPath = '<diff>';
+    for (const line of diff.split(/\r?\n/)) {
+      if (line.startsWith('+++ b/')) currentPath = line.slice(6);
+      if (!line.startsWith('+') || line.startsWith('+++')) continue;
+      violations.push(...privacyViolations(currentPath, line.slice(1)));
+    }
+  }
+
+  const json = runInventoryCommand('docs:inventory:json', revision);
+  const markdown = runInventoryCommand('docs:inventory:markdown', revision);
+  violations.push(...privacyViolations('<inventory-json-stdout>', json));
+  violations.push(...privacyViolations('<inventory-markdown-stdout>', markdown));
+  assert.deepEqual([...new Set(violations)], [], `T-06-22 privacy violations: ${[...new Set(violations)].join(', ')}`);
 });
