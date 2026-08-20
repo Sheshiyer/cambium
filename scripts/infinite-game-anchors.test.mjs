@@ -183,6 +183,18 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
   );
 });
 
+test('Phase 6 acceptance binds documentation stewardship without creating authority', () => {
+  const isa = read('ISA.md');
+
+  assert.match(isa, /^### Active Phase 6 acceptance$/m);
+  assert.match(isa, /ISC-1286:[^\n]*five-class lifecycle map[^\n]*(?:doctrine|Vision|Mission)[^\n]*(?:ISA|GSD)/i);
+  assert.match(isa, /ISC-1287:[^\n]*explicit[^\n]*commit[^\n]*on-demand inventory[^\n]*machine[^\n]*human/i);
+  assert.match(isa, /ISC-1288:[^\n]*additive[^\n]*(?:owner|authority)[^\n]*links[^\n]*STATE/i);
+  assert.match(isa, /ISC-1289:[^\n]*recoverable[^\n]*evidence[^\n]*exception[^\n]*non-destructive/i);
+  assert.match(isa, /RalphAndTemperanceFlowProjection[^\n]*satisfies ISC-1282\.\.1285/);
+  assert.match(isa, /DocumentationStewardship[^\n]*satisfies ISC-1286\.\.1289[^\n]*depends_on RalphAndTemperanceFlowProjection/);
+});
+
 // ANCHOR-04: discovery surfaces reference canonical anchors without copying them.
 test('reference-only discovery surfaces point to canonical anchors', () => {
   const references = [
