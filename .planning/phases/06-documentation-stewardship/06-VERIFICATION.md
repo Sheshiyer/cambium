@@ -1,30 +1,28 @@
 ---
 phase: 06-documentation-stewardship
-verified: 2026-08-20T14:06:45Z
-status: gaps_found
-score: 3/4 must-haves verified
+verified: 2026-08-20T14:27:46Z
+status: passed
+score: 4/4 must-haves verified
 overrides_applied: 0
-gaps:
-  - truth: "A maintainer can follow root and documentation indexes through the current GSD next step without circular or contradictory authority."
-    status: failed
-    reason: "The indexes correctly delegate mutable planning truth to .planning/STATE.md, but live STATE contradicts itself and the other GSD ledgers: its frontmatter says verifying with 13/13 plans and 80%, its body says Phase 06 EXECUTING / ready for verification / 60%, its continuity says context gathering, and its Operator Next Step is the stale /gsd:plan-phase 6 command. ROADMAP already marks Phase 6 complete while REQUIREMENTS still marks DOCS-01..04 pending."
-    artifacts:
-      - path: ".planning/STATE.md"
-        issue: "Current-position, progress, continuity, and next-step prose are stale relative to frontmatter and completed plan state."
-      - path: "scripts/infinite-game-anchors.test.mjs"
-        issue: "DOCS-03 verifies that indexes link to STATE and do not cache values, but it checks only STATE's heading and never verifies STATE self-coherence or agreement with ROADMAP/REQUIREMENTS."
-    missing:
-      - "Use the normal GSD verification/gap-close lifecycle to make STATE frontmatter, current-position body, progress, session continuity, and operator next step describe one current transition."
-      - "Keep ROADMAP phase status and REQUIREMENTS DOCS-01..04 status coherent with the verifier result rather than reporting Phase 6 complete before its gap closes."
-      - "Add a deterministic DOCS-03 sentinel that parses STATE frontmatter/body/next-step fields and rejects stale or contradictory navigation authority."
+re_verification:
+  previous_status: gaps_found
+  previous_score: 3/4
+  gaps_closed:
+    - "Current GSD navigation now publishes one coherent Phase 6 verification transition across STATE frontmatter, body, progress, continuity, next step, ROADMAP, and REQUIREMENTS."
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 6: Documentation Stewardship Verification Report
 
 **Phase Goal:** Maintainers can navigate and steward the doctrine corpus without confusing historical, derived, evidentiary, or local material for current authority.
-**Verified:** 2026-08-20T14:06:45Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-08-20T14:27:46Z
+**Status:** passed
+**Re-verification:** Yes — after closure of the initial DOCS-03 navigation-coherence gap
+
+## Re-verification History
+
+The initial report at `dbafe30` found one blocker: documentation indexes delegated mutable planning truth to `.planning/STATE.md`, but STATE contradicted itself and the other planning ledgers. Commit `2ec8ecf` reconciled STATE frontmatter, body, progress, continuity, and next-step text with ROADMAP and REQUIREMENTS, and added a semantic-coherence sentinel. Commit `0416f2a` recognized canonical `/gsd:verify-work 6` as a closed, read-only native-orchestrator transition without reviving Phase 5 execution. This report independently verifies both repairs and checks the three previously passing truths for regression.
 
 ## Goal Achievement
 
@@ -32,111 +30,109 @@ gaps:
 
 | # | Truth | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | A maintainer can use one authority and lifecycle map to classify root, `docs/`, `MEMORY/`, and planning documents as canonical, derived, historical, evidentiary, or local-only. | ✓ VERIFIED | `docs/LIFECYCLE.md:1-63` is the single human map, defines the exact five-class vocabulary once, preserves VISION/MISSION/ISA/STATE/contracts/runbooks owner precedence, makes classification non-destructive, and separates root `MEMORY/` from `docs/memory/` and provider-owned memory. The compiled inventory carries the same ordered vocabulary and `read_only` authority. |
-| 2 | A maintainer can inspect an inventory of the named doctrine corpus containing provenance, present purpose, overlap, recommended disposition, and canonical-anchor links before relocation or deletion. | ✓ VERIFIED | At explicit HEAD `3ebcb4121ab5f5b68d756cc20db778a894cd23a9`, the checker independently passed for 533 entries at inventory digest `sha256:3dad2d713625bb9c506d7bd3063270ff291ad3963ee9a4b47f393cafec630f96`. Complete JSON parsed directly, repeated Markdown hashed identically, every independently enumerated tree path matched exactly once, and each provenance digest/byte count matched `git show SHA:path`. Replacement refs, worktree/index drift, unsafe input, and source bodies are rejected or isolated. |
-| 3 | A maintainer can follow root and documentation indexes from vision and mission through architecture, operating doctrine, lifecycle, evidence, and the current GSD next step without circular authority. | ✗ FAILED | `PROJECT.md`, `README.md`, `docs/README.md`, `docs/doctrine/README.md`, and `.planning/README.md` form a direct, resolving navigation chain and correctly delegate mutable state to `.planning/STATE.md`. The target is contradictory: STATE frontmatter is `status: verifying`, 13/13 plans, 80% (`.planning/STATE.md:5-14`), while the body says EXECUTING / ready for verification / 60% (`:28-35`), stale context-gathering continuity (`:89-93`), and `/gsd:plan-phase 6` (`:95-99`). ROADMAP marks Phase 6 complete while REQUIREMENTS still marks DOCS-01..04 pending. There is no single trustworthy current next step. |
-| 4 | A maintainer can recover historical evidence while stale plans and memory artifacts are visibly prevented from masquerading as current instructions. | ✓ VERIFIED | Historical directory defaults precede filename heuristics; indexed product-branch packets alone receive an evidentiary exception, historical `SUMMARY.md`/`REVIEW.md` lookalikes remain historical, and every historical/evidentiary entry is recoverable through `git cat-file`. The validator rejects digest-refreshed lifecycle/purpose/overlap/anchor/disposition tampering and misplaced exceptions. No relocation, deletion, rename, committed inventory readback, or private-memory inspection occurred. |
+| 1 | A maintainer can use one authority and lifecycle map to classify root, `docs/`, `MEMORY/`, and planning documents as canonical, derived, historical, evidentiary, or local-only. | ✓ VERIFIED | `docs/LIFECYCLE.md` defines the exact five-class vocabulary and owner precedence without destructive reclassification. The inventory uses the same ordered vocabulary and preserves the distinct meanings of root `MEMORY/`, `docs/memory/`, and provider-owned memory. |
+| 2 | A maintainer can inspect a complete, deterministic inventory of the named doctrine corpus at an explicit immutable revision before considering relocation or deletion. | ✓ VERIFIED | At commit `0416f2af459613e84af8df0107a6180a41527bee`, `docs:inventory:check` passed with 534 entries and digest `sha256:85af07211b8cfd4936f2190a1c0ff776565a24afa29fd79dc8fb726b053983b0`. Reads are commit/tree-only with replacement refs disabled; JSON and Markdown share one identity, write only to stdout, and do not publish a readback. |
+| 3 | A maintainer can follow root and documentation indexes through current authority to one coherent GSD next action. | ✓ VERIFIED | `.planning/STATE.md` consistently says `verifying`, Phase 6 plan 4/4 execution complete, 13/13 plans, 80%, and ready for independent verification. Continuity and next-step fields agree on `/gsd:verify-work 6`; ROADMAP is verification-pending and REQUIREMENTS leaves DOCS-01..04 pending until acceptance. The parser routes `verify-work` to the native orchestrator and cannot revive Phase 5 execution. Focused DOCS-03 tests pass 2/2 and the flow suite passes 62/62. |
+| 4 | A maintainer can recover historical evidence while stale plans, memory artifacts, and historical filename lookalikes cannot masquerade as current instructions. | ✓ VERIFIED | Historical directory precedence beats filename heuristics; only indexed product-branch packets receive the evidentiary exception; semantic cross-field tampering is rejected; historical/evidentiary entries remain recoverable through Git objects. The focused adversarial selection passes 7/7, including secret-pattern, temporary-path, fixture-smuggling, exact-copy, lifecycle, and T-06-22 coverage. |
 
-**Score:** 3/4 roadmap truths verified
+**Score:** 4/4 truths verified
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `docs/LIFECYCLE.md` | Single five-class lifecycle/authority/recovery map | ✓ VERIFIED | Substantive and wired from all discovery indexes; exact classes, owners, memory boundary, exception precedence, recovery, and on-demand commands are present. |
-| `scripts/documentation-inventory-sources.mjs` | Explicit-revision commit-tree-only source adapter | ✓ VERIFIED | `buildDocumentationInventorySources` is a real named export. Git runs with `--no-replace-objects`, `--no-optional-locks`, and `GIT_NO_REPLACE_OBJECTS=1`; the revision resolves once and every later read uses the full SHA. The GSD artifact helper's “Missing export” result is a bracket-parsing false negative against `export function`. |
-| `scripts/documentation-inventory.mjs` | Closed compiler, semantic validator, digests, JSON/Markdown renderers | ✓ VERIFIED | 360 substantive lines. It closes schema/authority/lifecycle/dispositions, recomputes path-derived lifecycle/purpose/overlap/anchors/disposition, validates exception placement, and feeds both pure renderers. Digest-refreshed tamper tests pass. |
-| `scripts/documentation-inventory.test.mjs` | Source/compiler/adversarial coverage | ✓ VERIFIED | 8/8 pass, including replacement refs, exhaustive path identity, dirty/staged isolation, historical lookalikes, exception precedence, semantic tampering, privacy, and reproducibility of older commits. |
-| `docs/architecture/contracts/documentation-inventory-v1.md` | Explicit-revision, body-free, zero-write public contract | ✓ VERIFIED | Defines exact corpus, fields, five classes, source/digest semantics, root-memory fact, recovery, parity, stdout, and no-write boundaries. |
-| `scripts/generate-documentation-inventory.mjs` | Strict single-format stdout CLI | ✓ VERIFIED | Requires exactly one revision and JSON/Markdown format; exposes no write/output/index/provider mode; compiles once and writes one complete representation to stdout. |
-| `scripts/check-documentation-inventory.mjs` | In-memory determinism and parity checker | ✓ VERIFIED | Generates each representation twice, validates canonical JSON, compares complete shared identity and exact Markdown, and emits one bounded receipt. |
-| `scripts/generate-documentation-inventory.test.mjs` | CLI/package/parity/zero-write proof | ✓ VERIFIED | 7/7 pass; package-level JSON parses without banner trimming, Markdown is byte-identical to the renderer, malformed requests produce no partial stdout, and source/index snapshots are preserved. |
-| `package.json` | Caller-revision package entry points | ✓ VERIFIED | Lines 53-55 fix only JSON, Markdown, or check behavior; no revision or destination is embedded and dependencies/lockfiles are unchanged. |
-| `PROJECT.md`, `README.md`, `docs/README.md`, `docs/doctrine/README.md`, `.planning/README.md` | Additive direct-owner navigation | ✓ VERIFIED | All links resolve and no committed inventory readback or copied mutable state appears. `docs/README.md:7-76` covers doctrine, architecture/contracts, runbooks, lifecycle, evidence/history, ISA, and STATE. |
-| `.planning/STATE.md` | Unique current finite transition and next step | ✗ INCOHERENT | Exists and is linked, but its frontmatter, body position/progress, continuity, and next-step command describe different lifecycle moments. |
-| `scripts/infinite-game-anchors.test.mjs` | Phase-wide DOCS/D/privacy/lifecycle sentinels | ⚠ PARTIAL | Phase 6 implementation, privacy, lifecycle, exception, link, parity, and zero-write tests pass, but the DOCS-03 test stops at the existence of `# Project State` and misses STATE self-coherence. |
-| `ISA.md` and `.project/HANDOFF.md` | Bounded Phase 6 implementation acceptance and held boundaries | ✓ VERIFIED | Exactly one Completed Phase 6 acceptance heading, ISC-1286..1289 checked, Phase 5 evidence completed, and repository-only/independent-verification boundaries retained. |
+| `scripts/documentation-inventory-sources.mjs` | Replacement-isolated explicit commit/tree reader | ✓ VERIFIED | Resolves `REV^{commit}`, reads the full SHA through Git objects, disables replacements, and enumerates the committed tree. |
+| `scripts/documentation-inventory.mjs` | Exhaustive compiler and semantic validator | ✓ VERIFIED | Produces the five-class body-free identity and enforces purpose, overlap, anchor, disposition, lifecycle, and recovery bindings. |
+| `scripts/generate-documentation-inventory.mjs` | Strict JSON-or-Markdown stdout CLI | ✓ VERIFIED | Requires one explicit revision and one format; exposes no destination or mutation mode. |
+| `scripts/check-documentation-inventory.mjs` | Determinism and parity checker | ✓ VERIFIED | Rebuilds both representations in memory and rejects identity or rendering divergence. |
+| `docs/architecture/contracts/documentation-inventory-v1.md` | Public revision, privacy, recovery, and no-write contract | ✓ VERIFIED | Documents corpus scope, fields, lifecycle semantics, isolation, parity, stdout, and no-write boundaries. |
+| `docs/LIFECYCLE.md` | Human lifecycle and authority map | ✓ VERIFIED | States exact classifications and canonical-owner precedence without becoming another mutable ledger. |
+| `PROJECT.md`, `README.md`, `docs/README.md`, `docs/doctrine/README.md`, `.planning/README.md` | Direct-owner navigation | ✓ VERIFIED | Links resolve, current transition delegates to STATE, and no stale inventory readback is committed. |
+| `.planning/STATE.md`, `.planning/ROADMAP.md`, `.planning/REQUIREMENTS.md` | Coherent verification transition | ✓ VERIFIED | STATE is internally coherent; ROADMAP says 4/4 verification pending; requirements await independent acceptance. |
+| `scripts/infinite-game-anchors.test.mjs` | Navigation, lifecycle, privacy, and evidence sentinels | ✓ VERIFIED | Includes repaired DOCS-03 cross-ledger checks and phase-wide DOCS/T-06-22 adversarial coverage. |
+| `scripts/temperance-flow.mjs` | Closed route for canonical verification command | ✓ VERIFIED | Maps `verify-work` to `gsd-verify-work` plus `cambium` on the native-orchestrator lane and preserves terminal Phase 5 evidence. |
+| `ISA.md`, `.project/HANDOFF.md` | Bounded acceptance and held boundaries | ✓ VERIFIED | Completed Phase 5/6 evidence is unique and no runtime, provider, or deployment authority is copied into the repository. |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | --- | --- | --- | --- | --- |
-| `documentation-inventory-sources.mjs` | One immutable Git tree | `rev-parse REV^{commit}` then full-SHA `ls-tree`/`show`, replacement objects disabled | ✓ WIRED | Replacement-ref fixture proves the reported SHA cannot be backed by a substituted tree. |
-| `generate-documentation-inventory.mjs` | Source adapter and compiler/renderers | Required `sourceRevision`, compile once, choose one renderer | ✓ WIRED | Direct imports/calls plus package-level tests. |
-| `check-documentation-inventory.mjs` | JSON and Markdown representations | Four independent in-memory generations and shared-identity comparison | ✓ WIRED | Controlled nondeterminism/parity failures are detected. |
-| `package.json` | Inventory CLIs | Three format/check-only scripts | ✓ WIRED | Complete public JSON stdout parses and Markdown bytes repeat exactly. |
-| Root/docs/doctrine indexes | Direct authority owners | Repository-relative Markdown links | ✓ WIRED | All new links resolve; no generated inventory-file links exist. |
-| `.planning/README.md` | `.planning/STATE.md` | Explicit sole delegation of status/transition | ⚠ TARGET INCOHERENT | The link is correct, but the canonical target supplies conflicting current-transition values. |
-| `ISA.md` | Phase 5/6 lifecycle evidence | Unique Completed headings plus strict checklist/frontmatter state machine | ✓ WIRED | Active/Completed contradictions fail; pre-Phase-6 Active Phase 5 snapshots remain isolated compatibility fixtures. |
+| Inventory source adapter | Explicit immutable Git tree | Resolve full commit then `ls-tree`/`show` with replacements disabled | ✓ WIRED | Replacement-ref isolation is exercised by an adversarial fixture. |
+| Inventory CLI | Source, compiler, validator, and renderers | Compile once and select exactly one stdout format | ✓ WIRED | Output is complete, parseable, deterministic, and body-free. |
+| Inventory checker | JSON and Markdown identity | Independent generations and exact comparison | ✓ WIRED | Nondeterminism and parity drift fail closed. |
+| Lifecycle map | Inventory contract and doctrine owners | Direct links and matching five-class semantics | ✓ WIRED | Human and machine surfaces agree without copying mutable state. |
+| Repository indexes | Vision, mission, ISA, architecture, lifecycle, evidence, planning | Direct repository-relative links | ✓ WIRED | Historical and evidentiary material remains subordinate to current owners. |
+| `.planning/README.md` | `.planning/STATE.md` | Sole current-transition delegation | ✓ WIRED | Target now supplies one coherent state and next command. |
+| `.planning/STATE.md` | Flow router | `/gsd:verify-work 6` through closed grammar | ✓ WIRED | Resolves to native verification, not execution or Phase 5 revival. |
+| `ISA.md` | Requirements and Phase 5 compatibility | Completed evidence plus lifecycle sentinels | ✓ WIRED | Contradictory Active/Completed states fail while accepted history remains recoverable. |
+| Handoff | Current planning authority | Explicit STATE delegation | ✓ WIRED | Handoff does not override the current next action. |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | --- | --- | --- | --- | --- |
-| JSON inventory stdout | Validated inventory object | Explicit full commit tree via Git object database | Yes — 533 exact current-tree entries with content digests/bytes | ✓ FLOWING |
-| Markdown inventory stdout | Same validated inventory object | Pure renderer over parsed/validated JSON identity | Yes — exact renderer parity and repeated-byte equality | ✓ FLOWING |
-| Lifecycle exception entries | `indexedProductBranchPackets` | Commit-bound `docs/plans/product-branches/index.md` | Yes — indexed packets evidentiary; unindexed/lookalike/history suffixes stay historical | ✓ FLOWING |
-| Documentation next-step navigation | Current finite transition | `.planning/README.md` → `.planning/STATE.md` | Conflicting values inside STATE | ✗ CONTRADICTORY |
+| JSON inventory stdout | Validated inventory | Explicit resolved Git commit/tree | Yes — 534 exact entries with digest and byte provenance | ✓ FLOWING |
+| Markdown inventory stdout | Same validated identity | Pure renderer over compiled inventory | Yes — deterministic and parity-checked | ✓ FLOWING |
+| Historical/evidentiary classification | Lifecycle, purpose, overlap, anchors, disposition, recovery | Path precedence, committed packet index, immutable objects | Yes — lookalikes remain historical and recoverable | ✓ FLOWING |
+| Current next-step navigation | Finite transition | Indexes → STATE → `verify-work` → closed parser | Yes — one read-only native route with Phase 5 compatibility | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Review fixes + CLI + phase-wide sentinels | `node --test scripts/documentation-inventory.test.mjs scripts/generate-documentation-inventory.test.mjs scripts/infinite-game-anchors.test.mjs` | 28 passed, 0 failed across independently captured source/compiler and CLI/sentinel runs | ✓ PASS |
-| Phase 5 compatibility | `node --test scripts/generate-temperance-flow.test.mjs scripts/run-ralph-iteration.test.mjs` | 35 passed, 0 failed | ✓ PASS |
-| Complete regression suite | `npm test` | 1899 passed, 0 failed | ✓ PASS |
-| Explicit current-commit inventory | `npm run --silent docs:inventory:check -- --source-revision 3ebcb4121ab5f5b68d756cc20db778a894cd23a9` | 533 entries; digest `sha256:3dad2d713625bb9c506d7bd3063270ff291ad3963ee9a4b47f393cafec630f96` | ✓ PASS |
-| Machine/human output | Complete JSON parse plus two Markdown `shasum -a 256` runs | JSON parsed; both Markdown hashes `f81fd957662eaf77f9e8b1acd2ea22471f02ed4818d0486c6cdb15cd7c0725af` | ✓ PASS |
-| Repository gates | `npm run drift:audit`; `npm run render-docs:check`; `npm run standalone:audit`; `git diff --check` | Passed; 6 pages/91 components; 933 publishable files | ✓ PASS |
-| GSD state structure | `gsd-tools state validate` | Reports structurally valid, but does not compare semantic body fields | ⚠ MISLEADING PASS |
+| DOCS-03 live-ledger coherence | `node --test --test-name-pattern='DOCS-03' scripts/infinite-game-anchors.test.mjs` | 2 passed, 0 failed | ✓ PASS |
+| Current command/lifecycle and Phase 5 compatibility | `node --test scripts/temperance-flow.test.mjs scripts/generate-temperance-flow.test.mjs scripts/ralph-iteration.test.mjs scripts/run-ralph-iteration.test.mjs` | 62 passed, 0 failed | ✓ PASS |
+| Review-fix adversarial selection | Focused Node test selection for replacement refs, history precedence, semantic tampering, ISA lifecycle, privacy, and T-06-22 | 7 passed, 0 failed | ✓ PASS |
+| Full regression suite | `npm test` | 1900 passed, 0 failed | ✓ PASS |
+| Doctrine drift | `npm run drift:audit` | Passed | ✓ PASS |
+| Documentation render | `npm run render-docs:check` | Passed: 6 pages, 91 components | ✓ PASS |
+| Standalone/publication audit | `npm run standalone:audit` | Passed: 934 publishable files | ✓ PASS |
+| Explicit-HEAD inventory | `npm run --silent docs:inventory:check -- --source-revision "$(git rev-parse HEAD^{commit})"` | Passed: 534 entries, digest `85af0721…983b0` | ✓ PASS |
+| Patch hygiene | `git diff --check` | No whitespace errors | ✓ PASS |
 
 ### Probe Execution
 
-No Phase 6 plan or summary declares a `probe-*.sh`, and no conventional `scripts/*/tests/probe-*.sh` exists. Step 7c is skipped because there is no phase probe contract.
+No standalone Phase 6 probe script is declared or required. The runnable Node selections and repository gates above directly exercise the shipped inventory, lifecycle, navigation, privacy, and compatibility behavior.
 
 ### Requirements Coverage
 
-| Requirement | Source Plans | Description | Status | Evidence |
-| --- | --- | --- | --- | --- |
-| DOCS-01 | 06-01, 06-02, 06-03, 06-04 | One exact authority/lifecycle map | ✓ SATISFIED | Closed map, identical compiler vocabulary, owner precedence, memory boundary, and non-authority tests. |
-| DOCS-02 | 06-01, 06-02, 06-03, 06-04 | Provenance-rich exhaustive inventory before destructive action | ✓ SATISFIED | Exact explicit-commit 533-entry corpus, replacement isolation, JSON/Markdown parity, zero writes, retain-only dispositions. |
-| DOCS-03 | 06-03, 06-04 | Navigation through current GSD next step without circular authority | ✗ BLOCKED | Index chain is correct, but live STATE and the GSD ledgers disagree about phase status/progress/next transition. |
-| DOCS-04 | 06-01, 06-02, 06-03, 06-04 | Recoverable history and stale-material boundaries | ✓ SATISFIED | Historical defaults, source-backed exceptions, lookalike rejection, Git recovery, memory boundary, no relocation/deletion. |
+| Requirement | Source Plans | Status | Evidence |
+| --- | --- | --- | --- |
+| DOCS-01 | `06-01` through `06-04` | ✓ SATISFIED | Lifecycle map, inventory vocabulary, validator, indexes, and sentinels agree on classifications and owner precedence. |
+| DOCS-02 | `06-01` through `06-04` | ✓ SATISFIED | Exhaustive explicit-HEAD inventory includes provenance, purpose, overlap, disposition, anchors, and immutable recovery; no relocation/deletion occurred. |
+| DOCS-03 | `06-01` through `06-04` | ✓ SATISFIED | STATE, ROADMAP, REQUIREMENTS, continuity, next command, and native verification routing are coherent and tested. |
+| DOCS-04 | `06-01` through `06-04` | ✓ SATISFIED | History precedence, exception scope, semantic validation, privacy scanning, evidence recovery, and copy visibility pass. |
 
-All four Phase 6 requirement IDs appear in plan frontmatter and map to Phase 6 in `.planning/REQUIREMENTS.md`; no requirement is orphaned. Their unchecked tracking status is not implementation evidence and must be reconciled only after the DOCS-03 gap closes and verification passes.
+Every Phase 6 PLAN requirement ID exists in `.planning/REQUIREMENTS.md` and is accounted for. No Phase 6 requirement is orphaned.
 
 ### Review-Fix Verification
 
-| Finding | Independent evidence | Status |
+| Finding | Independent Evidence | Status |
 | --- | --- | --- |
-| CR-01 replacement refs | Source adapter disables replacement objects for every Git call; synthetic replace-ref test returned original-tree digest | ✓ CLOSED |
-| CR-02 privacy false negatives | Scanner directly rejected key marker, quoted token, private temporary checkout, same-line smuggling, and config-enabled exact-copy fixtures; T-06-22 passed current Phase 6 path union/stdout | ✓ CLOSED |
-| WR-01 filename promotion | Historical `01-SUMMARY.md` and `docs/plans/legacy/REVIEW.md` remain historical with null exceptions | ✓ CLOSED |
-| WR-02 semantic validation | Digest-refreshed lifecycle, purpose, overlap, anchor, disposition, and misplaced-exception mutations all reject | ✓ CLOSED |
-| WR-03 heading coherence | Active Phase 6 is accepted only for plan/execute prefixes, Completed only for verify 4/4; current Phase 5 and Phase 6 headings are uniquely Completed; 35 Flow/Ralph regressions pass | ✓ CLOSED |
+| CR-01 replacement-ref isolation | Focused isolation test and explicit-HEAD gate pass | ✓ VERIFIED |
+| CR-02 sensitive-pattern scanner coverage | Focused privacy/T-06-22 selection passes | ✓ VERIFIED |
+| WR-01 historical filename precedence | Historical lookalike test passes | ✓ VERIFIED |
+| WR-02 semantic validator binding | Digest-refreshed semantic tampering test passes | ✓ VERIFIED |
+| WR-03 Active/Completed coherence | ISA lifecycle and 62-test flow suites pass | ✓ VERIFIED |
+| Initial DOCS-03 navigation gap | DOCS-03 2/2, flow 62/62, full suite 1900/1900 | ✓ CLOSED |
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-| --- | --- | --- | --- | --- |
-| `.planning/ROADMAP.md` | 160, 174 | `TBD` for Phase 7 plans | ℹ Info / later-phase scope | Introduced by commit `8747d24d` before Phase 6 and unchanged by this phase. Phase 7 is explicitly not started, so this is not Phase 6 implementation debt. |
-| Phase 6 implementation set | — | No `FIXME`, `XXX`, unscoped placeholder, console-only handler, or user-visible empty implementation | — | No additional blocker. |
-
-### Disconfirmation Pass
-
-- **Partially met requirement:** DOCS-03 links correctly to STATE, but the linked authority is internally stale and cross-ledger inconsistent.
-- **Misleading green test:** `DOCS-03 / D-03` checks that indexes do not copy mutable state and that STATE contains `# Project State`; it never parses STATE's actual phase, progress, continuity, or command. `gsd-tools state validate` similarly validates structure, not semantic agreement.
-- **Uncovered error path:** a normal plan-tracking update can advance frontmatter/plan counts while leaving prose and the operator next step stale. No deterministic sentinel currently fails on that path.
+| Scope | Result | Severity | Impact |
+| --- | --- | --- | --- |
+| Phase 6 implementation and repair surfaces | No unreferenced debt markers, placeholders, stubs, or hollow wiring found | None | No blocker or warning. Matches in ROADMAP belong to explicitly future Phase 7 work. |
 
 ### Human Verification Required
 
-None. This phase's observable surface is repository documentation and deterministic CLI output; every relevant behavior is directly inspectable or executable. The remaining gap is machine-verifiable.
+None. Direct source inspection, immutable-revision generation, adversarial fixtures, semantic sentinels, and complete regression gates cover the repository-only behavior. No visual, real-time, external-service, provider, or deployment behavior belongs to this phase.
 
 ### Gaps Summary
 
-The inventory engine, lifecycle map, history/exception handling, privacy boundary, Phase 5 compatibility, and additive indexes are implemented and independently green. The phase goal still fails at the final navigation hop: the designated live planning authority publishes mutually inconsistent current-state and next-step values. Close this one GSD-state coherence gap and add a regression sentinel before marking DOCS-03 or Phase 6 complete.
+The sole initial gap is closed. Current navigation now has one coherent verification transition; canonical command routing is read-only and native; ROADMAP and REQUIREMENTS do not claim premature acceptance; and Phase 5 terminal evidence remains compatible. No remaining gaps, deferred blockers, overrides, or human-verification items were found.
+
+The local `gsd-sdk` helper was unavailable in this verifier shell, so checked-in PLAN artifact/link and requirement data was inspected directly and corroborated by focused and full executable tests. Verification coverage was not reduced.
 
 ---
 
-_Verified: 2026-08-20T14:06:45Z_
+_Verified: 2026-08-20T14:27:46Z_
 _Verifier: the agent (gsd-verifier)_

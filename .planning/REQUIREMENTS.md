@@ -29,10 +29,10 @@
 
 ### Documentation Stewardship
 
-- [ ] **DOCS-01**: A maintainer can use one authority and lifecycle map to determine which root, `docs/`, `MEMORY/`, and planning documents are canonical, derived, historical, evidentiary, or local-only.
-- [ ] **DOCS-02**: The named doctrine corpus is inventoried with provenance, present purpose, overlap, recommended disposition, and links to canonical anchors before any relocation or deletion.
-- [ ] **DOCS-03**: Root and documentation indexes lead maintainers from vision and mission through architecture, operating doctrine, lifecycle, evidence, and current GSD next steps without circular authority.
-- [ ] **DOCS-04**: Historical evidence remains recoverable and clearly labeled while stale plans and memory artifacts cannot masquerade as current instructions.
+- [x] **DOCS-01**: A maintainer can use one authority and lifecycle map to determine which root, `docs/`, `MEMORY/`, and planning documents are canonical, derived, historical, evidentiary, or local-only.
+- [x] **DOCS-02**: The named doctrine corpus is inventoried with provenance, present purpose, overlap, recommended disposition, and links to canonical anchors before any relocation or deletion.
+- [x] **DOCS-03**: Root and documentation indexes lead maintainers from vision and mission through architecture, operating doctrine, lifecycle, evidence, and current GSD next steps without circular authority.
+- [x] **DOCS-04**: Historical evidence remains recoverable and clearly labeled while stale plans and memory artifacts cannot masquerade as current instructions.
 
 ### Safety and Verification
 
@@ -75,10 +75,10 @@
 | FLOW-02 | Phase 5 | Complete |
 | FLOW-03 | Phase 5 | Complete |
 | FLOW-04 | Phase 5 | Complete |
-| DOCS-01 | Phase 6 | Pending |
-| DOCS-02 | Phase 6 | Pending |
-| DOCS-03 | Phase 6 | Pending |
-| DOCS-04 | Phase 6 | Pending |
+| DOCS-01 | Phase 6 | Complete |
+| DOCS-02 | Phase 6 | Complete |
+| DOCS-03 | Phase 6 | Complete |
+| DOCS-04 | Phase 6 | Complete |
 | SAFE-01 | Phase 7 | Pending |
 | SAFE-02 | Phase 7 | Pending |
 | SAFE-03 | Phase 7 | Pending |

@@ -29,11 +29,13 @@ export const TEMPERANCE_FLOW_LIFECYCLE_STEPS = Object.freeze([
 ]);
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
-const GSD_COMMAND = /^\/gsd:(?:execute-phase|verify-work|plan-phase) [0-9]+(?:\.[0-9]+)?$/;
+const GSD_COMMAND = /^\/gsd:(?:discuss-phase|execute-phase|plan-phase|secure-phase|verify-work) [0-9]+(?:\.[0-9]+)?$/;
 const COMMAND_ROUTES = Object.freeze({
+  'discuss-phase': { skillClusters: ['gsd-discuss-phase', 'cambium'], lane: 'native_orchestrator' },
   'execute-phase': { skillClusters: ['gsd-execute-phase', 'cambium'], lane: 'paid_execution' },
-  'verify-work': { skillClusters: ['gsd-verify-work', 'cambium'], lane: 'native_orchestrator' },
   'plan-phase': { skillClusters: ['gsd-plan-phase', 'cambium'], lane: 'native_orchestrator' },
+  'secure-phase': { skillClusters: ['gsd-secure-phase', 'cambium'], lane: 'native_orchestrator' },
+  'verify-work': { skillClusters: ['gsd-verify-work', 'cambium'], lane: 'native_orchestrator' },
 });
 const SAFE_RECEIPT_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
 const DEPENDENCY_STATUSES = Object.freeze(['complete', 'satisfied', 'pending', 'blocked']);
