@@ -133,7 +133,7 @@ test('FLOW-01 / D-01 / D-02: actual repository sources produce exactly one ready
   assert.equal(model.intentGraphRef.schema, 'cambium.intent-graph-projection.v1');
 });
 
-test('FLOW-01: completed Phase 5 acceptance remains evidence while Phase 6 owns the active lifecycle', (t) => {
+test('FLOW-01: completed Phase 5 acceptance remains evidence while Phase 6 owns the current lifecycle', (t) => {
   const api = requireSourceApi('completed Phase 5 acceptance');
   const fixture = makeFixture();
   t.after(fixture.cleanup);
@@ -147,7 +147,8 @@ test('FLOW-01: completed Phase 5 acceptance remains evidence while Phase 6 owns 
   const completedEvidence = completed.supportingSources.find(({ path: pathname, selector }) =>
     pathname === 'ISA.md' && selector === 'markdown.heading:Completed Phase 5 acceptance');
   assert.equal(completedEvidence?.kind, 'verification_evidence');
-  assert.match(original, /^### Active Phase 6 acceptance$/m);
+  const phase6AcceptanceHeadings = original.match(/^### (?:Active|Completed) Phase 6 acceptance$/gm) ?? [];
+  assert.equal(phase6AcceptanceHeadings.length, 1, 'Phase 6 acceptance must resolve exactly once as Active or Completed');
 
   writeFileSync(isaPath, original.replace('### Completed Phase 5 acceptance', '### Active Phase 5 acceptance'));
   const active = api.buildTemperanceFlowSources(fixture.root);
