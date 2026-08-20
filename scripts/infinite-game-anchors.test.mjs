@@ -9,6 +9,7 @@ import {
   renderDocumentationInventoryMarkdown,
   validateDocumentationInventory,
 } from './documentation-inventory.mjs';
+import { buildDocumentationInventorySources } from './documentation-inventory-sources.mjs';
 
 const root = new URL('..', import.meta.url);
 const repositoryRoot = fs.realpathSync(path.resolve(new URL('.', root).pathname));
@@ -72,6 +73,32 @@ function runInventoryCommand(script, revision) {
   return result.stdout;
 }
 
+function runSafetyCheck(revision) {
+  const before = repositorySnapshot();
+  const result = spawnSync('npm', ['run', '--silent', 'safety:check', '--', '--source-revision', revision], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    maxBuffer: 256 * 1024 * 1024,
+    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.deepEqual(repositorySnapshot(), before, 'safety:check must not write repository or Git-index state');
+  assert.match(result.stdout, new RegExp(`^deterministic safety check passed: ${revision} sha256:[0-9a-f]{64} entries=\\d+\\n$`));
+  assert.doesNotMatch(`${result.stdout}${result.stderr || ''}`, /MEMORY\/private|dirty-body/);
+  return result;
+}
+
+function runFocusedNodeTests(relativeFile, pattern) {
+  const result = spawnSync(process.execPath, ['--test', `--test-name-pattern=${pattern}`, relativeFile], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    maxBuffer: 256 * 1024 * 1024,
+    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  return result;
+}
+
 function corpusPathsAt(revision) {
   return nulList(run('/usr/bin/git', ['ls-tree', '-r', '-z', '--name-only', revision]))
     .filter((relativePath) => (
@@ -114,11 +141,20 @@ function phaseBaseSha() {
   return matches[0][1];
 }
 
+function phase7BaseSha() {
+  const summary = read('.planning/phases/07-deterministic-safety-and-handoff/07-01-SUMMARY.md');
+  const matches = [...summary.matchAll(/^phase_base_sha: ([0-9a-f]{40})$/gm)];
+  assert.equal(matches.length, 1, '07-01 summary must declare one unique full phase_base_sha');
+  assert.equal(spawnSync('/usr/bin/git', ['merge-base', '--is-ancestor', matches[0][1], 'HEAD'], { cwd: repositoryRoot }).status, 0,
+    'phase 7 phase_base_sha must be an ancestor of current HEAD');
+  return matches[0][1];
+}
+
 function nameStatus(rangeArgs, cwd = repositoryRoot) {
   return nulList(run('/usr/bin/git', ['diff', '--name-status', '-z', '--no-renames', ...rangeArgs], { cwd }));
 }
 
-function changedPathsAndKinds(baseSha, cwd = repositoryRoot) {
+function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase 6') {
   const collections = [
     nameStatus([`${baseSha}...HEAD`], cwd),
     nameStatus(['--cached'], cwd),
@@ -128,7 +164,7 @@ function changedPathsAndKinds(baseSha, cwd = repositoryRoot) {
   for (const records of collections) {
     for (let index = 0; index < records.length;) {
       const status = records[index++];
-      assert.doesNotMatch(status, /^D/, `Phase 6 must not delete paths (${status})`);
+      assert.doesNotMatch(status, /^[DR]/, `${phaseLabel} must not delete or rename paths (${status})`);
       const relativePath = records[index++];
       if (relativePath) paths.add(relativePath);
     }
@@ -170,7 +206,46 @@ const syntheticPrivacyFixtures = new Map([
     ['/', 'Users/', 'sheshnarayaniyer'].join(''),
     ['/', 'Volumes/', 'madara'].join(''),
   ]],
+  ['.planning/phases/07-deterministic-safety-and-handoff/07-01-SUMMARY.md', [
+    ['/', 'Users/', 'sheshnarayaniyer'].join(''),
+    ['/', 'Volumes/', 'madara'].join(''),
+  ]],
+  ['scripts/deterministic-safety.test.mjs', [
+    ['/', 'Users/'].join(''),
+    ['/', 'Volumes/'].join(''),
+    ['prompt', 'Body='].join(''),
+  ]],
+  ['scripts/check-deterministic-safety.test.mjs', [
+    ['/', 'Users/'].join(''),
+    ['/', 'Volumes/'].join(''),
+    ['prompt', 'Body='].join(''),
+  ]],
 ]);
+
+const D16_WORKER_VERSION = '089181f6-ed60-4710-aab6-cd10855360e0';
+const D16_GRAPH_DIGEST = '846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e';
+const PHASE7_CHECKPOINT_HEADING = /^### \d{4}-\d{2}-\d{2} Phase 7 deterministic safety and handoff implementation checkpoint$/m;
+const D05_SURFACES = [
+  'docs/architecture/intent-graph.v1.json',
+  'docs/architecture/intent-graph.md',
+  'docs/architecture/temperance-flow.v1.json',
+  'docs/architecture/temperance-flow.md',
+  '.temperance/project.json',
+  'PROJECT.md',
+  'README.md',
+  'docs/README.md',
+  'docs/doctrine/README.md',
+  'docs/LIFECYCLE.md',
+  '.planning/README.md',
+  'INFINITE-GAME.md',
+];
+
+function t07Allowlisted(source) {
+  return String(source)
+    .replaceAll(D16_WORKER_VERSION, '<d16-worker-version>')
+    .replaceAll(D16_GRAPH_DIGEST, '<d16-graph-digest>')
+    .replace(/sha256:[0-9a-f]{64}/gi, 'sha256:<digest>');
+}
 
 function privacyViolations(relativePath, source) {
   const fixtureLiterals = syntheticPrivacyFixtures.get(relativePath) ?? [];
@@ -520,16 +595,8 @@ test('Phase 6 acceptance binds documentation stewardship without creating author
 test('Phase 7 acceptance binds deterministic safety without creating authority', () => {
   const isa = read('ISA.md');
   const frontmatter = (isa.match(/^---\n([\s\S]*?)\n---/) || [])[1] || '';
-
-  assert.match(isa, /^### Active Phase 7 acceptance$/m);
-  assert.equal([...isa.matchAll(/^### Active Phase 7 acceptance$/gm)].length, 1);
-  assert.doesNotMatch(isa, /^### Completed Phase 7 acceptance$/m);
-  assert.match(frontmatter, /^phase: plan$/m);
-  assert.match(frontmatter, /^progress: 0\/4$/m);
-  assert.equal(checkbox(isa, 'ISC-1290'), false);
-  assert.equal(checkbox(isa, 'ISC-1291'), false);
-  assert.equal(checkbox(isa, 'ISC-1292'), false);
-  assert.equal(checkbox(isa, 'ISC-1293'), false);
+  const headings = [...isa.matchAll(/^### ((?:Active|Completed) Phase 7 acceptance)$/gm)].map((match) => match[1]);
+  assert.equal(headings.length, 1, 'ISA must declare exactly one Phase 7 acceptance heading');
   assert.equal(checkbox(isa, 'ISC-1289'), true);
   assert.match(isa, /ISC-1290:[^\n]*SAFE-01[^\n]*(?:doctrine|vision|mission)/i);
   assert.match(isa, /ISC-1291:[^\n]*SAFE-02[^\n]*(?:authority|manifest|overlay)/i);
@@ -537,6 +604,22 @@ test('Phase 7 acceptance binds deterministic safety without creating authority',
   assert.match(isa, /ISC-1293:[^\n]*SAFE-04[^\n]*handoff/i);
   assert.match(isa, /ISC-1290\.\.1293[^\n]*deterministic safety and handoff/);
   assert.match(isa, /DeterministicSafetyAndHandoff[^\n]*satisfies ISC-1290\.\.1293[^\n]*depends_on DocumentationStewardship/);
+  if (headings[0] === 'Active Phase 7 acceptance') {
+    assert.match(frontmatter, /^phase: plan$/m);
+    assert.match(frontmatter, /^progress: 0\/4$/m);
+    assert.equal(checkbox(isa, 'ISC-1290'), false);
+    assert.equal(checkbox(isa, 'ISC-1291'), false);
+    assert.equal(checkbox(isa, 'ISC-1292'), false);
+    assert.equal(checkbox(isa, 'ISC-1293'), false);
+  } else {
+    assert.equal(headings[0], 'Completed Phase 7 acceptance');
+    assert.match(frontmatter, /^phase: verify$/m);
+    assert.match(frontmatter, /^progress: 4\/4$/m);
+    assert.equal(checkbox(isa, 'ISC-1290'), true);
+    assert.equal(checkbox(isa, 'ISC-1291'), true);
+    assert.equal(checkbox(isa, 'ISC-1292'), true);
+    assert.equal(checkbox(isa, 'ISC-1293'), true);
+  }
 });
 
 // ANCHOR-04: discovery surfaces reference canonical anchors without copying them.
@@ -706,10 +789,10 @@ test('DOCS-03 / D-03: live STATE publishes one coherent post-verification transi
   assert.match(frontmatter, /^\s+completed_plans: 13$/m);
   assert.match(frontmatter, /^\s+percent: 80$/m);
 
-  assert.match(state, /^\*\*Current focus:\*\* Phase 7 — Deterministic Safety and Handoff$/m);
-  assert.match(state, /^Phase: 7 \(Deterministic Safety and Handoff\) — EXECUTING$/m);
-  assert.match(state, /^Plan: 1 of 3$/m);
-  assert.match(state, /^Status: Executing Phase 7$/m);
+  assert.match(state, /^\*\*Current focus:\*\* Phase 07 — Deterministic Safety and Handoff$/m);
+  assert.match(state, /^Phase: 07 \(Deterministic Safety and Handoff\) — NOT STARTED$/m);
+  assert.match(state, /^Plan: Not started$/m);
+  assert.match(state, /^Status: Ready to execute$/m);
   assert.match(state, /^Progress: \[████████░░\] 80%$/m);
   assert.match(state, /^Stopped at: Phase 6 independently verified 4\/4 — security audit required before Phase 7 planning$/m);
   assert.match(state, /^Resume file: \.planning\/phases\/06-documentation-stewardship\/06-VERIFICATION\.md$/m);
@@ -786,21 +869,108 @@ test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensi
 });
 
 test('SAFE-01 / D-01: SHA-bound safety:check fails copied doctrine and passes unmodified HEAD', () => {
-  assert.fail('phase-wide SAFE-01 sentinel not implemented');
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  assert.match(revision, /^[0-9a-f]{40}$/);
+  const checked = runSafetyCheck(revision);
+  assert.match(checked.stdout, new RegExp(`^deterministic safety check passed: ${revision} `));
+  const sources = buildDocumentationInventorySources({
+    repositoryRoot,
+    sourceRevision: revision,
+  });
+  assert.deepEqual(sources.corpusPaths, corpusPathsAt(revision));
+  runFocusedNodeTests('scripts/deterministic-safety.test.mjs', 'SAFE-01');
 });
 
 test('SAFE-02 / D-02: SHA-bound safety:check fails D-05 self-claims and keeps ISA/STATE/LIFECYCLE allowlists', () => {
-  assert.fail('phase-wide SAFE-02 sentinel not implemented');
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  runSafetyCheck(revision);
+  const contract = read('docs/architecture/contracts/deterministic-safety-v1.md');
+  for (const surface of D05_SURFACES) {
+    assert.match(contract, new RegExp(surface.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+  assert.match(contract, /Do not substring-scan historical `docs\/plans\/`/);
+  assert.match(contract, /Allowed claimants are `ISA\.md` and `\.planning\/STATE\.md`/);
+  runFocusedNodeTests('scripts/deterministic-safety.test.mjs', 'SAFE-02');
 });
 
 test('SAFE-03 / D-03: SHA-bound safety:check fails stale selectors and privacy tokens without D-11 false hits', () => {
-  assert.fail('phase-wide SAFE-03 sentinel not implemented');
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  runSafetyCheck(revision);
+  const contract = read('docs/architecture/contracts/deterministic-safety-v1.md');
+  assert.match(contract, /Do not freshness-check ephemeral\s+documentation-inventory stdout/);
+  assert.match(contract, /Cloudflare\s+account-id-shaped 32-hex values/);
+  assert.match(contract, /Worker Version UUIDs/);
+  runFocusedNodeTests('scripts/deterministic-safety.test.mjs', 'SAFE-03');
 });
 
 test('SAFE-04 / D-16: reviewed handoff records write set, fixtures, D-15 holds, D-16 identities, and verify-work 7', () => {
-  assert.fail('phase-wide SAFE-04 sentinel not implemented');
+  const isa = read('ISA.md');
+  const handoff = read('.project/HANDOFF.md');
+  const frontmatter = (isa.match(/^---\n([\s\S]*?)\n---/) || [])[1] || '';
+  const headings = [...isa.matchAll(/^### ((?:Active|Completed) Phase 7 acceptance)$/gm)].map((match) => match[1]);
+  assert.equal(headings.length, 1, 'ISA must declare exactly one Phase 7 acceptance heading');
+  if (headings[0] === 'Active Phase 7 acceptance') {
+    assert.match(frontmatter, /^phase: plan$/m);
+    assert.match(frontmatter, /^progress: 0\/4$/m);
+    for (const id of PHASE7_CRITERIA) assert.equal(checkbox(isa, id), false, `${id} remains unchecked until Task 2`);
+    assert.doesNotMatch(handoff, PHASE7_CHECKPOINT_HEADING);
+    assert.doesNotMatch(handoff, /\/gsd:verify-work 7/);
+    return;
+  }
+
+  assert.equal(headings[0], 'Completed Phase 7 acceptance');
+  assert.match(frontmatter, /^phase: verify$/m);
+  assert.match(frontmatter, /^progress: 4\/4$/m);
+  for (const id of PHASE7_CRITERIA) assert.equal(checkbox(isa, id), true, `${id} must be checked at implementation close`);
+  assert.match(handoff, PHASE7_CHECKPOINT_HEADING);
+  const lastHeading = [...handoff.matchAll(/^### .+$/gm)].at(-1)?.[0] ?? '';
+  assert.match(lastHeading, /Phase 7 deterministic safety and handoff implementation checkpoint/);
+  const checkpoint = handoff.slice(handoff.lastIndexOf(lastHeading));
+  assert.match(checkpoint, /npm run --silent safety:check -- --source-revision /);
+  assert.match(checkpoint, new RegExp(D16_WORKER_VERSION));
+  assert.match(checkpoint, /100 percent/);
+  assert.match(checkpoint, /git-21d4908/);
+  assert.match(checkpoint, new RegExp(D16_GRAPH_DIGEST));
+  assert.match(checkpoint, /8360c04/);
+  assert.match(checkpoint, /\/gsd:verify-work 7/);
+  assert.doesNotMatch(checkpoint, /\/gsd:plan-phase 7/);
+  assert.match(checkpoint, /copied paragraph/);
+  assert.match(checkpoint, /active_planner/);
+  assert.match(checkpoint, /self-claim/);
+  assert.match(checkpoint, /path#selector/);
+  assert.match(checkpoint, /D1 CAS/);
+  assert.match(checkpoint, /Vectorize ingest/);
+  assert.match(checkpoint, /getfitcheck/);
+  assert.match(checkpoint, /TeamForge/);
 });
 
 test('SAFE-PRIVACY / T-07: Phase 7 bytes and safety:check stdout expose no sensitive local state', () => {
-  assert.fail('phase-wide T-07 sentinel not implemented');
+  const baseSha = phase7BaseSha();
+  const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
+  const auditedPaths = changedPathsAndKinds(baseSha, repositoryRoot, 'Phase 7');
+  const violations = [];
+  for (const relativePath of auditedPaths) {
+    const absolute = path.join(repositoryRoot, relativePath);
+    if (!fs.existsSync(absolute)) continue;
+    const bytes = fs.readFileSync(absolute);
+    const body = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    violations.push(...privacyViolations(relativePath, t07Allowlisted(body)));
+  }
+
+  for (const args of [[baseSha], ['--cached'], []]) {
+    const diff = run('/usr/bin/git', ['diff', '--unified=0', '--no-ext-diff', '--no-renames', ...args]);
+    let currentPath = '<diff>';
+    for (const line of diff.split(/\r?\n/)) {
+      if (line.startsWith('+++ b/')) currentPath = line.slice(6);
+      if (!line.startsWith('+') || line.startsWith('+++')) continue;
+      violations.push(...privacyViolations(currentPath, t07Allowlisted(line.slice(1))));
+    }
+  }
+
+  const checked = runSafetyCheck(revision);
+  violations.push(...privacyViolations('<safety-check-stdout>', t07Allowlisted(checked.stdout)));
+  if (checked.stderr) {
+    violations.push(...privacyViolations('<safety-check-stderr>', t07Allowlisted(checked.stderr)));
+  }
+  assert.deepEqual([...new Set(violations)], [], `T-07 privacy violations: ${[...new Set(violations)].join(', ')}`);
 });
