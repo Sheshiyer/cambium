@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: verify
-progress: 4/4
+phase: plan
+progress: 0/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-20T12:51:35Z
+updated: 2026-08-20T20:10:00Z
 ---
 
 ## Problem
@@ -224,6 +224,13 @@ Implementation acceptance evidence (independent Phase 6 verification remains pen
 - `npm run drift:audit`, `npm run render-docs:check`, `npm run standalone:audit`, and `git diff --check` each exited 0; rendered documentation reported 6 pages and 91 components, and the standalone audit checked 930 publishable files.
 - At implementation head `3e9deef38450ba3eb9dc1917481cd7a030912e8a`, two package-level JSON runs and two package-level Markdown runs were byte-identical, `JSON.parse` consumed the complete JSON stdout, and `npm run --silent docs:inventory:check -- --source-revision 3e9deef38450ba3eb9dc1917481cd7a030912e8a` exited 0 for 530 entries with inventory digest `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
 - `DOCS-PRIVACY / T-06-22` passed while scanning the normalized Phase 6 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact JSON/Markdown stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
+
+### Active Phase 7 acceptance
+
+- [ ] ISC-1290: SAFE-01 proves deterministic validation fails when canonical vision or mission doctrine is duplicated outside its allowed anchors.
+- [ ] ISC-1291: SAFE-02 proves deterministic validation fails when a manifest, Ralph state file, generated graph, or documentation overlay claims goal-setting or planning authority.
+- [ ] ISC-1292: SAFE-03 proves deterministic validation fails when generated projections are stale relative to their source digests or contain secrets, session identifiers, prompt bodies, or machine-local absolute paths.
+- [ ] ISC-1293: SAFE-04 proves a reviewed handoff records the bounded write set, verification evidence, unresolved approval boundaries, and the exact next GSD command.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
@@ -1572,6 +1579,7 @@ Implementation acceptance evidence (independent Phase 6 verification remains pen
 - ISC-1277..1281 | provenance-preserving intent graph | deterministic manifest, stable node/edge semantics, exact source metadata, overlay-reference guards, learning boundaries, and fail-closed gated/blocked state | each criterion maps one-to-one to GRAPH-01..05 and one named binary test | Phase 4 focused contract test plus generated-manifest check
 - ISC-1282..1285 | Ralph and Temperance flow projection | exact next action, bounded one-unit iteration, authenticated host attribution, and matching read-only flow readbacks | each criterion maps one-to-one to FLOW-01..04 and named binary tests | Phase 5 focused flow and Ralph suites plus generated-projection check
 - ISC-1286..1289 | documentation stewardship | exact lifecycle vocabulary, explicit-commit corpus inventory, additive navigation, and recoverable exception-aware evidence | each criterion maps one-to-one to DOCS-01..04 and named binary tests | Phase 6 anchor sentinel plus focused inventory and navigation suites
+- ISC-1290..1293 | deterministic safety and handoff | doctrine-duplication, authority-drift, freshness/privacy, reviewed handoff | each criterion maps one-to-one to SAFE-01..04 | Phase 7 anchor sentinel plus focused safety suites
 
 | ISC range | Type | Binary check | Tool |
 |---|---|---|---|
@@ -1689,6 +1697,7 @@ Implementation acceptance evidence (independent Phase 6 verification remains pen
 - `ProvenancePreservingIntentGraph` | compile a deterministic read-only projection from canonical doctrine, ISA/GSD planning, evidence, and learning without creating another authority | satisfies ISC-1277..1281 | depends_on CanonicalInfiniteGameAnchors | parallelizable false
 - `RalphAndTemperanceFlowProjection` | derive one dependency-safe next action and its authenticated execution route without owning a mutable ledger | satisfies ISC-1282..1285 | depends_on ProvenancePreservingIntentGraph | parallelizable false
 - `DocumentationStewardship` | classify and connect the committed doctrine corpus without relocating evidence or creating another authority | satisfies ISC-1286..1289 | depends_on RalphAndTemperanceFlowProjection | parallelizable false
+- `DeterministicSafetyAndHandoff` | fail-closed commit-tree validation plus reviewed-held handoff without creating another authority | satisfies ISC-1290..1293 | depends_on DocumentationStewardship | parallelizable false
 
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
