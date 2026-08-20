@@ -1821,3 +1821,57 @@ mutation has been performed by drafting this packet.
   configuration, deployment, credentials, Vault or native-client stores,
   connected repositories, and every production or external mutation remain
   explicitly held and unauthorized by this checkpoint.
+
+### 2026-08-21 Phase 7 deterministic safety and handoff implementation checkpoint
+
+- The reviewed repository-only implementation head before acceptance edits is
+  `3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`. Phase 7 adds a SHA-bound
+  SAFE-01..03 compiler, a zero-write `safety:check` CLI and package dispatcher,
+  the inspection-only `cambium.deterministic-safety.v1` contract, phase-wide
+  SAFE-01..04 and T-07 sentinels, checked ISA acceptance, and this checkpoint.
+- Bounded write set: `scripts/deterministic-safety.mjs`,
+  `scripts/deterministic-safety.test.mjs`,
+  `scripts/check-deterministic-safety.mjs`,
+  `scripts/check-deterministic-safety.test.mjs`,
+  `docs/architecture/contracts/deterministic-safety-v1.md`, `package.json`
+  `safety:check`, helper exports from `scripts/intent-graph.mjs` and
+  `scripts/temperance-flow.mjs`, refreshed Temperance Flow readbacks,
+  `scripts/infinite-game-anchors.test.mjs`, `ISA.md`, this checkpoint, and GSD
+  plan summaries. `.planning/STATE.md`, `.planning/ROADMAP.md`, and
+  `.planning/REQUIREMENTS.md` remain orchestrator-owned.
+- Validator command: `npm run --silent safety:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`. Two runs were byte-identical,
+  performed zero repository or Git-index writes, and printed
+  `deterministic safety check passed: 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585 sha256:5780fe97f205bd6d559a2a2a391fc77058a19c82951627f4068e6a22315f99be entries=546`.
+- Failing fixtures: SAFE-01 copied paragraph of VISION/MISSION doctrine in a
+  committed overlay; SAFE-02 hostile `active_planner` / self-claim “this file
+  is the planning authority”; SAFE-03 stale `path#selector` digest and Unix
+  user-root prefix in a generated projection.
+- Passing fixtures: titles, filenames, and `sha256:` digest references;
+  `ISA.md` and `.planning/STATE.md` as allowed claimants; `docs/LIFECYCLE.md`
+  denial; `.temperance/project.json` `active_planner: "isa"`; Worker Version
+  UUID and Cloudflare account-id-shaped values.
+- Pre-acceptance verification passes: focused compiler/CLI tests 34/34;
+  named SAFE-01..04 and T-07 sentinels; complete repository tests 1940/1940;
+  drift audit; rendered-document synchronization for 6 pages and 91
+  components; standalone audit for 950 publishable files; `git diff --check`;
+  complementary Intent Graph and Temperance Flow `--check`; SHA-bound
+  documentation-inventory check for 546 entries at digest
+  `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
+- Live probe identities recorded 2026-08-20 and named only: Worker Version
+  `089181f6-ed60-4710-aab6-cd10855360e0` at 100 percent (`git-21d4908`); D1
+  `graph_digest`
+  `846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e`. Naming
+  them does not authorize D1 CAS, wrangler versions upload, Vectorize ingest,
+  `getfitcheck` tenant mint, or invented TeamForge slugs.
+- Unresolved approval boundaries (D-15): D1 CAS, wrangler versions upload
+  (cwd SHA `8360c04` remains rejected), Vectorize ingest, `getfitcheck`
+  tenant mint, invented TeamForge slugs.
+- ISA now records bounded Phase 7 implementation acceptance at `verify` / 4/4.
+  Normal GSD summary, STATE, ROADMAP, REQUIREMENTS, review, and phase closeout
+  remain pending and owned by the installed workflow. Independent verification
+  is still required; continue with `/gsd:verify-work 7` after execute-phase
+  closeout.
+- Relocation, deletion, archival or externalization, host/runtime/provider
+  configuration, deployment, credentials, Vault or native-client stores,
+  connected repositories, and every production or external mutation remain
+  explicitly held and unauthorized by this checkpoint.

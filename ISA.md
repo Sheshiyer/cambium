@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: plan
-progress: 0/4
+phase: verify
+progress: 4/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-20T20:10:00Z
+updated: 2026-08-20T21:01:45Z
 ---
 
 ## Problem
@@ -225,12 +225,23 @@ Implementation acceptance evidence (independent Phase 6 verification remains pen
 - At implementation head `3e9deef38450ba3eb9dc1917481cd7a030912e8a`, two package-level JSON runs and two package-level Markdown runs were byte-identical, `JSON.parse` consumed the complete JSON stdout, and `npm run --silent docs:inventory:check -- --source-revision 3e9deef38450ba3eb9dc1917481cd7a030912e8a` exited 0 for 530 entries with inventory digest `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
 - `DOCS-PRIVACY / T-06-22` passed while scanning the normalized Phase 6 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact JSON/Markdown stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
 
-### Active Phase 7 acceptance
+### Completed Phase 7 acceptance
 
-- [ ] ISC-1290: SAFE-01 proves deterministic validation fails when canonical vision or mission doctrine is duplicated outside its allowed anchors.
-- [ ] ISC-1291: SAFE-02 proves deterministic validation fails when a manifest, Ralph state file, generated graph, or documentation overlay claims goal-setting or planning authority.
-- [ ] ISC-1292: SAFE-03 proves deterministic validation fails when generated projections are stale relative to their source digests or contain secrets, session identifiers, prompt bodies, or machine-local absolute paths.
-- [ ] ISC-1293: SAFE-04 proves a reviewed handoff records the bounded write set, verification evidence, unresolved approval boundaries, and the exact next GSD command.
+- [x] ISC-1290: SAFE-01 proves deterministic validation fails when canonical vision or mission doctrine is duplicated outside its allowed anchors.
+- [x] ISC-1291: SAFE-02 proves deterministic validation fails when a manifest, Ralph state file, generated graph, or documentation overlay claims goal-setting or planning authority.
+- [x] ISC-1292: SAFE-03 proves deterministic validation fails when generated projections are stale relative to their source digests or contain secrets, session identifiers, prompt bodies, or machine-local absolute paths.
+- [x] ISC-1293: SAFE-04 proves a reviewed handoff records the bounded write set, verification evidence, unresolved approval boundaries, and the exact next GSD command.
+
+Implementation acceptance evidence (independent Phase 7 verification remains pending):
+
+- `node --test scripts/deterministic-safety.test.mjs scripts/check-deterministic-safety.test.mjs` exited 0 with 34/34 tests passing.
+- `node --test --test-name-pattern='SAFE-0|Phase 7|T-07' scripts/infinite-game-anchors.test.mjs` exited 0 after the named SAFE-01..04 and T-07 sentinels were enforced.
+- `npm test` exited 0 with 1940/1940 tests passing.
+- `npm run drift:audit`, `npm run render-docs:check`, `npm run standalone:audit`, and `git diff --check` each exited 0; rendered documentation reported 6 pages and 91 components, and the standalone audit checked 950 publishable files.
+- Complementary `node scripts/generate-intent-graph.mjs --check` and `node scripts/generate-temperance-flow.mjs --check` each exited 0.
+- At implementation head `3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`, two package-level `npm run --silent safety:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` runs were byte-identical, performed zero repository or Git-index writes, and exited 0 with receipt `deterministic safety check passed: 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585 sha256:5780fe97f205bd6d559a2a2a391fc77058a19c82951627f4068e6a22315f99be entries=546`.
+- `npm run --silent docs:inventory:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` exited 0 for 546 entries with inventory digest `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
+- `SAFE-PRIVACY / T-07` passed while scanning the normalized Phase 7 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact `safety:check` stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
