@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import {
@@ -13,9 +14,9 @@ const root = new URL('..', import.meta.url);
 const repositoryRoot = fs.realpathSync(path.resolve(new URL('.', root).pathname));
 const approvedGoal = "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.";
 
-function run(command, args, { encoding = 'utf8' } = {}) {
+function run(command, args, { encoding = 'utf8', cwd = repositoryRoot } = {}) {
   const result = spawnSync(command, args, {
-    cwd: repositoryRoot,
+    cwd,
     encoding,
     maxBuffer: 256 * 1024 * 1024,
     env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
@@ -113,21 +114,21 @@ function phaseBaseSha() {
   return matches[0][1];
 }
 
-function nameStatus(rangeArgs) {
-  return nulList(run('/usr/bin/git', ['diff', '--name-status', '-z', ...rangeArgs]));
+function nameStatus(rangeArgs, cwd = repositoryRoot) {
+  return nulList(run('/usr/bin/git', ['diff', '--name-status', '-z', '--no-renames', ...rangeArgs], { cwd }));
 }
 
-function changedPathsAndKinds(baseSha) {
+function changedPathsAndKinds(baseSha, cwd = repositoryRoot) {
   const collections = [
-    nameStatus([`${baseSha}...HEAD`]),
-    nameStatus(['--cached']),
-    nameStatus([]),
+    nameStatus([`${baseSha}...HEAD`], cwd),
+    nameStatus(['--cached'], cwd),
+    nameStatus([], cwd),
   ];
-  const paths = new Set(nulList(run('/usr/bin/git', ['ls-files', '-z', '--others', '--exclude-standard'])));
+  const paths = new Set(nulList(run('/usr/bin/git', ['ls-files', '-z', '--others', '--exclude-standard'], { cwd })));
   for (const records of collections) {
     for (let index = 0; index < records.length;) {
       const status = records[index++];
-      assert.doesNotMatch(status, /^[DR]/, `Phase 6 must not delete or rename paths (${status})`);
+      assert.doesNotMatch(status, /^D/, `Phase 6 must not delete paths (${status})`);
       const relativePath = records[index++];
       if (relativePath) paths.add(relativePath);
     }
@@ -136,45 +137,100 @@ function changedPathsAndKinds(baseSha) {
 }
 
 const syntheticPrivacyFixtures = new Map([
+  ['README.md', [
+    ['/tmp/', 'demo-org.tapestry.json'].join(''),
+  ]],
   ['scripts/documentation-inventory.test.mjs', [
-    /presentPurpose = 'Bearer abcdefghijklmnop'/,
-    /promptBody = 'private prompt'/,
+    ["presentPurpose = 'Bearer ", "abcdefghijklmnop'"].join(''),
+    ["prompt", "Body = 'private prompt'"].join(''),
+    ['secret=', 'do-not-read'].join(''),
   ]],
   ['scripts/generate-documentation-inventory.test.mjs', [
-    /docs\/private-shaped-body\.md.*fixture-private-value/,
-    /assert\.doesNotMatch.*(?:Users|Volumes|Bearer|promptBody|responseBody)/,
+    ['Bearer fixture-', 'private-value'].join(''),
+    ['prompt', 'Body=never-emit'].join(''),
+    ['/', 'Users/example/private'].join(''),
   ]],
   ['scripts/generate-temperance-flow.test.mjs', [
-    /credential.*promptBody.*responseBody/,
-    /nativeSessionId.*receiptPath/,
-    /normalizeVerifiedManifestResult.*Bearer.*top-secret-token/,
+    ["credential: 'secret", "=value'"].join(''),
+    ["prompt", "Body: 'private prompt'"].join(''),
+    ["response", "Body: 'private response'"].join(''),
+    ["native", "SessionId: 'session-1'"].join(''),
+    ["receiptPath: '", "/", "Users/example/private.json'"].join(''),
+    ["provider: 'Bearer ", "top-secret-token'"].join(''),
   ]],
   ['scripts/infinite-game-anchors.test.mjs', [
-    /presentPurpose.*Bearer abcdefghijklmnop/,
-    /promptBody.*private prompt/,
-    /(?:credential|nativeSessionId|normalizeVerifiedManifestResult).*top-secret-token/,
+    ["presentPurpose = 'Bearer ", "abcdefghijklmnop'"].join(''),
+    ["prompt", "Body = 'private prompt'"].join(''),
   ]],
 ]);
 
 function privacyViolations(relativePath, source) {
-  const fixtureRules = syntheticPrivacyFixtures.get(relativePath) ?? [];
+  const fixtureLiterals = syntheticPrivacyFixtures.get(relativePath) ?? [];
   const patterns = [
     new RegExp(`(?:file:\\/\\/(?:\\/|[A-Za-z]:)|\\/(?:${'Us' + 'ers'}|${'Vol' + 'umes'}|home)\\/[A-Za-z0-9._~-][^\\s'\"]*|[A-Za-z]:\\\\${'Us' + 'ers'}\\\\)`),
+    new RegExp(`\\/(?:${'pri' + 'vate'}\\/(?:tmp|var\\/folders)|tmp)\\/[A-Za-z0-9._~-][^\\s'\"]*`),
+    /-----BEGIN(?: [A-Z0-9]+)? PRIVATE KEY-----/i,
     /\b(?:authorization\s*[:=]\s*|bearer\s+)[A-Za-z0-9._~-]{12,}/i,
-    /\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|native[_-]?session(?:[_-]?(?:id|token))?)\s*[:=]\s*['"]?[A-Za-z0-9._~+\/-]{8,}/i,
-    /\b(?:prompt|request|response|message)[_-]?(?:body|content|payload)\s*[:=]\s*['"{\[]/i,
+    /["'](?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|credential|password|secret|native[_-]?session(?:[_-]?(?:id|token))?)["']\s*:\s*["'][A-Za-z0-9._~+\/-]{8,}/i,
+    /\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|native[_-]?session(?:[_-]?(?:id|token))?)\s*[:=]\s*["']?[A-Za-z0-9._~+\/-]{8,}/i,
+    /\b(?:credential|password|secret)\s*:\s*["']?[A-Za-z0-9._~+\/-]{8,}/i,
+    /["']?(?:prompt|request|response|message)[_-]?(?:body|content|payload)["']?\s*[:=]\s*['"{\[]/i,
     new RegExp(`(?:\\.${'claude'}\\/${'MEMORY'}|${'MEMORY'}\\/(?:LEARNING|SIGNALS|STATE))`, 'i'),
-    /\b(?:rawMemory|raw_memory|serializedMemory)\s*[:=]/i,
+    /["']?(?:rawMemory|raw_memory|serializedMemory)["']?\s*[:=]/i,
   ];
   const violations = [];
   for (const [index, line] of source.split(/\r?\n/).entries()) {
-    if (fixtureRules.some((rule) => rule.test(line))) continue;
+    let candidate = line;
+    for (const literal of fixtureLiterals) candidate = candidate.replaceAll(literal, '<synthetic-sensitive-fixture>');
     for (const pattern of patterns) {
-      if (pattern.test(line)) violations.push(`${relativePath}:${index + 1}`);
+      if (pattern.test(candidate)) violations.push(`${relativePath}:${index + 1}`);
     }
   }
   return violations;
 }
+
+test('DOCS-PRIVACY: scanner rejects key material, quoted tokens, temporary paths, and fixture-line smuggling', () => {
+  const privateKeyMarker = ['-----BEGIN ', 'PRIVATE KEY-----'].join('');
+  const quotedToken = ['"access_', 'token": "abcdefghijklmnop"'].join('');
+  const privateCheckout = ['/', 'pri', 'vate/', 'tm', 'p/cambium-phase6/private.md'].join('');
+  const fixtureAndSecret = [
+    "presentPurpose = 'Bearer ",
+    "abcdefghijklmnop' ",
+    '"access_',
+    'token": "another-private-value"',
+  ].join('');
+
+  for (const [relativePath, source] of [
+    ['key.md', privateKeyMarker],
+    ['config.json', quotedToken],
+    ['path.md', privateCheckout],
+    ['scripts/documentation-inventory.test.mjs', fixtureAndSecret],
+  ]) {
+    assert.deepEqual(privacyViolations(relativePath, source), [`${relativePath}:1`]);
+  }
+});
+
+test('DOCS-PRIVACY: exact copies remain visible when repository copy detection is enabled', (t) => {
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cambium-privacy-copy-'));
+  t.after(() => fs.rmSync(fixtureRoot, { recursive: true, force: true }));
+  run('/usr/bin/git', ['init', '--quiet'], { cwd: fixtureRoot });
+  run('/usr/bin/git', ['config', 'user.name', 'Cambium Test'], { cwd: fixtureRoot });
+  run('/usr/bin/git', ['config', 'user.email', 'cambium@example.invalid'], { cwd: fixtureRoot });
+  const sensitive = ['"access_', 'token": "abcdefghijklmnop"\n'].join('');
+  fs.writeFileSync(path.join(fixtureRoot, 'source.json'), sensitive);
+  run('/usr/bin/git', ['add', '--', 'source.json'], { cwd: fixtureRoot });
+  run('/usr/bin/git', ['commit', '--quiet', '-m', 'base'], { cwd: fixtureRoot });
+  const baseSha = String(run('/usr/bin/git', ['rev-parse', 'HEAD'], { cwd: fixtureRoot })).trim();
+  run('/usr/bin/git', ['config', 'diff.renames', 'copies'], { cwd: fixtureRoot });
+  fs.copyFileSync(path.join(fixtureRoot, 'source.json'), path.join(fixtureRoot, 'copied.json'));
+  run('/usr/bin/git', ['add', '--', 'copied.json'], { cwd: fixtureRoot });
+  run('/usr/bin/git', ['commit', '--quiet', '-m', 'copy'], { cwd: fixtureRoot });
+
+  const changed = changedPathsAndKinds(baseSha, fixtureRoot);
+  assert.deepEqual(changed, ['copied.json']);
+  assert.deepEqual(privacyViolations('copied.json', fs.readFileSync(path.join(fixtureRoot, 'copied.json'), 'utf8')),
+    ['copied.json:1']);
+});
 
 function read(path) {
   const file = new URL(path, root);
@@ -566,8 +622,8 @@ test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensi
     violations.push(...privacyViolations(relativePath, body));
   }
 
-  for (const args of [[`${baseSha}...HEAD`], ['--cached'], []]) {
-    const diff = run('/usr/bin/git', ['diff', '--unified=0', '--no-ext-diff', ...args]);
+  for (const args of [[baseSha], ['--cached'], []]) {
+    const diff = run('/usr/bin/git', ['diff', '--unified=0', '--no-ext-diff', '--no-renames', ...args]);
     let currentPath = '<diff>';
     for (const line of diff.split(/\r?\n/)) {
       if (line.startsWith('+++ b/')) currentPath = line.slice(6);
