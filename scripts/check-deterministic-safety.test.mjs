@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import {
   chmodSync,
+  copyFileSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
@@ -12,6 +13,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs';
+import { compileDeterministicSafety } from './deterministic-safety.mjs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -216,6 +218,39 @@ function runChecker(root, args, options) {
   return runNode(checkerPath, root, args, options);
 }
 
+function runNpm(script, args, { succeeds = true, cwd = repositoryRoot } = {}) {
+  const result = spawnSync('npm', ['run', '--silent', script, '--', ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
+  });
+  if (succeeds) assert.equal(result.status, 0, result.stderr || result.stdout);
+  else assert.notEqual(result.status, 0, `${script} was expected to fail`);
+  return result;
+}
+
+const SAFETY_DISPATCH_SCRIPTS = [
+  'check-deterministic-safety.mjs',
+  'deterministic-safety.mjs',
+  'documentation-inventory-sources.mjs',
+  'intent-graph.mjs',
+  'temperance-flow.mjs',
+];
+
+function materializeNpmDispatch(root, scriptValue) {
+  const scriptsDir = path.join(root, 'scripts');
+  mkdirSync(scriptsDir, { recursive: true });
+  for (const name of SAFETY_DISPATCH_SCRIPTS) {
+    copyFileSync(path.join(repositoryRoot, 'scripts', name), path.join(scriptsDir, name));
+  }
+  writeFileSync(path.join(root, 'package.json'), `${JSON.stringify({
+    name: 'cambium-safety-check-fixture',
+    private: true,
+    type: 'module',
+    scripts: { 'safety:check': scriptValue },
+  }, null, 2)}\n`);
+}
+
 function assertFailedClosed(result, args, before, fixtureRoot) {
   const label = args.join(' ') || '(empty argv)';
   assert.equal(result.stdout, '', label);
@@ -404,3 +439,54 @@ test('hostile overlays exit non-zero, name the relative path, and stay zero-writ
   assertFailedClosed(promptHit, ['prompt-body'], promptBefore, prompt.root);
   assert.match(promptHit.stderr, /docs\/architecture\/temperance-flow\.v1\.json/);
 });
+
+test('package.json safety:check is the caller-revision dispatcher with no lockfile delta', (t) => {
+  const packageJson = JSON.parse(readFileSync(path.join(repositoryRoot, 'package.json'), 'utf8'));
+  assert.equal(packageJson.scripts['safety:check'], 'node scripts/check-deterministic-safety.mjs');
+  assert.match(packageJson.scripts.test, /scripts\/\*\.test\.mjs/);
+  assert.doesNotMatch(packageJson.scripts['safety:check'], /HEAD|--source-revision|--output|[>]{1,2}/);
+  assert.equal(!packageJson.dependencies || Object.keys(packageJson.dependencies).length === 0, true);
+  const verifyRelease = readFileSync(path.join(repositoryRoot, 'scripts/verify-release.mjs'), 'utf8');
+  assert.equal(verifyRelease.includes('safety:check'), false);
+
+  const lockNames = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'];
+  const beforeLock = lockNames
+    .filter((name) => statSync(path.join(repositoryRoot, name), { throwIfNoEntry: false })?.isFile())
+    .map((name) => [name, digest(readFileSync(path.join(repositoryRoot, name)))]);
+  const checkoutRevision = git(repositoryRoot, 'rev-parse', '--verify', 'HEAD^{commit}');
+  let checkoutSafe = false;
+  try {
+    compileDeterministicSafety({
+      repositoryRoot,
+      sourceRevision: checkoutRevision,
+    });
+    checkoutSafe = true;
+  } catch {
+    checkoutSafe = false;
+  }
+
+  let checked;
+  if (checkoutSafe) {
+    checked = runNpm('safety:check', ['--source-revision', checkoutRevision]);
+    assert.match(checked.stdout, receiptPattern(checkoutRevision));
+  } else {
+    const fixture = makeFixture();
+    t.after(fixture.cleanup);
+    materializeNpmDispatch(fixture.root, packageJson.scripts['safety:check']);
+    checked = runNpm('safety:check', ['--source-revision', fixture.second], { cwd: fixture.root });
+    assert.match(checked.stdout, receiptPattern(fixture.second));
+  }
+  assert.equal(checked.stderr, '');
+  assert.doesNotMatch(checked.stdout, new RegExp(`${unixUserRoot}|${unixVolumeRoot}`));
+
+  for (const [name, hash] of beforeLock) {
+    assert.equal(digest(readFileSync(path.join(repositoryRoot, name))), hash);
+  }
+  const lockDiff = spawnSync('/usr/bin/git', ['diff', '--name-only', '--', ...lockNames], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(lockDiff.status, 0, lockDiff.stderr);
+  assert.equal(lockDiff.stdout.trim(), '');
+});
+
