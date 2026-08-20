@@ -3,8 +3,8 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: verify
-progress: 4/4
+phase: plan
+progress: 0/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
@@ -203,12 +203,19 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 - [x] ISC-1280: GRAPH-04 proves evidence and learning edges close or renew finite goals without mutating `VISION.md` or silently rewriting `MISSION.md`.
 - [x] ISC-1281: GRAPH-05 proves approval gates, freshness, stop conditions, and blocked states remain explicit, with blocked work never projected as complete.
 
-### Active Phase 5 acceptance
+### Completed Phase 5 acceptance
 
 - [x] ISC-1282: FLOW-01 proves one exact next GSD command is derived from the approved ISA goal, live GSD transition, and active-plan dependencies, while ambiguity or authority conflict yields `blocked` instead of a competing plan.
 - [x] ISC-1283: FLOW-02 proves a fresh Ralph iteration rereads durable goal, plan, task, evidence, and reviewed handoff state; selects exactly one dependency-ready unit; verifies and persists through existing GSD/handoff surfaces; then exits on an external stop condition without owning a mutable ledger.
 - [x] ISC-1284: FLOW-03 proves the projection exposes skill-cluster and OmniRoute combo intent plus the native-orchestrator/paid-execution boundary, while only a fresh host receipt supplies resolved provider attribution.
 - [x] ISC-1285: FLOW-04 proves deterministic machine and human readbacks expose matching references, digests, routes, next action or blocked reason, gates, freshness, and stop conditions without copying doctrine or host policy, extending the Phase 4 graph vocabulary, or becoming an operational writer.
+
+### Active Phase 6 acceptance
+
+- [ ] ISC-1286: DOCS-01 proves one exact five-class lifecycle map distinguishes canonical, derived, historical, evidentiary, and local-only material without replacing canonical doctrine, ISA acceptance, GSD planning, contracts, or runbooks.
+- [ ] ISC-1287: DOCS-02 proves one explicit committed revision yields an exhaustive, body-free, on-demand inventory in matching machine and human formats without reading mutable checkout state.
+- [ ] ISC-1288: DOCS-03 proves additive authority-owner links lead maintainers through doctrine, architecture, operating guidance, evidence, and live `.planning/STATE.md` delegation without copying mutable status.
+- [ ] ISC-1289: DOCS-04 proves recoverable historical evidence remains preserved while explicit item exceptions receive exception-aware, non-destructive classification and stale instructions cannot masquerade as current authority.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
@@ -1555,6 +1562,8 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 - ISC-1273..1276 | canonical infinite-game anchors | stable headings, direct paths, authority boundaries, coherent ISA state, and preserved Mission Fabric terminology | each criterion is binary and provenance-preserving | `node --test scripts/infinite-game-anchors.test.mjs`
 - ISC-1277..1281 | provenance-preserving intent graph | deterministic manifest, stable node/edge semantics, exact source metadata, overlay-reference guards, learning boundaries, and fail-closed gated/blocked state | each criterion maps one-to-one to GRAPH-01..05 and one named binary test | Phase 4 focused contract test plus generated-manifest check
+- ISC-1282..1285 | Ralph and Temperance flow projection | exact next action, bounded one-unit iteration, authenticated host attribution, and matching read-only flow readbacks | each criterion maps one-to-one to FLOW-01..04 and named binary tests | Phase 5 focused flow and Ralph suites plus generated-projection check
+- ISC-1286..1289 | documentation stewardship | exact lifecycle vocabulary, explicit-commit corpus inventory, additive navigation, and recoverable exception-aware evidence | each criterion maps one-to-one to DOCS-01..04 and named binary tests | Phase 6 anchor sentinel plus focused inventory and navigation suites
 
 | ISC range | Type | Binary check | Tool |
 |---|---|---|---|
@@ -1670,6 +1679,8 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 - `CanonicalInfiniteGameAnchors` | establish singular root Vision and renewable Repository Mission without creating a second planner | satisfies ISC-1273..1276 | depends_on none | parallelizable false
 - `ProvenancePreservingIntentGraph` | compile a deterministic read-only projection from canonical doctrine, ISA/GSD planning, evidence, and learning without creating another authority | satisfies ISC-1277..1281 | depends_on CanonicalInfiniteGameAnchors | parallelizable false
+- `RalphAndTemperanceFlowProjection` | derive one dependency-safe next action and its authenticated execution route without owning a mutable ledger | satisfies ISC-1282..1285 | depends_on ProvenancePreservingIntentGraph | parallelizable false
+- `DocumentationStewardship` | classify and connect the committed doctrine corpus without relocating evidence or creating another authority | satisfies ISC-1286..1289 | depends_on RalphAndTemperanceFlowProjection | parallelizable false
 
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
