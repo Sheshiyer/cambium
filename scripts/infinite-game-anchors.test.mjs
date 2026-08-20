@@ -782,25 +782,34 @@ test('DOCS-03 / D-03: live STATE publishes one coherent post-verification transi
   const frontmatter = state.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 
   assert.match(frontmatter, /^status: executing$/m);
-  assert.match(frontmatter, /^stopped_at: Phase 6 independently verified 4\/4 — security audit required before Phase 7 planning$/m);
+  assert.match(frontmatter, /^stopped_at: Phase 7 execution complete 3\/3 — independent verification required$/m);
   assert.match(frontmatter, /^\s+total_phases: 5$/m);
   assert.match(frontmatter, /^\s+completed_phases: 4$/m);
   assert.match(frontmatter, /^\s+total_plans: 16$/m);
-  assert.match(frontmatter, /^\s+completed_plans: 13$/m);
+  assert.match(frontmatter, /^\s+completed_plans: 16$/m);
   assert.match(frontmatter, /^\s+percent: 80$/m);
 
-  assert.match(state, /^\*\*Current focus:\*\* Phase 07 — Deterministic Safety and Handoff$/m);
-  assert.match(state, /^Phase: 07 \(Deterministic Safety and Handoff\) — NOT STARTED$/m);
-  assert.match(state, /^Plan: Not started$/m);
-  assert.match(state, /^Status: Ready to execute$/m);
+  assert.match(state, /^\*\*Current focus:\*\* Phase 7 — Deterministic Safety and Handoff$/m);
+  assert.match(state, /^Phase: 7 \(Deterministic Safety and Handoff\) — EXECUTING$/m);
+  assert.match(state, /^Plan: 3 of 3$/m);
+  assert.match(state, /^Status: Execution complete$/m);
   assert.match(state, /^Progress: \[████████░░\] 80%$/m);
-  assert.match(state, /^Stopped at: Phase 6 independently verified 4\/4 — security audit required before Phase 7 planning$/m);
-  assert.match(state, /^Resume file: \.planning\/phases\/06-documentation-stewardship\/06-VERIFICATION\.md$/m);
+  assert.match(state, /^Stopped at: Phase 7 execution complete 3\/3 — independent verification required$/m);
+  assert.match(state, /^Resume file: \.planning\/phases\/07-deterministic-safety-and-handoff\/07-03-SUMMARY\.md$/m);
+  assert.match(state, /^`\/gsd:verify-work 7`$/m);
+  assert.doesNotMatch(state, /\/gsd:plan-phase 7/);
+  assert.doesNotMatch(state, /\/gsd:secure-phase 6/);
 
   assert.match(roadmap, /^- \[x\] \*\*Phase 6: Documentation Stewardship\*\*.*\(completed 2026-08-20\)$/m);
   assert.match(roadmap, /^\| 6\. Documentation Stewardship \| v0\.4 \| 4\/4 \| Complete\s+\| 2026-08-20 \|$/m);
+  assert.match(roadmap, /^- \[ \] \*\*Phase 7: Deterministic Safety and Handoff\*\*/m);
+  assert.match(roadmap, /^- \[x\] 07-03-PLAN.md /m);
+  assert.match(roadmap, /^\| 7\. Deterministic Safety and Handoff \| v0\.4 \| 3\/3 \| Verification pending \| 2026-08-21 \|$/m);
   for (const requirement of ['DOCS-01', 'DOCS-02', 'DOCS-03', 'DOCS-04']) {
     assert.match(requirements, new RegExp(`^\\| ${requirement} \\| Phase 6 \\| Complete \\|$`, 'm'));
+  }
+  for (const requirement of ['SAFE-01', 'SAFE-02', 'SAFE-03', 'SAFE-04']) {
+    assert.match(requirements, new RegExp(`^\\| ${requirement} \\| Phase 7 \\| Pending \\|$`, 'm'));
   }
 });
 

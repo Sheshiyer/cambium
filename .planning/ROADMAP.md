@@ -161,15 +161,15 @@ Plans:
 
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Bind Phase 7 ISA and implement the SHA-bound SAFE-01..03 compiler.
+- [x] 07-01-PLAN.md — Bind Phase 7 ISA and implement the SHA-bound SAFE-01..03 compiler.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 07-02-PLAN.md — Expose the zero-write safety:check CLI and package command.
+- [x] 07-02-PLAN.md — Expose the zero-write safety:check CLI and package command.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 07-03-PLAN.md — Prove SAFE-01..04 end to end, close ISA, and append the reviewed-held handoff.
+- [x] 07-03-PLAN.md — Prove SAFE-01..04 end to end, close ISA, and append the reviewed-held handoff.
 
 ## Progress
 
@@ -183,4 +183,4 @@ Plans:
 | 4. Provenance-Preserving Intent Graph | v0.4 | 4/4 | Complete | 2026-08-18 |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 3/3 | Complete    | 2026-08-19 |
 | 6. Documentation Stewardship | v0.4 | 4/4 | Complete    | 2026-08-20 |
-| 7. Deterministic Safety and Handoff | v0.4 | 0/3 | Planned | - |
+| 7. Deterministic Safety and Handoff | v0.4 | 3/3 | Verification pending | 2026-08-21 |
