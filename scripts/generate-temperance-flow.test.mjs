@@ -133,6 +133,31 @@ test('FLOW-01 / D-01 / D-02: actual repository sources produce exactly one ready
   assert.equal(model.intentGraphRef.schema, 'cambium.intent-graph-projection.v1');
 });
 
+test('FLOW-01: completed Phase 5 acceptance remains evidence while Phase 6 owns the active lifecycle', (t) => {
+  const api = requireSourceApi('completed Phase 5 acceptance');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  const isaPath = path.join(fixture.root, 'ISA.md');
+  const original = readFileSync(isaPath, 'utf8');
+
+  const completed = api.buildTemperanceFlowSources(fixture.root);
+  assert.equal(completed.authorities.isa.source.selector, 'frontmatter.task');
+  assert.equal(completed.authorities.isa.source.kind, 'isa_goal');
+  assert.equal(completed.authorities.gsd.status, 'stale', 'Phase 5 flow cannot treat active Phase 6 GSD state as current');
+  const completedEvidence = completed.supportingSources.find(({ path: pathname, selector }) =>
+    pathname === 'ISA.md' && selector === 'markdown.heading:Completed Phase 5 acceptance');
+  assert.equal(completedEvidence?.kind, 'verification_evidence');
+  assert.match(original, /^### Active Phase 6 acceptance$/m);
+
+  writeFileSync(isaPath, original.replace('### Completed Phase 5 acceptance', '### Active Phase 5 acceptance'));
+  const active = api.buildTemperanceFlowSources(fixture.root);
+  assert.equal(active.authorities.isa.source.selector, 'frontmatter.task');
+  assert.equal(active.supportingSources.some(({ selector }) => selector === 'markdown.heading:Active Phase 5 acceptance'), true);
+
+  writeFileSync(isaPath, `${original}\n### Active Phase 5 acceptance\n\n- [x] ISC-1282: duplicate lifecycle evidence must fail closed.\n`);
+  assert.throws(() => api.buildTemperanceFlowSources(fixture.root), /Phase 5 acceptance must resolve exactly once/i);
+});
+
 test('FLOW-01 / CR-04: the phase-wide command binds one phase-wide remaining-plan unit', (t) => {
   const api = requireSourceApi('phase-wide unit');
   const fixture = makeFixture();
@@ -318,7 +343,7 @@ test('FLOW-04 / WR-03: every readiness decision byte has a named source digest',
   const statePhaseLine = /^Phase: [^\n]+$/m.exec(readFileSync(path.join(fixture.root, '.planning/STATE.md'), 'utf8'))?.[0];
   assert.ok(statePhaseLine, 'STATE must expose one selected Phase line');
   const cases = [
-    ['ISA.md', 'ISC-1282', 'ISC-9999', (model) => model.authorities.isa.source],
+    ['ISA.md', 'ISC-1282', 'ISC-9999', (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === 'ISA.md' && /Phase 5 acceptance$/.test(selector))],
     ['.planning/STATE.md', statePhaseLine, statePhaseLine.replace(/^Phase: \d+/, 'Phase: 999'), (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === '.planning/STATE.md' && selector.startsWith('text.line:Phase:'))],
     ['.project/HANDOFF.md', 'reviewed planning checkpoint', 'unreviewed planning checkpoint', (model) => model.supportingSources.find(({ path: pathname }) => pathname === '.project/HANDOFF.md')],
     ['.planning/phases/05-ralph-and-temperance-flow-projection/05-01-SUMMARY.md', 'Self-Check: PASSED', 'Self-Check: PASSED\n\nDecision evidence changed.', (model) => model.supportingSources.find(({ path: pathname }) => pathname.endsWith('05-01-SUMMARY.md'))],

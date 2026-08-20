@@ -166,6 +166,18 @@ function select(raw, selector, relativePath) {
   throw new TypeError(`unsupported source selector ${relativePath}#${selector}`);
 }
 
+function phase5AcceptanceSelection(raw) {
+  const allowed = ['Active Phase 5 acceptance', 'Completed Phase 5 acceptance'];
+  const matches = allowed.flatMap((heading) => headingSections(raw, heading).map((content) => ({ heading, content })));
+  if (matches.length !== 1) {
+    throw new TypeError(`ISA.md Phase 5 acceptance must resolve exactly once as Active or Completed; received ${matches.length}`);
+  }
+  return {
+    selector: `markdown.heading:${matches[0].heading}`,
+    content: matches[0].content,
+  };
+}
+
 function sourceReference(reader, relativePath, kind, selector) {
   const raw = reader.read(relativePath);
   return { path: relativePath, kind, selector, digest: digestText(select(raw, selector, relativePath)) };
@@ -315,11 +327,11 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   const stateRaw = reader.read('.planning/STATE.md');
   const handoffRaw = reader.read('.project/HANDOFF.md');
   const goal = frontmatterField(isaRaw, 'task', 'ISA.md');
-  const isaAcceptanceSelector = 'markdown.heading:Active Phase 5 acceptance';
+  const isaGoalSelector = 'frontmatter.task';
+  const { selector: isaAcceptanceSelector, content: isaAcceptance } = phase5AcceptanceSelection(isaRaw);
   const isaDecisionSelector = 'markdown.list-item:- 2026-08-19 11:06: refined:';
-  const isaAcceptance = select(isaRaw, isaAcceptanceSelector, 'ISA.md');
   const isaDecision = select(isaRaw, isaDecisionSelector, 'ISA.md');
-  const isaApproved = /ISC-1282/.test(isaAcceptance)
+  const isaApproved = ['ISC-1282', 'ISC-1283', 'ISC-1284', 'ISC-1285'].every((id) => new RegExp(`^- \\[(?:x| )\\] ${id}:`, 'm').test(isaAcceptance))
     && /Phase 5 is an authority-resolution projection/.test(isaDecision);
   const nextSection = exactlyOne(headingSections(stateRaw, 'Operator Next Step'), '.planning/STATE.md#Operator Next Step');
   const commands = [...nextSection.matchAll(/`(\/gsd:[^`]+)`/g)].map((entry) => entry[1]);
@@ -405,6 +417,7 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
     throw new TypeError('Intent Graph reference is malformed');
   }
   const supportingSources = [
+    sourceReference(reader, 'ISA.md', 'verification_evidence', isaAcceptanceSelector),
     sourceReference(reader, 'ISA.md', 'verification_evidence', isaDecisionSelector),
     sourceReference(reader, '.planning/STATE.md', 'verification_evidence', statePhaseSelector),
     handoffReference,
@@ -415,7 +428,7 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   return {
     authorities: {
       isa: {
-        source: sourceReference(reader, 'ISA.md', 'isa_goal', isaAcceptanceSelector),
+        source: sourceReference(reader, 'ISA.md', 'isa_goal', isaGoalSelector),
         status: isaApproved ? 'approved' : 'unapproved',
         goal,
       },
