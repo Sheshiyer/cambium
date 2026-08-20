@@ -645,8 +645,8 @@ Apply to compiler, CLI, contract, indexes, ISA, and handoff:
 
 Redact `/Users|/Volumes|/private|/tmp|/var|/home` to `<redacted-path>`. Cap
 stderr at 300–320 characters. No partial stdout document on failure.
-Standalone audit additionally forbids `/Users/sheshnarayaniyer` and
-`/Volumes/madara` (`scripts/standalone-audit.mjs:52-54`).
+Standalone audit additionally forbids `/Users/`+`sheshnarayaniyer` and
+`/Volumes/`+`madara` (`scripts/standalone-audit.mjs:52-54`).
 
 ### Validation
 

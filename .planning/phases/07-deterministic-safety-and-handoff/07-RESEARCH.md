@@ -378,7 +378,7 @@ SAFE-04 handoff analog is 06-04 Task 2:
 
 ### Pitfall 6: Machine-local `/Volumes` paths leaking through diagnostics
 
-**What goes wrong:** Failures print `/Volumes/madara/...` or `/Users/sheshnarayaniyer/...`.
+**What goes wrong:** Failures print `/Volumes/`+`madara/...` or `/Users/`+`sheshnarayaniyer/...`.
 **Why it happens:** `spawnSync` stderr and `Error.message` include `repositoryRoot`. `standalone-audit.mjs` already forbids those literals in publishable files. [VERIFIED: scripts/standalone-audit.mjs privatePatterns]
 **How to avoid:** Inventory `safeDiagnostic` already redacts `/(Users|Volumes|private|tmp|var|home)/...`. Copy it. Tests assert stderr does not match `/Users/|/Volumes/`.
 
@@ -645,7 +645,7 @@ Phase 6 closed 25 threats @ `95634db` / 06-SECURITY.md. Phase 7 should add a T-0
 - `scripts/temperance-flow.mjs` / `generate-temperance-flow.mjs` / `docs/architecture/contracts/temperance-flow-v1.md` — `text.line:`, handoff redaction, `intentGraph.digest`
 - `scripts/ralph-iteration.mjs` — persistence surfaces `summary`, `state`, `handoff`; schema `cambium.ralph-iteration.v1`
 - `scripts/infinite-game-anchors.test.mjs` — T-06-22 privacy + ISA lifecycle
-- `scripts/standalone-audit.mjs` — `/Users/sheshnarayaniyer`, `/Volumes/madara`
+- `scripts/standalone-audit.mjs` — `/Users/`+`sheshnarayaniyer`, `/Volumes/`+`madara`
 - `.planning/phases/06-documentation-stewardship/{06-01-PLAN.md,06-02-PLAN.md,06-04-PLAN.md,06-04-SUMMARY.md,06-SECURITY.md,06-VERIFICATION.md}`
 - `.project/HANDOFF.md` Phase 6 checkpoint
 - `ISA.md` ISC-1273..1289

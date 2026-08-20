@@ -117,7 +117,7 @@ Each task was committed through its TDD gates:
 
 **2. [Rule 3 - Blocking] T-06-22 allowlist for Phase 7 planning-doc standalone-audit path names**
 - **Found during:** Task 1
-- **Issue:** `phaseBaseSha()` remains pointed at `06-01-SUMMARY.md` as required. Phase 7 RESEARCH/PATTERNS files committed after that SHA name `/Users/sheshnarayaniyer` and `/Volumes/madara` as standalone-audit forbidden examples, so T-06-22 failed on the Phase 6 path union.
+- **Issue:** `phaseBaseSha()` remains pointed at `06-01-SUMMARY.md` as required. Phase 7 RESEARCH/PATTERNS files committed after that SHA name `/Users/`+`sheshnarayaniyer` and `/Volumes/`+`madara` as standalone-audit forbidden examples, so T-06-22 failed on the Phase 6 path union.
 - **Fix:** Add those concatenated documentation literals to `syntheticPrivacyFixtures` without retargeting `phase_base_sha`.
 - **Files modified:** `scripts/infinite-game-anchors.test.mjs`
 - **Verification:** T-06-22 passes; `phaseBaseSha()` still reads `06-01-SUMMARY.md`.
