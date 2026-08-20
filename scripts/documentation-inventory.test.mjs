@@ -60,6 +60,20 @@ function sha256(value) {
   return `sha256:${createHash('sha256').update(value).digest('hex')}`;
 }
 
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  return `{${Object.keys(value)
+    .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+    .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+}
+
+function refreshInventoryDigest(inventory) {
+  const { inventoryDigest: _ignored, ...withoutDigest } = inventory;
+  inventory.inventoryDigest = sha256(Buffer.from(canonicalJson(withoutDigest), 'utf8'));
+  return inventory;
+}
+
 function visibleFiles(repositoryRoot) {
   const values = [];
   function walk(directory) {
@@ -265,6 +279,40 @@ test('DOCS-02 / DOCS-04: validators reject unsafe, incomplete, destructive, priv
   const open = structuredClone(inventory);
   open.entries[0].promptBody = 'private prompt';
   assert.throws(() => validateDocumentationInventory(open), /forbidden|field/i);
+});
+
+test('DOCS-04: validator rejects digest-refreshed semantic tampering', async (t) => {
+  const { buildDocumentationInventorySources, compileDocumentationInventory, validateDocumentationInventory } = await loadImplementation();
+  const fixture = createRepository(fixtureCorpus());
+  t.after(() => rmSync(fixture.repositoryRoot, { recursive: true, force: true }));
+  const inventory = compileDocumentationInventory(buildDocumentationInventorySources({
+    repositoryRoot: fixture.repositoryRoot,
+    sourceRevision: fixture.sourceRevision,
+  }));
+  const visionIndex = inventory.entries.findIndex(({ path: entryPath }) => entryPath === 'VISION.md');
+
+  const mutations = [
+    ['lifecycle', (entry) => { entry.lifecycle = 'historical'; }, /lifecycle/i],
+    ['purpose', (entry) => { entry.presentPurpose = 'Forged purpose.'; }, /purpose/i],
+    ['overlap', (entry) => { entry.overlap = ['docs/README.md']; }, /overlap/i],
+    ['anchors', (entry) => { entry.canonicalAnchors = ['VISION.md']; }, /anchor/i],
+    ['disposition', (entry) => { entry.recommendedDisposition = 'retain-history'; }, /disposition/i],
+  ];
+  for (const [label, mutate, expected] of mutations) {
+    const tampered = structuredClone(inventory);
+    mutate(tampered.entries[visionIndex]);
+    assert.throws(() => validateDocumentationInventory(refreshInventoryDigest(tampered)), expected, label);
+  }
+
+  const misplacedException = structuredClone(inventory);
+  const guide = misplacedException.entries.find(({ path: entryPath }) => entryPath === 'docs/guide.md');
+  guide.exception = {
+    kind: 'indexed-product-branch-packet',
+    evidencePath: 'docs/plans/product-branches/index.md',
+    directoryDefault: 'historical',
+  };
+  guide.lifecycle = 'evidentiary';
+  assert.throws(() => validateDocumentationInventory(refreshInventoryDigest(misplacedException)), /exception|product-branch|path/i);
 });
 
 test('DOCS-02: JSON and Markdown render the same immutable inventory identity', async (t) => {

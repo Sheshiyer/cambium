@@ -13,6 +13,9 @@ export const DOCUMENTATION_LIFECYCLE_CLASSES = Object.freeze([
 
 const FULL_COMMIT_SHA = /^[0-9a-f]{40}$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
+const PRODUCT_BRANCH_INDEX = 'docs/plans/product-branches/index.md';
+const PRODUCT_BRANCH_DIRECTORY = 'docs/plans/product-branches';
+const ROOT_MEMORY_POLICY = 'Never inspect ignored or provider-owned runtime memory.';
 const CONTENT_KINDS = new Set(['text', 'binary']);
 const DISPOSITIONS = new Set([
   'retain-current',
@@ -202,7 +205,7 @@ export function compileDocumentationInventory(input) {
       lifecycle,
       exception: packetSet.has(blob.path) ? {
         kind: 'indexed-product-branch-packet',
-        evidencePath: 'docs/plans/product-branches/index.md',
+        evidencePath: PRODUCT_BRANCH_INDEX,
         directoryDefault: 'historical',
       } : null,
     };
@@ -211,7 +214,7 @@ export function compileDocumentationInventory(input) {
     scope: 'root MEMORY/',
     tracked: input.rootMemoryTracked,
     lifecycle: 'local-only',
-    policy: 'Never inspect ignored or provider-owned runtime memory.',
+    policy: ROOT_MEMORY_POLICY,
   };
   const sourceSetDigest = digestObject(canonicalSourceFacts(entries, rootMemory));
   const withoutDigest = {
@@ -231,7 +234,21 @@ function validatePathArray(value, label) {
   if (!sameArray(value, normalized)) throw new TypeError(`${label} must be bytewise sorted and unique`);
 }
 
-function validateEntry(entry, sourceRevision, priorPath) {
+function validateIndexedPacketException(entry, relativePath) {
+  if (entry.exception === null) return false;
+  assertClosed(entry.exception, ['kind', 'evidencePath', 'directoryDefault'], 'inventory exception');
+  if (entry.exception.kind !== 'indexed-product-branch-packet'
+      || safePath(entry.exception.evidencePath, 'exception evidence path') !== PRODUCT_BRANCH_INDEX
+      || entry.exception.directoryDefault !== 'historical'
+      || path.posix.dirname(relativePath) !== PRODUCT_BRANCH_DIRECTORY
+      || relativePath === PRODUCT_BRANCH_INDEX
+      || !relativePath.endsWith('.md')) {
+    throw new TypeError('inventory exception must name a direct indexed product-branch packet over a historical default');
+  }
+  return true;
+}
+
+function validateEntry(entry, sourceRevision, priorPath, indexedPackets) {
   assertClosed(entry, [
     'path', 'provenance', 'presentPurpose', 'overlap', 'recommendedDisposition',
     'canonicalAnchors', 'lifecycle', 'exception',
@@ -249,13 +266,22 @@ function validateEntry(entry, sourceRevision, priorPath) {
   if (!DISPOSITIONS.has(entry.recommendedDisposition) || !entry.recommendedDisposition.startsWith('retain')) {
     throw new TypeError('inventory disposition must remain non-destructive retain guidance');
   }
-  if (entry.exception !== null) {
-    assertClosed(entry.exception, ['kind', 'evidencePath', 'directoryDefault'], 'inventory exception');
-    if (entry.exception.kind !== 'indexed-product-branch-packet'
-        || safePath(entry.exception.evidencePath, 'exception evidence path') !== 'docs/plans/product-branches/index.md'
-        || entry.exception.directoryDefault !== 'historical' || entry.lifecycle !== 'evidentiary') {
-      throw new TypeError('inventory exception must be explicit indexed evidence over a historical default');
-    }
+  const hasException = validateIndexedPacketException(entry, relativePath);
+  if (hasException !== indexedPackets.has(relativePath)) throw new TypeError('inventory exception set is incoherent');
+
+  const expectedLifecycle = lifecycleFor(relativePath, indexedPackets);
+  if (entry.lifecycle !== expectedLifecycle) throw new TypeError(`inventory lifecycle is incoherent for ${relativePath}`);
+  if (entry.presentPurpose !== purposeFor(relativePath, expectedLifecycle)) {
+    throw new TypeError(`inventory purpose is incoherent for ${relativePath}`);
+  }
+  if (!sameArray(entry.overlap, overlapFor(relativePath, expectedLifecycle))) {
+    throw new TypeError(`inventory overlap is incoherent for ${relativePath}`);
+  }
+  if (!sameArray(entry.canonicalAnchors, anchorsFor(relativePath, expectedLifecycle))) {
+    throw new TypeError(`inventory canonical anchors are incoherent for ${relativePath}`);
+  }
+  if (entry.recommendedDisposition !== dispositionFor(expectedLifecycle)) {
+    throw new TypeError(`inventory disposition is incoherent for ${relativePath}`);
   }
   return relativePath;
 }
@@ -274,10 +300,18 @@ export function validateDocumentationInventory(value) {
   assertClosed(value.rootMemory, ['scope', 'tracked', 'lifecycle', 'policy'], 'root memory fact');
   if (value.rootMemory.scope !== 'root MEMORY/' || typeof value.rootMemory.tracked !== 'boolean'
       || value.rootMemory.lifecycle !== 'local-only') throw new TypeError('root memory fact is invalid');
-  safeText(value.rootMemory.policy, 'root memory policy');
+  if (safeText(value.rootMemory.policy, 'root memory policy') !== ROOT_MEMORY_POLICY) {
+    throw new TypeError('root memory policy is not canonical');
+  }
   if (!Array.isArray(value.entries) || value.entries.length > 16384) throw new TypeError('inventory entries must be a bounded array');
+  const indexedPackets = new Set();
+  for (const entry of value.entries) {
+    assertRecord(entry, 'inventory entry');
+    const relativePath = safePath(entry.path, 'inventory entry path');
+    if (entry.exception !== null && validateIndexedPacketException(entry, relativePath)) indexedPackets.add(relativePath);
+  }
   let priorPath = null;
-  for (const entry of value.entries) priorPath = validateEntry(entry, value.sourceRevision, priorPath);
+  for (const entry of value.entries) priorPath = validateEntry(entry, value.sourceRevision, priorPath, indexedPackets);
   const expectedSourceSet = digestObject(canonicalSourceFacts(value.entries, value.rootMemory));
   if (expectedSourceSet !== value.sourceSetDigest) throw new TypeError('sourceSetDigest does not match inventory provenance');
   const { inventoryDigest: _ignored, ...withoutDigest } = value;
