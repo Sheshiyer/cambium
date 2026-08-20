@@ -138,7 +138,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 06-03-PLAN.md — Publish the single lifecycle map and additive navigation for on-demand documentation stewardship.
+- [x] 06-03-PLAN.md — Publish the single lifecycle map and additive navigation for on-demand documentation stewardship.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -170,5 +170,5 @@ Plans:
 | 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
 | 4. Provenance-Preserving Intent Graph | v0.4 | 4/4 | Complete | 2026-08-18 |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 3/3 | Complete    | 2026-08-19 |
-| 6. Documentation Stewardship | v0.4 | 2/4 | In Progress|  |
+| 6. Documentation Stewardship | v0.4 | 3/4 | In Progress|  |
 | 7. Deterministic Safety and Handoff | v0.4 | 0/TBD | Not started | - |
