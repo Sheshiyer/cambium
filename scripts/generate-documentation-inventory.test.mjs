@@ -24,6 +24,7 @@ import {
   renderDocumentationInventoryMarkdown,
   validateDocumentationInventory,
 } from './documentation-inventory.mjs';
+import { generateDocumentationInventoryRepresentation } from './generate-documentation-inventory.mjs';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const generatorPath = path.join(repositoryRoot, 'scripts/generate-documentation-inventory.mjs');
@@ -155,6 +156,17 @@ function runGenerator(root, args, options) {
   return runNode(generatorPath, root, args, options);
 }
 
+function runNpm(script, args, { succeeds = true } = {}) {
+  const result = spawnSync('npm', ['run', '--silent', script, '--', ...args], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
+  });
+  if (succeeds) assert.equal(result.status, 0, result.stderr || result.stdout);
+  else assert.notEqual(result.status, 0, `${script} was expected to fail`);
+  return result;
+}
+
 function assertMarkdownParity(inventory, markdown) {
   for (const value of [
     inventory.schema,
@@ -260,5 +272,78 @@ test('DOCS-02 / DOCS-04: malformed and write-capable requests fail before stdout
   }
   assert.equal(statSync(path.join(outside, 'leak.json'), { throwIfNoEntry: false }), undefined);
   assert.notEqual(runNode(generatorPath, fixture.root, ['--root', 'relative', '--source-revision', fixture.second, '--format', 'json'], { succeeds: false }).status, 0);
-  assert.equal(statSync(checkerPath, { throwIfNoEntry: false }), undefined, 'Task 2 checker must not exist during Task 1 RED/GREEN');
+});
+
+test('DOCS-01 / DOCS-02: checker double-generates both formats with zero writes and one bounded receipt', (t) => {
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  assert.equal(statSync(checkerPath, { throwIfNoEntry: false })?.isFile(), true, 'documentation inventory checker is not implemented');
+  const before = snapshot(fixture.root);
+  const result = runNode(checkerPath, fixture.root, ['--source-revision', fixture.first]);
+  assert.match(result.stdout, new RegExp(`^documentation inventory check passed: ${fixture.first} sha256:[a-f0-9]{64} entries=\\d+\\n$`));
+  assert.equal(result.stderr, '');
+  assert.doesNotMatch(result.stdout, /\/Users\/|\/Volumes\/|credential|sessionId|promptBody|responseBody|Bearer\s/i);
+  assert.deepEqual(snapshot(fixture.root), before);
+  const rejected = runNode(checkerPath, fixture.root, [], { succeeds: false });
+  assert.equal(rejected.stdout, '');
+  assert.ok(rejected.stderr.length > 0 && rejected.stderr.length <= 320);
+  assert.deepEqual(snapshot(fixture.root), before);
+});
+
+test('DOCS-02: checker detects controlled JSON nondeterminism and Markdown parity failure', async (t) => {
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  assert.equal(statSync(checkerPath, { throwIfNoEntry: false })?.isFile(), true, 'documentation inventory checker is not implemented');
+  const checker = await import(`./check-documentation-inventory.mjs?test=${Date.now()}`);
+  assert.equal(typeof checker.checkDocumentationInventory, 'function');
+  let jsonCalls = 0;
+  assert.throws(() => checker.checkDocumentationInventory({
+    repositoryRoot: fixture.root,
+    sourceRevision: fixture.first,
+    generate(options) {
+      const result = generateDocumentationInventoryRepresentation(options);
+      if (options.format === 'json' && ++jsonCalls === 2) return { ...result, output: `${result.output} ` };
+      return result;
+    },
+  }), /JSON.*deterministic|nondeterministic/i);
+  assert.throws(() => checker.checkDocumentationInventory({
+    repositoryRoot: fixture.root,
+    sourceRevision: fixture.first,
+    generate(options) {
+      const result = generateDocumentationInventoryRepresentation(options);
+      if (options.format === 'markdown') {
+        return { ...result, output: result.output.replace(result.inventory.inventoryDigest, `sha256:${'0'.repeat(64)}`) };
+      }
+      return result;
+    },
+  }), /Markdown.*parity|inventoryDigest|parity/i);
+});
+
+test('DOCS-01 / DOCS-02: package commands preserve exact JSON and Markdown stdout for caller revision', () => {
+  const revision = git(repositoryRoot, 'rev-parse', '--verify', 'HEAD^{commit}');
+  const packageJson = JSON.parse(readFileSync(path.join(repositoryRoot, 'package.json'), 'utf8'));
+  assert.equal(packageJson.scripts['docs:inventory:json'], 'node scripts/generate-documentation-inventory.mjs --format json');
+  assert.equal(packageJson.scripts['docs:inventory:markdown'], 'node scripts/generate-documentation-inventory.mjs --format markdown');
+  assert.equal(packageJson.scripts['docs:inventory:check'], 'node scripts/check-documentation-inventory.mjs');
+  const beforeStatus = git(repositoryRoot, 'status', '--porcelain=v1', '-z');
+  const beforeLock = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock']
+    .filter((relativePath) => statSync(path.join(repositoryRoot, relativePath), { throwIfNoEntry: false })?.isFile())
+    .map((relativePath) => [relativePath, digest(readFileSync(path.join(repositoryRoot, relativePath)))]);
+  const json = runNpm('docs:inventory:json', ['--source-revision', revision]);
+  const parsed = validateDocumentationInventory(JSON.parse(json.stdout));
+  assert.equal(parsed.sourceRevision, revision);
+  assert.equal(json.stderr, '');
+  const expectedMarkdown = generateDocumentationInventoryRepresentation({
+    repositoryRoot,
+    sourceRevision: revision,
+    format: 'markdown',
+  }).output;
+  const markdownOne = runNpm('docs:inventory:markdown', ['--source-revision', revision]);
+  const markdownTwo = runNpm('docs:inventory:markdown', ['--source-revision', revision]);
+  assert.equal(markdownOne.stdout, expectedMarkdown);
+  assert.equal(markdownTwo.stdout, markdownOne.stdout);
+  const checked = runNpm('docs:inventory:check', ['--source-revision', revision]);
+  assert.match(checked.stdout, /^documentation inventory check passed:/);
+  assert.equal(git(repositoryRoot, 'status', '--porcelain=v1', '-z'), beforeStatus);
+  for (const [relativePath, hash] of beforeLock) assert.equal(digest(readFileSync(path.join(repositoryRoot, relativePath))), hash);
 });
