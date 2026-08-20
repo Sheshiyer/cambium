@@ -239,3 +239,23 @@ test('Repository Mission and FabricMission remain distinct', () => {
     assert.match(source, /(?:does not|never)[\s\S]{0,120}(?:inherit|rewrite|replace)[\s\S]{0,120}Repository Mission/i);
   }
 });
+
+test('DOCS-01 / D-01: documentation stewardship preserves the closed lifecycle and owner precedence', () => {
+  assert.fail('phase-wide DOCS-01 sentinel not implemented');
+});
+
+test('DOCS-02 / D-02: explicit-revision inventory is exhaustive, deterministic, matching, and zero-write', () => {
+  assert.fail('phase-wide DOCS-02 sentinel not implemented');
+});
+
+test('DOCS-03 / D-03: additive navigation resolves direct owners without copied live state', () => {
+  assert.fail('phase-wide DOCS-03 sentinel not implemented');
+});
+
+test('DOCS-04 / D-04: evidence stays recoverable and exceptions remain source-backed and non-destructive', () => {
+  assert.fail('phase-wide DOCS-04 sentinel not implemented');
+});
+
+test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensitive local state', () => {
+  assert.fail('phase-wide T-06-22 sentinel not implemented');
+});
