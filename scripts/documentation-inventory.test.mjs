@@ -161,6 +161,30 @@ test('DOCS-02 / D-02: one full commit SHA exhaustively supplies body-free corpus
   assert.equal(runGit(fixture.repositoryRoot, ['status', '--short']), beforeStatus);
 });
 
+test('DOCS-02: replacement refs cannot substitute another tree beneath the selected commit', async (t) => {
+  const { buildDocumentationInventorySources, compileDocumentationInventory } = await loadImplementation();
+  const originalBody = '# Original committed tree\n';
+  const replacementBody = '# Replacement tree\n';
+  const fixture = createRepository({ 'README.md': originalBody });
+  t.after(() => rmSync(fixture.repositoryRoot, { recursive: true, force: true }));
+
+  writeFixtureFile(fixture.repositoryRoot, 'README.md', replacementBody);
+  runGit(fixture.repositoryRoot, ['add', '--', 'README.md']);
+  runGit(fixture.repositoryRoot, ['commit', '--quiet', '-m', 'replacement candidate']);
+  const replacementRevision = runGit(fixture.repositoryRoot, ['rev-parse', 'HEAD']);
+  runGit(fixture.repositoryRoot, ['replace', fixture.sourceRevision, replacementRevision]);
+
+  assert.equal(runGit(fixture.repositoryRoot, ['show', `${fixture.sourceRevision}:README.md`]), replacementBody.trim());
+  const inventory = compileDocumentationInventory(buildDocumentationInventorySources({
+    repositoryRoot: fixture.repositoryRoot,
+    sourceRevision: fixture.sourceRevision,
+  }));
+
+  assert.equal(inventory.sourceRevision, fixture.sourceRevision);
+  assert.equal(inventory.entries.find(({ path: entryPath }) => entryPath === 'README.md').provenance.contentDigest,
+    sha256(Buffer.from(originalBody)));
+});
+
 test('DOCS-02: input order, checkout path, clock, locale, and repeated compilation do not affect bytes', async (t) => {
   const { buildDocumentationInventorySources, compileDocumentationInventory, renderDocumentationInventoryJson } = await loadImplementation();
   const fixture = createRepository(fixtureCorpus());

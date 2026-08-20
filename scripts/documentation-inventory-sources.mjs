@@ -37,8 +37,14 @@ function repositoryRoot(value) {
 }
 
 function runGit(root, args, { encoding = 'utf8' } = {}) {
-  const result = spawnSync('/usr/bin/git', ['-C', root, ...args], {
+  const result = spawnSync('/usr/bin/git', [
+    '--no-replace-objects',
+    '--no-optional-locks',
+    '-C', root,
+    ...args,
+  ], {
     encoding: encoding === null ? null : encoding,
+    env: { ...process.env, GIT_NO_REPLACE_OBJECTS: '1' },
     maxBuffer: 256 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
