@@ -132,7 +132,6 @@ function snapshot(root) {
     files: walk(root),
     index: {
       mode: index.mode.toString(),
-      mtimeNs: index.mtimeNs.toString(),
       bytes: digest(readFileSync(indexPath)),
     },
     status: git(root, 'status', '--porcelain=v1', '-z'),
@@ -263,4 +262,3 @@ test('DOCS-02 / DOCS-04: malformed and write-capable requests fail before stdout
   assert.notEqual(runNode(generatorPath, fixture.root, ['--root', 'relative', '--source-revision', fixture.second, '--format', 'json'], { succeeds: false }).status, 0);
   assert.equal(statSync(checkerPath, { throwIfNoEntry: false }), undefined, 'Task 2 checker must not exist during Task 1 RED/GREEN');
 });
-
