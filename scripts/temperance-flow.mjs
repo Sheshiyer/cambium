@@ -180,6 +180,16 @@ function headingSections(text, heading) {
   });
 }
 
+export function selectTemperanceFlowContent(raw, selector) {
+  return selectContent(raw, selector);
+}
+
+export function redactReviewedHandoffForDigest(selected) {
+  return selected
+    .replace(/(`implementation_head` is `)[a-f0-9]{40}(`)/, '$1<reviewed-implementation-head>$2')
+    .replace(/^(- Generated (?:flowDigest|sourceSetDigest): )sha256:[a-f0-9]{64}$/gm, '$1<reviewed-generated-digest>');
+}
+
 function selectContent(raw, selector) {
   validateSelector(selector);
   const text = canonicalText(raw);
@@ -225,9 +235,7 @@ function compileSource(repositoryRoot, value, expectedKinds = TEMPERANCE_FLOW_SO
     throw new TypeError(`source ${normalized} is a projection and cannot enter an authority lane`);
   }
   const digestable = value.kind === 'reviewed_handoff'
-    ? selected
-      .replace(/(`implementation_head` is `)[a-f0-9]{40}(`)/, '$1<reviewed-implementation-head>$2')
-      .replace(/^(- Generated (?:flowDigest|sourceSetDigest): )sha256:[a-f0-9]{64}$/gm, '$1<reviewed-generated-digest>')
+    ? redactReviewedHandoffForDigest(selected)
     : selected;
   const actualDigest = digestText(digestable);
   if (actualDigest !== value.digest) throw new TypeError(`source digest mismatch for ${normalized}#${value.selector}`);

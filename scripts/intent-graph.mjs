@@ -105,7 +105,7 @@ function canonicalJson(value) {
   return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
 }
 
-function canonicalText(value) {
+export function canonicalText(value) {
   return value.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').replace(/\n*$/, '\n');
 }
 
@@ -113,7 +113,7 @@ function hexDigest(value) {
   return createHash('sha256').update(value, 'utf8').digest('hex');
 }
 
-function digestText(value) {
+export function digestText(value) {
   return `sha256:${hexDigest(canonicalText(value))}`;
 }
 
@@ -223,6 +223,10 @@ function headingSections(text, heading) {
     }
     return lines.slice(index, end).join('\n');
   });
+}
+
+export function selectIntentGraphContent(raw, selector) {
+  return selectContent(raw, selector);
 }
 
 function selectContent(raw, selector) {

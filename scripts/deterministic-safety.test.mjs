@@ -632,40 +632,48 @@ test('SAFE-03 inventory stdout is not a freshness corpus (D-10)', (t) => {
   assert.deepEqual(receipt.hits, []);
 });
 
-test('SAFE-03 privacy fails on Unix roots and prompt bodies in generated projections', (t) => {
-  const fixture = createRepository();
-  t.after(() => rmSync(fixture.repositoryRoot, { recursive: true, force: true }));
-  commitFiles(fixture, {
-    'docs/architecture/intent-graph.v1.json': `${JSON.stringify({
-      schema: 'cambium.intent-graph-projection.v1',
+function privacyProjection(relativePath, schema, note) {
+  return {
+    [relativePath]: `${JSON.stringify({
+      schema,
       projectionAuthority: 'read_only',
-      note: `${unixUserRoot}example/private`,
+      note,
     }, null, 2)}\n`,
-  });
-  const usersHit = () => compile(fixture);
-  usersHit.fixture = fixture;
+  };
+}
+
+test('SAFE-03 privacy fails on Unix roots and prompt bodies in generated projections', (t) => {
+  const usersFixture = createRepository();
+  t.after(() => rmSync(usersFixture.repositoryRoot, { recursive: true, force: true }));
+  commitFiles(usersFixture, privacyProjection(
+    'docs/architecture/intent-graph.v1.json',
+    'cambium.intent-graph-projection.v1',
+    `${unixUserRoot}example/private`,
+  ));
+  const usersHit = () => compile(usersFixture);
+  usersHit.fixture = usersFixture;
   assertSafeThrow(usersHit, 'SAFE-03', /docs\/architecture\/intent-graph\.v1\.json/);
 
-  commitFiles(fixture, {
-    'docs/architecture/intent-graph.v1.json': `${JSON.stringify({
-      schema: 'cambium.intent-graph-projection.v1',
-      projectionAuthority: 'read_only',
-      note: `${unixVolumeRoot}madara/checkout`,
-    }, null, 2)}\n`,
-  }, 'volumes-hit');
-  const volumesHit = () => compile(fixture);
-  volumesHit.fixture = fixture;
+  const volumesFixture = createRepository();
+  t.after(() => rmSync(volumesFixture.repositoryRoot, { recursive: true, force: true }));
+  commitFiles(volumesFixture, privacyProjection(
+    'docs/architecture/intent-graph.v1.json',
+    'cambium.intent-graph-projection.v1',
+    `${unixVolumeRoot}madara/checkout`,
+  ));
+  const volumesHit = () => compile(volumesFixture);
+  volumesHit.fixture = volumesFixture;
   assertSafeThrow(volumesHit, 'SAFE-03', /docs\/architecture\/intent-graph\.v1\.json/);
 
-  commitFiles(fixture, {
-    'docs/architecture/temperance-flow.v1.json': `${JSON.stringify({
-      schema: 'cambium.temperance-flow-projection.v1',
-      projectionAuthority: 'read_only',
-      note: `${promptBodyToken}secret`,
-    }, null, 2)}\n`,
-  }, 'prompt-hit');
-  const promptHit = () => compile(fixture);
-  promptHit.fixture = fixture;
+  const promptFixture = createRepository();
+  t.after(() => rmSync(promptFixture.repositoryRoot, { recursive: true, force: true }));
+  commitFiles(promptFixture, privacyProjection(
+    'docs/architecture/temperance-flow.v1.json',
+    'cambium.temperance-flow-projection.v1',
+    `${promptBodyToken}secret`,
+  ));
+  const promptHit = () => compile(promptFixture);
+  promptHit.fixture = promptFixture;
   assertSafeThrow(promptHit, 'SAFE-03', /docs\/architecture\/temperance-flow\.v1\.json/);
 });
 
