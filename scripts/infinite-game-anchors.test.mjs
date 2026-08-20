@@ -255,7 +255,14 @@ function checkbox(source, id) {
 const PHASE5_CRITERIA = ['ISC-1282', 'ISC-1283', 'ISC-1284', 'ISC-1285'];
 const PHASE6_CRITERIA = ['ISC-1286', 'ISC-1287', 'ISC-1288', 'ISC-1289'];
 
-function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks = {}, phase6Checks = {}) {
+function isCoherentIsaPhaseState(
+  frontmatter,
+  phase3Checks,
+  phase4Checks,
+  phase5Checks = {},
+  phase6Checks = {},
+  phase6AcceptanceHeading = null,
+) {
   const phase3Complete = Object.values(phase3Checks).every(Boolean);
   const phase4Pending = Object.values(phase4Checks).every((value) => !value);
   const phase4GapExecution = ['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1281'].every((id) => phase4Checks[id] === true)
@@ -298,10 +305,13 @@ function isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5
     && checkedPhase6Prefix < PHASE6_CRITERIA.length
     && checkedPhase6Prefix === PHASE6_CRITERIA.filter((id) => phase6Checks[id] === true).length;
   const phase6Verified = /^phase: verify$/m.test(frontmatter) && phase6Progress === 4 && phase6Complete;
+  const phase6Active = phase6AcceptanceHeading === 'Active Phase 6 acceptance';
+  const phase6Completed = phase6AcceptanceHeading === 'Completed Phase 6 acceptance';
   return phase3Complete
     && phase4Complete
     && phase5Complete
-    && (phase6PlanStart || phase6ExecuteStart || phase6ExecutePrefix || phase6Verified);
+    && ((phase6Active && (phase6PlanStart || phase6ExecuteStart || phase6ExecutePrefix))
+      || (phase6Completed && phase6Verified));
 }
 
 test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, Phase 5, and Phase 6 states', () => {
@@ -335,13 +345,24 @@ test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, Phase 5, a
   assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Pending), false);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Pending), false);
   assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Pending, phase5Complete), false);
-  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), true);
-  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), true);
-  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6Prefix2), true);
-  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete), true);
-  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 1/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), false);
-  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6NonPrefix), false);
-  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending), false);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending,
+    'Active Phase 6 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending,
+    'Active Phase 6 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6Prefix2,
+    'Active Phase 6 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Completed Phase 6 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 1/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending,
+    'Active Phase 6 acceptance'), false);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6NonPrefix,
+    'Active Phase 6 acceptance'), false);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending,
+    'Completed Phase 6 acceptance'), false);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending,
+    'Completed Phase 6 acceptance'), false);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Active Phase 6 acceptance'), false);
 });
 
 // ANCHOR-01 and ANCHOR-02: one enduring Vision and one renewable Mission.
@@ -404,8 +425,10 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
   const phase4Checks = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, checkbox(isa, id)]));
   const phase5Checks = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, checkbox(isa, id)]));
   const phase6Checks = Object.fromEntries(PHASE6_CRITERIA.map((id) => [id, checkbox(isa, id)]));
+  const phase6AcceptanceHeadings = [...isa.matchAll(/^### ((?:Active|Completed) Phase 6 acceptance)$/gm)].map((match) => match[1]);
+  assert.equal(phase6AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 6 acceptance heading');
   assert.ok(
-    isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks, phase6Checks),
+    isCoherentIsaPhaseState(frontmatter, phase3Checks, phase4Checks, phase5Checks, phase6Checks, phase6AcceptanceHeadings[0]),
     'ISA must be coherent at completed Phase 3, active or verified Phase 4, Phase 5, or Phase 6',
   );
 });
@@ -413,7 +436,7 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
 test('Phase 6 acceptance binds documentation stewardship without creating authority', () => {
   const isa = read('ISA.md');
 
-  assert.match(isa, /^### (?:Active|Completed) Phase 6 acceptance$/m);
+  assert.match(isa, /^### Completed Phase 6 acceptance$/m);
   assert.match(isa, /ISC-1286:[^\n]*five-class lifecycle map[^\n]*(?:doctrine|Vision|Mission)[^\n]*(?:ISA|GSD)/i);
   assert.match(isa, /ISC-1287:[^\n]*explicit[^\n]*commit[^\n]*on-demand inventory[^\n]*machine[^\n]*human/i);
   assert.match(isa, /ISC-1288:[^\n]*additive[^\n]*(?:owner|authority)[^\n]*links[^\n]*STATE/i);

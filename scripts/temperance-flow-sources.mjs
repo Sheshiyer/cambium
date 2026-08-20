@@ -172,6 +172,14 @@ function phase5AcceptanceSelection(raw) {
   if (matches.length !== 1) {
     throw new TypeError(`ISA.md Phase 5 acceptance must resolve exactly once as Active or Completed; received ${matches.length}`);
   }
+  const phase6Headings = ['Active Phase 6 acceptance', 'Completed Phase 6 acceptance']
+    .flatMap((heading) => headingSections(raw, heading));
+  if (phase6Headings.length > 1) {
+    throw new TypeError(`ISA.md Phase 6 acceptance must resolve at most once; received ${phase6Headings.length}`);
+  }
+  if (phase6Headings.length === 1 && matches[0].heading !== 'Completed Phase 5 acceptance') {
+    throw new TypeError('ISA.md Phase 5 acceptance must be Completed once Phase 6 acceptance exists');
+  }
   return {
     selector: `markdown.heading:${matches[0].heading}`,
     content: matches[0].content,

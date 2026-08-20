@@ -151,6 +151,12 @@ test('FLOW-01: completed Phase 5 acceptance remains evidence while Phase 6 owns 
   assert.equal(phase6AcceptanceHeadings.length, 1, 'Phase 6 acceptance must resolve exactly once as Active or Completed');
 
   writeFileSync(isaPath, original.replace('### Completed Phase 5 acceptance', '### Active Phase 5 acceptance'));
+  assert.throws(() => api.buildTemperanceFlowSources(fixture.root), /Phase 5 acceptance.*Completed/i);
+
+  const prePhase6 = original
+    .replace(/\n### Completed Phase 6 acceptance\n[\s\S]*?(?=\n### Historical acceptance evidence)/, '')
+    .replace('### Completed Phase 5 acceptance', '### Active Phase 5 acceptance');
+  writeFileSync(isaPath, prePhase6);
   const active = api.buildTemperanceFlowSources(fixture.root);
   assert.equal(active.authorities.isa.source.selector, 'frontmatter.task');
   assert.equal(active.supportingSources.some(({ selector }) => selector === 'markdown.heading:Active Phase 5 acceptance'), true);
