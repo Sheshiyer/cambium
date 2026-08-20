@@ -126,7 +126,23 @@ Plans:
   3. A maintainer can follow root and documentation indexes from vision and mission through architecture, operating doctrine, lifecycle, evidence, and the current GSD next step without circular authority.
   4. A maintainer can recover historical evidence while stale plans and memory artifacts are visibly prevented from masquerading as current instructions.
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+**Wave 1**
+
+- [ ] 06-01-PLAN.md — Bind Phase 6 acceptance and implement the pure commit-tree inventory contract.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 06-02-PLAN.md — Expose deterministic machine and human inventory readbacks on demand for an explicit committed revision.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 06-03-PLAN.md — Publish the single lifecycle map and additive navigation for on-demand documentation stewardship.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 06-04-PLAN.md — Prove Phase 6 end to end, close ISA acceptance, and leave a bounded repository-only handoff.
 
 ### Phase 7: Deterministic Safety and Handoff
 
@@ -154,5 +170,5 @@ Plans:
 | 3. Canonical Infinite-Game Anchors | v0.4 | 2/2 | Complete    | 2026-08-17 |
 | 4. Provenance-Preserving Intent Graph | v0.4 | 4/4 | Complete | 2026-08-18 |
 | 5. Ralph and Temperance Flow Projection | v0.4 | 3/3 | Complete    | 2026-08-19 |
-| 6. Documentation Stewardship | v0.4 | 0/TBD | Not started | - |
+| 6. Documentation Stewardship | v0.4 | 0/4 | Planned    |  |
 | 7. Deterministic Safety and Handoff | v0.4 | 0/TBD | Not started | - |
