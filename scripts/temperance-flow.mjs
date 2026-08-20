@@ -29,10 +29,10 @@ export const TEMPERANCE_FLOW_LIFECYCLE_STEPS = Object.freeze([
 ]);
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
-const GSD_COMMAND = /^\/gsd:(?:execute-phase|verify-phase|plan-phase) [0-9]+(?:\.[0-9]+)?$/;
+const GSD_COMMAND = /^\/gsd:(?:execute-phase|verify-work|plan-phase) [0-9]+(?:\.[0-9]+)?$/;
 const COMMAND_ROUTES = Object.freeze({
   'execute-phase': { skillClusters: ['gsd-execute-phase', 'cambium'], lane: 'paid_execution' },
-  'verify-phase': { skillClusters: ['gsd-verify-work', 'cambium'], lane: 'native_orchestrator' },
+  'verify-work': { skillClusters: ['gsd-verify-work', 'cambium'], lane: 'native_orchestrator' },
   'plan-phase': { skillClusters: ['gsd-plan-phase', 'cambium'], lane: 'native_orchestrator' },
 });
 const SAFE_RECEIPT_REFERENCE = /^(?:manifest|temperance):[A-Za-z0-9._:/-]+$/;
