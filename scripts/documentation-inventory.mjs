@@ -109,10 +109,10 @@ function lifecycleFor(relativePath, indexedPackets) {
   if (relativePath === 'docs/LIFECYCLE.md' || relativePath.startsWith('docs/runbooks/')
       || relativePath.startsWith('docs/architecture/contracts/') || relativePath === 'docs/memory/boundary.json') return 'canonical';
   if (indexedPackets.has(relativePath)) return 'evidentiary';
-  if (relativePath.startsWith('docs/evidence/') || relativePath.includes('/evidence/')
-      || /(?:VERIFICATION|SUMMARY|REVIEW)\.md$/.test(relativePath)) return 'evidentiary';
   if (relativePath.startsWith('docs/archive/') || relativePath.startsWith('docs/plans/')
       || relativePath.startsWith('.planning/phases/') || /^\.planning\/\d{4}-\d{2}-\d{2}/.test(relativePath)) return 'historical';
+  if (relativePath.startsWith('docs/evidence/') || relativePath.includes('/evidence/')
+      || /(?:VERIFICATION|SUMMARY|REVIEW)\.md$/.test(relativePath)) return 'evidentiary';
   return 'derived';
 }
 

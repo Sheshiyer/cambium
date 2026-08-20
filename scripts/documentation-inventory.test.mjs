@@ -94,6 +94,8 @@ function fixtureCorpus() {
     'docs/plans/product-branches/unindexed.md': '# Lookalike only\n',
     '.planning/STATE.md': '# State\ncommitted-state\n',
     '.planning/phases/01-old/01-01-PLAN.md': '# Historical plan\n',
+    '.planning/phases/01-old/01-SUMMARY.md': '# Historical summary\n',
+    'docs/plans/legacy/REVIEW.md': '# Historical review\n',
   };
 }
 
@@ -143,10 +145,12 @@ test('DOCS-02 / D-02: one full commit SHA exhaustively supplies body-free corpus
   assert.deepEqual(inventory.entries.map(({ path: entryPath }) => entryPath), [
     '.planning/STATE.md',
     '.planning/phases/01-old/01-01-PLAN.md',
+    '.planning/phases/01-old/01-SUMMARY.md',
     'README.md',
     'VISION.md',
     'docs/evidence/proof.bin',
     'docs/guide.md',
+    'docs/plans/legacy/REVIEW.md',
     'docs/plans/product-branches/active.md',
     'docs/plans/product-branches/index.md',
     'docs/plans/product-branches/unindexed.md',
@@ -226,6 +230,10 @@ test('DOCS-04 / D-04: indexed packet evidence alone overrides historical directo
   });
   assert.equal(unindexed.lifecycle, 'historical');
   assert.equal(unindexed.exception, null);
+  assert.equal(inventory.entries.find(({ path: entryPath }) => entryPath === '.planning/phases/01-old/01-SUMMARY.md').lifecycle,
+    'historical');
+  assert.equal(inventory.entries.find(({ path: entryPath }) => entryPath === 'docs/plans/legacy/REVIEW.md').lifecycle,
+    'historical');
   for (const entry of inventory.entries) {
     assert.ok(entry.provenance && entry.presentPurpose && Array.isArray(entry.overlap));
     assert.ok(Array.isArray(entry.canonicalAnchors));
