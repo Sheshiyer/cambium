@@ -1790,3 +1790,34 @@ mutation has been performed by drafting this packet.
 - No D1/KV/R2/Telegram/provider state, production deployment, external
   repository, credential, registry, Vault, or generated projection was
   mutated by this correction.
+
+### 2026-08-20 Phase 6 documentation stewardship implementation checkpoint
+
+- The reviewed repository-only implementation head before acceptance edits is
+  `3e9deef38450ba3eb9dc1917481cd7a030912e8a`. Phase 6 adds an immutable
+  commit-tree inventory source model, matching machine JSON and human Markdown
+  stdout views, a zero-write parity checker, one closed five-class lifecycle
+  map, additive authority indexes, and phase-wide DOCS-01..04 plus T-06-22
+  sentinels.
+- The inventory is generated only on demand from a caller-supplied committed
+  revision. It resolves that selection to one full commit SHA, inventories
+  every tracked root Markdown, `docs/`, and `.planning/` path exactly once,
+  emits no source bodies, and creates no committed or mutable readback.
+- Pre-acceptance verification passes: focused compiler/CLI/sentinel tests
+  24/24; complete repository tests 1895/1895; drift audit; rendered-document
+  synchronization for 6 pages and 91 components; standalone audit for 930
+  publishable files; `git diff --check`; separate committed, staged, and
+  unstaged deletion/rename gates; and T-06-22 privacy scanning.
+- At the named implementation head, repeated JSON and Markdown package
+  commands were byte-identical, complete JSON stdout parsed directly, and the
+  zero-write check passed for 530 entries at inventory digest
+  `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
+- ISA now records bounded Phase 6 implementation acceptance at `verify` / 4/4.
+  Normal GSD summary, STATE, ROADMAP, REQUIREMENTS, review, and phase closeout
+  remain pending and owned by the installed workflow. Independent verification
+  is still required; continue with `/gsd:verify-work 6` after execute-phase
+  closeout.
+- Relocation, deletion, archival or externalization, host/runtime/provider
+  configuration, deployment, credentials, Vault or native-client stores,
+  connected repositories, and every production or external mutation remain
+  explicitly held and unauthorized by this checkpoint.

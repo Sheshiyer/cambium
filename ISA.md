@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
 effort_source: task-classification
-phase: plan
-progress: 0/4
+phase: verify
+progress: 4/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-19T08:20:12Z
+updated: 2026-08-20T12:51:35Z
 ---
 
 ## Problem
@@ -210,12 +210,20 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 - [x] ISC-1284: FLOW-03 proves the projection exposes skill-cluster and OmniRoute combo intent plus the native-orchestrator/paid-execution boundary, while only a fresh host receipt supplies resolved provider attribution.
 - [x] ISC-1285: FLOW-04 proves deterministic machine and human readbacks expose matching references, digests, routes, next action or blocked reason, gates, freshness, and stop conditions without copying doctrine or host policy, extending the Phase 4 graph vocabulary, or becoming an operational writer.
 
-### Active Phase 6 acceptance
+### Completed Phase 6 acceptance
 
-- [ ] ISC-1286: DOCS-01 proves one exact five-class lifecycle map distinguishes canonical, derived, historical, evidentiary, and local-only material without replacing canonical doctrine, ISA acceptance, GSD planning, contracts, or runbooks.
-- [ ] ISC-1287: DOCS-02 proves one explicit committed revision yields an exhaustive, body-free, on-demand inventory in matching machine and human formats without reading mutable checkout state.
-- [ ] ISC-1288: DOCS-03 proves additive authority-owner links lead maintainers through doctrine, architecture, operating guidance, evidence, and live `.planning/STATE.md` delegation without copying mutable status.
-- [ ] ISC-1289: DOCS-04 proves recoverable historical evidence remains preserved while explicit item exceptions receive exception-aware, non-destructive classification and stale instructions cannot masquerade as current authority.
+- [x] ISC-1286: DOCS-01 proves one exact five-class lifecycle map distinguishes canonical, derived, historical, evidentiary, and local-only material without replacing canonical doctrine, ISA acceptance, GSD planning, contracts, or runbooks.
+- [x] ISC-1287: DOCS-02 proves one explicit committed revision yields an exhaustive, body-free, on-demand inventory in matching machine and human formats without reading mutable checkout state.
+- [x] ISC-1288: DOCS-03 proves additive authority-owner links lead maintainers through doctrine, architecture, operating guidance, evidence, and live `.planning/STATE.md` delegation without copying mutable status.
+- [x] ISC-1289: DOCS-04 proves recoverable historical evidence remains preserved while explicit item exceptions receive exception-aware, non-destructive classification and stale instructions cannot masquerade as current authority.
+
+Implementation acceptance evidence (independent Phase 6 verification remains pending):
+
+- `node --test scripts/documentation-inventory.test.mjs scripts/generate-documentation-inventory.test.mjs scripts/infinite-game-anchors.test.mjs` exited 0 with 24/24 tests passing.
+- `npm test` exited 0 with 1895/1895 tests passing.
+- `npm run drift:audit`, `npm run render-docs:check`, `npm run standalone:audit`, and `git diff --check` each exited 0; rendered documentation reported 6 pages and 91 components, and the standalone audit checked 930 publishable files.
+- At implementation head `3e9deef38450ba3eb9dc1917481cd7a030912e8a`, two package-level JSON runs and two package-level Markdown runs were byte-identical, `JSON.parse` consumed the complete JSON stdout, and `npm run --silent docs:inventory:check -- --source-revision 3e9deef38450ba3eb9dc1917481cd7a030912e8a` exited 0 for 530 entries with inventory digest `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
+- `DOCS-PRIVACY / T-06-22` passed while scanning the normalized Phase 6 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact JSON/Markdown stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 

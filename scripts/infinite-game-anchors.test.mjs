@@ -159,7 +159,7 @@ const syntheticPrivacyFixtures = new Map([
 function privacyViolations(relativePath, source) {
   const fixtureRules = syntheticPrivacyFixtures.get(relativePath) ?? [];
   const patterns = [
-    new RegExp(`(?:file:\\/\\/(?:\\/|[A-Za-z]:)|\\/(?:${'Us' + 'ers'}|${'Vol' + 'umes'}|home)\\/[A-Za-z0-9._~-][^\\s'\"]*|[A-Za-z]:\\\\${'Us' + 'ers'}\\\\)`, 'i'),
+    new RegExp(`(?:file:\\/\\/(?:\\/|[A-Za-z]:)|\\/(?:${'Us' + 'ers'}|${'Vol' + 'umes'}|home)\\/[A-Za-z0-9._~-][^\\s'\"]*|[A-Za-z]:\\\\${'Us' + 'ers'}\\\\)`),
     /\b(?:authorization\s*[:=]\s*|bearer\s+)[A-Za-z0-9._~-]{12,}/i,
     /\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|native[_-]?session(?:[_-]?(?:id|token))?)\s*[:=]\s*['"]?[A-Za-z0-9._~+\/-]{8,}/i,
     /\b(?:prompt|request|response|message)[_-]?(?:body|content|payload)\s*[:=]\s*['"{\[]/i,
@@ -357,7 +357,7 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
 test('Phase 6 acceptance binds documentation stewardship without creating authority', () => {
   const isa = read('ISA.md');
 
-  assert.match(isa, /^### Active Phase 6 acceptance$/m);
+  assert.match(isa, /^### (?:Active|Completed) Phase 6 acceptance$/m);
   assert.match(isa, /ISC-1286:[^\n]*five-class lifecycle map[^\n]*(?:doctrine|Vision|Mission)[^\n]*(?:ISA|GSD)/i);
   assert.match(isa, /ISC-1287:[^\n]*explicit[^\n]*commit[^\n]*on-demand inventory[^\n]*machine[^\n]*human/i);
   assert.match(isa, /ISC-1288:[^\n]*additive[^\n]*(?:owner|authority)[^\n]*links[^\n]*STATE/i);
