@@ -19,6 +19,7 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ ANCHOR-01–ANCHOR-04 establish canonical root `VISION.md` and renewable `MISSION.md`, distinguish repository Mission from bounded `FabricMission` records, and make supporting doctrine reference rather than duplicate those authorities — Phase 3 verification.
 - ✓ GRAPH-01–GRAPH-05 establish a deterministic 19-node/25-edge read-only Intent Graph with source provenance, canonical overlay references, explicit lifecycle/gate semantics, and a shared boundary that prevents derived projections from re-entering the operational Goal Graph authority lane — Phase 4 verification.
 - ✓ FLOW-01–FLOW-04 establish one deterministic Temperance next-action projection, a bounded execute/verify/CAS-persist/exit Ralph lifecycle, receipt-gated host attribution, and fail-closed non-authority boundaries without adding a mutable ledger or operational writer — Phase 5 verification.
+- ✓ DOCS-01–DOCS-04 establish one five-class lifecycle map, exhaustive explicit-commit JSON/Markdown inventory readbacks, direct-owner navigation, recoverable historical evidence, and privacy-safe non-destructive stewardship — Phase 6 verification.
 
 ### Out of Scope
 
@@ -40,7 +41,8 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Phase 3 complete:** canonical Vision and Mission anchors, inherited doctrine overlays, Mission terminology boundaries, and deterministic anchor validation shipped on 2026-08-18.
 - **Phase 4 shipped:** the provenance-preserving Intent Graph and shared projection foldback boundary passed independent verification 5/5, landed through protected PR #351 as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`, and passed exact-main CI run `32152942949` on 2026-08-18.
 - **Phase 5 complete:** Ralph and Temperance Flow Projection passed independent verification 4/4, completed FLOW-01–FLOW-04, and closed an 18-file code review with zero findings. Host command installation remains separately owner-approved and the repository fails closed when it is absent.
-- **Next phase:** Phase 6 planning may begin with `/gsd:plan-phase 6`.
+- **Phase 6 complete:** Documentation Stewardship passed independent verification 4/4 after closing the live STATE coherence gap; its review fixed all five Critical/Warning findings, and the final repository suite passed 1900/1900.
+- **Next transition:** Run the Phase 6 security audit before beginning Phase 7 context gathering. Deployment, host/provider mutation, relocation, deletion, and externalization remain separately held.
 
 ## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
@@ -57,7 +59,7 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 ## Active Requirements
 
 - Keep ISA and GSD as the only goal and planning authorities.
-- Consolidate and reorganize the named root, `MEMORY/`, and `docs/` corpus without deleting historical evidence or promoting plans into current instructions.
+- Add Phase 7 deterministic safety and handoff checks without creating a new authority or weakening the repository-only boundary.
 
 ## Evolution
 
@@ -101,6 +103,8 @@ This document evolves at phase transitions and milestone boundaries.
 | Reject Goal Graph and Intent Graph projections at the shared fresh-authority boundary | Prevents derived evidence from folding back as a new operational command while ordinary authoritative intake remains accepted | ✓ Proven in Phase 4 |
 | Keep Temperance flow and Ralph iteration read-only, finite, and content-addressed | Derives one approved action or fail-closed stop without creating a planner, queue, or mutable ledger | ✓ Proven in Phase 5 |
 | Keep host/provider resolution outside Cambium and receipt-gated | Preserves owner-protected runtime policy while binding repository actions to verified task, route, snapshot, checkout, and evidence | ✓ Proven in Phase 5 |
+| Generate documentation inventories only on demand from an explicit committed revision | Avoids recursively stale committed readbacks while preserving deterministic machine/human parity and zero writes | ✓ Proven in Phase 6 |
+| Let historical directory precedence yield only to source-backed item exceptions | Keeps retained plans and evidence recoverable without allowing filename lookalikes to self-promote into current authority | ✓ Proven in Phase 6 |
 
 ---
-*Last updated: 2026-08-19 after Phase 5 independent verification and clean code review*
+*Last updated: 2026-08-20 after Phase 6 independent verification and review-fix closure*
