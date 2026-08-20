@@ -256,6 +256,10 @@ Repository-level commands live beside the operator CLI:
 
 ## Documentation
 
+Start with the [documentation map](./docs/README.md), then use the
+[repository lifecycle map](./docs/LIFECYCLE.md) to distinguish current owners
+from derived, evidentiary, historical, and local-only material.
+
 | Doc | What it covers |
 |---|---|
 | [INFINITE-GAME.md](./INFINITE-GAME.md) | the operator contract — wake loop, router, viability, NPCs, noesis |

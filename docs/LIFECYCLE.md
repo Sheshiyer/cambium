@@ -23,8 +23,8 @@ archives, externalizes, rewrites, deduplicates, dispatches, or queues a source.
 
 | Owner | Bounded truth | Lifecycle default | Current instructions? |
 | --- | --- | --- | --- |
-| [`VISION.md`](../VISION.md) | Enduring repository doctrine | `canonical` | Doctrine only; no task or plan authority |
-| [`MISSION.md`](../MISSION.md) | Renewable repository mission horizon | `canonical` | Doctrine only; no task or plan authority |
+| [`VISION.md`](../VISION.md) | Near-invariant enduring repository doctrine | `canonical` | Doctrine only; no task or plan authority |
+| [`MISSION.md`](../MISSION.md) | Renewable repository doctrine horizon | `canonical` | Doctrine only; no task or plan authority |
 | [`ISA.md`](../ISA.md) | Approved goals, acceptance, and verification | `canonical` | Yes, while its work is active |
 | [live `.planning/STATE.md`](../.planning/STATE.md) | Current finite planning transition | `canonical` | Yes; re-read it instead of copied status prose |
 | [`docs/architecture/contracts/`](architecture/contracts/) | Runtime and data contracts | `canonical` | Yes, within the named contract |

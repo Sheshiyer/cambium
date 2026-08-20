@@ -24,7 +24,8 @@ without digging. This page is a **catalog only** — nothing was moved.
 
 | Path | Role |
 |---|---|
-| [LIFECYCLE.md](../LIFECYCLE.md) | Which docs may give *current* instructions |
+| [LIFECYCLE.md](../LIFECYCLE.md) | Lifecycle classes and direct authority owners |
+| [documentation-inventory-v1.md](../architecture/contracts/documentation-inventory-v1.md) | Explicit-revision, read-only documentation inventory contract |
 | [architecture/](../architecture/) | Operating fabric, Goal Graph, Fitcheck golden path |
 | [runbooks/](../runbooks/) | Operator procedures (current) |
 | [evidence/](../evidence/) | Immutable dated proof |
