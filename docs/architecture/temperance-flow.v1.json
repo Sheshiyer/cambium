@@ -17,7 +17,7 @@
       "path": ".planning/STATE.md",
       "kind": "gsd_state",
       "selector": "markdown.heading:Operator Next Step",
-      "digest": "sha256:6bac9a749522f8ca3d656ea94e5a3edf1a20afcdf001ca24d3bbc7438fe44a23"
+      "digest": "sha256:a981cfd5cf52c1b5b75133c3a5eb77af858c6150b0f7d902cae9731f2913033f"
     },
     "plan": {
       "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md",
@@ -59,7 +59,7 @@
         "path": ".planning/STATE.md",
         "kind": "verification_evidence",
         "selector": "text.line:Phase:",
-        "digest": "sha256:4d41a98c073f9bd59cda24c60e56ba9214afa0e093e6d59ca9986768a573f95d"
+        "digest": "sha256:502cd2b04368ce2649bebc54638cc397a3858eaee169ff6eed2560b1a3e5c363"
       },
       {
         "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md",
@@ -97,7 +97,7 @@
       {
         "code": "gsd_state_not_live",
         "sources": [
-          ".planning/STATE.md#markdown.heading:Operator Next Step@sha256:6bac9a749522f8ca3d656ea94e5a3edf1a20afcdf001ca24d3bbc7438fe44a23"
+          ".planning/STATE.md#markdown.heading:Operator Next Step@sha256:a981cfd5cf52c1b5b75133c3a5eb77af858c6150b0f7d902cae9731f2913033f"
         ]
       },
       {
@@ -120,6 +120,6 @@
     "receipt": "missing"
   },
   "stops": [],
-  "sourceSetDigest": "sha256:2f671a10d1552c4175d889b247303c9e7491076fab737694af24aef86ae47d0f",
-  "flowDigest": "sha256:d52612b500eec0cce9c538fb233e40e4bd2e240a77ac286ba2deea90586a9614"
+  "sourceSetDigest": "sha256:c9f9061f9c45421c44a4407831a727ad7b846cd0052f9f95862154141c7a110c",
+  "flowDigest": "sha256:e8631840a0e0d7fdf814f3cd1b59e4438f6c37a2eecf32e68c1d45a818bda0ef"
 }
