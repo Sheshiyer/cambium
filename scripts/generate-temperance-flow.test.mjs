@@ -219,7 +219,7 @@ test('FLOW-01: missing selected state and selected-source drift fail closed with
   assert.match(result.stderr, /STATE\.md|missing/i);
   copyPath(fixture.root, '.planning/STATE.md');
   writeFileSync(path.join(fixture.root, '.planning/STATE.md'), readFileSync(path.join(fixture.root, '.planning/STATE.md'), 'utf8')
-    .replace(/\/gsd:[^`]+/, '/gsd:verify-work 999'));
+    .replace(/(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/, '$1/gsd:verify-work 999$2'));
   result = runGenerator(fixture.root, outputArgs(fixture, '--check'), { succeeds: false });
   assert.match(result.stderr, /STATE\.md|Operator Next Step|source changed|stale/i);
 });

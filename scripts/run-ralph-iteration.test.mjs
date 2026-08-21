@@ -55,7 +55,7 @@ function fixture() {
   const statePath = path.join(root, '.planning/STATE.md');
   writeFileSync(statePath, readFileSync(statePath, 'utf8')
     .replace(/^Phase: [^\n]+$/m, 'Phase: 5 of 7 (Ralph and Temperance Flow Projection)')
-    .replace(/\/gsd:[^`]+/, '/gsd:execute-phase 5'));
+    .replace(/(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/, '$1/gsd:execute-phase 5$2'));
   const executable = path.join(hostRoot, 'fixture-executor.mjs');
   const verifier = path.join(hostRoot, 'fixture-verifier.mjs');
   writeFileSync(executable, "import{appendFileSync}from'node:fs';appendFileSync(process.argv[2],'execute\\n');\n");
