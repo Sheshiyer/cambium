@@ -244,6 +244,10 @@ const syntheticPrivacyFixtures = new Map([
   ['MEMORY/WORK/d1-iverif-anchor/ISA.md', [
     ['/tmp/', 'iverif_proposal_validate.mjs'].join(''),
   ]],
+  ['workers/quests/src/operating-fabric-page.test.ts', [
+    ['Bearer ', 'eyJhbGciOiJIUzI1NiJ9'].join(''),
+    ['Bearer ', 'secret-token'].join(''),
+  ]],
 ]);
 
 const D16_WORKER_VERSION = '089181f6-ed60-4710-aab6-cd10855360e0';
