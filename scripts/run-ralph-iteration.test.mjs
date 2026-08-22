@@ -174,6 +174,9 @@ function runOptions(fx, extra = {}) {
 function files(root, current = root) {
   return readdirSync(current, { withFileTypes: true }).flatMap((entry) => {
     const target = path.join(current, entry.name);
+    // Skip git internals: background git maintenance mutates lock files there
+    // between readdir and read, which is git noise rather than a runner effect.
+    if (entry.isDirectory() && target === path.join(root, '.git')) return [];
     return entry.isDirectory() ? files(root, target) : [path.relative(root, target).split(path.sep).join('/')];
   }).sort();
 }
