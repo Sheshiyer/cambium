@@ -1,0 +1,20 @@
+[
+  {
+    "id": "pin-provenance-retry",
+    "task": "READ-ONLY FINAL REPORT REQUIRED. Do not return a progress update. Inspect the current Cambium dirty tree's portfolio root-map/catalog changes, generated app/Worker projections, scripts/portfolio-foundation-pins.mjs, and birth/closeout reviewedSnapshots. Your final response must include: (1) exact current/reviewed root, catalog, classification digests; (2) every authority-bearing record change causing new digests; (3) unknown WorkObject ID count; (4) exact minimal files and JSON fields safe to advance; (5) commands/evidence. If evidence is insufficient, say BLOCK and why. No edits, writes, secrets, deploys, or vault runtime authority.",
+    "backend": "omniroute",
+    "model": "te-dispatch-paid"
+  },
+  {
+    "id": "worker-route-retry",
+    "task": "READ-ONLY FINAL REPORT REQUIRED. Do not return a progress update. Trace Cambium pushLedger, Worker POST /internal/ledger/:tenant, wrangler.jsonc, latest production readback evidence, and DEPLOY.md. Your final response must include: (1) exact direct serving Worker origin for one bearer POST behind Access; (2) exact read-only Wrangler commands proving the active 100% Version and QUESTS binding name/namespace without values of secrets; (3) checked-in versus active KV binding mismatch if any; (4) go/block verdict. No POST, secret inspection, edits, deploy, traffic/config/binding change.",
+    "backend": "omniroute",
+    "model": "te-dispatch-paid"
+  },
+  {
+    "id": "receipt-safety-retry",
+    "task": "READ-ONLY FINAL REPORT REQUIRED. Do not return a progress update. Inspect Cambium quest push receipt validation, Worker acceptance/regression guards, API/Mini App post-read freshness behavior, and CLI local side effects. Your final response must include: (1) exact accepted receipt shape; (2) one-POST fail-closed checklist; (3) exact pre/post checks for 6 stories = 5 canonical + 1 template and newer derivedAt; (4) token/payload redaction rules; (5) every local file the canonical CLI may mutate; (6) go/block verdict. No requests, writes, credentials, deploys, or browser/Worker mutation.",
+    "backend": "omniroute",
+    "model": "te-dispatch-paid"
+  }
+]

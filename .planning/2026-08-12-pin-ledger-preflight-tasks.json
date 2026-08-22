@@ -1,0 +1,20 @@
+[
+  {
+    "id": "pin-provenance",
+    "task": "READ-ONLY Cambium audit. Inspect the current dirty working tree's portfolio root-map and portfolio catalog source changes, generated app/Worker projections, scripts/portfolio-foundation-pins.mjs, and the birth/closeout reviewedSnapshots. Derive the current root, catalog, and classification digests; explain every authority-bearing record change behind the first two; identify any unknown WorkObject IDs; and state the exact minimal files/values safe to advance. Do not edit files, run writes, inspect secrets, deploy, or use the vault as runtime authority. Return substantive evidence with exact paths and commands.",
+    "backend": "omniroute",
+    "model": "te-dispatch-paid"
+  },
+  {
+    "id": "worker-route",
+    "task": "READ-ONLY Cambium audit. Trace bin/quine/hyphae/quests.ts pushLedger, workers/quests/src/handler.ts POST /internal/ledger/:tenant, workers/quests/wrangler.jsonc, the latest checked-in production readback evidence, and workers/quests/DEPLOY.md. Determine the exact serving Worker origin suitable for one bearer-authenticated ledger POST when the custom domain is behind Cloudflare Access; specify read-only Wrangler checks proving active Version and binding names only. Do not send POST requests, inspect secret values, edit files, deploy, or change traffic/config/bindings.",
+    "backend": "omniroute",
+    "model": "te-dispatch-paid"
+  },
+  {
+    "id": "receipt-safety",
+    "task": "READ-ONLY Cambium audit. Inspect the quest push receipt validator, Worker acceptance handler, branch-story regression guards/tests, public/API read behavior, and Mini App freshness rendering. Define a fail-closed one-POST acceptance checklist, exact receipt shape, safe post-read freshness checks, and evidence redaction requirements. Identify any canonical CLI local side effects. Do not send requests, edit files, inspect credentials, deploy, or mutate browser/Worker state.",
+    "backend": "omniroute",
+    "model": "te-dispatch-paid"
+  }
+]
