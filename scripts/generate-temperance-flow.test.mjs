@@ -218,8 +218,13 @@ test('FLOW-01: missing selected state and selected-source drift fail closed with
   let result = runGenerator(fixture.root, outputArgs(fixture, '--check'), { succeeds: false });
   assert.match(result.stderr, /STATE\.md|missing/i);
   copyPath(fixture.root, '.planning/STATE.md');
-  writeFileSync(path.join(fixture.root, '.planning/STATE.md'), readFileSync(path.join(fixture.root, '.planning/STATE.md'), 'utf8')
-    .replace(/(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/, '$1/gsd:verify-work 999$2'));
+  const stateBody = readFileSync(path.join(fixture.root, '.planning/STATE.md'), 'utf8');
+  // Post-milestone STATE carries no backticked command; inject one so the
+  // drift scenario still exercises a mutated selected source.
+  const driftedState = /(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/.test(stateBody)
+    ? stateBody.replace(/(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/, '$1/gsd:verify-work 999$2')
+    : stateBody.replace(/^## Operator Next Step$/m, '## Operator Next Step\n\n`/gsd:verify-work 999`\n');
+  writeFileSync(path.join(fixture.root, '.planning/STATE.md'), driftedState);
   result = runGenerator(fixture.root, outputArgs(fixture, '--check'), { succeeds: false });
   assert.match(result.stderr, /STATE\.md|Operator Next Step|source changed|stale/i);
 });

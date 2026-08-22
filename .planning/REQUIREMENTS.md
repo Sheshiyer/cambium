@@ -36,10 +36,10 @@
 
 ### Safety and Verification
 
-- [ ] **SAFE-01**: Deterministic validation fails when canonical vision or mission doctrine is duplicated outside its allowed anchors.
-- [ ] **SAFE-02**: Deterministic validation fails when a manifest, Ralph state file, generated graph, or documentation overlay claims goal-setting or planning authority.
-- [ ] **SAFE-03**: Deterministic validation fails when generated projections are stale relative to their source digests or contain secrets, session identifiers, prompt bodies, or machine-local absolute paths.
-- [ ] **SAFE-04**: A reviewed handoff records the bounded write set, verification evidence, unresolved approval boundaries, and the exact next GSD command.
+- [x] **SAFE-01**: Deterministic validation fails when canonical vision or mission doctrine is duplicated outside its allowed anchors.
+- [x] **SAFE-02**: Deterministic validation fails when a manifest, Ralph state file, generated graph, or documentation overlay claims goal-setting or planning authority.
+- [x] **SAFE-03**: Deterministic validation fails when generated projections are stale relative to their source digests or contain secrets, session identifiers, prompt bodies, or machine-local absolute paths.
+- [x] **SAFE-04**: A reviewed handoff records the bounded write set, verification evidence, unresolved approval boundaries, and the exact next GSD command.
 
 ## Future Requirements
 
@@ -79,10 +79,10 @@
 | DOCS-02 | Phase 6 | Complete |
 | DOCS-03 | Phase 6 | Complete |
 | DOCS-04 | Phase 6 | Complete |
-| SAFE-01 | Phase 7 | Pending |
-| SAFE-02 | Phase 7 | Pending |
-| SAFE-03 | Phase 7 | Pending |
-| SAFE-04 | Phase 7 | Pending |
+| SAFE-01 | Phase 7 | Complete |
+| SAFE-02 | Phase 7 | Complete |
+| SAFE-03 | Phase 7 | Complete |
+| SAFE-04 | Phase 7 | Complete |
 
 **Coverage:** 21/21 mapped ✓
 

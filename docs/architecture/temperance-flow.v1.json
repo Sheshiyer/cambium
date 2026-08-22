@@ -17,7 +17,7 @@
       "path": ".planning/STATE.md",
       "kind": "gsd_state",
       "selector": "markdown.heading:Operator Next Step",
-      "digest": "sha256:a981cfd5cf52c1b5b75133c3a5eb77af858c6150b0f7d902cae9731f2913033f"
+      "digest": "sha256:698af6a87462eeccb58d4f8e556b3eff709332cb597f33a5b0db733608a0db48"
     },
     "plan": {
       "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md",
@@ -56,16 +56,16 @@
         "digest": "sha256:289e496ae6dff3b641505e34711c5b55bf666b71a06122995779cf1877d3ade9"
       },
       {
-        "path": ".planning/STATE.md",
-        "kind": "verification_evidence",
-        "selector": "text.line:Phase:",
-        "digest": "sha256:502cd2b04368ce2649bebc54638cc397a3858eaee169ff6eed2560b1a3e5c363"
-      },
-      {
         "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md",
         "kind": "verification_evidence",
         "selector": "markdown.heading:Self-Check: PASSED",
         "digest": "sha256:8b9cb73161e7932994b9362203f6a9a773a8fb14a33bef791b91edf09d94bf74"
+      },
+      {
+        "path": ".planning/STATE.md",
+        "kind": "verification_evidence",
+        "selector": "text.line:Phase:",
+        "digest": "sha256:9efa1d4e16f2ca9a94ebfdf15bcec9d9025ee5fc5546782095e6fa215dcca192"
       },
       {
         "path": "ISA.md",
@@ -97,7 +97,7 @@
       {
         "code": "gsd_state_not_live",
         "sources": [
-          ".planning/STATE.md#markdown.heading:Operator Next Step@sha256:a981cfd5cf52c1b5b75133c3a5eb77af858c6150b0f7d902cae9731f2913033f"
+          ".planning/STATE.md#markdown.heading:Operator Next Step@sha256:698af6a87462eeccb58d4f8e556b3eff709332cb597f33a5b0db733608a0db48"
         ]
       },
       {
@@ -120,6 +120,6 @@
     "receipt": "missing"
   },
   "stops": [],
-  "sourceSetDigest": "sha256:174089b221c4f5c7fdf3d14fe889a81d5df6b9a28602aa83658c9592374e93a0",
-  "flowDigest": "sha256:81db9609f4de34337102d8e8738b830e95f48593e1a626f44b96732c3ef36ee9"
+  "sourceSetDigest": "sha256:c998b126231d45552d3f09f8a4f6f9fb12acf0a397e1210b7c114730b90fde6d",
+  "flowDigest": "sha256:2a4714cc8621137bb3358926fb7fad1bba3c9b7b50ab7877baccf032c883f879"
 }

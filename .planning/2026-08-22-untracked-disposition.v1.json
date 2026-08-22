@@ -33,7 +33,7 @@
     { "path": "docs/guide/", "disposition": "already-tracked", "rationale": "Landed on main via PR #360/#361; no delta worth committing" },
     { "path": "docs/videos/", "disposition": "already-tracked", "rationale": "Landed on main via PR #360/#361; no delta worth committing" },
     { "path": "docs/runbooks/cambium-moosh-multi-surface.md", "disposition": "already-tracked", "rationale": "Landed on main via PR #360/#361" },
-    { "path": "docs/visual/cambium-infra-spine-flow.html", "disposition": "already-tracked", "rationale": "Main's version is already reviewed and redacted ('no machine path is canonical'); the untracked draft's /Volumes/madara literal is superseded" },
+    { "path": "docs/visual/cambium-infra-spine-flow.html", "disposition": "already-tracked", "rationale": "Main's version is already reviewed and redacted ('no machine path is canonical'); the untracked draft's machine-volume path literal is superseded" },
     { "path": "scripts/generate-docs-retention-manifest.mjs", "disposition": "already-tracked", "rationale": "Main's version is the hardened generator (path-containment + symlink-rejection guards); untracked copy is the older draft" },
     { "path": "docs/architecture/REFRESH-NEEDED.md", "disposition": "leave-untracked-then-delete", "rationale": "T11 regenerates architecture.html + notebooklm-prompt.md, then this flag file is deleted per its own instruction; never committed" }
   ]

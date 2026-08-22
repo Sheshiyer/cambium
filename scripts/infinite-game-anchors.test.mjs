@@ -141,22 +141,32 @@ function assertNonAuthoritativeProjection(inventory) {
   }
 }
 
+function resolvePhaseBaseSha(summaryLabel, declaredSha) {
+  const ancestry = spawnSync('/usr/bin/git', ['merge-base', '--is-ancestor', declaredSha, 'HEAD'], { cwd: repositoryRoot }).status;
+  if (ancestry === 0) return declaredSha;
+  // Squash merges orphan declared phase_base_sha commits. Fall back to the merge
+  // base with HEAD: this can only widen the audited change set (an earlier base),
+  // never narrow it, so the sentinel stays conservative. Fail closed when even a
+  // merge base is unreachable.
+  const merged = spawnSync('/usr/bin/git', ['merge-base', declaredSha, 'HEAD'], { cwd: repositoryRoot, encoding: 'utf8' });
+  if (merged.status !== 0 || !/^[0-9a-f]{40}$/.test((merged.stdout || '').trim())) {
+    throw new Error(`${summaryLabel} declared phase_base_sha is unreachable from HEAD and no merge base exists`);
+  }
+  return merged.stdout.trim();
+}
+
 function phaseBaseSha() {
   const summary = read('.planning/phases/06-documentation-stewardship/06-01-SUMMARY.md');
   const matches = [...summary.matchAll(/^phase_base_sha: ([0-9a-f]{40})$/gm)];
   assert.equal(matches.length, 1, '06-01 summary must declare one unique full phase_base_sha');
-  assert.equal(spawnSync('/usr/bin/git', ['merge-base', '--is-ancestor', matches[0][1], 'HEAD'], { cwd: repositoryRoot }).status, 0,
-    'phase_base_sha must be an ancestor of current HEAD');
-  return matches[0][1];
+  return resolvePhaseBaseSha('06-01', matches[0][1]);
 }
 
 function phase7BaseSha() {
   const summary = read('.planning/phases/07-deterministic-safety-and-handoff/07-01-SUMMARY.md');
   const matches = [...summary.matchAll(/^phase_base_sha: ([0-9a-f]{40})$/gm)];
   assert.equal(matches.length, 1, '07-01 summary must declare one unique full phase_base_sha');
-  assert.equal(spawnSync('/usr/bin/git', ['merge-base', '--is-ancestor', matches[0][1], 'HEAD'], { cwd: repositoryRoot }).status, 0,
-    'phase 7 phase_base_sha must be an ancestor of current HEAD');
-  return matches[0][1];
+  return resolvePhaseBaseSha('07-01', matches[0][1]);
 }
 
 function nameStatus(rangeArgs, cwd = repositoryRoot) {
@@ -210,6 +220,18 @@ const syntheticPrivacyFixtures = new Map([
   ['.planning/phases/07-deterministic-safety-and-handoff/07-PATTERNS.md', [
     ['/', 'Users/', 'sheshnarayaniyer'].join(''),
     ['/', 'Volumes/', 'madara'].join(''),
+  ]],
+  ['.planning/phases/06-documentation-stewardship/06-04-PLAN.md', [
+    ['.', 'claude', '/', 'MEMORY'].join(''),
+    ['MEMORY', '/', 'LEARNING'].join(''),
+  ]],
+  ['scripts/ralph-iteration.test.mjs', [
+    ['Bearer ', 'attacker-secret'].join(''),
+    ['Bearer ', 'injected-secret'].join(''),
+  ]],
+  ['scripts/temperance-flow.test.mjs', [
+    ['Bearer ', 'abcdefghijklmnop'].join(''),
+    ['/', 'Users', '/operator/private-model'].join(''),
   ]],
   ['.planning/phases/07-deterministic-safety-and-handoff/07-RESEARCH.md', [
     ['/', 'Users/', 'sheshnarayaniyer'].join(''),
@@ -812,34 +834,35 @@ test('DOCS-03 / D-03: live STATE publishes one coherent post-verification transi
   const frontmatter = state.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 
   assert.match(frontmatter, /^status: executing$/m);
-  assert.match(frontmatter, /^stopped_at: Phase 7 execution complete 3\/3 — independent verification required$/m);
+  assert.match(frontmatter, /^stopped_at: Phase 7 verified — VERIFICATION\.md recorded; milestone closeout pending$/m);
   assert.match(frontmatter, /^\s+total_phases: 5$/m);
-  assert.match(frontmatter, /^\s+completed_phases: 4$/m);
+  assert.match(frontmatter, /^\s+completed_phases: 5$/m);
   assert.match(frontmatter, /^\s+total_plans: 16$/m);
   assert.match(frontmatter, /^\s+completed_plans: 16$/m);
-  assert.match(frontmatter, /^\s+percent: 80$/m);
+  assert.match(frontmatter, /^\s+percent: 100$/m);
 
   assert.match(state, /^\*\*Current focus:\*\* Phase 7 — Deterministic Safety and Handoff$/m);
-  assert.match(state, /^Phase: 7 \(Deterministic Safety and Handoff\) — EXECUTING$/m);
+  assert.match(state, /^Phase: 7 \(Deterministic Safety and Handoff\) — VERIFIED$/m);
   assert.match(state, /^Plan: 3 of 3$/m);
-  assert.match(state, /^Status: Execution complete$/m);
-  assert.match(state, /^Progress: \[████████░░\] 80%$/m);
-  assert.match(state, /^Stopped at: Phase 7 execution complete 3\/3 — independent verification required$/m);
-  assert.match(state, /^Resume file: \.planning\/phases\/07-deterministic-safety-and-handoff\/07-03-SUMMARY\.md$/m);
-  assert.match(state, /^`\/gsd:verify-work 7`$/m);
+  assert.match(state, /^Status: Verification complete$/m);
+  assert.match(state, /^Progress: \[██████████\] 100%$/m);
+  assert.match(state, /^Stopped at: Phase 7 verified — VERIFICATION\.md recorded; milestone closeout pending$/m);
+  assert.match(state, /^Resume file: \.planning\/phases\/07-deterministic-safety-and-handoff\/VERIFICATION\.md$/m);
+  assert.doesNotMatch(state, /`(\/gsd:[^`]+)`/);
   assert.doesNotMatch(state, /\/gsd:plan-phase 7/);
   assert.doesNotMatch(state, /\/gsd:secure-phase 6/);
 
   assert.match(roadmap, /^- \[x\] \*\*Phase 6: Documentation Stewardship\*\*.*\(completed 2026-08-20\)$/m);
   assert.match(roadmap, /^\| 6\. Documentation Stewardship \| v0\.4 \| 4\/4 \| Complete\s+\| 2026-08-20 \|$/m);
-  assert.match(roadmap, /^- \[ \] \*\*Phase 7: Deterministic Safety and Handoff\*\*/m);
+  assert.match(roadmap, /^- \[x\] \*\*Phase 7: Deterministic Safety and Handoff\*\*/m);
   assert.match(roadmap, /^- \[x\] 07-03-PLAN.md /m);
-  assert.match(roadmap, /^\| 7\. Deterministic Safety and Handoff \| v0\.4 \| 3\/3 \| Verification pending \| 2026-08-21 \|$/m);
+  assert.match(roadmap, /^\| 7\. Deterministic Safety and Handoff \| v0\.4 \| 3\/3 \| Verified\s+\| 2026-08-22 \|$/m);
   for (const requirement of ['DOCS-01', 'DOCS-02', 'DOCS-03', 'DOCS-04']) {
     assert.match(requirements, new RegExp(`^\\| ${requirement} \\| Phase 6 \\| Complete \\|$`, 'm'));
   }
   for (const requirement of ['SAFE-01', 'SAFE-02', 'SAFE-03', 'SAFE-04']) {
-    assert.match(requirements, new RegExp(`^\\| ${requirement} \\| Phase 7 \\| Pending \\|$`, 'm'));
+    assert.match(requirements, new RegExp(`^\\| ${requirement} \\| Phase 7 \\| Complete \\|$`, 'm'));
+    assert.match(requirements, new RegExp(`^- \\[x\\] \\*\\*${requirement}\\*\\*`, 'm'));
   }
 });
 

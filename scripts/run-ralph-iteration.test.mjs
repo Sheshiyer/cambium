@@ -53,9 +53,14 @@ function fixture() {
   const summaryPath = '.planning/phases/05-ralph-and-temperance-flow-projection/05-03-SUMMARY.md';
   // Make the copied durable state agree with the executable transition.
   const statePath = path.join(root, '.planning/STATE.md');
-  writeFileSync(statePath, readFileSync(statePath, 'utf8')
-    .replace(/^Phase: [^\n]+$/m, 'Phase: 5 of 7 (Ralph and Temperance Flow Projection)')
-    .replace(/(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/, '$1/gsd:execute-phase 5$2'));
+  const stateSource = readFileSync(statePath, 'utf8');
+  // The live STATE may be past its last phase-bounded command (post-milestone);
+  // fixtures need an executable transition, so inject one when absent.
+  const withCommand = /(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/.test(stateSource)
+    ? stateSource.replace(/(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/, '$1/gsd:execute-phase 5$2')
+    : `${stateSource.replace(/^## Operator Next Step$/m, '## Operator Next Step\n\n`/gsd:execute-phase 5`\n')}`;
+  writeFileSync(statePath, withCommand
+    .replace(/^Phase: [^\n]+$/m, 'Phase: 5 of 7 (Ralph and Temperance Flow Projection)'));
   const executable = path.join(hostRoot, 'fixture-executor.mjs');
   const verifier = path.join(hostRoot, 'fixture-verifier.mjs');
   writeFileSync(executable, "import{appendFileSync}from'node:fs';appendFileSync(process.argv[2],'execute\\n');\n");
