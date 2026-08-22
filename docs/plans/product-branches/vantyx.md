@@ -15,6 +15,8 @@ packet_owner: cambium
 
 Vantyx is a supervised Cambium product-branch candidate for a multi-tenant immersive SaaS branch. The inspected product surface is `Panaroma-Webapp`, with brand source in `brandmint-v2/brands/vantyx`; `10869` and `10869-space-v1` are portfolio repos rather than the current Vantyx surface.
 
+Owning repository task: [`Sheshiyer/vantyx#1`](https://github.com/Sheshiyer/vantyx/issues/1). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
+
 ## Product Seed
 
 | Field | Value |

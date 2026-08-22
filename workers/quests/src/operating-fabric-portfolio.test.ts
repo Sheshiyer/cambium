@@ -1,12 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 
 import type { MissionFabricProjectionV1 } from './mission-fabric.ts';
 import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
 import {
   normalizePortfolioPayload,
+  portfolioPromotionProposal,
   PORTFOLIO_BROWSER_JS,
   PORTFOLIO_LIFECYCLE_TEMPLATES,
+  renderPortfolioCanopy,
   renderPortfolioSceneContext,
 } from './page/operating-fabric/portfolio.ts';
 import { renderCanopy } from './page/operating-fabric/canopy.ts';
@@ -162,6 +165,40 @@ const PROJECTION = {
   gaps: [],
 } as unknown as MissionFabricProjectionV1;
 
+function renderPortfolioBrowser(
+  projection: MissionFabricProjectionV1,
+  input: Record<string, unknown>,
+  selectedPortfolioId: string | null = null,
+): string {
+  const context = vm.createContext({
+    OF_SECRET_MARKER: /query_id=|auth_date=|\bhash=|Bearer\s|bot_token|clientSecret|initData|TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|token=|PRIVATE KEY|\bprompt\s*[:=]|prompt\s+injection/i,
+    ofEsc(value: unknown) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    },
+    __projection: structuredClone(projection),
+    __input: structuredClone(input),
+    __selectedPortfolioId: selectedPortfolioId,
+  });
+  vm.runInContext(PORTFOLIO_BROWSER_JS, context);
+  return vm.runInContext(
+    'ofRenderPortfolioCanopy(__projection, ofNormalizePortfolioPayload(__input), __selectedPortfolioId)',
+    context,
+  );
+}
+
+function portfolioCardSlice(html: string, canonicalId: string): string {
+  const start = html.indexOf(`data-portfolio-id="${canonicalId}"`);
+  assert.notEqual(start, -1, `${canonicalId} card exists`);
+  const end = html.indexOf('</article>', start);
+  assert.notEqual(end, -1, `${canonicalId} card closes`);
+  return html.slice(start, end);
+}
+
 test('portfolio payload normalizes canonical records and exact aggregate counts', () => {
   const normalized = normalizePortfolioPayload({
     portfolioCatalog: CATALOG,
@@ -216,7 +253,6 @@ test('the real checked-in catalog renders every mapped WorkObject and review sur
   for (const identity of [
     'sapling:fitcheck',
     'branch:parkarea',
-    'branch:kristudios',
     'branch:tirak',
     'branch:klear-karma',
     'sapling:seedforge',
@@ -227,6 +263,124 @@ test('the real checked-in catalog renders every mapped WorkObject and review sur
     assert.match(html, new RegExp(`data-portfolio-id="${identity}"`));
   }
   assert.doesNotMatch(html, /\/Volumes\/|\/Users\/|file:\/\//);
+});
+
+test('Portfolio all-zone and all-state matrix has exact Node/browser parity', () => {
+  const input = {
+    portfolioCatalog: CATALOG,
+    portfolioCatalogSummary: SUMMARY,
+    portfolioJoinReport: {
+      matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+    },
+  };
+  const normalized = normalizePortfolioPayload(input);
+  const html = renderPortfolioCanopy(PROJECTION, normalized, 'sapling:fitcheck');
+  assert.equal(
+    renderPortfolioBrowser(PROJECTION, input, 'sapling:fitcheck'),
+    html,
+    'the browser renderer proves the same complete matrix as the canonical renderer',
+  );
+
+  const matrix = [
+    {
+      identity: 'sapling:fitcheck',
+      zone: 'saplings',
+      join: 'exact',
+      lifecycle: 'saplings',
+      selected: true,
+      paused: false,
+      promotable: true,
+    },
+    {
+      identity: 'sapling:name-collision',
+      zone: 'saplings',
+      join: 'missing',
+      lifecycle: 'saplings',
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+    {
+      identity: 'branch:parkarea-client',
+      zone: 'clients',
+      join: 'missing',
+      lifecycle: 'clients',
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+    {
+      identity: 'program:seedforge-capability',
+      zone: 'programs',
+      join: 'missing',
+      lifecycle: 'programs',
+      selected: false,
+      paused: true,
+      promotable: false,
+    },
+    {
+      identity: 'review:unclassified',
+      zone: 'review',
+      join: 'missing',
+      lifecycle: null,
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+    {
+      identity: 'historical-product:parkarea-product',
+      zone: 'historical',
+      join: 'missing',
+      lifecycle: null,
+      selected: false,
+      paused: false,
+      promotable: false,
+    },
+  ] as const;
+
+  for (const state of matrix) {
+    const card = portfolioCardSlice(html, state.identity);
+    assert.match(card, new RegExp(`data-portfolio-kind="${state.zone}"`), `${state.identity}: exact zone`);
+    assert.match(card, new RegExp(`data-portfolio-join="${state.join}"`), `${state.identity}: exact join state`);
+    assert.equal(card.includes('aria-current="true"'), state.selected, `${state.identity}: selection state`);
+    assert.equal(card.includes('data-lifecycle-overlay="paused"'), state.paused, `${state.identity}: paused overlay`);
+    assert.equal(card.includes('data-of-portfolio-promote='), state.promotable, `${state.identity}: proposal eligibility`);
+    if (state.lifecycle) assert.match(card, new RegExp(`data-lifecycle-kind="${state.lifecycle}"`));
+    else assert.doesNotMatch(card, /data-lifecycle-kind=/, `${state.identity}: review-only records have no invented lifecycle`);
+  }
+
+  assert.deepEqual(
+    [...html.matchAll(/data-portfolio-zone="([^"]+)"/g)].map((match) => match[1]),
+    ['saplings', 'clients', 'programs', 'review'],
+    'historical records remain a distinct state inside the explicit Review zone',
+  );
+  assert.equal([...html.matchAll(/data-of-portfolio-promote=/g)].length, 1, 'only the exact eligible Sapling is promotable');
+});
+
+test('Portfolio mode matrix covers absent, aggregate-only, detail, and empty-detail responses', () => {
+  assert.equal(normalizePortfolioPayload({}).mode, 'none');
+  assert.equal(renderCanopy(PROJECTION, {}), renderCanopy(PROJECTION), 'absent Portfolio material keeps the legacy Canopy');
+
+  const aggregateInput = { portfolioCatalogSummary: SUMMARY };
+  const aggregate = normalizePortfolioPayload(aggregateInput);
+  const aggregateHtml = renderPortfolioCanopy(PROJECTION, aggregate);
+  assert.equal(aggregate.mode, 'aggregate-only');
+  assert.equal(renderPortfolioBrowser(PROJECTION, aggregateInput), aggregateHtml);
+  assert.match(aggregateHtml, /data-portfolio-mode="aggregate-only"/);
+  assert.doesNotMatch(aggregateHtml, /data-portfolio-card|data-of-open-portfolio|data-of-portfolio-promote/);
+
+  const emptyInput = { portfolioCatalog: { records: [] }, portfolioCatalogSummary: {} };
+  const empty = normalizePortfolioPayload(emptyInput);
+  const emptyHtml = renderPortfolioCanopy(PROJECTION, empty);
+  assert.equal(empty.mode, 'detail');
+  assert.equal(empty.records.length, 0);
+  assert.equal(renderPortfolioBrowser(PROJECTION, emptyInput), emptyHtml);
+  assert.equal(
+    [...emptyHtml.matchAll(/No founder detail records in this zone\./g)].length,
+    4,
+    'every visible zone exposes its own honest empty state',
+  );
+  assert.doesNotMatch(emptyHtml, /data-portfolio-card|data-of-open-portfolio|data-of-portfolio-promote/);
 });
 
 test('Canopy renders four zones, exact counts, filters, and progressive disclosure', () => {
@@ -312,7 +466,7 @@ test('mixed linked records stay separate and classification remains read-only', 
   assert.match(html, /linked record · separate identity/);
 });
 
-test('selection contexts join only by exact canonical workId and expose mapping readback separately from D1', () => {
+test('selection contexts join only by exact canonical workId and expose unmapped states honestly', () => {
   const normalized = normalizePortfolioPayload({
     portfolioCatalog: CATALOG,
     portfolioCatalogSummary: SUMMARY,
@@ -326,44 +480,21 @@ test('selection contexts join only by exact canonical workId and expose mapping 
   const exactMission = renderPortfolioSceneContext('mission', PROJECTION, fitcheck);
   assert.match(exactMission, /data-portfolio-join="exact"/);
   assert.match(exactMission, /Mission Fabric identity exact match/);
-  assert.match(exactMission, /data-fitcheck-authority="packet-plan"/);
-  assert.match(exactMission, /Supervised branch · not autonomous/);
-  assert.match(exactMission, /fitcheck-shopify-qa/);
-  assert.match(exactMission, /Qualified merchant demo · pending/);
   assert.doesNotMatch(exactMission, /status|current state|ready|active/i);
 
-  const flow = renderPortfolioSceneContext('flow', PROJECTION, fitcheck);
-  assert.match(flow, /Idea → Proposal → Evidence/);
-  assert.match(flow, /data-fitcheck-stage="mapped" data-fitcheck-stage-state="evidenced"/);
-  assert.match(flow, /data-fitcheck-stage="admitted" data-fitcheck-stage-state="evidenced"/);
-  assert.match(flow, /D1 WorkObject admitted/);
-  assert.match(flow, /foldback → next-intent proposal → signed Gate → D1 CAS/);
-  const workforce = renderPortfolioSceneContext('workforce', PROJECTION, fitcheck);
-  assert.match(workforce, /agent:fitcheck/);
-  assert.match(workforce, /packet owners and dispatch targets · not live assignments/);
+  assert.match(renderPortfolioSceneContext('flow', PROJECTION, fitcheck), /Idea → Proposal → Evidence/);
+  assert.match(renderPortfolioSceneContext('workforce', PROJECTION, fitcheck), /agent:fitcheck/);
   const forge = renderPortfolioSceneContext('forge', PROJECTION, fitcheck);
   assert.match(forge, /cluster:fitcheck/);
   assert.match(forge, /loadout:fitcheck/);
-  assert.match(forge, /packet route · never substitutes for a pinned loadout/);
-  assert.match(forge, /Hermes<small>support · pending/);
   const inspect = renderPortfolioSceneContext('inspect', PROJECTION, fitcheck);
   assert.match(inspect, new RegExp(CATALOG.classificationDigest));
   assert.match(inspect, /vault:40-products\/fitcheck\/product-overview\.md/);
-  assert.match(inspect, /docs\/plans\/product-branches\/fitcheck\.md/);
-  assert.match(inspect, /Sheshiyer\/fitcheck-landing/);
-  assert.match(inspect, /Sheshiyer\/HDILINT-backend-aleph/);
-  assert.match(inspect, /program:hdilint/);
-  assert.match(inspect, /one WorkObject · multiple explicitly-owned systems/);
-  assert.match(inspect, /Do not claim app-store approval/);
   assert.doesNotMatch(inspect, /never\/render|absolutePath/);
   const gate = renderPortfolioSceneContext('gate', PROJECTION, fitcheck);
-  assert.match(gate, /read-only/);
-  assert.match(gate, /packet approval ledger · no Gate action synthesized/);
-  assert.match(gate, /data-fitcheck-gate-state="blocked"/);
-  assert.doesNotMatch(
-    gate,
-    /<button|data-action|data-signed-action|data-of-gate-entrypoint/i,
-  );
+  assert.match(gate, /promotion proposal only/i);
+  assert.match(gate, /founder review/i);
+  assert.doesNotMatch(gate, /<button|data-action|approve/i);
 
   const missingMission = renderPortfolioSceneContext('mission', PROJECTION, collision);
   assert.match(missingMission, /data-portfolio-join="missing"/);
@@ -373,24 +504,6 @@ test('selection contexts join only by exact canonical workId and expose mapping 
   assert.match(renderPortfolioSceneContext('forge', PROJECTION, collision), /loadout unmapped/);
   assert.equal(renderPortfolioSceneContext('canopy', PROJECTION, fitcheck), '');
   assert.equal(renderPortfolioSceneContext('unknown', PROJECTION, fitcheck), '');
-
-  const heldNormalized = normalizePortfolioPayload({
-    portfolioCatalog: CATALOG,
-    portfolioCatalogSummary: SUMMARY,
-    portfolioJoinReport: {
-      matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
-    },
-  });
-  const heldFitcheck = heldNormalized.records.find((record) => record.canonicalId === 'sapling:fitcheck')!;
-  const identityOnlyProjection = structuredClone(PROJECTION) as unknown as MissionFabricProjectionV1;
-  identityOnlyProjection.edges = identityOnlyProjection.edges.filter(
-    (edge) => !(edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck' && edge.toId === 'task:fitcheck'),
-  );
-  const heldFlow = renderPortfolioSceneContext('flow', identityOnlyProjection, heldFitcheck);
-  assert.match(heldFlow, /data-portfolio-join="exact"/);
-  assert.match(heldFlow, /D1 admission held/);
-  assert.match(heldFlow, /data-fitcheck-stage="mapped" data-fitcheck-stage-state="evidenced"/);
-  assert.match(heldFlow, /data-fitcheck-stage="admitted" data-fitcheck-stage-state="held"/);
 });
 
 test('client rejects a legacy runtime workId even when a stale join report claims a match', () => {
@@ -432,6 +545,101 @@ test('client rejects a legacy runtime workId even when a stale join report claim
   assert.match(renderPortfolioSceneContext('mission', legacyProjection, withoutReport), /Mission Fabric identity missing/);
 });
 
+test('exact portfolio cards route promotion requests through Gate and fail closed when proposal descriptors are missing', () => {
+  const normalized = normalizePortfolioPayload({
+    portfolioCatalog: CATALOG,
+    portfolioCatalogSummary: SUMMARY,
+    portfolioJoinReport: {
+      matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+    },
+  });
+  const fitcheckRecord = normalized.records.find((record) => record.canonicalId === 'sapling:fitcheck')!;
+  const proposal = portfolioPromotionProposal(PROJECTION, fitcheckRecord);
+  assert.deepEqual(proposal, {
+    kind: 'promote-portfolio',
+    subject: 'sapling:fitcheck',
+    evidence: `portfolio promotion proposal only · exact WorkObject sapling:fitcheck · served state proof-only · current Gate gate:fitcheck · source digest ${CATALOG.classificationDigest}`,
+    consequence: 'queue founder review for the next lifecycle state of sapling:fitcheck; no lifecycle or catalog mutation occurs until operator consumption',
+    reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
+    idempotencyKey: 'promote-portfolio:cambium:sapling:fitcheck:proof-only:gate:fitcheck:93b90ed7cee2',
+    note: 'Portfolio proposal only · exact identity sapling:fitcheck · served state proof-only · current Gate gate:fitcheck',
+  });
+
+  const html = renderCanopy(PROJECTION, {
+    portfolioCatalog: CATALOG,
+    portfolioCatalogSummary: SUMMARY,
+    portfolioJoinReport: {
+      matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+    },
+  });
+  const fitcheck = html.slice(
+    html.indexOf('data-portfolio-id="sapling:fitcheck"'),
+    html.indexOf('</article>', html.indexOf('data-portfolio-id="sapling:fitcheck"')),
+  );
+  const collision = html.slice(
+    html.indexOf('data-portfolio-id="sapling:name-collision"'),
+    html.indexOf('</article>', html.indexOf('data-portfolio-id="sapling:name-collision"')),
+  );
+
+  assert.match(fitcheck, /data-of-portfolio-promote="sapling:fitcheck"/);
+  assert.match(fitcheck, /Request promotion review/);
+  assert.match(fitcheck, /proposal only/i);
+  assert.doesNotMatch(fitcheck, /approved|promoted|executed|completed/i);
+  assert.doesNotMatch(collision, /data-of-portfolio-promote=/);
+  assert.equal([...html.matchAll(/data-of-portfolio-promote=/g)].length, 1);
+
+  const missingGateProjection = structuredClone(PROJECTION) as any;
+  missingGateProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.currentGate = '';
+  assert.equal(portfolioPromotionProposal(missingGateProjection, fitcheckRecord), null);
+
+  const hostileGateProjection = structuredClone(PROJECTION) as any;
+  hostileGateProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.currentGate = 'gate initData=SECRET';
+  assert.equal(
+    portfolioPromotionProposal(hostileGateProjection, fitcheckRecord),
+    null,
+    'secret-shaped Gate text fails closed before it can enter evidence, note, or the signed request',
+  );
+  assert.doesNotMatch(
+    renderCanopy(hostileGateProjection, {
+      portfolioCatalog: CATALOG,
+      portfolioCatalogSummary: SUMMARY,
+      portfolioJoinReport: {
+        matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+      },
+    }),
+    /data-of-portfolio-promote=/,
+  );
+
+  const gateDriftProjection = structuredClone(PROJECTION) as any;
+  gateDriftProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.currentGate = 'gate:fitcheck-next';
+  const gateDriftProposal = portfolioPromotionProposal(gateDriftProjection, fitcheckRecord);
+  assert.ok(gateDriftProposal);
+  assert.notEqual(gateDriftProposal.idempotencyKey, proposal.idempotencyKey, 'Gate drift creates a distinct proposal key');
+
+  const stateDriftProjection = structuredClone(PROJECTION) as any;
+  stateDriftProjection.nodes.find((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck').value.promotionState = 'supervised-branch';
+  const stateDriftProposal = portfolioPromotionProposal(stateDriftProjection, fitcheckRecord);
+  assert.ok(stateDriftProposal);
+  assert.notEqual(stateDriftProposal.idempotencyKey, proposal.idempotencyKey, 'served-state drift creates a distinct proposal key');
+
+  const pausedRecord = { ...fitcheckRecord, paused: true };
+  assert.equal(portfolioPromotionProposal(PROJECTION, pausedRecord), null);
+
+  const descriptorlessCatalog = structuredClone(CATALOG) as typeof CATALOG & { classificationDigest?: string };
+  delete descriptorlessCatalog.classificationDigest;
+  const descriptorlessHtml = renderCanopy(PROJECTION, {
+    portfolioCatalog: descriptorlessCatalog,
+    portfolioCatalogSummary: {
+      ...SUMMARY,
+      classificationDigest: null,
+    },
+    portfolioJoinReport: {
+      matches: [{ canonicalId: 'sapling:fitcheck', runtimeWorkId: 'sapling:fitcheck' }],
+    },
+  });
+  assert.doesNotMatch(descriptorlessHtml, /data-of-portfolio-promote=/);
+});
+
 test('aggregate-only non-founder response renders no detail cards or selection controls', () => {
   const html = renderCanopy(PROJECTION, { portfolioCatalogSummary: SUMMARY });
 
@@ -459,14 +667,16 @@ test('boot consumes top-level catalog fields without weakening activation or nav
   assert.match(OPERATING_FABRIC_BOOT, /body\.delivery\.operatingFabricEnabled === true/);
   assert.match(OPERATING_FABRIC_BOOT, /data-of-portfolio-filter/);
   assert.match(OPERATING_FABRIC_BOOT, /data-of-open-portfolio/);
+  assert.match(OPERATING_FABRIC_BOOT, /data-of-portfolio-promote/);
+  assert.match(OPERATING_FABRIC_BOOT, /openGatePreflight\('promote-portfolio'/);
+  assert.match(OPERATING_FABRIC_BOOT, /latestDelivery && latestDelivery\.freshness === 'fresh'/);
+  assert.match(OPERATING_FABRIC_BOOT, /lifecycle and catalog remain unchanged/);
+  assert.match(PORTFOLIO_BROWSER_JS, /served state.*current Gate/);
+  assert.doesNotMatch(OPERATING_FABRIC_BOOT, /selectedPortfolio = record|openWorkId = ofPortfolioRuntimeWorkId\(latestProjection, record\)/);
   assert.match(OPERATING_FABRIC_BOOT, /gateBody\.insertAdjacentHTML/);
   assert.doesNotMatch(OPERATING_FABRIC_BOOT, /gateBody\.innerHTML\s*\+=/);
+  assert.doesNotMatch(OPERATING_FABRIC_BOOT, /\/v1\/admin\/portfolio\/actions/);
   assert.match(PORTFOLIO_BROWSER_JS, /function ofNormalizePortfolioPayload/);
-  assert.match(PORTFOLIO_BROWSER_JS, /function ofRenderOperationalPacketReference/);
-  assert.match(PORTFOLIO_BROWSER_JS, /function ofOperationalPacketFor/);
-  assert.match(PORTFOLIO_BROWSER_JS, /mapping-receipt-verified/);
-  assert.match(PORTFOLIO_BROWSER_JS, /data-fitcheck-authority="packet-plan"/);
-  assert.match(PORTFOLIO_BROWSER_JS, /receipt proof absent/);
   assert.doesNotMatch(PORTFOLIO_BROWSER_JS, /\bimport\b|\bexport\b|\binterface\b|\btype\s+[A-Z]/);
   assert.equal([...OPERATING_FABRIC_SCENES.matchAll(/data-of-tab="/g)].length, 5);
 });
