@@ -1,17 +1,17 @@
 # Fitcheck CRM Handoff Contract v1
 
-Status: historical redacted design input, ready for founder review; this PR did
-not re-probe the provider and performed no CRM configuration, contact export,
-lead-status change, reply, send, or provider mutation.
+Status: ready for founder review; no CRM configuration, contact export,
+lead-status change, reply, send, or provider mutation has been performed.
 
 Observation receipt: [`2026-08-11-fitcheck-explee-inbox-readback.v1.json`](../../evidence/2026-08-11-fitcheck-explee-inbox-readback.v1.json)
 
 ## Observed input
 
-The dated 2026-08-11 IST local read-only receipt records:
+The 2026-08-11 IST read-only observation found:
 
 - 0 conversations in `need_reply` across Fitcheck's six campaigns.
-- 5 hot-lead records scoped to three Fitcheck campaign cohorts.
+- 5 hot-lead records scoped to Fitcheck: Fashion Marketplaces (1), Retail Tech
+  Teams (2), and Shopify Fashion Brands (2).
 - 5 additional account-wide hot-lead records excluded from Fitcheck scope.
 
 This is queue state, not a qualification or intent claim. Raw contacts,
@@ -45,7 +45,7 @@ redacted foldback lesson and next proposal
 | `caseId` | Runtime-local opaque identifier; never an email, name, phone, or provider thread body. |
 | `workObjectId` | Exact `sapling:fitcheck`. |
 | `source` | `explee`; provenance remains a provider-side record. |
-| `campaignRef` | Repository-safe cohort label only; provider campaign identifiers remain outside Git. |
+| `campaignId` | Numeric campaign ID is allowed. |
 | `signalClass` | `need-reply`, `hot-lead`, `reply-observed`, `disqualified`, or `unknown`; it is not a sales qualification by itself. |
 | `state` | `observed`, `needs-human-triage`, `approval-pending`, `approved-action`, `closed-with-receipt`, or `blocked`. |
 | `ownerRole` | Role only until a CRM system and operator are explicitly approved. |
@@ -83,10 +83,9 @@ and sends require a separate approval and receipt per action scope.
 - Cortex stores a tenant-scoped, redacted lesson such as “hot-lead demand is
   concentrated in three campaign cohorts; human triage and CRM destination are
   pending.” It does not store a contact or thread.
-- A future Mini App synchronization may render
-  `fitcheck-campaign-reply-triage` and
-  `fitcheck-crm-minimum-viable-flow` as `ready-for-review`; neither may be
-  projected as complete without a later runtime change and receipt.
+- The Mini App renders `fitcheck-campaign-reply-triage` as
+  `ready-for-review`, and `fitcheck-crm-minimum-viable-flow` as
+  `ready-for-review`; neither is complete or hidden.
 - Any future missing access or account decision becomes `external-wait`; missing
   consent or approval becomes `blocked`.
 

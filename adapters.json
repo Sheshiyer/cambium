@@ -40,7 +40,7 @@
         "--meristem-root",
         "{input}",
         "--brand-dir",
-        "brands/thoughtseed",
+        "brands/{tenant}",
         "--out",
         "-"
       ],
@@ -57,7 +57,7 @@
         "visual_system"
       ],
       "contract_version": "1.0.0",
-      "note": "Active Genesis flow: runs the Cambium Meristem contract shim from the Cambium checkout. The Meristem checkout path is the stage input and defaults to ../meristem."
+      "note": "Active Genesis flow: runs the Cambium Meristem contract shim from the Cambium checkout. The Meristem checkout path is the stage input and defaults to ../meristem; the tenant selects brands/{tenant}."
     },
     "hands": {
       "root_id": "hands",

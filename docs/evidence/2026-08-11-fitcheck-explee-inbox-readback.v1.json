@@ -1,14 +1,15 @@
 {
   "schema": "cambium.fitcheck.explee-inbox-readback.v1",
-  "status": "historical-redacted-observation",
+  "status": "complete-read-only-observation",
   "observedAt": "2026-08-10T23:32:06.271Z",
   "scope": {
     "tenantId": "cambium",
     "workObjectId": "sapling:fitcheck",
-    "campaignScope": "six Fitcheck campaign cohorts"
+    "projectId": "17755",
+    "campaignIds": ["51319", "63399", "63400", "63398", "63401", "51318"]
   },
   "method": {
-    "provider": "Explee AutoGTM provider API",
+    "provider": "Explee AutoGTM public API",
     "operations": [
       "GET /autogtm/campaigns/{campaign_id}/inbox?tab=need_reply",
       "GET /autogtm/hot-leads"
@@ -17,9 +18,9 @@
   },
   "observations": {
     "needReplyTotal": 0,
-    "fitcheckCampaignCohortCount": 6,
+    "needReplyByCampaign": { "51319": 0, "63399": 0, "63400": 0, "63398": 0, "63401": 0, "51318": 0 },
     "fitcheckScopedHotLeadTotal": 5,
-    "fitcheckHotLeadCohortCount": 3,
+    "fitcheckScopedHotLeadsByCampaign": { "63399": 1, "63401": 2, "51318": 2 },
     "accountWideHotLeadsExcludedFromFitcheckScope": 5
   },
   "redaction": {
@@ -39,7 +40,6 @@
       "Any product outcome, conversion lift, revenue, or customer intent beyond provider hot-lead classification."
     ]
   },
-  "verificationBoundary": "This repository receipt preserves a sanitized historical aggregate. This documentation-only PR did not re-probe the provider or establish current queue state.",
   "nextIntent": {
     "questId": "fitcheck-crm-minimum-viable-flow",
     "status": "ready-for-review",
@@ -47,7 +47,7 @@
   },
   "receipt": {
     "kind": "external-readback",
-    "digest": "sha256:ebde79e82b60b49a1869bec7d93739ff9fd6ca1043db0007063f9868208cf8f6",
+    "digest": "sha256:09358d5a1fbdfe75331ac66c97c70fe54b180537d7270f9a33d314e8fb101a8b",
     "digestScope": "canonical JSON with receipt.digest omitted"
   }
 }

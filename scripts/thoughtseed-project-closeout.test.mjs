@@ -86,10 +86,11 @@ test('current Workbench action binds classification source and complete catalog 
 test('closeout digest binds all three reviewed foundation pins', () => {
   const normalized = normalizeProjectCloseoutAction(action())
   const digest = projectCloseoutDigest(normalized)
+  const changedCatalogDigest = `sha256:${normalized.catalogDigest.slice(7, 8) === '0' ? '1' : '0'}${normalized.catalogDigest.slice(8)}`
   for (const [field, value] of [
     ['rootMapDigest', `0${normalized.rootMapDigest.slice(1)}`],
     ['sourceDigest', `0${normalized.sourceDigest.slice(1)}`],
-    ['catalogDigest', `sha256:0${normalized.catalogDigest.slice(8)}`],
+    ['catalogDigest', changedCatalogDigest],
   ]) {
     assert.notEqual(projectCloseoutDigest({ ...normalized, [field]: value }), digest, field)
   }

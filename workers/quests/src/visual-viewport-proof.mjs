@@ -7,8 +7,8 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { basename, join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
 import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
@@ -2151,7 +2151,14 @@ if (WRITE_CANONICAL_PROOF_ARTIFACTS) writeFileSync(join(outDir, 'manifest.json')
 console.log(JSON.stringify(manifest, null, 2));
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+export function isDirectInvocation(argvEntry = process.argv[1], moduleUrl = import.meta.url) {
+  if (!argvEntry) return false;
+  const modulePath = fileURLToPath(moduleUrl);
+  return resolve(argvEntry) === modulePath
+    || basename(resolve(argvEntry)) === basename(modulePath);
+}
+
+if (isDirectInvocation()) {
   main().catch((error) => {
     writeFailureArtifact(error);
     console.error(error instanceof Error ? error.stack : String(error));

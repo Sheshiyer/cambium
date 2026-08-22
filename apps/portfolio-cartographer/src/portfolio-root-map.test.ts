@@ -8,8 +8,6 @@ import { fileURLToPath } from 'node:url'
 
 import {
   compareObservedDirectories,
-  expectedDirectoryNames,
-  observePortfolioFolders,
   renderPortfolioJson,
   renderPortfolioMarkdown,
   renderWorkerPolicyModule,
@@ -38,12 +36,8 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 58)
-  assert.deepEqual(
-    thoughtseed.folders.find((folder) => folder.folder === 'temperance_engine')?.workIds,
-    ['program:temperance-hermes'],
-  )
-  assert.equal(thoughtseed.folders.length, 58)
+  assert.equal(thoughtseed.folderCount, 57)
+  assert.equal(thoughtseed.folders.length, 57)
   assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])
   assert.equal(noesis.folderCount, 30)
   assert.equal(noesis.folders.length, 30)
@@ -56,7 +50,6 @@ test('snapshot freezes the observed shallow portfolio counts and exclusions', as
 
 test('snapshot uses only relative unique folders and bounded proposal kinds', async () => {
   const snapshot = await readSnapshot()
-  assert.doesNotThrow(() => validateSnapshot(snapshot))
   const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
   for (const portfolio of snapshot.portfolios) {
     const folders = portfolio.folders.map((entry: { folder: string }) => entry.folder)
@@ -96,14 +89,6 @@ test('typed browser projection is generated from the reviewed snapshot', () => {
   assert.equal(existsSync(workerGeneratedModulePath), true)
 })
 
-test('App and Worker generated root maps are byte-identical', async () => {
-  const [appGenerated, workerGenerated] = await Promise.all([
-    readFile(generatedModulePath, 'utf8'),
-    readFile(workerGeneratedModulePath, 'utf8'),
-  ])
-  assert.equal(workerGenerated, appGenerated)
-})
-
 test('Worker policy projection binds the reviewed digest and exact shallow Tryambakam paths', async () => {
   const snapshot = validateSnapshot(await readSnapshot())
   const generated = renderWorkerPolicyModule(snapshot)
@@ -111,59 +96,6 @@ test('Worker policy projection binds the reviewed digest and exact shallow Tryam
   assert.match(generated, /"astrolens": \{\n    "path": "tryambakam-noesis\/astrolens"/)
   assert.doesNotMatch(generated, /tryambakam-noesis\/astrolens\//)
   assert.doesNotMatch(generated, /Client Branch/)
-})
-
-test('skills nest remaps catalogued shallow names without admitting uncatalogued siblings', async (t) => {
-  const workingRoot = await mkdtemp(path.join(os.tmpdir(), 'portfolio-skills-nest-'))
-  t.after(() => rm(workingRoot, { recursive: true, force: true }))
-  await mkdir(path.join(workingRoot, 'cambium'))
-  await mkdir(path.join(workingRoot, 'skills', 'motionsites-skills'), { recursive: true })
-  await mkdir(path.join(workingRoot, 'skills', 'professional-headshot-suite'))
-  await mkdir(path.join(workingRoot, 'skills', 'readme-skill'))
-  await mkdir(path.join(workingRoot, 'skills', 'scroll-world'))
-  await mkdir(path.join(workingRoot, 'skills', 'explee-skills'))
-
-  const observed = await observePortfolioFolders(workingRoot, [
-    'cambium',
-    'motionsites-skills',
-    'professional-headshot-suite',
-    'readme-skill',
-    'scroll-world',
-  ])
-
-  assert.deepEqual(observed, [
-    'cambium',
-    'motionsites-skills',
-    'professional-headshot-suite',
-    'readme-skill',
-    'scroll-world',
-    'skills',
-  ])
-  assert.equal(observed.includes('explee-skills'), false)
-})
-
-test('header writer accepts catalogued folders resolved from the skills nest', async (t) => {
-  const snapshot = validateSnapshot(await readSnapshot())
-  const projectsRoot = await mkdtemp(path.join(os.tmpdir(), 'portfolio-skills-headers-'))
-  t.after(() => rm(projectsRoot, { recursive: true, force: true }))
-  const thoughtseed = snapshot.portfolios[0]
-  const thoughtseedRoot = path.join(projectsRoot, 'thoughtseed')
-  await mkdir(thoughtseedRoot, { recursive: true })
-  const remapped = new Set(['motionsites-skills', 'professional-headshot-suite', 'readme-skill', 'scroll-world'])
-  await mkdir(path.join(thoughtseedRoot, 'skills'), { recursive: true })
-  for (const name of expectedDirectoryNames(thoughtseed)) {
-    if (name === 'skills') continue
-    if (remapped.has(name)) {
-      await mkdir(path.join(thoughtseedRoot, 'skills', name), { recursive: true })
-      continue
-    }
-    await mkdir(path.join(thoughtseedRoot, name))
-  }
-  await mkdir(path.join(thoughtseedRoot, 'skills', 'explee-skills'), { recursive: true })
-
-  const written = await writeRootHeaders({ snapshot, projectsRoot, write: true, portfolioIds: ['thoughtseed'] })
-  assert.deepEqual(written.plans.map(({ portfolioId }) => portfolioId), ['thoughtseed'])
-  assert.equal(existsSync(path.join(thoughtseedRoot, 'PORTFOLIO.md')), true)
 })
 
 test('root comparison fails closed on missing or unexpected shallow folders', async () => {

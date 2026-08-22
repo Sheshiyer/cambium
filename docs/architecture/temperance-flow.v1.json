@@ -28,7 +28,7 @@
     "intentGraph": {
       "path": "docs/architecture/intent-graph.v1.json",
       "schema": "cambium.intent-graph-projection.v1",
-      "digest": "sha256:6c4d95e5160c47c3eee7d06026fd27a60c590a303da58f375835182c0eb7c30d"
+      "digest": "sha256:be4b69075c46870ac8681445c3fa5180c6133d4bb4094bcca31ac1cb260460c0"
     },
     "supporting": [
       {
@@ -120,6 +120,6 @@
     "receipt": "missing"
   },
   "stops": [],
-  "sourceSetDigest": "sha256:c9f9061f9c45421c44a4407831a727ad7b846cd0052f9f95862154141c7a110c",
-  "flowDigest": "sha256:e8631840a0e0d7fdf814f3cd1b59e4438f6c37a2eecf32e68c1d45a818bda0ef"
+  "sourceSetDigest": "sha256:174089b221c4f5c7fdf3d14fe889a81d5df6b9a28602aa83658c9592374e93a0",
+  "flowDigest": "sha256:81db9609f4de34337102d8e8738b830e95f48593e1a626f44b96732c3ef36ee9"
 }

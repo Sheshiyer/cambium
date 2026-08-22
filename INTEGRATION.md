@@ -1,104 +1,8 @@
 # Integration roadmap — from mapped project to learning loop
 
-Cambium's next integration problem is no longer "can the organs be named and invoked?" It is "can one exact portfolio identity travel through planning, admission, skill selection, execution, evidence, and the next decision without changing meaning or gaining invented authority?"
+Cambium's next integration problem is no longer “can the organs be named and invoked?” It is “can one exact portfolio identity travel through planning, admission, skill selection, execution, evidence, and the next decision without changing meaning or gaining invented authority?”
 
 Fitcheck is the reference project for answering that question. See the [golden-path contract](./docs/architecture/fitcheck-golden-path.md).
-
-## The 8-node infrastructure spine
-
-Cambium's architecture can be read as eight distinct nodes connected by seven
-governed transitions. This is an authority and evidence map, not a claim that
-every operation synchronously traverses every node. Each node reads from named
-inputs, writes only through its governed boundary, and owns no authority outside
-that boundary.
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 1: PORTFOLIO WORKBENCH (Telegram Mini App / Web Admin)     │
-│ /admin/portfolio/web → generated founder-auth-gated bundle       │
-│ Shows: WorkObject cards, Smart Views, Finish/Closeout, Operate  │
-│ Reads: PORTFOLIO_CATALOG, portfolio-roots, golden paths         │
-│ Authority: Read-only. Write → /v1/admin/portfolio/actions       │
-└──────────┬──────────────────────────────────────────────────────┘
-           │ catalog digest, root-map digest, classification digest
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 2: CAMBIUM CHECKED-IN DATA (this repo)                     │
-│ portfolio-catalog-data.ts → typed WorkObject catalog           │
-│ portfolio-roots.v1.json → reviewed shallow-folder snapshot     │
-│ operational-packet-registry.ts → FITCHECK/IVERIF golden paths   │
-│ checked-in loadout authority → bounded eligibility           │
-└──────────┬──────────────────────────────────────────────────────┘
-           │ portfolio-roots / root-map → filesystem folders
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 3: PROJECT FILESYSTEM                                      │
-│ Root location is host-configured; no machine path is canonical  │
-│ Shallow folders are proposed by portfolio-roots.v1.json         │
-│ Exact Git identity must be verified before promotion            │
-│ Vault infrastructure is context, never a WorkObject folder      │
-└──────────┬──────────────────────────────────────────────────────┘
-           │ thoughtseed-labs → R2-synced vault knowledge context
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 4: R2 CLOUDFLARE STORAGE                                   │
-│ Account, bucket, endpoint, and credentials are host-managed      │
-│ Role: immutable/idempotent evidence and durability ONLY          │
-│ NOT: live state, code history, repo ownership, Goal Graph writes│
-└──────────┬──────────────────────────────────────────────────────┘
-           │ mapping receipts → activation evidence → foldback
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 5: HERMES (Proactive Relay + Cron Runner)                  │
-│ Local contract: hermes-execution-foldback.ts                    │
-│  - adaptHermesExecutionFoldback() → receipt → r2Key             │
-│  - deriveHermesExecutionFoldbackCortexProjection() → memory     │
-│  - Canary sequence: poll → claim → outcome → foldback → ACK    │
-│ Authority: Telegram transport + topic topology owner            │
-│ Cambium compiles bounded delivery intent; Hermes sends          │
-└──────────┬──────────────────────────────────────────────────────┘
-           │ foldback receipt → Cortex projection → Plexus whoami
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 6: PLEXUS (Identity + Access Gateway)                      │
-│ Default (wrangler.jsonc):                                     │
-│ https://teamforge-api.sheshnarayan-iyer.workers.dev/v1/whoami │
-│ Labs (wrangler.labs.jsonc):                                   │
-│ https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami   │
-│  - resolvePlexusPrincipal() → Access JWT → Plexus identity     │
-│  - RBAC: founder (signed-action), team (chat-command),          │
-│    consultant (read-only)                                       │
-│  - KV cache key: plexus:whoami:<sha256(jwt)>                    │
-│ Used by: Cambium Worker for Mini App authorization              │
-│          Gate scene for principal resolution                    │
-└──────────┬──────────────────────────────────────────────────────┘
-           │ principal → role → interaction ladder → UI affordances
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 7: TELEGRAM MINI APP + TG CHANNELS                         │
-│ Mini App scenes: mission, gate, tools, story, inspect           │
-│  - Mission Fabric: sapling/branch/program visualization         │
-│  - Flow: task execution overlay                                 │
-│  - Workforce: agent + skill-cluster loadout visibility          │
-│  - Forge: build/output surface                                  │
-│ TG Channels: Hermes-owned topic topology                        │
-└──────────┬──────────────────────────────────────────────────────┘
-           │ MCP protocol + OmniRoute → AI agents
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ NODE 8: MCP, PLUGIN, AND AGENT ADAPTERS                         │
-│ Host runtime owns tool availability, model routing, and secrets │
-│ Cambium owns only checked-in contracts and acceptance evidence  │
-│ Unmapped plugins stay held pending reviewed Git identity        │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-The foldback edge (Node 8 → Node 2) closes the conceptual loop: execution
-evidence may return as a reviewed receipt or proposal through the repository's
-normal governed write path. Tool calls do not directly mutate checked-in data
-or operational state.
-
-> Also see the visual flow diagram at [`docs/visual/cambium-infra-spine-flow.html`](./docs/visual/cambium-infra-spine-flow.html).
 
 ## Status vocabulary
 
@@ -173,7 +77,7 @@ flowchart LR
 
 ### Portfolio Workbench
 
-The Workbench owns project reconciliation and bounded proposal preparation. The Fitcheck Operate view now explains the canonical identity, packet missions, KPIs, organ route, gate ledger, and complete ten-stage `lifecycleLadder` from `identified` through `learned`, including current missing anchors. Its job is to make the next safe action obvious without making the held stages look complete.
+The Workbench owns project reconciliation and bounded proposal preparation. The Fitcheck Operate view now explains the canonical identity, packet missions, KPIs, organ route, gate ledger, six-stage lifecycle, and current missing anchors. Its job is to make the next safe action obvious without making the held stages look complete.
 
 ### Telegram Mini App
 

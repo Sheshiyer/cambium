@@ -12,7 +12,7 @@ session migration, or provider change is implied by this packet.
 - Portfolio: `thoughtseed`
 - Repository: `cambium`
 - Registry WorkObject: `sapling:cambium` (`Cambium`, kind: sapling)
-- GitHub: `Sheshiyer/cambium` (identity_status: pending-teamforge-verification)
+- GitHub: `Sheshiyer/cambium` (identity_status: verified, portfolio-catalog-authority)
 - Knowledge authority: `00-meta/entity-registry.md`
 - Current packet checkpoint: `.project/HANDOFF.md`
 
@@ -44,6 +44,7 @@ The root anchors own doctrine only. [`ISA.md`](./ISA.md) owns approved goals and
 |---|---|
 | Root doctrine catalog | [`docs/doctrine/README.md`](./docs/doctrine/README.md) |
 | Docs discovery index | [`docs/README.md`](./docs/README.md) |
+| On-demand documentation inventory | [`docs/architecture/contracts/documentation-inventory-v1.md`](./docs/architecture/contracts/documentation-inventory-v1.md) |
 | Lifecycle (current vs historical) | [`docs/LIFECYCLE.md`](./docs/LIFECYCLE.md) |
 | On-demand documentation inventory | [`docs/architecture/contracts/documentation-inventory-v1.md`](./docs/architecture/contracts/documentation-inventory-v1.md) |
 | GSD `.planning/` map | [`.planning/README.md`](./.planning/README.md) |

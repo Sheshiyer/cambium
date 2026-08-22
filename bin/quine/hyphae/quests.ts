@@ -2824,6 +2824,26 @@ export async function gatherPaperclipInputs(): Promise<QuestInputs['paperclip']>
 // see scripts/onboard-live.ts). The vault R2 backup bucket is not involved.
 const PUSH_URL_DEFAULT = 'https://curious.thoughtseed.space';
 
+/**
+ * A Cloudflare Access redirect can finish as an HTTP 200 HTML login page.
+ * Treat a ledger write as accepted only when the serving Worker returns its
+ * explicit JSON receipt, never on status alone.
+ */
+export function acceptedLedgerPushReceipt(
+  ok: boolean,
+  contentType: string | null,
+  body: unknown,
+  tenant: string,
+): body is { ok: true; tenant: string; bytes: number; derivedAt: string } {
+  if (!ok || !contentType?.toLowerCase().includes('application/json')) return false;
+  if (!body || typeof body !== 'object') return false;
+  const receipt = body as Record<string, unknown>;
+  return receipt.ok === true
+    && receipt.tenant === tenant
+    && typeof receipt.bytes === 'number'
+    && typeof receipt.derivedAt === 'string';
+}
+
 function pushTokenFromEnvFile(explicit = ''): string | undefined {
   if (explicit) return explicit;
   if (process.env.QUESTS_PUSH_TOKEN) return process.env.QUESTS_PUSH_TOKEN;
@@ -3065,8 +3085,12 @@ async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promis
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
     body: JSON.stringify(envelope),
   });
-  const j: any = await res.json().catch(() => ({}));
-  if (res.ok) {
+  const contentType = res.headers.get('content-type');
+  const j: unknown = contentType?.toLowerCase().includes('application/json')
+    ? await res.json().catch(() => null)
+    : null;
+  const pushed = acceptedLedgerPushReceipt(res.ok, contentType, j, tenant);
+  if (pushed) {
     // Founder-inheritance side-effect (root tenants only). Only fires when the
     // upstream push succeeded — we never let founder.json drift ahead of what
     // the worker has accepted.
@@ -3079,9 +3103,9 @@ async function pushLedger(args: string[], ctx: QuineCtx, tenant: string): Promis
     }
   }
   return {
-    hypha: 'quests', pushed: res.ok, status: res.status, url: `${base}/api/quests/${tenant}`,
-    tenant, derivedAt: envelope.derivedAt, completed: `${L.completed}/${L.total}`, bytes: j.bytes ?? null,
-    ...(res.ok ? {} : { error: j.error ?? 'push failed' }),
+    hypha: 'quests', pushed, status: res.status, url: `${base}/api/quests/${tenant}`,
+    tenant, derivedAt: envelope.derivedAt, completed: `${L.completed}/${L.total}`, bytes: pushed ? j.bytes : null,
+    ...(pushed ? {} : { error: (j && typeof j === 'object' && 'error' in j && typeof j.error === 'string') ? j.error : 'ledger push was not accepted by the serving Worker' }),
   };
 }
 

@@ -1822,6 +1822,540 @@ mutation has been performed by drafting this packet.
   connected repositories, and every production or external mutation remain
   explicitly held and unauthorized by this checkpoint.
 
+### 2026-08-10 Founder reclassification: ParkArea, Tirak, Klear Karma
+
+- **Founder-authoritative correction:** Saplings are only Thoughtseed-created ventures.
+  ParkArea, Tirak, and Klear Karma are not Saplings.
+- **ParkArea:** Collapsed to `branch:parkarea` only. All `sapling:parkarea` references
+  removed from portfolio-roots, action queue, batch proposals, receipts, folder inventory,
+  and mapping audit. Product-IP placeholder rows eliminated.
+- **Tirak:** Collapsed to `branch:tirak` only. All `sapling:tirak` references
+  removed across the same six files.
+- **Klear Karma:** Reclassified as co-founded venture. Shesh is a 33.33% co-founder
+  alongside Sahil Sabharwal and Mathis Le Drogo in an Estonian OÜ. New dual identity:
+  `branch:klear-karma` (client-delivery) + `co-founded-venture:klear-karma` (equity holding).
+  All `sapling:klear-karma` references replaced with `branch:klear-karma` across
+  checked-in artifacts; `co-founded-venture:` kind is newly introduced to the grammar.
+  `workObjectKind` changed from `sapling` to `branch`, `originAssertion` from
+  `thoughtseed-origin` to `co-founded-venture`, `repositoryRole` from `product-source`
+  to `co-founded-venture-source`.
+- **Three-Sapling cohort preserved:** Fitcheck, Iverif, DLOCK remain the only
+  Thoughtseed-originated Saplings. No legitimate Sapling receipt was modified.
+- **Evidence-only mutation boundary:** No R2, D1, registry, repository, provider,
+  deployment, or packet mutation was made. All changes are in Cambium checked-in
+  project management and evidence files.
+
+Confirmed scrub results:
+- `sapling:parkarea` — 0 remaining occurrences in Cambium
+- `sapling:tirak` — 0 remaining occurrences in Cambium
+- `sapling:klear-karma` — 0 remaining occurrences in Cambium
+
+Next Intent proposal: rebundle Batch 3 mapping receipts with updated digests per
+the new identity grammar, followed by D1 Goal Graph admission for the co-founded-venture
+kind and branch identity registration.
+
+### 2026-08-10 IVerif golden-path registration checkpoint
+
+- Registered `sapling:iverif` as the second governed Thoughtseed Sapling,
+  alongside `sapling:fitcheck`.
+- Created `shared/iverif-golden-path.ts`, the TypeScript compilation of the
+  IVerif operational packet (`docs/plans/product-branches/iverif.md`),
+  structured through `compileOperationalPacketProjection` with the
+  `cambium.iverif-golden-path.v1` schema.
+- Registered `IVERIF_GOLDEN_PATH` in `shared/operational-packet-registry.ts`,
+  making it available to all projection consumers.
+- Alignment: `promotionState: 'proof-only'` and all authority boundaries match
+  the test expectations in `bin/quine/hyphae/quests.test.ts` (line 310).
+- The `portfolio-foundation-pins.test.mjs` failure is pre-existing: it asserts
+  exactly 74 catalog work IDs but the current `portfolio-catalog-data.ts`
+  (modified on this branch) has a different count. This is unrelated to the
+  golden-path registration.
+- No R2, D1, registry, provider, Goal Graph, or production state was mutated.
+
+### 2026-08-10 Paperclip retirement scrub checkpoint
+
+- Paperclip is retired as an execution plane per the repository README and
+  historical evidence in `docs/evidence/2026-06-24-hermes-fabric-source-of-truth.md`.
+  Active product-branch packets under `docs/plans/product-branches/` were
+  scrubbed of misleading live-automation grammar.
+- Scrubbed files:
+  - `docs/plans/product-branches/snow-gloves-os.md`: removed "Paperclip" from
+    the six-agent inherited org line.
+  - `docs/plans/product-branches/fitcheck.md`: removed "Paperclip" from the
+    agentic-org and Hermes/Paperclip routing lines.
+  - `docs/plans/product-branches/client-delivery.md`: removed the
+    "Paperclip handoff relay" sentence and relay reference.
+  - `docs/plans/product-branches/ISA.md`: removed "Paperclip" from the live
+    automation gating line.
+- Files left unchanged (out of boundary scope): all `docs/archive/` and
+  `docs/evidence/` references are historical record and intentionally
+  preserved; `docs/architecture/contracts/operator-policy-contract.md` and
+  `docs/architecture/contracts/tg-miniapp-ecosystem-contract.md` are
+  structural contracts that still model Paperclip as a provenance source and
+  were not touched.
+- Verification: `grep -ri paperclip docs/plans/product-branches/ --include=*.md`
+  returns zero matches; `grep -ri paperclip docs/plans/product-branches/`
+  returns zero matches for "paperclip" (case-insensitive).
+- Verification: `node --experimental-strip-types --test src/github-repository-mapping-action-queue.test.ts src/portfolio-root-map.test.ts` passes 28/28; `node --experimental-strip-types --test src/portfolio-catalog.test.ts` passes 14/14.
+- No archive, evidence, architecture-contract, or registry files were mutated.
+  No folder was created, moved, copied, deleted, or reorganized. No live
+  runtime, Worker, R2, D1, GitHub, registry, provider, or deployment state
+  was changed — only four product-branch planning Markdown files had stale
+  Paperclip references removed.
+
+### 2026-08-10 Fitcheck D1 anchor ISA scaffold checkpoint
+
+- Status: `reviewed-held`
+- Workload: scaffolded ISA for Fitcheck D1 Mission → Task anchor at
+  `MEMORY/WORK/d1-fitcheck-anchor/ISA.md`.
+- Fitcheck mapping receipt `pmr_9de251ce89564f07f3e4c510` remains issued and
+  readback-verified; no D1 Goal Graph write has been applied.
+- ISA defines 10 ISCs spanning migration verification, head-digest CAS
+  pre-condition, projection compilation, WorkObject + loadout anchor validation,
+  approval envelope canonicalization, CAS commit, and Mission Fabric readback.
+- Key code paths confirmed:
+  `workers/quests/src/goal-graph-store.ts` (approval-bound CAS commit, lines 368-649),
+  `workers/quests/src/mission-fabric.ts` (`adaptGoalGraphAuthority`, lines 900-999),
+  `workers/quests/src/goal-graph/identity.ts` (`validateOperationalAnchor`, lines 43-66),
+  `workers/quests/src/goal-graph/compiler.ts` (`compileGoalGraph`, lines 40-59),
+  `workers/quests/src/portfolio-operational-cohort.ts` (canonical TaskId/LoadoutId
+  `task:fitcheck-launch` / `loadout:fitcheck-launch`, lines 30-31, 298-305).
+  - No D1 write, Hermes dispatch, R2 write, provider mutation, or deployment occurred.
+
+### 2026-08-10 portfolio-catalog-route test assertion drift checkpoint
+
+- Status: `reviewed-held`
+- Fixed two stale assertion blocks in
+  `workers/quests/src/portfolio-catalog-route.test.ts` that pinned obsolete
+  catalog counts (74 total / 20 saplings / 39 client / 49 gaps) instead of the
+  live canonical values (72 total / 17 saplings / 40 client / 48 gaps).
+- Founder route test (line 163) and viewer route test (line 220) now assert
+  `portfolioCatalogSummary.total === 72`; founder-route join-report counts
+  updated to `matched: 1, catalogOrphans: 71, runtimeOrphans: 1` to match the
+  72-record catalog with one runtime orphan (`cambium-operating-fabric`).
+- Correction confirmed against the live canonical `PORTFOLIO_CATALOG` export:
+  records.length = 72, summary = 17 saplings / 40 client-branches / 15 internal
+  programs / 20 historical products / 0 classification review / 48 operational
+  gaps; catalogDigest `sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24`
+  and classificationDigest `43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309`
+  remain unchanged.
+- Verification: `node --test workers/quests/src/portfolio-catalog-route.test.ts
+  workers/quests/src/portfolio-catalog.test.ts` passes 19/19.
+
+### 2026-08-10 portfolio-workbench-route SOURCE_DIGEST test drift checkpoint
+
+- Status: `reviewed-held`
+- Fixed stale hardcoded `SOURCE_DIGEST` literal in
+  `workers/quests/src/portfolio-workbench-route.test.ts` that pointed at the
+  obsolete classification digest `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`.
+- Replaced the literal with the live canonical
+  `PORTFOLIO_CLASSIFICATION_DIGEST` export so the
+  `validatePortfolioAdminAction` sourceDigest gate (line 478) no longer
+  rejects the founder Telegram action with a 400. The `ROOT_DIGEST` and
+  `CATALOG_DIGEST` constants were already sourced from generated modules and
+  needed no change.
+- Also imports `PORTFOLIO_CLASSIFICATION_DIGEST` alongside
+  `PORTFOLIO_CATALOG` from `./portfolio-catalog.ts`.
+- Verification: `node --test workers/quests/src/portfolio-workbench-route.test.ts
+  workers/quests/src/portfolio-catalog-route.test.ts
+  workers/quests/src/portfolio-catalog.test.ts` passes 29/29.
+
+### 2026-08-10 founder reclassification checkpoint (ParkArea, Tirak, Klear Karma)
+
+- Founder-authoritative correction: Saplings are only Thoughtseed-created ventures.
+  ParkArea and Tirak collapsed to branch-only (`branch:parkarea`, `branch:tirak`).
+  Klear Karma reclassified as co-founded venture (`branch:klear-karma` +
+  `co-founded-venture:klear-karma`). All prior `sapling:` references removed.
+- Three-Sapling cohort preserved: Fitcheck, IVerif, DLOCK remain the only
+  Thoughtseed-originated Saplings.
+- Scrub confirmed: `sapling:parkarea` — 0, `sapling:tirak` — 0,
+  `sapling:klear-karma` — 0 occurrences remaining across Cambium.
+- Evidence-only mutation boundary. No R2, D1, registry, repository, provider,
+  deployment, or packet mutation occurred.
+
+### 2026-08-10 portfolio evidence pipeline reconciliation checkpoint
+
+- Status: `reviewed-held`. Read-only verification pass confirms all layers
+  are connected and operational. No mutation performed by this checkpoint.
+- Phase 1 Cambium archive-first promotion confirmed already complete (2026-08-08
+  checkpoint L771–813): stale non-Git `cambium` archived to
+  `_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`, exact
+  `Sheshiyer/cambium` checkout promoted into canonical slot. Current HEAD:
+  `8e76da5dd33ba54eb0e71d49d5485d11a933870d` on `codex/project-r2-mapping-plan`.
+- Phase 2 Temperance landing-page promote-authority de-dup confirmed already
+  complete (2026-08-08 checkpoint L861–910).
+- `safvr` AWS CLI profile corrected: endpoint now points at ThoughtseedLabs R2
+  (`https://9d7cec1b5a32b2df8c6cdc1321ccd00b.r2.cloudflarestorage.com`) using
+  ThoughtseedLabs-specific S3-compatible credentials. AshwinSheth credentials
+  remain isolated and untouched. R2 read verified:
+  `aws s3 ls thoughtseed-vault/portfolio/thoughtseed/workobjects/ --profile safvr`
+  returns `sapling:fitcheck/`.
+- CodeGraph structural index initialized: 6,643 nodes, 6,269 edges across
+  373 indexed files in Cambium checkout.
+- Portfolio mapping manifest scaffolded:
+  `docs/project-management/portfolio-mapping-manifest.v1.json` — 49 mapped
+  roots, 5 held roots, consumer projection contracts (Plexus, Mini App, Hermes).
+- Held-root receipt stubs emitted:
+  `docs/project-management/_staging/held-root-receipt-stubs.plan.json` —
+  plugins (`program:operator-utilities`, pending-approval), symphonics
+  (`branch:symphonics`, blocked-missing-shallow-folder), virtualtryon-3d
+  (retired-ignore), two infrastructure entries (no receipt).
+- Fitcheck mapping receipt `pmr_9de251ce89564f07f3e4c510` remains
+  issued and readback-verified at R2 prefix
+  `portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/`.
+- No R2 write, D1 write, folder move, registry mutation, provider change,
+  Goal Graph write, production deployment, or live Workbench mutation was
+  performed by this reconciliation.
+
+### 2026-08-10 IVerif D1 Mission/Task anchor proposal (founder-approved next lane)
+
+- Status: `proposal-only`. Read-only ISA scaffold emitted; CAS commit deferred
+  pending founder approval to issue IVerif's prepared mapping receipt
+  `pmr_a8c7a566eb32790dffaf1d2a` and admit `sapling:iverif`.
+- Proposal artifact: `MEMORY/WORK/d1-iverif-anchor/ISA.md`.
+- Canonical task/loadout pins from `LOADOUT_SOURCE_DEFINITIONS` (lines 306-312):
+  `externalId: 'task:iverif-observer'`, `pinnedLoadoutId: 'loadout:iverif-observer'`.
+- Mission parent: `iverif-wiki-activation`.
+- Mapping evidence: prepared-but-unissued, digest
+  `sha256:a8c7a566eb32790dffaf1d2a06ad21d0514ba9e4dd90d773d769ae4929e5abeb`.
+  - No D1 write, R2 write, Hermes dispatch, deployment, or tenant admission
+  occurred — proposal validates only.
+
+### 2026-08-10 IVerif golden-path projection registered and bundle regenerated
+
+- Status: `reviewed-held`. Read-only golden-path projection compiled and embedded.
+- New file: `shared/iverif-golden-path.ts` — IVerif golden path via
+  `compileOperationalPacketProjection`, schema `cambium.iverif-golden-path.v1`,
+  identity `sapling:iverif`, repository `Sheshiyer/iverif-wiki` (`R_kgDOSwXJ7Q`),
+  mapping receipt `pmr_a8c7a566eb32790dffaf1d2a`, `promotionState: 'proof-only'`.
+- `shared/operational-packet-registry.ts` updated to import and register
+  `IVERIF_GOLDEN_PATH` in `OPERATIONAL_PACKET_PROJECTIONS`.
+- Lifecycle ladder includes all required stages: `identified`,
+  `systems-bound`, `mapping-receipt-verified` (current: false, readback not
+  verified), `planned`, `d1-eligible` (current: false, per validator rule).
+- `apps/portfolio-cartographer/src/domain.ts` updated: `PortfolioFolderKind`
+  now includes `'co-founded-venture'`.
+- Bundle regenerated via `pnpm --dir apps/portfolio-cartographer bundle`:
+  both `cambium.fitcheck-golden-path.v1` and `cambium.iverif-golden-path.v1`
+  now embedded in `apps/portfolio-cartographer/bundle.html` and
+  `workers/quests/src/portfolio-workbench.generated.ts`.
+- New test added to `workers/quests/src/portfolio-workbench-route.test.ts`:
+  verifies both golden paths and sapling identifiers are present in the bundle.
+- Verification: `operational-packet-projection.test.ts` 4/4 pass;
+  `portfolio-workbench-route.test.ts` 11/11 pass.
+
+### 2026-08-09 operational-anchor and foldback checkpoint
+
+- Batch 3 now compiles 38 deterministic `prepared-not-issued` mapping receipts
+  across 12 exact WorkObjects and 38 immutable GitHub repositories. The bundle
+  digest is
+  `sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`;
+  founder holds remain zero, Snow Gloves contamination and the Chakra Shine
+  false positive remain excluded, and no receipt was written to R2.
+- Mapping receipts bind the current root map, classification source, full
+  catalog, and repository-evidence digests. Receipt identity, content digest,
+  idempotency key, and WorkObject-scoped R2 prefix are deterministic. The store
+  re-derives the compiled receipt before any conditional write, accepts exact
+  replay, and rejects tampered or semantically conflicting evidence.
+- Additive migration `0009_goal_graph_operational_anchors.sql` defines nullable
+  `work_object_id`, `work_object_kind`, and `pinned_loadout_id` columns plus
+  tenant-scoped indexes. Application validation enforces paired, prefix-matched
+  canonical WorkObject identity and rejects loadout anchors without it. Legacy
+  rows remain readable and are not rewritten.
+- Mission Fabric admits `contains` and deduplicated `pins-loadout` edges only
+  from exact catalog-backed Goal Graph anchors. Missing, malformed,
+  type-mismatched, orphaned, or loadout-less anchors remain explicit typed
+  gaps; aliases and repository names never join.
+- Hermes terminal foldback now has a deterministic local contract and immutable
+  store. Only `executed` or `failed` evidence with exact task, WorkObject,
+  loadout, graph version, claim, fence, attempt, attestation, and proof digests
+  emits `proves` and `informs-next-intent`. The latter is proposal evidence,
+  never a direct Goal Graph write.
+- The live proof remains held in
+  `docs/project-management/hermes-execution-foldback-preflight.v1.json`. Its
+  canary sequence is `poll -> claim -> outcome -> immutable foldback -> ACK`,
+  with flags false and rollback-first backup requirements. Separate live
+  approval text is `approve live Hermes canary execution and foldback proof with execution disabled`.
+- Verification passes: 428/428 focused operational tests;
+  `validate:portfolio-foundation`; six product packets; Portfolio Cartographer
+  69 active tests plus one historical skip with lint, TypeScript, build, audit,
+  CSP, and smoke; and full `npm test` at 1601/1601. Receipt regeneration,
+  edited JSON parsing, and `git diff --check` also pass.
+- No Sapling promotion, production D1 migration, R2 write, Hermes execution or
+  ACK, GitHub mutation, Vault/registry/provider change, traffic shift, deploy,
+  or folder move occurred. Mapping-receipt issuance, the D1 migration/live
+  canary, Sapling promotion, and quest deployment remain separate rollback-gated
+  operations.
+
+### 2026-08-09 Fitcheck golden-path interface and doctrine checkpoint
+
+- Fitcheck is the single bounded reference trace for restoring the planned
+  Workbench and Telegram experience. Both projections consume
+  `shared/fitcheck-golden-path.ts`, whose exact operational identity is
+  `sapling:fitcheck`, parent tenant is `cambium`, and aliases `FitCheck` and
+  `getfitcheck` remain display-only.
+- The Workbench Fitcheck drawer now opens into a read-only `Operate` view with
+  exact identity, supervised-not-autonomous state, packet story, three missions,
+  two KPI targets, seven gates, five organs, Hermes and Garden support rails,
+  proof targets, and explicit anti-claims. Other WorkObjects retain their
+  existing four-tab model.
+- The Telegram operating fabric now carries the same Fitcheck projection across
+  Mission, Flow, Workforce, Forge, Gate, and Inspect. Exact catalog/runtime
+  identity is distinct from admission: `ADMITTED` becomes evidenced only when
+  the exact D1 WorkObject has a direct `contains` edge to a task. Pinned,
+  executed, and learned states retain independent held proof requirements.
+- `ARCHITECTURE.md`, `INTEGRATION.md`, `INFINITE-GAME.md`, `HOMEOSTASIS.md`, and
+  `ONBOARDING-OCTALYSIS.md` now distinguish doctrine, local proof, observed
+  production, held work, and retired plans. The detailed worked trace lives in
+  `docs/architecture/fitcheck-golden-path.md`.
+- Browser QA passed the local Workbench at desktop plus 320, 390, and 430 pixel
+  widths with no body overflow, console error, page error, or failed request.
+  Operate is the default selected tab, the five-tab model has correct ARIA
+  relationships and arrow-key behavior, and the Operate panel exposes no
+  execution, approval, or mutation controls.
+- The canonical Telegram viewport proof passes all 47 captures: 27 layout and
+  20 clickability cases. Its current page digest is
+  `909fb8758ed8259b060b5be76949376b8d6916d71376ae2f0c4bbbf7158eea4f`.
+  The Portfolio Cartographer check passes 70 active tests with one historical
+  skip plus lint, TypeScript, build, deterministic bundle, audit, CSP, and
+  smoke; full `npm test` passes 1603/1603; rendered docs, drift audit, and
+  `git diff --check` pass.
+- Independent post-build review approves the local checkpoint with no material
+  blockers. The authenticated production surface was not observed: the visible
+  `curious` + `.thoughtseed.space` production host tab stopped at Cloudflare
+  Access, and no login
+  material, cookies, storage, session identifiers, or credentials were
+  inspected or recorded.
+- The durable local commit subject is
+  `feat(cambium): add Fitcheck golden path`. This checkpoint does not promote a
+  Sapling, issue mapping receipts, apply the D1 migration, execute Hermes,
+  deploy quests, or mutate production, Telegram, R2, GitHub, Vault, registry,
+  provider, traffic, or physical project state.
+- Next gate: after an already-authorized founder browser session reaches the
+  product, record the authenticated production observation without widening
+  authority. Mapping-receipt issuance, live D1 anchors, the Hermes canary,
+  Sapling promotion, and quest deployment remain separately approved lanes.
+
+### 2026-08-09 three-Sapling operational foundation checkpoint
+
+- Fitcheck, IVerif, and DLOCK are now the exact local prepared cohort under
+  parent tenant `cambium`. Their immutable repository identities are
+  `Sheshiyer/fitcheck-landing` / `R_kgDOSzF56w`,
+  `Sheshiyer/iverif-wiki` / `R_kgDOSwXJ7Q`, and
+  `thoughtseed-labs/lockwell-portal` / `R_kgDOP5AZyQ`. DLOCK remains explicitly
+  folderless; no shallow folder was invented.
+- The catalog digest is
+  `sha256:448cd80278a7f8e1055c229a8cd4b692f56493f88e579814f30cfe5bbf12354e`.
+  Generated repository evidence now contains 107 references: 97 resolved,
+  five unverified, and five unmatched, with digest
+  `afbbb9fbdebd4f40c6bebf3e2384fcca56c02405b519d109b96b7caa3f7e1f40`.
+- Batch 3 remains `prepared-not-issued`: 38 receipts across 12 WorkObjects and
+  38 immutable repositories. The regenerated bundle digest is
+  `sha256:bf9e87d25efc284959930bb835f675e11bafb31a8bd0e1241d542d7080bc7eec`.
+  No receipt was issued to R2.
+- `portfolio-operational-cohort.ts` provides a closed, deterministic held
+  activation manifest and one immutable no-spend loadout per cohort Sapling.
+  Activation digest is
+  `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`;
+  loadout-registry digest is
+  `sha256:b0db8792d37a855a8535cb67ea75bf2ece8b1f42f2e6bcf8165b3ff954bfb7c7`.
+  Delivery and external mutation remain disabled.
+- Goal Graph now rejects syntax-only loadout pins. Mission Fabric emits
+  `contains`, `pins-loadout`, and `requires-cluster` only from exact catalog and
+  governed-registry authority; missing or cross-Sapling authority remains a
+  typed gap.
+- Governed dispatch preparation requires an externally issued exact mapping
+  receipt, admitted activation evidence, exact D1 task/graph/loadout/cluster
+  lineage, and an unconsumed signed approval bound to the full dispatch
+  subject. Admission also binds the exact issued mapping receipt reference and
+  digest, preventing same-Sapling receipt substitution. Both authorities must
+  pass an injected immutable external readback verifier. The local compiler
+  neither consumes approval nor performs delivery.
+- Terminal foldback derives Cortex and agent-memory projections only from an
+  admitted terminal receipt accepted by an injected external admission
+  readback verifier. It emits an approval-required, proposal-only next intent
+  with no Goal Graph write authority. Three-Sapling tests prove receipt,
+  memory, R2-key, and next-intent isolation without cross-contamination.
+- The checked-in cohort preflight keeps every live flag false, every approval
+  unconsumed, and every mapping receipt unissued. The implementation performed
+  no production D1 migration or write, R2 write, Hermes execution, Cortex or
+  agent-memory write, provider mutation, deployment, traffic shift, GitHub
+  mutation, folder move, or Sapling promotion.
+- Verification passes: 417/417 focused authority and route tests; full
+  `npm test` 1617/1617; Portfolio Cartographer check with 70 active tests and
+  one historical skip plus lint, TypeScript, bundle, audit, CSP, and smoke;
+  six product packets; foundation validation; deterministic receipt check;
+  rendered docs; edited JSON parsing; and `git diff --check`.
+- The next operation is not automatic. Mapping-receipt issuance, live D1
+  Mission → Task anchors, any Hermes canary, Sapling promotion, and quests
+  deployment each retain their separate owner approval and rollback gate.
+
+### 2026-08-09 Fitcheck reusable intake and prepared-receipt checkpoint
+
+- This checkpoint supersedes the immediately earlier three-Sapling foundation
+  facts where they differ. No live receipt issuance, D1 write, Hermes
+  execution, Sapling promotion, deployment, provider mutation, GitHub mutation,
+  folder move, or traffic change occurred.
+- Fitcheck is now modeled as one WorkObject with multiple governed systems,
+  not as a synonym for one repository. `sapling:fitcheck` remains the product
+  identity and links symmetrically to the distinct backend capability
+  `program:hdilint`; the relationship does not merge authority.
+- The shared operational packet foundation is now generic and versioned:
+  `shared/operational-packet-projection.ts` validates canonical WorkObject
+  identity, typed repository roles, cross-WorkObject dependencies,
+  infrastructure dependencies, lifecycle stages, mapping authority, gates,
+  missions, proofs, organs, and support rails. It explicitly holds
+  `mapping-receipt-verified` and `d1-eligible` false until receipt readback
+  exists.
+- Fitcheck’s checked-in packet uses that generic model. Exact repository
+  topology is `Sheshiyer/fitcheck-landing` / `R_kgDOSzF56w` as the Fitcheck
+  experience/frontend planning authority and
+  `Sheshiyer/HDILINT-backend-aleph` / `R_kgDOS4jKmg` as the HDILINT-owned
+  backend dependency. Typed infrastructure dependencies now include Vercel,
+  Shopify, AWS App Runner, Dodo Payments, Cloudflare R2, and Cortex.
+- The Portfolio Workbench and Telegram operating-fabric projection now consume
+  the generic operational packet registry rather than a Fitcheck-only special
+  case. The Workbench shows an authority-honest `Operate` view for packeted
+  WorkObjects, and the Mini App keeps `mapped` held until mapping receipt
+  verification rather than inferring readiness from identity alone.
+- Intake creation is now governed by a canonical workflow registry at
+  `docs/project-management/project-intake-workflows.v1.json`. Saplings use
+  `sapling-product`, Client Branches use `client-delivery`, and Internal
+  Programs use `internal-capability`. Birth packets and receipts bind workflow
+  ID, workflow digest, registry digest, and stage provenance, and explicit
+  workflow overrides fail closed unless the file is absolute, regular, and
+  kind-compatible.
+- Onboarding doctrine and executable behavior were resynchronized. The runtime
+  now matches the 20-row `ONBOARDING-OCTALYSIS.md` table exactly, including
+  read-only identity/authority inspection, noesis only at steps 1/18/20, and
+  deterministic Markdown-to-runtime parity tests.
+- Doctrine references now reflect the correct ordering:
+  identified → systems-bound → mapping receipt issued/read back → planned →
+  D1-eligible → admitted. `ARCHITECTURE.md`, `INTEGRATION.md`,
+  `INFINITE-GAME.md`, `HOMEOSTASIS.md`, `ONBOARDING-OCTALYSIS.md`, and
+  `docs/architecture/fitcheck-golden-path.md` were updated accordingly.
+- The checked-in catalog digest is now
+  `sha256:0aa1e7a1b4bdfcd82571509b693fca90a0dc8a6901f539980ebe1c5b34be275a`.
+  Generated repository evidence now contains 107 references with digest
+  `afbbb9fbdebd4f40c6bebf3e2384fcca56c02405b519d109b96b7caa3f7e1f40`.
+  The reviewed root-map digest remains
+  `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`.
+- Batch 3 now verifies as 39 deterministic `prepared-not-issued` mapping
+  receipts with bundle digest
+  `sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f`.
+  The prepared Fitcheck receipt remains
+  `pmr_9de251ce89564f07f3e4c510`; it is still local evidence only and was not
+  written to R2.
+- DLOCK remains outside the executable lane for this checkpoint. Its mapping
+  authority is still access-held pending cofounder-granted authenticated
+  Thoughtseed Labs GitHub access, so no DLOCK receipt issuance or promotion was
+  attempted.
+- Verification passes: `pnpm --dir apps/portfolio-cartographer check` with 70
+  active tests and one historical skip plus lint, TypeScript, build, bundle,
+  standalone audit, CSP, and smoke; `npm run validate:portfolio-foundation`;
+  full `npm test` at 1628/1628; `node scripts/prepare-portfolio-mapping-receipts.mjs --check`;
+  `npm run render-docs:check`; edited JSON parsing; and `git diff --check`.
+- The next live phase remains separately owner-approved:
+  three-Sapling mapping-receipt issuance and readback. Only after exact
+  issuance/readback does D1 Mission → Task anchoring become eligible; Hermes
+  canary, Sapling promotion, and quest deployment remain later distinct gates.
+
+### 2026-08-09 Fitcheck reusable intake and prepared mapping checkpoint
+
+- The authority model no longer assumes one project equals one repository.
+  `sapling:fitcheck` is the canonical product WorkObject and owns the selected
+  experience/frontend planning repository `Sheshiyer/fitcheck-landing` /
+  `R_kgDOSzF56w`. Its backend is the separately governed
+  `program:hdilint`, which owns `Sheshiyer/HDILINT-backend-aleph` /
+  `R_kgDOS4jKmg`. A symmetric catalog link and typed runtime dependency join
+  them without merging their identities or planning authorities.
+- `shared/operational-packet-projection.ts` is now the closed versioned system
+  model for canonical identity, repository components and roles, dependent
+  WorkObjects, infrastructure/services, lifecycle, missions, KPIs, gates,
+  proofs, organs, and authority boundaries. Fitcheck compiles through the
+  generic registry as the first fixture; its Workbench and Telegram Operate
+  surfaces consume that registry instead of a Fitcheck-only renderer branch.
+- Lifecycle evidence is explicitly ordered and non-substitutable:
+  `identified` → `systems-bound` → mapping receipt issued → immutable readback
+  verified → `planned` → `d1-eligible` / admitted. A prepared receipt, exact
+  repository metadata, packet plan, or D1-looking task edge cannot satisfy the
+  mapping-readback gate.
+- Batch 3 now deterministically contains 39 prepared receipts across 13
+  WorkObjects at bundle digest
+  `sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f`.
+  Fitcheck's prepared candidate is `pmr_9de251ce89564f07f3e4c510`, content
+  digest
+  `sha256:9de251ce89564f07f3e4c510c2bcc9e873a3cf758bfb5e30a8588e1db7e7cbf7`,
+  and proposed immutable key
+  `portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json`.
+  It remains `prepared-not-issued`; no R2 object exists from this checkpoint.
+- Current provenance is root-map digest
+  `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`,
+  catalog digest
+  `sha256:0aa1e7a1b4bdfcd82571509b693fca90a0dc8a6901f539980ebe1c5b34be275a`,
+  classification digest
+  `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`,
+  and repository-evidence digest
+  `afbbb9fbdebd4f40c6bebf3e2384fcca56c02405b519d109b96b7caa3f7e1f40`.
+- `project-intake-workflows.v1.json` now supplies kind-compatible
+  `sapling-product`, `client-delivery`, and `internal-capability` templates.
+  Project birth derives the default from origin kind, rejects mismatches before
+  folder creation, and records workflow, workflow digest, registry digest, and
+  stages. The executable twenty-step onboarding contract is checked directly
+  against `ONBOARDING-OCTALYSIS.md`.
+- DLOCK is outside the immediate live lane. Its known identity remains held as
+  `cofounder-grant-required` until authenticated Thoughtseed Labs GitHub access
+  is granted; no mapping receipt or operational authority is inferred.
+- Final verification passes: full `npm test` 1628/1628; Portfolio Cartographer
+  70 active tests with one historical skip plus lint, TypeScript, deterministic
+  bundle, standalone audit, CSP, and smoke; foundation validation; exact
+  39-receipt regeneration; six rendered docs and 91 components; 47 canonical
+  Telegram viewport captures; JSON parsing; drift audit; and `git diff --check`.
+  Independent Chromium QA passes the local Workbench at desktop and
+  320/390/430 widths with no overflow, console, page, or request errors. It
+  confirms Fitcheck/HDILINT ownership, six infrastructure dependencies,
+  prepared-not-issued mapping, held D1/admission, absent mutation controls,
+  and all three origin-to-workflow derivations.
+- The next separately approved operation is **Fitcheck mapping-receipt issuance
+  and immutable readback**. Only a successful exact readback may enable a D1
+  Mission → Task proposal and governed no-spend loadout pin. D1 admission,
+  Hermes execution, foldback, Sapling promotion, and quests deployment remain
+  later independent gates.
+- This checkpoint issued no mapping receipt and performed no D1, R2, Hermes,
+  Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or
+  folder mutation.
+
+### 2026-08-09 Fitcheck mapping-receipt issuance and immutable readback
+
+- Founder approval in the active Codex task authorized the next live phase as
+  **Fitcheck mapping-receipt issuance and immutable readback**. This approval
+  did not authorize D1 Mission → Task writes, Hermes dispatch, Cortex or
+  agent-memory foldback, deployment, Sapling promotion, provider changes,
+  traffic changes, GitHub mutation, or folder mutation.
+- Preflight re-ran the deterministic Batch 3 compiler:
+  `node scripts/prepare-portfolio-mapping-receipts.mjs --check` returned
+  39 receipts at bundle digest
+  `sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f`.
+- The remote R2 key was absent before issuance:
+  `thoughtseed-vault/portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json`.
+- Exactly one R2 object was written, then read back byte-identically. The
+  stored object SHA-256 is
+  `0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5`.
+- The issued receipt remains the deterministic Fitcheck mapping receipt
+  `pmr_9de251ce89564f07f3e4c510`, internal content digest
+  `sha256:9de251ce89564f07f3e4c510c2bcc9e873a3cf758bfb5e30a8588e1db7e7cbf7`,
+  binding `sapling:fitcheck` to `Sheshiyer/fitcheck-landing` /
+  `R_kgDOSzF56w`.
+- Readback evidence is recorded at
+  `docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json`.
+- The local operational packet now marks Fitcheck `mapped` and
+  `mapping-receipt-verified` as evidenced, and marks `d1-eligible` as true for
+  the next proposal gate. `admitted`, `pinned`, `executed`, and `learned`
+  remain held.
+- No D1, Hermes, Cortex, agent-memory, deployment, promotion, provider,
+  traffic, GitHub, or folder mutation was performed by this live receipt
+  phase.
+
 ### 2026-08-21 Phase 7 deterministic safety and handoff implementation checkpoint
 
 - The reviewed repository-only implementation head before acceptance edits is

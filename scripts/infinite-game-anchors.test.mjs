@@ -229,6 +229,25 @@ const syntheticPrivacyFixtures = new Map([
     ['/', 'Volumes/'].join(''),
     ['prompt', 'Body='].join(''),
   ]],
+  ['bin/invoke.test.mjs', [
+    ['/tmp/', 'meristem-sidecar-proof'].join(''),
+  ]],
+  ['bin/quine/hyphae/quests.test.ts', [
+    ['Bearer super-', 'secret-token'].join(''),
+  ]],
+  ['.planning/FITCHECK-RELEASE-HANDOFF-2026-08-11.md', [
+    ['/tmp/', 'cambium-fitcheck-release.aTYxcV'].join(''),
+  ]],
+  ['MEMORY/WORK/d1-fitcheck-anchor/ISA.md', [
+    ['/tmp/', 'fitcheck_proposal_validate.mjs'].join(''),
+  ]],
+  ['MEMORY/WORK/d1-iverif-anchor/ISA.md', [
+    ['/tmp/', 'iverif_proposal_validate.mjs'].join(''),
+  ]],
+  ['workers/quests/src/operating-fabric-page.test.ts', [
+    ['Bearer ', 'eyJhbGciOiJIUzI1NiJ9'].join(''),
+    ['Bearer ', 'secret-token'].join(''),
+  ]],
 ]);
 
 const D16_WORKER_VERSION = '089181f6-ed60-4710-aab6-cd10855360e0';

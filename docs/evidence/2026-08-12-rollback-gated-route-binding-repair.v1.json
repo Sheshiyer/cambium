@@ -1,0 +1,95 @@
+{
+  "schema": "cambium.rollback-gated-route-binding-repair.v1",
+  "observedAt": "2026-08-12T17:16:00Z",
+  "tenant": "cambium",
+  "approval": "founder-approved rollback-gated repair attempt",
+  "productionAuthority": {
+    "authorityStatus": "declared-from-checked-in-Labs-config; current-live-control-plane-readback-blocked",
+    "config": "workers/quests/wrangler.labs.jsonc",
+    "accountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+    "worker": "cambium-quests",
+    "customDomain": "curious.thoughtseed.space",
+    "workersDevOrigin": "https://cambium-quests.thoughtseedlabs.workers.dev",
+    "questsNamespaceId": "439547e617d9455fb752bfd651da9765",
+    "secretsBindingPresent": true,
+    "labsPlexusOrigin": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami",
+    "cron": "0 */6 * * *"
+  },
+  "personalConfigExcluded": {
+    "config": "workers/quests/wrangler.jsonc",
+    "questsNamespaceId": "10aaa6e0a8a545c1afb5ceee7ef61c14",
+    "reason": "personal-account origin used by the earlier one-shot receipt; not production authority"
+  },
+  "liveRouteProbes": {
+    "labsWorkersDevHealth": {
+      "status": 200,
+      "contentType": "application/json",
+      "worker": "cambium-quests",
+      "ok": true
+    },
+    "labsWorkersDevQuestReadWithoutIdentity": {
+      "status": 401,
+      "contentType": "application/json",
+      "error": "access_identity_required"
+    },
+    "customHostnameHealthWithoutAccess": {
+      "status": 302,
+      "contentType": "text/html",
+      "locationClass": "cloudflare-access"
+    },
+    "customHostnameQuestReadWithoutAccess": {
+      "status": 302,
+      "contentType": "text/html",
+      "locationClass": "cloudflare-access"
+    }
+  },
+  "authenticatedPreflight": {
+    "wranglerWhoami": {
+      "authenticatedAccountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+      "authenticatedAccountName": "founder-account (email redacted)",
+      "labsAccountPresent": false
+    },
+    "labsDeploymentsStatus": {
+      "status": "blocked",
+      "apiErrorCode": 10000,
+      "reason": "authenticated account does not match configured Labs account"
+    },
+    "labsVersionView": {
+      "status": "blocked",
+      "apiErrorCode": 10000,
+      "reason": "authenticated account does not match configured Labs account"
+    },
+    "priorProductionMetadata": {
+      "activeVersionId": "86112412-2073-4f14-b215-599de0ed0eeb",
+      "activeQuestsNamespaceId": "439547e617d9455fb752bfd651da9765",
+      "status": "prior-evidence-only; not a current rollback baseline",
+      "currentLabsAccountProvenance": false
+    },
+    "credentialRepairAttempted": false
+  },
+  "repairPlan": {
+    "candidateConfig": "workers/quests/wrangler.labs.jsonc",
+    "uploadMode": "wrangler versions upload with inert preview alias",
+    "promotionMode": "wrangler versions deploy candidate@100% only after exact preflight",
+    "rollbackTarget": "must be read back from Labs deployments before upload",
+    "postPromotionChecks": [
+      "one candidate Version at 100%",
+      "Labs workers.dev health JSON 200",
+      "Labs workers.dev unauthenticated quest read JSON 401",
+      "custom hostname remains Access-protected",
+      "Mission read compared against accepted receipt timestamp"
+    ]
+  },
+  "result": {
+    "status": "blocked-before-upload",
+    "scope": "this repair attempt only; independent external changes are not ruled out",
+    "blockingGate": "valid Labs Cloudflare authentication",
+    "uploadPerformed": false,
+    "deploymentPerformed": false,
+    "trafficChanged": false,
+    "bindingChanged": false,
+    "secondLedgerPushAttempted": false,
+    "accessBypassAttempted": false,
+    "externalDataPlaneMutated": false
+  }
+}

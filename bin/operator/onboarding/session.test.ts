@@ -36,12 +36,12 @@ test('noesis · exactly the 3 mid-brain beats fire — #1, #18, #20', () => {
   assert.deepEqual(noesisSteps, [1, 18, 20]);
 });
 
-test('setpoint · ONLY the evidence-backed macro moves (#2, #16) move x*; micro/mid-brain never do', () => {
+test('setpoint · only the evidence-backed Move the goal interaction moves x*', () => {
   const { decisions } = runOnboarding();
   const moved = decisions.map((d, i) => (d.setpointMoved ? i + 1 : 0)).filter(Boolean);
-  assert.deepEqual(moved, [2, 16]);
+  assert.deepEqual(moved, [16]);
   for (const n of [1, 18, 20]) assert.equal(decisions[n - 1].setpointMoved, false, `mid-brain step ${n} moved x*`);
-  for (const n of [3, 4, 5, 6, 7, 14]) assert.equal(decisions[n - 1].setpointMoved, false, `micro step ${n} moved x*`);
+  for (const n of [2, 3, 4, 5, 6, 7, 14, 17]) assert.equal(decisions[n - 1].setpointMoved, false, `read/prepare step ${n} moved x*`);
 });
 
 test('routing · every folded decision class matches the script expect (router fidelity end-to-end)', () => {

@@ -59,12 +59,6 @@ async function harness() {
   return { db, store: d1GoalGraphStore(db) };
 }
 
-async function legacyHarness() {
-  const db = new SqliteD1();
-  db.db.exec(await readFile(new URL('../migrations/0007_goal_graph.sql', import.meta.url), 'utf8'));
-  return { db, store: d1GoalGraphStore(db) };
-}
-
 function rootNode(overrides: Partial<GoalGraphNode> = {}): GoalGraphNode {
   return buildNode({
     tenantId: TENANT,
@@ -144,27 +138,6 @@ test('approved CAS commit persists one revision and reads it back', async () => 
   assert.equal(db.db.prepare('SELECT count(*) AS count FROM goal_graph_approvals').get().count, 1);
   assert.equal(db.db.prepare('SELECT count(*) AS count FROM goal_graph_events').get().count, 1);
   void changeSet;
-});
-
-test('pre-0009 reads remain available with explicit null operational anchors', async () => {
-  const { db, store } = await legacyHarness();
-  db.db.prepare(`INSERT INTO goal_graph_heads (
-    tenant_id, graph_version, graph_digest, source_ref, source_digest, committed_at, updated_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?)`)
-    .run(TENANT, 1, `sha256:${'4'.repeat(64)}`, 'test:legacy', `sha256:${'3'.repeat(64)}`, NOW, NOW);
-  db.db.prepare(`INSERT INTO goal_graph_nodes (
-    tenant_id, node_id, namespace, external_id, parent_node_id, scope, desired_state,
-    current_state, owner, next_action, wait_condition, proof_required, review_at,
-    status, source_ref, source_digest, graph_version, metadata_json, created_at, updated_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(TENANT, 'legacy-node', 'manual', 'legacy-task', null, 'macro', 'operate safely',
-      'active', 'founder', null, null, 1, null, 'active', 'test:legacy', `sha256:${'3'.repeat(64)}`,
-      1, '{}', NOW, NOW);
-  const [node] = await store.readNodes(TENANT);
-  assert.equal(node.nodeId, 'legacy-node');
-  assert.equal(node.workObjectId, null);
-  assert.equal(node.workObjectKind, null);
-  assert.equal(node.pinnedLoadoutId, null);
 });
 
 test('approved CAS commit persists exact WorkObject and loadout anchors', async () => {

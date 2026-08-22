@@ -1,0 +1,107 @@
+{
+  "schema": "cambium.labs-token-control-plane-readback.v1",
+  "observedAt": "2026-08-13T00:48:00Z",
+  "tenant": "cambium",
+  "approval": "owner-requested retry of the previously approved rollback-gated preflight",
+  "credentialHandling": {
+    "source": "operator Claude environment",
+    "tokenValuePersisted": false,
+    "tokenValuePrinted": false,
+    "fullScopedTokenUsedForReadback": true,
+    "wranglerCliUsed": false,
+    "environmentEdited": false,
+    "tokenVerificationEndpoint": { "status": 401, "error": "invalid_api_token" },
+    "accountListEndpoint": { "status": 200, "configuredLabsAccountPresent": true }
+  },
+  "labsAuthority": {
+    "accountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+    "worker": "cambium-quests",
+    "config": "workers/quests/wrangler.labs.jsonc",
+    "accountReadback": "authorized",
+    "configDigestUnchanged": true
+  },
+  "activeDeploymentReadback": {
+    "status": 200,
+    "activeVersionId": "86112412-2073-4f14-b215-599de0ed0eeb",
+    "activeVersionNumber": 42,
+    "activeTrafficPercentage": 100,
+    "activeCreatedAt": "2026-08-11T15:20:57.505611Z",
+    "activeScriptEtag": "1f250929bdc608b2937824ce1302b741ec4016e284e276c47c05466b4355dfbf",
+    "deploymentCountRead": 10
+  },
+  "rollbackReadback": {
+    "status": 200,
+    "rollbackVersionId": "05896dc0-9d47-4c9b-947a-8c599557bd0e",
+    "rollbackVersionNumber": 41,
+    "rollbackScriptEtag": "51322febb1a4a2aded5824abf99eef5479c0559e0949185462451b2e17a997a9",
+    "rollbackBelongsToWorker": true
+  },
+  "bindingReadback": {
+    "status": 200,
+    "activeNonSecretBindings": [
+      "BRIDGE_DB:d1:c0aba88a-5c83-4481-b625-50356d8c98e8",
+      "CAMBIUM_CORTEX:vectorize:cambium-cortex",
+      "COMMAND_CODE_BASE_URL:plain_text",
+      "CONTEXT_ALLOWED_TENANTS:plain_text",
+      "CONTEXT_EMBEDDING_MODEL:plain_text",
+      "CONTEXT_EMBEDDING_PROVIDER:plain_text",
+      "PLEXUS_KNOWLEDGE_URL:plain_text",
+      "PLEXUS_WHOAMI_URL:plain_text",
+      "QUESTS:kv_namespace:439547e617d9455fb752bfd651da9765",
+      "SECRETS:kv_namespace:3ab0824953064453b8a1995a0b4da05e",
+      "TF_ACCESS_AUD:plain_text",
+      "TF_ACCESS_TEAM_DOMAIN:plain_text",
+      "THOUGHTSEED_VAULT:r2_bucket:thoughtseed-vault"
+    ],
+    "activeSecretBindingNamesRead": true,
+    "secretValuesRead": false,
+    "configDeclaredBindingAbsentFromActive": ["CONTEXT_PROJECTIONS"],
+    "unexpectedActiveSecretOrPlainNames": [
+      "BRIDGE_TOKEN",
+      "COMMAND_CODE_API_KEY",
+      "COMMAND_CODE_EGRESS_TOKEN",
+      "CONTEXT_PROJECTION_WRITE_TOKEN",
+      "CONTEXT_ROUTE_TOKEN",
+      "CORTEX_INGESTION_TOKEN",
+      "EXPLEE_API_KEY",
+      "GATE_BOT_ID",
+      "GATE_FOUNDER_IDS",
+      "HANDOFF_SECRET",
+      "HERMES_ASSIGNMENT_TOKEN",
+      "HERMES_ROLE_TASK_BINDINGS_JSON",
+      "IVERIF_READ_TOKEN",
+      "KIMI_CODING_API_KEY",
+      "MARKETING_CREATE_ACTIVATION",
+      "NEBIUS_API_KEY",
+      "NVIDIA_API_KEY",
+      "NVIDIA_MARKETING_CREATE_API_KEY",
+      "OLLAMA_API_KEY",
+      "OPENCODE_API_KEY",
+      "PLEXUS_KNOWLEDGE_TOKEN",
+      "PROVIDER_BROKER_TOKEN",
+      "QUESTS_PUSH_TOKEN"
+    ],
+    "unexpectedActivePlainNames": ["PLEXUS_KNOWLEDGE_URL"],
+    "unexpectedBindingValuesRead": false,
+    "bindingRepair": "held"
+  },
+  "routeReadback": {
+    "status": 200,
+    "customDomain": "curious.thoughtseed.space",
+    "service": "cambium-quests",
+    "environment": "production",
+    "routeCollectionForWorker": "empty; custom domain is represented by account worker-domain metadata"
+  },
+  "result": {
+    "status": "labs-readback-authorized-repair-held",
+    "rollbackBaselineAvailable": true,
+    "uploadPerformed": false,
+    "deploymentPerformed": false,
+    "trafficChanged": false,
+    "bindingChanged": false,
+    "secondLedgerPushAttempted": false,
+    "credentialMutation": false,
+    "blockingReason": "active binding/config drift requires a fresh candidate and separate mutation gate; current checkout is dirty and no isolated reviewed candidate was built",
+    "nextGate": "owner approval for an isolated candidate upload after clean reviewed-source verification; do not deploy current dirty checkout"
+  }
+}

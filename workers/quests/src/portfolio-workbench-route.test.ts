@@ -535,6 +535,25 @@ test('browser portfolio route fails closed uniformly for missing, invalid, non-f
   assert.doesNotMatch(String(inactive.body), PORTFOLIO_BYTES_RE);
 });
 
+test('generated bundle embeds both Fitcheck and IVerif golden-path projections', () => {
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /cambium\.fitcheck-golden-path\.v1/,
+  );
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /cambium\.iverif-golden-path\.v1/,
+  );
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /sapling:fitcheck/,
+  );
+  assert.match(
+    PORTFOLIO_WORKBENCH_HTML,
+    /sapling:iverif/,
+  );
+});
+
 test('operating fabric exposes the Workbench link only when founder detail exists', () => {
   assert.match(
     OPERATING_FABRIC_SCENES,

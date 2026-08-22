@@ -55,7 +55,7 @@ Lives in `hermes-aws-ts` (not this repo):
 
 ```bash
 # Dry-run pull
-HERMES_CAMBIUM_BRIDGE_URL=https://<configured-cambium-bridge-origin> \
+HERMES_CAMBIUM_BRIDGE_URL="$CAMBIUM_WORKER_BASE_URL" \
 HERMES_CAMBIUM_BRIDGE_TOKEN=… \
 node scripts/proactive-loop-deliver.mjs --json
 
@@ -75,13 +75,14 @@ EC2: `ops/ec2/hermes-proactive-loop.timer` (every 6h at :15) +
 ## Deploy (Worker cron)
 
 ```bash
-# Labs production authority; verify `wrangler whoami` before upload.
+# account must match production (see docs/evidence/*-deploy.json)
+export CLOUDFLARE_ACCOUNT_ID=9d9d23b27f32e70ae3afb6a1aa2c0f10
 cd workers/quests
-npx wrangler deploy --config wrangler.labs.jsonc --dry-run --strict
-npx wrangler deploy --config wrangler.labs.jsonc
+wrangler deploy --config wrangler.jsonc --dry-run
+wrangler deploy --config wrangler.jsonc
 ```
 
-Cron trigger: `0 */6 * * *` in `wrangler.labs.jsonc` → `index.ts` `scheduled`.
+Cron trigger: `0 */6 * * *` in `wrangler.jsonc` → `index.ts` `scheduled`.
 
 ## Mini App
 
@@ -96,4 +97,4 @@ Authority line remains: **projection only · not D1 admission**.
 - `shared/quest-graph-templates.ts`
 - `workers/quests/src/proactive-loop-runtime.ts`
 - routes in `workers/quests/src/handler.ts`
-- cron in `workers/quests/wrangler.labs.jsonc` + `index.ts` `scheduled`
+- cron in `workers/quests/wrangler.jsonc` + `index.ts` `scheduled`

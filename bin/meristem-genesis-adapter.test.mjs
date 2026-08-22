@@ -16,7 +16,7 @@ test('meristem Genesis adapter is active and brandmint is rollback-only', () => 
     '--meristem-root',
     '{input}',
     '--brand-dir',
-    'brands/thoughtseed',
+    'brands/{tenant}',
     '--out',
     '-',
   ]);

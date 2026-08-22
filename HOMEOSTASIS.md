@@ -1,179 +1,138 @@
-# Homeostasis — the math of a self-healing, drift-resistant fractal engine
+# Homeostasis — keeping a finite run coherent
 
-> *Derived from first principles. Every object below maps to a concrete Cambium artifact (last table).
-> The thesis: **drift is not the inevitable cost of long autonomous runs — it is the detectable
-> signature of a non-contractive step or a contract violation.** Make every stage a measured contraction
-> toward the brand-DNA fixed point, gate the irreversible steps, and treat each deviation as a one-bit
-> "error-or-new-intent?" question whose answer updates the invariant. Then the engine converges by
-> construction and **learns** its way to staying on-brand — homeostasis.*
+Homeostasis is Cambium's doctrine for a bounded organ run: preserve declared intent, detect divergence, stop unsafe propagation, and turn a justified redirect into a new proposal. It is not a claim that the current runtime has mathematically proved contraction in a 1024-dimensional semantic space.
 
-## 1. The state space (X, d)
+The operational reference is the [Fitcheck golden path](./docs/architecture/fitcheck-golden-path.md).
 
-A business, projected onto what matters for *brand*, is a point **x ∈ X** — a vector in the **1024-dim
-embedding space** (the cortex). The metric is **cosine distance d(a, b) = 1 − cos(a, b)**. "On-brand"
-is not a vibe; it is **small d**. *(Artifact: the provider-neutral cortex — `CortexStore` / `makeCortex` transports.)*
+## 1. State, setpoint, and evidence
 
-## 2. The setpoint x\* (the brand-DNA)
+For a finite run, let:
 
-The brand-DNA — persona, positioning, voice, palette, the ISC — is itself a point **x\* ∈ X**: the
-**target** we want every artifact to be near, and (claim §4) the **unique fixed point** of the engine.
-*(Artifact: genesis output `brand-spec.json` + `brand-docs/`; the ISC criteria.)*
+- `x` be the current artifact state;
+- `x*` be the admitted task's intended state, assembled from versioned contracts and acceptance criteria;
+- `d(x, x*)` be an evaluation of divergence;
+- `V(x) = d(x, x*)` be the run's error signal.
 
-## 3. The operator Φ (the pipeline)
+An embedding distance may contribute to `d`, but it cannot be the whole judgment. Identity, required fields, claims, legal limits, spend bounds, accessibility, and human approval are typed constraints that must remain independently inspectable.
 
-Each stage is a map on X. The engine is their composition:
+## 2. The finite operator
 
-```
-Φ  =  Φ_ops ∘ Φ_build ∘ Φ_taste ∘ Φ_genesis
-      idea ─▶ brand-dna ─▶ taste-brief ─▶ artifact ─▶ business
+```text
+Φ = verify ∘ operate ∘ build ∘ taste ∘ genesis
 ```
 
-A stage is a **typed morphism**: `Φᵢ : Inputᵢ → Outputᵢ`. Composition is **well-defined iff
-`Outputᵢ ⊑ Inputᵢ₊₁`** (the output satisfies the next stage's input contract). This typing is a *hard*
-constraint — you cannot feed a logo into a GTM filter. *(Artifact: `pipeline.json` stages + their
-`input`/`output` contract tokens; `composition/CONTRACTS.md`.)*
+Each stage is a typed transformation. Composition is valid only when the previous output satisfies the next input contract. A JSON-shape check can catch a structural seam failure; it does not prove semantic quality or on-brand convergence.
 
-## 4. Convergence — why it does NOT drift (Banach fixed-point)
+## 3. Contraction as a design requirement
 
-**Definition (contraction).** Φᵢ is a contraction toward x\* with modulus Lᵢ if
-`d(Φᵢ(x), x*) ≤ Lᵢ · d(x, x*)`.
+If every stage were a contraction around a fixed setpoint,
 
-**Theorem (Banach, applied).** If every stage is a contraction with `Lᵢ < 1`, then `Φ` is a contraction
-with `L = ∏ Lᵢ < 1`. By the Banach fixed-point theorem, **Φ has a unique fixed point x\*** and the iteration
-`xₙ₊₁ = Φ(xₙ)` converges geometrically:
-
-```
-d(xₙ, x*)  ≤  Lⁿ · d(x₀, x*)   →  0
+```text
+d(Φᵢ(x), x*) ≤ Lᵢ · d(x, x*)  where 0 ≤ Lᵢ < 1,
 ```
 
-So a *correctly built* engine **cannot drift**: every stage pulls the state closer to brand-DNA, and the
-composition is a strict contraction with a single attractor. **The taste cortex is, mathematically, the
-operator that makes Φ_taste contractive** — "make it feel on-brand" *is* re-projection toward x\*.
+then their composition would contract with `L = ∏Lᵢ`, and Banach's fixed-point result would justify convergence within that finite run.
 
-## 5. Drift, formally
+Cambium uses this as a **design obligation**, not as current empirical proof. To claim measured contraction, a run must expose:
 
-**Drift at stage i ⟺ the contraction condition fails locally:**
+1. a stable, versioned setpoint;
+2. a declared metric with calibrated thresholds;
+3. before/after measurements for every stage;
+4. evidence that the metric captures semantic and policy constraints;
+5. repeated results sufficient to estimate a local bound.
 
-```
-d(Φᵢ(x), x*)  >  d(x, x*)        i.e.  local Lipschitz  Lᵢ ≥ 1
-```
+Until then, UI language should say “checked against the packet/contract” or “structural verification passed,” not “mathematically converged” or “self-healed.”
 
-the stage pushed the state **away** from the brand-DNA. (The "Fitcheck reads as fitness" miss was exactly
-this: `Φ_genesis` dropped the mission, so its output moved away from x\* — `L ≥ 1`.) The second species
-of drift is a **contract violation**: `Outputᵢ ⋢ Inputᵢ₊₁` — composition becomes undefined and garbage
-propagates. *(`verifyOutput` detects the contract-violation species at the seam.)*
+## 4. Two kinds of drift
 
-Concrete contract-violation examples live in the variable-contract layer, not in prose taste alone:
-missing `hero_media_type` or asset requirements means `build` cannot know what to produce; missing
-`proof_strategy` means `ops` cannot carry the offer honestly; missing `form_validation_rules` means an
-interaction branch can change product meaning without a seeded constraint. The compact example payload is
-tracked at [`examples/sample-variable-contract.json`](examples/sample-variable-contract.json).
-
-## 6. The Lyapunov function — the engineering form of self-healing
-
-Let **V(x) = d(x, x\*) ≥ 0**, with `V = 0` only at x\*. Then:
-
-```
-self-healing   ⟺   V strictly decreasing along the run   ⟺   V(xₙ₊₁) < V(xₙ)   ⟺   Φ contractive
-```
-
-The **verify gate's** job is a Lyapunov check: **refuse to advance if a step did not lower V** — reroll /
-re-ground until the step is contractive. This is "self-healing" made mechanical: *never accept an
-expansive step.* *(Artifact: the on-brand QA + reroll loop; the ISC verification.)*
-
-## 7. The why-handler — the adaptive control law (the heart)
-
-A `V`-spike has **two causes that look identical but are opposite**:
-
-| Cause | What it is | Correct response |
+| Drift class | Signal | Safe response |
 |---|---|---|
-| **Error** | the world is unchanged; the step was just bad (`Φᵢ` drifted) | **reject + reroll** toward the *same* x\* — automatic, fail-closed |
-| **Intent-change** | the user moved the target (`x* → x*'`) — e.g. *"the logo should contain a garment"* | **absorb**: update x\* and re-converge to the *new* fixed point |
+| Contract drift | required identity, field, type, bound, or provenance is missing or contradictory | stop; do not feed the output forward |
+| Semantic drift | artifact conflicts with the admitted story, claims, audience, or success criteria | hold for evidence-backed review or reroll |
+| Execution drift | actual run differs from its admitted task/loadout/version | fail closed and preserve the mismatch receipt |
+| Intent change | founder deliberately changes the target | prepare a new versioned proposal; never rewrite history |
 
-**"Ask why" is precisely the one-bit disambiguation between these** — a recursive system-identification
-query. The control law:
+Fitcheck's original “fitness instead of virtual try-on” failure is a semantic drift lesson. The current catalog and packet fix the identity and intended story, but they do not prove that a future artifact will preserve it.
 
-```
-measure V
-  if  V decreased            → accept, continue                      (silent convergence)
-  if  V increased  (deviation Δ):
-        default = ERROR       → reject, reroll toward x*             (automatic, fail-closed)
-        if flagged INTENT
-           (user redirect, or a consistent/repeated Δ the cortex
-            recognises as a new attractor):
-              → ASK WHY  → capture rationale r
-              → x*' ← incorporate(Δ, r)                              (move the setpoint)
-              → update the contract / ISC / θ                        (so Δ is now on-brand)
-              → re-converge to x*'
-  always: log (Δ, classification, resolution) to the cortex          (the learning trace)
-```
+## 5. The why-handler
 
-The crucial property: once an intentional deviation is absorbed, **the contract/ISC is updated so the
-same deviation never reads as drift again** — it has become part of the invariant. That is the difference
-between *obeying* a redirect and *understanding* it: the engine encodes the *why*, so it has **learned**.
-This is textbook **adaptive control** (gain-scheduling on a moving setpoint) + **recursive system
-identification** (θ updates from observed deviations). *(Artifact to build: wire **I4** — the
-drift-classifier + the `AskUserQuestion` "why" prompt + the cortex write-back. `verifyOutput` is its
-first seam.)*
+The same divergence can mean a bad step or a changed intent:
 
-## 8. The fail-closed gate — the safety constraint
-
-No irreversible / paid stage (`Φ_genesis` waves, `Φ_taste` NIM, `Φ_ops` Explee) may fire while V is
-unresolved or unapproved. Convergence happens on cheap, reversible steps first; **spend only on an
-approved, on-track trajectory.** Formally a constrained controller: minimize V subject to "no irreversible
-action off the convergence path without approval." *(Artifact: `gateStage` — fail-closed; `spend: gated`.)*
-
-## 9. Self-similarity — the fractal (renormalization fixed point)
-
-Φ has the **same form at every scale**:
-
-```
-Φ_skill  ≈  Φ_cluster  ≈  Φ_organ  ≈  Φ_venture  ≈  Φ_company  ≈  Φ_portfolio
-            (each: genesis→taste→build→ops + cortex, converging to that scale's brand-DNA)
+```text
+detect deviation
+  → default to ERROR and hold/reroll
+  → if the founder asserts INTENT, capture the reason and evidence
+  → prepare x*' as a new versioned proposal
+  → pass a signed Gate
+  → commit through the owning authority
+  → run again against x*'
 ```
 
-This is a **renormalization-group fixed point**: the operator is scale-invariant, so the convergence and
-self-healing properties hold at *every* level — a drifting skill is corrected within its cluster; a
-drifting organ within the OS; a drifting venture within the portfolio. **Homeostasis at every scale.**
-Because the cortex (the metric space) is *shared* across scales, a lesson learned at one scale propagates
-to all. *(Artifact: the self-similar repo pattern — hub-and-spoke + conductor + spec-kit + cortex.)*
+The why-handler therefore does not “learn” by silently absorbing a redirect. It records a classified deviation and produces a bounded next-intent candidate. Learning becomes operational only after the appropriate authority accepts it.
 
-## 10. The map — math ⇄ Cambium artifact
+## 6. The safety gate
 
-| Math object | Definition | Cambium artifact |
+No irreversible, paid, public, or externally visible step should fire while identity, intent, divergence, or authority is unresolved.
+
+| Move | Minimum gate evidence |
+|---|---|
+| reversible local proposal | exact WorkObject and packet version |
+| provider/spend action | admitted task, explicit approval, budget, rollback |
+| public claim or publication | claim-specific proof and named owner |
+| Goal Graph change | signed action, current graph version, D1 CAS |
+| skill/loadout promotion | governed catalog decision and apply receipt |
+
+## 7. Evidence and foldback
+
+A completed run emits facts:
+
+- the exact task, WorkObject, graph version, and loadout;
+- inputs and output digests, without secret or private prompt bodies;
+- terminal state and failure class;
+- gate and spend receipts;
+- proof that may support or falsify the packet hypothesis.
+
+Those facts may produce `proves` and `informs-next-intent` edges in Mission Fabric. They do not directly move `x*`, promote a skill, or mutate D1.
+
+## 8. Fitcheck as the first honest loop
+
+Fitcheck's current state is:
+
+```text
+identity exact ✓
+systems graph exact ✓
+packet exact ✓
+UI projection exact ✓
+mapping receipt readback unproved
+live D1 task anchor unproved
+live loadout pin unproved
+Hermes execution unproved
+terminal foldback unproved
+```
+
+The first homeostatic proof is therefore not “the system autonomously healed Fitcheck.” It is:
+
+1. Fitcheck's landing and HDILINT backend remain distinct, typed, and authority-bound;
+2. the exact Fitcheck mapping receipt is issued and read back;
+3. only then is one exact Fitcheck task admitted;
+4. one governed loadout is pinned;
+5. one bounded run returns a terminal receipt;
+6. the receipt is reconciled against the admitted criteria;
+7. any divergence becomes a new gated proposal;
+8. no surface skips or relabels a missing stage.
+
+## 9. Implementation map
+
+| Concept | Current artifact | Truth level |
 |---|---|---|
-| State space (X, d) | embedding vector space, cosine distance | the cortex (`CortexStore` / `makeCortex` transport) |
-| Setpoint x\* | the brand-DNA fixed point | genesis `brand-spec.json` + ISC |
-| Operator Φ | the staged pipeline | `pipeline.json` |
-| Stage Φᵢ (typed morphism) | one organ's transform | `registry.json` organ + `adapters.json` |
-| Contract `Outputᵢ ⊑ Inputᵢ₊₁` | composition well-definedness | `CONTRACTS.md` + `pipeline.json` tokens |
-| Contraction `Lᵢ < 1` | on-brand convergence | the taste cortex (re-projection) |
-| Drift `Lᵢ ≥ 1` ∥ contract break | distance increases ∥ type mismatch | `verifyOutput` (seam) + the verify gate |
-| Lyapunov V = d(x, x\*) | the error to minimize | the ISC / on-brand score |
-| Why-handler (control law) | error-vs-intent → update x\*/θ | **I4** (to wire) — `AskUserQuestion` + cortex write-back |
-| Fail-closed gate | safety constraint | `gateStage` (`bin/lib/invoke.mjs`) |
-| Scale-invariance | renormalization fixed point | the self-similar repo pattern |
+| typed pipeline | `composition/pipeline.json`, `composition/CONTRACTS.md` | local |
+| invocation/spend gate | `adapters.json`, `bin/lib/invoke.mjs` | local |
+| structural output check | `verifyOutput` path in the conductor | local, bounded |
+| deviation classifier | `bin/lib/whyhandler.mjs` | local seam |
+| memory transport | provider-neutral cortex interface + local ledgers | local interface |
+| operational intent | D1 Goal Graph | runtime authority |
+| read reconciliation | Mission Fabric | local/read-only projection |
+| semantic contraction proof | calibrated multi-constraint evaluation | held |
+| autonomous setpoint movement | none by design | prohibited |
 
-## 11. The minimal first step (this turn): `verifyOutput`
-
-`verifyOutput(adapter, result)` checks a stage's output against its **declared output contract** (a
-`json:*` stage must emit parseable JSON). A failure is **drift detected at the seam** — surfaced
-(non-fatal) and ready to feed the why-handler. It is the smallest honest piece of §5–§7 made real.
-
-## 12. The why-handler (I4 — wired)
-
-`bin/lib/whyhandler.mjs` turns the §5 drift signal into the §7 loop. `compose run` routes every drifted
-stage through it:
-- **classify** (`classifyDeviation`) — the one-bit error-vs-intent question. Default **error**
-  (fail-closed → reroll toward the same x*); **intent** only when the stage is flagged `--intent <stage>`
-  (the operator's redirect; later, a cortex-recognised repeated attractor).
-- **resolve** (`resolveDeviation`) — error → **reroll** toward x*; intent → **absorb** Δ into x* and the
-  contract (carrying the rationale) so it never reads as drift again.
-- **record** (`recordDeviation`) — every deviation is written via **`cortex.writeDeviation`** (the unified
-  cortex interface, `bin/lib/cortex.mjs`) — a local transport (`deviations.jsonl`) today; a hosted memory
-  Worker (**I3**) swaps in as a transport so the learning is shared across organs and scales.
-
-**The interactive "ask why" is the orchestration layer.** A CLI can't ask the operator; so when a run
-surfaces a drift, the agent driving it calls `AskUserQuestion` using `buildWhyPrompt(deviation)`
-(*error → reroll* vs *intent → new direction*), captures the rationale, and feeds it to
-`resolveDeviation`. The code ships the mechanism + the seam; the agent supplies the one bit + the why.
+Homeostasis protects a finite run. [The Infinite Game](./INFINITE-GAME.md) explains how verified finite runs become moves in a venture that never has a final fixed point.

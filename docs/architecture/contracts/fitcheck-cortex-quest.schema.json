@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:cambium:fitcheck-cortex-quest:v1",
+  "$id": "cambium.fitcheck-cortex-quest.v1",
   "title": "Fitcheck Cortex Quest Candidate V1",
   "description": "A redacted, receipt-bound candidate. It is not a Goal Graph write and cannot authorize an external action.",
   "type": "object",
@@ -19,7 +19,8 @@
         "kind": { "enum": ["explee-campaign-analytics", "explee-inbox-summary", "explee-hot-lead-summary", "search-console-summary", "ga4-summary", "site-crawl-summary", "research-source", "merchant-proof-receipt"] },
         "readOnly": { "const": true },
         "observedAt": { "type": "string", "format": "date-time" },
-        "sourceRef": { "type": "string", "minLength": 1, "maxLength": 512 }
+        "sourceRef": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "campaignId": { "type": "string", "pattern": "^[0-9]+$" }
       }
     },
     "observation": {
@@ -81,50 +82,6 @@
       }
     }
   },
-  "allOf": [
-    {
-      "if": {
-        "properties": {
-          "quest": {
-            "properties": {
-              "externalEffect": { "enum": ["account-configuration", "publish", "contact", "spend"] }
-            },
-            "required": ["externalEffect"]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "approval": {
-            "properties": {
-              "required": { "const": true },
-              "state": { "enum": ["pending", "granted", "rejected", "expired"] }
-            }
-          }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "quest": {
-            "properties": { "status": { "enum": ["approved", "active"] } },
-            "required": ["status"]
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "approval": {
-            "properties": {
-              "required": { "const": true },
-              "state": { "const": "granted" }
-            }
-          }
-        }
-      }
-    }
-  ],
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9:-]{2,127}$" }
   }

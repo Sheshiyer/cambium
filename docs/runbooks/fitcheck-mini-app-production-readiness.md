@@ -1,42 +1,40 @@
 # Fitcheck Mini App Production Readiness
 
-**Status:** documentation-only readiness gap analysis. Current `origin/main`
-does not implement the 17-row quest projection described by this packet. This
-document does not authorize a Worker upload, traffic change, Telegram mutation,
-R2/D1 write, customer contact, spend, or any external product action.
+**Status:** pre-production runbook. This document prepares a governed release;
+it does not authorize a Worker upload, traffic change, Telegram mutation, R2/D1
+write, customer contact, spend, or any external product action.
 
 ## Release scope
 
-No release is ready from this documentation-only change. A separate runtime PR
-must first synchronize the reviewed organ and quest projection, add its focused
-tests, and pass the full release gate. That later release must not promote
-`sapling:fitcheck` beyond `supervised-branch` or close any product gate.
+This release may publish only the already-local Fitcheck organ and quest
+projection to the Cambium Mini App. It does **not** promote `sapling:fitcheck`
+beyond `supervised-branch` and does not close any Fitcheck product gate.
 
-| Surface | Current state on `origin/main` | Required before release |
+| Surface | Release state | Authority |
 | --- | --- | --- |
-| Organ states | Genesis verified; Taste, Hands, and Cortex pending; Will and Garden blocked; Hermes pending | Keep the packet and `shared/fitcheck-golden-path.ts` aligned in a separate runtime PR. |
-| Quest queue | 17 proposed documentation rows; not asserted as deployed UI | Add a governed parser/projection and focused state tests. |
-| Shared projection | Existing golden path predates this quest packet | Reconcile exact fields without importing raw provider data. |
-| Mini App state treatment | No readiness claim from this PR | Prove `blocked`, `external-wait`, `proposed`, and `ready-for-review` remain unfinished. |
-| Worker release process | Separately governed | Follow `workers/quests/DEPLOY.md` only after runtime reconciliation. |
+| Organ states | Genesis, Taste, Hands, Cortex complete; Will ready-for-review; Hermes pending; Garden blocked | `docs/plans/product-branches/fitcheck.md` |
+| Quest queue | 17 non-terminal items, each visible with its source status | Same packet, parsed by `bin/quine/hyphae/branch-stories.ts` |
+| Shared projection | Exact packet-aligned Fitcheck golden path | `shared/fitcheck-golden-path.ts` |
+| Mini App state treatment | `blocked`, `external-wait`, `proposed`, and `ready-for-review` remain unfinished | `workers/quests/src/page/components/mission-control.ts` |
+| Worker release process | Separately governed Cloudflare release and rollback procedure | `workers/quests/DEPLOY.md` |
 
 ## Deterministic preflight
 
-The documentation packet itself must pass from an isolated clean checkout:
+Run from an isolated clean checkout of the reviewed commit:
 
 ```bash
 npm run validate:product-branches
 node --test \
   bin/quine/hyphae/branch-stories.test.ts \
-  shared/fitcheck-loop-pack.test.ts
+  workers/quests/src/fitcheck-golden-path.test.ts \
+  workers/quests/src/fitcheck-mini-app-quest-states.test.ts
 npm run verify:release
 git diff --check
 ```
 
-These commands prove repository consistency only. They do not prove that the
-17-row quest projection is implemented, nor a live Telegram, Shopify, CRM,
-payment, analytics, or merchant outcome. The later runtime PR must add and run
-focused projection/state tests before release review.
+`npm run verify:release` names the Fitcheck organ-and-quest projection as a
+separate release gate. A green result proves local deterministic consistency,
+not a live Telegram, Shopify, CRM, payment, analytics, or merchant outcome.
 
 ### Visual-proof freshness
 
@@ -54,8 +52,7 @@ npm run proof:tg-mobile-contract
 
 ## Founder approval boundary
 
-After the separate runtime reconciliation is reviewed, and before a release
-operator changes production traffic, record one explicit
+Before a release operator changes production traffic, record one explicit
 approval for the exact reviewed commit and release intent. The release must use
 the existing isolated-clean-clone procedure in `workers/quests/DEPLOY.md`, first
 capture the single 100-percent rollback version, and keep rollback evidence

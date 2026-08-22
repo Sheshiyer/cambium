@@ -22,7 +22,7 @@ Each standalone product, client delivery stream, or internal service can enter C
 ## Out of Scope
 
 - No EC2 runtime edits or new provider keys.
-- No live Hermes, Plexus, Telegram, or Paperclip automation wiring.
+- No live Hermes, Plexus, or Telegram automation wiring.
 - No product repo code changes unless a packet explicitly marks them as future work.
 - No claim that Fitcheck, Vantyx, Snow Gloves OS, or IVerif is autonomous without live customer proof and app-action portability.
 - No IVerif automation before claim/proof separation and compliance/security evidence exist.

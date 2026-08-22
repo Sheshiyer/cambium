@@ -32,13 +32,14 @@ test('runner · renders the running drive count + the final Octalysis summary', 
   assert.equal(state.noesisMoments, 3);
 });
 
-test('runner · every lane step renders its routing class flag (micro/meso/macro/heartbeat)', async () => {
+test('runner · every doctrine-required routine route class is rendered', async () => {
   const { lines, out } = capture();
   await runOnboard({ auto: true, restart: true, stateDir: DIR, out, tenant: 'auto' });
   const text = lines.join('\n');
-  for (const c of ['[micro', '[meso', '[macro', '[heartbeat']) {
+  for (const c of ['[micro', '[meso', '[macro']) {
     assert.ok(text.includes(c), `runner never rendered ${c}`);
   }
+  assert.ok(!text.includes('[heartbeat'), 'the revised doctrine has no heartbeat interaction');
 });
 
 test('noesis (A4) · the held frame renders at EXACTLY 3 beats — and noesis is no longer an inline tag', async () => {

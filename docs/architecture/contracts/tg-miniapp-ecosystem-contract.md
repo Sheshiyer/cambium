@@ -75,6 +75,10 @@ Every ecosystem target must identify the source that owns its truth:
 
 ## No-Fake-Progress Rules
 
+- A deferred branch quest with `external-wait`, `blocked`, `proposed`, or
+  `ready-for-review` remains in the served questline. Only `complete` and
+  `superseded` are terminal. UI state styling may use the existing
+  proof-needed treatment, but the served status label must remain visible.
 - Never count templates, capture plans, stale screenshots, browser diagnostics, or local Chrome layout captures as live Telegram proof.
 - Never infer completion, reward, popularity, social proof, NPC affinity, founder stance, or skill mastery from missing data.
 - Never let a newer `failure.json` or diagnostic receipt be treated as a passing viewport manifest.

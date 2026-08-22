@@ -43,7 +43,7 @@ Client Delivery is the non-canonical Cambium template for active client work. It
 | Hands | Delivery repo or artifact surface | Scoped implementation and proof tasks | Code/docs/artifact changes with receipts | PRs, build logs, screenshots, or redacted handoff artifacts | pending |
 | Will | Account and approval routines | Approved next action and communication boundary | Client update, approval request, or hold decision | Founder-approved action log | blocked until approval |
 | Cortex | Cambium memory | Redacted scope, proof, lessons, and reusable patterns | Searchable delivery memory | Future sanitized ingestion | pending |
-| Hermes | Founder-facing routing | Client branch status and blockers | Report or recommendation | Hermes/Paperclip proof receipt | pending |
+| Hermes | Founder-facing routing | Client branch status and blockers | Report or recommendation | Hermes proof receipt | pending |
 | Garden | Delivery health cadence | Acceptance gates and open blockers | Manual delivery pulse | Future client-delivery pulse | blocked until first accepted scope |
 
 ## Variable Contract Payload
@@ -65,7 +65,7 @@ Client Delivery is the non-canonical Cambium template for active client work. It
 | GitHub repo or worktree | Scoped delivery task and implementation proof | PR, commit, or code review packet | Wrong repo, dirty worktree, unreviewed client change | client/project slug when approved | No client secrets, contracts, or private contact data in packet |
 | Vercel/Cloudflare preview | Approved artifact and env boundary | Preview URL or deploy receipt | Protected preview, stale deploy, missing env | project or client-owned deployment | Never expose credentials or private data in public routes |
 | Slack/Gmail/Calendar | Approved client communication | Update, meeting note, or approval request | Unapproved send, wrong recipient, stale context | client contact only when authorized | Draft-only until founder approves exact message |
-| Paperclip/Hermes | Branch status and blocker summary | Founder-facing handoff report | Missing proof, stale status, unowned blocker | Cambium client branch | Redacted summaries only |
+| Hermes | Branch status and blocker summary | Founder-facing handoff report | Missing proof, stale status, unowned blocker | Cambium client branch | Redacted summaries only |
 | Cortex memory | Sanitized lessons and proof paths | Reusable client delivery memory | Sensitive data leakage or noisy ingestion | redacted client slug | Strip client identifiers unless explicitly approved |
 
 ## Evidence Ledger
