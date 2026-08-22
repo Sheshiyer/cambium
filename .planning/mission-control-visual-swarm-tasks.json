@@ -1,0 +1,20 @@
+[
+  {
+    "id": "semantic-variant-seam",
+    "task": "READ-ONLY Cambium investigation. Trace how quest envelopes and branchStories become Mission scene rows. Identify exact files/functions where product, client, internal-service, and unmapped sources can become explicit visual variants without guessing from display names. Return a concise implementation map plus regression tests. Do not edit files, deploy, or inspect secrets.",
+    "backend": "omniroute",
+    "model": "te-swarm-s"
+  },
+  {
+    "id": "responsive-layout-seam",
+    "task": "READ-ONLY Cambium investigation. Trace Mission Control CSS/layout and current viewport proof assertions. Explain the actual narrow-width failure mechanisms for branch rail, Mission card, questline timeline, state stack, and actions. Propose minimal component-preserving responsive rules for 320/390/430/desktop and exact tests. Do not edit files or deploy.",
+    "backend": "omniroute",
+    "model": "te-swarm-s"
+  },
+  {
+    "id": "read-model-proof-seam",
+    "task": "READ-ONLY Cambium investigation. Trace the quest ledger push/read path and why authenticated Mission Control serves stale/empty branch stories. Identify safe, non-gate-loosening repair options, the exact production evidence required, and how UI must represent stale/empty state until readback succeeds. Do not send requests, edit files, deploy, or inspect credentials.",
+    "backend": "omniroute",
+    "model": "te-swarm-s"
+  }
+]

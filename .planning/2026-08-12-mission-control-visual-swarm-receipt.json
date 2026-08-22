@@ -1,0 +1,22 @@
+{
+  "schema": "cambium.temperance-swarm-receipt.v1",
+  "recordedAt": "2026-08-12T06:43:03Z",
+  "purpose": "Read-only planning reconnaissance for Mission Control semantic variants, responsive layout, and authenticated read-model proof.",
+  "runner": "temperance-batch",
+  "model": "te-swarm-s",
+  "concurrency": 3,
+  "perTaskTimeoutSeconds": 45,
+  "tasks": [
+    { "id": "semantic-variant-seam", "status": "timeout", "exit": 124, "durationSeconds": 45 },
+    { "id": "responsive-layout-seam", "status": "timeout", "exit": 124, "durationSeconds": 45 },
+    { "id": "read-model-proof-seam", "status": "timeout", "exit": 124, "durationSeconds": 45 }
+  ],
+  "summary": { "ok": 0, "failed": 0, "timeout": 3, "unavailable": 0 },
+  "safety": {
+    "taskMode": "read-only",
+    "filesEditedBySwarm": false,
+    "deploymentOrGateChange": false,
+    "credentialsOrSecretsInspected": false
+  },
+  "interpretation": "Routing selected OmniRoute te-swarm-s for every task, but no task produced model output before the bounded watchdog elapsed. This receipt is execution evidence, not planning or implementation evidence. Local code and tests must be evaluated independently."
+}

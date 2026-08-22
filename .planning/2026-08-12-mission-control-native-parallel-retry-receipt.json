@@ -1,0 +1,51 @@
+{
+  "schema": "cambium.temperance-native-parallel-retry-receipt.v1",
+  "recordedAt": "2026-08-12T07:49:00Z",
+  "purpose": "Bounded retry of the Mission Control read-only audits after te-swarm-s returned no usable output.",
+  "mode": "native-non-codex",
+  "safety": {
+    "tools": "",
+    "permissionMode": "plan",
+    "sessionPersistence": false,
+    "filesEditedByWorkers": false,
+    "deploymentOrGateChange": false,
+    "credentialsOrSecretsInspected": false
+  },
+  "tasks": [
+    {
+      "id": "semantic-variant-seam",
+      "providerProfile": "antigravity-claude-sonnet-5",
+      "result": "api_error",
+      "httpStatus": 429,
+      "reason": "All antigravity accounts have exhausted their quota."
+    },
+    {
+      "id": "read-model-proof-seam",
+      "providerProfile": "no-think-antigravity-claude-sonnet-5",
+      "result": "api_error",
+      "httpStatus": 429,
+      "reason": "All antigravity accounts have exhausted their quota."
+    },
+    {
+      "id": "responsive-layout-seam",
+      "providerProfile": "gh-claude-sonnet-5",
+      "result": "aborted_streaming",
+      "durationMs": 81084,
+      "reason": "No substantive provider output arrived before bounded termination."
+    },
+    {
+      "id": "fallback-evidence-checklist",
+      "providerProfile": "no-think-gh-claude-sonnet-5",
+      "result": "timeout",
+      "timeoutSeconds": 30,
+      "reason": "No substantive provider output arrived before the watchdog elapsed."
+    }
+  ],
+  "acceptance": {
+    "selectedBackendAndModelEvidence": true,
+    "nontrivialOutput": false,
+    "gatewayAttribution": true,
+    "acceptedAsWorkerResearch": false
+  },
+  "interpretation": "The governed native non-Codex fallback was attempted exactly as a read-only bounded audit. Provider quota and streaming failures prevented valid worker outputs. No result may be represented as a completed review."
+}
