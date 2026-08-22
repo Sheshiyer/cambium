@@ -7,7 +7,7 @@ branch_kind: product
 name: Fitcheck
 role: Supervised product branch
 promotion_state: supervised-branch
-current_gate: Shopify Dodo privacy QA outreach and first merchant proof
+current_gate: Shopify QA, pricing listing, privacy/payment, CRM destination, and approved distribution
 packet_owner: cambium
 ---
 
@@ -58,24 +58,24 @@ lead data or replaces execution-system authority.
 
 | Project or data domain | Canonical owner | Current status | Source pointer | Boundary |
 | --- | --- | --- | --- | --- |
-| Fitcheck founder context | Thoughtseed Labs vault | reference only; not verified by this PR | `40-products/fitcheck/operating-status.md` | Vault-relative pointer only; status/index, not live work state. |
-| Fitcheck organ and quest state | Cambium | repository-planned; runtime projection is not updated by this packet | this packet | A separate runtime change must implement any Mini App projection. |
+| Fitcheck founder context | Thoughtseed Labs vault | active and mapped | `40-products/fitcheck/operating-status.md` | Vault-relative pointer only; status/index, not live work state. |
+| Fitcheck organ and quest state | Cambium | locally synchronized; no deploy implied | this packet | Mini App renders this packet's non-terminal quest states. |
 | Public landing | GitHub / `sapling:fitcheck` | existing public surface | `Sheshiyer/fitcheck-landing` | GitHub/deployment evidence governs implementation state. |
 | Private wiki | GitHub / `sapling:fitcheck` | existing product documentation | `Sheshiyer/fitcheck-wiki` | Private repository policy governs access. |
 | Backend capability | `program:hdilint` | separate mapped capability | `Sheshiyer/HDILINT-backend-aleph` | Fitcheck uses the capability without absorbing its authority. |
 | Shopify listing and widget | Shopify | pricing reconciliation and authenticated QA unfinished | `apps.shopify.com/fitcheck-try-on` | External account and storefront gates remain. |
-| Campaign aggregates | Cambium redacted evidence | dated local observation; not re-probed by this PR | `docs/evidence/2026-08-11-fitcheck-explee-inbox-readback.v1.json` | Raw contacts, threads, provider identifiers, and payloads remain outside Git. |
+| Campaign aggregates | Cambium redacted evidence | current bounded readback complete | `docs/evidence/2026-08-11-fitcheck-explee-inbox-readback.v1.json` | Raw contacts, threads, and payloads remain in Explee. |
 | Backup durability | vault/R2 backup policy | existing guarded policy; no new write implied | vault Fitcheck operating-status map | R2 is one-way encrypted backup, never operational truth or two-way sync. |
 
 ## Organ Routing
 
 | Organ | Owner | Input | Output | Proof Path | Current Gate | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| Genesis | Fitcheck/HDILINT source docs | Existing brand DNA and service promise | `brand_system`, `copy_system`, `visual_system` | Existing dated packet plus HDILINT source material | verified, do not regenerate unless Taste fails current assets | verified |
-| Taste | Cambium taste/audit loop | Landing, widget, copy, privacy wording, demo renders | Taste verdict and reroll list | Future reviewed visual/copy/privacy audit packet | current `origin/main` projection remains pending | pending |
-| Hands | Fitcheck landing/widget/backend repos | Scoped gates from Taste and QA | Code/docs patches with proof | `docs/evidence/2026-08-10-fitcheck-build-closure.v1.json` | historical local receipt added; current projection remains pending | pending |
-| Will | Snow Gloves OS / GTM routines | Approved product and proof bundle | Outreach, CRM, payment, pilot reporting | Founder-approved action logs | blocked until outreach/payment approvals | blocked |
-| Cortex | Cambium/Cortex memory | Redacted branch lessons and proof summaries | Searchable branch memory and next-intent candidates | `docs/architecture/contracts/fitcheck-cortex-quest-flow.v1.md` plus redacted readback receipts | planning contract added; runtime ingestion held | pending |
+| Genesis | Fitcheck/HDILINT source docs | Existing brand DNA and service promise | `brand_system`, `copy_system`, `visual_system` | Existing dated packet plus HDILINT source material | verified, do not regenerate unless Taste fails current assets | complete |
+| Taste | Cambium taste/audit loop | Landing, widget, copy, privacy wording, demo renders | Taste verdict and reroll list | Approved Fitcheck taste brief and sourcebook | completed; rerun only when current brand evidence changes | complete |
+| Hands | Fitcheck landing/widget/backend repos | Scoped gates from Taste and QA | Code/docs patches with proof | `docs/evidence/2026-08-10-fitcheck-build-closure.v1.json` | completed with deferred release work | complete |
+| Will | Snow Gloves OS / GTM routines | Approved product and proof bundle | Outreach, CRM, payment, pilot reporting | Founder-approved action logs | manual readiness reviewed; ready to propose, external execution remains approval-bound | ready-for-review |
+| Cortex | Cambium/Cortex memory | Redacted branch lessons and proof summaries | Searchable branch memory and next-intent candidates | `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json` | receipt-derived ingestion and semantic recall verified; future foldback remains separately governed | complete |
 | Hermes | Hermes routes | Founder-facing actions | Telegram/Plexus reports | Hermes proof receipts | pending, policy-aware recommendation only | pending |
 | Garden | Branch health cadence | Branch evidence and outcomes | Daily/weekly pulses | Routine proof packet | blocked until pilot begins | blocked |
 
@@ -85,7 +85,7 @@ lead data or replaces execution-system authority.
 | --- | --- | --- |
 | `brand_system` | Existing Fitcheck brand DNA and HDILINT brand/GTM docs | verified |
 | `copy_system` | Fitcheck landing copy and HDILINT product spec | verified |
-| `visual_system` | Landing, Shopify widget, demo render assets | pending Taste audit |
+| `visual_system` | Landing, Shopify widget, demo render assets | verified by approved Taste pass; rerun only when evidence changes |
 | `asset_plan` | Shopify widget assets, demo images, product screenshots | pending QA proof |
 | `section_plan` | Landing/product-page flow from current Fitcheck packet | verified for supervised packet |
 | `interaction_plan` | Lead capture, reservation CTA, widget upload/consent/result events | pending production proof |
@@ -110,6 +110,7 @@ lead data or replaces execution-system authority.
 | verified | Existing dated packet: `docs/archive/plans/2026-06-23-fitcheck-product-branch-proof-packet.md`. |
 | verified | Local packet recorded Fitcheck landing repo HEAD `f1b8d88`, `npm test` passing `7/7`, live landing HTTP `200`, and App Runner health `ok: true`. |
 | verified | Launch hardening pass recorded lead handler, local browser proof, Vercel preview readiness, App Runner signed-upload proof, and widget harness events. |
+| verified | Cortex receipt-derived read model records Fitcheck among five canonical packets, 81 total vector chunks, semantic recall for every packet, and idempotent Fitcheck replay. Redacted summary: `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. |
 | blocked | Live production Vercel artifact drift and missing Dodo/Fitcheck reservation URL env. |
 | blocked | Shopify demo product route requires storefront password/session/admin access for live widget QA. |
 | pending | Shopify App Store approval, privacy/legal wording, refund wording, and customer outreach approval. |
@@ -129,20 +130,18 @@ lead data or replaces execution-system authority.
 
 ## Quest Queue
 
-Every row below is a proposed projection for a future Telegram Mini App
-synchronization pass. This documentation-only packet does not change the
-current runtime projection. Only `complete` and `superseded` are terminal;
-`external-wait`, `blocked`, `proposed`, and `ready-for-review` must remain
-visible unfinished work when that separate implementation lands.
+Every row below is rendered by the Telegram Mini App. Only `complete` and
+`superseded` are terminal; `external-wait`, `blocked`, `proposed`, and
+`ready-for-review` remain visible unfinished work.
 
 | quest_id | title | status | owner | next_action | proof_required |
 | --- | --- | --- | --- | --- | --- |
-| fitcheck-shopify-listing-readback | Reconcile the current Shopify listing and approved commercial source | external-wait | Shopify / founder | Capture a fresh listing readback and compare it with the approved commercial source. | Dated listing readback plus approved pricing source. |
+| fitcheck-shopify-listing-price-submission | Confirm Shopify pricing-listing submission outcome | external-wait | Shopify / founder | Capture the reviewer outcome after the submitted price change is processed. | Shopify listing readback showing the approved commercial display. |
 | fitcheck-shopify-widget-qa | Run authenticated Shopify widget QA | blocked | founder/codex | Obtain the approved authenticated QA route and execute the existing proof plan. | Screenshot plus widget event log. |
 | fitcheck-privacy-consent-review | Review privacy, consent, retention, and deletion wording | blocked | founder / legal reviewer | Review existing wording before changing public product or tracking surfaces. | Approved policy wording receipt. |
 | fitcheck-dodo-payment-activation | Activate approved Dodo reservation/payment path | external-wait | founder/codex | Confirm the approved production URL and environment scope. | Environment receipt plus checkout smoke. |
 | fitcheck-public-claims-evidence | Reconcile Shopify/landing claims against proof | blocked | founder / product | Keep unproven claims unchanged until separate review; collect evidence before correction. | Claim review and approved public correction or evidence receipt. |
-| fitcheck-outreach-pilot-approval | Review the first merchant distribution packet | ready-for-review | founder | Choose the exact ICP, sample-data acceptance, contact volume, sender setup, and stop rule. | Founder-approved action packet; no send is implied. |
+| fitcheck-outreach-pilot-approval | Review first merchant / LaCleo distribution packet | ready-for-review | founder | Choose the exact ICP, sample-data acceptance, contact volume, sender setup, and stop rule. | Founder-approved action packet; no send is implied. |
 | fitcheck-search-measurement-foundation | Establish Search Console and GA4 measurement ownership | external-wait | founder / account owner | Name owners and approve consent plus conversion-event plan. | Access readback and approved measurement plan. |
 | fitcheck-technical-search-baseline | Record technical search baseline | proposed | product / SEO reviewer | Capture a public crawl of canonical URLs, sitemap, robots, titles, and schema. | Source-linked baseline receipt. |
 | fitcheck-icp-query-evidence-map | Map ICP search queries from evidence | proposed | research reviewer | Produce a source-linked query and question map by merchant ICP. | Reviewed research ledger with confidence labels. |
@@ -155,7 +154,7 @@ visible unfinished work when that separate implementation lands.
 | fitcheck-campaign-learning-foldback | Fold verified aggregate learning into Cortex | proposed | Cortex reviewer | Propose one bounded experiment from a redacted outcome receipt. | Receipt references, caveats, and one successor quest. |
 | fitcheck-garden-health-pulse | Schedule Garden health cadence after first pilot proof | blocked | Garden | Wait for first merchant pilot proof before arming health cadence. | First merchant proof packet and routine receipt. |
 
-Current frontier: Shopify QA, Dodo, privacy, outreach, CRM destination, and first merchant proof—not autonomy.
+Current frontier: Shopify QA, pricing listing, privacy/payment, CRM destination, and approved distribution—not autonomy.
 
 Garden cadence: daily branch health pulse only after pilot proof begins.
 
@@ -176,7 +175,7 @@ First real pilot proof: one merchant seed from intake to launch/garden with arch
 | arc_title | `Supervised Launch Hardening` |
 | vision | Fitcheck becomes the first proof-bound Cambium product branch that can move a Shopify fashion merchant from demo interest to supervised pilot. |
 | icp | Shopify fashion brand founder or ecommerce operator who needs visual fit confidence before committing to a pilot. |
-| current_frontier | Supervised launch hardening: Shopify QA, Dodo, privacy, outreach, CRM destination, and first merchant proof remain the live gates. |
+| current_frontier | Supervised launch hardening: Shopify QA, pricing listing, privacy/payment, CRM destination, approved distribution, and first merchant proof remain the live gates. |
 | narrative_voice | Precise operator voice: launch pilot, prove every claim, and keep approvals visible. |
 | anti_claims | Do not claim app-store approval, conversion lift, unattended operation, or real merchant outcome until evidenced. |
 
@@ -216,6 +215,7 @@ First real pilot proof: one merchant seed from intake to launch/garden with arch
 
 | proof_id | source_path | validates | promotes |
 | --- | --- | --- | --- |
+| fitcheck-mapping-readback | R2 thoughtseed-vault portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json | Fitcheck repository mapping receipt was issued and read back byte-identically | unlocks the separate D1 Mission to Task proposal gate |
 | fitcheck-shopify-widget-proof | future Shopify QA screenshot and event receipt | product-page try-on works under authenticated conditions | keeps supervised branch active; no autonomy promotion |
 | fitcheck-payment-proof | Dodo/Vercel env receipt plus checkout smoke | reservation/payment path is live enough for supervised pilot | unlocks customer-contact gate only after approval |
 | fitcheck-first-merchant-packet | future first merchant proof packet | real merchant pilot outcome | candidate for later autonomous review after app-action portability |

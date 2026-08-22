@@ -16,6 +16,28 @@ modules — no browser required for this file's assertions; the
 - Sheets (Gate, Inspect) clear the bottom safe-area inset and cap height with
   `max-height:calc(100dvh - var(--sat) - var(--sab) - 70px)` from the shared
   chrome contract (T-027).
+- At 320px, a six-stage mission timeline must become a readable linear or
+  horizontally scrollable sequence; it may not compress six stations into a
+  single unreadable row. Branch/work rails scroll rather than wrap or clip.
+- At 390px and 430px, cards may gain art/context only after the title,
+  metadata, state label, and 44px controls retain their minimum readable area.
+- At desktop widths, a side context panel is additive: DOM reading order,
+  keyboard order, and the mobile Mission → state → proof → action sequence
+  remain stable.
+
+## Work-kind variants
+
+- A `SaplingWork` uses the seed/starburst silhouette and may display branch
+  promotion state.
+- A `ProgramWork(client)` uses the linked/capsule silhouette and never renders
+  Sapling promotion as program lifecycle.
+- A `ProgramWork(capability|operations)` uses the folded-slab or cortex-wheel
+  silhouette and service/run/receipt vocabulary.
+- An unmapped source uses an explicit gap state. UI code may not infer a work
+  kind from display copy, color, or a missing field.
+- State treatment remains orthogonal to work kind: every variant supports
+  selected, active, blocked, locked, stale, complete, and reduced-motion
+  renderings through the shared glyph/token/rail grammar.
 
 ## Motion
 

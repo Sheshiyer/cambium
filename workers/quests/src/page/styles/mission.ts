@@ -164,11 +164,6 @@ export const STYLE_MISSION = `  /* ── mission scene — visual-first (T-015/
   .inspect-proof-summary>small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
   .mission-tool-link button,.tool-recommend button{appearance:none;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:var(--ink);color:var(--bg);font:800 12px inherit;padding:9px 10px;cursor:pointer}
   .mission-tool-link button{width:100%;min-height:44px}
-  .mc-founder-outcome{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;border:1px solid rgba(224,255,79,.36);border-radius:8px;padding:10px;background:rgba(1,47,52,.28);font:11px/1.35 var(--mono)}
-  .mc-founder-outcome b{color:var(--ink)} .mc-founder-outcome small{color:var(--mc-mint)}
-  .mc-founder-outcome button,.mc-founder-outcome-actions button{appearance:none;min-height:40px;border:1px solid rgba(224,255,79,.5);border-radius:8px;background:transparent;color:var(--mc-chartreuse);font:700 12px inherit;padding:8px;cursor:pointer}
-  .mc-founder-outcome-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .mc-founder-outcome-actions button:first-child{background:var(--ink);color:var(--bg)} .mc-founder-outcome-actions button:disabled{opacity:.5;cursor:default}
 
   /* legacy rules still consumed by the component gallery + legacy sheets (T-029 cleans up) */
   .mc-card-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}

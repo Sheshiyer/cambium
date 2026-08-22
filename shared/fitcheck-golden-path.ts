@@ -94,7 +94,7 @@ export const FITCHECK_GOLDEN_PATH = compileOperationalPacketProjection({
     arcTitle: 'Supervised Launch Hardening',
     vision: 'Fitcheck becomes the first proof-bound Cambium product branch that can move a Shopify fashion merchant from demo interest to supervised pilot.',
     icp: 'Shopify fashion brand founder or ecommerce operator who needs visual fit confidence before committing to a pilot.',
-    currentFrontier: 'Supervised launch hardening: Shopify, Dodo, privacy, QA, outreach, and first merchant proof remain the live gates.',
+    currentFrontier: 'Supervised launch hardening: Shopify QA, pricing listing, privacy/payment, CRM destination, approved distribution, and first merchant proof remain the live gates.',
     antiClaims: 'Do not claim app-store approval, conversion lift, unattended operation, or real merchant outcome until evidenced.',
   },
   feedbackLoop: [
@@ -118,11 +118,11 @@ export const FITCHECK_GOLDEN_PATH = compileOperationalPacketProjection({
     stopRule: 'Stop after 3 rounds, after first merchant proof is archived, or when missing credentials prevent the selected gate twice.',
   },
   organs: [
-    { name: 'Genesis', owner: 'Fitcheck/HDILINT source docs', state: 'verified', role: 'brand DNA, copy, and visual system' },
-    { name: 'Taste', owner: 'Cambium taste/audit loop', state: 'pending', role: 'landing, widget, copy, privacy, and render audit' },
-    { name: 'Hands', owner: 'Fitcheck repositories', state: 'pending', role: 'bounded code and documentation patches' },
-    { name: 'Will', owner: 'Snow Gloves OS / GTM routines', state: 'blocked', role: 'approved outreach, payment, and pilot reporting' },
-    { name: 'Cortex', owner: 'Cambium/Cortex memory', state: 'pending', role: 'searchable branch lessons and proof summaries' },
+    { name: 'Genesis', owner: 'Fitcheck/HDILINT source docs', state: 'complete', role: 'brand DNA, copy, and visual system' },
+    { name: 'Taste', owner: 'Cambium taste/audit loop', state: 'complete', role: 'approved landing, widget, copy, privacy, and render review' },
+    { name: 'Hands', owner: 'Fitcheck repositories', state: 'complete', role: 'verified build closure with deferred release work visible as quests' },
+    { name: 'Will', owner: 'Snow Gloves OS / GTM routines', state: 'ready-for-review', role: 'approval-bound outreach, CRM, payment, and pilot reporting' },
+    { name: 'Cortex', owner: 'Cambium/Cortex memory', state: 'complete', role: 'redacted learning contract and next-intent candidate projection; runtime ingestion held' },
   ],
   supportRails: [
     { name: 'Hermes', state: 'pending', role: 'policy-aware founder delivery and terminal foldback' },

@@ -25,7 +25,7 @@ const adapters = {
       '--meristem-root',
       '{input}',
       '--brand-dir',
-      'brands/thoughtseed',
+      'brands/{tenant}',
       '--out',
       '-',
     ],
@@ -87,6 +87,17 @@ test('buildInvocation builds the active Meristem genesis shim command', () => {
   ]);
   assert.equal(inv.cwd, '/x/cambium');
   assert.equal(inv.spend, 'none');
+});
+
+test('buildInvocation selects the requested Meristem brand directory for genesis', () => {
+  const inv = buildInvocation(adapters.genesis, {
+    tenant: 'fitcheck',
+    input: '/tmp/meristem-sidecar-proof',
+    root: '/x/cambium',
+  });
+
+  assert.ok(inv.args.includes('brands/fitcheck'));
+  assert.ok(!inv.args.includes('brands/thoughtseed'));
 });
 
 // ── gateStage (the fail-closed spend gate) ──

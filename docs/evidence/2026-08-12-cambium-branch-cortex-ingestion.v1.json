@@ -1,0 +1,38 @@
+{
+  "schema": "cambium.branch-cortex-ingestion-read-model.v1",
+  "observedAt": "2026-08-12T05:29:00Z",
+  "source": {
+    "repository": "Sheshiyer/hermes-aws-ts",
+    "commit": "493dd843cbc49992cf4826a66f8d7d42f9c3ced9",
+    "receiptPath": "docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.json"
+  },
+  "tenant": "cambium",
+  "branches": [
+    "sapling:fitcheck",
+    "sapling:vantyx",
+    "sapling:snow-gloves-os",
+    "sapling:iverif",
+    "sapling:dlock"
+  ],
+  "summary": {
+    "canonicalPackets": 5,
+    "vectorChunks": 81,
+    "semanticRecallMatches": 5,
+    "fitcheckReplay": "idempotent"
+  },
+  "safety": {
+    "directiveExecution": false,
+    "legacyAckWithoutExecution": false,
+    "telegramMessagesSent": false,
+    "credentialsChanged": false
+  },
+  "redaction": {
+    "omits": [
+      "vector IDs",
+      "input digests",
+      "source packet content",
+      "credentials",
+      "raw runtime paths"
+    ]
+  }
+}

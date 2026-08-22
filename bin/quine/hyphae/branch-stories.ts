@@ -26,7 +26,6 @@ export type { BranchStoryArc, BranchStoryGap } from '../../operator/quests/branc
 interface PacketIndexRow {
   product_id: string;
   canonical_work_id: string;
-  identity_scope: string;
   branch_kind: string;
   name: string;
   role: string;
@@ -235,45 +234,12 @@ function ledgerGaps(rows: Array<{ status: BranchProofStatus; detail: string; sou
       }]);
 }
 
-const QUEST_STATUSES = new Set<BranchQuestStatus>([
-  'verified',
-  'blocked',
-  'pending',
-  'no-signal',
-  'queued',
-  'proposed',
-  'external-wait',
-  'ready-for-review',
-  'approved',
-  'active',
-  'complete',
-  'superseded',
-]);
-
 function normalizeQuestStatus(value: string): BranchQuestStatus {
-  const status = clean(value).toLowerCase().replace(/[\s_]+/g, '-');
-  return QUEST_STATUSES.has(status as BranchQuestStatus) ? status as BranchQuestStatus : 'pending';
-}
-
-function organRouteStatus(status: string, currentGate: string): BranchQuestStatus {
-  if (clean(status)) return normalizeQuestStatus(status);
-
-  const gate = clean(currentGate).toLowerCase().replace(/[\s_]+/g, '-');
-  const derived = [
-    'ready-for-review',
-    'external-wait',
-    'no-signal',
-    'superseded',
-    'complete',
-    'verified',
-    'blocked',
-    'proposed',
-    'approved',
-    'active',
-    'queued',
-    'pending',
-  ].find((candidate) => gate.includes(candidate));
-  return derived ? normalizeQuestStatus(derived) : 'pending';
+  const status = clean(value).toLowerCase().replace(/\s+/g, '-');
+  if (['verified', 'blocked', 'pending', 'no-signal', 'queued', 'proposed', 'external-wait', 'ready-for-review', 'approved', 'active', 'complete', 'superseded'].includes(status)) {
+    return status as BranchQuestStatus;
+  }
+  return 'pending';
 }
 
 function questlineFromSection(source: string): BranchQuestStage[] {
@@ -287,7 +253,6 @@ function questlineFromSection(source: string): BranchQuestStage[] {
       }))
       .filter((stage) => stage.id);
   }
-
   return extractSection(source, 'Quest Queue').split(/\r?\n/)
     .map((line) => line.match(/^\s*\d+\.\s+(.*)$/)?.[1])
     .filter((line): line is string => !!line)
@@ -306,7 +271,6 @@ function parseIndex(root: string): PacketIndexRow[] {
     .map((row) => ({
       product_id: row.product_id,
       canonical_work_id: row.canonical_work_id,
-      identity_scope: row.identity_scope,
       branch_kind: row.branch_kind || 'product',
       name: row.name,
       role: row.role,
@@ -322,13 +286,6 @@ function safePacketPath(row: PacketIndexRow): string {
     throw new Error(`unsafe branch packet path for ${row.product_id || 'unknown'}: ${packet || '<missing>'}`);
   }
   return packet;
-}
-
-function isTemplatePacket(root: string, row: PacketIndexRow): boolean {
-  if (clean(row.identity_scope).toLowerCase() === 'template') return true;
-  const packetFile = join(root, PACKET_DIR, safePacketPath(row));
-  if (!existsSync(packetFile)) return false;
-  return clean(parseFrontmatter(readText(packetFile)).identity_scope).toLowerCase() === 'template';
 }
 
 function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): BranchStoryArc {
@@ -389,7 +346,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
     output: clean(organ.output),
     proofPath: clean(organ.proof_path),
     currentGate: clean(organ.current_gate),
-    status: organRouteStatus(organ.status, organ.current_gate),
+    status: normalizeQuestStatus(organ.status || organ.current_gate),
   })).filter((organ) => organ.organ);
   const variableContractPayloads = sectionRows(source, 'Variable Contract Payload').map((group): BranchVariableContractGroup => ({
     group: clean(group.group),
@@ -485,7 +442,5 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
 }
 
 export function loadBranchStories(ctx: { root: string }, tenant: string): BranchStoryArc[] {
-  return parseIndex(ctx.root)
-    .filter((row) => !isTemplatePacket(ctx.root, row))
-    .map((row) => storyFromPacket(ctx.root, tenant, row));
+  return parseIndex(ctx.root).map((row) => storyFromPacket(ctx.root, tenant, row));
 }

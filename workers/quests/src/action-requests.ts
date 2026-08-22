@@ -21,6 +21,7 @@ export interface ActionRequestOptionV1 {
   consequence: string;
   risk: 'low' | 'high';
   requiresSignedConfirmation: boolean;
+  acceptsVerbalApproval?: boolean;
   resultKind: 'hold' | 'reroll' | 'queue_task' | 'request_input' | 'escalate_signed_gate' | 'record_only';
 }
 
@@ -30,7 +31,7 @@ export interface ActionRequestV1 {
   idempotencyKey: string;
   tenantId: string;
   status: ActionRequestStatus;
-  source: 'hermes-topic-signal' | 'hermes-routine-signal';
+  source: 'hermes-topic-signal' | 'hermes-routine-signal' | 'hermes-founder-intent';
   createdAt: string;
   updatedAt: string;
   branchId?: string;
@@ -47,6 +48,11 @@ export interface ActionRequestV1 {
   title: string;
   summary: string;
   why: string;
+  approval?: {
+    mode: 'mini-app-signed' | 'telegram-reply-or-button';
+    expiresAt: string;
+    workObjectId: 'program:thoughtseed-vault' | 'program:temperance-hermes';
+  };
   options: ActionRequestOptionV1[];
   selectedOptionId?: string;
   receipts: Array<{
@@ -107,6 +113,7 @@ export interface ActionRequestListItemV1 {
   title: string;
   summary: string;
   why: string;
+  approval?: ActionRequestV1['approval'];
   source: ActionRequestV1['source'];
   redaction: ActionRequestV1['redaction'];
   createdAt: string;
@@ -133,6 +140,7 @@ export interface ActionRequestListItemV1 {
     consequence: string;
     risk: 'low' | 'high';
     requiresSignedConfirmation: boolean;
+    acceptsVerbalApproval?: boolean;
     resultKind: ActionRequestOptionV1['resultKind'];
   }>;
   receipts: {
@@ -153,7 +161,7 @@ export async function createActionRequestRecord(
   nowIso: () => string,
 ): Promise<ActionRequestRouteResult> {
   if (!isRecord(raw)) return route(400, { error: 'ActionRequest body must be an object' });
-  const validation = validateIverifActionRequest(raw);
+  const validation = validateActionRequest(raw);
   if ('error' in validation) return route(400, { error: validation.error });
 
   const actionRequest = {
@@ -211,6 +219,7 @@ export async function resolveActionRequestRecord(
   id: string,
   raw: unknown,
   nowIso: () => string,
+  founderIds: string[] = [],
 ): Promise<ActionRequestRouteResult> {
   if (!isRecord(raw)) return route(400, { error: 'ActionRequest resolve body must be an object' });
   const tenantId = clean(raw.tenantId) || 'cambium';
@@ -218,7 +227,10 @@ export async function resolveActionRequestRecord(
   const actionRequest = await readActionRequest(kv, tenantId, id);
   if (!actionRequest) return route(404, { error: 'ActionRequest not found' });
 
-  const actorCheck = validateActor(actionRequest, raw);
+  const expired = await expireIfNeeded(kv, actionRequest, nowIso());
+  if (expired) return expired;
+
+  const actorCheck = validateActor(actionRequest, raw, founderIds);
   if (actorCheck) return route(403, { error: actorCheck });
 
   const optionId = clean(raw.optionId);
@@ -234,7 +246,7 @@ export async function resolveActionRequestRecord(
     });
   }
 
-  const nextStatus = statusForOption(option);
+  const nextStatus = statusForOption(actionRequest, option);
   const receipt = receiptForStatus(nextStatus, option.label);
   const updated: ActionRequestV1 = {
     ...actionRequest,
@@ -264,6 +276,64 @@ export async function resolveActionRequestRecord(
   });
 }
 
+export async function resolveActionRequestReplyRecord(
+  kv: ActionRequestKvLike,
+  id: string,
+  raw: unknown,
+  nowIso: () => string,
+  founderIds: string[] = [],
+): Promise<ActionRequestRouteResult> {
+  if (!isRecord(raw)) return route(400, { error: 'ActionRequest reply body must be an object' });
+  const tenantId = clean(raw.tenantId) || 'cambium';
+  if (!VALID_TENANT.test(tenantId)) return route(400, { error: 'bad tenantId' });
+  const actionRequest = await readActionRequest(kv, tenantId, id);
+  if (!actionRequest) return route(404, { error: 'ActionRequest not found' });
+  if (actionRequest.approval?.mode !== 'telegram-reply-or-button') {
+    return route(409, { error: 'ActionRequest does not accept Telegram reply approval' });
+  }
+
+  const expired = await expireIfNeeded(kv, actionRequest, nowIso());
+  if (expired) return expired;
+  const actorCheck = validateActor(actionRequest, raw, founderIds);
+  if (actorCheck) return route(403, { error: actorCheck });
+
+  const phrase = clean(raw.phrase).toLowerCase();
+  if (!/^(yes|approve|approved)$/.test(phrase)) {
+    return route(400, { error: 'reply is not an explicit approval phrase' });
+  }
+  const reply = isRecord(raw.reply) ? raw.reply : {};
+  if (reply.replyToOwnMessage !== true || clean(reply.actionRequestId) !== actionRequest.id) {
+    return route(409, { error: 'approval must reply to this specific pending approval card' });
+  }
+  const verbalOptions = actionRequest.options.filter((option) => option.acceptsVerbalApproval === true);
+  if (verbalOptions.length !== 1) {
+    return route(409, { error: 'ActionRequest must have exactly one verbal approval option' });
+  }
+  const option = verbalOptions[0];
+  if (actionRequest.selectedOptionId === option.id && actionRequest.status === 'queued') {
+    return route(200, { ok: true, duplicate: true, actionRequest, receipt: { editCard: false, toast: 'Already handled' } });
+  }
+  if (actionRequest.status !== 'proposed' && actionRequest.status !== 'awaiting_input') {
+    return route(409, { error: `ActionRequest status ${actionRequest.status} cannot accept reply approval` });
+  }
+
+  const at = nowIso();
+  const updated: ActionRequestV1 = {
+    ...actionRequest,
+    status: 'queued',
+    selectedOptionId: option.id,
+    updatedAt: at,
+    receipts: [...actionRequest.receipts, { at, kind: 'reply', text: `Reply-bound founder approval queued: ${option.label}.` }],
+  };
+  await kv.put(arRecordKey(updated.tenantId, updated.id), JSON.stringify(updated));
+  return route(200, {
+    ok: true,
+    duplicate: false,
+    actionRequest: updated,
+    receipt: { editCard: true, reply: `Queued: ${option.label}.`, toast: 'Approved by reply' },
+  });
+}
+
 export async function confirmSignedActionRequestRecord(
   kv: ActionRequestKvLike,
   id: string,
@@ -286,7 +356,7 @@ export async function confirmSignedActionRequestRecord(
   }
   const option = actionRequest.options.find((candidate) => candidate.id === optionId);
   if (!option) return route(400, { error: 'unknown ActionRequest option' });
-  if (statusForOption(option) !== 'needs_signed_confirmation') {
+  if (statusForOption(actionRequest, option) !== 'needs_signed_confirmation') {
     return route(400, { error: 'ActionRequest option does not require signed confirmation' });
   }
 
@@ -389,16 +459,21 @@ export async function consumeActionRequestRecord(
   });
 }
 
-function validateIverifActionRequest(raw: Record<string, unknown>): { actionRequest: ActionRequestV1 } | { error: string } {
+function validateActionRequest(raw: Record<string, unknown>): { actionRequest: ActionRequestV1 } | { error: string } {
   if (raw.schema !== 'thoughtseed.action-request.v1') return { error: 'unsupported ActionRequest schema' };
   const tenantId = clean(raw.tenantId) || 'cambium';
   if (!VALID_TENANT.test(tenantId)) return { error: 'bad tenantId' };
   const id = clean(raw.id);
   const idempotencyKey = clean(raw.idempotencyKey);
   if (!id || !idempotencyKey) return { error: 'ActionRequest needs id and idempotencyKey' };
-  if (clean(raw.branchId) !== 'iverif' || clean(raw.projectId) !== 'iverif') {
-    return { error: 'only the iVerif ActionRequest slice is active' };
-  }
+  if (clean(raw.branchId) === 'iverif' && clean(raw.projectId) === 'iverif') return validateIverifActionRequest(raw);
+  return validateFounderWorkflowActionRequest(raw);
+}
+
+function validateIverifActionRequest(raw: Record<string, unknown>): { actionRequest: ActionRequestV1 } | { error: string } {
+  const tenantId = clean(raw.tenantId) || 'cambium';
+  const id = clean(raw.id);
+  const idempotencyKey = clean(raw.idempotencyKey);
   const topic = isRecord(raw.topic) ? raw.topic : null;
   if (!topic || clean(topic.chatId) !== '-1002691202808' || clean(topic.topicKey) !== 'clients' || Number(topic.threadId) !== 804) {
     return { error: 'ActionRequest must target THOUGHTSEED LABS clients:804' };
@@ -438,23 +513,114 @@ function validateIverifActionRequest(raw: Record<string, unknown>): { actionRequ
   };
 }
 
-function validateActor(actionRequest: ActionRequestV1, raw: Record<string, unknown>): string | null {
+function validateFounderWorkflowActionRequest(raw: Record<string, unknown>): { actionRequest: ActionRequestV1 } | { error: string } {
+  const tenantId = clean(raw.tenantId) || 'cambium';
+  const id = clean(raw.id);
+  const idempotencyKey = clean(raw.idempotencyKey);
+  if (clean(raw.branchId) !== 'thoughtseed-hr' || clean(raw.projectId) !== 'thoughtseed-hr') {
+    return { error: 'unsupported ActionRequest sapling or workflow projection' };
+  }
+  const topic = isRecord(raw.topic) ? raw.topic : null;
+  if (!topic || !validFounderConversation(topic)) return { error: 'ActionRequest must target an authorized ThoughtSeed topic or founder direct chat' };
+  const approval = isRecord(raw.approval) ? raw.approval : null;
+  const createdAt = clean(raw.createdAt);
+  const expiresAt = clean(approval?.expiresAt);
+  const createdMs = Date.parse(createdAt);
+  const expiresMs = Date.parse(expiresAt);
+  if (approval?.mode !== 'telegram-reply-or-button') return { error: 'HR workflow requires telegram-reply-or-button approval mode' };
+  if (approval.workObjectId !== 'program:thoughtseed-vault' && approval.workObjectId !== 'program:temperance-hermes') {
+    return { error: 'unknown canonical WorkObject' };
+  }
+  if (!Number.isFinite(createdMs) || !Number.isFinite(expiresMs) || expiresMs <= createdMs || expiresMs - createdMs > 30 * 60 * 1000) {
+    return { error: 'ActionRequest approval must expire within 30 minutes of creation' };
+  }
+  const options = Array.isArray(raw.options) ? raw.options.filter(isRecord).map(toOption).filter((option): option is ActionRequestOptionV1 => !!option) : [];
+  if (!options.length) return { error: 'ActionRequest needs options' };
+  if (options.filter((option) => option.acceptsVerbalApproval).length !== 1) {
+    return { error: 'reply-enabled ActionRequest needs exactly one verbal approval option' };
+  }
+  return {
+    actionRequest: {
+      schema: 'thoughtseed.action-request.v1', id, idempotencyKey, tenantId,
+      status: statusText(raw.status) ?? 'proposed',
+      source: 'hermes-founder-intent',
+      createdAt,
+      updatedAt: clean(raw.updatedAt) || createdAt,
+      branchId: 'thoughtseed-hr',
+      branchLabel: clean(raw.branchLabel) || 'ThoughtSeed HR',
+      projectId: 'thoughtseed-hr',
+      projectName: clean(raw.projectName) || 'ThoughtSeed People Operations',
+      questId: clean(raw.questId) || 'living-org',
+      topic: {
+        chatId: clean(topic.chatId), topicKey: clean(topic.topicKey), threadId: Number(topic.threadId),
+        sourceMessageId: clean(topic.sourceMessageId) || undefined,
+      },
+      title: clean(raw.title) || 'Founder approval required',
+      summary: clean(raw.summary),
+      why: clean(raw.why),
+      approval: {
+        mode: 'telegram-reply-or-button',
+        expiresAt,
+        workObjectId: approval.workObjectId,
+      },
+      options,
+      selectedOptionId: clean(raw.selectedOptionId) || undefined,
+      receipts: Array.isArray(raw.receipts) ? raw.receipts.filter(isRecord).map(toReceipt) : [],
+      redaction: raw.redaction === 'safe' || raw.redaction === 'withheld' ? raw.redaction : 'redacted',
+    },
+  };
+}
+
+function validFounderConversation(topic: Record<string, unknown>): boolean {
+  const chatId = clean(topic.chatId);
+  const topicKey = clean(topic.topicKey);
+  const threadId = Number(topic.threadId);
+  const groupTopics: Record<string, number> = {
+    hermes: 797, digests: 798, inbox: 800, calendar: 801,
+    'agent-ops': 802, alerts: 803, clients: 804, dev: 862,
+  };
+  if (chatId === '-1002691202808') return groupTopics[topicKey] === threadId;
+  return topicKey === 'direct' && threadId === 0 && /^\d{6,15}$/.test(chatId);
+}
+
+function validateActor(actionRequest: ActionRequestV1, raw: Record<string, unknown>, founderIds: string[]): string | null {
   const actor = isRecord(raw.actor) ? raw.actor : {};
   const telegramUserId = clean(actor.telegramUserId);
   const founderTelegramUserId = clean(raw.founderTelegramUserId) || telegramUserId;
   if (!telegramUserId || telegramUserId !== founderTelegramUserId) return 'founder actor mismatch';
+  if (founderIds.length && !founderIds.includes(telegramUserId)) return 'not an authorized founder';
+  if (actionRequest.approval?.mode === 'telegram-reply-or-button' && !founderIds.includes(telegramUserId)) return 'not an authorized founder';
   if (clean(actor.chatId) !== actionRequest.topic.chatId || Number(actor.threadId) !== actionRequest.topic.threadId) {
     return 'topic actor mismatch';
   }
   return null;
 }
 
-function statusForOption(option: ActionRequestOptionV1): ActionRequestStatus {
-  if (option.requiresSignedConfirmation || option.risk === 'high' || option.resultKind === 'request_input' || option.resultKind === 'escalate_signed_gate') {
+function statusForOption(actionRequest: ActionRequestV1, option: ActionRequestOptionV1): ActionRequestStatus {
+  if (option.requiresSignedConfirmation || option.resultKind === 'escalate_signed_gate'
+    || (actionRequest.approval?.mode !== 'telegram-reply-or-button' && (option.risk === 'high' || option.resultKind === 'request_input'))) {
     return 'needs_signed_confirmation';
   }
   if (option.resultKind === 'hold' || option.resultKind === 'record_only') return 'blocked';
   return 'queued';
+}
+
+async function expireIfNeeded(
+  kv: ActionRequestKvLike,
+  actionRequest: ActionRequestV1,
+  at: string,
+): Promise<ActionRequestRouteResult | null> {
+  const expiresAt = actionRequest.approval?.expiresAt;
+  if (!expiresAt || Date.parse(at) < Date.parse(expiresAt)) return null;
+  if (actionRequest.status === 'superseded') return route(410, { error: 'ActionRequest approval expired', actionRequest });
+  const updated: ActionRequestV1 = {
+    ...actionRequest,
+    status: 'superseded',
+    updatedAt: at,
+    receipts: [...actionRequest.receipts, { at, kind: 'reply', text: 'Approval window expired; a new ActionRequest is required.' }],
+  };
+  await kv.put(arRecordKey(updated.tenantId, updated.id), JSON.stringify(updated));
+  return route(410, { error: 'ActionRequest approval expired', actionRequest: updated });
 }
 
 function receiptForStatus(status: ActionRequestStatus, label: string) {
@@ -505,6 +671,7 @@ function toListItem(actionRequest: ActionRequestV1): ActionRequestListItemV1 {
     title: actionRequest.title,
     summary: actionRequest.summary,
     why: actionRequest.why,
+    approval: actionRequest.approval,
     source: actionRequest.source,
     redaction: actionRequest.redaction,
     createdAt: actionRequest.createdAt,
@@ -541,6 +708,7 @@ function toListItem(actionRequest: ActionRequestV1): ActionRequestListItemV1 {
       consequence: option.consequence,
       risk: option.risk,
       requiresSignedConfirmation: option.requiresSignedConfirmation,
+      acceptsVerbalApproval: option.acceptsVerbalApproval,
       resultKind: option.resultKind,
     })),
     receipts: {
@@ -575,6 +743,7 @@ function toOption(raw: Record<string, unknown>): ActionRequestOptionV1 | null {
     consequence: clean(raw.consequence),
     risk: raw.risk === 'high' ? 'high' : 'low',
     requiresSignedConfirmation: raw.requiresSignedConfirmation === true,
+    ...(raw.acceptsVerbalApproval === true ? { acceptsVerbalApproval: true } : {}),
     resultKind: resultKind(raw.resultKind),
   };
 }

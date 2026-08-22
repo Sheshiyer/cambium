@@ -1,12 +1,6 @@
 import { createHash } from 'node:crypto';
 
 import {
-  PORTFOLIO_CATALOG_COUNTS,
-  PORTFOLIO_CATALOG_DIGEST as SHARED_PORTFOLIO_CATALOG_DIGEST,
-  PORTFOLIO_CLASSIFICATION_DIGEST as SHARED_CLASSIFICATION_DIGEST,
-} from '../../../shared/portfolio-catalog-authority.ts';
-
-import {
   RAW_CLASSIFICATION_REVIEW,
   RAW_HISTORICAL_PRODUCTS,
   RAW_OPERATIONAL_GAP_WORK_IDS,
@@ -14,9 +8,9 @@ import {
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts';
 
-export const PORTFOLIO_CLASSIFICATION_DIGEST = SHARED_CLASSIFICATION_DIGEST;
+export const PORTFOLIO_CLASSIFICATION_DIGEST = '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309';
 
-export const PORTFOLIO_CATALOG_DIGEST = SHARED_PORTFOLIO_CATALOG_DIGEST;
+export const PORTFOLIO_CATALOG_DIGEST = 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca';
 const CANONICAL_ID = /^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WORK_ID = /^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
@@ -190,7 +184,13 @@ const MISSING_MISSION_FIELDS = Object.freeze([
 ] as const);
 
 const SUMMARY: PortfolioCatalogSummary = Object.freeze({
-  ...PORTFOLIO_CATALOG_COUNTS,
+  total: 72,
+  saplings: 17,
+  clientBranches: 40,
+  internalPrograms: 15,
+  classificationReview: 0,
+  historicalProducts: 20,
+  operationalGaps: 48,
 });
 
 function compact<T extends Record<string, unknown>>(value: T): T {

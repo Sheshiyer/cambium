@@ -27,7 +27,7 @@ memory and recommendation support, not a second workflow engine.
 
 | Source | May supply | Never retained in Cortex/repository | Admission rule |
 | --- | --- | --- | --- |
-| Explee campaign analytics | aggregate sends, replies, hot-lead counts, spend, campaign state | raw API response, provider/account identifiers, contacts, email addresses, message bodies | GET-only observation becomes an aggregate candidate |
+| Explee campaign analytics | aggregate sends, replies, hot-lead counts, spend, campaign state | raw API response, contacts, email addresses, message bodies | GET-only observation becomes an aggregate candidate |
 | Explee `need_reply` inbox | count, campaign, coarse intent class, response-age band | names, email/mobile, LinkedIn URL, thread body, attachments | human review first; no reply is drafted or sent by Cortex |
 | Explee hot-lead view | aggregate count by campaign and status | lead identities and engagement transcript | human review first; no status is changed |
 | Search Console / GA4 | aggregated discovery and conversion measurements | visitor identifiers, raw query exports, session payloads | account access and consent proof must exist |
@@ -83,11 +83,10 @@ render them as active quest rows, not as completed work or hidden backlog.
 
 ## CRM handoff boundary
 
-A CRM flow may be designed from a dated or fresh aggregate `need_reply` and
-hot-lead observation. Any operational action requires a fresh scoped readback
-and separate approval. Its input is a redacted `reply-demand` or `hot-lead`
-observation; its output is an approval-bound CRM quest. It must not copy Explee
-contacts or message content into the quest ledger or Cortex.
+The CRM flow is designed only after the live `need_reply` and hot-lead views
+are inspected in aggregate. Its input is a redacted `reply-demand` or
+`hot-lead` observation; its output is an approval-bound CRM quest. It must not
+copy Explee contacts or message content into the quest ledger or Cortex.
 
 ## Invariants
 
@@ -110,5 +109,3 @@ contacts or message content into the quest ledger or Cortex.
   fixed to safe values.
 - Confirm Mini App contract rows describe `external-wait` and `blocked` as
   unfinished.
-- Validate at least one synthetic candidate against the schema; no live provider
-  payload is needed or permitted for that probe.

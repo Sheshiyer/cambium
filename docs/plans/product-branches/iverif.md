@@ -9,13 +9,23 @@ role: Compliance and proof product candidate
 promotion_state: proof-only
 current_gate: Claim/proof separation and live campaign reconciliation before automation
 packet_owner: cambium
+canonical_parent_tenant: cambium
+repository_planning_evidence: Sheshiyer/iverif-wiki@R_kgDOSwXJ7Q
 ---
 
 # IVerif Branch Packet
 
 IVerif is a proof-only Cambium product candidate for AI document validation in EU energy subsidy workflows. Current evidence supports a brand/wiki/research packet, not live product readiness, compliance readiness, or branch promotion readiness.
 
-Owning repository task: [`Sheshiyer/iverif-wiki#91`](https://github.com/Sheshiyer/iverif-wiki/issues/91). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
+## Cohort Identity Binding
+
+The founder-resolved canonical parent tenant is `cambium`. The exact prepared
+repository evidence is `Sheshiyer/iverif-wiki` with immutable GitHub identity
+`R_kgDOSwXJ7Q`; it is product-source and planning evidence only. This packet
+does not issue a mapping receipt, admit IVerif to a live operational tenant, or
+authorize a Goal Graph, R2, Hermes, Cortex, agent-memory, provider, or
+deployment write. The `iverif` names below remain packet-local context labels
+and never supersede the canonical parent tenant.
 
 ## Product Seed
 
@@ -44,7 +54,7 @@ Owning repository task: [`Sheshiyer/iverif-wiki#91`](https://github.com/Sheshiye
 | Taste | Cambium taste/compliance review | Public claims and product copy | Claim/reroll verdict | Future source-linked review | blocked |
 | Hands | IVerif repo/wiki site | Build/route verification tasks | Build proof and route proof | Future wiki commands | blocked |
 | Will | GTM/operator routines | Approved claims and operator targets | Pilot outreach/tasking | Future approval log | blocked |
-| Cortex | Cambium/Cortex memory | Claim map and evidence ledger | Searchable proof memory | Future ingestion | pending |
+| Cortex | Cambium/Cortex memory | Claim map and evidence ledger | Searchable proof memory | `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json` | complete |
 | Hermes | Hermes reports | Review tasks only | Founder-facing proof summary | Future report | pending |
 | Garden | Proof cadence | Claim review and build proof outcomes | Follow-up routine | Future pulse | pending |
 
@@ -62,7 +72,7 @@ Owning repository task: [`Sheshiyer/iverif-wiki#91`](https://github.com/Sheshiye
 
 ## Adapter / Service Map
 
-`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. IVerif's runtime tenant remains unresolved and no operational join may be inferred from the `iverif` label or repository name.
+`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. IVerif's canonical parent tenant is `cambium`; a runtime tenant admission remains unissued, and no operational join may be inferred from the `iverif` label or repository name.
 
 | Provider / Route | Inputs | Outputs | Failure Modes | Tenant Mapping | Privacy Boundary |
 | --- | --- | --- | --- | --- | --- |
@@ -80,6 +90,7 @@ Owning repository task: [`Sheshiyer/iverif-wiki#91`](https://github.com/Sheshiye
 | verified | Product-context agent found `brand-config.yaml`, `.brandmint-state.json`, seven `.brandmint/outputs/*.json` outputs, `wiki-output/*.md`, `deliverables/notebooklm/artifacts/*`, `wiki-site` Astro source, `WEBSITE_ASSETS_GUIDE.md`, and generation/publish manifests. |
 | verified | `wiki-site/package.json` declares `dev`, `build`, `preview`, `verify:data`, and `verify:routes`. |
 | verified | A direct Explee read observation on 2026-07-16 bound project `16763` and Public Agencies campaign `45711`: 2,921 sends, 17 replies, 0.6 percent provider-reported reply rate, six provider-labelled hot leads, $87.63 spend, and 2,779/2,887 pool usage. This verifies provider state only, not product demand or claims. |
+| verified | Cortex receipt-derived read model records IVerif among five canonical packets with semantic recall verified. Redacted summary: `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. |
 | blocked | All 17 observed replies require classification before a qualified-reply baseline or experiment winner can be declared. |
 | blocked | Live campaign activity conflicts with the packet's blocked customer-contact gate; provider auto-reply state and one-writer ownership must be reconciled before any campaign mutation. |
 | blocked | `wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established. |

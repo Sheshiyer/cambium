@@ -5,18 +5,10 @@ import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const html = await readFile(path.join(root, 'bundle.html'), 'utf8')
-const repositoryEvidenceSource = await readFile(path.join(root, 'src/repository-evidence.generated.ts'), 'utf8')
-const repositoryEvidenceDigest = /REPOSITORY_EVIDENCE_DIGEST = "([0-9a-f]{64})"/.exec(repositoryEvidenceSource)?.[1]
-assert.ok(repositoryEvidenceDigest, 'generated repository evidence digest is missing')
 
 for (const marker of [
   'Portfolio Workbench',
-  'Plan active portfolio',
-  'Catalog totals',
-  'Portfolio → TG Mini App linkage',
-  'D1 Goal Graph admission',
-  'Hermes transport only',
-  'Slash commands remain Hermes-plugin-owned',
+  'Plan the portfolio',
   'white-labelable',
   'needs-review',
   'this-year',
@@ -32,7 +24,7 @@ for (const marker of [
   'Save creation intent',
   'local-founder',
   '/v1/admin/portfolio/actions',
-  repositoryEvidenceDigest,
+  '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309',
 ]) {
   assert.ok(html.includes(marker), `missing standalone contract marker: ${marker}`)
 }
@@ -41,4 +33,4 @@ for (const retiredMarker of ['Start project ingestion']) {
   assert.ok(!html.includes(retiredMarker), `retired active-UI marker still present: ${retiredMarker}`)
 }
 
-console.log('hosted artifact smoke ok · active/catalog truth, linkage, Founder Gate intent, and receipt markers present')
+console.log('hosted artifact smoke ok · Thoughtseed planning, Founder Gate intent, and receipt markers present')

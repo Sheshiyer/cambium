@@ -30,7 +30,7 @@ export function validateSnapshot(snapshot) {
     if (!Array.isArray(portfolio.folders) || portfolio.folders.length !== portfolio.folderCount) throw new TypeError(`${portfolio.portfolioId} folder count drift`)
     const folders = new Set()
     for (const entry of portfolio.folders) {
-      if (!entry || typeof entry.folder !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(entry.folder)) throw new TypeError(`unsafe relative folder in ${portfolio.portfolioId}`)
+      if (!entry || typeof entry.folder !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9-]*$/.test(entry.folder)) throw new TypeError(`unsafe relative folder in ${portfolio.portfolioId}`)
       if (folders.has(entry.folder)) throw new TypeError(`duplicate folder ${entry.folder}`)
       folders.add(entry.folder)
       if (!allowedKinds.has(entry.proposedKind)) throw new TypeError(`unsupported proposal kind ${entry.proposedKind}`)
@@ -39,7 +39,7 @@ export function validateSnapshot(snapshot) {
     }
   }
   const thoughtseed = snapshot.portfolios[0]
-  if (thoughtseed.folderCount !== 58) throw new TypeError('Thoughtseed folder count must remain 58')
+  if (thoughtseed.folderCount !== 57) throw new TypeError('Thoughtseed folder count must remain 57')
   if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
   const noesis = snapshot.portfolios[1]
   if (noesis.folderCount !== 30) throw new TypeError('Tryambakam-Noesis folder count must remain 30')
@@ -48,36 +48,11 @@ export function validateSnapshot(snapshot) {
   return snapshot
 }
 
-export const SKILL_NEST = 'skills'
-
 export function expectedDirectoryNames(portfolio) {
   const expected = portfolio.folders.map((entry) => entry.folder)
   if (portfolio.infrastructure) expected.push(...portfolio.infrastructure)
   if (portfolio.archiveContainer) expected.push(portfolio.archiveContainer)
   return expected.sort((left, right) => left.localeCompare(right))
-}
-
-export async function observePortfolioFolders(workingRoot, expectedNames = []) {
-  if (!path.isAbsolute(workingRoot)) throw new TypeError('workingRoot must be absolute')
-  const expected = new Set(expectedNames)
-  const entries = await readdir(workingRoot, { withFileTypes: true })
-  const observed = []
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue
-    observed.push(entry.name)
-  }
-  try {
-    const nested = await readdir(path.join(workingRoot, SKILL_NEST), { withFileTypes: true })
-    for (const entry of nested) {
-      if (!entry.isDirectory()) continue
-      if (!expected.has(entry.name)) continue
-      if (observed.includes(entry.name)) continue
-      observed.push(entry.name)
-    }
-  } catch (error) {
-    if (error && error.code !== 'ENOENT') throw error
-  }
-  return observed.sort((left, right) => left.localeCompare(right))
 }
 
 export function compareObservedDirectories(portfolio, observed) {
@@ -194,10 +169,7 @@ export async function generateBrowserModule({
   await mkdir(path.dirname(outputPath), { recursive: true })
   await writeFile(outputPath, generated, 'utf8')
   await mkdir(path.dirname(workerOutputPath), { recursive: true })
-  // Both runtimes consume the same generated authority. Keeping the complete
-  // module byte-identical proves mirror parity instead of inferring it from a
-  // shared digest embedded in intentionally different source projections.
-  await writeFile(workerOutputPath, generated, 'utf8')
+  await writeFile(workerOutputPath, renderWorkerPolicyModule(snapshot), 'utf8')
   return { digest: snapshotDigest(snapshot), outputPath, workerOutputPath, snapshot }
 }
 
@@ -215,7 +187,8 @@ export async function writeRootHeaders({ snapshot, projectsRoot, write = false, 
     const portfolioRoot = path.join(projectsRoot, portfolio.portfolioId)
     const stat = await lstat(portfolioRoot)
     if (!stat.isDirectory() || stat.isSymbolicLink()) throw new TypeError(`${portfolio.portfolioId} root must be a real directory`)
-    const observed = await observePortfolioFolders(portfolioRoot, expectedDirectoryNames(portfolio))
+    const entries = await readdir(portfolioRoot, { withFileTypes: true })
+    const observed = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name)
     const comparison = compareObservedDirectories(portfolio, observed)
     if (!comparison.ok) throw new TypeError(`${portfolio.portfolioId} folder drift: missing=${comparison.missing.join(',')} unexpected=${comparison.unexpected.join(',')}`)
     const outputs = [

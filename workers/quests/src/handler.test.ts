@@ -26,10 +26,7 @@ import type {
 import type { D1DatabaseLike, D1StatementLike } from './index.ts';
 import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
-import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { PAGE } from './page.ts';
-import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
-import { parseToolsCommandProjection } from './page/scenes/tools.ts';
 import {
   FRESH_ECOSYSTEM_VISUAL_FIXTURE,
   IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE,
@@ -1134,7 +1131,6 @@ async function renderPageFixtureContext(
     fetchSequence?: unknown[];
     clipboard?: boolean;
     telegramInitData?: string;
-    storage?: Map<string, string>;
     onFetch?: (request: { url: string; init: RequestInit; index: number }) => void;
     fetchResponder?: (request: { url: string; init: RequestInit; index: number }) => unknown;
   } = {},
@@ -1165,7 +1161,6 @@ async function renderPageFixtureContext(
   const fetchCalls: string[] = [];
   const fetchRequests: Array<{ url: string; init: RequestInit; method: string; body?: BodyInit | null }> = [];
   const clipboardWrites: string[] = [];
-  const storage = options.storage ?? new Map<string, string>();
   const fetchSequence = [...(options.fetchSequence ?? [])];
   const fixedNow = options.now ? Date.parse(options.now) : null;
   const telegramWebApp = options.telegramInitData
@@ -1183,11 +1178,6 @@ async function renderPageFixtureContext(
     document: { getElementById, querySelectorAll: () => [] },
     window: { Telegram: telegramWebApp ? { WebApp: telegramWebApp } : undefined, addEventListener() {}, innerWidth: 390 },
     location: { search: options.search ?? '' },
-    localStorage: {
-      getItem: (key: string) => storage.get(String(key)) ?? null,
-      setItem: (key: string, value: string) => { storage.set(String(key), String(value)); },
-      removeItem: (key: string) => { storage.delete(String(key)); },
-    },
     matchMedia: () => ({ matches: true }),
     navigator: options.clipboard ? { clipboard: { writeText: async (text: string) => { clipboardWrites.push(String(text)); } } } : {},
     fetch: async (url: string, init: RequestInit = {}) => {
@@ -1215,7 +1205,7 @@ async function renderPageFixtureContext(
   vm.runInContext(appScripts[0], vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
-  return { elements, context, fetchCalls, fetchRequests, clipboardWrites, storage };
+  return { elements, context, fetchCalls, fetchRequests, clipboardWrites };
 }
 
 function selectInspectPane(
@@ -1849,603 +1839,6 @@ test('quests · 404 with push hint before any ledger exists', async () => {
   assert.match(r.body, /quine write quests push/);
 });
 
-test('story contract · accepts stable identity, canonical WorkObject identity, source, event time, and receipt identity', () => {
-  const parsed = parseStoryEventContract({
-    eventId: 'story:fitcheck:launch-proof',
-    workObject: {
-      id: 'sapling:cambium',
-      kind: 'sapling',
-    },
-    source: 'product-branch-packets@v1',
-    eventAt: '2026-08-16T08:30:00.000Z',
-    receipt: {
-      id: 'rcpt_fitcheck_launch_001',
-    },
-  });
-
-  assert.deepEqual(parsed, {
-    ok: true,
-    value: {
-      eventId: 'story:fitcheck:launch-proof',
-      workObject: {
-        id: 'sapling:cambium',
-        kind: 'sapling',
-      },
-      source: 'product-branch-packets@v1',
-      eventAt: '2026-08-16T08:30:00.000Z',
-      receipt: {
-        id: 'rcpt_fitcheck_launch_001',
-      },
-    },
-  });
-});
-
-test('story contract · rejects malformed identities, invalid WorkObject kind, invalid event time, and missing receipt identity', () => {
-  const parsed = parseStoryEventContract({
-    eventId: ' ',
-    workObject: {
-      id: 'sapling cambium',
-      kind: 'template',
-    },
-    source: '',
-    eventAt: '16-08-2026 08:30',
-    receipt: {},
-  });
-
-  assert.equal(parsed.ok, false);
-  if (parsed.ok) return;
-  assert.deepEqual(parsed.issues.map((issue) => `${issue.path}:${issue.code}`), [
-    'eventId:invalid_identity',
-    'workObject.id:invalid_identity',
-    'workObject.kind:invalid_work_object_kind',
-    'source:missing_source',
-    'eventAt:invalid_iso_time',
-    'receipt.id:missing_receipt_identity',
-  ]);
-});
-
-test('story contract · rejects a WorkObject identity whose prefix contradicts its kind', () => {
-  const parsed = parseStoryEventContract({
-    eventId: 'story:cambium:proof',
-    workObject: { id: 'branch:cambium', kind: 'sapling' },
-    source: 'quest-ledger@v1',
-    eventAt: '2026-08-16T08:30:00.000Z',
-    receipt: { id: 'receipt:cambium:proof' },
-  });
-
-  assert.equal(parsed.ok, false);
-  if (parsed.ok) return;
-  assert.deepEqual(parsed.issues, [{ path: 'workObject.id', code: 'work_object_kind_mismatch' }]);
-});
-
-test('story contract · secret-shaped identity fragments never enter projected public events', () => {
-  const parsed = parseStoryEventContract({
-    eventId: 'story:cambium:tgwebappdata',
-    workObject: { id: 'sapling:cambium', kind: 'sapling' },
-    source: 'quest-ledger@v1',
-    eventAt: '2026-08-16T08:30:00.000Z',
-    receipt: { id: 'private-key' },
-  });
-  assert.equal(parsed.ok, false);
-  if (!parsed.ok) {
-    assert.deepEqual(parsed.issues.map((issue) => `${issue.path}:${issue.code}`), [
-      'eventId:invalid_identity',
-      'receipt.id:missing_receipt_identity',
-    ]);
-  }
-
-  const projected = projectStoryEvents({
-    actionRequests: {
-      rows: [{
-        id: 'ar_safe_decision_boundary',
-        workObject: { id: 'sapling:cambium', kind: 'sapling' },
-        branchId: 'cambium',
-        selectedOptionId: 'private-key',
-        status: 'queued',
-        updatedAt: '2026-08-16T08:31:00.000Z',
-        receipts: {
-          latest: {
-            at: '2026-08-16T08:30:30.000Z',
-            kind: 'callback',
-            text: 'Founder decision receipt retained',
-          },
-        },
-      }],
-    },
-  });
-  assert.deepEqual(projected.map((event) => event.eventKind), ['receipt']);
-  assert.doesNotMatch(JSON.stringify(projected), /private-key|tgwebappdata/i);
-});
-
-test('story projector · replay deduplicates stable event identity and conflicting reuse fails closed', () => {
-  const receiptEvent = {
-    eventId: 'story:receipt:ar_replay:complete:2026-08-16T08:30:00.000Z',
-    eventKind: 'receipt' as const,
-    workObject: { id: 'sapling:cambium', kind: 'sapling' as const },
-    source: 'cambium-action-requests@v1',
-    eventAt: '2026-08-16T08:30:00.000Z',
-    receipt: { id: 'receipt:action-request:ar_replay:complete:2026-08-16T08:30:00.000Z' },
-    text: 'Completion receipt retained',
-    lane: 'action-request',
-    group: 'Mission wins',
-    context: 'inspect',
-    branchId: 'cambium',
-    proof: 'complete receipt',
-    outcome: 'completed',
-    actionRequestId: 'ar_replay',
-  };
-  const actionRequest = {
-    id: 'ar_replay',
-    workObject: { id: 'sapling:cambium', kind: 'sapling' },
-    branchId: 'cambium',
-    status: 'completed',
-    receipts: {
-      latest: {
-        at: '2026-08-16T08:30:00.000Z',
-        kind: 'complete',
-        text: 'Completion receipt retained',
-      },
-    },
-  };
-
-  assert.deepEqual(projectStoryEvents({
-    beats: [receiptEvent, receiptEvent],
-    actionRequests: { rows: [actionRequest, actionRequest] },
-  }), [receiptEvent]);
-
-  assert.deepEqual(projectStoryEvents({
-    beats: [
-      receiptEvent,
-      { ...receiptEvent, source: 'conflicting-source@v1' },
-    ],
-  }), []);
-});
-
-test('tools contract · accepts exactly the five panels with source and freshness on each panel', () => {
-  const parsed = parseToolsCommandProjection({
-    status: {
-      panelId: 'status',
-      source: 'org-status@v1',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:30:00.000Z' },
-    },
-    services: {
-      panelId: 'services',
-      source: 'service-health@v1',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:31:00.000Z' },
-    },
-    agents: {
-      panelId: 'agents',
-      source: 'agent-roster@v1',
-      freshness: { state: 'stale', checkedAt: '2026-08-16T07:30:00.000Z' },
-    },
-    activeWork: {
-      panelId: 'active-work',
-      source: 'active-work@v1',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:32:00.000Z' },
-    },
-    handoffs: {
-      panelId: 'handoffs',
-      source: 'handoff-queue@v1',
-      freshness: { state: 'unknown', checkedAt: '2026-08-16T08:33:00.000Z' },
-    },
-  });
-
-  assert.deepEqual(parsed, {
-    ok: true,
-    value: {
-      status: {
-        panelId: 'status',
-        source: 'org-status@v1',
-        freshness: { state: 'fresh', checkedAt: '2026-08-16T08:30:00.000Z' },
-      },
-      services: {
-        panelId: 'services',
-        source: 'service-health@v1',
-        freshness: { state: 'fresh', checkedAt: '2026-08-16T08:31:00.000Z' },
-      },
-      agents: {
-        panelId: 'agents',
-        source: 'agent-roster@v1',
-        freshness: { state: 'stale', checkedAt: '2026-08-16T07:30:00.000Z' },
-      },
-      activeWork: {
-        panelId: 'active-work',
-        source: 'active-work@v1',
-        freshness: { state: 'fresh', checkedAt: '2026-08-16T08:32:00.000Z' },
-      },
-      handoffs: {
-        panelId: 'handoffs',
-        source: 'handoff-queue@v1',
-        freshness: { state: 'unknown', checkedAt: '2026-08-16T08:33:00.000Z' },
-      },
-    },
-  });
-});
-
-test('tools contract · rejects missing panels, empty sources, malformed freshness, invalid timestamps, and wrong panel identities', () => {
-  const parsed = parseToolsCommandProjection({
-    status: {
-      panelId: 'status',
-      source: '',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:30:00.000Z' },
-    },
-    services: {
-      panelId: 'service',
-      source: 'service-health@v1',
-      freshness: { state: 'fresh', checkedAt: 'not-a-time' },
-    },
-    agents: {
-      panelId: 'agents',
-      source: 'agent-roster@v1',
-      freshness: 'fresh',
-    },
-    handoffs: {
-      panelId: 'handoffs',
-      source: 'handoff-queue@v1',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:33:00.000Z' },
-    },
-    rogue: {
-      panelId: 'rogue',
-      source: 'unowned@v1',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:34:00.000Z' },
-    },
-  });
-
-  assert.equal(parsed.ok, false);
-  if (parsed.ok) return;
-  assert.deepEqual(parsed.issues.map((issue) => `${issue.path}:${issue.code}`), [
-    'status.source:missing_source',
-    'services.panelId:wrong_panel_identity',
-    'services.freshness.checkedAt:invalid_iso_time',
-    'agents.freshness:malformed_freshness',
-    'activeWork:missing_panel',
-    'rogue:unexpected_panel',
-  ]);
-});
-
-test('scene contracts · public envelope normalization feeds only validated Story and Tools data into real renderers', async () => {
-  const kv = fakeKv();
-  await kv.put('ledger:cambium', JSON.stringify({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T08:30:00.000Z',
-    source: 'quest-envelope@v1',
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    beats: [
-      {
-        eventId: 'story:cambium:valid-proof',
-        workObject: { id: 'sapling:cambium', kind: 'sapling' },
-        source: 'quest-ledger@v1',
-        eventAt: '2026-08-16T08:29:00.000Z',
-        receipt: { id: 'receipt:cambium:valid-proof' },
-        text: 'Validated proof reached the Story scene',
-        lane: 'quest',
-      },
-      {
-        eventId: 'story:cambium:missing-receipt',
-        workObject: { id: 'sapling:cambium', kind: 'sapling' },
-        source: 'quest-ledger@v1',
-        eventAt: '2026-08-16T08:29:30.000Z',
-        text: 'Malformed runtime beat must stay hidden',
-        lane: 'quest',
-      },
-    ],
-    commands: {
-      status: { agents: 3, issuesOpen: 1 },
-      services: [{ name: 'Cambium Worker', status: 'ready' }],
-      agents: [{ name: 'Noesis', model: 'operator' }],
-      work: [{ id: 'T-008', status: 'complete' }],
-      handoffs: [],
-    },
-  }));
-
-  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
-  const envelope = JSON.parse(response.body);
-
-  assert.equal(response.status, 200);
-  assert.deepEqual(envelope.beats.map((beat: { eventId: string }) => beat.eventId), ['story:cambium:valid-proof']);
-  assert.equal(envelope.commands.status.panelId, 'status');
-  assert.equal(envelope.commands.status.source, 'quest-envelope@v1');
-  assert.deepEqual(envelope.commands.status.freshness, {
-    state: 'unknown',
-    checkedAt: '2026-08-16T08:30:00.000Z',
-  });
-  assert.deepEqual(envelope.commands.activeWork.data, [{ id: 'T-008', status: 'complete' }]);
-  assert.equal('commandProjection' in envelope, false);
-
-  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T08:31:00.000Z' });
-  (rendered.context.renderCommands as () => void)();
-  const storyRows = rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]');
-  assert.equal(storyRows.length, 1);
-  (rendered.context.openStoryBeat as (index: number) => void)(0);
-  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /Validated proof reached the Story scene/);
-  assert.doesNotMatch(rendered.elements.get('sheetBody')!.innerHTML, /Malformed runtime beat must stay hidden/);
-  assert.match(rendered.elements.get('cmds')!.innerHTML, /3 agents · 1 open/);
-  assert.match(rendered.elements.get('cmds')!.innerHTML, /1 services/);
-});
-
-test('story projector · receipt, founder decision, and completed transition become canonical public events', async () => {
-  const kv = fakeKv();
-  await kv.put('ledger:cambium', JSON.stringify({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T09:05:00.000Z',
-    source: 'quest-envelope@v1',
-    beats: [],
-    ledger: {
-      completed: 1,
-      total: 1,
-      current: null,
-      rows: [{
-        id: 'transition-iverif-proof',
-        branchId: 'iverif',
-        title: 'Bearer raw-secret-must-not-render',
-        evidence: 'token=raw-secret-must-not-render',
-        status: 'complete',
-        eventAt: '2026-08-16T09:03:00.000Z',
-        source: 'private_key=raw-secret-must-not-render',
-        receipt: { id: 'receipt:iverif:proof-transition' },
-      }],
-    },
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [{
-        branchId: 'iverif',
-        workObjectId: 'sapling:iverif',
-        workObjectKind: 'sapling',
-        name: 'IVerif',
-      }],
-    },
-  }));
-  const created = await handle(req('POST', '/v1/bridge/action-requests', {
-    headers: { authorization: 'Bearer bridge' },
-    body: JSON.stringify({
-      ...iverifActionRequest(),
-      status: 'queued',
-      selectedOptionId: 'make-branch-task',
-      updatedAt: '2026-08-16T09:02:00.000Z',
-      receipts: [{ at: '2026-08-16T09:01:00.000Z', kind: 'callback', text: 'Queued: Make branch task.' }],
-    }),
-  }), { kv, bridgeToken: 'bridge', now: () => '2026-08-16T09:02:00.000Z' });
-  assert.equal(created.status, 200);
-
-  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
-  const envelope = JSON.parse(response.body);
-  assert.equal(response.status, 200);
-  assert.deepEqual(envelope.beats.map((event: { eventKind: string }) => event.eventKind).sort(), ['decision', 'receipt', 'transition']);
-  for (const event of envelope.beats) assert.equal(parseStoryEventContract(event).ok, true);
-
-  const receipt = envelope.beats.find((event: { eventKind: string }) => event.eventKind === 'receipt');
-  assert.equal(receipt.workObject.id, 'sapling:iverif');
-  assert.equal(receipt.workObject.kind, 'sapling');
-  assert.equal(receipt.eventAt, '2026-08-16T09:01:00.000Z');
-  assert.match(receipt.receipt.id, /^receipt:action-request:ar_iverif_autogtm_lead_gap:callback:/);
-  const decision = envelope.beats.find((event: { eventKind: string }) => event.eventKind === 'decision');
-  assert.equal(decision.actionRequestId, 'ar_iverif_autogtm_lead_gap');
-  assert.match(decision.text, /make-branch-task/);
-  const transition = envelope.beats.find((event: { eventKind: string }) => event.eventKind === 'transition');
-  assert.equal(transition.receipt.id, 'receipt:iverif:proof-transition');
-  assert.equal(transition.workObject.id, 'sapling:iverif');
-  assert.equal(transition.source, 'quest-ledger@v1');
-  assert.equal(transition.text, 'Completed Story transition');
-  assert.equal(transition.proof, 'receipt retained');
-  assert.doesNotMatch(JSON.stringify(transition), /raw-secret-must-not-render/);
-
-  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:06:00.000Z' });
-  const storyRows = rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]');
-  assert.equal(storyRows.length, 3, 'canonical ActionRequest events must not gain a legacy duplicate in the browser');
-});
-
-test('story projector · ambiguous WorkObject joins and receipt-less transitions fail closed', async () => {
-  const kv = fakeKv();
-  await kv.put('ledger:cambium', JSON.stringify({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T09:05:00.000Z',
-    source: 'quest-envelope@v1',
-    beats: [],
-    ledger: {
-      completed: 1,
-      total: 1,
-      current: null,
-      rows: [{
-        id: 'transition-without-receipt',
-        branchId: 'iverif',
-        title: 'Must not project',
-        status: 'complete',
-        eventAt: '2026-08-16T09:03:00.000Z',
-      }],
-    },
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [
-        { branchId: 'iverif', workObjectId: 'sapling:iverif', workObjectKind: 'sapling' },
-        { branchId: 'iverif', workObjectId: 'program:iverif', workObjectKind: 'program' },
-      ],
-    },
-  }));
-  await handle(req('POST', '/v1/bridge/action-requests', {
-    headers: { authorization: 'Bearer bridge' },
-    body: JSON.stringify({
-      ...iverifActionRequest(),
-      status: 'queued',
-      selectedOptionId: 'make-branch-task',
-      updatedAt: '2026-08-16T09:02:00.000Z',
-      receipts: [{ at: '2026-08-16T09:01:00.000Z', kind: 'callback', text: 'Queued: Make branch task.' }],
-    }),
-  }), { kv, bridgeToken: 'bridge', now: () => '2026-08-16T09:02:00.000Z' });
-
-  const envelope = JSON.parse((await handle(req('GET', '/api/quests/cambium'), { kv })).body);
-  assert.deepEqual(envelope.beats, []);
-  assert.equal(envelope.actionRequests.count, 1, 'Gate retains the ActionRequest even when Story cannot prove its WorkObject');
-  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:06:00.000Z' });
-  assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]').length, 0);
-  assert.match(rendered.elements.get('beats')!.innerHTML, /No branch story yet/);
-});
-
-test('story projector · partial ledger envelopes cannot reactivate receipt-less browser fallback', async () => {
-  const kv = fakeKv();
-  await kv.put('ledger:cambium', JSON.stringify({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T09:05:00.000Z',
-    source: 'quest-envelope@v1',
-    ledger: {
-      completed: 1,
-      total: 1,
-      current: null,
-      rows: [{
-        id: 'legacy-transition-without-receipt',
-        branchId: 'iverif',
-        title: 'Legacy completed row must stay hidden',
-        status: 'complete',
-        eventAt: '2026-08-16T09:03:00.000Z',
-      }],
-    },
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [{ branchId: 'iverif', workObjectId: 'sapling:iverif', workObjectKind: 'sapling' }],
-    },
-  }));
-
-  const envelope = JSON.parse((await handle(req('GET', '/api/quests/cambium'), { kv })).body);
-  assert.deepEqual(envelope.beats, []);
-  assert.equal(envelope.storyProjection.schema, 'cambium.story-event-projection.v1');
-  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:06:00.000Z' });
-  assert.equal(rendered.elements.get('beats')!.querySelectorAll('[data-component="StoryBeatCard"]').length, 0);
-  assert.doesNotMatch(rendered.elements.get('beats')!.innerHTML, /Legacy completed row must stay hidden/);
-});
-
-test('scene contracts · typed Tools projection survives the public route as the sole renderer input', async () => {
-  const kv = fakeKv();
-  const commands = {
-    status: {
-      panelId: 'status',
-      source: 'org-status@v2',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T09:00:00.000Z' },
-      data: { agents: 4, issuesOpen: 2 },
-    },
-    services: {
-      panelId: 'services',
-      source: 'service-health@v3',
-      freshness: { state: 'stale', checkedAt: '2026-08-16T08:30:00.000Z' },
-      data: [{ name: 'Cambium Worker', status: 'ready' }],
-    },
-    agents: {
-      panelId: 'agents',
-      source: 'agent-roster@v2',
-      freshness: { state: 'unknown', checkedAt: '2026-08-16T08:45:00.000Z' },
-      data: [],
-    },
-    activeWork: {
-      panelId: 'active-work',
-      source: 'active-work@v4',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:55:00.000Z' },
-      data: [{ id: 'T-053', status: 'active' }],
-    },
-    handoffs: {
-      panelId: 'handoffs',
-      source: 'handoff-queue@v2',
-      freshness: { state: 'fresh', checkedAt: '2026-08-16T08:58:00.000Z' },
-      data: [],
-    },
-  };
-  await kv.put('ledger:cambium', JSON.stringify({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T09:00:00.000Z',
-    source: 'quest-envelope@v1',
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    beats: [],
-    commands,
-  }));
-
-  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
-  const envelope = JSON.parse(response.body);
-
-  assert.equal(response.status, 200);
-  assert.deepEqual(envelope.commands, commands);
-  assert.equal('commandProjection' in envelope, false);
-  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T09:01:00.000Z' });
-  (rendered.context.renderCommands as () => void)();
-  assert.match(rendered.elements.get('cmds')!.innerHTML, /4 agents · 2 open/);
-  assert.match(rendered.elements.get('cmds')!.innerHTML, /1 services/);
-  assert.match(rendered.elements.get('cmds')!.innerHTML, /1 open/);
-
-  const unexpected = await renderPageFixtureContext({
-    ...envelope,
-    commands: { ...commands, rogue: { panelId: 'rogue', data: ['unowned panel'] } },
-  }, { now: '2026-08-16T09:01:00.000Z' });
-  (unexpected.context.renderCommands as () => void)();
-  assert.match(unexpected.elements.get('cmds')!.innerHTML, /data-interaction-kind="read-only"/);
-  assert.doesNotMatch(unexpected.elements.get('cmds')!.innerHTML, /4 agents · 2 open/);
-});
-
-test('scene contracts · malformed command panels fail closed before Tools rendering', async () => {
-  const kv = fakeKv();
-  await kv.put('ledger:cambium', JSON.stringify({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T08:30:00.000Z',
-    source: 'quest-envelope@v1',
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    beats: [],
-    commands: {
-      status: { agents: 99, issuesOpen: 99 },
-      services: 'not-an-array',
-      agents: [],
-      work: [],
-      handoffs: [],
-    },
-  }));
-
-  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
-  const envelope = JSON.parse(response.body);
-  assert.equal(envelope.commands, null);
-  assert.equal('commandProjection' in envelope, false);
-
-  const rendered = await renderPageFixtureContext(envelope, { now: '2026-08-16T08:31:00.000Z' });
-  (rendered.context.renderCommands as () => void)();
-  const toolsHtml = rendered.elements.get('cmds')!.innerHTML;
-  assert.match(toolsHtml, /data-interaction-kind="read-only"/);
-  assert.doesNotMatch(toolsHtml, /99 agents/);
-
-  await kv.put('ledger:acme', JSON.stringify({
-    schema: 1,
-    tenant: 'acme',
-    derivedAt: '2026-08-16T08:30:00.000Z',
-    source: 'quest-envelope@v1',
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    beats: [],
-    commands: {
-      status: { agents: 1, issuesOpen: 0 },
-      services: [],
-      agents: [],
-      work: [],
-      handoffs: [],
-      rogue: [{ name: 'unowned panel' }],
-    },
-  }));
-  const unexpectedPanel = JSON.parse((await handle(req('GET', '/api/quests/acme'), { kv })).body);
-  assert.equal(unexpectedPanel.commands, null);
-  assert.equal('commandProjection' in unexpectedPanel, false);
-});
-
-test('scene contracts · invalid stored envelope cannot bypass normalization as raw response data', async () => {
-  const kv = fakeKv();
-  await kv.put('ledger:cambium', '{"beats":[{"text":"unvalidated runtime data"}]');
-
-  const response = await handle(req('GET', '/api/quests/cambium'), { kv });
-
-  assert.equal(response.status, 200);
-  assert.deepEqual(JSON.parse(response.body), {
-    schema: 1,
-    tenant: 'cambium',
-    source: 'stored-envelope-validation',
-    error: 'stored_envelope_invalid',
-  });
-});
-
 test('push · requires configured token', async () => {
   const r = await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE }), { kv: fakeKv() });
   assert.equal(r.status, 503);
@@ -3069,32 +2462,6 @@ test('page · serves the Living Blueprint shell at /', async () => {
   assert.match(PAGE, /telegram-web-app\.js/);
 });
 
-test('page · embeds the selected tenant public quest envelope as script-safe initial data', async () => {
-  const kv = fakeKv();
-  await kv.put('ledger:acme', JSON.stringify({
-    schema: 1,
-    tenant: 'acme',
-    derivedAt: '2026-08-16T08:30:00.000Z',
-    source: '</script><script>globalThis.pwned=true</script>',
-    ledger: { completed: 0, total: 1, current: null, rows: [] },
-  }));
-
-  const response = await handle(req('GET', '/?tenant=acme'), { kv });
-
-  assert.equal(response.status, 200);
-  assert.match(response.body, /globalThis\.__CAMBIUM_INITIAL_QUEST_ENVELOPE__=/);
-  assert.match(response.body, /\"tenant\":\"acme\"/);
-  assert.match(response.body, /\\u003c\/script>\\u003cscript>/);
-  assert.doesNotMatch(response.body, /<script>globalThis\.pwned=true<\/script>/);
-});
-
-test('page · omits initial quest data when the selected tenant has no stored ledger', async () => {
-  const response = await handle(req('GET', '/?tenant=missing'), { kv: fakeKv() });
-
-  assert.equal(response.status, 200);
-  assert.doesNotMatch(response.body, /globalThis\.__CAMBIUM_INITIAL_QUEST_ENVELOPE__=/);
-});
-
 test('page · chrome copy scan keeps infrastructure terms out of visible shell copy', () => {
   const chromeFragments = [
     ['root status', pageFragment('root status header', /<header\b[^>]*class="[^"]*\broot-status\b[^"]*"[\s\S]*?<\/header>/i)],
@@ -3539,198 +2906,6 @@ test('page · story beats are clickable sheets with ecosystem provenance', async
   assert.doesNotMatch(paperclipSheet, /thoughtseed-vault|direct vault write action|data-kind=/i);
 });
 
-test('page · canonical Story timeline exposes exact source and WorkObject provenance for every event', async () => {
-  const beats = [
-    {
-      eventId: 'story:receipt:ar_timeline:complete:2026-08-16T08:30:00.000Z',
-      eventKind: 'receipt',
-      workObject: { id: 'sapling:cambium', kind: 'sapling' },
-      source: 'cambium-action-requests@v1',
-      eventAt: '2026-08-16T08:30:00.000Z',
-      receipt: { id: 'receipt:action-request:ar_timeline:complete:2026-08-16T08:30:00.000Z' },
-      text: 'Timeline receipt retained',
-      lane: 'action-request',
-      group: 'Mission wins',
-      proof: 'complete receipt',
-    },
-    {
-      eventId: 'story:transition:quest_timeline:completed:2026-08-16T08:31:00.000Z',
-      workObject: { id: 'branch:cambium', kind: 'branch' },
-      source: 'quest-ledger@v1',
-      eventAt: '2026-08-16T08:31:00.000Z',
-      receipt: { id: 'receipt:quest:timeline' },
-      text: 'Timeline transition retained',
-      lane: 'quest',
-      group: 'Mission wins',
-      proof: 'transition receipt',
-    },
-  ];
-  const rendered = await renderPageFixtureContext({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T08:32:00.000Z',
-    freshness: { state: 'fresh', detail: 'fresh' },
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    storyProjection: { schema: 'cambium.story-event-projection.v1' },
-    beats,
-  }, { now: '2026-08-16T08:33:00.000Z' });
-  const storyHtml = rendered.elements.get('beats')!.innerHTML;
-  const timelineItems = [...storyHtml.matchAll(/<i class="is-[^"]+"[^>]*data-story-event-id="[^"]+"[^>]*><\/i>/g)].map((match) => match[0]);
-  const cards = [...storyHtml.matchAll(/<button type="button" class="[^"]*beat[^"]*"[^>]*data-story-event-id="[^"]+"[^>]*>/g)].map((match) => match[0]);
-
-  assert.equal(timelineItems.length, beats.length);
-  assert.equal(cards.length, beats.length);
-  for (const [index, item] of timelineItems.entries()) {
-    const beat = beats[index];
-    const kindLabel = beat.eventKind ?? 'legacy event';
-    assert.ok(item.includes(`data-story-source="${beat.source}"`));
-    assert.ok(item.includes(`data-story-work-object="${beat.workObject.id}"`));
-    assert.ok(item.includes(`data-story-work-object-kind="${beat.workObject.kind}"`));
-    assert.ok(item.includes(`data-story-event-at="${beat.eventAt}"`));
-    assert.ok(item.includes(`aria-label="${beat.eventAt} · ${kindLabel} · ${beat.workObject.kind} ${beat.workObject.id} · source ${beat.source} · receipt ${beat.receipt.id}"`));
-    assert.ok(cards[index].includes(`data-source="${beat.source}"`));
-    assert.ok(cards[index].includes(`data-story-work-object="${beat.workObject.id}"`));
-    if (beat.eventKind) assert.ok(cards[index].includes(`data-story-event-kind="${beat.eventKind}"`));
-    else assert.doesNotMatch(cards[index], /data-story-event-kind=/);
-  }
-});
-
-test('page · provenance-shaped direct Story fixtures remain explicitly unqualified without the canonical marker', async () => {
-  const rendered = await renderPageFixtureContext({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T08:32:00.000Z',
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    beats: [{
-      eventId: 'story:receipt:untrusted:2026-08-16T08:30:00.000Z',
-      eventKind: 'receipt',
-      workObject: { id: 'sapling:cambium', kind: 'sapling' },
-      source: 'untrusted-direct-fixture@v1',
-      eventAt: '2026-08-16T08:30:00.000Z',
-      receipt: { id: 'receipt:untrusted' },
-      text: 'Legacy direct fixture stays unqualified',
-      lane: 'quest',
-      group: 'Mission wins',
-    }],
-  }, { now: '2026-08-16T08:33:00.000Z' });
-  const storyHtml = rendered.elements.get('beats')!.innerHTML;
-
-  assert.match(storyHtml, /data-story-qualified-count="0"/);
-  assert.match(storyHtml, /data-story-provenance="legacy-unqualified"/);
-  assert.match(storyHtml, /data-component="StoryBeatCard"[^>]*data-source="mission-story@v1"/);
-  assert.doesNotMatch(storyHtml, /StoryWorkObjectFilters|data-story-work-object-kind-filter=|data-story-event-id=|data-story-work-object=|data-story-event-kind=/);
-});
-
-test('page · canonical Story filters by exact WorkObject kind and identity without reordering events', async () => {
-  const makeBeat = (eventId: string, eventAt: string, id: string, kind: 'sapling' | 'branch' | 'program') => ({
-    eventId,
-    eventKind: 'receipt' as const,
-    workObject: { id, kind },
-    source: 'story-filter-proof@v1',
-    eventAt,
-    receipt: { id: `receipt:${eventId}` },
-    text: `${eventId} retained`,
-    lane: 'quest',
-    group: 'Mission wins',
-    branchId: 'shared-alias-must-not-filter',
-    proof: 'receipt retained',
-  });
-  const beats = [
-    makeBeat('story:program:newest', '2026-08-16T09:03:00.000Z', 'program:portfolio', 'program'),
-    makeBeat('story:sapling:newer', '2026-08-16T09:02:00.000Z', 'sapling:cambium', 'sapling'),
-    makeBeat('story:sapling:older', '2026-08-16T09:01:00.000Z', 'sapling:fitcheck', 'sapling'),
-    makeBeat('story:branch:oldest', '2026-08-16T09:00:00.000Z', 'branch:iverif', 'branch'),
-  ];
-  const rendered = await renderPageFixtureContext({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T09:04:00.000Z',
-    freshness: { state: 'fresh', detail: 'fresh' },
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    storyProjection: { schema: 'cambium.story-event-projection.v1' },
-    beats,
-  }, { now: '2026-08-16T09:05:00.000Z' });
-  const beatsElement = rendered.elements.get('beats')!;
-  const initialHtml = beatsElement.innerHTML;
-
-  assert.match(initialHtml, /data-component="StoryWorkObjectFilters"/);
-  assert.doesNotMatch(initialHtml, /data-component="StoryBranchFilterChips"/);
-  assert.match(initialHtml, /data-story-work-object-kind-filter="sapling"/);
-  assert.match(initialHtml, /data-story-work-object-id-filter="sapling:cambium"[^>]*data-story-work-object-kind="sapling"/);
-
-  const saplingKind = beatsElement.querySelectorAll('[data-story-work-object-kind-filter]').find((node) => node.dataset.storyWorkObjectKindFilter === 'sapling');
-  assert.ok(saplingKind);
-  assert.equal(typeof saplingKind.onclick, 'function');
-  (saplingKind.onclick as () => void)();
-  const saplingHtml = beatsElement.innerHTML;
-  const saplingCards = [...saplingHtml.matchAll(/<button type="button" class="[^"]*beat[^"]*"[^>]*data-story-event-id="([^"]+)"[^>]*>/g)].map((match) => match[1]);
-  assert.deepEqual(saplingCards, ['story:sapling:newer', 'story:sapling:older']);
-  assert.doesNotMatch(saplingHtml, /data-story-event-id="story:(?:program|branch):/);
-
-  const fitcheckIdentity = beatsElement.querySelectorAll('[data-story-work-object-id-filter]').find((node) => node.dataset.storyWorkObjectIdFilter === 'sapling:fitcheck');
-  assert.ok(fitcheckIdentity);
-  assert.equal(typeof fitcheckIdentity.onclick, 'function');
-  (fitcheckIdentity.onclick as () => void)();
-  const fitcheckHtml = beatsElement.innerHTML;
-  const fitcheckCards = [...fitcheckHtml.matchAll(/<button type="button" class="[^"]*beat[^"]*"[^>]*data-story-event-id="([^"]+)"[^>]*>/g)].map((match) => match[1]);
-  assert.deepEqual(fitcheckCards, ['story:sapling:older']);
-  assert.match(fitcheckHtml, /data-story-work-object-id-filter="sapling:fitcheck"[^>]*aria-pressed="true"/);
-});
-
-test('page · canonical Story rejects alias-shaped and kind-mismatched WorkObjects from filters and provenance', async () => {
-  const beat = (eventId: string, id: string, kind: string) => ({
-    eventId,
-    eventKind: 'receipt',
-    workObject: { id, kind },
-    source: 'story-filter-proof@v1',
-    eventAt: '2026-08-16T09:03:00.000Z',
-    receipt: { id: `receipt:${eventId}` },
-    text: `${eventId} retained`,
-    lane: 'quest',
-    group: 'Mission wins',
-    proof: 'receipt retained',
-  });
-  const rendered = await renderPageFixtureContext({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T09:04:00.000Z',
-    freshness: { state: 'fresh', detail: 'fresh' },
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    storyProjection: { schema: 'cambium.story-event-projection.v1' },
-    beats: [
-      beat('story:valid', 'sapling:cambium', 'sapling'),
-      beat('story:alias', 'fitcheck-alias', 'client'),
-      beat('story:mismatch', 'program:portfolio', 'sapling'),
-    ],
-  }, { now: '2026-08-16T09:05:00.000Z' });
-  const storyHtml = rendered.elements.get('beats')!.innerHTML;
-
-  assert.match(storyHtml, /data-story-work-object-id-filter="sapling:cambium"/);
-  assert.match(storyHtml, /data-story-event-id="story:valid"/);
-  assert.doesNotMatch(storyHtml, /fitcheck-alias|data-story-event-id="story:alias"/);
-  assert.doesNotMatch(storyHtml, /program:portfolio|data-story-event-id="story:mismatch"/);
-});
-
-test('page · canonical empty Story names the first qualifying event without fabricating a beat', async () => {
-  const rendered = await renderPageFixtureContext({
-    schema: 1,
-    tenant: 'cambium',
-    derivedAt: '2026-08-16T09:04:00.000Z',
-    freshness: { state: 'fresh', detail: 'fresh' },
-    ledger: { completed: 0, total: 0, current: null, rows: [] },
-    storyProjection: { schema: 'cambium.story-event-projection.v1' },
-    beats: [],
-  }, { now: '2026-08-16T09:05:00.000Z' });
-  const storyHtml = rendered.elements.get('beats')!.innerHTML;
-
-  assert.match(storyHtml, /data-component="StoryEmptyState"/);
-  assert.match(storyHtml, /class="state" role="region"/);
-  assert.match(storyHtml, /data-story-first-qualifying-events="receipt decision transition"/);
-  assert.match(storyHtml, /First: receipt, decision, or completed transition\./);
-  assert.match(storyHtml, /aria-label="First Story event: receipt, founder decision, or completed lifecycle transition with exact WorkObject identity, time, and receipt\."/);
-  assert.doesNotMatch(storyHtml, /data-component="StoryBeatCard"|data-story-event-id=/);
-});
-
 test('page · StoryGroup labels follow STORY_GROUPS runtime contract', async () => {
   const rendered = await renderPageFixtureContext({
     schema: 1,
@@ -4115,7 +3290,7 @@ test('page · story hero empty branch filter has no beat index', async () => {
   assert.doesNotMatch(digestSheet, /Only Branch A has a story beat/);
 });
 
-test('page · empty story names the first qualifying Story events', async () => {
+test('page · empty story names branch story wait state', async () => {
   const rendered = await renderPageFixtureContext({
     schema: 1,
     tenant: 'cambium',
@@ -4132,10 +3307,8 @@ test('page · empty story names the first qualifying Story events', async () => 
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
 
   assert.match(storyHtml, /No branch story yet/);
-  // T-063: concise first-event guidance replaces the generic branch-evidence wait line.
-  assert.match(storyHtml, /First: receipt, decision, or completed transition/);
-  assert.match(storyHtml, /data-story-first-qualifying-events="receipt decision transition"/);
-  assert.doesNotMatch(storyHtml, /beats land after branch evidence/);
+  // frozen/06 S8: empty body is the five-word token line, not the old narrative sentence.
+  assert.match(storyHtml, /beats land after branch evidence/);
   assert.doesNotMatch(storyHtml, /Wins, signals, lessons, and drift appear here/);
   assert.match(storyHtml, />Open Mission</);
   assert.match(storyHtml, />Open Proof</);
@@ -4235,12 +3408,12 @@ test('page · story fixture blocked state codes contradiction as blocked tokens 
   assert.doesNotMatch(sheet, /<div class="kv">/);
 });
 
-test('page · story fixture empty state retains frozen controls with T-063 first-event guidance', async () => {
+test('page · story fixture empty state renders the frozen EMPTY panel (T-021)', async () => {
   const rendered = await renderPageFixtureContext(STORY_SCENE_FIXTURE.states.empty.envelope, { now: '2026-07-24T09:17:00.000Z' });
   const storyHtml = rendered.elements.get('beats')!.innerHTML;
   assert.match(storyHtml, /data-component="StoryEmptyState"/);
   assert.match(storyHtml, /No branch story yet/);
-  assert.match(storyHtml, /First: receipt, decision, or completed transition/);
+  assert.match(storyHtml, /beats land after branch evidence/);
   assert.match(storyHtml, />Refresh</);
   assert.match(storyHtml, />Open Mission</);
   assert.match(storyHtml, />Open Proof</);
@@ -4325,120 +3498,6 @@ test('page · Tools renders live action surfaces with state tokens', async () =>
   assert.match(toolsHtml, /data-inspect-target="tools"/);
   assertNoPrimaryMetaCopy(toolsHtml);
   assert.doesNotMatch(toolsHtml, /\/ts-|Copy command|data-copy-command|chat syntax|payload preview|paperclipCommandsData|gateway|debug/i);
-});
-
-test('page · Tools panel freshness is source-aware and never outruns global freshness', async () => {
-  const mixedEnvelope = JSON.parse(JSON.stringify(FRESH_ECOSYSTEM_VISUAL_FIXTURE));
-  mixedEnvelope.commands.services.freshness = { state: 'stale', checkedAt: '2026-06-22T08:30:00.000Z' };
-  mixedEnvelope.commands.agents.freshness = { state: 'unknown', checkedAt: '2026-06-22T09:00:00.000Z' };
-  mixedEnvelope.commands.handoffs.source = 'Bearer should-never-render';
-  const mixed = await renderPageFixtureContext(mixedEnvelope, { now: '2026-06-22T10:00:00.000Z' });
-  (mixed.context.renderCommands as () => void)();
-
-  const cards = mixed.elements.get('cmds')!.querySelectorAll('[data-component="ToolActionCard"]');
-  const bySurface = (id: string) => cards.find((card) => card.dataset.toolSurface === id)!;
-  assert.equal(bySurface('status').dataset.toolPanelFreshness, 'fresh');
-  assert.equal(bySurface('status').dataset.toolPanelSource, 'visual-fixture:org-status');
-  assert.equal(bySurface('status').dataset.toolGlobalFreshness, 'fresh');
-  assert.equal(bySurface('status').dataset.interactionKind, 'sheet');
-  assert.equal(bySurface('hermes').dataset.toolPanelFreshness, 'stale');
-  assert.equal(bySurface('hermes').dataset.toolPanelSource, 'visual-fixture:service-health');
-  assert.equal(bySurface('hermes').dataset.interactionKind, 'read-only');
-  assert.equal(bySurface('agents').dataset.toolPanelFreshness, 'unknown');
-  assert.equal(bySurface('agents').dataset.interactionKind, 'read-only');
-  assert.equal(bySurface('handoffs').dataset.toolPanelSource, 'source unavailable');
-  assert.equal(mixed.elements.get('cmds')!.querySelector('[data-tool-aggregate-freshness]')!.dataset.toolAggregateFreshness, 'stale');
-  assert.match(mixed.elements.get('cmds')!.innerHTML, /data-component="ToolPanelFreshness"[^>]*data-tool-panel-freshness="fresh"/);
-  assert.match(mixed.elements.get('cmds')!.innerHTML, /visual-fixture:service-health/);
-  assert.doesNotMatch(mixed.elements.get('cmds')!.innerHTML, /should-never-render/);
-
-  (mixed.context.openToolSurfaceSheet as (id: string) => void)('hermes');
-  const sheet = mixed.elements.get('sheetBody')!.innerHTML;
-  assert.match(sheet, /data-component="ToolPanelFreshnessDetail"/);
-  assert.match(sheet, /visual-fixture:service-health/);
-  assert.match(sheet, /2026-06-22T08:30:00.000Z/);
-
-  const globallyStale = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, { now: '2026-06-22T16:00:00.000Z' });
-  (globallyStale.context.renderCommands as () => void)();
-  const staleCards = globallyStale.elements.get('cmds')!.querySelectorAll('[data-component="ToolActionCard"]');
-  assert.equal(staleCards.length, 5);
-  for (const card of staleCards) {
-    assert.equal(card.dataset.toolGlobalFreshness, 'stale');
-    assert.equal(card.dataset.interactionKind, 'read-only');
-    assert.match(card.getAttribute('class') ?? '', /is-stale/);
-  }
-  assert.equal(globallyStale.elements.get('cmds')!.querySelector('[data-tool-aggregate-freshness]')!.dataset.toolAggregateFreshness, 'stale');
-
-  (globallyStale.context.openToolSurfaceSheet as (id: string) => void)('handoffs');
-  const staleHandoffSheet = globallyStale.elements.get('sheetBody')!.innerHTML;
-  assert.match(staleHandoffSheet, /handoff data stale · refresh first/);
-  assert.match(staleHandoffSheet, /data-tool-retry="handoffs"/);
-  assert.doesNotMatch(staleHandoffSheet, /data-component="ToolHandoffActionRow"|data-tool-act=/);
-});
-
-test('page · Mission navigation retains the exact selected WorkObject identity and kind in Tools', async () => {
-  const branch = (branchId: string, name: string, workObjectId: string, workObjectKind: string, branchKind: string) => ({
-    branchId,
-    name,
-    branchKind,
-    workObjectId,
-    workObjectKind,
-    arcTitle: `${name} arc`,
-    vision: { statement: `${name} keeps its next move visible in Mission.` },
-    questline: [{ id: 'run', title: `Run ${name} proof`, status: 'pending' }],
-    missions: [{ missionId: `${branchId}-next`, title: `Run ${name} proof`, owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Hermes' }],
-    gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
-    kpis: [],
-    proofPaths: [{ proofId: `${branchId}-proof`, validates: 'Viewport capture', promotes: 'reviewed work' }],
-    promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
-    gaps: [],
-  });
-  const envelope = {
-    ...FRESH_ECOSYSTEM_VISUAL_FIXTURE,
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [
-        branch('fitcheck', 'Fitcheck', 'sapling:fitcheck', 'sapling', 'product'),
-        branch('vantyx-client', 'Vantyx client', 'program:vantyx-client', 'program', 'client'),
-      ],
-    },
-  };
-  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission', now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
-  rendered.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[1].click();
-  rendered.elements.get('stem')!.querySelector('[data-mission-action="tools"]').click();
-
-  assert.equal(vm.runInContext('scene', rendered.context as vm.Context), 2);
-  const workContext = rendered.elements.get('cmds')!.querySelector('[data-component="ToolWorkObjectContext"]');
-  assert.ok(workContext);
-  assert.equal(workContext.dataset.toolWorkObjectId, 'program:vantyx-client');
-  assert.equal(workContext.dataset.toolWorkObjectKind, 'program');
-  assert.match(workContext.innerHTML, /program:vantyx-client/);
-  assert.match(workContext.innerHTML, /program/);
-
-  (rendered.context.openToolSurfaceSheet as (id: string) => void)('status');
-  const sheet = rendered.elements.get('sheetBody')!;
-  assert.equal(sheet.querySelector('[data-component="ToolWorkObjectContext"]')!.dataset.toolWorkObjectId, 'program:vantyx-client');
-  assert.equal(sheet.querySelector('[data-component="ToolWorkObjectContext"]')!.dataset.toolWorkObjectKind, 'program');
-
-  const mismatched = {
-    ...envelope,
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [branch('mismatch', 'Mismatch', 'program:mismatch', 'sapling', 'product')],
-    },
-  };
-  const rejected = await renderPageFixtureContext(mismatched, { search: '?tenant=cambium&scene=tools', now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
-  (rejected.context.renderCommands as () => void)();
-  const rejectedContext = rejected.elements.get('cmds')!.querySelector('[data-component="ToolWorkObjectContext"]');
-  assert.equal(rejectedContext.dataset.toolWorkObjectState, 'missing');
-  assert.equal(rejectedContext.dataset.toolWorkObjectId, undefined);
-  assert.equal(rejectedContext.dataset.toolWorkObjectKind, undefined);
-  const rejectedHtml = rejected.elements.get('cmds')!.innerHTML;
-  assert.match(rejectedHtml, /work pending/);
-  assert.match(rejectedHtml, /Branch packets…/);
-  assert.match(rejectedHtml, /branch packet/);
-  assert.match(rejectedHtml, /data-tool-recommend-state="empty"/);
-  assert.doesNotMatch(rejectedHtml, /data-tool-recommend-surface=|data-tool-suggest="|Mismatch|Founder review/);
 });
 
 test('page · Tools live surface sheets stay read-only with result tokens', async () => {
@@ -4912,133 +3971,6 @@ test('page · Inspect groups proof detail without becoming primary flow', async 
   assert.doesNotMatch(summarySheet, /data-copy-proof-summary|Copy proof summary|Copy unavailable/);
 });
 
-test('page · Inspect leads with blocker freshness and receipt cues before system detail', async () => {
-  const rendered = await renderPageFixtureContext(FRESH_ECOSYSTEM_VISUAL_FIXTURE, {
-    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
-  });
-  const map = rendered.elements.get('mapwrap')!;
-  const proofHtml = map.innerHTML;
-  const summary = proofHtml.match(/<section class="inspect-proof-summary"[\s\S]*?<\/section>/)?.[0] ?? '';
-
-  assert.match(summary, /data-inspect-lead-order="blockers freshness receipts"/);
-  const blockerCue = summary.indexOf('data-inspect-lead-cue="blockers"');
-  const freshnessCue = summary.indexOf('data-inspect-lead-cue="freshness"');
-  const receiptCue = summary.indexOf('data-inspect-lead-cue="receipts"');
-  assert.ok(blockerCue >= 0 && blockerCue < freshnessCue && freshnessCue < receiptCue);
-  assert.ok(proofHtml.indexOf('data-component="InspectProofSummaryAction"') < proofHtml.indexOf('data-component="InspectPaneSwitcher"'));
-
-  selectInspectPane(rendered, 'system');
-  const systemHtml = map.innerHTML;
-  assert.ok(systemHtml.indexOf('data-component="InspectProofSummaryAction"') < systemHtml.indexOf('System map'));
-  assert.ok(systemHtml.indexOf('data-inspect-lead-cue="receipts"') < systemHtml.indexOf('Runtime state'));
-});
-
-test('page · Inspect readiness matches the served state of all five scenes', async () => {
-  const envelope = {
-    ...FRESH_ECOSYSTEM_VISUAL_FIXTURE,
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [{ branchId: 'cambium', name: 'Cambium', workObjectId: 'sapling:cambium', workObjectKind: 'sapling' }],
-    },
-    storyProjection: { schema: 'cambium.story-event-projection.v1', eventCount: 1 },
-    beats: [{
-      eventId: 'story:cambium:readiness',
-      eventKind: 'receipt',
-      workObject: { id: 'sapling:cambium', kind: 'sapling' },
-      eventAt: FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt,
-      source: 'quest-ledger@v1',
-      receipt: { id: 'receipt:cambium:readiness' },
-      text: 'Readiness receipt retained',
-    }],
-  };
-  const rendered = await renderPageFixtureContext(envelope, {
-    now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock,
-  });
-  selectInspectPane(rendered, 'system');
-  const map = rendered.elements.get('mapwrap')!;
-  const html = map.innerHTML;
-  const panel = html.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
-
-  assert.match(panel, /data-component="InspectPageReadiness"/);
-  assert.match(panel, /data-live-telegram-readiness="not-implied"/);
-  assert.match(panel, /coverage does not prove live Telegram readiness/i);
-  const expected = [
-    ['mission', 'active', 'branch-packets'],
-    ['gate', 'complete', 'gates'],
-    ['tools', 'active', 'tools'],
-    ['story', 'active', 'evidence'],
-    ['inspect', 'proof-needed', 'live-proof'],
-  ];
-  let previous = -1;
-  for (const [scene, state, proof] of expected) {
-    const marker = `data-inspect-readiness-page="${scene}"`;
-    const index = panel.indexOf(marker);
-    assert.ok(index > previous, `${scene} keeps canonical scene order`);
-    previous = index;
-    assert.match(panel, new RegExp(`${marker}[^>]*data-inspect-readiness-state="${state}"[^>]*data-inspect-readiness-proof="${proof}"`));
-  }
-  assert.equal((panel.match(/data-inspect-readiness-page=/g) || []).length, 5);
-
-  const proofLinks = map.querySelectorAll('[data-inspect-readiness-proof]');
-  for (const [, , proof] of expected) {
-    const link = proofLinks.find((node) => node.dataset.inspectReadinessProof === proof);
-    assert.ok(link, `${proof} proof link renders`);
-    assert.equal(typeof link.onclick, 'function');
-    (link.onclick as () => void)();
-    assert.match(rendered.elements.get('sheetBody')!.innerHTML, new RegExp(`inspect · ${proof}`));
-  }
-
-  const stale = await renderPageFixtureContext(envelope, { now: '2026-06-22T16:00:00.000Z' });
-  selectInspectPane(stale, 'system');
-  const stalePanel = stale.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
-  assert.equal((stalePanel.match(/data-inspect-readiness-state="stale"/g) || []).length, 5);
-  assert.doesNotMatch(stalePanel, /data-inspect-readiness-state="(?:active|complete)"/);
-
-  const partial = await renderPageFixtureContext({
-    schema: 1,
-    tenant: 'cambium',
-    source: 'partial-readiness-fixture',
-    derivedAt: FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt,
-    ledger: FRESH_ECOSYSTEM_VISUAL_FIXTURE.ledger,
-    openItems: [],
-  }, { now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
-  selectInspectPane(partial, 'system');
-  const partialPanel = partial.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
-  assert.match(partialPanel, /data-inspect-readiness-page="mission"[^>]*data-inspect-readiness-state="blocked"/);
-  assert.match(partialPanel, /data-inspect-readiness-page="gate"[^>]*data-inspect-readiness-state="complete"/);
-  assert.match(partialPanel, /data-inspect-readiness-page="tools"[^>]*data-inspect-readiness-state="stale"/);
-  assert.match(partialPanel, /data-inspect-readiness-page="story"[^>]*data-inspect-readiness-state="blocked"/);
-  assert.match(partialPanel, /data-inspect-readiness-page="inspect"[^>]*data-inspect-readiness-state="blocked"/);
-
-  const goalGraphOnly = await renderPageFixtureContext({
-    schema: 1,
-    tenant: 'cambium',
-    source: 'goal-graph-readiness-fixture',
-    derivedAt: FRESH_ECOSYSTEM_VISUAL_FIXTURE.derivedAt,
-    ledger: FRESH_ECOSYSTEM_VISUAL_FIXTURE.ledger,
-    goalGraphIntake: {
-      source: 'telegram-goal-graph-intake@v1',
-      rows: [{ id: 'goal-graph:readiness', status: 'pending', changeDigest: 'sha256:' + 'a'.repeat(64) }],
-    },
-  }, { now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
-  selectInspectPane(goalGraphOnly, 'system');
-  const goalGraphPanel = goalGraphOnly.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
-  assert.match(goalGraphPanel, /data-inspect-readiness-page="gate"[^>]*data-inspect-readiness-state="active"[^>]*data-inspect-readiness-proof="gates"[^>]*data-source="telegram-goal-graph-intake@v1"/);
-
-  const contradictoryLiveProof = await renderPageFixtureContext({
-    ...envelope,
-    liveProof: {
-      source: 'tg-live-proof-readiness@v2',
-      status: 'ready',
-      rows: [{ id: 'contradiction', title: 'CONTRADICTORY ROW', state: 'blocked', detail: 'receipt missing' }],
-    },
-  }, { now: FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock });
-  selectInspectPane(contradictoryLiveProof, 'system');
-  const contradictoryPanel = contradictoryLiveProof.elements.get('mapwrap')!.innerHTML.match(/<section class="inspect-page-readiness"[\s\S]*?<\/section>/)?.[0] ?? '';
-  assert.match(contradictoryPanel, /data-inspect-readiness-page="inspect"[^>]*data-inspect-readiness-state="proof-needed"/);
-  assert.doesNotMatch(contradictoryPanel, /data-inspect-readiness-page="inspect"[^>]*data-inspect-readiness-state="complete"/);
-});
-
 test('page · visual tapestry layer exposes wake, lanes, stance, policy, decision context, live proof, branch stories, side quests, social, skills, companions, evidence boxes, and gaps', () => {
   for (const m of ['renderTapestryAudit', 'data-tapestry', 'completion definition · ', 'ACTIVE ORGAN', 'R3F CONTRACT', 'wakeSteps', 'wake', 'data-wake', 'wake step · ', 'wake history', 'operator wake events', 'latest snapshot, not a historical trace', 'renderLanes', 'lane · ', 'renderStance', 'tenant stance · ', 'renderPolicy', 'policy', 'POLICY GAP', 'caution ', 'renderDecisionContext', 'decision context', 'decision context · ', 'policy authority', 'renderLiveProof', 'live proof', 'data-live-proof', 'capture plan · not proof', 'proof only after', 'renderBranches', 'branch packets', 'missions', 'KPIs', 'gates', 'proof paths', 'openBranchMissionSheet', 'product-branch-packets@v1', 'product-branches', 'renderSideQuests', 'side quests', 'side quest · ', 'Queue side quest', 'queue-side-quest', 'side quest ledger remains unchanged', 'owner', 'action', 'target', 'lifetime', 'completion', 'trigger', 'proof', 'renderSocial', 'coordination', 'coordination · ', 'SOCIAL GAP', 'tenant-handoff-only', 'renderSenses', 'sense · ', 'senseEnv', 'renderInsightBoxes', 'evidence', 'insightEnv', 'no quest evidence rows served', 'source', 'skill labors', 'tierLabel', 'UNPROVEN', 'recentRate', 'promotion:', 'companions', 'companion · ', 'stage', 'scope', 'advice proof', 'history', 'no relationship events served', 'awaiting signal', 'explicit gap']) {
     assert.ok(PAGE.includes(m), `page has ${m}`);
@@ -5062,6 +3994,7 @@ test('page · gate chamber previews consequence, reversibility, evidence, and id
   assert.match(PAGE, /data-signed-action-entrypoint="reroll"/);
   assert.match(PAGE, /data-signed-action-entrypoint="confirm-action-request"/);
   assert.match(PAGE, /querySelectorAll\('\[data-kind\]'\)/);
+  assert.match(PAGE, /openGatePreflight\(kind, gateActionSubject\(kind, item\), node\)/);
 });
 
 test('page · empty gate names internal source and no open items', async () => {
@@ -5349,71 +4282,6 @@ test('page · goal-graph intake row renders, preflights, and submits a signed ap
   assert.match(resultSheet, /goal graph committed · receipt in Inspect/);
   assert.match(resultSheet, /queued action<\/b><span>gg_node_test/);
   assert.match(resultSheet, /data-gate-result-refresh="1"/);
-});
-
-test('page · legacy goal-graph Gate row passes the exact served descriptor to governed preflight', async () => {
-  const changeDigest = 'd'.repeat(64);
-  const envelope = {
-    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
-    openItems: [],
-    goalGraphIntake: {
-      schema: 'cambium.goal-graph-gate-row-list.v1',
-      ok: true,
-      tenantId: 'cambium',
-      count: 1,
-      rows: [{
-        schema: 'cambium.goal-graph-gate-row.v1',
-        kind: 'goal-graph-intake',
-        id: `goal-graph-intake:${changeDigest}`,
-        tenantId: 'cambium',
-        status: 'pending',
-        changeDigest,
-        nodeId: 'gg_node_descriptor',
-        title: 'Goal proposal · admit Fitcheck',
-        source: 'telegram-goal-graph-intake@v1',
-        evidence: 'packet-backed Fitcheck proposal pinned at intake',
-        consequence: 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
-        reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph',
-        idempotencyHint: changeDigest,
-        graphVersion: 2,
-        receivedAt: '2026-08-14T09:46:02.530Z',
-        updatedAt: '2026-08-14T09:46:02.530Z',
-        approvalNonce: `goal-graph-approval:cambium:${changeDigest}`,
-        approvalExpiresAt: '2099-08-14T10:01:02.530Z',
-        expectedHeadVersion: 1,
-        fence: 2,
-      }],
-    },
-  };
-  const rendered = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=gate' });
-  const calls: unknown[][] = [];
-  rendered.context.openGatePreflight = (...args: unknown[]) => { calls.push(args); };
-  const button = { dataset: { kind: 'approve-goal-graph' }, onclick: null as null | (() => void) };
-  const row = {
-    dataset: { i: '0' },
-    querySelectorAll: (selector: string) => selector === '[data-kind]' ? [button] : [],
-  };
-  const gate = {
-    innerHTML: '',
-    querySelectorAll: (selector: string) => selector === '.gitem' ? [row] : [],
-  };
-
-  (rendered.context.loadGateWire as (el: unknown, source: string) => void)(gate, '/internal/gate/cambium');
-  assert.equal(typeof button.onclick, 'function');
-  button.onclick!();
-
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0]![0], 'approve-goal-graph');
-  assert.equal(calls[0]![1], changeDigest);
-  assert.equal(calls[0]![2], row);
-  assert.deepEqual(JSON.parse(JSON.stringify(calls[0]![3])), {
-    tenant: 'cambium',
-    changeDigest,
-    nonce: `goal-graph-approval:cambium:${changeDigest}`,
-    expiresAt: '2099-08-14T10:01:02.530Z',
-    graphVersion: 1,
-    fence: 2,
-  });
 });
 
 test('page · production ActionRequest projection renders message choice receipt and state-valid controls', async () => {
@@ -6375,11 +5243,6 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   const questlineIndex = html.indexOf('data-component="QuestlineTimeline"');
   const proofListIndex = html.indexOf('data-component="ProofList"');
   const toolLinkIndex = html.indexOf('data-component="MissionToolLink"');
-  const stateStackHtml = html.match(/<div data-component="MissionStateStack">[\s\S]*?<\/div><\/div>/)?.[0] ?? '';
-  const stateRows = stateStackHtml.match(/data-mission-state-action="[^"]+"/g) ?? [];
-  assert.equal((html.match(/data-component="MissionStateStack"/g) ?? []).length, 1, 'resting Mission renders exactly one state stack');
-  assert.equal(stateRows.length, 4, 'the state stack remains a single bounded four-row decision summary');
-  assert.ok(stateStackHtml.indexOf('>Blocked by<') < stateStackHtml.indexOf('>Proof needed<'), 'the first blocker row must precede the first proof cue');
   assert.ok(cardIndex > -1 && cardIndex < questlineIndex, 'mission card should wrap the questline timeline');
   assert.ok(questlineIndex < stateStackIndex, 'timeline should precede the state stack');
   assert.ok(stateStackIndex < proofListIndex, 'state summary should lead into proof rows');
@@ -6411,204 +5274,6 @@ test('page · Mission scene renders branch arcs, next mission, blockers, proof, 
   assert.match(proofSheet, /data-component="KpiPulse"[^>]*data-kpi-kind="survival"[\s\S]*data-component="OrbitProgress"[\s\S]*class="mc-kpi-bars" data-component="PacketFlow"/);
   assert.doesNotMatch(proofSheet, /mc-kpi-pulse/);
   assert.doesNotMatch(html, /autonomous ready|production verified|live proof ready|shipped|launched|100% success/i);
-});
-
-function fitcheckFounderOutcomePageEnvelope(overrides: Record<string, unknown> = {}) {
-  return {
-    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [{
-        branchId: 'fitcheck',
-        workObjectId: 'sapling:fitcheck',
-        name: 'Fitcheck',
-        arcTitle: 'Shopify launch',
-        vision: { statement: 'Bind founder-observed Shopify widget QA to one reviewed proof transition.' },
-        questline: [{ id: 'fitcheck-shopify-widget-qa', title: 'Shopify widget QA', status: 'active' }],
-        missions: [{ missionId: 'fitcheck-shopify-qa', title: 'Run Shopify widget QA', owner: 'Founder', gate: 'Founder review', proofRequired: 'Screenshot and widget-event receipts', dispatchTarget: 'Gate' }],
-        gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Screenshot and widget-event receipts' }],
-        kpis: [],
-        proofPaths: [],
-        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
-        gaps: [],
-      }],
-    },
-    ...overrides,
-  };
-}
-
-test('Fitcheck founder outcome renders exact actions and an accessible bounded evidence sheet', async () => {
-  const rendered = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope(), {
-    search: '?tenant=cambium&scene=mission',
-    telegramInitData: TEST_TELEGRAM_INIT_DATA,
-  });
-  const stem = rendered.elements.get('stem')!;
-  const addProof = stem.querySelector('[data-founder-outcome-action="add-proof"]');
-  const reportOutcome = stem.querySelector('[data-founder-outcome-action="report-outcome"]');
-  assert.ok(addProof && reportOutcome);
-  addProof.click();
-
-  const sheet = rendered.elements.get('sheetBody')!;
-  assert.equal(sheet.querySelectorAll('input').length, 2);
-  assert.equal(sheet.querySelectorAll('select').length, 1);
-  assert.equal(sheet.querySelectorAll('textarea').length, 1);
-  assert.match(sheet.innerHTML, /Screenshot receipt reference/);
-  assert.match(sheet.innerHTML, /Widget-event receipt reference/);
-  assert.match(sheet.innerHTML, /Query-free HTTPS URL or opaque receipt reference/);
-  assert.match(sheet.innerHTML, /Observed outcome/);
-  assert.match(sheet.innerHTML, /Founder note \(optional\)/);
-  assert.match(sheet.innerHTML, /maxlength="500"/);
-  assert.match(sheet.innerHTML, /data-founder-outcome-claim-guard="1"/);
-  assert.match(sheet.innerHTML, /records an observed outcome; Gate and D1 decide the transition/i);
-  assert.match(sheet.innerHTML, /data-founder-outcome-submit="1"/);
-  assert.doesNotMatch(stem.innerHTML + sheet.innerHTML, new RegExp(TEST_TELEGRAM_INIT_DATA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-
-  const nonPilot = fitcheckFounderOutcomePageEnvelope({
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [{
-        branchId: 'fitcheck', name: 'Fitcheck', arcTitle: 'Other arc',
-        questline: [{ id: 'fitcheck-other-quest', title: 'Other quest', status: 'active' }],
-        missions: [{ missionId: 'fitcheck-shopify-qa', title: 'Other mission', owner: 'Founder', gate: 'Founder review', proofRequired: 'Proof', dispatchTarget: 'Gate' }],
-        promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
-      }],
-    },
-  });
-  const other = await renderPageFixtureContext(nonPilot, { search: '?tenant=cambium&scene=mission' });
-  assert.doesNotMatch(other.elements.get('stem')!.innerHTML, /data-founder-outcome-action/);
-});
-
-test('Fitcheck founder outcome preserves safe fields, focuses validation, and reuses request identity on ambiguous retry', async () => {
-  let postCount = 0;
-  const rendered = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope(), {
-    search: '?tenant=cambium&scene=mission',
-    telegramInitData: TEST_TELEGRAM_INIT_DATA,
-    fetchResponder: ({ init }) => {
-      if (init.method !== 'POST') return undefined;
-      postCount += 1;
-      return postCount === 1
-        ? new Error('ambiguous network failure')
-        : { candidate: { candidateId: 'founder_candidate_' + 'b'.repeat(32), status: 'review_pending' }, changeDigest: 'c'.repeat(64), graphVersion: 7, gateRoute: '/api/gate/cambium', readbackRoute: '/v1/branch-map/cambium' };
-    },
-  });
-  rendered.elements.get('stem')!.querySelector('[data-founder-outcome-action="report-outcome"]').click();
-  const sheet = rendered.elements.get('sheetBody')!;
-  const inputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
-  const outcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
-  const note = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
-  inputs[1].value = 'receipt:fitcheck-widget-event-001';
-  outcome.value = 'blocked';
-  note.value = 'Founder observed a blocked widget state.';
-  sheet.querySelector('[data-founder-outcome-submit]').click();
-  assert.equal(rendered.fetchRequests.filter((request) => request.method === 'POST').length, 0);
-  assert.equal(inputs[1].value, 'receipt:fitcheck-widget-event-001');
-  assert.equal(note.value, 'Founder observed a blocked widget state.');
-  assert.equal(inputs[0].focusCalls.length, 1);
-  assert.equal(sheet.querySelector('[data-founder-outcome-status]').textContent, 'Screenshot reference is required');
-
-  const afterValidationInputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
-  const afterValidationOutcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
-  const afterValidationNote = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
-  assert.equal(afterValidationInputs[1].value, 'receipt:fitcheck-widget-event-001');
-  assert.equal(afterValidationOutcome.value, 'blocked');
-  assert.equal(afterValidationNote.value, 'Founder observed a blocked widget state.');
-  assert.equal(sheet.querySelectorAll('[data-founder-outcome-status]').length, 1);
-
-  afterValidationInputs[0].value = 'https://evidence.example.com/fitcheck/screenshot-001';
-  sheet.querySelector('[data-founder-outcome-submit]').click();
-  await flushPageAsync();
-  assert.equal(sheet.querySelector('[data-founder-outcome-status]').textContent, 'network failure · no write');
-  const first = rendered.fetchRequests.find((request) => request.method === 'POST')!;
-  const firstPayload = JSON.parse(String(first.body));
-  assert.deepEqual(Object.keys(firstPayload).sort(), ['branchId', 'clientRequestId', 'initData', 'missionId', 'note', 'outcome', 'questId', 'schema', 'screenshotRef', 'tenantId', 'widgetEventRef', 'workObjectId'].sort());
-  assert.equal(firstPayload.initData, TEST_TELEGRAM_INIT_DATA);
-  assert.equal(firstPayload.outcome, 'blocked');
-  assert.equal(firstPayload.screenshotRef, 'https://evidence.example.com/fitcheck/screenshot-001');
-  assert.equal(firstPayload.widgetEventRef, 'receipt:fitcheck-widget-event-001');
-
-  const afterNetworkInputs = sheet.querySelectorAll('input') as Array<ReturnType<typeof makeElement> & { value?: string }>;
-  const afterNetworkOutcome = sheet.querySelector('select') as ReturnType<typeof makeElement> & { value?: string };
-  const afterNetworkNote = sheet.querySelector('textarea') as ReturnType<typeof makeElement> & { value?: string };
-  assert.equal(afterNetworkInputs[0].value, 'https://evidence.example.com/fitcheck/screenshot-001');
-  assert.equal(afterNetworkInputs[1].value, 'receipt:fitcheck-widget-event-001');
-  assert.equal(afterNetworkOutcome.value, 'blocked');
-  assert.equal(afterNetworkNote.value, 'Founder observed a blocked widget state.');
-  assert.equal(sheet.querySelectorAll('[data-founder-outcome-status]').length, 1);
-
-  sheet.querySelector('[data-founder-outcome-submit]').click();
-  await flushPageAsync();
-  const posts = rendered.fetchRequests.filter((request) => request.method === 'POST');
-  assert.equal(posts.length, 2);
-  assert.equal(JSON.parse(String(posts[1].body)).clientRequestId, firstPayload.clientRequestId);
-  assert.match(sheet.innerHTML, /Pending Gate/);
-  assert.match(sheet.innerHTML, /data-founder-outcome-open-gate="1"/);
-  assert.doesNotMatch(sheet.innerHTML, new RegExp(TEST_TELEGRAM_INIT_DATA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-});
-
-test('Fitcheck founder outcome restores pending, committed, and expired state from the server envelope', async () => {
-  const pending = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
-    goalGraphIntake: { rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', status: 'pending', changeDigest: 'e'.repeat(64), outcome: 'passed' }] },
-  }), { search: '?tenant=cambium&scene=mission' });
-  const pendingHtml = pending.elements.get('stem')!.innerHTML;
-  assert.match(pendingHtml, /Pending Gate/);
-  assert.match(pendingHtml, /data-founder-outcome-state="pending"/);
-  assert.match(pendingHtml, /data-founder-outcome-open-gate="1"/);
-  for (const action of pending.elements.get('stem')!.querySelectorAll('[data-founder-outcome-action]')) assert.equal(action.disabled, true);
-
-  const committed = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
-    goalGraphOutcomes: { headDigest: 'f'.repeat(64), graphVersion: 8, rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', outcome: 'passed', headDigest: 'f'.repeat(64), graphVersion: 8 }] },
-  }), { search: '?tenant=cambium&scene=mission' });
-  assert.match(committed.elements.get('stem')!.innerHTML, /Outcome · passed/);
-  assert.match(committed.elements.get('stem')!.innerHTML, /Head · f{12} · v8/);
-  assert.match(committed.elements.get('stem')!.innerHTML, /data-founder-outcome-state="committed"/);
-
-  const expired = await renderPageFixtureContext(fitcheckFounderOutcomePageEnvelope({
-    founderOutcomeRecovery: { rows: [{ candidateId: 'founder_candidate_' + 'd'.repeat(32), questId: 'fitcheck-shopify-widget-qa', status: 'expired', expiredAt: '2026-08-14T09:59:59.000Z', recovery: 'refresh-and-resubmit' }] },
-  }), { search: '?tenant=cambium&scene=mission' });
-  assert.match(expired.elements.get('stem')!.innerHTML, /Proposal expired/);
-  assert.match(expired.elements.get('stem')!.innerHTML, /data-founder-outcome-resubmit="1"[^>]*>Refresh and resubmit/);
-});
-
-test('Fitcheck founder outcome Gate commit refreshes Mission and Gate while preserving branch selection', async () => {
-  const pendingEnvelope = fitcheckFounderOutcomePageEnvelope({
-    goalGraphIntake: { rows: [{
-      id: 'goal-graph-intake:' + '1'.repeat(64), tenantId: 'cambium', candidateId: 'founder_candidate_' + '2'.repeat(32),
-      questId: 'fitcheck-shopify-widget-qa', missionId: 'fitcheck-shopify-qa', status: 'pending', changeDigest: '1'.repeat(64),
-      title: 'Fitcheck outcome · passed', evidence: 'screenshot receipt:a; widget event receipt:b', outcome: 'passed',
-      approvalNonce: 'nonce-1', approvalExpiresAt: '2026-08-14T10:30:00.000Z', expectedHeadVersion: 7, fence: 7,
-    }] },
-  });
-  const committedEnvelope = fitcheckFounderOutcomePageEnvelope({
-    goalGraphOutcomes: { headDigest: '3'.repeat(64), graphVersion: 8, rows: [{ candidateId: 'founder_candidate_' + '2'.repeat(32), questId: 'fitcheck-shopify-widget-qa', outcome: 'passed', headDigest: '3'.repeat(64), graphVersion: 8 }] },
-  });
-  let getCount = 0;
-  const rendered = await renderPageFixtureContext(pendingEnvelope, {
-    search: '?tenant=cambium&scene=mission', now: '2026-08-14T10:00:00.000Z', telegramInitData: TEST_TELEGRAM_INIT_DATA,
-    fetchResponder: ({ init }) => {
-      if (init.method === 'POST') return { committed: true, candidateId: 'founder_candidate_' + '2'.repeat(32), questId: 'fitcheck-shopify-widget-qa', headDigest: '3'.repeat(64), graphVersion: 8 };
-      getCount += 1;
-      return getCount <= 2 ? pendingEnvelope : committedEnvelope;
-    },
-  } as never);
-  vm.runInContext("MISSION_BRANCH_FOCUS = 'fitcheck'", rendered.context as vm.Context);
-  await (rendered.context.loadGate as () => Promise<void>)();
-  const approve = rendered.elements.get('gate')!.querySelector('[data-kind="approve-goal-graph"]');
-  approve.click();
-  rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm="approve-goal-graph"]').click();
-  await flushPageAsync(8);
-  assert.match(rendered.elements.get('stem')!.innerHTML, /Outcome · passed/);
-  assert.match(rendered.elements.get('stem')!.innerHTML, /aria-selected="true"[^>]*[\s\S]*Fitcheck/);
-  const allReads = rendered.fetchRequests.filter((request) => request.method === 'GET');
-  assert.ok(allReads.length >= 2, 'served Mission and Gate envelopes were read');
-  const founderReads = allReads.filter((request) => request.url === '/api/quests/cambium');
-  assert.ok(founderReads.length >= 2, 'the founder quest envelope was refreshed after approval');
-  for (const request of founderReads) {
-    assert.equal(
-      (request.init.headers as Record<string, string> | undefined)?.['x-telegram-init-data'],
-      TEST_TELEGRAM_INIT_DATA,
-      `every founder quest refresh carries runtime Telegram authentication: ${JSON.stringify(founderReads.map((read) => read.init.headers))}`,
-    );
-  }
 });
 
 test('page · mission branch tab updates content in place and keeps the sheet closed', async () => {
@@ -6670,51 +5335,6 @@ test('page · mission branch tab updates content in place and keeps the sheet cl
   assert.equal(fitcheckTab.dispatchEvent({ type:'keydown', key:'End', bubbles:true }), false);
   assert.equal(vm.runInContext('MISSION_BRANCH_FOCUS', rendered.context as vm.Context), 'vantyx');
   assert.equal(stem.querySelector('[data-mission-branch="1"]').focusCalls.length, 1);
-});
-
-test('page · canonical Mission selection persists per tenant without tenant bleed', async () => {
-  const branch = (branchId: string, name: string, title: string) => ({
-    branchId,
-    name,
-    arcTitle: `${name} arc`,
-    vision: { statement: `${name} keeps its next move visible in Mission.` },
-    questline: [
-      { id: 'confirm', title: `Confirm ${name} direction`, status: 'verified' },
-      { id: 'run', title, status: 'pending' },
-    ],
-    missions: [{ missionId: `${branchId}-next`, title, owner: 'Build', gate: 'Founder review', proofRequired: 'Viewport capture', dispatchTarget: 'Hermes' }],
-    gates: [{ gate: 'Founder review', status: 'blocked', requiredProof: 'Viewport capture' }],
-    kpis: [],
-    proofPaths: [{ proofId: `${branchId}-proof`, validates: 'Viewport capture', promotes: 'supervised branch' }],
-    promotion: { state: 'proof-only', currentGate: 'Founder review', rule: 'proof first' },
-    gaps: [],
-  });
-  const envelope = {
-    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
-    branchStories: {
-      source: 'product-branch-packets@v1',
-      rows: [
-        branch('fitcheck', 'Fitcheck', 'Run authenticated Shopify widget QA'),
-        branch('vantyx', 'Vantyx', 'Publish Vantyx proof packet'),
-      ],
-    },
-  };
-  const sharedStorage = new Map<string, string>();
-  const cambium = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission', storage: sharedStorage });
-  cambium.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[1].click();
-  assert.match(cambium.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Publish Vantyx proof packet<\/h3>/);
-  vm.runInContext('go(2); go(0);', cambium.context as vm.Context);
-  assert.match(cambium.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Publish Vantyx proof packet<\/h3>/);
-
-  const cambiumReload = await renderPageFixtureContext(envelope, { search: '?tenant=cambium&scene=mission', storage: sharedStorage });
-  assert.match(cambiumReload.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Publish Vantyx proof packet<\/h3>/);
-  assert.equal(cambiumReload.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[1].getAttribute('aria-selected'), 'true');
-
-  sharedStorage.set('cambium:mission-selection:v1:other', JSON.stringify({ tenant: 'cambium', branchId: 'vantyx' }));
-  const otherTenant = await renderPageFixtureContext(envelope, { search: '?tenant=other&scene=mission', storage: sharedStorage });
-  assert.match(otherTenant.elements.get('stem')!.innerHTML, /<h3 class="mc-card-title">Run authenticated Shopify widget QA<\/h3>/);
-  assert.equal(otherTenant.elements.get('stem')!.querySelectorAll('[data-mission-branch]')[0].getAttribute('aria-selected'), 'true');
-  assert.equal(sharedStorage.has('cambium:mission-selection:v1:other'), false);
 });
 
 test('page · mission questline is a horizontal station timeline with readable labels', async () => {
@@ -9208,48 +7828,6 @@ test('gate · signed skill promotion queues an idempotent founder review action'
   assert.equal(actions[0].idempotencyKey, 'promote-skill:cambium:cambium-founder-review');
 });
 
-test('gate · signed Portfolio promotion queues only a founder review without lifecycle mutation', async () => {
-  const kv = fakeKv();
-  kv.store.set('portfolio:cambium:sapling:fitcheck', JSON.stringify({ lifecycle: 'proof-only' }));
-  const before = new Map(kv.store);
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_B, authDate: NOW / 1000 - 10 });
-  const deps = { kv, pushToken: 't', gate: gateCfg(pubKeyHex), uuid: () => 'portfolio-promote-uuid', now: () => '2026-08-16T00:00:00.000Z' };
-
-  const queued = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({
-      kind: 'promote-portfolio',
-      subject: 'sapling:fitcheck',
-      evidence: 'portfolio promotion proposal only · exact WorkObject sapling:fitcheck · served state proof-only · current Gate gate:fitcheck',
-      consequence: 'queue founder review for the next lifecycle state of sapling:fitcheck; no lifecycle or catalog mutation occurs until operator consumption',
-      reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
-      idempotencyKey: 'promote-portfolio:cambium:sapling:fitcheck:93b90ed7cee2',
-      initData,
-    }),
-  }), deps);
-  assert.equal(queued.status, 200);
-  assert.deepEqual(body(queued), {
-    queued: 'portfolio-promote-uuid',
-    duplicate: false,
-    kind: 'promote-portfolio',
-    subject: 'sapling:fitcheck',
-    idempotencyKey: 'promote-portfolio:cambium:sapling:fitcheck:93b90ed7cee2',
-    consequence: 'queue founder review for the next lifecycle state of sapling:fitcheck; no lifecycle or catalog mutation occurs until operator consumption',
-    reversibility: 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged',
-  });
-  assert.equal(kv.store.get('portfolio:cambium:sapling:fitcheck'), before.get('portfolio:cambium:sapling:fitcheck'));
-  assert.deepEqual(
-    [...kv.store.keys()].filter((key) => !before.has(key)),
-    ['gate:cambium:portfolio-promote-uuid'],
-  );
-
-  const action = JSON.parse(kv.store.get('gate:cambium:portfolio-promote-uuid')!);
-  assert.equal(action.status, 'queued');
-  assert.equal(action.kind, 'promote-portfolio');
-  assert.equal(action.subject, 'sapling:fitcheck');
-  assert.match(action.consequence, /no lifecycle or catalog mutation/);
-  assert.match(action.reversibility, /lifecycle and catalog remain unchanged/);
-});
-
 test('gate · signed side quest action queues without mutating side quest history', async () => {
   const kv = fakeKv();
   const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_B, authDate: NOW / 1000 - 10 });
@@ -11115,8 +9693,8 @@ test('bridge · resolves low-risk iVerif callback to queued with meaningful rece
     body: JSON.stringify({
       tenantId: 'cambium',
       optionId: 'make-branch-task',
-      founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+      founderTelegramUserId: TEST_FOUNDER_B,
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
     }),
   }), deps);
 
@@ -11171,8 +9749,8 @@ test('bridge · escalates high-risk iVerif callback and rejects wrong topic acto
     body: JSON.stringify({
       tenantId: 'cambium',
       optionId: 'draft-follow-up',
-      founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+      founderTelegramUserId: TEST_FOUNDER_B,
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
     }),
   }), deps);
 
@@ -11202,8 +9780,8 @@ test('gate · signed Mini App confirmation queues high-risk iVerif ActionRequest
     body: JSON.stringify({
       tenantId: 'cambium',
       optionId: 'draft-follow-up',
-      founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+      founderTelegramUserId: TEST_FOUNDER_B,
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
     }),
   }), deps);
   assert.equal(body(escalated).actionRequest.status, 'needs_signed_confirmation');
@@ -12869,6 +11447,82 @@ test('IVerif malformed thread ids and non-GET methods stop before provider acces
   assert.equal(calls, 0);
 });
 
+test('bridge · monthly workflow learning exposes Ralph replay proposals without auto-mutation', async () => {
+  const deps = { kv: fakeKv(), bridgeToken: 'bridge' };
+  const recorded = await handle(req('POST', '/v1/bridge/workflow-learning/events', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      schema: 'thoughtseed.workflow-learning-event.v1', id: 'evt-render-timeout', tenantId: 'cambium',
+      workflowId: 'thoughtseed.hr.monthly-payroll.v1', at: '2026-08-18T10:00:00.000Z',
+      kind: 'retry_exhausted', rootCause: 'renderer_timeout', summary: 'Renderer timed out after bounded retries.',
+      retryable: true, source: 'hermes',
+    }),
+  }), deps);
+  assert.equal(recorded.status, 200);
+
+  const summary = await handle(req('GET', '/v1/bridge/workflow-learning/monthly?tenantId=cambium&month=2026-08', {
+    headers: { authorization: 'Bearer bridge' },
+  }), deps);
+  assert.equal(summary.status, 200);
+  assert.equal(body(summary).eventCount, 1);
+  assert.equal(body(summary).automaticChanges, false);
+  assert.equal(body(summary).replayCases[0].proposedOnly, true);
+});
+
+test('bridge · HR reply approval is founder-allowlisted and bound to one pending card', async () => {
+  const kv = fakeKv();
+  const deps = {
+    kv,
+    bridgeToken: 'bridge',
+    gate: { botId: '1', pubKeyHex: '0'.repeat(64), founderIds: [TEST_FOUNDER_A, TEST_FOUNDER_B] },
+    now: () => '2026-08-18T10:10:00.000Z',
+  };
+  const actionRequest = {
+    schema: 'thoughtseed.action-request.v1',
+    id: 'ar_hr_imran_exit_packet',
+    idempotencyKey: 'hr:imran:exit-packet:2026-08-18',
+    tenantId: 'cambium', status: 'proposed', source: 'hermes-founder-intent',
+    createdAt: '2026-08-18T10:00:00.000Z', updatedAt: '2026-08-18T10:00:00.000Z',
+    branchId: 'thoughtseed-hr', branchLabel: 'ThoughtSeed HR',
+    projectId: 'thoughtseed-hr', projectName: 'ThoughtSeed People Operations', questId: 'living-org',
+    topic: { chatId: '-1002691202808', topicKey: 'agent-ops', threadId: 802, sourceMessageId: '5512' },
+    title: 'Approve Imran separation packet', summary: 'Render official documents without sending email.',
+    why: 'Official employee documents require founder approval.',
+    approval: { mode: 'telegram-reply-or-button', expiresAt: '2026-08-18T10:30:00.000Z', workObjectId: 'program:thoughtseed-vault' },
+    options: [
+      { id: 'approve-final-render', label: 'Approve final render', consequence: 'queue bounded rendering only', risk: 'high', requiresSignedConfirmation: false, acceptsVerbalApproval: true, resultKind: 'queue_task' },
+      { id: 'hold', label: 'Hold', consequence: 'retain preview', risk: 'low', requiresSignedConfirmation: false, resultKind: 'hold' },
+    ],
+    receipts: [], redaction: 'redacted',
+  };
+  const created = await handle(req('POST', '/v1/bridge/action-requests', {
+    headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(actionRequest),
+  }), deps);
+  assert.equal(created.status, 200);
+
+  const denied = await handle(req('POST', '/v1/bridge/action-requests/ar_hr_imran_exit_packet/resolve-reply', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium', phrase: 'yes', founderTelegramUserId: '999',
+      actor: { telegramUserId: '999', chatId: '-1002691202808', threadId: 802 },
+      reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
+    }),
+  }), deps);
+  assert.equal(denied.status, 403);
+
+  const approved = await handle(req('POST', '/v1/bridge/action-requests/ar_hr_imran_exit_packet/resolve-reply', {
+    headers: { authorization: 'Bearer bridge' },
+    body: JSON.stringify({
+      tenantId: 'cambium', phrase: 'approve', founderTelegramUserId: TEST_FOUNDER_A,
+      actor: { telegramUserId: TEST_FOUNDER_A, chatId: '-1002691202808', threadId: 802 },
+      reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
+    }),
+  }), deps);
+  assert.equal(approved.status, 200);
+  assert.equal(body(approved).actionRequest.status, 'queued');
+  assert.equal(body(approved).actionRequest.receipts.at(-1).kind, 'reply');
+});
+
 test('IVerif observer reads never create ActionRequests', async () => {
   const kv = fakeKv();
   const deps = {
@@ -13679,46 +12333,6 @@ test('tools fixture · blocked state degrades handoffs to on hold and suggests p
   assert.doesNotMatch(sheet, /data-signed-action-entrypoint|\/ts-/i);
 });
 
-test('tools fixture · recommendations never outrun their target panel freshness', async () => {
-  const handoffsEnvelope = structuredClone(toolsFixtureEnvelope('normal'));
-  const statusEnvelope = structuredClone(toolsFixtureEnvelope('blocked'));
-  const workEnvelope = structuredClone(toolsFixtureEnvelope('normal'));
-  const workBranch = (workEnvelope.branchStories as { rows: Array<Record<string, unknown>> }).rows[0];
-  workBranch.gates = [];
-  workBranch.proof = [{ label: 'Release SHA', state: 'complete' }];
-  workBranch.missions = [{
-    missionId: 'fx-m-work',
-    title: 'Assign the next owner',
-    owner: 'build',
-    gate: 'ready',
-    proofRequired: '',
-    dispatchTarget: 'quine',
-    status: 'active',
-  }];
-
-  const cases = [
-    { envelope: handoffsEnvelope, field: 'handoffs', surface: 'handoffs' },
-    { envelope: statusEnvelope, field: 'status', surface: 'status' },
-    { envelope: workEnvelope, field: 'activeWork', surface: 'work' },
-  ] as const;
-
-  for (const scenario of cases) {
-    const fresh = await renderPageFixtureContext(scenario.envelope, { now: '2026-07-24T09:18:00.000Z' });
-    (fresh.context.renderCommands as () => void)();
-    assert.match(fresh.elements.get('cmds')!.innerHTML, new RegExp(`data-tool-recommend-surface="${scenario.surface}"`));
-
-    const staleEnvelope = structuredClone(scenario.envelope) as {
-      commands: Record<string, { freshness: { state: string; checkedAt: string } }>;
-    };
-    staleEnvelope.commands[scenario.field].freshness.state = 'stale';
-    const stale = await renderPageFixtureContext(staleEnvelope, { now: '2026-07-24T09:18:00.000Z' });
-    (stale.context.renderCommands as () => void)();
-    const staleHtml = stale.elements.get('cmds')!.innerHTML;
-    assert.match(staleHtml, /data-tool-recommend-state="empty"/);
-    assert.doesNotMatch(staleHtml, /data-tool-recommend-surface=|data-tool-suggest="/);
-  }
-});
-
 test('tools fixture · empty state renders stale surfaces, idle suggestion, and retry recovery', async () => {
   const rendered = await renderPageFixtureContext(toolsFixtureEnvelope('empty'), { now: '2026-07-24T09:21:00.000Z' });
   (rendered.context.renderCommands as () => void)();
@@ -14093,107 +12707,6 @@ test('goal graph intake · acceptance persists one bounded PENDING task and writ
   assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
 });
 
-test('goal graph intake · valid child loads the current graph before boundary compilation', async () => {
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
-  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
-
-  const rootIntake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
-  assert.equal(rootIntake.status, 200);
-  assert.equal(body(rootIntake).accepted, true);
-  const rootApproval = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(rootIntake).changeDigest, initData }),
-  }), deps);
-  assert.equal(rootApproval.status, 200);
-  const rootHead = await deps.goalGraphStore.readHead('cambium');
-  assert.ok(rootHead);
-  assert.equal(rootHead.nodeIds.length, 1);
-
-  const childIntent = goalGraphIntakeIntent({
-    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4343', updateId: '90002' },
-    goal: {
-      namespace: 'cambium.fitcheck',
-      externalId: 'task-fitcheck-launch',
-      parentNodeId: rootHead.nodeIds[0],
-      scope: 'micro',
-      desiredState: 'admit one packet-backed Fitcheck supervised-launch mission',
-      owner: 'founder/codex',
-      proofRequired: true,
-      status: 'blocked',
-      workObjectId: 'sapling:fitcheck',
-      workObjectKind: 'sapling',
-      pinnedLoadoutId: 'loadout:fitcheck-launch',
-    },
-  });
-  const childIntake = await postGoalGraphIntake('assign-only', childIntent, deps);
-  assert.equal(childIntake.status, 200);
-  assert.equal(body(childIntake).accepted, true);
-  assert.equal(body(childIntake).status, 'pending');
-  assert.equal(body(childIntake).graphVersion, 2);
-  assert.equal(body(childIntake).expectedHeadDigest, rootHead.graphDigest);
-
-  const childTask = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${body(childIntake).changeDigest}`)!);
-  assert.equal(childTask.node.parentNodeId, rootHead.nodeIds[0]);
-  assert.equal(childTask.node.workObjectId, 'sapling:fitcheck');
-  assert.equal(childTask.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
-  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), rootHead, 'unsigned child intake never mutates D1');
-
-  let unavailableReads = 0;
-  const unavailableReplay = await postGoalGraphIntake('assign-only', childIntent, {
-    ...deps,
-    goalGraphStore: {
-      ...deps.goalGraphStore,
-      readHead: async () => { unavailableReads += 1; throw new Error('D1 temporarily unavailable'); },
-      readNodes: async () => { unavailableReads += 1; throw new Error('D1 temporarily unavailable'); },
-    },
-  });
-  assert.equal(unavailableReplay.status, 200);
-  assert.equal(body(unavailableReplay).accepted, true);
-  assert.equal(body(unavailableReplay).duplicate, true);
-  assert.equal(body(unavailableReplay).changeDigest, body(childIntake).changeDigest);
-  assert.equal(unavailableReads, 0, 'accepted child replay collapses before an unavailable D1 read');
-
-  let driftReads = 0;
-  const driftReplay = await postGoalGraphIntake('assign-only', childIntent, {
-    ...deps,
-    goalGraphStore: {
-      ...deps.goalGraphStore,
-      readHead: async () => { driftReads += 1; return rootHead; },
-      readNodes: async () => { driftReads += 1; return []; },
-    },
-  });
-  assert.equal(driftReplay.status, 200);
-  assert.equal(body(driftReplay).accepted, true);
-  assert.equal(body(driftReplay).duplicate, true);
-  assert.equal(body(driftReplay).changeDigest, body(childIntake).changeDigest);
-  assert.equal(driftReads, 0, 'accepted child replay collapses before graph drift is consulted');
-});
-
-test('goal graph intake · missing child parent is a bounded rejection after graph read', async () => {
-  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
-  const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
-  const rootIntake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
-  const rootApproval = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(rootIntake).changeDigest, initData }),
-  }), deps);
-  assert.equal(rootApproval.status, 200);
-  const headBefore = await deps.goalGraphStore.readHead('cambium');
-
-  const rejected = await postGoalGraphIntake('assign-only', goalGraphIntakeIntent({
-    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4444' },
-    goal: {
-      desiredState: 'never admit a child whose parent is absent',
-      parentNodeId: `goal_${'f'.repeat(64)}`,
-    },
-  }), deps);
-  assert.equal(rejected.status, 200);
-  assert.equal(body(rejected).accepted, false);
-  assert.equal(body(rejected).rejected, true);
-  assert.equal(body(rejected).code, 'malformed_input');
-  assert.deepEqual(body(rejected).errors, ['missing_parent']);
-  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-rejection:cambium:')).length, 1);
-  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), headBefore, 'missing-parent rejection never mutates D1');
-});
-
 test('goal graph intake · Telegram redelivery collapses to the original task receipt', async () => {
   const { kv, deps } = goalGraphIntakeHarness();
   const intent = goalGraphIntakeIntent();
@@ -14243,66 +12756,6 @@ test('goal graph intake · rejection persists a bounded receipt with no payload 
   assert.equal(body(garbage).code, 'malformed_input');
   assert.equal(body(garbage).tenantId, 'unknown');
   assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-rejection:unknown:')).length, 1);
-});
-
-test('goal graph intake · intent projections reject before D1 reads or task persistence', async () => {
-  const digestA = `sha256:${'a'.repeat(64)}`;
-  const digestB = `sha256:${'b'.repeat(64)}`;
-  const fixtures = [
-    {
-      schema: 'cambium.intent-graph-projection.v1',
-      projectionAuthority: 'read_only',
-      sourceSetDigest: digestA,
-      graphDigest: digestB,
-      nodes: [{ id: 'raw-node-marker' }],
-      edges: [{ from: 'raw-node-marker', to: 'raw-edge-marker' }],
-    },
-    { schema: 'cambium.intent-graph-projection.v1', payload: { marker: 'raw-payload-marker' } },
-  ];
-
-  for (const fixture of fixtures) {
-    const { kv, deps } = goalGraphIntakeHarness();
-    const authoritativeStore = deps.goalGraphStore;
-    const headBefore = await authoritativeStore.readHead('cambium');
-    const nodesBefore = await authoritativeStore.readNodes('cambium');
-    const keysBefore = new Set(kv.store.keys());
-    let headReads = 0;
-    let nodeReads = 0;
-    const response = await postGoalGraphIntake('bridge', fixture, {
-      ...deps,
-      goalGraphStore: {
-        ...authoritativeStore,
-        readHead: async (tenantId: string) => {
-          headReads += 1;
-          return authoritativeStore.readHead(tenantId);
-        },
-        readNodes: async (tenantId: string) => {
-          nodeReads += 1;
-          return authoritativeStore.readNodes(tenantId);
-        },
-      },
-    });
-
-    assert.equal(response.status, 200);
-    assert.equal(body(response).accepted, false);
-    assert.equal(body(response).rejected, true);
-    assert.equal(body(response).code, 'projection_input');
-    assert.equal(headReads, 0);
-    assert.equal(nodeReads, 0);
-    assert.deepEqual(await authoritativeStore.readHead('cambium'), headBefore);
-    assert.deepEqual(await authoritativeStore.readNodes('cambium'), nodesBefore);
-
-    const newKeys = [...kv.store.keys()].filter((key) => !keysBefore.has(key));
-    assert.equal(newKeys.filter((key) => key.startsWith('goal-graph-intake-task:')).length, 0);
-    assert.equal(newKeys.filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 0);
-    const rejectionKeys = newKeys.filter((key) => key.startsWith('goal-graph-intake-rejection:unknown:'));
-    assert.equal(rejectionKeys.length, 1);
-    const stored = kv.store.get(rejectionKeys[0])!;
-    assert.equal(JSON.parse(stored).schema, 'cambium.goal-graph-intake-rejection.v1');
-    assert.ok(JSON.parse(stored).errors.length <= 8);
-    assert.doesNotMatch(stored, /raw-node-marker|raw-edge-marker|raw-payload-marker|sha256:[ab]{64}/);
-    assert.doesNotMatch(response.body, /raw-node-marker|raw-edge-marker|raw-payload-marker|sha256:[ab]{64}/);
-  }
 });
 
 test('goal graph approval · founder signature commits the pending proposal; branch map reads it back', async () => {
@@ -15130,743 +13583,4 @@ test('goal graph gate envelope · legacy row with an unparseable timestamp is om
 
   const listed = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps);
   assert.deepEqual(JSON.parse(listed.body).actions, []);
-});
-
-// ── Fitcheck founder outcome · authenticated pending candidate intake ───────
-
-const FOUNDER_OUTCOME_NOW = '2026-08-14T10:00:00.000Z';
-const FOUNDER_OUTCOME_HEAD_DIGEST = 'a'.repeat(64);
-
-function fitcheckAnchor(overrides: Record<string, unknown> = {}) {
-  return {
-    nodeId: 'goal_fitcheck_anchor',
-    tenantId: 'cambium',
-    namespace: 'cambium.fitcheck',
-    externalId: 'fitcheck-launch-anchor',
-    parentNodeId: null,
-    workObjectId: 'sapling:fitcheck',
-    workObjectKind: 'sapling',
-    pinnedLoadoutId: 'loadout:fitcheck-launch',
-    scope: 'macro',
-    desiredState: 'Operate the Fitcheck supervised launch.',
-    currentState: 'active',
-    owner: 'founder',
-    nextAction: 'Collect Shopify launch proof.',
-    waitCondition: null,
-    proofRequired: true,
-    reviewAt: null,
-    status: 'active',
-    sourceRef: 'test:fitcheck-anchor',
-    sourceDigest: `sha256:${'1'.repeat(64)}`,
-    graphVersion: 7,
-    metadata: {},
-    createdAt: FOUNDER_OUTCOME_NOW,
-    updatedAt: FOUNDER_OUTCOME_NOW,
-    ...overrides,
-  };
-}
-
-function validFounderOutcomeBody(initData: string, overrides: Record<string, unknown> = {}) {
-  return {
-    schema: 'cambium.founder-outcome-intent.v1',
-    tenantId: 'cambium',
-    workObjectId: 'sapling:fitcheck',
-    branchId: 'fitcheck',
-    missionId: 'fitcheck-shopify-qa',
-    questId: 'fitcheck-shopify-widget-qa',
-    outcome: 'passed',
-    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/founder-proof-001',
-    widgetEventRef: 'receipt:fitcheck-widget-event-001',
-    note: 'Founder observed the exact widget result.',
-    clientRequestId: 'fitcheck-founder-outcome-route-001',
-    initData,
-    ...overrides,
-  };
-}
-
-function postFounderOutcome(payload: unknown, deps: Parameters<typeof handle>[1], tenant = 'cambium') {
-  return handle(req('POST', `/api/founder-outcomes/${tenant}`, {
-    body: typeof payload === 'string' ? payload : JSON.stringify(payload),
-  }), deps);
-}
-
-function faultInjectedFounderOutcomeKv(boundary: 'task' | 'idempotency') {
-  const base = fakeKv();
-  let armed = true;
-  const successfulPuts = { task: 0, idempotency: 0 };
-  return {
-    ...base,
-    successfulPuts,
-    async put(key: string, value: string) {
-      const kind = key.startsWith('goal-graph-intake-task:')
-        ? 'task'
-        : key.startsWith('goal-graph-intake-idem:')
-          ? 'idempotency'
-          : null;
-      if (armed && kind === boundary) {
-        armed = false;
-        throw new Error(`injected ${boundary} KV write fault`);
-      }
-      if (kind) successfulPuts[kind] += 1;
-      base.store.set(key, value);
-    },
-  };
-}
-
-function faultInjectedFounderApprovalKv() {
-  const base = fakeKv();
-  let armed = true;
-  let committedTaskWriteFaults = 0;
-  return {
-    ...base,
-    get committedTaskWriteFaults() { return committedTaskWriteFaults; },
-    async put(key: string, value: string) {
-      const parsed = key.startsWith('goal-graph-intake-task:') ? JSON.parse(value) : null;
-      if (armed && parsed?.status === 'committed' && parsed?.candidate?.status === 'accepted') {
-        armed = false;
-        committedTaskWriteFaults += 1;
-        throw new Error('injected post-D1 candidate acceptance KV fault');
-      }
-      base.store.set(key, value);
-    },
-  };
-}
-
-async function founderOutcomeHarness(options: {
-  nodes?: Array<Record<string, unknown>>;
-  kv?: KvLike & { store: Map<string, string> };
-  userId?: string;
-  authAgeSeconds?: number;
-  tamper?: boolean;
-  commit?: 'committed' | 'unavailable';
-  pushToken?: string;
-} = {}) {
-  const signed = await makeSignedInitData({
-    botId: TEST_BOT_ID,
-    userId: options.userId ?? TEST_FOUNDER_A,
-    authDate: NOW / 1000 - (options.authAgeSeconds ?? 10),
-    tamper: options.tamper,
-  });
-  let nodes = options.nodes ?? [fitcheckAnchor()];
-  let head = {
-    tenantId: 'cambium',
-    graphVersion: 7,
-    graphDigest: FOUNDER_OUTCOME_HEAD_DIGEST,
-    nodeIds: nodes.map((node) => String(node.nodeId)),
-    sourceRef: 'test:fitcheck-head',
-    sourceDigest: `sha256:${'2'.repeat(64)}`,
-    committedAt: FOUNDER_OUTCOME_NOW,
-  };
-  const commits: unknown[] = [];
-  let headReads = 0;
-  let nodeReads = 0;
-  const applyChangeSet = (changeSet: any, committedAt = FOUNDER_OUTCOME_NOW) => {
-    const byId = new Map(nodes.map((node) => [String(node.nodeId), node]));
-    for (const node of changeSet.nodesToRemove ?? []) byId.delete(String(node.nodeId));
-    for (const update of changeSet.nodesToUpdate ?? []) byId.set(String(update.nodeId), update.after);
-    for (const node of changeSet.nodesToCreate ?? []) byId.set(String(node.nodeId), node);
-    nodes = [...byId.values()];
-    head = makeGoalGraphHead(
-      'cambium',
-      nodes as any,
-      changeSet.graphVersion,
-      committedAt,
-      changeSet.sourceRef,
-      changeSet.sourceDigest,
-    );
-    return { ...head, nodeIds: [...head.nodeIds] };
-  };
-  const goalGraphStore = {
-    async readHead() { headReads += 1; return { ...head, nodeIds: [...head.nodeIds] }; },
-    async readNodes() { nodeReads += 1; return nodes.map((node) => ({ ...node, metadata: { ...(node.metadata as Record<string, unknown> ?? {}) } })) as any; },
-    async commit(input: any) {
-      commits.push(input);
-      if (options.commit === 'committed') {
-        return {
-          status: 'committed' as const,
-          replayed: false as const,
-          changeDigest: input.changeSet.changeDigest,
-          head: applyChangeSet(input.changeSet, input.now),
-        };
-      }
-      return { status: 'unavailable' as const, replayed: false as const, changeDigest: null, code: 'test_commit_forbidden' };
-    },
-  };
-  const kv = options.kv ?? fakeKv();
-  const deps = {
-    kv,
-    gate: gateCfg(signed.pubKeyHex),
-    goalGraphStore,
-    now: () => FOUNDER_OUTCOME_NOW,
-    ...(options.pushToken ? { pushToken: options.pushToken } : {}),
-  };
-  return {
-    deps,
-    kv,
-    initData: signed.initData,
-    commits,
-    initialHead: { ...head, nodeIds: [...head.nodeIds] },
-    initialNodes: nodes.map((node) => ({ ...node })),
-    currentGraph: () => ({
-      head: { ...head, nodeIds: [...head.nodeIds] },
-      nodes: nodes.map((node) => ({ ...node, metadata: { ...(node.metadata as Record<string, unknown> ?? {}) } })),
-    }),
-    applyChangeSet,
-    advanceHead() {
-      head = { ...head, graphVersion: head.graphVersion + 1, graphDigest: 'c'.repeat(64), committedAt: '2026-08-14T10:01:00.000Z' };
-    },
-    reads: () => ({ head: headReads, nodes: nodeReads }),
-  };
-}
-
-test('founder outcome creates one pending candidate with the existing Gate descriptor and zero D1 writes', async () => {
-  const harness = await founderOutcomeHarness();
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const response = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(response.status, 200);
-  const receipt = body(response);
-  assert.deepEqual(Object.keys(receipt).sort(), ['candidate', 'changeDigest', 'gateRoute', 'graphVersion', 'readbackRoute']);
-  assert.deepEqual(Object.keys(receipt.candidate).sort(), ['candidateId', 'status']);
-  assert.match(receipt.candidate.candidateId, /^founder_candidate_[a-f0-9]{32}$/);
-  assert.equal(receipt.candidate.status, 'review_pending');
-  assert.match(receipt.changeDigest, /^[a-f0-9]{64}$/);
-  assert.equal(receipt.graphVersion, 8);
-  assert.equal(receipt.gateRoute, '/api/gate/cambium');
-  assert.equal(receipt.readbackRoute, '/v1/branch-map/cambium');
-
-  const taskKeys = [...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:cambium:'));
-  const idemKeys = [...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:founder-outcome:v1:cambium:'));
-  assert.equal(taskKeys.length, 1);
-  assert.equal(idemKeys.length, 1);
-  const task = JSON.parse(harness.kv.store.get(taskKeys[0])!);
-  assert.equal(task.schema, 'cambium.goal-graph-intake-task.v1');
-  assert.equal(task.status, 'pending');
-  assert.equal(task.expectedHeadDigest, FOUNDER_OUTCOME_HEAD_DIGEST);
-  assert.equal(task.expectedHeadVersion, 7);
-  assert.equal(task.fence, 8);
-  assert.equal(task.approvalNonce, `goal-graph-approval:cambium:${task.changeDigest}`);
-  assert.equal(task.approvalExpiresAt, '2026-08-14T10:15:00.000Z');
-  assert.equal(task.candidate.schema, 'cambium.founder-evidence-candidate.v1');
-  assert.equal(task.candidate.candidateId, receipt.candidate.candidateId);
-  assert.equal(task.candidate.status, 'review_pending');
-  assert.equal(task.candidate.reviewStatus, 'review_pending');
-  assert.equal(task.candidate.missionId, 'fitcheck-shopify-qa');
-  assert.equal(task.candidate.questId, 'fitcheck-shopify-widget-qa');
-  assert.equal(task.candidate.outcome, 'passed');
-  assert.equal(task.candidate.screenshotRef, requestBody.screenshotRef);
-  assert.equal(task.candidate.widgetEventRef, requestBody.widgetEventRef);
-  assert.equal(task.candidate.note, requestBody.note);
-  assert.equal(task.node.parentNodeId, 'goal_fitcheck_anchor');
-  assert.equal(task.node.workObjectId, 'sapling:fitcheck');
-  assert.equal(task.node.workObjectKind, 'sapling');
-  assert.equal(task.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
-  assert.equal(task.node.namespace, 'fitcheck-founder-outcome');
-  assert.equal(task.node.scope, 'proof');
-  assert.equal(task.node.status, 'active');
-  assert.equal(task.node.proofRequired, false);
-  assert.equal(task.changeSet.nodesToCreate.length, 1);
-  assert.equal(task.changeSet.nodesToRemove.length, 0);
-  assert.equal(harness.commits.length, 0);
-  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 });
-  assert.deepEqual(harness.initialHead.nodeIds, ['goal_fitcheck_anchor']);
-
-  for (const secret of [
-    harness.initData,
-    String(requestBody.screenshotRef),
-    String(requestBody.widgetEventRef),
-    String(requestBody.note),
-    'goal_fitcheck_anchor',
-  ]) {
-    assert.doesNotMatch(response.body, new RegExp(secret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  }
-  const stored = [...harness.kv.store.values()].join('\n');
-  assert.doesNotMatch(stored, /query_id=|auth_date=|signature=|hash=deadbeef|initData/);
-});
-
-test('founder outcome rejects missing authentication before graph or KV access', async () => {
-  const harness = await founderOutcomeHarness();
-  const response = await postFounderOutcome(validFounderOutcomeBody(''), harness.deps);
-  assert.equal(response.status, 401);
-  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
-  assert.equal(harness.kv.store.size, 0);
-  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome rejects an invalid Telegram signature without durable writes', async () => {
-  const harness = await founderOutcomeHarness({ tamper: true });
-  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(response.status, 401);
-  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
-  assert.equal(harness.kv.store.size, 0);
-  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome rejects expired Telegram authentication without durable writes', async () => {
-  const harness = await founderOutcomeHarness({ authAgeSeconds: 4_000 });
-  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(response.status, 401);
-  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
-  assert.equal(harness.kv.store.size, 0);
-  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome rejects a valid non-founder identity without durable writes', async () => {
-  const harness = await founderOutcomeHarness({ userId: '555' });
-  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(response.status, 401);
-  assert.equal(body(response).error, 'founder_outcome_authentication_failed');
-  assert.equal(harness.kv.store.size, 0);
-  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome rejects route tenant and pilot identity drift before durable writes', async () => {
-  const harness = await founderOutcomeHarness();
-  const routeDrift = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps, 'tenant-beta');
-  assert.equal(routeDrift.status, 403);
-  assert.equal(body(routeDrift).error, 'founder_outcome_pilot_identity_mismatch');
-
-  for (const overrides of [
-    { tenantId: 'tenant-beta' },
-    { workObjectId: 'sapling:other' },
-    { branchId: 'other' },
-    { missionId: 'other' },
-    { questId: 'other' },
-  ]) {
-    const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData, overrides), harness.deps);
-    assert.equal(response.status, 400);
-    assert.equal(body(response).error, 'founder_outcome_invalid');
-  }
-  assert.equal(harness.kv.store.size, 0);
-  assert.deepEqual(harness.reads(), { head: 0, nodes: 0 });
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome refuses an absent Fitcheck anchor with zero writes', async () => {
-  const harness = await founderOutcomeHarness({
-    nodes: [fitcheckAnchor({ nodeId: 'goal_other_anchor', workObjectId: 'sapling:other', pinnedLoadoutId: null })],
-  });
-  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(response.status, 409);
-  assert.equal(body(response).error, 'fitcheck_goal_graph_anchor_conflict');
-  assert.equal(harness.kv.store.size, 0);
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome allows prior founder proof descendants beneath the single Fitcheck root', async () => {
-  const root = fitcheckAnchor();
-  const harness = await founderOutcomeHarness({
-    nodes: [
-      root,
-      fitcheckAnchor({
-        nodeId: 'goal_prior_founder_proof',
-        namespace: 'fitcheck-founder-outcome',
-        externalId: 'founder-outcome:fitcheck-shopify-widget-qa:prior-request',
-        parentNodeId: root.nodeId,
-        scope: 'proof',
-        desiredState: 'Record the prior founder-observed Fitcheck Shopify QA outcome.',
-        currentState: 'passed',
-        nextAction: 'Retain the approved proof.',
-        proofRequired: false,
-        sourceRef: 'founder-outcome:cambium:founder_candidate_prior',
-        sourceDigest: `sha256:${'3'.repeat(64)}`,
-        metadata: { candidateId: 'founder_candidate_prior', outcome: 'passed' },
-      }),
-    ],
-  });
-
-  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(response.status, 200);
-  const taskKey = [...harness.kv.store.keys()].find((key) => key.startsWith('goal-graph-intake-task:cambium:'));
-  assert.ok(taskKey);
-  const task = JSON.parse(harness.kv.store.get(taskKey)!);
-  assert.equal(task.node.parentNodeId, root.nodeId);
-  assert.equal(task.changeSet.nodesToCreate.length, 1);
-  assert.equal(task.changeSet.nodesToRemove.length, 0);
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome refuses duplicate Fitcheck roots with zero writes', async () => {
-  const root = fitcheckAnchor();
-  const harness = await founderOutcomeHarness({
-    nodes: [
-      root,
-      fitcheckAnchor({
-        nodeId: 'goal_fitcheck_anchor_duplicate',
-        externalId: 'fitcheck-launch-anchor-duplicate',
-        parentNodeId: null,
-      }),
-    ],
-  });
-  const response = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(response.status, 409);
-  assert.equal(body(response).error, 'fitcheck_goal_graph_anchor_conflict');
-  assert.equal(harness.kv.store.size, 0);
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome exact replay returns the original bounded candidate receipt', async () => {
-  const harness = await founderOutcomeHarness();
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const first = await postFounderOutcome(requestBody, harness.deps);
-  const replay = await postFounderOutcome(JSON.parse(JSON.stringify(requestBody)), harness.deps);
-  assert.equal(first.status, 200);
-  assert.equal(replay.status, 200);
-  assert.deepEqual(body(replay), body(first));
-  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
-  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
-  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 }, 'exact replay reconciles before a second D1 read');
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome same clientRequestId with semantic drift conflicts and preserves the original', async () => {
-  const harness = await founderOutcomeHarness();
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const first = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(first.status, 200);
-  const drift = await postFounderOutcome(validFounderOutcomeBody(harness.initData, {
-    screenshotRef: 'https://evidence.example.com/fitcheck/screenshots/founder-proof-002',
-  }), harness.deps);
-  assert.equal(drift.status, 409);
-  assert.deepEqual(body(drift), { error: 'founder_outcome_idempotency_conflict' });
-  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
-  assert.equal([...harness.kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
-  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 });
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome retry converges after the task KV write boundary fails', async () => {
-  const kv = faultInjectedFounderOutcomeKv('task');
-  const harness = await founderOutcomeHarness({ kv });
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const failed = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(failed.status, 503);
-  assert.deepEqual(body(failed), { error: 'founder_outcome_storage_unavailable' });
-  assert.equal(kv.store.size, 0);
-
-  const retry = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(retry.status, 200);
-  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
-  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
-  assert.deepEqual(kv.successfulPuts, { task: 1, idempotency: 1 });
-  assert.deepEqual(harness.reads(), { head: 2, nodes: 2 });
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome retry reconciles a task-only partial KV write without duplicating candidate or task', async () => {
-  const kv = faultInjectedFounderOutcomeKv('idempotency');
-  const harness = await founderOutcomeHarness({ kv });
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const failed = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(failed.status, 503);
-  assert.deepEqual(body(failed), { error: 'founder_outcome_storage_unavailable' });
-  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
-  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 0);
-
-  const retry = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(retry.status, 200);
-  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-task:')).length, 1);
-  assert.equal([...kv.store.keys()].filter((key) => key.startsWith('goal-graph-intake-idem:')).length, 1);
-  assert.deepEqual(kv.successfulPuts, { task: 1, idempotency: 1 });
-  assert.deepEqual(harness.reads(), { head: 1, nodes: 1 }, 'partial write replay repairs before another D1 read');
-  assert.equal(harness.commits.length, 0);
-});
-
-function founderOutcomePrincipal(role: 'founder' | 'team' | 'consultant', overrides: Record<string, unknown> = {}) {
-  return {
-    id: `${role}-reader`,
-    tenant: 'cambium',
-    role,
-    allow: role === 'consultant' ? ['inspect'] : [],
-    createdBy: 'handler-test',
-    ...overrides,
-  };
-}
-
-async function founderOutcomeQuestEnvelope(
-  harness: Awaited<ReturnType<typeof founderOutcomeHarness>>,
-  principal?: Record<string, unknown>,
-  options: { authenticateFounder?: boolean; principalTransport?: 'header' | 'query' } = {},
-) {
-  harness.kv.store.set('ledger:cambium', ENVELOPE);
-  const authenticateFounder = options.authenticateFounder ?? principal?.role === 'founder';
-  const principalJson = principal ? JSON.stringify(principal) : '';
-  const path = principal && options.principalTransport === 'query'
-    ? `/api/quests/cambium?principal=${encodeURIComponent(principalJson)}`
-    : '/api/quests/cambium';
-  const response = await handle(req('GET', path, {
-    headers: {
-      ...(principal && options.principalTransport !== 'query' ? { 'x-principal': principalJson } : {}),
-      ...(authenticateFounder ? { 'x-telegram-init-data': harness.initData } : {}),
-    },
-  }), harness.deps);
-  assert.equal(response.status, 200);
-  return body(response);
-}
-
-test('founder outcome Gate row renders only the persisted Fitcheck candidate descriptor', async () => {
-  const harness = await founderOutcomeHarness({ pushToken: 'push-token' });
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const intake = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(intake.status, 200);
-  const candidate = body(intake).candidate;
-  const changeDigest = body(intake).changeDigest;
-
-  const listed = await handle(req('GET', '/internal/gate/cambium', {
-    headers: { authorization: 'Bearer push-token' },
-  }), harness.deps);
-  assert.equal(listed.status, 200);
-  const rows = body(listed).actions.filter((row: { kind: string }) => row.kind === 'goal-graph-intake');
-  assert.equal(rows.length, 1);
-  const row = rows[0];
-  assert.equal(row.candidateId, candidate.candidateId);
-  assert.equal(row.questId, 'fitcheck-shopify-widget-qa');
-  assert.equal(row.outcome, 'passed');
-  assert.match(row.evidence, /screenshot .* widget event/);
-  assert.match(row.evidence, new RegExp(String(requestBody.screenshotRef).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.match(row.evidence, new RegExp(String(requestBody.widgetEventRef).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-  assert.equal(row.consequence.includes('Hermes execution'), true);
-  assert.equal(row.source, 'fitcheck-founder-outcome@v1');
-
-  const task = JSON.parse(harness.kv.store.get(`goal-graph-intake-task:cambium:${changeDigest}`)!);
-  assert.equal(row.approvalNonce, task.approvalNonce);
-  assert.equal(row.approvalExpiresAt, task.approvalExpiresAt);
-  assert.equal(row.expectedHeadVersion, task.expectedHeadVersion);
-  assert.equal(row.fence, task.fence);
-});
-
-test('founder outcome unsigned and stale approvals leave the D1 head and nodes unchanged', async () => {
-  const harness = await founderOutcomeHarness({ commit: 'committed' });
-  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(intake.status, 200);
-  const beforeUnsigned = harness.currentGraph();
-  const unsigned = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(intake).changeDigest }),
-  }), harness.deps);
-  assert.equal(unsigned.status, 401);
-  assert.deepEqual(harness.currentGraph(), beforeUnsigned);
-  assert.equal(harness.commits.length, 0);
-
-  harness.advanceHead();
-  const beforeStale = harness.currentGraph();
-  const stale = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({ kind: 'approve-goal-graph', subject: body(intake).changeDigest, initData: harness.initData }),
-  }), harness.deps);
-  assert.equal(stale.status, 409);
-  assert.equal(body(stale).error, 'goal_graph_stale_head');
-  assert.deepEqual(harness.currentGraph(), beforeStale);
-  assert.equal(harness.commits.length, 0);
-});
-
-test('founder outcome approval accepts the stored candidate and returns exact commit readback evidence', async () => {
-  const harness = await founderOutcomeHarness({ commit: 'committed' });
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const intake = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(intake.status, 200);
-  const receipt = body(intake);
-
-  const approved = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({
-      kind: 'approve-goal-graph',
-      subject: receipt.changeDigest,
-      initData: harness.initData,
-      candidateId: 'founder_candidate_attacker_controlled',
-      outcome: 'blocked',
-      evidence: 'attacker controlled evidence',
-      consequence: 'attacker controlled consequence',
-      parentNodeId: 'goal_attacker_controlled',
-    }),
-  }), harness.deps);
-  assert.equal(approved.status, 200);
-  const decision = body(approved);
-  assert.equal(decision.committed, true);
-  assert.equal(decision.candidateId, receipt.candidate.candidateId);
-  assert.equal(decision.questId, 'fitcheck-shopify-widget-qa');
-  assert.match(decision.headDigest, /^[a-f0-9]{64}$/);
-  assert.equal(decision.graphVersion, 8);
-  assert.match(decision.approvalDigest, /^[a-f0-9]{64}$/);
-  assert.deepEqual(decision.readbackRoutes, {
-    goalGraph: '/v1/branch-map/cambium',
-    quests: '/api/quests/cambium',
-  });
-
-  const task = JSON.parse(harness.kv.store.get(`goal-graph-intake-task:cambium:${receipt.changeDigest}`)!);
-  assert.equal(task.status, 'committed');
-  assert.equal(task.candidate.status, 'accepted');
-  assert.equal(task.candidate.reviewStatus, 'accepted');
-  assert.equal(task.candidate.candidateId, receipt.candidate.candidateId);
-  assert.equal(task.candidate.outcome, 'passed');
-  assert.equal(task.candidate.screenshotRef, requestBody.screenshotRef);
-  assert.equal(task.candidate.widgetEventRef, requestBody.widgetEventRef);
-
-  const graph = harness.currentGraph();
-  const node = graph.nodes.find((candidate) => candidate.nodeId === task.nodeId)!;
-  assert.equal(node.parentNodeId, 'goal_fitcheck_anchor');
-  assert.equal(node.currentState, 'passed');
-  assert.equal(node.metadata.candidateId, receipt.candidate.candidateId);
-  assert.equal(node.metadata.outcome, 'passed');
-
-  const envelope = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
-  assert.equal(envelope.goalGraphOutcomes.schema, 'cambium.goal-graph-outcomes.v1');
-  assert.equal(envelope.goalGraphOutcomes.headDigest, decision.headDigest);
-  assert.equal(envelope.goalGraphOutcomes.graphVersion, decision.graphVersion);
-  assert.equal(envelope.goalGraphOutcomes.count, 1);
-  assert.equal(envelope.goalGraphOutcomes.rows[0].questId, 'fitcheck-shopify-widget-qa');
-  assert.equal(envelope.goalGraphOutcomes.rows[0].candidateId, receipt.candidate.candidateId);
-  assert.equal(envelope.goalGraphOutcomes.rows[0].outcome, 'passed');
-  assert.equal(envelope.goalGraphOutcomes.rows[0].headDigest, decision.headDigest);
-  assert.equal(envelope.goalGraphOutcomes.rows[0].graphVersion, decision.graphVersion);
-});
-
-test('founder outcome D1-success KV-failure replay reconciles original evidence without a second commit', async () => {
-  const kv = faultInjectedFounderApprovalKv();
-  const harness = await founderOutcomeHarness({ kv, commit: 'committed' });
-  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(intake.status, 200);
-  const receipt = body(intake);
-
-  const firstApproval = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
-  }), harness.deps);
-  assert.equal(firstApproval.status, 503);
-  assert.equal(body(firstApproval).error, 'goal_graph_commit_reconciliation_required');
-  assert.equal(kv.committedTaskWriteFaults, 1);
-  assert.equal(harness.commits.length, 1, 'D1 CAS succeeds exactly once before the KV fault');
-  const committedGraph = harness.currentGraph();
-  assert.equal(committedGraph.head.graphVersion, 8);
-
-  const stalePending = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${receipt.changeDigest}`)!);
-  assert.equal(stalePending.status, 'pending');
-  assert.equal(stalePending.candidate.status, 'review_pending');
-  assert.match(stalePending.approvalAttempt.approvalDigest, /^[a-f0-9]{64}$/);
-
-  const beforeReplayEnvelope = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
-  assert.equal(beforeReplayEnvelope.goalGraphOutcomes.rows[0].candidateId, receipt.candidate.candidateId);
-  assert.equal(beforeReplayEnvelope.goalGraphIntake, undefined, 'committed D1 outcome outranks stale pending KV');
-
-  harness.advanceHead();
-  const laterGraph = harness.currentGraph();
-  assert.equal(laterGraph.head.graphVersion, 9, 'an unrelated D1 commit advances the shared head before replay');
-
-  const replay = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
-  }), harness.deps);
-  assert.equal(replay.status, 200);
-  const replayEvidence = body(replay);
-  assert.equal(replayEvidence.duplicate, true);
-  assert.equal(replayEvidence.replayed, true);
-  assert.equal(replayEvidence.headDigest, committedGraph.head.graphDigest);
-  assert.equal(replayEvidence.graphVersion, committedGraph.head.graphVersion);
-  assert.equal(replayEvidence.approvalDigest, stalePending.approvalAttempt.approvalDigest);
-  assert.equal(replayEvidence.candidateId, receipt.candidate.candidateId);
-  assert.equal(replayEvidence.questId, 'fitcheck-shopify-widget-qa');
-  assert.equal(harness.commits.length, 1, 'approval replay performs zero second D1 commit calls');
-  assert.deepEqual(harness.currentGraph(), laterGraph, 'reconciliation leaves the later D1 head untouched');
-
-  const reconciled = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${receipt.changeDigest}`)!);
-  assert.equal(reconciled.status, 'committed');
-  assert.equal(reconciled.candidate.status, 'accepted');
-});
-
-test('forged x-principal founder cannot reveal pending founder outcome existence or counts', async () => {
-  const harness = await founderOutcomeHarness();
-  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(intake.status, 200);
-  const candidateId = body(intake).candidate.candidateId;
-
-  const envelope = await founderOutcomeQuestEnvelope(
-    harness,
-    founderOutcomePrincipal('founder'),
-    { authenticateFounder: false },
-  );
-  assert.equal(envelope.goalGraphIntake, undefined);
-  assert.equal(envelope.goalGraphOutcomes, undefined);
-  assert.equal(envelope.founderOutcomeRecovery, undefined);
-  assert.doesNotMatch(JSON.stringify(envelope), new RegExp(candidateId));
-  assert.doesNotMatch(JSON.stringify(envelope), /founder-evidence-candidate|review_pending/);
-});
-
-test('forged principal query founder cannot reveal committed founder outcomes', async () => {
-  const harness = await founderOutcomeHarness({ commit: 'committed' });
-  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(intake.status, 200);
-  const receipt = body(intake);
-  const approved = await handle(req('POST', '/api/gate/cambium', {
-    body: JSON.stringify({ kind: 'approve-goal-graph', subject: receipt.changeDigest, initData: harness.initData }),
-  }), harness.deps);
-  assert.equal(approved.status, 200);
-
-  const envelope = await founderOutcomeQuestEnvelope(
-    harness,
-    founderOutcomePrincipal('founder'),
-    { authenticateFounder: false, principalTransport: 'query' },
-  );
-  assert.equal(envelope.goalGraphIntake, undefined);
-  assert.equal(envelope.goalGraphOutcomes, undefined);
-  assert.equal(envelope.founderOutcomeRecovery, undefined);
-  assert.doesNotMatch(JSON.stringify(envelope), new RegExp(receipt.candidate.candidateId));
-  assert.doesNotMatch(JSON.stringify(envelope), /fitcheck-shopify-widget-qa|cambium.goal-graph-outcomes.v1/);
-});
-
-test('Goal Graph readback hides pending candidate existence from every non-founder projection', async () => {
-  const harness = await founderOutcomeHarness();
-  const requestBody = validFounderOutcomeBody(harness.initData);
-  const intake = await postFounderOutcome(requestBody, harness.deps);
-  assert.equal(intake.status, 200);
-  const candidateId = body(intake).candidate.candidateId;
-
-  const founder = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
-  assert.equal(founder.goalGraphIntake.count, 1);
-  assert.equal(founder.goalGraphIntake.rows[0].candidateId, candidateId);
-
-  const projections = [
-    await founderOutcomeQuestEnvelope(harness),
-    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('team')),
-    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('consultant')),
-    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder', { expiresAt: '2020-01-01T00:00:00.000Z' })),
-  ];
-  for (const envelope of projections) {
-    assert.equal(envelope.goalGraphIntake, undefined);
-    assert.equal(envelope.goalGraphOutcomes, undefined);
-    assert.equal(envelope.founderOutcomeRecovery, undefined);
-    const serialized = JSON.stringify(envelope);
-    assert.doesNotMatch(serialized, new RegExp(candidateId));
-    assert.doesNotMatch(serialized, /founder-evidence-candidate|review_pending/);
-    assert.doesNotMatch(serialized, /screenshots\/founder-proof-001|fitcheck-widget-event-001/);
-  }
-});
-
-test('Goal Graph readback removes expired candidates from actionable Gate but preserves founder recovery context', async () => {
-  const harness = await founderOutcomeHarness({ pushToken: 'push-token' });
-  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
-  assert.equal(intake.status, 200);
-  const receipt = body(intake);
-  const taskKey = `goal-graph-intake-task:cambium:${receipt.changeDigest}`;
-  const task = JSON.parse(harness.kv.store.get(taskKey)!);
-  harness.kv.store.set(taskKey, JSON.stringify({ ...task, approvalExpiresAt: '2026-08-14T09:59:59.000Z' }));
-
-  const gate = await handle(req('GET', '/internal/gate/cambium', {
-    headers: { authorization: 'Bearer push-token' },
-  }), harness.deps);
-  assert.equal(gate.status, 200);
-  assert.equal(body(gate).actions.filter((row: { candidateId?: string }) => row.candidateId === receipt.candidate.candidateId).length, 0);
-
-  const founder = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'));
-  assert.equal(founder.goalGraphIntake, undefined);
-  assert.equal(founder.founderOutcomeRecovery.schema, 'cambium.founder-outcome-recovery-list.v1');
-  assert.equal(founder.founderOutcomeRecovery.count, 1);
-  assert.deepEqual(founder.founderOutcomeRecovery.rows[0], {
-    candidateId: receipt.candidate.candidateId,
-    questId: 'fitcheck-shopify-widget-qa',
-    status: 'expired',
-    expiredAt: '2026-08-14T09:59:59.000Z',
-    recovery: 'refresh-and-resubmit',
-  });
-
-  const publicEnvelope = await founderOutcomeQuestEnvelope(harness);
-  assert.equal(publicEnvelope.founderOutcomeRecovery, undefined);
-  assert.doesNotMatch(JSON.stringify(publicEnvelope), new RegExp(receipt.candidate.candidateId));
 });

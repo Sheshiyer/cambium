@@ -2,10 +2,13 @@
 
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
 import {
+  DEFAULT_ROUTINE_CONTEXT_SLICES,
   createProviderEmbedder,
+  createRoutineContext,
   createSemanticRecall,
+  parseRoutineAllowlistJson,
 } from './context-bindings.ts';
-import { createPlexusRoutineContext } from './plexus-knowledge.ts';
+import { createContextProjectionStore } from './context-projections.ts';
 import { createPortfolioAdminActionQueue, createPortfolioAdminActionStore } from './portfolio-admin-actions.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
@@ -36,7 +39,6 @@ import type {
   SimpleRequest,
 } from './handler.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
-import { createContextProjectionStore } from './context-projections.ts';
 import type { CortexIngestionDeps } from './cortex-ingestion.ts';
 import type { R2BucketLike, VectorizeIndexLike } from './context-bindings.ts';
 
@@ -67,6 +69,7 @@ interface Env {
   };
   BRIDGE_DB?: D1DatabaseLike;
   THOUGHTSEED_VAULT?: R2BucketLike;
+  CONTEXT_PROJECTIONS?: R2BucketLike;
   CAMBIUM_CORTEX?: VectorizeIndexLike;
   QUESTS_PUSH_TOKEN?: string;
   GATE_BOT_ID?: string;
@@ -85,8 +88,7 @@ interface Env {
   CONTEXT_ALLOWED_TENANTS?: string;
   CONTEXT_EMBEDDING_PROVIDER?: string;
   CONTEXT_EMBEDDING_MODEL?: string;
-  PLEXUS_KNOWLEDGE_URL?: string;
-  PLEXUS_KNOWLEDGE_TOKEN?: string;
+  CONTEXT_ROUTINE_ALLOWLIST_JSON?: string;
   GITHUB_AGENT_TOKEN?: string;
   GITHUB_AGENT_ALLOWED_REPOS?: string;
   OLLAMA_API_KEY?: string;
@@ -1376,7 +1378,13 @@ export default {
         cortexIngestionToken: env.CORTEX_INGESTION_TOKEN,
         cortexIngestionDeps,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
-        routineContext: createPlexusRoutineContext({ url: env.PLEXUS_KNOWLEDGE_URL, token: env.PLEXUS_KNOWLEDGE_TOKEN, fetchImpl: workerFetch }),
+        routineContext: env.CONTEXT_ROUTE_TOKEN ? createRoutineContext({
+          bucket: env.CONTEXT_PROJECTIONS,
+          allowlist: {
+            ...DEFAULT_ROUTINE_CONTEXT_SLICES,
+            ...(parseRoutineAllowlistJson(env.CONTEXT_ROUTINE_ALLOWLIST_JSON) ?? {}),
+          },
+        }) : undefined,
         semanticRecall: embed && env.CAMBIUM_CORTEX
           ? createSemanticRecall({ embed, vectorIndex: env.CAMBIUM_CORTEX })
           : undefined,

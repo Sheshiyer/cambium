@@ -1,0 +1,95 @@
+{
+  "schema": "cambium.reviewed-pins-ledger-push.v1",
+  "observedAt": "2026-08-12T09:44:57Z",
+  "tenant": "cambium",
+  "reviewedPinAdvance": {
+    "rootMapDigest": "1807913a4faab9d55e29c146fbd829b6e058982f66de601d79b2f87120930134",
+    "portfolioCatalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+    "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "classificationAdvanced": false,
+    "linkageStatus": "aligned",
+    "releaseBlockers": []
+  },
+  "prePushRead": {
+    "surface": "authenticated-custom-domain-mission-control",
+    "derivedAt": "2026-08-11T12:12:56.794Z",
+    "source": "push",
+    "freshnessLabel": "stale 21h",
+    "renderedCanonicalMissionTabs": 5,
+    "repositoryPacketShape": {
+      "total": 6,
+      "canonical": 5,
+      "template": 1,
+      "missingCatalogWorkIds": []
+    }
+  },
+  "servingWorkerPreflight": {
+    "worker": "cambium-quests",
+    "origin": "https://cambium-quests.sheshnarayan-iyer.workers.dev",
+    "activeVersionId": "86112412-2073-4f14-b215-599de0ed0eeb",
+    "activeTrafficPercentage": 100,
+    "activeQuestsNamespaceId": "439547e617d9455fb752bfd651da9765",
+    "checkedInQuestsNamespaceId": "10aaa6e0a8a545c1afb5ceee7ef61c14",
+    "bindingMismatchHeldForSeparateApproval": true,
+    "pushTokenPresent": true,
+    "pushTokenValueObserved": false
+  },
+  "authenticatedPush": {
+    "target": "https://cambium-quests.sheshnarayan-iyer.workers.dev/internal/ledger/cambium",
+    "postCount": 1,
+    "automaticRetry": false,
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "exactWorkerReceipt": {
+      "ok": true,
+      "tenant": "cambium",
+      "bytes": 155832,
+      "derivedAt": "2026-08-12T09:39:12.666Z"
+    },
+    "closedReceiptValidatorAccepted": true,
+    "canonicalCliResultMatchedReceipt": true,
+    "ledgerPayloadPersistedLocally": false,
+    "credentialMaterialPersisted": false
+  },
+  "postPushRead": {
+    "surface": "authenticated-custom-domain-mission-control",
+    "observedDerivedAt": "2026-08-11T12:12:56.794Z",
+    "expectedReceiptDerivedAt": "2026-08-12T09:39:12.666Z",
+    "source": "push",
+    "freshnessLabel": "stale 22h",
+    "renderedCanonicalMissionTabs": 5,
+    "receiptVisibleOnCustomDomain": false,
+    "result": "accepted-worker-write-not-yet-visible-on-custom-domain-read-path",
+    "secondPushAttempted": false
+  },
+  "parallelDispatch": {
+    "backend": "omniroute",
+    "model": "te-dispatch-paid",
+    "concurrency": 3,
+    "sandbox": "read-only",
+    "runs": 2,
+    "tasksPerRun": 3,
+    "structurallySuccessfulTasks": 6,
+    "gatewayAttributed": true,
+    "substantiveOutputs": 0,
+    "outputsAcceptedAsEvidence": false,
+    "fallback": "direct-controller-evidence"
+  },
+  "verification": {
+    "focusedFoundationPins": "2/2 pass",
+    "portfolioFoundation": "46/46 branch/foundation pass; Cartographer 70 pass and 1 historical skip; Worker integration 109/109 pass",
+    "linkageAudit": "aligned; zero release blockers",
+    "linkageTests": "5/5 pass",
+    "repositoryTests": "1656/1660 pass; four unrelated dirty-tree UI/drift failures remain",
+    "operatorFounderFileCreated": false,
+    "operatorPrioritySignalsFileCreated": false
+  },
+  "heldBoundaries": [
+    "no deployment or Worker upload",
+    "no traffic shift",
+    "no binding or configuration change",
+    "no authentication weakening",
+    "no D1, R2, vault, Hermes, or Telegram mutation",
+    "no second ledger push"
+  ]
+}

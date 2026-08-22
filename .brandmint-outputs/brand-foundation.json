@@ -1,0 +1,69 @@
+{
+  "skill": "brand-foundation",
+  "cluster": "foundation",
+  "wave": 1,
+  "timestamp": "2026-08-10T00:00:00+05:30",
+  "status": "complete",
+  "version": "1.0.0",
+  "data": {
+    "mission": {
+      "statement": "Fitcheck exists to empower fashion shoppers to confidently see themselves in every garment by embedding photorealistic AI try-on directly into Shopify product pages.",
+      "breakdown": {
+        "action": "empower",
+        "audience": "fashion shoppers",
+        "outcome": "confidently see themselves in every garment before purchase",
+        "differentiator": "photorealistic AI try-on embedded directly into Shopify product pages"
+      }
+    },
+    "vision": {
+      "statement": "A world where no shopper hesitates at the product page — where every garment is seen on every body before purchase.",
+      "time_horizon": "10 years"
+    },
+    "values": [
+      {
+        "name": "Fit truth over fit guessing",
+        "definition": "We ground every recommendation in what the shopper's body data and the garment's specifications actually tell us. No aspirational sizing, no vague 'runs true to size' hand-waving.",
+        "in_practice": "Fitcheck renders use actual garment measurements and user-provided body inputs. When confidence is low, we say so rather than fabricate certainty."
+      },
+      {
+        "name": "Merchant-first speed",
+        "definition": "We ship for the Shopify merchant who needs something working today, not a roadmap promise. Setup must feel like installing a Shopify app, not a consulting engagement.",
+        "in_practice": "Guided onboarding completes in under 30 minutes. Every feature is measured against the question: does a solo founder with 50 orders a month get value from this by end of week?"
+      },
+      {
+        "name": "Body realism, not body idealism",
+        "definition": "We render real bodies accurately and respectfully. Representation is a product requirement, not a marketing afterthought.",
+        "in_practice": "Our try-on models work across body types, skin tones, and proportions without defaulting to a single aspirational silhouette. We test rendering fidelity across diverse body profiles before shipping."
+      },
+      {
+        "name": "Pragmatic precision",
+        "definition": "We optimize for the confidence decision, not for pixel-perfect simulation. The shopper needs to know if the garment fits — not count every thread.",
+        "in_practice": "We ship accuracy improvements that move conversion metrics, not rendering features that sound impressive but don't change purchase behavior."
+      }
+    ],
+    "brand_essence": "confident fit",
+    "personality": {
+      "archetype": "Sage",
+      "archetype_rationale": "Fitcheck earns trust through knowledge — it understands garment fit better than the shopper can from a flat photo. The brand guides, informs, and empowers rather than entertains or sells.",
+      "secondary_archetype": "Magician",
+      "secondary_rationale": "The AI try-on experience is inherently transformative — it turns a static product page into a personal fitting room. The Magician archetype captures the 'how did they do that' delight of seeing yourself in a garment you haven't tried on.",
+      "if_a_person": {
+        "age": "mid-30s",
+        "occupation": "Fashion technologist and AI product designer",
+        "hobbies": [
+          "tailoring and garment construction",
+          "street photography",
+          "data visualization"
+        ],
+        "communication_style": "Direct, evidence-backed, but warm. Explains the 'why' behind recommendations without jargon. Never condescending — respects the shopper's own body knowledge and the merchant's business instincts."
+      },
+      "adjectives": [
+        "confident",
+        "precise",
+        "fashion-aware",
+        "pragmatic",
+        "trustworthy"
+      ]
+    }
+  }
+}

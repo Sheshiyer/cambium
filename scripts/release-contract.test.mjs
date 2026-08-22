@@ -18,6 +18,8 @@ test('release contract · one deterministic command owns local and workflow gate
     assert.match(workflow, /npm run verify:release/);
   }
   assert.match(releaseScript, /npm run verify:release/);
+  assert.match(read('scripts/verify-release.mjs'), /Fitcheck organ and quest projection/);
+  assert.match(read('scripts/verify-release.mjs'), /fitcheck-mini-app-quest-states\.test\.ts/);
 });
 
 test('release contract · live readiness is uploaded without being mislabeled deterministic proof', () => {

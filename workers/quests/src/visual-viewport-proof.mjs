@@ -7,8 +7,8 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { basename, join, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
 import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 import { loadBranchStories } from '../../../bin/quine/hyphae/branch-stories.ts';
@@ -50,28 +50,34 @@ const BROWSER_CANDIDATES = explicitChrome
 const CHROME = BROWSER_CANDIDATES[0] || DEFAULT_BROWSER_CANDIDATES[0];
 const CDP_TIMEOUT_MS = Number(process.env.CDP_TIMEOUT_MS || 30_000);
 const CDP_PROBE_TIMEOUT_MS = Number(process.env.CDP_PROBE_TIMEOUT_MS || 3_500);
+const CDP_OPERATION_TIMEOUT_MS = Number(process.env.CDP_OPERATION_TIMEOUT_MS || 15_000);
 const argv = new Set(process.argv.slice(2));
 const DIAGNOSE_BROWSER = argv.has('--diagnose-browser');
 const MOBILE_CONTRACT_ONLY = argv.has('--mobile-contract');
-const DESKTOP_PAGE_BROWSER_ONLY = argv.has('--desktop-page-browser') || process.env.DESKTOP_PAGE_BROWSER_ONLY === '1';
 const INCLUDE_HEADED_BROWSER_PROBE = argv.has('--include-headed-browser-probe') || process.env.INCLUDE_HEADED_BROWSER_PROBE === '1';
 const PROOF_PATH_FILTER = String(process.env.TG_VIEWPORT_PROOF_FILTER || '').trim();
-export function shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly = false, desktopPageBrowserOnly = false) {
-  return String(proofPathFilter || '').trim().length === 0 && mobileContractOnly !== true && desktopPageBrowserOnly !== true;
+export function shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly = false) {
+  return String(proofPathFilter || '').trim().length === 0 && mobileContractOnly !== true;
 }
-const WRITE_CANONICAL_PROOF_ARTIFACTS = shouldWriteCanonicalViewportArtifacts(PROOF_PATH_FILTER, MOBILE_CONTRACT_ONLY, DESKTOP_PAGE_BROWSER_ONLY);
+const WRITE_CANONICAL_PROOF_ARTIFACTS = shouldWriteCanonicalViewportArtifacts(PROOF_PATH_FILTER, MOBILE_CONTRACT_ONLY);
 let activeBrowser = CHROME;
 let activeBrowserMode = 'headless-new';
 
 const outDir = resolve('docs/plans/assets/tg-miniapp-viewport-proof');
 const diagnosticsDir = resolve('.artifacts/tg-miniapp-viewport');
-export function viewportProofArtifactDirectory({ proofPathFilter = '', mobileContractOnly = false, desktopPageBrowserOnly = false } = {}) {
-  return shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly, desktopPageBrowserOnly)
+export function viewportProofArtifactDirectory({ proofPathFilter = '', mobileContractOnly = false } = {}) {
+  return shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly)
     ? outDir
-    : join(diagnosticsDir, desktopPageBrowserOnly ? 'desktop-page-browser' : 'captures');
+    : join(diagnosticsDir, 'captures');
+}
+
+export function isDirectInvocation(argvEntry = process.argv[1], moduleUrl = import.meta.url) {
+  if (!argvEntry) return false;
+  const modulePath = fileURLToPath(moduleUrl);
+  return resolve(argvEntry) === modulePath
+    || basename(resolve(argvEntry)) === basename(modulePath);
 }
 const viewport = { width: 390, height: 844 };
-const desktopViewport = { width: 1280, height: 900 };
 const proofPage = PAGE.replace('https://telegram.org/js/telegram-web-app.js', '/telegram-web-app.js');
 const PAGE_SOURCE_SHA256 = createHash('sha256').update(PAGE).digest('hex');
 const VIEWPORT_PROOF_MANIFEST_SCHEMA = 'cambium.tg-viewport-proof-manifest.v1';
@@ -260,14 +266,6 @@ function fixtureForCaptureStep(proof) {
   return 'no-fake-progress';
 }
 
-export function browserClockOverrideExpression(value) {
-  const timestamp = Date.parse(String(value));
-  if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString() !== value) {
-    throw new TypeError('browser proof clock must be a canonical ISO timestamp');
-  }
-  return `Object.defineProperty(Date, 'now', { configurable:true, value:() => ${timestamp} })`;
-}
-
 export function validateViewportProofManifest(manifest) {
   const issues = [];
   if (!isPlainObject(manifest)) return ['manifest must be an object'];
@@ -346,9 +344,7 @@ export function buildViewportProofManifest({
     viewport,
     proofIntentSummary,
     proofs,
-    invariant: Number(viewport?.width) >= 1024
-      ? 'Diagnostic screenshots use the real PAGE export, local API fixtures, an exact desktop viewport, real CDP keyboard or pointer input, and browser-asserted visible outcomes; they never replace canonical mobile artifacts.'
-      : 'Screenshots use the real PAGE export, local API fixtures, mobile emulation, browser-asserted in-page interaction proof, and a clipped real sheet proof for bottom-sheet actions; queued component proofs additionally use exact-width touch emulation.',
+    invariant: 'Screenshots use the real PAGE export, local API fixtures, mobile emulation, browser-asserted in-page interaction proof, and a clipped real sheet proof for bottom-sheet actions; queued component proofs additionally use exact-width touch emulation.',
   };
   assertViewportProofManifestSchema(manifest);
   return manifest;
@@ -862,72 +858,7 @@ export const VIEWPORT_PROOF_CAPTURE_STEPS = [
     clickTargetCount: 1,
     clipSelector: '#sheet',
   },
-  {
-    scene: 'mission', fixture: 'branch-stories', path: 'desktop-page-mission-keyboard.png', intent: 'clickability-proof', sceneIndex: 0,
-    desktopPageBrowser: true, exactViewport: true, viewport: desktopViewport,
-    waitFor: "document.querySelector('[data-mission-branch=\"0\"][aria-selected=\"true\"]') && document.querySelector('[data-mission-branch=\"1\"]')",
-    keyboardTargetSelector: '[data-mission-branch="0"]', keyboardKey: 'ArrowRight',
-    clickTargetSelector: '[data-mission-branch="0"]', clickTargetCount: 1,
-    waitAfterExpression: "document.querySelector('[data-mission-branch=\"1\"][aria-selected=\"true\"]') && document.activeElement === document.querySelector('[data-mission-branch=\"1\"]')",
-    assertExpression: "(() => { const selected=document.querySelector('[data-mission-branch=\"1\"]'); const scene=document.querySelectorAll('.scene')[0]; return { ok:window.innerWidth === 1280 && window.innerHeight === 900 && document.activeElement === selected && selected?.getAttribute('aria-selected') === 'true' && scene && scene.scrollWidth <= scene.clientWidth + 1 }; })()",
-  },
-  {
-    scene: 'gate', fixture: 'gate', path: 'desktop-page-gate-pointer.png', intent: 'clickability-proof', sceneIndex: 1,
-    desktopPageBrowser: true, exactViewport: true, viewport: desktopViewport,
-    waitFor: "document.querySelector('[data-signed-action-entrypoint=\"approve\"]')",
-    pointerTargetSelector: '[data-signed-action-entrypoint="approve"]',
-    clickTargetSelector: '[data-signed-action-entrypoint="approve"]', clickTargetCount: 1,
-    waitAfterExpression: "document.querySelector('#sheet.on [data-gate-confirm=\"approve\"]')",
-    assertExpression: "(() => { const sheet=document.querySelector('#sheet.on'); const confirm=sheet?.querySelector('[data-gate-confirm=\"approve\"]'); const rect=sheet?.getBoundingClientRect(); return { ok:window.innerWidth === 1280 && window.innerHeight === 900 && !!confirm && !!rect && rect.left >= 0 && rect.right <= window.innerWidth + 1 }; })()",
-  },
-  {
-    scene: 'tools', fixture: 'fresh', path: 'desktop-page-tools-pointer.png', intent: 'clickability-proof', sceneIndex: 2,
-    desktopPageBrowser: true, exactViewport: true, viewport: desktopViewport,
-    waitFor: "document.querySelector('[data-tool-surface=\"handoffs\"]')",
-    pointerTargetSelector: '[data-tool-surface="handoffs"]',
-    clickTargetSelector: '[data-tool-surface="handoffs"]', clickTargetCount: 1,
-    waitAfterExpression: "document.querySelector('#sheet.on [data-component=\"ToolHandoffActionRow\"]') && document.querySelector('#sheet [data-signed-action-entrypoint=\"approve\"]')",
-    assertExpression: "(() => { const sheet=document.querySelector('#sheet.on'); const row=sheet?.querySelector('[data-component=\"ToolHandoffActionRow\"]'); const rect=sheet?.getBoundingClientRect(); return { ok:window.innerWidth === 1280 && window.innerHeight === 900 && !!row && !!rect && rect.left >= 0 && rect.right <= window.innerWidth + 1 }; })()",
-  },
-  {
-    scene: 'story', fixture: 'fresh', path: 'desktop-page-story-pointer.png', intent: 'clickability-proof', sceneIndex: 3,
-    desktopPageBrowser: true, exactViewport: true, viewport: desktopViewport,
-    waitFor: "document.querySelector('[data-story-filter=\"New signals\"]') && document.querySelector('[data-component=\"StoryBeatCard\"]')",
-    pointerTargetSelector: '[data-story-filter="New signals"]',
-    clickTargetSelector: '[data-story-filter="New signals"]', clickTargetCount: 1,
-    waitAfterExpression: "document.querySelector('[data-story-filter=\"New signals\"].is-selected') && document.querySelector('[data-story-group=\"new-signals\"]')",
-    assertExpression: "(() => { const selected=document.querySelector('[data-story-filter=\"New signals\"]'); const scene=document.querySelectorAll('.scene')[3]; return { ok:window.innerWidth === 1280 && window.innerHeight === 900 && selected?.classList.contains('is-selected') === true && !!document.querySelector('[data-story-group=\"new-signals\"]') && scene && scene.scrollWidth <= scene.clientWidth + 1 }; })()",
-  },
-  {
-    scene: 'inspect', path: 'desktop-page-inspect-keyboard.png', intent: 'clickability-proof', sceneIndex: 4,
-    desktopPageBrowser: true, exactViewport: true, viewport: desktopViewport,
-    waitFor: "document.querySelector('[data-inspect-pane-select=\"proof\"][aria-selected=\"true\"]') && document.querySelector('[data-inspect-pane-select=\"system\"]')",
-    keyboardTargetSelector: '[data-inspect-pane-select="proof"]', keyboardKey: 'ArrowRight',
-    clickTargetSelector: '[data-inspect-pane-select="proof"]', clickTargetCount: 1,
-    waitAfterExpression: "document.querySelector('[data-inspect-pane-select=\"system\"][aria-selected=\"true\"]') && document.querySelector('[data-inspect-pane=\"system\"].is-active') && document.activeElement === document.querySelector('[data-inspect-pane-select=\"system\"]')",
-    assertExpression: "(() => { const selected=document.querySelector('[data-inspect-pane-select=\"system\"]'); const scene=document.querySelectorAll('.scene')[4]; return { ok:window.innerWidth === 1280 && window.innerHeight === 900 && document.activeElement === selected && selected?.getAttribute('aria-selected') === 'true' && scene && scene.scrollWidth <= scene.clientWidth + 1 }; })()",
-  },
-  {
-    scene: 'operating-canopy', fixture: 'operating-fabric', path: 'desktop-page-portfolio-pointer.png', intent: 'clickability-proof',
-    desktopPageBrowser: true, exactViewport: true, viewport: desktopViewport,
-    waitFor: "document.getElementById('operating-fabric') && document.querySelector('[data-of-portfolio-filter=\"clients\"]') && document.querySelector('[data-portfolio-zone=\"clients\"]')",
-    pointerTargetSelector: '[data-of-portfolio-filter="clients"]',
-    clickTargetSelector: '[data-of-portfolio-filter="clients"]', clickTargetCount: 1,
-    waitAfterExpression: "document.querySelector('[data-of-portfolio-filter=\"clients\"][aria-pressed=\"true\"]') && document.querySelector('[data-portfolio-zone=\"clients\"]').hidden === false && [...document.querySelectorAll('[data-portfolio-zone]:not([data-portfolio-zone=\"clients\"])')].every((node) => node.hidden)",
-    assertExpression: "(() => { const root=document.getElementById('operating-fabric'); const selected=document.querySelector('[data-of-portfolio-filter=\"clients\"]'); return { ok:window.innerWidth === 1280 && window.innerHeight === 900 && root?.style.display !== 'none' && selected?.getAttribute('aria-pressed') === 'true' && root.scrollWidth <= root.clientWidth + 1 }; })()",
-  },
 ];
-
-export const DESKTOP_PAGE_BROWSER_STORY_MATRIX = [
-  { id: 'desktop-mission-keyboard', journey: 'mission', surface: 'desktop-browser', paths: ['desktop-page-mission-keyboard.png'], requiresKeyboard: true },
-  { id: 'desktop-gate-pointer', journey: 'gate', surface: 'desktop-browser', paths: ['desktop-page-gate-pointer.png'], requiresPointer: true },
-  { id: 'desktop-tools-pointer', journey: 'tools', surface: 'desktop-browser', paths: ['desktop-page-tools-pointer.png'], requiresPointer: true },
-  { id: 'desktop-story-pointer', journey: 'story', surface: 'desktop-browser', paths: ['desktop-page-story-pointer.png'], requiresPointer: true },
-  { id: 'desktop-inspect-keyboard', journey: 'inspect', surface: 'desktop-browser', paths: ['desktop-page-inspect-keyboard.png'], requiresKeyboard: true },
-  { id: 'desktop-portfolio-pointer', journey: 'portfolio', surface: 'desktop-browser', paths: ['desktop-page-portfolio-pointer.png'], requiresPointer: true },
-];
-
-export const DESKTOP_PAGE_BROWSER_PROOF_PATHS = DESKTOP_PAGE_BROWSER_STORY_MATRIX.flatMap((row) => row.paths);
 
 export const MOBILE_CONTRACT_PROOF_PATHS = [
   'mission-control-320-mobile.png',
@@ -947,7 +878,7 @@ export const MOBILE_CONTRACT_PROOF_PATHS = [
   'operating-fabric-inspect-sheet-430-mobile.png',
 ];
 
-export function selectViewportProofCaptureSteps({ proofPathFilter = '', mobileContractOnly = false, desktopPageBrowserOnly = false } = {}) {
+export function selectViewportProofCaptureSteps({ proofPathFilter = '', mobileContractOnly = false } = {}) {
   if (String(proofPathFilter).trim()) {
     return VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => proof.path.includes(String(proofPathFilter).trim()));
   }
@@ -955,15 +886,7 @@ export function selectViewportProofCaptureSteps({ proofPathFilter = '', mobileCo
     const paths = new Set(MOBILE_CONTRACT_PROOF_PATHS);
     return VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => paths.has(proof.path));
   }
-  const desktopPaths = new Set(DESKTOP_PAGE_BROWSER_PROOF_PATHS);
-  if (desktopPageBrowserOnly) {
-    return VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => desktopPaths.has(proof.path));
-  }
-  return VIEWPORT_PROOF_CAPTURE_STEPS.filter((proof) => !desktopPaths.has(proof.path));
-}
-
-export function selectDesktopViewportProofCaptureSteps() {
-  return selectViewportProofCaptureSteps({ desktopPageBrowserOnly: true });
+  return VIEWPORT_PROOF_CAPTURE_STEPS;
 }
 
 const gateFixture = {
@@ -1253,7 +1176,16 @@ const operatingFabricQuestsFixture = {
 };
 
 function operatingFabricAllScenesAssertion(width) {
+  const expectedPortfolio = {
+    cardCount: PORTFOLIO_CATALOG.summary.total + PORTFOLIO_CATALOG.summary.historicalProducts,
+    saplings: String(PORTFOLIO_CATALOG.summary.saplings),
+    clients: String(PORTFOLIO_CATALOG.summary.clientBranches),
+    programs: String(PORTFOLIO_CATALOG.summary.internalPrograms),
+    review: String(PORTFOLIO_CATALOG.summary.classificationReview),
+    historical: String(PORTFOLIO_CATALOG.summary.historicalProducts),
+  };
   return `(() => {
+    const expectedPortfolio = ${JSON.stringify(expectedPortfolio)};
     const root = document.getElementById('operating-fabric');
     if (!root) return { ok:false, missing:'operating-fabric-root' };
     const portfolio = root.querySelector('[data-component="PortfolioCanopy"][data-portfolio-mode="detail"]');
@@ -1286,12 +1218,12 @@ function operatingFabricAllScenesAssertion(width) {
       && organPlan.textContent.includes('No recurring schedule');
     const portfolioOk = Boolean(portfolio)
       && portfolioZones.length === 4
-      && portfolioCards.length === 92
-      && portfolioCounts.saplings === '17'
-      && portfolioCounts.clients === '40'
-      && portfolioCounts.programs === '15'
-      && portfolioCounts.review === '0'
-      && portfolioCounts.historical === '20'
+      && portfolioCards.length === expectedPortfolio.cardCount
+      && portfolioCounts.saplings === expectedPortfolio.saplings
+      && portfolioCounts.clients === expectedPortfolio.clients
+      && portfolioCounts.programs === expectedPortfolio.programs
+      && portfolioCounts.review === expectedPortfolio.review
+      && portfolioCounts.historical === expectedPortfolio.historical
       && Boolean(fitcheck)
       && fitcheck.textContent.includes('cambium')
       && fitcheck.textContent.includes('aliases are display-only');
@@ -1340,6 +1272,24 @@ function operatingFabricAllScenesAssertion(width) {
         : root.querySelector('[data-portfolio-context="' + sceneId + '"]');
       const selectionPersists = Boolean(selectedContext)
         && selectedContext.textContent.includes('Fitcheck');
+      const fitcheckReference = sceneId === 'canopy'
+        ? null
+        : selectedContext?.querySelector('[data-operational-packet="cambium.fitcheck-golden-path.v1"]');
+      const fitcheckSceneTruth = sceneId === 'canopy' || (
+        Boolean(fitcheckReference)
+        && fitcheckReference.getAttribute('data-fitcheck-scene') === sceneId
+        && fitcheckReference.querySelector('[data-operational-authority="packet-plan"]')
+        && fitcheckReference.textContent.includes('Supervised branch · not autonomous')
+        && !fitcheckReference.textContent.includes('autonomous branch · active')
+        && (sceneId !== 'mission' || fitcheckReference.textContent.includes('Qualified merchant demo · pending'))
+        && (sceneId !== 'flow' || (
+          fitcheckReference.querySelector('[data-fitcheck-stage="admitted"][data-fitcheck-stage-state="held"]')
+          && fitcheckReference.querySelector('[data-fitcheck-stage="executed"][data-fitcheck-stage-state="held"]')
+          && fitcheckReference.textContent.includes('signed Gate → D1 CAS')
+        ))
+        && (sceneId !== 'workforce' || fitcheckReference.textContent.includes('not live assignments'))
+        && (sceneId !== 'forge' || fitcheckReference.textContent.includes('never substitutes for a pinned loadout'))
+      );
       const organContext = sceneId === 'canopy'
         ? organPlan
         : root.querySelector('[data-organ-context="' + sceneId + '"][data-organ-active="none"]');
@@ -1360,11 +1310,13 @@ function operatingFabricAllScenesAssertion(width) {
           && tabLabelContained
           && targetsAtLeast44
           && selectionPersists
+          && fitcheckSceneTruth
           && organContextHonest,
         panelContained: Boolean(panelRect) && inViewport(panelRect),
         tabLabelContained,
         interactiveCount: interactiveTargets.length,
         selectionPersists,
+        fitcheckSceneTruth: Boolean(fitcheckSceneTruth),
         organContextHonest,
       };
     }
@@ -1564,7 +1516,7 @@ async function waitForDebugger(port, timeoutMs = 30_000, diagnostics = () => '')
     for (const host of debuggerHosts) {
       const endpoint = `http://${host}:${port}/json/list`;
       try {
-        const res = await fetch(endpoint);
+        const res = await fetch(endpoint, { signal: AbortSignal.timeout(CDP_OPERATION_TIMEOUT_MS) });
         attempts.set(host, `${endpoint} -> HTTP ${res.status}`);
         if (res.ok) return await res.json();
       } catch (error) {
@@ -1681,8 +1633,18 @@ async function cdpClient(wsUrl) {
   const pending = new Map();
   let nextId = 1;
   await new Promise((resolve, reject) => {
-    ws.addEventListener('open', resolve, { once: true });
-    ws.addEventListener('error', reject, { once: true });
+    const timeout = setTimeout(() => {
+      ws.close();
+      reject(new Error(`Timed out opening Chrome DevTools WebSocket after ${CDP_OPERATION_TIMEOUT_MS}ms`));
+    }, CDP_OPERATION_TIMEOUT_MS);
+    ws.addEventListener('open', () => {
+      clearTimeout(timeout);
+      resolve();
+    }, { once: true });
+    ws.addEventListener('error', (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    }, { once: true });
   });
   ws.addEventListener('message', (event) => {
     const msg = JSON.parse(String(event.data));
@@ -1697,7 +1659,22 @@ async function cdpClient(wsUrl) {
     send(method, params = {}) {
       const id = nextId++;
       ws.send(JSON.stringify({ id, method, params }));
-      return new Promise((resolve, reject) => pending.set(id, { resolve, reject }));
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          pending.delete(id);
+          reject(new Error(`Timed out waiting for Chrome DevTools ${method} after ${CDP_OPERATION_TIMEOUT_MS}ms`));
+        }, CDP_OPERATION_TIMEOUT_MS);
+        pending.set(id, {
+          resolve(value) {
+            clearTimeout(timeout);
+            resolve(value);
+          },
+          reject(error) {
+            clearTimeout(timeout);
+            reject(error);
+          },
+        });
+      });
     },
     close() {
       ws.close();
@@ -1764,19 +1741,6 @@ async function tapSelector(cdp, selector) {
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: point.x, y: point.y, button: 'none' });
   await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: point.x, y: point.y, button: 'left', clickCount: 1 });
   await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x, y: point.y, button: 'left', clickCount: 1 });
-}
-
-async function pressKeyOnSelector(cdp, selector, key) {
-  const keyCode = key === 'ArrowRight' ? 39 : key === 'ArrowLeft' ? 37 : key === 'Enter' ? 13 : 0;
-  await evaluate(cdp, `(() => {
-    const node = document.querySelector(${JSON.stringify(selector)});
-    if (!node) throw new Error('missing keyboard selector ${selector}');
-    node.scrollIntoView({ block:'center', inline:'nearest' });
-    node.focus();
-    if (document.activeElement !== node) throw new Error('keyboard selector did not receive focus ${selector}');
-  })()`);
-  await cdp.send('Input.dispatchKeyEvent', { type:'rawKeyDown', key, code:key, windowsVirtualKeyCode:keyCode, nativeVirtualKeyCode:keyCode });
-  await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key, code:key, windowsVirtualKeyCode:keyCode, nativeVirtualKeyCode:keyCode });
 }
 
 export function touchDragNeedsRetry(result, minimumDelta = 24) {
@@ -1949,22 +1913,16 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
     const cdp = await cdpClient(pageTarget.webSocketDebuggerUrl);
     try {
       await cdp.send('Page.enable');
-      if (options.fixture === 'fresh') {
-        await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
-          source: browserClockOverrideExpression(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock),
-        });
-      }
       const exactViewport = options.exactViewport === true;
-      const desktopPageBrowser = options.desktopPageBrowser === true;
       const mobileMetrics = {
         width: captureViewport.width,
         height: captureViewport.height,
         deviceScaleFactor: 2,
-        mobile: !exactViewport && !desktopPageBrowser,
+        mobile: !exactViewport,
         ...(exactViewport ? { screenWidth:captureViewport.width, screenHeight:captureViewport.height } : {}),
       };
       await cdp.send('Emulation.setDeviceMetricsOverride', mobileMetrics);
-      if (exactViewport && !desktopPageBrowser) await cdp.send('Emulation.setTouchEmulationEnabled', { enabled:true, maxTouchPoints:5 });
+      if (exactViewport) await cdp.send('Emulation.setTouchEmulationEnabled', { enabled:true, maxTouchPoints:5 });
       await cdp.send('Page.navigate', { url });
       await new Promise((resolve) => setTimeout(resolve, 2500));
       if (exactViewport) {
@@ -2004,14 +1962,6 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       }
       if (options.expression) {
         await evaluate(cdp, `${options.expression}; undefined`);
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-      if (options.keyboardTargetSelector && options.keyboardKey) {
-        await pressKeyOnSelector(cdp, options.keyboardTargetSelector, options.keyboardKey);
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-      if (options.pointerTargetSelector) {
-        await tapSelector(cdp, options.pointerTargetSelector);
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
       if (options.tapTargetSelector) {
@@ -2087,7 +2037,6 @@ assertBrowserAvailable();
 const artifactDir = viewportProofArtifactDirectory({
   proofPathFilter:PROOF_PATH_FILTER,
   mobileContractOnly:MOBILE_CONTRACT_ONLY,
-  desktopPageBrowserOnly:DESKTOP_PAGE_BROWSER_ONLY,
 });
 mkdirSync(artifactDir, { recursive: true });
 
@@ -2095,11 +2044,11 @@ const proofs = [];
 const captureSteps = selectViewportProofCaptureSteps({
   proofPathFilter:PROOF_PATH_FILTER,
   mobileContractOnly:MOBILE_CONTRACT_ONLY,
-  desktopPageBrowserOnly:DESKTOP_PAGE_BROWSER_ONLY,
 });
 if (captureSteps.length === 0) throw new Error(`No viewport proof path matched ${PROOF_PATH_FILTER}`);
 await withServer(async (base, metrics) => {
-  for (const proof of captureSteps) {
+  for (const [index, proof] of captureSteps.entries()) {
+    console.error(`[${index + 1}/${captureSteps.length}] ${proof.path}`);
     const file = join(artifactDir, proof.path);
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
@@ -2120,7 +2069,7 @@ await withServer(async (base, metrics) => {
       url,
       path: proof.path,
       intent: proof.intent,
-      viewportMode: proof.desktopPageBrowser ? 'desktop-browser' : proof.exactViewport ? 'exact-width-touch' : 'mobile-emulation',
+      viewportMode: proof.exactViewport ? 'exact-width-touch' : 'mobile-emulation',
       viewport: { ...viewport, ...(proof.viewport || {}) },
       ...(isNonEmptyString(proof.assertExpression) ? { browserAssertions: true } : {}),
       ...(proof.intent === 'clickability-proof' ? { interactionSurface: isNonEmptyString(proof.clipSelector) ? 'sheet' : 'page' } : {}),
@@ -2143,7 +2092,7 @@ const manifest = buildViewportProofManifest({
   chrome: activeBrowser,
   browserMode: activeBrowserMode,
   browserCandidates: BROWSER_CANDIDATES,
-  viewport: DESKTOP_PAGE_BROWSER_ONLY ? desktopViewport : viewport,
+  viewport,
   proofs,
 });
 
@@ -2151,7 +2100,7 @@ if (WRITE_CANONICAL_PROOF_ARTIFACTS) writeFileSync(join(outDir, 'manifest.json')
 console.log(JSON.stringify(manifest, null, 2));
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.env.CAMBIUM_RUN_VIEWPORT_PROOF === '1' || isDirectInvocation()) {
   main().catch((error) => {
     writeFailureArtifact(error);
     console.error(error instanceof Error ? error.stack : String(error));

@@ -97,7 +97,6 @@ const VALID_ROUTINE = /^[a-z0-9][a-z0-9_-]{1,119}$/;
 const VALID_SEMANTIC_KINDS = new Set(['decision', 'evidence', 'handoff', 'heartbeat', 'memory', 'note', 'routine', 'standup', 'task']);
 const MAX_BODY_LENGTH = 4096;
 const MAX_PROJECTION_BODY_BYTES = 40 * 1024;
-const MAX_CORTEX_BODY_BYTES = 520 * 1024;
 const MAX_QUERY_LENGTH = 500;
 const MAX_KIND_LENGTH = 40;
 const MAX_ROUTINE_SECTIONS = 8;
@@ -297,11 +296,11 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
     if (!authorized(req, deps.cortexIngestionToken)) {
       return json(401, { error: 'bad or missing cortex ingestion credential' });
     }
-    if (!deps.cortexIngestionDeps?.embed || !deps.cortexIngestionDeps?.vectorIndex?.upsert) {
+    if (!deps.cortexIngestionDeps?.embed || !deps.cortexIngestionDeps?.vectorIndex) {
       return json(503, { error: 'cortex ingestion dependencies not configured' });
     }
     const rawBody = req.body ?? '';
-    if (new TextEncoder().encode(rawBody).byteLength > MAX_CORTEX_BODY_BYTES) {
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_PROJECTION_BODY_BYTES) {
       return json(400, { error: 'ingestion body is too large' });
     }
     let body: unknown;
@@ -350,11 +349,7 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
         routineSnapshot: Boolean(deps.routineContext),
         semanticRecall: Boolean(deps.semanticRecall),
         projectionWrite: Boolean(deps.projectionWriteToken && deps.projectionStore),
-        cortexIngestion: Boolean(
-          deps.cortexIngestionToken
-          && deps.cortexIngestionDeps?.embed
-          && deps.cortexIngestionDeps?.vectorIndex?.upsert,
-        ),
+        cortexIngestion: Boolean(deps.cortexIngestionToken && deps.cortexIngestionDeps?.embed && deps.cortexIngestionDeps?.vectorIndex),
       },
     });
   }

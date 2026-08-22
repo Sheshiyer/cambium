@@ -52,7 +52,7 @@
     "note": "Superseded for production \u2014 personal account was used before Thoughtseed OAuth re-login",
     "cloudflareAccountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
     "versionId": "c43a61ec-6cb6-4c09-b8ca-7df646b9e98b",
-    "workersDevUrl": "[redacted personal-worker origin]"
+    "workersDevUrl": "https://cambium-quests.sheshnarayan-iyer.workers.dev"
   },
   "routesLive": {
     "GET /v1/bridge/proactive-loop/pending-deliveries": {

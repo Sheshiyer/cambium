@@ -1,0 +1,60 @@
+{
+  "schema": "cambium.cloudflare-access-auth-path.v1",
+  "observedAt": "2026-08-12T18:57:59Z",
+  "tenant": "cambium",
+  "requestBoundary": "evaluate scoped Cloudflare Access as an alternative to the full-scoped token and Wrangler CLI; no control-plane mutation authorized",
+  "credentialSafety": {
+    "envFile": "operator Claude environment file (path intentionally omitted)",
+    "scopedTokenKeyPresent": true,
+    "scopedTokenVerify": {
+      "method": "GET /user/tokens/verify",
+      "status": 401,
+      "result": "unusable-or-expired"
+    },
+    "fullScopedTokenUsed": false,
+    "fullScopedTokenReadOrPrinted": false,
+    "accessClientIdKeyPresent": false,
+    "accessClientSecretKeyPresent": false,
+    "environmentEdited": false
+  },
+  "authenticatedAppRead": {
+    "route": "/admin/portfolio/web",
+    "browserSession": "existing user-authenticated in-app tab",
+    "title": "Thoughtseed Portfolio Workbench",
+    "visibleMarkers": {
+      "portfolioCount": 73,
+      "saplings": 20,
+      "branches": 39,
+      "programs": 15,
+      "autosave": "paused",
+      "needsReview": 0
+    },
+    "cookiesStorageSessionsInspected": false,
+    "mutationPerformed": false
+  },
+  "routeProbes": {
+    "labsWorkersDevHealth": { "status": 200, "contentType": "application/json", "worker": "cambium-quests" },
+    "labsWorkersDevQuestReadWithoutIdentity": { "status": 401, "error": "access_identity_required" },
+    "customHostnameHealthWithoutAccess": { "status": 302, "locationClass": "cloudflare-access" },
+    "customHostnameQuestReadWithoutAccess": { "status": 302, "locationClass": "cloudflare-access" },
+    "cloudflareControlPlaneWithoutBearer": { "status": 400, "error": "missing_authorization_header" }
+  },
+  "sourceContract": {
+    "file": "bin/quine/hyphae/project-feed.ts",
+    "accessHeaders": ["CF-Access-Client-Id", "CF-Access-Client-Secret"],
+    "headerUse": "application feed request only when both service-token keys are supplied",
+    "controlPlaneReplacement": false
+  },
+  "result": {
+    "status": "app-read-verified-control-plane-blocked",
+    "accessCanReadProtectedWorkbench": true,
+    "accessCanReplaceWranglerForCloudflareApi": false,
+    "uploadPerformed": false,
+    "deploymentPerformed": false,
+    "trafficChanged": false,
+    "bindingChanged": false,
+    "secondLedgerPushAttempted": false,
+    "credentialMutation": false,
+    "nextGate": "owner-approved Labs control-plane credential or Cloudflare dashboard session; prefer a narrowly scoped API token over the existing full-scoped token"
+  }
+}
