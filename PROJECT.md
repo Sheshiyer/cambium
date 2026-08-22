@@ -45,6 +45,7 @@ The root anchors own doctrine only. [`ISA.md`](./ISA.md) owns approved goals and
 | Root doctrine catalog | [`docs/doctrine/README.md`](./docs/doctrine/README.md) |
 | Docs discovery index | [`docs/README.md`](./docs/README.md) |
 | Lifecycle (current vs historical) | [`docs/LIFECYCLE.md`](./docs/LIFECYCLE.md) |
+| On-demand documentation inventory | [`docs/architecture/contracts/documentation-inventory-v1.md`](./docs/architecture/contracts/documentation-inventory-v1.md) |
 | GSD `.planning/` map | [`.planning/README.md`](./.planning/README.md) |
 | Loops → graphs (quests) | [`docs/architecture/loops-to-graphs.md`](./docs/architecture/loops-to-graphs.md) |
 

@@ -22,17 +22,17 @@
 
 ### Ralph and Temperance Flow
 
-- [ ] **FLOW-01**: An operator can identify the exact next GSD command from current durable planning state, with no competing planner or invented third goal.
-- [ ] **FLOW-02**: A fresh Ralph iteration can read durable goal, plan, task, evidence, and handoff state; select one dependency-ready unit; verify it; persist its outcome; and stop at an external completion condition.
-- [ ] **FLOW-03**: An operator can inspect the selected skill-cluster route and OmniRoute combo for a task, including provider attribution and the boundary between native orchestration and paid execution.
-- [ ] **FLOW-04**: A generated manifest exposes references, digests, routes, next actions, gates, freshness, and stop conditions without copying doctrine or becoming an operational writer.
+- [x] **FLOW-01**: An operator can identify the exact next GSD command from current durable planning state, with no competing planner or invented third goal.
+- [x] **FLOW-02**: A fresh Ralph iteration can read durable goal, plan, task, evidence, and handoff state; select one dependency-ready unit; verify it; persist its outcome; and stop at an external completion condition.
+- [x] **FLOW-03**: An operator can inspect the selected skill-cluster route and OmniRoute combo for a task, including provider attribution and the boundary between native orchestration and paid execution.
+- [x] **FLOW-04**: A generated manifest exposes references, digests, routes, next actions, gates, freshness, and stop conditions without copying doctrine or becoming an operational writer.
 
 ### Documentation Stewardship
 
-- [ ] **DOCS-01**: A maintainer can use one authority and lifecycle map to determine which root, `docs/`, `MEMORY/`, and planning documents are canonical, derived, historical, evidentiary, or local-only.
-- [ ] **DOCS-02**: The named doctrine corpus is inventoried with provenance, present purpose, overlap, recommended disposition, and links to canonical anchors before any relocation or deletion.
-- [ ] **DOCS-03**: Root and documentation indexes lead maintainers from vision and mission through architecture, operating doctrine, lifecycle, evidence, and current GSD next steps without circular authority.
-- [ ] **DOCS-04**: Historical evidence remains recoverable and clearly labeled while stale plans and memory artifacts cannot masquerade as current instructions.
+- [x] **DOCS-01**: A maintainer can use one authority and lifecycle map to determine which root, `docs/`, `MEMORY/`, and planning documents are canonical, derived, historical, evidentiary, or local-only.
+- [x] **DOCS-02**: The named doctrine corpus is inventoried with provenance, present purpose, overlap, recommended disposition, and links to canonical anchors before any relocation or deletion.
+- [x] **DOCS-03**: Root and documentation indexes lead maintainers from vision and mission through architecture, operating doctrine, lifecycle, evidence, and current GSD next steps without circular authority.
+- [x] **DOCS-04**: Historical evidence remains recoverable and clearly labeled while stale plans and memory artifacts cannot masquerade as current instructions.
 
 ### Safety and Verification
 
@@ -71,14 +71,14 @@
 | GRAPH-03 | Phase 4 | Complete |
 | GRAPH-04 | Phase 4 | Complete |
 | GRAPH-05 | Phase 4 | Complete |
-| FLOW-01 | Phase 5 | Pending |
-| FLOW-02 | Phase 5 | Pending |
-| FLOW-03 | Phase 5 | Pending |
-| FLOW-04 | Phase 5 | Pending |
-| DOCS-01 | Phase 6 | Pending |
-| DOCS-02 | Phase 6 | Pending |
-| DOCS-03 | Phase 6 | Pending |
-| DOCS-04 | Phase 6 | Pending |
+| FLOW-01 | Phase 5 | Complete |
+| FLOW-02 | Phase 5 | Complete |
+| FLOW-03 | Phase 5 | Complete |
+| FLOW-04 | Phase 5 | Complete |
+| DOCS-01 | Phase 6 | Complete |
+| DOCS-02 | Phase 6 | Complete |
+| DOCS-03 | Phase 6 | Complete |
+| DOCS-04 | Phase 6 | Complete |
 | SAFE-01 | Phase 7 | Pending |
 | SAFE-02 | Phase 7 | Pending |
 | SAFE-03 | Phase 7 | Pending |

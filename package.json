@@ -50,6 +50,10 @@
     "r3f:meshy": "npm --prefix apps/cambium-r3f run meshy:assets --",
     "r3f:meshy:image": "npm --prefix apps/cambium-r3f run meshy:image-to-3d --",
     "r3f:source-plates": "npm --prefix apps/cambium-r3f run source-plates --",
+    "docs:inventory:json": "node scripts/generate-documentation-inventory.mjs --format json",
+    "docs:inventory:markdown": "node scripts/generate-documentation-inventory.mjs --format markdown",
+    "docs:inventory:check": "node scripts/check-documentation-inventory.mjs",
+    "safety:check": "node scripts/check-deterministic-safety.mjs",
     "proactive:loop": "node scripts/proactive-loop-tick.mjs",
     "proactive:loop:json": "node scripts/proactive-loop-tick.mjs --json"
   }

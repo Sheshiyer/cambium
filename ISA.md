@@ -4,11 +4,11 @@ task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game
 effort: E4
 effort_source: task-classification
 phase: verify
-progress: 5/5
+progress: 4/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-18T14:01:31Z
+updated: 2026-08-20T21:01:45Z
 ---
 
 ## Problem
@@ -195,13 +195,53 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 - [x] ISC-1275: ANCHOR-03 proves the Repository Mission and bounded `FabricMission` authority distinction through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 - [x] ISC-1276: ANCHOR-04 proves reference-only discovery of both canonical anchors through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 
-### Active Phase 4 acceptance
+### Completed Phase 4 acceptance
 
 - [x] ISC-1277: GRAPH-01 proves one deterministic projection with stable node and labeled-edge semantics for Vision → Mission → finite goals → tasks → evidence → learning.
 - [x] ISC-1278: GRAPH-02 proves every projected node exposes an exact repository-relative source path, named source authority, lifecycle state, and content digest.
 - [x] ISC-1279: GRAPH-03 proves inherited overlays reference canonical root anchors and cannot declare themselves Vision or Repository Mission authorities.
 - [x] ISC-1280: GRAPH-04 proves evidence and learning edges close or renew finite goals without mutating `VISION.md` or silently rewriting `MISSION.md`.
 - [x] ISC-1281: GRAPH-05 proves approval gates, freshness, stop conditions, and blocked states remain explicit, with blocked work never projected as complete.
+
+### Completed Phase 5 acceptance
+
+- [x] ISC-1282: FLOW-01 proves one exact next GSD command is derived from the approved ISA goal, live GSD transition, and active-plan dependencies, while ambiguity or authority conflict yields `blocked` instead of a competing plan.
+- [x] ISC-1283: FLOW-02 proves a fresh Ralph iteration rereads durable goal, plan, task, evidence, and reviewed handoff state; selects exactly one dependency-ready unit; verifies and persists through existing GSD/handoff surfaces; then exits on an external stop condition without owning a mutable ledger.
+- [x] ISC-1284: FLOW-03 proves the projection exposes skill-cluster and OmniRoute combo intent plus the native-orchestrator/paid-execution boundary, while only a fresh host receipt supplies resolved provider attribution.
+- [x] ISC-1285: FLOW-04 proves deterministic machine and human readbacks expose matching references, digests, routes, next action or blocked reason, gates, freshness, and stop conditions without copying doctrine or host policy, extending the Phase 4 graph vocabulary, or becoming an operational writer.
+
+### Completed Phase 6 acceptance
+
+- [x] ISC-1286: DOCS-01 proves one exact five-class lifecycle map distinguishes canonical, derived, historical, evidentiary, and local-only material without replacing canonical doctrine, ISA acceptance, GSD planning, contracts, or runbooks.
+- [x] ISC-1287: DOCS-02 proves one explicit committed revision yields an exhaustive, body-free, on-demand inventory in matching machine and human formats without reading mutable checkout state.
+- [x] ISC-1288: DOCS-03 proves additive authority-owner links lead maintainers through doctrine, architecture, operating guidance, evidence, and live `.planning/STATE.md` delegation without copying mutable status.
+- [x] ISC-1289: DOCS-04 proves recoverable historical evidence remains preserved while explicit item exceptions receive exception-aware, non-destructive classification and stale instructions cannot masquerade as current authority.
+
+Implementation acceptance evidence (independent Phase 6 verification remains pending):
+
+- `node --test scripts/documentation-inventory.test.mjs scripts/generate-documentation-inventory.test.mjs scripts/infinite-game-anchors.test.mjs` exited 0 with 24/24 tests passing.
+- `npm test` exited 0 with 1895/1895 tests passing.
+- `npm run drift:audit`, `npm run render-docs:check`, `npm run standalone:audit`, and `git diff --check` each exited 0; rendered documentation reported 6 pages and 91 components, and the standalone audit checked 930 publishable files.
+- At implementation head `3e9deef38450ba3eb9dc1917481cd7a030912e8a`, two package-level JSON runs and two package-level Markdown runs were byte-identical, `JSON.parse` consumed the complete JSON stdout, and `npm run --silent docs:inventory:check -- --source-revision 3e9deef38450ba3eb9dc1917481cd7a030912e8a` exited 0 for 530 entries with inventory digest `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
+- `DOCS-PRIVACY / T-06-22` passed while scanning the normalized Phase 6 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact JSON/Markdown stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
+
+### Completed Phase 7 acceptance
+
+- [x] ISC-1290: SAFE-01 proves deterministic validation fails when canonical vision or mission doctrine is duplicated outside its allowed anchors.
+- [x] ISC-1291: SAFE-02 proves deterministic validation fails when a manifest, Ralph state file, generated graph, or documentation overlay claims goal-setting or planning authority.
+- [x] ISC-1292: SAFE-03 proves deterministic validation fails when generated projections are stale relative to their source digests or contain secrets, session identifiers, prompt bodies, or machine-local absolute paths.
+- [x] ISC-1293: SAFE-04 proves a reviewed handoff records the bounded write set, verification evidence, unresolved approval boundaries, and the exact next GSD command.
+
+Implementation acceptance evidence (independent Phase 7 verification remains pending):
+
+- `node --test scripts/deterministic-safety.test.mjs scripts/check-deterministic-safety.test.mjs` exited 0 with 34/34 tests passing.
+- `node --test --test-name-pattern='SAFE-0|Phase 7|T-07' scripts/infinite-game-anchors.test.mjs` exited 0 after the named SAFE-01..04 and T-07 sentinels were enforced.
+- `npm test` exited 0 with 1940/1940 tests passing.
+- `npm run drift:audit`, `npm run render-docs:check`, `npm run standalone:audit`, and `git diff --check` each exited 0; rendered documentation reported 6 pages and 91 components, and the standalone audit checked 950 publishable files.
+- Complementary `node scripts/generate-intent-graph.mjs --check` and `node scripts/generate-temperance-flow.mjs --check` each exited 0.
+- At implementation head `3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`, two package-level `npm run --silent safety:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` runs were byte-identical, performed zero repository or Git-index writes, and exited 0 with receipt `deterministic safety check passed: 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585 sha256:5780fe97f205bd6d559a2a2a391fc77058a19c82951627f4068e6a22315f99be entries=546`.
+- `npm run --silent docs:inventory:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` exited 0 for 546 entries with inventory digest `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
+- `SAFE-PRIVACY / T-07` passed while scanning the normalized Phase 7 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact `safety:check` stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
 
 ### Historical acceptance evidence (issue #331 and earlier)
 
@@ -1548,6 +1588,9 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 - ISC-1273..1276 | canonical infinite-game anchors | stable headings, direct paths, authority boundaries, coherent ISA state, and preserved Mission Fabric terminology | each criterion is binary and provenance-preserving | `node --test scripts/infinite-game-anchors.test.mjs`
 - ISC-1277..1281 | provenance-preserving intent graph | deterministic manifest, stable node/edge semantics, exact source metadata, overlay-reference guards, learning boundaries, and fail-closed gated/blocked state | each criterion maps one-to-one to GRAPH-01..05 and one named binary test | Phase 4 focused contract test plus generated-manifest check
+- ISC-1282..1285 | Ralph and Temperance flow projection | exact next action, bounded one-unit iteration, authenticated host attribution, and matching read-only flow readbacks | each criterion maps one-to-one to FLOW-01..04 and named binary tests | Phase 5 focused flow and Ralph suites plus generated-projection check
+- ISC-1286..1289 | documentation stewardship | exact lifecycle vocabulary, explicit-commit corpus inventory, additive navigation, and recoverable exception-aware evidence | each criterion maps one-to-one to DOCS-01..04 and named binary tests | Phase 6 anchor sentinel plus focused inventory and navigation suites
+- ISC-1290..1293 | deterministic safety and handoff | doctrine-duplication, authority-drift, freshness/privacy, reviewed handoff | each criterion maps one-to-one to SAFE-01..04 | Phase 7 anchor sentinel plus focused safety suites
 
 | ISC range | Type | Binary check | Tool |
 |---|---|---|---|
@@ -1663,6 +1706,9 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 - `CanonicalInfiniteGameAnchors` | establish singular root Vision and renewable Repository Mission without creating a second planner | satisfies ISC-1273..1276 | depends_on none | parallelizable false
 - `ProvenancePreservingIntentGraph` | compile a deterministic read-only projection from canonical doctrine, ISA/GSD planning, evidence, and learning without creating another authority | satisfies ISC-1277..1281 | depends_on CanonicalInfiniteGameAnchors | parallelizable false
+- `RalphAndTemperanceFlowProjection` | derive one dependency-safe next action and its authenticated execution route without owning a mutable ledger | satisfies ISC-1282..1285 | depends_on ProvenancePreservingIntentGraph | parallelizable false
+- `DocumentationStewardship` | classify and connect the committed doctrine corpus without relocating evidence or creating another authority | satisfies ISC-1286..1289 | depends_on RalphAndTemperanceFlowProjection | parallelizable false
+- `DeterministicSafetyAndHandoff` | fail-closed commit-tree validation plus reviewed-held handoff without creating another authority | satisfies ISC-1290..1293 | depends_on DocumentationStewardship | parallelizable false
 
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
@@ -1982,6 +2028,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - 2026-08-13 14:06: The required post-deliverable advisor call fired but the local OAuth session was expired and could not refresh. No substitute external mutation was attempted; exact production readbacks, independent Forge promotion review, mandatory Cato `PASS-WITH-P2`, strict ISA completeness, and the explicit founder-visibility/rollback-rehearsal holds remain the completion evidence.
 
+- 2026-08-19 11:06: refined: Phase 5 is an authority-resolution projection, not a scheduler or mutable Ralph ledger. Each fresh iteration rereads the approved goal from `ISA.md`, the exact GSD transition and active plan, verified evidence, and the reviewed handoff; selects one dependency-ready unit; persists through existing GSD and handoff surfaces; and stops on a source-backed gate. Cambium records skill-cluster and OmniRoute intent, while fresh host receipts alone supply resolved provider attribution and freshness. The dedicated deterministic machine/human flow readbacks reference the closed Phase 4 Intent Graph without extending its vocabulary, copying doctrine, provider stacks, credentials, quotas, or failover policy, or becoming operational authority. Verified implementation head `c177489e06237d2a3a3e11b79e3892199808102c` passes the bounded Ralph, projection, foldback, full-suite, drift, documentation, and zero-side-effect gates; independent phase verification remains external.
+
 ## Changelog
 
 - 2026-08-14 | conjectured: showing proof requirements and an existing Gate would be enough for the founder to advance a quest
@@ -2167,6 +2215,10 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-1279: focused `GRAPH-03 / ISC-1279: overlays reference only canonical root anchors without copied authority` and projection-foldback tests passed; normalized anchor-paragraph rejection and rendered-doc checks passed, while D1, ISA, GSD, Vision, Mission, and the read-only intent projection remain distinct authorities.
 - ISC-1280: RED commit `44f35026eee8267c18999f30b844741c5cf97301` binds valid and malformed Intent Graph fixtures across the shared contract, pure intake, source wiring, and authenticated route; GREEN commit `f5a58505544e024069a451fbcc44a20da66c30ec` makes `validateAuthoritativeInput` the single early projection-family guard. Focused contract/intake passed 20/20 and intake/approval passed 18/18; the route proved zero D1 reads, zero task/idempotency writes, unchanged D1 head/nodes, and one bounded redacted rejection receipt. The direct probe rejects both fixtures while accepting an unrelated command; compiler-local foldback remains defense in depth. The complete gate passed 27/27 anchor/compiler/generator tests, `npm test` 1812/1812, double generator checks at graph digest `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45` and source-set digest `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`, drift audit, rendered-doc synchronization (6 pages / 91 components), immutable verification/root/generated readbacks, path/deletion/category gates, and added-line privacy scan.
 - ISC-1281: focused `GRAPH-05 / ISC-1281: approval, freshness, stop, blocked, and completion contradictions fail closed` and JSON/Markdown parity passed; no node combines `completion: satisfied` with a blocked reason. The pre-closure gate passed 27/27 combined anchor/intent tests, `npm test` 1808/1808, drift audit, rendered-doc synchronization (6 pages / 91 components), diff hygiene, added-line privacy, deletion/rename, allowed-range, and forbidden runtime/provider/deployment category checks.
+- ISC-1282: `scripts/temperance-flow.test.mjs` and `scripts/generate-temperance-flow.test.mjs` pass authority precedence, exact-command, ambiguity, dependency, deterministic generation, and blocked/no-command cases; the complete focused closure gate passed 65/65 and the final terminal projection carries no command.
+- ISC-1283: immutable RED commit `20d414be2b9df30118443bda8b780c433e414804`, GREEN commit `7b522c28ad1bba2d6c608a2a07abf8f507685580`, and lifecycle-independent fixture closure `c177489e06237d2a3a3e11b79e3892199808102c` prove fresh reread, one immutable pre-effect snapshot, exact one-unit execution, declared verification, summary → STATE → handoff CAS persistence, stable iteration/result digests, summary-only and summary-plus-STATE recovery without repeated effects, drift/conflict stops, terminal no-revival, and no independent ledger. Ralph-focused tests pass 14/14; the complete repository suite passes 1851/1851.
+- ISC-1284: fixed-boundary approval tests reject raw receipt/trust inputs, caller-selected verifiers, wrong issuer/audience, stale/future/denied/mismatched bindings, and route drift before execution. Route intent remains `gsd-execute-phase` → `te-dispatch-paid`; committed generation uses no host receipt, so resolved attribution remains absent rather than inferred.
+- ISC-1285: the final machine and human readbacks are regenerated from one source model after ISA, GSD state, semantic summary, and reviewed handoff settle. Double generator checks, JSON/Markdown parity, shared projection foldback 21/21, Goal Graph intake/approval 18/18, drift audit, rendered-doc synchronization at 6 pages / 91 components, source preservation, privacy, exact-range, deletion, and zero-side-effect probes pass without runtime, provider, deployment, D1, or external writes.
 
 - ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
 - ISC-1010..1019 root/repository proof — the 58-folder physical dry-run is exact; current root-map digest is `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`; repository evidence contains 106 references, 96 resolved, 5 unmatched, and 5 unverified at digest `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`; every unresolved reference has an assignment, explicit hold, or exclusion.

@@ -1,5 +1,37 @@
 # Project handoff
 
+### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — review-fix iteration 3
+
+- The reviewed repository implementation is complete at exact `implementation_head` is `1aff7d79a942317ddfe5ef626c53dde2639a9504`. Iteration 3 closes all repository-owned portions of CR-01 through CR-04 and WR-01 through WR-04: lazy dry-run inspection, fail-closed host-boundary reporting, checkout/root/head/cwd binding and revalidation, lock-held versioned CAS, canonical projection families, closed ready/stop semantics, dirty-handoff invalidation, and serialized generator publication.
+- Focused adversarial suites pass for projection compilation, Ralph execution, CAS contention, and concurrent generator publication. The complete `npm test` suite passes 1872/1872 before this bounded checkpoint; final generator and rendered-document checks remain part of checkpoint publication.
+- Generated flowDigest: sha256:3983cf1ab48f6433887a6934ea9706f754f5dcdacc05f8a9294cc36abce1a0dd
+- Generated sourceSetDigest: sha256:2b0d3c0d71937c8714d0ae9ba1643d8f2d74d8a00eb20ca6f7eadcd19d4fbcbe
+- The production Manifest command installation remains an explicit external blocker for non-dry execution. It requires a separate owner-approved host task; Cambium only detects and reports its absence and never creates or modifies `~/.temperance_engine`, host manifests, provider configuration, credentials, or deployment state.
+- The uncommitted review source and iteration-3 fix report remain orchestrator-owned artifacts. No protected host or external state was read for publication or mutated.
+
+### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate
+
+- Branch `codex/phase-5-decisions` preserves the dirty user-owned primary checkout. The exact pre-closure `implementation_head` is `c177489e06237d2a3a3e11b79e3892199808102c`; pre-closure Plan 05-03 commits are RED `20d414be2b9df30118443bda8b780c433e414804`, harness correction `9f642cb17868c30382138b96e14cda0cafd84158`, GREEN `7b522c28ad1bba2d6c608a2a07abf8f507685580`, and lifecycle-independent fixture closure `c177489e06237d2a3a3e11b79e3892199808102c`. The enclosing closure commit is intentionally identified only by Git history.
+- The pure interpreter and bounded adapter prove fresh reread, exactly one dependency-ready unit, a single immutable pre-effect source snapshot, fixed-boundary host and owner approval bound to task/command/route/projection/source set, immediate pre-execution revalidation, one execute and one declared verification, and summary → STATE → handoff compare-and-swap persistence.
+- Stable iteration/result digests make summary-only and summary-plus-STATE retries persistence-only. Drift, CAS conflict, missing or invalid approval, executor failure, verification failure, terminal work, and replay conflict stop without a second execute, verification, or later persistence effect. Ralph owns no ledger, queue, daemon, scheduler, or self-certification path.
+- Pre-closure gates pass: focused compiler/generator/Ralph/anchor/Intent Graph suites 65/65, shared foldback/intake 21/21, Goal Graph intake/approval 18/18, full `npm test` 1851/1851, double generator checks, drift audit, rendered-doc synchronization at 6 pages / 91 components, export, parity, source-preservation, privacy, exact-range, deletion, and no-side-effect checks.
+- Final projection state is terminal `blocked` with no command because all Phase 5 plan units are complete. Route intent remains `gsd-execute-phase` → `te-dispatch-paid`; committed receipt state is `missing`, owner approval is not inferred, and resolved provider/model attribution remains absent.
+- Generated flowDigest: sha256:47d5cfc212403e53e901f4d0d5538830901d52c01934d0187f7db1c54a3f3e77
+- Generated sourceSetDigest: sha256:0d8a8cea74c8919801daf4450bc280ed2970d52dadd2bcdc114141672d226fb0
+- No production deployment, live provider call, host/runtime configuration, D1/KV/R2, Telegram, Vault, registry, credential, package/lockfile, connected repository, or unscoped external state was mutated.
+- Exact continuation is `/gsd:execute-phase 5`; that bounded command produced the implementation head above. Independent continuation is `/gsd:verify-phase 5`, which must intentionally stale the current readback when its durable state changes.
+
+### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint
+
+- Isolated branch `codex/phase-5-decisions` starts from exact reviewed `origin/main` `89790804` and preserves the dirty user-owned primary checkout unchanged. Context commits `d56f3c5` and `0663990` record the confirmed Phase 5 assumptions and session state before planning.
+- `ISA.md` now binds active Phase 5 acceptance `ISC-1282` through `ISC-1285` at coherent planning intent `phase: plan`, `progress: 0/4`. The approved Phase 5 decision remains: ISA and live GSD state resolve authority; Ralph rereads durable state and owns no ledger; Cambium records route intent while the fixed host-owned Manifest verifier owns resolved attribution; the new machine/human flow projection stays deterministic, read-only, and separate from the closed Phase 4 Intent Graph.
+- The executable packet contains three dependency-ordered waves: `05-01-PLAN.md` defines the lifecycle sentinel and pure compiler contract; `05-02-PLAN.md` binds declared sources, deterministic readbacks, host-verifier attribution, and shared foldback rejection; `05-03-PLAN.md` proves one bounded execute → verify → existing-surface persist → exit iteration, owner-approval verification, final readback regeneration, and acceptance closure.
+- Independent goal-backward review required three revision gates. The final gate is `PASS` with no blocking or important finding after closing the executable FLOW-02 harness, fixed host-verifier trust boundary, exact approval binding, digest self-reference, pre-execution base SHA, final-state regeneration, staged write-set, deletion, privacy, structural JSON, and no-side-effect checks.
+- GSD structural validation passes for all three plans (2, 3, and 3 executable tasks), dependency indexing reads Waves 1 → 2 → 3, consistency/state validation passes, and Phase 5 coverage includes all `FLOW-01` through `FLOW-04` and locked decisions `D-01` through `D-11`. Roadmap and State both read Phase 5 planned / ready to execute.
+- Baseline `npm test` passes 1811/1812; the sole failure is the expected pre-implementation lifecycle sentinel because `scripts/infinite-game-anchors.test.mjs` currently admits Phase 3/4 states only. Plan 05-01 owns the strict Phase 5 RED/GREEN update. The mandatory advisor call was attempted but could not authenticate because its OAuth session expired; no advisor approval is inferred.
+- This checkpoint contains planning and acceptance artifacts only. It performs no Phase 5 implementation, generated flow projection, live Ralph execution, host/provider configuration, deployment, D1/KV/R2, Telegram, credential, package/lockfile, connected-repository, or external-state mutation.
+- Planning continuation was `/gsd:execute-phase 5`; execution had to begin from the recorded branch head, preserve the fixed Manifest verification boundary, and stop at every declared approval or verification gate.
+
 ### 2026-08-18 Phase 4 intent-graph acceptance checkpoint
 
 - Plan 04-03 publishes and closes only the bounded Phase 4 repository range: the compiler/test/contract and generated readbacks from Plans 04-01/04-02; `docs/architecture/README.md`, `docs/README.md`, `docs/architecture/loops-to-graphs.md`, and `docs/architecture/goal-graph-operating-model.md`; active Phase 4 evidence in `ISA.md`; this additive checkpoint; and required GSD progress artifacts under `.planning/`. No other path class is admitted.
@@ -1758,3 +1790,88 @@ mutation has been performed by drafting this packet.
 - No D1/KV/R2/Telegram/provider state, production deployment, external
   repository, credential, registry, Vault, or generated projection was
   mutated by this correction.
+
+### 2026-08-20 Phase 6 documentation stewardship implementation checkpoint
+
+- The reviewed repository-only implementation head before acceptance edits is
+  `3e9deef38450ba3eb9dc1917481cd7a030912e8a`. Phase 6 adds an immutable
+  commit-tree inventory source model, matching machine JSON and human Markdown
+  stdout views, a zero-write parity checker, one closed five-class lifecycle
+  map, additive authority indexes, and phase-wide DOCS-01..04 plus T-06-22
+  sentinels.
+- The inventory is generated only on demand from a caller-supplied committed
+  revision. It resolves that selection to one full commit SHA, inventories
+  every tracked root Markdown, `docs/`, and `.planning/` path exactly once,
+  emits no source bodies, and creates no committed or mutable readback.
+- Pre-acceptance verification passes: focused compiler/CLI/sentinel tests
+  24/24; complete repository tests 1895/1895; drift audit; rendered-document
+  synchronization for 6 pages and 91 components; standalone audit for 930
+  publishable files; `git diff --check`; separate committed, staged, and
+  unstaged deletion/rename gates; and T-06-22 privacy scanning.
+- At the named implementation head, repeated JSON and Markdown package
+  commands were byte-identical, complete JSON stdout parsed directly, and the
+  zero-write check passed for 530 entries at inventory digest
+  `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
+- ISA now records bounded Phase 6 implementation acceptance at `verify` / 4/4.
+  Normal GSD summary, STATE, ROADMAP, REQUIREMENTS, review, and phase closeout
+  remain pending and owned by the installed workflow. Independent verification
+  is still required; continue with `/gsd:verify-work 6` after execute-phase
+  closeout.
+- Relocation, deletion, archival or externalization, host/runtime/provider
+  configuration, deployment, credentials, Vault or native-client stores,
+  connected repositories, and every production or external mutation remain
+  explicitly held and unauthorized by this checkpoint.
+
+### 2026-08-21 Phase 7 deterministic safety and handoff implementation checkpoint
+
+- The reviewed repository-only implementation head before acceptance edits is
+  `3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`. Phase 7 adds a SHA-bound
+  SAFE-01..03 compiler, a zero-write `safety:check` CLI and package dispatcher,
+  the inspection-only `cambium.deterministic-safety.v1` contract, phase-wide
+  SAFE-01..04 and T-07 sentinels, checked ISA acceptance, and this checkpoint.
+- Bounded write set: `scripts/deterministic-safety.mjs`,
+  `scripts/deterministic-safety.test.mjs`,
+  `scripts/check-deterministic-safety.mjs`,
+  `scripts/check-deterministic-safety.test.mjs`,
+  `docs/architecture/contracts/deterministic-safety-v1.md`, `package.json`
+  `safety:check`, helper exports from `scripts/intent-graph.mjs` and
+  `scripts/temperance-flow.mjs`, refreshed Temperance Flow readbacks,
+  `scripts/infinite-game-anchors.test.mjs`, `ISA.md`, this checkpoint, and GSD
+  plan summaries. `.planning/STATE.md`, `.planning/ROADMAP.md`, and
+  `.planning/REQUIREMENTS.md` remain orchestrator-owned.
+- Validator command: `npm run --silent safety:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`. Two runs were byte-identical,
+  performed zero repository or Git-index writes, and printed
+  `deterministic safety check passed: 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585 sha256:5780fe97f205bd6d559a2a2a391fc77058a19c82951627f4068e6a22315f99be entries=546`.
+- Failing fixtures: SAFE-01 copied paragraph of VISION/MISSION doctrine in a
+  committed overlay; SAFE-02 hostile `active_planner` / self-claim “this file
+  is the planning authority”; SAFE-03 stale `path#selector` digest and Unix
+  user-root prefix in a generated projection.
+- Passing fixtures: titles, filenames, and `sha256:` digest references;
+  `ISA.md` and `.planning/STATE.md` as allowed claimants; `docs/LIFECYCLE.md`
+  denial; `.temperance/project.json` `active_planner: "isa"`; Worker Version
+  UUID and Cloudflare account-id-shaped values.
+- Pre-acceptance verification passes: focused compiler/CLI tests 34/34;
+  named SAFE-01..04 and T-07 sentinels; complete repository tests 1940/1940;
+  drift audit; rendered-document synchronization for 6 pages and 91
+  components; standalone audit for 950 publishable files; `git diff --check`;
+  complementary Intent Graph and Temperance Flow `--check`; SHA-bound
+  documentation-inventory check for 546 entries at digest
+  `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
+- Live probe identities recorded 2026-08-20 and named only: Worker Version
+  `089181f6-ed60-4710-aab6-cd10855360e0` at 100 percent (`git-21d4908`); D1
+  `graph_digest`
+  `846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e`. Naming
+  them does not authorize D1 CAS, wrangler versions upload, Vectorize ingest,
+  `getfitcheck` tenant mint, or invented TeamForge slugs.
+- Unresolved approval boundaries (D-15): D1 CAS, wrangler versions upload
+  (cwd SHA `8360c04` remains rejected), Vectorize ingest, `getfitcheck`
+  tenant mint, invented TeamForge slugs.
+- ISA now records bounded Phase 7 implementation acceptance at `verify` / 4/4.
+  Normal GSD summary, STATE, ROADMAP, REQUIREMENTS, review, and phase closeout
+  remain pending and owned by the installed workflow. Independent verification
+  is still required; continue with `/gsd:verify-work 7` after execute-phase
+  closeout.
+- Relocation, deletion, archival or externalization, host/runtime/provider
+  configuration, deployment, credentials, Vault or native-client stores,
+  connected repositories, and every production or external mutation remain
+  explicitly held and unauthorized by this checkpoint.

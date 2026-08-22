@@ -4,7 +4,7 @@
 **Status:** evidence-safe inventory complete; no cleanup approved
 **Decision origin:** 2026-08-10 retention review
 **Inventory basis:** exact committed `HEAD` tree and blobs
-**Inventory content SHA-256:** `44ba46a7d9612b61e448a777e31e5ca27deef31f543422a2f06bb802b189cba7`
+**Inventory content SHA-256:** `32f746ce100253daac85b5eb2a00c1f39d8d0d06e94af7ac796ab68194ae3823`
 **Scope:** `docs/` and `.planning/` only
 **Method:** deterministic size, type, checksum, and inbound-reference generation plus release-gated consistency verification
 

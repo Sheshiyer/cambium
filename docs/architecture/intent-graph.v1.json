@@ -1,8 +1,8 @@
 {
   "schema": "cambium.intent-graph-projection.v1",
   "projectionAuthority": "read_only",
-  "sourceSetDigest": "sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a",
-  "graphDigest": "sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45",
+  "sourceSetDigest": "sha256:9ec2decdac974e8a6ff9084f1396a0c56509bcc0bbcad25c9507be3f40be0756",
+  "graphDigest": "sha256:6cb7ac94cb19efca4e598f709e082d8cae089ec0bedf6f8536c65b25593d4115",
   "nodes": [
     {
       "id": "intent_1b97be1f1a27b0a5c16764472b0c134973024eb2dd0c12cba3511ed48f42e6e8",
@@ -113,7 +113,7 @@
         "path": "PROJECT.md",
         "authority": "derived_reference",
         "selector": "markdown.heading:Authority and pickup",
-        "digest": "sha256:91177c6e36ede151915da1bdadfe185bf5d02517b4e704aeac541bdd1fc371ca"
+        "digest": "sha256:eb2e49e30bcb2608f930af787e891e6253b6be7fe2d6c2e25b5d2f507b5ffa86"
       },
       "lifecycle": "derived",
       "state": {
@@ -526,7 +526,7 @@
       "source": {
         "path": "PROJECT.md",
         "selector": "markdown.heading:Authority and pickup",
-        "digest": "sha256:91177c6e36ede151915da1bdadfe185bf5d02517b4e704aeac541bdd1fc371ca"
+        "digest": "sha256:eb2e49e30bcb2608f930af787e891e6253b6be7fe2d6c2e25b5d2f507b5ffa86"
       }
     },
     {
@@ -614,7 +614,7 @@
       "source": {
         "path": "PROJECT.md",
         "selector": "markdown.heading:Authority and pickup",
-        "digest": "sha256:91177c6e36ede151915da1bdadfe185bf5d02517b4e704aeac541bdd1fc371ca"
+        "digest": "sha256:eb2e49e30bcb2608f930af787e891e6253b6be7fe2d6c2e25b5d2f507b5ffa86"
       }
     },
     {

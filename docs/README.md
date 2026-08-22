@@ -1,6 +1,22 @@
 # Cambium documentation map
 
-`docs/LIFECYCLE.md` is the authority map for this directory. This page is a discovery index; it does not replace contracts, runbooks, evidence, or the project ISA.
+[`docs/LIFECYCLE.md`](LIFECYCLE.md) is the lifecycle and authority map for this
+directory. This page is a discovery index; it does not replace root doctrine,
+contracts, runbooks, evidence, the project ISA, or live GSD state.
+
+## Stewardship reading order
+
+1. Read the root [doctrine catalog](doctrine/README.md).
+2. Use [`architecture/contracts/`](architecture/contracts/) for bounded
+   contracts and [`runbooks/`](runbooks/) for current procedures.
+3. Use the [lifecycle map](LIFECYCLE.md) and the
+   [Documentation Inventory v1 contract](architecture/contracts/documentation-inventory-v1.md)
+   to classify or inspect a caller-selected commit.
+4. Trace proof through [`evidence/`](evidence/) and recover implementation
+   history through [`plans/`](plans/) or [`archive/`](archive/).
+5. Read root [`ISA.md`](../ISA.md) for approved goals and acceptance, and live
+   [`.planning/STATE.md`](../.planning/STATE.md) for the current finite
+   transition.
 
 ## Doctrine (repository root — not moved)
 
@@ -25,7 +41,9 @@ Root doctrine files are catalogued under [`doctrine/`](doctrine/) so they stay a
 | Need | Canonical location |
 | --- | --- |
 | Implementation acceptance and verification | [`../ISA.md`](../ISA.md) |
-| Finite planning state | [GSD under `../.planning/`](../.planning/) |
+| Finite planning state | [live `../.planning/STATE.md`](../.planning/STATE.md) |
+| Documentation lifecycle and authority | [`LIFECYCLE.md`](LIFECYCLE.md) |
+| Documentation inventory contract | [`architecture/contracts/documentation-inventory-v1.md`](architecture/contracts/documentation-inventory-v1.md) |
 | Provenance-preserving intent graph | Generated, read-only, non-authoritative inspection only: [machine JSON](architecture/intent-graph.v1.json) · [human readback](architecture/intent-graph.md) · [v1 contract](architecture/contracts/intent-graph-v1.md) · [source model](../scripts/intent-graph-sources.mjs) · [generator](../scripts/generate-intent-graph.mjs) · check with `node scripts/generate-intent-graph.mjs --check` |
 | Runtime and data contracts | [`architecture/contracts/`](architecture/contracts/) |
 | Operator procedures | [`runbooks/`](runbooks/) |
@@ -34,6 +52,16 @@ Root doctrine files are catalogued under [`doctrine/`](doctrine/) so they stay a
 | Deep Cambium capability and surface map | [`guide/cambium-system-capability-map.md`](guide/cambium-system-capability-map.md) |
 | Moosh UI/request-response/authority coverage model | [`guide/cambium-moosh-coverage-model.md`](guide/cambium-moosh-coverage-model.md) |
 | Moosh multi-surface operator procedure | [`runbooks/cambium-moosh-multi-surface.md`](runbooks/cambium-moosh-multi-surface.md) |
+
+Generate either inventory view, or verify both, for an explicit committed
+revision. These commands write the selected view to stdout and do not publish a
+readback file:
+
+```bash
+npm run --silent docs:inventory:json -- --source-revision <REV>
+npm run --silent docs:inventory:markdown -- --source-revision <REV>
+npm run --silent docs:inventory:check -- --source-revision <REV>
+```
 
 ## Historical and proof material
 
