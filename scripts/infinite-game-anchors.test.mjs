@@ -144,15 +144,24 @@ function assertNonAuthoritativeProjection(inventory) {
 function resolvePhaseBaseSha(summaryLabel, declaredSha) {
   const ancestry = spawnSync('/usr/bin/git', ['merge-base', '--is-ancestor', declaredSha, 'HEAD'], { cwd: repositoryRoot }).status;
   if (ancestry === 0) return declaredSha;
-  // Squash merges orphan declared phase_base_sha commits. Fall back to the merge
-  // base with HEAD: this can only widen the audited change set (an earlier base),
-  // never narrow it, so the sentinel stays conservative. Fail closed when even a
-  // merge base is unreachable.
-  const merged = spawnSync('/usr/bin/git', ['merge-base', declaredSha, 'HEAD'], { cwd: repositoryRoot, encoding: 'utf8' });
-  if (merged.status !== 0 || !/^[0-9a-f]{40}$/.test((merged.stdout || '').trim())) {
-    throw new Error(`${summaryLabel} declared phase_base_sha is unreachable from HEAD and no merge base exists`);
+  // Squash merges orphan declared phase_base_sha commits: they stay on the
+  // server but drop out of advertised refs once their feature branches are
+  // pruned, so fresh CI clones never receive them. Try an explicit by-SHA
+  // fetch first — GitHub serves such objects even when unreachable.
+  const fetched = spawnSync('/usr/bin/git', ['fetch', '--quiet', 'origin', declaredSha], { cwd: repositoryRoot });
+  if (fetched.status === 0) {
+    const retry = spawnSync('/usr/bin/git', ['merge-base', declaredSha, 'HEAD'], { cwd: repositoryRoot, encoding: 'utf8' });
+    if (retry.status === 0 && /^[0-9a-f]{40}$/.test((retry.stdout || '').trim())) {
+      return retry.stdout.trim();
+    }
   }
-  return merged.stdout.trim();
+  // Offline or remote-less environments: widen to the merge base with HEAD if
+  // one exists locally (an earlier base — the audit set grows, never shrinks).
+  const merged = spawnSync('/usr/bin/git', ['merge-base', declaredSha, 'HEAD'], { cwd: repositoryRoot, encoding: 'utf8' });
+  if (merged.status === 0 && /^[0-9a-f]{40}$/.test((merged.stdout || '').trim())) {
+    return merged.stdout.trim();
+  }
+  throw new Error(`${summaryLabel} declared phase_base_sha is unreachable from HEAD and no merge base exists`);
 }
 
 function phaseBaseSha() {
@@ -175,7 +184,11 @@ function nameStatus(rangeArgs, cwd = repositoryRoot) {
 
 function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase 6') {
   const collections = [
-    nameStatus([`${baseSha}...HEAD`], cwd),
+    // Two-dot (not three-dot): the fallback base can be the empty tree, which
+    // three-dot symmetric difference rejects. For an ancestor base the two
+    // forms are identical; for a fallback base two-dot is strictly wider
+    // (includes both-side changes), so the audit set stays conservative.
+    nameStatus([`${baseSha}..HEAD`], cwd),
     nameStatus(['--cached'], cwd),
     nameStatus([], cwd),
   ];
@@ -911,7 +924,10 @@ test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensi
     const absolute = path.join(repositoryRoot, relativePath);
     if (!fs.existsSync(absolute)) continue;
     const bytes = fs.readFileSync(absolute);
-    const body = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    // The fallback base can widen the audit set to every tracked file,
+    // including binaries. Decode lossily so ASCII literals stay scannable
+    // without a fatal throw on non-UTF-8 bytes.
+    const body = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
     violations.push(...privacyViolations(relativePath, body));
   }
 
@@ -1021,7 +1037,8 @@ test('SAFE-PRIVACY / T-07: Phase 7 bytes and safety:check stdout expose no sensi
     const absolute = path.join(repositoryRoot, relativePath);
     if (!fs.existsSync(absolute)) continue;
     const bytes = fs.readFileSync(absolute);
-    const body = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    // Lossy decode: the widened audit set may include binaries.
+    const body = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
     violations.push(...privacyViolations(relativePath, t07Allowlisted(body)));
   }
 
