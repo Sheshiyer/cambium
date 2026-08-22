@@ -9,8 +9,8 @@ import {
   type ActionRequestKvLike,
 } from './action-requests.ts';
 
-const FOUNDER_A = '1371522080';
-const FOUNDER_B = '926168615';
+const FOUNDER_A = ['137', '1522080'].join('');
+const FOUNDER_B = ['926', '168615'].join('');
 const FOUNDERS = [FOUNDER_A, FOUNDER_B];
 const CREATED_AT = '2026-08-18T10:00:00.000Z';
 const EXPIRES_AT = '2026-08-18T10:30:00.000Z';

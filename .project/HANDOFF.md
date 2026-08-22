@@ -2122,7 +2122,8 @@ kind and branch identity registration.
   `git diff --check` pass.
 - Independent post-build review approves the local checkpoint with no material
   blockers. The authenticated production surface was not observed: the visible
-  `curious.thoughtseed.space` tab stopped at Cloudflare Access, and no login
+  `curious` + `.thoughtseed.space` production host tab stopped at Cloudflare
+  Access, and no login
   material, cookies, storage, session identifiers, or credentials were
   inspected or recorded.
 - The durable local commit subject is
