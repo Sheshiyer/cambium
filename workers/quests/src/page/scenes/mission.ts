@@ -74,10 +74,71 @@ function mcSceneWorkVariant(branch){
   }
   return { id:'classification-gap', label:'Classification needed', glyph:'gate' };
 }
+/* This is a fixed pilot readback, never a branch or transition chooser. */
+function mcFounderOutcomeState(env, branch, mission){
+  const questId = 'fitcheck-shopify-widget-qa';
+  const exact = TENANT === 'cambium' && mcText(branch && branch.branchId, '') === 'fitcheck' &&
+    mcText(branch && branch.workObjectId, '') === 'sapling:fitcheck' &&
+    mcText(mission && mission.missionId, '') === 'fitcheck-shopify-qa' &&
+    mcList(branch && branch.questline).some(row => mcText(row && row.id, '') === questId);
+  if (!exact) return { eligible:false };
+  const pending = mcList(env && env.goalGraphIntake && env.goalGraphIntake.rows)
+    .find(row => mcText(row && row.questId, '') === questId && /^(pending|review_pending)$/i.test(mcText(row && row.status, '')));
+  if (pending) return { eligible:true, kind:'pending', outcome:mcText(pending.outcome, 'needs-review') };
+  const committed = mcList(env && env.goalGraphOutcomes && env.goalGraphOutcomes.rows)
+    .find(row => mcText(row && row.questId, '') === questId);
+  if (committed) return { eligible:true, kind:'committed', outcome:mcText(committed.outcome, 'needs-review'), headDigest:mcText(committed.headDigest || (env.goalGraphOutcomes && env.goalGraphOutcomes.headDigest), ''), graphVersion:Number(committed.graphVersion || (env.goalGraphOutcomes && env.goalGraphOutcomes.graphVersion)) || 0 };
+  const recovery = mcList(env && env.founderOutcomeRecovery && env.founderOutcomeRecovery.rows)
+    .find(row => mcText(row && row.questId, '') === questId && mcText(row && row.status, '') === 'expired');
+  return recovery ? { eligible:true, kind:'expired' } : { eligible:true, kind:'ready' };
+}
+const MC_MISSION_SELECTION_STORAGE_PREFIX = 'cambium:mission-selection:v1:';
+function mcMissionSelectionKey(){
+  return MC_MISSION_SELECTION_STORAGE_PREFIX + TENANT;
+}
+function mcMissionCanonicalSelection(rows, value){
+  const candidate = mcText(value, '');
+  if (!candidate || candidate.length > 128 || /[\\u0000-\\u001f\\u007f]/.test(candidate)) return '';
+  return rows.some((branch, index) => mcBranchId(branch, index) === candidate) ? candidate : '';
+}
+function mcMissionPersistSelection(branchId){
+  if (!branchId) return;
+  try {
+    const storage = globalThis.localStorage;
+    if (!storage || typeof storage.setItem !== 'function') return;
+    storage.setItem(mcMissionSelectionKey(), JSON.stringify({ tenant:TENANT, branchId }));
+  } catch (_) {}
+}
+function mcMissionStoredSelection(rows){
+  try {
+    const storage = globalThis.localStorage;
+    if (!storage || typeof storage.getItem !== 'function') return '';
+    const raw = storage.getItem(mcMissionSelectionKey());
+    if (!raw) return '';
+    const parsed = JSON.parse(raw);
+    const selected = parsed && parsed.tenant === TENANT
+      ? mcMissionCanonicalSelection(rows, parsed.branchId)
+      : '';
+    if (!selected && typeof storage.removeItem === 'function') storage.removeItem(mcMissionSelectionKey());
+    return selected;
+  } catch (_) { return ''; }
+}
+function mcMissionRequestedSelection(rows){
+  const explicit = mcMissionCanonicalSelection(rows, MISSION_BRANCH_FOCUS)
+    || mcMissionCanonicalSelection(rows, PARAMS.get('branch'));
+  if (explicit) {
+    MISSION_BRANCH_FOCUS = explicit;
+    mcMissionPersistSelection(explicit);
+    return explicit;
+  }
+  const stored = mcMissionStoredSelection(rows);
+  if (stored) MISSION_BRANCH_FOCUS = stored;
+  return stored;
+}
 function buildMissionSceneView(env){
   const branchEnv = branchEnvelope(env || {});
   const rows = branchRows(env || {});
-  const requested = mcText(MISSION_BRANCH_FOCUS || PARAMS.get('branch'), '');
+  const requested = mcMissionRequestedSelection(rows);
   const selectedIndex = Math.max(0, rows.findIndex((branch, index) => requested && mcBranchId(branch, index) === requested));
   const branch = rows[selectedIndex] || rows[0] || null;
   const mission = branchActiveMission(branch);
@@ -145,6 +206,7 @@ function buildMissionSceneView(env){
     },
     activeOrgan:mcOrganMetaForBranch(branch, mission),
     workVariant:mcSceneWorkVariant(branch),
+    founderOutcome:mcFounderOutcomeState(env || {}, branch, mission),
     controls,
     inspect:{
       source:mcText(branchEnv.source, 'product-branch-packets@v1'),
@@ -310,7 +372,16 @@ function renderSceneKpis(view){
   }).join('') + '</div></div>';
 }
 function renderSceneActions(view){
-  return '<div class="mc-action-row" data-component="GateActionRow">' +
+  const founder = view.founderOutcome || { eligible:false };
+  const disabled = founder.kind === 'pending' ? ' disabled aria-disabled="true"' : '';
+  const state = founder.kind === 'pending'
+    ? '<section class="mc-founder-outcome" data-founder-outcome-state="pending"><b>Pending Gate</b><small>Outcome · ' + esc(founder.outcome) + '</small><button type="button" data-founder-outcome-open-gate="1">Open Gate</button></section>'
+    : founder.kind === 'committed'
+      ? '<section class="mc-founder-outcome" data-founder-outcome-state="committed"><b>Outcome · ' + esc(founder.outcome) + '</b><small>Head · ' + esc(founder.headDigest.slice(0, 12)) + ' · v' + founder.graphVersion + '</small></section>'
+      : founder.kind === 'expired'
+        ? '<section class="mc-founder-outcome" data-founder-outcome-state="expired"><b>Proposal expired</b><button type="button" data-founder-outcome-resubmit="1">Refresh and resubmit</button></section>' : '';
+  const founderActions = founder.eligible ? '<div class="mc-founder-outcome-actions"><button type="button" data-founder-outcome-action="add-proof"' + disabled + '>Add proof</button><button type="button" data-founder-outcome-action="report-outcome"' + disabled + '>Report outcome</button></div>' : '';
+  return state + founderActions + '<div class="mc-action-row" data-component="GateActionRow">' +
     '<button type="button" data-no-scene-drag="1" data-mission-action="gate" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="product-branches" aria-label="Review current branch gate">Review Gate</button>' +
     '<button type="button" class="secondary" data-no-scene-drag="1" data-mission-action="proof" data-interaction-kind="sheet" data-source="' + esc(view.source) + '" data-ecosystem-target="product-branches" aria-label="Open current branch proof">Open Proof</button>' +
   '</div>';
@@ -401,6 +472,31 @@ function renderMissionScene(env){
   stem.querySelectorAll('[data-mission-state-action]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, el.dataset.missionStateAction === 'selected' ? undefined : el.dataset.missionStateAction));
   stem.querySelectorAll('[data-mission-action="tools"]').forEach(el => el.onclick = () => { TOOL_FOCUS = 'ts-status'; TOOL_CONTEXT_BRANCH = view.selectedBranchId || ''; go(2); cmdsDrawn = false; renderCommands(); });
   stem.querySelectorAll('[data-mission-action="loops"]').forEach(el => el.onclick = () => openBranchMissionSheet(env, branchIndex, 0, 'loops'));
+  stem.querySelectorAll('[data-founder-outcome-action]').forEach(el => el.onclick = () => openFounderOutcomeSheet(el.dataset.founderOutcomeAction));
+  stem.querySelectorAll('[data-founder-outcome-open-gate]').forEach(el => el.onclick = () => go(1));
+  stem.querySelectorAll('[data-founder-outcome-resubmit]').forEach(el => el.onclick = () => openFounderOutcomeSheet('report-outcome'));
+  stem.addEventListener('click', event => {
+    const action = event.target && event.target.closest ? event.target.closest('[data-founder-outcome-action]') : null;
+    if (action) { if (event.preventDefault) event.preventDefault(); openFounderOutcomeSheet(action.dataset.founderOutcomeAction); return; }
+    const gate = event.target && event.target.closest ? event.target.closest('[data-founder-outcome-open-gate]') : null;
+    if (gate) { if (event.preventDefault) event.preventDefault(); go(1); return; }
+    const resubmit = event.target && event.target.closest ? event.target.closest('[data-founder-outcome-resubmit]') : null;
+    if (resubmit) { if (event.preventDefault) event.preventDefault(); openFounderOutcomeSheet('report-outcome'); }
+  });
+}
+function selectMissionSceneBranch(env, branchIndex, focusSelected){
+  const rows = branchRows(env || {});
+  const branch = rows[branchIndex];
+  if (!branch) return;
+  const selectedId = mcMissionCanonicalSelection(rows, mcBranchId(branch, branchIndex));
+  if (!selectedId) return;
+  MISSION_BRANCH_FOCUS = selectedId;
+  mcMissionPersistSelection(selectedId);
+  renderMissionControl(env);
+  const selected = $('stem').querySelector('[data-mission-branch="' + branchIndex + '"]');
+  if (selected && typeof selected.scrollIntoView === 'function') selected.scrollIntoView({ block:'nearest', inline:'center', behavior:RM ? 'auto' : 'smooth' });
+  if (focusSelected) focusRenderedTab('stem', '[data-mission-branch="' + branchIndex + '"]');
+  buzz('light');
 }
 /* Integration seam (T-015): legacy mission renderers still ship in scenes/inspect.ts, which is
    assembled after this chunk, so its function declarations win hoisting. These rebinds run after
@@ -408,5 +504,6 @@ function renderMissionScene(env){
    block; the rebinds can go with it. */
 globalThis.renderMissionControl = renderMissionScene;
 globalThis.buildMissionControlView = buildMissionSceneView;
+globalThis.selectMissionBranch = selectMissionSceneBranch;
 
 `;
