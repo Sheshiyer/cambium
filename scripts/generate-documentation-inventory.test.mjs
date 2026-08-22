@@ -31,6 +31,15 @@ const generatorPath = path.join(repositoryRoot, 'scripts/generate-documentation-
 const checkerPath = path.join(repositoryRoot, 'scripts/check-documentation-inventory.mjs');
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 
+const hasLiveCheckout = spawnSync('/usr/bin/git', ['-C', repositoryRoot, 'rev-parse', '--verify', 'HEAD^{commit}'], {
+  encoding: 'utf8',
+  env: { ...process.env, GIT_CONFIG_NOSYSTEM: '1' },
+}).status === 0;
+
+function requireLiveCheckout(t) {
+  if (!hasLiveCheckout) t.skip('requires a live git checkout (standalone smoke clean copy has no .git)');
+}
+
 function git(root, ...args) {
   const result = spawnSync('/usr/bin/git', ['-C', root, ...args], {
     encoding: 'utf8',
@@ -319,7 +328,8 @@ test('DOCS-02: checker detects controlled JSON nondeterminism and Markdown parit
   }), /Markdown.*parity|inventoryDigest|parity/i);
 });
 
-test('DOCS-01 / DOCS-02: package commands preserve exact JSON and Markdown stdout for caller revision', () => {
+test('DOCS-01 / DOCS-02: package commands preserve exact JSON and Markdown stdout for caller revision', (t) => {
+  requireLiveCheckout(t);
   const revision = git(repositoryRoot, 'rev-parse', '--verify', 'HEAD^{commit}');
   const packageJson = JSON.parse(readFileSync(path.join(repositoryRoot, 'package.json'), 'utf8'));
   assert.equal(packageJson.scripts['docs:inventory:json'], 'node scripts/generate-documentation-inventory.mjs --format json');

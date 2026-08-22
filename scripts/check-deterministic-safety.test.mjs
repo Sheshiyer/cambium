@@ -51,6 +51,15 @@ function digest(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
+const hasLiveCheckout = spawnSync('/usr/bin/git', ['-C', repositoryRoot, 'rev-parse', '--verify', 'HEAD^{commit}'], {
+  encoding: 'utf8',
+  env: { ...process.env, GIT_CONFIG_NOSYSTEM: '1' },
+}).status === 0;
+
+function requireLiveCheckout(t) {
+  if (!hasLiveCheckout) t.skip('requires a live git checkout (standalone smoke clean copy has no .git)');
+}
+
 function git(root, ...args) {
   const result = spawnSync('/usr/bin/git', ['-C', root, ...args], {
     encoding: 'utf8',
@@ -441,6 +450,7 @@ test('hostile overlays exit non-zero, name the relative path, and stay zero-writ
 });
 
 test('package.json safety:check is the caller-revision dispatcher with no lockfile delta', (t) => {
+  requireLiveCheckout(t);
   const packageJson = JSON.parse(readFileSync(path.join(repositoryRoot, 'package.json'), 'utf8'));
   assert.equal(packageJson.scripts['safety:check'], 'node scripts/check-deterministic-safety.mjs');
   assert.match(packageJson.scripts.test, /scripts\/\*\.test\.mjs/);

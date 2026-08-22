@@ -225,6 +225,14 @@ function assertSafeThrow(fn, gate, pathFragment) {
   return thrown;
 }
 
+const hasLiveCheckout = spawnSync('/usr/bin/git', ['-C', cambiumRoot, 'rev-parse', '--verify', 'HEAD^{commit}'], {
+  encoding: 'utf8',
+}).status === 0;
+
+function requireLiveCheckout(t) {
+  if (!hasLiveCheckout) t.skip('requires a live git checkout (standalone smoke clean copy has no .git)');
+}
+
 function checkoutHeadSha() {
   const resolved = runGit(cambiumRoot, ['rev-parse', '--verify', 'HEAD^{commit}']);
   assert.match(resolved, /^[0-9a-f]{40}$/);
@@ -384,7 +392,8 @@ test('SAFE-01 binary blobs are skipped even when they contain doctrine bytes', (
   assert.deepEqual(receipt.hits, []);
 });
 
-test('SAFE-01 unmodified checkout SHA produces zero SAFE-01 hits', () => {
+test('SAFE-01 unmodified checkout SHA produces zero SAFE-01 hits', (t) => {
+  requireLiveCheckout(t);
   const { compileDeterministicSafety } = requireSubject('SAFE-01');
   const sourceRevision = checkoutHeadSha();
   try {
@@ -526,7 +535,8 @@ test('SAFE-02 historical docs/plans planning-authority mentions are outside D-05
   assert.equal(receipt.corpusPaths.includes('docs/plans/legacy.md'), true);
 });
 
-test('SAFE-02 unmodified checkout SHA produces zero SAFE-02 hits', () => {
+test('SAFE-02 unmodified checkout SHA produces zero SAFE-02 hits', (t) => {
+  requireLiveCheckout(t);
   const { compileDeterministicSafety } = requireSubject('SAFE-02');
   const sourceRevision = checkoutHeadSha();
   try {
@@ -748,7 +758,8 @@ test('SAFE-03 reviewed_handoff redaction is applied before digest compare', (t) 
   assert.deepEqual(receipt.hits, []);
 });
 
-test('SAFE-03 unmodified checkout SHA does not privacy-fail D-11 allowlists', () => {
+test('SAFE-03 unmodified checkout SHA does not privacy-fail D-11 allowlists', (t) => {
+  requireLiveCheckout(t);
   const { compileDeterministicSafety } = requireSubject('SAFE-03');
   const sourceRevision = checkoutHeadSha();
   try {

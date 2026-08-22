@@ -30,6 +30,15 @@ function git(...args) {
   return String(run('/usr/bin/git', args)).trim();
 }
 
+const hasLiveCheckout = spawnSync('/usr/bin/git', ['rev-parse', '--verify', 'HEAD^{commit}'], {
+  cwd: repositoryRoot,
+  encoding: 'utf8',
+}).status === 0;
+
+function requireLiveCheckout(t) {
+  if (!hasLiveCheckout) t.skip('requires a live git checkout (standalone smoke clean copy has no .git)');
+}
+
 function digest(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
@@ -667,7 +676,8 @@ test('Repository Mission and FabricMission remain distinct', () => {
   }
 });
 
-test('DOCS-01 / D-01: documentation stewardship preserves the closed lifecycle and owner precedence', () => {
+test('DOCS-01 / D-01: documentation stewardship preserves the closed lifecycle and owner precedence', (t) => {
+  requireLiveCheckout(t);
   const lifecycle = read('docs/LIFECYCLE.md');
   const classes = ['canonical', 'derived', 'historical', 'evidentiary', 'local-only'];
   assert.match(lifecycle, /lifecycle vocabulary is closed/i);
@@ -709,7 +719,8 @@ test('DOCS-01 / D-01: documentation stewardship preserves the closed lifecycle a
   assert.throws(() => validateDocumentationInventory(copiedStatus), /forbidden field command/i);
 });
 
-test('DOCS-02 / D-02: explicit-revision inventory is exhaustive, deterministic, matching, and zero-write', () => {
+test('DOCS-02 / D-02: explicit-revision inventory is exhaustive, deterministic, matching, and zero-write', (t) => {
+  requireLiveCheckout(t);
   const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
   assert.match(revision, /^[0-9a-f]{40}$/);
   const jsonOne = runInventoryCommand('docs:inventory:json', revision);
@@ -813,7 +824,8 @@ test('DOCS-03 / D-03: live STATE publishes one coherent post-verification transi
   }
 });
 
-test('DOCS-04 / D-04: evidence stays recoverable and exceptions remain source-backed and non-destructive', () => {
+test('DOCS-04 / D-04: evidence stays recoverable and exceptions remain source-backed and non-destructive', (t) => {
+  requireLiveCheckout(t);
   const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
   const inventory = validateDocumentationInventory(JSON.parse(runInventoryCommand('docs:inventory:json', revision)));
   assertNonAuthoritativeProjection(inventory);
@@ -847,7 +859,8 @@ test('DOCS-04 / D-04: evidence stays recoverable and exceptions remain source-ba
     /unindexed exception promotion/i);
 });
 
-test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensitive local state', () => {
+test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensitive local state', (t) => {
+  requireLiveCheckout(t);
   const baseSha = phaseBaseSha();
   const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
   const auditedPaths = changedPathsAndKinds(baseSha);
@@ -877,7 +890,8 @@ test('DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensi
   assert.deepEqual([...new Set(violations)], [], `T-06-22 privacy violations: ${[...new Set(violations)].join(', ')}`);
 });
 
-test('SAFE-01 / D-01: SHA-bound safety:check fails copied doctrine and passes unmodified HEAD', () => {
+test('SAFE-01 / D-01: SHA-bound safety:check fails copied doctrine and passes unmodified HEAD', (t) => {
+  requireLiveCheckout(t);
   const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
   assert.match(revision, /^[0-9a-f]{40}$/);
   const checked = runSafetyCheck(revision);
@@ -890,7 +904,8 @@ test('SAFE-01 / D-01: SHA-bound safety:check fails copied doctrine and passes un
   runFocusedNodeTests('scripts/deterministic-safety.test.mjs', 'SAFE-01');
 });
 
-test('SAFE-02 / D-02: SHA-bound safety:check fails D-05 self-claims and keeps ISA/STATE/LIFECYCLE allowlists', () => {
+test('SAFE-02 / D-02: SHA-bound safety:check fails D-05 self-claims and keeps ISA/STATE/LIFECYCLE allowlists', (t) => {
+  requireLiveCheckout(t);
   const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
   runSafetyCheck(revision);
   const contract = read('docs/architecture/contracts/deterministic-safety-v1.md');
@@ -902,7 +917,8 @@ test('SAFE-02 / D-02: SHA-bound safety:check fails D-05 self-claims and keeps IS
   runFocusedNodeTests('scripts/deterministic-safety.test.mjs', 'SAFE-02');
 });
 
-test('SAFE-03 / D-03: SHA-bound safety:check fails stale selectors and privacy tokens without D-11 false hits', () => {
+test('SAFE-03 / D-03: SHA-bound safety:check fails stale selectors and privacy tokens without D-11 false hits', (t) => {
+  requireLiveCheckout(t);
   const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
   runSafetyCheck(revision);
   const contract = read('docs/architecture/contracts/deterministic-safety-v1.md');
@@ -953,7 +969,8 @@ test('SAFE-04 / D-16: reviewed handoff records write set, fixtures, D-15 holds, 
   assert.match(checkpoint, /TeamForge/);
 });
 
-test('SAFE-PRIVACY / T-07: Phase 7 bytes and safety:check stdout expose no sensitive local state', () => {
+test('SAFE-PRIVACY / T-07: Phase 7 bytes and safety:check stdout expose no sensitive local state', (t) => {
+  requireLiveCheckout(t);
   const baseSha = phase7BaseSha();
   const revision = git('rev-parse', '--verify', 'HEAD^{commit}');
   const auditedPaths = changedPathsAndKinds(baseSha, repositoryRoot, 'Phase 7');
