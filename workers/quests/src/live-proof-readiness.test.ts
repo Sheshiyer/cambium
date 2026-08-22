@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { runInNewContext } from 'node:vm';
 import {
   assessLiveProofReadiness,
   captureWorkerProbe,
@@ -771,7 +772,7 @@ test('mobile contract proof is focused, noncanonical, and required by CI plus re
   assert.ok(steps.every((proof) => Boolean(proof.assertExpression) || Boolean(proof.tapTargetSelector)));
 
   const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
-  assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'CAMBIUM_RUN_VIEWPORT_PROOF=1 node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
+  assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
   const ci = readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8');
   const release = readFileSync(new URL('../../../.github/workflows/release.yml', import.meta.url), 'utf8');
   const verifyRelease = readFileSync(new URL('../../../scripts/verify-release.mjs', import.meta.url), 'utf8');
@@ -785,6 +786,16 @@ test('mobile touch proof retries only when a real drag produced insufficient scr
   assert.equal(touchDragNeedsRetry({ delta:23.99 }), true);
   assert.equal(touchDragNeedsRetry({ delta:24 }), false);
   assert.equal(touchDragNeedsRetry({ delta:96 }), false);
+});
+
+test('fresh viewport captures pin browser Date.now to the deterministic fixture proof clock', async () => {
+  const viewportProof = await import('./visual-viewport-proof.mjs');
+  assert.equal(typeof viewportProof.browserClockOverrideExpression, 'function');
+
+  const expression = viewportProof.browserClockOverrideExpression('2026-06-22T10:00:00.000Z');
+  const observed = runInNewContext(`${expression}; Date.now()`);
+  assert.equal(observed, 1_782_122_400_000);
+  assert.throws(() => viewportProof.browserClockOverrideExpression('not-a-clock'), /canonical ISO timestamp/);
 });
 
 test('live proof readiness writes a redacted manifest artifact', () => {
