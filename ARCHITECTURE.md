@@ -105,6 +105,35 @@ The catalog and packet establish `sapling:fitcheck`, its supervised three-missio
 
 Local implementation and tests do not authorize production effects. D1 migrations, Worker deployment, GitHub/R2 mapping receipts, skill promotion, Telegram topology changes, provider calls, paid execution, recurring schedules, and public claims each retain their own reviewed gate and rollback path.
 
+## Execution plane — Temperance Engine (v14 · XIV Temperance, 2026-08-26)
+
+Cambium admits an assignment; **Temperance Engine** at `~/.temperance_engine/` is the operator runtime that executes it. Named for what it does — the whole runtime IS the tempering discipline that keeps combos honest under load. The two trees compose:
+
+```text
+Cambium (composition + control)  →  admitted assignment  →  Temperance Engine (dispatch + routing)
+                                                            ├─ plugin-first alchemical agents
+                                                            ├─ 45 cluster orchestrator agents
+                                                            ├─ combo dispatch via OmniRoute
+                                                            └─ receipt attribution → back to Evidence plane
+```
+
+**Plugin Contract v1** (2026-08-26 · XIV Temperance) — every unit that participates in execution declares a bounded interface:
+
+- Structural depth cap (`maxTurns`), `Task` disallowed at leaf-agent boundaries (no unbounded recursion)
+- Owning **Panch Kosha layer**: ANNAMAYA (substrate) · PRANAMAYA (telemetry) · MANOMAYA (memory) · VIJNANAMAYA (intellect) · ANANDAMAYA (purpose)
+- Declared distribution rule for spoke selection (parent picks agent by name; agent internally owns which spoke)
+- Fail-open receipts naming which cluster + spoke handled the work
+
+Under this contract:
+
+- **7 alchemical phase agents** at `~/.claude/agents/{Observe,Think,Plan,Build,Execute,Verify,Learn}.md` — the rail
+- **45 cluster orchestrator agents** at `~/.claude/agents/clusters/*Orchestrator.md` — sourced from `/Volumes/madara/2026/Projects/thoughtseed/skill-clusters/` SKILL.md hubs
+- **Alchemy stage-hub map v3** at `~/.temperance_engine/router/alchemy-stage-hub-map.json` — enumerates all 45 with kosha/layer/model/maxTurns/distribution/source_orchestrator
+
+**Operator surfaces** (v5.0 XVII The Star + v5.1 Ace of Swords, 2026-08-26) — the terminal becomes the default operator surface via a canonical banner rendered across 8 surfaces (raw Claude Code, Superset .sh, Codex app/cli, Grok cli, OpenCode app/cli, custom terminal). Cambium's own browser UI at `apps/portfolio-cartographer` remains authoritative for portfolio reconciliation; the Speculum browser UI at `http://127.0.0.1:5173` stays as opt-in visualization for the 3D dependency GraphCanvas. Same manifest bridge event stream feeds both terminal and browser (dual-surface parity contract).
+
+**Release naming** — Temperance Engine uses the **22 Major Arcana** (v14 = XIV Temperance is not chosen, it's observed; the engine IS Temperance) with **56 Minor Arcana** for minor releases (suit = concern: Wands architecture · Cups memory · Swords routing · Pentacles evidence). This runs in parallel with Cambium's own **9 Muses** codenames (see [`VERSIONS.md`](./VERSIONS.md)). Not a collision — two release lines, two conventions. Cambium releases are Muses (Mnemosyne's daughters — art of memory, fitting an operator whose edge is remembering); Temperance Engine releases are Arcana (fitting an operator whose edge is right proportion under load).
+
 ## Canonical references
 
 - [Operating Fabric](./docs/architecture/cambium-operating-fabric.md)
@@ -113,3 +142,7 @@ Local implementation and tests do not authorize production effects. D1 migration
 - [Integration roadmap](./INTEGRATION.md)
 - [Homeostasis](./HOMEOSTASIS.md)
 - [Infinite Game](./INFINITE-GAME.md)
+- **Cross-tree — Temperance Engine planning** `~/.temperance_engine/.planning/STATE.md` (current position + Plugin Contract v1 + v5 XVII Star + v4.3 Three of Wands)
+- **Cross-tree — Arcana release nomenclature** `~/.temperance_engine/ARCANA-NOMENCLATURE.md`
+- **Cross-tree — v5 XVII Star plan** `~/.temperance_engine/.planning/PLAN-v5-XVII-STAR-banner-surface-unification-2026-08-26.md`
+- **Cross-tree — Skill-clusters state** `/Volumes/madara/2026/Projects/thoughtseed/skill-clusters/.planning/STATE.md` (source of the 45 cluster orchestrator SKILL.md hubs)

@@ -272,6 +272,24 @@ Repository-level commands live beside the operator CLI:
 | [Organ update delivery v1](./docs/architecture/contracts/organ-update-delivery-v1.md) | receipt-backed organ workflows, pinned Telegram topic routing, Hermes transport boundary, and staging gates |
 | [Telegram Goal Graph lifecycle](./docs/runbooks/goal-graph-telegram-lifecycle.md) | bounded intent parsing, canonical replay, approval handoff, plus the separately authenticated branch-map read route |
 | [Marketing Create renderer](./docs/architecture/marketing-create-worker-renderer.md) | review-only draft generation and fail-closed activation boundary |
+
+## Cross-tree — Temperance Engine (execution runtime)
+
+Cambium composes and controls; **Temperance Engine** at `~/.temperance_engine/` executes. Named because the whole runtime IS the tempering discipline that keeps combos honest under load. See [`ARCHITECTURE.md § Execution plane`](./ARCHITECTURE.md#execution-plane--temperance-engine-v14--xiv-temperance-2026-08-26) for the composition contract.
+
+**Shipped 2026-08-26** (via Plugin Contract v1 architecture):
+
+| Release | Card | What |
+|---|---|---|
+| v14.0 | XIV Temperance | Plugin Contract v1 + 7 alchemical phase agents + Panch Kosha layer discipline |
+| v14.1 | Ace of Wands | 45 cluster orchestrator agents sourced from `/Volumes/madara/2026/Projects/thoughtseed/skill-clusters/` |
+| v14.2 | Two of Wands | Dispatch advisory + alchemy stage-hub map schema v3 |
+| v14.3 | Three of Wands | SPRD-03 combo-diversity regression fix (connection-prefix fallback) |
+| v17.0 | XVII The Star | Canonical banner + collector + printer + raw Claude Code adapter |
+| v17.1 | Ace of Swords | 7 remaining surface adapters + 6 `/te` slash commands + Adaptive Island state machine |
+| v17.2 | Four of Swords | Dual-surface stabilization (terminal + browser Speculum + `apps/portfolio-cartographer` all opt-in surfaces) |
+
+Release naming uses the **22 Major Arcana** + **56 Minor Arcana** — see [`~/.temperance_engine/ARCANA-NOMENCLATURE.md`](../../../.temperance_engine/ARCANA-NOMENCLATURE.md). Runs in parallel with Cambium's own **9 Muses** — see [`VERSIONS.md`](./VERSIONS.md) for the note on why the two conventions coexist.
 | [Run the app](./docs/adopters/run-the-app.md) | clean-clone path for the visual engine, tenant fixture, and Worker connection |
 | [Desktop packaging](./apps/cambium-r3f/README.md#electron-desktop-package) | macOS-first Electron development, packaging, security, and signing boundary |
 | [Architecture inventory](./docs/architecture/SERVICES.md) | source-backed runtime and external-resource inventory |
