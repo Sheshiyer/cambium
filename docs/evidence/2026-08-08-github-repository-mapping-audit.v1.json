@@ -116,9 +116,8 @@
       "resolvedHolds": [
         {
           "folder": "klear-karma",
-          "currentWorkId": "branch:klear-karma",
-          "excludedWorkId": "program:snow-gloves-os",
-          "reclassificationNote": "per 2026-08-10 founder decision: reclassified from sapling to co-founded venture"
+          "currentWorkId": "sapling:klear-karma",
+          "excludedWorkId": "program:snow-gloves-os"
         },
         {
           "folder": "kristudios",
@@ -128,18 +127,18 @@
         {
           "folder": "parkarea",
           "currentWorkIds": [
-            "branch:parkarea"
+            "branch:parkarea",
+            "sapling:parkarea"
           ],
-          "repoEvidenceSide": "client-branch",
-          "reclassificationNote": "per 2026-08-10 founder decision: sapling:parkarea removed; ParkArea is not a Thoughtseed-originated Sapling"
+          "repoEvidenceSide": "client-branch"
         },
         {
           "folder": "tirak",
           "currentWorkIds": [
-            "branch:tirak"
+            "branch:tirak",
+            "sapling:tirak"
           ],
-          "repoEvidenceSide": "client-branch",
-          "reclassificationNote": "per 2026-08-10 founder decision: sapling:tirak removed; Tirak is not a Thoughtseed-originated Sapling"
+          "repoEvidenceSide": "client-branch"
         }
       ]
     },

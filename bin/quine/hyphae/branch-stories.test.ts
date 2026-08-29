@@ -50,12 +50,10 @@ test('loads branch loop controls from branch packets', () => {
   assert.ok(vantyx);
   assert.match(vantyx.loops[0].proofRequired, /`new-client` receipt/);
 
+  // Template packets (canonical_work_id: none) are excluded from loaded stories;
+  // the reviewed loader contract keeps Mission admission explicit.
   const clientDelivery = stories.find((story) => story.productId === 'client-delivery');
-  assert.ok(clientDelivery);
-  assert.equal(clientDelivery.branchKind, 'client');
-  assert.equal(clientDelivery.canonicalWorkId, undefined);
-  assert.equal(clientDelivery.loops[0].loopId, 'client-delivery-handoff-loop');
-  assert.equal(clientDelivery.loops[0].boundaryColor, 'yellow');
+  assert.equal(clientDelivery, undefined);
 });
 
 test('records blocked packet gaps without promoting weak evidence', () => {

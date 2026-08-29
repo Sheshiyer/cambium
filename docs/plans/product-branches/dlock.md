@@ -9,9 +9,6 @@ role: Smart lock and self-storage software product candidate
 promotion_state: proof-only
 current_gate: Map live landing, repository, hardware assets, and TUYA integration evidence before supervised launch work
 packet_owner: cambium
-canonical_parent_tenant: cambium
-repository_planning_authority: thoughtseed-labs/lockwell-portal@R_kgDOP5AZyQ
-root_disposition: folderless-planning-authority
 ---
 
 # DLOCK Branch Packet
@@ -21,16 +18,7 @@ management software. The current evidence supports a live landing page,
 hardware-resource catalog, and repository identity, not yet live product
 operations, billing readiness, access-control correctness, or customer proof.
 
-## Cohort Identity Binding
-
-The founder-resolved canonical parent tenant is `cambium`. DLOCK's exact
-folderless planning authority is `thoughtseed-labs/lockwell-portal` with
-immutable GitHub identity `R_kgDOP5AZyQ`. That authority intentionally has no
-invented shallow project folder: neither `dlock` nor `lockwell` is admitted as
-a local root-map folder by this packet. This is prepared local identity proof,
-not a mapping receipt, live tenant admission, operational write authority, or
-authorization for R2, D1, Hermes, Cortex, agent memory, provider mutation, or
-deployment.
+Owning repository task: [`thoughtseed-labs/lockwell-portal#1`](https://github.com/thoughtseed-labs/lockwell-portal/issues/1). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
 
 ## Product Seed
 
@@ -77,12 +65,12 @@ deployment.
 
 ## Adapter / Service Map
 
-`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. DLOCK's canonical parent tenant is `cambium`; runtime admission remains unissued, and no operational join may be inferred from `dlock`, Lockwell, or repository identity.
+`Tenant Mapping` values below are packet-local context namespaces, not tenant authority. DLOCK's runtime tenant remains unresolved and no operational join may be inferred from `dlock`, Lockwell, or repository identity.
 
 | Provider / Route | Inputs | Outputs | Failure Modes | Tenant Mapping | Privacy Boundary |
 | --- | --- | --- | --- | --- | --- |
 | Vercel landing | DLOCK landing source and deployment env | Public page, waitlist/contact surface, hardware gallery | Artifact drift, missing lead handler, unreviewed claims | `dlock` | No provider secrets or submitted lead data in packet |
-| GitHub repository | `thoughtseed-labs/lockwell-portal` (`R_kgDOP5AZyQ`) | Exact folderless planning authority | Private repo not yet locally checked out, missing build proof | `sapling:dlock` under parent `cambium` | Repository metadata only |
+| GitHub repository | `thoughtseed-labs/lockwell-portal` | Source/planning authority candidate | Private repo not yet locally checked out, missing build proof | `sapling:dlock` | Repository metadata only |
 | TUYA platform | Device pairing, gateway, remote access, activity sync | Lock connectivity and access events | Wrong device binding, gateway unavailable, unverifiable remote unlock, overbroad permissions | future `dlock` integration | Do not store TUYA credentials or device secrets in docs |
 | Bluetooth lock hardware | Keypad/PIN, BLE commands, battery, access logs | Local unlock and event capture | Device mismatch, battery/runtime drift, unlock latency claims without proof | hardware resource map | Do not expose device identifiers or tenant PINs |
 | Future billing/payment provider | Rental, invoice, payment state | Payment status that can affect access | Access revoked incorrectly, billing provider drift, refund/legal gaps | future pilot tenant | Payment data and PII stay outside packet |
@@ -95,8 +83,9 @@ deployment.
 | verified | Live page states DLOCK pairs Bluetooth and IoT keypad locks with self-storage management, unit tracking, tenant billing, rent collection, and physical access. |
 | verified | Live page lists hardware/resource families `EKPL2`, `EKKB2-TY`, and `SMKB2-BT`, plus `/dlock/...` image resource paths and `/self-storage/...` imagery. |
 | verified | GitHub repository `thoughtseed-labs/lockwell-portal` resolves as private, non-fork, not GitHub-archived, default branch `main`, repository id `R_kgDOP5AZyQ`, pushed `2025-09-29T12:52:14Z`. |
-| verified | DLOCK's planning authority is intentionally folderless: no local shallow Project folder named `dlock` or `lockwell` is invented or admitted by this identity packet. |
+
 | verified | Cortex receipt-derived read model records DLOCK among five canonical packets with semantic recall verified. Redacted summary: `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. |
+| blocked | No local shallow Project folder named `dlock` or `lockwell` exists under `$PROJECTS_ROOT/thoughtseed`; root-map folder admission is not yet evidenced. |
 | blocked | Repository build/test, lead-handler proof, TUYA integration proof, billing/payment proof, and access-control safety proof are not yet established. |
 | no-signal | No pilot facility proof, customer payment proof, or live lock-operation receipt exists in this packet pass. |
 
@@ -123,7 +112,7 @@ deployment.
 6. Define payment-state to access-state safety invariants.
 7. Approve pilot outreach only after claim review and privacy/security wording.
 
-Current frontier: obtain cofounder-granted authenticated Thoughtseed Labs GitHub access, then recheck repository authority and separate resource proofs before any mapping receipt or supervised launch.
+Current frontier: resource mapping and proof separation, not supervised launch.
 
 Garden cadence: weekly proof review after repository checkout and claim table exist.
 

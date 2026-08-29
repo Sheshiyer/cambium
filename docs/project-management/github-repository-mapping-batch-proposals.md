@@ -97,16 +97,13 @@ Direct Sapling candidates:
 - `sapling:wanderfruit` ← `wanderfruit-wiki-alpha`
 - `sapling:whspr` ← `whspr-*`
 
-Resolved provenance splits (post-2026-08-10 founder reclassification):
+Resolved provenance splits:
 
-- Klear Karma is reclassified as a co-founded venture: `branch:klear-karma` + `co-founded-venture:klear-karma`. Snow Gloves contamination is excluded to `program:snow-gloves-os`.
+- Klear Karma remains `sapling:klear-karma`; Snow Gloves contamination is excluded to `program:snow-gloves-os`.
 - Kristudios is promoted from the missing `sapling:kristudios` assumption to `branch:kristudios` because prior evidence identifies a separately incorporated company.
-- ParkArea is collapsed to `branch:parkarea` only; founder determined ParkArea is not a Thoughtseed-originated Sapling.
-- Tirak is collapsed to `branch:tirak` only; founder determined Tirak is not a Thoughtseed-originated Sapling.
+- ParkArea keeps linked `sapling:parkarea` + `branch:parkarea`; exact repositories map to the client-delivery branch side.
+- Tirak keeps linked `sapling:tirak` + `branch:tirak`; exact repositories map to the client-delivery branch side.
 - Founder holds remaining for this batch: 0.
-- Thirty-eight exact receipts across twelve WorkObjects are now compiled in
-  `portfolio-mapping-receipts-batch-3.v1.json`. Their bundle status is
-  `prepared-not-issued`; no R2 or Workbench mutation has occurred.
 
 ## Batch 4 — Internal programs and vault context
 
@@ -136,13 +133,36 @@ Purpose: avoid active-work noise and separate source-controlled mapping from phy
 
 - SAFVR is approved as a closed/completed Client Branch and should stay out of active workflow. Its source-controlled closeout seed is present under `docs/project-management/closeouts/`.
 - `virtualtryon-3d` is retired/ignored by founder decision, not an active WorkObject and not a Sapling. Its retirement handoff, receipt seed, and agent-memory guardrail are present under `docs/project-management/closeouts/`.
-- `symphonics` remains a founder hold for missing shallow-folder disposition. The current repository evidence is planning/docs for the Workforce Automation App; the future custom native SDK / Tuya React Native app scope should remain unmapped until the founder approves an exact shallow-folder and repository disposition.
+- `symphonics` is resolved as a repository-only planning surface at `Sheshiyer/workforce-automation-app-symphonics`. Its absent shallow WorkObject folder remains an intentional hold; any future custom native SDK / Tuya React Native app lane still requires a separate founder-approved relocation manifest.
 - `$PROJECTS_ROOT/thoughtseed` is the shallow portfolio root. `$PROJECTS_ROOT/thoughtseed/thoughtseed-labs` is R2/vault infrastructure context, never a WorkObject folder.
 - Physical rename/create/archive work is not part of Batch 5. It waits for `docs/project-management/thoughtseed-folder-rename-readiness.v1.json` plus a separate founder-approved relocation manifest with exact paths and rollback/archive targets.
 - Cambium Phase 1 later satisfied that separate gate and is recorded by `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json`; this does not authorize Temperance or Symphonics work.
 - Temperance Phase 2 later satisfied its exact approval gate and is applied under `docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json`; this still does not authorize Symphonics work.
 - Forks, external vendor clones, and dependency references should become dependency/reference evidence, not WorkObjects.
 - Completed/terminated work needs the closeout packet: handoff Markdown, closeout receipt JSON, agent memory projection, finished-index delta, and immutable R2 evidence receipt.
+
+## Batch 6 — Foundation repository reconciliation
+
+The 2026-08-15 readback in `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json`
+closes GIP-002 without inventing repository identity or admitting new catalog
+work. Ten residual rows were checked against the relocation registry, exact
+qualified names, authenticated GitHub metadata, and bounded local identity
+evidence.
+
+- `Sheshiyer/reddit-cli` remains an explicit unavailable exact-identity hold.
+  The local folder contains the `reddit-flux` package, so the live immutable
+  repository `Sheshiyer/reddit-flux` is assigned separately to
+  `program:operator-utilities`; it is not substituted for the held name.
+- `Sheshiyer/brandmint-showcase` is assigned to
+  `program:meristem-brand-system` because the relocation registry supplies the
+  exact identity and `ARCHITECTURE.md` names it as the Brandmint product site.
+- Symphonics has an exact repository-only planning role; its missing shallow
+  folder is still blocked from automatic creation or root-map admission.
+- The other seven rows remain explicit holds with exact reasons. A GitHub 404
+  means not retrievable to the authenticated principal, never proven absent.
+
+Result: 2 resolved or reconciled residual rows, 8 explicit holds, 0 inferred
+assignments, 0 catalog admissions, and 0 folder mutations.
 
 ## Execution gate
 

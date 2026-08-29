@@ -4,8 +4,8 @@
 > batches. Use Temperance parallel dispatch only after the rail preflight in
 > Task 3 passes. Do not dispatch workers from this plan draft alone.
 
-**Status:** ready for founder review; no worker dispatch performed  
-**Owner:** Cambium / Portfolio Workbench  
+**Status:** ready for founder review; no worker dispatch performed
+**Owner:** Cambium / Portfolio Workbench
 **Scope:** Thoughtseed portfolio mapping from Workbench/root-map evidence into
 repository-owned planning and R2 evidence records without changing folder
 grammar.
@@ -193,4 +193,3 @@ Stop after Tasks 1–3. Report:
 - blockers or review questions.
 
 Say: `Ready for feedback.`
-

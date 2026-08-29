@@ -461,25 +461,13 @@ flowchart LR
   D1 --> Dispatch["Task dispatch + lease"]
   Registry --> Dispatch
   Dispatch --> Run["Pinned agent + skill loadout run"]
-  Run --> Receipt["D1 terminal receipt"]
-  Receipt --> Foldback["Immutable foldback proof"]
-  Foldback --> Cortex["Cortex derived learning"]
+  Run --> Receipt["Terminal receipt"]
+  Receipt --> D1
+  Receipt --> Cortex["Cortex derived learning"]
   Cortex --> Intent
 ```
 
 The only return path from Cortex or the UI to graph truth is a new bounded proposal followed by the same approval and CAS gates.
-
-Goal Graph task rows may carry the additive nullable operational anchors
-`work_object_id`, `work_object_kind`, and `pinned_loadout_id`. Exact catalog
-membership admits the WorkObject relationship; aliases and inferred slugs do
-not. An admitted task produces `contains`, while a valid immutable loadout
-produces one WorkObject-level `pins-loadout` edge. Legacy unanchored rows remain
-readable and produce explicit gaps.
-
-Hermes foldback occurs only after D1 has persisted an `executed` or `failed`
-terminal outcome under the current fencing token. The immutable foldback proof
-then emits `proves` and `informs-next-intent`. It cannot write the Goal Graph;
-the next iteration still requires a bounded proposal, founder Gate, and D1 CAS.
 
 ### Entity authority map
 
@@ -642,19 +630,6 @@ Palette remains the frozen Cambium system:
 - highlight `#D6FFF6`
 - deep shadow `#231651`
 - warning peach `#FFC7A1`
-
-### Visual reconciliation rule [OF-C6.1]
-
-The visual system must preserve a separation that the current branch-first
-Mission renderer temporarily obscures: `product` branches are Saplings and use
-the Sapling silhouette plus promotion vocabulary; `client` and
-`internal-service` branches are Programs and use their client/capability or
-operations silhouette plus program vocabulary. A missing mapping is a visible
-gap, never a generic product card. Responsive composition changes placement,
-not this semantic distinction: 320/390/430px are first-class proof widths and
-desktop may add context only without changing reading order or hiding actions.
-The detailed implementation contract is
-`docs/plans/2026-08-12-mission-control-visual-reconciliation.md`.
 
 ## Error and empty states [OF-C7]
 

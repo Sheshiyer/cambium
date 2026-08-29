@@ -36,7 +36,7 @@
     "nextPhysicalPass": "Cambium and Temperance physical lanes are applied; Symphonics remains held with no authorized physical pass"
   },
   "currentDigests": {
-    "rootMapDigest": "e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259",
+    "rootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351",
     "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
     "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309"
   },
@@ -69,7 +69,7 @@
       },
       "defaults": {
         "receiptKind": "mapping",
-        "rootMapDigest": "e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259",
+        "rootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351",
         "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
         "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
         "founderDecisionStatus": "founder-reviewed",
@@ -1104,12 +1104,12 @@
     },
     {
       "batchId": "github-batch-005-root-map-catalog-repair",
-      "status": "founder-reviewed-source-controlled-closeout-exclusion-ready-with-symphonics-founder-hold",
+      "status": "founder-reviewed-source-controlled-closeout-exclusion-ready-with-symphonics-repository-role-resolved",
       "summary": {
         "rowsReviewed": 3,
         "resolvedRetiredIgnoreRows": 1,
         "closedClientBranchRows": 1,
-        "founderHoldMissingShallowFolderRows": 1,
+        "resolvedRepositoryOnlyRows": 1,
         "filesystemMutationRows": 0,
         "relocationManifestRequiredRows": 1,
         "saplingPromotionsRecommended": 0
@@ -1126,7 +1126,7 @@
         "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
         "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
         "thoughtseedLabsBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder",
-        "nextPhysicalPass": "none authorized; Symphonics remains held until its native-app role is exact"
+        "nextPhysicalPass": "none authorized; the Symphonics repository-only planning role is exact, while any future shallow folder or native-app lane requires a separate founder-approved manifest"
       },
       "rows": [
         {
@@ -1161,7 +1161,7 @@
           "folder": "symphonics",
           "currentWorkId": "branch:symphonics",
           "candidateRepository": "Sheshiyer/workforce-automation-app-symphonics",
-          "status": "founder-hold-missing-shallow-folder",
+          "status": "resolved-repository-only-planning-surface-shallow-held",
           "rootMapState": "missing-client-account-without-shallow-folder",
           "repositoryEvidence": {
             "nameWithOwner": "Sheshiyer/workforce-automation-app-symphonics",
@@ -1188,7 +1188,7 @@
             ],
             "physicalFolderProbe": "$PROJECTS_ROOT/thoughtseed/symphonics is absent",
             "repoPlanningProbe": "README.md and overview.md describe a documentation/planning repository for the Workforce Automation App; implementation has not begun.",
-            "futureScopeNote": "future custom native SDK / Tuya React Native app scope is intentionally left unmapped until the founder approves the exact shallow-folder and repository disposition"
+            "futureScopeNote": "the current repository is the exact repository-only planning surface; future custom native SDK / Tuya React Native app scope remains unmapped until a separate founder-approved shallow-folder disposition"
           },
           "relocationGate": {
             "requiresFounderApprovedManifest": true,
@@ -1200,19 +1200,19 @@
               "live-apply approval"
             ]
           },
-          "recommendedAction": "keep symphonics in missingClientAccounts and do not add a root-map folder row, create a project folder, or generate active repository/R2 mapping receipts until founder approves an exact shallow-folder/repository disposition"
+          "recommendedAction": "keep symphonics in missingClientAccounts as an intentional repository-only planning surface; do not add a root-map folder row, create a project folder, or generate active repository/R2 mapping receipts without a separate founder-approved relocation manifest"
         }
       ]
     },
     {
       "batchId": "github-batch-006-foundation-repository-reconciliation",
-      "status": "foundation-reviewed-with-explicit-repository-holds",
+      "status": "foundation-reconciled-with-explicit-repository-holds",
       "summary": {
-        "rowsReviewed": 21,
-        "newResolvedAssignments": 8,
+        "rowsReviewed": 22,
+        "newResolvedAssignments": 10,
         "existingBatchAssignmentsReconciled": 4,
         "explicitUnavailableIdentityHolds": 6,
-        "unassignedClassificationHolds": 1,
+        "unassignedClassificationHolds": 0,
         "folderlessWorkObjectHolds": 2,
         "inferredAssignments": 0
       },
@@ -1358,16 +1358,24 @@
           "candidateRepos": ["Sheshiyer/reddit-cli"],
           "unavailableCandidateRepos": ["Sheshiyer/reddit-cli"],
           "resolvedAssignments": [],
-          "status": "explicit-hold-no-retrievable-git-identity",
-          "holdReasons": ["The shallow reddit-cli folder is non-Git and no exact Sheshiyer/reddit-cli repository is retrievable; preserve it as folder evidence only."]
+          "status": "explicit-hold-exact-identity-unavailable",
+          "holdReasons": ["Sheshiyer/reddit-cli is not retrievable. The local folder contains the reddit-flux package, but that evidence does not prove the unavailable repository was renamed; do not substitute identities."]
+        },
+        {
+          "sourceRef": "repo:Sheshiyer/reddit-flux",
+          "workIds": ["program:operator-utilities"],
+          "candidateRepos": ["Sheshiyer/reddit-flux"],
+          "resolvedAssignments": [{"workId": "program:operator-utilities", "repositoryRefs": ["Sheshiyer/reddit-flux"]}],
+          "status": "resolved-separate-live-immutable-identity",
+          "sourceRefDisposition": "The shallow reddit-cli folder's pyproject.toml names package reddit-flux and its README names the exact clone target; this assignment is separate from the unavailable Sheshiyer/reddit-cli hold."
         },
         {
           "sourceRef": "relocation-registry:brandmint-showcase",
-          "workIds": [],
+          "workIds": ["program:meristem-brand-system"],
           "candidateRepos": ["Sheshiyer/brandmint-showcase"],
-          "resolvedAssignments": [],
-          "status": "classification-hold-unassigned",
-          "holdReasons": ["Repository identity is exact, but no founder-reviewed WorkObject ownership or historical/exclusion disposition exists; never infer a Meristem assignment from folder nesting alone."]
+          "resolvedAssignments": [{"workId": "program:meristem-brand-system", "repositoryRefs": ["Sheshiyer/brandmint-showcase"]}],
+          "status": "resolved-supporting-repository-by-registry-and-architecture",
+          "sourceRefDisposition": "The relocation registry supplies the immutable repository identity and the ARCHITECTURE.md:20 Organ-to-repository row identifies brandmint-showcase as the product site for brandmint-oracle-aleph; no separate WorkObject is admitted."
         },
         {
           "sourceRef": "catalog-folder-hold:sapling:whatslegal",

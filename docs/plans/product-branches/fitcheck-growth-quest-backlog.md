@@ -5,6 +5,8 @@ outreach, spend, or provider mutation authorized by this file.
 
 Contract: [`fitcheck-cortex-quest-flow.v1`](../../architecture/contracts/fitcheck-cortex-quest-flow.v1.md)
 
+Owning repository task: [`Sheshiyer/fitcheck-landing#2`](https://github.com/Sheshiyer/fitcheck-landing/issues/2). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
+
 The backlog turns known growth gaps into visible, proof-bound quests. It is not
 a claim roadmap: all commercial claims remain constrained by the Fitcheck
 branch packet and source-backed evidence.
@@ -18,7 +20,7 @@ branch packet and source-backed evidence.
 | `fitcheck-editorial-pilot` | content | `blocked` | Select one evidence-backed merchant education topic and prepare a channel-native draft. | Approved draft, source links, destination, and publish receipt. | publish; founder approval |
 | `fitcheck-link-relationship-research` | seo | `proposed` | Identify relevant editorial/partner relationships with public rationale; exclude purchased or automated links. | Reviewed prospect rationale and no-contact receipt. | contact; founder approval before outreach |
 | `fitcheck-attribution-readback` | analytics | `external-wait` | After instrumentation is approved, read aggregate acquisition, query, CTA, and qualified-demo data on a defined cadence. | Dated aggregate receipt with caveats and next proposal. | read-only after account access |
-| `fitcheck-campaign-reply-triage` | crm | `ready-for-review` | Normalize current reply/hot-lead demand into redacted categories; do not alter a lead. | Aggregate inbox observation and human triage policy. | read-only |
+| `fitcheck-campaign-reply-triage` | crm | `ready-for-review` | Review the dated aggregate reply/hot-lead receipt; do not alter a lead. | Human review note that preserves the receipt's historical boundary. | read-only |
 | `fitcheck-crm-minimum-viable-flow` | crm | `ready-for-review` | Review the minimum viable CRM handoff; select one destination/owner before any implementation. | Founder-reviewed CRM contract and privacy boundary. | account configuration/contact; founder approval |
 | `fitcheck-campaign-learning-foldback` | cortex | `proposed` | Fold verified aggregate outcomes into a redacted learning receipt and propose one next experiment. | Receipt references, caveats, and one bounded successor quest. | none/read-only |
 
@@ -34,7 +36,7 @@ branch packet and source-backed evidence.
 
 ## Mini App projection rule
 
-When the Fitcheck synchronization pass runs, each row above is projected as a
+If a separately reviewed Fitcheck synchronization pass runs, each row above is projected as a
 quest with its current state, owner/gate, required proof, and next action.
 Only `complete` and `superseded` are terminal. `external-wait`, `blocked`,
 `proposed`, and `ready-for-review` remain in the unfinished queue.

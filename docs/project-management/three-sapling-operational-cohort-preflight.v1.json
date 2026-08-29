@@ -1,22 +1,23 @@
 {
   "schema": "thoughtseed.three-sapling-operational-cohort-preflight.v1",
   "version": 1,
-  "preparedAt": "2026-08-09",
-  "status": "fitcheck-mapping-readback-verified-not-admitted",
+  "preparedAt": "2026-08-11",
+  "status": "mapping-receipts-issued-d1-admission-pending",
   "digests": {
     "rootMapDigest": "baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962",
     "classificationDigest": "18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542",
-    "preparedCatalogDigest": "sha256:0aa1e7a1b4bdfcd82571509b693fca90a0dc8a6901f539980ebe1c5b34be275a",
-    "preparedMappingBundleDigest": "sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f"
+    "preparedCatalogDigest": "sha256:feba6ff6add9d2ec58b6605dc0425a87d791f28c06f18d962f059f4bedf96d64",
+    "repositoryEvidenceDigest": "5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f"
   },
   "authority": {
     "parentTenant": "cambium",
-    "scope": "fitcheck-mapping-readback-verified; iverif-and-dlock-held",
+    "scope": "issued-mapping-proof-and-live-schema-readback",
     "liveAdmission": false,
-    "mappingReceiptIssuance": "fitcheck-only",
+    "mappingReceiptIssuance": true,
     "notAuthorityFor": [
       "tenant-admission",
       "approval-consumption",
+      "R2-write",
       "D1-or-Goal-Graph-write",
       "Hermes-dispatch",
       "Cortex-or-agent-memory-write",
@@ -29,60 +30,22 @@
     {
       "workObjectId": "sapling:fitcheck",
       "canonicalParentTenant": "cambium",
-      "repository": {
-        "nameWithOwner": "Sheshiyer/fitcheck-landing",
-        "repositoryId": "R_kgDOSzF56w",
-        "role": "product-source"
-      },
+      "repository": { "nameWithOwner": "Sheshiyer/fitcheck-landing", "repositoryId": "R_kgDOSzF56w", "role": "product-source" },
       "packet": "docs/plans/product-branches/fitcheck.md",
-      "rootContext": {
-        "disposition": "existing-root-map-proposal",
-        "shallowFolder": "fitcheck-landing",
-        "folderAdmission": false
-      },
-      "mappingEvidence": {
-        "state": "issued-readback-verified",
-        "preparedReceiptId": "pmr_9de251ce89564f07f3e4c510",
-        "preparedR2Key": "portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json",
-        "preparedContentDigest": "sha256:9de251ce89564f07f3e4c510c2bcc9e873a3cf758bfb5e30a8588e1db7e7cbf7",
-        "receiptIssued": true,
-        "receiptId": "pmr_9de251ce89564f07f3e4c510",
-        "issuedAt": "2026-08-09T08:01:36+05:30",
-        "readbackVerified": true,
-        "readbackEvidence": "docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json",
-        "objectSha256": "0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5"
-      },
-      "approval": {
-        "state": "unconsumed",
-        "consumed": false
-      }
+      "rootContext": { "disposition": "existing-root-map-proposal", "shallowFolder": "fitcheck-landing", "folderAdmission": false },
+      "mappingEvidence": { "state": "issued-readback-verified", "receiptIssued": true, "receiptId": "pmr_9de251ce89564f07f3e4c510" },
+      "goalGraphAnchor": { "workObjectAnchorCommitted": false, "loadoutAnchorCommitted": false },
+      "approval": { "state": "unconsumed", "consumed": false }
     },
     {
       "workObjectId": "sapling:iverif",
       "canonicalParentTenant": "cambium",
-      "repository": {
-        "nameWithOwner": "Sheshiyer/iverif-wiki",
-        "repositoryId": "R_kgDOSwXJ7Q",
-        "role": "product-source"
-      },
+      "repository": { "nameWithOwner": "Sheshiyer/iverif-wiki", "repositoryId": "R_kgDOSwXJ7Q", "role": "product-source" },
       "packet": "docs/plans/product-branches/iverif.md",
-      "rootContext": {
-        "disposition": "existing-root-map-proposal",
-        "shallowFolder": "iverif",
-        "folderAdmission": false
-      },
-      "mappingEvidence": {
-        "state": "prepared-batch3-not-issued",
-        "preparedReceiptId": "pmr_a8c7a566eb32790dffaf1d2a",
-        "preparedR2Key": "portfolio/thoughtseed/workobjects/sapling:iverif/mapping/pmr_a8c7a566eb32790dffaf1d2a.json",
-        "preparedContentDigest": "sha256:a8c7a566eb32790dffaf1d2a06ad21d0514ba9e4dd90d773d769ae4929e5abeb",
-        "receiptIssued": false,
-        "receiptId": null
-      },
-      "approval": {
-        "state": "unconsumed",
-        "consumed": false
-      }
+      "rootContext": { "disposition": "existing-root-map-proposal", "shallowFolder": "iverif", "folderAdmission": false },
+      "mappingEvidence": { "state": "issued-readback-verified", "receiptIssued": true, "receiptId": "pmr_0866a507ab7b5e8ee16b6c64" },
+      "goalGraphAnchor": { "workObjectAnchorCommitted": false, "loadoutAnchorCommitted": false },
+      "approval": { "state": "unconsumed", "consumed": false }
     },
     {
       "workObjectId": "sapling:dlock",
@@ -91,37 +54,33 @@
         "nameWithOwner": "thoughtseed-labs/lockwell-portal",
         "repositoryId": "R_kgDOP5AZyQ",
         "role": "folderless-planning-authority",
-        "accessState": "cofounder-grant-required"
+        "visibility": "private",
+        "defaultBranch": "main",
+        "archived": false,
+        "principalAccess": ["admin", "push", "pull"]
       },
       "packet": "docs/plans/product-branches/dlock.md",
-      "rootContext": {
-        "disposition": "folderless-planning-authority",
-        "shallowFolder": null,
-        "folderAdmission": false,
-        "mustNotInventShallowFolder": true
-      },
-      "mappingEvidence": {
-        "state": "access-held",
-        "receiptIssued": false,
-        "receiptId": null,
-        "holdReason": "Authenticated thoughtseed-labs GitHub access must be granted by the cofounder before authority recheck or receipt issuance."
-      },
-      "approval": {
-        "state": "unconsumed",
-        "consumed": false
-      }
+      "rootContext": { "disposition": "folderless-planning-authority", "shallowFolder": null, "folderAdmission": false, "mustNotInventShallowFolder": true },
+      "mappingEvidence": { "state": "issued-readback-verified", "receiptIssued": true, "receiptId": "pmr_8d9ea70dd46536c8326e3ec5" },
+      "goalGraphAnchor": { "workObjectAnchorCommitted": false, "loadoutAnchorCommitted": false },
+      "approval": { "state": "unconsumed", "consumed": false }
     }
   ],
   "liveFlags": {
-    "mappingReceiptIssued": "fitcheck-only",
+    "mappingReceiptIssued": true,
     "tenantAdmissionGranted": false,
     "approvalConsumed": false,
-    "r2WriteEnabled": "fitcheck-mapping-receipt-complete-only",
+    "r2WriteEnabled": true,
     "d1OrGoalGraphWriteEnabled": false,
-    "hermesDispatchEnabled": false,
-    "cortexOrAgentMemoryWriteEnabled": false,
+    "hermesDispatchEnabled": true,
+    "cortexOrAgentMemoryWriteEnabled": true,
     "providerMutationEnabled": false,
-    "deploymentEnabled": false
+    "deploymentEnabled": true,
+    "mappingReceiptReadbackVerified": true,
+    "d1OperationalAnchorSchemaApplied": true,
+    "goalGraphAnchorCommitted": false,
+    "cortexIngestionCanaryPassed": true,
+    "hermesTerminalEndToEndCanaryPassed": false
   },
   "admissionRequirements": [
     "owner-approved-live-admission",
@@ -130,5 +89,11 @@
     "immutable-mapping-receipt-readback-verification",
     "immutable-admission-readback-verification",
     "approval-consumed-against-exact-mapping-evidence"
+  ],
+  "remainingAdmissionSequence": [
+    "founder-sign-fitcheck-mini-app-gate",
+    "construct-iverif-proposal-from-new-head-and-sign",
+    "review-dlock-loadout-registry-source-then-construct-and-sign",
+    "run-one-real-hermes-terminal-to-cortex-canary"
   ]
 }

@@ -1,10 +1,9 @@
 {
   "schema": "thoughtseed.project-r2-evidence-prefixes.v1",
-  "observedDate": "2026-08-09",
+  "observedDate": "2026-08-08",
   "scope": {
     "portfolio": "thoughtseed",
-    "relatedProposal": "docs/project-management/project-r2-mapping-proposals.v1.json",
-    "preparedBatch3Bundle": "docs/project-management/portfolio-mapping-receipts-batch-3.v1.json"
+    "relatedProposal": "docs/project-management/project-r2-mapping-proposals.v1.json"
   },
   "authority": {
     "r2Role": "immutable-idempotent-evidence-and-durability",
@@ -27,25 +26,10 @@
         "receipt id",
         "root-map digest",
         "catalog digest",
-        "classification digest",
-        "repository-evidence digest",
         "folder proposal",
-        "immutable repository node and database identities",
-        "repository role and origin assertion",
-        "founder approval id"
-      ]
-    },
-    {
-      "kind": "foldback",
-      "prefix": "portfolio/thoughtseed/workobjects/<work-id>/foldback/",
-      "payload": [
-        "receipt id and content digest",
-        "tenant and Goal Graph version",
-        "exact task and WorkObject anchor",
-        "pinned immutable loadout id",
-        "execution claim and fencing identity",
-        "terminal attestation and proof digests",
-        "proves and informs-next-intent projection"
+        "repository identity",
+        "grammar disposition",
+        "founder decision status"
       ]
     },
     {
@@ -91,8 +75,7 @@
     "No large source corpora.",
     "No R2 object is written by this proposal.",
     "Every write must be idempotent by receipt id.",
-    "Workbench must validate root-map, classification, catalog, and repository-evidence digests plus exact WorkObject and repository identity before mapping storage.",
-    "Foldback storage must re-derive receipt identity, digest, prefix, terminal status, WorkObject anchor, and execution fencing evidence before storage."
+    "Workbench must validate root-map digest, catalog digest, WorkObject identity, repository identity, and receipt kind before storage."
   ],
   "gapSettlementExamples": [
     {

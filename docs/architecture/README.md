@@ -13,3 +13,11 @@ This directory contains current system design, service maps, and contracts. For 
 - [Loops → graphs (L1–L5 → quests)](loops-to-graphs.md)
 - [Fitcheck golden path](fitcheck-golden-path.md)
 - [Branch traversal map](branch-traversal-map.md)
+
+## Provenance-Preserving Intent Graph
+
+The Intent Graph is a generated, read-only, non-authoritative inspection projection. Follow its boundary in this order: [machine JSON](intent-graph.v1.json), [human readback](intent-graph.md), [v1 contract](contracts/intent-graph-v1.md), [source declarations](../../scripts/intent-graph-sources.mjs), and [generator](../../scripts/generate-intent-graph.mjs). Verify the committed readbacks without writing them:
+
+```bash
+node scripts/generate-intent-graph.mjs --check
+```

@@ -29,14 +29,11 @@
   "localProof": {
     "synthetic": true,
     "externalAction": "none",
-    "receiptId": "hfb_iverif_foldback_prep_20260810",
-    "contentDigest": "sha256:iverif_foldback_prep_local_contract_only",
+    "receiptId": null,
+    "contentDigest": null,
     "receiptKey": "portfolio/thoughtseed/workobjects/sapling:iverif/foldback/exec_iverif_canary_1.json",
-    "edges": [
-      { "kind": "proves", "fromId": "hfb_iverif_foldback_prep_20260810", "toId": "task:iverif-observer" },
-      { "kind": "informs-next-intent", "fromId": "hfb_iverif_foldback_prep_20260810", "toId": "sapling:iverif" }
-    ],
-    "claim": "This proves deterministic local contract behavior only for the IVerif foldback storage path; it is not evidence that Hermes, D1, R2, ACK, or a production WorkObject changed. The IVerif mapping receipt pmr_a8c7a566eb32790dffaf1d2a remains prepared-not-issued."
+    "edges": [],
+    "claim": "This scaffolds the deterministic IVerif foldback storage path only; no foldback receipt or edge is claimed before exact admission evidence is supplied to the tested foldback compiler. Hermes Cortex delivery is deployed and the IVerif mapping receipt pmr_0866a507ab7b5e8ee16b6c64 is issued with byte-identical readback, but no IVerif D1 anchor, terminal canary, ACK, or production foldback is claimed."
   },
   "livePreconditions": [
     "Record the current Worker version and immediate rollback version.",
@@ -47,7 +44,7 @@
     "Verify HERMES_RUNNER_LEGACY_ACK_WITHOUT_EXECUTION=false.",
     "Read one exact current Goal Graph task carrying sapling:iverif plus loadout:iverif-observer at a pinned graph version.",
     "Confirm the foldback R2 key is absent or byte-identical before any conditional write.",
-    "Confirm the IVerif mapping receipt pmr_a8c7a566eb32790dffaf1d2a is issued and read back byte-identically before any D1 anchor commit.",
+    "Re-read the issued IVerif mapping receipt pmr_0866a507ab7b5e8ee16b6c64 byte-identically before any D1 anchor commit.",
     "Confirm the D1 Mission Fabric contains edge for sapling:iverif exists before foldback emission."
   ],
   "liveSequence": [
@@ -105,7 +102,7 @@
       "ACK or deletion of issue-249 directives",
       "Sapling promotion",
       "provider, schedule, traffic, or deployment changes beyond the separately reviewed canary manifest",
-      "IVerif mapping receipt issuance (separate founder-approved gate)",
+      "replacement or mutation of the issued IVerif mapping receipt",
       "D1 Mission/Task anchor commit (separate founder-approved gate)"
     ]
   }

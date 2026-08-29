@@ -1,22 +1,21 @@
 # Three-Sapling Operational Cohort
 
-Status: Fitcheck mapping readback verified; no live admission.
+Status: mapping receipts issued and read back; D1 admission pending.
 
 ## Purpose
 
 This contract binds the first three named Saplings to one canonical parent
-tenant and immutable repository evidence without changing any operational
-system. It is intentionally narrower than activation: identity and planning
-evidence may be prepared locally, and Fitcheck now has an issued mapping
-receipt with immutable readback, but no live tenant is admitted.
+tenant, immutable repository evidence, and issued mapping receipts. It remains
+narrower than activation: byte-identical R2 readback is proven, while no live
+Goal Graph WorkObject/loadout anchor is admitted before founder-signed CAS.
 
 ## Canonical cohort
 
 | WorkObject | Canonical parent tenant | Exact repository | Immutable GitHub ID | Root disposition | Authority status |
 | --- | --- | --- | --- | --- | --- |
-| `sapling:fitcheck` | `cambium` | `Sheshiyer/fitcheck-landing` | `R_kgDOSzF56w` | Existing `fitcheck-landing` root-map proposal | Mapping receipt issued and read back |
-| `sapling:iverif` | `cambium` | `Sheshiyer/iverif-wiki` | `R_kgDOSwXJ7Q` | Existing `iverif` root-map proposal | Prepared product-source evidence only |
-| `sapling:dlock` | `cambium` | `thoughtseed-labs/lockwell-portal` | `R_kgDOP5AZyQ` | Folderless; no `dlock` or `lockwell` shallow folder | Repository identity known; authenticated authority recheck access-held pending cofounder grant |
+| `sapling:fitcheck` | `cambium` | `Sheshiyer/fitcheck-landing` | `R_kgDOSzF56w` | Existing `fitcheck-landing` root-map proposal | Mapping receipt issued/read back; D1 anchor held |
+| `sapling:iverif` | `cambium` | `Sheshiyer/iverif-wiki` | `R_kgDOSwXJ7Q` | Existing `iverif` root-map proposal | Mapping receipt issued/read back; D1 anchor held |
+| `sapling:dlock` | `cambium` | `thoughtseed-labs/lockwell-portal` | `R_kgDOP5AZyQ` | Folderless; no `dlock` or `lockwell` shallow folder | Mapping receipt issued/read back; D1 anchor/loadout registry held |
 
 `cambium` is the parent tenant for the cohort. A packet-local namespace,
 product slug, display alias, or repository name is not a tenant selector and
@@ -24,25 +23,19 @@ cannot override that binding.
 
 ## Local proof versus live admission
 
-Prepared local proof establishes only that the WorkObject, canonical parent,
-repository name, immutable repository ID, packet, and root disposition agree.
-For IVerif and DLOCK, prepared proof grants none of the following:
+The activation-wave proof establishes that the WorkObject, canonical parent,
+repository identity, packet, root disposition, and immutable R2 mapping receipt
+agree. It grants none of the following:
 
-- an issued mapping receipt or R2 object;
 - a live tenant admission or approval consumption;
-- a D1/Goal Graph, Hermes, Cortex, agent-memory, provider, or deployment
-  write; or
+- a D1 Goal Graph WorkObject/loadout anchor or terminal Hermes foldback proof;
+- a Sapling promotion or provider mutation; or
 - a shallow project folder for DLOCK.
 
-Fitcheck's mapping receipt is the only issued object in this cohort. Evidence
-lives at
-[`fitcheck-mapping-receipt-readback-2026-08-09.v1.json`](../project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json).
-
-Live admission is still a separate, owner-approved step. It must consume an
-appropriate approval against the exact immutable mapping evidence, issue the
-mapping receipt through the authorized writer when it is still missing, and
-perform a fresh admission check. A prepared file, a packet, a repository, or
-Fitcheck's issued mapping receipt alone cannot be treated as that admission.
+Live admission remains a separate, owner-approved step. It must consume a
+founder signature against the exact immutable mapping evidence and current D1
+head, then perform and read back the CAS commit. An issued receipt, packet, or
+repository alone cannot be treated as Goal Graph admission.
 
 The local dispatch compiler therefore requires an injected external-authority
 readback verifier for both the issued mapping receipt and admitted activation.
@@ -54,7 +47,13 @@ without those derived projections remains available for legacy callers.
 
 ## DLOCK folderless planning rule
 
-`thoughtseed-labs/lockwell-portal` (`R_kgDOP5AZyQ`) is DLOCK's reviewed repository identity. Authenticated operational access remains held until the cofounder grants the required Thoughtseed Labs GitHub access, so no receipt may be issued from public identity evidence alone. The `folderless` disposition is intentional: it is not an empty
+`thoughtseed-labs/lockwell-portal` (`R_kgDOP5AZyQ`) is DLOCK's exact planning
+authority. The current GitHub principal has verified admin, push, and pull
+access to the private, unarchived `main` repository, and DLOCK's folderless
+mapping receipt is issued with byte-identical readback. DLOCK still lacks a
+reviewed shallow folder, merged loadout registry entry, and Goal Graph
+WorkObject/loadout anchor. The `folderless`
+disposition is intentional: it is not an empty
 slot to be filled by an inferred `dlock/` or `lockwell/` project directory.
 Any future folder admission is a separately reviewed root-map change and does
 not follow from repository identity.
@@ -63,8 +62,7 @@ not follow from repository identity.
 
 The machine-readable companion is
 [`three-sapling-operational-cohort-preflight.v1.json`](../project-management/three-sapling-operational-cohort-preflight.v1.json).
-It records Fitcheck's mapping receipt as issued/readback-verified, keeps
-IVerif and DLOCK unissued, keeps all approvals unconsumed, and keeps tenant
-admission false. Consumers must fail closed if any admission, approval,
-dispatch, or D1 property changes without a separately reviewed admission
-record.
+It retains the v1 field contract while recording issued/readback-verified
+mapping receipts, deployed Cortex/Hermes capability, the applied D1 anchor
+schema, unconsumed approvals, and uncommitted Goal Graph anchors. Consumers
+must continue to treat receipt issuance and D1 admission as separate gates.

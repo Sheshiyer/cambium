@@ -2,8 +2,6 @@
 
 The GitHub adapter treats repository and issue events as project evidence for the operator. It is useful for dev and AI-first teams, but Cambium must still run without GitHub credentials.
 
-Repo engineering roadmaps are a **GitHub Project per enrolled repo**, written by host Temperance (`temperance-gh-plan`), not by this adapter and not by the D1 Goal Graph. See `~/.temperance_engine/docs/GSD-GITHUB-PLANNING.md`. This adapter remains an evidence port.
-
 ## Port
 
 `repository` and `issue-tracker`

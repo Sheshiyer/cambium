@@ -503,10 +503,10 @@
       "folder": "klear-karma",
       "role": "workobject-folder",
       "mapping": {
-        "proposedKind": "co-founded-venture",
-        "accountId": "klear-karma",
+        "proposedKind": "needs-review",
+        "accountId": null,
         "workIds": [
-          "branch:klear-karma"
+          "sapling:klear-karma"
         ],
         "status": "mapping-proposal"
       },
@@ -672,7 +672,8 @@
         "proposedKind": "client-branch",
         "accountId": "parkarea",
         "workIds": [
-          "branch:parkarea"
+          "branch:parkarea",
+          "sapling:parkarea"
         ],
         "status": "mapping-proposal"
       },
@@ -1020,7 +1021,8 @@
         "proposedKind": "client-branch",
         "accountId": "tirak",
         "workIds": [
-          "branch:tirak"
+          "branch:tirak",
+          "sapling:tirak"
         ],
         "status": "mapping-proposal"
       },

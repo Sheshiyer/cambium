@@ -29,13 +29,24 @@ Read `AGENTS.md`, `CLAUDE.md`, `.project/CONTEXT.md`, and
 sessions, Paseo workspaces, provider stores, and credentials are
 intentionally outside this packet.
 
+### Canonical doctrine anchors
+
+| Anchor | Path | Authority |
+|---|---|---|
+| Enduring Vision | [`VISION.md`](./VISION.md) | Canonical near-invariant doctrine |
+| Current Repository Mission | [`MISSION.md`](./MISSION.md) | Canonical renewable doctrine horizon |
+
+The root anchors own doctrine only. [`ISA.md`](./ISA.md) owns approved goals and acceptance; GSD under [`.planning/`](./.planning/) owns finite planning state. Supporting and generated surfaces link to those authorities rather than copying them.
+
 ### Doctrine & planning maps (additive indexes)
 
 | Map | Path |
 |---|---|
 | Root doctrine catalog | [`docs/doctrine/README.md`](./docs/doctrine/README.md) |
 | Docs discovery index | [`docs/README.md`](./docs/README.md) |
+| On-demand documentation inventory | [`docs/architecture/contracts/documentation-inventory-v1.md`](./docs/architecture/contracts/documentation-inventory-v1.md) |
 | Lifecycle (current vs historical) | [`docs/LIFECYCLE.md`](./docs/LIFECYCLE.md) |
+| On-demand documentation inventory | [`docs/architecture/contracts/documentation-inventory-v1.md`](./docs/architecture/contracts/documentation-inventory-v1.md) |
 | GSD `.planning/` map | [`.planning/README.md`](./.planning/README.md) |
 | Loops → graphs (quests) | [`docs/architecture/loops-to-graphs.md`](./docs/architecture/loops-to-graphs.md) |
 

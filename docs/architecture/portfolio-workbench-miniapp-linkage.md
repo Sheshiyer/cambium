@@ -112,7 +112,10 @@ The current Thoughtseed root has 62 depth-one folders. The reconciled proposal m
 |---|---|---|
 | `meristem` | `program:meristem-brand-system`, awaiting ingestion | Its project packet supplies exact repository and WorkObject evidence; the mapping still grants no D1 admission. |
 | `session-atlas` | Internal Program, awaiting ingestion, no `workId` yet | Its project-birth packet is pending Cambium ingestion; TeamForge identity must precede a canonical catalog row. |
-| `scroll-world` | Infrastructure/external skill reference | External upstream repository; not a Thoughtseed WorkObject. |
+| `scroll-world` | Infrastructure/external skill reference | External upstream repository; not a Thoughtseed WorkObject. Live checkout is `thoughtseed/skills/scroll-world`. |
+| `motionsites-skills` | Internal program / skill nest | Relocated to `thoughtseed/skills/motionsites-skills`. Census keeps the shallow folder name and resolves the nest. |
+| `professional-headshot-suite` | Internal program / skill nest | Relocated to `thoughtseed/skills/professional-headshot-suite`. |
+| `readme-skill` | Internal program / skill nest | Relocated to `thoughtseed/skills/readme-skill`. |
 | `klear-karma` | `branch:klear-karma` | The unsupported fourth root kind and orphan `co-founded-venture:*` ID were removed; its co-founded relationship remains account/provenance context, not a new WorkObject grammar. |
 
 The machine report now covers, in one read-only result:
@@ -137,7 +140,7 @@ The machine report now covers, in one read-only result:
 
 ## Production read-path boundary
 
-The one approved direct-Worker push returned an exact JSON receipt, while the protected custom-domain Mission read remained on the older timestamp. Fresh Labs control-plane readback then proved that the direct Worker and custom hostname are the same Worker deployment but the active binding topology differs from the checked-in Labs config: the active Version lacks the declared `CONTEXT_PROJECTIONS` bucket and includes additional active names. Therefore the remaining boundary is **between accepted direct-Worker state and the protected custom-domain read projection**, with binding parity and candidate source provenance as release gates.
+The one approved direct-Worker push returned an exact JSON receipt, while the protected custom-domain Mission read remained on the older timestamp. Fresh Labs control-plane readback then proved that the direct Worker and custom hostname are the same Worker deployment. The apparent `CONTEXT_PROJECTIONS` discrepancy was a stale checked-in declaration: that R2 writer is retired for the knowledge plane and must remain absent. Therefore the remaining boundary is **between accepted direct-Worker state and the protected custom-domain read projection**, with exact active binding parity and candidate source provenance as release gates.
 
 The earlier receipt cannot prove custom-domain freshness, and no second diagnostic ledger push is permitted. The isolated candidate must preserve every active secret/binding name, add only reviewed declared topology, pass preview route/portfolio/Mission probes, and leave traffic untouched until the candidate UUID is explicitly verified.
 
@@ -161,7 +164,7 @@ The founder approved the isolated candidate and rollback-gated repair in this it
 
 1. reproduce the verified patch in a clean worktree and pass focused/full release checks;
 2. re-read the current Labs active Version, binding signature, and rollback UUID;
-3. upload exactly one inert Version using `wrangler.labs.jsonc` and keep production traffic unchanged;
+3. upload exactly one inert Version through the direct Cloudflare API, preserving the active binding signature exactly and keeping production traffic unchanged;
 4. verify candidate UUID, bindings, health, fail-closed auth, portfolio counts, and Mission gaps;
 5. promote only that verified UUID to 100 percent;
 6. re-read production traffic, bindings, Access, Workbench, and Mission; immediately restore the recorded prior Version at 100 percent if any gate fails.
