@@ -8,3 +8,4 @@ Runbooks are current operator procedures. They must describe how to discover liv
 - [Plexus/Hermes standup lane](plexus-hermes-standup-lane.md)
 - [Telegram action-request lifecycle](telegram-action-request-lifecycle.md)
 - [Telegram operator surface](telegram-operator-surface.md)
+- [Cambium Moosh multi-surface workflow](cambium-moosh-multi-surface.md)

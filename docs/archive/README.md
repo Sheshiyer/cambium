@@ -84,7 +84,9 @@ If a real closure teaches a reusable lesson, commit a synthetic fixture or adapt
 ## Archived docs (2026-07-21 reorganization)
 
 `plans/` and `superpowers/` here contain **executed, superseded, or exploratory plans**
-moved out of `docs/plans/` so the active directory carries only current intent.
+moved out of `docs/plans/`. Date-stamped plans in the active directory remain
+historical implementation records; only the indexed `product-branches/` exception
+is active operating data, as defined by `docs/plans/README.md` and `docs/LIFECYCLE.md`.
 Notably: the June tg-miniapp component-system swarm plans (shipped), the meristem
 sidecar plans, the agent-plane ceremony, fitcheck proof packet, hermes contracts,
 and early visual explorations (isometric moodboard, cortex renderable map,

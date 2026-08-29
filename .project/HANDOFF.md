@@ -2000,3 +2000,256 @@ kind and branch identity registration.
   for an isolated clean reviewed-source candidate upload after reconciling the
   binding drift; do not deploy the current checkout or issue another ledger
   push as a diagnostic.
+
+### 2026-08-14 Cambium Moosh fractal-ecosystem checkpoint
+
+- Prepared a project-local explanation of Cambium’s fractal operating model in
+  `docs/guide/cambium-fractal-ecosystem.md`, with a guide manifest at
+  `docs/guide/guide-manifest.json` covering the root, skill lattice, six
+  workflow stages, planning/swarm interpretation, capture boundary, and
+  approval boundary.
+- Added the recognized bounded Moosh contracts:
+  `docs/guide/capture.config.json` uses one local console route, one synthetic
+  persona, and a fixed viewport; `docs/videos/film.json` and `docs/videos/film.md`
+  define a 106-second hero storyboard that stops before evidence composition.
+- Added the project capture runtime as a dev dependency (`playwright`) and
+  installed its local Chromium runtime. No capture, recorder, voiceover,
+  worker dispatch, or external provider action was run.
+- Refreshed the Manifest projection. The observed registry remains 808 skills
+  across 44 clusters; `product-guides` resolves two hubs and two Moosh spokes;
+  all six workflow stages report ready; the trigger remains gated solely on the
+  absence of a matching human approval receipt.
+- Verification passed: guide validator (6 chapters / 4 groups / 1 persona),
+  FilmSpec bounds (6 shots / 106 seconds / 120-second limit), Moosh contract
+  cross-check, Cambium test suite (1662 passing), and Manifest doctor (12/12).
+- The connected-browser controller could not attach because the Chrome
+  Playwright extension is unavailable. The local console was opened in the
+  Codex browser panel; no browser automation or evidence capture was attempted.
+  The advisor OAuth session was expired and the required Cato role was not
+  available, so those independent review lanes remain unverified.
+- Next owner-approved step: provide a bounded approval receipt, re-read the
+  live capability and workflow projection, then submit only the documented
+  request-only trigger. Do not treat this checkpoint, the planning wave, or
+  the mapped swarm as proof that capture or video execution has occurred.
+
+### 2026-08-15 Cambium all-surface Moosh coverage checkpoint
+
+- Extended the local Moosh explanation from one console route to 16 named UI,
+  service, operator, and connected-system boundaries in
+  `docs/guide/cambium-surface-inventory.json`.
+- Added the deep capability map, current multi-surface runbook, machine-
+  readable coverage contract, and video ingest order. The documents explain
+  surface ownership, authority, evidence type, planning versus swarm state,
+  and approval boundaries without copying secrets or private runtime state.
+- Re-read the Manifest projection: 808 skills, 44 clusters, four resolved
+  `product-guides` skills, six ready stages, zero approvals, and a gated
+  request-only trigger requiring `approval_id` and `request_id`.
+- Connected in-app browser verification selected Cambium, refreshed telemetry,
+  and showed the mapped wave complete, zero active agents, seven historical
+  algorithm runs, and stale bridge health. HTTP 200 does not mean fresh
+  runtime readiness; the console correctly displays `STALE`/`OFFLINE`.
+- Local verification passed: 1662 tests, `npm run validate`,
+  `npm run render-docs:check`, JSON parsing, diff check, and new-doc safety
+  scan. A bounded trigger probe returned `workflow_trigger_gated` without
+  launching workers or capture tools.
+- Advisor review could not authenticate because the OAuth session expired;
+  Cato was unavailable as a callable role. No capture, video composition,
+  deployment, worker dispatch, registry mutation, or connected-provider action
+  occurred.
+- Resumption gate: refresh the stale Manifest runtime through its governed
+  owner-approved path, obtain the matching approval receipt, and only then
+  request named surface captures. Keep connected systems in boundary-map mode
+  until their owner-authenticated evidence exists.
+
+### 2026-08-15 Moosh capture attempt — held at approval gate
+
+- The user explicitly authorized proceeding with the planned capture, but the
+  live Manifest snapshot still contains zero approvals and the observed
+  Cambium plan contains zero executable options.
+- The product-guide trigger remains request-only and requires an existing
+  matching `approval_id` plus bounded `request_id`; no receipt was invented and
+  no trigger was submitted as execution.
+- The bridge currently answers HTTP 200 but reports stale health. The in-app
+  browser can reach the console and shows Cambium planning state, but no
+  screenshot, video, worker, or capture tool was launched.
+- Next exact gate: create or expose the owner-approved bounded plan option and
+  approval receipt, refresh bridge freshness, then re-read the projection before
+  requesting named surface captures.
+
+### 2026-08-15 Approval provenance and synchronization readback
+
+- Authenticated Curious Mission Control was visually reviewed in the in-app
+  browser. The Gate scene shows five pending `goal-graph-intake` proposals,
+  `0/17` arcs grown, `Awaiting ledger`, five decisions to review, and visible
+  Approve/Inspect controls. No approval control was pressed.
+- Curious approval provenance is the founder-signed
+  `POST /api/gate/cambium` path with `kind: approve-goal-graph` and a
+  change-digest subject. It commits a Goal Graph proposal through D1 CAS and
+  creates a Goal Graph approval keyed from tenant, change digest, and nonce.
+- That is distinct from the Manifest Moosh `approval_id`, which must come from
+  the Manifest plan/option approval receipt. Curious’s five pending gates are
+  not automatically valid Moosh approvals.
+- Read-only Git state: current branch `codex/project-r2-mapping-plan` is dirty;
+  its HEAD is 78 commits behind and 41 commits ahead of `origin/main`; no PRs
+  are open; recent PRs through #320 are merged; several temporary worktrees
+  are marked prunable. No reset, stash, merge, rebase, prune, or branch write
+  was performed.
+- Current synchronization gate: preserve the dirty worktree, map merged PRs
+  to local branches, decide which prunable worktrees are historical, then
+  regenerate a current bounded Manifest plan option before requesting Moosh.
+
+### 2026-08-15 Cambium Moosh truth-tiered coverage-model checkpoint
+
+- Added the canonical multi-surface truth model in
+  `docs/guide/cambium-moosh-coverage-model.md` with the machine-readable
+  contract at `docs/guide/cambium-moosh-coverage-model.json`.
+- The model defines four authority tiers (`T0-reference`,
+  `T1-observed`, `T2-connected`, `T3-execution`) and eight evidence lanes
+  (`L1` documentation, `L2` terminal, `L3` request/response, `L4` UI capture,
+  `L5` boundary map, `L6` video, `L7` approval, `L8` request-only).
+- Every one of the 16 inventory surfaces now has exactly one UI lane and one
+  system lane plus an explicit `does_not_prove` statement and a named live
+  probe; connected boundaries default to boundary-map mode unless an
+  owner-authenticated response exists.
+- Wired the model into `docs/README.md`, the capability map, and the
+  multi-surface runbook so UI evidence and request/response evidence are not
+  interchangeable with execution authority.
+- Local verification: both new JSON documents parse, the 16 surface IDs match
+  the existing inventory exactly, every lane/tier reference resolves, and
+  `git diff --check` is clean.
+- No capture, hosted access, worker dispatch, deployment, registry mutation,
+  provider action, or public claim is authorized by this documentation.
+### 2026-08-15 bounded Moosh approval, request, and capture checkpoint
+
+- Generated `.planning/PLAN-OPTIONS.json` with one bounded option:
+  `opt_moosh_manifest_overview`, scoped to the existing synthetic
+  `manifest-overview` capture configuration.
+- Refreshed the enrolled Cambium Manifest projection and obtained approval ID
+  `apr_2888680a72ee774804d0` for plan `plan_71da68d23287247084d5`.
+- Wrote `.planning/APPROVALS.json`; the receipt is bounded and expires at
+  `2026-08-15T03:10:07.840Z`.
+- Submitted request-only workflow request
+  `moosh-manifest-overview-20260815-0300`; replay returned idempotent true.
+- Captured only the approved local Manifest overview to the ignored artifact
+  `.artifacts/moosh/cambium-fractal-ecosystem/manifest-overview.png`.
+- Final bridge probe was fresh; no workers, video, providers, hosted actions,
+  branch merges, rebases, resets, stashes, or worktree pruning occurred.
+- Branch/worktree provenance remains read-only and unresolved for future
+  integration work; this checkpoint does not imply branch synchronization.
+
+### 2026-08-15 branch, worktree, and GitHub Project reconciliation checkpoint
+
+- Fetched `origin` and classified every local branch against current
+  `origin/main` using GitHub PR state, ancestry, tree equality, and patch
+  equivalence. Recent delivery is merged through PR #320; no pull request is
+  currently open, and the exact `main` CI run for `71eba373` passed.
+- Local `main` had zero unique commits and was fast-forwarded from its stale
+  ancestor to exact `origin/main` `71eba373`. No push to `main`, force-push,
+  reset, rebase, stash, or feature-branch rewrite occurred.
+- Ten registered temporary worktrees whose gitdir paths were independently
+  absent were pruned from Git administrative metadata. The primary checkout
+  and three surviving temporary worktrees remain dirty and were preserved;
+  no live worktree directory or branch ref was deleted.
+- GitHub Project 14 is now formally linked to `Sheshiyer/cambium`. Open issues
+  #249 and #252 were added as Todo items, so all nine open Cambium issues are
+  represented; the board now contains 22 items, 13 Done and 9 Todo.
+- Strictly merged, patch-equivalent, tree-equivalent, and PR-#320-ancestor
+  branches require no replacement PR. The two stale overlapping histories
+  `codex/fitcheck-quests-release-candidate` and
+  `codex/project-r2-mapping-plan` remain preserved and must not be published
+  wholesale.
+- The primary dirty packet must be split from a fresh `origin/main`: retention
+  documentation/tooling, Moosh documentation/contracts, and additive
+  ISA/handoff evidence are candidate PR slices. Machine-local integration
+  claims, expired/generated planning receipts, workflow deletions, and other
+  mixed runtime artifacts remain excluded pending owner review.
+
+### 2026-08-29 Hermes/Temperance/Phloem architecture research and EC2-reuse decision checkpoint
+
+- Full research detail, citations, and the 62-folder non-destructive census of
+  `/Volumes/madara/2026/Projects/thoughtseed/` live in
+  `.planning/2026-08-28-hermes-temperance-synthesis-plan.md`; this entry is the compressed
+  checkpoint.
+- Corrected two standing misidentifications: `thoughtseed-hermes/` is not Hermes — it is the
+  retired Paperclip prototype (no `.git`, self-identifies as `program:paperclip-retired`). The
+  real Hermes is `hermes-aws-ts` (`Sheshiyer/hermes-aws-ts`, `main`, HEAD `e09ebfe`).
+  "noesis-cambium" is not a live system to compare Hermes against — it is Temperance Engine's
+  own unbuilt Phase 23 roadmap item, 0/4 sub-phases, status "Discussed 2026-08-28."
+- Established Hermes and Temperance Engine are deliberately non-substitutable: Hermes (EC2
+  `hermes-runner-01`, `i-056c5f1d3a9f74190`) is the sole owner of Telegram transport and the
+  only Goal-Graph directive executor; Temperance Engine owns model routing/orchestration only
+  and has zero Telegram/proactive-messaging code by design (`superset-hermes-not-hands` doctor
+  check deliberately excludes Hermes from local dev tooling).
+- Mapped the OmniRoute binding set: Mac plant (this Mac, `:20128`/`:20129`), Hermes plant
+  (EC2 loopback `:20128`), and Phloem (public Cloudflare Access + Tunnel `company-omniroute`
+  onto the Hermes plant, custom domain `strength-08.thoughtseed.space`, alias
+  `omniroute.thoughtseed.space`). Founder correction (2026-08-29): "clio-relay" is the relay's
+  name and `strength-08` is the domain it runs on — one relay, not the separate two-org/
+  two-port ("Clio door" on `:20130`/`red-queen-4dfa`) split that `thoughtseed-labs/00-meta/
+  inference-bindings.md` doctrine describes; that doctrine may need reconciling separately. The
+  `red-queen-4dfa` Cloudflare Access org's local session token was removed from
+  `~/.cloudflared/` per founder direction; `thoughtseedlabs` is now the only CF Access org this
+  work references. Six local `wrangler` profiles exist in
+  `~/Library/Preferences/.wrangler/config/`; `9d9d.toml` is believed to be the retired
+  personal-account credentials behind legacy `workers/quests/wrangler.jsonc` — flagged as
+  account-drift risk, not removed (`klear-karma`/`tirak` profiles may still serve unrelated
+  client work).
+- Live read-only inventory: AWS (`--profile safvr`) confirms Hermes EC2 running (`t3.medium`,
+  up since 2026-07-25T13:14Z, sole instance in the account, stable EIP
+  `eipalloc-0a787318e4bc654e7`). Cloudflare (`wrangler` profile `thoughtseed-labs`, account
+  `9d7cec1b5a32b2df8c6cdc1321ccd00b`) confirms `thoughtseed-vault` R2 bucket reachable (not via
+  the AWS S3-compatible path — different credential type) and `cambium-quests` on
+  `wrangler.labs.jsonc` live at version `fd8b6555-c286-4df6-a3cc-ec99895dbb68` (commit
+  `b68d39a`, 100% traffic), matching `.planning/NEXT-WAVE.json` exactly — supersedes stale
+  version numbers (`c30ee312-…`, "Version 42") still cited in older checkpoint text above.
+  `curious.thoughtseed.space` is the live custom-domain route for that Worker.
+- Confirmed via the Worker's own `scheduled()` handler doc comment
+  (`workers/quests/src/index.ts:1257-1258`): the 6-hourly Cloudflare Cron computes and stores
+  proactive delivery intents but explicitly does not send Telegram or write D1 — Telegram-send
+  authority is deliberately kept on Hermes alone, off the shared Worker.
+- Diagnosis: a month of running EC2 Hermes with no admitted/executed work traces to the D1
+  admission pipeline, not the hosting location. `INTEGRATION.md`'s own status table marks
+  every stage downstream of Plan (issue mapping, verify mapping, establish eligibility, admit,
+  pin, execute, preserve) as Held; the checked-in default is
+  `HERMES_RUNNER_EXECUTE_DIRECTIVES=false`; the one proven canary (2026-07-17) was synthetic
+  and stopped at `awaiting_human_approval`. Hermes has been correctly polling an empty queue.
+- Separately identified: Nous Research runs its own, differently-authored product also called
+  "Hermes" (`agents.nousresearch.com`, agent runtime v0.20.6, Fly.io-hosted, Python). The
+  founder has a live instance, `cambium-hermes-0650`, already in real use for unrelated work
+  (Tirak, personal admin). By founder direction, this Nous product is set aside for the
+  Cambium/EC2 decision — not investigated further as a replacement for `hermes-aws-ts`'s role.
+- Decision, by founder direction: fix the D1 admission pipeline first (host-independent, blocks
+  everything regardless of executor location); reuse the existing EC2 instance in place for the
+  Telegram-sender/directive-executor role rather than rebuilding on Nous or a new EC2 instance —
+  lowest cost, and all Cambium-specific wiring (foldback contract, topic-routing map, Phloem
+  binding) already exists there, even if unproven end-to-end.
+- No relocation, registry, session, provider, Telegram, EC2, or D1 mutation occurred this
+  session beyond one local action: the `red-queen-4dfa` Cloudflare Access session token was
+  deleted from `~/.cloudflared/` (a regenerable local login cache, not server-side state).
+  Every AWS and Cloudflare call was list/describe/status only.
+
+Next session starts here:
+
+1. Telegram: create the new bot via @BotFather (founder action, outside what an agent session
+   can do), rebuild the group/channel/topic structure, capture the new token + chat IDs +
+   topic/thread IDs — replaces the old `hermes-aws-ts/src/telegram-topic-map.ts` entries
+   (quest-topic 798, gate-topic 797, build-topic 862), all almost certainly invalid now.
+2. Push the new Telegram env values to the existing EC2 instance (`i-056c5f1d3a9f74190`) and
+   redeploy current `main` via `hermes-aws-ts/scripts/deploy-ec2-release.sh` — in-place reuse,
+   no new instance, Phloem binding untouched.
+3. Domain/URL: Hermes is already reachable at `strength-08.thoughtseed.space` (alias
+   `omniroute.thoughtseed.space`) via the existing Phloem tunnel — confirm whether "map it to a
+   domain and URL" means using that existing binding or scoping a distinct one for a
+   Hermes-specific status/control dashboard.
+4. Web dashboard: scope what this means concretely before building — a bespoke status UI (like
+   Nous's own `/system` page) would be new work with no current equivalent in `hermes-aws-ts`.
+5. Investigate the separate third-party "Hermes" desktop app's gateway modes (Local / Hermes
+   Cloud / Remote gateway / **Connect via SSH**) before using "Connect via SSH" against the EC2
+   box — per its own description ("Hermes is launched on the remote over SSH"), this would
+   install and run **Nous's own agent runtime** on the box, not provide a UI for the existing
+   `hermes-aws-ts` systemd services. Confirm intent — a separate Nous-runtime instance running
+   alongside the custom setup, versus a UI specifically for the custom setup, which this
+   feature does not provide — before connecting.
+6. Fix the D1 admission pipeline (Issue mapping → Verify mapping → Establish eligibility →
+   Admit → Pin) per `INTEGRATION.md`'s "Next integration sequence" — the actual blocker,
+   independent of all of the above.

@@ -4,11 +4,11 @@ task: "Repair Labs production from an isolated candidate and assimilate the Thou
 effort: E4
 effort_source: classifier
 phase: execute
-progress: 0/73
+progress: 69/73
 mode: interactive
 iteration: 2026-08-13-production-portfolio-assimilation
 started: 2026-08-12T09:23:38Z
-updated: 2026-08-13T06:42:13Z
+updated: 2026-08-23T08:55:00Z
 ---
 
 ## Problem
@@ -142,6 +142,8 @@ For folder ingestion, the founder switches between two explicit portfolio header
 - A redirect back to the public bootstrap after Access login would create a loop instead of reaching the Workbench.
 
 ## Goal
+
+Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.
 
 Make operational drift mechanically difficult by aligning the ActionRequest runtime contract, renderer, fixtures, tests, runbooks, configuration ownership, GitHub state, and release evidence. The cleanup is complete only when production-shaped tests fail on the exact former mismatch, stale actionable instructions are removed from operational surfaces, deferred roadmap work is explicit, and current main can be released without touching unrelated local work.
 
@@ -287,77 +289,77 @@ For the production portfolio-assimilation iteration, reconcile every eligible sh
 
 - [ ] ISC-1408: The founder's current message records approval for the isolated candidate and rollback-gated production repair.
 - [ ] ISC-1409: This iteration performs no diagnostic second ledger push.
-- [ ] ISC-1410: A deterministic census counts every depth-one directory under the Thoughtseed working root.
-- [ ] ISC-1411: The census classifies archive, infrastructure, aggregate, and active project directories with explicit reasons.
-- [ ] ISC-1412: Every included working directory has one unique normalized folder identity.
-- [ ] ISC-1413: Every catalog WorkObject has one unique canonical `workId`.
-- [ ] ISC-1414: App and Worker generated root maps are byte-identical.
-- [ ] ISC-1415: App and Worker portfolio catalog modules and source data are byte-identical.
+- [x] ISC-1410: A deterministic census counts every depth-one directory under the Thoughtseed working root.
+- [x] ISC-1411: The census classifies archive, infrastructure, aggregate, and active project directories with explicit reasons.
+- [x] ISC-1412: Every included working directory has one unique normalized folder identity.
+- [x] ISC-1413: Every catalog WorkObject has one unique canonical `workId`.
+- [x] ISC-1414: App and Worker generated root maps are byte-identical.
+- [x] ISC-1415: App and Worker portfolio catalog modules and source data are byte-identical.
 - [ ] ISC-1416: Repository evidence resolves each GitHub-backed WorkObject without alias-only inference.
-- [ ] ISC-1417: Workbench total and per-kind counts are derived from the same catalog rows and add exactly.
-- [ ] ISC-1418: Filesystem evidence, portfolio membership, lifecycle status, and operational admission remain separate fields.
-- [ ] ISC-1419: Every visible WorkObject has exactly one grammar-valid kind: Sapling, Client Branch, or Internal Program.
-- [ ] ISC-1420: No WorkObject kind is inferred solely from folder age, name, or the word `new`.
-- [ ] ISC-1421: Every included working directory maps to one WorkObject or one explicit unresolved intake record.
-- [ ] ISC-1422: Every WorkObject maps to reviewed roots or carries an explicit folderless or unresolved state.
-- [ ] ISC-1423: Thoughtseed Labs remains read-only architecture and classification context, never a Cambium runtime dependency.
-- [ ] ISC-1424: TeamForge remains canonical for `project_id`, `client_id`, and cross-system identity mappings.
-- [ ] ISC-1425: Cambium D1 Goal Graph remains the sole operational writer for mission, task, approval, and receipt state.
-- [ ] ISC-1426: R2 and KV remain bounded evidence and projection stores rather than identity authorities.
-- [ ] ISC-1427: Hermes remains the sole Telegram transport and external delivery router.
-- [ ] ISC-1428: Plexus and Cloudflare Access remain the fail-closed browser identity and RBAC boundary.
-- [ ] ISC-1429: No vault registry, TeamForge registry, Hermes runtime, Plexus identity, or Telegram configuration is mutated.
-- [ ] ISC-1430: Every canonical branch-story packet declares one catalog-resolving WorkObject identity.
-- [ ] ISC-1431: Every active Sapling exposes a Story Arc or an explicit held/unadmitted Story Arc gap.
-- [ ] ISC-1432: Every Client Branch exposes a client lifecycle projection or an explicit non-operational gap without Sapling promotion semantics.
-- [ ] ISC-1433: Every Internal Program exposes a program lifecycle projection without being coerced into Sapling promotion semantics.
-- [ ] ISC-1434: Every branch-packet WorkObject resolves to exactly one catalog row.
-- [ ] ISC-1435: Template packets remain explicitly non-canonical and never inflate portfolio coverage.
-- [ ] ISC-1436: Quest rows derive deterministically from packet and Goal Graph evidence.
-- [ ] ISC-1437: Quest compilation and ledger projection do not admit or mutate Goal Graph state.
-- [ ] ISC-1438: Every visible WorkObject reports each organ as linked, not-applicable, held, or unmapped.
-- [ ] ISC-1439: Agent, skill, loadout, and organ relationships appear only when authoritative evidence exists.
-- [ ] ISC-1440: Mission Fabric joins WorkObject to Mission, Task, Run, Receipt, agent, skill, and organ edges with explicit gaps.
-- [ ] ISC-1441: Canopy catalog visibility is not reported as D1 operational admission.
-- [ ] ISC-1442: Workbench and Worker portfolio routes consume the same checked-in catalog projection.
-- [ ] ISC-1443: One deterministic linkage audit reports census, catalog, root, packet, quest, organ, and mini-app coverage counts.
-- [ ] ISC-1444: The linkage audit fails on missing, duplicate, ambiguous, stale, or authority-collapsing mappings.
-- [ ] ISC-1445: The Labs candidate declares the missing `CONTEXT_PROJECTIONS` R2 binding.
-- [ ] ISC-1446: The candidate preserves every active secret binding by name without reading its value.
-- [ ] ISC-1447: Candidate construction occurs in an isolated clean worktree, never the dirty primary checkout.
-- [ ] ISC-1448: Candidate provenance records the exact base commit and bounded patch digest.
-- [ ] ISC-1449: Candidate source and evidence contain no token, cookie, JWT, raw initData, secret value, or machine-local path.
-- [ ] ISC-1450: Focused mapping, Worker, authentication, and projection tests pass in the isolated candidate.
-- [ ] ISC-1451: The complete repository release gate and `git diff --check` pass in the isolated candidate.
-- [ ] ISC-1452: A strict Wrangler dry run emits a non-empty bundle without remote mutation.
-- [ ] ISC-1453: Fresh Labs control-plane readback still shows exactly one active Version at 100 percent before upload.
-- [ ] ISC-1454: The rollback Version is re-verified against the same Labs Worker immediately before upload.
-- [ ] ISC-1455: Exactly one inert candidate is created through a Version upload, never `wrangler deploy`.
-- [ ] ISC-1456: Candidate upload leaves production traffic on the prior active Version at 100 percent.
-- [ ] ISC-1457: Candidate metadata binds the reviewed Labs QUESTS, SECRETS, D1, R2, Vectorize, vars, and cron identities.
-- [ ] ISC-1458: Candidate binding names preserve the active set and add only reviewed declared bindings.
-- [ ] ISC-1459: Candidate upload leaves custom-domain route metadata unchanged.
-- [ ] ISC-1460: Candidate preview health returns JSON 200 identifying `cambium-quests`.
-- [ ] ISC-1461: Candidate preview unauthenticated quest reads fail closed with JSON 401.
-- [ ] ISC-1462: Candidate portfolio route reports the reconciled record and kind counts.
-- [ ] ISC-1463: Candidate Workbench bytes match the isolated candidate bundle digest.
-- [ ] ISC-1464: Candidate Mission Fabric reports exact mapped and explicit-gap coverage without invented admissions.
-- [ ] ISC-1465: Candidate preview performs no KV, D1, R2, secret, provider, Hermes, vault, or Telegram mutation.
-- [ ] ISC-1466: Promotion approval is bound to the verified candidate UUID and recorded preview evidence.
-- [ ] ISC-1467: Promotion is attempted only after every candidate gate passes.
-- [ ] ISC-1468: Promotion assigns exactly 100 percent traffic to the verified candidate UUID.
-- [ ] ISC-1469: Post-promotion status shows exactly one active candidate Version at 100 percent.
-- [ ] ISC-1470: Post-promotion binding readback matches the verified candidate binding identities.
-- [ ] ISC-1471: The custom hostname remains protected by Cloudflare Access after promotion.
-- [ ] ISC-1472: The direct Labs health endpoint remains JSON 200 after promotion.
-- [ ] ISC-1473: The protected Workbench renders the reconciled portfolio through an authenticated session or is explicitly deferred with a follow-up proof ID.
-- [ ] ISC-1474: Mission freshness is reported from readback only and is never inferred from the earlier Worker write receipt.
-- [ ] ISC-1475: Any failed post-promotion routing, binding, auth, health, catalog, or Mission gate triggers rollback.
-- [ ] ISC-1476: A triggered rollback restores the recorded prior Version to exactly 100 percent and re-runs the live probes.
-- [ ] ISC-1477: Redacted evidence records candidate UUID, prior UUID, source provenance, binding names, traffic, routes, and probe outcomes.
-- [ ] ISC-1478: The Cambium handoff records shipped mappings, exact verification commands, production receipt, rollback state, and remaining gaps.
+- [x] ISC-1417: Workbench total and per-kind counts are derived from the same catalog rows and add exactly.
+- [x] ISC-1418: Filesystem evidence, portfolio membership, lifecycle status, and operational admission remain separate fields.
+- [x] ISC-1419: Every visible WorkObject has exactly one grammar-valid kind: Sapling, Client Branch, or Internal Program.
+- [x] ISC-1420: No WorkObject kind is inferred solely from folder age, name, or the word `new`.
+- [x] ISC-1421: Every included working directory maps to one WorkObject or one explicit unresolved intake record.
+- [x] ISC-1422: Every WorkObject maps to reviewed roots or carries an explicit folderless or unresolved state.
+- [x] ISC-1423: Thoughtseed Labs remains read-only architecture and classification context, never a Cambium runtime dependency.
+- [x] ISC-1424: TeamForge remains canonical for `project_id`, `client_id`, and cross-system identity mappings.
+- [x] ISC-1425: Cambium D1 Goal Graph remains the sole operational writer for mission, task, approval, and receipt state.
+- [x] ISC-1426: R2 and KV remain bounded evidence and projection stores rather than identity authorities.
+- [x] ISC-1427: Hermes remains the sole Telegram transport and external delivery router.
+- [x] ISC-1428: Plexus and Cloudflare Access remain the fail-closed browser identity and RBAC boundary.
+- [x] ISC-1429: No vault registry, TeamForge registry, Hermes runtime, Plexus identity, or Telegram configuration is mutated.
+- [x] ISC-1430: Every canonical branch-story packet declares one catalog-resolving WorkObject identity.
+- [x] ISC-1431: Every active Sapling exposes a Story Arc or an explicit held/unadmitted Story Arc gap.
+- [x] ISC-1432: Every Client Branch exposes a client lifecycle projection or an explicit non-operational gap without Sapling promotion semantics.
+- [x] ISC-1433: Every Internal Program exposes a program lifecycle projection without being coerced into Sapling promotion semantics.
+- [x] ISC-1434: Every branch-packet WorkObject resolves to exactly one catalog row.
+- [x] ISC-1435: Template packets remain explicitly non-canonical and never inflate portfolio coverage.
+- [x] ISC-1436: Quest rows derive deterministically from packet and Goal Graph evidence.
+- [x] ISC-1437: Quest compilation and ledger projection do not admit or mutate Goal Graph state.
+- [x] ISC-1438: Every visible WorkObject reports each organ as linked, not-applicable, held, or unmapped.
+- [x] ISC-1439: Agent, skill, loadout, and organ relationships appear only when authoritative evidence exists.
+- [x] ISC-1440: Mission Fabric joins WorkObject to Mission, Task, Run, Receipt, agent, skill, and organ edges with explicit gaps.
+- [x] ISC-1441: Canopy catalog visibility is not reported as D1 operational admission.
+- [x] ISC-1442: Workbench and Worker portfolio routes consume the same checked-in catalog projection.
+- [x] ISC-1443: One deterministic linkage audit reports census, catalog, root, packet, quest, organ, and mini-app coverage counts.
+- [x] ISC-1444: The linkage audit fails on missing, duplicate, ambiguous, stale, or authority-collapsing mappings.
+- [x] ISC-1445: The Labs candidate declares the missing `CONTEXT_PROJECTIONS` R2 binding.
+- [x] ISC-1446: The candidate preserves every active secret binding by name without reading its value.
+- [x] ISC-1447: Candidate construction occurs in an isolated clean worktree, never the dirty primary checkout.
+- [x] ISC-1448: Candidate provenance records the exact base commit and bounded patch digest.
+- [x] ISC-1449: Candidate source and evidence contain no token, cookie, JWT, raw initData, secret value, or machine-local path.
+- [x] ISC-1450: Focused mapping, Worker, authentication, and projection tests pass in the isolated candidate.
+- [x] ISC-1451: The complete repository release gate and `git diff --check` pass in the isolated candidate.
+- [x] ISC-1452: A strict Wrangler dry run emits a non-empty bundle without remote mutation.
+- [x] ISC-1453: Fresh Labs control-plane readback still shows exactly one active Version at 100 percent before upload.
+- [x] ISC-1454: The rollback Version is re-verified against the same Labs Worker immediately before upload.
+- [x] ISC-1455: Exactly one inert candidate is created through a Version upload, never `wrangler deploy`.
+- [x] ISC-1456: Candidate upload leaves production traffic on the prior active Version at 100 percent.
+- [x] ISC-1457: Candidate metadata binds the reviewed Labs QUESTS, SECRETS, D1, R2, Vectorize, vars, and cron identities.
+- [x] ISC-1458: Candidate binding names preserve the active set and add only reviewed declared bindings.
+- [x] ISC-1459: Candidate upload leaves custom-domain route metadata unchanged.
+- [x] ISC-1460: Candidate preview health returns JSON 200 identifying `cambium-quests`.
+- [x] ISC-1461: Candidate preview unauthenticated quest reads fail closed with JSON 401.
+- [x] ISC-1462: Candidate portfolio route reports the reconciled record and kind counts.
+- [x] ISC-1463: Candidate Workbench bytes match the isolated candidate bundle digest.
+- [x] ISC-1464: Candidate Mission Fabric reports exact mapped and explicit-gap coverage without invented admissions.
+- [x] ISC-1465: Candidate preview performs no KV, D1, R2, secret, provider, Hermes, vault, or Telegram mutation.
+- [x] ISC-1466: Promotion approval is bound to the verified candidate UUID and recorded preview evidence.
+- [x] ISC-1467: Promotion is attempted only after every candidate gate passes.
+- [x] ISC-1468: Promotion assigns exactly 100 percent traffic to the verified candidate UUID.
+- [x] ISC-1469: Post-promotion status shows exactly one active candidate Version at 100 percent.
+- [x] ISC-1470: Post-promotion binding readback matches the verified candidate binding identities.
+- [x] ISC-1471: The custom hostname remains protected by Cloudflare Access after promotion.
+- [x] ISC-1472: The direct Labs health endpoint remains JSON 200 after promotion.
+- [x] ISC-1473: The protected Workbench renders the reconciled portfolio through an authenticated session or is explicitly deferred with a follow-up proof ID.
+- [x] ISC-1474: Mission freshness is reported from readback only and is never inferred from the earlier Worker write receipt.
+- [x] ISC-1475: Any failed post-promotion routing, binding, auth, health, catalog, or Mission gate triggers rollback.
+- [x] ISC-1476: A triggered rollback restores the recorded prior Version to exactly 100 percent and re-runs the live probes.
+- [x] ISC-1477: Redacted evidence records candidate UUID, prior UUID, source provenance, binding names, traffic, routes, and probe outcomes.
+- [x] ISC-1478: The Cambium handoff records shipped mappings, exact verification commands, production receipt, rollback state, and remaining gaps.
 - [ ] ISC-1479: Independent E4 Cato review finds no P0/P1 production, authority, mapping, security, or evidence defect.
-- [ ] ISC-1480: Anti: no personal-account deployment, Access weakening, credential mutation, second ledger push, vault write, or unrelated external change occurs.
+- [x] ISC-1480: Anti: no personal-account deployment, Access weakening, credential mutation, second ledger push, vault write, or unrelated external change occurs.
 
 ### Protected execution boundary
 
@@ -1802,7 +1804,7 @@ For the production portfolio-assimilation iteration, reconcile every eligible sh
 - [x] ISC-1249: A post-push authenticated ledger read is compared with the receipt; an exact timestamp match is required to claim freshness, while any mismatch is recorded verbatim without a second push.
 - [x] ISC-1250: Mission Control's actual post-push freshness state is confirmed without persistent browser mutation or Telegram action, and any remaining stale boundary stays held for separate routing/binding/configuration approval.
 - [x] ISC-1251: A redacted local evidence artifact records the pre-read, one-POST count, exact receipt, post-read, and verification results without the token or ledger payload.
-- [x] ISC-1252: Temperance parallel-dispatch preflights use `te-dispatch-paid`, concurrency at most four, read-only workers, validated run indexes and gateway attribution; non-substantive outputs are rejected after the one permitted retry and replaced by direct controller evidence.
+- [x] ISC-1252: Temperance parallel-dispatch preflights use `noesis-execute`, concurrency at most four, read-only workers, validated run indexes and gateway attribution; non-substantive outputs are rejected after the one permitted retry and replaced by direct controller evidence.
 - [x] ISC-1253: Independent post-operation review finds no pin overreach, duplicate ledger write, stale-read claim, receipt mismatch, or authority collapse.
 - [x] ISC-1254: The project handoff records changed files, exact verification commands, the redacted receipt artifact, and remaining separately approved gates.
 - [x] ISC-1255: Anti: no deployment, Worker upload, traffic shift, binding/configuration change, D1/R2/vault write, Hermes mutation, Telegram send, or authentication weakening occurs.
@@ -2088,15 +2090,15 @@ Each criterion is verified at the narrowest boundary that can prove its behavior
 
 <!-- arch-assets:start -->
 
-_Maintained during the 2026-07-22 architecture refresh; source-backed inventory plus reviewed LLM-generated assets._
-_Last refreshed: 2026-07-22T09:00:00Z_
+_Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._  
+_Last refreshed: 2026-08-17T18:27:44.242Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
-| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✅ current | auto (file scan) |
-| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✅ current | auto (file scan) |
-| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ✅ current | architecture-diagram skill, reviewed against source |
-| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ✅ current | architecture refresh prompt, reviewed against source |
+| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✓ current | auto (file scan) |
+| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✓ current | auto (file scan) |
+| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ⚠ STALE — run `/refresh-architecture` | manual (LLM skill) |
+| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ⚠ STALE — run `/refresh-architecture` | manual (LLM skill) |
 
 **To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
 
@@ -2353,6 +2355,10 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - 2026-08-09 04:09: refined: Fitcheck is the single reference project for restoring the Telegram and Workbench execution experience; both surfaces consume one packet-derived read model while D1 and receipts remain the only operational and proof authorities.
 
+- 2026-08-17 23:31: refined: the active goal now treats Cambium's root documentation, MEMORY, and docs corpus as one provenance-preserving knowledge architecture. ISA and GSD remain the only planning authorities; Ralph supplies bounded fresh-context persistence, while the Temperance manifest exposes next actions, graphs, skill-cluster and OmniRoute flows, verification gates, and stop conditions. This goal-binding step does not rewrite the corpus, execute a fleet, or claim consolidation complete.
+
+- 2026-08-17 23:39: refined: owner approval establishes canonical root `VISION.md` and renewable root `MISSION.md` as the infinite-game anchors. WorkObjects inherit that direction through scoped overlays; finite FabricMission nodes remain distinct from the repository-level mission; ISA and GSD remain the only goal and planning authorities. The approved projection may expose references, digests, flow edges, gates, and stop conditions, but never copied doctrine or a third writer.
+
 ## Changelog
 
 - 2026-08-12 | conjectured: the prior active-versus-checked-in QUESTS mismatch could be repaired by deploying the checked-in personal-account config
@@ -2594,7 +2600,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - ISC-1230..1239 reviewed-pin proof — direct source diffs show the root map gained only `fitcheck-wiki` for `sapling:fitcheck`, while the catalog gained its immutable wiki repository evidence. App/Worker catalog mirrors and root-map digests agree, classification remains `43630e6e…`, and no packet WorkObject is absent from the catalog. The shared pin test passes 2/2; birth and closeout snapshots match; the linkage audit is `aligned` with zero blockers; the complete portfolio-foundation chain passes 46/46 plus Cartographer 70 pass/one historical skip and Worker integration 109/109. The repository baseline improves to 1656/1660 with only four unrelated dirty-tree UI/drift failures.
 - ISC-1240..1248 one-write proof — the authenticated pre-read recorded source `push`, `derivedAt 2026-08-11T12:12:56.794Z`, five canonical Mission tabs, and the repository's 5+1 canonical/template packet shape. Read-only Wrangler metadata recorded Version `86112412-2073-4f14-b215-599de0ed0eeb` at 100% and the existing live `QUESTS` binding before Cloudflare OAuth later became unavailable. Presence-only token inspection passed. The one-shot harness counted exactly one POST to the direct Worker route and captured HTTP 200 JSON with exact receipt `{ok:true, tenant:"cambium", bytes:155832, derivedAt:"2026-08-12T09:39:12.666Z"}`; every field matches the closed Quine result.
 - ISC-1249..1250 post-read truth — repeated authenticated custom-domain reloads still show source `push`, `derivedAt 2026-08-11T12:12:56.794Z`, `stale 22h`, and five canonical Mission tabs. The evidence therefore records `accepted-worker-write-not-yet-visible-on-custom-domain-read-path`; it does not claim fresh end-to-end synchronization and performs no second push, browser persistence, or Telegram action.
-- ISC-1251..1256 governance proof — `docs/evidence/2026-08-12-reviewed-pins-ledger-push.v1.json` records the pins, pre-read, one-POST counter, exact receipt, stale post-read, tests, and held gates without token, payload, raw session, or checkout path. Two read-only `te-dispatch-paid` runs used concurrency three and valid gateway-attributed indexes; all progress-only outputs were rejected after the permitted retry and direct evidence replaced them. Independent Cato-compatible review returns PASS with no P0-P2 finding; the second reviewer was stopped without a verdict and contributes no evidence. The handoff is current, `git diff --check` passes, no local operator-state file was created, and deployment/upload, traffic, binding/configuration, authentication, D1/R2/vault, Hermes, Telegram, and second-push boundaries stayed closed.
+- ISC-1251..1256 governance proof — `docs/evidence/2026-08-12-reviewed-pins-ledger-push.v1.json` records the pins, pre-read, one-POST counter, exact receipt, stale post-read, tests, and held gates without token, payload, raw session, or checkout path. Two read-only `noesis-execute` runs used concurrency three and valid gateway-attributed indexes; all progress-only outputs were rejected after the permitted retry and direct evidence replaced them. Independent Cato-compatible review returns PASS with no P0-P2 finding; the second reviewer was stopped without a verdict and contributes no evidence. The handoff is current, `git diff --check` passes, no local operator-state file was created, and deployment/upload, traffic, binding/configuration, authentication, D1/R2/vault, Hermes, Telegram, and second-push boundaries stayed closed.
 
 - ISC-1201..1215 observation and causal proof — the authenticated Workbench was read without navigation or action. Its 73 rendered cards split 20 Saplings, 38 Client Branches, and 15 Internal Programs, while its header claims 20/39/15; autosave stays paused and the unreadable v4 draft stays untouched. The current local catalog has 72 records at catalog digest `sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca`; the 2026-08-07 vault reference has 71. Exact live/local and vault/local differences are stored without private payloads in `docs/evidence/2026-08-12-portfolio-miniapp-linkage-readback.v1.json`. Read-only deployment/binding inspection proves the deployment is newer than the ledger; the first observable stale boundary is before active production ledger acceptance.
 - ISC-1216..1221 linkage-audit proof — `scripts/audit-portfolio-miniapp-linkage.ts` composes the real mirrored catalog, generated root maps, reviewed pins, six branch packets, optional live observation, and optional offline vault registry through the pure `scripts/portfolio-miniapp-linkage.mjs` report. The real audit returns `blocked` only for catalog/root-map pin drift, while all catalog data, catalog module, and root-map mirrors match and all five canonical packet WorkObjects resolve; `client-delivery` remains a template. Five focused tests pass deterministic sorting, kind drift, visibility/admission separation, template handling, redaction, no mutation, blockers, and actual repository composition.

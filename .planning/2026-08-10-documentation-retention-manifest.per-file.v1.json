@@ -1,0 +1,3417 @@
+{
+  "schema": "cambium.docs-retention.per-file.v1",
+  "status": "reviewed-inventory",
+  "generatedAt": "2026-08-16",
+  "scopeRoot": "docs/plans",
+  "decision": "no-relocation-or-deletion",
+  "entryCount": 176,
+  "entries": [
+    {
+      "path": "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
+      "bytes": 37467,
+      "sha256": "40b18fe70dd78eb0f44f337698e9c72f9d671ace67c77ae5b9c74d0429345acc",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-15-weekly-client-report-r2-key-contract.md",
+      "bytes": 5104,
+      "sha256": "d388c0cb8ea4fcf9cdec1f90a4fb733626f5c1f2b02dc96076171b5f2c502cc5",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-18-iverif-live-operator-workflow.md",
+      "bytes": 11718,
+      "sha256": "af280ba43f8e102b79e16227de8e2cf0f358f506f9f5e631bb16db1d7988b61c",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-18-lead-ecosystem-integration-review.md",
+      "bytes": 9543,
+      "sha256": "4320364dcdf4191d0bff085b8ff53b0416d4469e6793520c1805f3488d4cc575",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/product-branches/branch-map.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-18-marketing-create-worker-renderer.md",
+      "bytes": 14869,
+      "sha256": "6e840f3c8dd0794377306b6eca7dcb420c27ec5fe2c5d28ac7a9438cb223e279",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-21-constellation-app-usability-spec.md",
+      "bytes": 3037,
+      "sha256": "311362d1ab9bf8fcc151effa8b52c92c2161778705cb095f470b0c4959936b65",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-21-r3f-miniapp-integration-rbac-plan.md",
+      "bytes": 14514,
+      "sha256": "a8510d8243612b926d9e4af18222ab1d4fa39686130347f964f6d05b95763a66",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-21-ui-prune-constellation-convergence.md",
+      "bytes": 8339,
+      "sha256": "bd3ad4ed4c4faaf4cbe5b30622fef43effe4e513659bb2920cb8adcb7e6af2c1",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/scene/scene-data.ts",
+          "docs/plans/2026-07-21-constellation-app-usability-spec.md",
+          "docs/plans/assets/constellation-ui-reference/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-24-tg-miniapp-mobile-redesign-swarm-plan.md",
+      "bytes": 18421,
+      "sha256": "3eb71690b2527af0c3e75255ee5c669624be7b0eefd1b3318a94596e2c5c8ec9",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          "ISA.md",
+          "docs/architecture/contracts/tg-miniapp-contract-v2.md",
+          "docs/evidence/tg-miniapp/2026-07-26/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-28-cambium-operating-fabric-implementation-plan.md",
+      "bytes": 46843,
+      "sha256": "f233e2155536346684b519e62b558fe12ff8deb05642bee497c463a7353e9cab",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 5,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          "docs/architecture/cambium-operating-fabric.md",
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md",
+          "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
+          "docs/plans/evidence/cambium-operating-fabric-proof-template.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-07-29-portfolio-cartographer-design.md",
+      "bytes": 3873,
+      "sha256": "9af9a0659966184dd2d3101df5c034ef5a2d78ef933bf6158d82d32a6ff72379",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-01-portfolio-client-families-and-triage-design.md",
+      "bytes": 3747,
+      "sha256": "565a9232d211872598a49878fbad271fcdef9a71c7767ca9e7821fe9856644ab",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-01-portfolio-workbench-redesign.md",
+      "bytes": 6588,
+      "sha256": "8da8ceaf22f4138cef7edb18f76f77921ed58b0264441bea3cbbb6154c929afc",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-portfolio-continuity-board-and-repository-map.md",
+      "bytes": 6257,
+      "sha256": "f8e7a0faf23e0c167a345b28a29c941a8ba0f0b2ca502e7dc514be17999061f2",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          "docs/plans/2026-08-07-portfolio-repository-first-intake-design.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-portfolio-hosted-admin-actions-design.md",
+      "bytes": 4534,
+      "sha256": "3f1687765dfa91d642d47474074bf40b42e0719e99e69f5fec79db9505469c0e",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          "docs/plans/2026-08-07-portfolio-ingestion-headers-implementation.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-portfolio-hosted-admin-actions-implementation.md",
+      "bytes": 3744,
+      "sha256": "b18f84a34dcc086c1f9f85de297f47930220b2e44e1045e1d35cf3121239797e",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          "docs/plans/2026-08-08-project-r2-mapping-execution.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-portfolio-ingestion-headers-design.md",
+      "bytes": 6072,
+      "sha256": "52b7f06d1cb46a369f8460791fc6b1f1bb2eaae623b133ea7fe692e29375c6d5",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/project-management/portfolio-root-ingestion-issue.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-portfolio-ingestion-headers-implementation.md",
+      "bytes": 5176,
+      "sha256": "b061bc49b1a091a10ca99190bf1cdef171844f1b03879fdb39f905c2cc0e5764",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-portfolio-repository-first-intake-design.md",
+      "bytes": 9844,
+      "sha256": "9502fefd9ea82ba274be3df29b80ffb16d74d0154f10631d36ae03267214b9eb",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          ".project/HANDOFF.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-portfolio-repository-first-intake-implementation.md",
+      "bytes": 8662,
+      "sha256": "6c8f48dd0db205511ca5d5462bb2d7e18157a79e27799408f480714ebe088b16",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          ".project/HANDOFF.md",
+          "docs/plans/2026-08-08-project-r2-mapping-execution.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-thoughtseed-governed-project-birth-design.md",
+      "bytes": 6538,
+      "sha256": "6ad0b31316d4bd1ecdecab58f5084c5e39292b370edd8e5ebf3ed1cf71b672a4",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          "docs/plans/2026-08-07-portfolio-hosted-admin-actions-design.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-07-thoughtseed-governed-project-birth-implementation.md",
+      "bytes": 3255,
+      "sha256": "85ff216216995688ab83860090a567f604bed11166a919e1b79fe5e17a59e5b8",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          "docs/plans/2026-08-07-portfolio-hosted-admin-actions-implementation.md",
+          "docs/plans/2026-08-08-project-r2-mapping-execution.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-08-project-r2-mapping-execution.md",
+      "bytes": 8817,
+      "sha256": "a61f8fbad1456a8ab2e32ad821abbd1ffa598512c0f60bb2613db498df89aef1",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          "docs/project-management/project-r2-mapping-proposals.md",
+          "docs/project-management/project-r2-mapping-proposals.v1.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-08-thoughtseed-project-closeout-workflow-design.md",
+      "bytes": 5841,
+      "sha256": "78c77bf6495ce701b8c516d8b7670a815ca2ba487e8cd1e25875e9428142f28b",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          ".project/HANDOFF.md",
+          "docs/plans/2026-08-08-thoughtseed-project-closeout-workflow-implementation.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-08-thoughtseed-project-closeout-workflow-implementation.md",
+      "bytes": 3580,
+      "sha256": "cbd58efedd4485aa55538da825fa3e62cd27dbc2c0773474e22a32338d0fcabb",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          ".planning/ROADMAP-v0.4-continuation.md",
+          ".project/HANDOFF.md",
+          "docs/plans/2026-08-08-project-r2-mapping-execution.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/2026-08-12-mission-control-visual-reconciliation.md",
+      "bytes": 9177,
+      "sha256": "19d22d6251ca8c214e458721c2026392cb63432acbff7cf0c4fa4b19a43b0820",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          "docs/architecture/cambium-operating-fabric.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/README.md",
+      "bytes": 1111,
+      "sha256": "c9d93764ce8d2a2e6621c00341b58042dad62b37dc41439949627ae352fdcbdb",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 9,
+        "samplePaths": [
+          "ISA.md",
+          "apps/cambium-r3f/src/scene/knowledge-model.ts",
+          "docs/archive/README.md",
+          "docs/plans/2026-07-21-ui-prune-constellation-convergence.md",
+          "docs/plans/2026-07-24-tg-miniapp-mobile-redesign-swarm-plan.md",
+          "docs/plans/2026-07-28-cambium-operating-fabric-implementation-plan.md",
+          "docs/plans/2026-08-07-portfolio-ingestion-headers-implementation.md",
+          "docs/plans/cambium-r3f-visual-moodboard.md",
+          "scripts/drift-audit.mjs"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-isometric-moodboard/cambium-isometric-moodboard.png",
+      "bytes": 2576905,
+      "sha256": "9fed7fd70e96ab087d8e0a7ebb8830878aa6bf4854861c43a8f92fea112cbf5a",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-isometric-moodboard/prompt.md",
+      "bytes": 2686,
+      "sha256": "461e447f52a1cf17a17b5db7781c98480bae17cd3be675694771e148eeb6a730",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-operating-fabric-moodboard/01-operating-fabric-system.png",
+      "bytes": 2245293,
+      "sha256": "7d9a9af7cde5a46d2134ef729fd50fceb0f2572ff33c133c63542967b859cba2",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-operating-fabric-moodboard/02-operating-fabric-mobile-pages.png",
+      "bytes": 1949745,
+      "sha256": "4772bd79933987e2318da860cc0bea8c0c3f7d95831a78ec96f162d4b9a3e533",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-operating-fabric-moodboard/README.md",
+      "bytes": 2404,
+      "sha256": "95b3911a41a9c0fdfba42900624460bc9949884e51c27975057b44e0da3407c7",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-operating-fabric-moodboard/prompt-mobile-pages.md",
+      "bytes": 2763,
+      "sha256": "720b1d1009429b321acfd175bb4aeab970d910c9232b912fc7598631a776c074",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-operating-fabric-moodboard/prompt-system.md",
+      "bytes": 3254,
+      "sha256": "392b8226515c99db0f420c68bfda6849f1fff5f26590f6ca840d4ca3553ddbd5",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/contact-sheet.png",
+      "bytes": 1647449,
+      "sha256": "cfa63460a914e8361a12b4ef33bcd63fb9e7c277e2c42dc4e1e57e96c8a5bcde",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/assets/provenance.json",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-prompts.json",
+      "bytes": 11039,
+      "sha256": "9a6518e91f8b40c228b05d01816018214d849e7abdcfdccdc1bce1072d162386",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          "apps/cambium-r3f/scripts/generate-source-plates.mjs",
+          "apps/cambium-r3f/scripts/meshy-image-to-3d.mjs",
+          "docs/assets/provenance.json",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md",
+      "bytes": 4407,
+      "sha256": "6ccb096949e008f17a9e5c3b1dc4fed14efb623eb9dd2c0286017c3550c11968",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/build.png",
+      "bytes": 1576102,
+      "sha256": "432ee49a1400b45fff610385cb85a5468935ee607ab8961c02382e12bdfdebcb",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/control-dial.png",
+      "bytes": 1857885,
+      "sha256": "31dfaa4dd436aea6dc5c87714e7d4af2776acaa8efd66f8806f4a116954a6dc6",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/cortex.png",
+      "bytes": 1791748,
+      "sha256": "f2939a20168be7819644ada2291f57d69d9b07efebe25794d79a7c05c1d8d7a7",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/emitter-node.png",
+      "bytes": 1746478,
+      "sha256": "8ee608c315a072c8dae1b56761e789d4fa61b902184acecc46b2b4138940419a",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/world/living-flow-assets.ts",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/genesis.png",
+      "bytes": 1746224,
+      "sha256": "5cb14af6fe151465b2ddcb55836391288c96d8291d9ee4031d7a84cee7cb7ab5",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          "apps/cambium-r3f/public/assets/meshy/image-to-3d/manifest.json",
+          "apps/cambium-r3f/src/world/image-to-3d-assets.ts",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/meshy-image-task-ledger.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/ops.png",
+      "bytes": 1655824,
+      "sha256": "326ab59593373de84b098d064bef86080534bd1ab7c265ad99b6918d3c950343",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/process-beacon.png",
+      "bytes": 1517348,
+      "sha256": "4d94b00768ec8dc81c85db31c3353ee7fd34ae34fb98128bf05939607059975c",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/world/living-flow-assets.ts",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/rail-arc.png",
+      "bytes": 1421944,
+      "sha256": "679f1af2daf1337b9af3167f7647967a59e117e97e22215cba83a97f8f9e384e",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          "apps/cambium-r3f/public/assets/meshy/image-to-3d/manifest.json",
+          "apps/cambium-r3f/src/world/image-to-3d-assets.ts",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/meshy-image-task-ledger.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/signal-packet.png",
+      "bytes": 1353506,
+      "sha256": "0963dd08512ad52a3894399ffa9e1260d7cc3a5fef54c954962dc8aeff07cb76",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/world/living-flow-assets.ts",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/taste.png",
+      "bytes": 1796081,
+      "sha256": "42342c7033bd116eadbb353a93aee7c97aafe361f9084ff2d64d453a6c7444d7",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plates/visualization-lens.png",
+      "bytes": 1668016,
+      "sha256": "e6558f202e9a155a98d269f4612244150eeefc0bdb884331a41281177114ad95",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/world/living-flow-assets.ts",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/master-contact-sheet.png",
+      "bytes": 349051,
+      "sha256": "bd953ca0f00279e62c61a6eb6060ba02fe499d4eb05f9f6c3e4972c58ebf157e",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/master-pass-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/master-pass-report.md",
+      "bytes": 3434,
+      "sha256": "803fd275e640bad5291cae4be82a72f2c14fb6fee9638096fff8e56500bf0141",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/meshy-image-task-ledger.json",
+      "bytes": 5760,
+      "sha256": "56462f9289ec501986dced2928c75f90ad92acef45e3e029e6c71864183d2514",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/scripts/meshy-image-to-3d.mjs",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/trial-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/ops-source-prompt.md",
+      "bytes": 1473,
+      "sha256": "e4771d9ded7486376de9ef1258bf09dfa51f2b83410926fee1b01272c214ad49",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/scripts/meshy-image-to-3d.mjs",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/trial-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/ops-source.png",
+      "bytes": 1678868,
+      "sha256": "6c0652e1b99aa6812f9d811d552d986178981568f52a1c6bf6e6f5b306a154e1",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 7,
+        "samplePaths": [
+          "apps/cambium-r3f/public/assets/meshy/image-to-3d/manifest.json",
+          "apps/cambium-r3f/scripts/meshy-image-to-3d.mjs",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-prompts.json",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-source-pass/source-plate-report.md",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/meshy-image-task-ledger.json",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/ops-source-prompt.md",
+          "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/trial-report.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-game-engine-realignment/image-to-3d/trial-report.md",
+      "bytes": 2182,
+      "sha256": "6de769dc76b2d8c0bc0fc58450deddab66cfce5b326542928f5b81a52eb98c0f",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/contact-sheet.png",
+      "bytes": 2386705,
+      "sha256": "b68d39bffd707c40ea5f49753eb6b731314dbc19f3791687b8248df0e0bd9637",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/elements-settings.png",
+      "bytes": 2179407,
+      "sha256": "6e4eda932c87b435cd73d78ea624d1ea2575435c920b8afe6833ffa12a1c59cf",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/figma-components.png",
+      "bytes": 1766403,
+      "sha256": "aaef9b5a40b3da2a08069216306e0619ae920f3025aa951a7dabff25490a033f",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/home.png",
+      "bytes": 2257498,
+      "sha256": "516167ad28184402e7ee074b50626a8175eaa47a53ee623d759f9055d857224a",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/island-build.png",
+      "bytes": 2237944,
+      "sha256": "9d0cb0c05ae6e2c7ce44b919229b0f0eee96bd1e9e34cfb08f1933e1ff6ebc14",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/island-cortex.png",
+      "bytes": 2297009,
+      "sha256": "8713e27bda4914b49e0e72806566752f6113f93e94f46065a8c592b361ec12b9",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/island-genesis.png",
+      "bytes": 2373695,
+      "sha256": "7f679e562fe49aff8b9b97764b0e90bea7d4a3a5a2c657072adca54f61a0d7d6",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/island-ops.png",
+      "bytes": 2346837,
+      "sha256": "cce1395f774a1730447b122d97d6186317edff6a3d102450c0cf9fc21b434f11",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/island-taste.png",
+      "bytes": 2396527,
+      "sha256": "22d04df88eebe88506979fd392ea9fc4c2ad9215a0a724695adadd47a779c8b5",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/images/visualizations.png",
+      "bytes": 2264418,
+      "sha256": "dce39ebaad9fe1ab8df7032e90cb75b828a5725a4520cedd8f7a081397c9c804",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md",
+          "docs/plans/cambium-r3f-screenshot-pack.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/00-shared-style.md",
+      "bytes": 1751,
+      "sha256": "f1977931ed8307dfef593517725a7a5e329e48a1be49a849a41bdcd6350de229",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/01-home.md",
+      "bytes": 855,
+      "sha256": "a3d223b122096bf0e1ef07a5eefb52554f69636af07934f2e08103e58357f881",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/02-island-genesis.md",
+      "bytes": 805,
+      "sha256": "47ce3c699d8e3a899c9b1e0b7d2d813c8906dd72192254506f626b432427ad10",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/03-island-taste.md",
+      "bytes": 817,
+      "sha256": "c4e353134ac74c8df35a0ecad597a9a5a12aa8648bcb1c8f8923c27869cf370e",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/04-island-build.md",
+      "bytes": 706,
+      "sha256": "28b923df7e29f0dc1d0fdcb8f5311c7cda0b2379ba1fe779411530af0683e570",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/05-island-ops.md",
+      "bytes": 712,
+      "sha256": "d48cdc2758ccd94284c6673d4075a0bbbe10a86485ba1eda8232b1b7f1f410e4",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/06-island-cortex.md",
+      "bytes": 708,
+      "sha256": "528d23072c3b3a55aed3b35a2027851e0e88fb0208a31b135a07d6037ad03e43",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/07-elements-settings.md",
+      "bytes": 805,
+      "sha256": "72dc0e403057c8c03e0973c4223178910eec33e8840eee5954eafd877c1847d8",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/08-visualizations.md",
+      "bytes": 805,
+      "sha256": "07fefdea780e652f8c28aca0fe0496eb39e10fc0d152420406b3af07d1dbc8d8",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-screenshots/prompts/09-figma-components.md",
+      "bytes": 843,
+      "sha256": "c2a5a857c690ec17039698f8bcdffdaa884643d713192bd0c66f1655ea491e82",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-visual-moodboard/cambium-r3f-visual-moodboard.png",
+      "bytes": 2626162,
+      "sha256": "dd040a5c9a568832fcd75fe85ab838025afbdd102e11c805143efcabd57966f0",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/cambium-r3f-visual-moodboard.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/cambium-r3f-visual-moodboard/prompt.md",
+      "bytes": 3850,
+      "sha256": "e3a0e72769ea3c9f13a4f453e6693d6da8278666a1538681524729eeac462e1e",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-visual-moodboard.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/constellation-ui-reference/01-map-overview.png",
+      "bytes": 2323631,
+      "sha256": "36b70facd64e9b6944bf08444c3187f3635461772d4aeb412a9b0074cc1402cf",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/constellation-ui-reference/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/constellation-ui-reference/02-cluster-node-view.png",
+      "bytes": 2069138,
+      "sha256": "82e6228972a7009445c6fda8cd847cf7e577145200a499af976d648aed69e609",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/constellation-ui-reference/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/constellation-ui-reference/03-sheets-mode.png",
+      "bytes": 1874746,
+      "sha256": "8cf49d7c9864df7a0e8d82632f3fa596eb241d76676205fdee33a3372ccf2ac0",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/constellation-ui-reference/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/constellation-ui-reference/04-workforce-mode.png",
+      "bytes": 2006380,
+      "sha256": "d5a90c319615213d4a5b192e6e24dadfa79b0fd60fb70f1d70ae9d613817b59e",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md",
+          "docs/plans/assets/constellation-ui-reference/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/constellation-ui-reference/README.md",
+      "bytes": 2008,
+      "sha256": "5f69c488712aec0553f2dd4ac38beb91dbc423aa6d9460c3991b721b557fdee2",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/prompt-reference-schema.json",
+      "bytes": 1907,
+      "sha256": "64175e5b7bd10fdf7cf99dba2330ffd121e8486e1048eae93e5fd0c5df210dd3",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-09-capability-alignment-variable-contracts.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/stage-handoff-matrix.json",
+      "bytes": 2773,
+      "sha256": "b497c08730455602533c82841536caef0e661aae1e1d780ac46654679ffa89d8",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 9,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-09-capability-alignment-variable-contracts.md",
+          "docs/cambium-composition-technical-reference.html",
+          "docs/organs.html",
+          "docs/organs/cortex.html",
+          "docs/organs/genesis.html",
+          "docs/organs/hands.html",
+          "docs/organs/taste.html",
+          "docs/organs/will.html",
+          "docs/plans/cambium-r3f-visual-moodboard.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+      "bytes": 1733,
+      "sha256": "2cb65992ed400db0202c379abc41916aed6178428981e1d892b9fea51870b2ad",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md",
+          "docs/archive/superpowers/specs/2026-06-29-tg-miniapp-mission-control-design.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/01-component-anatomy.md",
+      "bytes": 5704,
+      "sha256": "da48bb3005c010cdd7485e05e92275e2ed386c7efbe0673e22634afff6e36350",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 7,
+        "samplePaths": [
+          "docs/architecture/contracts/scenes/gate.json",
+          "docs/architecture/contracts/scenes/inspect.json",
+          "docs/architecture/contracts/scenes/mission.json",
+          "docs/architecture/contracts/scenes/story.json",
+          "docs/architecture/contracts/scenes/tools.json",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/README.md",
+          "workers/quests/src/page/styles/components.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/02-screen-composition.md",
+      "bytes": 4115,
+      "sha256": "88bae708a96ada6eed014ac594e96949a9e6dc6ef0dc9ba119fdaa7b6ed1e3f2",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/architecture/contracts/scenes/mission.json",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/03-motion-spec.md",
+      "bytes": 3558,
+      "sha256": "ebccc3a3d42b6cbbb5f19f50d6863e7565c942ca0ccaee57353586894d3a7f72",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/design-tokens.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/04-tokens-and-atlas.md",
+      "bytes": 4374,
+      "sha256": "71e28ed388e848c967eea310d493f1e3c7e29b75424cd221713cb601b4007973",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 7,
+        "samplePaths": [
+          "docs/architecture/contracts/scenes/gate.json",
+          "docs/architecture/contracts/scenes/inspect.json",
+          "docs/architecture/contracts/scenes/mission.json",
+          "docs/architecture/contracts/scenes/story.json",
+          "docs/architecture/contracts/scenes/tools.json",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/design-tokens.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/05-copy-budget.md",
+      "bytes": 7188,
+      "sha256": "d2cfe6bf4e19301d89f806efe5460890beb4a575fe6002518199b1fc6dc9137c",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 6,
+        "samplePaths": [
+          "docs/architecture/contracts/scenes/gate.json",
+          "docs/architecture/contracts/scenes/inspect.json",
+          "docs/architecture/contracts/scenes/mission.json",
+          "docs/architecture/contracts/scenes/story.json",
+          "docs/architecture/contracts/scenes/tools.json",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/06-copy-brief.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/06-copy-brief.md",
+      "bytes": 33052,
+      "sha256": "16dbc04774d395af24a6b6c7d48d2e7078acb4a264b241166c388cb37b8ba632",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/README.md",
+      "bytes": 2085,
+      "sha256": "525f212d254bbe60641aedf8c2adf98883bb20c3b8ff50ccea23f82c3cda6d51",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/design-tokens.json",
+      "bytes": 3609,
+      "sha256": "01325147cf332e2bb1258aebbf567bc85b963641a3542e7bfc2ff3c555c38faa",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/mission-control-mobile-reference.png",
+      "bytes": 1270961,
+      "sha256": "04f2f88f0ea554d47d6699cc0dc2973073e4a96d139cee6f6a820512411e7ad4",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 7,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md",
+          "docs/archive/superpowers/specs/2026-06-29-tg-miniapp-mission-control-design.md",
+          "docs/plans/assets/cambium-operating-fabric-moodboard/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/frozen/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/component-map.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md",
+      "bytes": 1640,
+      "sha256": "e8e1424acb233f08e883334e5ab3b47f94f2fa0306f521953b54674117b0749c",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/component-map.md",
+      "bytes": 4363,
+      "sha256": "a7f478ad9f0bb745b0d7f176ae6f8132b06160b022217ea5d8001e97954deaef",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 10,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md",
+          "docs/archive/plans/2026-06-29-tg-miniapp-root-nav-component-system-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-foundation-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-system-swarm-plan.md",
+          "docs/archive/plans/2026-07-01-tg-miniapp-story-inspect-clean-pass-plan.md",
+          "docs/archive/superpowers/specs/2026-06-29-tg-miniapp-mission-control-design.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md",
+          "workers/quests/src/page/client/core.ts",
+          "workers/quests/src/page/scaffold.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/images/01-component-glyph-state-board.png",
+      "bytes": 1943126,
+      "sha256": "44ef90e4a79379a87d82d0b40ae02f615b6983f3e8c9220e3d5c304e2675e1e9",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 6,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-foundation-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-system-swarm-plan.md",
+          "docs/archive/superpowers/specs/2026-06-29-tg-miniapp-mission-control-design.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/images/02-mission-control-state-stack-mobile.png",
+      "bytes": 1352492,
+      "sha256": "5192d6a2ef56807e79e10b935638833fd1bc0b3e57b30bc1760e156a245df408",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 6,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-foundation-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-system-swarm-plan.md",
+          "docs/archive/superpowers/specs/2026-06-29-tg-miniapp-mission-control-design.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/images/03-motion-storyboard-mobile.png",
+      "bytes": 1749553,
+      "sha256": "a221654e0db8df5466a41085c711b1e46971ef10f2163cb12def1f7e90fb13b7",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 6,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-foundation-plan.md",
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-system-swarm-plan.md",
+          "docs/archive/superpowers/specs/2026-06-29-tg-miniapp-mission-control-design.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/prompts/01-component-glyph-state-board.md",
+      "bytes": 2064,
+      "sha256": "d5c52e50dec46cfce0b2f41f07c0842b5b64c9186fa8904851af80eaf1a13a41",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-foundation-plan.md",
+          "workers/quests/src/page/client/core.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/prompts/02-mission-control-state-stack-mobile.md",
+      "bytes": 1998,
+      "sha256": "4c19d8cc166e53fb946106e7481b9cc6f47723b64ba8452157ec0f4c8d152a0e",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-foundation-plan.md",
+          "workers/quests/src/page/client/core.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/prompts/03-motion-storyboard-mobile.md",
+      "bytes": 1926,
+      "sha256": "64d6587424a40efafc5f9c65f20af099438755394cbc154ee84a43afc0388f3e",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-30-tg-miniapp-component-foundation-plan.md",
+          "workers/quests/src/page/client/core.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/prompt.md",
+      "bytes": 3318,
+      "sha256": "586d1bf382a6fbc4c39ebad190d468a30e11380eed9f2a32b77d3b0ed110d232",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/archive/superpowers/specs/2026-06-29-tg-miniapp-mission-control-design.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/source/cambium-atlas-source.png",
+      "bytes": 2664315,
+      "sha256": "71924815f4198e37bf27542441499961c710e61223d9868bf74427132d13c6b5",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/component-map.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-mission-control-reference/source/cambium-design-system-source.png",
+      "bytes": 1872323,
+      "sha256": "f1ca130b98787017fe04356ab0667cb7807487717c6512dae868adfcc5a9de7b",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/README.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/modular-components/component-map.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/README.md",
+      "bytes": 795,
+      "sha256": "085a29e3801d2a05ec0d880035d453ea354ef5babc9318f608bb254daf4f46d5",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-branch-story-adapter-miniapp-plan.md",
+          "docs/archive/plans/2026-06-29-tg-miniapp-root-nav-component-system-plan.md",
+          "docs/archive/plans/2026-07-01-tg-miniapp-story-inspect-clean-pass-plan.md",
+          "docs/archive/superpowers/plans/2026-06-23-tg-miniapp-ecosystem-clickability.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/component-glyph-state-board-mobile.png",
+      "bytes": 1067759,
+      "sha256": "b677bf8ae042402bb77222ea38b217dadbd2afd1aad40f28b26c58c6cbbe5ce4",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/component-legend-mobile.png",
+      "bytes": 1001212,
+      "sha256": "401cae05c8160db9bff7c3210e66159c554a308f7fac60b24574e29b7eb97660",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/component-mission-components-mobile.png",
+      "bytes": 1051725,
+      "sha256": "bc2f709f5961e410e1a9b6d02ee967e99b4db3fbd184b5a9c93eb90c5b956f01",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/component-motion-legend-mobile.png",
+      "bytes": 1020587,
+      "sha256": "8a386ef3e3012ee97c88723427a30d690fceca811102b46030bfe0da07ab648e",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-consequence-mobile.png",
+      "bytes": 1145358,
+      "sha256": "a1357ee2e94cc34250515477a97d99c2ff34edfbe85e70ee8640747bb6be86fa",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-root-nav-component-system-plan.md",
+          "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-empty-mobile.png",
+      "bytes": 1138225,
+      "sha256": "76132ce3717bfd0fcdf6c5ff9cfd92e53f57b8d5366b30a413aafbe65ba8365f",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-root-nav-component-system-plan.md",
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-iverif-action-request-mobile.png",
+      "bytes": 1155400,
+      "sha256": "6078c4f34b0be991a464bb20b24783941165beb69c43e74a34515411a0e14683",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/gate-iverif-queued-proof-mobile.png",
+      "bytes": 1120691,
+      "sha256": "494a4f574789ba3839208689b9878d1a7e52a8854b42b6716de4a4dcb36e7faf",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-companions-mobile.png",
+      "bytes": 1123120,
+      "sha256": "d275c68c0dbb74e1f153cabccfc867a36477d8e5942940cbe68ae47e7f680580",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-gate-priority-mobile.png",
+      "bytes": 1180709,
+      "sha256": "ffb65b331d465afc7af911d78e1951dcdcc482f0980adc1595bbf040ca7f1635",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-iverif-action-request-mobile.png",
+      "bytes": 1139602,
+      "sha256": "99ab4963a10dbc81b598e563a25e84edab87f0abc92105761d5eade6218bf7e6",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-live-proof-mobile.png",
+      "bytes": 1134093,
+      "sha256": "d45d2bcb2d56bd8b30251504d7da69635137f56c2777a6406a27db14e5947a45",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-mira-relationship-mobile.png",
+      "bytes": 222550,
+      "sha256": "9de1141ae7841fa37fc64cf4aec5127b5c49c2f2fbb5a883aa529efac2fa3b92",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-no-fake-progress-mobile.png",
+      "bytes": 1136560,
+      "sha256": "1dc0df3d00f84e1e44177ae26a6896663908aa12492fb2e782afbb7bf4551776",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-policy-gap-mobile.png",
+      "bytes": 1180790,
+      "sha256": "0af7f70f14ad4bf4137a4c827628fb4d393dcd52f57cee59fff9a34bfbc932b2",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-proof-320-mobile.png",
+      "bytes": 931862,
+      "sha256": "aefeef81e7b103c9ff7e015f952bdb89ddcdc1225dc494902021fcf2a1784b47",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-skill-promotion-mobile.png",
+      "bytes": 1170648,
+      "sha256": "3d5d6aa6c1a766a7bf354721301acaff73a643fde9a959ca08cea74b6ee8ae40",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-system-overview-mobile.png",
+      "bytes": 1100791,
+      "sha256": "592ff2e895a00accd2715c30bff43ebf1a35d4249ad289e360a33e88f1f8bf8e",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/inspect-tapestry-audit-mobile.png",
+      "bytes": 1101495,
+      "sha256": "9a3b911ee5a795be192332ac9597b278b2d50d7a29e072bd22d8f510e5c3bfed",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+      "bytes": 29603,
+      "sha256": "6585c33ef39553bd3668b72bcf22a70c8038874f9488a59b5958b5fd1c65a933",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 10,
+        "samplePaths": [
+          "docs/architecture/contracts/tg-miniapp-ecosystem-contract.md",
+          "docs/archive/plans/2026-06-22-tg-miniapp-visual-engine-execution.md",
+          "docs/archive/plans/2026-06-29-tg-miniapp-mission-control-ui-upgrade-plan.md",
+          "docs/archive/plans/2026-06-29-tg-miniapp-root-nav-component-system-plan.md",
+          "docs/archive/plans/2026-07-01-tg-miniapp-story-inspect-clean-pass-plan.md",
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
+          "docs/plans/assets/tg-miniapp-viewport-proof/README.md",
+          "workers/quests/src/live-proof-readiness.mjs"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-actions-mobile.png",
+      "bytes": 977471,
+      "sha256": "ccf3246422c4ef7fb8acabb705b47c92df930cd8e2cdb10780e269b378d42606",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain",
+      "duplicateSha256Group": true
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-control-320-mobile.png",
+      "bytes": 1100350,
+      "sha256": "69506d854e11a5bfde310df44fbde00351d42b4a461bbc1a6dce29d10a344412",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-control-430-mobile.png",
+      "bytes": 1421159,
+      "sha256": "5105d6f500b5c41874c170473146d21ee4dda2455561752951dd7d1bbc6c5871",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-control-mobile.png",
+      "bytes": 1310085,
+      "sha256": "f500b707db0bc294227d36609c6b7e7043c1ad4f07a3251d700742a8187dc517",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          "docs/archive/plans/2026-06-29-tg-miniapp-root-nav-component-system-plan.md",
+          "docs/plans/assets/tg-miniapp-mission-control-reference/README.md",
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-utilities-mobile.png",
+      "bytes": 977471,
+      "sha256": "ccf3246422c4ef7fb8acabb705b47c92df930cd8e2cdb10780e269b378d42606",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "review-required",
+      "restorationMethod": "Git history",
+      "decision": "retain",
+      "duplicateSha256Group": true
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-vantyx-selected-mobile.png",
+      "bytes": 1145211,
+      "sha256": "f88681a30cff7bdee28bda56086f51426233a0fca81d0fbd44f6bc4cfc3e76b5",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-320-mobile.png",
+      "bytes": 752660,
+      "sha256": "ca9680f95ce57087113fb35c69b271f1214eed6b73f8fa5454c66d92c566dddf",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+          "docs/plans/evidence/cambium-portfolio-catalog-2026-07-29.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-390-mobile.png",
+      "bytes": 874815,
+      "sha256": "b1c04f944a0b85621be0c800cd152e2f25a36b68a2c7a7dc585b30fe00dc3103",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+          "docs/plans/evidence/cambium-portfolio-catalog-2026-07-29.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-430-mobile.png",
+      "bytes": 935753,
+      "sha256": "c623780284d27df4539c03dca4f3cc5f91695fcbef8000c55db9fea34ed2fd0c",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+          "docs/plans/evidence/cambium-portfolio-catalog-2026-07-29.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-320-mobile.png",
+      "bytes": 246615,
+      "sha256": "a3b3459fa803581b65b22efb28ff4dcd0a644175df76e94bed30a1cc142fa052",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-390-mobile.png",
+      "bytes": 87947,
+      "sha256": "7961186f2ce3918f20a3a74f448e7d279ea3870785513c00412c6bd5b5bb25f8",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-gate-sheet-430-mobile.png",
+      "bytes": 336895,
+      "sha256": "a132436ec56fdac929017be39d396558f807d7bf4b6514122e146b21a9366e5d",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-320-mobile.png",
+      "bytes": 358138,
+      "sha256": "3abb687e1808c6dbe5a2cccb7b5a9f3d3bd400c23a49dbac206d1547ea578ebc",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-390-mobile.png",
+      "bytes": 117971,
+      "sha256": "e6f5fd490e7f3cdf4a4401dada62b0e0cd58e825f8419baf80feb12a14590731",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/operating-fabric-inspect-sheet-430-mobile.png",
+      "bytes": 450027,
+      "sha256": "977467940b5dedbb2fe26195326228ff5ec8c52b2d9c81a8ee4d8b6cb344389b",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-approve-preflight-mobile.png",
+      "bytes": 74028,
+      "sha256": "189bd6f2564849fe66f3e6a6a87b30af699ea01e5d45de0aa5f5042cea89086b",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-confirm-action-request-preflight-mobile.png",
+      "bytes": 85667,
+      "sha256": "28d2b3284a6de0290c67c54a9cb2cd67c97a34a930005686125218a92ad11a07",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-confirm-action-request-request-sent-mobile.png",
+      "bytes": 93086,
+      "sha256": "8069634f6816b976137192278c5e430663d45b289060e39fdf1778ea3530368e",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-queued-proof-detail-mobile.png",
+      "bytes": 1090573,
+      "sha256": "b268dfe13e78629bb3cbd9612048f2520dd2a2749e28efdb9e4b12a021a7fc81",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-queued-result-mobile.png",
+      "bytes": 102674,
+      "sha256": "69e5d01c54fedc5688154cbc328a3a6e74d2dc23ff8ea1563370707eeb4afa1d",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-gate-reroll-preflight-mobile.png",
+      "bytes": 74793,
+      "sha256": "cb99b9b43f78228d784ac2ffe7f06a42a2c3b9bfba8e63be3a869b0fd91abd72",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-inspect-skill-promotion-mobile.png",
+      "bytes": 241526,
+      "sha256": "7b7e45031471303315560c6285de83da8593a8bde967a00c96be2f2f43db8a98",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-open-proof-mobile.png",
+      "bytes": 495363,
+      "sha256": "72ef2bd25edc1bfdf767feb78279f3f16097e8777dc73da7bf201dd69b678e1f",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-mission-review-gate-mobile.png",
+      "bytes": 457252,
+      "sha256": "a9cc883a5901c25d731f51ca35386a6d52b3635bdec3668691658b2cf074eda5",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/sheet-tools-handoff-action-mobile.png",
+      "bytes": 71449,
+      "sha256": "afbceaa14774d35f52f2a0ac77bf7c9bfd09547b53e2135ad88361ae06aac639",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/story-feed-mobile.png",
+      "bytes": 1095080,
+      "sha256": "48edd390c301d3922378127725a07023104d90633afbc19a8b6756ed7ab67632",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/story-iverif-action-request-mobile.png",
+      "bytes": 1092887,
+      "sha256": "86136c2369ba52a0b55c17a00f7bb28a7478fd3fc4839aa568bede9efd7c317e",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/text-density-report.json",
+      "bytes": 3003,
+      "sha256": "7c5f5e124b4389185b42d9ff88d3d3c6eaf451c082e6f6f247dd23412d401d6f",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "scripts/text-density-audit.mjs"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/tools-mobile.png",
+      "bytes": 1119662,
+      "sha256": "9cdc7de89226062774415c9ee0c647e02b427579fbca0ca15f59d7ffb920ef4f",
+      "gitTracked": true,
+      "kind": "screenshot",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "both",
+      "retentionClass": "retain-proof",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/cambium-r3f-game-engine-realignment.md",
+      "bytes": 1981,
+      "sha256": "0500c26feb16cdaa8cbdcc9cce2e50c99b8d3db90eddae726e3b8fe447095cd3",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/cambium-r3f-implementation-freeze.md",
+      "bytes": 9711,
+      "sha256": "ecce063e62a4eb36728d600032e38edceb4736d5087f7d56cf2e243f9b9f5f91",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/2026-07-21-r3f-miniapp-integration-rbac-plan.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/cambium-r3f-screenshot-pack.md",
+      "bytes": 3402,
+      "sha256": "6a65d340f1f133853d3d22b74a4700f31bc774649e9869273120dfab17d1efb1",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/cambium-r3f-visual-moodboard.md",
+      "bytes": 3869,
+      "sha256": "e0cec539fdcf134d4fe90e1f08fa9e7abf3c7c38b471048cd1870054a7723bc0",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "apps/cambium-r3f/src/generated/source-contract.ts",
+          "docs/plans/cambium-r3f-implementation-freeze.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/company-programs/cambium-operating-fabric.json",
+      "bytes": 514,
+      "sha256": "9eabc9f50fab504c9e8265323314abbd55b5e9caf3e7fa06cada6a69b19a7d38",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/2026-07-28-cambium-operating-fabric-implementation-plan.md",
+          "docs/plans/company-programs/index.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/company-programs/index.json",
+      "bytes": 315,
+      "sha256": "295278df51cc548901f210f9b92e55b5394195faa023d39d55c9b488b2009851",
+      "gitTracked": true,
+      "kind": "manifest",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/plans/2026-07-28-cambium-operating-fabric-implementation-plan.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/evidence/cambium-operating-fabric-2026-07-29.md",
+      "bytes": 14959,
+      "sha256": "78bbbefc5ab906b45f9b6b89b28e4f171f1acd02bf40de8bb199d0c5ec39d9fc",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 0,
+        "samplePaths": [],
+        "truncated": false
+      },
+      "integrityLink": "none",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/evidence/cambium-operating-fabric-proof-template.md",
+      "bytes": 10076,
+      "sha256": "e9c2e7ea6c08825bb39f78f3b9250b38a6efa31a7aa8d802cc86a5f42835e8e3",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          "docs/plans/2026-07-28-cambium-operating-fabric-implementation-plan.md",
+          "workers/quests/src/live-proof-readiness.test.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/evidence/cambium-portfolio-catalog-2026-07-29.md",
+      "bytes": 5272,
+      "sha256": "5c946c8dcd466af246ff790dcb330245eb48cd9933ecbcb639932c4b4bf15370",
+      "gitTracked": true,
+      "kind": "plan",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/architecture/contracts/portfolio-catalog-v1.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-historical",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/ISA.md",
+      "bytes": 15883,
+      "sha256": "d10c25e2aa7e654cccabc908c9791deceed6bf22c0ee8cdc9520eb39f56fdbee",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          "docs/archive/superpowers/specs/2026-06-30-tg-miniapp-plan-vs-code-critique.md",
+          "docs/plans/product-branches/schema.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/branch-map.json",
+      "bytes": 15588,
+      "sha256": "669b737bae79036e60c9a9d91e2fecc9b395bc9cf06e860130b5051e3850f105",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 1,
+        "samplePaths": [
+          "docs/architecture/branch-traversal-map.md"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/client-delivery.md",
+      "bytes": 12916,
+      "sha256": "cd5e7990efa6f208e54ff4a4a130810c35b3e417736a822483d8c437b5c88edd",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 4,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          "docs/plans/product-branches/ISA.md",
+          "docs/plans/product-branches/index.md",
+          "docs/plans/product-branches/schema.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/dlock.md",
+      "bytes": 16394,
+      "sha256": "f422c2fb0d621f6509057b1758e3efce8a1f6d59d522ce3b73e17831826cece7",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 13,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          "apps/portfolio-cartographer/bundle.html",
+          "apps/portfolio-cartographer/src/portfolio-catalog-data.ts",
+          "docs/evidence/2026-08-08-github-repository-mapping-audit.v1.json",
+          "docs/evidence/2026-08-08-temperance-github-mapping-dispatch.md",
+          "docs/plans/product-branches/branch-map.json",
+          "docs/plans/product-branches/index.md",
+          "docs/plans/product-branches/schema.json",
+          "docs/project-management/github-repository-mapping-action-queue.v1.json",
+          "docs/project-management/three-sapling-operational-cohort-preflight.v1.json",
+          "workers/quests/src/portfolio-catalog-data.ts",
+          "workers/quests/src/portfolio-operational-cohort.ts",
+          "workers/quests/src/portfolio-workbench.generated.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/fitcheck-build-closure.tasks.md",
+      "bytes": 1095,
+      "sha256": "b6c3219c3eafe60fbc745e5b639b0070f360a681d2fb852ca76a320f140ecc18",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 3,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          "docs/evidence/2026-08-10-fitcheck-build-closure.v1.json",
+          "docs/plans/product-branches/schema.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/fitcheck-growth-quest-backlog.md",
+      "bytes": 3881,
+      "sha256": "a556b066ec4ee65a21a38180655220756cbf8dbd1e502ec96909011f947aa64f",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 2,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          "docs/plans/product-branches/schema.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/fitcheck.md",
+      "bytes": 22325,
+      "sha256": "6bc90471a8c4b81b39453a7e9127ee6e1599f92d18f178a9fc8a6f112dab0bf2",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 25,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          ".superpowers/sdd/task-1-report.md",
+          "apps/portfolio-cartographer/bundle.html",
+          "apps/portfolio-cartographer/src/portfolio-catalog-data.ts",
+          "bin/operator/quests/branch-loop-library.test.ts",
+          "docs/architecture/fitcheck-golden-path.md",
+          "docs/archive/plans/2026-06-29-branch-story-adapter-miniapp-plan.md",
+          "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/evidence/2026-08-10-fitcheck-build-closure.v1.json",
+          "docs/plans/product-branches/ISA.md",
+          "docs/plans/product-branches/branch-map.json",
+          "docs/plans/product-branches/index.md",
+          "docs/plans/product-branches/schema.json",
+          "docs/project-management/three-sapling-operational-cohort-preflight.v1.json",
+          "docs/runbooks/fitcheck-mini-app-production-readiness.md",
+          "docs/superpowers/plans/2026-08-06-portfolio-catalog-resync.md",
+          "scripts/generate-portfolio-catalog-data.test.mjs",
+          "shared/fitcheck-golden-path.ts"
+        ],
+        "truncated": true
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/index.md",
+      "bytes": 2528,
+      "sha256": "c0d1d1c5908f2676f28a4e8001014a6f968fc43a21cb2c1516114e2ae3292bde",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 10,
+        "samplePaths": [
+          ".planning/2026-08-12-portfolio-miniapp-linkage-guidance.md",
+          "bin/operator/quests/branch-loop-library.test.ts",
+          "docs/archive/plans/2026-06-29-branch-story-adapter-miniapp-plan.md",
+          "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
+          "docs/archive/superpowers/plans/2026-07-18-lead-ecosystem-contract-foundation.md",
+          "docs/plans/README.md",
+          "docs/plans/product-branches/ISA.md",
+          "docs/plans/product-branches/schema.json",
+          "workers/quests/src/branch-map.test.ts",
+          "workers/quests/src/handler.test.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/iverif.md",
+      "bytes": 16455,
+      "sha256": "d02699261080e0af1ce7d608ab3ebf1a9122e5d63a1e2a190e1d9863dac1ac1c",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 19,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          ".superpowers/sdd/task-1-report.md",
+          "apps/portfolio-cartographer/bundle.html",
+          "apps/portfolio-cartographer/src/portfolio-catalog-data.ts",
+          "docs/archive/plans/2026-06-29-branch-story-adapter-miniapp-plan.md",
+          "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/plans/2026-07-10-tg-miniapp-signed-gate-channel-quest-plan.md",
+          "docs/plans/product-branches/ISA.md",
+          "docs/plans/product-branches/branch-map.json",
+          "docs/plans/product-branches/index.md",
+          "docs/plans/product-branches/schema.json",
+          "docs/project-management/three-sapling-operational-cohort-preflight.v1.json",
+          "shared/iverif-golden-path.ts",
+          "workers/quests/src/branch-map.test.ts",
+          "workers/quests/src/portfolio-catalog-data.ts",
+          "workers/quests/src/portfolio-operational-cohort.ts",
+          "workers/quests/src/portfolio-workbench.generated.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/loop-library.md",
+      "bytes": 1847,
+      "sha256": "ebaa786e8631663cd15c8f56e6565eeb2aa4c36ea6d7de02c09a6258073128c8",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 5,
+        "samplePaths": [
+          ".superpowers/sdd/task-1-report.md",
+          "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/plans/product-branches/schema.json"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/schema.json",
+      "bytes": 5536,
+      "sha256": "3befce123c4764c27f45d954356097a3e61fe0ac55e86b7d039c638f5c8be3cb",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 9,
+        "samplePaths": [
+          ".superpowers/sdd/task-1-report.md",
+          "docs/architecture/contracts/branch-mission-fabric-contract.md",
+          "docs/archive/plans/2026-06-29-branch-story-adapter-miniapp-plan.md",
+          "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/plans/2026-07-18-lead-ecosystem-contract-foundation.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/plans/product-branches/ISA.md",
+          "scripts/validate-product-branch-packets.mjs"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/snow-gloves-os.md",
+      "bytes": 13216,
+      "sha256": "78370e41394105ad4dac4379ded1e8cab22719a54a50f1f175dc462abbc19e0c",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 13,
+        "samplePaths": [
+          ".project/HANDOFF.md",
+          ".superpowers/sdd/task-1-report.md",
+          "apps/portfolio-cartographer/bundle.html",
+          "apps/portfolio-cartographer/src/portfolio-catalog-data.ts",
+          "docs/archive/plans/2026-06-29-branch-story-adapter-miniapp-plan.md",
+          "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/plans/product-branches/ISA.md",
+          "docs/plans/product-branches/index.md",
+          "docs/plans/product-branches/schema.json",
+          "workers/quests/src/portfolio-catalog-data.ts",
+          "workers/quests/src/portfolio-workbench.generated.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    },
+    {
+      "path": "docs/plans/product-branches/vantyx.md",
+      "bytes": 13443,
+      "sha256": "421123e8a9a8df6b31b9f5d5ca9a8161fdf8868061b071355c97d12ef1590f71",
+      "gitTracked": true,
+      "kind": "branch-packet",
+      "inboundReferences": {
+        "count": 12,
+        "samplePaths": [
+          ".superpowers/sdd/task-1-report.md",
+          "apps/portfolio-cartographer/bundle.html",
+          "apps/portfolio-cartographer/src/portfolio-catalog-data.ts",
+          "docs/archive/plans/2026-06-29-branch-story-adapter-miniapp-plan.md",
+          "docs/archive/superpowers/plans/2026-07-05-cambium-branch-loop-library.md",
+          "docs/archive/superpowers/plans/2026-07-13-cambium-repository-closeout.md",
+          "docs/archive/superpowers/specs/2026-07-13-cambium-repository-closeout-design.md",
+          "docs/plans/product-branches/ISA.md",
+          "docs/plans/product-branches/index.md",
+          "docs/plans/product-branches/schema.json",
+          "workers/quests/src/portfolio-catalog-data.ts",
+          "workers/quests/src/portfolio-workbench.generated.ts"
+        ],
+        "truncated": false
+      },
+      "integrityLink": "path-only",
+      "retentionClass": "retain-active",
+      "restorationMethod": "Git history",
+      "decision": "retain"
+    }
+  ],
+  "safeguards": [
+    "tracked-files-only",
+    "no-reference-bodies",
+    "no-automatic-deletion-or-externalization",
+    "duplicate-groups-remain-review-required"
+  ]
+}

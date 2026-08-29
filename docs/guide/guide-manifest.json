@@ -1,0 +1,199 @@
+{
+  "project": "cambium-fractal-ecosystem",
+  "title": "Cambium Fractal Ecosystem — Manifest and Moosh Guide",
+  "edition": "2026-08",
+  "source_version": "cambium-fractal-ecosystem-2026-08",
+  "outputs": {
+    "formats": ["web", "json"],
+    "locale": "en"
+  },
+  "groups": [
+    {
+      "id": "orient",
+      "label": "Orient",
+      "summary": "Understand Cambium as a nested operating system."
+    },
+    {
+      "id": "resolve",
+      "label": "Resolve",
+      "summary": "Follow the project-scoped skill cluster and workflow."
+    },
+    {
+      "id": "govern",
+      "label": "Govern",
+      "summary": "Read planning, approval, and safety boundaries."
+    },
+    {
+      "id": "prove",
+      "label": "Prove",
+      "summary": "Separate evidence capture from readiness claims."
+    }
+  ],
+  "personas": [
+    {
+      "id": "operator",
+      "name": "Synthetic Operator",
+      "role": "Read-only project observer",
+      "visibility": "Local Manifest projection only"
+    }
+  ],
+  "chapters": [
+    {
+      "id": "cambium-root",
+      "group": "orient",
+      "title": "Start at the Cambium root",
+      "platform": "web",
+      "locator": "/",
+      "summary": "The project is the root context from which planning, skills, workflows, and evidence are resolved.",
+      "audience": "Operators learning the Cambium project model.",
+      "shown_as": "operator",
+      "state": "read-only-inspection",
+      "evidence": [
+        {
+          "type": "none",
+          "reason": "The connected console was inspected read-only; a still capture is intentionally deferred until the bounded capture request is approved."
+        }
+      ],
+      "body": [
+        "Cambium is the root scope. Every downstream object must retain project identity before it can be interpreted.",
+        "The browser console is a projection of that root, not a substitute for the project contract or an execution worker."
+      ],
+      "actions": [
+        "Open the local Manifest console.",
+        "Confirm that the Cambium project is initialized.",
+        "Treat the displayed state as observed evidence with a freshness timestamp."
+      ],
+      "related": ["skill-lattice", "planning-and-swarm"]
+    },
+    {
+      "id": "skill-lattice",
+      "group": "resolve",
+      "title": "Resolve the product-guides skill lattice",
+      "platform": "api",
+      "locator": "GET /projects/{project_id}/workflows/product-guide-production/requests",
+      "summary": "A cluster hub explains ownership while Moosh spokes provide bounded guide and video capabilities.",
+      "audience": "Operators deciding which skill owns the next action.",
+      "roles": ["operator"],
+      "evidence": [
+        {
+          "type": "request-response",
+          "request": "GET /projects/{project_id}/workflows/product-guide-production/requests",
+          "description": "Manifest workflow projection resolves product-guides to two hubs and two Moosh spokes."
+        }
+      ],
+      "body": [
+        "The product-guides cluster contains two hubs: the orchestrator routes work and the core defines the shared contract.",
+        "The build-product-user-guides spoke owns inventory, still evidence, and guide output. The guide-to-product-video spoke owns motion only after the guide exists."
+      ],
+      "actions": [
+        "Read the resolved cluster title and tier.",
+        "Identify the hub skills before reading the spokes.",
+        "Use the spoke contract only for the stage it owns."
+      ],
+      "related": ["workflow-stages", "capture-boundary"]
+    },
+    {
+      "id": "workflow-stages",
+      "group": "resolve",
+      "title": "Follow the six workflow stages",
+      "platform": "api",
+      "locator": "GET /projects/{project_id}/workflows/product-guide-production/requests [stage-order projection]",
+      "summary": "The workflow moves from observation and resolution through guide preparation, evidence, video, and validation.",
+      "audience": "Operators planning a safe Moosh run.",
+      "evidence": [
+        {
+          "type": "request-response",
+          "request": "GET /projects/{project_id}/workflows/product-guide-production/requests",
+          "description": "The projection reports six ordered stages with read-only, gated, and ready states."
+        }
+      ],
+      "body": [
+        "Observe-project and resolve-cluster establish context. Prepare-guide and capture-evidence are gated because they touch project evidence.",
+        "Compose-video is downstream of guide inventory and a film contract. Validate-report is a read-only proof stage."
+      ],
+      "actions": [
+        "Read stages in their reported order.",
+        "Separate read-only inspection from evidence-producing work.",
+        "Stop at the first unresolved prerequisite."
+      ],
+      "related": ["skill-lattice", "capture-boundary", "approval-boundary"]
+    },
+    {
+      "id": "planning-and-swarm",
+      "group": "govern",
+      "title": "Read planning and swarm state correctly",
+      "platform": "api",
+      "locator": "GET /projects/{project_id}/snapshot",
+      "summary": "Planning waves and mapped sessions provide coordination evidence, not proof that workers are executing.",
+      "audience": "Operators interpreting the project’s planning spine.",
+      "evidence": [
+        {
+          "type": "request-response",
+          "request": "GET /projects/{project_id}/snapshot",
+          "description": "The snapshot exposes the observed plan, wave, route, and historical session map."
+        }
+      ],
+      "body": [
+        "The GSD and next-wave records map intent into waves and tasks. The current snapshot shows planning and routing evidence, not a live worker fleet.",
+        "A swarm becomes active only through an explicitly authorized dispatch path with its own receipts."
+      ],
+      "actions": [
+        "Inspect the plan and wave identifiers.",
+        "Check route status and freshness.",
+        "Do not infer active execution from a mapped session."
+      ],
+      "related": ["workflow-stages", "approval-boundary"]
+    },
+    {
+      "id": "capture-boundary",
+      "group": "prove",
+      "title": "Prepare evidence without fabricating it",
+      "platform": "api",
+      "locator": "GET /projects/{project_id}/capabilities",
+      "summary": "Capture is a bounded evidence operation requiring a reviewed configuration, runtime support, and approval.",
+      "audience": "Operators preparing a guide capture.",
+      "evidence": [
+        {
+          "type": "request-response",
+          "request": "GET /projects/{project_id}/capabilities",
+          "description": "Capabilities expose project-cwd, Node, Python, Playwright, capture-config, film-spec, provider, and execution gates."
+        }
+      ],
+      "body": [
+        "The local capture contract is deliberately narrow: one local route, one synthetic persona, a fixed viewport, and a deterministic output directory.",
+        "A configuration file is preparation, not evidence. The still and video outputs remain absent until their approved runs occur."
+      ],
+      "actions": [
+        "Review capability state before requesting a run.",
+        "Check that routes and personas are synthetic or approved.",
+        "Record the resulting evidence artifact and report."
+      ],
+      "related": ["approval-boundary", "cambium-root"]
+    },
+    {
+      "id": "approval-boundary",
+      "group": "govern",
+      "title": "Stop at the approval boundary",
+      "platform": "api",
+      "locator": "POST /projects/{project_id}/workflows/product-guide-production/requests",
+      "summary": "The trigger is request-only and idempotent; it cannot run without a bounded request identifier and existing approval receipt.",
+      "audience": "Owners deciding whether to authorize capture.",
+      "evidence": [
+        {
+          "type": "none",
+          "reason": "No matching human approval receipt exists in the current project projection, so this guide does not submit a trigger request."
+        }
+      ],
+      "body": [
+        "The current state is GATED. The remaining blockers are the approval receipt and any capability gates reported by the bridge.",
+        "A truthful operator explains the next safe action instead of turning a request-only endpoint into implicit execution."
+      ],
+      "actions": [
+        "Obtain a bounded approval receipt from the project owner.",
+        "Re-read capabilities and workflow state.",
+        "Submit only the documented request shape if all gates are resolved."
+      ],
+      "related": ["capture-boundary", "workflow-stages"]
+    }
+  ]
+}

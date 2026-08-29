@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema": "cambium.moosh.coverage.v1",
+  "workflow": "product-guides",
+  "project": "cambium",
+  "observed_registry": {"clusters": 44, "skills": 808, "active": 521, "deferred": 208, "archived": 79},
+  "resolved_skills": [
+    "product-guides-orchestrator",
+    "product-guides-core",
+    "build-product-user-guides",
+    "guide-to-product-video"
+  ],
+  "stages": [
+    {"id": "observe-project", "order": 1, "mode": "read-only", "status": "ready", "evidence": "terminal-and-documentation"},
+    {"id": "resolve-cluster", "order": 2, "mode": "read-only", "status": "ready", "evidence": "request-response"},
+    {"id": "prepare-guide", "order": 3, "mode": "bounded-write", "status": "ready", "evidence": "guide-manifest"},
+    {"id": "capture-evidence", "order": 4, "mode": "explicit-approval", "status": "gated", "evidence": "image-or-request-response", "blockers": ["human approval receipt", "browser attachment or approved local probe", "surface runtime availability"]},
+    {"id": "compose-video", "order": 5, "mode": "explicit-approval", "status": "gated", "evidence": "FilmSpec-and-guide-evidence", "blockers": ["approved guide evidence", "capture completion", "video composition approval"]},
+    {"id": "validate-report", "order": 6, "mode": "read-only", "status": "ready", "evidence": "terminal-and-report"}
+  ],
+  "surface_modes": {
+    "manifest-console": "metadata-and-guide",
+    "r3f-web": "guide-then-capture",
+    "r3f-electron": "guide-then-capture",
+    "cartographer-workbench-hosted": "guide-then-capture",
+    "cartographer-local-preview": "metadata-and-guide",
+    "mini-app-legacy": "guide-then-capture",
+    "operating-fabric": "guide-then-capture",
+    "quests-read-model": "contract-and-api",
+    "operator-cli": "contract-and-terminal",
+    "hermes-transport": "boundary-map-only",
+    "plexus-identity": "boundary-map-only",
+    "cloudflare-runtime": "boundary-map-only",
+    "cortex-memory": "boundary-map-only",
+    "explee-iverif": "boundary-map-only",
+    "github-cloudflare-ci": "boundary-map-only",
+    "mcp-aws": "boundary-map-only"
+  },
+  "execution": {
+    "request_kind": "request-only",
+    "eligible": false,
+    "approval_id_required": true,
+    "request_id_required": true,
+    "workers_launched": false,
+    "capture_tools_launched": false,
+    "secrets_observed": false,
+    "blockers": ["No matching human approval receipt is present for this project.", "Manifest bridge health is stale even though the loopback endpoint answers HTTP 200.", "Browser extension attachment is unavailable in the current desktop session.", "Protected hosted and connected systems require their own owner-approved access."]
+  }
+}
