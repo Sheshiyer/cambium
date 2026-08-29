@@ -11,7 +11,7 @@ import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
-import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord } from './action-requests.ts';
+import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord, resolveActionRequestReplyRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
@@ -97,6 +97,7 @@ import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
 import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
+import { recordWorkflowLearningEvent, summarizeWorkflowLearningMonth } from './workflow-learning.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
   id: 'anonymous-founder',
@@ -5662,13 +5663,41 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       return json(result.status, result.body);
     }
 
+    if (method === 'POST' && routePath === '/v1/bridge/workflow-learning/events') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may record workflow evidence' });
+      let body: unknown;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const result = await recordWorkflowLearningEvent(deps.kv, body);
+      return json(result.status, result.body);
+    }
+
+    if (method === 'GET' && routePath === '/v1/bridge/workflow-learning/monthly') {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may read workflow learning summaries' });
+      const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
+      const result = await summarizeWorkflowLearningMonth(deps.kv, {
+        tenantId: String(params.get('tenantId') || params.get('tenant') || 'cambium'),
+        month: String(params.get('month') || ''),
+      });
+      return json(result.status, result.body);
+    }
+
     const actionRequestResolve = routePath.match(/^\/v1\/bridge\/action-requests\/([^/]+)\/resolve$/);
     if (method === 'POST' && actionRequestResolve) {
       if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may resolve action requests' });
       let body: any;
       try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
       const id = decodeURIComponent(actionRequestResolve[1]);
-      const result = await resolveActionRequestRecord(deps.kv, id, body, nowIso);
+      const result = await resolveActionRequestRecord(deps.kv, id, body, nowIso, deps.gate?.founderIds ?? []);
+      return json(result.status, result.body);
+    }
+
+    const actionRequestReply = routePath.match(/^\/v1\/bridge\/action-requests\/([^/]+)\/resolve-reply$/);
+    if (method === 'POST' && actionRequestReply) {
+      if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may resolve action-request replies' });
+      let body: any;
+      try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      const id = decodeURIComponent(actionRequestReply[1]);
+      const result = await resolveActionRequestReplyRecord(deps.kv, id, body, nowIso, deps.gate?.founderIds ?? []);
       return json(result.status, result.body);
     }
 

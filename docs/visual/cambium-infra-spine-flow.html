@@ -179,7 +179,7 @@
         <div class="eyebrow">Integration roadmap · 8-node infrastructure spine</div>
         <h1>Cambium Infra Spine</h1>
       </div>
-      <div class="status status-design">status:doctrine · repository-scoped</div>
+      <div class="status status-design">status:design · unreviewed</div>
     </header>
 
     <section class="board" aria-label="Cambium infrastructure spine diagram">
@@ -249,17 +249,17 @@
         <text class="tiny" x="114" y="172">NODE 1</text>
         <text class="label" x="114" y="194">Portfolio Workbench</text>
         <text class="micro" x="114" y="222">Telegram Mini App / Web Admin</text>
-        <text class="micro" x="114" y="244">/admin/portfolio/web → generated founder-auth-gated bundle</text>
+        <text class="micro" x="114" y="244">/admin/portfolio/web → bundle.html, 388KB, founder-auth-gated</text>
         <text class="micro" x="114" y="266">Reads PORTFOLIO_CATALOG, portfolio-roots, golden paths</text>
         <text class="warn micro" x="114" y="292">Authority: read-only. Write → /v1/admin/portfolio/actions</text>
 
         <rect class="node active" x="770" y="145" width="640" height="170" rx="14"/>
         <text class="tiny" x="794" y="172">NODE 2</text>
         <text class="label" x="794" y="194">Cambium Checked-In Data</text>
-        <text class="micro" x="794" y="222">portfolio-catalog-data.ts → typed WorkObject catalog</text>
-        <text class="micro" x="794" y="244">portfolio-roots.v1.json → reviewed shallow-folder snapshot</text>
+        <text class="micro" x="794" y="222">portfolio-catalog-data.ts → RAW_SAPLINGS (17 rows)</text>
+        <text class="micro" x="794" y="244">portfolio-roots.v1.json → 54 Thoughtseed shallow folders</text>
         <text class="micro" x="794" y="266">operational-packet-registry.ts → FITCHECK/IVERIF golden paths</text>
-        <text class="micro" x="794" y="288">checked-in loadout authority → bounded eligibility</text>
+        <text class="micro" x="794" y="288">portfolio-operational-cohort.ts → three-sapling loadout authority</text>
 
         <!-- ================= ZONE 2 · DURABILITY PLANE ================= -->
         <rect class="zone" x="45" y="370" width="1410" height="250" rx="18"/>
@@ -268,17 +268,17 @@
 
         <rect class="node" x="90" y="425" width="640" height="170" rx="14"/>
         <text class="tiny" x="114" y="452">NODE 3</text>
-        <text class="label" x="114" y="474">Project Filesystem</text>
-        <text class="micro" x="114" y="502">Root location is host-configured; no machine path is canonical</text>
-        <text class="micro" x="114" y="524">portfolio-roots.v1.json proposes relative shallow folders</text>
-        <text class="micro" x="114" y="546">Exact Git identity is required before repository promotion</text>
-        <text class="micro" x="114" y="568">Vault infrastructure is context, never a WorkObject folder</text>
+        <text class="label" x="114" y="474">Filesystem (Locally)</text>
+        <text class="micro" x="114" y="502">&lt;projects-root&gt;/thoughtseed/</text>
+        <text class="micro" x="114" y="524">cambium/ ← promoted Git checkout, Phase 1 done</text>
+        <text class="micro" x="114" y="546">fitcheck-landing/, iverif/, heyzack/ ← shallow project folders</text>
+        <text class="micro" x="114" y="568">thoughtseed-labs/ ← R2/vault context, NOT a WorkObject folder</text>
 
         <rect class="node read" x="770" y="425" width="640" height="170" rx="14"/>
         <text class="tiny" x="794" y="452">NODE 4</text>
         <text class="label" x="794" y="474">R2 Cloudflare Storage</text>
-        <text class="micro" x="794" y="502">Account, bucket, endpoint, and credentials are host-managed</text>
-        <text class="micro" x="794" y="524">Cambium records bounded evidence contracts, never secrets</text>
+        <text class="micro" x="794" y="502">thoughtseed-vault bucket · 9d7cec1b5a32b2df8c6cdc1321ccd00b.r2</text>
+        <text class="micro" x="794" y="524">Access: AWS CLI profile 'safvr' → ThoughtseedLabs credentials</text>
         <text class="micro" x="794" y="546">Role: immutable/idempotent evidence and durability ONLY</text>
         <text class="warn micro" x="794" y="568">NOT live state, code history, repo ownership, Goal Graph writes</text>
 
@@ -299,9 +299,9 @@
         <text class="tiny" x="794" y="732">NODE 6</text>
         <text class="label" x="794" y="754">Plexus</text>
         <text class="micro" x="794" y="782">Identity + Access Gateway</text>
-        <text class="micro" x="794" y="804">Default / wrangler.jsonc: https://teamforge-api.sheshnarayan-iyer.workers.dev/v1/whoami</text>
-        <text class="micro" x="794" y="826">Labs / wrangler.labs.jsonc: https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami</text>
-        <text class="micro" x="794" y="848">RBAC: founder (signed-action), team (chat), consultant (read)</text>
+        <text class="micro" x="794" y="804">https://plexus-api.thoughtseed.space/v1/whoami</text>
+        <text class="micro" x="794" y="826">RBAC: founder (signed-action), team (chat), consultant (read)</text>
+        <text class="micro" x="794" y="848">KV cache: plexus:whoami:&lt;sha256(jwt)&gt;</text>
 
         <!-- ================= ZONE 4 · SURFACE PLANE ================= -->
         <rect class="zone zone-peach" x="45" y="930" width="1410" height="250" rx="18"/>
@@ -317,9 +317,9 @@
 
         <rect class="node blocked" x="770" y="985" width="640" height="170" rx="14"/>
         <text class="tiny" x="794" y="1012">NODE 8</text>
-        <text class="label" x="794" y="1034">MCP, Plugin, and Agent Adapters</text>
-        <text class="micro" x="794" y="1062">Host runtime owns tools, model routing, and secrets</text>
-        <text class="micro" x="794" y="1084">Cambium owns checked-in contracts and acceptance evidence</text>
+        <text class="label" x="794" y="1034">MCPs, Plugins, AWS Agents Org</text>
+        <text class="micro" x="794" y="1062">SAFVR profile → ThoughtseedLabs R2 (s3-compatible)</text>
+        <text class="micro" x="794" y="1084">MCP servers: CodeGraph (this repo, 6648 nodes), OmniRoute</text>
         <text class="warn micro" x="794" y="1106">Plugins: held/deferred mapping, pending Git identity</text>
 
         <text class="edge-label warn" x="750" y="1225" text-anchor="middle">FOLDBACK · NODE 8 → NODE 2 · EVIDENCE RETURNS TO CHECKED-IN DATA, NEVER MUTATES OPERATIONAL STATE DIRECTLY</text>
@@ -332,7 +332,7 @@
         </article>
         <article class="card">
           <b>Durability plane</b>
-          <p>The host-configured filesystem holds promoted and shallow folders. R2 holds immutable evidence only — never live state, code history, or Goal Graph writes.</p>
+          <p>The filesystem holds live promoted and shallow folders. R2 holds immutable evidence only — never live state, code history, or Goal Graph writes.</p>
         </article>
         <article class="card">
           <b>Signal plane</b>
@@ -345,13 +345,13 @@
       </div>
 
       <div class="noteline">
-        <b>Status:</b> doctrine reference. It documents authority boundaries and grants no deployment, provider, storage, or operational-write authority.
+        <b>Status:</b> design reference. Produced by PlanningSync.hook.ts. Becomes committed only when reviewed by the founder.
       </div>
     </section>
 
     <footer>
       <span>Cambium · organic systems, precise data</span>
-      <span>Infra spine baseline · INTEGRATION.md</span>
+      <span>Infra spine baseline · docs/INTEGRATION.md</span>
     </footer>
   </main>
 </body>

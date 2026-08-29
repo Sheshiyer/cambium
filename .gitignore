@@ -23,3 +23,10 @@ apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb
 # local/private reference exports; never commit account, payment, or third-party prompt dumps
 motionsites-export/
 .playwright-cli/
+
+# machine-local Superset workspace state (contains absolute local paths)
+.superset/
+
+# machine-local Temperance runtime manifests (project.json is committed; these are not)
+.temperance/manifest.json
+.temperance/goal.json

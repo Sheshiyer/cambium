@@ -1,12 +1,8 @@
-<!-- retention-inventory:head:start -->
-# Documentation retention inventory — current HEAD inventory
+# Documentation retention inventory — 2026-08-10
 
-**Status:** evidence-safe inventory complete; no cleanup approved
-**Decision origin:** 2026-08-10 retention review
-**Inventory basis:** exact committed `HEAD` tree and blobs
-**Inventory content SHA-256:** `32f746ce100253daac85b5eb2a00c1f39d8d0d06e94af7ac796ab68194ae3823`
-**Scope:** `docs/` and `.planning/` only
-**Method:** deterministic size, type, checksum, and inbound-reference generation plus release-gated consistency verification
+**Status:** evidence-safe inventory complete; no cleanup approved  
+**Scope:** `docs/` and `.planning/` only  
+**Method:** read-only size, type, checksum, and inbound-reference review
 
 ## Decision
 
@@ -16,14 +12,14 @@ Do not delete, move, merge, externalize, or auto-deduplicate any documentation a
 
 | Surface | Evidence | Interpretation |
 | --- | --- | --- |
-| `docs/plans/` | 177 files, 110,765,479 bytes (105.63 MiB) | dominant historical/proof payload measured from HEAD |
-| `docs/plans/assets/` | 127 files, 110,295,071 bytes (105.19 MiB) | generated/reference proof assets |
-| PNG files | 85 files, 110,122,195 bytes (99.42% of `docs/plans`) | primary future retention-review surface |
-| Markdown files | 81 files, 565,595 bytes | low-cost decision/history context |
-| JSON files | 11 files, 77,689 bytes | manifests and structured proof context |
+| `docs/` | about 108 MB | the documentation tree is not broadly text-bloated |
+| `docs/plans/` | 173 files, 110,369,530 bytes (105.26 MiB) | dominant historical/proof payload |
+| `docs/plans/assets/` | 127 files, about 105.12 MiB | generated/reference proof assets |
+| PNG files | 85 files, 109,760,727 bytes (99.45% of `docs/plans`) | primary future retention-review surface |
+| Markdown files | 77 files, 529,231 bytes | low-cost decision/history context |
+| JSON files | 11 files, 79,572 bytes | manifests and structured proof context |
 
 Largest asset families are the Telegram Mini App viewport proof, Cambium R3F screenshots, Cambium R3F game-engine realignment, Telegram Mini App mission-control references, and constellation UI references.
-<!-- retention-inventory:head:end -->
 
 ## Reference safety findings
 
@@ -40,9 +36,7 @@ Create this before any cleanup; it is a proposal, not an action queue:
 ```json
 {
   "schema": "cambium.docs-retention.v1",
-  "decisionOriginDate": "2026-08-10",
-  "inventoryAsOfRevision": "HEAD",
-  "inventoryAsOfCommitDate": "YYYY-MM-DD",
+  "generatedAt": "ISO-8601",
   "scopeRoot": "docs/plans",
   "entries": [
     {

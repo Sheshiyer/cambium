@@ -229,6 +229,7 @@ const syntheticPrivacyFixtures = new Map([
   ['scripts/infinite-game-anchors.test.mjs', [
     ["presentPurpose = 'Bearer ", "abcdefghijklmnop'"].join(''),
     ["prompt", "Body = 'private prompt'"].join(''),
+    ['Bearer otherwise-', 'long-enough-but-'].join(''),
   ]],
   ['.planning/phases/07-deterministic-safety-and-handoff/07-PATTERNS.md', [
     ['/', 'Users/', 'sheshnarayaniyer'].join(''),
@@ -282,6 +283,30 @@ const syntheticPrivacyFixtures = new Map([
   ['workers/quests/src/operating-fabric-page.test.ts', [
     ['Bearer ', 'eyJhbGciOiJIUzI1NiJ9'].join(''),
     ['Bearer ', 'secret-token'].join(''),
+  ]],
+  ['workers/quests/src/handler.ts', [
+    ['secret', ': deps.inviteSecret'].join(''),
+    ['apiKey', ': deps.marketingRenderer'].join(''),
+  ]],
+  ['workers/quests/src/handler.test.ts', [
+    ['Bearer ', 'context-token'].join(''),
+    ['secret-', 'nebius-key'].join(''),
+    ['Bearer secret-', 'nebius-'].join(''),
+    ['secret-', 'kimi-key'].join(''),
+    ['secret-', 'cc-key'].join(''),
+    ['Bearer secret-', 'cc-key'].join(''),
+    ['request', 'Body'].join(''),
+    ['Bearer raw-', 'secret-must-not-render'].join(''),
+    ['Bearer ', 'secret-token'].join(''),
+    ['Bearer should-', 'never-render'].join(''),
+    ['/tmp/', 'cambium-test-'].join(''),
+    ['Bearer raw-', 'secret-must-not-persist'].join(''),
+    ['Bearer not-the-', 'bridge-token'].join(''),
+    ['Bearer ', 'candidate-secret'].join(''),
+    ['Bearer ', 'task-secret'].join(''),
+    ['/tmp/', 'claimed-proof'].join(''),
+    ['Bearer otherwise-long-enough-but-', 'unnamespaced-read-token'].join(''),
+    ['exclusive-worker-', 'secret-value'].join(''),
   ]],
 ]);
 

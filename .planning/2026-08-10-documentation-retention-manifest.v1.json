@@ -1,13 +1,14 @@
 {
   "schema": "cambium.docs-retention.v1",
   "status": "reviewed-proposal",
+  "generatedAt": "2026-08-10",
   "scopeRoot": "docs/plans",
   "decision": "no-relocation-or-deletion",
   "entries": [
     {
       "path": "docs/plans/**/*.md",
       "kind": "plan",
-      "bytes": 565595,
+      "bytes": 529231,
       "retentionClass": "retain",
       "reason": "Dated decision and implementation history; non-operational under docs/LIFECYCLE.md.",
       "replacementPath": null,
@@ -19,7 +20,7 @@
     {
       "path": "docs/plans/**/*.json",
       "kind": "manifest",
-      "bytes": 77689,
+      "bytes": 79572,
       "retentionClass": "keep-with-manifest",
       "reason": "Structured proof and integrity context.",
       "replacementPath": null,
@@ -31,8 +32,8 @@
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-actions-mobile.png",
       "kind": "screenshot",
-      "bytes": 977041,
-      "sha256": "2cb08a8b3ff54b8dea326926a0b9d4ec8606e8e6710a0db4fdfe795a4a06e646",
+      "bytes": 977885,
+      "sha256": "18ced46ba467590158341d89a85b43e77b1ebb6f69f7a78a298c8bf635d2b2fe",
       "retentionClass": "review-required",
       "reason": "Byte-identical to the utilities capture but separately named in capture manifests and worker tests.",
       "replacementPath": null,
@@ -44,8 +45,8 @@
     {
       "path": "docs/plans/assets/tg-miniapp-viewport-proof/mission-utilities-mobile.png",
       "kind": "screenshot",
-      "bytes": 977041,
-      "sha256": "2cb08a8b3ff54b8dea326926a0b9d4ec8606e8e6710a0db4fdfe795a4a06e646",
+      "bytes": 977885,
+      "sha256": "18ced46ba467590158341d89a85b43e77b1ebb6f69f7a78a298c8bf635d2b2fe",
       "retentionClass": "review-required",
       "reason": "Byte-identical to the actions capture but separately named in capture manifests and worker tests.",
       "replacementPath": null,
@@ -57,7 +58,7 @@
     {
       "path": "docs/plans/assets/**",
       "kind": "source-image",
-      "bytes": 110295071,
+      "bytes": 109760727,
       "retentionClass": "review-required",
       "reason": "Generated and reference proof assets have direct documentation, manifest, generated-organ, and test references.",
       "replacementPath": null,
@@ -75,9 +76,5 @@
     "docs/architecture/contracts",
     "docs/evidence",
     "raw Cortex/provider/runtime state"
-  ],
-  "decisionOriginDate": "2026-08-10",
-  "inventoryAsOfRevision": "HEAD",
-  "entryCount": 177,
-  "inventoryContentSha256": "32f746ce100253daac85b5eb2a00c1f39d8d0d06e94af7ac796ab68194ae3823"
+  ]
 }
