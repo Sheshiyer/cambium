@@ -1,0 +1,24 @@
+{
+  "schema": "temperance.goal.v1",
+  "text": "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.",
+  "planner": "isa",
+  "gsd_command": "plan-phase",
+  "evaluator": [
+    {
+      "id": "doctor",
+      "probe": "temperance-project-init --cwd . --check --json",
+      "pass": "high_gaps==0"
+    },
+    {
+      "id": "isa-goal",
+      "probe": "rg -n '^## Goal' ISA.md",
+      "pass": "section present"
+    }
+  ],
+  "status": "active",
+  "native": {
+    "claude": "/goal Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.",
+    "codex": "wrapper"
+  },
+  "updated_at": "2026-08-17T18:10:11.044Z"
+}

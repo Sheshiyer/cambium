@@ -3,13 +3,15 @@
   "name": "cambium",
   "cwd": ".",
   "github": "Sheshiyer/cambium",
-  "generated_at": "2026-08-11T05:34:52.656Z",
+  "generated_at": "2026-08-22T01:15:41.827Z",
   "host_runtime": {
     "temperance_home": "~/.temperance_engine",
     "opencode": "~/.config/opencode",
     "omniroute": "http://127.0.0.1:20128",
     "proxy": "http://127.0.0.1:20129"
   },
+  "active_planner": "isa",
+  "planner_note": "ISA.md is present acceptance SoR. .planning/STATE.md is a closed historical milestone (v0.3 Complete). Next GSD command is /gsd:complete-milestone, not /gsd:execute-phase.",
   "ownership": {
     "models_routing": "host",
     "credentials": "host",
@@ -22,13 +24,36 @@
     "isa": "ISA.md",
     "agents": "AGENTS.md",
     "next_wave_cli": "temperance-next-wave",
-    "fleet_combo": "te-dispatch-paid",
+    "fleet_combo": "noesis-execute",
     "batch": "temperance-batch"
+  },
+  "planning": {
+    "github_project": {
+      "owner": "Sheshiyer",
+      "repo": "cambium",
+      "number": 14,
+      "url": "https://github.com/users/Sheshiyer/projects/14",
+      "title": "Cambium \u2014 Repository-First Portfolio & Relocation"
+    },
+    "teamforge": {
+      "project_id": null,
+      "client_id": null
+    },
+    "horizons": {
+      "long": "",
+      "short": ""
+    }
   },
   "checks": {
     "host_ready": true,
     "has_planning": true,
     "has_isa": true,
-    "has_codegraph": true
+    "has_codegraph": true,
+    "github_project": true
+  },
+  "hands_init": {
+    "display": "cambium \u00b7 fabric",
+    "cloudflare_profile": "thoughtseed-labs",
+    "aws_profile": null
   }
 }

@@ -1,5 +1,19 @@
 # Quest Worker Deployment
 
+**Production authority (2026-08):** `workers/quests/wrangler.labs.jsonc` on
+Thoughtseed Labs account `9d7cec1b5a32b2df8c6cdc1321ccd00b`, Wrangler profile
+`thoughtseed-labs`. See `thoughtseed-labs/00-meta/wrangler-account-map.md`.
+
+```bash
+env -u CLOUDFLARE_API_TOKEN npx wrangler whoami   # must list 9d7c… only
+env -u CLOUDFLARE_API_TOKEN npx wrangler secret list --config workers/quests/wrangler.labs.jsonc
+```
+
+The rest of this file still names `wrangler.jsonc` and the personal-account D1
+`f6b950ac-…`. That path is **legacy**. `wrangler.jsonc` is now pinned to
+`9d9d…` so a default deploy under the Labs profile fails closed. Do not use it
+for `curious.thoughtseed.space`.
+
 ## Telegram Signed Gate
 
 The signed Mini App gate is available only when both Cloudflare Worker bindings exist:

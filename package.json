@@ -51,5 +51,8 @@
     "r3f:source-plates": "npm --prefix apps/cambium-r3f run source-plates --",
     "proactive:loop": "node scripts/proactive-loop-tick.mjs",
     "proactive:loop:json": "node scripts/proactive-loop-tick.mjs --json"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
   }
 }
