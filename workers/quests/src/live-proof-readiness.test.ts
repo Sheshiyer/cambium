@@ -772,7 +772,7 @@ test('mobile contract proof is focused, noncanonical, and required by CI plus re
   assert.ok(steps.every((proof) => Boolean(proof.assertExpression) || Boolean(proof.tapTargetSelector)));
 
   const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
-  assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'CAMBIUM_RUN_VIEWPORT_PROOF=1 node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
+  assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
   const ci = readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8');
   const release = readFileSync(new URL('../../../.github/workflows/release.yml', import.meta.url), 'utf8');
   const verifyRelease = readFileSync(new URL('../../../scripts/verify-release.mjs', import.meta.url), 'utf8');

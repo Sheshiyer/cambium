@@ -2,6 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { FITCHECK_GOLDEN_PATH } from '../../../shared/fitcheck-golden-path.ts';
+import { IVERIF_GOLDEN_PATH } from '../../../shared/iverif-golden-path.ts';
+import {
+  OPERATIONAL_PACKET_PROJECTIONS,
+  operationalPacketProjectionFor,
+} from '../../../shared/operational-packet-registry.ts';
 import {
   compileOperationalPacketProjection,
   OPERATIONAL_PACKET_PROJECTION_SCHEMA,
@@ -198,6 +203,20 @@ test('Fitcheck projects the selected frontend and HDILINT-owned backend with iss
   assert.equal(FITCHECK_GOLDEN_PATH.mappingAuthority.receiptIssued, true);
   assert.equal(FITCHECK_GOLDEN_PATH.mappingAuthority.readbackVerified, true);
   assert.equal(FITCHECK_GOLDEN_PATH.proofs.some((proof) => proof.proofId === 'fitcheck-mapping-readback'), true);
+});
+
+test('IVerif mapping is verified while D1 admission remains held', () => {
+  assert.equal(IVERIF_GOLDEN_PATH.identity.workId, 'sapling:iverif');
+  assert.equal(IVERIF_GOLDEN_PATH.mappingAuthority.state, 'readback-verified');
+  assert.equal(IVERIF_GOLDEN_PATH.mappingAuthority.receiptIssued, true);
+  assert.equal(IVERIF_GOLDEN_PATH.mappingAuthority.readbackVerified, true);
+  assert.equal(IVERIF_GOLDEN_PATH.executionLadder.find((stage) => stage.stage === 'admitted')?.current, false);
+  assert.equal(operationalPacketProjectionFor('sapling:iverif'), IVERIF_GOLDEN_PATH);
+  assert.equal(operationalPacketProjectionFor('iverif'), null);
+  assert.deepEqual(OPERATIONAL_PACKET_PROJECTIONS.map((projection) => projection.identity.workId), [
+    'sapling:fitcheck',
+    'sapling:iverif',
+  ]);
 });
 
 test('validator rejects duplicate repository components and missing planning authority', () => {
