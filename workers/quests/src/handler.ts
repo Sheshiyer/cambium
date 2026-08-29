@@ -8,6 +8,9 @@
 // green (the quest log's own arc VII — the feature gates itself).
 
 import { PAGE } from './page.ts';
+import { injectInitialQuestHydration } from './page/client/data.ts';
+import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
+import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord, resolveActionRequestReplyRecord } from './action-requests.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
@@ -61,7 +64,6 @@ import {
   portfolioCatalogForViewer,
   portfolioPairDigest,
 } from './portfolio-catalog.ts';
-import { THREE_SAPLING_LOADOUT_AUTHORITY } from './portfolio-operational-cohort.ts';
 import {
   ORGAN_UPDATE_PLAN,
   ORGAN_UPDATE_SUMMARY,
@@ -88,8 +90,12 @@ import type {
 } from './portfolio-admin-actions.ts';
 import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } from './goal-graph-store.ts';
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
-import { parseTelegramGoalGraphIntent } from './goal-graph-intake.ts';
+import { deriveFounderOutcomeTransition, parseFounderOutcomeIntent } from './founder-outcome-intake.ts';
+import { parseTelegramGoalGraphIntent, parseTelegramGoalGraphIntentBoundary } from './goal-graph-intake.ts';
+import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
+import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
+import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 import { recordWorkflowLearningEvent, summarizeWorkflowLearningMonth } from './workflow-learning.ts';
 
@@ -132,14 +138,23 @@ function resolveSurfacePrincipal(req: SimpleRequest): Principal | null {
   return FOUNDER_FALLBACK_PRINCIPAL;
 }
 
-async function surfaceScopedQuestBody(kv: KvLike, tenantId: string, stored: string, principal: Principal): Promise<string> {
-  const base = await publicQuestBody(kv, tenantId, stored);
+async function surfaceScopedQuestBody(
+  deps: HandlerDeps,
+  tenantId: string,
+  stored: string,
+  principal: Principal,
+  founderOutcomeAuthorized = false,
+): Promise<string> {
+  const base = await publicQuestBody(deps.kv, tenantId, stored);
   try {
     const envelope = JSON.parse(base);
     envelope.surface = {
       sections: filterSections(MINI_APP_SECTIONS, principal),
       subsections: filterSubsections(MINI_APP_MAP_SUBSECTIONS, principal),
     };
+    if (founderOutcomeAuthorized) {
+      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal);
+    }
     return JSON.stringify(envelope);
   } catch {
     return base;
@@ -536,7 +551,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -675,11 +690,53 @@ export interface SimpleResponse {
 const VALID_TENANT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' };
+const HERMES_QUEST_SUMMARY_SCHEMA = 'cambium.hermes.quest-summary.v1';
+const HERMES_QUEST_SUMMARY_PREFIX = '/v1/bridge/quests/';
+const HERMES_QUEST_STALE_AFTER_MS = 6 * 60 * 60 * 1000;
+const HERMES_QUEST_MAX_COUNT = 1_000_000;
 const SOCIAL_OVERCLAIM_RE = /\b(leaderboard|social[-\s]proof|popularity|rank|follower|viral)\b/i;
 const PUBLIC_SECRET_RE = /(?:\bBearer\s+|\b(?:TELEGRAM_INIT_DATA|TG_INIT_DATA|QUESTS_PUSH_TOKEN|rawInitData|initData|query_id|auth_date)\b=?|\b(?:token|user|id)=|hash=)/i;
 const SOCIAL_UNSAFE_RE = new RegExp(`${SOCIAL_OVERCLAIM_RE.source}|${PUBLIC_SECRET_RE.source}`, 'i');
 const json = (status: number, value: unknown): SimpleResponse =>
   ({ status, headers: { ...JSON_HEADERS }, body: JSON.stringify(value) });
+
+function boundedQuestCount(value: unknown): number {
+  const count = Math.floor(Number(value));
+  return Number.isFinite(count) && count > 0 ? Math.min(count, HERMES_QUEST_MAX_COUNT) : 0;
+}
+
+function hermesQuestSummaryTenant(routePath: string): string | null {
+  if (!routePath.startsWith(HERMES_QUEST_SUMMARY_PREFIX) || !routePath.endsWith('/summary')) return null;
+  const tenant = routePath.slice(HERMES_QUEST_SUMMARY_PREFIX.length, -'/summary'.length);
+  return VALID_TENANT.test(tenant) ? tenant : null;
+}
+
+function hermesQuestSummary(stored: string, tenant: string, nowMs: number): Record<string, unknown> | null {
+  const envelope = parseStoredEnvelope(stored);
+  if (!envelope || envelope.tenant !== tenant || !isRecord(envelope.ledger)) return null;
+  const total = boundedQuestCount(envelope.ledger.total);
+  const completed = Math.min(boundedQuestCount(envelope.ledger.completed), total);
+  const derivedAtMs = parsedTime(envelope.derivedAt);
+  const ageSeconds = derivedAtMs === null ? null : Math.max(0, Math.floor((nowMs - derivedAtMs) / 1000));
+  const freshnessState = ageSeconds === null
+    ? 'unknown'
+    : ageSeconds > HERMES_QUEST_STALE_AFTER_MS / 1000 ? 'stale' : 'fresh';
+  return {
+    schema: HERMES_QUEST_SUMMARY_SCHEMA,
+    tenant,
+    freshness: {
+      state: freshnessState,
+      derivedAt: derivedAtMs === null ? null : String(envelope.derivedAt),
+      ageSeconds,
+    },
+    counts: {
+      completed,
+      total,
+      remaining: total - completed,
+    },
+    status: total === 0 ? 'empty' : completed === total ? 'complete' : 'active',
+  };
+}
 
 const portfolioHtml = (status: number, body: string, contentSecurityPolicy: string): SimpleResponse => ({
   status,
@@ -2587,9 +2644,37 @@ function socialRowText(row: Record<string, unknown>): string {
   ].filter((item) => typeof item === 'string').join(' ');
 }
 
+function normalizeMiniAppSceneContracts(envelope: unknown): Record<string, unknown> {
+  if (!isRecord(envelope)) return {};
+  const normalized: Record<string, unknown> = { ...envelope };
+  delete normalized.commandProjection;
+  if ('beats' in envelope) {
+    normalized.beats = Array.isArray(envelope.beats)
+      ? envelope.beats.flatMap((row) => {
+          const parsed = parseStoryEventContract(row);
+          return parsed.ok ? [parsed.value] : [];
+        })
+      : [];
+  }
+  if ('commands' in envelope) {
+    if (envelope.commands === null) {
+      normalized.commands = null;
+    } else {
+      const freshness = isRecord(envelope.freshness) ? envelope.freshness : null;
+      const parsed = normalizeToolsCommandProjection(envelope.commands, {
+        source: envelope.source,
+        checkedAt: envelope.derivedAt,
+        state: freshness?.state ?? freshness?.status,
+      });
+      normalized.commands = parsed.ok ? parsed.value : null;
+    }
+  }
+  return normalized;
+}
+
 function sanitizeQuestEnvelope(envelope: any): any {
   const social = envelope?.social;
-  if (!social || typeof social !== 'object' || Array.isArray(social)) return envelope;
+  if (!social || typeof social !== 'object' || Array.isArray(social)) return normalizeMiniAppSceneContracts(envelope);
   const rows = Array.isArray(social.rows) ? social.rows : [];
   const safeRows = rows.filter((row) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
@@ -2619,8 +2704,8 @@ function sanitizeQuestEnvelope(envelope: any): any {
       typeof value === 'string' && SOCIAL_UNSAFE_RE.test(value),
     );
   });
-  if (safeRows.length === rows.length && !metadataRejected && !rowMetadataRejected) return envelope;
-  return {
+  if (safeRows.length === rows.length && !metadataRejected && !rowMetadataRejected) return normalizeMiniAppSceneContracts(envelope);
+  return normalizeMiniAppSceneContracts({
     ...envelope,
     social: {
       source: 'coordination-evidence@v1',
@@ -2629,20 +2714,30 @@ function sanitizeQuestEnvelope(envelope: any): any {
       rows: safeRows.length ? safeRows : [fallbackSocialRow()],
       gap: 'coordination evidence sanitized',
     },
-  };
+  });
 }
 
 async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Promise<string> {
+  let envelope: Record<string, unknown>;
   try {
-    const envelope = sanitizeQuestEnvelope(JSON.parse(stored));
-    const merged: Record<string, unknown> = { ...envelope };
+    envelope = sanitizeQuestEnvelope(JSON.parse(stored));
+  } catch {
+    return JSON.stringify({
+      schema: 1,
+      tenant: tenantId,
+      source: 'stored-envelope-validation',
+      error: 'stored_envelope_invalid',
+    });
+  }
+  const merged: Record<string, unknown> = { ...envelope };
+  try {
     const actionRequests = await listActionRequestRecords(kv, { tenantId, limit: 50 });
     if (actionRequests.status === 200 && Number(actionRequests.body.count) >= 1) {
       merged.actionRequests = actionRequests.body;
     }
     // Pending Telegram goal-graph proposals are founder decisions too: project
     // them into the same envelope the gate scene renders (bounded rows only).
-    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId);
+    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false });
     if (goalGraphRows.length >= 1) {
       merged.goalGraphIntake = {
         schema: GOAL_GRAPH_GATE_ROW_LIST_SCHEMA,
@@ -2652,10 +2747,42 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
         rows: goalGraphRows,
       };
     }
-    return JSON.stringify(merged);
-  } catch {
-    return stored;
+  } catch {}
+  const projectedStoryEvents = projectStoryEvents(merged);
+  const actionRequestEnvelope = isRecord(merged.actionRequests) ? merged.actionRequests : null;
+  const actionRequestRows = Array.isArray(merged.actionRequests)
+    ? merged.actionRequests
+    : Array.isArray(actionRequestEnvelope?.rows)
+      ? actionRequestEnvelope.rows
+      : Array.isArray(actionRequestEnvelope?.actionRequests)
+        ? actionRequestEnvelope.actionRequests
+        : [];
+  const ledgerEnvelope = isRecord(merged.ledger) ? merged.ledger : null;
+  const ledgerRows = Array.isArray(ledgerEnvelope?.rows) ? ledgerEnvelope.rows : [];
+  if ('beats' in merged || projectedStoryEvents.length > 0 || actionRequestRows.length > 0 || ledgerRows.length > 0) {
+    merged.beats = projectedStoryEvents;
+    merged.storyProjection = {
+      schema: 'cambium.story-event-projection.v1',
+      eventCount: projectedStoryEvents.length,
+      sourceKinds: ['receipt', 'decision', 'transition'],
+    };
   }
+  return JSON.stringify(merged);
+}
+
+function scriptSafeJson(value: unknown): string {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) throw new TypeError('page bootstrap value is not JSON serializable');
+  return serialized
+    .replace(/</g, '\\u003c')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+function injectPageBootstrap(page: string, statements: string[]): string {
+  if (!statements.length) return page;
+  const boot = `<script>${statements.join('')}</script>`;
+  return page.includes('</head>') ? page.replace('</head>', `${boot}</head>`) : boot + page;
 }
 
 function parsedTime(value: unknown): number | null {
@@ -3101,7 +3228,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       graphVersion: head.graphVersion,
       nodes,
       workObjectIds: PORTFOLIO_CATALOG.records.map((record) => record.workId),
-      loadoutAuthority: THREE_SAPLING_LOADOUT_AUTHORITY,
+      loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
     });
     const goalGraphFabricNodes = goalGraphAuthority.nodes;
     const fabricFacts = isRecord(storedEnvelope) ? storedEnvelope.fabricFacts : null;
@@ -3399,6 +3526,13 @@ const GOAL_GRAPH_INTAKE_REJECTION_SCHEMA = 'cambium.goal-graph-intake-rejection.
 const GOAL_GRAPH_INTAKE_MAX_ERRORS = 8;
 const GOAL_GRAPH_INTAKE_MAX_ERROR_BYTES = 240;
 const GOAL_GRAPH_APPROVAL_TTL_MS = 15 * 60_000;
+const FOUNDER_EVIDENCE_CANDIDATE_SCHEMA = 'cambium.founder-evidence-candidate.v1';
+const FITCHECK_FOUNDER_OUTCOME_TENANT = 'cambium';
+const FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT = 'sapling:fitcheck';
+const FITCHECK_FOUNDER_OUTCOME_BRANCH = 'fitcheck';
+const FITCHECK_FOUNDER_OUTCOME_MISSION = 'fitcheck-shopify-qa';
+const FITCHECK_FOUNDER_OUTCOME_QUEST = 'fitcheck-shopify-widget-qa';
+const FOUNDER_OUTCOME_STATUSES = new Set(['passed', 'failed', 'blocked', 'needs-review']);
 
 interface GoalGraphIntakeRouteResult {
   status: number;
@@ -3407,6 +3541,107 @@ interface GoalGraphIntakeRouteResult {
 
 function goalGraphIntakeTaskKey(tenantId: string, changeDigest: string): string {
   return `goal-graph-intake-task:${tenantId}:${changeDigest}`;
+}
+
+type GoalGraphIntakePersistenceResult =
+  | { kind: 'missing' }
+  | { kind: 'conflict' }
+  | { kind: 'ready'; task: Record<string, unknown>; duplicate: boolean };
+
+interface GoalGraphIntakePersistenceInput {
+  tenantId: string;
+  idempotencyKey: string;
+  contentDigest: string;
+  idempotencyRecordKey: string;
+  taskKey?: string;
+  task?: Record<string, unknown>;
+}
+
+function matchingGoalGraphIntakeTask(
+  task: Record<string, unknown> | null,
+  input: GoalGraphIntakePersistenceInput,
+): task is Record<string, unknown> {
+  return task?.schema === GOAL_GRAPH_INTAKE_TASK_SCHEMA
+    && task.tenantId === input.tenantId
+    && task.idempotencyKey === input.idempotencyKey;
+}
+
+function goalGraphIntakeIdempotencyRecord(taskKey: string, task: Record<string, unknown>) {
+  return {
+    taskKey,
+    contentDigest: task.contentDigest,
+    changeDigest: task.changeDigest,
+  };
+}
+
+/**
+ * Shared task/index persistence primitive for every Goal Graph intake lane.
+ *
+ * KV cannot atomically write the task and its idempotency index. The task is
+ * therefore written first; a retry scans the sole existing intake-task store,
+ * repairs a missing index, and rejects semantic drift before creating another
+ * task. The inverse partial state (index without task) is also repaired after
+ * deterministic recompilation supplies the original task bytes.
+ */
+async function reconcileGoalGraphIntakePersistence(
+  kv: KvLike,
+  input: GoalGraphIntakePersistenceInput,
+): Promise<GoalGraphIntakePersistenceResult> {
+  const indexed = parseJsonObject(await kv.get(input.idempotencyRecordKey));
+  if (indexed) {
+    if (indexed.contentDigest !== input.contentDigest) return { kind: 'conflict' };
+    const indexedTaskKey = typeof indexed.taskKey === 'string' ? indexed.taskKey : '';
+    const indexedTask = indexedTaskKey ? parseJsonObject(await kv.get(indexedTaskKey)) : null;
+    if (matchingGoalGraphIntakeTask(indexedTask, input)) {
+      if (indexedTask.contentDigest !== input.contentDigest) return { kind: 'conflict' };
+      return { kind: 'ready', task: indexedTask, duplicate: true };
+    }
+    if (!input.task || !input.taskKey || indexedTaskKey !== input.taskKey) return { kind: 'missing' };
+    if (!matchingGoalGraphIntakeTask(input.task, input) || input.task.contentDigest !== input.contentDigest) {
+      return { kind: 'conflict' };
+    }
+    await kv.put(input.taskKey, JSON.stringify(input.task));
+    return { kind: 'ready', task: input.task, duplicate: true };
+  }
+
+  const taskKeys = await kv.list(`goal-graph-intake-task:${input.tenantId}:`);
+  let partial: { key: string; task: Record<string, unknown> } | null = null;
+  for (const key of taskKeys) {
+    const stored = parseJsonObject(await kv.get(key));
+    if (!matchingGoalGraphIntakeTask(stored, input)) continue;
+    if (stored.contentDigest !== input.contentDigest) return { kind: 'conflict' };
+    if (partial && partial.key !== key) return { kind: 'conflict' };
+    partial = { key, task: stored };
+  }
+  if (partial) {
+    await kv.put(
+      input.idempotencyRecordKey,
+      JSON.stringify(goalGraphIntakeIdempotencyRecord(partial.key, partial.task)),
+    );
+    return { kind: 'ready', task: partial.task, duplicate: true };
+  }
+
+  if (!input.task || !input.taskKey) return { kind: 'missing' };
+  if (!matchingGoalGraphIntakeTask(input.task, input) || input.task.contentDigest !== input.contentDigest) {
+    return { kind: 'conflict' };
+  }
+  const occupied = parseJsonObject(await kv.get(input.taskKey));
+  if (occupied) {
+    if (!matchingGoalGraphIntakeTask(occupied, input) || occupied.contentDigest !== input.contentDigest) {
+      return { kind: 'conflict' };
+    }
+    await kv.put(
+      input.idempotencyRecordKey,
+      JSON.stringify(goalGraphIntakeIdempotencyRecord(input.taskKey, occupied)),
+    );
+    return { kind: 'ready', task: occupied, duplicate: true };
+  }
+  await kv.put(input.taskKey, JSON.stringify(input.task));
+  await kv.put(
+    input.idempotencyRecordKey,
+    JSON.stringify(goalGraphIntakeIdempotencyRecord(input.taskKey, input.task)),
+  );
+  return { kind: 'ready', task: input.task, duplicate: false };
 }
 
 /** Best-effort bounded tenant for receipt scoping; never trusts the payload. */
@@ -3493,6 +3728,25 @@ function resolveGoalGraphApprovalDescriptor(
   return { approvalNonce, approvalExpiresAt, expectedHeadVersion, fence };
 }
 
+function storedFounderOutcomeCandidate(task: Record<string, unknown>): Record<string, unknown> | null {
+  const candidate = isRecord(task.candidate) ? task.candidate : null;
+  if (!candidate || candidate.schema !== FOUNDER_EVIDENCE_CANDIDATE_SCHEMA) return null;
+  const candidateId = typeof candidate.candidateId === 'string' ? candidate.candidateId : '';
+  const outcome = typeof candidate.outcome === 'string' ? candidate.outcome : '';
+  const screenshotRef = typeof candidate.screenshotRef === 'string' ? candidate.screenshotRef : '';
+  const widgetEventRef = typeof candidate.widgetEventRef === 'string' ? candidate.widgetEventRef : '';
+  if (!/^founder_candidate_[a-f0-9]{32}$/.test(candidateId)
+      || candidate.tenantId !== FITCHECK_FOUNDER_OUTCOME_TENANT
+      || candidate.workObjectId !== FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT
+      || candidate.branchId !== FITCHECK_FOUNDER_OUTCOME_BRANCH
+      || candidate.missionId !== FITCHECK_FOUNDER_OUTCOME_MISSION
+      || candidate.questId !== FITCHECK_FOUNDER_OUTCOME_QUEST
+      || !FOUNDER_OUTCOME_STATUSES.has(outcome)
+      || !screenshotRef || screenshotRef.length > 1024
+      || !widgetEventRef || widgetEventRef.length > 1024) return null;
+  return candidate;
+}
+
 function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, unknown> | null {
   const tenantId = shortText(task.tenantId, '', 160);
   const changeDigest = shortText(task.changeDigest, '', 160);
@@ -3503,6 +3757,42 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
   const nodeId = shortText(task.nodeId, 'node id not served', 160);
   const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, changeDigest);
   if (!descriptor) return null;
+  const candidate = storedFounderOutcomeCandidate(task);
+  if (candidate) {
+    const candidateId = String(candidate.candidateId);
+    const outcome = String(candidate.outcome);
+    const screenshotRef = String(candidate.screenshotRef);
+    const widgetEventRef = String(candidate.widgetEventRef);
+    return {
+      schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
+      kind: 'goal-graph-intake',
+      id: `goal-graph-intake:${changeDigest}`,
+      tenantId,
+      status: 'pending',
+      changeDigest,
+      nodeId,
+      candidateId,
+      workObjectId: FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT,
+      missionId: FITCHECK_FOUNDER_OUTCOME_MISSION,
+      questId: FITCHECK_FOUNDER_OUTCOME_QUEST,
+      outcome,
+      title: shortText(`Fitcheck outcome · ${outcome}`, 'Fitcheck outcome', 160),
+      summary: shortText(`Founder-observed Fitcheck Shopify widget QA outcome awaiting Gate: ${outcome}`, 'Fitcheck outcome awaiting Gate', 240),
+      source: 'fitcheck-founder-outcome@v1',
+      sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
+      evidence: `screenshot ${screenshotRef}; widget event ${widgetEventRef}`.slice(0, 2200),
+      consequence: `founder signature commits the stored ${outcome} Fitcheck proof transition to D1; it does not prove Shopify approval or trigger Hermes execution`,
+      reversibility: 'pending evidence expires without a graph write; committed graph revisions are immutable and require a separately approved superseding proposal',
+      idempotencyHint: changeDigest,
+      graphVersion: Number.isInteger(task.graphVersion) ? task.graphVersion : null,
+      receivedAt,
+      updatedAt: receivedAt,
+      approvalNonce: descriptor.approvalNonce,
+      approvalExpiresAt: descriptor.approvalExpiresAt,
+      expectedHeadVersion: descriptor.expectedHeadVersion,
+      fence: descriptor.fence,
+    };
+  }
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
     kind: 'goal-graph-intake',
@@ -3529,18 +3819,175 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
   };
 }
 
-async function listGoalGraphIntakeGateRows(kv: KvLike, tenantId: string): Promise<Array<Record<string, unknown>>> {
+async function listGoalGraphIntakeGateRows(
+  kv: KvLike,
+  tenantId: string,
+  options: { includeFounderCandidates?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string> } = {},
+): Promise<Array<Record<string, unknown>>> {
   const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
   for (const key of keys) {
     const task = parseJsonObject(await kv.get(key));
     if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA) continue;
     if (task.tenantId !== tenantId || task.status !== 'pending') continue;
+    const candidate = storedFounderOutcomeCandidate(task);
+    if (candidate) {
+      if (options.includeFounderCandidates !== true) continue;
+      if (options.committedCandidateIds?.has(String(candidate.candidateId))) continue;
+      const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, String(task.changeDigest ?? ''));
+      const nowMs = Date.parse(options.now ?? new Date().toISOString());
+      if (!descriptor || !Number.isFinite(nowMs) || Date.parse(descriptor.approvalExpiresAt) <= nowMs) continue;
+    }
     const row = goalGraphIntakeGateRow(task);
     if (row) rows.push(row);
   }
   rows.sort((a, b) => String(b.receivedAt).localeCompare(String(a.receivedAt)));
   return rows.slice(0, GOAL_GRAPH_GATE_ROW_LIMIT);
+}
+
+interface FounderOutcomeD1Projection {
+  head: GoalGraphHead;
+  rows: Array<Record<string, unknown>>;
+  committedCandidateIds: Set<string>;
+}
+
+function founderOutcomeNodeRow(node: GoalGraphNode, head: GoalGraphHead): Record<string, unknown> | null {
+  const metadata = isRecord(node.metadata) ? node.metadata : {};
+  const candidateId = typeof metadata.candidateId === 'string' ? metadata.candidateId : '';
+  const outcome = typeof metadata.outcome === 'string' ? metadata.outcome : '';
+  if (node.tenantId !== FITCHECK_FOUNDER_OUTCOME_TENANT
+      || node.namespace !== 'fitcheck-founder-outcome'
+      || node.workObjectId !== FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT
+      || node.scope !== 'proof'
+      || metadata.branchId !== FITCHECK_FOUNDER_OUTCOME_BRANCH
+      || metadata.missionId !== FITCHECK_FOUNDER_OUTCOME_MISSION
+      || metadata.questId !== FITCHECK_FOUNDER_OUTCOME_QUEST
+      || !/^founder_candidate_[a-f0-9]{32}$/.test(candidateId)
+      || !FOUNDER_OUTCOME_STATUSES.has(outcome)
+      || node.currentState !== outcome
+      || !head.nodeIds.includes(node.nodeId)) return null;
+  return {
+    schema: 'cambium.goal-graph-outcome-row.v1',
+    candidateId,
+    nodeId: node.nodeId,
+    workObjectId: FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT,
+    branchId: FITCHECK_FOUNDER_OUTCOME_BRANCH,
+    missionId: FITCHECK_FOUNDER_OUTCOME_MISSION,
+    questId: FITCHECK_FOUNDER_OUTCOME_QUEST,
+    outcome,
+    status: node.status,
+    proofRequired: node.proofRequired,
+    sourceRef: node.sourceRef,
+    headDigest: head.graphDigest,
+    graphVersion: head.graphVersion,
+    committedAt: head.committedAt,
+  };
+}
+
+async function readFounderOutcomeD1Projection(deps: HandlerDeps, tenantId: string): Promise<FounderOutcomeD1Projection | null> {
+  if (tenantId !== FITCHECK_FOUNDER_OUTCOME_TENANT || !deps.goalGraphStore) return null;
+  try {
+    const head = await deps.goalGraphStore.readHead(tenantId);
+    if (!head || head.tenantId !== tenantId) return null;
+    const nodes = await deps.goalGraphStore.readNodes(tenantId);
+    const rows = nodes.flatMap((node) => {
+      const row = founderOutcomeNodeRow(node, head);
+      return row ? [row] : [];
+    }).sort((a, b) => String(a.candidateId).localeCompare(String(b.candidateId))).slice(0, GOAL_GRAPH_GATE_ROW_LIMIT);
+    return {
+      head,
+      rows,
+      committedCandidateIds: new Set(rows.map((row) => String(row.candidateId))),
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function listExpiredFounderOutcomeRecovery(
+  kv: KvLike,
+  tenantId: string,
+  now: string,
+  committedCandidateIds: ReadonlySet<string>,
+): Promise<Array<Record<string, unknown>>> {
+  const nowMs = Date.parse(now);
+  if (!Number.isFinite(nowMs)) return [];
+  const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
+  const rows: Array<Record<string, unknown>> = [];
+  for (const key of keys) {
+    const task = parseJsonObject(await kv.get(key));
+    if (!task || task.status !== 'pending') continue;
+    const candidate = storedFounderOutcomeCandidate(task);
+    if (!candidate || committedCandidateIds.has(String(candidate.candidateId))) continue;
+    const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, String(task.changeDigest ?? ''));
+    if (!descriptor || Date.parse(descriptor.approvalExpiresAt) > nowMs) continue;
+    rows.push({
+      candidateId: String(candidate.candidateId),
+      questId: FITCHECK_FOUNDER_OUTCOME_QUEST,
+      status: 'expired',
+      expiredAt: descriptor.approvalExpiresAt,
+      recovery: 'refresh-and-resubmit',
+    });
+  }
+  return rows.slice(0, GOAL_GRAPH_GATE_ROW_LIMIT);
+}
+
+function founderOutcomeProjectionAllowed(principal: Principal, tenantId: string, now: string): boolean {
+  if (principal.role !== 'founder' || principal.id === FOUNDER_FALLBACK_PRINCIPAL.id) return false;
+  if (principal.tenant !== tenantId && principal.tenant !== '*') return false;
+  if (!principal.expiresAt) return true;
+  const expiresAt = Date.parse(principal.expiresAt);
+  const nowMs = Date.parse(now);
+  return Number.isFinite(expiresAt) && Number.isFinite(nowMs) && expiresAt >= nowMs;
+}
+
+async function appendFounderOutcomeQuestProjection(
+  envelope: Record<string, unknown>,
+  deps: HandlerDeps,
+  tenantId: string,
+  principal: Principal,
+): Promise<void> {
+  const now = deps.now ? deps.now() : new Date().toISOString();
+  if (!founderOutcomeProjectionAllowed(principal, tenantId, now)) return;
+  const d1 = await readFounderOutcomeD1Projection(deps, tenantId);
+  const committedCandidateIds = d1?.committedCandidateIds ?? new Set<string>();
+  const gateRows = await listGoalGraphIntakeGateRows(deps.kv, tenantId, {
+    includeFounderCandidates: true,
+    now,
+    committedCandidateIds,
+  });
+  if (gateRows.length) {
+    envelope.goalGraphIntake = {
+      schema: GOAL_GRAPH_GATE_ROW_LIST_SCHEMA,
+      ok: true,
+      tenantId,
+      count: gateRows.length,
+      rows: gateRows,
+    };
+  } else {
+    delete envelope.goalGraphIntake;
+  }
+  const recoveryRows = await listExpiredFounderOutcomeRecovery(deps.kv, tenantId, now, committedCandidateIds);
+  if (recoveryRows.length) {
+    envelope.founderOutcomeRecovery = {
+      schema: 'cambium.founder-outcome-recovery-list.v1',
+      ok: true,
+      tenantId,
+      count: recoveryRows.length,
+      rows: recoveryRows,
+    };
+  }
+  if (d1) {
+    envelope.goalGraphOutcomes = {
+      schema: 'cambium.goal-graph-outcomes.v1',
+      ok: true,
+      tenantId,
+      headDigest: d1.head.graphDigest,
+      graphVersion: d1.head.graphVersion,
+      count: d1.rows.length,
+      rows: d1.rows,
+    };
+  }
 }
 
 async function intakeTelegramGoalGraphRoute(
@@ -3550,17 +3997,14 @@ async function intakeTelegramGoalGraphRoute(
 ): Promise<GoalGraphIntakeRouteResult> {
   const receivedAt = nowIso();
   const receiptTenant = goalGraphIntakeReceiptTenant(raw);
-  // The parser is the pure boundary: a malformed envelope is data, never an
-  // exception, so a Telegram redelivery can never crash-loop this lane.
-  const initial = parseTelegramGoalGraphIntent(raw);
-  if (!initial.accepted) {
+  const persistRejection = async (rejected: Extract<ReturnType<typeof parseTelegramGoalGraphIntentBoundary>, { accepted: false }>) => {
     // Bounded rejection receipt: the parser's bounded error shape only. No
     // payload, metadata value, or raw Telegram content is echoed back.
     const receipt = {
       schema: GOAL_GRAPH_INTAKE_REJECTION_SCHEMA,
       tenantId: receiptTenant,
-      code: initial.code,
-      errors: boundedIntakeErrors(initial.errors),
+      code: rejected.code,
+      errors: boundedIntakeErrors(rejected.errors),
       receivedAt,
     };
     const receiptId = `ggi-rej-${(await sha256hex(canonicalJson(receipt))).slice(0, 24)}`;
@@ -3574,15 +4018,36 @@ async function intakeTelegramGoalGraphRoute(
         status: 'rejected',
         schema: GOAL_GRAPH_INTAKE_REJECTION_SCHEMA,
         tenantId: receiptTenant,
-        code: initial.code,
+        code: rejected.code,
         errors: receipt.errors,
         receiptId,
       },
-    };
+    } satisfies GoalGraphIntakeRouteResult;
+  };
+  // Normalize and bind provenance before consulting D1. That boundary identity
+  // is enough to collapse an already-accepted Telegram redelivery even when
+  // the graph has since drifted or its authority is temporarily unavailable.
+  const initial = parseTelegramGoalGraphIntentBoundary(raw);
+  if (!initial.accepted) return persistRejection(initial);
+  const tenantId = initial.value.tenantId;
+  const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
+  let replayBeforeGraph: GoalGraphIntakePersistenceResult;
+  try {
+    replayBeforeGraph = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId,
+      idempotencyKey: initial.idempotencyKey,
+      contentDigest: initial.contentDigest,
+      idempotencyRecordKey,
+    });
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_intake_storage_unavailable' } };
   }
+  if (replayBeforeGraph.kind === 'conflict') {
+    return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: initial.idempotencyKey } };
+  }
+  if (replayBeforeGraph.kind === 'ready') return goalGraphIntakeTaskReceipt(replayBeforeGraph.task, true);
 
   if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal graph authority is not configured' } };
-  const tenantId = initial.value.tenantId;
   let head: GoalGraphHead | null;
   let currentNodes: GoalGraphNode[];
   try {
@@ -3600,8 +4065,12 @@ async function intakeTelegramGoalGraphRoute(
     currentNodes,
     graphVersion: (head?.graphVersion ?? 0) + 1,
     now: receivedAt,
+    loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   });
-  if (!pinned.accepted) return { status: 500, body: { error: 'goal_graph_intake_context_failed' } };
+  if (!pinned.accepted) return persistRejection(pinned);
+  if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
+    return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
+  }
   if (pinned.compile.status !== 'compiled') {
     return {
       status: 409,
@@ -3615,19 +4084,6 @@ async function intakeTelegramGoalGraphRoute(
     };
   }
   const changeSet = pinned.compile.changeSet;
-
-  // Collapse Telegram redelivery on the canonical idempotency key: a replay
-  // returns the original task receipt and never writes a second record.
-  const idempotencyRecordKey = `goal-graph-intake-idem:${pinned.idempotencyKey}`;
-  const existingRecord = parseJsonObject(await deps.kv.get(idempotencyRecordKey));
-  if (existingRecord) {
-    if (existingRecord.contentDigest !== pinned.contentDigest) {
-      return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: pinned.idempotencyKey } };
-    }
-    const existingTask = parseJsonObject(await deps.kv.get(String(existingRecord.taskKey ?? '')));
-    if (!existingTask) return { status: 409, body: { error: 'goal graph intake idempotency record missing task' } };
-    return goalGraphIntakeTaskReceipt(existingTask, true);
-  }
 
   // Server-issued approval descriptor, pinned at intake so approval never
   // derives nonce/expiry/fence from the request: the nonce format matches
@@ -3663,13 +4119,421 @@ async function intakeTelegramGoalGraphRoute(
     fence,
   };
   const taskKey = goalGraphIntakeTaskKey(tenantId, changeSet.changeDigest);
-  await deps.kv.put(taskKey, JSON.stringify(task));
-  await deps.kv.put(idempotencyRecordKey, JSON.stringify({
-    taskKey,
-    contentDigest: pinned.contentDigest,
+  let persisted: GoalGraphIntakePersistenceResult;
+  try {
+    persisted = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId,
+      idempotencyKey: pinned.idempotencyKey,
+      contentDigest: pinned.contentDigest,
+      idempotencyRecordKey,
+      taskKey,
+      task,
+    });
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_intake_storage_unavailable' } };
+  }
+  if (persisted.kind === 'conflict') {
+    return { status: 409, body: { error: 'goal graph intake idempotency conflict', idempotencyKey: pinned.idempotencyKey } };
+  }
+  if (persisted.kind !== 'ready') return { status: 503, body: { error: 'goal_graph_intake_storage_unavailable' } };
+  return goalGraphIntakeTaskReceipt(persisted.task, persisted.duplicate);
+}
+
+function founderOutcomeCandidateReceipt(task: Record<string, unknown>): GoalGraphIntakeRouteResult | null {
+  const candidate = isRecord(task.candidate) ? task.candidate : null;
+  const candidateId = candidate ? shortText(candidate.candidateId, '', 160) : '';
+  const status = candidate ? shortText(candidate.status, '', 64) : '';
+  const changeDigest = shortText(task.changeDigest, '', 160);
+  const graphVersion = Number.isInteger(task.graphVersion) ? Number(task.graphVersion) : null;
+  if (!candidateId || status !== 'review_pending' || !/^(?:sha256:)?[a-f0-9]{64}$/.test(changeDigest) || graphVersion === null) {
+    return null;
+  }
+  return {
+    status: 200,
+    body: {
+      candidate: { candidateId, status },
+      changeDigest,
+      graphVersion,
+      gateRoute: `/api/gate/${FITCHECK_FOUNDER_OUTCOME_TENANT}`,
+      readbackRoute: `/v1/branch-map/${FITCHECK_FOUNDER_OUTCOME_TENANT}`,
+    },
+  };
+}
+
+async function handleFounderOutcomeRoute(
+  deps: HandlerDeps,
+  tenant: string,
+  rawBody: unknown,
+): Promise<GoalGraphIntakeRouteResult> {
+  if (tenant !== FITCHECK_FOUNDER_OUTCOME_TENANT) {
+    return { status: 403, body: { error: 'founder_outcome_pilot_identity_mismatch' } };
+  }
+  if (!deps.gate) return { status: 503, body: { error: 'founder_outcome_authentication_unavailable' } };
+  if (!isRecord(rawBody)) return { status: 400, body: { error: 'founder_outcome_invalid' } };
+
+  // Runtime authentication is deliberately consumed at the adapter boundary.
+  // The pure parser never sees, canonicalizes, persists, or echoes initData.
+  const { initData, ...intentInput } = rawBody;
+  const verdict = await validateInitData(typeof initData === 'string' ? initData : '', deps.gate);
+  if (!verdict.ok) return { status: 401, body: { error: 'founder_outcome_authentication_failed' } };
+
+  const parsed = parseFounderOutcomeIntent(intentInput);
+  if (!parsed.accepted) {
+    return {
+      status: 400,
+      body: {
+        error: 'founder_outcome_invalid',
+        code: parsed.code,
+        errors: boundedIntakeErrors(parsed.errors),
+      },
+    };
+  }
+
+  const idempotencyRecordKey = `goal-graph-intake-idem:${parsed.idempotencyKey}`;
+  let replay: GoalGraphIntakePersistenceResult;
+  try {
+    replay = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId: parsed.value.tenantId,
+      idempotencyKey: parsed.idempotencyKey,
+      contentDigest: parsed.contentDigest,
+      idempotencyRecordKey,
+    });
+  } catch {
+    return { status: 503, body: { error: 'founder_outcome_storage_unavailable' } };
+  }
+  if (replay.kind === 'conflict') {
+    return { status: 409, body: { error: 'founder_outcome_idempotency_conflict' } };
+  }
+  if (replay.kind === 'ready') {
+    return founderOutcomeCandidateReceipt(replay.task)
+      ?? { status: 409, body: { error: 'founder_outcome_replay_unavailable' } };
+  }
+
+  if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  let head: GoalGraphHead | null;
+  let currentNodes: GoalGraphNode[];
+  try {
+    head = await deps.goalGraphStore.readHead(parsed.value.tenantId);
+    currentNodes = await deps.goalGraphStore.readNodes(parsed.value.tenantId);
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  }
+  if (!head || head.tenantId !== parsed.value.tenantId) {
+    return { status: 409, body: { error: 'fitcheck_goal_graph_anchor_conflict' } };
+  }
+  const anchors = currentNodes.filter((node) => (
+    node.tenantId === parsed.value.tenantId
+    && node.parentNodeId === null
+    && node.workObjectId === FITCHECK_FOUNDER_OUTCOME_WORK_OBJECT
+  ));
+  if (anchors.length !== 1) {
+    return { status: 409, body: { error: 'fitcheck_goal_graph_anchor_conflict' } };
+  }
+
+  const transition = deriveFounderOutcomeTransition(parsed.value, anchors[0].nodeId);
+  const candidateId = `founder_candidate_${parsed.contentDigest.replace(/^sha256:/, '').slice(0, 32)}`;
+  const sourceRef = `founder-outcome:${parsed.value.tenantId}:${candidateId}`;
+  const graphVersion = head.graphVersion + 1;
+  const receivedAt = deps.now ? deps.now() : new Date().toISOString();
+  const node = buildNode({
+    tenantId: transition.tenantId,
+    namespace: transition.namespace,
+    externalId: transition.externalId,
+    parentNodeId: transition.parentNodeId,
+    workObjectId: transition.workObjectId,
+    workObjectKind: transition.workObjectKind,
+    pinnedLoadoutId: transition.pinnedLoadoutId,
+    scope: transition.scope,
+    desiredState: transition.desiredState,
+    currentState: transition.outcome,
+    owner: 'founder',
+    nextAction: transition.nextAction,
+    waitCondition: transition.waitCondition,
+    proofRequired: transition.proofRequired,
+    reviewAt: null,
+    status: transition.status,
+    sourceRef,
+    sourceDigest: parsed.contentDigest,
+    graphVersion,
+    metadata: {
+      ...transition.metadata,
+      candidateId,
+      branchId: transition.branchId,
+      missionId: transition.missionId,
+      questId: transition.questId,
+      outcome: transition.outcome,
+    },
+    now: receivedAt,
+  });
+
+  let compiled;
+  try {
+    compiled = compileGoalGraph({
+      tenantId: parsed.value.tenantId,
+      expectedHeadDigest: head.graphDigest,
+      actualHead: head,
+      currentNodes,
+      proposedNodes: [...currentNodes.filter((current) => current.nodeId !== node.nodeId), node],
+      graphVersion,
+      sourceRef,
+      sourceDigest: parsed.contentDigest,
+      now: receivedAt,
+      loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+    });
+  } catch {
+    return { status: 409, body: { error: 'founder_outcome_proposal_conflict' } };
+  }
+  if (compiled.status !== 'compiled') {
+    return { status: 409, body: { error: 'goal_graph_stale_head', status: 'stale' } };
+  }
+
+  const changeSet = compiled.changeSet;
+  const screenshotDigest = `sha256:${await sha256hex(parsed.value.screenshotRef)}`;
+  const widgetEventDigest = `sha256:${await sha256hex(parsed.value.widgetEventRef)}`;
+  const candidate = {
+    schema: FOUNDER_EVIDENCE_CANDIDATE_SCHEMA,
+    candidateId,
+    tenantId: transition.tenantId,
+    workObjectId: transition.workObjectId,
+    branchId: transition.branchId,
+    missionId: transition.missionId,
+    questId: transition.questId,
+    outcome: transition.outcome,
+    screenshotRef: parsed.value.screenshotRef,
+    screenshotDigest,
+    widgetEventRef: parsed.value.widgetEventRef,
+    widgetEventDigest,
+    ...(parsed.value.note === undefined ? {} : { note: parsed.value.note }),
+    status: 'review_pending',
+    reviewStatus: 'review_pending',
+    createdAt: receivedAt,
+  };
+  const approvalNonce = `goal-graph-approval:${parsed.value.tenantId}:${changeSet.changeDigest}`;
+  const approvalExpiresAt = new Date(Date.parse(receivedAt) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString();
+  const task = {
+    schema: GOAL_GRAPH_INTAKE_TASK_SCHEMA,
+    tenantId: parsed.value.tenantId,
+    status: 'pending',
+    idempotencyKey: parsed.idempotencyKey,
+    intentVersion: 1,
+    sourceRef,
+    sourceDigest: parsed.contentDigest,
+    contentDigest: parsed.contentDigest,
     changeDigest: changeSet.changeDigest,
-  }));
-  return goalGraphIntakeTaskReceipt(task, false);
+    graphVersion: changeSet.graphVersion,
+    expectedHeadDigest: changeSet.expectedHeadDigest,
+    nodeId: node.nodeId,
+    intent: parsed.value,
+    node,
+    changeSet,
+    candidate,
+    receivedAt,
+    updatedAt: receivedAt,
+    approvalNonce,
+    approvalExpiresAt,
+    expectedHeadVersion: head.graphVersion,
+    fence: changeSet.graphVersion,
+  };
+  const taskKey = goalGraphIntakeTaskKey(parsed.value.tenantId, changeSet.changeDigest);
+  let persisted: GoalGraphIntakePersistenceResult;
+  try {
+    persisted = await reconcileGoalGraphIntakePersistence(deps.kv, {
+      tenantId: parsed.value.tenantId,
+      idempotencyKey: parsed.idempotencyKey,
+      contentDigest: parsed.contentDigest,
+      idempotencyRecordKey,
+      taskKey,
+      task,
+    });
+  } catch {
+    return { status: 503, body: { error: 'founder_outcome_storage_unavailable' } };
+  }
+  if (persisted.kind === 'conflict') {
+    return { status: 409, body: { error: 'founder_outcome_idempotency_conflict' } };
+  }
+  if (persisted.kind !== 'ready') {
+    return { status: 503, body: { error: 'founder_outcome_storage_unavailable' } };
+  }
+  return founderOutcomeCandidateReceipt(persisted.task)
+    ?? { status: 409, body: { error: 'founder_outcome_replay_unavailable' } };
+}
+
+interface FounderOutcomeApprovalAttempt {
+  approverId: string;
+  intentVersion: number;
+  nonce: string;
+  expiresAt: string;
+  approvalDigest: string;
+  approvedAt: string;
+  commitHeadDigest: string;
+  commitGraphVersion: number;
+  committedAt: string;
+}
+
+function validFounderOutcomeApprovalAttempt(
+  task: Record<string, unknown>,
+  descriptor: { approvalNonce: string; approvalExpiresAt: string },
+): FounderOutcomeApprovalAttempt | null {
+  const attempt = isRecord(task.approvalAttempt) ? task.approvalAttempt : null;
+  if (!attempt
+      || typeof attempt.approverId !== 'string'
+      || !/^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,255}$/.test(attempt.approverId)
+      || !Number.isInteger(attempt.intentVersion)
+      || attempt.nonce !== descriptor.approvalNonce
+      || attempt.expiresAt !== descriptor.approvalExpiresAt
+      || typeof attempt.approvedAt !== 'string'
+      || typeof attempt.approvalDigest !== 'string'
+      || !/^[a-f0-9]{64}$/.test(String(attempt.commitHeadDigest ?? ''))
+      || attempt.commitGraphVersion !== task.graphVersion
+      || attempt.committedAt !== attempt.approvedAt) return null;
+  const core = {
+    tenantId: String(task.tenantId),
+    changeDigest: String(task.changeDigest),
+    intentVersion: Number(attempt.intentVersion),
+    approverId: attempt.approverId,
+    expiresAt: attempt.expiresAt,
+    nonce: attempt.nonce,
+  };
+  if (goalGraphApprovalDigest(core) !== attempt.approvalDigest) return null;
+  return attempt as unknown as FounderOutcomeApprovalAttempt;
+}
+
+function expectedFounderOutcomeCommitHead(
+  task: Record<string, unknown>,
+  currentNodes: readonly GoalGraphNode[],
+  committedAt: string,
+): GoalGraphHead | null {
+  const changeSet = task.changeSet as GoalChangeSet | undefined;
+  if (!changeSet
+      || !Array.isArray(changeSet.nodesToCreate)
+      || !Array.isArray(changeSet.nodesToUpdate)
+      || !Array.isArray(changeSet.nodesToRemove)
+      || changeSet.tenantId !== task.tenantId
+      || changeSet.graphVersion !== task.graphVersion) return null;
+  const target = new Map(currentNodes.map((node) => [node.nodeId, node]));
+  for (const node of changeSet.nodesToRemove) target.delete(node.nodeId);
+  for (const update of changeSet.nodesToUpdate) target.set(update.nodeId, update.after);
+  for (const node of changeSet.nodesToCreate) target.set(node.nodeId, node);
+  return makeGoalGraphHead(
+    String(task.tenantId),
+    [...target.values()],
+    changeSet.graphVersion,
+    committedAt,
+    changeSet.sourceRef,
+    changeSet.sourceDigest,
+  );
+}
+
+function founderOutcomeCommitFields(task: Record<string, unknown>): Record<string, unknown> {
+  const candidate = storedFounderOutcomeCandidate(task);
+  if (!candidate) return {};
+  return {
+    candidateId: candidate.candidateId,
+    questId: candidate.questId,
+    readbackRoutes: {
+      goalGraph: `/v1/branch-map/${String(task.tenantId)}`,
+      quests: `/api/quests/${String(task.tenantId)}`,
+    },
+  };
+}
+
+function acceptedFounderOutcomeTask(
+  task: Record<string, unknown>,
+  head: GoalGraphHead,
+  approvalDigest: string,
+  nonce: string,
+  updatedAt: string,
+): Record<string, unknown> {
+  const candidate = storedFounderOutcomeCandidate(task);
+  return {
+    ...task,
+    status: 'committed',
+    ...(candidate ? {
+      candidate: {
+        ...candidate,
+        status: 'accepted',
+        reviewStatus: 'accepted',
+        acceptedAt: head.committedAt,
+      },
+    } : {}),
+    headDigest: head.graphDigest,
+    headGraphVersion: head.graphVersion,
+    approvalNonce: nonce,
+    approvalDigest,
+    committedAt: head.committedAt,
+    updatedAt,
+  };
+}
+
+function goalGraphCommitEvidenceResponse(
+  task: Record<string, unknown>,
+  head: GoalGraphHead,
+  approvalDigest: string,
+  nonce: string,
+  duplicate: boolean,
+  replayed: boolean,
+): GoalGraphIntakeRouteResult {
+  const tenant = String(task.tenantId);
+  const changeDigest = String(task.changeDigest);
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      duplicate,
+      replayed,
+      committed: true,
+      kind: 'approve-goal-graph',
+      subject: changeDigest,
+      tenantId: tenant,
+      changeDigest,
+      nodeId: task.nodeId,
+      sourceRef: task.sourceRef,
+      sourceDigest: task.sourceDigest,
+      readback: `/v1/branch-map/${tenant}`,
+      ...founderOutcomeCommitFields(task),
+      headDigest: head.graphDigest,
+      graphVersion: head.graphVersion,
+      approvalNonce: nonce,
+      approvalDigest,
+      consequence: `committed telegram goal graph proposal ${changeDigest.slice(0, 16)} to the D1 authority`,
+      reversibility: 'committed graph revisions are immutable; supersede with a new approved proposal',
+    },
+  };
+}
+
+function originalFounderOutcomeCommitHead(
+  task: Record<string, unknown>,
+  attempt: FounderOutcomeApprovalAttempt,
+  head: GoalGraphHead | null,
+  nodes: readonly GoalGraphNode[],
+): GoalGraphHead | null {
+  const candidate = storedFounderOutcomeCandidate(task);
+  if (!candidate || !head
+      || head.tenantId !== task.tenantId
+      || head.graphVersion < attempt.commitGraphVersion
+      || !head.nodeIds.includes(String(task.nodeId))
+      || (head.graphVersion === attempt.commitGraphVersion && head.graphDigest !== attempt.commitHeadDigest)) return null;
+  const node = nodes.find((entry) => entry.nodeId === task.nodeId);
+  if (!node || node.tenantId !== task.tenantId
+      || node.sourceRef !== task.sourceRef
+      || node.sourceDigest !== task.sourceDigest
+      || node.graphVersion !== attempt.commitGraphVersion) return null;
+  const metadata = isRecord(node.metadata) ? node.metadata : {};
+  if (!(metadata.candidateId === candidate.candidateId
+    && metadata.branchId === candidate.branchId
+    && metadata.missionId === candidate.missionId
+    && metadata.questId === candidate.questId
+    && metadata.outcome === candidate.outcome
+    && node.currentState === candidate.outcome)) return null;
+  return {
+    tenantId: String(task.tenantId),
+    graphVersion: attempt.commitGraphVersion,
+    graphDigest: attempt.commitHeadDigest,
+    nodeIds: [String(task.nodeId)],
+    sourceRef: typeof task.sourceRef === 'string' ? task.sourceRef : null,
+    sourceDigest: typeof task.sourceDigest === 'string' ? task.sourceDigest : null,
+    committedAt: attempt.committedAt,
+  };
 }
 
 async function approveGoalGraphIntakeRoute(
@@ -3698,6 +4562,27 @@ async function approveGoalGraphIntakeRoute(
   if (task.status === 'committed') {
     // Replay of an already-committed approval is a no-op with evidence: the
     // original head, nonce, and approval digest come back, nothing is written.
+    const committedHead: GoalGraphHead = {
+      tenantId: tenant,
+      graphVersion: Number.isInteger(task.headGraphVersion) ? Number(task.headGraphVersion) : Number(task.graphVersion),
+      graphDigest: String(task.headDigest ?? ''),
+      nodeIds: [String(task.nodeId ?? '')].filter(Boolean),
+      sourceRef: typeof task.sourceRef === 'string' ? task.sourceRef : null,
+      sourceDigest: typeof task.sourceDigest === 'string' ? task.sourceDigest : null,
+      committedAt: String(task.committedAt ?? task.updatedAt ?? ''),
+    };
+    if (/^[a-f0-9]{64}$/.test(committedHead.graphDigest)
+        && Number.isInteger(committedHead.graphVersion)
+        && typeof task.approvalDigest === 'string') {
+      return goalGraphCommitEvidenceResponse(
+        task,
+        committedHead,
+        task.approvalDigest,
+        String(task.approvalNonce ?? ''),
+        true,
+        true,
+      );
+    }
     return {
       status: 200,
       body: {
@@ -3735,6 +4620,45 @@ async function approveGoalGraphIntakeRoute(
   const storedExpiresAt = descriptor.approvalExpiresAt;
   const storedExpectedHeadVersion = descriptor.expectedHeadVersion;
   const storedFence = descriptor.fence;
+  const candidate = storedFounderOutcomeCandidate(task);
+  let approvalAttempt = candidate ? validFounderOutcomeApprovalAttempt(task, descriptor) : null;
+  let currentHead: GoalGraphHead | null | undefined;
+  let currentNodes: GoalGraphNode[] | undefined;
+
+  // A candidate approval can commit D1 and then lose the final KV write. The
+  // pre-commit approval attempt plus the exact D1 node/head is sufficient to
+  // reconcile the task without invoking the sole CAS writer a second time.
+  if (candidate && approvalAttempt) {
+    try {
+      currentHead = await deps.goalGraphStore.readHead(tenant);
+      currentNodes = await deps.goalGraphStore.readNodes(tenant);
+    } catch {
+      return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+    }
+    const committedHead = originalFounderOutcomeCommitHead(task, approvalAttempt, currentHead, currentNodes);
+    if (committedHead) {
+      const reconciled = acceptedFounderOutcomeTask(
+        task,
+        committedHead,
+        approvalAttempt.approvalDigest,
+        approvalAttempt.nonce,
+        now,
+      );
+      try {
+        await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify(reconciled));
+      } catch {
+        return { status: 503, body: { error: 'goal_graph_commit_reconciliation_required' } };
+      }
+      return goalGraphCommitEvidenceResponse(
+        reconciled,
+        committedHead,
+        approvalAttempt.approvalDigest,
+        approvalAttempt.nonce,
+        true,
+        true,
+      );
+    }
+  }
 
   const storedExpiresAtMs = Date.parse(storedExpiresAt);
   const nowMs = Date.parse(now);
@@ -3757,9 +4681,8 @@ async function approveGoalGraphIntakeRoute(
   // Belt-and-suspenders head pin check ahead of the D1 CAS: the current
   // authoritative head must still equal the pinned expectedHeadVersion. The
   // final D1 conditional write remains the authoritative race guard.
-  let currentHead: GoalGraphHead | null;
   try {
-    currentHead = await deps.goalGraphStore.readHead(tenant);
+    if (currentHead === undefined) currentHead = await deps.goalGraphStore.readHead(tenant);
   } catch {
     return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
   }
@@ -3784,10 +4707,48 @@ async function approveGoalGraphIntakeRoute(
     };
   }
 
-  const nonce = storedNonce;
-  const expiresAt = storedExpiresAt;
   const intentVersion = Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1;
-  const approvalCore = { tenantId: tenant, changeDigest, intentVersion, approverId: founderId, expiresAt, nonce };
+  if (candidate && !approvalAttempt) {
+    try {
+      currentNodes ??= await deps.goalGraphStore.readNodes(tenant);
+    } catch {
+      return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+    }
+    const commitHead = expectedFounderOutcomeCommitHead(task, currentNodes, now);
+    if (!commitHead) return { status: 409, body: { error: 'goal_graph_commit_evidence_invalid' } };
+    const core = {
+      tenantId: tenant,
+      changeDigest,
+      intentVersion,
+      approverId: founderId,
+      expiresAt: storedExpiresAt,
+      nonce: storedNonce,
+    };
+    approvalAttempt = {
+      approverId: founderId,
+      intentVersion,
+      nonce: storedNonce,
+      expiresAt: storedExpiresAt,
+      approvalDigest: goalGraphApprovalDigest(core),
+      approvedAt: now,
+      commitHeadDigest: commitHead.graphDigest,
+      commitGraphVersion: commitHead.graphVersion,
+      committedAt: commitHead.committedAt,
+    };
+    try {
+      await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+        ...task,
+        approvalAttempt,
+        updatedAt: now,
+      }));
+    } catch {
+      return { status: 503, body: { error: 'goal_graph_approval_persistence_unavailable' } };
+    }
+  }
+  const nonce = approvalAttempt?.nonce ?? storedNonce;
+  const expiresAt = approvalAttempt?.expiresAt ?? storedExpiresAt;
+  const approverId = approvalAttempt?.approverId ?? founderId;
+  const approvalCore = { tenantId: tenant, changeDigest, intentVersion, approverId, expiresAt, nonce };
   const approval: GoalGraphApproval = {
     ...approvalCore,
     decision: 'approved',
@@ -3807,32 +4768,21 @@ async function approveGoalGraphIntakeRoute(
   }
 
   if (commit.status === 'committed' || commit.status === 'duplicate') {
-    await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
-      ...task,
-      status: 'committed',
-      headDigest: commit.head.graphDigest,
-      headGraphVersion: commit.head.graphVersion,
-      approvalNonce: nonce,
-      approvalDigest: approval.approvalDigest,
-      committedAt: commit.head.committedAt,
-      updatedAt: now,
-    }));
-    return {
-      status: 200,
-      body: {
-        ok: true,
-        duplicate: commit.status === 'duplicate',
-        replayed: commit.replayed,
-        committed: true,
-        ...evidence,
-        headDigest: commit.head.graphDigest,
-        graphVersion: commit.head.graphVersion,
-        approvalNonce: nonce,
-        approvalDigest: approval.approvalDigest,
-        consequence: `committed telegram goal graph proposal ${changeDigest.slice(0, 16)} to the D1 authority`,
-        reversibility: 'committed graph revisions are immutable; supersede with a new approved proposal',
-      },
-    };
+    const committedTask = acceptedFounderOutcomeTask(task, commit.head, approval.approvalDigest!, nonce, now);
+    if (approvalAttempt) committedTask.approvalAttempt = approvalAttempt;
+    try {
+      await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify(committedTask));
+    } catch {
+      return { status: 503, body: { error: 'goal_graph_commit_reconciliation_required' } };
+    }
+    return goalGraphCommitEvidenceResponse(
+      committedTask,
+      commit.head,
+      approval.approvalDigest!,
+      nonce,
+      commit.status === 'duplicate',
+      commit.replayed,
+    );
   }
   if (commit.status === 'stale') {
     // The CAS lost: the store guarantees no write happened. Mark the proposal
@@ -3901,6 +4851,24 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (routePath.startsWith('/v1/context/')) {
     return handleContextRoute(req, deps.contextRoutes ?? {});
+  }
+
+  if (routePath.startsWith(HERMES_QUEST_SUMMARY_PREFIX)) {
+    if (method !== 'GET') {
+      return { ...json(405, { error: 'Hermes quest summary is GET-only' }), headers: { ...JSON_HEADERS, allow: 'GET' } };
+    }
+    const tenant = hermesQuestSummaryTenant(routePath);
+    if (!tenant) return json(400, { error: 'bad Hermes quest summary route' });
+    if (!deps.bridgeToken) return json(503, { error: 'bridge token not configured' });
+    if (req.headers.authorization !== `Bearer ${deps.bridgeToken}`) {
+      return json(401, { error: 'bad or missing bearer' });
+    }
+    const stored = await deps.kv.get(ledgerKey(tenant));
+    if (!stored) return json(404, { error: 'quest summary unavailable' });
+    const nowMs = parsedTime(deps.now ? deps.now() : Date.now()) ?? Date.now();
+    const summary = hermesQuestSummary(stored, tenant, nowMs);
+    if (!summary) return json(503, { error: 'quest summary unavailable' });
+    return json(200, summary);
   }
 
   if (routePath === '/v1/providers' || routePath === '/v1/providers/health' || routePath.startsWith('/v1/providers/')) {
@@ -4073,6 +5041,19 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     return json(200, { token, principal, inviteUrl: `/app?invite=${token}` });
   }
 
+  if (method === 'POST' && routePath.startsWith('/api/founder-outcomes/')) {
+    const tenant = tenantOf(routePath, '/api/founder-outcomes/');
+    if (!tenant) return json(400, { error: 'bad tenant' });
+    let founderOutcomeBody: unknown;
+    try {
+      founderOutcomeBody = JSON.parse(req.body ?? '');
+    } catch {
+      return json(400, { error: 'founder_outcome_body_not_json' });
+    }
+    const result = await handleFounderOutcomeRoute(deps, tenant, founderOutcomeBody);
+    return json(result.status, result.body);
+  }
+
   if (method === 'GET' && routePath.startsWith('/api/quests/')) {
     const tenant = tenantOf(path, '/api/quests/');
     if (!tenant) return json(400, { error: 'bad tenant' });
@@ -4085,9 +5066,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const result = verifyConsultantInvite(inviteToken, deps.inviteSecret, new Date(deps.nowMs ? deps.nowMs() : Date.now()));
       if (!result.ok) return json(401, { error: result.reason === 'expired' ? 'invite expired' : 'invite invalid' });
       if (result.principal.tenant !== tenant) return json(403, { error: 'invite tenant mismatch' });
-      return { status: 200, headers: { ...JSON_HEADERS }, body: await surfaceScopedQuestBody(deps.kv, tenant, stored, result.principal) };
+      return { status: 200, headers: { ...JSON_HEADERS }, body: await surfaceScopedQuestBody(deps, tenant, stored, result.principal) };
     }
     let principal: Principal | null = null;
+    let founderOutcomeAuthorized = false;
     if (deps.plexus) {
       const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
       if (resolved.kind === 'unauthenticated') {
@@ -4102,10 +5084,28 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       }
     }
     if (!principal) principal = resolveSurfacePrincipal(req);
+    const telegramInitData = (req.headers['x-telegram-init-data'] ?? '').trim();
+    if (telegramInitData && deps.gate) {
+      const verdict = await validateInitData(telegramInitData, deps.gate);
+      if (verdict.ok) {
+        founderOutcomeAuthorized = true;
+        principal ??= {
+          id: `telegram:${verdict.userId}`,
+          tenant,
+          role: 'founder',
+          allow: [],
+          createdBy: 'telegram-init-data',
+        };
+      }
+    }
     if (!principal) {
       return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
     }
-    return { status: 200, headers: { ...JSON_HEADERS }, body: await surfaceScopedQuestBody(deps.kv, tenant, stored, { ...principal, tenant }) };
+    return {
+      status: 200,
+      headers: { ...JSON_HEADERS },
+      body: await surfaceScopedQuestBody(deps, tenant, stored, { ...principal, tenant }, founderOutcomeAuthorized),
+    };
   }
 
   if (method === 'POST' && routePath.startsWith('/internal/ledger/')) {
@@ -5264,7 +6264,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
+    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
       return json(400, { error: 'need a supported gate kind and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
@@ -5349,6 +6349,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ? `approve ${subject}`
         : kind === 'promote-skill'
           ? `queue founder review to promote ${subject} to production`
+          : kind === 'promote-portfolio'
+            ? `queue founder review for the next lifecycle state of ${subject}; no lifecycle or catalog mutation occurs until operator consumption`
           : kind === 'queue-side-quest'
             ? `queue side quest ${subject} for operator review`
           : `reroll ${subject}`),
@@ -5356,6 +6358,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         ? 'queued approval can be superseded until consumed'
         : kind === 'promote-skill'
           ? 'queued promotion can be superseded until consumed; registry remains unchanged until operator applies it'
+          : kind === 'promote-portfolio'
+            ? 'queued Portfolio promotion can be superseded until consumed; lifecycle and catalog remain unchanged'
           : kind === 'queue-side-quest'
             ? 'queued side quest can be superseded until consumed; side quest ledger remains unchanged until operator applies it'
           : 'reroll asks for revision before execution'),
@@ -5393,7 +6397,13 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     actions.push(...rows.map((row) => ({ ...row, kind: 'action-request' })));
     // Pending Telegram goal-graph proposals ride the same envelope as bounded
     // gate rows so the founder (and the operator poller) sees one decision list.
-    actions.push(...await listGoalGraphIntakeGateRows(deps.kv, tenant));
+    // D1 is authoritative during the bounded post-commit/KV-repair interval.
+    const founderOutcomes = await readFounderOutcomeD1Projection(deps, tenant);
+    actions.push(...await listGoalGraphIntakeGateRows(deps.kv, tenant, {
+      includeFounderCandidates: true,
+      now: deps.now ? deps.now() : new Date().toISOString(),
+      committedCandidateIds: founderOutcomes?.committedCandidateIds,
+    }));
     return json(200, { tenant, actions });
   }
 
@@ -5423,7 +6433,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 
   if (method === 'GET' && (routePath === '/' || routePath === '/index.html')) {
     // Inject pure proactive L4 loop projection for Mini App Fitcheck strip (no TG send, no D1 write)
-    let pageBody = PAGE;
+    const bootstrap: string[] = [];
+    let hasInitialQuestEnvelope = false;
     try {
       const observedAt = deps.now ? deps.now() : new Date().toISOString();
       const stored = await readProactiveLoopPlan(deps.kv, 'cambium');
@@ -5433,7 +6444,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         actor: 'mini-app-html',
       });
       const mini = 'miniApp' in proactive ? proactive.miniApp : proactive;
-      const boot = `<script>globalThis.__CAMBIUM_PROACTIVE_LOOP__=${JSON.stringify({
+      bootstrap.push(`globalThis.__CAMBIUM_PROACTIVE_LOOP__=${scriptSafeJson({
         heldCount: mini.heldCount,
         failedCount: mini.failedCount,
         passedCount: mini.passedCount,
@@ -5442,13 +6453,31 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         observedAt: mini.observedAt,
         stored: !!stored,
         authorityNote: mini.authorityNote,
-      })};</script>`;
-      pageBody = PAGE.includes('</head>')
-        ? PAGE.replace('</head>', `${boot}</head>`)
-        : boot + PAGE;
-    } catch {
-      pageBody = PAGE;
+      })};`);
+    } catch { /* proactive projection is optional page bootstrap data */ }
+    const requestedTenant = queryParam(path, 'tenant') ?? 'cambium';
+    if (VALID_TENANT.test(requestedTenant)) {
+      try {
+        const storedEnvelope = await deps.kv.get(ledgerKey(requestedTenant));
+        if (storedEnvelope) {
+          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope));
+          if (
+            isRecord(initialEnvelope)
+            && initialEnvelope.schema === 1
+            && initialEnvelope.tenant === requestedTenant
+            && isRecord(initialEnvelope.ledger)
+            && Array.isArray(initialEnvelope.ledger.rows)
+          ) {
+            bootstrap.push(`globalThis.__CAMBIUM_INITIAL_QUEST_ENVELOPE__=${scriptSafeJson(initialEnvelope)};`);
+            hasInitialQuestEnvelope = true;
+          }
+        }
+      } catch { /* invalid or unavailable stored envelopes retain the fetch-first shell */ }
     }
+    const pageBody = injectPageBootstrap(
+      hasInitialQuestEnvelope ? injectInitialQuestHydration(PAGE) : PAGE,
+      bootstrap,
+    );
     return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body: pageBody };
   }
 
