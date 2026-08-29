@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
-status: executing
-stopped_at: Phase 7 verified — VERIFICATION.md recorded; milestone closeout pending
-last_updated: "2026-08-22T00:00:00.000Z"
-last_activity: 2026-08-22 -- Phase 7 verify-work complete (VERIFICATION.md recorded; merge-safe phase_base_sha resolution landed)
+status: Awaiting next milestone
+stopped_at: Milestone v0.4 archived; next milestone planning pending
+last_updated: "2026-08-29T13:14:03.525Z"
+last_activity: 2026-08-29 — Milestone v0.4 completed and archived
 progress:
   total_phases: 5
   completed_phases: 5
@@ -20,26 +20,24 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-19)
+See: .planning/PROJECT.md (updated 2026-08-29)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
-**Current focus:** Phase 7 — Deterministic Safety and Handoff
+**Current focus:** Planning the next milestone
 
 ## Current Position
 
-Phase: 7 (Deterministic Safety and Handoff) — VERIFIED
-Plan: 3 of 3
-Status: Verification complete
-Last activity: 2026-08-21
-
-Progress: [██████████] 100%
+Phase: Milestone v0.4 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-08-29 — Milestone v0.4 completed and archived
 
 ## Performance Metrics
 
 **Velocity:**
 
 - Historical plans completed: 2
-- v0.4 plans completed: 9
+- v0.4 plans completed: 16
 - Historical average duration: 39 min
 - Historical execution time: 0.65 hours
 
@@ -68,11 +66,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Phase 4 passed independent verification 5/5 and GRAPH-04 is complete.
-- Delivery receipt: PR #351 exact head `892e6480d910da8e13ef6d86cd37e07c02d9e5aa` squash-merged as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`; the PR-head and merge trees matched, and main CI run `32152942949` passed all eight jobs.
-- Phase 5 passed independent verification 4/4 with FLOW-01 through FLOW-04 complete and a clean 18-file code review.
-- Phase 6 passed independent verification 4/4 and its security audit.
-- Phase 7 execution is complete 3/3 on `codex/phase-5-decisions`; independent verification is still required.
+- None. v0.4 has been archived after all five phases were independently verified.
 
 ### Blockers/Concerns
 
@@ -92,10 +86,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-08-22T00:00:00Z
-Stopped at: Phase 7 verified — VERIFICATION.md recorded; milestone closeout pending
-Resume file: .planning/phases/07-deterministic-safety-and-handoff/VERIFICATION.md
+Last session: 2026-08-29T13:14:03Z
+Stopped at: Milestone v0.4 archived
+Resume file: .planning/MILESTONES.md
 
 ## Operator Next Step
 
-Milestone v0.4 closeout: all five phases are executed and independently verified (VERIFICATION.md recorded for Phase 7; SAFE-PRIVACY converted to VERIFIED via merge-safe phase_base_sha resolution). The next operator action is the GSD milestone-completion workflow — no further phase-bounded command remains. Relocation, deletion, deployment, host/provider mutation, D1 CAS, wrangler upload, Vectorize ingest, and tenant mint remain held.
+Start the next milestone with `/gsd-new-milestone`. Relocation, deletion, deployment, host/provider mutation, D1 CAS, wrangler upload, Vectorize ingest, and tenant mint remain held.

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Cambium is the operator-facing projection and durable control plane for Thoughtseed's living venture system. Milestone v0.3 proved one synthetic, internal-only service-agreement flow from typed intake through D1 leasing, Hermes execution, Temperance rendering, durable storage, and authenticated readback. The next milestone makes the enduring vision, renewable mission, finite goals, and evidence feedback loop explicit without creating another operational writer.
+Cambium is the operator-facing projection and durable control plane for Thoughtseed's living venture system. Milestone v0.3 proved one synthetic, internal-only service-agreement flow from typed intake through D1 leasing, Hermes execution, Temperance rendering, durable storage, and authenticated readback. Milestone v0.4 made the enduring vision, renewable mission, finite goals, and evidence feedback loop explicit without creating another operational writer.
 
 ## Core Value
 
@@ -20,6 +20,7 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ GRAPH-01–GRAPH-05 establish a deterministic 19-node/25-edge read-only Intent Graph with source provenance, canonical overlay references, explicit lifecycle/gate semantics, and a shared boundary that prevents derived projections from re-entering the operational Goal Graph authority lane — Phase 4 verification.
 - ✓ FLOW-01–FLOW-04 establish one deterministic Temperance next-action projection, a bounded execute/verify/CAS-persist/exit Ralph lifecycle, receipt-gated host attribution, and fail-closed non-authority boundaries without adding a mutable ledger or operational writer — Phase 5 verification.
 - ✓ DOCS-01–DOCS-04 establish one five-class lifecycle map, exhaustive explicit-commit JSON/Markdown inventory readbacks, direct-owner navigation, recoverable historical evidence, and privacy-safe non-destructive stewardship — Phase 6 verification.
+- ✓ SAFE-01–SAFE-04 establish SHA-bound authority, freshness, and privacy validation plus a reviewed handoff without replacing doctrine, ISA, GSD, or D1 authority — Phase 7 verification.
 
 ### Out of Scope
 
@@ -42,9 +43,11 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Phase 4 shipped:** the provenance-preserving Intent Graph and shared projection foldback boundary passed independent verification 5/5, landed through protected PR #351 as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`, and passed exact-main CI run `32152942949` on 2026-08-18.
 - **Phase 5 complete:** Ralph and Temperance Flow Projection passed independent verification 4/4, completed FLOW-01–FLOW-04, and closed an 18-file code review with zero findings. Host command installation remains separately owner-approved and the repository fails closed when it is absent.
 - **Phase 6 complete:** Documentation Stewardship passed independent verification 4/4 after closing the live STATE coherence gap; its review fixed all five Critical/Warning findings, and the final repository suite passed 1900/1900.
-- **Next transition:** Run the Phase 6 security audit before beginning Phase 7 context gathering. Deployment, host/provider mutation, relocation, deletion, and externalization remain separately held.
+- **Phase 7 complete:** Deterministic Safety and Handoff passed independent verification; the SHA-bound safety compiler remains a zero-write validator and preserves explicit held boundaries.
+- **Milestone closed:** v0.4 is archived with 5 phases, 16 plans, 35 tasks, and 21 mapped requirements. Phase directories remain as retained execution history.
+- **Next transition:** Plan the next finite milestone. Deployment, host/provider mutation, relocation, deletion, and externalization remain separately held.
 
-## Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
+## Most Recently Completed Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
 **Goal:** Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical `VISION.md` and renewable `MISSION.md`, with ISA and GSD remaining the only goal and planning authorities.
 
@@ -56,10 +59,25 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - Consolidate the named root, `MEMORY/`, and `docs/` corpus through an authority and lifecycle map that preserves historical evidence.
 - Add deterministic validation that rejects duplicated doctrine, a third operational writer, stale projections, secrets, and machine-local paths.
 
-## Active Requirements
+<details>
+<summary>Source-compatible archived milestone overlay</summary>
+
+### Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
+
+**Archive status:** Completed and archived on 2026-08-29; retained solely as the read-only provenance source for the Intent Graph overlay.
+
+**Goal:** Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical `VISION.md` and renewable `MISSION.md`, with ISA and GSD remaining the only goal and planning authorities.
+
+### Archived overlay boundary
+
+This compatibility record does not establish an active milestone. New finite work begins only through the next approved milestone-planning flow.
+
+</details>
+
+## Next-Milestone Constraints
 
 - Keep ISA and GSD as the only goal and planning authorities.
-- Add Phase 7 deterministic safety and handoff checks without creating a new authority or weakening the repository-only boundary.
+- Preserve the repository-only boundary until a future scope explicitly authorizes runtime or connected-repository changes.
 
 ## Evolution
 
@@ -105,6 +123,7 @@ This document evolves at phase transitions and milestone boundaries.
 | Keep host/provider resolution outside Cambium and receipt-gated | Preserves owner-protected runtime policy while binding repository actions to verified task, route, snapshot, checkout, and evidence | ✓ Proven in Phase 5 |
 | Generate documentation inventories only on demand from an explicit committed revision | Avoids recursively stale committed readbacks while preserving deterministic machine/human parity and zero writes | ✓ Proven in Phase 6 |
 | Let historical directory precedence yield only to source-backed item exceptions | Keeps retained plans and evidence recoverable without allowing filename lookalikes to self-promote into current authority | ✓ Proven in Phase 6 |
+| Archive finite planning only after independent verification and a zero-open-artifact audit | Keeps historical evidence recoverable while preventing an unverified phase from being represented as a shipped milestone | ✓ Proven in v0.4 closeout |
 
 ---
-*Last updated: 2026-08-20 after Phase 6 independent verification and review-fix closure*
+*Last updated: 2026-08-29 after v0.4 milestone closeout*

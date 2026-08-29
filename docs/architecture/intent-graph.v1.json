@@ -1,8 +1,8 @@
 {
   "schema": "cambium.intent-graph-projection.v1",
   "projectionAuthority": "read_only",
-  "sourceSetDigest": "sha256:2e7ac228940db12b1ff3d2b46d755c76d045b0ed30678b9ba4ebab1ddbfa3b98",
-  "graphDigest": "sha256:3eb561ee3b3d0012227112d66010690c8a05cd558a49fe341d828851796a2460",
+  "sourceSetDigest": "sha256:29d836f0d43e881630e46827e25d3e8e52db318892bf12a86b2be4da099341cb",
+  "graphDigest": "sha256:de72c71f96229e273d36d2d0ee2d3be90ed7e714900c487cb7a7b907eb38f2cc",
   "nodes": [
     {
       "id": "intent_1b97be1f1a27b0a5c16764472b0c134973024eb2dd0c12cba3511ed48f42e6e8",
@@ -34,7 +34,7 @@
         "path": ".planning/PROJECT.md",
         "authority": "derived_reference",
         "selector": "markdown.heading:Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph",
-        "digest": "sha256:a10280bf848e47c1e69249ff6f709b01eca195b8b407cecf90ac6b55c8622ba6"
+        "digest": "sha256:bc216a1cb32da6515189c3aac1f61f4dbb43fe0f0b09e35b520bd7897c4a504b"
       },
       "lifecycle": "derived",
       "state": {
@@ -493,7 +493,7 @@
       "source": {
         "path": ".planning/PROJECT.md",
         "selector": "markdown.heading:Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph",
-        "digest": "sha256:a10280bf848e47c1e69249ff6f709b01eca195b8b407cecf90ac6b55c8622ba6"
+        "digest": "sha256:bc216a1cb32da6515189c3aac1f61f4dbb43fe0f0b09e35b520bd7897c4a504b"
       }
     },
     {
@@ -592,7 +592,7 @@
       "source": {
         "path": ".planning/PROJECT.md",
         "selector": "markdown.heading:Current Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph",
-        "digest": "sha256:a10280bf848e47c1e69249ff6f709b01eca195b8b407cecf90ac6b55c8622ba6"
+        "digest": "sha256:bc216a1cb32da6515189c3aac1f61f4dbb43fe0f0b09e35b520bd7897c4a504b"
       }
     },
     {

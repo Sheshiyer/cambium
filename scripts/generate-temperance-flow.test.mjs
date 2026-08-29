@@ -356,7 +356,7 @@ test('FLOW-04 / WR-03: every readiness decision byte has a named source digest',
   assert.ok(statePhaseLine, 'STATE must expose one selected Phase line');
   const cases = [
     ['ISA.md', 'ISC-1282', 'ISC-9999', (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === 'ISA.md' && /Phase 5 acceptance$/.test(selector))],
-    ['.planning/STATE.md', statePhaseLine, statePhaseLine.replace(/^Phase: \d+/, 'Phase: 999'), (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === '.planning/STATE.md' && selector.startsWith('text.line:Phase:'))],
+    ['.planning/STATE.md', statePhaseLine, statePhaseLine.replace(/^Phase: [^\n]+$/, 'Phase: test provenance mutation'), (model) => model.supportingSources.find(({ path: pathname, selector }) => pathname === '.planning/STATE.md' && selector.startsWith('text.line:Phase:'))],
     ['.project/HANDOFF.md', 'reviewed planning checkpoint', 'unreviewed planning checkpoint', (model) => model.supportingSources.find(({ path: pathname }) => pathname === '.project/HANDOFF.md')],
     ['.planning/phases/05-ralph-and-temperance-flow-projection/05-01-SUMMARY.md', 'Self-Check: PASSED', 'Self-Check: PASSED\n\nDecision evidence changed.', (model) => model.supportingSources.find(({ path: pathname }) => pathname.endsWith('05-01-SUMMARY.md'))],
   ];

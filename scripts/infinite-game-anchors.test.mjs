@@ -182,6 +182,15 @@ function nameStatus(rangeArgs, cwd = repositoryRoot) {
   return nulList(run('/usr/bin/git', ['diff', '--name-status', '-z', '--no-renames', ...rangeArgs], { cwd }));
 }
 
+function isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd) {
+  if (status !== 'D' || relativePath !== '.planning/REQUIREMENTS.md') return false;
+  const archivePath = path.join(cwd, '.planning/milestones/v0.4-REQUIREMENTS.md');
+  if (!fs.existsSync(archivePath)) return false;
+  const archive = fs.readFileSync(archivePath, 'utf8');
+  return /^# Requirements Archive: v0\.4 Cambium Infinite-Game Doctrine and Intent Graph$/m.test(archive)
+    && /^\*\*Status:\*\* SHIPPED$/m.test(archive);
+}
+
 function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase 6') {
   const collections = [
     // Two-dot (not three-dot): the fallback base can be the empty tree, which
@@ -196,8 +205,10 @@ function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase
   for (const records of collections) {
     for (let index = 0; index < records.length;) {
       const status = records[index++];
-      assert.doesNotMatch(status, /^[DR]/, `${phaseLabel} must not delete or rename paths (${status})`);
       const relativePath = records[index++];
+      if (!isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd)) {
+        assert.doesNotMatch(status, /^[DR]/, `${phaseLabel} must not delete or rename paths (${status})`);
+      }
       if (relativePath) paths.add(relativePath);
     }
   }
@@ -865,35 +876,36 @@ test('DOCS-03 / D-03: additive navigation resolves direct owners without copied 
   assert.throws(() => rejectCopiedLiveStatus('status: active\nnext command is `/gsd:execute-phase 7`'), /delegate mutable status/i);
 });
 
-test('DOCS-03 / D-03: live STATE publishes one coherent post-verification transition', () => {
+test('DOCS-03 / D-03: live STATE publishes one coherent closed-milestone transition', () => {
   const state = read('.planning/STATE.md');
   const roadmap = read('.planning/ROADMAP.md');
-  const requirements = read('.planning/REQUIREMENTS.md');
+  const roadmapArchive = read('.planning/milestones/v0.4-ROADMAP.md');
+  const requirements = read('.planning/milestones/v0.4-REQUIREMENTS.md');
   const frontmatter = state.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 
-  assert.match(frontmatter, /^status: executing$/m);
-  assert.match(frontmatter, /^stopped_at: Phase 7 verified — VERIFICATION\.md recorded; milestone closeout pending$/m);
+  assert.match(frontmatter, /^status: Awaiting next milestone$/m);
+  assert.match(frontmatter, /^stopped_at: Milestone v0\.4 archived; next milestone planning pending$/m);
   assert.match(frontmatter, /^\s+total_phases: 5$/m);
   assert.match(frontmatter, /^\s+completed_phases: 5$/m);
   assert.match(frontmatter, /^\s+total_plans: 16$/m);
   assert.match(frontmatter, /^\s+completed_plans: 16$/m);
   assert.match(frontmatter, /^\s+percent: 100$/m);
 
-  assert.match(state, /^\*\*Current focus:\*\* Phase 7 — Deterministic Safety and Handoff$/m);
-  assert.match(state, /^Phase: 7 \(Deterministic Safety and Handoff\) — VERIFIED$/m);
-  assert.match(state, /^Plan: 3 of 3$/m);
-  assert.match(state, /^Status: Verification complete$/m);
-  assert.match(state, /^Progress: \[██████████\] 100%$/m);
-  assert.match(state, /^Stopped at: Phase 7 verified — VERIFICATION\.md recorded; milestone closeout pending$/m);
-  assert.match(state, /^Resume file: \.planning\/phases\/07-deterministic-safety-and-handoff\/VERIFICATION\.md$/m);
-  assert.doesNotMatch(state, /`(\/gsd:[^`]+)`/);
+  assert.match(state, /^\*\*Current focus:\*\* Planning the next milestone$/m);
+  assert.match(state, /^Phase: Milestone v0\.4 complete$/m);
+  assert.match(state, /^Plan: —$/m);
+  assert.match(state, /^Status: Awaiting next milestone$/m);
+  assert.match(state, /^Stopped at: Milestone v0\.4 archived$/m);
+  assert.match(state, /^Resume file: \.planning\/MILESTONES\.md$/m);
+  assert.match(state, /`\/gsd-new-milestone`/);
   assert.doesNotMatch(state, /\/gsd:plan-phase 7/);
   assert.doesNotMatch(state, /\/gsd:secure-phase 6/);
 
-  assert.match(roadmap, /^- \[x\] \*\*Phase 6: Documentation Stewardship\*\*.*\(completed 2026-08-20\)$/m);
+  assert.match(roadmap, /^- ✅ \*\*v0\.4 Cambium Infinite-Game Doctrine and Intent Graph\*\* — Phases 3–7 shipped 2026-08-29 \(\[archive\]\(\.\/milestones\/v0\.4-ROADMAP\.md\)\)$/m);
+  assert.match(roadmap, /^- \[x\] \*\*Phase 6: Documentation Stewardship\*\* — Added source-backed lifecycle classification and direct-owner navigation\.$/m);
   assert.match(roadmap, /^\| 6\. Documentation Stewardship \| v0\.4 \| 4\/4 \| Complete\s+\| 2026-08-20 \|$/m);
-  assert.match(roadmap, /^- \[x\] \*\*Phase 7: Deterministic Safety and Handoff\*\*/m);
-  assert.match(roadmap, /^- \[x\] 07-03-PLAN.md /m);
+  assert.match(roadmap, /^- \[x\] \*\*Phase 7: Deterministic Safety and Handoff\*\* — Enforced authority, freshness, privacy, and reviewed-continuation checks\.$/m);
+  assert.match(roadmapArchive, /^- \[x\] 07-03-PLAN.md /m);
   assert.match(roadmap, /^\| 7\. Deterministic Safety and Handoff \| v0\.4 \| 3\/3 \| Verified\s+\| 2026-08-22 \|$/m);
   for (const requirement of ['DOCS-01', 'DOCS-02', 'DOCS-03', 'DOCS-04']) {
     assert.match(requirements, new RegExp(`^\\| ${requirement} \\| Phase 6 \\| Complete \\|$`, 'm'));
@@ -1031,9 +1043,11 @@ test('SAFE-04 / D-16: reviewed handoff records write set, fixtures, D-15 holds, 
   assert.match(frontmatter, /^progress: 4\/4$/m);
   for (const id of PHASE7_CRITERIA) assert.equal(checkbox(isa, id), true, `${id} must be checked at implementation close`);
   assert.match(handoff, PHASE7_CHECKPOINT_HEADING);
-  const lastHeading = [...handoff.matchAll(/^### .+$/gm)].at(-1)?.[0] ?? '';
-  assert.match(lastHeading, /Phase 7 deterministic safety and handoff implementation checkpoint/);
-  const checkpoint = handoff.slice(handoff.lastIndexOf(lastHeading));
+  const checkpointHeading = (handoff.match(PHASE7_CHECKPOINT_HEADING) ?? []).at(-1) ?? '';
+  assert.match(checkpointHeading, /Phase 7 deterministic safety and handoff implementation checkpoint/);
+  const checkpointStart = handoff.lastIndexOf(checkpointHeading);
+  const nextHeading = handoff.indexOf('\n### ', checkpointStart + checkpointHeading.length);
+  const checkpoint = handoff.slice(checkpointStart, nextHeading < 0 ? undefined : nextHeading);
   assert.match(checkpoint, /npm run --silent safety:check -- --source-revision /);
   assert.match(checkpoint, new RegExp(D16_WORKER_VERSION));
   assert.match(checkpoint, /100 percent/);

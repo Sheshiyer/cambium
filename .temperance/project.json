@@ -3,13 +3,15 @@
   "name": "cambium",
   "cwd": ".",
   "github": "Sheshiyer/cambium",
-  "generated_at": "2026-08-11T05:34:52.656Z",
+  "generated_at": "2026-08-29T11:46:40.606Z",
   "host_runtime": {
-    "temperance_home": "host-managed",
-    "opencode": "host-managed",
+    "temperance_home": "~/.temperance_engine",
+    "opencode": "~/.config/opencode",
     "omniroute": "http://127.0.0.1:20128",
     "proxy": "http://127.0.0.1:20129"
   },
+  "active_planner": "gsd",
+  "planner_note": "GSD ROADMAP is the active planning spine; ISA remains the acceptance authority.",
   "ownership": {
     "models_routing": "host",
     "credentials": "host",
@@ -22,13 +24,30 @@
     "isa": "ISA.md",
     "agents": "AGENTS.md",
     "next_wave_cli": "temperance-next-wave",
-    "fleet_combo": "te-dispatch-paid",
+    "fleet_combo": "noesis-execute",
     "batch": "temperance-batch"
+  },
+  "planning": {
+    "github_project": null,
+    "teamforge": {
+      "project_id": null,
+      "client_id": null
+    },
+    "horizons": {
+      "long": "",
+      "short": ""
+    }
   },
   "checks": {
     "host_ready": true,
     "has_planning": true,
     "has_isa": true,
-    "has_codegraph": true
+    "has_codegraph": true,
+    "github_project": false
+  },
+  "hands_init": {
+    "display": "cambium \u00b7 fabric",
+    "cloudflare_profile": "thoughtseed-labs",
+    "aws_profile": null
   }
 }

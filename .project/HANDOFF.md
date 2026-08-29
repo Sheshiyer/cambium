@@ -2419,3 +2419,18 @@ kind and branch identity registration.
 - T-07 invariant: `changedPathsAndKinds()` includes `git ls-files --others --exclude-standard` (untracked, non-gitignored files). Machine-local files with absolute workspace paths now gitignored: `.superset/`, `.temperance/manifest.json`, `.temperance/goal.json`.
 - HANDOFF.md position note: this checkpoint is appended at the END to preserve `temperance-flow-sources.mjs` contract — that script reads the FIRST `###` heading and asserts it contains "Phase 5 decisions and reviewed planning checkpoint". Future checkpoints must also append below existing entries or update the script's `handoffReviewed` regex.
 - Next session: once CI passes, merge with `gh pr merge 363 --repo Sheshiyer/cambium --merge`. Delete branch post-merge. Start Phase 8 from clean `origin/main`.
+
+### 2026-08-29 whitepaper doctrine-alignment checkpoint
+
+- The user-directed public-safe source `20-operations/growth/whitepaper/infinite-engine-full.html` was aligned to Cambium's current doctrine hierarchy: enduring `VISION.md`, renewable `MISSION.md`, ISA acceptance, GSD finite planning, D1 Goal Graph operational writes, and read-only Intent Graph projections.
+- The paper now treats organs, runtime, routing, memory, and adapters as bounded means rather than sources of doctrine; removes dated catalog/live-instance counts; states the autonomy boundary; and retains explicit held states for Fitcheck operational admission, pinning, execution, and learning.
+- Read-only verification passed for required authority language, stale-claim absence, modern HTML tag balance, inline-script parsing, unique section headings, and relative-only asset references. In-app-browser rendering of the local file was blocked by browser URL policy, so visual/PDF inspection remains a separate, explicitly unproven follow-up.
+- No Cambium runtime, provider, deployment, D1/KV/R2, Telegram, credentials, or external system was changed. The vault worktree's unrelated dirty state remains untouched.
+
+### 2026-08-29 v0.4 milestone closeout checkpoint
+
+- `gsd-sdk query milestone.complete` archived the v0.4 Roadmap and Requirements, recorded the 5-phase / 16-plan / 35-task milestone, and updated GSD state to await a new milestone. Phase directories remain in place as retained execution history.
+- The active Roadmap, project narrative, state continuity, and retrospective now identify v0.4 as closed and direct the next finite horizon to `/gsd-new-milestone`.
+- The project manifest and untracked next-wave receipt were normalized to portable paths after the standalone audit identified machine-local path leakage. The audit, drift check, rendered-doc check, and SHA-bound deterministic safety check passed afterward.
+- The one generated architecture-hook update triggered during tag preflight was restored to its committed, source-reviewed content; no unreviewed generated architecture content enters this closeout.
+- No runtime, provider, deployment, D1/KV/R2, Telegram, credential, connected-repository, or external-system mutation is included. Git tag creation remains local-only; no tag push is authorized by this checkpoint.
