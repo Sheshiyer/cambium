@@ -1,18 +1,20 @@
 # Quest Worker Deployment
 
-**Production authority (2026-08):** `workers/quests/wrangler.labs.jsonc` on
-Thoughtseed Labs account `9d7cec1b5a32b2df8c6cdc1321ccd00b`, Wrangler profile
-`thoughtseed-labs`. See `thoughtseed-labs/00-meta/wrangler-account-map.md`.
+## Production configuration authority
+
+The Labs production custom domain is deployed from the Thoughtseed Labs account
+with `workers/quests/wrangler.labs.jsonc`. Always verify `wrangler whoami`, the
+configured account id, and the `BRIDGE_DB` UUID before a production migration,
+upload, or traffic change. Procedures below that deliberately pin
+`workers/quests/wrangler.jsonc` describe the separately governed legacy
+installation and must not be substituted for the Labs production config.
+
+The Cortex ingestion route additionally requires a Worker secret named
+`CORTEX_INGESTION_TOKEN`. List secret names only; never record its value:
 
 ```bash
-env -u CLOUDFLARE_API_TOKEN npx wrangler whoami   # must list 9d7c… only
-env -u CLOUDFLARE_API_TOKEN npx wrangler secret list --config workers/quests/wrangler.labs.jsonc
+npx wrangler secret list --config workers/quests/wrangler.labs.jsonc
 ```
-
-The rest of this file still names `wrangler.jsonc` and the personal-account D1
-`f6b950ac-…`. That path is **legacy**. `wrangler.jsonc` is now pinned to
-`9d9d…` so a default deploy under the Labs profile fails closed. Do not use it
-for `curious.thoughtseed.space`.
 
 ## Telegram Signed Gate
 
@@ -798,32 +800,19 @@ npx --no-install wrangler d1 execute cambium-bridge \
 npx --no-install wrangler deploy --config workers/quests/wrangler.jsonc
 ```
 
-The schema probe must return all four tables and all five triggers. Before the
-canary, separately confirm that `goal_graph_nodes` exposes all three additive
-operational-anchor columns:
-
-```bash
-npx --no-install wrangler d1 execute cambium-bridge \
-  --remote \
-  --config workers/quests/wrangler.jsonc \
-  --command "SELECT name FROM pragma_table_info('goal_graph_nodes') WHERE name IN ('work_object_id','work_object_kind','pinned_loadout_id') ORDER BY name"
-```
-
-With delivery disabled, use the scoped member credential from the Hermes host
-to prove this sequence against a single `native_execution` canary:
+The schema probe must return all four tables and all five triggers. With
+delivery disabled, use the scoped member credential from the Hermes host to
+prove this sequence against a single `native_execution` canary:
 
 ```text
-poll -> claim -> outcome -> immutable foldback -> ACK
+poll -> claim -> outcome -> ACK
 ```
 
 The claim must have a future `leaseExpiresAt`; a second live claimant must get
 `busy`; an expired takeover must change the fencing token; the stale outcome
-must get HTTP 409; foldback must reject non-terminal, mismatched, stale, or
-tampered evidence; and ACK must get HTTP 409 until a persisted `executed` or
-`failed` outcome and its exact immutable foldback proof exist. Confirm the D1
-row has `terminal = 1` and a non-null `acknowledged_at` without selecting
-attestation JSON or credentials. The exact held live-canary conditions are in
-`docs/project-management/hermes-execution-foldback-preflight.v1.json`.
+must get HTTP 409; and ACK must get HTTP 409 until a persisted `executed` or
+`failed` outcome exists. Confirm the D1 row has `terminal = 1` and a non-null
+`acknowledged_at` without selecting attestation JSON or credentials.
 
 Only after that delivery-disabled canary passes may Hermes set
 `HERMES_RUNNER_EXECUTE_DIRECTIVES=true`. Leave

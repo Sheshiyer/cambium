@@ -48,7 +48,7 @@
   "agent_skills": {},
   "temperance": {
     "next_wave": true,
-    "fleet_combo": "noesis-execute",
+    "fleet_combo": "te-dispatch-paid",
     "host_runtime": "~/.temperance_engine",
     "state_complete_gates_orphans": true
   }

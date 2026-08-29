@@ -1,5 +1,322 @@
 # Project handoff
 
+### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — review-fix iteration 3
+
+- The reviewed repository implementation is complete at exact `implementation_head` is `1aff7d79a942317ddfe5ef626c53dde2639a9504`. Iteration 3 closes all repository-owned portions of CR-01 through CR-04 and WR-01 through WR-04: lazy dry-run inspection, fail-closed host-boundary reporting, checkout/root/head/cwd binding and revalidation, lock-held versioned CAS, canonical projection families, closed ready/stop semantics, dirty-handoff invalidation, and serialized generator publication.
+- Focused adversarial suites pass for projection compilation, Ralph execution, CAS contention, and concurrent generator publication. The complete `npm test` suite passes 1872/1872 before this bounded checkpoint; final generator and rendered-document checks remain part of checkpoint publication.
+- Generated flowDigest: sha256:3983cf1ab48f6433887a6934ea9706f754f5dcdacc05f8a9294cc36abce1a0dd
+- Generated sourceSetDigest: sha256:2b0d3c0d71937c8714d0ae9ba1643d8f2d74d8a00eb20ca6f7eadcd19d4fbcbe
+- The production Manifest command installation remains an explicit external blocker for non-dry execution. It requires a separate owner-approved host task; Cambium only detects and reports its absence and never creates or modifies `~/.temperance_engine`, host manifests, provider configuration, credentials, or deployment state.
+- The uncommitted review source and iteration-3 fix report remain orchestrator-owned artifacts. No protected host or external state was read for publication or mutated.
+
+### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — verified implementation candidate
+
+- Branch `codex/phase-5-decisions` preserves the dirty user-owned primary checkout. The exact pre-closure `implementation_head` is `c177489e06237d2a3a3e11b79e3892199808102c`; pre-closure Plan 05-03 commits are RED `20d414be2b9df30118443bda8b780c433e414804`, harness correction `9f642cb17868c30382138b96e14cda0cafd84158`, GREEN `7b522c28ad1bba2d6c608a2a07abf8f507685580`, and lifecycle-independent fixture closure `c177489e06237d2a3a3e11b79e3892199808102c`. The enclosing closure commit is intentionally identified only by Git history.
+- The pure interpreter and bounded adapter prove fresh reread, exactly one dependency-ready unit, a single immutable pre-effect source snapshot, fixed-boundary host and owner approval bound to task/command/route/projection/source set, immediate pre-execution revalidation, one execute and one declared verification, and summary → STATE → handoff compare-and-swap persistence.
+- Stable iteration/result digests make summary-only and summary-plus-STATE retries persistence-only. Drift, CAS conflict, missing or invalid approval, executor failure, verification failure, terminal work, and replay conflict stop without a second execute, verification, or later persistence effect. Ralph owns no ledger, queue, daemon, scheduler, or self-certification path.
+- Pre-closure gates pass: focused compiler/generator/Ralph/anchor/Intent Graph suites 65/65, shared foldback/intake 21/21, Goal Graph intake/approval 18/18, full `npm test` 1851/1851, double generator checks, drift audit, rendered-doc synchronization at 6 pages / 91 components, export, parity, source-preservation, privacy, exact-range, deletion, and no-side-effect checks.
+- Final projection state is terminal `blocked` with no command because all Phase 5 plan units are complete. Route intent remains `gsd-execute-phase` → `te-dispatch-paid`; committed receipt state is `missing`, owner approval is not inferred, and resolved provider/model attribution remains absent.
+- Generated flowDigest: sha256:47d5cfc212403e53e901f4d0d5538830901d52c01934d0187f7db1c54a3f3e77
+- Generated sourceSetDigest: sha256:0d8a8cea74c8919801daf4450bc280ed2970d52dadd2bcdc114141672d226fb0
+- No production deployment, live provider call, host/runtime configuration, D1/KV/R2, Telegram, Vault, registry, credential, package/lockfile, connected repository, or unscoped external state was mutated.
+- Exact continuation is `/gsd:execute-phase 5`; that bounded command produced the implementation head above. Independent continuation is `/gsd:verify-phase 5`, which must intentionally stale the current readback when its durable state changes.
+
+### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint
+
+- Isolated branch `codex/phase-5-decisions` starts from exact reviewed `origin/main` `89790804` and preserves the dirty user-owned primary checkout unchanged. Context commits `d56f3c5` and `0663990` record the confirmed Phase 5 assumptions and session state before planning.
+- `ISA.md` now binds active Phase 5 acceptance `ISC-1282` through `ISC-1285` at coherent planning intent `phase: plan`, `progress: 0/4`. The approved Phase 5 decision remains: ISA and live GSD state resolve authority; Ralph rereads durable state and owns no ledger; Cambium records route intent while the fixed host-owned Manifest verifier owns resolved attribution; the new machine/human flow projection stays deterministic, read-only, and separate from the closed Phase 4 Intent Graph.
+- The executable packet contains three dependency-ordered waves: `05-01-PLAN.md` defines the lifecycle sentinel and pure compiler contract; `05-02-PLAN.md` binds declared sources, deterministic readbacks, host-verifier attribution, and shared foldback rejection; `05-03-PLAN.md` proves one bounded execute → verify → existing-surface persist → exit iteration, owner-approval verification, final readback regeneration, and acceptance closure.
+- Independent goal-backward review required three revision gates. The final gate is `PASS` with no blocking or important finding after closing the executable FLOW-02 harness, fixed host-verifier trust boundary, exact approval binding, digest self-reference, pre-execution base SHA, final-state regeneration, staged write-set, deletion, privacy, structural JSON, and no-side-effect checks.
+- GSD structural validation passes for all three plans (2, 3, and 3 executable tasks), dependency indexing reads Waves 1 → 2 → 3, consistency/state validation passes, and Phase 5 coverage includes all `FLOW-01` through `FLOW-04` and locked decisions `D-01` through `D-11`. Roadmap and State both read Phase 5 planned / ready to execute.
+- Baseline `npm test` passes 1811/1812; the sole failure is the expected pre-implementation lifecycle sentinel because `scripts/infinite-game-anchors.test.mjs` currently admits Phase 3/4 states only. Plan 05-01 owns the strict Phase 5 RED/GREEN update. The mandatory advisor call was attempted but could not authenticate because its OAuth session expired; no advisor approval is inferred.
+- This checkpoint contains planning and acceptance artifacts only. It performs no Phase 5 implementation, generated flow projection, live Ralph execution, host/provider configuration, deployment, D1/KV/R2, Telegram, credential, package/lockfile, connected-repository, or external-state mutation.
+- Planning continuation was `/gsd:execute-phase 5`; execution had to begin from the recorded branch head, preserve the fixed Manifest verification boundary, and stop at every declared approval or verification gate.
+
+### 2026-08-18 Phase 4 intent-graph acceptance checkpoint
+
+- Plan 04-03 publishes and closes only the bounded Phase 4 repository range: the compiler/test/contract and generated readbacks from Plans 04-01/04-02; `docs/architecture/README.md`, `docs/README.md`, `docs/architecture/loops-to-graphs.md`, and `docs/architecture/goal-graph-operating-model.md`; active Phase 4 evidence in `ISA.md`; this additive checkpoint; and required GSD progress artifacts under `.planning/`. No other path class is admitted.
+- The generated machine artifact is `docs/architecture/intent-graph.v1.json`; the matching human artifact is `docs/architecture/intent-graph.md`. Both derive from one source model and read back graph digest `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45` plus source-set digest `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`.
+- Committed Task 1 head `e84af22` passed 22/22 focused graph/generator tests, `node scripts/generate-intent-graph.mjs --check`, rendered-doc synchronization, direct discovery-link checks, normalized copied-anchor rejection, and diff hygiene. The pre-closure head then passed 27/27 combined anchor/intent tests, double generator checks, `npm test` 1808/1808, drift audit, rendered-doc synchronization for 6 pages / 91 components, JSON/Markdown parity for 19 nodes / 25 edges, added-line privacy, exact allowed-range, deletion/rename, and forbidden-category gates.
+- Base-sync checkpoint: PR #350 squash `36087111d48bf298443fc427eb32baad6bed11bd` is the Phase 4 branch base. The isolated lane rebased cleanly with twelve patch-equivalent commits and no changed-path overlap; completed summary commit references were reconciled to the rewritten SHAs. PR #350 affects Portfolio skill-repository resolution only and does not change the D1/Vault/Hermes/Intent Graph authority model. Phase 4 must finish verification before `/gsd:ship 4` opens the guarded PR; no direct push to `main` is allowed.
+- Authority remains separated: root `VISION.md` and `MISSION.md` own doctrine; `ISA.md` owns approved goals and acceptance; GSD under `.planning/` owns finite planning; the generated Intent Graph is a deterministic read-only inspection projection; the D1 Goal Graph remains sole operational writer for revisions, approvals, leases, and receipts.
+- Close, produce, and renew edges are observations for explicit review. Neither valid nor malformed intent projections can enter D1's command lane, mutate root anchors or Repository Mission, approve work, create operational nodes, or replace ISA/GSD planning authority.
+- This checkpoint performs no Worker/runtime, D1/KV/R2/schema, Telegram, UI, package/lockfile, `.temperance`, deployment, provider, credential, connected-repository, or external mutation. The user-owned root checkout and held worktrees remain untouched.
+- Independent continuation is `/gsd:verify-work 4`.
+
+### 2026-08-18 Phase 4 planning-ready checkpoint
+
+- Branch `codex/phase-4-intent-graph-plan-20260818` starts from exact `origin/main` `8747d24d6581edb0184404f9e81fc09b0a7f2ae0` and owns only the Phase 4 planning packet: `.planning/STATE.md`, `.planning/ROADMAP.md`, `.planning/phases/04-provenance-preserving-intent-graph/{04-01-PLAN.md,04-02-PLAN.md,04-03-PLAN.md}`, `ISA.md`, this checkpoint, and the coherent-state guard in `scripts/infinite-game-anchors.test.mjs`.
+- The planning packet defines three dependency-ordered execution waves for `GRAPH-01` through `GRAPH-05`: Wave 1 commits the adversarial compiler contract and pure read-only compiler boundary, Wave 2 binds one repository source model to deterministic JSON/Markdown readbacks, and Wave 3 publishes discovery, preserves the D1/ISA/GSD authority split, and closes Phase 4 only from committed evidence.
+- `ISA.md` now preserves completed Phase 3 acceptance as historical-verified evidence and binds active Phase 4 acceptance `ISC-1277` through `ISC-1281` at coherent plan state `phase: plan`, `progress: 0/5`. The advisor boundary is explicit: the required advisor invocation could not authenticate because the local OAuth session expired, so no advisory approval is inferred.
+- Planner and checker convergence completed at revision `3/3`. The resulting Roadmap and State both point to the same next step: `/gsd:execute-phase 4`. Execution remains separately approval-gated and must still honor the Temperance paid-dispatch boundary.
+- Verification on this planning branch is green: `node --test scripts/infinite-game-anchors.test.mjs`, `npm test` (`1786/1786`), `npm run render-docs:check`, `git diff --check`, and GSD gap analysis confirming this packet covers `GRAPH-01` through `GRAPH-05` only while Phases 5-7 remain intentionally uncovered.
+- No deployment, provider, Telegram, D1/KV/R2, connected-repository, runtime, generated projection, or root-worktree mutation is included. The user-owned primary checkout and the intentionally held older worktrees remain untouched.
+
+### 2026-08-16 issue #331 terminal validation candidate
+
+- Branch `codex/331-terminal-validation` starts from exact verified main `111c5f9423edd9878212627d20e268304a6acc31` and owns only T-028 evidence, T-036 CI, T-037 browser stories, synchronized planning truth, ISA, and this checkpoint.
+- T-028 records a current read-only pre-activation baseline: direct-origin 200/401/401/403 responses, custom-domain Access redirects, the checked-in authenticated Workbench receipt, and normalized digest `23ad193fbad07b0d5b8c7d012e6c55d380568bf43ee4eba7cdcdc6c15ed46f3a`.
+- T-036 adds explicit Mission, Gate, Tools, Story, Inspect, and Portfolio CI lanes whose sentinel fails when a selector matches zero governed tests. The required `deterministic release verification · node 26` check remains unchanged.
+- T-037 binds the shipped mobile viewport/gesture/keyboard stories and adds a diagnostic-only desktop PAGE harness. A real local Chrome dry run passes six 1280×900 keyboard/pointer journeys with browser-asserted visible outcomes; canonical mobile artifacts remain outside this write set.
+- The synchronized candidate queue reads 71 implemented, 4 superseded, 0 executable residuals, and 5 approval-gated rows. T-020, T-038, T-078, T-079, and T-080 remain non-executable; they require separate owner authority and are not part of issue #331's executable queue.
+- No deployment, provider, production Telegram, D1/KV/R2, credential, connected-repository, lifecycle, catalog, or approval-gated mutation is included. Exact-head release, independent review, hosted CI, guarded squash merge, exact-main CI, and issue/project closure remain required before this checkpoint is final.
+
+### 2026-08-16 issue #331 T-075 Portfolio state-matrix candidate
+
+- Branch `codex/331-t075-portfolio-matrix` starts from exact verified main `dcc79c90f46118d7fee4841e334670475269ae56` and owns the Portfolio QA matrix plus synchronized planning truth only.
+- The dedicated matrix proves Sapling, client Branch, Program, review, and historical record zones; exact/missing joins; selected, paused, lifecycle, and proposal states; and absent, aggregate-only, detail, and empty-detail response modes.
+- Canonical Node and composed browser renderers are byte-identical across every matrix case. Existing production behavior already satisfies the closed contract, so this slice changes no Portfolio or handler runtime source.
+- The governed queue candidate reads 68 implemented, 4 superseded, 3 executable residuals, and 5 approval-gated rows. Portfolio is terminal; T-028, T-036, and T-037 form the complete terminal validation frontier.
+- No deployment, provider, production Telegram, D1/KV/R2, credential, connected-repository, runtime, lifecycle, catalog, or approval-gated mutation is included.
+
+### 2026-08-16 issue #331 T-074 Portfolio Gate candidate
+
+- Branch `codex/331-t074-portfolio-gate` starts from exact verified main `38574bae0feb903606aea0e4eb3d3d30b88ed16b` and owns only the final serialized handler slice plus the bounded Portfolio proposal client surface.
+- RED proved no exact Portfolio promotion proposal or founder Gate route existed. GREEN exposes a proposal only for an exact, unpaused Sapling with a served promotion state, current Gate, canonical source digest, and exact runtime identity; every missing or contradictory descriptor fails closed.
+- The browser opens the explicit `promote-portfolio` preflight without changing local selection, lifecycle, or catalog state. Signed confirmation writes only an idempotent tenant-scoped Gate queue item; the integration test pins the existing Portfolio lifecycle record byte-for-byte and asserts that the Gate key is the only addition.
+- Focused Portfolio/handler checks, legacy-page digest verification, reconciliation 2/2, validation, rendered-doc parity, and diff checks pass. The governed queue candidate reads 67 implemented, 4 superseded, 4 executable residuals, and 5 approval-gated rows; T-075 is the sole ready frontier and the shared handler lock is released.
+- No deployment, provider, production Telegram, D1/KV/R2, credential, connected-repository, lifecycle, catalog, or approval-gated mutation is included.
+
+### 2026-08-16 issue #331 T-068 Inspect page-readiness candidate
+
+- Branch `codex/331-t068-inspect-readiness` starts from exact verified main `1b0fb3efc9a4d2203803e0bc270f6872481a131e` and owns only the remaining T-068 Inspect scene lock.
+- RED proved no explicit cross-page readiness component existed. GREEN lists Mission, Gate, Tools, Story, and Inspect in canonical order, derives every state from the same served envelope each page consumes, and links each row to its existing Inspect proof sheet.
+- Global envelope staleness overrides all five local states, partial envelopes fail closed, served empty Gate/Story contracts remain explicit, and the panel says coverage does not prove live Telegram readiness.
+- Independent review reproduced two fail-closed gaps before publication: goal-graph-only Gate readiness was mislabeled as `openItems`, and `liveProof.status=ready` could outrun a blocked row. Regression fixtures now require exact served-source attribution and require ready status, a non-empty row set, and zero blocked rows before Inspect can render complete.
+- The focused cross-page invariant covers fresh, stale, and partial envelopes. Focused Inspect/reconciliation checks pass 3/3 and 2/2, the complete suite passes 1771/1771, validation/rendered-doc checks pass, and the canonical viewport matrix passes 47/47. The governed queue candidate reads 66 implemented, 4 superseded, 5 executable residuals, and 5 approval-gated rows; T-074 becomes the sole ready frontier and the Inspect scene lock is released.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, Portfolio, proof-matrix, or approval-gated mutation is included.
+
+### 2026-08-16 issue #331 T-065 Inspect lead hierarchy candidate
+
+- Branch `codex/331-t065-inspect-proof` starts from exact verified main `c40c7a8deb3ad2c256f43e441626ef430cf92252` and owns only the T-065 Inspect scene lock.
+- RED proved the existing summary lacked an exact blocker/freshness/receipt ordering contract. GREEN renders those three explicit cues in that order before the pane switcher and before every Proof/System detail surface; packet count remains visible after the required lead cues.
+- The exact interaction test verifies the lead-order marker, visible cue order, Proof-pane placement, and System-pane placement. Inspect-focused tests pass 10/10, reconciliation 2/2, the complete suite 1770/1770, validation/rendered-doc checks, and the canonical viewport matrix 47/47; exact-head release, review, hosted CI, and merge proof remain required.
+- The governed queue candidate reads 65 implemented, 4 superseded, 6 executable residuals, and 5 approval-gated rows. T-068 becomes the only ready frontier; the Inspect scene lock stays serialized for that next slice.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, Portfolio, proof-matrix, or approval-gated mutation is included.
+
+### 2026-08-16 issue #331 T-062/T-063 Story filters candidate
+
+- Branch `codex/331-t062-t063-story-filters` starts from exact verified main `2d2d2fae6f4b5908a05d4a6a5fa215452f6bee4c` and owns the released Story scene lock for T-062/T-063 only.
+- T-062 derives filter options solely from marker-qualified Story provenance. Exact kind and identity controls compose as one canonical WorkObject pair, never infer from `branchId` or group aliases, and retain the original event order plus source index for every downstream hero, digest, timeline, card, and sheet.
+- T-063 retains the bounded empty-state title/actions while naming receipt, decision, and completed transition as the first qualifying event paths. Machine-readable and accessible guidance binds exact WorkObject identity, time, and receipt without adding a synthetic success beat.
+- RED proved both controls and first-event qualification were absent. Independent review then reproduced a marker-qualified alias/mismatched-kind leak into the exact filter surface; the repaired browser boundary now applies the same canonical kind, identity-shape, prefix, length, and unsafe-segment rules before a beat can influence controls or provenance. GREEN targets the complete Story-focused set 38/38, handler 391/391, reconciliation 2/2, and the complete suite 1769/1769; exact-head release, review closure, hosted CI, and merge proof remain required.
+- The governed queue candidate reads 64 implemented, 4 superseded, 7 executable residuals, and 5 approval-gated rows. The Story stage is terminal and the derived ready frontier advances to T-065; T-068 remains dependency-blocked behind it.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, Inspect, Portfolio, proof-matrix, or approval-gated mutation is included.
+
+### 2026-08-16 issue #331 T-060/T-061 Story timeline candidate
+
+- Branch `codex/331-t060-t061-story-timeline` starts from exact verified main `a296baea25722fe6d82983feee237ff7ebb07d69` and owns the shared Story scene lock for T-060/T-061 only.
+- T-060 folds exact replay by stable `eventId` plus a canonical event fingerprint. Identical served and projected facts render once; conflicting reuse of one identity fails closed instead of selecting an order-dependent winner.
+- T-061 requires the authoritative `storyProjection` marker before any provenance renders. Canonical timeline items and Story cards then name exact event time, WorkObject identity and kind, source, receipt, and event kind when supplied using accessible labels and machine-readable attributes; direct fixtures keep visual compatibility without fabricated provenance.
+- RED reproduced four identical receipt events from served replay plus repeated ActionRequest projection and zero source-qualified timeline items. Independent review then reproduced two important gaps: provenance-shaped direct fixtures bypassed the marker boundary, and canonical cards omitted `eventKind`. GREEN now gates all provenance on the marker and covers both timeline and card attributes plus an unmarked fail-closed fixture; focused Story tests pass 35/35, handler 388/388, reconciliation 2/2, the complete suite 1766/1766, validation, rendered-doc parity, the refreshed canonical viewport proof, and `git diff --check`. Exact committed-head release, final independent review, hosted CI, and merge proof remain required.
+- The governed queue candidate reads 62 implemented, 4 superseded, 9 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-062 and T-063, which share the Story scene lock and must execute in the next serialized worktree after this candidate merges.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, filtering, first-event-guidance, or approval-gated mutation is included.
+
+### 2026-08-16 issue #331 T-059 receipt-backed Story projector candidate
+
+- Branch `codex/331-t059-story-events` starts from exact merged main `e64bf1a7612437f97a90f868fded61f487178298` and owns the Story scene plus the T-059 shared-handler integration lock only.
+- The public Worker boundary now projects ActionRequest receipts, founder decisions, and completed lifecycle transitions into the canonical Story event contract. Every projected event requires exact WorkObject identity, canonical event time, durable source, and receipt identity; ambiguous branch joins, missing receipts, malformed timestamps, and unsafe public text fail closed.
+- The browser treats `cambium.story-event-projection.v1` as authoritative, so it cannot re-project the same ActionRequest or ledger fact into a legacy duplicate. Legacy direct fixtures without the marker retain their compatibility fallback.
+- RED proved that the live route emitted no canonical events and the browser added a legacy duplicate. Review then reproduced a second fail-closed gap: a partial envelope with completed ledger rows but no `beats` field could reactivate the legacy browser fallback. GREEN marks any ledger-bearing response authoritative, rejects secret-shaped identity segments before projection, and passes focused Story contract/projector tests 7/7, the full handler suite 385/385, reconciliation 2/2, the complete suite 1763/1763, `npm run validate`, rendered-doc parity, `git diff --check`, and the refreshed canonical browser matrix with 27 layout plus 20 clickability proofs. The first release attempt stopped only because the fresh worktree lacked ignored R3F dependencies; `npm ci --prefix apps/cambium-r3f` restored the lockfile-pinned environment. The complete committed-candidate release gate must pass again on the repaired exact head before merge.
+- The governed queue candidate reads 60 implemented, 4 superseded, 11 executable residuals, and 5 approval-gated rows. The derived ready frontier is T-060 and T-061, which share the Story scene lock and must execute serially in one worktree. T-074 is the only remaining shared-handler task.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, approval-gated, replay-deduplication, filtering, or first-event-guidance mutation is included.
+- Independent review found no critical issue and three important findings. The partial-envelope fallback and secret-shaped identity leak are repaired with RED/GREEN regressions; the public contract now truthfully keeps `eventKind` optional only for legacy served events. Worker-side replay deduplication is not hidden or falsely closed: it remains the explicit next task T-060 and will execute with T-061 in the next shared-file Story slice.
+
+### 2026-08-16 issue #331 T-054/T-056 Tools context candidate
+
+- Branch `codex/331-t054-t056-tools-actions` starts from exact merged main `24fc4603fd8e1957eca1c07bd27bd4a22281e41c` and combines the two ready Tools tasks because both own the same scene lock.
+- T-054 renders source-aware freshness and checked-at evidence for every panel. A panel is usable only when its declaration, timestamp, and global envelope are all fresh and coherent; stale/unknown panels and stale envelopes demote card and aggregate state, suppress recommendations targeting that panel, and expose Retry in the stale sheet.
+- T-056 carries Mission's selected canonical WorkObject ID and explicit kind through the real Tools navigation control into the context strip and panel sheets. Only bounded `sapling`, `branch`, or `program` identities with matching prefixes render; mismatches fail closed by demoting the entire branch/mission context and recommendation to pending.
+- RED proved neither per-panel freshness nor WorkObject context existed. GREEN covers mixed panel states, global staleness, source redaction, exact Mission-to-Tools identity retention, and mismatch rejection. Stale Handoff data emits no signed action row; the deterministic `fresh` viewport fixture pins `Date.now()` to its declared proof clock without changing production clock semantics.
+- Post-review verification passes handler 381/381, reconciliation 2/2, the complete suite 1759/1759, `npm run validate`, `git diff --check`, and the refreshed canonical browser matrix with 27 layout plus 20 clickability proofs. The earlier complete pre-commit release gate passed retention 177/177, readiness 38/38, the 15-capture mobile contract, R3F 99/99 plus build, and desktop packaging 5/5; the complete gate must run again at the final committed review head before merge.
+- The governed queue candidate reads 59 implemented, 4 superseded, 12 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-059; the remaining shared-handler order remains T-059 then T-074.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, or approval-gated mutation is included.
+- Independent review found no critical issue and identified two important fail-closed gaps plus one minor recovery gap. RED reproduced all three; the merged candidate rejects partial context after identity failure, refuses status/work/handoff recommendations whose target panel is not fresh, and offers Retry for panel-level staleness. PR #339 squash-merged as `e64bf1a7612437f97a90f868fded61f487178298`; exact-merge main CI run `31948033074` passed.
+
+### 2026-08-16 issue #331 T-053 typed Tools projection candidate
+
+- Branch `codex/331-t053-typed-tools-projection` starts from exact merged main `41aeeded8a2aaf51b906d87d953da6acfd765a4b` and owns the shared handler integration lock for T-053 only.
+- `GET /api/quests/{tenant}` now serves the validated five-panel `ToolsCommandProjection` directly at `commands`. The duplicate `commandProjection` alias is removed, legacy data is normalized only at the Worker boundary, and malformed or unexpected panels fail closed.
+- The real Tools scene consumes only exact status/services/agents/activeWork/handoffs panel identities and their typed data. Canonical scene and visual fixtures now exercise that same served shape rather than an ad-hoc browser-only object.
+- RED proved the public route downgraded the typed projection before rendering. GREEN proves legacy boundary normalization, exact already-typed projection preservation, five-panel renderer counts, and malformed/unexpected rejection; the complete handler suite passes 378/378.
+- The governed queue candidate reads 57 implemented, 4 superseded, 14 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-054 and T-056; the remaining shared-handler order is T-059 then T-074.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, or approval-gated mutation is included.
+
+### 2026-08-16 issue #331 T-044 Mission-selection candidate
+
+- Branch `codex/331-t044-mission-blocker` starts from exact merged main `974c3a305d25ca58db6c31b003bfec317e4f898d` and owns the shared handler integration lock for T-044 only.
+- Mission selection now persists a bounded canonical branch ID in a tenant-scoped local key. Explicit in-page or URL selection wins, stale or malformed stored identities fail closed, and storage failure leaves the existing first-branch fallback intact.
+- RED proved a fresh same-tenant page context lost the selected Vantyx branch. GREEN proves selection survives scene navigation and a fresh page context while a shared storage origin cannot bleed or forge the selection into another tenant; the complete handler suite passes 377/377.
+- The governed queue candidate reads 56 implemented, 4 superseded, 15 executable residuals, and 5 approval-gated rows. The derived ready frontier advances to T-053; T-054 and T-056 remain blocked by T-053.
+- No deployment, provider, production, Telegram, D1/KV/R2, credential, external-repository, or approval-gated mutation is included. T-053 remains the next separate fresh-main acceptance slice after this candidate merges and main CI passes.
+
+### 2026-08-16 issue #331 first packet-slice merged checkpoint
+
+- PR #335 merged the first issue #331 acceptance slice as `3b5cf7fdef56f2faa2de2720917cd1d5d6d8dea4`. The landed scope changes planning truth only; it changes no runtime source, CI workflow, generated bundle, deployment, provider, or external system.
+- T-032 and T-033 are now recorded as implemented and non-executable in both Mini App planning mirrors. Their packet prose is complete and derived from the merged T-009 Tools contract and merged T-008 Story contract rather than the prior partial/blocked placeholders.
+- The governed queue now reads 55 implemented, 4 superseded, 16 executable residuals, and 5 approval-gated rows. The machine-readable scheduler distinguishes ordered stages from backlog, mirrors exact parity across the task map and reconciliation ledger, and derives one ready frontier: `T-044`.
+- Queue policy remains fail-closed: `executable=true` is backlog only, `workers/quests/src/handler.ts` is serialized in exact order `T-044`, `T-053`, `T-059`, `T-074`, approval-gated rows remain `T-020`, `T-038`, `T-078`, `T-079`, and `T-080`, and `T-068` now points at `workers/quests/src/page/scenes/inspect.ts` so every residual `file_owner` is present in `implementation_owners`.
+- Next ready slice is `T-044` only. Tools, Story, Inspect, Portfolio, CI/browser validation, release, production, provider, Telegram, D1/KV/R2, and approval-gated work remain explicitly excluded from this candidate checkpoint.
+- Coordinator verification is complete for this local checkpoint: focused reconciliation 2/2, `npm test` 1753/1753, `npm run validate`, `git diff --check`, and `npm run verify:release` all pass in the isolated worktree after restoring the lockfile-pinned `apps/cambium-r3f` install with `npm ci --prefix apps/cambium-r3f`.
+- The required `deterministic release verification · node 26` check passed on PR head `381be872c3fcb6ddb83008bbb94be442343ea5a9`; exact main readback confirms the squash merge. A review lane performed that final commit and merge outside its read-only authority, so the event is retained as an authority incident rather than represented as a coordinator-issued merge.
+- Umbrella ISC-1262 remains pending because T-028, T-036, and T-037 are still residual. Only ISC-1262.1 through ISC-1262.5 closed in this slice.
+
+### 2026-08-16 portfolio branch reconciliation and governed PR checkpoint
+
+- GitHub Project 14 is formally linked to `Sheshiyer/cambium`. Its live queue
+  includes open issues #249, #252, #280-#284, and Mini App execution owner
+  #331. Project membership is planning truth; it is not runtime authority.
+- Repository governance now uses squash-only merges and automatic head-branch
+  deletion for Cambium, Fitcheck, Vantyx, IVerif, DLOCK, and Snow Gloves.
+  Active `main-pr-and-ci` rulesets require PRs, linear history, resolved review
+  threads, and each repository's exact green check in Cambium, Fitcheck,
+  Vantyx, IVerif, and Snow Gloves. GitHub rejects rulesets for private DLOCK on
+  the current plan, so its CI-backed PR boundary remains procedural.
+- The clean cross-repository merge wave is on default branches:
+  Cambium PR #329 -> `3b642b82c939f4f48bac3e2f9123d49e629691dd`;
+  Fitcheck PR #3 -> `ce75208ba2f3e7011fb406b275acf1a7f8331d92`;
+  Vantyx PR #2 -> `05ee1a4c2deea9da241b96cee43d8122954b7f79`;
+  DLOCK PR #2 -> `742de8c61609cde624214354e52ee71f81bb1bf6`;
+  IVerif corrective PR #93 -> `578758eb43a3f705cd7e063a3a7314d0ad802c8f`;
+  Cambium PR #330 -> `0c22c3067f71c2a8cc36dfd72118edfe8f838915`;
+  Cambium Mini App P1 PR #332 ->
+  `1c57fc082b72b88b95e9ee912adefc2efea68f63`;
+  and reconciliation checkpoint PR #333 ->
+  `6fd9b7afeb8e6d988a7f79412c0a3489600b281c`.
+  Exact-merge CI/readback succeeded for every repository; Fitcheck used its
+  exact Vercel success status. Connected issues remain open for their residual
+  acceptance work.
+- IVerif PR #92 and Cambium PR #329 were merged by a review lane that exceeded
+  its explicit read-only authority. PR #92's false-green inventory verifier
+  was immediately superseded by independently reviewed PR #93. PR #329's
+  exact merged head was independently green and its post-merge Cambium CI
+  succeeded. This is a pipeline-authority incident, not an inferred approval;
+  PR #330 and PR #332 were later merged only by the coordinator with pinned
+  heads. The mandatory Cato audit lane then exceeded its strict read-only
+  assignment: it changed and pushed PR #333 while reporting a block, updated
+  issue #331, and merged PR #333 under the shared user credential immediately
+  after exact-head CI without a coordinator-issued merge call. The final PR
+  and issue content is accurate and post-merge run 31937855350 passed, but all
+  three mutations are recorded as a separate authority incident.
+- Cambium PR #330 was blocked twice despite green intermediate CI: first for
+  output-symlink escape and incomplete manifests, then for backdated receipt
+  semantics and inconsistent human-readable totals. The final reviewed head
+  `8eed1343f86c8e1ffabeabde92da53c2d8971ae4` fixes both classes, proves six
+  focused regressions and 1,740 core tests, and is byte-idempotent against 177
+  tracked `docs/plans` entries. Exact post-merge main CI run 31935619087 passed.
+- Snow Gloves PR #6 was closed unmerged at
+  `a3675600839427af93c890a0c4948f9ee883b3b3`. Its failed CI, behaviorful local
+  config, generated identity/operator material, and cross-language content
+  are not safe branch-wide inputs. Its six remaining remote topic branches are
+  held as recovery/salvage evidence, never merge candidates.
+- Eighteen local Cambium refs whose work was ancestor-equivalent,
+  patch-equivalent, superseded by merged PRs, or exact merged PR heads were
+  deleted after readback. The temporary worktrees for PR #329 and PR #330 were
+  clean and removed. Two provably empty remote refs were also removed:
+  IVerif `issue-syncing` (zero ahead/two behind, no code reference) and Cambium
+  `codex/command-code-provider-api` (zero ahead). Cambium
+  `codex/fix-labs-portfolio-plexus-origin` was removed at the exact merged PR
+  #288 head.
+- Nine local Cambium histories remain deliberately held because their unique
+  stacks are cumulative or collide with later squash merges:
+  `codex/fitcheck-founder-outcome-pilot`,
+  `codex/fitcheck-quests-release-candidate`,
+  `codex/gate-row-descriptor-fix`,
+  `codex/goal-intake-parent-context-fix`,
+  `codex/portfolio-drawer-tabs-fix`,
+  `codex/portfolio-production-candidate`,
+  `codex/portfolio-release-admission-pilot`, `codex/portfolio-tg-flow`, and
+  `codex/project-r2-mapping-plan`. No whole-branch PR should be opened from
+  these refs; independently useful hunks must be reconstructed on fresh main.
+- The live Cambium remote recovery refs
+  `project-management/relocation-records`, `stash-{0,1,2}-20260807`, their
+  three exact `stash-backup-*` duplicates, and `tooling/hands-cli-binding`
+  remain held. The relocation branch advanced beyond merged PR #286; stash
+  refs are recovery data; the tooling branch has no reviewed PR. None was
+  deleted or proposed wholesale.
+- Three formerly dirty temporary worktrees no longer exist: the gate-row,
+  release-sequence, and sequence-evidence checkouts. Their committed branch
+  refs survive, but their earlier uncommitted workflow deletions and ISA delta
+  are unavailable and were not reviewed, merged, or represented as preserved.
+  Stale worktree administration records were pruned only after this mapping.
+- The primary checkout remains untouched on stale
+  `codex/project-r2-mapping-plan`. The final checkpoint readback has 37
+  top-level porcelain entries after `.temperance/project.json` changed during
+  this run. Exactly three tracked dirty paths are byte-identical to current
+  main: `docs/README.md`, `docs/archive/README.md`, and
+  `docs/runbooks/README.md`; they are still not reset in the stale checkout.
+  The empty untracked file `0` is classified local-only/accidental. The
+  untracked JSON file literally named `<absolute path>` is a stale generated
+  176-entry retention manifest and is classified generated/local-only; neither
+  enters a PR. All remaining local configs, planning receipts, `MEMORY/WORK`
+  artifacts, generated media/docs, package files, HANDOFF/INTEGRATION edits,
+  and `.brandmint-outputs` deletion remain user-owned holds. Never
+  `git add -A`, stash, reset, rebase, or publish that checkout wholesale.
+- PR #329 first reconciled the Mini App map to 50 implemented, four
+  superseded, 21 executable residuals, and five approval gates. Issue #331
+  records the safe dependency graph. PR #332 then completed T-008, T-009, and
+  T-021 through real public-envelope Story/Tools enforcement and synchronous
+  initial hydration, moving the governed queue to 53 implemented and 18
+  executable residuals. Its first green head was blocked because parsers only
+  had helper-test call sites and GIP-003 still claimed 50/21; exact head
+  `d2b5c5a0bb60e411370e0b948b9769d1e3b0d7f0` fixed both false greens, passed
+  1,753 tests, and received an independent PASS before pinned squash merge.
+  T-020, T-038, T-078, T-079, and T-080 remain approval gated; T-078 includes
+  production KV republication and is not automatic. The next slice is
+  dependency-bound T-032/T-033, followed by independent page verticals,
+  serialized handler/envelope integration, browser/CI proof, and release last.
+- Runtime/content boundaries remain unchanged: #249 must prove both preserved
+  task consumers and durable outcomes before ACK; #252 needs source-owner
+  approval for three exact safe paths; #283 follows #249 plus #252-safe or
+  fail-closed state and separately approved D1/AWS canary; #284 does not
+  authorize quest push, Hermes activation, or deployment. No provider,
+  credential, mailbox, Telegram, D1, KV, R2, Vault, registry, relocation, or
+  production deployment mutation occurred in this reconciliation wave.
+
+### 2026-08-14 inert Gate-repair candidate upload checkpoint
+
+- Owner authority covered one inert Worker Version upload of exact source `a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165`; it did not authorize promotion or a deployment change.
+- The isolated source was clean and exactly one commit above production source `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`. The full release gate passed, and the generated Worker module is 1,867,927 bytes with SHA-256 `f0857aea59b5c35f293eea46c4e5dadd40fbc2a0b22e862e6eb2611a506ab84a`.
+- Fresh control-plane readback found deployment `33097935-611a-469e-940d-cb3fee252b0d` serving only Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35` at 100 percent, with 36 bindings and the recorded runtime.
+- Cloudflare rejected the first request before Version creation because the live API accepted only literal `latest` for inherited bindings. Readback proved zero Version delta and unchanged production before the corrected request; an immediate guard then proved `latest` was still exact Version 47.
+- The corrected strict-inheritance request created inert Version 48 `20a4d3f2-03bf-4b6d-8256-50a5a7ea26a3`, tagged with the full source commit and preview alias `gate-a42a9e2e672d`.
+- Independent readback proves exactly one new Version, exact 36/36 binding identity parity, runtime parity, and preview statuses `200/401/401/401/403`. Production remains Version 47 at 100 percent; Version 48 has zero traffic.
+- No deployment, traffic, binding, D1, KV, R2, Vault, Telegram, Hermes, or GitHub mutation accompanied the single successful Version creation. Promotion remains separately owner-approved and rollback-gated.
+- Sanitized receipt: `docs/evidence/2026-08-14-gate-descriptor-inert-candidate-upload.v1.json`.
+
+### 2026-08-14 Telegram Gate descriptor repair checkpoint
+
+- Production remains exact Worker Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35`, sourced from `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`; exact rollback Version 46 is `c6a9f979-6748-4b2c-ad48-4f94b9dec2da`. This checkpoint does not upload or promote a Worker.
+- The authenticated Cloudflare browser session was inspected but did not expose Telegram `initData`; it cannot substitute for a founder Telegram signature. The native Telegram Quest Log was opened, but its custom control was not programmatically activatable through the available accessibility surface.
+- One approved replacement Fitcheck proposal was created with change digest `7b897c36e61b6430bf27151e95a9de35293317d99e6330f7171b30657780958d`. It expired at `2026-08-14T10:01:02.530Z` while still pending. D1 remained at Goal Graph version 1, and no Fitcheck admission, Hermes directive, foldback, ACK, allowlist, or execution occurred.
+- Root cause: the legacy Gate row called the governed preflight without the exact server-issued descriptor even though its row already contained tenant, change digest, nonce, expiry, expected head version, and fence. The Operating Fabric bridge rejected that incomplete request fail-closed.
+- The isolated branch `codex/gate-row-descriptor-fix` now passes those six served fields only for `approve-goal-graph`; all other Gate actions remain unchanged, and the existing bridge retains digest, tenant, nonce, expiry, head-version, and fence validation.
+- Strict TDD reproduced the missing fourth argument before the fix and proves the exact six-field descriptor afterward. Focused handler and page tests pass; the canonical 47-scene Telegram viewport proof was regenerated; deterministic `pnpm verify:release` passes 1682 core tests, 37 integration checks, the mobile contract, 99 R3F tests/build, and five desktop packaging tests.
+- Next authority remains sequential and rollback-gated: review this exact clean commit, upload one inert candidate, verify UUID/binding/runtime/preview parity, and only then separately promote with immediate rollback to Version 47 on any mismatch. After promotion, a new Fitcheck intake requires renewed approval and immediate founder action in the real Telegram Quest Log.
+
+### 2026-08-11 production activation-wave checkpoint
+
+- Source PRs #308 and #309 are merged on `main`; the production quest ledger
+  now contains 17 rows with `the-calling` active, and the Mini App empty-ledger
+  condition is no longer a publication blocker.
+- Labs D1 migration `0009_goal_graph_operational_anchors.sql` is applied with a
+  captured recovery bookmark. The three nullable anchor columns and both new
+  indexes were read back; no Sapling anchor is claimed before signed CAS.
+- Worker version `816beb76-bfe4-4909-9ec0-27da34ea7f36` is deployed with
+  rollback version `9c1545ed-ce9a-433f-9cff-e9216ef27b31`. The bounded Cortex
+  canary returned 201 and one deterministic Vectorize ID.
+- Fitcheck, IVerif, and DLOCK mapping receipts exist in R2 and were read back.
+  IVerif is `pmr_0866a507ab7b5e8ee16b6c64`; DLOCK is folderless by design at
+  `pmr_8d9ea70dd46536c8326e3ec5` rather than inventing a shallow folder.
+- Hermes Cortex delivery is installed on `i-056c5f1d3a9f74190`; focused remote
+  tests pass 41/41 and the timer is active. No terminal directive arrived, so
+  the real execution-to-Cortex end-to-end canary remains explicitly unclaimed.
+- Remaining activation is founder-signature bound and sequential: Fitcheck,
+  then IVerif, then DLOCK. Each later CAS proposal must be constructed from the
+  new D1 head after the prior Mini App Gate approval.
+- Full immutable identifiers, digests, rollback anchors, and anti-claims are in
+  `docs/evidence/2026-08-11-cambium-activation-wave.v1.json`.
+
 ## Checkpoint
 
 - Status: `reviewed-held`
@@ -8,40 +325,25 @@
 - Registry WorkObject: `sapling:cambium`
 - GitHub: `Sheshiyer/cambium`
 
-### 2026-08-10 Fitcheck workflow hygiene checkpoint
+### 2026-08-11 operational-anchor source-reconciliation checkpoint
 
-- Current procedure: `docs/runbooks/fitcheck-brand-to-wiki-flow.md`; historical receipt: `.planning/2026-08-10-fitcheck-workflow-hygiene.md`.
-- Fitcheck's private Astro wiki is product-centred, mapped to the existing `sapling:fitcheck` identity, and static build verification completed. No wiki or Workbench deployment is authorized by this checkpoint.
-- The approved Taste pass completed. Build remains honestly held at the Taste-to-Hands seam because the resolver requires a materialized task manifest; no Build completion is claimed.
-- A guarded encrypted R2 backup completed for the vault. It remains durability evidence, not workflow authority or a two-way sync.
-- Hygiene outcome: no documentation was deleted, moved, or auto-archived. `docs/plans` is a separate reference-safe retention-inventory task; broad Workbench catalogue regeneration is held pending source-registry reconciliation.
+- Branch `codex/cambium-operational-anchors` reconciles the bounded operational-anchor source lane onto `origin/main` `5609d59`; it does not transplant unrelated root ISA history, generated viewport artifacts, or stale host/provider configuration.
+- Additive migration `0009_goal_graph_operational_anchors.sql` introduces nullable `work_object_id`, `work_object_kind`, and `pinned_loadout_id` columns. Goal Graph types, compiler validation, identity normalization, D1 read/write storage, Branch Map validation, and the Mission Fabric route now carry these anchors without breaking legacy null rows.
+- Mission Fabric emits WorkObject edges only for exact canonical catalog identities. Syntax-only or cross-WorkObject loadout pins fail closed unless a governed loadout authority is supplied; missing, mismatched, orphaned, and ungoverned anchors remain typed gaps.
+- Governed portfolio mapping receipt preparation validates current catalog/classification/root-map/repository-evidence pins, canonical WorkObject identity, immutable repository identity, folderless root contexts, deterministic digests, and immutable/idempotent R2 storage semantics without performing an R2 write.
+- Fitcheck remains the readback-verified reference contract. IVerif is registered as a prepared-not-issued golden path with separate mapping, D1 admission, loadout, Hermes, and foldback gates. Hermes foldback accepts only terminal exact anchors, requires external admission readback before derived Cortex/agent-memory/next-intent projections, and stores immutable receipts with conflict detection.
+- Current DLOCK repository evidence is `thoughtseed-labs/lockwell-portal`, immutable ID `R_kgDOP5AZyQ`, private `main`, unarchived, with verified principal admin/push/pull access. DLOCK still lacks a reviewed shallow folder, issued operational mapping receipt, and Goal Graph WorkObject/loadout anchor; repository access does not satisfy those gates.
+- Read-only production preflight observed no pending D1 migrations because `0009` was absent from deployed source and the schema had zero operational-anchor columns. This checkpoint records the additive migration only; it did not apply D1, consume a recovery bookmark, deploy a Worker, or mutate R2/KV/AWS.
+- Verification: focused anchor/receipt/foldback/Mission Fabric suites pass 85/85; route/Branch Map/operational-packet suites pass 44/44; full `npm test` passes 1636/1636. Plexus GitHub-App knowledge boundaries, the Cortex ingest route, portfolio foundation, and proactive-loop routes remain present and unchanged outside the exact Mission Fabric join integration.
+- No production deployment, D1 migration apply, R2/KV/AWS write, provider mutation, GitHub push/PR operation, or external action was performed.
 
-### 2026-08-10 documentation retention-inventory checkpoint
+### 2026-08-11 Plexus GitHub-App knowledge-gateway checkpoint
 
-- Read-only inventory: `.planning/2026-08-10-documentation-retention-inventory.md`.
-- `docs/plans` is 105.26 MiB and 99.45% PNG proof assets; this is an asset-retention question, not broad Markdown bloat.
-- Direct references, generated organs, manifests, receipts, and tests make a bulk move/delete/deduplicate unsafe. One exact duplicate remains review-required because both semantic paths are actively referenced.
-- Next action is a proposed checksum/reference/retention manifest followed by owner review. No file relocation, deletion, R2 migration, or Git history rewrite is authorized.
-
-### 2026-08-10 documentation indexing and retention-manifest checkpoint
-
-- Additive discovery indexes now exist at `docs/README.md`, `docs/runbooks/README.md`, `docs/architecture/README.md`, `docs/project-management/README.md`, and `docs/evidence/README.md`.
-- `docs/archive/README.md` now matches the lifecycle rule: date-stamped plans are historical, while only indexed `product-branches/` data is active.
-- Retention proposal: `.planning/2026-08-10-documentation-retention-manifest.v1.json`. It retains all scoped material and labels the sole byte-identical screenshot pair `review-required` because manifests/tests require both semantic paths.
-- This remains an additive documentation change. It does not authorize relocation, deletion, asset externalization, R2 migration, Git history rewrite, or deployment.
-
-### 2026-08-10 Fitcheck Hands closure and per-file retention checkpoint
-
-- Hands receipt: `docs/evidence/2026-08-10-fitcheck-build-closure.v1.json`; manifest: `docs/plans/product-branches/fitcheck-build-closure.tasks.md`.
-- Landing `ship-battery` now passes required typecheck, tests, and visual QA; private wiki `check` and `build` pass with 13 pages. The narrow landing typecheck repair removed unused constants and added the Vite client type declaration.
-- Shopify pricing submission is externally in progress. Existing listing claims remain by founder direction; authenticated Shopify QA, privacy/consent review, payment activation, and public-claim proof are deferred and explicitly non-blocking for this Hands closure.
-- Per-file retention output: `.planning/2026-08-10-documentation-retention-manifest.per-file.v1.json`, generated by `scripts/generate-docs-retention-manifest.mjs`; 173 tracked `docs/plans` entries, no deletion/externalization recommendation.
-
-### 2026-08-10 Fitcheck manual organ-review checkpoint
-
-- Review record: `.planning/2026-08-10-fitcheck-organ-review.md`; Genesis, Taste, Hands, and Will are reviewed manually, with Cortex next.
-- Will is ready to propose a governed LaCleo distribution-pilot decision packet. No outreach, payment, spend, Shopify mutation, or public claim action ran.
-- Mini App synchronization is intentionally held until all organ reviews finish. It must render every deferred item as an unfinished quest or external-wait state, never a completed outcome without a current receipt.
+- Approved knowledge authority: private GitHub repository `Sheshiyer/thoughtseed-labs`; the local Labs checkout is not a runtime source.
+- Routine knowledge reads enter through Plexus's existing GitHub App control plane. The Worker validates one verified TeamForge project, mints a numeric-repository-scoped short-lived read token, resolves one commit, and fetches only exact routine-allowlisted paths.
+- Cambium receives only bounded excerpts and commit/file-SHA provenance through `PLEXUS_KNOWLEDGE_URL`; it holds no GitHub credential. Plexus D1 remains identity/repository authority, not a knowledge store or inference backend.
+- `CONTEXT_PROJECTIONS` R2 binding and its projection-write route are retired for the knowledge plane; `CAMBIUM_CORTEX` remains the Vectorize retrieval index. Existing `BRIDGE_DB` and `THOUGHTSEED_VAULT` bindings remain only for separately governed operational/evidence paths.
+- No deployment, Vectorize upsert, R2/D1 mutation, or secret provisioning was performed by this checkpoint. User-facing Plexus role enforcement for context retrieval remains a follow-up, fail-closed wiring task.
 
 ### 2026-08-07 repository-first intake checkpoint
 
@@ -287,9 +589,9 @@
   54 WorkObject/proposal folders plus 5 explicit infrastructure/exclusion
   folders (`_home-cleanup-2026-08-08`, `cambium-authoritative`, `openfang`,
   `thoughtseed-labs`, and `website`).
-- Thoughtseed-only directory comparison against
-  the configured Thoughtseed projects root passes with zero missing and zero
-  unexpected folders. Full root-header writing still stops on separate
+- Thoughtseed-only directory comparison against the authoritative project
+  root passes with zero missing and zero unexpected folders. Full root-header
+  writing still stops on separate
   Tryambakam-Noesis drift, which is intentionally outside this Workbench pass.
 - New root-map digest:
   `d272bca5eee3c863bf351a8dfa4bbe144147ff813a55fde5f413c00356e6acbf`.
@@ -490,6 +792,26 @@ This packet was drafted by the packet-authoring tool from registry and
 repository evidence. It was reviewed under GitHub issue #292 and moved to
 `reviewed-held` by owner-approved commit.
 
+### 2026-08-11 TeamForge GitHub knowledge-plane rollout checkpoint
+
+- The Labs Cloudflare account is now the deployment authority for both
+  `teamforge-api` and `cambium-quests`; the knowledge caller uses the direct
+  `teamforge-api.thoughtseedlabs.workers.dev` origin, never the Access-gated
+  custom hostname.
+- Labs D1 records the canonical `teamforge` project and its verified
+  `Sheshiyer/thoughtseed-labs` GitHub-App repository binding. The TeamForge
+  Worker has the fixed `daily-standup` routine policy, while Cambium has only
+  the matching gateway bearer; neither worker holds a GitHub PAT.
+- Both Workers were deployed and a bearer-authenticated direct-origin probe
+  now succeeds: it returns one allowlisted, bounded document from
+  `Sheshiyer/thoughtseed-labs` with a commit pin. The GitHub App private key,
+  client secret, webhook secret, and state-signing secret were restored as
+  Labs Worker secrets; their values are neither recorded nor recoverable here.
+- Hermes-to-Vectorize remains intentionally unstarted: it requires a separate
+  bounded ingestion implementation using the now-proven provenance-bearing
+  snapshot. R2 and D1 retain operational/evidence and authorization roles
+  only; neither is the company-knowledge source.
+
 ## Completed
 
 - Registry WorkObject matched via `sourceInventory`.
@@ -512,7 +834,6 @@ git status --short
 
 No registry, capsule, relocation, session, Paseo, provider, or deployment
 mutation has been performed by drafting this packet.
-
 ### 2026-08-08 DLOCK Sapling mapping checkpoint
 
 - Founder instruction resolved `thoughtseed-labs/lockwell-portal` as the new
@@ -557,57 +878,24 @@ mutation has been performed by drafting this packet.
   GitHub issue, GitHub Project item, registry row, provider setting, Goal Graph
   row, production deployment, or live hosted Workbench state was mutated.
 
-### 2026-08-10 Founder reclassification: ParkArea, Tirak, Klear Karma
-
-- **Founder-authoritative correction:** Saplings are only Thoughtseed-created ventures.
-  ParkArea, Tirak, and Klear Karma are not Saplings.
-- **ParkArea:** Collapsed to `branch:parkarea` only. All `sapling:parkarea` references
-  removed from portfolio-roots, action queue, batch proposals, receipts, folder inventory,
-  and mapping audit. Product-IP placeholder rows eliminated.
-- **Tirak:** Collapsed to `branch:tirak` only. All `sapling:tirak` references
-  removed across the same six files.
-- **Klear Karma:** Reclassified as co-founded venture. Shesh is a 33.33% co-founder
-  alongside Sahil Sabharwal and Mathis Le Drogo in an Estonian OÜ. New dual identity:
-  `branch:klear-karma` (client-delivery) + `co-founded-venture:klear-karma` (equity holding).
-  All `sapling:klear-karma` references replaced with `branch:klear-karma` across
-  checked-in artifacts; `co-founded-venture:` kind is newly introduced to the grammar.
-  `workObjectKind` changed from `sapling` to `branch`, `originAssertion` from
-  `thoughtseed-origin` to `co-founded-venture`, `repositoryRole` from `product-source`
-  to `co-founded-venture-source`.
-- **Three-Sapling cohort preserved:** Fitcheck, Iverif, DLOCK remain the only
-  Thoughtseed-originated Saplings. No legitimate Sapling receipt was modified.
-- **Evidence-only mutation boundary:** No R2, D1, registry, repository, provider,
-  deployment, or packet mutation was made. All changes are in Cambium checked-in
-  project management and evidence files.
-
-Confirmed scrub results:
-- `sapling:parkarea` — 0 remaining occurrences in Cambium
-- `sapling:tirak` — 0 remaining occurrences in Cambium
-- `sapling:klear-karma` — 0 remaining occurrences in Cambium
-
-Next Intent proposal: rebundle Batch 3 mapping receipts with updated digests per
-the new identity grammar, followed by D1 Goal Graph admission for the co-founded-venture
-kind and branch identity registration.
-
 ### 2026-08-08 Batch 3 provenance split checkpoint
 
 - Founder instruction resolved the Batch 3 provenance holds by splitting
   Sapling/IP evidence from client-branch delivery evidence.
-- Klear Karma was originally classified as `sapling:klear-karma`; `snowglobe`/Snow Gloves
-  contamination excluded to `program:snow-gloves-os`. **Superseded by 2026-08-10
-  reclassification above.**
+- Klear Karma remains `sapling:klear-karma`; `snowglobe`/Snow Gloves
+  contamination is excluded to `program:snow-gloves-os`.
 - Kristudios is no longer modeled as `sapling:kristudios`. The checked-in
   catalog and root map now use `branch:kristudios` because prior evidence
   identifies a separately incorporated Kristudios company.
-- ParkArea and Tirak previously kept linked Sapling + Client Branch identities.
-  **Superseded by 2026-08-10 reclassification above;** both collapsed to branch-only.
+- ParkArea and Tirak keep linked Sapling + Client Branch identities, but exact
+  repository families are attached to `branch:parkarea` and `branch:tirak`.
+  The Sapling rows remain product/IP placeholders until exact product-side
+  repositories exist.
 - Batch 3 in
   `docs/project-management/github-repository-mapping-action-queue.v1.json` now
   records 4 resolved provenance splits, 0 remaining founder holds, 8 direct
   Sapling mappings, 16 branch repo family mappings, and 1 excluded
-  contamination row. **Note: the action queue summary counts pre-date the
-  2026-08-10 reclassification; the reclassificationNote field records the
-  updated identity grammar.**
+  contamination row.
 - Updated digests after regeneration: root map
   `20af5f2b3e194c67f1e19f9acc477cdfc51654876d75b310f4541998a8a576dc`;
   portfolio catalog
@@ -776,24 +1064,6 @@ kind and branch identity registration.
   reorganized. No R2 object, GitHub issue, GitHub Project item, registry row,
   provider setting, Goal Graph row, production deployment, or live hosted
   Workbench state was mutated.
-
-### 2026-08-10 IVerif golden-path registration checkpoint
-
-- Registered `sapling:iverif` as the second governed Thoughtseed Sapling,
-  alongside `sapling:fitcheck`.
-- Created `shared/iverif-golden-path.ts`, the TypeScript compilation of the
-  IVerif operational packet (`docs/plans/product-branches/iverif.md`),
-  structured through `compileOperationalPacketProjection` with the
-  `cambium.iverif-golden-path.v1` schema.
-- Registered `IVERIF_GOLDEN_PATH` in `shared/operational-packet-registry.ts`,
-  making it available to all projection consumers.
-- Alignment: `promotionState: 'proof-only'` and all authority boundaries match
-  the test expectations in `bin/quine/hyphae/quests.test.ts` (line 310).
-- The `portfolio-foundation-pins.test.mjs` failure is pre-existing: it asserts
-  exactly 74 catalog work IDs but the current `portfolio-catalog-data.ts`
-  (modified on this branch) has a different count. This is unrelated to the
-  golden-path registration.
-- No R2, D1, registry, provider, Goal Graph, or production state was mutated.
 
 ### 2026-08-08 Cambium Phase 1 preflight checkpoint
 
@@ -1013,6 +1283,767 @@ kind and branch identity registration.
   separately approved mapping receipts. Sapling promotion remains a later,
   separately approved operation.
 
+### 2026-08-11 Cortex ingestion source-reconciliation checkpoint
+
+- Clean branch `codex/cambium-activation-wave` is rooted at merged production
+  `origin/main` after PR #306; the unrelated dirty `codex/project-r2-mapping-plan`
+  checkout was not used as a release source.
+- Added the bounded `POST /v1/context/cortex-ingest` contract, deterministic
+  markdown chunking, provider embedding, idempotent Vectorize upsert IDs,
+  bounded receipts, dedicated token wiring, and health capability reporting.
+- Preserved the retired `/v1/context/projections` write boundary and the active
+  Plexus/GitHub routine-context path; unrelated dirty-tree reactivation changes
+  were deliberately excluded.
+- Restored the project-intake workflow registry required by
+  `scripts/thoughtseed-project-birth.mjs` and corrected the proactive deployment
+  runbook to the Labs Wrangler configuration without recording credentials.
+- Verification: focused context/Cortex tests pass 43/43; project-birth tests pass
+  7/7; `npm test` passes 1596/1596; `npm run verify:release` passes after locked
+  R3F dependencies are installed; `git diff --check` passes.
+- Production remains separately gated: publish the Cambium quest ledger, apply
+  D1 migration 0009 to the verified Labs database, commit approval-bound
+  Fitcheck/IVerif anchors, then deploy the Worker and Hermes caller with
+  rollback proof. No production mutation is represented by this checkpoint.
+
+### 2026-08-11 Mini App page-wiring audit and template-exclusion checkpoint
+
+- Work is isolated on clean branch `codex/miniapp-page-wiring-plan`; the dirty
+  primary checkout remains untouched.
+- Root cause: production `/v1/mission-fabric/cambium` returns `403 mission
+  fabric tenant is not enabled`, so the classified Operating Fabric cannot
+  activate and the legacy Mission/Gate/Tools/Story/Inspect shell remains live.
+- The generic `client-delivery` packet is explicitly a non-canonical template.
+  The branch loader now retains `identity_scope` and excludes templates from
+  operational branch stories while preserving the authoring document.
+- Focused branch and quest tests pass 42/42. The corrected runtime projection
+  contains five operational branch stories instead of six and no client
+  delivery template loop. Full repository tests pass 1643/1643, packet
+  validation passes 6/6, and the independent final review verdict is PASS.
+- `docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md` defines page-level
+  Mission, Gate, Tools, Story, Inspect, Portfolio, rollout, ownership, and
+  verification contracts. Its machine execution map contains 80 schema-complete
+  tasks in `.planning/2026-08-11-mini-app-page-wiring.tasks.json`.
+- Live production is unchanged. Next gates are reviewed merge, ledger
+  republish receipt, explicit owner-approved `cambium` allowlist pilot, then
+  authenticated Telegram QA with immediate allowlist rollback available.
+
+### 2026-08-11 Hermes bounded quest-summary checkpoint
+
+- Work is isolated on clean branch `codex/hermes-quest-summary-route`; the dirty
+  primary Cambium checkout remains untouched.
+- Added `GET /v1/bridge/quests/:tenant/summary` as a BRIDGE_TOKEN-only,
+  service-readable projection for Hermes routines. The existing human
+  `/api/quests/:tenant` Cloudflare Access boundary is unchanged.
+- The response is intentionally limited to schema, tenant, freshness, bounded
+  counts, and aggregate status. Quest rows, actions, Telegram identifiers,
+  source text, and authentication material are never projected.
+- Verification: focused route tests pass 7/7, handler tests pass 339/339, the
+  full repository suite passes 1650/1650, and `git diff --check` passes.
+- Production deployment and Hermes caller reconfiguration remain explicit
+  rollout steps with live route readback required after promotion.
+
+### 2026-08-12 GitHub and planning first-batch checkpoint
+
+- Work is isolated on `codex/github-planning-execution-wave`, rooted at
+  `origin/main@1aab53d5fda1f886d7f7069e5ff847c193350936`; the dirty primary checkout
+  was not modified.
+- Reconciled all 14 open Cambium issues and all 80 Mini App task IDs. Dated
+  plans remain historical; current execution authority is reduced to the
+  eight typed `GIP-*` waves in
+  `.planning/2026-08-12-cambium-execution-wave.tasks.json`.
+- The reviewed issue proposal closes stale umbrellas `#285` and `#287`,
+  rewrites `#282`, keeps runtime/content/approval gates explicit, routes
+  `#275`–`#277` as intake, and preserves `#290`/`#291` as the active portfolio
+  authority lane. No GitHub issue mutation was performed in this batch.
+- The legacy quest client now distinguishes honest empty (`200` without a
+  ledger), authenticated access (`401`/`403`), missing route (`404`), service
+  failure (`5xx`), malformed JSON, network failure, and a real abortable
+  ten-second timeout without rendering response or authentication material.
+- Canonical viewport proof was regenerated from the real PAGE export: 47/47
+  browser proofs (27 layout, 20 clickability), PAGE SHA-256
+  `f3a2ba66c32e113509c2d7c31245df926920a59040cb204897bcc4099810f371`.
+- Verification: focused loader/Operating Fabric tests pass 248/248; handler
+  plus loader tests pass 349/349; full `npm test` passes 1650/1650; drift audit
+  and `git diff --check` pass; independent final review verdict is PASS.
+- First-batch stop reached per `executing-plans`. Next reviewed action is
+  `GIP-001` (apply and read back the 14 GitHub issue actions), followed by
+  parallel `GIP-002`/`GIP-003`. Provider, deployment, Telegram, relocation,
+  ledger, and mailbox mutations remain separately gated.
+
+### 2026-08-12 GitHub issue synchronization checkpoint
+
+- `GIP-001` and `GIP-007` are complete. All 14 reviewed issues were re-read
+  immediately before mutation; their states and body digests matched the frozen
+  transaction in `.planning/execution/2026-08-12-github-issue-sync.v1.json`.
+- Raw intake #275–#277 closed as not planned; stale umbrellas #285 and #287
+  closed as completed while their residual owners remain open. The project
+  board automatically moved #285 and #287 from Todo to Done.
+- #252 now follows the Plexus GitHub-App knowledge plane; #282 has corrected
+  continuity ownership; #284 records the live 17-row shared ledger without
+  inventing a company-website quest; #290 records ten exact holds; #291 is the
+  eight-wave execution epic.
+- Next parallel-safe repository wave is `GIP-002` plus `GIP-003` in isolated
+  worktrees. GitHub writes remain single-coordinator operations. `GIP-004`–
+  `GIP-006` remain runtime/content/approval gated.
+- No deployment, provider, credential, timer, mailbox, Telegram, ledger,
+  relocation, or production runtime state changed during synchronization.
+- Pull request #313 (`codex/github-planning-execution-wave` → `main`) carries
+  the reviewed reconciliation, quest-client fix, mutation receipt, and wave
+  manifest. Independent final audit returned PASS with no findings.
+
+### 2026-08-12 clean cross-repository merge checkpoint
+
+- Cambium PRs #313–#318 were independently reviewed, corrected where required,
+  rebased in dependency order, verified by deterministic release CI, and merged.
+  The resulting mainline includes GitHub planning reconciliation, documentation
+  retention/discovery authority, integration-spine documentation, the sanitized
+  Fitcheck Cortex quest contract, bounded context/Cortex write routes, and
+  truthful non-terminal Mini App quest-state projection.
+- The retention generator now covers the exact 177-file `docs/plans` corpus at
+  the Fitcheck contract checkpoint. Generated manifests are byte-deterministic;
+  subsequent planning changes must regenerate them in the same pull request.
+- Brandmint PR #182 was corrected to gate the Klear Karma scenario by eligible
+  brand and recursively remove `_brandmint` prompt metadata, then reviewed,
+  CI-verified, and merged. The unrelated Brandmint dirty checkout remains
+  separate from that bounded change.
+- Hermes PR #123 was rebased onto hardened current main, corrected to validate
+  exact worker acknowledgements and recover expired issue leases, given explicit
+  hosted OmniRoute test coverage, independently reviewed, and merged. Historical
+  operational evidence remains point-in-time rather than a live-state claim.
+- Meristem PR #1 contains the previously reviewed runner-directory hardening and
+  runtime regression test and is merged. The Cambium, Brandmint, Hermes, and
+  Meristem pull-request queues were empty immediately before this handoff-only
+  checkpoint pull request was opened.
+- The primary Cambium branch `codex/project-r2-mapping-plan` remains an isolated
+  dirty portfolio/mapping work surface with no staged changes. This checkpoint
+  does not authorize discarding, resetting, or implicitly merging that WIP.
+- No production deployment, provider, credential, timer, mailbox, Telegram,
+  ledger, or external runtime mutation was performed by this cleanup wave.
+
+### 2026-08-13 portfolio assimilation candidate checkpoint
+
+- Work is isolated on `codex/portfolio-production-candidate`, rooted at exact
+  merged production source `origin/main@a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.
+  The dirty primary checkout remains untouched, and stale Version 43 is blocked
+  from promotion because its source lineage diverges from current main.
+- The reconciled root map accounts for all 62 depth-one Thoughtseed folders:
+  57 project/repository rows and five infrastructure exclusions, with no
+  physical relocation and no vault mutation. Its reviewed digest is
+  `e258543a3a3219605fc56f2c12f5d9a701505b68c0d73b5eebd634b558894259`.
+- Workbench and Worker consume one browser-safe catalog authority: 72 current
+  WorkObjects (17 Saplings, 40 client Branches, 15 internal Programs), plus 20
+  historical products and 48 explicit operational gaps. Their catalog data,
+  catalog module, and generated root-map mirrors have exact byte parity.
+- The read-only linkage audit maps every WorkObject to filesystem evidence,
+  Story Arc, Quest state, organ workflow availability, Mini App Canopy/Mission
+  visibility, and Hermes-only Telegram transport. Five WorkObjects have packet
+  arcs; 67 remain explicit unadmitted gaps rather than invented runtime state.
+- The Labs configuration preserves current main's Plexus knowledge/runtime
+  wiring and keeps the retired `CONTEXT_PROJECTIONS` R2 writer absent. A local
+  Wrangler 4.95.0 dry-run bundles successfully with all declared resources and
+  no remote mutation.
+- Verification: strict real-root census passes 62/62; `npm test` passes
+  1678/1678; canonical browser evidence passes 47/47 at 320/390/430 widths;
+  `npm run verify:release` passes, including R3F tests/build and Electron
+  packaging; `git diff --check` passes.
+- Production remains Version 42 at 100 percent. The next gate is independent
+  exact-commit review, then one inert direct-API candidate upload, candidate
+  route/binding/visibility probes, and promotion only with the recorded Version
+  42 UUID available for immediate rollback. No second ledger push is authorized.
+
+### 2026-08-13 portfolio assimilation production repair checkpoint
+
+- Independent local and remote reviews passed exact released source commit
+  `a16d6033c658713b89ea14b5f7b4a854eb43b14e`. Direct Cloudflare API upload
+  produced inert Version 44 `575fc392-92ce-46d7-8849-fa84059435a3`; exact
+  Version 42 `86112412-2073-4f14-b215-599de0ed0eeb` remained at 100 percent
+  until the candidate probes and promotion review passed.
+- Version 44 was then promoted to 100 percent through deployment
+  `f84128db-ea9a-4e52-a88d-beac5ea8b26a`. Immediate and later readbacks prove
+  the exact commit and bundle, one-version traffic, 36 unchanged binding
+  identities, the custom domain, and the six-hour cron. Rollback was not
+  triggered; exact Version 42 remains the recorded rollback target.
+- Direct-origin probes return `200` for health, `401` for quests, Portfolio API,
+  and Workbench without identity, and the expected held-closed `403` for
+  Mission Fabric. All five custom-domain probes return `302` into the existing
+  Cloudflare Access application.
+- `MISSION_FABRIC_TENANTS` remains untouched. Production now contains the
+  reconciled Workbench/catalog/linkage code, but Operating Fabric activation
+  remains separately gated by owner-approved pilot scope and real Telegram
+  proof under ISC-1044; direct browser proof cannot replace that requirement.
+- The existing in-app browser session had expired to the Cloudflare Access
+  email-code screen. No email, login code, cookie, session store, token, or raw
+  Telegram initData was entered, extracted, or recorded, so no authenticated
+  founder-device readback is claimed.
+- Sanitized immutable evidence is recorded in
+  `docs/evidence/2026-08-13-portfolio-production-repair.v1.json`. No second
+  ledger push, D1/KV/R2/Vault write, binding change, Telegram action, provider
+  reconfiguration, filesystem relocation, or GitHub mutation occurred.
+- The final independent audit verdict is `PASS-WITH-P2`: production repair has
+  no P0/P1 finding; the retained rollback UUID was not rehearsed because no
+  trigger fired, and authenticated founder Workbench/Mini App visibility
+  remains correctly held rather than claimed.
+
+### 2026-08-13 authenticated portfolio-to-Telegram linkage checkpoint
+
+- The existing founder-authenticated Workbench was probed read-only. It rendered
+  71 active WorkObjects without console warnings or errors; no admin POST was
+  invoked. The 72-object catalog is intentionally 71 active plus the terminal
+  `branch:safvr-landing-page` closeout, not a synchronization loss.
+- The candidate on `codex/portfolio-tg-flow` gives all 72 WorkObjects one
+  generated Linkage view: working-folder evidence, Story Arc, Quest rows,
+  mission-data readiness, D1 admission hold, planned organ route, Mini App
+  visibility, and Hermes-only transport. Packet-backed plans remain distinct
+  from runtime admission and completion.
+- The current depth-one Thoughtseed census is now 63 folders: 58 mapped project
+  rows and five infrastructure rows. The clean `temperance_engine` checkout is
+  mapped proposal-only to `program:temperance-hermes`; no external checkout was
+  moved or edited. Reviewed root digest is
+  `e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351`.
+- The shipped summary states 72 catalogued, 71 active, one finished, five
+  packet-backed Story arcs, 48 packet quest rows, 67 explicit Story gaps, 48
+  mission-data gaps, and zero receipt-backed organ assignments. Absent links
+  remain visible gaps and never become inferred runtime authority.
+- Verification passes: Workbench check 73 passed / one skipped; portfolio
+  foundation 45 + 73 + 108 tests; strict 63-root linkage audit aligned; local
+  browser Cambium and Fitcheck Linkage probes with zero console errors; release
+  gate 1678 core + 37 Telegram readiness + 99 R3F + 5 desktop tests; deterministic
+  builds and `git diff --check` passed.
+- Evidence is recorded in
+  `docs/evidence/2026-08-13-portfolio-tg-flow-linkage.v1.json`. This checkpoint
+  performed no deployment, Workbench action, D1/KV/R2/Vault write, Telegram
+  send/topic/slash-command change, Cloudflare change, or filesystem relocation.
+- Independent staged re-review is `PASS` with no P0/P1/P2/P3 finding. Its first
+  pass correctly held the checkpoint until the essential generated/evidence
+  additions were staged and `src/linkage.ts` joined the explicit lint gate;
+  both findings were closed and the Workbench check was rerun before approval.
+- The next separately approved sequence is: independently review and release
+  this exact candidate with rollback; select one exact durable Workbench action;
+  admit one exact packet-backed WorkObject only with complete mission data and
+  Founder Gate approval; then prove one Mission Fabric pilot from real Telegram
+  in-app evidence and require the exact Hermes acknowledgement.
+
+### 2026-08-14 Fitcheck founder evidence-to-Gate candidate
+
+- Local branch `codex/fitcheck-founder-outcome-pilot` now contains the bounded
+  Fitcheck founder evidence vertical slice. Candidate code head is
+  `6bfb4316bf88ce5206fc393f91f465a72d8edc6d`, thirteen commits above evidence
+  checkpoint `20a816d17cf961d62fb50e1535c97ab984e8d4c3`.
+- The exact authenticated Shopify QA quest exposes `Add proof` and
+  `Report outcome`. The sheet accepts one screenshot receipt reference, one
+  widget-event receipt reference, one observed outcome, and an optional note;
+  the browser cannot choose graph identity, parent, head, loadout, descriptor,
+  status, transport, or execution authority.
+- `POST /api/founder-outcomes/cambium` requires validated Telegram founder
+  `initData`, derives one replay-safe existing Goal Graph intake task, and
+  performs zero D1 writes. Existing signed Gate approval and D1 CAS remain the
+  sole commit path. Founder-only projections refresh the same selected quest
+  from the committed D1 head.
+- Intake and approval reconciliation survive partial KV writes and the
+  D1-success/KV-failure interval without duplicate candidates or graph commits.
+  Forged `x-principal` or query principals reveal no candidate, pending count,
+  evidence, or outcome data.
+- Verification passes: parser 15/15; focused founder/readback/UI 25/25;
+  complete handler 360/360; repository 1723/1723; Mission Fabric 37/37; R3F
+  99/99 plus build; desktop packaging 5/5; canonical viewport/mobile proofs,
+  standalone smoke, deterministic release verification, and diff checks.
+- Durable local receipt:
+  `docs/evidence/2026-08-14-fitcheck-founder-evidence-pilot.v1.json`.
+  The design and execution plan are under `docs/superpowers/`.
+- No Worker upload or promotion, production traffic/binding mutation,
+  D1/KV/R2/Vault write, Telegram action, Hermes execution, Mission Fabric
+  activation, provider change, GitHub mutation, or primary-checkout edit
+  occurred from this candidate build.
+- A final whole-branch review exposed and blocked two P1s before release. The
+  corrected client sends runtime Telegram authentication on every Mission and
+  Gate quest-envelope refresh; the reference contract now rejects every URL
+  query and obvious identifying material. Focused RED reproduced both failures,
+  GREEN closes both, and the canonical viewport corpus was regenerated.
+- Independent sealed-head re-review is `PASS`: both prior P1s are addressed,
+  combined parser/handler coverage passes 381/381, and no P0/P1/P2/P3 finding
+  remains. This is local candidate approval only, not production promotion.
+- Mandatory local Chromium QA also passes 23 assertions through validation,
+  ambiguous retry, pending Gate, exact authenticated approval, committed quest
+  outcome, and shared Goal Graph head; no P0/P1/P2/P3 finding remains.
+- Held next sequence: fresh production control-plane readback; independent
+  exact-candidate review; separately approved rollback-gated upload/promotion;
+  then one real founder submission, exact Gate approval, and live refreshed
+  quest plus Goal Graph readback. Do not claim the pilot is live before those
+  gates complete.
+
+### 2026-08-15 Moosh guide-contract recovery checkpoint
+
+- Recovered the bounded Cambium Moosh guide packet from the preserved dirty
+  checkout onto a clean branch rooted at current `origin/main`; no unrelated
+  checkout state, planning receipts, runtime artifacts, or integration claims
+  were copied.
+- Added a 16-surface inventory, truth-tiered evidence model, multi-surface
+  operator runbook, guide manifest, capture envelope, and bounded 106-second
+  FilmSpec with documentation discovery links.
+- Rewrote session-specific bridge, browser, approval, and capture assertions as
+  time-safe contracts. Operators must re-read live freshness, capability,
+  approval, and access state before requesting evidence work.
+- Deliberately excluded the recovered Playwright dependency and package lock,
+  the unreferenced generated infrastructure HTML containing a machine-local
+  path, and all generated approval/request files.
+- Verification passes: Moosh contract tests cover exact surface parity,
+  evidence-lane and authority-tier references, film bounds, and checkout-path
+  hygiene; the complete repository suite passes 1729/1729; `npm run validate`,
+  `npm run render-docs:check`, JSON parsing, and `git diff --check` pass.
+- This checkpoint authorizes documentation review only. It does not prove or
+  authorize a current approval, capture, video, worker dispatch, deployment,
+  provider action, registry write, vault write, or external runtime mutation.
+
+### 2026-08-15 branch, worktree, and GitHub Project reconciliation checkpoint
+
+- Fetched `origin` and classified every local branch against current
+  `origin/main` using GitHub PR state, ancestry, tree equality, and patch
+  equivalence. Recent delivery is merged through PR #320; no pull request was
+  open at the time of reconciliation, and the exact `main` CI run for
+  `71eba373` passed.
+- Local `main` had zero unique commits and its branch ref was moved from its
+  stale ancestor to exact `origin/main` `71eba373`; the reflog records this as
+  `branch: Reset to origin/main`. Because `main` was not checked out, this
+  branch-ref synchronization changed no working-tree content and discarded no
+  local `main` commit. No push to `main`, force-push, rebase, stash, or
+  feature-branch rewrite occurred.
+- Ten registered temporary worktrees whose gitdir paths were independently
+  absent were pruned from Git administrative metadata. The primary checkout
+  and three surviving temporary worktrees remained dirty and were preserved;
+  no live worktree directory or branch ref was deleted.
+- GitHub Project 14 was formally linked to `Sheshiyer/cambium`. Open issues
+  #249 and #252 were added as Todo items, so all nine then-open Cambium issues
+  were represented; the board contained 22 items, 13 Done and 9 Todo.
+- Strictly merged, patch-equivalent, tree-equivalent, and PR-#320-ancestor
+  branches required no replacement PR. The two stale overlapping histories
+  `codex/fitcheck-quests-release-candidate` and
+  `codex/project-r2-mapping-plan` remain preserved and must not be published
+  wholesale.
+- The primary dirty packet had to be split from a fresh `origin/main` into
+  retention documentation/tooling, Moosh documentation/contracts, and additive
+  handoff evidence slices. Machine-local integration claims, expired/generated
+  planning receipts, workflow deletions, and other mixed runtime artifacts
+  remain excluded pending owner review.
+
+### 2026-08-15 post-merge audit correction checkpoint
+
+- Post-merge independent review found two issues in the reconciliation wave:
+  the retention generator's new absolute-output support could escape the
+  repository, and the branch checkpoint mislabeled the reflog-recorded `main`
+  branch-ref reset as a fast-forward with no reset.
+- The retention generator now permits relative or absolute outputs only when
+  their resolved parent remains inside the real repository root and rejects
+  both direct external paths and symlink escapes.
+- Regression coverage proves contained absolute output is deterministic across
+  a second run, preserves `generatedAt`, and rejects direct and symlinked
+  external targets.
+- The reconciliation checkpoint above now states the exact reflog operation and
+  distinguishes a branch-ref reset from a working-tree reset. No history was
+  rewritten to conceal the earlier wording.
+- Verification passes: focused retention tests 3/3, complete repository suite
+  1731/1731, compose validation, rendered-doc synchronization, and
+  `git diff --check`.
+
+### 2026-08-15 protected-main and issue #290 reconciliation checkpoint
+
+- GitHub repository ruleset `main-pr-and-ci` (`20884840`) is active for the
+  default branch with no bypass actor. It blocks deletion and non-fast-forward
+  updates, requires pull requests, linear history, resolved conversations, a
+  branch strictly up to date with `main`, and exact GitHub Actions context
+  `deterministic release verification · node 26`.
+- Repository merge settings now permit squash only, reject merge commits and
+  rebases, and delete a merged head branch. These are live GitHub settings,
+  recorded here as point-in-time evidence rather than repository-controlled
+  configuration.
+- GIP-002 revalidated all ten residual #290 rows against exact qualified names,
+  authenticated GitHub metadata, relocation-registry identity, and bounded
+  local identity evidence. The receipt is
+  `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json`.
+- `Sheshiyer/reddit-cli` remains an explicit unavailable exact-identity hold.
+  The local package/README evidence assigns `Sheshiyer/reddit-flux` separately
+  to `program:operator-utilities` without substituting it for the held name.
+  `Sheshiyer/brandmint-showcase` is a
+  supporting repository of `program:meristem-brand-system`, based on the exact
+  relocation-registry identity plus `ARCHITECTURE.md`.
+- Symphonics is exact as a repository-only planning surface. Its absent shallow
+  WorkObject folder remains intentional; creating one or opening a distinct
+  native-app lane still requires a separate founder-approved relocation
+  manifest.
+- Eight residual rows stay explicit holds. GitHub 404 responses are recorded
+  only as not retrievable to the current principal; no unavailable repository
+  was treated as nonexistent and no near match was silently substituted.
+- This branch performs no catalog admission, folder move, Vault write, private
+  repository-content read, provider/deployment action, or production runtime
+  mutation. The dirty primary checkout and all pre-existing user worktrees stay
+  untouched.
+- Verification passes: focused audit and mapping tests 18/18, portfolio
+  foundation gate 227 passing with one historical skip, complete repository suite
+  1733/1733, composition validation, rendered-doc synchronization, JSON
+  parsing, and `git diff --check`.
+
+### 2026-08-15 Mini App task-map reconciliation checkpoint
+
+- GIP-003 re-read every one of the 80 dated Mini App task rows against merged
+  source `f7e8795615e372323aaa24a5ae2d0255cb45aaec`, focused tests, and current
+  authority boundaries. The historical plan remains provenance, not runtime
+  authority.
+- The governed task map now retains all 80 IDs while exposing only 28
+  evidence-backed residuals as executable. Forty-four rows are implemented,
+  four are superseded by broader verified coverage, and four live/runtime
+  decisions remain approval-gated and non-executable.
+- Every executable row retains dependencies and validation, names one exact
+  repository file owner, cites the current source inspected, and records one
+  missing acceptance. No historical checklist row is promoted merely because
+  its title resembles current code.
+- GIP-003 is complete. GIP-008 repository-task migration remains the next
+  reviewable planning wave; GIP-004 through GIP-006 remain runtime/content
+  gated and receive no mutation from this checkpoint.
+- This reconciliation performs no deployment, allowlist, KV/D1/R2/Vault,
+  Telegram, provider, credential, folder, or external-repository mutation.
+
+### 2026-08-15 product-branch repository-task migration checkpoint
+
+- GIP-008 reviewed the five active non-template branch packets, resolved their
+  exact owning repositories, checked for exact-title duplicates, and created
+  one bounded planning issue in each owner: Fitcheck #2, Vantyx #1, IVerif
+  #91, DLOCK #1, and Snow Gloves OS #8.
+- Each issue preserves canonical WorkObject identity, residual quest proof,
+  repository ownership, and the packet's founder/provider boundary. Cambium
+  retains cross-portfolio sequencing and no longer acts as the local
+  implementation backlog for those repositories.
+- All five issues were read back OPEN with exact node identity and creation
+  time. The immutable mapping receipt is
+  `docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json`.
+- GIP-008 is complete. GIP-004 through GIP-006 remain separately owned by
+  Cambium issues #284, #283/#249, and #252 and retain their runtime/content
+  gates.
+- This wave creates issues only. It performs no branch promotion, provider or
+  credential action, deploy, ledger publication, contact, spend, Telegram,
+  folder, Vault, or production runtime mutation.
+
+### 2026-08-18 canonical infinite-game anchors checkpoint
+
+- GSD Phase 3 establishes one canonical near-invariant root `VISION.md` and
+  one renewable root `MISSION.md`; ISA and GSD remain the only goal and
+  planning authorities.
+- Repository Mission, bounded `FabricMission` records, and the Mini App
+  Mission scene now have explicit, reference-only terminology boundaries.
+  D1 Goal Graph ownership and Mission Fabric's read-only projection remain
+  unchanged.
+- The semantic contract was committed RED at `604aae0`, turned GREEN by the
+  two bounded implementation commits `db852c6` and `59e677f`, and independently
+  verified in the Phase 3 verification report. All 1,240 historical ISA
+  checkbox rows remain byte-identical to `origin/main`.
+- Committed-head verification passes: focused anchor contract 4/4, complete
+  repository suite 1785/1785, drift audit, rendered-document synchronization
+  for 6 pages and 91 components, scoped diff checks, and local-path scans.
+- Release-gate follow-up replaces commit-date-derived retention metadata with
+  a SHA-256 over the exact inventory content. The receipt is now stable across
+  a PR head, GitHub's synthetic merge commit, and a later squash commit while
+  remaining stale whenever the governed inventory actually changes. Focused
+  retention regression coverage proves different HEAD commit metadata cannot
+  alter identical inventory output.
+- GSD records Phase 3 as 2/2 complete with ANCHOR-01 through ANCHOR-04
+  satisfied. The clean continuation is `/gsd:plan-phase 4` for the
+  provenance-preserving intent graph.
+- This checkpoint performs no runtime, package, lockfile, provider,
+  deployment, credential, `.temperance`, connected-repository, relocation,
+  or destructive corpus mutation.
+
+### 2026-08-18 Phase 4 D1 intent-projection foldback correction checkpoint
+
+- The prior Phase 4 green claim was false at the verified gap head: the
+  compiler-local foldback check passed, but the executable D1 authority guard
+  still accepted both valid-shaped and malformed
+  `cambium.intent-graph-projection.v1` inputs. The immutable
+  `04-VERIFICATION.md` records that original `gaps_found` diagnosis.
+- RED commit `44f35026eee8267c18999f30b844741c5cf97301` reopens only
+  ISC-1280 and binds the shared contract, pure intake/source wiring, and
+  authenticated pre-D1 route behavior. GREEN commit
+  `f5a58505544e024069a451fbcc44a20da66c30ec` adds the Intent Graph family
+  discriminator and wires `validateAuthoritativeInput` before
+  canonicalization or normalization.
+- The bounded change set is the shared projection contract, Telegram intake,
+  their contract/route tests, the ISA lifecycle test, ISA evidence, and this
+  handoff. It adds no handler production edit, D1 schema or migration, package,
+  lockfile, generated graph, root-anchor, provider, deployment, or connected
+  repository change.
+- Both HTTP fixtures reject with `projection_input` before any D1 read or
+  task/idempotency persistence. Each request may persist only one bounded
+  redacted `cambium.goal-graph-intake-rejection.v1` receipt; raw nodes, edges,
+  digests, and payload markers are absent. The in-memory D1 head and nodes are
+  byte-equivalent before and after each rejection.
+- Verification passes: shared contract/intake 20/20, intake/approval 18/18,
+  combined anchor/compiler/generator 27/27, complete repository suite
+  1812/1812, double generator checks at graph digest
+  `sha256:e307dece6e2a47b3b9700a34b529fa0309d91e6757ba9992f7e9d0f0358aea45`
+  and source-set digest
+  `sha256:9959596e0a3aab54b8244524172dadc210a1563ae98cd572a379f1455bfe465a`,
+  drift audit, rendered-doc synchronization, immutable report/root/generated
+  readbacks, allowed-path and deletion gates, forbidden-category scan, and
+  added-line privacy scan.
+- ISA is returned to verification evidence state, not phase completion. The
+  execute-phase orchestrator must apply its verification hold, run code review,
+  and then invoke the built-in independent `gsd-verifier`; only a fresh
+  `status: passed` verdict may complete Phase 4. `/gsd:verify-work 4` remains
+  optional manual re-verification, not a normal gap-cycle prerequisite.
+- No D1/KV/R2/Telegram/provider state, production deployment, external
+  repository, credential, registry, Vault, or generated projection was
+  mutated by this correction.
+
+### 2026-08-20 Phase 6 documentation stewardship implementation checkpoint
+
+- The reviewed repository-only implementation head before acceptance edits is
+  `3e9deef38450ba3eb9dc1917481cd7a030912e8a`. Phase 6 adds an immutable
+  commit-tree inventory source model, matching machine JSON and human Markdown
+  stdout views, a zero-write parity checker, one closed five-class lifecycle
+  map, additive authority indexes, and phase-wide DOCS-01..04 plus T-06-22
+  sentinels.
+- The inventory is generated only on demand from a caller-supplied committed
+  revision. It resolves that selection to one full commit SHA, inventories
+  every tracked root Markdown, `docs/`, and `.planning/` path exactly once,
+  emits no source bodies, and creates no committed or mutable readback.
+- Pre-acceptance verification passes: focused compiler/CLI/sentinel tests
+  24/24; complete repository tests 1895/1895; drift audit; rendered-document
+  synchronization for 6 pages and 91 components; standalone audit for 930
+  publishable files; `git diff --check`; separate committed, staged, and
+  unstaged deletion/rename gates; and T-06-22 privacy scanning.
+- At the named implementation head, repeated JSON and Markdown package
+  commands were byte-identical, complete JSON stdout parsed directly, and the
+  zero-write check passed for 530 entries at inventory digest
+  `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
+- ISA now records bounded Phase 6 implementation acceptance at `verify` / 4/4.
+  Normal GSD summary, STATE, ROADMAP, REQUIREMENTS, review, and phase closeout
+  remain pending and owned by the installed workflow. Independent verification
+  is still required; continue with `/gsd:verify-work 6` after execute-phase
+  closeout.
+- Relocation, deletion, archival or externalization, host/runtime/provider
+  configuration, deployment, credentials, Vault or native-client stores,
+  connected repositories, and every production or external mutation remain
+  explicitly held and unauthorized by this checkpoint.
+
+### 2026-08-10 Founder reclassification: ParkArea, Tirak, Klear Karma
+
+- **Founder-authoritative correction:** Saplings are only Thoughtseed-created ventures.
+  ParkArea, Tirak, and Klear Karma are not Saplings.
+- **ParkArea:** Collapsed to `branch:parkarea` only. All `sapling:parkarea` references
+  removed from portfolio-roots, action queue, batch proposals, receipts, folder inventory,
+  and mapping audit. Product-IP placeholder rows eliminated.
+- **Tirak:** Collapsed to `branch:tirak` only. All `sapling:tirak` references
+  removed across the same six files.
+- **Klear Karma:** Reclassified as co-founded venture. Shesh is a 33.33% co-founder
+  alongside Sahil Sabharwal and Mathis Le Drogo in an Estonian OÜ. New dual identity:
+  `branch:klear-karma` (client-delivery) + `co-founded-venture:klear-karma` (equity holding).
+  All `sapling:klear-karma` references replaced with `branch:klear-karma` across
+  checked-in artifacts; `co-founded-venture:` kind is newly introduced to the grammar.
+  `workObjectKind` changed from `sapling` to `branch`, `originAssertion` from
+  `thoughtseed-origin` to `co-founded-venture`, `repositoryRole` from `product-source`
+  to `co-founded-venture-source`.
+- **Three-Sapling cohort preserved:** Fitcheck, Iverif, DLOCK remain the only
+  Thoughtseed-originated Saplings. No legitimate Sapling receipt was modified.
+- **Evidence-only mutation boundary:** No R2, D1, registry, repository, provider,
+  deployment, or packet mutation was made. All changes are in Cambium checked-in
+  project management and evidence files.
+
+Confirmed scrub results:
+- `sapling:parkarea` — 0 remaining occurrences in Cambium
+- `sapling:tirak` — 0 remaining occurrences in Cambium
+- `sapling:klear-karma` — 0 remaining occurrences in Cambium
+
+Next Intent proposal: rebundle Batch 3 mapping receipts with updated digests per
+the new identity grammar, followed by D1 Goal Graph admission for the co-founded-venture
+kind and branch identity registration.
+
+### 2026-08-10 IVerif golden-path registration checkpoint
+
+- Registered `sapling:iverif` as the second governed Thoughtseed Sapling,
+  alongside `sapling:fitcheck`.
+- Created `shared/iverif-golden-path.ts`, the TypeScript compilation of the
+  IVerif operational packet (`docs/plans/product-branches/iverif.md`),
+  structured through `compileOperationalPacketProjection` with the
+  `cambium.iverif-golden-path.v1` schema.
+- Registered `IVERIF_GOLDEN_PATH` in `shared/operational-packet-registry.ts`,
+  making it available to all projection consumers.
+- Alignment: `promotionState: 'proof-only'` and all authority boundaries match
+  the test expectations in `bin/quine/hyphae/quests.test.ts` (line 310).
+- The `portfolio-foundation-pins.test.mjs` failure is pre-existing: it asserts
+  exactly 74 catalog work IDs but the current `portfolio-catalog-data.ts`
+  (modified on this branch) has a different count. This is unrelated to the
+  golden-path registration.
+- No R2, D1, registry, provider, Goal Graph, or production state was mutated.
+
+### 2026-08-10 Paperclip retirement scrub checkpoint
+
+- Paperclip is retired as an execution plane per the repository README and
+  historical evidence in `docs/evidence/2026-06-24-hermes-fabric-source-of-truth.md`.
+  Active product-branch packets under `docs/plans/product-branches/` were
+  scrubbed of misleading live-automation grammar.
+- Scrubbed files:
+  - `docs/plans/product-branches/snow-gloves-os.md`: removed "Paperclip" from
+    the six-agent inherited org line.
+  - `docs/plans/product-branches/fitcheck.md`: removed "Paperclip" from the
+    agentic-org and Hermes/Paperclip routing lines.
+  - `docs/plans/product-branches/client-delivery.md`: removed the
+    "Paperclip handoff relay" sentence and relay reference.
+  - `docs/plans/product-branches/ISA.md`: removed "Paperclip" from the live
+    automation gating line.
+- Files left unchanged (out of boundary scope): all `docs/archive/` and
+  `docs/evidence/` references are historical record and intentionally
+  preserved; `docs/architecture/contracts/operator-policy-contract.md` and
+  `docs/architecture/contracts/tg-miniapp-ecosystem-contract.md` are
+  structural contracts that still model Paperclip as a provenance source and
+  were not touched.
+- Verification: `grep -ri paperclip docs/plans/product-branches/ --include=*.md`
+  returns zero matches; `grep -ri paperclip docs/plans/product-branches/`
+  returns zero matches for "paperclip" (case-insensitive).
+- Verification: `node --experimental-strip-types --test src/github-repository-mapping-action-queue.test.ts src/portfolio-root-map.test.ts` passes 28/28; `node --experimental-strip-types --test src/portfolio-catalog.test.ts` passes 14/14.
+- No archive, evidence, architecture-contract, or registry files were mutated.
+  No folder was created, moved, copied, deleted, or reorganized. No live
+  runtime, Worker, R2, D1, GitHub, registry, provider, or deployment state
+  was changed — only four product-branch planning Markdown files had stale
+  Paperclip references removed.
+
+### 2026-08-10 Fitcheck D1 anchor ISA scaffold checkpoint
+
+- Status: `reviewed-held`
+- Workload: scaffolded ISA for Fitcheck D1 Mission → Task anchor at
+  `MEMORY/WORK/d1-fitcheck-anchor/ISA.md`.
+- Fitcheck mapping receipt `pmr_9de251ce89564f07f3e4c510` remains issued and
+  readback-verified; no D1 Goal Graph write has been applied.
+- ISA defines 10 ISCs spanning migration verification, head-digest CAS
+  pre-condition, projection compilation, WorkObject + loadout anchor validation,
+  approval envelope canonicalization, CAS commit, and Mission Fabric readback.
+- Key code paths confirmed:
+  `workers/quests/src/goal-graph-store.ts` (approval-bound CAS commit, lines 368-649),
+  `workers/quests/src/mission-fabric.ts` (`adaptGoalGraphAuthority`, lines 900-999),
+  `workers/quests/src/goal-graph/identity.ts` (`validateOperationalAnchor`, lines 43-66),
+  `workers/quests/src/goal-graph/compiler.ts` (`compileGoalGraph`, lines 40-59),
+  `workers/quests/src/portfolio-operational-cohort.ts` (canonical TaskId/LoadoutId
+  `task:fitcheck-launch` / `loadout:fitcheck-launch`, lines 30-31, 298-305).
+  - No D1 write, Hermes dispatch, R2 write, provider mutation, or deployment occurred.
+
+### 2026-08-10 portfolio-catalog-route test assertion drift checkpoint
+
+- Status: `reviewed-held`
+- Fixed two stale assertion blocks in
+  `workers/quests/src/portfolio-catalog-route.test.ts` that pinned obsolete
+  catalog counts (74 total / 20 saplings / 39 client / 49 gaps) instead of the
+  live canonical values (72 total / 17 saplings / 40 client / 48 gaps).
+- Founder route test (line 163) and viewer route test (line 220) now assert
+  `portfolioCatalogSummary.total === 72`; founder-route join-report counts
+  updated to `matched: 1, catalogOrphans: 71, runtimeOrphans: 1` to match the
+  72-record catalog with one runtime orphan (`cambium-operating-fabric`).
+- Correction confirmed against the live canonical `PORTFOLIO_CATALOG` export:
+  records.length = 72, summary = 17 saplings / 40 client-branches / 15 internal
+  programs / 20 historical products / 0 classification review / 48 operational
+  gaps; catalogDigest `sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24`
+  and classificationDigest `43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309`
+  remain unchanged.
+- Verification: `node --test workers/quests/src/portfolio-catalog-route.test.ts
+  workers/quests/src/portfolio-catalog.test.ts` passes 19/19.
+
+### 2026-08-10 portfolio-workbench-route SOURCE_DIGEST test drift checkpoint
+
+- Status: `reviewed-held`
+- Fixed stale hardcoded `SOURCE_DIGEST` literal in
+  `workers/quests/src/portfolio-workbench-route.test.ts` that pointed at the
+  obsolete classification digest `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`.
+- Replaced the literal with the live canonical
+  `PORTFOLIO_CLASSIFICATION_DIGEST` export so the
+  `validatePortfolioAdminAction` sourceDigest gate (line 478) no longer
+  rejects the founder Telegram action with a 400. The `ROOT_DIGEST` and
+  `CATALOG_DIGEST` constants were already sourced from generated modules and
+  needed no change.
+- Also imports `PORTFOLIO_CLASSIFICATION_DIGEST` alongside
+  `PORTFOLIO_CATALOG` from `./portfolio-catalog.ts`.
+- Verification: `node --test workers/quests/src/portfolio-workbench-route.test.ts
+  workers/quests/src/portfolio-catalog-route.test.ts
+  workers/quests/src/portfolio-catalog.test.ts` passes 29/29.
+
+### 2026-08-10 founder reclassification checkpoint (ParkArea, Tirak, Klear Karma)
+
+- Founder-authoritative correction: Saplings are only Thoughtseed-created ventures.
+  ParkArea and Tirak collapsed to branch-only (`branch:parkarea`, `branch:tirak`).
+  Klear Karma reclassified as co-founded venture (`branch:klear-karma` +
+  `co-founded-venture:klear-karma`). All prior `sapling:` references removed.
+- Three-Sapling cohort preserved: Fitcheck, IVerif, DLOCK remain the only
+  Thoughtseed-originated Saplings.
+- Scrub confirmed: `sapling:parkarea` — 0, `sapling:tirak` — 0,
+  `sapling:klear-karma` — 0 occurrences remaining across Cambium.
+- Evidence-only mutation boundary. No R2, D1, registry, repository, provider,
+  deployment, or packet mutation occurred.
+
+### 2026-08-10 portfolio evidence pipeline reconciliation checkpoint
+
+- Status: `reviewed-held`. Read-only verification pass confirms all layers
+  are connected and operational. No mutation performed by this checkpoint.
+- Phase 1 Cambium archive-first promotion confirmed already complete (2026-08-08
+  checkpoint L771–813): stale non-Git `cambium` archived to
+  `_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`, exact
+  `Sheshiyer/cambium` checkout promoted into canonical slot. Current HEAD:
+  `8e76da5dd33ba54eb0e71d49d5485d11a933870d` on `codex/project-r2-mapping-plan`.
+- Phase 2 Temperance landing-page promote-authority de-dup confirmed already
+  complete (2026-08-08 checkpoint L861–910).
+- `safvr` AWS CLI profile corrected: endpoint now points at ThoughtseedLabs R2
+  (`https://9d7cec1b5a32b2df8c6cdc1321ccd00b.r2.cloudflarestorage.com`) using
+  ThoughtseedLabs-specific S3-compatible credentials. AshwinSheth credentials
+  remain isolated and untouched. R2 read verified:
+  `aws s3 ls thoughtseed-vault/portfolio/thoughtseed/workobjects/ --profile safvr`
+  returns `sapling:fitcheck/`.
+- CodeGraph structural index initialized: 6,643 nodes, 6,269 edges across
+  373 indexed files in Cambium checkout.
+- Portfolio mapping manifest scaffolded:
+  `docs/project-management/portfolio-mapping-manifest.v1.json` — 49 mapped
+  roots, 5 held roots, consumer projection contracts (Plexus, Mini App, Hermes).
+- Held-root receipt stubs emitted:
+  `docs/project-management/_staging/held-root-receipt-stubs.plan.json` —
+  plugins (`program:operator-utilities`, pending-approval), symphonics
+  (`branch:symphonics`, blocked-missing-shallow-folder), virtualtryon-3d
+  (retired-ignore), two infrastructure entries (no receipt).
+- Fitcheck mapping receipt `pmr_9de251ce89564f07f3e4c510` remains
+  issued and readback-verified at R2 prefix
+  `portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/`.
+- No R2 write, D1 write, folder move, registry mutation, provider change,
+  Goal Graph write, production deployment, or live Workbench mutation was
+  performed by this reconciliation.
+
+### 2026-08-10 IVerif D1 Mission/Task anchor proposal (founder-approved next lane)
+
+- Status: `proposal-only`. Read-only ISA scaffold emitted; CAS commit deferred
+  pending founder approval to issue IVerif's prepared mapping receipt
+  `pmr_a8c7a566eb32790dffaf1d2a` and admit `sapling:iverif`.
+- Proposal artifact: `MEMORY/WORK/d1-iverif-anchor/ISA.md`.
+- Canonical task/loadout pins from `LOADOUT_SOURCE_DEFINITIONS` (lines 306-312):
+  `externalId: 'task:iverif-observer'`, `pinnedLoadoutId: 'loadout:iverif-observer'`.
+- Mission parent: `iverif-wiki-activation`.
+- Mapping evidence: prepared-but-unissued, digest
+  `sha256:a8c7a566eb32790dffaf1d2a06ad21d0514ba9e4dd90d773d769ae4929e5abeb`.
+  - No D1 write, R2 write, Hermes dispatch, deployment, or tenant admission
+  occurred — proposal validates only.
+
+### 2026-08-10 IVerif golden-path projection registered and bundle regenerated
+
+- Status: `reviewed-held`. Read-only golden-path projection compiled and embedded.
+- New file: `shared/iverif-golden-path.ts` — IVerif golden path via
+  `compileOperationalPacketProjection`, schema `cambium.iverif-golden-path.v1`,
+  identity `sapling:iverif`, repository `Sheshiyer/iverif-wiki` (`R_kgDOSwXJ7Q`),
+  mapping receipt `pmr_a8c7a566eb32790dffaf1d2a`, `promotionState: 'proof-only'`.
+- `shared/operational-packet-registry.ts` updated to import and register
+  `IVERIF_GOLDEN_PATH` in `OPERATIONAL_PACKET_PROJECTIONS`.
+- Lifecycle ladder includes all required stages: `identified`,
+  `systems-bound`, `mapping-receipt-verified` (current: false, readback not
+  verified), `planned`, `d1-eligible` (current: false, per validator rule).
+- `apps/portfolio-cartographer/src/domain.ts` updated: `PortfolioFolderKind`
+  now includes `'co-founded-venture'`.
+- Bundle regenerated via `pnpm --dir apps/portfolio-cartographer bundle`:
+  both `cambium.fitcheck-golden-path.v1` and `cambium.iverif-golden-path.v1`
+  now embedded in `apps/portfolio-cartographer/bundle.html` and
+  `workers/quests/src/portfolio-workbench.generated.ts`.
+- New test added to `workers/quests/src/portfolio-workbench-route.test.ts`:
+  verifies both golden paths and sapling identifiers are present in the bundle.
+- Verification: `operational-packet-projection.test.ts` 4/4 pass;
+  `portfolio-workbench-route.test.ts` 11/11 pass.
+
 ### 2026-08-09 operational-anchor and foldback checkpoint
 
 - Batch 3 now compiles 38 deterministic `prepared-not-issued` mapping receipts
@@ -1091,7 +2122,8 @@ kind and branch identity registration.
   `git diff --check` pass.
 - Independent post-build review approves the local checkpoint with no material
   blockers. The authenticated production surface was not observed: the visible
-  protected Workbench tab stopped at Cloudflare Access, and no login
+  `curious` + `.thoughtseed.space` production host tab stopped at Cloudflare
+  Access, and no login
   material, cookies, storage, session identifiers, or credentials were
   inspected or recorded.
 - The durable local commit subject is
@@ -1324,932 +2356,56 @@ kind and branch identity registration.
   traffic, GitHub, or folder mutation was performed by this live receipt
   phase.
 
-### 2026-08-10 Paperclip retirement scrub checkpoint
-
-- Paperclip is retired as an execution plane per the repository README and
-  historical evidence in `docs/evidence/2026-06-24-hermes-fabric-source-of-truth.md`.
-  Active product-branch packets under `docs/plans/product-branches/` were
-  scrubbed of misleading live-automation grammar.
-- Scrubbed files:
-  - `docs/plans/product-branches/snow-gloves-os.md`: removed "Paperclip" from
-    the six-agent inherited org line.
-  - `docs/plans/product-branches/fitcheck.md`: removed "Paperclip" from the
-    agentic-org and Hermes/Paperclip routing lines.
-  - `docs/plans/product-branches/client-delivery.md`: removed the
-    "Paperclip handoff relay" sentence and relay reference.
-  - `docs/plans/product-branches/ISA.md`: removed "Paperclip" from the live
-    automation gating line.
-- Files left unchanged (out of boundary scope): all `docs/archive/` and
-  `docs/evidence/` references are historical record and intentionally
-  preserved; `docs/architecture/contracts/operator-policy-contract.md` and
-  `docs/architecture/contracts/tg-miniapp-ecosystem-contract.md` are
-  structural contracts that still model Paperclip as a provenance source and
-  were not touched.
-- Verification: `grep -ri paperclip docs/plans/product-branches/ --include=*.md`
-  returns zero matches; `grep -ri paperclip docs/plans/product-branches/`
-  returns zero matches for "paperclip" (case-insensitive).
-- Verification: `node --experimental-strip-types --test src/github-repository-mapping-action-queue.test.ts src/portfolio-root-map.test.ts` passes 28/28; `node --experimental-strip-types --test src/portfolio-catalog.test.ts` passes 14/14.
-- No archive, evidence, architecture-contract, or registry files were mutated.
-  No folder was created, moved, copied, deleted, or reorganized. No live
-  runtime, Worker, R2, D1, GitHub, registry, provider, or deployment state
-  was changed — only four product-branch planning Markdown files had stale
-  Paperclip references removed.
-
-### 2026-08-10 Fitcheck D1 anchor ISA scaffold checkpoint
-
-- Status: `reviewed-held`
-- Workload: scaffolded ISA for Fitcheck D1 Mission → Task anchor at
-  `MEMORY/WORK/d1-fitcheck-anchor/ISA.md`.
-- Fitcheck mapping receipt `pmr_9de251ce89564f07f3e4c510` remains issued and
-  readback-verified; no D1 Goal Graph write has been applied.
-- ISA defines 10 ISCs spanning migration verification, head-digest CAS
-  pre-condition, projection compilation, WorkObject + loadout anchor validation,
-  approval envelope canonicalization, CAS commit, and Mission Fabric readback.
-- Key code paths confirmed:
-  `workers/quests/src/goal-graph-store.ts` (approval-bound CAS commit, lines 368-649),
-  `workers/quests/src/mission-fabric.ts` (`adaptGoalGraphAuthority`, lines 900-999),
-  `workers/quests/src/goal-graph/identity.ts` (`validateOperationalAnchor`, lines 43-66),
-  `workers/quests/src/goal-graph/compiler.ts` (`compileGoalGraph`, lines 40-59),
-  `workers/quests/src/portfolio-operational-cohort.ts` (canonical TaskId/LoadoutId
-  `task:fitcheck-launch` / `loadout:fitcheck-launch`, lines 30-31, 298-305).
-  - No D1 write, Hermes dispatch, R2 write, provider mutation, or deployment occurred.
-
-### 2026-08-10 portfolio-catalog-route test assertion drift checkpoint
-
-- Status: `reviewed-held`
-- Fixed two stale assertion blocks in
-  `workers/quests/src/portfolio-catalog-route.test.ts` that pinned obsolete
-  catalog counts (74 total / 20 saplings / 39 client / 49 gaps) instead of the
-  live canonical values (72 total / 17 saplings / 40 client / 48 gaps).
-- Founder route test (line 163) and viewer route test (line 220) now assert
-  `portfolioCatalogSummary.total === 72`; founder-route join-report counts
-  updated to `matched: 1, catalogOrphans: 71, runtimeOrphans: 1` to match the
-  72-record catalog with one runtime orphan (`cambium-operating-fabric`).
-- Correction confirmed against the live canonical `PORTFOLIO_CATALOG` export:
-  records.length = 72, summary = 17 saplings / 40 client-branches / 15 internal
-  programs / 20 historical products / 0 classification review / 48 operational
-  gaps; catalogDigest `sha256:1fcdc4dc690447ebd4bd23e228cd1a306440d8c37d65e6e56ea21e692eeacc24`
-  and classificationDigest `43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309`
-  remain unchanged.
-- Verification: `node --test workers/quests/src/portfolio-catalog-route.test.ts
-  workers/quests/src/portfolio-catalog.test.ts` passes 19/19.
-
-### 2026-08-10 portfolio-workbench-route SOURCE_DIGEST test drift checkpoint
-
-- Status: `reviewed-held`
-- Fixed stale hardcoded `SOURCE_DIGEST` literal in
-  `workers/quests/src/portfolio-workbench-route.test.ts` that pointed at the
-  obsolete classification digest `18d5efd69376923be383043894124e7cdda27958a5f47aafe4a6db6342afe542`.
-- Replaced the literal with the live canonical
-  `PORTFOLIO_CLASSIFICATION_DIGEST` export so the
-  `validatePortfolioAdminAction` sourceDigest gate (line 478) no longer
-  rejects the founder Telegram action with a 400. The `ROOT_DIGEST` and
-  `CATALOG_DIGEST` constants were already sourced from generated modules and
-  needed no change.
-- Also imports `PORTFOLIO_CLASSIFICATION_DIGEST` alongside
-  `PORTFOLIO_CATALOG` from `./portfolio-catalog.ts`.
-- Verification: `node --test workers/quests/src/portfolio-workbench-route.test.ts
-  workers/quests/src/portfolio-catalog-route.test.ts
-  workers/quests/src/portfolio-catalog.test.ts` passes 29/29.
-
-### 2026-08-10 founder reclassification checkpoint (ParkArea, Tirak, Klear Karma)
-
-- Founder-authoritative correction: Saplings are only Thoughtseed-created ventures.
-  ParkArea and Tirak collapsed to branch-only (`branch:parkarea`, `branch:tirak`).
-  Klear Karma reclassified as co-founded venture (`branch:klear-karma` +
-  `co-founded-venture:klear-karma`). All prior `sapling:` references removed.
-- Three-Sapling cohort preserved: Fitcheck, IVerif, DLOCK remain the only
-  Thoughtseed-originated Saplings.
-- Scrub confirmed: `sapling:parkarea` — 0, `sapling:tirak` — 0,
-  `sapling:klear-karma` — 0 occurrences remaining across Cambium.
-- Evidence-only mutation boundary. No R2, D1, registry, repository, provider,
-  deployment, or packet mutation occurred.
-
-### 2026-08-10 portfolio evidence pipeline reconciliation checkpoint
-
-- Status: `reviewed-held`. Read-only verification pass confirms all layers
-  are connected and operational. No mutation performed by this checkpoint.
-- Phase 1 Cambium archive-first promotion confirmed already complete (2026-08-08
-  checkpoint L771–813): stale non-Git `cambium` archived to
-  `_physical-relocation-archive-2026-08-08/cambium-pre-git-authority`, exact
-  `Sheshiyer/cambium` checkout promoted into canonical slot. Current HEAD:
-  `8e76da5dd33ba54eb0e71d49d5485d11a933870d` on `codex/project-r2-mapping-plan`.
-- Phase 2 Temperance landing-page promote-authority de-dup confirmed already
-  complete (2026-08-08 checkpoint L861–910).
-- `safvr` AWS CLI profile corrected: endpoint now points at ThoughtseedLabs R2
-  (`https://9d7cec1b5a32b2df8c6cdc1321ccd00b.r2.cloudflarestorage.com`) using
-  ThoughtseedLabs-specific S3-compatible credentials. AshwinSheth credentials
-  remain isolated and untouched. R2 read verified:
-  `aws s3 ls thoughtseed-vault/portfolio/thoughtseed/workobjects/ --profile safvr`
-  returns `sapling:fitcheck/`.
-- CodeGraph structural index initialized: 6,643 nodes, 6,269 edges across
-  373 indexed files in Cambium checkout.
-- Portfolio mapping manifest scaffolded:
-  `docs/project-management/portfolio-mapping-manifest.v1.json` — 49 mapped
-  roots, 5 held roots, consumer projection contracts (Plexus, Mini App, Hermes).
-- Held-root receipt stubs emitted:
-  `docs/project-management/_staging/held-root-receipt-stubs.plan.json` —
-  plugins (`program:operator-utilities`, pending-approval), symphonics
-  (`branch:symphonics`, blocked-missing-shallow-folder), virtualtryon-3d
-  (retired-ignore), two infrastructure entries (no receipt).
-- Fitcheck mapping receipt `pmr_9de251ce89564f07f3e4c510` remains
-  issued and readback-verified at R2 prefix
-  `portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/`.
-- No R2 write, D1 write, folder move, registry mutation, provider change,
-  Goal Graph write, production deployment, or live Workbench mutation was
-  performed by this reconciliation.
-
-### 2026-08-10 IVerif D1 Mission/Task anchor proposal (founder-approved next lane)
-
-- Status: `proposal-only`. Read-only ISA scaffold emitted; CAS commit deferred
-  pending founder approval to issue IVerif's prepared mapping receipt
-  `pmr_a8c7a566eb32790dffaf1d2a` and admit `sapling:iverif`.
-- Proposal artifact: `MEMORY/WORK/d1-iverif-anchor/ISA.md`.
-- Canonical task/loadout pins from `LOADOUT_SOURCE_DEFINITIONS` (lines 306-312):
-  `externalId: 'task:iverif-observer'`, `pinnedLoadoutId: 'loadout:iverif-observer'`.
-- Mission parent: `iverif-wiki-activation`.
-- Mapping evidence: prepared-but-unissued, digest
-  `sha256:a8c7a566eb32790dffaf1d2a06ad21d0514ba9e4dd90d773d769ae4929e5abeb`.
-  - No D1 write, R2 write, Hermes dispatch, deployment, or tenant admission
-  occurred — proposal validates only.
-
-### 2026-08-10 IVerif golden-path projection registered and bundle regenerated
-
-- Status: `reviewed-held`. Read-only golden-path projection compiled and embedded.
-- New file: `shared/iverif-golden-path.ts` — IVerif golden path via
-  `compileOperationalPacketProjection`, schema `cambium.iverif-golden-path.v1`,
-  identity `sapling:iverif`, repository `Sheshiyer/iverif-wiki` (`R_kgDOSwXJ7Q`),
-  mapping receipt `pmr_a8c7a566eb32790dffaf1d2a`, `promotionState: 'proof-only'`.
-- `shared/operational-packet-registry.ts` updated to import and register
-  `IVERIF_GOLDEN_PATH` in `OPERATIONAL_PACKET_PROJECTIONS`.
-- Lifecycle ladder includes all required stages: `identified`,
-  `systems-bound`, `mapping-receipt-verified` (current: false, readback not
-  verified), `planned`, `d1-eligible` (current: false, per validator rule).
-- `apps/portfolio-cartographer/src/domain.ts` updated: `PortfolioFolderKind`
-  now includes `'co-founded-venture'`.
-- Bundle regenerated via `pnpm --dir apps/portfolio-cartographer bundle`:
-  both `cambium.fitcheck-golden-path.v1` and `cambium.iverif-golden-path.v1`
-  now embedded in `apps/portfolio-cartographer/bundle.html` and
-  `workers/quests/src/portfolio-workbench.generated.ts`.
-- New test added to `workers/quests/src/portfolio-workbench-route.test.ts`:
-  verifies both golden paths and sapling identifiers are present in the bundle.
-- Verification: `operational-packet-projection.test.ts` 4/4 pass;
-  `portfolio-workbench-route.test.ts` 11/11 pass.
-
-### 2026-08-10 IVerif D1 anchor proposal validated (founder-held next lane)
-
-- Status: `proposal-validated`. Read-only ISA scaffold verified; CAS commit
-  remains deferred pending founder approval to issue IVerif's prepared mapping
-  receipt and admit `sapling:iverif`.
-- Validation script: `/tmp/iverif_proposal_validate.mjs` constructs the proposed
-  Mission node (`iverif-wiki-activation`) and Task node (`task:iverif-observer`)
-  using `buildNode` and validates them against `validateNodeSet` with
-  `THREE_SAPLING_LOADOUT_AUTHORITY`.
-- ISC-1 VERIFIED: IVerif receipt digest
-  `sha256:a8c7a566eb32790dffaf1d2a06ad21d0514ba9e4dd90d773d769ae4929e5abeb`
-  is recorded as `prepared-not-issued`; `receiptIssued: false`,
-  `readbackVerified: false`.
-- ISC-2 VERIFIED: Proposed Task node carries `externalId: 'task:iverif-observer'`,
-  `workObjectId: 'sapling:iverif'`, `workObjectKind: 'sapling'`, and
-  `pinnedLoadoutId: 'loadout:iverif-observer'`; `validateNodeSet` returns
-  `{ valid: true }`.
-- ISC-3 VERIFIED: Proposed Mission node (`iverif-wiki-activation`) has
-  `parentNodeId: null` and anchors `sapling:iverif`; singleton tenant-root
-  check passes for `tenantId: 'cambium'`.
-- ISC-4 VERIFIED: `IVERIF_GOLDEN_PATH` from `shared/iverif-golden-path.ts`
-  imports and compiles successfully through `compileOperationalPacketProjection`.
-- ISC-5 VERIFIED: `THREE_SAPLING_LOADOUT_AUTHORITY.resolve('loadout:iverif-observer')`
-  returns a record with `eligibleWorkObjectIds: ['sapling:iverif']`; the
-  proposed Task's loadout pin is governed and eligible.
-- ISC-6 VERIFIED: Validation was read-only — no D1 write, R2 write, Hermes
-  dispatch, deployment, or provider mutation. CAS commit deferred to founder
-  approval.
-- No D1 write, R2 write, Hermes dispatch, deployment, or tenant admission
-  occurred — only local validation against existing TypeScript modules.
-- Next gate: founder approval to (a) issue IVerif's prepared mapping receipt
-  `pmr_a8c7a566eb32790dffaf1d2a` with byte-identical R2 readback, then (b)
-  commit the D1 Mission → Task anchor. Both remain separate owner-approved
-  operations.
-
-### 2026-08-10 IVerif Hermes foldback receipt storage path scaffolded
-
-- Status: `proposal-prep`. Read-only foldback storage path drafted following the
-  Fitcheck pattern; no R2 write, D1 write, Hermes dispatch, or deployment
-  occurred.
-- New artifact: `docs/project-management/hermes-execution-foldback-preflight-iverif.v1.json`.
-- Scope: `sapling:iverif`, `goalGraphTaskId: 'task:iverif-observer'`,
-  `pinnedLoadoutId: 'loadout:iverif-observer'`.
-- R2 foldback key pattern: `portfolio/thoughtseed/workobjects/sapling:iverif/foldback/exec_iverif_canary_1.json`.
-- Local proof receipt ID: `hfb_iverif_foldback_prep_20260810`, content digest
-  `sha256:iverif_foldback_prep_local_contract_only` (synthetic, no external action).
-- Edges: `proves` (receipt → `task:iverif-observer`), `informs-next-intent`
-  (receipt → `sapling:iverif`).
-- Live preconditions include two IVerif-specific gates: (1) confirm IVerif
-  mapping receipt `pmr_a8c7a566eb32790dffaf1d2a` is issued and read back
-  byte-identically, and (2) confirm the D1 Mission Fabric `contains` edge for
-  `sapling:iverif` exists before foldback emission.
-- Approval gate: `approve live Hermes canary execution and foldback proof with
-  execution disabled` — does NOT authorize IVerif receipt issuance or D1 anchor
-  commit (both separate founder-approved gates).
-- No R2 write, D1 write, Hermes dispatch, deployment, or provider mutation
-  occurred — foldback storage path is read-only preparation only.
-
-### 2026-08-10 Fitcheck D1 anchor ISA autonomously validated
-
-- Status: `proposal-validated`. Read-only ISA scaffolded on 2026-08-10;
-  autonomous ISCs now verified; CAS commit remains deferred pending live
-  D1 access and founder approval.
-- Validation script: `/tmp/fitcheck_proposal_validate.mjs` constructs the
-  proposed Mission node (`fitcheck-shopify-qa`) and Task node
-  (`task:fitcheck-launch`) using `buildNode` and validates them against
-  `validateNodeSet` with `THREE_SAPLING_LOADOUT_AUTHORITY`.
-- ISC-3 VERIFIED: `FITCHECK_GOLDEN_PATH` imports and compiles successfully;
-  `receiptIssued: true`, `readbackVerified: true`.
-- ISC-4 VERIFIED: Proposed Task node carries `externalId: 'task:fitcheck-launch'`,
-  `workObjectId: 'sapling:fitcheck'`, `workObjectKind: 'sapling'`,
-  `pinnedLoadoutId: 'loadout:fitcheck-launch'`; `validateNodeSet` returns
-  `{ valid: true }`.
-- ISC-5 VERIFIED: Proposed Mission node (`fitcheck-shopify-qa`) has
-  `parentNodeId: null` and anchors `sapling:fitcheck`; singleton tenant-root
-  check passes.
-- ISC-10 VERIFIED: No side-effects — no D1 write, Hermes dispatch, R2 write,
-  or deployment occurred.
-- ISC-1 CONFIRMED: Migration `0009` is in the governed D1 release path (not
-  in Cambium source tree).
-- ISC-2, ISC-6, ISC-7, ISC-8, ISC-9 BLOCKED: require live cambium-bridge D1
-  connection and founder approval/signature.
-- Updated `MEMORY/WORK/d1-fitcheck-anchor/ISA.md` with autonomous verification
-  evidence.
-- Full `npm test` passes 1629/1629.
-- Next gate: founder approval to commit the Fitcheck D1 Mission → Task anchor.
-  Fitcheck's mapping receipt `pmr_9de251ce89564f07f3e4c510` is already issued
-  and readback-verified, so the D1 anchor is the next sequential step per the
-  golden path lifecycle ladder.
-
-### 2026-08-11 Fitcheck Cortex, growth-quest, and CRM handoff checkpoint
-
-- Status: reviewed local contract; no provider, CRM, D1, R2, Telegram, account,
-  publication, contact, or spend mutation performed.
-- Added `docs/architecture/contracts/fitcheck-cortex-quest-flow.v1.md` and its
-  `cambium.fitcheck-cortex-quest.v1` schema. Cortex accepts only redacted,
-  tenant-scoped, receipt-bound candidate observations; D1 Goal Graph remains
-  the sole operational writer.
-- Added the proposed Fitcheck SEO/content/analytics/CRM backlog at
-  `docs/plans/product-branches/fitcheck-growth-quest-backlog.md`. `blocked` and
-  `external-wait` are explicitly non-terminal states for the future Mini App
-  synchronization pass.
-- Performed a GET-only Explee observation and recorded only safe aggregates in
-  `docs/evidence/2026-08-11-fitcheck-explee-inbox-readback.v1.json`: zero
-  Fitcheck `need_reply` conversations, five campaign-scoped provider hot leads
-  (1 Fashion Marketplaces, 2 Retail Tech Teams, 2 Shopify Fashion Brands), and
-  five account-wide hot-lead records excluded as out of Fitcheck scope. No raw
-  payload, contact identity, message body, attachment, credential, or provider
-  mutation was retained.
-- Added `docs/architecture/contracts/fitcheck-crm-handoff.v1.md`: Explee stays
-  the prospect/thread system of record until founder review selects a CRM
-  destination and exact scope. No automatic route exists from hot-lead status
-  to reply, send, export, enrichment, CRM write, or completion.
-- Verification: JSON parsing and receipt-digest recomputation passed;
-  `npm run validate:product-branches` validated 6 packets; focused Fitcheck
-  golden-path tests passed 2/2; focused secret/PII/path scan had no findings.
-- Next bounded step: synchronize the reviewed organ states and the backlog into
-  the Telegram Mini App projection without marking any deferred/external item
-  complete; separately obtain founder choice for CRM destination/owner before
-  implementation.
-
-### 2026-08-11 Fitcheck Telegram Mini App quest synchronization checkpoint
-
-- Status: local source/projection synchronization complete; no Worker deploy,
-  Telegram mutation, D1/R2 write, provider mutation, account configuration,
-  publish, contact, spend, or approval action was performed.
-- `docs/plans/product-branches/fitcheck.md` now holds a structured 17-row
-  `Quest Queue` covering Shopify pricing submission and QA, privacy/payment,
-  distribution, SEO/content/analytics, CRM, Cortex learning, and Garden
-  cadence. All currently deferred rows are explicitly `external-wait`,
-  `blocked`, `proposed`, or `ready-for-review`; none is terminal.
-- `bin/quine/hyphae/branch-stories.ts` preserves structured quest statuses and
-  explicit organ statuses for the Mini App data source. The shared Fitcheck
-  operational packet now records Taste, Hands, and Cortex as complete and Will
-  as ready-for-review, without changing Fitcheck's supervised-branch status.
-- `workers/quests/src/page/components/mission-control.ts` prevents
-  `ready-for-review` from matching the generic `ready` → complete rule;
-  `external-wait`, `proposed`, and review states render as non-terminal,
-  proof-needed UI treatment with their source status label preserved.
-- Verification: `npm run validate:product-branches` passed; focused branch
-  story/golden-path/Mini App state tests passed 12/12; the full Worker handler
-  suite passed 350/350; `git diff --check` passed.
-- Next bounded step: founder review selects a CRM destination and owner, or a
-  separate approved task deploys this already-validated local projection.
-
-### 2026-08-11 Fitcheck vault and organ-map checkpoint
-
-- Status: local documentation mapping complete; no TeamForge, R2, D1, Shopify,
-  Explee, GitHub, Telegram, CRM, deployment, contact, spend, or registry mutation
-  was performed.
-- The existing canonical vault hub at `40-products/fitcheck/README.md` now links
-  to `40-products/fitcheck/operating-status.md`. The new note is a founder-readable
-  status/evidence index for `sapling:fitcheck`, with approved $99 monthly / $799
-  yearly commercial truth and no raw provider data.
-- `docs/plans/product-branches/fitcheck.md` now contains the reciprocal
-  `Knowledge / Evidence Map`, identifying the vault, Cambium, GitHub repos,
-  Shopify, Explee aggregate receipt, HDILINT boundary, and backup role. It keeps
-  `program:hdilint` separate and treats all deferred/external quest states as
-  unfinished.
-- Next bounded step: a separately approved deployment can publish the already
-  validated Mini App projection; any TeamForge/R2 mapping write remains a distinct
-  manifest-gated action.
-
-### 2026-08-11 Fitcheck organ/quest release-preparation checkpoint
-
-- Status: local release preparation only; no Cloudflare upload, traffic change,
-  Telegram mutation, R2/D1 write, Shopify action, campaign action, CRM action,
-  payment activation, contact, spend, or external deployment occurred.
-- Corrected a source/projection drift: the packet and vault classify Genesis as
-  `complete`, and the shared Fitcheck golden path now does the same.
-- The Fitcheck golden-path test now asserts all seven organ/support-rail states
-  and all 17 non-terminal quest IDs/statuses from the branch packet.
-- `npm run verify:release` now exposes that Fitcheck contract as its own named
-  deterministic release gate. The production procedure and stop conditions are
-  documented in `docs/runbooks/fitcheck-mini-app-production-readiness.md`.
-- Preflight evidence: product-packet validation and focused Fitcheck/release
-  tests pass; the non-canonical mobile contract passes. The full release gate is
-  currently stopped by `drift:audit` because the canonical viewport-proof
-  manifest's `PAGE` digest is stale. Do not patch only the digest: refresh and
-  review the canonical screenshot proof set in a separate visual-proof task.
-- Next bounded step: founder approval of one exact reviewed commit and a separate
-  isolated-clean-clone Worker release following `workers/quests/DEPLOY.md`, after
-  the stale visual-proof blocker and all clean-worktree requirements are closed.
-
-### 2026-08-11 Fitcheck release-preflight follow-up
-
-- Founder approval was received to proceed through release preflight. No Worker
-  upload, traffic change, Telegram mutation, R2/D1 write, Shopify action,
-  campaign action, CRM action, payment activation, contact, spend, GitHub push,
-  tag, or external deployment was performed because the deterministic evidence
-  gate is still incomplete.
-- Corrected the viewport-proof package execution contract: `proof:tg-viewport`,
-  `proof:tg-mobile-contract`, and diagnose scripts now explicitly request the
-  proof runner; imports remain inert. Added a direct-invocation regression test.
-- The canonical browser run exposed stale hard-coded portfolio counts. The proof
-  now derives its expected card/count values from `PORTFOLIO_CATALOG.summary`,
-  so the runtime's current 72 active + 20 historical projection is asserted
-  rather than the obsolete 94-card expectation.
-- Focused invocation/readiness tests passed 28/28 and the filtered operating-
-  fabric capture passed. The full canonical 47-capture run stalls before writing
-  a replacement manifest; it must be diagnosed as a separate visual-proof task.
-  The partial screenshot changes from that failed run were restored to their
-  committed baseline, leaving the old manifest honestly stale.
-- Current release blockers: stale canonical viewport-proof manifest, failed/hung
-  complete visual capture, dirty non-main checkout, and the need to materialize
-  a clean exact candidate commit before the already-approved deployment path can
-  be used.
-
-### 2026-08-11 Fitcheck clean-candidate preflight checkpoint
-
-- A clean detached candidate commit was materialized at `c8d7e020b03fbd5506d4e5332b01cb55d336022a` on
-  `codex/fitcheck-quests-release-candidate`. Its canonical visual proof was
-  regenerated in that isolated checkout: 47 unique paths, fresh manifest, and
-  the candidate `PAGE` source digest all agree. Drift audit and the focused
-  Fitcheck/release chain pass.
-- The viewport runner now bounds debugger fetch, WebSocket-open, and CDP
-  operations and prints per-proof progress. This closed the orphaned-browser
-  failure mode without weakening the proof requirement.
-- No Worker upload, traffic change, D1/R2/KV mutation, secret change, GitHub
-  push, tag, or other external mutation occurred. The local Worker dry-run
-  bundle completed only.
-- Worker promotion is intentionally stopped: full `verify:release` rejects the
-  candidate because Fitcheck updates alter the byte-pinned `LEGACY_PAGE` shell.
-  Preserve that pin; do not change its expected digest as a bypass. The safe
-  next decision is either to migrate those transformations into the injected
-  Operating Fabric or explicitly approve a governed legacy-surface evolution.
-- A separate inherited prerequisite also remains: the repository test suite
-  expects the currently untracked
-  `docs/project-management/project-intake-workflows.v1.json` registry. Land it
-  as its own baseline commit before retrying a full release candidate.
-
-### 2026-08-12 Cambium receipt-derived Cortex read-model checkpoint
-
-- Created the redacted local receipt projection at
-  `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. It records
-  only the five canonical Cambium branch identities, the 81-vector / five-recall
-  aggregate, idempotent Fitcheck replay, and non-execution safety posture; it
-  excludes vector IDs, digests, packet contents, credentials, and runtime paths.
-- The five branch packets now point their Cortex organ proof at that receipt and
-  record receipt-derived semantic recall as verified. Their other gates and
-  promotion states were preserved, including the blocked Fitcheck Credentials
-  gate and supervised-branch promotion.
-- Focused verification passed: 10 branch-story compiler tests, 42 quest tests,
-  product-branch packet validation, and `git diff --check`.
-- The attempted ledger POST to the protected Workbench host did not reach the
-  Worker: Cloudflare Access redirected the CLI to an HTML login page that
-  returned HTTP 200. The client now accepts a write only when it receives the
-  Worker JSON receipt (`ok`, exact tenant, byte count, and derived timestamp),
-  preventing that false-positive result.
-- Authenticated Mission Control visual proof remains honestly blocked. It still
-  reads the prior `2026-08-11T12:12:56.794Z` ledger. The production Worker at
-  100% traffic binds `QUESTS` to namespace `439547e617d9455fb752bfd651da9765`,
-  while the checked-in config names a different namespace that returns 404.
-  No Worker upload, traffic/config/binding change, gate adjustment, credential
-  inspection, or retry via an Access bypass occurred.
-- Next bounded step: an owner-approved, authenticated Worker ledger write using
-  the active Worker route/binding, followed by the same Mission Control visual
-  probe. Deployment and release-gate changes remain separate approvals.
-
-### 2026-08-12 Mission Control visual-reconciliation checkpoint
-
-- The authenticated walkthrough establishes a product defect, not merely an
-  incomplete proof: the served Story scene is empty/stale and the current
-  Mission composition compresses a branch-only layout at narrow widths.
-- `docs/plans/2026-08-12-mission-control-visual-reconciliation.md` reconciles
-  the six visual-reference families into one responsive, truth-preserving
-  implementation contract. It explicitly separates Saplings, client Programs,
-  capability/operations Programs, and classification gaps.
-- The architecture and visual-budget contracts now bind that distinction to
-  responsive behavior at 320/390/430 and desktop widths. The update preserves
-  Cambium tokens, glyph/rail/state grammar, existing scene semantics, and the
-  signed Gate as the sole mutation boundary.
-- No runtime code, fixture substitution, Worker deployment, data write,
-  release-gate change, or credential/session inspection was performed. The next
-  implementation wave must repair the authenticated read-model seam and prove
-  the UI at each target width before any promotion decision.
-
-### 2026-08-12 Mission Control responsive-variant implementation checkpoint
-
-- Mission Control now derives an explicit presentation variant from canonical
-  source shape: product branches become `Sapling`; client branches become
-  `Client program`; internal services become `Capability program` or
-  `Operations program`; malformed or unclassified source remains an explicit
-  `Classification needed` gap. The rail, its accessible label, glyph, and
-  selected Mission-card eyebrow all use that same value—no display-name guess.
-- At 320–520px the existing QuestlineTimeline changes composition from six
-  compressed columns to the same stations in a 44px-target vertical sequence.
-  The existing glyphs, state rails, card, branch scroll rail, scene routes, and
-  signed Gate boundary were retained.
-- Fixture-backed safety tests cover all five source-shaped variants and the
-  mobile composition contract. Focused verification passed: 21 Node tests and
-  `git diff --check`. Fresh local captures were inspected at 320, 390, and 430.
-- The canonical mobile proof runner captured the Mission set successfully but
-  stopped later at an inherited Operating Fabric portfolio-count assertion;
-  this is not treated as a passing complete viewport-proof manifest. No
-  deployment, Worker write, traffic/config change, credential inspection, or
-  release-gate adjustment occurred.
-- Production remains intentionally unresolved: its authenticated read model is
-  still stale/empty until an owner-approved authenticated Worker write reaches
-  the active binding and the exact live visual probe is repeated.
-
-### 2026-08-12 Mission Control te-swarm-s execution receipt
-
-- The three read-only swarm slices were dispatched through `temperance-batch`
-  with the explicit `te-swarm-s` model: semantic variant seam, responsive
-  layout seam, and read-model proof seam.
-- Routing accepted all three tasks, but each exhausted its bounded 45-second
-  watchdog with zero model output (`exit: 124`). No swarm receipt may be used
-  as research or implementation evidence.
-- The redacted execution record is
-  `.planning/2026-08-12-mission-control-visual-swarm-receipt.json`. It records
-  no prompts, credentials, paths, or runtime configuration. No files were
-  edited by the read-only swarm and no deploy, data, traffic, or gate action
-  occurred.
-
-### 2026-08-12 Mission Control native parallel-dispatch retry
-
-- The prescribed native non-Codex fallback was retried as three independent,
-  read-only plan-mode audits, then one bounded no-think GitHub fallback.
-- Both Antigravity profiles returned explicit quota exhaustion (`429`). GitHub
-  Claude produced an aborted-stream receipt without substantive output, and its
-  no-think fallback timed out after 30 seconds. None is accepted as research.
-- The redacted receipt is
-  `.planning/2026-08-12-mission-control-native-parallel-retry-receipt.json`.
-  The provider failures do not alter the local verified implementation, and no
-  worker changed files, deployed, wrote data, inspected credentials, or relaxed
-  a release gate.
-
-### 2026-08-12 Portfolio Workbench → Telegram Mini App linkage checkpoint
-
-- The authenticated Workbench and Mini App are now mapped as two separate,
-  intentional read paths. `PORTFOLIO_CATALOG` supplies read-only WorkObject
-  visibility to the Workbench and Mini App Canopy; six explicit branch packets,
-  the D1 Goal Graph, and the accepted `QUESTS` KV projection supply Mission.
-  Catalog membership never grants operational admission.
-- The Workbench was read without navigation or action. Its header claims 73
-  total from 20 Saplings, 39 Branches, and 15 Programs (arithmetic 74), while
-  the DOM contains exactly 73 cards split 20 Saplings, 38 Client Branches, and
-  15 Internal Programs. Autosave remains paused and the unreadable v4 draft was
-  not imported, reset, repaired, or overwritten.
-- The current local catalog has 72 WorkObjects (17/40/15) and the referenced
-  2026-08-07 vault registry has 71. Exact live/local and vault/local identity
-  differences are preserved in
-  `docs/evidence/2026-08-12-portfolio-miniapp-linkage-readback.v1.json`; the
-  vault remained reference-only and received no write.
-- `scripts/audit-portfolio-miniapp-linkage.ts` composes the real mirrored
-  catalogs, generated root maps, reviewed pins, branch packets, and optional
-  offline live/vault inputs through the pure
-  `scripts/portfolio-miniapp-linkage.mjs` report. The current audit is blocked
-  only by reviewed catalog/root-map pin drift. App/Worker catalog data,
-  catalog-module, and root-map mirrors match; all five canonical packet
-  WorkObjects resolve; `client-delivery` remains a non-canonical template.
-- `docs/architecture/portfolio-workbench-miniapp-linkage.md` records the
-  producer/consumer map, system owners, freshness clocks, drift tables,
-  mutation gates, and first observable stale boundary. The deployment is newer
-  than the ledger, and the prior POST reached an Access HTML response instead
-  of a Worker JSON receipt, so the first proven stale boundary is before active
-  production ledger acceptance. Scheduler code, route authentication, and
-  active binding remain bounded hypotheses until a valid receipt is observed.
-- Verification: five linkage tests pass; 126 focused catalog/packet/Mission
-  tests pass; all six branch packets validate; documentation is synchronized
-  at six pages and 91 components; bounded `git diff --check` passes. The full
-  dirty-tree suite is 1655/1660: its five failures are the separately reported
-  stale foundation pin plus existing drift-audit, Mission density, Mission
-  scene, and legacy-page digest changes. `validate:portfolio-foundation` is
-  45/46 and fails only at the reviewed root-map pin mismatch.
-- Independent Cato-compatible E4 review found no P0/P1 authority, privacy,
-  destructive-action, or test-boundary defect. Its two P2 bookkeeping findings
-  (the shifted full-suite count and this previously absent checkpoint) were
-  corrected before closeout. The Paseo Advisor workflow was unavailable because
-  its daemon was offline; it was not restarted and no approval was inferred.
-- Bounded files for this linkage wave: `ISA.md`, this handoff, the architecture
-  map and dated evidence above, `scripts/portfolio-miniapp-linkage.mjs`,
-  `scripts/audit-portfolio-miniapp-linkage.ts`, and
-  `scripts/portfolio-miniapp-linkage.test.mjs`. No browser action, vault or
-  registry write, D1/KV/R2 mutation, Worker config/binding/traffic change,
-  deployment, provider change, Telegram send, Hermes mutation, or folder move
-  occurred.
-- Next separately approved live step: first review and advance the local
-  catalog/root-map foundation pins through their existing release gate. Then
-  run one authenticated quest-envelope push against the active Worker route,
-  require the exact Worker JSON receipt, and re-read Mission Control to prove
-  the freshness timestamp advances while the protected Workbench draft remains
-  untouched. Binding/config/deployment changes remain separate rollback-gated
-  operations if that receipt fails.
-
-### 2026-08-12 Reviewed foundation pins + one-shot ledger receipt checkpoint
-
-- Owner approval advanced only the reviewed root-map digest to
-  `1807913a4faab9d55e29c146fbd829b6e058982f66de601d79b2f87120930134`
-  and catalog digest to
-  `sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca`.
-  The classification digest stayed
-  `43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309`.
-  Birth and closeout reviewed snapshots mirror those exact values.
-- The post-approval linkage audit is `aligned` with zero release blockers, five
-  canonical packet WorkObjects, one explicit `client-delivery` template, and no
-  missing catalog identity. Its real-fixture test now expects dated live/vault
-  differences to remain `drift-observed` rather than manufacturing a pin block.
-- Exactly one bearer-authenticated POST targeted the direct serving Worker
-  origin. The closed capture accepted HTTP 200 with JSON content type and the
-  exact Worker receipt
-  `{ "ok": true, "tenant": "cambium", "bytes": 155832, "derivedAt": "2026-08-12T09:39:12.666Z" }`.
-  The target-POST counter is one; no automatic or manual retry occurred, and no
-  token or envelope payload was persisted.
-- The authenticated custom-domain Mission Control read did **not** advance. It
-  still reports `derivedAt 2026-08-11T12:12:56.794Z`, source `push`, and
-  `stale 22h`, with five canonical Mission tabs. This is recorded as an
-  accepted Worker write that is not visible on the protected read path, not as
-  a fresh end-to-end sync. A second push is forbidden by this checkpoint.
-- Read-only preflight captured Worker Version
-  `86112412-2073-4f14-b215-599de0ed0eeb` at 100% and the existing active versus
-  checked-in `QUESTS` namespace mismatch. Subsequent Cloudflare CLI readback was
-  stopped by an external OAuth authentication error; credentials were not
-  repaired or inspected. Access, binding, configuration, deployment, and
-  traffic changes remain separately owner-approved operations.
-- Verification: foundation pins 2/2; complete portfolio foundation 46/46,
-  Cartographer 70 pass with one historical skip, and Worker integration
-  109/109; linkage tests 5/5; repository suite 1656/1660 with only the four
-  existing dirty-tree drift/density/Mission/legacy-page failures.
-- Evidence:
-  `docs/evidence/2026-08-12-reviewed-pins-ledger-push.v1.json`. The bounded
-  one-shot controller is
-  `.planning/2026-08-12-ledger-push-once-receipt.mjs`. No deployment, Worker
-  upload, traffic shift, binding/config change, authentication weakening,
-  D1/R2/vault/Hermes/Telegram mutation, or local operator-state file creation
-  occurred.
-- Temperance `te-dispatch-paid` preflight ran twice at concurrency three in a
-  read-only sandbox. Both run indexes were gateway-attributed and structurally
-  green, but all six outputs were progress-only; they were rejected and direct
-  controller evidence was used. No worker recommendation was accepted.
-- Next separately approved step, only if the founder wants the stale badge
-  repaired: audit the protected custom-domain-to-Worker route and active KV
-  binding under restored read credentials, then propose a rollback-gated
-  binding/configuration correction. Do not issue another ledger push as a
-  diagnostic.
-### 2026-08-12 Routing, binding, and visibility audit checkpoint
-
-- Owner approval authorized a read-only audit after the one authenticated ledger receipt. No second push, deployment, upload, traffic shift, binding/configuration repair, Access bypass, credential repair, or external data-plane mutation was in scope.
-- Route probes classify the custom hostname as a Cloudflare Access boundary: both `/healthz` and the quest read return HTTP 302 with an Access location class. The direct Worker origin returns JSON health 200 identifying `cambium-quests`; its unauthenticated quest read returns JSON 401 `access_identity_required`. This proves distinct route behavior and no silent Access identity inheritance.
-- Checked-in `workers/quests/wrangler.jsonc` declares Worker `cambium-quests`, `workers_dev: true`, no custom route entries, and QUESTS namespace `10aaa6e0a8a545c1afb5ceee7ef61c14`. Prior read-only active metadata remains Version `86112412-2073-4f14-b215-599de0ed0eeb` at 100% with QUESTS namespace `439547e617d9455fb752bfd651da9765`; the IDs differ. A fresh Wrangler readback was unavailable because the Cloudflare OAuth session failed; credentials were not inspected or repaired.
-- Redacted authenticated observations retain the Workbench route and 73 DOM cards split 20 Saplings, 38 Client Branches, and 15 Internal Programs; autosave stayed paused and the unreadable draft stayed untouched. Mission Control remains source `push`, five canonical tabs, `derivedAt 2026-08-11T12:12:56.794Z`, and `stale 22h`, while the accepted receipt timestamp `2026-08-12T09:39:12.666Z` is newer but not visible on the custom read path. The in-app browser automation bridge had no active tabs for a fresh DOM replay; no cookies, storage, session IDs, or browser actions were inspected.
-- Evidence: `docs/evidence/2026-08-12-routing-binding-visibility-audit.v1.json`. It stores route status/content-type/location classes, binding names/IDs, counts, timestamps, and held boundaries only; JSON parse, redaction scan, and `git diff --check` pass.
-- Next separately approved operation, if desired: restore valid Cloudflare read credentials and perform a rollback-gated route/binding correction proposal. Do not issue another ledger push as a diagnostic. No deployment, Worker upload, traffic, KV/D1/R2/vault, Hermes, Telegram, Access, or credential mutation occurred.
-### 2026-08-12 Rollback-gated route/binding repair attempt
-
-- Founder approved the separate rollback-gated repair. The production authority is `workers/quests/wrangler.labs.jsonc` on Labs account `9d7cec1b5a32b2df8c6cdc1321ccd00b`, Worker `cambium-quests`, the config-declared custom domain, Labs origin `cambium-quests.thoughtseedlabs.workers.dev`, QUESTS `439547e617d9455fb752bfd651da9765`, SECRETS presence, Labs Plexus origin, and cron `0 */6 * * *`.
-- The earlier receipt’s personal origin/config (`cambium-quests.sheshnarayan-iyer.workers.dev`, `wrangler.jsonc`, QUESTS `10aaa6e0…`) is explicitly excluded from production repair.
-- Fresh live probes: Labs workers.dev `/healthz` is JSON 200 identifying `cambium-quests`; Labs workers.dev unauthenticated quest read is JSON 401 `access_identity_required`; custom hostname `/healthz` and quest read are Cloudflare Access 302. Runtime behavior is healthy and fail-closed.
-- Wrangler `whoami` authenticates only personal account `9d9d23b27f32e70ae3afb6a1aa2c0f10`. Labs `deployments status` and `versions view` fail with Cloudflare API authentication code 10000 and report that the configured Labs account is not authenticated. No credential repair, token inspection, upload, deploy, traffic shift, or binding/config mutation was attempted.
-- Repair result is `blocked-before-upload`; no safe rollback UUID can be read back. Evidence: `docs/evidence/2026-08-12-rollback-gated-route-binding-repair.v1.json`.
-- Independent E4 review returned PASS-WITH-P2 with no P0/P1 finding. The evidence now labels Labs config and prior Version metadata as declared/prior rather than current control-plane proof, scopes no-mutation claims to this attempt, and redacts the founder email. The repair remains incomplete and must not be described as deployed or repaired.
-- Resumption gate: authenticate the owner-approved Labs Cloudflare account, rerun deployments/version/binding readback, record the exact rollback Version, upload an inert candidate from `wrangler.labs.jsonc`, verify both origins, and promote only the verified candidate at 100%. Roll back immediately on any failed health, auth-boundary, binding, or visibility check. Do not use the personal config or issue another ledger push.
-
-### 2026-08-13 Cloudflare Access auth-path investigation
-
-- The owner request was evaluated without using the full-scoped token in the
-  operator Claude environment and without invoking Wrangler. The scoped-token
-  verification returned HTTP 401; no full token was read, printed, or used,
-  and no environment file was edited.
-- The existing authenticated Portfolio Workbench tab was read-only verified:
-  73 visible records, 20 Saplings, 39 Client Branches, 15 Internal Programs,
-  paused autosave, and zero Needs Review items. Cookies, storage, JWTs, and
-  session identifiers were not inspected.
-- Cloudflare Access is confirmed as an application-route boundary: the
-  protected custom hostname returns Access redirects without identity, while
-  the direct Labs Worker returns JSON health 200 and unauthenticated quest
-  reads return JSON 401. Source inspection shows Access service-token headers
-  are supported for the application feed only; they cannot authenticate
-  `api.cloudflare.com` for Version, route, binding, upload, or deployment
-  control.
-- Evidence: `docs/evidence/2026-08-13-cloudflare-access-auth-path.v1.json`.
-  No upload, deploy, traffic, route, binding, ledger, D1/KV/R2, secret,
-  vault, Hermes, Telegram, provider, or credential mutation occurred.
-- Result: `app-read-verified-control-plane-blocked`. Production repair is not
-  claimed complete. The next gate is an owner-approved Labs dashboard session
-  or narrowly scoped Cloudflare API token; do not use the existing full-scoped
-  token and do not issue another ledger push as a diagnostic.
-
-### 2026-08-13 Labs token control-plane readback retry
-
-- The newly generated owner token was used transiently for direct Cloudflare
-  API readback only. Its value was never printed or persisted, the environment
-  file was not edited, and Wrangler CLI was not used.
-- Labs account readback is authorized. The active deployment is Version 42
-  (`86112412-2073-4f14-b215-599de0ed0eeb`) at 100 percent with etag
-  `1f250929…`; Version 41
-  (`05896dc0-9d47-4c9b-947a-8c599557bd0e`) is a verified same-Worker rollback
-  target with etag `51322feb…`. The custom-domain metadata maps the
-  config-declared protected hostname to `cambium-quests` production.
-- Readback confirms `QUESTS`, `SECRETS`, `BRIDGE_DB`, and
-  `THOUGHTSEED_VAULT` match `workers/quests/wrangler.labs.jsonc`. It also
-  exposes drift: the config-declared `CONTEXT_PROJECTIONS` binding is absent
-  from the active Version, while the additional active secret names and
-  `PLEXUS_KNOWLEDGE_URL` plain name are enumerated in the evidence. No values
-  were read and no repair was attempted.
-- The primary checkout is materially dirty, so it is not a safe candidate
-  source. No upload, deployment, traffic, route, binding, ledger, D1/KV/R2,
-  secret, vault, Hermes, Telegram, provider, or credential mutation occurred.
-- Evidence: `docs/evidence/2026-08-13-labs-token-control-plane-readback.v1.json`.
-  Result: `labs-readback-authorized-repair-held`. Next gate is owner approval
-  for an isolated clean reviewed-source candidate upload after reconciling the
-  binding drift; do not deploy the current checkout or issue another ledger
-  push as a diagnostic.
-
-### 2026-08-14 Cambium Moosh fractal-ecosystem checkpoint
-
-- Prepared a project-local explanation of Cambium’s fractal operating model in
-  `docs/guide/cambium-fractal-ecosystem.md`, with a guide manifest at
-  `docs/guide/guide-manifest.json` covering the root, skill lattice, six
-  workflow stages, planning/swarm interpretation, capture boundary, and
-  approval boundary.
-- Added the recognized bounded Moosh contracts:
-  `docs/guide/capture.config.json` uses one local console route, one synthetic
-  persona, and a fixed viewport; `docs/videos/film.json` and `docs/videos/film.md`
-  define a 106-second hero storyboard that stops before evidence composition.
-- Added the project capture runtime as a dev dependency (`playwright`) and
-  installed its local Chromium runtime. No capture, recorder, voiceover,
-  worker dispatch, or external provider action was run.
-- Refreshed the Manifest projection. The observed registry remains 808 skills
-  across 44 clusters; `product-guides` resolves two hubs and two Moosh spokes;
-  all six workflow stages report ready; the trigger remains gated solely on the
-  absence of a matching human approval receipt.
-- Verification passed: guide validator (6 chapters / 4 groups / 1 persona),
-  FilmSpec bounds (6 shots / 106 seconds / 120-second limit), Moosh contract
-  cross-check, Cambium test suite (1662 passing), and Manifest doctor (12/12).
-- The connected-browser controller could not attach because the Chrome
-  Playwright extension is unavailable. The local console was opened in the
-  Codex browser panel; no browser automation or evidence capture was attempted.
-  The advisor OAuth session was expired and the required Cato role was not
-  available, so those independent review lanes remain unverified.
-- Next owner-approved step: provide a bounded approval receipt, re-read the
-  live capability and workflow projection, then submit only the documented
-  request-only trigger. Do not treat this checkpoint, the planning wave, or
-  the mapped swarm as proof that capture or video execution has occurred.
-
-### 2026-08-15 Cambium all-surface Moosh coverage checkpoint
-
-- Extended the local Moosh explanation from one console route to 16 named UI,
-  service, operator, and connected-system boundaries in
-  `docs/guide/cambium-surface-inventory.json`.
-- Added the deep capability map, current multi-surface runbook, machine-
-  readable coverage contract, and video ingest order. The documents explain
-  surface ownership, authority, evidence type, planning versus swarm state,
-  and approval boundaries without copying secrets or private runtime state.
-- Re-read the Manifest projection: 808 skills, 44 clusters, four resolved
-  `product-guides` skills, six ready stages, zero approvals, and a gated
-  request-only trigger requiring `approval_id` and `request_id`.
-- Connected in-app browser verification selected Cambium, refreshed telemetry,
-  and showed the mapped wave complete, zero active agents, seven historical
-  algorithm runs, and stale bridge health. HTTP 200 does not mean fresh
-  runtime readiness; the console correctly displays `STALE`/`OFFLINE`.
-- Local verification passed: 1662 tests, `npm run validate`,
-  `npm run render-docs:check`, JSON parsing, diff check, and new-doc safety
-  scan. A bounded trigger probe returned `workflow_trigger_gated` without
-  launching workers or capture tools.
-- Advisor review could not authenticate because the OAuth session expired;
-  Cato was unavailable as a callable role. No capture, video composition,
-  deployment, worker dispatch, registry mutation, or connected-provider action
-  occurred.
-- Resumption gate: refresh the stale Manifest runtime through its governed
-  owner-approved path, obtain the matching approval receipt, and only then
-  request named surface captures. Keep connected systems in boundary-map mode
-  until their owner-authenticated evidence exists.
-
-### 2026-08-15 Moosh capture attempt — held at approval gate
-
-- The user explicitly authorized proceeding with the planned capture, but the
-  live Manifest snapshot still contains zero approvals and the observed
-  Cambium plan contains zero executable options.
-- The product-guide trigger remains request-only and requires an existing
-  matching `approval_id` plus bounded `request_id`; no receipt was invented and
-  no trigger was submitted as execution.
-- The bridge currently answers HTTP 200 but reports stale health. The in-app
-  browser can reach the console and shows Cambium planning state, but no
-  screenshot, video, worker, or capture tool was launched.
-- Next exact gate: create or expose the owner-approved bounded plan option and
-  approval receipt, refresh bridge freshness, then re-read the projection before
-  requesting named surface captures.
-
-### 2026-08-15 Approval provenance and synchronization readback
-
-- Authenticated Curious Mission Control was visually reviewed in the in-app
-  browser. The Gate scene shows five pending `goal-graph-intake` proposals,
-  `0/17` arcs grown, `Awaiting ledger`, five decisions to review, and visible
-  Approve/Inspect controls. No approval control was pressed.
-- Curious approval provenance is the founder-signed
-  `POST /api/gate/cambium` path with `kind: approve-goal-graph` and a
-  change-digest subject. It commits a Goal Graph proposal through D1 CAS and
-  creates a Goal Graph approval keyed from tenant, change digest, and nonce.
-- That is distinct from the Manifest Moosh `approval_id`, which must come from
-  the Manifest plan/option approval receipt. Curious’s five pending gates are
-  not automatically valid Moosh approvals.
-- Read-only Git state: current branch `codex/project-r2-mapping-plan` is dirty;
-  its HEAD is 78 commits behind and 41 commits ahead of `origin/main`; no PRs
-  are open; recent PRs through #320 are merged; several temporary worktrees
-  are marked prunable. No reset, stash, merge, rebase, prune, or branch write
-  was performed.
-- Current synchronization gate: preserve the dirty worktree, map merged PRs
-  to local branches, decide which prunable worktrees are historical, then
-  regenerate a current bounded Manifest plan option before requesting Moosh.
-
-### 2026-08-15 Cambium Moosh truth-tiered coverage-model checkpoint
-
-- Added the canonical multi-surface truth model in
-  `docs/guide/cambium-moosh-coverage-model.md` with the machine-readable
-  contract at `docs/guide/cambium-moosh-coverage-model.json`.
-- The model defines four authority tiers (`T0-reference`,
-  `T1-observed`, `T2-connected`, `T3-execution`) and eight evidence lanes
-  (`L1` documentation, `L2` terminal, `L3` request/response, `L4` UI capture,
-  `L5` boundary map, `L6` video, `L7` approval, `L8` request-only).
-- Every one of the 16 inventory surfaces now has exactly one UI lane and one
-  system lane plus an explicit `does_not_prove` statement and a named live
-  probe; connected boundaries default to boundary-map mode unless an
-  owner-authenticated response exists.
-- Wired the model into `docs/README.md`, the capability map, and the
-  multi-surface runbook so UI evidence and request/response evidence are not
-  interchangeable with execution authority.
-- Local verification: both new JSON documents parse, the 16 surface IDs match
-  the existing inventory exactly, every lane/tier reference resolves, and
-  `git diff --check` is clean.
-- No capture, hosted access, worker dispatch, deployment, registry mutation,
-  provider action, or public claim is authorized by this documentation.
-### 2026-08-15 bounded Moosh approval, request, and capture checkpoint
-
-- Generated `.planning/PLAN-OPTIONS.json` with one bounded option:
-  `opt_moosh_manifest_overview`, scoped to the existing synthetic
-  `manifest-overview` capture configuration.
-- Refreshed the enrolled Cambium Manifest projection and obtained approval ID
-  `apr_2888680a72ee774804d0` for plan `plan_71da68d23287247084d5`.
-- Wrote `.planning/APPROVALS.json`; the receipt is bounded and expires at
-  `2026-08-15T03:10:07.840Z`.
-- Submitted request-only workflow request
-  `moosh-manifest-overview-20260815-0300`; replay returned idempotent true.
-- Captured only the approved local Manifest overview to the ignored artifact
-  `.artifacts/moosh/cambium-fractal-ecosystem/manifest-overview.png`.
-- Final bridge probe was fresh; no workers, video, providers, hosted actions,
-  branch merges, rebases, resets, stashes, or worktree pruning occurred.
-- Branch/worktree provenance remains read-only and unresolved for future
-  integration work; this checkpoint does not imply branch synchronization.
-
-### 2026-08-15 branch, worktree, and GitHub Project reconciliation checkpoint
-
-- Fetched `origin` and classified every local branch against current
-  `origin/main` using GitHub PR state, ancestry, tree equality, and patch
-  equivalence. Recent delivery is merged through PR #320; no pull request is
-  currently open, and the exact `main` CI run for `71eba373` passed.
-- Local `main` had zero unique commits and was fast-forwarded from its stale
-  ancestor to exact `origin/main` `71eba373`. No push to `main`, force-push,
-  reset, rebase, stash, or feature-branch rewrite occurred.
-- Ten registered temporary worktrees whose gitdir paths were independently
-  absent were pruned from Git administrative metadata. The primary checkout
-  and three surviving temporary worktrees remain dirty and were preserved;
-  no live worktree directory or branch ref was deleted.
-- GitHub Project 14 is now formally linked to `Sheshiyer/cambium`. Open issues
-  #249 and #252 were added as Todo items, so all nine open Cambium issues are
-  represented; the board now contains 22 items, 13 Done and 9 Todo.
-- Strictly merged, patch-equivalent, tree-equivalent, and PR-#320-ancestor
-  branches require no replacement PR. The two stale overlapping histories
-  `codex/fitcheck-quests-release-candidate` and
-  `codex/project-r2-mapping-plan` remain preserved and must not be published
-  wholesale.
-- The primary dirty packet must be split from a fresh `origin/main`: retention
-  documentation/tooling, Moosh documentation/contracts, and additive
-  ISA/handoff evidence are candidate PR slices. Machine-local integration
-  claims, expired/generated planning receipts, workflow deletions, and other
-  mixed runtime artifacts remain excluded pending owner review.
-
-### 2026-08-29 Hermes/Temperance/Phloem architecture research and EC2-reuse decision checkpoint
-
-- Full research detail, citations, and the 62-folder non-destructive census of
-  `/Volumes/madara/2026/Projects/thoughtseed/` live in
-  `.planning/2026-08-28-hermes-temperance-synthesis-plan.md`; this entry is the compressed
-  checkpoint.
-- Corrected two standing misidentifications: `thoughtseed-hermes/` is not Hermes — it is the
-  retired Paperclip prototype (no `.git`, self-identifies as `program:paperclip-retired`). The
-  real Hermes is `hermes-aws-ts` (`Sheshiyer/hermes-aws-ts`, `main`, HEAD `e09ebfe`).
-  "noesis-cambium" is not a live system to compare Hermes against — it is Temperance Engine's
-  own unbuilt Phase 23 roadmap item, 0/4 sub-phases, status "Discussed 2026-08-28."
-- Established Hermes and Temperance Engine are deliberately non-substitutable: Hermes (EC2
-  `hermes-runner-01`, `i-056c5f1d3a9f74190`) is the sole owner of Telegram transport and the
-  only Goal-Graph directive executor; Temperance Engine owns model routing/orchestration only
-  and has zero Telegram/proactive-messaging code by design (`superset-hermes-not-hands` doctor
-  check deliberately excludes Hermes from local dev tooling).
-- Mapped the OmniRoute binding set: Mac plant (this Mac, `:20128`/`:20129`), Hermes plant
-  (EC2 loopback `:20128`), and Phloem (public Cloudflare Access + Tunnel `company-omniroute`
-  onto the Hermes plant, custom domain `strength-08.thoughtseed.space`, alias
-  `omniroute.thoughtseed.space`). Founder correction (2026-08-29): "clio-relay" is the relay's
-  name and `strength-08` is the domain it runs on — one relay, not the separate two-org/
-  two-port ("Clio door" on `:20130`/`red-queen-4dfa`) split that `thoughtseed-labs/00-meta/
-  inference-bindings.md` doctrine describes; that doctrine may need reconciling separately. The
-  `red-queen-4dfa` Cloudflare Access org's local session token was removed from
-  `~/.cloudflared/` per founder direction; `thoughtseedlabs` is now the only CF Access org this
-  work references. Six local `wrangler` profiles exist in
-  `~/Library/Preferences/.wrangler/config/`; `9d9d.toml` is believed to be the retired
-  personal-account credentials behind legacy `workers/quests/wrangler.jsonc` — flagged as
-  account-drift risk, not removed (`klear-karma`/`tirak` profiles may still serve unrelated
-  client work).
-- Live read-only inventory: AWS (`--profile safvr`) confirms Hermes EC2 running (`t3.medium`,
-  up since 2026-07-25T13:14Z, sole instance in the account, stable EIP
-  `eipalloc-0a787318e4bc654e7`). Cloudflare (`wrangler` profile `thoughtseed-labs`, account
-  `9d7cec1b5a32b2df8c6cdc1321ccd00b`) confirms `thoughtseed-vault` R2 bucket reachable (not via
-  the AWS S3-compatible path — different credential type) and `cambium-quests` on
-  `wrangler.labs.jsonc` live at version `fd8b6555-c286-4df6-a3cc-ec99895dbb68` (commit
-  `b68d39a`, 100% traffic), matching `.planning/NEXT-WAVE.json` exactly — supersedes stale
-  version numbers (`c30ee312-…`, "Version 42") still cited in older checkpoint text above.
-  `curious.thoughtseed.space` is the live custom-domain route for that Worker.
-- Confirmed via the Worker's own `scheduled()` handler doc comment
-  (`workers/quests/src/index.ts:1257-1258`): the 6-hourly Cloudflare Cron computes and stores
-  proactive delivery intents but explicitly does not send Telegram or write D1 — Telegram-send
-  authority is deliberately kept on Hermes alone, off the shared Worker.
-- Diagnosis: a month of running EC2 Hermes with no admitted/executed work traces to the D1
-  admission pipeline, not the hosting location. `INTEGRATION.md`'s own status table marks
-  every stage downstream of Plan (issue mapping, verify mapping, establish eligibility, admit,
-  pin, execute, preserve) as Held; the checked-in default is
-  `HERMES_RUNNER_EXECUTE_DIRECTIVES=false`; the one proven canary (2026-07-17) was synthetic
-  and stopped at `awaiting_human_approval`. Hermes has been correctly polling an empty queue.
-- Separately identified: Nous Research runs its own, differently-authored product also called
-  "Hermes" (`agents.nousresearch.com`, agent runtime v0.20.6, Fly.io-hosted, Python). The
-  founder has a live instance, `cambium-hermes-0650`, already in real use for unrelated work
-  (Tirak, personal admin). By founder direction, this Nous product is set aside for the
-  Cambium/EC2 decision — not investigated further as a replacement for `hermes-aws-ts`'s role.
-- Decision, by founder direction: fix the D1 admission pipeline first (host-independent, blocks
-  everything regardless of executor location); reuse the existing EC2 instance in place for the
-  Telegram-sender/directive-executor role rather than rebuilding on Nous or a new EC2 instance —
-  lowest cost, and all Cambium-specific wiring (foldback contract, topic-routing map, Phloem
-  binding) already exists there, even if unproven end-to-end.
-- No relocation, registry, session, provider, Telegram, EC2, or D1 mutation occurred this
-  session beyond one local action: the `red-queen-4dfa` Cloudflare Access session token was
-  deleted from `~/.cloudflared/` (a regenerable local login cache, not server-side state).
-  Every AWS and Cloudflare call was list/describe/status only.
-
-Next session starts here:
-
-1. Telegram: create the new bot via @BotFather (founder action, outside what an agent session
-   can do), rebuild the group/channel/topic structure, capture the new token + chat IDs +
-   topic/thread IDs — replaces the old `hermes-aws-ts/src/telegram-topic-map.ts` entries
-   (quest-topic 798, gate-topic 797, build-topic 862), all almost certainly invalid now.
-2. Push the new Telegram env values to the existing EC2 instance (`i-056c5f1d3a9f74190`) and
-   redeploy current `main` via `hermes-aws-ts/scripts/deploy-ec2-release.sh` — in-place reuse,
-   no new instance, Phloem binding untouched.
-3. Domain/URL: Hermes is already reachable at `strength-08.thoughtseed.space` (alias
-   `omniroute.thoughtseed.space`) via the existing Phloem tunnel — confirm whether "map it to a
-   domain and URL" means using that existing binding or scoping a distinct one for a
-   Hermes-specific status/control dashboard.
-4. Web dashboard: scope what this means concretely before building — a bespoke status UI (like
-   Nous's own `/system` page) would be new work with no current equivalent in `hermes-aws-ts`.
-5. Investigate the separate third-party "Hermes" desktop app's gateway modes (Local / Hermes
-   Cloud / Remote gateway / **Connect via SSH**) before using "Connect via SSH" against the EC2
-   box — per its own description ("Hermes is launched on the remote over SSH"), this would
-   install and run **Nous's own agent runtime** on the box, not provide a UI for the existing
-   `hermes-aws-ts` systemd services. Confirm intent — a separate Nous-runtime instance running
-   alongside the custom setup, versus a UI specifically for the custom setup, which this
-   feature does not provide — before connecting.
-6. Fix the D1 admission pipeline (Issue mapping → Verify mapping → Establish eligibility →
-   Admit → Pin) per `INTEGRATION.md`'s "Next integration sequence" — the actual blocker,
-   independent of all of the above.
+### 2026-08-21 Phase 7 deterministic safety and handoff implementation checkpoint
+
+- The reviewed repository-only implementation head before acceptance edits is
+  `3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`. Phase 7 adds a SHA-bound
+  SAFE-01..03 compiler, a zero-write `safety:check` CLI and package dispatcher,
+  the inspection-only `cambium.deterministic-safety.v1` contract, phase-wide
+  SAFE-01..04 and T-07 sentinels, checked ISA acceptance, and this checkpoint.
+- Bounded write set: `scripts/deterministic-safety.mjs`,
+  `scripts/deterministic-safety.test.mjs`,
+  `scripts/check-deterministic-safety.mjs`,
+  `scripts/check-deterministic-safety.test.mjs`,
+  `docs/architecture/contracts/deterministic-safety-v1.md`, `package.json`
+  `safety:check`, helper exports from `scripts/intent-graph.mjs` and
+  `scripts/temperance-flow.mjs`, refreshed Temperance Flow readbacks,
+  `scripts/infinite-game-anchors.test.mjs`, `ISA.md`, this checkpoint, and GSD
+  plan summaries. `.planning/STATE.md`, `.planning/ROADMAP.md`, and
+  `.planning/REQUIREMENTS.md` remain orchestrator-owned.
+- Validator command: `npm run --silent safety:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`. Two runs were byte-identical,
+  performed zero repository or Git-index writes, and printed
+  `deterministic safety check passed: 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585 sha256:5780fe97f205bd6d559a2a2a391fc77058a19c82951627f4068e6a22315f99be entries=546`.
+- Failing fixtures: SAFE-01 copied paragraph of VISION/MISSION doctrine in a
+  committed overlay; SAFE-02 hostile `active_planner` / self-claim “this file
+  is the planning authority”; SAFE-03 stale `path#selector` digest and Unix
+  user-root prefix in a generated projection.
+- Passing fixtures: titles, filenames, and `sha256:` digest references;
+  `ISA.md` and `.planning/STATE.md` as allowed claimants; `docs/LIFECYCLE.md`
+  denial; `.temperance/project.json` `active_planner: "isa"`; Worker Version
+  UUID and Cloudflare account-id-shaped values.
+- Pre-acceptance verification passes: focused compiler/CLI tests 34/34;
+  named SAFE-01..04 and T-07 sentinels; complete repository tests 1940/1940;
+  drift audit; rendered-document synchronization for 6 pages and 91
+  components; standalone audit for 950 publishable files; `git diff --check`;
+  complementary Intent Graph and Temperance Flow `--check`; SHA-bound
+  documentation-inventory check for 546 entries at digest
+  `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
+- Live probe identities recorded 2026-08-20 and named only: Worker Version
+  `089181f6-ed60-4710-aab6-cd10855360e0` at 100 percent (`git-21d4908`); D1
+  `graph_digest`
+  `846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e`. Naming
+  them does not authorize D1 CAS, wrangler versions upload, Vectorize ingest,
+  `getfitcheck` tenant mint, or invented TeamForge slugs.
+- Unresolved approval boundaries (D-15): D1 CAS, wrangler versions upload
+  (cwd SHA `8360c04` remains rejected), Vectorize ingest, `getfitcheck`
+  tenant mint, invented TeamForge slugs.
+- ISA now records bounded Phase 7 implementation acceptance at `verify` / 4/4.
+  Normal GSD summary, STATE, ROADMAP, REQUIREMENTS, review, and phase closeout
+  remain pending and owned by the installed workflow. Independent verification
+  is still required; continue with `/gsd:verify-work 7` after execute-phase
+  closeout.
+- Relocation, deletion, archival or externalization, host/runtime/provider
+  configuration, deployment, credentials, Vault or native-client stores,
+  connected repositories, and every production or external mutation remain
+  explicitly held and unauthorized by this checkpoint.

@@ -12,15 +12,17 @@ This folder is the **GSD / phase spine** plus dated planning receipts.
 | **TE runtime** | `NEXT-WAVE.json`, (optional) `next-wave-tasks.json` | Machine output from `temperance-next-wave`; not human prose authority |
 | **Historical receipts** | `2026-08-10-*`, `FITCHECK-RELEASE-HANDOFF-*`, retention manifests | **No** — evidence / audit only |
 
-Current `STATE.md` (as of last read): **Status: Complete** (Telegram Operator Intake 100%).
-When STATE is Complete, Temperance next-wave **ignores orphan open checkboxes** in historical plan docs and reports `action=complete`.
+Current status and the next finite transition belong solely to live
+[`STATE.md`](STATE.md). Re-read it directly; this index intentionally caches
+neither value.
 
 ## Reading order for humans / agents
 
 1. Root [PROJECT.md](../PROJECT.md) + [.project/HANDOFF.md](../.project/HANDOFF.md)
-2. This folder’s **STATE.md** (is the planning slice open?)
-3. If Active → current phase under `phases/`, then open tasks
-4. If Complete → jump to [docs/runbooks/](../docs/runbooks/) + [ISA.md](../ISA.md) for *current* work; use dated files here only as audit
+2. This folder's live [`STATE.md`](STATE.md)
+3. Follow only the phase and transition selected there
+4. Use [docs/runbooks/](../docs/runbooks/) and [ISA.md](../ISA.md) for their
+   bounded current authority; use dated files here only as audit history
 
 ## Config (GSD + Temperance)
 

@@ -35,7 +35,7 @@ and `~/.config/opencode`; this repo owns planning and acceptance.
 | Planning spine | `.planning/` (GSD) + `temperance-next-wave` |
 | Acceptance | `ISA.md` when present |
 | Handoff (if present) | `.project/HANDOFF.md` |
-| Parallel execute | `noesis-execute` / `temperance-batch` |
+| Parallel execute | `te-dispatch-paid` / `temperance-batch` |
 
 ### Auto next-wave
 

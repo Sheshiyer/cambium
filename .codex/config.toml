@@ -1,8 +1,5 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-# PROJECT layer only (this repo). Host TE / OmniRoute / hooks live in
-# ~/.codex/config.toml (ChatGPT Configuration → User config). Do not use Admin.
-
 # ECC Tools generated Codex baseline
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
@@ -49,6 +46,3 @@ config_file = "agents/reviewer.toml"
 [agents.docs_researcher]
 description = "Documentation specialist that verifies APIs, framework behavior, and release notes."
 config_file = "agents/docs-researcher.toml"
-
-[sandbox_workspace_write]
-network_access = true

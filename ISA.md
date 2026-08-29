@@ -1,14 +1,14 @@
 ---
 project: Cambium
-task: "Repair Labs production from an isolated candidate and assimilate the Thoughtseed portfolio into Cambium's operating spine"
+task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
 effort: E4
-effort_source: classifier
-phase: execute
-progress: 69/73
+effort_source: task-classification
+phase: verify
+progress: 4/4
 mode: interactive
-iteration: 2026-08-13-production-portfolio-assimilation
-started: 2026-08-12T09:23:38Z
-updated: 2026-08-23T08:55:00Z
+iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
+started: 2026-07-27T21:26:34Z
+updated: 2026-08-20T21:01:45Z
 ---
 
 ## Problem
@@ -29,7 +29,11 @@ The guided-triage iteration then made the opposite mistake for unresolved work: 
 
 The repository-first implementation is merged, but production still serves the v3 bundle and therefore still shows the obsolete horizon shortcuts. Meanwhile the standalone project roots now contain 47 Thoughtseed folders and 30 active Tryambakam-Noesis project folders awaiting ingestion. The shallow relocation grammar forbids solving navigation by nesting repositories under new client directories; the missing layer is a portable folder-to-portfolio map and a visible portfolio header that calls Thoughtseed client work `Client Branch` while calling Tryambakam-Noesis work `Project`.
 
+The Fitcheck Mission scene now names the correct authenticated Shopify QA quest and its two required proofs, while Gate already commits reviewed Goal Graph proposals through a pinned D1 CAS. The missing link is founder ingress: Mission and Inspect contain no editable evidence surface, the browser cannot create a bounded pending proposal, and a successful Gate commit does not refresh the quest projection. The founder is therefore shown the gate and proof requirements without any authority-honest way to supply the outcome that advances them.
+
 ## Vision
+
+> **Historical iteration vision and acceptance evidence (issue #331 and earlier).** The retained material below records earlier implementation intent; canonical repository doctrine now lives in [`VISION.md`](./VISION.md) and [`MISSION.md`](./MISSION.md).
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
 
@@ -46,8 +50,6 @@ For portfolio planning, the founder opens one calm workbench and immediately see
 For client-family planning, the founder sees one expandable HeyZack family rather than eleven unrelated cards, while every Branch remains independently addressable. Unplanned work offers direct scheduling moves; Needs Review pairs each uncertain source record with a clearly labeled suggestion, one-tap alternatives, an optional client-family proposal, and visible completion progress. The hierarchy reduces scanning cost without inventing a new WorkObject, client identity, or canonical classification.
 
 For repository-first intake, every unresolved card begins with the exact GitHub repository evidence and an explicit origin decision. Only Thoughtseed-originated ventures or products may resolve to Saplings; all client-originated work resolves to a Client Branch even when newly started; shared Thoughtseed capability or operations work resolves to an Internal Program; unknown origin remains Needs Review. Scheduling unlocks only after repository evidence, origin, planning authority, and legacy-evidence reconciliation agree. Repository issues and plans own project-local intent; Cambium owns cross-portfolio coordination and honest unresolved gaps.
-
-For folder ingestion, the founder switches between two explicit portfolio headers. Thoughtseed keeps its Sapling, Client Branch, and Internal Program grammar and shows the shallow destination folder attached to each source-backed family. Tryambakam · Noesis shows one Project grammar, separates archives and worktree infrastructure from active project candidates, and gives every unresolved folder an intake action without pretending it is already a GitHub-backed WorkObject.
 
 ## Out of Scope
 
@@ -145,6 +147,8 @@ For folder ingestion, the founder switches between two explicit portfolio header
 
 Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.
 
+### Historical goals and acceptance evidence (issue #331 and earlier)
+
 Make operational drift mechanically difficult by aligning the ActionRequest runtime contract, renderer, fixtures, tests, runbooks, configuration ownership, GitHub state, and release evidence. The cleanup is complete only when production-shaped tests fail on the exact former mismatch, stale actionable instructions are removed from operational surfaces, deferred roadmap work is explicit, and current main can be released without touching unrelated local work.
 
 For the lead-runtime milestone, land PRs #255–#261 on `main`, obtain a successful CI run for the consolidated main SHA, and ship a tested durable runtime that proves one bounded Iverif Explee capture/enrich path while engagement, media generation, and recurring schedules remain fail-closed.
@@ -167,199 +171,67 @@ For the portfolio-ingestion-header iteration, make the merged repository-first c
 
 For the project-closeout iteration, add a terminal `Completed / Closed` workflow for Thoughtseed work that no longer needs active tracking. Done means closeout is receipt-backed, complete records are prepared for final handoff, R2 vault archive, agent-aware active/finished memory, and active-to-finished index delta, downstream flows are stopped or transferred, active Workbench views exclude closed work, and all effects remain governed without relocating folders, mutating Vault/R2 directly, touching the Goal Graph, or deploying production.
 
-For the production portfolio-assimilation iteration, reconcile every eligible shallow folder under the Thoughtseed working root with one explicit portfolio identity or a held intake record, make Sapling, Client Branch, Internal Program, Story Arc, Quest, organ, and Mission Fabric coverage mechanically inspectable without inventing operational authority, and ship the reviewed projection through one isolated Labs Worker candidate. Production is repaired only when the exact candidate passes zero-traffic preview checks, preserves the active binding and Access boundaries, is promoted as the sole 100-percent Version, and leaves a verified rollback target plus redacted before/after receipts.
+For the Fitcheck founder-evidence pilot, add one exact authenticated route and one exact Mission action space for `fitcheck-shopify-widget-qa`. Done means two bounded proof references create a replay-safe pending candidate, D1 remains unchanged until the existing Gate signs the exact server-derived proposal, the CAS commit updates one proof-scoped node, Mission and founder-only Goal Graph readback refresh from that committed head, and every Hermes, Telegram transport, deployment, and external mutation boundary remains held.
 
 ## Criteria
 
-- [ ] ISC-1301: The approved repair scope is recorded as a rollback-gated production repair, not a diagnostic ledger push.
-- [ ] ISC-1302: The production authority is identified as the Labs account configured by `workers/quests/wrangler.labs.jsonc`.
-- [ ] ISC-1303: The personal-account `workers/quests/wrangler.jsonc` is excluded from production repair commands.
-- [ ] ISC-1304: The Labs Wrangler config names Worker `cambium-quests`.
-- [ ] ISC-1305: The Labs Wrangler config declares custom domain `curious.thoughtseed.space`.
-- [ ] ISC-1306: The Labs Wrangler config declares QUESTS namespace `439547e617d9455fb752bfd651da9765`.
-- [ ] ISC-1307: The Labs Wrangler config declares SECRETS binding metadata without secret values being read.
-- [ ] ISC-1308: The Labs Wrangler config declares the Labs D1 database identity without querying row contents.
-- [ ] ISC-1309: The Labs Wrangler config declares the Labs TeamForge workers.dev Plexus origin.
-- [ ] ISC-1310: The Labs Wrangler config preserves the reviewed six-hour cron trigger.
-- [ ] ISC-1311: Current authenticated Wrangler identity is proven to include the Labs account before any upload.
-- [ ] ISC-1312: Labs deployment status returns exactly one active Version at 100 percent traffic.
-- [ ] ISC-1313: The active Labs Version UUID is read back and belongs to `cambium-quests`.
-- [ ] ISC-1314: The active Labs Version binding names are read without values.
-- [ ] ISC-1315: The active Labs QUESTS namespace matches the reviewed Labs namespace.
-- [ ] ISC-1316: A rollback Version UUID is recorded before candidate upload.
-- [ ] ISC-1317: The rollback Version is verified against the Labs Worker before candidate upload.
-- [ ] ISC-1318: Active deployment status remains one Version at 100 percent before candidate upload.
-- [ ] ISC-1319: The candidate source tree is isolated from the dirty primary checkout.
-- [ ] ISC-1320: The candidate source commit is exact and recorded before upload.
-- [ ] ISC-1321: The candidate is uploaded with `wrangler versions upload`, never `wrangler deploy`.
-- [ ] ISC-1322: The candidate uses `wrangler.labs.jsonc` and no personal-account config.
-- [ ] ISC-1323: The candidate is tagged with the exact source commit.
-- [ ] ISC-1324: Candidate upload does not change production traffic.
-- [ ] ISC-1325: Candidate Version UUID is read back from Labs metadata.
-- [ ] ISC-1326: Candidate preview alias resolves to the Labs workers.dev origin.
-- [ ] ISC-1327: Candidate script etag is read back and recorded.
-- [ ] ISC-1328: Candidate binding names and types are compared with the active Version.
-- [ ] ISC-1329: Candidate QUESTS namespace matches the active Labs namespace.
-- [ ] ISC-1330: Candidate SECRETS binding presence matches the active Labs Version.
-- [ ] ISC-1331: Candidate D1 binding identity matches the active Labs Version.
-- [ ] ISC-1332: Candidate custom-domain route metadata remains unchanged.
-- [ ] ISC-1333: Candidate direct health returns JSON 200 identifying `cambium-quests`.
-- [ ] ISC-1334: Candidate unauthenticated quest read fails closed with JSON 401.
-- [ ] ISC-1335: Candidate protected custom hostname remains behind Cloudflare Access.
-- [ ] ISC-1336: Pre-promotion active Version remains at 100 percent.
-- [ ] ISC-1337: Candidate and active script etags are intentionally recorded as distinct or equal with evidence.
-- [ ] ISC-1338: No KV, D1, R2, secret, Telegram, Hermes, or vault mutation occurs during preview.
-- [ ] ISC-1339: Promotion requires explicit owner approval already recorded in this iteration.
-- [ ] ISC-1340: Promotion targets only the verified candidate UUID.
-- [ ] ISC-1341: Promotion requests exactly 100 percent traffic for the candidate.
-- [ ] ISC-1342: Post-promotion deployment status names exactly one candidate Version at 100 percent.
-- [ ] ISC-1343: Post-promotion direct Labs health remains JSON 200 and identifies `cambium-quests`.
-- [ ] ISC-1344: Post-promotion direct unauthenticated quest read remains JSON 401.
-- [ ] ISC-1345: Post-promotion custom hostname remains Access-protected or returns authenticated product bytes under approved session.
-- [ ] ISC-1346: Post-promotion Mission read is compared with the prior accepted receipt timestamp.
-- [ ] ISC-1347: Any failed post-promotion gate triggers rollback to the recorded Labs rollback Version.
-- [ ] ISC-1348: Anti: no personal-account deploy, credential repair, second ledger push, Access bypass, or unrelated external mutation occurs.
+### Completed Phase 3 acceptance
 
-### Cloudflare Access auth-path investigation (2026-08-13)
+- [x] ISC-1273: ANCHOR-01 proves the singular near-invariant root Vision through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [x] ISC-1274: ANCHOR-02 proves the singular renewable root Repository Mission through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [x] ISC-1275: ANCHOR-03 proves the Repository Mission and bounded `FabricMission` authority distinction through the binary probe `scripts/infinite-game-anchors.test.mjs`.
+- [x] ISC-1276: ANCHOR-04 proves reference-only discovery of both canonical anchors through the binary probe `scripts/infinite-game-anchors.test.mjs`.
 
-- [x] ISC-1349: The task explicitly excludes the full-scoped token.
-- [x] ISC-1350: The operator environment was located without copying or printing secret values.
-- [x] ISC-1351: The scoped-token verification request returned HTTP 401 and was not retried with a broader token.
-- [x] ISC-1352: The full-scoped token was not read, used, or printed.
-- [x] ISC-1353: The operator environment was not edited.
-- [x] ISC-1354: No Cloudflare Access service-token key pair is present in the checked local configuration surfaces.
-- [x] ISC-1355: The existing in-app browser tab was claimed by its visible title and exact Workbench URL.
-- [x] ISC-1356: The authenticated Workbench DOM was read without clicking, submitting, or changing state.
-- [x] ISC-1357: The Workbench visibly reports 73 portfolio records, 20 Saplings, 39 Client Branches, and 15 Internal Programs.
-- [x] ISC-1358: Workbench autosave is visibly paused and no local draft was touched.
-- [x] ISC-1359: Browser cookies, storage, Access JWTs, session identifiers, and network credentials were not inspected.
-- [x] ISC-1360: The direct Labs health probe returns JSON HTTP 200 identifying `cambium-quests`.
-- [x] ISC-1361: The direct Labs quest read fails closed with JSON HTTP 401 `access_identity_required` without Access identity.
-- [x] ISC-1362: The custom hostname health probe returns HTTP 302 in the Cloudflare Access boundary.
-- [x] ISC-1363: The custom hostname quest read returns HTTP 302 in the Cloudflare Access boundary.
-- [x] ISC-1364: Cloudflare's control-plane API rejects a request without a bearer authorization header.
-- [x] ISC-1365: Source inspection shows Access service-token headers are application-feed headers, not Cloudflare control-plane credentials.
-- [x] ISC-1366: No Access service-token values were guessed, generated, or transmitted.
-- [x] ISC-1367: No alternate application bearer token was guessed or transmitted.
-- [x] ISC-1368: The Labs Worker config remains the declared production authority; no personal config was selected.
-- [x] ISC-1369: No upload, deploy, traffic shift, route change, or binding change occurred.
-- [x] ISC-1370: No second ledger push occurred.
-- [x] ISC-1371: No D1, KV, R2, secret, vault, Hermes, Telegram, or provider mutation occurred.
-- [x] ISC-1372: New evidence records status classes and visible markers only.
-- [x] ISC-1373: New evidence contains no token, cookie, JWT, raw initData, or credential value.
-- [x] ISC-1374: New evidence contains no machine-local checkout path or private note content.
-- [x] ISC-1375: The app-read boundary is verified through the existing authenticated browser session.
-- [x] ISC-1376: The control-plane replacement boundary is explicitly recorded as unsupported by Access headers.
-- [x] ISC-1377: The advisor retry was attempted and recorded as unavailable because its OAuth session expired.
-- [x] ISC-1378: An independent Cato-compatible review is required before any future mutation; this investigation performs none.
-- [x] ISC-1379: The handoff records this auth-path result and the held next gate.
-- [x] ISC-1380: Completion is limited to the auth-path investigation; production repair is not claimed complete.
-- [x] ISC-1381: An authenticated Access app session is not treated as proof of Labs control-plane authority.
-- [x] ISC-1382: The bounded next gate is an owner-approved Labs dashboard session or narrowly scoped Cloudflare API token, never the existing full-scoped token.
+### Completed Phase 4 acceptance
 
-### Labs token control-plane readback retry (2026-08-13)
+- [x] ISC-1277: GRAPH-01 proves one deterministic projection with stable node and labeled-edge semantics for Vision → Mission → finite goals → tasks → evidence → learning.
+- [x] ISC-1278: GRAPH-02 proves every projected node exposes an exact repository-relative source path, named source authority, lifecycle state, and content digest.
+- [x] ISC-1279: GRAPH-03 proves inherited overlays reference canonical root anchors and cannot declare themselves Vision or Repository Mission authorities.
+- [x] ISC-1280: GRAPH-04 proves evidence and learning edges close or renew finite goals without mutating `VISION.md` or silently rewriting `MISSION.md`.
+- [x] ISC-1281: GRAPH-05 proves approval gates, freshness, stop conditions, and blocked states remain explicit, with blocked work never projected as complete.
 
-- [x] ISC-1383: The owner-generated token was read transiently from the operator environment without printing its value.
-- [x] ISC-1384: The operator environment was not edited.
-- [x] ISC-1385: Cloudflare account listing confirms the configured Labs account.
-- [x] ISC-1386: Direct Labs deployments readback returns HTTP 200.
-- [x] ISC-1387: The active deployment has exactly one Version at 100 percent.
-- [x] ISC-1388: Active Version 42 UUID is read back and belongs to `cambium-quests`.
-- [x] ISC-1389: Active Version 42 script etag is recorded without source contents.
-- [x] ISC-1390: Rollback Version 41 UUID is read back and belongs to `cambium-quests`.
-- [x] ISC-1391: Rollback Version 41 script etag is recorded without source contents.
-- [x] ISC-1392: Active non-secret binding names and identities are read without secret values.
-- [x] ISC-1393: Active secret binding names are read without secret values.
-- [x] ISC-1394: The active `QUESTS` namespace matches the Labs config namespace.
-- [x] ISC-1395: The active `SECRETS` namespace matches the Labs config namespace.
-- [x] ISC-1396: The active `BRIDGE_DB` identity matches the Labs config database.
-- [x] ISC-1397: The active `THOUGHTSEED_VAULT` identity matches the Labs config bucket.
-- [x] ISC-1398: The active Version is missing the config-declared `CONTEXT_PROJECTIONS` binding.
-- [x] ISC-1399: The active binding set contains additional secret/plain names not declared in the config; values are not read.
-- [x] ISC-1400: The custom domain metadata maps `curious.thoughtseed.space` to `cambium-quests` production.
-- [x] ISC-1401: No upload was performed during this retry.
-- [x] ISC-1402: No deployment or traffic change was performed during this retry.
-- [x] ISC-1403: No route or binding repair was performed during this retry.
-- [x] ISC-1404: No second ledger push was attempted.
-- [x] ISC-1405: No credential mutation or secret-value read occurred.
-- [x] ISC-1406: The current checkout is dirty and therefore is not treated as an upload source.
-- [x] ISC-1407: Evidence records active and rollback identifiers without token values or machine-local paths.
+### Completed Phase 5 acceptance
 
-### Production portfolio assimilation and isolated candidate (2026-08-13)
+- [x] ISC-1282: FLOW-01 proves one exact next GSD command is derived from the approved ISA goal, live GSD transition, and active-plan dependencies, while ambiguity or authority conflict yields `blocked` instead of a competing plan.
+- [x] ISC-1283: FLOW-02 proves a fresh Ralph iteration rereads durable goal, plan, task, evidence, and reviewed handoff state; selects exactly one dependency-ready unit; verifies and persists through existing GSD/handoff surfaces; then exits on an external stop condition without owning a mutable ledger.
+- [x] ISC-1284: FLOW-03 proves the projection exposes skill-cluster and OmniRoute combo intent plus the native-orchestrator/paid-execution boundary, while only a fresh host receipt supplies resolved provider attribution.
+- [x] ISC-1285: FLOW-04 proves deterministic machine and human readbacks expose matching references, digests, routes, next action or blocked reason, gates, freshness, and stop conditions without copying doctrine or host policy, extending the Phase 4 graph vocabulary, or becoming an operational writer.
 
-- [ ] ISC-1408: The founder's current message records approval for the isolated candidate and rollback-gated production repair.
-- [ ] ISC-1409: This iteration performs no diagnostic second ledger push.
-- [x] ISC-1410: A deterministic census counts every depth-one directory under the Thoughtseed working root.
-- [x] ISC-1411: The census classifies archive, infrastructure, aggregate, and active project directories with explicit reasons.
-- [x] ISC-1412: Every included working directory has one unique normalized folder identity.
-- [x] ISC-1413: Every catalog WorkObject has one unique canonical `workId`.
-- [x] ISC-1414: App and Worker generated root maps are byte-identical.
-- [x] ISC-1415: App and Worker portfolio catalog modules and source data are byte-identical.
-- [ ] ISC-1416: Repository evidence resolves each GitHub-backed WorkObject without alias-only inference.
-- [x] ISC-1417: Workbench total and per-kind counts are derived from the same catalog rows and add exactly.
-- [x] ISC-1418: Filesystem evidence, portfolio membership, lifecycle status, and operational admission remain separate fields.
-- [x] ISC-1419: Every visible WorkObject has exactly one grammar-valid kind: Sapling, Client Branch, or Internal Program.
-- [x] ISC-1420: No WorkObject kind is inferred solely from folder age, name, or the word `new`.
-- [x] ISC-1421: Every included working directory maps to one WorkObject or one explicit unresolved intake record.
-- [x] ISC-1422: Every WorkObject maps to reviewed roots or carries an explicit folderless or unresolved state.
-- [x] ISC-1423: Thoughtseed Labs remains read-only architecture and classification context, never a Cambium runtime dependency.
-- [x] ISC-1424: TeamForge remains canonical for `project_id`, `client_id`, and cross-system identity mappings.
-- [x] ISC-1425: Cambium D1 Goal Graph remains the sole operational writer for mission, task, approval, and receipt state.
-- [x] ISC-1426: R2 and KV remain bounded evidence and projection stores rather than identity authorities.
-- [x] ISC-1427: Hermes remains the sole Telegram transport and external delivery router.
-- [x] ISC-1428: Plexus and Cloudflare Access remain the fail-closed browser identity and RBAC boundary.
-- [x] ISC-1429: No vault registry, TeamForge registry, Hermes runtime, Plexus identity, or Telegram configuration is mutated.
-- [x] ISC-1430: Every canonical branch-story packet declares one catalog-resolving WorkObject identity.
-- [x] ISC-1431: Every active Sapling exposes a Story Arc or an explicit held/unadmitted Story Arc gap.
-- [x] ISC-1432: Every Client Branch exposes a client lifecycle projection or an explicit non-operational gap without Sapling promotion semantics.
-- [x] ISC-1433: Every Internal Program exposes a program lifecycle projection without being coerced into Sapling promotion semantics.
-- [x] ISC-1434: Every branch-packet WorkObject resolves to exactly one catalog row.
-- [x] ISC-1435: Template packets remain explicitly non-canonical and never inflate portfolio coverage.
-- [x] ISC-1436: Quest rows derive deterministically from packet and Goal Graph evidence.
-- [x] ISC-1437: Quest compilation and ledger projection do not admit or mutate Goal Graph state.
-- [x] ISC-1438: Every visible WorkObject reports each organ as linked, not-applicable, held, or unmapped.
-- [x] ISC-1439: Agent, skill, loadout, and organ relationships appear only when authoritative evidence exists.
-- [x] ISC-1440: Mission Fabric joins WorkObject to Mission, Task, Run, Receipt, agent, skill, and organ edges with explicit gaps.
-- [x] ISC-1441: Canopy catalog visibility is not reported as D1 operational admission.
-- [x] ISC-1442: Workbench and Worker portfolio routes consume the same checked-in catalog projection.
-- [x] ISC-1443: One deterministic linkage audit reports census, catalog, root, packet, quest, organ, and mini-app coverage counts.
-- [x] ISC-1444: The linkage audit fails on missing, duplicate, ambiguous, stale, or authority-collapsing mappings.
-- [x] ISC-1445: The Labs candidate declares the missing `CONTEXT_PROJECTIONS` R2 binding.
-- [x] ISC-1446: The candidate preserves every active secret binding by name without reading its value.
-- [x] ISC-1447: Candidate construction occurs in an isolated clean worktree, never the dirty primary checkout.
-- [x] ISC-1448: Candidate provenance records the exact base commit and bounded patch digest.
-- [x] ISC-1449: Candidate source and evidence contain no token, cookie, JWT, raw initData, secret value, or machine-local path.
-- [x] ISC-1450: Focused mapping, Worker, authentication, and projection tests pass in the isolated candidate.
-- [x] ISC-1451: The complete repository release gate and `git diff --check` pass in the isolated candidate.
-- [x] ISC-1452: A strict Wrangler dry run emits a non-empty bundle without remote mutation.
-- [x] ISC-1453: Fresh Labs control-plane readback still shows exactly one active Version at 100 percent before upload.
-- [x] ISC-1454: The rollback Version is re-verified against the same Labs Worker immediately before upload.
-- [x] ISC-1455: Exactly one inert candidate is created through a Version upload, never `wrangler deploy`.
-- [x] ISC-1456: Candidate upload leaves production traffic on the prior active Version at 100 percent.
-- [x] ISC-1457: Candidate metadata binds the reviewed Labs QUESTS, SECRETS, D1, R2, Vectorize, vars, and cron identities.
-- [x] ISC-1458: Candidate binding names preserve the active set and add only reviewed declared bindings.
-- [x] ISC-1459: Candidate upload leaves custom-domain route metadata unchanged.
-- [x] ISC-1460: Candidate preview health returns JSON 200 identifying `cambium-quests`.
-- [x] ISC-1461: Candidate preview unauthenticated quest reads fail closed with JSON 401.
-- [x] ISC-1462: Candidate portfolio route reports the reconciled record and kind counts.
-- [x] ISC-1463: Candidate Workbench bytes match the isolated candidate bundle digest.
-- [x] ISC-1464: Candidate Mission Fabric reports exact mapped and explicit-gap coverage without invented admissions.
-- [x] ISC-1465: Candidate preview performs no KV, D1, R2, secret, provider, Hermes, vault, or Telegram mutation.
-- [x] ISC-1466: Promotion approval is bound to the verified candidate UUID and recorded preview evidence.
-- [x] ISC-1467: Promotion is attempted only after every candidate gate passes.
-- [x] ISC-1468: Promotion assigns exactly 100 percent traffic to the verified candidate UUID.
-- [x] ISC-1469: Post-promotion status shows exactly one active candidate Version at 100 percent.
-- [x] ISC-1470: Post-promotion binding readback matches the verified candidate binding identities.
-- [x] ISC-1471: The custom hostname remains protected by Cloudflare Access after promotion.
-- [x] ISC-1472: The direct Labs health endpoint remains JSON 200 after promotion.
-- [x] ISC-1473: The protected Workbench renders the reconciled portfolio through an authenticated session or is explicitly deferred with a follow-up proof ID.
-- [x] ISC-1474: Mission freshness is reported from readback only and is never inferred from the earlier Worker write receipt.
-- [x] ISC-1475: Any failed post-promotion routing, binding, auth, health, catalog, or Mission gate triggers rollback.
-- [x] ISC-1476: A triggered rollback restores the recorded prior Version to exactly 100 percent and re-runs the live probes.
-- [x] ISC-1477: Redacted evidence records candidate UUID, prior UUID, source provenance, binding names, traffic, routes, and probe outcomes.
-- [x] ISC-1478: The Cambium handoff records shipped mappings, exact verification commands, production receipt, rollback state, and remaining gaps.
-- [ ] ISC-1479: Independent E4 Cato review finds no P0/P1 production, authority, mapping, security, or evidence defect.
-- [x] ISC-1480: Anti: no personal-account deployment, Access weakening, credential mutation, second ledger push, vault write, or unrelated external change occurs.
+### Completed Phase 6 acceptance
+
+- [x] ISC-1286: DOCS-01 proves one exact five-class lifecycle map distinguishes canonical, derived, historical, evidentiary, and local-only material without replacing canonical doctrine, ISA acceptance, GSD planning, contracts, or runbooks.
+- [x] ISC-1287: DOCS-02 proves one explicit committed revision yields an exhaustive, body-free, on-demand inventory in matching machine and human formats without reading mutable checkout state.
+- [x] ISC-1288: DOCS-03 proves additive authority-owner links lead maintainers through doctrine, architecture, operating guidance, evidence, and live `.planning/STATE.md` delegation without copying mutable status.
+- [x] ISC-1289: DOCS-04 proves recoverable historical evidence remains preserved while explicit item exceptions receive exception-aware, non-destructive classification and stale instructions cannot masquerade as current authority.
+
+Implementation acceptance evidence (independent Phase 6 verification remains pending):
+
+- `node --test scripts/documentation-inventory.test.mjs scripts/generate-documentation-inventory.test.mjs scripts/infinite-game-anchors.test.mjs` exited 0 with 24/24 tests passing.
+- `npm test` exited 0 with 1895/1895 tests passing.
+- `npm run drift:audit`, `npm run render-docs:check`, `npm run standalone:audit`, and `git diff --check` each exited 0; rendered documentation reported 6 pages and 91 components, and the standalone audit checked 930 publishable files.
+- At implementation head `3e9deef38450ba3eb9dc1917481cd7a030912e8a`, two package-level JSON runs and two package-level Markdown runs were byte-identical, `JSON.parse` consumed the complete JSON stdout, and `npm run --silent docs:inventory:check -- --source-revision 3e9deef38450ba3eb9dc1917481cd7a030912e8a` exited 0 for 530 entries with inventory digest `sha256:ffd1627e8dfe540c0a0adc71586ed85ddae6cc5267c9a77ecfb34cb8ec62661a`.
+- `DOCS-PRIVACY / T-06-22` passed while scanning the normalized Phase 6 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact JSON/Markdown stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
+
+### Completed Phase 7 acceptance
+
+- [x] ISC-1290: SAFE-01 proves deterministic validation fails when canonical vision or mission doctrine is duplicated outside its allowed anchors.
+- [x] ISC-1291: SAFE-02 proves deterministic validation fails when a manifest, Ralph state file, generated graph, or documentation overlay claims goal-setting or planning authority.
+- [x] ISC-1292: SAFE-03 proves deterministic validation fails when generated projections are stale relative to their source digests or contain secrets, session identifiers, prompt bodies, or machine-local absolute paths.
+- [x] ISC-1293: SAFE-04 proves a reviewed handoff records the bounded write set, verification evidence, unresolved approval boundaries, and the exact next GSD command.
+
+Implementation acceptance evidence (independent Phase 7 verification remains pending):
+
+- `node --test scripts/deterministic-safety.test.mjs scripts/check-deterministic-safety.test.mjs` exited 0 with 34/34 tests passing.
+- `node --test --test-name-pattern='SAFE-0|Phase 7|T-07' scripts/infinite-game-anchors.test.mjs` exited 0 after the named SAFE-01..04 and T-07 sentinels were enforced.
+- `npm test` exited 0 with 1940/1940 tests passing.
+- `npm run drift:audit`, `npm run render-docs:check`, `npm run standalone:audit`, and `git diff --check` each exited 0; rendered documentation reported 6 pages and 91 components, and the standalone audit checked 950 publishable files.
+- Complementary `node scripts/generate-intent-graph.mjs --check` and `node scripts/generate-temperance-flow.mjs --check` each exited 0.
+- At implementation head `3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`, two package-level `npm run --silent safety:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` runs were byte-identical, performed zero repository or Git-index writes, and exited 0 with receipt `deterministic safety check passed: 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585 sha256:5780fe97f205bd6d559a2a2a391fc77058a19c82951627f4068e6a22315f99be entries=546`.
+- `npm run --silent docs:inventory:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` exited 0 for 546 entries with inventory digest `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
+- `SAFE-PRIVACY / T-07` passed while scanning the normalized Phase 7 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact `safety:check` stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
+
+
+### Historical acceptance evidence (issue #331 and earlier)
 
 ### Protected execution boundary
 
@@ -1181,7 +1053,7 @@ For the production portfolio-assimilation iteration, reconcile every eligible sh
 - [x] ISC-672: Unplanned quick decisions update only reversible local planning state.
 - [x] ISC-673: The Needs Review view renders all sixteen source classification-review records.
 - [x] ISC-674: Every source review record receives one deterministic local recommendation and rationale.
-- Historical child criterion `ISC-674.1` migrated to sequential ISC-1229; the original label is retained here for traceability.
+- [x] ISC-674.1: Every recommendation exposes its rule version and source classification digest.
 - [x] ISC-675: Recommendation copy is visibly labeled `suggested` and never `source` or `canonical`.
 - [x] ISC-676: A review record can propose Sapling, Client Branch, internal Program, or remain in review with one tap.
 - [x] ISC-677: A Client Branch proposal accepts a bounded optional client-family identifier.
@@ -1582,277 +1454,186 @@ For the production portfolio-assimilation iteration, reconcile every eligible sh
 - [x] ISC-1033: A bounded handoff records repaired discrepancies, remaining evidence holds, current digests, and the next promotion gate.
 - [x] ISC-1034: Anti: foundation reconciliation guesses a mapping, promotes a Sapling, issues a mapping receipt, or converts a missing fact into operational truth.
 - [x] ISC-1035: Anti: foundation reconciliation writes R2, GitHub, Vault, registry, D1 Goal Graph, provider, production, or physical project-folder state.
-- [x] ISC-1036: A versioned mapping-receipt contract binds one canonical WorkObject to one immutable repository identity per receipt.
-- [x] ISC-1037: Every mapping receipt carries the exact root-map, classification-source, full-catalog, and repository-evidence digests.
-- [x] ISC-1038: Every mapping receipt carries its reviewed queue batch, founder approval, repository role, origin assertion, and lifecycle state.
-- [x] ISC-1039: Mapping receipt identifiers and content digests derive deterministically from canonical normalized payloads.
-- [x] ISC-1040: Exact replay produces the same receipt and key while conflicting replay fails closed.
-- [x] ISC-1041: Canonical mapping receipt keys follow the reviewed WorkObject evidence-prefix grammar.
-- [x] ISC-1042: The Batch 3 preparation bundle contains every reviewed repository assignment exactly once.
-- [x] ISC-1043: Klear Karma receipts exclude Snow Gloves repositories, which remain assigned only to `program:snow-gloves-os`.
-- [x] ISC-1044: Kristudios receipts target only `branch:kristudios`.
-- [x] ISC-1045: ParkArea and Tirak repository receipts attach to their Client Branch identities while retaining their linked Sapling identities without invented repositories.
-- [x] ISC-1046: Batch 3 founder holds remain empty and all unavailable or unreviewed repository evidence stays outside the receipt bundle.
-- [x] ISC-1047: The receipt preparation command performs no network, R2, GitHub, D1, Vault, registry, or provider write.
-- [x] ISC-1048: A D1 migration adds nullable canonical WorkObject identity and pinned loadout anchors to Goal Graph nodes without rewriting legacy rows.
-- [x] ISC-1049: D1 indexes support tenant-scoped lookup by canonical WorkObject and pinned loadout.
-- [x] ISC-1050: Goal Graph types expose nullable `workObjectId`, `workObjectKind`, and `pinnedLoadoutId` fields.
-- [x] ISC-1051: Goal Graph validation requires WorkObject ID and kind together and rejects prefix-kind mismatches.
-- [x] ISC-1052: Goal Graph validation rejects malformed pinned loadout identities and loadout anchors without a canonical WorkObject.
-- [x] ISC-1053: Goal Graph storage reads and writes all operational anchor fields without weakening compare-and-swap graph authority.
-- [x] ISC-1054: Mission Fabric emits a `contains` edge only for an exact catalog-backed WorkObject anchor.
-- [x] ISC-1055: Mission Fabric emits a `pins-loadout` edge only for an exact anchored task and bounded loadout identity.
-- [x] ISC-1056: Missing, malformed, type-mismatched, or catalog-orphaned anchors produce explicit gaps instead of inferred edges.
-- [x] ISC-1057: Existing legacy Goal Graph nodes continue adapting as tasks while exposing their missing operational anchors honestly.
-- [x] ISC-1058: Duplicate task reconciliation preserves one canonical task node and removes ambiguous edges fail-closed.
-- [x] ISC-1059: A terminal execution outcome can fold back only through its exact canonical Goal Graph task identity.
-- [x] ISC-1060: A foldback receipt binds execution claim, terminal outcome, task, WorkObject, graph version, and proof digest.
-- [x] ISC-1061: Foldback replay is idempotent and conflicting terminal outcomes fail closed.
-- [x] ISC-1062: Mission Fabric emits `informs-next-intent` only from a validated terminal foldback receipt.
-- [x] ISC-1063: The Hermes proof manifest names read probes, canary identity, expected transitions, rollback, and separately consumable live approval.
-- [x] ISC-1064: The local Hermes proof remains a preflight artifact and never claims that production execution, ACK, or foldback occurred.
-- [x] ISC-1065: Mapping receipt, Goal Graph anchor, Mission Fabric, and foldback focused tests exit zero.
-- [x] ISC-1066: Migration, JSON, generated parity, TypeScript, lint, and `git diff --check` validation exit zero.
-- [x] ISC-1067: Portfolio Cartographer validation and the full repository test suite exit zero after operational-anchor integration.
-- [x] ISC-1068: A bounded handoff records receipt counts, anchor semantics, proof status, live gates, and rollback boundaries.
-- [x] ISC-1069: The repository changes are committed locally with a clean worktree and no push.
-- [x] ISC-1070: Anti: this iteration promotes a Sapling, invents a WorkObject/repository/loadout relation, or clears an evidence hold.
-- [x] ISC-1071: Anti: this iteration writes production R2, D1, Hermes, GitHub, Vault, registry, provider, traffic, or deployment state.
+- [x] ISC-1294: A versioned mapping-receipt contract binds one canonical WorkObject to one immutable repository identity per receipt.
+- [x] ISC-1295: Every mapping receipt carries the exact root-map, classification-source, full-catalog, and repository-evidence digests.
+- [x] ISC-1296: Every mapping receipt carries its reviewed queue batch, founder approval, repository role, origin assertion, and lifecycle state.
+- [x] ISC-1297: Mapping receipt identifiers and content digests derive deterministically from canonical normalized payloads.
+- [x] ISC-1298: Exact replay produces the same receipt and key while conflicting replay fails closed.
+- [x] ISC-1299: Canonical mapping receipt keys follow the reviewed WorkObject evidence-prefix grammar.
+- [x] ISC-1300: The Batch 3 preparation bundle contains every reviewed repository assignment exactly once.
+- [x] ISC-1301: Klear Karma receipts exclude Snow Gloves repositories, which remain assigned only to `program:snow-gloves-os`.
+- [x] ISC-1302: Kristudios receipts target only `branch:kristudios`.
+- [x] ISC-1303: ParkArea and Tirak repository receipts attach to their Client Branch identities while retaining their linked Sapling identities without invented repositories.
+- [x] ISC-1304: Batch 3 founder holds remain empty and all unavailable or unreviewed repository evidence stays outside the receipt bundle.
+- [x] ISC-1305: The receipt preparation command performs no network, R2, GitHub, D1, Vault, registry, or provider write.
+- [x] ISC-1306: A D1 migration adds nullable canonical WorkObject identity and pinned loadout anchors to Goal Graph nodes without rewriting legacy rows.
+- [x] ISC-1307: D1 indexes support tenant-scoped lookup by canonical WorkObject and pinned loadout.
+- [x] ISC-1308: Goal Graph types expose nullable `workObjectId`, `workObjectKind`, and `pinnedLoadoutId` fields.
+- [x] ISC-1309: Goal Graph validation requires WorkObject ID and kind together and rejects prefix-kind mismatches.
+- [x] ISC-1310: Goal Graph validation rejects malformed pinned loadout identities and loadout anchors without a canonical WorkObject.
+- [x] ISC-1311: Goal Graph storage reads and writes all operational anchor fields without weakening compare-and-swap graph authority.
+- [x] ISC-1312: Mission Fabric emits a `contains` edge only for an exact catalog-backed WorkObject anchor.
+- [x] ISC-1313: Mission Fabric emits a `pins-loadout` edge only for an exact anchored task and bounded loadout identity.
+- [x] ISC-1314: Missing, malformed, type-mismatched, or catalog-orphaned anchors produce explicit gaps instead of inferred edges.
+- [x] ISC-1315: Existing legacy Goal Graph nodes continue adapting as tasks while exposing their missing operational anchors honestly.
+- [x] ISC-1316: Duplicate task reconciliation preserves one canonical task node and removes ambiguous edges fail-closed.
+- [x] ISC-1317: A terminal execution outcome can fold back only through its exact canonical Goal Graph task identity.
+- [x] ISC-1318: A foldback receipt binds execution claim, terminal outcome, task, WorkObject, graph version, and proof digest.
+- [x] ISC-1319: Foldback replay is idempotent and conflicting terminal outcomes fail closed.
+- [x] ISC-1320: Mission Fabric emits `informs-next-intent` only from a validated terminal foldback receipt.
+- [x] ISC-1321: The Hermes proof manifest names read probes, canary identity, expected transitions, rollback, and separately consumable live approval.
+- [x] ISC-1322: The local Hermes proof remains a preflight artifact and never claims that production execution, ACK, or foldback occurred.
+- [x] ISC-1323: Mapping receipt, Goal Graph anchor, Mission Fabric, and foldback focused tests exit zero.
+- [x] ISC-1324: Migration, JSON, generated parity, TypeScript, lint, and `git diff --check` validation exit zero.
+- [x] ISC-1325: Portfolio Cartographer validation and the full repository test suite exit zero after operational-anchor integration.
+- [x] ISC-1326: A bounded handoff records receipt counts, anchor semantics, proof status, live gates, and rollback boundaries.
+- [x] ISC-1327: The repository changes are committed locally with a clean worktree and no push.
+- [x] ISC-1328: Anti: this iteration promotes a Sapling, invents a WorkObject/repository/loadout relation, or clears an evidence hold.
+- [x] ISC-1329: Anti: this iteration writes production R2, D1, Hermes, GitHub, Vault, registry, provider, traffic, or deployment state.
 
 ### Fitcheck golden-path interface and doctrine synthesis
 
-- [x] ISC-1072: One shared contract identifies Fitcheck exactly as `sapling:fitcheck`.
-- [x] ISC-1073: The shared contract names `cambium` as canonical parent tenant.
-- [x] ISC-1074: Fitcheck aliases remain display-only across both interface projections.
-- [x] ISC-1075: The shared contract preserves Fitcheck's `supervised-branch` promotion state.
-- [x] ISC-1076: Packet evidence, runtime anchors, and receipt proof remain distinct.
-- [x] ISC-1077: Packet-derived content cites the canonical Fitcheck packet source path.
-- [x] ISC-1078: Runtime state appears only after exact canonical WorkObject matching.
-- [x] ISC-1079: Receipt-proven state appears only from authoritative immutable receipts.
-- [x] ISC-1080: Missing D1 anchors remain visible operational gaps, never positive state.
-- [x] ISC-1081: Shared contract parity fails when packet missions or gates drift.
-- [x] ISC-1082: Shared contract contains no secrets or machine-local absolute paths.
-- [x] ISC-1083: Telegram Canopy exposes a direct canonical Fitcheck focus control.
-- [x] ISC-1084: Fitcheck selection persists through all five operating-fabric scenes.
-- [x] ISC-1085: Telegram Mission renders Fitcheck story and packet mission controls.
-- [x] ISC-1086: Telegram Flow renders the single-change loop and foldback sequence.
-- [x] ISC-1087: Telegram Workforce renders owners without inventing live assignments.
-- [x] ISC-1088: Telegram Forge distinguishes packet routes from pinned runtime loadouts.
-- [x] ISC-1089: Telegram Gate renders blocked approvals without synthesizing actions.
-- [x] ISC-1090: Telegram Inspect renders source, identity, provenance, and anti-claims.
-- [x] ISC-1091: Every Fitcheck scene visibly labels its evidence authority level.
-- [x] ISC-1092: Telegram explicitly labels Fitcheck supervised and not autonomous.
-- [x] ISC-1093: Telegram renders both Fitcheck KPI control rows accurately.
-- [x] ISC-1094: Telegram shows Hermes foldback as proposed next-intent evidence only.
-- [x] ISC-1095: Workbench Fitcheck drawer includes a dedicated `Operate` view.
-- [x] ISC-1096: Non-Fitcheck drawers retain their existing four-tab interaction model.
-- [x] ISC-1097: Fitcheck Operate renders canonical identity and parent tenant.
-- [x] ISC-1098: Fitcheck Operate renders story, frontier, and anti-claims verbatim.
-- [x] ISC-1099: Fitcheck Operate renders every packet mission with gate and proof.
-- [x] ISC-1100: Fitcheck Operate renders both packet KPIs with current states.
-- [x] ISC-1101: Fitcheck Operate renders gate ledger statuses and required proofs.
-- [x] ISC-1102: Fitcheck Operate renders organ route and support rails distinctly.
-- [x] ISC-1103: Fitcheck Operate renders proof-foldback targets without claiming completion.
-- [x] ISC-1104: Workbench planning controls remain proposals outside Goal Graph authority.
-- [x] ISC-1105: Workbench never labels generic skill hints as assigned loadouts.
-- [x] ISC-1106: Fitcheck opens into Operate while other work opens Intake.
-- [x] ISC-1107: `ARCHITECTURE.md` describes current planes, authorities, and exact joins.
-- [x] ISC-1108: `INTEGRATION.md` distinguishes shipped rails from held live activation.
-- [x] ISC-1109: `INFINITE-GAME.md` describes the implemented iterative execution loop.
-- [x] ISC-1110: `HOMEOSTASIS.md` reconciles implemented I4 with remaining feedback gaps.
-- [x] ISC-1111: `ONBOARDING-OCTALYSIS.md` maps onboarding to current scene grammar.
-- [x] ISC-1112: Foundational documents use Fitcheck as one grounded worked trace.
-- [x] ISC-1113: Foundational documents distinguish doctrine, runtime, and historical plans.
-- [x] ISC-1114: Rendered documentation stays synchronized with Markdown sources.
-- [x] ISC-1115: Shared-contract and packet-parity tests exit successfully.
-- [x] ISC-1116: Focused Telegram portfolio and scene tests exit successfully.
-- [x] ISC-1117: Portfolio Cartographer test, lint, build, and smoke gates pass.
-- [x] ISC-1118: Telegram viewport proof validates Fitcheck across responsive scenes.
-- [ ] ISC-1119: Authenticated live UX review records observed production behavior accurately.
-- [x] ISC-1120: Full repository tests and release verification exit successfully.
-- [x] ISC-1121: Independent code audit finds no unresolved critical regressions.
-- [x] ISC-1122: A bounded handoff records implementation, evidence, and held boundaries.
-- [x] ISC-1123: Anti: packet fixtures are never presented as live merchant proof.
-- [x] ISC-1124: Anti: UI claims no Shopify approval, billing, or conversion lift.
-- [x] ISC-1125: Anti: this iteration changes no production, D1, R2, or Telegram state.
-- [x] ISC-1126: Anti: the Workbench becomes no second operational state writer.
-- [x] ISC-1127: Anti: browser login material is never inspected, stored, or recorded.
-- [x] ISC-1128: Anti: Fitcheck presentation does not imply Sapling promotion occurred.
+- [x] ISC-1330: One shared contract identifies Fitcheck exactly as `sapling:fitcheck`.
+- [x] ISC-1331: The shared contract names `cambium` as canonical parent tenant.
+- [x] ISC-1332: Fitcheck aliases remain display-only across both interface projections.
+- [x] ISC-1333: The shared contract preserves Fitcheck's `supervised-branch` promotion state.
+- [x] ISC-1334: Packet evidence, runtime anchors, and receipt proof remain distinct.
+- [x] ISC-1335: Packet-derived content cites the canonical Fitcheck packet source path.
+- [x] ISC-1336: Runtime state appears only after exact canonical WorkObject matching.
+- [x] ISC-1337: Receipt-proven state appears only from authoritative immutable receipts.
+- [x] ISC-1338: Missing D1 anchors remain visible operational gaps, never positive state.
+- [x] ISC-1339: Shared contract parity fails when packet missions or gates drift.
+- [x] ISC-1340: Shared contract contains no secrets or machine-local absolute paths.
+- [x] ISC-1341: Telegram Canopy exposes a direct canonical Fitcheck focus control.
+- [x] ISC-1342: Fitcheck selection persists through all five operating-fabric scenes.
+- [x] ISC-1343: Telegram Mission renders Fitcheck story and packet mission controls.
+- [x] ISC-1344: Telegram Flow renders the single-change loop and foldback sequence.
+- [x] ISC-1345: Telegram Workforce renders owners without inventing live assignments.
+- [x] ISC-1346: Telegram Forge distinguishes packet routes from pinned runtime loadouts.
+- [x] ISC-1347: Telegram Gate renders blocked approvals without synthesizing actions.
+- [x] ISC-1348: Telegram Inspect renders source, identity, provenance, and anti-claims.
+- [x] ISC-1349: Every Fitcheck scene visibly labels its evidence authority level.
+- [x] ISC-1350: Telegram explicitly labels Fitcheck supervised and not autonomous.
+- [x] ISC-1351: Telegram renders both Fitcheck KPI control rows accurately.
+- [x] ISC-1352: Telegram shows Hermes foldback as proposed next-intent evidence only.
+- [x] ISC-1353: Workbench Fitcheck drawer includes a dedicated `Operate` view.
+- [x] ISC-1354: Non-Fitcheck drawers retain their existing four-tab interaction model.
+- [x] ISC-1355: Fitcheck Operate renders canonical identity and parent tenant.
+- [x] ISC-1356: Fitcheck Operate renders story, frontier, and anti-claims verbatim.
+- [x] ISC-1357: Fitcheck Operate renders every packet mission with gate and proof.
+- [x] ISC-1358: Fitcheck Operate renders both packet KPIs with current states.
+- [x] ISC-1359: Fitcheck Operate renders gate ledger statuses and required proofs.
+- [x] ISC-1360: Fitcheck Operate renders organ route and support rails distinctly.
+- [x] ISC-1361: Fitcheck Operate renders proof-foldback targets without claiming completion.
+- [x] ISC-1362: Workbench planning controls remain proposals outside Goal Graph authority.
+- [x] ISC-1363: Workbench never labels generic skill hints as assigned loadouts.
+- [x] ISC-1364: Fitcheck opens into Operate while other work opens Intake.
+- [x] ISC-1365: `ARCHITECTURE.md` describes current planes, authorities, and exact joins.
+- [x] ISC-1366: `INTEGRATION.md` distinguishes shipped rails from held live activation.
+- [x] ISC-1367: `INFINITE-GAME.md` describes the implemented iterative execution loop.
+- [x] ISC-1368: `HOMEOSTASIS.md` reconciles implemented I4 with remaining feedback gaps.
+- [x] ISC-1369: `ONBOARDING-OCTALYSIS.md` maps onboarding to current scene grammar.
+- [x] ISC-1370: Foundational documents use Fitcheck as one grounded worked trace.
+- [x] ISC-1371: Foundational documents distinguish doctrine, runtime, and historical plans.
+- [x] ISC-1372: Rendered documentation stays synchronized with Markdown sources.
+- [x] ISC-1373: Shared-contract and packet-parity tests exit successfully.
+- [x] ISC-1374: Focused Telegram portfolio and scene tests exit successfully.
+- [x] ISC-1375: Portfolio Cartographer test, lint, build, and smoke gates pass.
+- [x] ISC-1376: Telegram viewport proof validates Fitcheck across responsive scenes.
+- [ ] ISC-1377: Authenticated live UX review records observed production behavior accurately.
+- [x] ISC-1378: Full repository tests and release verification exit successfully.
+- [x] ISC-1379: Independent code audit finds no unresolved critical regressions.
+- [x] ISC-1380: A bounded handoff records implementation, evidence, and held boundaries.
+- [x] ISC-1381: Anti: packet fixtures are never presented as live merchant proof.
+- [x] ISC-1382: Anti: UI claims no Shopify approval, billing, or conversion lift.
+- [x] ISC-1383: Anti: this iteration changes no production, D1, R2, or Telegram state.
+- [x] ISC-1384: Anti: the Workbench becomes no second operational state writer.
+- [x] ISC-1385: Anti: browser login material is never inspected, stored, or recorded.
+- [x] ISC-1386: Anti: Fitcheck presentation does not imply Sapling promotion occurred.
 
 ### Three-Sapling operational activation foundation
 
-- [x] ISC-1129: IVerif binds to canonical parent tenant `cambium` by explicit founder decision.
-- [x] ISC-1130: DLOCK binds to canonical parent tenant `cambium` by explicit founder decision.
-- [x] ISC-1131: DLOCK names `thoughtseed-labs/lockwell-portal` as its folderless planning authority.
-- [x] ISC-1132: Catalog projections represent Fitcheck, IVerif, and DLOCK with exact canonical-parent tenant bindings.
-- [x] ISC-1133: Product packets agree with the canonical parent tenant and never treat packet namespaces as tenant authority.
-- [x] ISC-1134: The active branch-map projection includes DLOCK exactly once.
-- [x] ISC-1135: DLOCK folderless admission does not invent a shallow project folder.
-- [x] ISC-1136: Prepared mapping evidence covers the exact repositories for all three Saplings.
-- [x] ISC-1137: Prepared mapping evidence remains explicitly unissued and grants no operational authority.
-- [x] ISC-1138: A versioned activation-manifest schema is closed and deterministic.
-- [x] ISC-1139: The activation cohort contains exactly Fitcheck, IVerif, and DLOCK.
-- [x] ISC-1140: Every activation record binds immutable repository identity and repository role.
-- [x] ISC-1141: Every activation record binds canonical packet source and digest.
-- [x] ISC-1142: Every activation record binds exact root context, including DLOCK's folderless disposition.
-- [x] ISC-1143: Activation admission fails closed until its exact mapping receipt is issued.
-- [x] ISC-1144: A versioned governed-loadout registry schema is closed and deterministic.
-- [x] ISC-1145: The registry contains one exact no-spend loadout for each cohort WorkObject.
-- [x] ISC-1146: Every cohort loadout declares spend class `none`.
-- [x] ISC-1147: Every cohort loadout declares delivery disabled and external mutation forbidden.
-- [x] ISC-1148: Every cohort loadout binds explicit eligible skill-cluster identities.
-- [x] ISC-1149: Every cohort loadout binds an exact bounded command allowlist.
-- [x] ISC-1150: Loadout registry digest changes on any authority-bearing field change.
-- [x] ISC-1151: Loadout validation rejects unknown, duplicate, mismatched, or tampered records.
-- [x] ISC-1152: Goal Graph loadout validation resolves the authoritative registry rather than accepting syntax alone.
-- [x] ISC-1153: A pinned loadout must list the exact WorkObject as eligible.
-- [x] ISC-1154: Mission Fabric emits `pins-loadout` only after registry validation.
-- [x] ISC-1155: Mission Fabric emits `requires-cluster` only for clusters authorized by the pinned loadout.
-- [x] ISC-1156: A versioned governed-dispatch preparation schema is closed and deterministic.
-- [x] ISC-1157: Dispatch binds tenant, WorkObject, task, graph version, activation digest, and loadout digest exactly.
-- [x] ISC-1158: Dispatch requires an issued mapping receipt and admitted activation manifest.
-- [x] ISC-1159: Dispatch remains delivery-disabled, no-spend, and external-mutation-forbidden.
-- [x] ISC-1160: Dispatch carries an unconsumed signed approval reference without consuming it locally.
-- [x] ISC-1161: Dispatch rejects cross-Sapling WorkObject, repository, task, cluster, loadout, and receipt substitution.
-- [x] ISC-1162: Terminal foldback derives a bounded Cortex projection from immutable terminal receipt fields only.
-- [x] ISC-1163: Cortex projection contains no raw prompt, response, credential, identity, or provider payload.
-- [x] ISC-1164: Terminal foldback derives a bounded agent-memory projection with exact WorkObject lineage.
-- [x] ISC-1165: Receipt, Cortex, and agent-memory artifacts use deterministic WorkObject-scoped R2 keys.
-- [x] ISC-1166: Terminal foldback derives an approval-required next-intent proposal.
-- [x] ISC-1167: A next-intent proposal cannot directly write or masquerade as Goal Graph authority.
-- [x] ISC-1168: Non-terminal, stale-fence, mismatched-loadout, or unissued-activation evidence produces no memory or next intent.
-- [x] ISC-1169: Exact replay is idempotent and conflicting foldback evidence fails closed.
-- [x] ISC-1170: Three-Sapling end-to-end tests prove independent activation, dispatch, receipt, memory, and next-intent lineages.
-- [x] ISC-1171: Prepared per-Sapling preflight manifests keep every live flag false and every approval unconsumed.
-- [x] ISC-1172: Anti: this iteration issues no mapping receipt and writes no production R2, D1, Hermes, Cortex, or agent memory.
-- [x] ISC-1173: Focused authority, isolation, and foldback tests exit zero.
-- [x] ISC-1174: Full repository and Portfolio Cartographer verification exit zero.
-- [x] ISC-1175: Independent post-build review finds no unresolved material authority regression.
-- [x] ISC-1176: A bounded handoff and local commit preserve all promotion, deployment, provider, traffic, and external-write gates.
-- [x] ISC-1177: The operational model treats a WorkObject as a governed system, never as a repository singleton.
-- [x] ISC-1178: `sapling:fitcheck` and `program:hdilint` remain distinct canonical WorkObjects with one symmetric dependency link.
-- [x] ISC-1179: Fitcheck declares multiple repository components with exact immutable identities, owners, roles, access state, and one planning authority.
-- [x] ISC-1180: Fitcheck declares typed infrastructure and service dependencies without promoting those dependencies into WorkObjects.
-- [x] ISC-1181: Identity, systems binding, mapping issuance, immutable readback, planning, and D1 eligibility are separate lifecycle facts.
-- [x] ISC-1182: The exact Fitcheck repository assignment compiles into one deterministic prepared mapping receipt candidate.
-- [x] ISC-1183: D1 eligibility and admission remain held until the exact issued mapping receipt passes immutable readback.
-- [x] ISC-1184: A versioned operational-packet registry lets any validated packet-backed WorkObject receive the same Operate projection.
-- [x] ISC-1185: Workbench exposes repository topology, WorkObject dependencies, infrastructure, receipt state, and held runtime authority.
-- [x] ISC-1186: Telegram consumes the same generic registry and cannot display pre-receipt D1 admission as evidenced.
-- [x] ISC-1187: A canonical workflow registry defines kind-compatible Sapling, Client Branch, and Internal Program intake lifecycles.
-- [x] ISC-1188: Project birth pins workflow identity, workflow digest, registry digest, and stages before folder creation.
-- [x] ISC-1189: Executable onboarding matches the governing twenty-row Octalysis Markdown contract exactly.
-- [x] ISC-1190: DLOCK remains access-held until the cofounder grants authenticated Thoughtseed Labs GitHub authority.
-- [x] ISC-1191: Focused, full, generated, documentation, and responsive visual proofs exit zero.
-- [x] ISC-1192: Anti: the reusable-intake build checkpoint performs no live receipt, D1, Hermes, Cortex, memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
-- [x] ISC-1193: Fitcheck mapping issuance preflight proves the exact remote R2 key is absent before write.
-- [x] ISC-1194: Exactly one Fitcheck mapping receipt object is written to the prepared WorkObject-scoped R2 key.
-- [x] ISC-1195: Fitcheck mapping readback is byte-identical to the locally canonicalized receipt object.
-- [x] ISC-1196: Fitcheck readback validates against the mapping receipt contract and binds `sapling:fitcheck` to `Sheshiyer/fitcheck-landing`.
-- [x] ISC-1197: Fitcheck mapping readback evidence records root-map, catalog, classification, and repository-evidence digests.
-- [x] ISC-1198: The operational packet marks Fitcheck mapped and mapping-readback verified while leaving D1 admission held.
-- [x] ISC-1199: The D1 Mission to Task proposal gate is unlocked but unapplied.
-- [x] ISC-1200: Anti: Fitcheck receipt issuance performs no D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
-- [x] ISC-1201: The authenticated Portfolio Workbench DOM is read without navigation and records its exact live total, WorkObject-family counts, review state, and planning state.
-- [x] ISC-1202: The unreadable local v4 draft remains untouched; no autosave, import, reset, planning action, or server action is triggered.
-- [x] ISC-1203: The three supplied Mission Control and Workbench screenshots are inspected as dated visual evidence without treating screenshots as runtime authority.
-- [x] ISC-1204: The repository root map, catalog, product-branch packets, Workbench bundle, Mission Fabric route, quest-ledger writer, and Telegram renderer are traced as one explicit producer-consumer map.
-- [x] ISC-1205: Thoughtseed Labs is documented as classification and evidence context only, never as a Cambium runtime dependency or copied private corpus.
-- [x] ISC-1206: Hermes is documented as the sole Telegram transport and execution router; Cambium does not acquire a second sender.
-- [x] ISC-1207: TeamForge identity mappings, Cambium D1 Goal Graph operational truth, Worker KV ledger projection, and R2/vault evidence remain separate authorities.
-- [x] ISC-1208: The Mini App Canopy catalog path and Mission branch-story path are distinguished so portfolio visibility cannot be mistaken for operational admission.
-- [x] ISC-1209: Every locally loaded branch-story packet is enumerated with its exact canonical WorkObject identity or an explicit template/non-canonical state.
-- [x] ISC-1210: App and Worker portfolio catalog source mirrors are byte-identical and their current checked-in counts and digests are derived, not copied from prose.
-- [x] ISC-1211: The read-only vault registry comparison reports exact WorkObject additions, removals, and classification moves without modifying the vault.
-- [x] ISC-1212: The authenticated Workbench, local catalog projection, and referenced vault registry are reported as three dated states instead of being forced into one false count.
-- [x] ISC-1213: Production Worker deployment and binding metadata are read back without exposing values of secret bindings or mutating deployment state.
-- [x] ISC-1214: The stale Mission ledger timestamp is connected to the branch-packet quest push path rather than misdiagnosed as a Workbench-catalog failure.
-- [x] ISC-1215: The first stale ingestion boundary is identified with evidence and distinguishes uncommitted repository state, scheduled Hermes refresh, Worker authentication, and active KV binding hypotheses.
-- [x] ISC-1216: A repository-scoped linkage audit deterministically reports catalog parity, branch-packet identity coverage, root-map parity, and authority boundaries.
-- [x] ISC-1217: The linkage audit can optionally compare a founder-supplied offline vault registry but has no vault runtime dependency and emits no private payload or machine-local absolute path.
-- [x] ISC-1218: The linkage audit reports drift as evidence and never rewrites catalogs, registries, packets, browser storage, D1, KV, R2, or Telegram state.
-- [x] ISC-1219: A checked-in architecture map names every producer, contract, authority, consumer, freshness clock, failure boundary, and owner-approved mutation gate.
-- [x] ISC-1220: The architecture map explains which Workbench changes affect Canopy immediately after release and which Mission changes require explicit packet/Goal Graph admission plus ledger refresh.
-- [x] ISC-1221: Focused linkage-audit tests prove deterministic sorting, exact identity joins, template handling, drift reporting, redaction, and read-only behavior.
-- [x] ISC-1222: Focused catalog, branch-packet, Mission Fabric, and linkage suites remain green; the full portfolio-foundation gate may block only on the separately reported pre-existing reviewed-pin drift.
-- [x] ISC-1223: Repository-wide regression, documentation rendering, and diff-integrity checks pass or any unrelated pre-existing failure is named with exact evidence.
-- [x] ISC-1224: Independent E4 review finds no authority collapse, invented synchronization claim, privacy leak, destructive action, or missing high-risk test.
-- [x] ISC-1225: The project handoff records the reconciled architecture, live stale boundary, deterministic commands, changed files, and next separately approved production action.
-- [x] ISC-1226: Anti: no Workbench action, draft repair, vault write, registry write, provider change, deployment, traffic shift, Worker binding mutation, ledger push, D1 write, R2 write, Telegram send, or Hermes mutation occurs.
-- [x] ISC-1227: Anti: portfolio records are not bulk-promoted into Mission branch stories merely to reconcile visible counts.
-- [x] ISC-1228: Anti: no secret, raw Telegram initData, session identifier, prompt/response body, private note, credential, or machine-local checkout path is added to repository artifacts.
-- [x] ISC-1229: Every source review recommendation exposes its rule version and source classification digest.
-- [x] ISC-1230: The current portfolio catalog, root map, and classification digests are derived from checked-in source rather than copied from prior evidence.
-- [x] ISC-1231: App and Worker catalog mirrors are byte-identical and app and Worker root-map projections resolve to the same current digest before any pin advances.
-- [x] ISC-1232: The pre-change portfolio foundation failure is reproduced and attributable only to reviewed root-map and catalog pin drift.
-- [x] ISC-1233: The authority-bearing source changes behind both new digests are reviewed at record level and contain no unknown WorkObject identity.
-- [x] ISC-1234: The classification digest remains unchanged and its reviewed pin is not rewritten.
-- [x] ISC-1235: Exactly the reviewed root-map and catalog pin values advance to their current derived digests.
-- [x] ISC-1236: Project birth and closeout reviewed snapshots advance to those same root-map and catalog digests with classification unchanged.
-- [x] ISC-1237: The focused foundation-pin test passes after the pin and snapshot advance.
-- [x] ISC-1238: The complete portfolio-foundation validation passes after the pin and snapshot advance.
-- [x] ISC-1239: Repository regression checks introduce no new failure beyond explicitly named dirty-worktree baselines.
-- [x] ISC-1240: A pre-push public ledger read records the exact prior tenant, derived timestamp, branch-story count, and response content type without persisting its payload.
-- [x] ISC-1241: Read-only Worker metadata proves the selected authenticated origin resolves to the active Cambium Worker and existing KV binding without deployment, traffic, or binding mutation.
-- [x] ISC-1242: Ledger-push authentication is available by presence-only inspection; no token value, length, session identifier, or credential material is printed or recorded.
-- [x] ISC-1243: All preflight gates pass before the first and only authenticated ledger POST is attempted.
-- [x] ISC-1244: Exactly one authenticated POST targets the serving Worker's `/internal/ledger/cambium` route using the repository's canonical quest-envelope builder.
-- [x] ISC-1245: The POST response has JSON content type and is accepted only through the closed Worker receipt validator.
-- [x] ISC-1246: The exact Worker receipt contains only `ok: true`, tenant `cambium`, the accepted byte count, and its derived timestamp.
-- [x] ISC-1247: The accepted receipt timestamp is strictly newer than the pre-push ledger timestamp.
-- [x] ISC-1248: The pushed envelope preserves the existing six branch stories, five canonical WorkObject identities, and one explicit template story without regression.
-- [x] ISC-1249: A post-push authenticated ledger read is compared with the receipt; an exact timestamp match is required to claim freshness, while any mismatch is recorded verbatim without a second push.
-- [x] ISC-1250: Mission Control's actual post-push freshness state is confirmed without persistent browser mutation or Telegram action, and any remaining stale boundary stays held for separate routing/binding/configuration approval.
-- [x] ISC-1251: A redacted local evidence artifact records the pre-read, one-POST count, exact receipt, post-read, and verification results without the token or ledger payload.
-- [x] ISC-1252: Temperance parallel-dispatch preflights use `noesis-execute`, concurrency at most four, read-only workers, validated run indexes and gateway attribution; non-substantive outputs are rejected after the one permitted retry and replaced by direct controller evidence.
-- [x] ISC-1253: Independent post-operation review finds no pin overreach, duplicate ledger write, stale-read claim, receipt mismatch, or authority collapse.
-- [x] ISC-1254: The project handoff records changed files, exact verification commands, the redacted receipt artifact, and remaining separately approved gates.
-- [x] ISC-1255: Anti: no deployment, Worker upload, traffic shift, binding/configuration change, D1/R2/vault write, Hermes mutation, Telegram send, or authentication weakening occurs.
-- [x] ISC-1256: Anti: a non-JSON, rejected, mismatched, or ambiguous POST result is never retried automatically or relabeled as an exact Worker receipt.
-- [x] ISC-1257: The custom hostname DNS/HTTP route resolves to Cloudflare Access rather than directly exposing the Worker origin.
-- [x] ISC-1258: The custom hostname redirects unauthenticated requests to its Access login boundary without exposing ledger JSON.
-- [x] ISC-1259: The direct Worker origin serves a JSON health response identifying `cambium-quests`.
-- [x] ISC-1260: The direct Worker origin's unauthenticated quest read fails closed with JSON rather than exposing ledger data.
-- [x] ISC-1261: The authenticated browser remains on the founder Workbench route at the custom hostname.
-- [x] ISC-1262: The authenticated Workbench DOM remains read-only during this audit and exposes no mutation submission.
-- [x] ISC-1263: The authenticated Workbench renders 73 visible WorkObjects with the recorded 20/38/15 DOM split.
-- [x] ISC-1264: Mission Control freshness reads source `push` and the pre-existing stale timestamp `2026-08-11T12:12:56.794Z`.
-- [x] ISC-1265: Mission Control still renders five canonical mission tabs after the accepted receipt.
-- [x] ISC-1266: The accepted Worker receipt timestamp remains strictly newer than the custom-domain read timestamp.
-- [x] ISC-1267: The custom-domain read path does not surface the accepted receipt's newer timestamp.
-- [x] ISC-1268: Checked-in Wrangler configuration declares Worker `cambium-quests` with no custom route entries.
-- [x] ISC-1269: Checked-in Wrangler configuration declares QUESTS namespace `10aaa6e0a8a545c1afb5ceee7ef61c14`.
-- [x] ISC-1270: The active production deployment has exactly one version receiving 100 percent traffic.
-- [x] ISC-1271: The active production version binds QUESTS to namespace `439547e617d9455fb752bfd651da9765`.
-- [x] ISC-1272: The checked-in and active QUESTS namespace IDs are proven different without reading KV payload contents.
-- [x] ISC-1273: No deployment, traffic, or binding mutation occurs during this audit.
-- [x] ISC-1274: The active Worker version remains `86112412-2073-4f14-b215-599de0ed0eeb` during the audit.
-- [x] ISC-1275: The direct Worker health response and custom-host Access response identify distinct route behaviors.
-- [x] ISC-1276: The direct Worker API path does not silently inherit custom-host Access identity.
-- [x] ISC-1277: The custom-host browser page and API freshness surfaces are read without inspecting cookies, storage, or session identifiers.
-- [x] ISC-1278: No route probe performs a POST, PUT, PATCH, DELETE, form submit, or browser action.
-- [x] ISC-1279: The stale boundary is classified as a visibility/read-path mismatch, not relabeled as a failed Worker receipt.
-- [x] ISC-1280: The receipt evidence remains byte-count, tenant, status, and timestamp only, with no ledger body retained.
-- [x] ISC-1281: The routing audit records status, content type, redirect location class, and Worker identity without auth-token material.
-- [x] ISC-1282: The binding audit records binding names and namespace IDs only, never secret values.
-- [x] ISC-1283: The visibility audit records Workbench and Mission counts without private draft, browser storage, or payload capture.
-- [x] ISC-1284: Audit evidence contains no raw Access token, bearer token, cookie, session identifier, or initData.
-- [x] ISC-1285: Audit evidence contains no machine-local absolute checkout path.
-- [x] ISC-1286: Audit evidence names the checked-in versus active QUESTS mismatch as a separate repair candidate.
-- [x] ISC-1287: Any binding/configuration repair remains held behind a new owner-approved operation.
-- [x] ISC-1288: Any deployment or traffic correction remains held behind the existing rollback-gated release procedure.
-- [x] ISC-1289: No second ledger push is attempted as an audit diagnostic.
-- [x] ISC-1290: No custom-domain Access bypass or authentication weakening is attempted.
-- [x] ISC-1291: The project handoff records route, binding, visibility results and the exact held next step.
-- [x] ISC-1292: The routing/binding/visibility evidence artifact parses as the declared versioned schema.
-- [x] ISC-1293: Focused route, binding-source, and visibility probes exit zero or preserve named external-auth failures.
-- [x] ISC-1294: Repository diff integrity remains clean for audit-owned files.
-- [x] ISC-1295: Independent final review finds no authority collapse or unsupported freshness claim.
-- [x] ISC-1296: Anti: no deployment, upload, traffic shift, KV write, D1/R2/vault write, Hermes mutation, Telegram send, or credential repair occurs.
+- [x] ISC-1387: IVerif binds to canonical parent tenant `cambium` by explicit founder decision.
+- [x] ISC-1388: DLOCK binds to canonical parent tenant `cambium` by explicit founder decision.
+- [x] ISC-1389: DLOCK names `thoughtseed-labs/lockwell-portal` as its folderless planning authority.
+- [x] ISC-1390: Catalog projections represent Fitcheck, IVerif, and DLOCK with exact canonical-parent tenant bindings.
+- [x] ISC-1391: Product packets agree with the canonical parent tenant and never treat packet namespaces as tenant authority.
+- [x] ISC-1392: The active branch-map projection includes DLOCK exactly once.
+- [x] ISC-1393: DLOCK folderless admission does not invent a shallow project folder.
+- [x] ISC-1394: Prepared mapping evidence covers the exact repositories for all three Saplings.
+- [x] ISC-1395: Prepared mapping evidence remains explicitly unissued and grants no operational authority.
+- [x] ISC-1396: A versioned activation-manifest schema is closed and deterministic.
+- [x] ISC-1397: The activation cohort contains exactly Fitcheck, IVerif, and DLOCK.
+- [x] ISC-1398: Every activation record binds immutable repository identity and repository role.
+- [x] ISC-1399: Every activation record binds canonical packet source and digest.
+- [x] ISC-1400: Every activation record binds exact root context, including DLOCK's folderless disposition.
+- [x] ISC-1401: Activation admission fails closed until its exact mapping receipt is issued.
+- [x] ISC-1402: A versioned governed-loadout registry schema is closed and deterministic.
+- [x] ISC-1403: The registry contains one exact no-spend loadout for each cohort WorkObject.
+- [x] ISC-1404: Every cohort loadout declares spend class `none`.
+- [x] ISC-1405: Every cohort loadout declares delivery disabled and external mutation forbidden.
+- [x] ISC-1406: Every cohort loadout binds explicit eligible skill-cluster identities.
+- [x] ISC-1407: Every cohort loadout binds an exact bounded command allowlist.
+- [x] ISC-1408: Loadout registry digest changes on any authority-bearing field change.
+- [x] ISC-1409: Loadout validation rejects unknown, duplicate, mismatched, or tampered records.
+- [x] ISC-1410: Goal Graph loadout validation resolves the authoritative registry rather than accepting syntax alone.
+- [x] ISC-1411: A pinned loadout must list the exact WorkObject as eligible.
+- [x] ISC-1412: Mission Fabric emits `pins-loadout` only after registry validation.
+- [x] ISC-1413: Mission Fabric emits `requires-cluster` only for clusters authorized by the pinned loadout.
+- [x] ISC-1414: A versioned governed-dispatch preparation schema is closed and deterministic.
+- [x] ISC-1415: Dispatch binds tenant, WorkObject, task, graph version, activation digest, and loadout digest exactly.
+- [x] ISC-1416: Dispatch requires an issued mapping receipt and admitted activation manifest.
+- [x] ISC-1417: Dispatch remains delivery-disabled, no-spend, and external-mutation-forbidden.
+- [x] ISC-1418: Dispatch carries an unconsumed signed approval reference without consuming it locally.
+- [x] ISC-1419: Dispatch rejects cross-Sapling WorkObject, repository, task, cluster, loadout, and receipt substitution.
+- [x] ISC-1420: Terminal foldback derives a bounded Cortex projection from immutable terminal receipt fields only.
+- [x] ISC-1421: Cortex projection contains no raw prompt, response, credential, identity, or provider payload.
+- [x] ISC-1422: Terminal foldback derives a bounded agent-memory projection with exact WorkObject lineage.
+- [x] ISC-1423: Receipt, Cortex, and agent-memory artifacts use deterministic WorkObject-scoped R2 keys.
+- [x] ISC-1424: Terminal foldback derives an approval-required next-intent proposal.
+- [x] ISC-1425: A next-intent proposal cannot directly write or masquerade as Goal Graph authority.
+- [x] ISC-1426: Non-terminal, stale-fence, mismatched-loadout, or unissued-activation evidence produces no memory or next intent.
+- [x] ISC-1427: Exact replay is idempotent and conflicting foldback evidence fails closed.
+- [x] ISC-1428: Three-Sapling end-to-end tests prove independent activation, dispatch, receipt, memory, and next-intent lineages.
+- [x] ISC-1429: Prepared per-Sapling preflight manifests keep every live flag false and every approval unconsumed.
+- [x] ISC-1430: Anti: this iteration issues no mapping receipt and writes no production R2, D1, Hermes, Cortex, or agent memory.
+- [x] ISC-1431: Focused authority, isolation, and foldback tests exit zero.
+- [x] ISC-1432: Full repository and Portfolio Cartographer verification exit zero.
+- [x] ISC-1433: Independent post-build review finds no unresolved material authority regression.
+- [x] ISC-1434: A bounded handoff and local commit preserve all promotion, deployment, provider, traffic, and external-write gates.
+- [x] ISC-2435: The operational model treats a WorkObject as a governed system, never as a repository singleton.
+- [x] ISC-2436: `sapling:fitcheck` and `program:hdilint` remain distinct canonical WorkObjects with one symmetric dependency link.
+- [x] ISC-2437: Fitcheck declares multiple repository components with exact immutable identities, owners, roles, access state, and one planning authority.
+- [x] ISC-2438: Fitcheck declares typed infrastructure and service dependencies without promoting those dependencies into WorkObjects.
+- [x] ISC-2439: Identity, systems binding, mapping issuance, immutable readback, planning, and D1 eligibility are separate lifecycle facts.
+- [x] ISC-2440: The exact Fitcheck repository assignment compiles into one deterministic prepared mapping receipt candidate.
+- [x] ISC-2441: D1 eligibility and admission remain held until the exact issued mapping receipt passes immutable readback.
+- [x] ISC-2442: A versioned operational-packet registry lets any validated packet-backed WorkObject receive the same Operate projection.
+- [x] ISC-2443: Workbench exposes repository topology, WorkObject dependencies, infrastructure, receipt state, and held runtime authority.
+- [x] ISC-2444: Telegram consumes the same generic registry and cannot display pre-receipt D1 admission as evidenced.
+- [x] ISC-2445: A canonical workflow registry defines kind-compatible Sapling, Client Branch, and Internal Program intake lifecycles.
+- [x] ISC-2446: Project birth pins workflow identity, workflow digest, registry digest, and stages before folder creation.
+- [x] ISC-2447: Executable onboarding matches the governing twenty-row Octalysis Markdown contract exactly.
+- [x] ISC-2448: DLOCK remains access-held until the cofounder grants authenticated Thoughtseed Labs GitHub authority.
+- [x] ISC-2449: Focused, full, generated, documentation, and responsive visual proofs exit zero.
+- [x] ISC-2450: Anti: the reusable-intake build checkpoint performs no live receipt, D1, Hermes, Cortex, memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
+- [x] ISC-2451: Fitcheck mapping issuance preflight proves the exact remote R2 key is absent before write.
+- [x] ISC-2452: Exactly one Fitcheck mapping receipt object is written to the prepared WorkObject-scoped R2 key.
+- [x] ISC-2453: Fitcheck mapping readback is byte-identical to the locally canonicalized receipt object.
+- [x] ISC-2454: Fitcheck readback validates against the mapping receipt contract and binds `sapling:fitcheck` to `Sheshiyer/fitcheck-landing`.
+- [x] ISC-2455: Fitcheck mapping readback evidence records root-map, catalog, classification, and repository-evidence digests.
+- [x] ISC-2456: The operational packet marks Fitcheck mapped and mapping-readback verified while leaving D1 admission held.
+- [x] ISC-2457: The D1 Mission to Task proposal gate is unlocked but unapplied.
+- [x] ISC-2458: Anti: Fitcheck receipt issuance performs no D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
 
 ## Test Strategy
 
-Each criterion is verified at the narrowest boundary that can prove its behavior, followed by the relevant integration and repository regressions. Known dirty-tree failures are retained as evidence and never relabeled as passing linkage checks.
+
+- ISC-1273..1276 | canonical infinite-game anchors | stable headings, direct paths, authority boundaries, coherent ISA state, and preserved Mission Fabric terminology | each criterion is binary and provenance-preserving | `node --test scripts/infinite-game-anchors.test.mjs`
+- ISC-1277..1281 | provenance-preserving intent graph | deterministic manifest, stable node/edge semantics, exact source metadata, overlay-reference guards, learning boundaries, and fail-closed gated/blocked state | each criterion maps one-to-one to GRAPH-01..05 and one named binary test | Phase 4 focused contract test plus generated-manifest check
+- ISC-1282..1285 | Ralph and Temperance flow projection | exact next action, bounded one-unit iteration, authenticated host attribution, and matching read-only flow readbacks | each criterion maps one-to-one to FLOW-01..04 and named binary tests | Phase 5 focused flow and Ralph suites plus generated-projection check
+- ISC-1286..1289 | documentation stewardship | exact lifecycle vocabulary, explicit-commit corpus inventory, additive navigation, and recoverable exception-aware evidence | each criterion maps one-to-one to DOCS-01..04 and named binary tests | Phase 6 anchor sentinel plus focused inventory and navigation suites
+- ISC-1290..1293 | deterministic safety and handoff | doctrine-duplication, authority-drift, freshness/privacy, reviewed handoff | each criterion maps one-to-one to SAFE-01..04 | Phase 7 anchor sentinel plus focused safety suites
 
 | ISC range | Type | Binary check | Tool |
 |---|---|---|---|
@@ -1874,16 +1655,11 @@ Each criterion is verified at the narrowest boundary that can prove its behavior
 | ISC-931..945 | Batch 2 repository mapping | queue-count probe, immutable GitHub IDs, exact WorkObject assignments, regenerated evidence, scoped/full tests, JSON parse, handoff, and no-external-mutation status | `node`, `gh`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
 | ISC-946..961 | Cambium Phase 1 live apply | ancestry, exact approval, pre/post lstat and Git identity, depth-one compare, recoverable archive, atomic path promotion, regenerated root map/headers, receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, `node`, `jq`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check` |
 | ISC-962..980 | Temperance Phase 2 reconciliation | exact Git and lstat identity, redacted file comparison, ignore-policy decision, local-state archive target, container preservation, unchanged root map, preflight receipt, scoped/full tests, and anti-mutation evidence | `git`, `lstat`, `find`, SHA-256, redacted `node` comparison, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
-| ISC-1230..1256 | reviewed pin advance and one authenticated ledger refresh | derived digest comparison, record-level diff review, focused/foundation/regression tests, read-only deployment/KV metadata, one counted POST, closed receipt validation, exact pre/post freshness reads, redacted evidence, parallel-run index validation, and boundary audit | `node`, `git diff`, `wrangler` read-only commands, `temperance-batch`, `curl`, quest CLI, focused `node --test`, `npm run validate:portfolio-foundation`, `npm test`, `git diff --check` |
-| ISC-1257..1296 | routing, binding, and visibility audit | dual-host route probes, Access redirect classification, Worker identity/health, active-versus-checked-in binding readback, authenticated DOM/freshness inspection, redaction/path scans, handoff, and held-boundary review | `curl`, `node`, `wrangler` read-only commands, in-app browser DOM, `rg`, JSON parse, `git diff --check` |
-| ISC-1408..1480 | production portfolio assimilation and isolated candidate | deterministic working-root census, authority-safe catalog/root/packet/quest/organ coverage, clean candidate provenance, strict local release gates, one inert Labs Version upload, preview probes, exact promotion/rollback, redacted receipts, and independent review | `find`, `node`, `rg`, focused/full tests, Wrangler dry-run, Cloudflare API/Version readback, `curl`, authenticated browser proof or deferred follow-up, `git diff --check`, Cato audit |
 | ISC-981..999 | Temperance Phase 2 live apply | exact approval, clean input commit, pre/post inodes and Git identity, local-state archive, atomic directory moves, empty container, unchanged root map, apply receipt, scoped/full tests, clean commit, and anti-mutation evidence | `git`, `lstat`, `find`, `mv`, SHA-256, `node`, `jq`, focused `node --test`, `pnpm check`, `npm test`, `git diff --check` |
 | ISC-1000..1035 | portfolio foundation reconciliation | derive counts and keys, validate referential integrity and digests, distinguish typed shared relationships from ambiguity, reject alias joins, reconcile active prose, run focused/full tests, and prove external/promotion boundaries held | deterministic Node audit/test, TypeScript catalog validators, `jq`, SHA-256, `rg`, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
-| ISC-1036..1071 | mapping receipts and operational anchors | compile exact reviewed Batch 3 receipts, validate immutable replay, apply nullable D1 anchor migration locally, prove exact Mission Fabric edges and typed gaps, compile a terminal foldback preflight, run focused/full gates, and prove every external boundary stayed closed | deterministic Node tests, D1 migration/store tests, TypeScript, `jq`, SHA-256, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
-| ISC-1072..1128 | Fitcheck golden path | prove one packet-derived contract, two authority-honest UI projections, five reconciled doctrine documents, responsive browser behavior, full regression safety, and zero live mutation | packet-parity tests, Worker scene tests, Workbench checks, in-app browser observation, viewport proof, rendered-doc checks, independent review, `npm test`, `git diff --check` |
-| ISC-1129..1176 | three-Sapling operational foundation | prove exact tenant/repository/planning authority, deterministic activation and no-spend loadouts, registry-backed D1 joins, delivery-disabled dispatch, terminal memory/next-intent foldback, cross-Sapling isolation, held live manifests, and zero external mutation | catalog/packet validators, canonical digest tests, Goal Graph and Mission Fabric tests, dispatch/foldback store tests, three-Sapling E2E tests, `jq`, `pnpm check`, `npm test`, `git diff --check`, independent review |
-| ISC-1177..1192 | reusable Fitcheck intake | prove multi-repository WorkObject topology, prepared receipt authority, receipt-gated D1 eligibility, generic Operate projections, kind-compatible workflows, onboarding parity, DLOCK access hold, and zero live mutation | projection/catalog/receipt/onboarding/birth tests, `jq`, `pnpm check`, viewport proof, rendered docs, `npm test`, `git diff --check`, independent review |
-| ISC-1201..1228 | Portfolio Workbench to Telegram Mini App linkage | authenticated read-only DOM and deployment observations; deterministic repository/vault drift audit; authority-map documentation; focused, foundation, regression, docs, boundary, and independent-review proof | in-app browser observation, image inspection, TypeScript/Node audit tests, branch-story loader, Wrangler deployment readback, `validate:portfolio-foundation`, `npm test`, `render-docs:check`, `git diff --check`, independent Cato review |
+| ISC-1294..1329 | mapping receipts and operational anchors | compile exact reviewed Batch 3 receipts, validate immutable replay, apply nullable D1 anchor migration locally, prove exact Mission Fabric edges and typed gaps, compile a terminal foldback preflight, run focused/full gates, and prove every external boundary stayed closed | deterministic Node tests, D1 migration/store tests, TypeScript, `jq`, SHA-256, `pnpm check`, focused `node --test`, `npm test`, `git diff --check`, `git status` |
+| ISC-1330..1386 | Fitcheck golden path | prove one packet-derived contract, two authority-honest UI projections, five reconciled doctrine documents, responsive browser behavior, full regression safety, and zero live mutation | packet-parity tests, Worker scene tests, Workbench checks, in-app browser observation, viewport proof, rendered-doc checks, independent review, `npm test`, `git diff --check` |
+| ISC-1387..1434 | three-Sapling operational foundation | prove exact tenant/repository/planning authority, deterministic activation and no-spend loadouts, registry-backed D1 joins, delivery-disabled dispatch, terminal memory/next-intent foldback, cross-Sapling isolation, held live manifests, and zero external mutation | catalog/packet validators, canonical digest tests, Goal Graph and Mission Fabric tests, dispatch/foldback store tests, three-Sapling E2E tests, `jq`, `pnpm check`, `npm test`, `git diff --check`, independent review |
 | ISC-746..764 | Plexus envelope auth repair | canonical whoami envelope unwraps only successful identity-bound sessions; active admin succeeds while malformed, mismatched, inactive, non-founder, and legacy-cache responses fail closed; the founder observes the promoted browser path | production D1 read, canonical Plexus source inspection, focused Node tests, release suite, zero-traffic Version probes, deployment read-back, founder browser observation |
 | ISC-58 | live health | HTTP 200 and gate configured | `curl /healthz/gate` |
 | ISC-59 | provenance | production and released page digests match | `curl`, SHA-256 |
@@ -1972,28 +1748,18 @@ Each criterion is verified at the narrowest boundary that can prove its behavior
 
 ## Features
 
-- `PortfolioAssimilationCensus` | Reconcile every eligible Thoughtseed working folder with a unique WorkObject or held intake record | satisfies ISC-1410..1422 | depends_on PortfolioFoundationReconciliation | parallelizable true
-- `AuthoritySafeOperatingLinks` | Make Story Arc, Quest, organ, Mission Fabric, agent, skill, and Telegram boundaries explicit for every visible WorkObject | satisfies ISC-1423..1444 | depends_on PortfolioAssimilationCensus, OperatingFabricRuntimeImplementation | parallelizable true
-- `IsolatedLabsCandidate` | Build and upload one clean, provenance-bound Labs Version that preserves bindings and production traffic | satisfies ISC-1445..1465 | depends_on AuthoritySafeOperatingLinks | parallelizable false
-- `RollbackGatedPromotion` | Bind approval to the verified candidate, promote once, prove routes and bindings, and roll back on failure | satisfies ISC-1466..1476 | depends_on IsolatedLabsCandidate | parallelizable false
-- `ProductionAssimilationReceipt` | Record redacted before/after evidence, handoff, independent review, and strict anti-mutation boundaries | satisfies ISC-1477..1480 | depends_on RollbackGatedPromotion | parallelizable false
+- `ThreeSaplingIdentityBinding` | Bind Fitcheck, IVerif, and DLOCK to exact tenant, repository, packet, and root-context evidence | satisfies ISC-1387..1395 | depends_on PortfolioFoundationReconciliation | parallelizable true
+- `ActivationManifestRegistry` | Compile deterministic receipt-gated activation records for the exact three-Sapling cohort | satisfies ISC-1396..1401 | depends_on ThreeSaplingIdentityBinding | parallelizable true
+- `GovernedNoSpendLoadouts` | Register one immutable no-spend loadout and authorized clusters per cohort WorkObject | satisfies ISC-1402..1413 | depends_on ActivationManifestRegistry, GoalGraphOperationalAnchors | parallelizable true
+- `CanonicalGovernedDispatch` | Compile exact approval-bound, delivery-disabled dispatch preparations from admitted activation authority | satisfies ISC-1414..1419 | depends_on GovernedNoSpendLoadouts | parallelizable true
+- `TerminalMemoryFoldback` | Derive immutable Cortex, agent-memory, and approval-required next-intent evidence from terminal receipts | satisfies ISC-1420..1427 | depends_on CanonicalGovernedDispatch, HermesExecutionFoldback | parallelizable true
+- `ThreeSaplingOperationalProof` | Prove isolation, held preflights, repository gates, review, handoff, and commit | satisfies ISC-1428..1434 | depends_on all three-Sapling foundation features | parallelizable false
+- `RalphAndTemperanceFlowProjection` | derive one dependency-safe next action and its authenticated execution route without owning a mutable ledger | satisfies ISC-1282..1285 | depends_on ProvenancePreservingIntentGraph | parallelizable false
+- `DocumentationStewardship` | classify and connect the committed doctrine corpus without relocating evidence | satisfies ISC-1286..1289 | depends_on RalphAndTemperanceFlowProjection | parallelizable false
+- `DeterministicSafetyAndHandoff` | fail-closed commit-tree validation plus reviewed-held handoff without creating another authority | satisfies ISC-1290..1293 | depends_on DocumentationStewardship | parallelizable false
 
-- `RouteSurfaceAudit` | Classify custom-host Access routing versus direct Worker origin behavior without mutation | satisfies ISC-1257..1267, ISC-1275..1279 | depends_on SingleAuthenticatedLedgerRefresh | parallelizable true
-- `ActiveBindingAudit` | Compare checked-in and active Worker binding metadata while preserving secrets and deployment boundaries | satisfies ISC-1268..1274, ISC-1281..1282, ISC-1286..1288 | depends_on RouteSurfaceAudit | parallelizable true
-- `AuthenticatedVisibilityAudit` | Re-read Workbench and Mission Control visibility and record the stale boundary honestly | satisfies ISC-1261..1266, ISC-1277, ISC-1283..1285 | depends_on RouteSurfaceAudit | parallelizable true
-- `RoutingAuditCloseout` | Record evidence, verify redaction/integrity, and preserve separately approved repair gates | satisfies ISC-1289..1296 | depends_on RouteSurfaceAudit, ActiveBindingAudit, AuthenticatedVisibilityAudit | parallelizable false
-- `ReviewedFoundationPinAdvance` | Advance only reviewed root-map and catalog digests after record-level provenance and parity checks | satisfies ISC-1230..1239 | depends_on PortfolioFoundationReconciliation | parallelizable false
-- `SingleAuthenticatedLedgerRefresh` | Send one canonical quest envelope to the active Worker, validate its exact receipt, and report the authenticated post-read state without overclaim | satisfies ISC-1240..1251 | depends_on ReviewedFoundationPinAdvance | parallelizable false
-- `LedgerRefreshGovernanceProof` | Use read-only Temperance preflights, independent review, bounded handoff, and explicit anti-mutation gates | satisfies ISC-1252..1256 | depends_on SingleAuthenticatedLedgerRefresh | parallelizable true
-- `ThreeSaplingIdentityBinding` | Bind Fitcheck, IVerif, and DLOCK to exact tenant, repository, packet, and root-context evidence | satisfies ISC-1129..1137 | depends_on PortfolioFoundationReconciliation | parallelizable true
-- `ActivationManifestRegistry` | Compile deterministic receipt-gated activation records for the exact three-Sapling cohort | satisfies ISC-1138..1143 | depends_on ThreeSaplingIdentityBinding | parallelizable true
-- `GovernedNoSpendLoadouts` | Register one immutable no-spend loadout and authorized clusters per cohort WorkObject | satisfies ISC-1144..1155 | depends_on ActivationManifestRegistry, GoalGraphOperationalAnchors | parallelizable true
-- `CanonicalGovernedDispatch` | Compile exact approval-bound, delivery-disabled dispatch preparations from admitted activation authority | satisfies ISC-1156..1161 | depends_on GovernedNoSpendLoadouts | parallelizable true
-- `TerminalMemoryFoldback` | Derive immutable Cortex, agent-memory, and approval-required next-intent evidence from terminal receipts | satisfies ISC-1162..1169 | depends_on CanonicalGovernedDispatch, HermesExecutionFoldback | parallelizable true
-- `ThreeSaplingOperationalProof` | Prove isolation, held preflights, repository gates, review, handoff, and commit | satisfies ISC-1170..1176 | depends_on all three-Sapling foundation features | parallelizable false
-- `ReusableOperationalIntake` | Model one WorkObject as typed repositories, dependencies, infrastructure, mapping authority, and reusable lifecycle | satisfies ISC-1177..1186 | depends_on PortfolioMappingReceipts, PortfolioWorkbenchDrawer, FitcheckGoldenPath | parallelizable false
-- `CanonicalIntakeWorkflows` | Select kind-compatible lifecycle templates and preserve exact workflow provenance at project birth | satisfies ISC-1187..1189 | depends_on ReusableOperationalIntake, ThoughtseedProjectBirth | parallelizable true
-- `FitcheckPreparedReceiptProof` | Prepare exact Fitcheck evidence while holding D1, DLOCK, and every external authority boundary | satisfies ISC-1182..1183, ISC-1190..1192 | depends_on ReusableOperationalIntake, CanonicalIntakeWorkflows | parallelizable false
+- `CanonicalInfiniteGameAnchors` | establish singular root Vision and renewable Repository Mission without creating a second planner | satisfies ISC-1273..1276 | depends_on none | parallelizable false
+- `ProvenancePreservingIntentGraph` | compile a deterministic read-only projection from canonical doctrine, ISA/GSD planning, evidence, and learning without creating another authority | satisfies ISC-1277..1281 | depends_on CanonicalInfiniteGameAnchors | parallelizable false
 - `ProtectedWorktree` | Isolate cleanup and prove unrelated local work unchanged | satisfies ISC-1..5, ISC-61 | depends_on none | parallelizable false
 - `ActionRequestContract` | Align public projection, Gate rendering, state controls, selected option, receipt, and provenance | satisfies ISC-6..15, ISC-62 | depends_on ProtectedWorktree | parallelizable false
 - `FixtureParity` | Remove fixture-only enrichments and add production-shape failure tests | satisfies ISC-16..25, ISC-63 | depends_on ActionRequestContract | parallelizable false
@@ -2078,11 +1844,11 @@ Each criterion is verified at the narrowest boundary that can prove its behavior
 - `PortfolioBrowserFounderRoute` | Reuse Access JWT and Plexus role resolution for exact founder-only Workbench delivery | satisfies ISC-727..737, ISC-741, ISC-745 | depends_on PortfolioDualTransportBootstrap | parallelizable false
 - `PortfolioAccessDestination` | Add the browser-only path to the existing multi-domain Plexus Access application | satisfies ISC-726, ISC-739, ISC-744 | depends_on PortfolioBrowserFounderRoute | parallelizable false
 - `PortfolioBrowserReleaseProof` | Promote one staged Version and prove browser redirect, Telegram regression, exact bytes, and rollback | satisfies ISC-742..744 | depends_on PortfolioAccessDestination | parallelizable false
-- `PortfolioMappingReceipts` | Compile immutable, digest-bound Batch 3 repository-to-WorkObject receipts and an inspectable apply manifest without issuing live evidence | satisfies ISC-1036..1047 | depends_on RepositoryEvidenceSnapshot | parallelizable false
-- `GoalGraphOperationalAnchors` | Extend Goal Graph storage and validation with exact canonical WorkObject and pinned-loadout anchors | satisfies ISC-1048..1053 | depends_on PortfolioMappingReceipts | parallelizable true
-- `MissionFabricAuthorityJoins` | Project exact anchor edges and explicit gaps without alias, repository-name, or first-wins inference | satisfies ISC-1054..1058 | depends_on GoalGraphOperationalAnchors | parallelizable false
-- `HermesExecutionFoldbackProof` | Bind terminal execution evidence to canonical task and WorkObject identities, then prepare a rollback-gated live canary | satisfies ISC-1059..1064 | depends_on MissionFabricAuthorityJoins | parallelizable false
-- `OperationalAnchorReleaseGate` | Run focused and repository-wide proof, record the bounded handoff, and commit locally without external mutation | satisfies ISC-1065..1071 | depends_on PortfolioMappingReceipts, GoalGraphOperationalAnchors, MissionFabricAuthorityJoins, HermesExecutionFoldbackProof | parallelizable false
+- `PortfolioMappingReceipts` | Compile immutable, digest-bound Batch 3 repository-to-WorkObject receipts and an inspectable apply manifest without issuing live evidence | satisfies ISC-1294..1305 | depends_on RepositoryEvidenceSnapshot | parallelizable false
+- `GoalGraphOperationalAnchors` | Extend Goal Graph storage and validation with exact canonical WorkObject and pinned-loadout anchors | satisfies ISC-1306..1311 | depends_on PortfolioMappingReceipts | parallelizable true
+- `MissionFabricAuthorityJoins` | Project exact anchor edges and explicit gaps without alias, repository-name, or first-wins inference | satisfies ISC-1312..1316 | depends_on GoalGraphOperationalAnchors | parallelizable false
+- `HermesExecutionFoldbackProof` | Bind terminal execution evidence to canonical task and WorkObject identities, then prepare a rollback-gated live canary | satisfies ISC-1317..1322 | depends_on MissionFabricAuthorityJoins | parallelizable false
+- `OperationalAnchorReleaseGate` | Run focused and repository-wide proof, record the bounded handoff, and commit locally without external mutation | satisfies ISC-1323..1329 | depends_on PortfolioMappingReceipts, GoalGraphOperationalAnchors, MissionFabricAuthorityJoins, HermesExecutionFoldbackProof | parallelizable false
 
 - `PlexusWhoamiEnvelopeRepair` | Normalize the canonical success envelope at the Cambium adapter boundary, bind the returned session email and cache payload to the verified Access identity, preserve flat compatibility, and separate deterministic promotion proof from the final founder-browser observation | satisfies ISC-746..764 | depends_on PortfolioBrowserFounderRoute | parallelizable false
 
@@ -2090,15 +1856,15 @@ Each criterion is verified at the narrowest boundary that can prove its behavior
 
 <!-- arch-assets:start -->
 
-_Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._  
-_Last refreshed: 2026-08-17T18:27:44.242Z_
+_Maintained during the 2026-07-22 architecture refresh; source-backed inventory plus reviewed LLM-generated assets._
+_Last refreshed: 2026-07-22T09:00:00Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
-| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✓ current | auto (file scan) |
-| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✓ current | auto (file scan) |
-| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ⚠ STALE — run `/refresh-architecture` | manual (LLM skill) |
-| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ⚠ STALE — run `/refresh-architecture` | manual (LLM skill) |
+| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✅ current | auto (file scan) |
+| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✅ current | auto (file scan) |
+| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ✅ current | architecture-diagram skill, reviewed against source |
+| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ✅ current | architecture refresh prompt, reviewed against source |
 
 **To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
 
@@ -2106,31 +1872,15 @@ _Last refreshed: 2026-08-17T18:27:44.242Z_
 
 ## Decisions
 
-- 2026-08-13: root-cause-at-ingestion — the bad portfolio state first enters through `portfolio-roots.v1.json`: three live folders were absent and Klear Karma carried an orphan `co-founded-venture:*` identity through a fourth root kind that the admin-action and catalog grammar cannot consume. Repairing that source plus its generator, pin, and deterministic linkage audit removes the same drift from the Workbench, Worker bundle, Canopy projection, and candidate evidence. This trace is database-up for portfolio identity and display-down for the stale Workbench count; no downstream UI-only normalization is accepted.
-- 2026-08-13: complete assimilation means every physical folder and catalog WorkObject has a visible, typed state, not that every WorkObject receives a fabricated operational packet. The five existing canonical packets produce five Story Arcs and 48 Quest rows; the other 67 WorkObjects receive explicit unadmitted Story/Quest gaps and unassigned organ workflows until packet plus D1 evidence exists. Canopy visibility never grants Goal Graph admission.
-- 2026-08-13: the commitment-boundary Advisor was invoked and failed because its OAuth session expired and could not refresh. No approval is inferred. Direct filesystem, repository, Cloudflare API, official Cloudflare documentation, focused/full tests, preview probes, and mandatory Cato review remain the evidence authorities.
-- 2026-08-13: candidate provenance will be one bounded deploy-surface commit followed by a fresh detached worktree at that exact commit. The dirty primary checkout is never an upload source. Unrelated user changes remain unstaged; a candidate is invalid if any runtime dependency is missing from the bounded commit or if the clean worktree cannot pass the complete release gate.
-- 2026-08-13: active Version `86112412…`, not historical Version `05896dc0…`, is the rollback baseline for this promotion because it receives current traffic. The historical Version remains evidence only. Promotion is forbidden unless the candidate preserves active secret bindings by name, matches reviewed Labs resource bindings, changes no custom-domain route, and passes the inert preview probes.
+- 2026-08-18 06:25: refined: Phase 4 is a deterministic, content-addressed read projection over existing authorities, not a new graph database, planner, or D1 writer. A machine-readable contract and generated readback must share one source model; copied anchor authority, projection foldback, stale digests, unlabeled edges, and blocked-as-complete coercion are fail-closed test cases. The required pre-commit and post-deliverable Advisor invocations could not authenticate because the local OAuth session expired, so no advisory approval is inferred; independent GSD plan checking and deterministic repository probes remain mandatory before execution.
+- 2026-08-18 01:48: refined: the exact v0.4 infinite-game goal and ISC-1273..1276 are the active Phase 3 acceptance contract; all retained issue #331 and earlier Vision, Goal, Criteria, Decision, Changelog, and Verification material remains historical evidence and is neither rewritten nor treated as current doctrine.
 
-- 2026-08-12: the founder approved the separately rollback-gated repair, but production authority is the Labs rail in `workers/quests/wrangler.labs.jsonc`, not the personal-account `wrangler.jsonc` used by the earlier one-shot receipt. No upload, route change, binding change, or traffic promotion is permitted until the Labs account is authenticated and the active Version/rollback baseline is read back.
-- 2026-08-12: current Wrangler identity authenticates the personal Cloudflare account only; Labs `deployments status` and `versions view` fail with authentication code 10000 and explicitly report the configured Labs account is not authenticated. This is an external authority blocker, not permission to repair credentials or infer deployment state.
-- 2026-08-12: the repair candidate, if credentials are restored, must be an inert preview generated from the reviewed Labs config, preserving `curious.thoughtseed.space`, QUESTS `439547e617d9455fb752bfd651da9765`, `SECRETS`, Labs D1, Labs Plexus origin, and existing cron. Personal-account config is forbidden as a production candidate.
+- 2026-08-14 21:12: refined: the first founder-input pilot reuses `approve-goal-graph` instead of adding a direct quest-status route. The browser submits two references and an observed outcome; the Worker fixes every authority-bearing field and stores one review-pending candidate inside the existing intake task. Gate signs the stored change set, D1 CAS remains the sole write, Mission refreshes from D1, and Hermes execution remains impossible from this path.
+- 2026-08-14 21:12: the user repeated the previously recommended Fitcheck Shopify QA pilot as the requested next sequence, satisfying the design approval gate. The implementation remains local and candidate-only because Worker upload and production promotion are separately rollback-gated operations.
 
-- 2026-08-12: E4 delegation show-your-math — no parallel mutation worker is dispatched before the Labs readback gate; a worker could not independently validate the production account and would increase risk. Independent Cato review remains mandatory after any durable candidate evidence, before promotion.
-
-- 2026-08-12: the next owner-approved operation is read-only audit only. Routing, active bindings, and authenticated visibility are measured independently; no binding/configuration repair, deployment, traffic shift, Access bypass, or second ledger push is authorized by this audit.
-- 2026-08-12: the commitment-boundary advisor was attempted but could not authenticate because the local OAuth session expired. Direct read-only probes remain the evidence authority; no approval is inferred from the failed advisor call.
-- 2026-08-12: refined: one exact Worker JSON receipt proves acceptance by the direct Worker route, but it does not authorize claiming end-to-end Mission freshness. The authenticated custom-domain read still served `2026-08-11T12:12:56.794Z`; the mismatch is preserved and no second diagnostic push is permitted. Any Access, binding, configuration, deployment, or traffic correction remains separately approved.
-- 2026-08-12: owner approval advances the already-reviewed foundation pins and authorizes exactly one authenticated ledger POST plus exact receipt readback. Deployment, binding/configuration, traffic, D1/R2/vault, Hermes, and Telegram mutations remain outside this operation.
-- 2026-08-12: refined: the Workbench catalog and Mission ledger are two intentionally separate projections with different freshness clocks. The catalog supplies read-only Canopy visibility; explicit branch packets plus Goal Graph authority supply Mission state. The 20-hour badge therefore diagnoses a ledger-ingestion gap, not a catalog-sync failure.
-- 2026-08-12: refined: the authenticated Workbench's visible summary is internally inconsistent: its header claims 73 total from 20 Saplings, 39 Branches, and 15 Programs (arithmetic 74), while the DOM contains exactly 73 WorkObject cards split 20/38/15. The dated evidence retains both claims instead of silently normalizing them.
-- 2026-08-12: FirstPrinciples, SystemsThinking, RootCauseAnalysis, IterativeDepth, ApertureOscillation, and Science separated classification, operational authority, projection, transport, and freshness. FeedbackMemoryConsult retained the user's batch-execution and no-vault-write preferences. ISA, Advisor, and ReReadCheck remain the completion harness; the Observe and Plan combos were advisory only and any stale claims were rejected against direct evidence.
-- 2026-08-12: repository-local implementation is limited to a pure audit, CLI composer, dated safe observation, and architecture map. Current catalog/root-map digests are not auto-promoted into reviewed pins, and production ledger acceptance remains a separately approved operation.
-- 2026-08-12: ISA completeness repair migrates the historical non-sequential child label `ISC-674.1` to sequential `ISC-1229` while retaining the original label as a trace note. This removes a parser collision without changing the already-passed recommendation provenance requirement.
-- 2026-08-12: ReReadCheck against the founder's exact request confirms the bounded outcome: the Workbench/product/update flow is mapped to working folders, vault reference, Cambium authorities, Hermes, and the Telegram Mini App; the repository linkage audit and handoff are complete. The 20-hour production ledger refresh is intentionally not claimed because it requires the separately approved authenticated push/release gate recorded in the handoff.
-- 2026-08-12: the final Cato-compatible E4 re-audit returns PASS with no remaining P0-P2 finding after correcting the full-suite count and appending the handoff checkpoint. The unavailable Paseo Advisor daemon remains an explicit failed invocation, not an inferred approval.
 - 2026-08-11: refined: Fitcheck L4 proactive path uses a **bounded Worker cron** (`0 */6`) only to recompile loop projections and Hermes *delivery intents*. Telegram transport remains Hermes-owned; Goal Graph CAS remains founder Gate-only. “Proactive” still means authority-chain delivery, not Cambium auto-admit. Founder may grant **operational clearance** (`proactive-loop:founder-approval`) to quiet held probes without writing D1.
 - 2026-08-11: founder operational clearance for Fitcheck L4 held stages is recorded via `POST /v1/bridge/proactive-loop/founder-approve` (admin bridge). This clears notify noise and materializes a Gate-shaped KV receipt; it is **not** D1 CAS and never sets `writesGoalGraph: true`.
+
 - 2026-08-09 07:37: a project is modeled as one canonical WorkObject plus a typed system graph, not as one repository. `sapling:fitcheck` owns the experience/frontend planning repository, while `program:hdilint` remains the separate backend WorkObject and owns the HDILINT repository; their symmetric link records dependency without identity collapse.
 - 2026-08-09 07:37: lifecycle authority is ordered and non-substitutable: identified → systems-bound → mapping receipt issued → immutable readback verified → planned → D1 eligible/admitted. Repository discovery, a prepared receipt, packet planning, or a D1-looking edge cannot skip the mapping-readback gate.
 - 2026-08-09 07:37: Fitcheck is the reusable reference fixture for Sapling and Client Branch intake. The generic packet registry, workflow registry, Workbench/Mini-App projections, and Markdown-parity onboarding must accept future validated WorkObjects without another product-name conditional.
@@ -2249,8 +1999,8 @@ _Last refreshed: 2026-08-17T18:27:44.242Z_
 - 2026-08-01 12:35 advisor degradation: both mandatory pre-build advisor invocations returned process session receipts without review content. No approval was inferred; implementation remains constrained by the architecture design, atomic ISC-601..640 probes, and independent Cato audit.
 - 2026-07-29 10:47 learned: Telegram proactivity is an authority chain, not a timer. A scoped assignment token cannot mint delivery intent; client Will delivery requires an exact founder Gate record; Cambium compiles one receipt-backed envelope; Hermes validates and transports it; the Mini App fails closed on unverified dynamic detail. This boundary closed both audit exploits without granting schedule, menu, tenant-activation, or production-traffic authority.
 - 2026-07-29 09:39 refined: “proactive” means event-driven receipt-to-topic delivery, not a new recurring cron. Existing Phase 7 scheduling gates remain authoritative.
-- 2026-08-11 refined: the Fitcheck L4 **compile** path may be schedule-armed on Worker cron as a projection refresh only; delivery remains event-driven for Hermes, with 18h notify cooldown per stage+exit+topic. This does not replace Phase 7 organ-update receipt authority for Will/Clients envelopes.
 - 2026-07-29 09:39 refined: Cambium compiles and displays delivery intent; Hermes validates the canonical topic and performs Telegram transport. This preserves one topology owner and prevents a second bot sender.
+- 2026-08-11 refined: the Fitcheck L4 **compile** path may be schedule-armed on Worker cron as a projection refresh only; delivery remains event-driven for Hermes, with 18h notify cooldown per stage+exit+topic. This does not replace Phase 7 organ-update receipt authority for Will/Clients envelopes.
 - 2026-07-29 09:39 refined: the five default organ routes are Genesis→Inbox, Taste→Digests, Hands→Dev, Will→Clients, and Cortex→Agent Ops, with blocked/failed/drifted updates escalating to Alerts and never falling back to General.
 - 2026-07-29 09:44 root-cause-at-ingestion: the missing state enters between an authoritative receipt and Telegram delivery, where no typed organ-update envelope exists. The fix belongs at that boundary: validate and compile the receipt before rendering or transport. This removes the same drift class from Mini App copy, Hermes topic choice, and delivery receipts; the implementation traces authority database-up and renders display-down from the compiled envelope.
 - 2026-07-13 09:04: Cleanup uses the existing clean worktree based on `origin/main`; the primary dirty checkout is a protected read-only source.
@@ -2353,53 +2103,38 @@ _Last refreshed: 2026-08-17T18:27:44.242Z_
 - 2026-08-08: The first all-portfolio root-header attempt exposed a partial-write hazard: Thoughtseed could be written before unrelated Tryambakam drift failed validation. The generator now validates every selected portfolio before writing and permits exact portfolio scoping; regression tests prove both properties.
 - 2026-08-08: Advisor preflight and post-deliverable review were unavailable because the local OAuth session expired and could not refresh. No substitute external mutation was attempted; deterministic repository, filesystem, digest, and boundary probes provide the completion evidence.
 
+- 2026-08-13 14:06: The required post-deliverable advisor call fired but the local OAuth session was expired and could not refresh. No substitute external mutation was attempted; exact production readbacks, independent Forge promotion review, mandatory Cato `PASS-WITH-P2`, strict ISA completeness, and the explicit founder-visibility/rollback-rehearsal holds remain the completion evidence.
+
+- 2026-08-19 11:06: refined: Phase 5 is an authority-resolution projection, not a scheduler or mutable Ralph ledger. Each fresh iteration rereads the approved goal from `ISA.md`, the exact GSD transition and active plan, verified evidence, and the reviewed handoff; selects one dependency-ready unit; persists through existing GSD and handoff surfaces; and stops on a source-backed gate. Cambium records skill-cluster and OmniRoute intent, while fresh host receipts alone supply resolved provider attribution and freshness. The dedicated deterministic machine/human flow readbacks reference the closed Phase 4 Intent Graph without extending its vocabulary, copying doctrine, provider stacks, credentials, quotas, or failover policy, or becoming operational authority. Verified implementation head `c177489e06237d2a3a3e11b79e3892199808102c` passes the bounded Ralph, projection, foldback, full-suite, drift, documentation, and zero-side-effect gates; independent phase verification remains external.
+
 - 2026-08-09 04:09: refined: Fitcheck is the single reference project for restoring the Telegram and Workbench execution experience; both surfaces consume one packet-derived read model while D1 and receipts remain the only operational and proof authorities.
-
-- 2026-08-17 23:31: refined: the active goal now treats Cambium's root documentation, MEMORY, and docs corpus as one provenance-preserving knowledge architecture. ISA and GSD remain the only planning authorities; Ralph supplies bounded fresh-context persistence, while the Temperance manifest exposes next actions, graphs, skill-cluster and OmniRoute flows, verification gates, and stop conditions. This goal-binding step does not rewrite the corpus, execute a fleet, or claim consolidation complete.
-
-- 2026-08-17 23:39: refined: owner approval establishes canonical root `VISION.md` and renewable root `MISSION.md` as the infinite-game anchors. WorkObjects inherit that direction through scoped overlays; finite FabricMission nodes remain distinct from the repository-level mission; ISA and GSD remain the only goal and planning authorities. The approved projection may expose references, digests, flow edges, gates, and stop conditions, but never copied doctrine or a third writer.
 
 ## Changelog
 
-- 2026-08-12 | conjectured: the prior active-versus-checked-in QUESTS mismatch could be repaired by deploying the checked-in personal-account config
-  refuted by: production evidence and `wrangler.labs.jsonc` identify the live Labs account, custom domain, namespace `439…`, `SECRETS`, Labs D1, and Labs Plexus origin, while `wrangler.jsonc` targets personal namespace `10aaa…`; current OAuth authenticates only the personal account
-  learned: account identity is part of binding identity; a same-named Worker cannot be safely repaired across Cloudflare accounts without live Labs authority and rollback metadata
-  criterion now: ISC-1301..1348 require Labs-authenticated preflight, inert Labs preview, exact binding parity, one-Version promotion, route/read verification, rollback readiness, and zero personal-account or credential mutation
+- 2026-08-14 | conjectured: showing proof requirements and an existing Gate would be enough for the founder to advance a quest
+  refuted by: the live UI contains no editable founder surface, the only evidence endpoint is admin-bearer scoped, and a direct quest-status route would let any caller relabel D1 state
+  learned: founder evidence needs a closed authenticated ingress that creates a non-authoritative pending candidate; the Worker fixes authority fields and Gate signs before any D1 CAS
+  criterion now: ISC-1166..1219 bind exact Fitcheck identity, safe reference inputs, replay-safe pending/reconciliation transitions, signed change sets, and founder-only Gate approval
 
-- 2026-08-12 | conjectured: founder approval alone made the rollback-gated repair executable
-  refuted by: Wrangler `whoami` authenticated only the personal account and Labs API reads failed with account-mismatch code 10000 before any candidate or rollback UUID could be read
-  learned: approval authorizes the operation's scope, but production account authority is a separate hard gate; a healthy direct origin does not substitute for deployment control-plane access
-  criterion now: ISC-1311..1317 and ISC-1347 require valid Labs identity plus active/rollback readback before any upload, promotion, or rollback
-
-- 2026-08-12 | conjectured: the accepted direct-Worker receipt should be visible through the protected custom hostname and share its active KV binding automatically
-  refuted by: dual-host probes classify the custom hostname as Cloudflare Access (302) while the direct Worker returns JSON health and a 401 `access_identity_required`; checked-in `QUESTS` is `10aaa…`, prior active readback is `439…`, and the protected Mission read remains on `2026-08-11T12:12:56.794Z`
-  learned: routing, binding identity, authenticated visibility, and ledger acceptance are distinct authorities; an accepted receipt cannot authorize a route or binding correction
-  criterion now: ISC-1257..1296 require dual-host route proof, ID-only binding comparison, redacted visibility evidence, explicit OAuth limitation, and held repair boundaries
-
-- 2026-08-12 | conjectured: one authenticated direct-Worker receipt would necessarily make the protected custom-domain Mission view fresh on its next no-store reload
-  refuted by: the Worker returned the exact accepted receipt at `2026-08-12T09:39:12.666Z`, while repeated authenticated Mission reads continued to serve `2026-08-11T12:12:56.794Z` and `stale 22h`
-  learned: write acceptance and protected read visibility are separate production facts; a receipt closes the one-write operation but cannot erase a route, binding, or visibility mismatch
-  criterion now: ISC-1249..1250 require exact receipt/read comparison, preserve a mismatch verbatim, prohibit a diagnostic second push, and hold route/binding/configuration repair behind separate approval
-
-- 2026-08-12 | conjectured: the Workbench's 20-hour stale badge meant the 73-record portfolio catalog had failed to synchronize into the Mini App
-  refuted by: source tracing proves `PORTFOLIO_CATALOG` is joined directly into the Mission Fabric read route for Canopy, while the stale badge comes from a six-packet quest envelope last accepted by the separate Worker KV ledger; the live header also claims a mathematically inconsistent 20/39/15 split
-  learned: portfolio visibility, operational admission, and projection freshness must be audited as separate authorities and clocks; reconciling them means exact ID/digest comparisons, not bulk packet creation or count coercion
-  criterion now: ISC-1201..1228 require a dated authenticated snapshot, exact live/local/vault diffs, explicit two-path architecture, deterministic read-only audit, separate live approval gate, regression evidence, independent E4 review, and zero external mutation
+- 2026-08-13 | conjectured: exact Worker source and binding parity were sufficient to make the reconciled portfolio visible through every Mini App surface
+  refuted by: preview and production probes returned the correct held-closed `403` because `MISSION_ALLOWLIST` still excluded the founder identity
+  learned: production code repair and tenant activation are separate authority transactions; a truthful held-closed denial is correct behavior, not drift
+  criterion now: ISC-648..650 and ISC-654..658 require document/header CSP parity, a Chromium same-origin proof, and allowlist truthfulness at the protected boundary
 
 - 2026-08-09 | conjectured: exact WorkObject, repository, activation, loadout, task, and approval hashes were sufficient to make the three-Sapling local cohort authority-safe
   refuted by: independent review found same-Sapling receipt substitution, locally synthesized issued/admitted claims, caller-asserted foldback admission, and conflicting DLOCK repository roles
   learned: operational admission must bind the exact issued receipt and pass immutable external readback; foldback requires the same independent verifier, while folderless planning authority must remain distinct from product source
-  criterion now: ISC-1129..1176 require three exact identities, externally verified receipt-bound admission, registry-backed no-spend lineage, delivery-disabled dispatch, verified bounded foldback, cross-Sapling and same-Sapling isolation, held live gates, independent approval, and a clean local commit
+  criterion now: ISC-1387..1434 require three exact identities, externally verified receipt-bound admission, registry-backed no-spend lineage, delivery-disabled dispatch, verified bounded foldback, cross-Sapling and same-Sapling isolation, held live gates, independent approval, and a clean local commit
 
 - 2026-08-09 | conjectured: restoring the planned Fitcheck UI meant presenting every mapped lifecycle stage as operationally ready
   refuted by: exact catalog identity proves only identity parity, while admission requires a D1 WorkObject-to-task edge and execution, receipts, and foldback each retain separate authorities
   learned: one shared packet-derived projection can make the loop legible across Workbench and Telegram without turning either interface into an operational writer
-  criterion now: ISC-1072..1128 bind exact Fitcheck identity, authority-honest lifecycle states, two responsive projections, five reconciled doctrine documents, independent browser and architecture review, and zero live mutation
+  criterion now: ISC-1330..1386 bind exact Fitcheck identity, authority-honest lifecycle states, two responsive projections, five reconciled doctrine documents, independent browser and architecture review, and zero live mutation
 
 - 2026-08-09 | conjectured: a correct catalog and exact repository queue were sufficient to make the Workbench an executable control plane
   refuted by: the system still lacked durable mapping receipts, D1 WorkObject/loadout anchors, exact authority edges, and terminal Hermes foldback evidence
   learned: the iterative loop becomes executable only when classification, operational identity, pinned execution policy, terminal proof, and next-intent proposal remain distinct but deterministically joined
-  criterion now: ISC-1036..1071 require 38 immutable prepared receipts, nullable exact D1 anchors, typed Mission Fabric joins and gaps, terminal foldback proof, full release gates, and zero unapproved external mutation
+  criterion now: ISC-1294..1329 require 38 immutable prepared receipts, nullable exact D1 anchors, typed Mission Fabric joins and gaps, terminal foldback proof, full release gates, and zero unapproved external mutation
 
 - 2026-08-09 | conjectured: existing green catalog, packet, and runtime tests proved the portfolio foundation was ready for Sapling promotion
   refuted by: stale executor pins, an orphan DLOCK packet, alias-derived joins, silent duplicate collapse, mislabeled catalog provenance, missing repository dispositions, and stale active documentation all passed their narrower checks
@@ -2565,78 +2300,46 @@ _Last refreshed: 2026-08-17T18:27:44.242Z_
 
 ## Verification
 
-### 2026-08-13 Cloudflare Access auth-path investigation
+- ISC-1433 independent review proof — review found same-Sapling receipt substitution, locally forgeable authority claims, caller-asserted foldback admission, and a DLOCK role contradiction. Admission now binds the exact issued receipt; dispatch and foldback require injected external readback verifiers; DLOCK is consistently folderless planning authority. Negative-path regressions pass and final review returns APPROVE with no remaining P0-P2 issue.
+- ISC-1434 handoff/commit proof — `.project/HANDOFF.md` records exact identities, digests, tests, held live gates, and next separately approved operations. One local commit preserves the current branch and worktree without merge, push, PR, deployment, promotion, provider, traffic, or external write.
+- ISC-1387..1401 identity/activation proof — catalog, packets, branch map, architecture note, and held preflight bind exactly `sapling:fitcheck`, `sapling:iverif`, and `sapling:dlock` to tenant `cambium` and immutable repositories; DLOCK is folderless; activation manifest digest is `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`; every checked-in receipt/admission flag remains false.
+- ISC-1402..1413 loadout and D1 proof — governed registry digest is `sha256:b0db8792d37a855a8535cb67ea75bf2ece8b1f42f2e6bcf8165b3ff954bfb7c7`; three immutable records declare spend `none`, delivery false, mutation false, exact WorkObject eligibility, bounded clusters, and commands. Goal Graph rejects syntax-only/cross-WorkObject pins; Mission Fabric emits `pins-loadout` and `requires-cluster` only from the injected registry.
+- ISC-1414..1419 dispatch proof — the closed compiler binds tenant, WorkObject, repository, task, graph version, activation/record/manifest digests, mapping-receipt authority, loadout/cluster/command authority, and an unconsumed signed approval subject. Cross-Sapling substitutions fail; compiled output retains no-spend, delivery-disabled, external-mutation-forbidden state.
+- ISC-1420..1428 foldback/isolation proof — admitted terminal evidence derives bounded receipt-only Cortex and agent-memory records at deterministic WorkObject-scoped R2 keys plus an approval-required `goalGraphAuthority:false` next-intent proposal. Missing admission emits receipt/proof only; stale, unissued, non-terminal, mismatched, conflicting, and cross-Sapling evidence fails closed. The three-Sapling E2E test proves independent lineages.
+- ISC-1429..1432 held/release proof — cohort preflight flags are all false and approvals unconsumed; Batch 3 remains 38 `prepared-not-issued` receipts with bundle digest `sha256:bf9e87d25efc284959930bb835f675e11bafb31a8bd0e1241d542d7080bc7eec`. Focused authority/route tests pass 417/417; full `npm test` passes 1617/1617; Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, bundle, standalone audit, CSP, and smoke; six packets, foundation validation, receipt regeneration, docs sync, JSON parsing, and `git diff --check` pass.
+- ISC-1330..1340 shared-contract proof — `shared/fitcheck-golden-path.ts` binds exact `sapling:fitcheck`, parent `cambium`, display-only aliases, supervised state, three packet missions, two KPIs, seven gates, organ/support routes, proof targets, and the one-change loop; parity tests reject packet drift and preserve the distinction between packet, D1, receipt, and foldback authority.
+- ISC-1341..1352 Telegram proof — all six operating scenes consume the Fitcheck projection; exact runtime identity and D1 task admission are separate predicates; missing admission, loadout, execution, and learning proof remains held; focused shared/scene tests pass 14/14 and the complete canonical viewport suite passes 47/47 with page digest `909fb8758ed8259b060b5be76949376b8d6916d71376ae2f0c4bbbf7158eea4f`.
+- ISC-1353..1364 Workbench proof — Fitcheck alone receives the five-tab model and default `Operate` view; exact identity, lifecycle, missions, KPIs, gates, organ routes, support rails, proof targets, and anti-claims render without mutation controls; other WorkObjects retain four tabs. Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, Vite build, deterministic bundle, audit, CSP, and smoke.
+- ISC-1365..1372 doctrine proof — the five requested root documents and `docs/architecture/fitcheck-golden-path.md` distinguish doctrine, local proof, production observation, held work, and retired plans; `render-docs:check` reports six synchronized pages and 91 components.
+- ISC-1373..1376,1120 release proof — independent real-browser QA passes desktop and 320/390/430 widths, exact ARIA tab relationships, arrow-key behavior, no body overflow, and no local browser errors; drift audit passes 4/4; full `npm test` passes 1603/1603; `git diff --check` passes.
+- ISC-1377 held production observation — the visible `curious.thoughtseed.space` tab reached Cloudflare Access rather than the product. No login material, cookies, storage, credentials, or session identifiers were inspected; authenticated production UX remains intentionally unclaimed.
+- ISC-1379..1386 review and boundary proof — the post-build Advisor returns APPROVE with no material blocker; `.project/HANDOFF.md` records the bounded checkpoint; no Sapling promotion, receipt issuance, D1/R2/Hermes/Telegram/GitHub/Vault/registry/provider/traffic/deployment, or physical-folder mutation occurred.
+- ISC-2445..2447 intake proof — the canonical workflow registry defines `sapling-product`, `client-delivery`, and `internal-capability`; project birth derives a kind-compatible default, rejects mismatches before folder creation, and pins workflow and registry digests. The executable twenty-step onboarding rows exactly match `ONBOARDING-OCTALYSIS.md` for title, experience, drives, doctrine layer, and evidence state.
+- ISC-2448..2450 release-boundary proof — DLOCK records `cofounder-grant-required`; all live flags remain false. Full `npm test` passes 1628/1628; Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, deterministic bundle, audit, CSP, and smoke; foundation, 39-receipt regeneration, six rendered docs, 47 Telegram viewport captures, JSON parsing, drift audit, and `git diff --check` pass. Independent browser QA passes Fitcheck Operate at desktop and 320/390/430 with exact topology, held mapping/D1 states, six infrastructure dependencies, no mutation controls, no overflow or browser errors, and all origin-to-workflow derivations. No mapping receipt was issued and no D1, R2, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation occurred.
+- ISC-2451..2458 live Fitcheck receipt proof — preflight found the exact R2 key absent, then one object was written to `thoughtseed-vault/portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json`. Remote readback SHA-256 was `0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5`; `validatePortfolioMappingReceipt` accepted the readback for `sapling:fitcheck`, `Sheshiyer/fitcheck-landing`, and `R_kgDOSzF56w`. Evidence is recorded in `docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json`. No D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation was performed.
+- ISC-2433 independent review proof — review found same-Sapling receipt substitution, locally forgeable authority claims, caller-asserted foldback admission, and a DLOCK role contradiction. Admission now binds the exact issued receipt; dispatch and foldback require injected external readback verifiers; DLOCK is consistently folderless planning authority. Negative-path regressions pass and final review returns APPROVE with no remaining P0-P2 issue.
+- ISC-2434 handoff/commit proof — `.project/HANDOFF.md` records exact identities, digests, tests, held live gates, and next separately approved operations. One local commit preserves the current branch and worktree without merge, push, PR, deployment, promotion, provider, traffic, or external write.
+- ISC-2387..2401 identity/activation proof — catalog, packets, branch map, architecture note, and held preflight bind exactly `sapling:fitcheck`, `sapling:iverif`, and `sapling:dlock` to tenant `cambium` and immutable repositories; DLOCK is folderless; activation manifest digest is `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`; every checked-in receipt/admission flag remains false.
+- ISC-2402..2413 loadout and D1 proof — governed registry digest is `sha256:b0db8792d37a855a8535cb67ea75bf2ece8b1f42f2e6bcf8165b3ff954bfb7c7`; three immutable records declare spend `none`, delivery false, mutation false, exact WorkObject eligibility, bounded clusters, and commands. Goal Graph rejects syntax-only/cross-WorkObject pins; Mission Fabric emits `pins-loadout` and `requires-cluster` only from the injected registry.
+- ISC-2414..2419 dispatch proof — the closed compiler binds tenant, WorkObject, repository, task, graph version, activation/record/manifest digests, mapping-receipt authority, loadout/cluster/command authority, and an unconsumed signed approval subject. Cross-Sapling substitutions fail; compiled output retains no-spend, delivery-disabled, external-mutation-forbidden state.
+- ISC-2420..2428 foldback/isolation proof — admitted terminal evidence derives bounded receipt-only Cortex and agent-memory records at deterministic WorkObject-scoped R2 keys plus an approval-required `goalGraphAuthority:false` next-intent proposal. Missing admission emits receipt/proof only; stale, unissued, non-terminal, mismatched, conflicting, and cross-Sapling evidence fails closed. The three-Sapling E2E test proves independent lineages.
+- ISC-2429..2432 held/release proof — cohort preflight flags are all false and approvals unconsumed; Batch 3 remains 38 `prepared-not-issued` receipts with bundle digest `sha256:bf9e87d25efc284959930bb835f675e11bafb31a8bd0e1241d542d7080bc7eec`. Focused authority/route tests pass 417/417; full `npm test` passes 1617/1617; Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, bundle, standalone audit, CSP, and smoke; six packets, foundation validation, receipt regeneration, docs sync, JSON parsing, and `git diff --check` pass.
+- ISC-2330..2340 shared-contract proof — `shared/fitcheck-golden-path.ts` binds exact `sapling:fitcheck`, parent `cambium`, display-only aliases, supervised state, three packet missions, two KPIs, seven gates, organ/support routes, proof targets, and the one-change loop; parity tests reject packet drift and preserve the distinction between packet, D1, receipt, and foldback authority.
+- ISC-2341..2352 Telegram proof — all six operating scenes consume the Fitcheck projection; exact runtime identity and D1 task admission are separate predicates; missing admission, loadout, execution, and learning proof remains held; focused shared/scene tests pass 14/14 and the complete canonical viewport suite passes 47/47 with page digest `909fb8758ed8259b060b5be76949376b8d6916d71376ae2f0c4bbbf7158eea4f`.
+- ISC-2353..2364 Workbench proof — Fitcheck alone receives the five-tab model and default `Operate` view; exact identity, lifecycle, missions, KPIs, gates, organ routes, support rails, proof targets, and anti-claims render without mutation controls; other WorkObjects retain four tabs. Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, Vite build, deterministic bundle, audit, CSP, and smoke.
+- ISC-2365..2372 doctrine proof — the five requested root documents and `docs/architecture/fitcheck-golden-path.md` distinguish doctrine, local proof, production observation, held work, and retired plans; `render-docs:check` reports six synchronized pages and 91 components.
+- ISC-2373..2376,2378 release proof — independent real-browser QA passes desktop and 320/390/430 widths, exact ARIA tab relationships, arrow-key behavior, no body overflow, and no local browser errors; drift audit passes 4/4; full `npm test` passes 1603/1603; `git diff --check` passes.
+- ISC-2377 held production observation — the visible `curious.thoughtseed.space` tab reached Cloudflare Access rather than the product. No login material, cookies, storage, credentials, or session identifiers were inspected; authenticated production UX remains intentionally unclaimed.
+- ISC-2379..2386 review and boundary proof — the post-build Advisor returns APPROVE with no material blocker; `.project/HANDOFF.md` records the bounded checkpoint; no Sapling promotion, receipt issuance, D1/R2/Hermes/Telegram/GitHub/Vault/registry/provider/traffic/deployment, or physical-folder mutation occurred.
 
-- ISC-1349..1354 credential boundary — the scoped token verification returned HTTP 401; the full-scoped token was not read or used; no Access service-token pair was found in checked local configuration; and no operator environment file was edited. Evidence: `docs/evidence/2026-08-13-cloudflare-access-auth-path.v1.json`.
-- ISC-1355..1359 authenticated app proof — the existing Workbench tab was claimed by exact visible URL and title. Read-only DOM shows 73 records, 20 Saplings, 39 Client Branches, 15 Internal Programs, paused autosave, and zero Needs Review items. Cookies, storage, JWTs, session identifiers, and credentials were not inspected.
-- ISC-1360..1365 route and control-plane proof — Labs workers.dev health is JSON 200; direct unauthenticated quest read is JSON 401 `access_identity_required`; custom-host probes are Access HTTP 302; Cloudflare API without bearer is HTTP 400 missing authorization; and source inspection confirms `CF-Access-Client-*` headers are for the application feed only, not Cloudflare control-plane authentication.
-- ISC-1366..1374 mutation and evidence boundary — no Access value was guessed or transmitted; no upload, deployment, traffic, route, binding, ledger, D1/KV/R2, secret, vault, Hermes, Telegram, provider, or credential mutation occurred. The new evidence is status-only and redacted.
-- ISC-1375..1382 decision proof — Access can cover the protected Workbench app read, but cannot replace Wrangler/API credentials for deployment, version, route, or binding control. Advisor OAuth was unavailable; the next gate is an owner-approved Labs dashboard session or narrowly scoped Cloudflare API token, never the full-scoped token. Production repair remains unclaimed.
-
-### 2026-08-13 Labs token control-plane readback retry
-
-- ISC-1383..1385 credential/account proof — the owner-generated token was used transiently for API readback only; its value was not printed or persisted; Wrangler CLI was not used; the environment was not edited; and the configured Labs account is present in the account listing. Evidence: `docs/evidence/2026-08-13-labs-token-control-plane-readback.v1.json`.
-- ISC-1386..1391 deployment/rollback proof — Labs API readback returns active Version 42 at 100 percent with etag `1f250929…`; Version 41 is a verified same-Worker rollback target with etag `51322feb…`.
-- ISC-1392..1399 binding proof — active non-secret and secret binding names were read without values. `QUESTS`, `SECRETS`, `BRIDGE_DB`, and `THOUGHTSEED_VAULT` match the Labs config; `CONTEXT_PROJECTIONS` is absent from the active Version; the additional active secret names and `PLEXUS_KNOWLEDGE_URL` plain name are enumerated and remain untouched.
-- ISC-1400..1405 route and mutation proof — account worker-domain metadata maps `curious.thoughtseed.space` to `cambium-quests` production. No upload, deployment, traffic, route, binding, ledger, or credential mutation occurred.
-- ISC-1406..1407 source/evidence gate — the primary checkout is dirty and cannot serve as a candidate source; evidence records only bounded IDs, names, statuses, and etags, with no token values or machine-local paths. Repair remains held before upload.
-
-- ISC-1301..1310 preflight/source proof — `workers/quests/wrangler.labs.jsonc` is the production authority: Labs account `9d7cec1b…`, Worker `cambium-quests`, custom domain `curious.thoughtseed.space`, Labs workers.dev origin, QUESTS `439547e6…`, SECRETS presence, Labs Plexus origin, and six-hour cron are recorded. Personal `wrangler.jsonc` / QUESTS `10aaa6e0…` is explicitly excluded.
-- ISC-1311..1317 authority gate — `wrangler whoami` authenticates only personal account `9d9d23b2…`; Labs deployments status and Version view fail with Cloudflare API code `10000` and account mismatch. No credential repair was attempted, and no rollback UUID can be safely re-read.
-- ISC-1333..1335 live-origin proof — Labs workers.dev health returns JSON 200 `{ok:true,worker:"cambium-quests"}`; unauthenticated quest read returns JSON 401 `access_identity_required`; custom hostname health and quest read return Cloudflare Access 302. Runtime route behavior is healthy and fail-closed.
-- ISC-1318..1342 execution gate — candidate upload and promotion are blocked before any mutating Wrangler command because Labs identity and rollback baseline are unavailable. No `versions upload`, `versions deploy`, `wrangler deploy`, route change, binding change, or traffic shift occurred.
-- ISC-1338, ISC-1348 boundary proof — no KV, D1, R2, secret, Telegram, Hermes, vault, Access bypass, second ledger push, or credential mutation occurred. Evidence: `docs/evidence/2026-08-12-rollback-gated-route-binding-repair.v1.json` parses and records `blocked-before-upload`.
-- ISC-1347 blocked rollback proof — rollback cannot be executed or rehearsed until the Labs active Version and prior Version UUID are authenticated and read back; this is an external authority blocker, not a reason to guess or use the personal account.
-- E4 independent review reconciliation — Cato-compatible review returned PASS-WITH-P2 with no P0/P1 finding. Its P2 precision notes are resolved by labeling Labs authority as declared/config-only until current control-plane readback, scoping no-mutation booleans to this repair attempt, redacting the founder email from evidence, and keeping all 48 repair criteria incomplete while blocked.
-
-- ISC-1257..1260, ISC-1275..1276 routing proof — read-only dual-host probes record custom-host `/healthz` and quest read as HTTP 302 with Cloudflare Access location class and direct Worker `/healthz` as JSON 200 identifying `cambium-quests`; direct unauthenticated quest read is JSON 401 `access_identity_required`. No redirect token or body payload was retained.
-- ISC-1261..1267, ISC-1277, ISC-1279, ISC-1283 visibility proof — the redacted authenticated observations retain the founder Workbench route, 73 cards split 20/38/15, paused autosave, preserved unreadable draft, Mission source `push`, five canonical tabs, old `2026-08-11T12:12:56.794Z` read timestamp, newer accepted receipt timestamp, and stale 22h classification. The browser bridge has no active tabs for a fresh DOM replay; no cookies, storage, sessions, or browser actions were inspected.
-- ISC-1268..1274, ISC-1281..1282, ISC-1286..1288 binding proof — checked-in `wrangler.jsonc` declares `cambium-quests`, `workers_dev: true`, no custom routes, and QUESTS `10aaa6e0…`; prior read-only production metadata remains one active Version `86112412…` at 100% with QUESTS `439547e6…`. Current Wrangler readback is unavailable because Cloudflare OAuth authentication failed; no credential repair was attempted. The differing IDs are a separate rollback-gated repair candidate.
-- ISC-1273, ISC-1278, ISC-1289..1290, ISC-1296 boundary proof — probes were GET-only; no POST, deployment, upload, traffic shift, binding/configuration repair, Access bypass, second ledger push, KV/D1/R2/vault, Hermes, Telegram, or credential mutation occurred.
-- ISC-1280, ISC-1284..1285, ISC-1292..1294 evidence proof — `docs/evidence/2026-08-12-routing-binding-visibility-audit.v1.json` parses as `cambium.routing-binding-visibility-audit.v1`; it stores status/content-type/location classes, binding names/IDs, counts, timestamps, and held boundaries only. Redaction and `git diff --check` pass; no raw auth material or machine-local checkout path is present.
-- ISC-1291 handoff proof — `.project/HANDOFF.md` will record the exact route split, active-versus-checked-in QUESTS mismatch, OAuth limitation, stale read boundary, and the held next operation.
-- ISC-1295 independent review — pending current Cato-compatible read-only review; prior reviewer remains available for this bounded evidence check.
-
-- ISC-1230..1239 reviewed-pin proof — direct source diffs show the root map gained only `fitcheck-wiki` for `sapling:fitcheck`, while the catalog gained its immutable wiki repository evidence. App/Worker catalog mirrors and root-map digests agree, classification remains `43630e6e…`, and no packet WorkObject is absent from the catalog. The shared pin test passes 2/2; birth and closeout snapshots match; the linkage audit is `aligned` with zero blockers; the complete portfolio-foundation chain passes 46/46 plus Cartographer 70 pass/one historical skip and Worker integration 109/109. The repository baseline improves to 1656/1660 with only four unrelated dirty-tree UI/drift failures.
-- ISC-1240..1248 one-write proof — the authenticated pre-read recorded source `push`, `derivedAt 2026-08-11T12:12:56.794Z`, five canonical Mission tabs, and the repository's 5+1 canonical/template packet shape. Read-only Wrangler metadata recorded Version `86112412-2073-4f14-b215-599de0ed0eeb` at 100% and the existing live `QUESTS` binding before Cloudflare OAuth later became unavailable. Presence-only token inspection passed. The one-shot harness counted exactly one POST to the direct Worker route and captured HTTP 200 JSON with exact receipt `{ok:true, tenant:"cambium", bytes:155832, derivedAt:"2026-08-12T09:39:12.666Z"}`; every field matches the closed Quine result.
-- ISC-1249..1250 post-read truth — repeated authenticated custom-domain reloads still show source `push`, `derivedAt 2026-08-11T12:12:56.794Z`, `stale 22h`, and five canonical Mission tabs. The evidence therefore records `accepted-worker-write-not-yet-visible-on-custom-domain-read-path`; it does not claim fresh end-to-end synchronization and performs no second push, browser persistence, or Telegram action.
-- ISC-1251..1256 governance proof — `docs/evidence/2026-08-12-reviewed-pins-ledger-push.v1.json` records the pins, pre-read, one-POST counter, exact receipt, stale post-read, tests, and held gates without token, payload, raw session, or checkout path. Two read-only `noesis-execute` runs used concurrency three and valid gateway-attributed indexes; all progress-only outputs were rejected after the permitted retry and direct evidence replaced them. Independent Cato-compatible review returns PASS with no P0-P2 finding; the second reviewer was stopped without a verdict and contributes no evidence. The handoff is current, `git diff --check` passes, no local operator-state file was created, and deployment/upload, traffic, binding/configuration, authentication, D1/R2/vault, Hermes, Telegram, and second-push boundaries stayed closed.
-
-- ISC-1201..1215 observation and causal proof — the authenticated Workbench was read without navigation or action. Its 73 rendered cards split 20 Saplings, 38 Client Branches, and 15 Internal Programs, while its header claims 20/39/15; autosave stays paused and the unreadable v4 draft stays untouched. The current local catalog has 72 records at catalog digest `sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca`; the 2026-08-07 vault reference has 71. Exact live/local and vault/local differences are stored without private payloads in `docs/evidence/2026-08-12-portfolio-miniapp-linkage-readback.v1.json`. Read-only deployment/binding inspection proves the deployment is newer than the ledger; the first observable stale boundary is before active production ledger acceptance.
-- ISC-1216..1221 linkage-audit proof — `scripts/audit-portfolio-miniapp-linkage.ts` composes the real mirrored catalog, generated root maps, reviewed pins, six branch packets, optional live observation, and optional offline vault registry through the pure `scripts/portfolio-miniapp-linkage.mjs` report. The real audit returns `blocked` only for catalog/root-map pin drift, while all catalog data, catalog module, and root-map mirrors match and all five canonical packet WorkObjects resolve; `client-delivery` remains a template. Five focused tests pass deterministic sorting, kind drift, visibility/admission separation, template handling, redaction, no mutation, blockers, and actual repository composition.
-- ISC-1222..1223 verification proof — 126 focused catalog/packet/Mission tests pass; all six packets validate; `render-docs:check` reports six pages and 91 components; `git diff --check` passes for the bounded files. `validate:portfolio-foundation` has 45/46 passing and fails exactly at the pre-existing reviewed root-map pin (`574368…` versus current `180791…`). After removal of a process-only existence assertion, full `npm test` has 1655/1660 passing; its five failures are the same foundation pin plus pre-existing drift-audit, Mission text-density, Mission scene expectation, and legacy page digest failures in the already-dirty visual workspace. No linkage test fails.
-- ISC-1224 independent review proof — the Cato-compatible E4 audit found no P0/P1 issue and no authority collapse, invented synchronization claim, privacy leak, destructive action, or missing high-risk test. Its two P2 bookkeeping findings—the one-test regression-count shift and absent handoff checkpoint—were corrected before completion.
-- ISC-1225 handoff proof — `.project/HANDOFF.md` records the dual-path architecture, exact live/local/vault states, first observable stale boundary, audit commands, bounded files, current release blockers, regression evidence, and the next separately approved live ledger operation.
-- ISC-1226..1228 boundary proof — browser, vault, registry, deployment, traffic, bindings, ledger, D1, R2, Telegram, Hermes, providers, and folders received no mutation. The implementation creates no branch packet and performs no bulk Mission admission. Static scans find no secret, session, raw initData, credential, private note, or checkout path in the new evidence, architecture, audit, or CLI artifacts.
-- ISC-1177..1181 system-topology proof — the versioned operational projection validates canonical WorkObject identity, multiple immutable repository components, exact owners and roles, one subject-owned planning authority, typed WorkObject dependencies, typed infrastructure/services, unique cross-references, and distinct lifecycle facts. Fitcheck owns `Sheshiyer/fitcheck-landing` / `R_kgDOSzF56w`; `program:hdilint` owns backend `Sheshiyer/HDILINT-backend-aleph` / `R_kgDOS4jKmg`.
-- ISC-1182..1183 mapping-boundary proof — Batch 3 deterministically contains 39 prepared receipts across 13 WorkObjects at bundle digest `sha256:2a391022bf581771d03ddba8e092b7fe0d111b93a5003e4d1742d6022b3b5e3f`. Fitcheck candidate `pmr_9de251ce89564f07f3e4c510` remains `prepared-not-issued`; its exact R2 key is recorded but unwritten, mapping readback is false, and D1 eligibility/admission remain held.
-- ISC-1184..1186 projection proof — Workbench and Telegram resolve the same generic operational-packet registry. The Operate view shows topology, infrastructure, lifecycle, mapping authority, missions, KPIs, gates, proofs, organs, and loop evidence; Telegram requires mapping-readback truth before presenting D1 admission as evidenced. Fitcheck is the first registry fixture, not a renderer conditional.
-- ISC-1187..1189 intake proof — the canonical workflow registry defines `sapling-product`, `client-delivery`, and `internal-capability`; project birth derives a kind-compatible default, rejects mismatches before folder creation, and pins workflow and registry digests. The executable twenty-step onboarding rows exactly match `ONBOARDING-OCTALYSIS.md` for title, experience, drives, doctrine layer, and evidence state.
-- ISC-1190..1192 release-boundary proof — DLOCK records `cofounder-grant-required`; all live flags remain false. Full `npm test` passes 1628/1628; Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, deterministic bundle, audit, CSP, and smoke; foundation, 39-receipt regeneration, six rendered docs, 47 Telegram viewport captures, JSON parsing, drift audit, and `git diff --check` pass. Independent browser QA passes Fitcheck Operate at desktop and 320/390/430 with exact topology, held mapping/D1 states, six infrastructure dependencies, no mutation controls, no overflow or browser errors, and all origin-to-workflow derivations. No mapping receipt was issued and no D1, R2, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation occurred.
-- ISC-1193..1200 live Fitcheck receipt proof — preflight found the exact R2 key absent, then one object was written to `thoughtseed-vault/portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json`. Remote readback SHA-256 was `0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5`; `validatePortfolioMappingReceipt` accepted the readback for `sapling:fitcheck`, `Sheshiyer/fitcheck-landing`, and `R_kgDOSzF56w`. Evidence is recorded in `docs/project-management/fitcheck-mapping-receipt-readback-2026-08-09.v1.json`. No D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation was performed.
-- ISC-1175 independent review proof — review found same-Sapling receipt substitution, locally forgeable authority claims, caller-asserted foldback admission, and a DLOCK role contradiction. Admission now binds the exact issued receipt; dispatch and foldback require injected external readback verifiers; DLOCK is consistently folderless planning authority. Negative-path regressions pass and final review returns APPROVE with no remaining P0-P2 issue.
-- ISC-1176 handoff/commit proof — `.project/HANDOFF.md` records exact identities, digests, tests, held live gates, and next separately approved operations. One local commit preserves the current branch and worktree without merge, push, PR, deployment, promotion, provider, traffic, or external write.
-- ISC-1129..1143 identity/activation proof — catalog, packets, branch map, architecture note, and held preflight bind exactly `sapling:fitcheck`, `sapling:iverif`, and `sapling:dlock` to tenant `cambium` and immutable repositories; DLOCK is folderless; activation manifest digest is `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`; every checked-in receipt/admission flag remains false.
-- ISC-1144..1155 loadout and D1 proof — governed registry digest is `sha256:b0db8792d37a855a8535cb67ea75bf2ece8b1f42f2e6bcf8165b3ff954bfb7c7`; three immutable records declare spend `none`, delivery false, mutation false, exact WorkObject eligibility, bounded clusters, and commands. Goal Graph rejects syntax-only/cross-WorkObject pins; Mission Fabric emits `pins-loadout` and `requires-cluster` only from the injected registry.
-- ISC-1156..1161 dispatch proof — the closed compiler binds tenant, WorkObject, repository, task, graph version, activation/record/manifest digests, mapping-receipt authority, loadout/cluster/command authority, and an unconsumed signed approval subject. Cross-Sapling substitutions fail; compiled output retains no-spend, delivery-disabled, external-mutation-forbidden state.
-- ISC-1162..1170 foldback/isolation proof — admitted terminal evidence derives bounded receipt-only Cortex and agent-memory records at deterministic WorkObject-scoped R2 keys plus an approval-required `goalGraphAuthority:false` next-intent proposal. Missing admission emits receipt/proof only; stale, unissued, non-terminal, mismatched, conflicting, and cross-Sapling evidence fails closed. The three-Sapling E2E test proves independent lineages.
-- ISC-1171..1174 held/release proof — cohort preflight flags are all false and approvals unconsumed; Batch 3 remains 38 `prepared-not-issued` receipts with bundle digest `sha256:bf9e87d25efc284959930bb835f675e11bafb31a8bd0e1241d542d7080bc7eec`. Focused authority/route tests pass 417/417; full `npm test` passes 1617/1617; Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, bundle, standalone audit, CSP, and smoke; six packets, foundation validation, receipt regeneration, docs sync, JSON parsing, and `git diff --check` pass.
-- ISC-1072..1082 shared-contract proof — `shared/fitcheck-golden-path.ts` binds exact `sapling:fitcheck`, parent `cambium`, display-only aliases, supervised state, three packet missions, two KPIs, seven gates, organ/support routes, proof targets, and the one-change loop; parity tests reject packet drift and preserve the distinction between packet, D1, receipt, and foldback authority.
-- ISC-1083..1094 Telegram proof — all six operating scenes consume the Fitcheck projection; exact runtime identity and D1 task admission are separate predicates; missing admission, loadout, execution, and learning proof remains held; focused shared/scene tests pass 14/14 and the complete canonical viewport suite passes 47/47 with page digest `909fb8758ed8259b060b5be76949376b8d6916d71376ae2f0c4bbbf7158eea4f`.
-- ISC-1095..1106 Workbench proof — Fitcheck alone receives the five-tab model and default `Operate` view; exact identity, lifecycle, missions, KPIs, gates, organ routes, support rails, proof targets, and anti-claims render without mutation controls; other WorkObjects retain four tabs. Portfolio Cartographer passes 70 active tests with one historical skip plus lint, TypeScript, Vite build, deterministic bundle, audit, CSP, and smoke.
-- ISC-1107..1114 doctrine proof — the five requested root documents and `docs/architecture/fitcheck-golden-path.md` distinguish doctrine, local proof, production observation, held work, and retired plans; `render-docs:check` reports six synchronized pages and 91 components.
-- ISC-1115..1118,1120 release proof — independent real-browser QA passes desktop and 320/390/430 widths, exact ARIA tab relationships, arrow-key behavior, no body overflow, and no local browser errors; drift audit passes 4/4; full `npm test` passes 1603/1603; `git diff --check` passes.
-- ISC-1119 held production observation — the visible `curious.thoughtseed.space` tab reached Cloudflare Access rather than the product. No login material, cookies, storage, credentials, or session identifiers were inspected; authenticated production UX remains intentionally unclaimed.
-- ISC-1121..1128 review and boundary proof — the post-build Advisor returns APPROVE with no material blocker; `.project/HANDOFF.md` records the bounded checkpoint; no Sapling promotion, receipt issuance, D1/R2/Hermes/Telegram/GitHub/Vault/registry/provider/traffic/deployment, or physical-folder mutation occurred.
-
-- ISC-1036..1047 mapping-receipt proof — the deterministic compiler reproduces 38 unique receipts across 12 canonical WorkObjects at bundle digest `sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`; all four authority digests, immutable repository metadata, provenance splits, folderless contexts, replay, tamper rejection, and zero-write preparation validate.
-- ISC-1048..1053 Goal Graph proof — migration 0009 applies additively; compiler, identity, and store tests persist exact nullable WorkObject/kind/loadout anchors, reject invalid pairing and loadout identity, preserve legacy nodes, and retain approved CAS replay and stale-head behavior.
-- ISC-1054..1058 Mission Fabric proof — exact shipped-catalog anchors emit `contains`, bounded loadouts emit one deduplicated `pins-loadout`, invalid or absent anchors remain typed gaps, parent storage identities resolve to external task identities, and duplicate task edges fail closed.
-- ISC-1059..1064 Hermes proof — deterministic terminal foldback binds task, WorkObject, graph version, loadout, claim, fence, attempt, attestation, and proof digests; exact replay is idempotent, tampering/conflict fails before storage, and the live preflight remains explicitly held with flags false.
-- ISC-1065 focused proof — the operational mapping, Goal Graph, branch map, Mission Fabric, integration, handler, and foldback suites pass 428/428; deterministic receipt regeneration returns the exact checked-in bundle digest.
-- ISC-1066..1067 release proof — `validate:portfolio-foundation`, the six-packet validator, Portfolio Cartographer 69 active tests plus one historical skip with lint/TypeScript/build/audit/CSP/smoke, edited JSON parsing, `git diff --check`, and full `npm test` at 1601/1601 all pass.
-- ISC-1068 handoff proof — `.project/HANDOFF.md` records receipt counts/digest, nullable anchor semantics, exact edges/gaps, terminal foldback status, live approval text, rollback-first sequence, and all separately held production boundaries.
-- ISC-1069..1071 boundary proof — one local commit contains the bounded repository changes and leaves the branch clean without push; no Sapling promotion, invented relationship, cleared evidence hold, production R2/D1/Hermes/GitHub/Vault/registry/provider/traffic/deploy mutation, or folder move occurred.
+- ISC-1294..1305 mapping-receipt proof — the deterministic compiler reproduces 38 unique receipts across 12 canonical WorkObjects at bundle digest `sha256:95157335f0798106b55e28f9595ba0f77d60e75d3c7b334d90018eeeec205c43`; all four authority digests, immutable repository metadata, provenance splits, folderless contexts, replay, tamper rejection, and zero-write preparation validate.
+- ISC-1306..1311 Goal Graph proof — migration 0009 applies additively; compiler, identity, and store tests persist exact nullable WorkObject/kind/loadout anchors, reject invalid pairing and loadout identity, preserve legacy nodes, and retain approved CAS replay and stale-head behavior.
+- ISC-1312..1316 Mission Fabric proof — exact shipped-catalog anchors emit `contains`, bounded loadouts emit one deduplicated `pins-loadout`, invalid or absent anchors remain typed gaps, parent storage identities resolve to external task identities, and duplicate task edges fail closed.
+- ISC-1317..1322 Hermes proof — deterministic terminal foldback binds task, WorkObject, graph version, loadout, claim, fence, attempt, attestation, and proof digests; exact replay is idempotent, tampering/conflict fails before storage, and the live preflight remains explicitly held with flags false.
+- ISC-1323 focused proof — the operational mapping, Goal Graph, branch map, Mission Fabric, integration, handler, and foldback suites pass 428/428; deterministic receipt regeneration returns the exact checked-in bundle digest.
+- ISC-1324..1325 release proof — `validate:portfolio-foundation`, the six-packet validator, Portfolio Cartographer 69 active tests plus one historical skip with lint/TypeScript/build/audit/CSP/smoke, edited JSON parsing, `git diff --check`, and full `npm test` at 1601/1601 all pass.
+- ISC-1326 handoff proof — `.project/HANDOFF.md` records receipt counts/digest, nullable anchor semantics, exact edges/gaps, terminal foldback status, live approval text, rollback-first sequence, and all separately held production boundaries.
+- ISC-1327..1329 boundary proof — one local commit contains the bounded repository changes and leaves the branch clean without push; no Sapling promotion, invented relationship, cleared evidence hold, production R2/D1/Hermes/GitHub/Vault/registry/provider/traffic/deploy mutation, or folder move occurred.
 - ISC-1000..1009 catalog derivation — 74 unique canonical WorkObjects materialize as 20 Saplings, 39 Client Branches, and 15 Internal Programs; 20 historical products, zero classification-review records, 49 explicit operational gaps, unique links, and application/Worker payload parity all validate.
 - ISC-1010..1019 root/repository proof — the 58-folder physical dry-run is exact; current root-map digest is `baec8991188eb7f4f3aed07f55b5ca74441c2fa7386b0b66b5a6358010795962`; repository evidence contains 106 references, 96 resolved, 5 unmatched, and 5 unverified at digest `5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f`; every unresolved reference has an assignment, explicit hold, or exclusion.
 - ISC-1020..1024 packet/identity proof — six product packets validate; Fitcheck, IVerif, DLOCK, Vantyx, and Snow Gloves OS carry exact kind-matched canonical Work IDs; Client Delivery declares non-canonical template semantics; orphan packets and duplicate canonical identities fail validation.
@@ -2918,3 +2621,217 @@ _Last refreshed: 2026-08-17T18:27:44.242Z_
 - ISC-671..682, ISC-688: interaction and persistence proof — the Unplanned cards expose Now, Next, Later, Park, and Needs Review. Browser interaction applied IVerif→Next and FMRL→Later, reduced the queue 10→8, exposed two bounded undo steps, then restored both exact prior states 8→9→10. A separate-origin proof created IVerif→Next, imported an empty valid v3 packet, and observed zero plans plus zero stale Undo controls. The single `PlanningHistory` state proves bulk→quick clears bulk, quick undo remains bounded LIFO, later bulk clears quick, and discard/empty transitions stay safe; successful Import, confirmed Reset, drawer/signal edits, and ordinary plan edits clear every incompatible history. The review desk renders all 16 source records with deterministic rationale, `thoughtseed.review-suggestion.v1`, the complete 64-character source digest, visible `Suggested · local rule` labeling, four one-tap proposal choices, bounded family/note fields, and 0/16 progress. Choosing `review:10869` persisted 1/16 across reload; Reset restored 0/16. JSON v3 and Markdown round-trips preserve rule plus exact digest, and a mismatched digest fails closed rather than being relabeled; source review and locally flagged WorkObject counts stay separate.
 - ISC-683..687: responsive, safety, embed, and release proof — in-app-browser DOM at 390, 768, and 1440 pixels reports `scrollWidth === innerWidth`, all 16 review cards, all 16 rule markers, and zero warning/error console entries. At 390px, layout selection exposes `aria-pressed`, contextual quick/review labels include each record name, and every targeted new control measures exactly 44px. Canonical catalog bytes remain unchanged across grouping, suggestions, and export. `pnpm check` passes 25/25 domain tests, lint, TypeScript/Vite build, bundle, zero-egress audit, CSP smoke, and standalone smoke; full repository tests pass 1523/1523; route tests pass 4/4; root standalone audit checks 626 publishable files; root standalone smoke and Telegram mobile contract pass; strict Wrangler dry-run exits 0. `bundle.html` and the generated Worker embed are exact at 290,703 bytes with SHA-256 `cfc5f50405f96eb6b657d9fbbc6dca6739ddcea4d23384d647ab73a750d1859e`. Final independent Cato re-audit returns PASS with no remaining findings across planning history, import/reset isolation, provenance, accessibility, offline enforcement, bundle parity, and founder-route security. v2 and legacy v1 inputs migrate explicitly into v3 while invalid/future packets fail closed. No deployment, network request, Telegram send/menu, tenant, account, WorkObject, D1/KV/R2, schema, allowlist, traffic, or provider mutation occurred.
 - ISC-851..864 hosted-action focused proof: 47 active Workbench tests pass with one historical fixture skip; eight action/store tests prove closed validation against the exact shipped root-map/catalog digests, canonical WorkObject identities, reviewed shallow Project paths/status, R2-before-queue ordering, exact replay, conflict, Project-only grammar, and durable queue retry; ten route tests prove Cloudflare Access/Plexus and Telegram founder authorization, POST-only routing, 16 KiB rejection, exact bundle parity, and fail-closed persistence. The hosted artifact is 352,037 bytes with SHA-256 `a195927aaa9dff17326e52022a1f868a13e375456ff2e2df911124fe460b2348`. The complete deterministic release gate passes and independent re-audit reports no remaining P0-P2 findings. The client has one same-origin action endpoint, the queue exposes no R2 key, and no Goal Graph, production Worker, traffic, registry, provider, or live R2 state was mutated by this local implementation.
+
+## 2026-08-11 Mini App page-wiring iteration
+
+- ISC-1036: packets whose `identity_scope` is `template` remain authoring assets and are excluded from operational branch stories, loops, Mission cards, graph nodes, Gate subjects, and Story events.
+- ISC-1037: Saplings, canonical Client Branches, and Programs retain distinct identity, lifecycle language, visual treatment, and founder-gated actions; promotion never silently changes WorkObject kind.
+- ISC-1038: Markdown quest queues are presented as planned milestones until receipt-backed runtime status exists; planned counts never masquerade as completed progress.
+- ISC-1039: Story accepts only source-qualified, tenant-bound events with canonical WorkObject identity, time, event kind, and evidence or receipt provenance; replay deduplicates deterministically.
+- ISC-1040: Gate distinguishes loading, empty, review-ready, blocked, expired, submitting, committed, refused, unauthorized, and error states and never combines quiet copy with a loading placeholder.
+- ISC-1041: Tools exposes typed, per-source freshness for status, services, agents, active work, and handoffs; observational and signed-action capabilities cannot share contradictory read-only labeling.
+- ISC-1042: Inspect leads with founder-relevant blockers, freshness, receipts, and lineage; source paths and fixture diagnostics are hidden from production and secrets never render.
+- ISC-1043: the scene shell rests with exactly one page visible after pointer cancellation, pointer leave, visibility change, or blur and satisfies tablist, tabpanel, focus, target-size, zoom, and live-region accessibility contracts.
+- ISC-1044: Operating Fabric remains fail-closed until a reviewed `MISSION_FABRIC_TENANTS=cambium` pilot, rollback record, and authenticated Telegram evidence exist; direct browser proof cannot substitute for Telegram initData.
+- ISC-1045: the page-wiring execution plan contains 80 schema-complete tasks across contract, route, proof, page, integration, release, and rollback waves with one writer per lock zone.
+
+## 2026-08-12 GitHub and planning reconciliation wave
+
+- ISC-1046: all open Cambium GitHub issues receive exactly one evidence-backed disposition from current merged, runtime, owner, or provider authority.
+- ISC-1047: dated plans remain historical evidence and cannot create executable work unless a current GitHub issue, contract, runbook, active packet, or ISA criterion owns the residual intent.
+- ISC-1048: all 80 Mini App task identifiers receive one deterministic status, and every implemented status cites a merged commit, passing test, or production receipt.
+- ISC-1049: stale issues are closed only when their remaining acceptance is proven or preserved in explicit child issues; repository shape alone is insufficient closure evidence.
+- ISC-1050: blocked and approval-gated work names the exact missing owner decision, provider state, curated source, authenticated proof, or runtime receipt.
+- ISC-1051: intake-only issues are triaged without silently becoming Cambium implementation authority.
+- ISC-1052: every residual execution task names dependencies, owned files, acceptance checks, validation commands, and external-mutation boundaries.
+- ISC-1053: quest-client HTTP authorization, absence, server failure, malformed payload, timeout, and transport failure render as distinct terminal states.
+- ISC-1054: a 401 or 403 quest response never renders the honest-empty `no ledger yet` state and never exposes authentication material.
+- ISC-1055: all mutation workers use isolated clean worktrees rooted at the reviewed `origin/main` SHA; the dirty primary checkout remains untouched.
+- ISC-1056: GitHub issue mutations are applied from a reviewed reconciliation record and leave a replayable issue-number, action, and evidence receipt.
+- ISC-1057: deployment, Worker environment changes, Telegram sends, provider cleanup, registry writes, and relocation remain outside this execution wave.
+- ISC-1058: the GitHub sync reads all 14 target issues immediately before mutation and aborts any issue whose state or body changed materially after reconciliation.
+- ISC-1059: issues 285 and 287 close with comments preserving their independently open residual children and mapping authority.
+- ISC-1060: issue 282 records corrected source ownership before any Cloudflare provider action is considered executable.
+- ISC-1061: issues 249, 252, 280, 281, 283, and 284 remain open with exact missing approval, content, provider, or runtime acceptance probes.
+- ISC-1062: issues 275, 276, and 277 are visibly classified as intake triage and do not become Cambium implementation authority.
+- ISC-1063: issues 290 and 291 link the reviewed eight-wave execution manifest and preserve repository identity ambiguity as explicit holds.
+- ISC-1064: every GitHub mutation emits a replayable local receipt containing issue number, prior state, requested action, resulting state, and resulting update timestamp without issue-body secrets.
+- ISC-1065: post-mutation readback covers all 14 issues and matches the reviewed action matrix exactly.
+- ISC-1066: Anti: parallel workers call GitHub mutation APIs, close approval-gated work, deploy runtime code, or alter provider state.
+- GitHub synchronization proof: all 14 pre-mutation `updatedAt` values and body SHA-256 digests matched the frozen transaction immediately before execution. Thirty-two serialized `gh` operations completed successfully under one coordinator.
+- Readback proof: #249, #252, #280, #281, #282, #283, #284, #290, and #291 remain open; #275–#277 are `NOT_PLANNED`; #285 and #287 are `COMPLETED` and automatically moved to project status Done.
+- Ownership proof: #282 now owns B7/C1/C2/C4, shares C3 with #291, routes B4 to #281, and routes H7 to #283. #291 enumerates all eight GIP waves and explicitly permits parallel isolated repository work while retaining serialized GitHub mutation.
+- Authority proof: no provider, deployment, credential, runtime timer, mailbox, Telegram, ledger, relocation, or production mutation occurred.
+- Independent final audit verified the clean worktree, all 14 live issue results, project Done transitions, corrected ownership bodies, execution-wave statuses, and bounded authority with verdict PASS. Pull request #313 carries the reviewed branch for normal merge authority.
+
+## 2026-08-15 protected-main governance and repository-origin reconciliation
+
+- [x] ISC-1220: `main` is governed by active repository ruleset `main-pr-and-ci` (`20884840`) with no bypass actor, pull-request-only changes, linear history, deletion and non-fast-forward blocking, and required conversation resolution.
+- [x] ISC-1221: the ruleset requires strict up-to-date success from exact GitHub Actions context `deterministic release verification · node 26`; repository merge settings allow squash only and delete merged branches.
+- [x] ISC-1222: the #290 evidence receipt contains exactly ten unique residual source references and reconciles them as two resolved/reconciled rows plus eight explicit holds.
+- [x] ISC-1223: `Sheshiyer/reddit-cli` remains an explicit unavailable exact-identity hold; bounded local package and README evidence assign `Sheshiyer/reddit-flux` separately to `program:operator-utilities` without substitution.
+- [x] ISC-1224: relocation-registry identity plus `ARCHITECTURE.md` resolve `Sheshiyer/brandmint-showcase` as a supporting repository of `program:meristem-brand-system`, without admitting a separate WorkObject.
+- [x] ISC-1225: `Sheshiyer/workforce-automation-app-symphonics` is the exact repository-only planning surface for `branch:symphonics`; the absent shallow folder and any future native-app lane remain separately relocation-gated.
+- [x] ISC-1226: GitHub 404 responses remain `not retrievable` evidence, never proof of nonexistence, and every unavailable or ambiguous row retains a concrete hold reason.
+- [x] ISC-1227: Client projects remain Client Branches, reusable Thoughtseed IP remains separate, and the audit performs zero inferred assignments, catalog admissions, folder mutations, private-content reads, Vault writes, or runtime mutations.
+- [x] ISC-1228: GIP-002 and source reconciliation now mark #290 implemented while #291 and the remaining planning/runtime/content waves stay explicit.
+- [x] ISC-1229: focused audit and mapping-queue tests pass and bind both corrected assignments, the exact Symphonics role, all ten source references, and every zero-mutation boundary.
+
+Verification source: `docs/evidence/2026-08-15-portfolio-origin-classification-audit.v1.json`, the governed mapping queue, authenticated GitHub metadata readback, bounded local identity probes, and the focused Node test receipts. Repository governance is live external state; this source checkpoint records its point-in-time verification without claiming GitHub settings are version-controlled by the repository.
+
+## 2026-08-15 Mini App execution-map reconciliation
+
+- [x] ISC-1230: all 80 historical Mini App task IDs remain present exactly once and retain their original title, dependencies, acceptance, validation, phase, wave, and swarm provenance.
+- [x] ISC-1231: current merged source and tests classify the map as 44 implemented, four superseded, 28 executable residuals, and four non-executable approval-gated rows.
+- [x] ISC-1232: every executable residual names one exact repository file owner, current inspected source, dependencies, validation, and one missing acceptance.
+- [x] ISC-1233: implemented and superseded rows cite exact source/test evidence; approval-gated rows name missing authority and cannot enter automatic execution.
+- [x] ISC-1234: GIP-003 is complete while GIP-008 remains reviewable and GIP-004 through GIP-006 retain their runtime/content gates.
+- [x] ISC-1235: the reconciliation performs no deployment, allowlist, ledger, provider, Telegram, credential, Vault, folder, or external-repository mutation.
+
+Verification source: `.planning/2026-08-11-mini-app-page-wiring.tasks.json`, `.planning/execution/2026-08-12-source-reconciliation.v1.json`, and `scripts/mini-app-task-reconciliation.test.mjs`.
+
+## 2026-08-15 product-branch repository-task migration
+
+- [x] ISC-1236: the five active non-template packets map to exact owning repositories and one unique open issue each.
+- [x] ISC-1237: each owning issue preserves canonical WorkObject identity, residual quest proof, and the packet's founder/provider boundary.
+- [x] ISC-1238: exact-title duplicate searches return zero matches immediately before issue creation, and all five created issues read back OPEN with stable node identity.
+- [x] ISC-1239: every Cambium packet links its owning issue while Cambium retains only cross-portfolio sequencing authority.
+- [x] ISC-1240: GIP-008 is complete; GIP-004 through GIP-006 remain runtime/content gated and stay owned by their existing Cambium issues.
+- [x] ISC-1241: the Client Delivery template remains excluded and receives no WorkObject or repository issue.
+- [x] ISC-1242: the migration performs no branch promotion, provider action, deployment, ledger publication, contact, spend, credential, Telegram, folder, Vault, or runtime mutation.
+
+Verification source: `docs/evidence/2026-08-15-product-branch-repository-task-migration.v1.json`, live GitHub issue readback, the five linked product-branch packets, and `scripts/product-branch-repository-task-migration.test.mjs`.
+
+### 2026-08-13 portfolio assimilation production repair
+
+- ISC-1067: Git ancestry/status probe — released source `a16d6033c658713b89ea14b5f7b4a854eb43b14e` was clean and exactly one commit above base `a873c4ab217430e64ae7b47e85f96b4d48d6e14d`.
+- ISC-1068: strict filesystem census — the production candidate gate reported all 62 depth-one folders accounted as 57 project rows and five infrastructure/exclusion rows.
+- ISC-1069: catalog import probe — shared authority materialized 72 WorkObjects: 17 Saplings, 40 Client Branches, and 15 internal Programs.
+- ISC-1070: strict linkage audit — every catalog identity received filesystem, Story Arc, Quest, organ, Mini App, and Hermes transport disposition.
+- ISC-1071: linkage report probe — five packet-backed arcs and 67 unadmitted gaps remained separate; 48 operational gaps remained explicit.
+- ISC-1072: source/receipt audit — the Vault was read as reference knowledge only and no Vault/runtime mutation occurred.
+- ISC-1073: byte/digest parity probe — app and Worker catalog/root-map mirrors and generated Workbench embed matched their pinned authorities.
+- ISC-1074: deterministic release probes — full tests passed 1678/1678, release verification passed, 47 viewport proofs passed, and local Wrangler upload dry-run exited zero.
+- ISC-1075: Cloudflare version readback — inert candidate Version 44 `575fc392-92ce-46d7-8849-fa84059435a3` existed while Version 42 retained 100 percent traffic.
+- ISC-1076: binding/runtime comparison — all 36 binding name/type/non-secret identities and compatibility settings matched with added `[]` and removed `[]`.
+- ISC-1077: independent review — Forge passed exact local source and later passed exact remote Version 44 for code-only promotion.
+- ISC-1078: deployment API readback — deployment `f84128db-ea9a-4e52-a88d-beac5ea8b26a` served exact Version 44 at 100 percent immediately and after nine minutes.
+- ISC-1079: rollback provenance — exact pre-promotion Version 42 `86112412-2073-4f14-b215-599de0ed0eeb` remains retained; no rollback trigger fired and no rehearsal is claimed.
+- ISC-1080: direct route probes — statuses remained `200/401/401/401/403` for health, quests, Portfolio API, Workbench, and Mission Fabric.
+- ISC-1081: domain/config probes — the custom domain and six-hour cron remained attached; all five custom-domain probes returned Access `302` boundaries.
+- ISC-1082: binding/route inspection — `MISSION_FABRIC_TENANTS` remained unchanged and the `403` activation hold matched ISC-1044.
+- ISC-1083: mutation receipt — second ledger push, binding, D1, KV, R2, Vault, Telegram, provider-config, and relocation fields are false.
+- ISC-1084: committed-evidence scan — token names/values, bearer text, Access login URLs, initData fields, emails, and machine-local paths are absent.
+- ISC-1085: in-app browser DOM probe — the existing tab showed the Cloudflare Access email-code screen, so authenticated founder visibility remains explicitly unproven.
+- ISC-1086: Git/receipt probe — deployed source remains `a16d603…`; the evidence-only repository checkpoint is a separate second commit.
+- Final independent audit: `PASS-WITH-P2`, with no P0/P1/P3 finding. The P2 is evidence precision only: founder-visible authenticated synchronization remains unproven, and the retained Version 42 rollback target was not rehearsed because no rollback trigger fired.
+
+### 2026-08-13 authenticated Workbench and Telegram-flow linkage wave
+
+- [x] ISC-1087: An authenticated in-app browser probe reaches the governed Portfolio Workbench, renders the current portfolio, and reports no console warning or error.
+- [x] ISC-1088: The Workbench labels catalog totals separately from active-work totals so 72 catalogued and 71 active WorkObjects cannot be mistaken for drift.
+- [x] ISC-1089: The terminal `branch:safvr-landing-page` closeout remains absent from active planning and present in the finished-work view.
+- [x] ISC-1090: The new depth-one `temperance_engine` checkout is classified from its exact Git remote and mapped proposal-only to `program:temperance-hermes`; no repository is moved or edited.
+- [x] ISC-1091: The strict Thoughtseed root census accounts for 63 depth-one folders as 58 mapped project rows plus five infrastructure rows with no missing or unexpected folder.
+- [x] ISC-1092: One generated linkage manifest contains exactly 72 unique catalog WorkObjects and is reproducible from the canonical catalog, packet, root-map, and organ-plan authorities.
+- [x] ISC-1093: Every linkage row carries explicit filesystem, Story Arc, Quest, organ, Mini App, and Hermes dispositions; an absent relationship is an explicit gap, never an inferred join.
+- [x] ISC-1094: Every WorkObject drawer exposes the same read-only Linkage view, including folder evidence, packet/quest state, mission-data readiness, organ assignment, Mini App visibility, and Telegram transport boundary.
+- [x] ISC-1095: Portfolio summary controls expose active, catalog, finished, packet-backed Story Arc, and mission-data-gap counts from the same shipped state.
+- [x] ISC-1096: Packet-backed Story/Quest plans remain visibly distinct from D1 Goal Graph admission, and mission-data gaps never render as operationally admitted.
+- [x] ISC-1097: Hermes remains the only Telegram transport authority; the Workbench may compile/display a planned topic route but cannot send or claim a dispatch receipt.
+- [x] ISC-1098: Slash-command ownership remains Hermes-plugin-owned and is documented/displayed without inventing a Cambium command executor.
+- [x] ISC-1099: `MISSION_FABRIC_TENANTS` remains unchanged and the authenticated browser session is not treated as Telegram `initData` proof.
+- [x] ISC-1100: Focused domain, root-map, linkage, Workbench bundle, and browser checks pass against the exact candidate source.
+- [x] ISC-1101: The primary dirty checkout, Vault, D1, KV, R2, Cloudflare traffic/bindings, Telegram topics/messages, and external repositories receive no mutation in this local implementation wave.
+- [x] ISC-1102: The resulting candidate and exact separately approved durable-action queue are recorded in `.project/HANDOFF.md` without implying production deployment or all-72 operational admission.
+
+Verification: authenticated production Workbench readback; strict 63-root audit; local Cambium and Fitcheck browser probes; Workbench check 73 passed / one skipped; portfolio-foundation 45 + 73 + 108; release 1678 + 37 + 99 + 5; JSON and diff checks. Independent review's P1 (untracked essential files) and P3 (linkage lint omission) were closed before checkpointing.
+
+### 2026-08-14 Telegram Gate descriptor repair
+
+- [x] ISC-1103: A Cloudflare-authenticated browser session is distinguished from Telegram founder authentication; absent Telegram `initData` cannot authorize a Goal Graph admission.
+- [x] ISC-1104: The legacy Goal Graph Gate row carries the exact served tenant, change digest, nonce, expiry, expected head version, and fence into governed preflight.
+- [x] ISC-1105: Descriptor seeding is limited to `approve-goal-graph`; ordinary Gate actions preserve their prior call shape and authority.
+- [x] ISC-1106: Existing Operating Fabric validation remains fail-closed for missing, expired, mismatched, stale-head, or wrong-fence descriptors.
+- [x] ISC-1107: A behavior-level regression test executes the real legacy row wire path and asserts all six descriptor fields exactly.
+- [x] ISC-1108: Canonical Telegram viewport evidence is regenerated against the repaired page source and remains manifest-bound across 47 layout and clickability proofs.
+- [x] ISC-1109: Deterministic release verification passes 1682 core tests, 37 integration checks, the mobile contract, 99 R3F tests/build, and five desktop packaging tests.
+- [x] ISC-1110: The approved replacement Fitcheck intake expired while pending; D1 remained at Goal Graph version 1 and no Hermes, foldback, ACK, allowlist, Mission Fabric, or execution mutation occurred.
+- [x] ISC-1111: Production remains Version 47 and the repair remains a local candidate pending separate rollback-gated upload and promotion authority.
+
+Verification: strict RED/GREEN behavior test; focused handler and operating-fabric suites; canonical `proof:tg-viewport`; full `verify:release`; exact browser and D1/KV readback. No production upload, traffic change, D1/KV/R2 write, Telegram message, Hermes activation, Mission Fabric allowlist, or execution occurred from this repair checkpoint.
+
+### 2026-08-14 inert Gate-repair candidate upload
+
+- [x] ISC-1112: The uploaded source is exact clean commit `a42a9e2e672d4fd3d69fc715b5a5e5e384a1e165`, exactly one commit above production source `fbd1bcf838da3ab46961f8842d51a4ca935d8f27`.
+- [x] ISC-1113: Fresh pre-upload control-plane readback proves deployment `33097935-611a-469e-940d-cb3fee252b0d` serves only Version 47 `bc990526-3588-44ad-8116-8d6ec9d9fa35` at 100 percent.
+- [x] ISC-1114: The deterministic release gate passes before upload, including 1683 core tests, 37 integration checks, 99 R3F tests, five desktop packaging tests, and a Wrangler dry run.
+- [x] ISC-1115: The built Worker module is 1,867,927 bytes with SHA-256 `f0857aea59b5c35f293eea46c4e5dadd40fbc2a0b22e862e6eb2611a506ab84a`.
+- [x] ISC-1116: A rejected inheritance request creates no Version and changes no deployment; the corrected request proceeds only after an immediate readback proves literal `latest` still resolves to exact Version 47.
+- [x] ISC-1117: Exactly one successful Version mutation creates inert Version 48 `20a4d3f2-03bf-4b6d-8256-50a5a7ea26a3` with the full source tag and bounded preview alias.
+- [x] ISC-1118: Candidate readback proves exact 36/36 binding identity parity, identical compatibility date, flags, and usage model, and exactly one Version-list delta.
+- [x] ISC-1119: Candidate preview probes return `200/401/401/401/403` for health, quests, Portfolio API, Workbench, and Mission Fabric respectively.
+- [x] ISC-1120: Post-upload deployment readback retains exact Version 47 at 100 percent and assigns Version 48 zero production traffic.
+- [x] ISC-1121: No deployment, traffic, binding, D1, KV, R2, Vault, Telegram, Hermes, GitHub, registry, relocation, or provider-configuration mutation accompanies the candidate upload.
+- [x] ISC-1122: Promotion remains separately owner-approved and rollback-gated; candidate creation cannot imply production release, founder Telegram proof, Fitcheck admission, or Hermes execution.
+
+Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-candidate-upload.v1.json`; exact source/build gate; fresh Version 47 and deployment readbacks; direct Version 48 readback; canonical binding digest parity; five GET-only preview probes; production deployment re-read. No candidate promotion occurred.
+
+### 2026-08-14 Fitcheck founder evidence pilot candidate
+
+- ISC-1166..1176 parser and authority proof: 15/15 pure contract tests accept
+  only the exact Fitcheck identity, typed screenshot and widget-event receipt
+  references, bounded outcomes, and server-derived transitions. Authentication
+  material is removed before canonicalization and hostile references fail
+  closed.
+- ISC-1177..1189 persistence and Gate proof: focused handler coverage passes
+  21/21, legacy Goal Graph coverage passes 24/24, and the complete handler suite
+  passes 360/360. Fault injection proves partial KV intake recovery and
+  D1-success/KV-failure approval reconciliation without a second graph commit.
+- ISC-1190..1199 founder experience proof: browser-harness coverage passes 4/4
+  for the exact Fitcheck sheet, retained values, focused validation, ambiguous
+  retry, pending Gate state, signed approval refresh, and D1-backed quest
+  readback. Canonical viewport and mobile-contract proofs pass at Telegram
+  widths.
+- ISC-1200..1219 release and boundary proof: all repository tests pass
+  1723/1723; Mission Fabric integration/readiness passes 37/37; R3F passes
+  99/99 plus build; desktop packaging passes 5/5; the deterministic release
+  gate, standalone smoke, canonical viewport proof, mobile contract, and
+  `git diff --check` exit zero.
+- The reviewed implementation is a local candidate lineage rooted at evidence
+  checkpoint `20a816d17cf961d62fb50e1535c97ab984e8d4c3`; candidate code head is
+  `6bfb4316bf88ce5206fc393f91f465a72d8edc6d`. No Worker upload or promotion,
+  production traffic or binding change, D1/KV/R2/Vault write, Telegram send,
+  Hermes execution, Mission Fabric activation, provider change, GitHub write,
+  or primary-checkout mutation occurred.
+- The pilot is implementation-complete but not live. The next authority gate
+  is a fresh production control-plane readback and independent exact-candidate
+  review, followed by separately approved rollback-gated upload/promotion.
+  Only after that release may the founder submit real references, approve the
+  exact Gate transition, and collect live Goal Graph readback evidence.
+- Final whole-branch review initially blocked two P1s: the legacy Gate refresh
+  omitted Telegram founder authentication, and HTTPS references admitted
+  arbitrary query data. TDD fixes now route every quest/Gate read through one
+  authenticated refresh primitive and accept only query-free HTTPS or typed
+  opaque receipt references while rejecting obvious identifying material.
+- Final independent re-review of sealed head
+  `87c62d95cf599f11d246e6060dec53ff4a6b226a` is `PASS` with both prior P1s
+  addressed and no P0/P1/P2/P3 finding. It independently reran the combined
+  parser and handler suites at 381/381.
+- Mandatory local Chromium QA at sealed head `87c62d9` passes 23 assertions
+  across founder actions, query-free guidance, focused validation, retained
+  values, same-ID ambiguous retry, pending Gate, exact authenticated descriptor,
+  preserved Fitcheck selection, committed outcome, six authenticated refreshes,
+  and shared Goal Graph head. P0/P1/P2/P3 are all zero.
+
+## 2026-08-16 portfolio branch reconciliation and execution wave
+
+- [x] ISC-1243: `gh auth status` proves repository, workflow, project, and organization access before GitHub mutation.
+- [x] ISC-1244: Cambium local branches are enumerated with exact head SHA, upstream, worktree, ahead/behind count, patch-equivalence count, and PR disposition.
+- [x] ISC-1245: Cambium remote branches are enumerated with exact head SHA and owning or historical PR disposition.
+- [x] ISC-1246: Every extant Cambium worktree has a captured porcelain status before any cleanup or integration.
+- [x] ISC-1247: Prunable worktree metadata is distinguished from recoverable filesystem content and is not represented as preserved uncommitted work.
+- [x] ISC-1248: Root checkout changes remain byte-for-byte untouched by reconciliation work.
+- [x] ISC-1249: Each root uncommitted path receives a reviewed disposition: already merged, candidate PR, generated/local-only, or explicit hold.
+- [x] ISC-1250: No workflow deletion enters a PR unless its exact source diff is independently justified and tested.
+- [x] ISC-1251: Fitcheck, Vantyx, IVerif, DLOCK, and Snow Gloves repositories each have live default-branch, open-PR, remote-branch, and issue readback evidence.

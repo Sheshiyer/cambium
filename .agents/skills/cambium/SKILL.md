@@ -1,10 +1,4 @@
----
-name: cambium
-description: Cambium repository development patterns, coding conventions, and workflows.
-license: MIT
-compatibility: opencode, codex, claude
----
-
+```markdown
 # cambium Development Patterns
 
 > Auto-generated skill from repository analysis
