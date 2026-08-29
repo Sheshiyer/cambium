@@ -62,7 +62,7 @@ Scope: P0/P1 production, authority, mapping, security, evidence defects
 
 ## ISC-1480: Anti-checks verified
 
-- [x] No personal-account deployment (OAuth: thoughtseedlabs@gmail.com, account: 9d7cec1b5a32b2df8c6cdc1321ccd00b)
+- [x] No personal-account deployment (OAuth: thoughtseedlabs account, account: 9d7cec1b5a32b2df8c6cdc1321ccd00b)
 - [x] Access not weakened (302 redirect to login preserved)
 - [x] No credential mutations (secrets unchanged)
 - [x] No second ledger push (single promotion)
