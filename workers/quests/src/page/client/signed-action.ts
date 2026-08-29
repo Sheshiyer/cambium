@@ -154,6 +154,18 @@ function gateActionSubject(kind, it){
   if (kind === 'approve-goal-graph' && isGoalGraphGateItem(it)) return it.goalGraphChangeDigest || (it.goalGraphIntake && it.goalGraphIntake.changeDigest) || gateSubject(it);
   return kind === 'confirm-action-request' && isActionRequestGateItem(it) ? (it.actionRequestId || (it.actionRequest && it.actionRequest.id) || it.id || gateSubject(it)) : gateSubject(it);
 }
+function gateApprovalDescriptorSeed(kind, it){
+  if (kind !== 'approve-goal-graph' || !isGoalGraphGateItem(it)) return undefined;
+  const row = (it && it.goalGraphIntake) || it || {};
+  return {
+    tenant:row.tenantId,
+    changeDigest:row.changeDigest,
+    nonce:row.approvalNonce,
+    expiresAt:row.approvalExpiresAt,
+    graphVersion:row.expectedHeadVersion,
+    fence:row.fence,
+  };
+}
 function gateEvidence(it){ return it.evidence || it.detail || it.status || 'evidence missing from handoff'; }
 function gateBranchId(it){ return mcText(it && (it.branchId || it.branch || it.productId || it.clientName), 'branch-not-served').toLowerCase().replace(/[^a-z0-9-]+/g, '-'); }
 function gateBranchFocus(it){ return gateBranchId(it); }
@@ -478,17 +490,18 @@ function gateNodeForSubmit(context){
   return null;
 }
 /* frozen/06 §2.4 — the preflight sheet renders ONLY these lines (served consequence strings are payload, not copy). */
-const GATE_PREFLIGHT_TITLES = { approve:'Approve gate item', reroll:'Reroll gate item', 'promote-skill':'Promote skill', 'queue-side-quest':'Queue side quest', 'confirm-action-request':'Confirm action request', 'approve-goal-graph':'Approve goal proposal' };
+const GATE_PREFLIGHT_TITLES = { approve:'Approve gate item', reroll:'Reroll gate item', 'promote-skill':'Promote skill', 'promote-portfolio':'Review Portfolio promotion', 'queue-side-quest':'Queue side quest', 'confirm-action-request':'Confirm action request', 'approve-goal-graph':'Approve goal proposal' };
 function gatePreflightLine(kind, subject, item, option){
   if (kind === 'approve') return 'Queues founder approval for ' + subject + '; nothing mutates until an operator consumes the queue.';
   if (kind === 'reroll') return 'Queues a reroll request for ' + subject + '; current work stays unchanged until operator consumption.';
   if (kind === 'promote-skill') return 'Queues skill promotion review for ' + subject + '; the registry changes only after operator consumption.';
+  if (kind === 'promote-portfolio') return 'Queues Portfolio promotion review for ' + subject + '; lifecycle and catalog remain unchanged until operator consumption.';
   if (kind === 'queue-side-quest') return 'Queues side quest ' + subject + ' for operator follow-up; nothing completes from this device.';
   if (kind === 'approve-goal-graph') return 'Signs founder approval for ' + ((item && item.title) || 'this goal proposal') + '; the goal graph commits only after this signature.';
   const optionToken = (option && (option.id || option.label)) || (item && item.selectedOptionId) || subject;
   return 'Queues signed confirmation for ' + optionToken + '; execution waits for operator consumption of the queue.';
 }
-/* One preflight sheet for every signed kind (approve / reroll / promote-skill / queue-side-quest / confirm-action-request / approve-goal-graph):
+/* One preflight sheet for every signed kind (approve / reroll / promote-skill / promote-portfolio / queue-side-quest / confirm-action-request / approve-goal-graph):
    glyph + title + ONE consequence line + reversibility state token + ONE Inspect link + Confirm/Cancel. No kv walls. */
 function openGatePreflight(kind, subject, node, seed){
   const seeded = seed && typeof seed === 'object';
@@ -531,7 +544,7 @@ function setGateSubmitState(button, state, text){
 }
 function loadGate(){
   const el = $('gate');
-  fetch('/api/quests/' + TENANT).then(r => r.ok ? r.json() : {}).then(d => {
+  fetchQuestEnvelope().then(r => r.ok ? r.json() : {}).then(d => {
     const items = gateItemsFromEnvelope(d || {});
     GATE_ITEMS = items;
     const source = '/internal/gate/' + TENANT;
@@ -562,7 +575,7 @@ function loadGateWire(el, source){
     node.querySelectorAll('[data-kind]').forEach(button => button.onclick = () => {
       const item = GATE_ITEMS[Number(node.dataset.i)] || {};
       const kind = button.dataset.kind || 'approve';
-      openGatePreflight(kind, gateActionSubject(kind, item), node);
+      openGatePreflight(kind, gateActionSubject(kind, item), node, gateApprovalDescriptorSeed(kind, item));
     });
     node.querySelectorAll('[data-gate-detail]').forEach(detail => detail.onclick = () => go(4));
     node.querySelectorAll('[data-gate-proof]').forEach(proof => proof.onclick = () => go(4));
@@ -637,7 +650,7 @@ function gateAct(submitButton){
         }
         setGateSubmitState(submitButton, 'queued', kind === 'approve-goal-graph' ? 'committed' : 'queued');
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
-        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph') setTimeout(loadGate, 350);
+        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph') Promise.resolve(refresh()).then(loadGate);
       } else {
         setGateSubmitState(submitButton, 'refused', 'refused · no write');
         const error = res.error || 'unknown';
@@ -957,7 +970,7 @@ export const OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS = String.raw`
         if (succeeded) {
           setGateSubmitState(submitButton, 'queued', 'committed');
           openGateResultSheet(kind, subject, res, { idempotencyKey: context.idempotencyKey, consequence: consequence, reversibility: reversibility }, item);
-          setTimeout(loadGate, 350);
+          Promise.resolve(refresh()).then(loadGate);
         } else {
           setGateSubmitState(submitButton, 'refused', 'refused · no write');
           var error = res.error || 'unknown';

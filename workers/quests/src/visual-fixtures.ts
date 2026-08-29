@@ -658,21 +658,46 @@ export const FRESH_ECOSYSTEM_VISUAL_FIXTURE = {
     proof: `deterministic derivedAt ${deterministicFreshDerivedAt} is 60 minutes before fixture proof clock ${deterministicFreshProofClock}`,
   },
   commands: {
-    status: { agents: 3, issuesOpen: 2, issuesDone: 7, arcs: '3/17', hermes: 'ready' },
-    services: [
-      { name: 'Hermes Telegram brain', status: 'ready', detail: 'curios.self command bridge reachable' },
-      { name: 'Cambium Worker', status: 'ready', detail: 'quest envelope route responding for cambium' },
-    ],
-    agents: [
-      { name: 'Mira', model: 'operator-npc-events@v1' },
-      { name: 'Paperclip', model: 'vault-via-paperclip' },
-    ],
-    work: [
-      { id: 'THO-42', status: 'active', title: 'Refresh mini app proof surface', who: 'operator' },
-    ],
-    handoffs: [
-      { id: 'HND-7', status: 'waiting-founder', title: 'Approve fresh viewport capture' },
-    ],
+    status: {
+      panelId: 'status',
+      source: 'visual-fixture:org-status',
+      freshness: { state: 'fresh', checkedAt: deterministicFreshDerivedAt },
+      data: { agents: 3, issuesOpen: 2, issuesDone: 7, arcs: '3/17', hermes: 'ready' },
+    },
+    services: {
+      panelId: 'services',
+      source: 'visual-fixture:service-health',
+      freshness: { state: 'fresh', checkedAt: deterministicFreshDerivedAt },
+      data: [
+        { name: 'Hermes Telegram brain', status: 'ready', detail: 'curios.self command bridge reachable' },
+        { name: 'Cambium Worker', status: 'ready', detail: 'quest envelope route responding for cambium' },
+      ],
+    },
+    agents: {
+      panelId: 'agents',
+      source: 'visual-fixture:agent-roster',
+      freshness: { state: 'fresh', checkedAt: deterministicFreshDerivedAt },
+      data: [
+        { name: 'Mira', model: 'operator-npc-events@v1' },
+        { name: 'Paperclip', model: 'vault-via-paperclip' },
+      ],
+    },
+    activeWork: {
+      panelId: 'active-work',
+      source: 'visual-fixture:active-work',
+      freshness: { state: 'fresh', checkedAt: deterministicFreshDerivedAt },
+      data: [
+        { id: 'THO-42', status: 'active', title: 'Refresh mini app proof surface', who: 'operator' },
+      ],
+    },
+    handoffs: {
+      panelId: 'handoffs',
+      source: 'visual-fixture:handoff-queue',
+      freshness: { state: 'fresh', checkedAt: deterministicFreshDerivedAt },
+      data: [
+        { id: 'HND-7', status: 'waiting-founder', title: 'Approve fresh viewport capture' },
+      ],
+    },
   },
   beats: [
     { text: 'Hermes routed a fresh command snapshot into the mini app', lane: 'paperclip', noesis: false },

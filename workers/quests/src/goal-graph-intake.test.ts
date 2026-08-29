@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA,
   TELEGRAM_GOAL_GRAPH_INTENT_VERSION,
   parseTelegramGoalGraphIntent,
+  parseTelegramGoalGraphIntentBoundary,
 } from './goal-graph-intake.ts';
 
 const minimal = {
@@ -13,6 +15,47 @@ const minimal = {
   source: { kind: 'telegram', chatId: '-100123', messageId: '42', updateId: '9001' },
   goal: { desiredState: 'publish the approved launch note' },
 };
+
+const intentProjectionFixtures = [
+  {
+    schema: 'cambium.intent-graph-projection.v1',
+    projectionAuthority: 'read_only',
+    sourceSetDigest: `sha256:${'a'.repeat(64)}`,
+    graphDigest: `sha256:${'b'.repeat(64)}`,
+    nodes: [],
+    edges: [],
+  },
+  { schema: 'cambium.intent-graph-projection.v1', payload: { marker: 'malformed-intent-projection' } },
+];
+
+test('derived projection identities fail closed at the pure Telegram intake boundary', () => {
+  for (const fixture of intentProjectionFixtures) {
+    const result = parseTelegramGoalGraphIntentBoundary(fixture);
+    assert.equal(result.accepted, false);
+    assert.equal(result.rejected, true);
+    assert.equal(result.code, 'projection_input');
+  }
+});
+
+test('shared guard wiring precedes Telegram intake canonicalization and normalization', () => {
+  const source = readFileSync(new URL('./goal-graph-intake.ts', import.meta.url), 'utf8');
+  assert.match(
+    source,
+    /import\s*{[^}]*validateAuthoritativeInput[^}]*}\s*from\s*['"]\.\/goal-graph\/projection-contract\.ts['"]/s,
+    'not ok: shared guard wiring requires validateAuthoritativeInput import',
+  );
+  const boundaryStart = source.indexOf('export function parseTelegramGoalGraphIntentBoundary');
+  const boundaryEnd = source.indexOf('\nexport function parseTelegramGoalGraphIntent(', boundaryStart);
+  assert.ok(boundaryStart >= 0 && boundaryEnd > boundaryStart);
+  const boundary = source.slice(boundaryStart, boundaryEnd);
+  const guard = boundary.indexOf('validateAuthoritativeInput(input)');
+  const canonical = boundary.indexOf('stableJson(input)');
+  const normalized = boundary.indexOf('normalizeInput(input)');
+  assert.ok(guard >= 0, 'the shared guard must run in the intake boundary');
+  assert.ok(guard < canonical, 'the shared guard must run before stableJson');
+  assert.ok(guard < normalized, 'the shared guard must run before normalizeInput');
+  assert.doesNotMatch(source, /function\s+projectionLike\b|\bprojectionLike\s*\(/);
+});
 
 test('minimal Telegram intent is accepted, compiled, and provenance-bound', () => {
   const result = parseTelegramGoalGraphIntent(minimal);
@@ -40,6 +83,111 @@ test('repeat delivery has byte-stable canonical form, digest, node, and idempote
   assert.deepEqual(first.node, second.node);
   assert.equal(first.canonical, '{"goal":{"currentState":"unknown","desiredState":"publish the approved launch note","externalId":null,"metadata":{},"namespace":"telegram","nextAction":null,"owner":"founder","parentNodeId":null,"proofRequired":false,"reviewAt":null,"scope":"macro","status":"draft","waitCondition":null},"schema":"cambium.telegram.goal-graph-intent.v1","source":{"chatId":"-100123","kind":"telegram","messageId":"42","updateId":"9001"},"tenantId":"tenant-alpha","version":1}');
   assert.equal(first.contentDigest, 'sha256:cb32bfc5cd647200a584be1a149a309a84dc79e46afceebaee6d3cc35b0c493c');
+});
+
+test('governed operational anchors compile only with exact loadout authority', () => {
+  const anchored = {
+    ...minimal,
+    goal: {
+      ...minimal.goal,
+      externalId: 'task-fitcheck-launch',
+      workObjectId: 'sapling:fitcheck',
+      workObjectKind: 'sapling',
+      pinnedLoadoutId: 'loadout:fitcheck-launch',
+    },
+  };
+  const loadoutAuthority = {
+    resolve(loadoutId: string) {
+      return loadoutId === 'loadout:fitcheck-launch' ? {
+        loadoutId,
+        eligibleWorkObjectIds: ['sapling:fitcheck'],
+        authorizedClusterIds: ['cluster:fitcheck-no-spend'],
+        authorityDigest: `sha256:${'a'.repeat(64)}`,
+        sourceRef: 'test:loadout-registry',
+      } : null;
+    },
+  };
+  const accepted = parseTelegramGoalGraphIntent(anchored, { loadoutAuthority });
+  assert.equal(accepted.accepted, true);
+  if (accepted.accepted) {
+    assert.equal(accepted.node.workObjectId, 'sapling:fitcheck');
+    assert.equal(accepted.node.pinnedLoadoutId, 'loadout:fitcheck-launch');
+    assert.equal(accepted.compile.status, 'compiled');
+  }
+  assert.equal(parseTelegramGoalGraphIntent(anchored).accepted, false);
+  assert.equal(parseTelegramGoalGraphIntent({ ...anchored, goal: { ...anchored.goal, pinnedLoadoutId: undefined } }).accepted, false);
+});
+
+test('single-intent compilation preserves unrelated current graph nodes', () => {
+  const current = parseTelegramGoalGraphIntent({
+    ...minimal,
+    source: { kind: 'telegram', chatId: '-100123', messageId: 'existing' },
+    goal: { desiredState: 'preserve the existing operational objective' },
+  });
+  assert.equal(current.accepted, true);
+  if (!current.accepted) return;
+  const head = {
+    tenantId: 'tenant-alpha',
+    graphVersion: 1,
+    graphDigest: 'a'.repeat(64),
+    nodeIds: [current.node.nodeId],
+    sourceRef: current.sourceRef,
+    sourceDigest: current.sourceDigest,
+    committedAt: '2026-08-11T00:00:00.000Z',
+  };
+  const additive = parseTelegramGoalGraphIntent({
+    ...minimal,
+    goal: { ...minimal.goal, parentNodeId: current.node.nodeId, scope: 'meso' },
+  }, {
+    expectedHeadDigest: head.graphDigest,
+    actualHead: head,
+    currentNodes: [current.node],
+    graphVersion: 2,
+    now: '2026-08-11T00:01:00.000Z',
+  });
+  assert.equal(additive.accepted, true);
+  if (!additive.accepted || additive.compile.status !== 'compiled') return;
+  assert.equal(additive.compile.changeSet.nodesToCreate.length, 1);
+  assert.equal(additive.compile.changeSet.nodesToUpdate.length, 0);
+  assert.deepEqual(additive.compile.changeSet.nodesToRemove, []);
+});
+
+test('child boundary identity is stable before graph context is available', () => {
+  const root = parseTelegramGoalGraphIntent(minimal);
+  assert.equal(root.accepted, true);
+  if (!root.accepted) return;
+  const child = {
+    ...minimal,
+    source: { kind: 'telegram', chatId: '-100123', messageId: 'child-42' },
+    goal: { ...minimal.goal, parentNodeId: root.node.nodeId, scope: 'micro' },
+  };
+  const boundary = parseTelegramGoalGraphIntentBoundary(child);
+  assert.equal(boundary.accepted, true);
+  if (!boundary.accepted) return;
+  const contextFree = parseTelegramGoalGraphIntent(child);
+  assert.equal(contextFree.accepted, false);
+  const head = {
+    tenantId: 'tenant-alpha',
+    graphVersion: 1,
+    graphDigest: 'b'.repeat(64),
+    nodeIds: [root.node.nodeId],
+    sourceRef: root.sourceRef,
+    sourceDigest: root.sourceDigest,
+    committedAt: '2026-08-14T00:00:00.000Z',
+  };
+  const contextual = parseTelegramGoalGraphIntent(child, {
+    expectedHeadDigest: head.graphDigest,
+    actualHead: head,
+    currentNodes: [root.node],
+    graphVersion: 2,
+    now: '2026-08-14T00:01:00.000Z',
+  });
+  assert.equal(contextual.accepted, true);
+  if (!contextual.accepted) return;
+  assert.equal(contextual.contentDigest, boundary.contentDigest);
+  assert.equal(contextual.sourceRef, boundary.sourceRef);
+  assert.equal(contextual.idempotencyKey, boundary.idempotencyKey);
+  assert.equal(contextual.compile.status, 'compiled');
 });
 
 test('every malformed value returns an explicit rejection and never throws', () => {

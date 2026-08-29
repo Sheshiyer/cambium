@@ -11,11 +11,13 @@
 import { createHash } from 'node:crypto';
 import { buildNode } from './goal-graph/identity.ts';
 import { compileGoalGraph } from './goal-graph/compiler.ts';
+import { validateAuthoritativeInput } from './goal-graph/projection-contract.ts';
 import type {
   GoalGraphCompileInput,
   GoalGraphCompileResult,
   GoalGraphHead,
   GoalGraphInputNode,
+  GoalGraphLoadoutAuthority,
   GoalGraphNode,
 } from './goal-graph/types.ts';
 
@@ -58,6 +60,9 @@ export interface TelegramGoalGraphFields {
   reviewAt: string | null;
   status: GoalGraphNode['status'];
   metadata: Record<string, TelegramGoalMetadataValue>;
+  workObjectId?: string;
+  workObjectKind?: GoalGraphNode['workObjectKind'];
+  pinnedLoadoutId?: string;
 }
 
 export interface TelegramGoalGraphIntent {
@@ -83,6 +88,7 @@ export interface TelegramGoalGraphCompileContext {
   currentNodes?: readonly GoalGraphNode[];
   graphVersion?: number;
   now?: string;
+  loadoutAuthority?: GoalGraphLoadoutAuthority;
 }
 
 export type TelegramGoalGraphIntakeErrorCode =
@@ -101,7 +107,7 @@ export interface TelegramGoalGraphRejected {
   errors: readonly string[];
 }
 
-export interface TelegramGoalGraphAccepted {
+export interface TelegramGoalGraphBoundaryAccepted {
   accepted: true;
   rejected: false;
   status: 'accepted';
@@ -113,10 +119,14 @@ export interface TelegramGoalGraphAccepted {
   sourceDigest: string;
   sourceRef: string;
   idempotencyKey: string;
+}
+
+export interface TelegramGoalGraphAccepted extends TelegramGoalGraphBoundaryAccepted {
   node: GoalGraphNode;
   compile: GoalGraphCompileResult;
 }
 
+export type TelegramGoalGraphBoundaryResult = TelegramGoalGraphBoundaryAccepted | TelegramGoalGraphRejected;
 export type TelegramGoalGraphIntakeResult = TelegramGoalGraphAccepted | TelegramGoalGraphRejected;
 
 const ROOT_KEYS = new Set(['schema', 'version', 'tenantId', 'source', 'goal']);
@@ -124,6 +134,7 @@ const SOURCE_KEYS = new Set(['kind', 'chatId', 'messageId', 'updateId', 'threadI
 const GOAL_KEYS = new Set([
   'namespace', 'externalId', 'parentNodeId', 'scope', 'desiredState', 'currentState',
   'owner', 'nextAction', 'waitCondition', 'proofRequired', 'reviewAt', 'status', 'metadata',
+  'workObjectId', 'workObjectKind', 'pinnedLoadoutId',
 ]);
 
 const FORBIDDEN_KEY_NAMES = new Set([
@@ -302,14 +313,22 @@ function normalizeInput(input: unknown): TelegramGoalGraphIntent {
     status,
     metadata: validateMetadata(goalInput.metadata),
   };
+  const workObjectId = optionalNullableString(goalInput.workObjectId, 'goal.workObjectId', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
+  const workObjectKind = optionalNullableString(goalInput.workObjectKind, 'goal.workObjectKind', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
+  const pinnedLoadoutId = optionalNullableString(goalInput.pinnedLoadoutId, 'goal.pinnedLoadoutId', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
+  const anchorFieldsPresent = workObjectId !== null || workObjectKind !== null || pinnedLoadoutId !== null;
+  if (anchorFieldsPresent && (workObjectId === null || workObjectKind === null || pinnedLoadoutId === null)) {
+    throw new Error('goal operational anchor fields must be supplied together');
+  }
+  if (workObjectKind !== null && workObjectKind !== 'sapling' && workObjectKind !== 'branch' && workObjectKind !== 'program') {
+    throw new Error('goal.workObjectKind is invalid');
+  }
+  if (workObjectId !== null && workObjectKind !== null && pinnedLoadoutId !== null) {
+    goal.workObjectId = workObjectId;
+    goal.workObjectKind = workObjectKind as GoalGraphNode['workObjectKind'];
+    goal.pinnedLoadoutId = pinnedLoadoutId;
+  }
   return { schema: TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA, version: TELEGRAM_GOAL_GRAPH_INTENT_VERSION, tenantId, source, goal };
-}
-
-function projectionLike(input: unknown): boolean {
-  if (!isRecord(input)) return false;
-  const schema = typeof input.schema === 'string' ? input.schema.toLowerCase() : '';
-  if (schema.includes('projection') || schema.includes('goal-graph-projection')) return true;
-  return Object.keys(input).some((key) => ['payload', 'origin', 'graph_version', 'graph_digest', 'source_ref'].includes(key.toLowerCase()));
 }
 
 /** Canonical serializer for an already-normalized intent. */
@@ -325,23 +344,34 @@ export function makeTelegramGoalGraphIdempotencyKey(tenantId: string, source: Te
 
 export const telegramGoalGraphIdempotencyKey = makeTelegramGoalGraphIdempotencyKey;
 
-function compileContext(context: TelegramGoalGraphCompileContext | undefined): Required<TelegramGoalGraphCompileContext> {
+function compileContext(context: TelegramGoalGraphCompileContext | undefined): Required<Omit<TelegramGoalGraphCompileContext, 'loadoutAuthority'>> & Pick<TelegramGoalGraphCompileContext, 'loadoutAuthority'> {
   return {
     expectedHeadDigest: context?.expectedHeadDigest ?? null,
     actualHead: context?.actualHead ?? null,
     currentNodes: context?.currentNodes ?? [],
     graphVersion: context?.graphVersion ?? 1,
     now: context?.now ?? '1970-01-01T00:00:00.000Z',
+    loadoutAuthority: context?.loadoutAuthority,
   };
 }
 
+function rejectionFromError(error: unknown): TelegramGoalGraphRejected {
+  const message = error instanceof Error && error.message ? error.message : 'malformed intent';
+  const code: TelegramGoalGraphIntakeErrorCode = message.includes('forbidden') ? 'forbidden_key'
+    : message.includes('not allowed') ? 'unknown_key'
+      : message.includes('exceeds') ? 'bounds_exceeded' : 'malformed_input';
+  return reject(code, [message]);
+}
+
 /**
- * Parse and compile one intent.  `context` is entirely in-memory and optional;
- * supplying D1 handles is impossible by type and unnecessary by design.
+ * Normalize and provenance-bind one Telegram intent without consulting graph
+ * context. This boundary identity is sufficient to collapse an already
+ * accepted redelivery before D1 is read; it never claims the proposal compiles.
  */
-export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramGoalGraphCompileContext): TelegramGoalGraphIntakeResult {
+export function parseTelegramGoalGraphIntentBoundary(input: unknown): TelegramGoalGraphBoundaryResult {
   try {
-    if (projectionLike(input)) return reject('projection_input', ['goal-graph projection-shaped input cannot enter Telegram intake']);
+    const authority = validateAuthoritativeInput(input);
+    if (!authority.accepted) return reject('projection_input', authority.errors.slice(0, 8));
     const rawCanonical = stableJson(input);
     if (byteLength(rawCanonical) > TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes) return reject('bounds_exceeded', [`intent payload exceeds ${TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes} bytes`]);
     const forbidden: string[] = [];
@@ -352,6 +382,31 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
     if (byteLength(canonical) > TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes) return reject('bounds_exceeded', [`normalized intent exceeds ${TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.payloadBytes} bytes`]);
     const contentDigest = `sha256:${sha256(canonical)}`;
     const sourceRefValue = sourceRef(value.tenantId, value.source);
+    return {
+      accepted: true,
+      rejected: false,
+      status: 'accepted',
+      value,
+      canonical,
+      contentDigest,
+      sourceDigest: contentDigest,
+      sourceRef: sourceRefValue,
+      idempotencyKey: makeTelegramGoalGraphIdempotencyKey(value.tenantId, value.source, contentDigest),
+    };
+  } catch (error) {
+    return rejectionFromError(error);
+  }
+}
+
+/**
+ * Parse and compile one intent.  `context` is entirely in-memory and optional;
+ * supplying D1 handles is impossible by type and unnecessary by design.
+ */
+export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramGoalGraphCompileContext): TelegramGoalGraphIntakeResult {
+  const boundary = parseTelegramGoalGraphIntentBoundary(input);
+  if (!boundary.accepted) return boundary;
+  try {
+    const { value, contentDigest, sourceRef: sourceRefValue } = boundary;
     const nodeInput: GoalGraphInputNode = {
       tenantId: value.tenantId,
       namespace: value.goal.namespace,
@@ -370,42 +425,43 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
       sourceDigest: contentDigest,
       graphVersion: compileContext(context).graphVersion,
       metadata: value.goal.metadata,
+      workObjectId: value.goal.workObjectId ?? null,
+      workObjectKind: value.goal.workObjectKind ?? null,
+      pinnedLoadoutId: value.goal.pinnedLoadoutId ?? null,
     };
     const compileInput = compileContext(context);
     // `buildNode` is the identity primitive used by every Goal Graph lane. Its
     // convenience `now` argument is not part of the durable node, so discard
     // the helper-only property before returning/compiling the proposal.
     const { now: _helperNow, ...node } = buildNode({ ...nodeInput, now: compileInput.now });
+    // A Telegram intent is an additive/upsert proposal, not a full graph
+    // replacement. Preserve every current node except an exact same-ID node
+    // that this intent intentionally supersedes. Passing only `[node]` here
+    // would make the compiler correctly classify every unrelated current node
+    // as a removal, which is never authorized by this intake envelope.
+    const proposedNodes = [
+      ...compileInput.currentNodes.filter((current) => current.nodeId !== node.nodeId),
+      node,
+    ];
     const compile = compileGoalGraph({
       tenantId: value.tenantId,
       expectedHeadDigest: compileInput.expectedHeadDigest,
       actualHead: compileInput.actualHead,
       currentNodes: compileInput.currentNodes,
-      proposedNodes: [node],
+      proposedNodes,
       graphVersion: compileInput.graphVersion,
       sourceRef: sourceRefValue,
       sourceDigest: contentDigest,
       now: compileInput.now,
+      loadoutAuthority: compileInput.loadoutAuthority,
     });
     return {
-      accepted: true,
-      rejected: false,
-      status: 'accepted',
-      value,
-      canonical,
-      contentDigest,
-      sourceDigest: contentDigest,
-      sourceRef: sourceRefValue,
-      idempotencyKey: makeTelegramGoalGraphIdempotencyKey(value.tenantId, value.source, contentDigest),
+      ...boundary,
       node,
       compile,
     };
   } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : 'malformed intent';
-    const code: TelegramGoalGraphIntakeErrorCode = message.includes('forbidden') ? 'forbidden_key'
-      : message.includes('not allowed') ? 'unknown_key'
-        : message.includes('exceeds') ? 'bounds_exceeded' : 'malformed_input';
-    return reject(code, [message]);
+    return rejectionFromError(error);
   }
 }
 

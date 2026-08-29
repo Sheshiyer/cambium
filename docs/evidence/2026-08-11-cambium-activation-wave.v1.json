@@ -1,0 +1,66 @@
+{
+  "schema": "cambium.activation-wave-evidence.v1",
+  "version": 1,
+  "recordedAt": "2026-08-11",
+  "tenantId": "cambium",
+  "source": {
+    "cortexPullRequest": 308,
+    "cortexMergeCommit": "5609d596b0cbb0dec7797e86efce8295743dd77e",
+    "operationalAnchorsPullRequest": 309,
+    "operationalAnchorsMergeCommit": "948728b9edb7c4515ca8f8e6818727dac5f1524e"
+  },
+  "ledger": {
+    "publishedAt": "2026-08-11T10:17:33.613Z",
+    "rowCount": 17,
+    "activeQuestId": "the-calling",
+    "kvBytes": 152131,
+    "kvSha256": "535ffae7d4db6090ecd31f691e32aac5a5d1ba4b021c3da34eedfaa90d70a948"
+  },
+  "d1": {
+    "databaseName": "cambium-bridge",
+    "databaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8",
+    "recoveryBookmark": "00000018-0000070a-000050c4-231305954867e7daeb0f1d830729279c",
+    "migration": "0009_goal_graph_operational_anchors.sql",
+    "columnsVerified": ["work_object_id", "work_object_kind", "pinned_loadout_id"],
+    "indexesVerified": ["idx_goal_graph_nodes_work_object", "idx_goal_graph_nodes_loadout"],
+    "goalGraphVersion": 1,
+    "goalGraphDigest": "846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e"
+  },
+  "worker": {
+    "rollbackVersion": "9c1545ed-ce9a-433f-9cff-e9216ef27b31",
+    "deployedVersion": "816beb76-bfe4-4909-9ec0-27da34ea7f36",
+    "cortexCanary": {
+      "statusCode": 201,
+      "inputDigest": "sha256:8862c2fec7fdd93d73c3c9bf4c8be052e2f4b22dd8e8de9dee0f06e0cc2f05aa",
+      "vectorId": "cortex:8862c2fec7fdd93d:000:1",
+      "chunkCount": 1,
+      "status": "ingested",
+      "ingestedAt": "2026-08-11T11:01:05.515Z"
+    }
+  },
+  "mappingReceipts": [
+    { "workObjectId": "sapling:fitcheck", "receiptId": "pmr_9de251ce89564f07f3e4c510", "r2Key": "portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json", "bytes": 1484, "r2Sha256": "0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5", "readbackVerified": true },
+    { "workObjectId": "sapling:iverif", "receiptId": "pmr_0866a507ab7b5e8ee16b6c64", "contentDigest": "sha256:0866a507ab7b5e8ee16b6c6446a97a8f06ca1d5d98d0d35c67746ff799eb956a", "r2Key": "portfolio/thoughtseed/workobjects/sapling:iverif/mapping/pmr_0866a507ab7b5e8ee16b6c64.json", "bytes": 1435, "r2Sha256": "61d1dc6bdef52814bf37633ae90800650d29161288a11faedd3000e7088e23a2", "readbackVerified": true },
+    { "workObjectId": "sapling:dlock", "receiptId": "pmr_8d9ea70dd46536c8326e3ec5", "contentDigest": "sha256:8d9ea70dd46536c8326e3ec571d14ed253a585c6ee93aab48bb6a701367ce7e4", "r2Key": "portfolio/thoughtseed/workobjects/sapling:dlock/mapping/pmr_8d9ea70dd46536c8326e3ec5.json", "bytes": 1419, "r2Sha256": "f6f57377c6e04abeadd49612427750e5e33048da1d6bd8bdc00202ceb632d661", "readbackVerified": true, "rootDisposition": "no-shallow-folder" }
+  ],
+  "hermes": {
+    "instanceId": "i-056c5f1d3a9f74190",
+    "sourceArchiveSha256": "3eb6c04a5f19232e794133a1e37adc321efd61bcbb3758ae853a62fabeb65044",
+    "remoteBackups": ["/opt/hermes-aws-ts/src/runner.ts.pre-cortex-20260811T1103Z", "/opt/hermes-aws-ts/src/native-execution.ts.pre-cortex-20260811T1103Z"],
+    "focusedTests": "41/41",
+    "pluginTests": "100/100",
+    "timerActive": true,
+    "terminalEndToEndCanary": false,
+    "terminalEndToEndHold": "No real terminal directive was available during the bounded deployment window."
+  },
+  "remainingGate": {
+    "kind": "founder-signed-mini-app-goal-graph-cas",
+    "sequence": ["sapling:fitcheck", "sapling:iverif", "sapling:dlock"],
+    "reason": "Each proposal must pin the latest committed Goal Graph head; later proposals are intentionally created only after the preceding signature commits."
+  },
+  "antiClaims": [
+    "Mapping receipt issuance is not D1 Goal Graph admission.",
+    "Migration 0009 does not prove any operational anchor was committed.",
+    "Worker Cortex canary plus Hermes unit tests are not a real terminal directive end-to-end canary."
+  ]
+}

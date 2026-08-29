@@ -15,53 +15,56 @@
   "envelopes": [
     {
       "name": "quest-envelope.commands",
-      "schema": "paperclipCommandsData (live command envelope)",
+      "schema": "ToolsCommandProjection (exact status/services/agents/activeWork/handoffs panels)",
       "route": "GET /api/quests/{tenant}",
-      "authority": "Paperclip gateway via quest envelope",
-      "consumedFor": "live sheets (status/hermes/agents/work/handoffs), availability states, recommendation card"
+      "authority": "Worker-normalized quest envelope; legacy command data is accepted only at the server boundary and served as the typed projection",
+      "consumedFor": "live sheets (status/services/agents/activeWork/handoffs), availability states, recommendation card"
     },
     {
       "name": "quest-envelope.openItems + branchStories",
       "schema": "gate rows + product-branch-packets@v1",
       "route": "GET /api/quests/{tenant}",
       "authority": "Worker KV gate store + operator packet build",
-      "consumedFor": "mission context strip, recommended-next-tool derivation, ts-approve/ts-reject availability"
+      "consumedFor": "mission context strip, exact selected WorkObject identity and kind, recommendation derivation, handoff availability"
     },
     {
       "name": "client constant CMDS",
-      "schema": "static command catalog (13 commands, 4 groups)",
+      "schema": "static five-surface catalog",
       "route": "bundled in page (scenes/tools.ts CMDS)",
       "authority": "client bundle",
-      "consumedFor": "command cards, group segmented control, recent strip"
+      "consumedFor": "the five typed panel cards"
     }
   ],
   "components": [
     "MissionGlyph",
     "StateToken",
+    "ToolPanelFreshness",
+    "ToolWorkObjectContext",
     "SignalRail",
     "PacketFlow",
     "SelectedHalo"
   ],
   "dataFields": [
-    { "field": "commands", "type": "object | null (paperclipCommandsData)", "source": "quest-envelope.commands (GET /api/quests/{tenant})", "required": false, "fallback": "all live commands render stale; live sheets show 'org data unavailable: Paperclip gateway unreachable'" },
-    { "field": "commands.status", "type": "{agents, issuesOpen, issuesDone, arcs, hermes}", "source": "quest-envelope.commands.status", "required": false, "fallback": "/ts-status sheet rows show 'unknown'" },
-    { "field": "commands.services[]", "type": "array<{name, status, detail, label}>", "source": "quest-envelope.commands.services", "required": false, "fallback": "'no Hermes service data.' row" },
-    { "field": "commands.agents[]", "type": "array<{name, model}>", "source": "quest-envelope.commands.agents", "required": false, "fallback": "'no agents.' row" },
-    { "field": "commands.work[]", "type": "array<{id, status, title, who | owner, source}>", "source": "quest-envelope.commands.work", "required": false, "fallback": "'no active work.' row" },
-    { "field": "commands.handoffs[]", "type": "array<{id, status, title, source, gateRelation}>", "source": "quest-envelope.commands.handoffs", "required": false, "fallback": "'nothing waiting on you.' row" },
-    { "field": "openItems.length", "type": "number", "source": "quest-envelope.openItems (count)", "required": false, "fallback": "ts-approve / ts-reject render locked: 'no waiting founder decision is served for this command'" },
+    { "field": "commands", "type": "ToolsCommandProjection | null", "source": "quest-envelope.commands (GET /api/quests/{tenant})", "required": false, "fallback": "all live surfaces render stale and offer refresh" },
+    { "field": "commands.status", "type": "ToolsCommandPanelProjection<'status', {agents, issuesOpen, issuesDone, arcs, hermes}>", "source": "quest-envelope.commands.status", "required": true, "fallback": "the entire projection fails closed" },
+    { "field": "commands.services", "type": "ToolsCommandPanelProjection<'services', array<{name, status, detail, label}>>", "source": "quest-envelope.commands.services", "required": true, "fallback": "the entire projection fails closed" },
+    { "field": "commands.agents", "type": "ToolsCommandPanelProjection<'agents', array<{name, model}>>", "source": "quest-envelope.commands.agents", "required": true, "fallback": "the entire projection fails closed" },
+    { "field": "commands.activeWork", "type": "ToolsCommandPanelProjection<'active-work', array<{id, status, title, who | owner, source}>>", "source": "quest-envelope.commands.activeWork", "required": true, "fallback": "the entire projection fails closed" },
+    { "field": "commands.handoffs", "type": "ToolsCommandPanelProjection<'handoffs', array<{id, status, title, source, gateRelation}>>", "source": "quest-envelope.commands.handoffs", "required": true, "fallback": "the entire projection fails closed" },
+    { "field": "openItems.length", "type": "number", "source": "quest-envelope.openItems (count)", "required": false, "fallback": "handoffs render locked when no waiting founder decision is served" },
     { "field": "branchStories.rows", "type": "array<BranchPacket>", "source": "quest-envelope.branchStories.rows (mission context via buildMissionControlView)", "required": false, "fallback": "context strip shows 'branch pending' / 'Branch packets pending'; recommendation panel EMPTY" },
+    { "field": "branchStories.rows[].{workObjectId,workObjectKind}", "type": "canonical WorkObject identity + sapling|branch|program", "source": "selected Mission branch packet", "required": false, "fallback": "Tools renders work pending, demotes the complete branch/mission context to pending, and exposes neither a partial identity nor a recommendation" },
     { "field": "nextMission.{title, gate, state}", "type": "derived object", "source": "derived from branchStories via buildMissionControlView", "required": false, "fallback": "blocked mission fallback drives ts-run to proof-needed: 'use Gate or Open Proof before acting'" },
     { "field": "proofNeeded[]", "type": "array<{label, state, detail}>", "source": "derived from branch packets (mcProofNeeded)", "required": false, "fallback": "digest commands (ts-standup/ts-digest) render active instead of proof-needed" },
-    { "field": "catalog.CMDS", "type": "array<[group, array<[name, args, desc, kind]>]> (13 commands: Act/Ask/Report/Coordinate)", "source": "client constant in scenes/tools.ts", "required": true, "fallback": "n/a — bundled constant" },
-    { "field": "freshness.stale", "type": "derived boolean", "source": "envelope freshness + commands presence", "required": false, "fallback": "context strip 'tools stale' token; disabled reason 'live command data unavailable; pull to refresh'" }
+    { "field": "catalog.CMDS", "type": "array<[group, ToolSurface[]]> (five panels)", "source": "client constant in scenes/tools.ts", "required": true, "fallback": "n/a — bundled constant" },
+    { "field": "commands.*.freshness + envelope.derivedAt", "type": "per-panel {state, checkedAt, source} plus strict aggregate", "source": "typed command panel and global quest envelope", "required": false, "fallback": "a stale/unknown panel or stale envelope demotes its card and the aggregate Tools token, suppresses any recommendation targeting that panel, and exposes Retry in the stale sheet; unsafe source text renders source unavailable" }
   ],
   "states": {
     "renders": ["idle", "active", "blocked", "locked", "stale", "reducedMotion"],
     "aliases": { "proof-needed": "'needs proof' availability label on act/digest commands" },
     "derivation": {
-      "active": "live command with fresh commands data, or act command with no gate dependency — 'usable'",
-      "stale": "commands envelope missing — live commands dim; pull-to-refresh only",
+      "active": "panel declaration, checked-at timestamp, and global envelope are all fresh and coherent",
+      "stale": "commands missing, global envelope stale, or panel stale/unknown/incoherent — affected surfaces are read-only",
       "locked": "ts-approve/ts-reject with zero open gate items",
       "blocked": "command blocked until proof resolves",
       "idle": "reference-only commands (ts-agent, ts-project, ts-vault)",
@@ -71,7 +74,7 @@
   "panelBehavior": {
     "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing toolbelt / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
     "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + ops glyph; 'No mission recommendation yet — tools suggest after branch packets reach Mission' + Open Mission (outline)", "trigger": "no branch packets and no recommendation derivable" },
-    "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'Paperclip gateway unreachable — pull to refresh' + Retry outline button; no command results synthesized", "trigger": "commands envelope null after refresh" }
+    "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; stale result copy + Retry outline button; no command results or recommendations synthesized", "trigger": "commands envelope missing or the opened panel is stale/unknown/incoherent" }
   },
   "redesignNote": "frozen/05 §4 bans copy-paste command blocks and 'Copy command text' buttons in the redesign; P2 builders replace copy affordances with in-app actions or read-only sheets. This contract lists current-consumed fields so the replacement keeps data parity.",
   "fixtures": "workers/quests/src/page/scenes/fixtures/tools.fixture.json"

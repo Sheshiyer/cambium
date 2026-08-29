@@ -15,31 +15,38 @@
   "envelopes": [
     {
       "name": "quest-envelope.beats",
-      "schema": "mission-story@v1 (served beat rows)",
+      "schema": "cambium.story-event-projection.v1 (receipt-backed StoryEvent rows)",
       "route": "GET /api/quests/{tenant}",
-      "authority": "Operator narrative / story build",
-      "consumedFor": "beat cards, hero latest-change, digest counts, timeline rail"
+      "authority": "Public Worker projection boundary",
+      "consumedFor": "deduplicated beat cards, hero latest-change, digest counts, and source-qualified timeline rail"
     },
     {
       "name": "quest-envelope.actionRequests",
       "schema": "thoughtseed.action-request-list-item.v1 projection",
       "route": "GET /api/quests/{tenant}",
       "authority": "ActionRequest records",
-      "consumedFor": "projected story beats (status → Mission wins / Drift / New signals)"
+      "consumedFor": "Worker-side receipt and founder-decision projection plus Gate rendering; the browser does not re-project canonical responses"
     },
     {
       "name": "quest-envelope.ledger",
       "schema": "quest-ledger-envelope@v1",
       "route": "GET /api/quests/{tenant}",
       "authority": "Quest ledger",
-      "consumedFor": "fallback beats from completed ledger rows when no beats served"
+      "consumedFor": "Worker-side completed-transition projection only when an exact WorkObject, canonical event time, and receipt identity resolve"
+    },
+    {
+      "name": "quest-envelope.storyProjection",
+      "schema": "cambium.story-event-projection.v1 marker",
+      "route": "GET /api/quests/{tenant}",
+      "authority": "Public Worker projection boundary",
+      "consumedFor": "marks beats authoritative and disables browser-side ActionRequest and ledger fallback projection"
     },
     {
       "name": "quest-envelope.branchStories + freshness",
       "schema": "product-branch-packets@v1 + envelope header",
       "route": "GET /api/quests/{tenant}",
       "authority": "Operator packet build",
-      "consumedFor": "branch filter chips, stale banner"
+      "consumedFor": "legacy compatibility branch filter chips and stale banner; canonical Story filtering derives only from exact event WorkObject provenance"
     }
   ],
   "components": [
@@ -48,19 +55,26 @@
     "BranchArcChip",
     "PacketFlow",
     "SignalRail",
-    "SelectedHalo"
+    "SelectedHalo",
+    "StoryWorkObjectFilters"
   ],
   "dataFields": [
-    { "field": "beats[]", "type": "array<StoryBeat>", "source": "quest-envelope.beats", "required": false, "fallback": "ActionRequest beats → ledger-complete beats → EMPTY panel" },
+    { "field": "beats[]", "type": "array<StoryEvent>", "source": "Worker-projected quest-envelope.beats", "required": false, "fallback": "canonical response fails closed to [] → EMPTY panel; legacy direct fixtures may use ActionRequest/ledger fallback only when no canonical marker exists" },
+    { "field": "beats[].eventId", "type": "bounded canonical identity", "source": "receipt/decision/transition identity tuple", "required": true, "fallback": "event omitted; secret-shaped identity segments are rejected; exact replay collapses to one event and conflicting identity reuse fails closed" },
+    { "field": "beats[].eventKind", "type": "enum (receipt | decision | transition)", "source": "Worker projection", "required": false, "fallback": "required on newly projected facts; legacy served StoryEvent rows may omit it until their source migrates" },
+    { "field": "beats[].workObject", "type": "{id, kind: sapling | branch | program}", "source": "exact direct identity or unambiguous branch packet join", "required": true, "fallback": "event omitted; aliases are never inferred" },
+    { "field": "beats[].eventAt", "type": "canonical ISO 8601 timestamp", "source": "durable source fact", "required": true, "fallback": "event omitted" },
+    { "field": "beats[].receipt.id", "type": "bounded canonical identity", "source": "durable receipt", "required": true, "fallback": "event omitted; secret-shaped identity segments are rejected" },
     { "field": "beats[].text", "type": "string", "source": "quest-envelope.beats[].text", "required": true, "fallback": "'Story beat text missing' (also drives contradiction scan)" },
     { "field": "beats[].lane", "type": "enum (heartbeat | paperclip | forge | noesis | quest | action-request | beat)", "source": "quest-envelope.beats[].lane", "required": false, "fallback": "'beat' (noesis flag → 'noesis')" },
     { "field": "beats[].noesis", "type": "boolean", "source": "quest-envelope.beats[].noesis", "required": false, "fallback": "false" },
     { "field": "beats[].group | storyGroup | kind", "type": "string", "source": "quest-envelope.beats[] group hints", "required": false, "fallback": "group classified from lane + text scan into Mission wins / New signals / Lessons / Drift" },
     { "field": "beats[].proof | evidence", "type": "string", "source": "quest-envelope.beats[] proof fields", "required": false, "fallback": "state alias 'proof-needed'; cue 'Review evidence' / 'Proof needed'" },
     { "field": "beats[].branchId | branch | productId | clientName", "type": "string", "source": "quest-envelope.beats[] branch fields", "required": false, "fallback": "beat lands under 'unassigned' branch filter chip" },
-    { "field": "beats[].source", "type": "string", "source": "quest-envelope.beats[].source", "required": false, "fallback": "lane-derived source (paperclipActivityBeats / quest-ledger / world.log / cambium-action-requests@v1 / operator-narrative)" },
+    { "field": "beats[].source", "type": "safe bounded string", "source": "durable source fact", "required": true, "fallback": "known projection source; secret-like or control-character text is rejected" },
     { "field": "beats[].outcome | result | detail", "type": "string", "source": "quest-envelope.beats[] outcome fields", "required": false, "fallback": "group default ('Mission moved' / 'Lesson captured' / 'Needs follow-up' / 'New signal')" },
     { "field": "beats[].followup", "type": "string", "source": "quest-envelope.beats[].followup", "required": false, "fallback": "group default follow-up line" },
+    { "field": "StoryWorkObjectFilters.kind + identity", "type": "exact canonical pair", "source": "marker-qualified beats[].workObject only", "required": false, "fallback": "all canonical events in their original order; legacy aliases never populate these controls" },
     { "field": "actionRequests.rows[]", "type": "array<ActionRequestListItem>", "source": "quest-envelope.actionRequests.rows", "required": false, "fallback": "no projected ActionRequest beats" },
     { "field": "ledger.rows[]", "type": "array<{title, evidence, status}>", "source": "quest-envelope.ledger.rows (status complete only)", "required": false, "fallback": "no fallback beats; EMPTY panel if beats and actionRequests also empty" },
     { "field": "branchStories.rows[]", "type": "array<BranchPacket>", "source": "quest-envelope.branchStories.rows", "required": false, "fallback": "single 'all branches' filter chip (+ 'unassigned' if any beat lacks a branch)" },
@@ -80,8 +94,14 @@
   },
   "panelBehavior": {
     "loading": { "pattern": "frozen/04 LOADING", "render": "'Synchronizing branch story / Please wait…' + linear progress bar", "words": "<= 12 + progress" },
-    "empty": { "pattern": "frozen/04 EMPTY", "render": "dashed circle + signal glyph; 'No branch story yet — wins, signals, lessons, drift appear after a branch has evidence' + Refresh (outline) [+ Open Mission / Open Proof]", "trigger": "no beats, no ActionRequest rows, no completed ledger rows" },
+    "empty": { "pattern": "frozen/04 EMPTY controls + T-063 guidance", "render": "'No branch story yet' + 'First: receipt, decision, or completed transition' + Refresh (outline) [+ Open Mission / Open Proof]; accessible guidance requires exact WorkObject identity, event time, and receipt", "trigger": "no beats, no ActionRequest rows, no completed ledger rows" },
     "error": { "pattern": "frozen/04 ERROR", "render": "peach triangle; 'story unreachable — pull to retry' + Retry outline button", "trigger": "GET /api/quests/{tenant} rejects" }
+  },
+  "timelineQualification": {
+    "canonical": "only the authoritative storyProjection marker enables provenance; every marked timeline item and card exposes eventId, eventAt, workObject.id, workObject.kind, source, receipt.id, and eventKind when supplied through accessible labels and exact data attributes",
+    "replay": "identical eventId plus canonical event fingerprint renders once; conflicting fingerprints under one eventId render zero events",
+    "filtering": "kind and identity controls derive only from marker-qualified WorkObject pairs that independently pass canonical kind, identity shape, matching-prefix, length, and unsafe-segment validation at the browser boundary; their intersection filters without sorting or changing original event indexes",
+    "legacy": "direct fixtures without the authoritative marker retain visual compatibility only and carry no invented source, event kind, or WorkObject provenance"
   },
   "fixtures": "workers/quests/src/page/scenes/fixtures/story.fixture.json"
 }

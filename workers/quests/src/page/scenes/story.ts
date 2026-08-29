@@ -8,10 +8,353 @@
 // Data contract: docs/architecture/contracts/scenes/story.json (fixtures: scenes/fixtures/story.fixture.json).
 // Every row derives from served beats / ActionRequest rows / completed ledger rows — no invented narrative.
 // Assembly order: page/index.ts (after scenes/mission.ts, which provides mcSceneClamp + mcSceneTokenLabel).
+export type StoryWorkObjectKind = 'sapling' | 'branch' | 'program';
+export type StoryEventKind = 'receipt' | 'decision' | 'transition';
+
+export interface StoryEventContract {
+  eventId: string;
+  workObject: {
+    id: string;
+    kind: StoryWorkObjectKind;
+  };
+  source: string;
+  eventAt: string;
+  receipt: {
+    id: string;
+  };
+  eventKind?: StoryEventKind;
+  text?: string;
+  lane?: string;
+  group?: string;
+  context?: string;
+  branchId?: string;
+  outcome?: string;
+  proof?: string;
+  detail?: string;
+  followup?: string;
+  actionRequestId?: string;
+  noesis?: boolean;
+}
+
+export interface StoryEventContractIssue {
+  path: string;
+  code:
+    | 'invalid_identity'
+    | 'work_object_kind_mismatch'
+    | 'invalid_work_object_kind'
+    | 'missing_source'
+    | 'invalid_iso_time'
+    | 'missing_receipt_identity'
+    | 'invalid_event_kind'
+    | 'malformed_event';
+}
+
+export type StoryEventContractParseResult =
+  | { ok: true; value: StoryEventContract }
+  | { ok: false; issues: StoryEventContractIssue[] };
+
+const STORY_IDENTITY = /^[a-z0-9][a-z0-9:._-]*$/i;
+const STORY_WORK_OBJECT_KINDS = new Set<StoryWorkObjectKind>(['sapling', 'branch', 'program']);
+const STORY_EVENT_KINDS = new Set<StoryEventKind>(['receipt', 'decision', 'transition']);
+const STORY_UNSAFE_PUBLIC_TEXT = /(?:bearer\s+|token=|secret=|initdata=|tgwebappdata|query_id=|auth_date=|private[ _-]?key)/i;
+const STORY_UNSAFE_IDENTITY_SEGMENT = /(?:^|[:._-])(?:bearer|secret|initdata|tgwebappdata|query[-_]?id|auth[-_]?date|private[-_]?key)(?:$|[:._-])/i;
+
+function storyRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function storyCanonicalIso(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)) return false;
+  return Number.isFinite(Date.parse(value));
+}
+
+function storyCanonicalIdentity(value: unknown): value is string {
+  return typeof value === 'string'
+    && value.length <= 256
+    && STORY_IDENTITY.test(value)
+    && !STORY_UNSAFE_IDENTITY_SEGMENT.test(value);
+}
+
+export function parseStoryEventContract(input: unknown): StoryEventContractParseResult {
+  const event = storyRecord(input);
+  if (!event) return { ok: false, issues: [{ path: '', code: 'malformed_event' }] };
+
+  const workObject = storyRecord(event.workObject);
+  const receipt = storyRecord(event.receipt);
+  const issues: StoryEventContractIssue[] = [];
+  if (!storyCanonicalIdentity(event.eventId)) {
+    issues.push({ path: 'eventId', code: 'invalid_identity' });
+  }
+  if (!workObject || !storyCanonicalIdentity(workObject.id)) {
+    issues.push({ path: 'workObject.id', code: 'invalid_identity' });
+  }
+  if (!workObject || typeof workObject.kind !== 'string' || !STORY_WORK_OBJECT_KINDS.has(workObject.kind as StoryWorkObjectKind)) {
+    issues.push({ path: 'workObject.kind', code: 'invalid_work_object_kind' });
+  }
+  if (
+    workObject
+    && typeof workObject.id === 'string'
+    && storyCanonicalIdentity(workObject.id)
+    && typeof workObject.kind === 'string'
+    && STORY_WORK_OBJECT_KINDS.has(workObject.kind as StoryWorkObjectKind)
+    && !workObject.id.startsWith(`${workObject.kind}:`)
+  ) {
+    issues.push({ path: 'workObject.id', code: 'work_object_kind_mismatch' });
+  }
+  if (typeof event.source !== 'string' || !event.source.trim()) {
+    issues.push({ path: 'source', code: 'missing_source' });
+  }
+  if (!storyCanonicalIso(event.eventAt)) {
+    issues.push({ path: 'eventAt', code: 'invalid_iso_time' });
+  }
+  if (!receipt || !storyCanonicalIdentity(receipt.id)) {
+    issues.push({ path: 'receipt.id', code: 'missing_receipt_identity' });
+  }
+  if (event.eventKind !== undefined && (typeof event.eventKind !== 'string' || !STORY_EVENT_KINDS.has(event.eventKind as StoryEventKind))) {
+    issues.push({ path: 'eventKind', code: 'invalid_event_kind' });
+  }
+  if (issues.length) return { ok: false, issues };
+
+  return {
+    ok: true,
+    value: {
+      eventId: event.eventId as string,
+      workObject: {
+        id: workObject!.id as string,
+        kind: workObject!.kind as StoryWorkObjectKind,
+      },
+      source: (event.source as string).trim(),
+      eventAt: event.eventAt as string,
+      receipt: { id: receipt!.id as string },
+      ...(typeof event.eventKind === 'string' ? { eventKind: event.eventKind as StoryEventKind } : {}),
+      ...(typeof event.text === 'string' ? { text: event.text } : {}),
+      ...(typeof event.lane === 'string' ? { lane: event.lane } : {}),
+      ...(typeof event.group === 'string' ? { group: event.group } : {}),
+      ...(typeof event.context === 'string' ? { context: event.context } : {}),
+      ...(typeof event.branchId === 'string' ? { branchId: event.branchId } : {}),
+      ...(typeof event.outcome === 'string' ? { outcome: event.outcome } : {}),
+      ...(typeof event.proof === 'string' ? { proof: event.proof } : {}),
+      ...(typeof event.detail === 'string' ? { detail: event.detail } : {}),
+      ...(typeof event.followup === 'string' ? { followup: event.followup } : {}),
+      ...(typeof event.actionRequestId === 'string' ? { actionRequestId: event.actionRequestId } : {}),
+      ...(typeof event.noesis === 'boolean' ? { noesis: event.noesis } : {}),
+    },
+  };
+}
+
+function storyProjectionIdentity(...parts: unknown[]): string | null {
+  const value = parts.map((part) => String(part ?? '').trim()).join(':');
+  return storyCanonicalIdentity(value) ? value : null;
+}
+
+function storyProjectionText(value: unknown, fallback: string, max = 240): string {
+  const text = typeof value === 'string' ? value.trim() : '';
+  const safe = text && !STORY_UNSAFE_PUBLIC_TEXT.test(text) && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)
+    ? text
+    : fallback;
+  return safe.slice(0, max);
+}
+
+function storyProjectionWorkObject(value: unknown): StoryEventContract['workObject'] | null {
+  const row = storyRecord(value);
+  if (!row) return null;
+  const nested = storyRecord(row.workObject);
+  const id = nested?.id ?? row.workObjectId;
+  const kind = nested?.kind ?? row.workObjectKind;
+  if (typeof id !== 'string' || typeof kind !== 'string' || !STORY_WORK_OBJECT_KINDS.has(kind as StoryWorkObjectKind)) return null;
+  if (!storyCanonicalIdentity(id) || !id.startsWith(`${kind}:`)) return null;
+  return { id, kind: kind as StoryWorkObjectKind };
+}
+
+function storyBranchWorkObjects(envelope: Record<string, unknown>): Map<string, StoryEventContract['workObject'] | null> {
+  const branchStories = storyRecord(envelope.branchStories);
+  const rows = Array.isArray(branchStories?.rows) ? branchStories.rows : [];
+  const byBranch = new Map<string, StoryEventContract['workObject'] | null>();
+  for (const value of rows) {
+    const row = storyRecord(value);
+    const branchId = row && storyProjectionIdentity(row.branchId);
+    const workObject = storyProjectionWorkObject(row);
+    if (!branchId || !workObject) continue;
+    if (!byBranch.has(branchId)) {
+      byBranch.set(branchId, workObject);
+      continue;
+    }
+    const current = byBranch.get(branchId);
+    if (!current || current.id !== workObject.id || current.kind !== workObject.kind) byBranch.set(branchId, null);
+  }
+  return byBranch;
+}
+
+function storySourceWorkObject(row: Record<string, unknown>, byBranch: Map<string, StoryEventContract['workObject'] | null>): StoryEventContract['workObject'] | null {
+  const direct = storyProjectionWorkObject(row);
+  if (direct) return direct;
+  const branchId = storyProjectionIdentity(row.branchId);
+  return branchId && byBranch.has(branchId) ? byBranch.get(branchId) ?? null : null;
+}
+
+function storyActionRequestRows(envelope: Record<string, unknown>): unknown[] {
+  const actionRequests = envelope.actionRequests;
+  if (Array.isArray(actionRequests)) return actionRequests;
+  const record = storyRecord(actionRequests);
+  if (Array.isArray(record?.rows)) return record.rows;
+  return Array.isArray(record?.actionRequests) ? record.actionRequests : [];
+}
+
+function storyEventFingerprint(event: StoryEventContract): string {
+  return JSON.stringify({
+    eventId: event.eventId,
+    eventKind: event.eventKind ?? null,
+    workObject: { id: event.workObject.id, kind: event.workObject.kind },
+    source: event.source,
+    eventAt: event.eventAt,
+    receipt: { id: event.receipt.id },
+    text: event.text ?? null,
+    lane: event.lane ?? null,
+    group: event.group ?? null,
+    context: event.context ?? null,
+    branchId: event.branchId ?? null,
+    outcome: event.outcome ?? null,
+    proof: event.proof ?? null,
+    detail: event.detail ?? null,
+    followup: event.followup ?? null,
+    actionRequestId: event.actionRequestId ?? null,
+    noesis: event.noesis ?? null,
+  });
+}
+
+/** Keep exact replays once and fail closed when one eventId describes conflicting facts. */
+export function dedupeStoryEvents(events: StoryEventContract[]): StoryEventContract[] {
+  const unique = new Map<string, { event: StoryEventContract; fingerprint: string; index: number }>();
+  const conflicts = new Set<string>();
+  for (const [index, event] of events.entries()) {
+    if (conflicts.has(event.eventId)) continue;
+    const fingerprint = storyEventFingerprint(event);
+    const prior = unique.get(event.eventId);
+    if (!prior) {
+      unique.set(event.eventId, { event, fingerprint, index });
+      continue;
+    }
+    if (prior.fingerprint !== fingerprint) {
+      unique.delete(event.eventId);
+      conflicts.add(event.eventId);
+    }
+  }
+  return [...unique.values()]
+    .sort((left, right) => left.index - right.index)
+    .map(({ event }) => event);
+}
+
+/** Project only durable, receipt-backed public facts into the canonical Story event contract. */
+export function projectStoryEvents(input: unknown): StoryEventContract[] {
+  const envelope = storyRecord(input);
+  if (!envelope) return [];
+  const events: StoryEventContract[] = [];
+  const served = Array.isArray(envelope.beats) ? envelope.beats : [];
+  for (const value of served) {
+    const parsed = parseStoryEventContract(value);
+    if (parsed.ok) events.push(parsed.value);
+  }
+
+  const byBranch = storyBranchWorkObjects(envelope);
+  for (const value of storyActionRequestRows(envelope)) {
+    const row = storyRecord(value);
+    if (!row) continue;
+    const actionRequestId = storyProjectionIdentity(row.id);
+    const workObject = storySourceWorkObject(row, byBranch);
+    const receipts = storyRecord(row.receipts);
+    const latest = storyRecord(receipts?.latest);
+    const receiptKind = latest && storyProjectionIdentity(latest.kind);
+    const receiptAt = latest?.at;
+    if (!actionRequestId || !workObject || !receiptKind || !storyCanonicalIso(receiptAt)) continue;
+    const receiptId = storyProjectionIdentity('receipt', 'action-request', actionRequestId, receiptKind, receiptAt);
+    const receiptEventId = storyProjectionIdentity('story', 'receipt', actionRequestId, receiptKind, receiptAt);
+    if (receiptId && receiptEventId) {
+      events.push({
+        eventId: receiptEventId,
+        eventKind: 'receipt',
+        workObject,
+        source: 'cambium-action-requests@v1',
+        eventAt: receiptAt,
+        receipt: { id: receiptId },
+        text: storyProjectionText(latest.text, `ActionRequest ${receiptKind} receipt`),
+        lane: 'action-request',
+        group: receiptKind === 'complete' || receiptKind === 'consume' ? 'Mission wins' : 'New signals',
+        context: 'inspect',
+        branchId: storyProjectionText(row.branchId, ''),
+        proof: `${receiptKind} receipt`,
+        outcome: storyProjectionText(row.status, receiptKind, 80),
+        actionRequestId,
+      });
+    }
+
+    const selectedOptionId = storyProjectionIdentity(row.selectedOptionId);
+    const status = storyProjectionIdentity(row.status);
+    const updatedAt = row.updatedAt;
+    const decisionEventId = selectedOptionId && status && storyCanonicalIso(updatedAt)
+      ? storyProjectionIdentity('story', 'decision', actionRequestId, status, updatedAt)
+      : null;
+    if (decisionEventId && receiptId) {
+      events.push({
+        eventId: decisionEventId,
+        eventKind: 'decision',
+        workObject,
+        source: 'cambium-action-requests@v1',
+        eventAt: updatedAt as string,
+        receipt: { id: receiptId },
+        text: `Decision ${selectedOptionId} moved ${status}`,
+        lane: 'action-request',
+        group: status === 'completed' || status === 'consumed' ? 'Mission wins' : status === 'blocked' ? 'Drift' : 'New signals',
+        context: 'gate',
+        branchId: storyProjectionText(row.branchId, ''),
+        proof: `${receiptKind} receipt`,
+        outcome: status,
+        actionRequestId,
+      });
+    }
+  }
+
+  const ledger = storyRecord(envelope.ledger);
+  const transitions = Array.isArray(ledger?.rows) ? ledger.rows : [];
+  for (const value of transitions) {
+    const row = storyRecord(value);
+    if (!row || !/^(complete|completed|consumed)$/.test(String(row.status ?? ''))) continue;
+    const transitionId = storyProjectionIdentity(row.id ?? row.transitionId);
+    const eventAt = row.eventAt ?? row.completedAt ?? row.updatedAt;
+    const receipt = storyRecord(row.receipt);
+    const receiptId = storyProjectionIdentity(receipt?.id ?? row.receiptId);
+    const workObject = storySourceWorkObject(row, byBranch);
+    const eventId = transitionId && storyCanonicalIso(eventAt)
+      ? storyProjectionIdentity('story', 'transition', transitionId, row.status, eventAt)
+      : null;
+    if (!eventId || !receiptId || !workObject) continue;
+    events.push({
+      eventId,
+      eventKind: 'transition',
+      workObject,
+      source: storyProjectionText(row.source, 'quest-ledger@v1', 120),
+      eventAt: eventAt as string,
+      receipt: { id: receiptId },
+      text: storyProjectionText(row.title, 'Completed Story transition'),
+      lane: 'quest',
+      group: 'Mission wins',
+      context: 'mission',
+      branchId: storyProjectionText(row.branchId, ''),
+      proof: storyProjectionText(row.evidence, 'receipt retained'),
+      outcome: 'transition complete',
+    });
+  }
+  return dedupeStoryEvents(events);
+}
+
 export const SCENE_STORY = `/* ── story scene — signal rows with state tokens + PacketFlow rails (T-021/T-022) ── */
 let STORY_BEATS = [];
 let STORY_GROUP_FILTER = 'all';
 let STORY_BRANCH_FILTER = 'all';
+let STORY_WORK_OBJECT_KIND_FILTER = 'all';
+let STORY_WORK_OBJECT_ID_FILTER = 'all';
+let STORY_CANONICAL_PROJECTION = false;
 const STORY_GROUPS = ['Mission wins','New signals','Lessons','Drift'];
 /* At-rest row cap (frozen/06 S9): digest + latest change + max 6 signal rows; the remainder stays
    reachable via the group chips. A stale envelope trims the cap first (frozen/06 §4 trim order 1)
@@ -140,10 +483,43 @@ function renderStoryGroupControls(groups, rows){
     '<button type="button" class="' + (STORY_GROUP_FILTER === label ? 'is-selected' : '') + '" data-story-filter="' + esc(label) + '">' + esc(label) + ' <span class="mc-branch-count">' + (label === 'all' ? rows.length : rows.filter(row => storyBeatGroup(row.beat) === label).length) + '</span></button>'
   ).join('') + '</div>';
 }
-function renderStoryTimeline(rows){
-  return '<div class="story-timeline" data-component="StoryTimelineRail">' + rows.slice(0, 12).map(row =>
-    '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '"></i>'
-  ).join('') + '</div>';
+function storyCanonicalWorkObject(beat){
+  const workObject = beat && beat.workObject;
+  const id = mcText(workObject && workObject.id, '');
+  const kind = mcText(workObject && workObject.kind, '');
+  if (!['sapling','branch','program'].includes(kind)) return null;
+  if (!id || id.length > 256 || !/^[a-z0-9][a-z0-9:._-]*$/i.test(id) || !id.startsWith(kind + ':')) return null;
+  if (/(?:^|[:._-])(?:bearer|secret|initdata|tgwebappdata|query[-_]?id|auth[-_]?date|private[-_]?key)(?:$|[:._-])/i.test(id)) return null;
+  return { id, kind };
+}
+function storyTimelineProvenance(beat, canonicalProjection){
+  if (!canonicalProjection) return null;
+  const workObject = storyCanonicalWorkObject(beat);
+  const receipt = beat && beat.receipt;
+  const eventId = mcText(beat && beat.eventId, '');
+  const eventKind = mcText(beat && beat.eventKind, '');
+  const source = mcText(beat && beat.source, '');
+  const eventAt = mcText(beat && beat.eventAt, '');
+  const workObjectId = mcText(workObject && workObject.id, '');
+  const workObjectKind = mcText(workObject && workObject.kind, '');
+  const receiptId = mcText(receipt && receipt.id, '');
+  if (!eventId || !source || !eventAt || !workObjectId || !workObjectKind || !receiptId) return null;
+  return { eventId, eventKind, source, eventAt, workObjectId, workObjectKind, receiptId };
+}
+function renderStoryTimeline(rows, canonicalProjection){
+  let qualifiedCount = 0;
+  const items = rows.slice(0, 12).map(row => {
+    const provenance = storyTimelineProvenance(row.beat, canonicalProjection);
+    if (!provenance) {
+      return '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '" data-story-provenance="legacy-unqualified" aria-hidden="true"></i>';
+    }
+    qualifiedCount += 1;
+    const kindLabel = provenance.eventKind || 'legacy event';
+    const eventKindAttr = provenance.eventKind ? ' data-story-event-kind="' + esc(provenance.eventKind) + '"' : '';
+    const label = provenance.eventAt + ' · ' + kindLabel + ' · ' + provenance.workObjectKind + ' ' + provenance.workObjectId + ' · source ' + provenance.source + ' · receipt ' + provenance.receiptId;
+    return '<i class="is-' + esc(mcStateKind(storyBeatState(row.beat))) + '" role="listitem" data-story-event-id="' + esc(provenance.eventId) + '"' + eventKindAttr + ' data-story-source="' + esc(provenance.source) + '" data-story-work-object="' + esc(provenance.workObjectId) + '" data-story-work-object-kind="' + esc(provenance.workObjectKind) + '" data-story-event-at="' + esc(provenance.eventAt) + '" data-story-receipt="' + esc(provenance.receiptId) + '" aria-label="' + esc(label) + '"></i>';
+  });
+  return '<div class="story-timeline" data-component="StoryTimelineRail" role="list" aria-label="Receipt-backed Story timeline" data-story-qualified-count="' + qualifiedCount + '">' + items.join('') + '</div>';
 }
 function renderStoryBranchFilters(env){
   const branches = branchRows(env || {});
@@ -162,6 +538,45 @@ function renderStoryBranchFilters(env){
   }
   ).join('') + '</div>';
 }
+function storyWorkObjectOptions(beats, canonicalProjection){
+  if (!canonicalProjection) return [];
+  const seen = new Set();
+  const options = [];
+  mcList(beats).forEach(beat => {
+    const provenance = storyTimelineProvenance(beat, canonicalProjection);
+    if (!provenance) return;
+    const key = provenance.workObjectKind + '\\n' + provenance.workObjectId;
+    if (seen.has(key)) return;
+    seen.add(key);
+    options.push({ id:provenance.workObjectId, kind:provenance.workObjectKind });
+  });
+  return options;
+}
+function normalizeStoryWorkObjectFilters(options){
+  if (STORY_WORK_OBJECT_KIND_FILTER !== 'all' && !options.some(option => option.kind === STORY_WORK_OBJECT_KIND_FILTER)) {
+    STORY_WORK_OBJECT_KIND_FILTER = 'all';
+    STORY_WORK_OBJECT_ID_FILTER = 'all';
+  }
+  if (STORY_WORK_OBJECT_ID_FILTER === 'all') return;
+  const selected = options.find(option => option.id === STORY_WORK_OBJECT_ID_FILTER);
+  if (!selected || (STORY_WORK_OBJECT_KIND_FILTER !== 'all' && selected.kind !== STORY_WORK_OBJECT_KIND_FILTER)) {
+    STORY_WORK_OBJECT_ID_FILTER = 'all';
+  }
+}
+function renderStoryWorkObjectFilters(beats, canonicalProjection){
+  const options = storyWorkObjectOptions(beats, canonicalProjection);
+  normalizeStoryWorkObjectFilters(options);
+  const kinds = ['sapling','branch','program'].filter(kind => options.some(option => option.kind === kind));
+  const identities = options.filter(option => STORY_WORK_OBJECT_KIND_FILTER === 'all' || option.kind === STORY_WORK_OBJECT_KIND_FILTER);
+  const kindControls = ['all'].concat(kinds).map(kind => {
+    const count = kind === 'all' ? options.length : options.filter(option => option.kind === kind).length;
+    return '<button type="button" class="' + (STORY_WORK_OBJECT_KIND_FILTER === kind ? 'is-selected mc-selected-halo' : '') + '" data-story-work-object-kind-filter="' + esc(kind) + '" aria-pressed="' + (STORY_WORK_OBJECT_KIND_FILTER === kind ? 'true' : 'false') + '">' + esc(kind === 'all' ? 'all kinds' : kind) + ' <span class="mc-branch-count">' + count + '</span></button>';
+  }).join('');
+  const identityControls = '<button type="button" class="' + (STORY_WORK_OBJECT_ID_FILTER === 'all' ? 'is-selected mc-selected-halo' : '') + '" data-story-work-object-id-filter="all" aria-pressed="' + (STORY_WORK_OBJECT_ID_FILTER === 'all' ? 'true' : 'false') + '">all identities</button>' + identities.map(option =>
+    '<button type="button" class="' + (STORY_WORK_OBJECT_ID_FILTER === option.id ? 'is-selected mc-selected-halo' : '') + '" data-story-work-object-id-filter="' + esc(option.id) + '" data-story-work-object-kind="' + esc(option.kind) + '" aria-pressed="' + (STORY_WORK_OBJECT_ID_FILTER === option.id ? 'true' : 'false') + '">' + esc(option.id) + '</button>'
+  ).join('');
+  return '<div data-component="StoryWorkObjectFilters" data-filter-authority="storyProjection"><div class="story-filter-strip" role="group" aria-label="Filter Story by exact WorkObject kind">' + kindControls + '</div><div class="story-filter-strip" role="group" aria-label="Filter Story by exact WorkObject identity">' + identityControls + '</div></div>';
+}
 function storyDigestState(rows){
   if (!rows.length) return 'idle';
   if (rows.some(row => storyBeatState(row.beat) === 'blocked')) return 'blocked';
@@ -179,8 +594,18 @@ function renderStoryDigest(rows){
     '<i aria-hidden="true">›</i>' +
   '</button>';
 }
-function visibleStoryBeats(beats){
+function visibleStoryBeats(beats, canonicalProjection = STORY_CANONICAL_PROJECTION){
   const rows = beats.map((beat, index) => ({ beat, index }));
+  if (canonicalProjection) {
+    const options = storyWorkObjectOptions(beats, canonicalProjection);
+    normalizeStoryWorkObjectFilters(options);
+    return rows.filter(row => {
+      const provenance = storyTimelineProvenance(row.beat, canonicalProjection);
+      if (!provenance) return false;
+      if (STORY_WORK_OBJECT_KIND_FILTER !== 'all' && provenance.workObjectKind !== STORY_WORK_OBJECT_KIND_FILTER) return false;
+      return STORY_WORK_OBJECT_ID_FILTER === 'all' || provenance.workObjectId === STORY_WORK_OBJECT_ID_FILTER;
+    });
+  }
   if (STORY_BRANCH_FILTER === 'all') return rows;
   if (STORY_BRANCH_FILTER === 'unassigned' || STORY_BRANCH_FILTER === 'missing') {
     const unassignedRows = rows.filter(row => !storyBeatBranch(row.beat));
@@ -216,7 +641,7 @@ function renderStoryPacketRail(a, b, focalUsed){
 }
 /* Signal row (T-021): MissionGlyph per group + evidence teaser (outcome · proof cue) + StateToken
    with the frozen/06 §2.3 canonical subtitle. State rides icon + color + rail style, never alone. */
-function renderStorySignalRow(row, group){
+function renderStorySignalRow(row, group, canonicalProjection){
   const b = row.beat;
   const i = row.index;
   const lane = b.lane || 'beat';
@@ -224,7 +649,12 @@ function renderStorySignalRow(row, group){
   const context = storyBeatContext(group, lane, b);
   const target = lane === 'action-request' ? storyBeatTarget(lane) : 'operator-narrative';
   const contradiction = /contradict/i.test(String(b.text || ''));
-  return '<button type="button" class="' + mcClass('beat story-signal' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="mission-story@v1" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
+  const provenance = storyTimelineProvenance(b, canonicalProjection);
+  const source = provenance ? provenance.source : 'mission-story@v1';
+  const provenanceAttrs = provenance
+    ? ' data-story-event-id="' + esc(provenance.eventId) + '"' + (provenance.eventKind ? ' data-story-event-kind="' + esc(provenance.eventKind) + '"' : '') + ' data-story-work-object="' + esc(provenance.workObjectId) + '" data-story-work-object-kind="' + esc(provenance.workObjectKind) + '" data-story-event-at="' + esc(provenance.eventAt) + '" data-story-receipt="' + esc(provenance.receiptId) + '"'
+    : '';
+  return '<button type="button" class="' + mcClass('beat story-signal' + (b.noesis ? ' noesis' : ''), state) + '" style="--i:' + Math.min(i, 20) + '" data-component="StoryBeatCard" data-interaction-kind="sheet" data-source="' + esc(source) + '" data-beat="' + i + '" data-lane="' + esc(lane) + '" data-story-context="' + esc(context) + '" data-ecosystem-target="' + esc(target) + '"' + provenanceAttrs + (contradiction ? ' data-story-warning="contradiction"' : '') + '>' +
     mcGlyphSvg(storyBeatGlyph(group), state) +
     '<span class="story-signal-copy story-teaser">' + renderStoryTeaserSpans(b, group) + '</span>' +
     mcStateToken(state, mcSceneTokenLabel(state)) +
@@ -283,9 +713,10 @@ function renderStoryStaleBanner(env){
   if (!storyEnvStale(env || {})) return '';
   return '<section class="mission-stale-notice story-stale-notice" data-component="StoryStaleBanner" data-story-stale="1">' + mcStateToken('stale', 'refresh first') + '<b>story stale</b><span>refresh before deciding</span></section>';
 }
-/* EMPTY panel (frozen/04 + frozen/06 S8): title KEEP, body 'beats land after branch evidence'. */
+/* EMPTY panel (frozen/04 controls + T-063): retain the short title/actions and name the first
+   three qualifying receipt-backed event paths without fabricating a Story beat. */
 function renderStoryEmptyState(env){
-  return renderStoryStaleBanner(env || {}) + '<div class="state" data-component="StoryEmptyState" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative"><b>No branch story yet.</b><p>beats land after branch evidence</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Open Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Open Proof</button></div></div>';
+  return renderStoryStaleBanner(env || {}) + '<div class="state" role="region" data-component="StoryEmptyState" data-interaction-kind="read-only" data-source="mission-story@v1" data-ecosystem-target="operator-narrative" data-story-first-qualifying-events="receipt decision transition" aria-label="First Story event: receipt, founder decision, or completed lifecycle transition with exact WorkObject identity, time, and receipt."><b>No branch story yet.</b><p>First: receipt, decision, or completed transition.</p><div class="gbtns"><button type="button" data-story-empty-action="refresh">Refresh</button><button type="button" data-story-empty-action="mission">Open Mission</button><button type="button" class="reroll" data-story-empty-action="inspect">Open Proof</button></div></div>';
 }
 function actionRequestStoryBeats(env){
   return actionRequestRows(env || {}).map(row => {
@@ -311,18 +742,20 @@ function actionRequestStoryBeats(env){
   });
 }
 function renderStory(env){
-  const served = env.beats && env.beats.length;
-  const actionBeats = actionRequestStoryBeats(env || {});
+  const canonicalProjection = env.storyProjection && env.storyProjection.schema === 'cambium.story-event-projection.v1';
+  STORY_CANONICAL_PROJECTION = canonicalProjection;
+  const served = Array.isArray(env.beats) && (canonicalProjection || env.beats.length);
+  const actionBeats = canonicalProjection ? [] : actionRequestStoryBeats(env || {});
   const beats = served ? env.beats.concat(actionBeats) :
     actionBeats.length ? actionBeats :
-      env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
+      canonicalProjection ? [] : env.ledger.rows.filter(r => r.status === 'complete').map(r => ({ text: r.title + ' — ' + r.evidence, lane: 'quest', noesis: false, source: 'quest-ledger' }));
   STORY_BEATS = beats;
   if (!beats.length) {
     $('beats').innerHTML = renderStoryEmptyState(env);
     $('beats').querySelectorAll('[data-story-empty-action]').forEach(el => el.onclick = () => el.dataset.storyEmptyAction === 'refresh' ? refresh() : go(el.dataset.storyEmptyAction === 'mission' ? 0 : 4));
     return;
   }
-  const visibleBeats = visibleStoryBeats(beats);
+  const visibleBeats = visibleStoryBeats(beats, canonicalProjection);
   const rowLimit = storyEnvStale(env || {}) ? STORY_ROW_LIMIT_STALE : STORY_ROW_LIMIT;
   const groups = STORY_GROUPS.map(group => ({
     group,
@@ -353,7 +786,7 @@ function renderStory(env){
         focalUsed = focalUsed || rail.focal;
         body += rail.html;
       }
-      body += renderStorySignalRow(row, group);
+      body += renderStorySignalRow(row, group, canonicalProjection);
     });
     /* Inter-section rail: the packet flow continues across group boundaries, so consecutive
        rendered rows always connect — the rail sits between sections, never over text. */
@@ -366,7 +799,7 @@ function renderStory(env){
     sections.push('<section class="story-group" data-component="StoryGroup" data-story-group="' + slug + '">' +
       '<div class="cmdgrp">' + esc(group) + '</div><div class="story-group-body">' + body + '</div></section>');
   });
-  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + renderStoryBranchFilters(env) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats) + (groups.some(row => row.beats.length) ? sections.join('') : '<div class="state"><b>No story beats in this group.</b><p>switch groups or refresh</p></div>');
+  $('beats').innerHTML = renderStoryHero(visibleBeats) + renderStoryStaleBanner(env) + renderStoryGroupControls(STORY_GROUPS, visibleBeats) + (canonicalProjection ? renderStoryWorkObjectFilters(beats, canonicalProjection) : renderStoryBranchFilters(env)) + renderStoryDigest(visibleBeats) + renderStoryTimeline(visibleBeats, canonicalProjection) + (groups.some(row => row.beats.length) ? sections.join('') : '<div class="state"><b>No story beats in this group.</b><p>switch groups or refresh</p></div>');
   $('beats').querySelectorAll('[data-story-hero]').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.storyHero));
   $('beats').querySelectorAll('[data-story-digest]').forEach(el => el.onclick = () => openStoryDigest());
   $('beats').querySelectorAll('[data-story-filter]').forEach(el => el.onclick = () => {
@@ -375,6 +808,20 @@ function renderStory(env){
   });
   $('beats').querySelectorAll('[data-story-branch-filter]').forEach(el => el.onclick = () => {
     STORY_BRANCH_FILTER = el.dataset.storyBranchFilter || 'all';
+    renderStory(env);
+  });
+  $('beats').querySelectorAll('[data-story-work-object-kind-filter]').forEach(el => el.onclick = () => {
+    STORY_WORK_OBJECT_KIND_FILTER = el.dataset.storyWorkObjectKindFilter || 'all';
+    if (STORY_WORK_OBJECT_KIND_FILTER === 'all') STORY_WORK_OBJECT_ID_FILTER = 'all';
+    else {
+      const selected = storyWorkObjectOptions(STORY_BEATS, canonicalProjection).find(option => option.id === STORY_WORK_OBJECT_ID_FILTER);
+      if (!selected || selected.kind !== STORY_WORK_OBJECT_KIND_FILTER) STORY_WORK_OBJECT_ID_FILTER = 'all';
+    }
+    renderStory(env);
+  });
+  $('beats').querySelectorAll('[data-story-work-object-id-filter]').forEach(el => el.onclick = () => {
+    STORY_WORK_OBJECT_ID_FILTER = el.dataset.storyWorkObjectIdFilter || 'all';
+    if (STORY_WORK_OBJECT_ID_FILTER !== 'all') STORY_WORK_OBJECT_KIND_FILTER = el.dataset.storyWorkObjectKind || 'all';
     renderStory(env);
   });
   $('beats').querySelectorAll('.beat').forEach(el => el.onclick = () => openStoryBeat(+el.dataset.beat));

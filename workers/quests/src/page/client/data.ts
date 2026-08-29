@@ -1,6 +1,31 @@
 // cambium-quests · miniapp page chunk — data load, gate gauge, boot, </script></body></html>
 // Verbatim slice of the served PAGE string (T-009 pure refactor of the page.ts monolith).
 // Moves only: no copy, style, behavior, or ordering changes. Assembly order: page/index.ts.
+const CLIENT_DATA_BOOT_MARKER = 'go(START_SCENE, true);\nload();';
+
+export const CLIENT_INITIAL_QUEST_HYDRATION = `function takeInitialQuestEnvelope(){
+  const env = globalThis.__CAMBIUM_INITIAL_QUEST_ENVELOPE__;
+  globalThis.__CAMBIUM_INITIAL_QUEST_ENVELOPE__ = undefined;
+  if (!env || typeof env !== 'object' || Array.isArray(env)) return null;
+  if (env.schema !== 1 || env.tenant !== TENANT) return null;
+  if (typeof env.derivedAt !== 'string' || !Number.isFinite(Date.parse(env.derivedAt))) return null;
+  if (!env.ledger || typeof env.ledger !== 'object' || Array.isArray(env.ledger) || !Array.isArray(env.ledger.rows)) return null;
+  return env;
+}
+const INITIAL_QUEST_ENVELOPE = takeInitialQuestEnvelope();
+if (INITIAL_QUEST_ENVELOPE) paint(INITIAL_QUEST_ENVELOPE);`;
+
+export function injectInitialQuestHydration(page: string): string {
+  const markerIndex = page.indexOf(CLIENT_DATA_BOOT_MARKER);
+  if (markerIndex < 0 || markerIndex !== page.lastIndexOf(CLIENT_DATA_BOOT_MARKER)) {
+    throw new Error('quest page must contain exactly one client data boot marker');
+  }
+  return page.replace(
+    CLIENT_DATA_BOOT_MARKER,
+    `go(START_SCENE, true);\n${CLIENT_INITIAL_QUEST_HYDRATION}\nload();`,
+  );
+}
+
 export const CLIENT_DATA = `/* ── data ── */
 // radial 270deg gauge of real progress (arcs grown / total) — the gate's evidence dial
 function renderGauge(L){
@@ -46,33 +71,95 @@ function paint(env){
   else renderInspect(env);
   renderStory(env); renderGauge(env.ledger); freshness(env);
 }
+function setLedgerUnreachableState(){
+  ECOSYSTEM_ENV = null;
+  LEDGER = null;
+  $('stem').innerHTML =
+    '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Retry re-fetches ' + esc(REFRESH_ROUTE) + ' and performs no local write.</p></div>';
+  FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'offline' };
+  markFreshnessChip(REFRESH_ROUTE);
+  resetQuestSummary('ledger offline', 'retry fetch');
+  $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
+}
+function setAuthAccessState(){
+  ECOSYSTEM_ENV = null;
+  LEDGER = null;
+  $('stem').innerHTML =
+    '<div class="state"><b>authenticated access needed</b><p>this tenant ledger requires an authenticated session before data is shown.</p></div>';
+  FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'auth needed' };
+  markFreshnessChip(REFRESH_ROUTE);
+  resetQuestSummary('authentication required', 'authorize tenant');
+  $('fresh').textContent = 'auth'; $('fresh').classList.add('stale');
+}
+function setRouteUnavailableState(){
+  ECOSYSTEM_ENV = null;
+  LEDGER = null;
+  $('stem').innerHTML =
+    '<div class="state"><b>route unavailable</b><p>the requested tenant route is unavailable right now. Retry later.</p></div>';
+  FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'route missing' };
+  markFreshnessChip(REFRESH_ROUTE);
+  resetQuestSummary('ledger route unavailable', 'retry fetch');
+  $('fresh').textContent = 'missing'; $('fresh').classList.add('stale');
+}
+function setServiceUnavailableState(){
+  ECOSYSTEM_ENV = null;
+  LEDGER = null;
+  $('stem').innerHTML =
+    '<div class="state"><b>service unavailable</b><p>the service is unavailable and must retry before this tenant can refresh.</p></div>';
+  FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'service down' };
+  markFreshnessChip(REFRESH_ROUTE);
+  resetQuestSummary('service unavailable', 'retry fetch');
+  $('fresh').textContent = 'error'; $('fresh').classList.add('stale');
+}
+function onFetchFailure(){
+  setLedgerUnreachableState();
+}
+function fetchQuestEnvelope(){
+  const controller = typeof AbortController === 'function' ? new AbortController() : null;
+  const timeout = setTimeout(() => { if (controller) controller.abort(); }, 10000);
+  const options = {
+    ...(controller ? { signal: controller.signal } : {}),
+    headers: initData ? { 'x-telegram-init-data': initData } : {},
+  };
+  return fetch(REFRESH_ROUTE, options).finally(() => clearTimeout(timeout));
+}
 function load(){
-  return fetch(REFRESH_ROUTE).then(r => r.json()).then(env => {
-    if (!shouldPaintEnvelope(env)){
-      markStaleRefreshIgnored(env);
+  return fetchQuestEnvelope().then((r) => {
+    const status = Number(r && r.status) || 0;
+    if (status === 401 || status === 403) {
+      setAuthAccessState();
       return;
     }
-    if (!env.ledger){
-      ECOSYSTEM_ENV = env;
-      LEDGER = null;
-      $('stem').innerHTML =
-        '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>. No quest rows are rendered until a real ledger arrives.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
-      FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'empty ledger' };
-      markFreshnessChip('missing');
-      resetQuestSummary('empty ledger', 'push required');
-      $('fresh').textContent = 'empty'; $('fresh').classList.add('stale'); return;
+    if (status === 404) {
+      setRouteUnavailableState();
+      return;
     }
-    paint(env);
-  }).catch(() => {
-    ECOSYSTEM_ENV = null;
-    LEDGER = null;
-    $('stem').innerHTML =
-      '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Retry re-fetches ' + esc(REFRESH_ROUTE) + ' and performs no local write.</p></div>';
-    FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'offline' };
-    markFreshnessChip(REFRESH_ROUTE);
-    resetQuestSummary('ledger offline', 'retry fetch');
-    $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
-  });
+    if (status >= 500 && status <= 599) {
+      setServiceUnavailableState();
+      return;
+    }
+    if (!r.ok && status) {
+      setLedgerUnreachableState();
+      return;
+    }
+    return r.json().then((env) => {
+      if (!shouldPaintEnvelope(env)){
+        markStaleRefreshIgnored(env);
+        return;
+      }
+      if (!env.ledger){
+        ECOSYSTEM_ENV = env;
+        LEDGER = null;
+        $('stem').innerHTML =
+          '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>. No quest rows are rendered until a real ledger arrives.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
+        FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'empty ledger' };
+        markFreshnessChip('missing');
+        resetQuestSummary('empty ledger', 'push required');
+        $('fresh').textContent = 'empty'; $('fresh').classList.add('stale'); return;
+      }
+      paint(env);
+    });
+  }).catch(onFetchFailure);
 }
 function refresh(){ return load(); }
 go(START_SCENE, true);

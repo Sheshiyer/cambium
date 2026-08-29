@@ -3,55 +3,259 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cambium architecture · Urania</title>
+  <title>Cambium architecture · current system map</title>
   <style>
-    :root { color-scheme: dark; --bg:#020617; --panel:#0f172a; --ink:#e2e8f0; --muted:#94a3b8; --cyan:#22d3ee; --green:#34d399; --violet:#a78bfa; --amber:#fbbf24; --rose:#fb7185; --orange:#fb923c; }
-    * { box-sizing:border-box; }
-    body { margin:0; padding:32px; background:var(--bg); color:var(--ink); font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; background-image:linear-gradient(#1e293b33 1px,transparent 1px),linear-gradient(90deg,#1e293b33 1px,transparent 1px); background-size:40px 40px; }
+    :root {
+      color-scheme: light dark;
+      --bg: #f8fafc; --panel: #ffffff; --panel-2: #f1f5f9;
+      --ink: #0f172a; --muted: #64748b; --line: #cbd5e1; --grid: #e2e8f0;
+      --cyan: #0891b2; --green: #059669; --violet: #7c3aed;
+      --amber: #b45309; --rose: #be123c; --orange: #c2410c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #020617; --panel: #0f172a; --panel-2: #111c33;
+        --ink: #e2e8f0; --muted: #94a3b8; --line: #334155; --grid: #1e293b;
+        --cyan: #22d3ee; --green: #34d399; --violet: #a78bfa;
+        --amber: #fbbf24; --rose: #fb7185; --orange: #fb923c;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:32px; background:var(--bg); color:var(--ink); font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;
+           }
     main { max-width:1180px; margin:auto; }
-    header { display:flex; align-items:baseline; gap:14px; margin-bottom:20px; } h1 { margin:0; font-size:24px; } .dot { width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green); } .meta { color:var(--muted); font-size:11px; }
-    .diagram { background:#0f172ae8; border:1px solid #334155; border-radius:12px; padding:12px; overflow:auto; } svg { display:block; width:100%; min-width:900px; height:auto; }
-    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px; } .card { background:#0f172ae8; border:1px solid #334155; border-radius:10px; padding:16px; } .card h2 { margin:0 0 10px; font-size:14px; } .card p { margin:6px 0; color:var(--muted); font-size:12px; } a { color:var(--cyan); } footer { color:var(--muted); font-size:11px; margin-top:18px; }
-    @media (max-width:760px) { body { padding:16px; } .cards { grid-template-columns:1fr; } }
+    header { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+    h1 { margin:0; font-size:24px; } .dot { width:10px; height:10px; border-radius:50%; background:var(--green); align-self:center; }
+    .meta { color:var(--muted); font-size:11px; }
+    section.panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-top:16px; overflow-x:auto; }
+    h2 { margin:0 0 10px; font-size:15px; letter-spacing:.02em; }
+    h3 { margin:14px 0 6px; font-size:13px; }
+    p { margin:6px 0; } a { color:var(--cyan); }
+    table { width:100%; border-collapse:collapse; font-size:12px; min-width:720px; }
+    th, td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); vertical-align:top; }
+    th { color:var(--muted); font-weight:600; white-space:nowrap; }
+    code { background:var(--panel-2); border:1px solid var(--line); border-radius:4px; padding:1px 5px; font-size:11px; }
+    ul { margin:6px 0; padding-left:20px; } li { margin:3px 0; }
+    .diagram svg { display:block; width:100%; min-width:900px; height:auto; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+    .card h3 { margin-top:0; }
+    .tag { display:inline-block; font-size:10px; border:1px solid var(--line); border-radius:999px; padding:1px 8px; color:var(--muted); vertical-align:middle; }
+    footer { color:var(--muted); font-size:11px; margin:18px 0 6px; }
+    @media (max-width:760px) { body { padding:16px; } .cards { grid-template-columns:1fr; } table { min-width:560px; } }
   </style>
 </head>
 <body>
 <main>
-  <header><span class="dot" aria-hidden="true"></span><h1>Cambium · current architecture</h1><span class="meta">v0.3.0 Urania / main · refreshed 2026-07-22</span></header>
-  <section class="diagram" aria-label="Cambium architecture diagram">
-    <svg viewBox="0 0 1120 570" role="img" aria-labelledby="title desc">
-      <title id="title">Cambium composition, runtime, and visual planes</title>
-      <desc id="desc">A contract-driven composition and operator plane feeds a tenant Worker and a desktop R3F visual engine. The Worker binds D1, KV, R2, and Vectorize and exposes bounded lead and marketing contracts.</desc>
+  <header>
+    <span class="dot" aria-hidden="true"></span>
+    <h1>Cambium · current architecture</h1>
+    <span class="meta">regenerated 2026-08-22 · supersedes the 2026-07-22 refresh · adds intent graph, Temperance flow, and Goal Graph operating model</span>
+  </header>
+
+  <!-- ===================== 1. SERVICES INVENTORY ===================== -->
+  <section class="panel" aria-labelledby="svc">
+    <h2 id="svc">1 · Services inventory</h2>
+    <p>Source-backed surfaces from <a href="SERVICES.md">SERVICES.md</a>. Status separates implemented code from separately governed deployment.</p>
+    <table>
+      <tr><th>Surface</th><th>Source / config</th><th>Boundary and resources</th><th>Status</th></tr>
+      <tr>
+        <td><strong>Cambium Quests Worker</strong></td>
+        <td><code>workers/quests/src/index.ts</code> · <code>wrangler.jsonc</code></td>
+        <td>Cloudflare Worker; D1 <code>cambium-bridge</code>, KV <code>QUESTS</code>, R2 <code>THOUGHTSEED_VAULT</code> + <code>CONTEXT_PROJECTIONS</code>, Vectorize <code>CAMBIUM_CORTEX</code></td>
+        <td>implemented; deployment separately governed</td>
+      </tr>
+      <tr>
+        <td><strong>R3F visual engine</strong></td>
+        <td><code>apps/cambium-r3f/</code></td>
+        <td>Vite + React + React Three Fiber desktop constellation surface; shared generated source contract; MAP / SHEETS / WORKFORCE views with synthetic fallback</td>
+        <td>published in v0.3.0 Urania; desktop QA boundary</td>
+      </tr>
+      <tr>
+        <td><strong>Electron desktop shell</strong></td>
+        <td><code>apps/cambium-r3f/desktop/</code></td>
+        <td>Secure local <code>cambium://</code> protocol, sandboxed BrowserWindow, narrow preload, macOS DMG/ZIP packaging; never bundles Worker credentials</td>
+        <td>implemented on current main; signing/notarization separately governed</td>
+      </tr>
+      <tr>
+        <td><strong>Composition / operator CLI</strong></td>
+        <td><code>bin/compose.mjs</code> · <code>bin/operator/</code></td>
+        <td>Local zero-dependency plan/validate/run boundary; tenant-scoped infinite-game wake loop (ingest → route → act → viability → learn → persist)</td>
+        <td>active</td>
+      </tr>
+      <tr>
+        <td><strong>Goal Graph compiler + store</strong></td>
+        <td><code>goal-graph/types.ts</code>, <code>identity.ts</code>, <code>compiler.ts</code>, <code>projection-contract.ts</code>, <code>goal-graph-store.ts</code>, <code>goal-graph-intake.ts</code></td>
+        <td>Deterministic node identity, approval-bound D1 CAS commits, bounded Telegram intake, versioned projection envelope (<code>cambium.goal-graph-projection.v1</code>)</td>
+        <td>implemented; Telegram intake edge wired and live behind founder-signed gate</td>
+      </tr>
+    </table>
+
+    <h3>External and provider boundaries</h3>
+    <table>
+      <tr><th>Boundary</th><th>Authority and safety posture</th></tr>
+      <tr><td>NVIDIA context embeddings (optional provider via Worker binding + key)</td><td>provider-bound; tests use injected doubles and local fallbacks</td></tr>
+      <tr><td>IVerif Explee lead observer</td><td>fixed campaign, GET-only, redacted projections, <code>sendEligible=false</code></td></tr>
+      <tr><td>Marketing Create renderer (NVIDIA-backed)</td><td>registered disabled, review-only draft output, not deployed, no publication authority</td></tr>
+      <tr><td>Plexus GitHub-App gateway (separate Worker)</td><td>verified-repo knowledge reads with short-lived scoped tokens and commit-SHA provenance; Cambium itself holds no GitHub credential</td></tr>
+      <tr><td>Hermes execution lane</td><td>consumes admitted directives only; held behind mapping receipts and gates in the integration spine</td></tr>
+      <tr><td>GitHub Actions CI</td><td>deterministic release verification plus separate macOS packaging artifact and transient live-readiness evidence</td></tr>
+    </table>
+  </section>
+
+  <!-- ===================== 2. DATA FLOWS ===================== -->
+  <section class="panel diagram" aria-labelledby="flow">
+    <h2 id="flow">2 · Data flows between services</h2>
+    <p>The composition/operator plane plans; the runtime plane executes and receipts; projections observe without authority.</p>
+    <svg viewBox="0 0 1120 600" role="img" aria-labelledby="t d">
+      <title id="t">Cambium composition, runtime, goal-graph, and projection planes</title>
+      <desc id="d">The composition/operator CLI feeds a tenant Quests Worker which reads company knowledge through the Plexus gateway and persists to D1, KV, R2, and Vectorize. The D1 Goal Graph is the sole operational writer behind approval-bound commits. Read-only intent-graph and temperance-flow projections observe durable sources without writing them.</desc>
       <defs>
-        <marker id="arrow-cyan" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#22d3ee"/></marker>
-        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#34d399"/></marker>
-        <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#fbbf24"/></marker>
+        <marker id="a-cyan" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" style="fill:var(--cyan)"/></marker>
+        <marker id="a-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" style="fill:var(--green)"/></marker>
+        <marker id="a-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" style="fill:var(--amber)"/></marker>
+        <marker id="a-violet" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" style="fill:var(--violet)"/></marker>
       </defs>
-      <rect x="0" y="0" width="1120" height="570" fill="#020617"/>
-      <g stroke="#1e293b" stroke-width="1" opacity=".8">
-        <path d="M0 40H1120M0 80H1120M0 120H1120M0 160H1120M0 200H1120M0 240H1120M0 280H1120M0 320H1120M0 360H1120M0 400H1120M0 440H1120M0 480H1120M0 520H1120"/>
-        <path d="M40 0V570M80 0V570M120 0V570M160 0V570M200 0V570M240 0V570M280 0V570M320 0V570M360 0V570M400 0V570M440 0V570M480 0V570M520 0V570M560 0V570M600 0V570M640 0V570M680 0V570M720 0V570M760 0V570M800 0V570M840 0V570M880 0V570M920 0V570M960 0V570M1000 0V570M1040 0V570M1080 0V570"/>
-      </g>
-      <path d="M280 170 C430 170 470 170 570 170 S710 170 840 170" fill="none" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrow-cyan)"/>
-      <path d="M570 265 V370" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#arrow-green)"/>
-      <path d="M840 265 V370" fill="none" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow-amber)"/>
-      <path d="M840 470 H720" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#arrow-green)"/>
-
-      <g transform="translate(60 70)"><rect width="250" height="220" rx="10" fill="#0f172a" stroke="#22d3ee" stroke-width="1.5"/><text x="18" y="28" fill="#22d3ee" font-size="13">COMPOSITION / OPERATOR</text><text x="18" y="58" fill="#e2e8f0" font-size="12">registry + contracts</text><text x="18" y="82" fill="#94a3b8" font-size="11">bin/compose.mjs</text><text x="18" y="120" fill="#e2e8f0" font-size="12">tenant wake loop</text><text x="18" y="144" fill="#94a3b8" font-size="11">bin/operator/</text><text x="18" y="182" fill="#e2e8f0" font-size="12">Quine + Cortex seam</text><text x="18" y="206" fill="#94a3b8" font-size="11">local SQLite / Vectorize adapter</text></g>
-      <g transform="translate(435 70)"><rect width="270" height="220" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/><text x="18" y="28" fill="#34d399" font-size="13">QUESTS WORKER</text><text x="18" y="58" fill="#e2e8f0" font-size="12">tenant-scoped runtime boundary</text><text x="18" y="90" fill="#94a3b8" font-size="11">D1 · KV · R2 · Vectorize</text><text x="18" y="130" fill="#e2e8f0" font-size="12">RBAC + invite identity</text><text x="18" y="154" fill="#94a3b8" font-size="11">absence-based envelope filtering</text><text x="18" y="194" fill="#e2e8f0" font-size="12">actions, receipts, lead spine</text></g>
-      <g transform="translate(810 70)"><rect width="250" height="220" rx="10" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/><text x="18" y="28" fill="#fbbf24" font-size="13">R3F VISUAL ENGINE</text><text x="18" y="58" fill="#e2e8f0" font-size="12">desktop constellation surface</text><text x="18" y="90" fill="#94a3b8" font-size="11">MAP · SHEETS · WORKFORCE</text><text x="18" y="130" fill="#e2e8f0" font-size="12">shared generated contract</text><text x="18" y="154" fill="#94a3b8" font-size="11">synthetic fallback when offline</text><text x="18" y="194" fill="#e2e8f0" font-size="12">signed-action UI + audit context</text></g>
-
-      <g transform="translate(435 370)"><rect width="270" height="120" rx="10" fill="#0f172a" stroke="#a78bfa" stroke-width="1.5"/><text x="18" y="28" fill="#a78bfa" font-size="13">DURABLE DATA</text><text x="18" y="58" fill="#e2e8f0" font-size="12">identity · tasks · receipts</text><text x="18" y="82" fill="#94a3b8" font-size="11">immutable observation + usage</text><text x="18" y="104" fill="#94a3b8" font-size="11">tenant partitioning · fencing</text></g>
-      <g transform="translate(810 370)"><rect width="250" height="120" rx="10" fill="#0f172a" stroke="#fb7185" stroke-width="1.5"/><text x="18" y="28" fill="#fb7185" font-size="13">GOVERNED ADAPTERS</text><text x="18" y="58" fill="#e2e8f0" font-size="12">IVerif observer · GET only</text><text x="18" y="82" fill="#94a3b8" font-size="11">Marketing Create · draft only</text><text x="18" y="104" fill="#94a3b8" font-size="11">no send · no publish · no schedule</text></g>
-      <text x="40" y="540" fill="#94a3b8" font-size="10">cyan composition flow · green runtime/data · amber visual surface · rose safety boundary</text>
+      <!-- flows -->
+      <path d="M280 150 H420" fill="none" style="stroke:var(--cyan)" stroke-width="2" marker-end="url(#a-cyan)"/>
+      <path d="M555 250 V330" fill="none" style="stroke:var(--green)" stroke-width="2" marker-end="url(#a-green)"/>
+      <path d="M690 190 C760 190 770 220 830 220" fill="none" style="stroke:var(--amber)" stroke-width="2" marker-end="url(#a-amber)"/>
+      <path d="M555 450 V520" fill="none" style="stroke:var(--violet)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a-violet)"/>
+      <path d="M280 380 C200 380 200 300 300 262" fill="none" style="stroke:var(--green)" stroke-width="2" marker-end="url(#a-green)"/>
+      <!-- nodes -->
+      <g transform="translate(50 80)"><rect width="230" height="140" rx="10"  style="fill:var(--panel);stroke:var(--cyan)" stroke-width="1.5"/>
+        <text x="16" y="26"  font-size="13" style="fill:var(--cyan)">COMPOSITION / OPERATOR</text>
+        <text x="16" y="52"  font-size="11" style="fill:var(--ink)">registry + contracts + organ pipeline</text>
+        <text x="16" y="74"  font-size="10" style="fill:var(--muted)">bin/compose.mjs · bin/operator/</text>
+        <text x="16" y="98"  font-size="11" style="fill:var(--ink)">spend-gated stages, tenant wake loop</text>
+        <text x="16" y="120"  font-size="10" style="fill:var(--muted)">local SQLite / Vectorize adapter seam</text></g>
+      <g transform="translate(420 80)"><rect width="270" height="170" rx="10"  style="fill:var(--panel);stroke:var(--green)" stroke-width="1.5"/>
+        <text x="16" y="26"  font-size="13" style="fill:var(--green)">QUESTS WORKER (tenant boundary)</text>
+        <text x="16" y="54"  font-size="11" style="fill:var(--ink)">quests, directives, action receipts</text>
+        <text x="16" y="76"  font-size="10" style="fill:var(--muted)">lead runtime · proactive loop · standups</text>
+        <text x="16" y="98"  font-size="11" style="fill:var(--ink)">context embeddings + cortex ingest</text>
+        <text x="16" y="120"  font-size="10" style="fill:var(--muted)">goal-graph intake (bounded KV proposal)</text>
+        <text x="16" y="148"  font-size="11" style="fill:var(--ink)">no GitHub credential held here</text></g>
+      <g transform="translate(830 150)"><rect width="240" height="140" rx="10"  style="fill:var(--panel);stroke:var(--amber)" stroke-width="1.5"/>
+        <text x="16" y="26"  font-size="13" style="fill:var(--amber)">VISUAL SURFACES</text>
+        <text x="16" y="52"  font-size="11" style="fill:var(--ink)">R3F desktop constellation + shell</text>
+        <text x="16" y="76"  font-size="10" style="fill:var(--muted)">Telegram Mini App pages</text>
+        <text x="16" y="100"  font-size="11" style="fill:var(--ink)">signed-action UI, synthetic fallback</text>
+        <text x="16" y="122"  font-size="10" style="fill:var(--muted)">consumes shared contracts only</text></g>
+      <g transform="translate(420 330)"><rect width="270" height="120" rx="10"  style="fill:var(--panel);stroke:var(--green)" stroke-width="1.5"/>
+        <text x="16" y="26"  font-size="13" style="fill:var(--green)">DURABLE STATE</text>
+        <text x="16" y="52"  font-size="11" style="fill:var(--ink)">D1 bridge DB · KV quests/proposals</text>
+        <text x="16" y="74"  font-size="10" style="fill:var(--muted)">R2 vault + context projections</text>
+        <text x="16" y="96"  font-size="11" style="fill:var(--ink)">Vectorize cortex index</text></g>
+      <g transform="translate(420 520)"><rect width="270" height="64" rx="10"  style="fill:var(--panel);stroke:var(--violet)" stroke-width="1.5"/>
+        <text x="16" y="26"  font-size="13" style="fill:var(--violet)">D1 GOAL GRAPH — SOLE WRITER</text>
+        <text x="16" y="48"  font-size="10" style="fill:var(--muted)">approval digest + CAS revision check</text></g>
+      <g transform="translate(50 330)"><rect width="230" height="160" rx="10"  style="fill:var(--panel);stroke:var(--violet)" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <text x="16" y="26"  font-size="13" style="fill:var(--violet)">READ-ONLY PROJECTIONS</text>
+        <text x="16" y="52"  font-size="11" style="fill:var(--ink)">intent-graph (vision→mission→goals</text>
+        <text x="16" y="72"  font-size="11" style="fill:var(--ink)">→tasks→evidence→learning)</text>
+        <text x="16" y="96"  font-size="11" style="fill:var(--ink)">temperance-flow (next action,</text>
+        <text x="16" y="116"  font-size="10" style="fill:var(--muted)">route, gates, freshness, blocked)</text>
+        <text x="16" y="142"  font-size="10" style="fill:var(--muted)">observe only — cannot write truth</text></g>
+      <g transform="translate(830 350)"><rect width="240" height="110" rx="10"  style="fill:var(--panel);stroke:var(--cyan)" stroke-width="1.5"/>
+        <text x="16" y="26"  font-size="13" style="fill:var(--cyan)">PLEXUS GATEWAY (external Worker)</text>
+        <text x="16" y="52"  font-size="11" style="fill:var(--ink)">verified repo → bounded excerpt</text>
+        <text x="16" y="74"  font-size="10" style="fill:var(--muted)">short-lived scoped token · one commit</text>
+        <text x="16" y="96"  font-size="10" style="fill:var(--muted)">file-SHA provenance returned</text></g>
+      <text x="40" y="592"  font-size="10" style="fill:var(--muted)">cyan: plan flow · green: runtime/data flow · amber: visual consumption · violet dashed: observation/foldback through approved gates only</text>
     </svg>
+    <ul>
+      <li><strong>Plan flow:</strong> compose/operator validates registry, pipeline, adapters, and spend gates locally before any runtime invocation.</li>
+      <li><strong>Runtime flow:</strong> the Quests Worker serves quest envelopes, directives, action receipts, lead runs, and context routes under tenant scoping.</li>
+      <li><strong>Knowledge flow:</strong> company knowledge enters only through the Plexus GitHub-App gateway as redacted excerpts bound to exact commit SHAs.</li>
+      <li><strong>Foldback flow:</strong> evidence and learning may inform future intents only through signed Gate approval plus the D1 compare-and-set path — projections can never feed themselves back as fresh authority (fail-closed).</li>
+      <li><strong>Integration spine:</strong> portfolio identity → typed systems graph → mapping receipt → reviewed packet → D1 admission → loadout pin → Hermes execution → terminal receipt → foldback proposal (see <a href="../../INTEGRATION.md">INTEGRATION.md</a>).</li>
+    </ul>
   </section>
-  <section class="cards">
-    <article class="card"><h2 style="color:var(--cyan)">Source of truth</h2><p>Implementation and tests live under <a href="../../workers/quests/">workers/quests</a>, <a href="../../apps/cambium-r3f/">apps/cambium-r3f</a>, and <a href="../../bin/">bin/</a>.</p></article>
-    <article class="card"><h2 style="color:var(--rose)">Safety boundary</h2><p>IVerif is redacted and GET-only. Marketing Create returns review-only drafts and is registered disabled.</p></article>
-    <article class="card"><h2 style="color:var(--amber)">Verification</h2><p>Run <a href="../../package.json">npm run verify:release</a>; live-readiness output is transient CI evidence, not committed product truth.</p></article>
+
+  <!-- ===================== 3. MODULE DEPENDENCIES ===================== -->
+  <section class="panel" aria-labelledby="deps">
+    <h2 id="deps">3 · Internal module dependencies</h2>
+    <p>Aggregated import edges from <a href="DEPENDENCY-GRAPH.md">DEPENDENCY-GRAPH.md</a> (232 source files scanned; edges roll up to top-level directories).</p>
+    <table>
+      <tr><th>From</th><th>To</th><th>Imports</th><th>Reading</th></tr>
+      <tr><td><code>scripts</code></td><td><code>bin</code></td><td>9</td><td>verification scripts exercise the operator/compose entrypoints directly</td></tr>
+      <tr><td><code>apps</code></td><td><code>shared</code></td><td>8</td><td>the R3F surface consumes shared generated contracts, not Worker internals</td></tr>
+      <tr><td><code>bin</code></td><td><code>scripts</code></td><td>6</td><td>operator tooling reuses script helpers for validation and probes</td></tr>
+      <tr><td><code>workers</code></td><td><code>shared</code></td><td>3</td><td>the Worker shares contract types with the rest of the repo</td></tr>
+      <tr><td><code>bin</code></td><td><code>shared</code></td><td>1</td><td>narrow shared-type usage from operator tooling</td></tr>
+      <tr><td><code>workers</code></td><td><code>bin</code></td><td>1</td><td>single deliberate reuse of an operator helper inside the Worker</td></tr>
+    </table>
+    <p style="margin-top:10px">Shape: <code>shared</code> is the dependency sink for both <code>apps</code> and <code>workers</code>; <code>scripts</code> ↔ <code>bin</code> form the verification loop; nothing outside these six edges crosses top-level boundaries, keeping the visual plane decoupled from the runtime plane by construction.</p>
   </section>
-  <footer>Generated during the 2026-07-22 architecture refresh. Narrative context: <a href="../../ARCHITECTURE.md">ARCHITECTURE.md</a> · inventory: <a href="SERVICES.md">SERVICES.md</a> · graph: <a href="DEPENDENCY-GRAPH.md">DEPENDENCY-GRAPH.md</a></footer>
+
+  <!-- ===================== 4. DEPLOYMENT TOPOLOGY ===================== -->
+  <section class="panel" aria-labelledby="deploy">
+    <h2 id="deploy">4 · Deployment topology — Cloudflare Workers bindings</h2>
+    <p>Declared in <code>workers/quests/wrangler.jsonc</code>. Resource identifiers are deliberately omitted here; the manifest is authoritative.</p>
+    <table>
+      <tr><th>Binding</th><th>Type</th><th>Purpose</th></tr>
+      <tr><td><code>BRIDGE_DB</code></td><td>D1 database (<code>cambium-bridge</code>)</td><td>Sole operational writer surface: quests, tasks, identity, receipts, Goal Graph versions/approvals, migrations</td></tr>
+      <tr><td><code>QUESTS</code></td><td>KV namespace</td><td>Quest envelopes, bounded pending goal-graph proposals, proactive-loop delivery state</td></tr>
+      <tr><td><code>THOUGHTSEED_VAULT</code></td><td>R2 bucket</td><td>Vault archive and immutable run/mapping evidence</td></tr>
+      <tr><td><code>CONTEXT_PROJECTIONS</code></td><td>R2 bucket</td><td>Bounded context projection snapshots</td></tr>
+      <tr><td><code>CAMBIUM_CORTEX</code></td><td>Vectorize index</td><td>Semantic memory retrieval (1024-d embeddings; provider-bound with local test doubles)</td></tr>
+      <tr><td>cron trigger</td><td>scheduled event</td><td>Six-hourly tick drives the routine snapshot / proactive-loop path</td></tr>
+    </table>
+    <ul>
+      <li><strong>Vars:</strong> tenant allowlist, embedding provider/model selection, external command-code and identity-gateway URLs (values live only in the manifest, never in this document).</li>
+      <li><strong>Observability:</strong> enabled at the Worker level; live-readiness output remains transient CI evidence rather than committed product truth.</li>
+      <li><strong>Governance:</strong> production deployment stays a separate owner-approved, rollback-gated action; CI proves correctness but does not promote.</li>
+      <li><strong>Desktop:</strong> the Electron shell ships without any Worker credential; it renders over a sandboxed local protocol.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== 5. GOAL GRAPH OPERATING MODEL ===================== -->
+  <section class="panel" aria-labelledby="gg">
+    <h2 id="gg">5 · Intent Graph, Temperance flow, and GSD operating model</h2>
+    <p>Added since the previous refresh. Full contracts: <a href="goal-graph-operating-model.md">goal-graph-operating-model.md</a>, <a href="intent-graph.md">intent-graph.md</a>, <a href="temperance-flow.md">temperance-flow.md</a>.</p>
+    <div class="cards" style="grid-template-columns:repeat(3,1fr)">
+      <article class="card">
+        <h3 style="color:var(--violet)">Intent Graph <span class="tag">read-only</span></h3>
+        <p>Deterministic projection of vision → mission → finite goals → tasks → evidence → learning. Every node carries source path, named authority, lifecycle, digest. It can inspect but never set doctrine or approve work (<code>cambium.intent-graph-projection.v1</code>).</p>
+      </article>
+      <article class="card">
+        <h3 style="color:var(--cyan)">Temperance flow <span class="tag">read-only</span></h3>
+        <p>Derives one exact next action from authority precedence (ISA goal → GSD state → active plan), exposing route, combo/lane intent, gates, freshness, stop conditions, and blocked reasons. Ambiguity yields <code>blocked</code>, never a competing plan.</p>
+      </article>
+      <article class="card">
+        <h3 style="color:var(--green)">GSD phases 3–7 <span class="tag">operating model</span></h3>
+        <p>Phase 3 canonical anchors · Phase 4 provenance-preserving intent graph · Phase 5 Ralph + Temperance flow projection · Phase 6 documentation stewardship · Phase 7 deterministic safety and handoff (rejects authority drift, stale or sensitive projections; reviewed handoff closes each phase).</p>
+      </article>
+    </div>
+    <ul style="margin-top:12px">
+      <li><strong>Approval-bound commits:</strong> tenant, source reference, node set, policy decision, actor, and expiry bind into an approval digest; commits apply only when digest, approval, and writer lease still match the expected graph revision.</li>
+      <li><strong>Pinned execution:</strong> graph version, policy/catalog version, and adapter version are pinned per task and receipt; retries replay that identity exactly.</li>
+      <li><strong>Reconciliation:</strong> split/merge lineage stops for human review — proof is never inherited by guessing.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== 6. BUSINESS OBJECTIVES ===================== -->
+  <section class="panel" aria-labelledby="goal">
+    <h2 id="goal">6 · Business objective (ISA Goal)</h2>
+    <blockquote style="border-left:3px solid var(--green); margin:8px 0; padding:4px 14px; color:var(--ink)">
+      Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose next actions, skill-cluster and gateway flows, gates, and stop conditions through Temperance.
+    </blockquote>
+    <ul>
+      <li><strong>Product promise:</strong> an idea goes in; a self-running, on-brand business comes out. The composition layer makes the first launch; the operator keeps the venture alive as an infinite game.</li>
+      <li><strong>Business model:</strong> the left brain (build) is free; the right brain (taste + brand memory) is the subscription — compounding brand memory is the moat.</li>
+      <li><strong>Fractal shape:</strong> the same operating pattern scales from founder-led business to marketing team to AI-first product, runnable from synthetic demo tenants without private data.</li>
+      <li><strong>Standing safety claims:</strong> no automatic outreach, no publication, no recurring engagement schedules, no unreviewed paid-provider calls — every such surface is fail-closed until a signed gate opens it.</li>
+    </ul>
+  </section>
+
+  <div class="cards">
+    <article class="card"><h3 style="color:var(--cyan)">Source of truth</h3><p>Implementation and tests under <code>workers/quests/</code>, <code>apps/cambium-r3f/</code>, <code>bin/</code>; doctrine in VISION/MISSION/ISA; planning in GSD state and roadmap.</p></article>
+    <article class="card"><h3 style="color:var(--rose)">Safety boundary</h3><p>Projections observe; only the D1 Goal Graph writes graph truth, behind approval digests and CAS revision checks.</p></article>
+    <article class="card"><h3 style="color:var(--amber)">Verification</h3><p>Deterministic release gate covers core suite, Worker contracts, docs drift, standalone audit, R3F tests/build, packaging contract, and visual proof.</p></article>
+  </div>
+
+  <footer>Regenerated 2026-08-22 during the housekeeping architecture refresh. Narrative: ARCHITECTURE.md · inventory: SERVICES.md · graph: DEPENDENCY-GRAPH.md · operating model: goal-graph-operating-model.md · intent: intent-graph.md · flow: temperance-flow.md</footer>
 </main>
 </body>
 </html>

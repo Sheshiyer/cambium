@@ -14,6 +14,19 @@ never a second workflow engine and never acquires write authority over any
 source. Consumers render it; they may not mutate it or treat it as evidence of
 a state transition.
 
+### Mission terminology boundary
+
+| Term | Scope and source | Authority and inheritance |
+| --- | --- | --- |
+| **Repository Mission** | Cambium's singular renewable doctrine horizon in root [`MISSION.md`](../../../MISSION.md) | Doctrine only; it is not a Goal Graph record, planner, runtime contract, or UI state. |
+| **`FabricMission`** | An outcome-bounded D1 Goal Graph child record inside exactly one `WorkObject` | D1 Goal Graph owns operational state; this contract only compiles and serves the record read-only. |
+| **Mission scene** | The UI destination that renders the projection | It has no doctrine or write authority. |
+
+No automatic content or authority inheritance exists among these meanings. A
+`FabricMission` does not inherit, replace, rewrite, or close the Repository Mission.
+Mission Fabric remains a read-only compiler and serving boundary, not
+a planner or writer.
+
 This contract freezes the public projection shape so that the compiler, the
 Worker route, and the Telegram Mini App can be built in parallel without
 renaming fields or edge vocabulary.

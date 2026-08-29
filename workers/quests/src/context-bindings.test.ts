@@ -136,7 +136,7 @@ test('routine adapter reports blocked-no-signal when projection binding is missi
   assert.match(section.items[0].summary, /projection bucket binding is unavailable/i);
 });
 
-test('worker routine reads only CONTEXT_PROJECTIONS and never THOUGHTSEED_VAULT', async () => {
+test('worker routine knowledge ignores legacy R2 bindings when GitHub is not configured', async () => {
   const projectionCalls: string[] = [];
   let vaultCalled = false;
   const stored = await projectionEnvelope();
@@ -161,13 +161,13 @@ test('worker routine reads only CONTEXT_PROJECTIONS and never THOUGHTSEED_VAULT'
   }) as any);
 
   assert.equal(response.status, 200);
-  assert.deepEqual(projectionCalls, [CONTEXT_PROJECTION_KEY]);
+  assert.deepEqual(projectionCalls, []);
   assert.equal(vaultCalled, false);
   const payload = await response.json() as any;
-  assert.equal(payload.sections[0].signalState, 'current');
+  assert.deepEqual(payload.sections, []);
 });
 
-test('worker projection write persists through CONTEXT_PROJECTIONS with its dedicated token', async () => {
+test('worker accepts authenticated context projection writes', async () => {
   let write: { key: string; value: Uint8Array; options: unknown } | undefined;
   const body = await projectionEnvelope();
   const response = await worker.fetch(new Request('https://worker.local/v1/context/projections', {
@@ -192,7 +192,14 @@ test('worker projection write persists through CONTEXT_PROJECTIONS with its dedi
   assert.equal(response.headers.get('cache-control'), 'no-store');
   assert.equal(write?.key, CONTEXT_PROJECTION_KEY);
   assert.equal(new TextDecoder().decode(write?.value), JSON.stringify(body));
-  assert.doesNotMatch(await response.text(), /markdown|bucket|metadata|Bounded evidence/i);
+  assert.deepEqual(write?.options, {
+    onlyIf: { etagDoesNotMatch: '*' },
+    httpMetadata: { contentType: 'application/json' },
+  });
+  const receipt = await response.json() as Record<string, unknown>;
+  assert.equal(receipt.key, CONTEXT_PROJECTION_KEY);
+  assert.equal(receipt.generation, body.generation);
+  assert.equal('markdown' in receipt, false);
 });
 
 test('routine adapter reads only explicit safe exact keys and blocks raw non-envelope objects', async () => {
@@ -590,7 +597,7 @@ test('summarizeMarkdown returns bounded plain text', () => {
   assert.doesNotMatch(summary, /```|https:\/\/example.com/);
 });
 
-test('worker runtime preserves query params for routine snapshots', async () => {
+test('worker runtime preserves query params while refusing legacy R2 reads', async () => {
   const calls: string[] = [];
   const stored = await projectionEnvelope();
   const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
@@ -607,10 +614,10 @@ test('worker runtime preserves query params for routine snapshots', async () => 
   }) as any);
 
   assert.equal(response.status, 200);
-  assert.deepEqual(calls, [CONTEXT_PROJECTION_KEY]);
+  assert.deepEqual(calls, []);
   const payload = await response.json() as any;
   assert.equal(payload.routine, 'daily-standup-digest');
-  assert.equal(payload.sections[0].items[0].summary, 'Daily Standup Bounded evidence');
+  assert.deepEqual(payload.sections, []);
 });
 
 test('worker rejects unauthenticated weekly report before any projection read', async () => {
@@ -665,11 +672,10 @@ test('weekly-only runtime configuration preserves daily standup blocked defaults
   assert.equal(called, false);
   const payload = await response.json() as any;
   assert.equal(payload.routine, 'daily-standup-digest');
-  assert.equal(payload.sections.length, 1);
-  assert.equal(payload.sections[0].signalState, 'blocked-no-signal');
+  assert.equal(payload.sections.length, 0);
 });
 
-test('worker runtime exposes explicit blocked-no-signal without projection binding', async () => {
+test('worker runtime exposes an empty fail-closed knowledge surface without GitHub configuration', async () => {
   const health = await worker.fetch(new Request('https://worker.local/v1/context/health', {
     headers: { authorization: 'Bearer context-token' },
   }), fakeWorkerEnv({
@@ -690,8 +696,7 @@ test('worker runtime exposes explicit blocked-no-signal without projection bindi
 
   assert.equal(snapshot.status, 200);
   const snapshotPayload = await snapshot.json() as any;
-  assert.equal(snapshotPayload.sections[0].signalState, 'blocked-no-signal');
-  assert.match(snapshotPayload.sections[0].items[0].summary, /projection bucket binding is unavailable/i);
+  assert.deepEqual(snapshotPayload.sections, []);
 });
 
 test('worker runtime fails closed without explicit context tenant policy', async () => {

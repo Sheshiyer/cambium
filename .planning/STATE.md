@@ -1,31 +1,47 @@
+---
+gsd_state_version: 1.0
+milestone: v0.4
+milestone_name: Cambium Infinite-Game Doctrine and Intent Graph
+status: executing
+stopped_at: Phase 7 verified — VERIFICATION.md recorded; milestone closeout pending
+last_updated: "2026-08-22T00:00:00.000Z"
+last_activity: 2026-08-22 -- Phase 7 verify-work complete (VERIFICATION.md recorded; merge-safe phase_base_sha resolution landed)
+progress:
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 16
+  completed_plans: 16
+  percent: 100
+---
+
 # Project State
 
-> This planning slice is complete and historical. Use the root `ISA.md`, `README.md`, and current
-> architecture/runbook surfaces for present acceptance and runtime truth; do not treat this file as a
-> current feature backlog.
+> The root `ISA.md` remains the acceptance source of record. GSD tracks finite execution state and does not become a third goal authority.
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17)
+See: .planning/PROJECT.md (updated 2026-08-19)
 
 **Core value:** An operator action counts only when its durable task, lease, artifact, outcome, and readback agree.
-**Current focus:** Telegram Operator Intake
+**Current focus:** Phase 7 — Deterministic Safety and Handoff
 
 ## Current Position
 
-Phase: 2 of 2 (Telegram Operator Intake)
-Plan: 1 of 1 in current phase
-Status: Complete
-Last activity: 2026-07-17 — feature-gated Telegram intake and redacted D1 status passed live replay, rollback, health, allowlist, and access-revocation proof.
+Phase: 7 (Deterministic Safety and Handoff) — VERIFIED
+Plan: 3 of 3
+Status: Verification complete
+Last activity: 2026-08-21
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 39 min
-- Total execution time: 0.65 hours
+
+- Historical plans completed: 2
+- v0.4 plans completed: 9
+- Historical average duration: 39 min
+- Historical execution time: 0.65 hours
 
 ## Accumulated Context
 
@@ -33,20 +49,53 @@ Progress: [██████████] 100%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
-- D1 remains lease and terminal-state authority.
-- Hermes remains the durable EC2 poller and supervisor.
-- The live canary is synthetic and stops at awaiting human approval.
+- Root `VISION.md` and renewable root `MISSION.md` are the canonical doctrine anchors.
+- Repository Mission and bounded `FabricMission` nodes have distinct authority and inheritance semantics.
+- ISA and GSD remain the only goal and planning authorities.
+- Historical v0.3 phases remain read-only evidence; v0.4 preserves their numbering and continues with Phase 4.
+- [Phase 04]: Intent graph node identity excludes mutable content; exact selected-source digests carry revision. — Stable semantic references must not hide source revision.
+- [Phase 04]: The intent projection remains read_only and cannot fold back into ISA, GSD, doctrine, or the D1 Goal Graph. — Projection output is evidence for inspection, never fresh authority or an operational command.
+- [Phase 04]: One declared repository source model feeds one compiler invocation and both committed readbacks.
+- [Phase 04]: D1 Goal Graph remains the sole operational writer; generated intent-graph outputs remain read_only projections.
+- [Phase 04]: Mutable Roadmap and ISA tracking fields are excluded while exact Phase Goal, ISA task, and reviewed-decision selectors remain content-addressed.
+- [Phase 04]: D1 remains the sole operational graph writer; the intent graph is a read-only cross-authority projection that cannot enter D1's command lane. — Projection output is inspection evidence, never an operational command.
+- [Phase 04]: Root doctrine, ISA acceptance, GSD finite planning, and generated inspection remain distinct authorities. — Evidence reaches a new intent only through Gate/CAS approval.
+- [Phase 05]: The Temperance flow is a deterministic read-only projection that yields one phase-bounded action or one fail-closed stop.
+- [Phase 05]: Host/provider resolution remains owner-protected; repository execution binds approval, source snapshots, checkout identity, idempotency, verification, and CAS persistence without copying host policy.
+- [Phase 05]: Ralph completes one bounded execute → verify → persist → exit lifecycle and owns no independent mutable ledger.
+- [Phase 07]: SHA-bound `safety:check` is a zero-write fail-closed validator over the Phase 6 inventory path set. — It does not rewrite sources or invent a second goal authority.
+- [Phase 07]: Independent verification is recorded in VERIFICATION.md; HANDOFF must not outrank live STATE.
 
 ### Pending Todos
 
-- Founder may perform one human-typed command as a user acceptance tap; the engineering path is already live-proven through the installed handler and gateway authorization/registration surface.
+- Phase 4 passed independent verification 5/5 and GRAPH-04 is complete.
+- Delivery receipt: PR #351 exact head `892e6480d910da8e13ef6d86cd37e07c02d9e5aa` squash-merged as `f1da858618bae5e15f4ac9a5fdd2141cabf76b6d`; the PR-head and merge trees matched, and main CI run `32152942949` passed all eight jobs.
+- Phase 5 passed independent verification 4/4 with FLOW-01 through FLOW-04 complete and a clean 18-file code review.
+- Phase 6 passed independent verification 4/4 and its security audit.
+- Phase 7 execution is complete 3/3 on `codex/phase-5-decisions`; independent verification is still required.
 
 ### Blockers/Concerns
 
-- None. The capability remains intentionally synthetic-only.
+- Historical v0.3 phases predate current GSD `VERIFICATION.md` packaging; the archived audit retains this process debt.
+- Runtime, provider, deployment, connected-repository, and destructive document mutations remain outside v0.4 authority.
+
+## Deferred Items
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| Connected repositories | Inherit canonical anchors through pinned repository-specific contracts | Future | v0.4 initialization |
+| Corpus relocation | Relocate or archive documents only after inventory review | Future | v0.4 initialization |
+| Phase 04 P01 | 18min | 2 tasks | 3 files |
+| Phase 04 P02 | 9min | 2 tasks | 5 files |
+| Phase 04 P03 | 11min | 2 tasks | 7 files |
+| Phase 05 P03 | 35min | 3 tasks | 11 files |
 
 ## Session Continuity
 
-Last session: 2026-07-17 10:21 UTC
-Stopped at: Phase 2 complete with deployed operator intake, replay-safe D1 receipt, rollback proof, and revoked SSH.
-Resume file: .planning/phases/02-telegram-operator-intake/02-01-SUMMARY.md
+Last session: 2026-08-22T00:00:00Z
+Stopped at: Phase 7 verified — VERIFICATION.md recorded; milestone closeout pending
+Resume file: .planning/phases/07-deterministic-safety-and-handoff/VERIFICATION.md
+
+## Operator Next Step
+
+Milestone v0.4 closeout: all five phases are executed and independently verified (VERIFICATION.md recorded for Phase 7; SAFE-PRIVACY converted to VERIFIED via merge-safe phase_base_sha resolution). The next operator action is the GSD milestone-completion workflow — no further phase-bounded command remains. Relocation, deletion, deployment, host/provider mutation, D1 CAS, wrangler upload, Vectorize ingest, and tenant mint remain held.

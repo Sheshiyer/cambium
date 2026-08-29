@@ -4,6 +4,47 @@
 export const CLIENT_SHEET = `/* ── bottom sheet (quest/ring detail) with drag-to-dismiss ── */
 const veil = $('veil'), sheet = $('sheet'), sheetBody = $('sheetBody');
 const sheetState = { open:false };
+let founderOutcomeRequestId = '';
+function founderOutcomeRequestIdentity(){
+  if (!founderOutcomeRequestId) founderOutcomeRequestId = 'founder-outcome:' + Date.now().toString(36) + ':' + Math.random().toString(36).slice(2, 14);
+  return founderOutcomeRequestId;
+}
+function openFounderOutcomeSheet(mode){
+  const initial = { screenshotRef:'', widgetEventRef:'', outcome:mode === 'add-proof' ? 'passed' : 'needs-review', note:'' };
+  function showMessage(message){
+    const status = sheetBody.querySelector('[data-founder-outcome-status]');
+    if (!status) return;
+    status.textContent = message;
+    status.setAttribute('data-founder-outcome-status-state', message ? 'error' : 'idle');
+    status.classList.toggle('is-error', !!message);
+  }
+  function render(values, message){
+    sheetBody.innerHTML = '<div class="arc">founder evidence · fitcheck</div><h2>' + (mode === 'add-proof' ? 'Add proof' : 'Report outcome') + '</h2><p class="nar">Submit two receipt references for the observed Shopify widget outcome.</p>' +
+      '<label class="founder-outcome-field">Screenshot receipt reference<input type="text" aria-label="Screenshot receipt reference" placeholder="Query-free HTTPS URL or opaque receipt reference"></label><label class="founder-outcome-field">Widget-event receipt reference<input type="text" aria-label="Widget-event receipt reference" placeholder="Query-free HTTPS URL or opaque receipt reference"></label>' +
+      '<label class="founder-outcome-field">Observed outcome<select aria-label="Observed outcome"><option value="passed">passed</option><option value="failed">failed</option><option value="blocked">blocked</option><option value="needs-review">needs-review</option></select></label><label class="founder-outcome-field">Founder note (optional)<textarea aria-label="Founder note (optional)" maxlength="500"></textarea></label>' +
+      '<div class="founder-outcome-claim-guard" data-founder-outcome-claim-guard="1"><b>Claim guard</b><span>This records an observed outcome; Gate and D1 decide the transition.</span></div><div class="founder-outcome-status" aria-live="polite" data-founder-outcome-status="1">' + esc(message || '') + '</div><button type="button" class="approve" data-founder-outcome-submit="1">Submit for Gate review</button>';
+    const inputs = sheetBody.querySelectorAll('input'), outcome = sheetBody.querySelector('select'), note = sheetBody.querySelector('textarea');
+    inputs[0].value = values.screenshotRef; inputs[1].value = values.widgetEventRef; outcome.value = values.outcome; note.value = values.note;
+    const submit = sheetBody.querySelector('[data-founder-outcome-submit]');
+    function restoreSubmit(){ submit.disabled = false; submit.setAttribute('aria-busy', 'false'); }
+    sheetBody._founderOutcomeSubmit = () => {
+      const current = { screenshotRef:String(inputs[0].value || '').trim(), widgetEventRef:String(inputs[1].value || '').trim(), outcome:String(outcome.value || 'needs-review'), note:String(note.value || '').trim() };
+      if (!current.screenshotRef) { showMessage('Screenshot reference is required'); inputs[0].focus(); return; }
+      if (!current.widgetEventRef) { showMessage('Widget-event reference is required'); inputs[1].focus(); return; }
+      submit.disabled = true; submit.setAttribute('aria-busy', 'true');
+      const payload = { schema:'cambium.founder-outcome-intent.v1', tenantId:'cambium', workObjectId:'sapling:fitcheck', branchId:'fitcheck', missionId:'fitcheck-shopify-qa', questId:'fitcheck-shopify-widget-qa', screenshotRef:current.screenshotRef, widgetEventRef:current.widgetEventRef, outcome:current.outcome, note:current.note, clientRequestId:founderOutcomeRequestIdentity(), initData:initData };
+      Promise.resolve(fetch('/api/founder-outcomes/cambium', { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) }))
+        .then(r => r.json().then(body => ({ ok:r.ok, body }))).then(result => {
+          if (!result.ok || !result.body || !result.body.candidate) { restoreSubmit(); showMessage('worker refused · no write'); return; }
+          founderOutcomeRequestId = '';
+          sheetBody.innerHTML = '<div class="arc">founder evidence · fitcheck</div><h2>Pending Gate</h2><p class="nar">Your observed outcome awaits the existing Gate review.</p><button type="button" class="approve" data-founder-outcome-open-gate="1">Open Gate</button>';
+          sheetBody._founderOutcomeOpenGate = () => { closeSheet(); go(1); };
+          Promise.resolve(refresh()).then(loadGate);
+        }).catch(() => { restoreSubmit(); showMessage('network failure · no write'); });
+    };
+  }
+  render(initial, ''); veil.classList.add('on'); sheet.classList.add('on'); sheetState.open = true; buzz('medium');
+}
 function openSheet(row){
   const env = ECOSYSTEM_ENV || {};
   const policy = policyCard(env.ledger ? env : { ledger: LEDGER || { rows: [] } });
@@ -71,6 +112,12 @@ function closestSheetTarget(target, selector){
 function isInteractiveSheetTarget(target){
   return !!closestSheetTarget(target, 'button, a, input, select, textarea, label, [role="button"], [contenteditable="true"]');
 }
+sheetBody.addEventListener('click', e => {
+  const submit = closestSheetTarget(e.target, '[data-founder-outcome-submit]');
+  if (submit && typeof sheetBody._founderOutcomeSubmit === 'function') { if (e.preventDefault) e.preventDefault(); sheetBody._founderOutcomeSubmit(); return; }
+  const gate = closestSheetTarget(e.target, '[data-founder-outcome-open-gate]');
+  if (gate && typeof sheetBody._founderOutcomeOpenGate === 'function') { if (e.preventDefault) e.preventDefault(); sheetBody._founderOutcomeOpenGate(); }
+});
 sheet.addEventListener('pointerdown', e => {
   if (isInteractiveSheetTarget(e.target) || (typeof e.button === 'number' && e.button !== 0)) { sdrag = null; return; }
   sdrag = { sy:e.clientY, ly:e.clientY, lt:e.timeStamp, v:0 };
@@ -112,5 +159,4 @@ sheetBody.addEventListener('click', e => {
     loadGate();
   }
 });
-
 `;

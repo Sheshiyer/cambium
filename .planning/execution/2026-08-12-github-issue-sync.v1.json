@@ -1,0 +1,60 @@
+{
+  "schema": "thoughtseed.cambium.github-issue-sync.v1",
+  "repository": "Sheshiyer/cambium",
+  "capturedAt": "2026-08-12T09:05:06+05:30",
+  "authority": {
+    "authorized": "Synchronize the reconciled Cambium issues and make the execution waves dispatchable",
+    "excludes": [
+      "provider mutation",
+      "production deployment",
+      "credential changes",
+      "runtime timer changes",
+      "mail delivery"
+    ]
+  },
+  "serialization": "All GitHub mutations are applied by one coordinator after parallel read-only review.",
+  "issues": [
+    {"number":249,"before":{"state":"OPEN","updatedAt":"2026-08-06T19:42:28Z","bodySha256":"81abc6a23f101c07ff93bd06b62a3d66bd033097fb52fb33c20bcb018d51d9ff"},"action":"comment-runtime-hold"},
+    {"number":252,"before":{"state":"OPEN","updatedAt":"2026-08-06T19:42:21Z","bodySha256":"0cbae7e98966855ed2293f66a24121b26b2362f124ea82a148a12203448d8bf6"},"action":"rewrite-architecture-and-keep-open"},
+    {"number":275,"before":{"state":"OPEN","updatedAt":"2026-07-27T21:35:24Z","bodySha256":"02f6a0f6c52a4f6fab939c3c0ac1f518673cd81985457527655469c10d4131e0"},"action":"close-not-planned"},
+    {"number":276,"before":{"state":"OPEN","updatedAt":"2026-07-28T11:27:18Z","bodySha256":"23833a7c47714d183697f17fe2009a613485fdd4f412dd023d330c601d978c93"},"action":"close-not-planned"},
+    {"number":277,"before":{"state":"OPEN","updatedAt":"2026-07-28T11:27:44Z","bodySha256":"9a1e399df3cb1ad2d4bc845e133c87236c66c7590bd2cea81523dd819c6493c8"},"action":"close-not-planned"},
+    {"number":280,"before":{"state":"OPEN","updatedAt":"2026-08-06T19:44:30Z","bodySha256":"e2ad90d44efbf92e9706104d1d431eaf1fd7b59eff8e0f8edeb823f54a7acac5"},"action":"correct-source-add-question-and-keep-open"},
+    {"number":281,"before":{"state":"OPEN","updatedAt":"2026-08-06T19:45:25Z","bodySha256":"005e7fcb8b923e847d2df14d27d4b128831c3359e99d7f234ebfea96e19eb308"},"action":"correct-authority-add-question-and-keep-open"},
+    {"number":282,"before":{"state":"OPEN","updatedAt":"2026-08-06T19:45:26Z","bodySha256":"2d3b0c5192a8e5d784049d5cef5edf1fdecde9adf62e24b43c92f7b4fc90a594"},"action":"rewrite-source-ownership-and-keep-open"},
+    {"number":283,"before":{"state":"OPEN","updatedAt":"2026-08-06T19:45:27Z","bodySha256":"df2b98d4bcef09c45de89d960f3ba6bb0fbd4b3f883e50326e43cd0a8c64aa0e"},"action":"add-qa-blocked-by-249-and-keep-open"},
+    {"number":284,"before":{"state":"OPEN","updatedAt":"2026-08-06T19:45:28Z","bodySha256":"ab2c581bc19532cbff079a90677c2d1db6bd401f09f33afd76c5a6abab8b5fdb"},"action":"record-ledger-truth-and-keep-open"},
+    {"number":285,"before":{"state":"OPEN","updatedAt":"2026-08-07T02:09:56Z","bodySha256":"64d18d8a0b4a960c2bc352f6fed423e8f7bdb49ebb73f94a9c52e216793e6281"},"action":"close-completed-decomposition"},
+    {"number":287,"before":{"state":"OPEN","updatedAt":"2026-08-07T02:09:57Z","bodySha256":"a303469a5cc79b1f64ef7ace3d7059b2a9be962a0a74f50acfa3735fac8be05e"},"action":"close-completed-relocation-prep"},
+    {"number":290,"before":{"state":"OPEN","updatedAt":"2026-08-07T01:22:33Z","bodySha256":"8b5b6e757756a72cc49bae0e27c577e62e0261a09ffe21c132e327638c105669"},"action":"narrow-to-ten-residual-holds"},
+    {"number":291,"before":{"state":"OPEN","updatedAt":"2026-08-07T01:22:36Z","bodySha256":"3684213adadec976e4f53944fad2b84436fdb4d21c4f6897ab7bbf29975cfd9a"},"action":"rewrite-as-eight-wave-execution-epic"}
+  ],
+  "receipt": {
+    "appliedAt": "2026-08-12T09:08:53+05:30",
+    "coordinator": "single-writer",
+    "results": [
+      {"number":249,"requested":"comment-runtime-hold","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:37:39Z"},
+      {"number":252,"requested":"rewrite-architecture-and-keep-open","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:37:44Z"},
+      {"number":275,"requested":"close-not-planned","resultingState":"CLOSED","stateReason":"NOT_PLANNED","resultingUpdatedAt":"2026-08-12T03:37:51Z"},
+      {"number":276,"requested":"close-not-planned","resultingState":"CLOSED","stateReason":"NOT_PLANNED","resultingUpdatedAt":"2026-08-12T03:37:56Z"},
+      {"number":277,"requested":"close-not-planned","resultingState":"CLOSED","stateReason":"NOT_PLANNED","resultingUpdatedAt":"2026-08-12T03:38:05Z"},
+      {"number":280,"requested":"correct-source-add-question-and-keep-open","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:38:10Z"},
+      {"number":281,"requested":"correct-authority-add-question-and-keep-open","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:38:16Z"},
+      {"number":282,"requested":"rewrite-source-ownership-and-keep-open","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:38:20Z"},
+      {"number":283,"requested":"add-qa-blocked-by-249-and-keep-open","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:38:25Z"},
+      {"number":284,"requested":"record-ledger-truth-and-keep-open","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:38:30Z"},
+      {"number":285,"requested":"close-completed-decomposition","resultingState":"CLOSED","stateReason":"COMPLETED","resultingUpdatedAt":"2026-08-12T03:38:37Z"},
+      {"number":287,"requested":"close-completed-relocation-prep","resultingState":"CLOSED","stateReason":"COMPLETED","resultingUpdatedAt":"2026-08-12T03:38:44Z"},
+      {"number":290,"requested":"narrow-to-ten-residual-holds","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:38:49Z"},
+      {"number":291,"requested":"rewrite-as-eight-wave-execution-epic","resultingState":"OPEN","resultingUpdatedAt":"2026-08-12T03:38:53Z"}
+    ],
+    "verification": {
+      "readBackCount": 14,
+      "expectedOpen": [249,252,280,281,282,283,284,290,291],
+      "expectedClosedNotPlanned": [275,276,277],
+      "expectedClosedCompleted": [285,287],
+      "projectDone": [285,287],
+      "providerOrRuntimeMutations": 0
+    }
+  }
+}

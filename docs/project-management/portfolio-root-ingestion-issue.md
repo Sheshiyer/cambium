@@ -28,7 +28,7 @@ Ingest the shallow destination portfolio roots into repository-owned GitHub plan
 - Each active folder has immutable GitHub repository identity or an explicit gap.
 - Each folder names its repository-local planning authority.
 - Ambiguous Thoughtseed proposals remain reviewable and are not silently rewritten.
-- The R2-synced vault contributes context without becoming a runtime dependency or project folder.
+- The private GitHub knowledge source contributes context without becoming a runtime dependency or project folder.
 - No `client-branches`, `saplings`, `programs`, or `projects` nesting directory is created.
 - No dirty or nested repository is relocated by this issue.
 

@@ -12,21 +12,46 @@
         "derivedAt": "2026-07-24T09:12:00.000Z",
         "freshness": { "state": "fresh", "detail": "fresh 3m" },
         "commands": {
-          "status": { "agents": 3, "issuesOpen": 5, "issuesDone": 21, "arcs": "4 active", "hermes": "healthy" },
-          "services": [
-            { "name": "fx-svc-scheduler", "status": "ok", "detail": "timers green", "label": "scheduler" },
-            { "name": "fx-svc-gateway", "status": "ok", "detail": "gateway reachable", "label": "gateway" }
-          ],
-          "agents": [
-            { "name": "fx-agent-builder", "model": "fx-model-a" },
-            { "name": "fx-agent-reviewer", "model": "fx-model-b" }
-          ],
-          "work": [
-            { "id": "fx-work-101", "status": "open", "title": "Proof packet scaffold", "who": "fx-agent-builder", "source": "paperclipCommandsData" }
-          ],
-          "handoffs": [
-            { "id": "fx-handoff-001", "status": "proposed", "title": "Approve proof packet dispatch", "source": "paperclipCommandsData", "gateRelation": "founder gate review context only" }
-          ]
+          "status": {
+            "panelId": "status",
+            "source": "fx-org-status@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": { "agents": 3, "issuesOpen": 5, "issuesDone": 21, "arcs": "4 active", "hermes": "healthy" }
+          },
+          "services": {
+            "panelId": "services",
+            "source": "fx-service-health@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": [
+              { "name": "fx-svc-scheduler", "status": "ok", "detail": "timers green", "label": "scheduler" },
+              { "name": "fx-svc-gateway", "status": "ok", "detail": "gateway reachable", "label": "gateway" }
+            ]
+          },
+          "agents": {
+            "panelId": "agents",
+            "source": "fx-agent-roster@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": [
+              { "name": "fx-agent-builder", "model": "fx-model-a" },
+              { "name": "fx-agent-reviewer", "model": "fx-model-b" }
+            ]
+          },
+          "activeWork": {
+            "panelId": "active-work",
+            "source": "fx-active-work@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": [
+              { "id": "fx-work-101", "status": "open", "title": "Proof packet scaffold", "who": "fx-agent-builder", "source": "paperclipCommandsData" }
+            ]
+          },
+          "handoffs": {
+            "panelId": "handoffs",
+            "source": "fx-handoff-queue@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": [
+              { "id": "fx-handoff-001", "status": "proposed", "title": "Approve proof packet dispatch", "source": "paperclipCommandsData", "gateRelation": "founder gate review context only" }
+            ]
+          }
         },
         "openItems": [
           { "id": "fx-handoff-001", "title": "Approve proof packet dispatch", "status": "proposed", "branchId": "fx-branch-fitcheck" }
@@ -36,6 +61,8 @@
           "rows": [
             {
               "branchId": "fx-branch-fitcheck",
+              "workObjectId": "sapling:fitcheck",
+              "workObjectKind": "sapling",
               "name": "Fitcheck",
               "missions": [
                 { "missionId": "fx-m-02", "title": "Launch proof packet", "owner": "build", "gate": "proof gate", "proofRequired": "deploy URL + viewport capture", "dispatchTarget": "quine", "status": "active" }
@@ -60,11 +87,36 @@
         "derivedAt": "2026-07-24T09:12:00.000Z",
         "freshness": { "state": "fresh", "detail": "fresh 6m" },
         "commands": {
-          "status": { "agents": 3, "issuesOpen": 6, "issuesDone": 21, "arcs": "4 active", "hermes": "healthy" },
-          "services": [],
-          "agents": [],
-          "work": [],
-          "handoffs": []
+          "status": {
+            "panelId": "status",
+            "source": "fx-org-status@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": { "agents": 3, "issuesOpen": 6, "issuesDone": 21, "arcs": "4 active", "hermes": "healthy" }
+          },
+          "services": {
+            "panelId": "services",
+            "source": "fx-service-health@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": []
+          },
+          "agents": {
+            "panelId": "agents",
+            "source": "fx-agent-roster@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": []
+          },
+          "activeWork": {
+            "panelId": "active-work",
+            "source": "fx-active-work@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": []
+          },
+          "handoffs": {
+            "panelId": "handoffs",
+            "source": "fx-handoff-queue@v1",
+            "freshness": { "state": "fresh", "checkedAt": "2026-07-24T09:12:00.000Z" },
+            "data": []
+          }
         },
         "openItems": [],
         "branchStories": {
@@ -72,6 +124,8 @@
           "rows": [
             {
               "branchId": "fx-branch-snowgloves",
+              "workObjectId": "sapling:snow-gloves-os",
+              "workObjectKind": "sapling",
               "name": "Snow Gloves",
               "missions": [
                 { "missionId": "fx-m-21", "title": "Proof of warmth claim", "owner": "build", "gate": "claim table", "proofRequired": "claim evidence row", "dispatchTarget": "quine", "status": "blocked" }

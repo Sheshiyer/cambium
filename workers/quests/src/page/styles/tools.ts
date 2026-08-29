@@ -29,6 +29,13 @@ export const STYLE_TOOLS = `  /* ── tools · live action surfaces ───�
   .cmd .tool-body{min-width:0;display:grid;gap:3px}
   .cmd .cname{font:600 13.5px var(--mono);color:var(--ink)}
   .cmd .tool-count{font:10.5px var(--mono);color:var(--soft);opacity:.62;overflow-wrap:anywhere}
+  .tool-panel-freshness{min-width:0;display:flex;align-items:center;gap:6px;font:9.5px/1.25 var(--mono);overflow:hidden}
+  .tool-panel-freshness b{flex:0 0 auto;color:var(--ink);font-weight:650}
+  .tool-panel-freshness small{min-width:0;overflow:hidden;color:var(--soft);opacity:.62;text-overflow:ellipsis;white-space:nowrap}
+  .tool-freshness-detail{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 8px;align-items:center;margin:0 0 10px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:rgba(1,47,52,.24);font:10px/1.35 var(--mono)}
+  .tool-freshness-detail b{color:var(--ink)}
+  .tool-freshness-detail span{min-width:0;overflow-wrap:anywhere;color:var(--soft)}
+  .tool-freshness-detail time{grid-column:1 / -1;color:var(--soft);opacity:.65;overflow-wrap:anywhere}
   .cmd{cursor:pointer;transition:transform .2s var(--ease),border-color .3s var(--ease)}
   .cmd:active{transform:scale(.985)}
   .cmd.is-active,.cmd.is-complete{border-color:rgba(224,255,79,.28)}
