@@ -33,19 +33,26 @@ and `~/.config/opencode`; this repo owns planning and acceptance.
 |---|---|
 | Models / failover / budgets | Host OmniRoute + temperance combos |
 | Planning spine | `.planning/` (GSD) + `temperance-next-wave` |
+| Human roadmap | one GitHub Project per repo (`temperance-gh-plan`) |
 | Acceptance | `ISA.md` when present |
+| Session loop | `/gsd:goal` → `.temperance/goal.json` (not a second planner) |
 | Handoff (if present) | `.project/HANDOFF.md` |
-| Parallel execute | `te-dispatch-paid` / `temperance-batch` |
+| Parallel execute | `noesis-execute` / `temperance-batch` |
+
+`/gsd:*` binds the mode. A card only on a bare first prompt with no saved session/cwd mode.
 
 ### Auto next-wave
 
 When an agent session starts in this cwd, enrich injects `dispatch: NEXT-WAVE …`.
-**Do not wait** for the user to say "temperance dispatch" or "proceed".
+The injected next-wave is a proposal only. Do not dispatch until a matching
+approval receipt has been atomically claimed by the swarm control ledger.
 
 ```bash
 temperance-next-wave --cwd .
 temperance-project-init --cwd . --check
-temperance-batch --foreground --tasks .planning/next-wave-tasks.json --concurrency 4 --worktree
+manifest-bridge init --cwd .
+manifest-bridge sync --cwd .
+temperance-swarm-dispatch --request .planning/swarm-claim.json --dry-run
 ```
 
 Manifest: `.temperance/project.json` (schema temperance.project.v1)

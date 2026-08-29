@@ -17,8 +17,8 @@ Chat sessions only *feel* like full TE when **both** layers are present for the 
 ```bash
 temperance-project-init --cwd . --check
 temperance-next-wave --cwd .
-temperance-next-wave --write-tasks
-temperance-batch --foreground --tasks .planning/next-wave-tasks.json --concurrency 4 --worktree
+temperance-next-wave --write-tasks --approval <approval-id>
+temperance-swarm-dispatch --request .planning/swarm-claim.json --dry-run
 ```
 
 Never commit OmniRoute API keys, provider tokens, or home absolute secrets here.
