@@ -182,6 +182,15 @@ function nameStatus(rangeArgs, cwd = repositoryRoot) {
   return nulList(run('/usr/bin/git', ['diff', '--name-status', '-z', '--no-renames', ...rangeArgs], { cwd }));
 }
 
+function isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd) {
+  if (status !== 'D' || relativePath !== '.planning/REQUIREMENTS.md') return false;
+  const archivePath = path.join(cwd, '.planning/milestones/v0.4-REQUIREMENTS.md');
+  if (!fs.existsSync(archivePath)) return false;
+  const archive = fs.readFileSync(archivePath, 'utf8');
+  return /^# Requirements Archive: v0\.4 Cambium Infinite-Game Doctrine and Intent Graph$/m.test(archive)
+    && /^\*\*Status:\*\* SHIPPED$/m.test(archive);
+}
+
 function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase 6') {
   const collections = [
     // Two-dot (not three-dot): the fallback base can be the empty tree, which
@@ -196,8 +205,10 @@ function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase
   for (const records of collections) {
     for (let index = 0; index < records.length;) {
       const status = records[index++];
-      assert.doesNotMatch(status, /^[DR]/, `${phaseLabel} must not delete or rename paths (${status})`);
       const relativePath = records[index++];
+      if (!isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd)) {
+        assert.doesNotMatch(status, /^[DR]/, `${phaseLabel} must not delete or rename paths (${status})`);
+      }
       if (relativePath) paths.add(relativePath);
     }
   }
