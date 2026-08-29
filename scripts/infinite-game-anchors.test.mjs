@@ -229,6 +229,7 @@ const syntheticPrivacyFixtures = new Map([
   ['scripts/infinite-game-anchors.test.mjs', [
     ["presentPurpose = 'Bearer ", "abcdefghijklmnop'"].join(''),
     ["prompt", "Body = 'private prompt'"].join(''),
+    ['Bearer otherwise-', 'long-enough-but-'].join(''),
   ]],
   ['.planning/phases/07-deterministic-safety-and-handoff/07-PATTERNS.md', [
     ['/', 'Users/', 'sheshnarayaniyer'].join(''),
