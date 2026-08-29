@@ -23,3 +23,17 @@ apps/cambium-r3f/public/assets/meshy/image-to-3d/*/optimized/model-*.glb
 # local/private reference exports; never commit account, payment, or third-party prompt dumps
 motionsites-export/
 .playwright-cli/
+
+# temperance engine runtime state (host- and session-scoped; regenerated per run)
+.temperance/manifest.json
+
+# superset session-scoped setup/run scripts and hands-init snapshot (host-specific)
+.superset/
+
+# transient temperance orchestration state (undated; regenerated each planning wave —
+# dated `.planning/YYYY-MM-DD-*.{md,json}` files are audit records and remain committed)
+.planning/APPROVALS.json
+.planning/NEXT-WAVE.json
+.planning/ORCHESTRATION.json
+.planning/PLAN-OPTIONS.json
+.planning/mission-control-visual-swarm-tasks.json
