@@ -51,7 +51,7 @@
       "evidence": [
         {
           "type": "none",
-          "reason": "The connected console was inspected read-only; a still capture is intentionally deferred until the bounded capture request is approved."
+          "reason": "This repository contract does not embed a live still; capture evidence must be supplied by a separately approved bounded run."
         }
       ],
       "body": [
@@ -69,16 +69,15 @@
       "id": "skill-lattice",
       "group": "resolve",
       "title": "Resolve the product-guides skill lattice",
-      "platform": "api",
-      "locator": "GET /projects/{project_id}/workflows/product-guide-production/requests",
+      "platform": "contract",
+      "locator": "Manifest project-scoped skill projection; resolve from the active runtime",
       "summary": "A cluster hub explains ownership while Moosh spokes provide bounded guide and video capabilities.",
       "audience": "Operators deciding which skill owns the next action.",
       "roles": ["operator"],
       "evidence": [
         {
-          "type": "request-response",
-          "request": "GET /projects/{project_id}/workflows/product-guide-production/requests",
-          "description": "Manifest workflow projection resolves product-guides to two hubs and two Moosh spokes."
+          "type": "boundary-map",
+          "description": "The repository documents the expected product-guides ownership; the active runtime must resolve it before use."
         }
       ],
       "body": [
@@ -96,15 +95,14 @@
       "id": "workflow-stages",
       "group": "resolve",
       "title": "Follow the six workflow stages",
-      "platform": "api",
-      "locator": "GET /projects/{project_id}/workflows/product-guide-production/requests [stage-order projection]",
+      "platform": "contract",
+      "locator": "Manifest project workflow projection; resolve from the active runtime",
       "summary": "The workflow moves from observation and resolution through guide preparation, evidence, video, and validation.",
       "audience": "Operators planning a safe Moosh run.",
       "evidence": [
         {
-          "type": "request-response",
-          "request": "GET /projects/{project_id}/workflows/product-guide-production/requests",
-          "description": "The projection reports six ordered stages with read-only, gated, and ready states."
+          "type": "boundary-map",
+          "description": "The repository defines six ordered stages; runtime status and eligibility require a fresh projection."
         }
       ],
       "body": [
@@ -122,19 +120,18 @@
       "id": "planning-and-swarm",
       "group": "govern",
       "title": "Read planning and swarm state correctly",
-      "platform": "api",
-      "locator": "GET /projects/{project_id}/snapshot",
+      "platform": "contract",
+      "locator": "Project planning and runtime snapshot projections",
       "summary": "Planning waves and mapped sessions provide coordination evidence, not proof that workers are executing.",
       "audience": "Operators interpreting the project’s planning spine.",
       "evidence": [
         {
-          "type": "request-response",
-          "request": "GET /projects/{project_id}/snapshot",
-          "description": "The snapshot exposes the observed plan, wave, route, and historical session map."
+          "type": "boundary-map",
+          "description": "Planning and runtime snapshots are separate sources whose live read paths must be resolved from their owning tools."
         }
       ],
       "body": [
-        "The GSD and next-wave records map intent into waves and tasks. The current snapshot shows planning and routing evidence, not a live worker fleet.",
+        "The GSD and next-wave records map intent into waves and tasks. A runtime snapshot may show planning and routing evidence, but that is not a live worker fleet.",
         "A swarm becomes active only through an explicitly authorized dispatch path with its own receipts."
       ],
       "actions": [
@@ -148,20 +145,19 @@
       "id": "capture-boundary",
       "group": "prove",
       "title": "Prepare evidence without fabricating it",
-      "platform": "api",
-      "locator": "GET /projects/{project_id}/capabilities",
+      "platform": "contract",
+      "locator": "Active runtime capability projection",
       "summary": "Capture is a bounded evidence operation requiring a reviewed configuration, runtime support, and approval.",
       "audience": "Operators preparing a guide capture.",
       "evidence": [
         {
-          "type": "request-response",
-          "request": "GET /projects/{project_id}/capabilities",
-          "description": "Capabilities expose project-cwd, Node, Python, Playwright, capture-config, film-spec, provider, and execution gates."
+          "type": "boundary-map",
+          "description": "The repository names required capabilities; their availability and gates must be resolved from the active runtime."
         }
       ],
       "body": [
         "The local capture contract is deliberately narrow: one local route, one synthetic persona, a fixed viewport, and a deterministic output directory.",
-        "A configuration file is preparation, not evidence. The still and video outputs remain absent until their approved runs occur."
+        "A configuration file is preparation, not evidence. Still and video outputs require their own accepted run receipts."
       ],
       "actions": [
         "Review capability state before requesting a run.",
@@ -174,18 +170,18 @@
       "id": "approval-boundary",
       "group": "govern",
       "title": "Stop at the approval boundary",
-      "platform": "api",
-      "locator": "POST /projects/{project_id}/workflows/product-guide-production/requests",
+      "platform": "contract",
+      "locator": "Manifest request-only workflow contract; resolve the active endpoint before use",
       "summary": "The trigger is request-only and idempotent; it cannot run without a bounded request identifier and existing approval receipt.",
       "audience": "Owners deciding whether to authorize capture.",
       "evidence": [
         {
           "type": "none",
-          "reason": "No matching human approval receipt exists in the current project projection, so this guide does not submit a trigger request."
+          "reason": "This guide carries no live approval state and therefore cannot authorize or submit a trigger request."
         }
       ],
       "body": [
-        "The current state is GATED. The remaining blockers are the approval receipt and any capability gates reported by the bridge.",
+        "The default state is GATED until live readback proves the approval receipt and every capability gate reported by the bridge.",
         "A truthful operator explains the next safe action instead of turning a request-only endpoint into implicit execution."
       ],
       "actions": [

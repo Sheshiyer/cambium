@@ -7,7 +7,7 @@ represent the whole operating spine.
 
 The machine-readable version is
 [`cambium-moosh-coverage-model.json`](cambium-moosh-coverage-model.json). The
-surface list and current readiness stay in
+surface list and its dated readiness snapshot stay in
 [`cambium-surface-inventory.json`](cambium-surface-inventory.json) and
 [`cambium-moosh-coverage.json`](cambium-moosh-coverage.json).
 

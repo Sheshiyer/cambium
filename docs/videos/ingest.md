@@ -3,7 +3,7 @@
 This ingest map is the source order for a future product video. It does not
 claim that any live footage has been captured.
 
-| Beat | Surface | What the viewer should learn | Evidence required | Current state |
+| Beat | Surface | What the viewer should learn | Evidence required | Contract state |
 | --- | --- | --- | --- | --- |
 | 1 | Manifest console | Cambium resolves skills, stages, and blockers | request-response | prepared; capture gated |
 | 2 | R3F web | The visual engine turns project state into navigable islands | image sequence | prepared; capture gated |

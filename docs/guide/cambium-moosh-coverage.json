@@ -3,7 +3,7 @@
   "schema": "cambium.moosh.coverage.v1",
   "workflow": "product-guides",
   "project": "cambium",
-  "observed_registry": {"clusters": 44, "skills": 808, "active": 521, "deferred": 208, "archived": 79},
+  "registry_snapshot": {"observed_at": "2026-08-15", "freshness": "historical", "clusters": 44, "skills": 808, "active": 521, "deferred": 208, "archived": 79, "instruction": "Re-resolve before operation."},
   "resolved_skills": [
     "product-guides-orchestrator",
     "product-guides-core",
@@ -33,17 +33,15 @@
     "cloudflare-runtime": "boundary-map-only",
     "cortex-memory": "boundary-map-only",
     "explee-iverif": "boundary-map-only",
-    "github-cloudflare-ci": "boundary-map-only",
+    "github-cloudflare-ci": "contract-and-terminal",
     "mcp-aws": "boundary-map-only"
   },
-  "execution": {
+  "execution_contract": {
     "request_kind": "request-only",
-    "eligible": false,
+    "eligibility": "must-be-recomputed-from-live-state",
     "approval_id_required": true,
     "request_id_required": true,
-    "workers_launched": false,
-    "capture_tools_launched": false,
-    "secrets_observed": false,
-    "blockers": ["No matching human approval receipt is present for this project.", "Manifest bridge health is stale even though the loopback endpoint answers HTTP 200.", "Browser extension attachment is unavailable in the current desktop session.", "Protected hosted and connected systems require their own owner-approved access."]
+    "repository_contract_authorizes_execution": false,
+    "live_checks": ["matching unexpired approval", "fresh bridge state", "approved capture capability", "surface runtime availability", "owner-approved access for protected systems"]
   }
 }

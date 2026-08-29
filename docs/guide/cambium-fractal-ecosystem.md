@@ -41,16 +41,17 @@ facts; it does not silently turn them into execution.
 | Manifest | Bridge projection | What is observed, ready, or gated now? |
 | Approval | Project owner | May an evidence-producing request proceed? |
 
-## Current Cambium reading
+## Cambium contract snapshot
 
-- The project is initialized and the Manifest bridge is reachable.
-- The resolved cluster is `product-guides`, with two hubs and two Moosh spokes.
-- Six ordered stages are visible: observe, resolve, prepare guide, capture
-  evidence, compose video, and validate report.
+- The repository declares Cambium as the project scope.
+- The documented cluster is `product-guides`, with two hubs and two Moosh
+  spokes; resolve it again before operating.
+- The contract defines six ordered stages: observe, resolve, prepare guide,
+  capture evidence, compose video, and validate report.
 - Planning and swarm state is mapped, not proof of active worker execution.
 - The local guide and film contracts are now prepared in this repository.
-- Capture and composition remain gated until prerequisites and a matching
-  human approval receipt are present.
+- Capture and composition always require fresh prerequisite and approval
+  readback; this guide does not carry live approval state.
 
 ## How to run the flow safely
 
@@ -64,5 +65,6 @@ facts; it does not silently turn them into execution.
 6. Validate the guide output before considering the video FilmSpec.
 7. Compose video only after guide evidence and video approval exist.
 
-The current safe stopping point is step 3. A trigger request without the
-approval receipt would be rejected by design and would not constitute a run.
+Treat step 3 as the default stopping point until the live readback proves the
+remaining gates. A trigger request without the approval receipt would be
+rejected by design and would not constitute a run.

@@ -256,9 +256,9 @@ The six observed stages are:
 3. **Prepare guide** — create guide chapters, persona, evidence records, and
    capture configuration with bounded local intent.
 4. **Capture evidence** — capture only named surfaces, with approval, using the
-   correct evidence mode. Currently gated.
-5. **Compose video** — use accepted guide evidence and the FilmSpec. Currently
-   gated behind capture and composition approval.
+   correct evidence mode. Eligibility must be re-read from live state.
+5. **Compose video** — use accepted guide evidence and the FilmSpec. It remains
+   gated unless capture acceptance and composition approval are both current.
 6. **Validate report** — re-read projections, validate files, run tests, and
    report every blocker. Ready locally.
 
@@ -275,9 +275,9 @@ Cambium has three different planning states that must remain separate:
 | Mapped | a swarm or task decomposition is assigned conceptually | coordination planning |
 | Dispatched | governed workers received bounded tasks | execution observation |
 
-This run has planning and mapping evidence. It has not dispatched a capture
-fleet. A visible task map is not proof that workers ran. A workflow projection
-is not proof that a screenshot or video exists.
+A run may have planning and mapping evidence without having dispatched a
+capture fleet. A visible task map is not proof that workers ran. A workflow
+projection is not proof that a screenshot or video exists.
 
 ## 8. Safety model
 
@@ -296,38 +296,33 @@ This protects the distinction between describing the next action and taking
 the action. It also keeps the Cambium repository from becoming a covert
 credential or deployment store.
 
-## 9. Current readiness
+## 9. Readiness contract
 
-### Ready now
+Repository-local readiness:
 
-- The local Manifest bridge is reachable and its doctor check passes.
-- The Cambium project is initialized in the Manifest projection.
-- The `product-guides` cluster and four skills resolve.
-- All six workflow stages are structurally present and reported ready before
-  their explicit-approval gates.
-- Guide, FilmSpec, inventory, coverage, and runbook artifacts validate locally.
+- Guide, FilmSpec, inventory, coverage, and runbook artifacts can validate
+  locally.
 - Local docs and terminal checks can be run without external mutation.
+- The `product-guides` cluster, bridge freshness, capabilities, stages, and
+  approval state must be resolved again at operation time.
 
-### Gated now
+Runtime gates to re-read:
 
-- Actual screenshot capture: no matching human approval receipt.
-- The Manifest bridge responds, but its health projection is stale; the
-  console therefore truthfully shows the local runtime as offline until a
-  governed refresh occurs.
-- Browser-attached live UI probe: the required extension is unavailable in the
-  current desktop session.
+- Screenshot capture requires a matching, unexpired approval receipt and an
+  available approved capture route.
+- Bridge reachability and bridge freshness are separate checks.
+- Browser-attached and local capture capabilities must be probed in the active
+  session.
 - Hosted Cartographer and connected systems: owner-authenticated access is
-  required and remains outside this repository’s authority.
+  required and remains outside this repository's authority.
 - Video composition: guide evidence and capture approval must precede it.
 
-### Not claimed
+This contract does not claim:
 
-- No live screenshots were fabricated.
-- No video was rendered from unobserved surfaces.
-- No workers were launched.
-- No provider credentials or secrets were read.
-- No deployment, registry, native client, vault, or external repository was
-  modified.
+- current bridge health, approval availability, or browser attachment;
+- current hosted or connected-system state;
+- that a capture, video, worker, provider, or deployment operation ran; or
+- that an earlier approval or artifact remains valid for a later request.
 
 ## 10. Operator recipes
 
@@ -393,8 +388,8 @@ follow-up instead of checking the criterion by inspection.
 
 ## 13. Completion statement
 
-Cambium is initialized, its planning and swarm map are visible, and its Moosh
-workflow is prepared across all discovered UI and connected-system families.
-The system is not falsely “run” yet: the final capture and execution steps
-remain pending explicit approval, browser attachment, and any required owner
-authentication. That is the correct state of a governed fractal ecosystem.
+Cambium's Moosh workflow is documented across the inventoried UI and
+connected-system families. The contracts deliberately stop short of live-state
+claims: each run must re-establish freshness, approval, access, execution, and
+evidence independently. That is the correct shape of a governed fractal
+ecosystem.

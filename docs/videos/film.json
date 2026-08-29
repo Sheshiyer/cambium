@@ -80,7 +80,7 @@
       "focus": "Approval boundary",
       "route": "/",
       "persona": "operator",
-      "see": "The trigger remains disabled until a matching receipt exists.",
+      "see": "The trigger must remain disabled until live readback finds a matching receipt.",
       "why": "Evidence-producing work belongs to an explicit owner decision.",
       "get": "A truthful next action: approve, then request, then validate.",
       "vo": "Cambium stops at the approval boundary, preserving a truthful record of what has and has not run."
