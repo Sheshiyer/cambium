@@ -1,6 +1,7 @@
 # Proactive loop routine (Fitcheck L4 + quest templates)
 
-Status: implemented locally; production Telegram delivery is **Hermes-owned**.
+Status: production code promoted; live topic delivery remains **Hermes-owned**
+and awaits one labeled inbound/receipt proof.
 
 ## What runs
 
@@ -72,17 +73,21 @@ Founder approval is KV-only operational clearance — **not** Goal Graph CAS.
 EC2: `ops/ec2/hermes-proactive-loop.timer` (every 6h at :15) +
 `docs/runbooks/proactive-loop-deliver.md`.
 
-## Deploy (Worker cron)
+## Deploy (Labs production Worker)
 
 ```bash
-# account must match production (see docs/evidence/*-deploy.json)
-export CLOUDFLARE_ACCOUNT_ID=9d9d23b27f32e70ae3afb6a1aa2c0f10
-cd workers/quests
-wrangler deploy --config wrangler.jsonc --dry-run
-wrangler deploy --config wrangler.jsonc
+# From the repository root. This must resolve the Labs account declared by the
+# production config before any version upload or traffic change.
+npx --no-install wrangler whoami --config workers/quests/wrangler.labs.jsonc
+npx --no-install wrangler deploy \
+  --config workers/quests/wrangler.labs.jsonc --dry-run --strict
 ```
 
-Cron trigger: `0 */6 * * *` in `wrangler.jsonc` → `index.ts` `scheduled`.
+Use the rollback-gated `versions upload` -> preview -> `versions deploy` flow in
+`workers/quests/DEPLOY.md`; do not substitute the legacy `wrangler.jsonc`
+installation or a direct production deploy.
+
+Cron trigger: `0 */6 * * *` in `wrangler.labs.jsonc` -> `index.ts` `scheduled`.
 
 ## Mini App
 
