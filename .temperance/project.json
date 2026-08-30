@@ -46,8 +46,11 @@
     "github_project": false
   },
   "hands_init": {
-    "display": "cambium \u00b7 fabric",
+    "display": "cambium · fabric",
     "cloudflare_profile": "thoughtseed-labs",
     "aws_profile": null
-  }
+  },
+  "project_id": "cambium",
+  "repository_id": "github:Sheshiyer/cambium",
+  "enrollment_id": "enr-db495c1ca5d7d80df622"
 }
