@@ -9,7 +9,7 @@ test('IVerif grounding fixes the product, provider, and Telegram binding', () =>
     expleeProjectId: 16_763,
     expleeCampaignId: 45_711,
     telegramTopic: 'clients',
-    telegramThreadId: '804',
+    telegramThreadId: '9',
   });
 });
 

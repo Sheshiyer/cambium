@@ -328,6 +328,10 @@ const syntheticPrivacyFixtures = new Map([
     ['Bearer otherwise-long-enough-but-', 'unnamespaced-read-token'].join(''),
     ['exclusive-worker-', 'secret-value'].join(''),
   ]],
+  ['workers/quests/src/portfolio-catalog-route.test.ts', [
+    ['Bearer bridge-', 'secret'].join(''),
+    ['Bearer assignment-', 'secret'].join(''),
+  ]],
 ]);
 
 const D16_WORKER_VERSION = '089181f6-ed60-4710-aab6-cd10855360e0';

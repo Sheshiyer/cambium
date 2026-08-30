@@ -475,8 +475,8 @@ function validateIverifActionRequest(raw: Record<string, unknown>): { actionRequ
   const id = clean(raw.id);
   const idempotencyKey = clean(raw.idempotencyKey);
   const topic = isRecord(raw.topic) ? raw.topic : null;
-  if (!topic || clean(topic.chatId) !== '-1002691202808' || clean(topic.topicKey) !== 'clients' || Number(topic.threadId) !== 804) {
-    return { error: 'ActionRequest must target THOUGHTSEED LABS clients:804' };
+  if (!topic || clean(topic.chatId) !== '-1003942929819' || clean(topic.topicKey) !== 'clients' || Number(topic.threadId) !== 9) {
+    return { error: 'ActionRequest must target Thoughtseed Labs clients:9' };
   }
   const options = Array.isArray(raw.options) ? raw.options.filter(isRecord).map(toOption).filter((option): option is ActionRequestOptionV1 => !!option) : [];
   if (!options.length) return { error: 'ActionRequest needs options' };
@@ -497,9 +497,9 @@ function validateIverifActionRequest(raw: Record<string, unknown>): { actionRequ
       projectName: clean(raw.projectName) || 'IVerif',
       questId: clean(raw.questId) || 'the-handoff',
       topic: {
-        chatId: '-1002691202808',
+        chatId: '-1003942929819',
         topicKey: 'clients',
-        threadId: 804,
+        threadId: 9,
         sourceMessageId: clean(topic.sourceMessageId) || undefined,
       },
       title: clean(raw.title) || 'iVerif ActionRequest',
@@ -576,10 +576,10 @@ function validFounderConversation(topic: Record<string, unknown>): boolean {
   const topicKey = clean(topic.topicKey);
   const threadId = Number(topic.threadId);
   const groupTopics: Record<string, number> = {
-    hermes: 797, digests: 798, inbox: 800, calendar: 801,
-    'agent-ops': 802, alerts: 803, clients: 804, dev: 862,
+    hermes: 2, digests: 3, dev: 4, inbox: 5, calendar: 6,
+    'agent-ops': 7, alerts: 8, clients: 9,
   };
-  if (chatId === '-1002691202808') return groupTopics[topicKey] === threadId;
+  if (chatId === '-1003942929819') return groupTopics[topicKey] === threadId;
   return topicKey === 'direct' && threadId === 0 && /^\d{6,15}$/.test(chatId);
 }
 

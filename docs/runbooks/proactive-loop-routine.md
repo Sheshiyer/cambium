@@ -12,15 +12,15 @@ Status: implemented locally; production Telegram delivery is **Hermes-owned**.
 | Post to Thoughtseed topics | **Hermes** | No | **Yes** |
 | Founder Gate / CAS admission | Mini App Gate + D1 | **Yes (only after Gate)** | n/a |
 
-## Topics (Thoughtseed Labs `-1002691202808`)
+## Topics (Thoughtseed Labs `-1003942929819`)
 
 | Stage class | Topic | Thread |
 |---|---|---:|
-| identity / systems / planned | Dev | 862 |
-| mapping / D1 / pin | Agent Ops | 802 |
-| executed | Hermes | 797 |
-| learned | Digests | 798 |
-| failed probes | Alerts | 803 |
+| identity / systems / planned | Dev | 4 |
+| mapping / D1 / pin | Agent Ops | 7 |
+| executed | Hermes | 2 |
+| learned | Digests | 3 |
+| failed probes | Alerts | 8 |
 
 ## API
 

@@ -19,7 +19,7 @@ The current implementation uses only documented `GET` endpoints under `/public/a
 | Explee project | `16763` |
 | Explee campaign | `45711` (`Public Agencies`) |
 | Telegram topic | `clients` |
-| Telegram thread | `804` |
+| Telegram thread | `9` |
 | Promotion state | `proof-only` |
 | Provider mode | `observe-only` |
 

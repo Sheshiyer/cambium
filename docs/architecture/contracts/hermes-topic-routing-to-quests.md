@@ -1,8 +1,8 @@
 # Hermes Topic Routing To Cambium Quests
 
 Status: active pinned consumer snapshot
-Snapshot source: `Sheshiyer/hermes-aws-ts@0e4736254b1846259b2ea317fb791cc6e9b7e312`
-Manifest SHA-256: `520fef0b316f8029e858674e7bb948be997d772f0b2ccffd64a3dfd0b6eebd8c`
+Snapshot source: `Sheshiyer/hermes-aws-ts@1931f6c2d0d9260cfbf29c37413e1504e7ebf9e4`
+Manifest SHA-256: `edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a`
 Runtime owner tracker: [Hermes #88](https://github.com/Sheshiyer/hermes-aws-ts/issues/88)
 
 ## Purpose
@@ -48,7 +48,7 @@ The route returns the same idempotent assignment shape as
   "queued": true,
   "topic": {
     "topicKey": "dev",
-    "threadId": 862,
+    "threadId": 4,
     "questId": "the-build"
   }
 }
@@ -61,7 +61,7 @@ Minimum:
 ```json
 {
   "topicKey": "dev",
-  "threadId": 862,
+  "threadId": 4,
   "sourceMessageId": "852",
   "summary": "Build route proof is stale and needs a fresh worker probe."
 }
@@ -69,7 +69,7 @@ Minimum:
 
 Optional fields:
 
-- `chatId`: if present, must be `-1002691202808`.
+- `chatId`: if present, must be `-1003942929819`.
 - `memberId`: defaults to `shesh`.
 - `projectId`: defaults to `thoughtseed-ops`.
 - `projectName`: defaults to `Thoughtseed Ops`.
@@ -82,14 +82,14 @@ Optional fields:
 
 | Topic | Thread | Default quest | Default task type | Default priority |
 | --- | ---: | --- | --- | --- |
-| Hermes | 797 | `the-gate` | `operations` | `normal` |
-| Digests | 798 | `the-review` | `research` | `normal` |
-| Dev | 862 | `the-build` | `engineering` | `high` |
-| Inbox | 800 | `the-brief` | `general` | `normal` |
-| Calendar | 801 | `the-brief` | `operations` | `normal` |
-| Agent Ops | 802 | `living-org` | `operations` | `high` |
-| Alerts | 803 | `the-ship-gate` | `operations` | `urgent` |
-| Clients | 804 | `the-handoff` | `general` | `high` |
+| Hermes | 2 | `the-gate` | `operations` | `normal` |
+| Digests | 3 | `the-review` | `research` | `normal` |
+| Dev | 4 | `the-build` | `engineering` | `high` |
+| Inbox | 5 | `the-brief` | `general` | `normal` |
+| Calendar | 6 | `the-brief` | `operations` | `normal` |
+| Agent Ops | 7 | `living-org` | `operations` | `high` |
+| Alerts | 8 | `the-ship-gate` | `operations` | `urgent` |
+| Clients | 9 | `the-handoff` | `general` | `high` |
 
 ## Proactive Rules
 

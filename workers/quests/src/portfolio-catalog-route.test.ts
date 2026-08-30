@@ -271,7 +271,7 @@ test('bridge compiles one receipt-backed organ update without writing or sending
   assert.equal(body.ok, true);
   assert.equal(body.organUpdateDelivery.schema, 'cambium.organ-update-delivery.v1');
   assert.equal(body.organUpdateDelivery.route.topicKey, 'dev');
-  assert.equal(body.organUpdateDelivery.route.threadId, 862);
+  assert.equal(body.organUpdateDelivery.route.threadId, 4);
   assert.equal(body.organUpdateDelivery.eventDriven, true);
   assert.equal(body.organUpdateDelivery.scheduleArmed, false);
   assert.equal(writes.d1, 0);

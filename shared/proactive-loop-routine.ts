@@ -33,16 +33,16 @@ export const PROACTIVE_LOOP_DELIVERY_SCHEMA = 'cambium.proactive-loop-delivery.v
 export const PROACTIVE_LOOP_MINIAPP_SCHEMA = 'cambium.proactive-loop-miniapp.v1' as const;
 
 /** Pinned Thoughtseed Labs chat (Hermes topic map). */
-export const THOUGHTSEED_CHAT_ID = '-1002691202808';
+export const THOUGHTSEED_CHAT_ID = '-1003942929819';
 
 export const PROACTIVE_TOPIC_ROUTES = {
-  hermes: { topicName: 'Hermes', threadId: 797, questId: 'the-gate', priority: 'normal' as const },
-  digests: { topicName: 'Digests', threadId: 798, questId: 'the-review', priority: 'normal' as const },
-  dev: { topicName: 'Dev', threadId: 862, questId: 'the-build', priority: 'high' as const },
-  inbox: { topicName: 'Inbox', threadId: 800, questId: 'the-brief', priority: 'normal' as const },
-  agent_ops: { topicName: 'Agent Ops', threadId: 802, questId: 'living-org', priority: 'high' as const },
-  alerts: { topicName: 'Alerts', threadId: 803, questId: 'the-ship-gate', priority: 'urgent' as const },
-  clients: { topicName: 'Clients', threadId: 804, questId: 'the-handoff', priority: 'high' as const },
+  hermes: { topicName: 'Hermes', threadId: 2, questId: 'the-gate', priority: 'normal' as const },
+  digests: { topicName: 'Digests', threadId: 3, questId: 'the-review', priority: 'normal' as const },
+  dev: { topicName: 'Dev', threadId: 4, questId: 'the-build', priority: 'high' as const },
+  inbox: { topicName: 'Inbox', threadId: 5, questId: 'the-brief', priority: 'normal' as const },
+  agent_ops: { topicName: 'Agent Ops', threadId: 7, questId: 'living-org', priority: 'high' as const },
+  alerts: { topicName: 'Alerts', threadId: 8, questId: 'the-ship-gate', priority: 'urgent' as const },
+  clients: { topicName: 'Clients', threadId: 9, questId: 'the-handoff', priority: 'high' as const },
 } as const;
 
 export type ProactiveTopicKey = keyof typeof PROACTIVE_TOPIC_ROUTES;

@@ -63,7 +63,7 @@ export const IVERIF_GROUNDING = {
     expleeProjectId: 16_763,
     expleeCampaignId: 45_711,
     telegramTopic: 'clients',
-    telegramThreadId: '804',
+    telegramThreadId: '9',
   },
   policy: {
     promotionState: 'proof-only',
