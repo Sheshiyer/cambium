@@ -258,7 +258,7 @@ Implementation acceptance evidence:
 - Commits `2aad38a`, `d8d3ae6`, and `4753af1` separate the profile/map/runbook implementation, the v0.5 planning spine, and the review repair that source-binds both production and legacy Access audience sets.
 - Focused guard, map, release, helper, and standalone-audit suites pass 36/36 after the review repair; the exact committed pre-repair tree passed the full repository suite 1974/1974 twice, including one independent reviewer run.
 - Independent review found one P1 Access-inventory omission. The follow-up review confirmed `4753af1` closes it with no remaining actionable findings and keeps unknown legacy application names and hostnames held for authenticated Phase 9 inventory.
-- Phase closeout also regression-hardens the historical Temperance Flow source adapter so newer handoff checkpoints cannot hide its reviewed Phase 5 evidence; the combined Ralph/flow suites pass 32/32.
+- Phase closeout also regression-hardens the historical Temperance Flow source adapter so newer handoff checkpoints cannot hide the first Phase 5 match in newest-first order; the combined Ralph/flow suites pass 32/32.
 - Cloudflare mutation, Worker upload or promotion, DNS, Access, tunnel, R2 copy or deletion, D1/KV/Vectorize writes, source retirement, merge, and push were not performed or authorized by this acceptance.
 
 

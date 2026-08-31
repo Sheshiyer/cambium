@@ -53,9 +53,9 @@ set remain explicitly unresolved until an authenticated Phase 9 source read.
   including one independent reviewer run.
 - Independent re-review of `4753af1` found no remaining actionable findings.
 - Phase closeout exposed a historical adapter assumption that the first handoff
-  checkpoint always belonged to Phase 5. The adapter now selects the newest
-  Phase 5 checkpoint by identity; its Ralph and flow suites pass 32/32 with a
-  newer Phase 8 checkpoint present.
+  checkpoint always belonged to Phase 5. The adapter now selects the first
+  Phase 5 match from the handoff's newest-first order; its Ralph and flow
+  suites pass 32/32 with a newer Phase 8 checkpoint present.
 
 ## Held gates
 

@@ -348,6 +348,28 @@ test('FLOW-04: generated-digest receipts are excluded from source identity while
   assert.notDeepEqual(changed, initial);
 });
 
+test('FLOW-04: newest-first handoff order selects the first Phase 5 checkpoint, never a newer phase', (t) => {
+  const api = requireSourceApi('newest-first Phase 5 handoff selection');
+  const fixture = makeFixture();
+  t.after(fixture.cleanup);
+  const handoffPath = path.join(fixture.root, '.project/HANDOFF.md');
+
+  let model = api.buildTemperanceFlowSources(fixture.root);
+  let reviewed = model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff');
+  assert.match(reviewed.selector, /^markdown\.heading:.*Phase 5 decisions and reviewed planning checkpoint/);
+  assert.doesNotMatch(reviewed.selector, /Phase 8/);
+
+  const syntheticHeading = 'Phase 5 decisions and reviewed planning checkpoint — synthetic newest';
+  const handoff = readFileSync(handoffPath, 'utf8').replace(
+    '# Project handoff\n',
+    `# Project handoff\n\n### ${syntheticHeading}\n\n- Synthetic ordering fixture; no external authority.\n`,
+  );
+  writeFileSync(handoffPath, handoff);
+  model = api.buildTemperanceFlowSources(fixture.root);
+  reviewed = model.supportingSources.find(({ kind }) => kind === 'reviewed_handoff');
+  assert.equal(reviewed.selector, `markdown.heading:${syntheticHeading}`);
+});
+
 test('FLOW-04 / WR-03: every readiness decision byte has a named source digest', (t) => {
   const api = requireSourceApi('decision provenance');
   const fixture = makeFixture();

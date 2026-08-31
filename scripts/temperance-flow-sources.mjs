@@ -349,18 +349,21 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   const statePhase = select(stateRaw, statePhaseSelector, '.planning/STATE.md');
   const stateLive = commands.length === 1 && /^Phase: 5 of 7 \(/.test(statePhase);
   const handoffHeadings = [...handoffRaw.matchAll(/^###\s+(.+)$/gm)].map((match) => match[1]);
-  const handoffHeading = handoffHeadings.find((heading) => (
+  // HANDOFF is newest-first. Select the first Phase 5 checkpoint so later
+  // phase entries cannot shadow it and newer Phase 5 review fixes supersede
+  // older Phase 5 checkpoints without relying on global first-heading order.
+  const phase5HandoffHeading = handoffHeadings.find((heading) => (
     /Phase 5 decisions and reviewed planning checkpoint/.test(heading)
   ));
-  if (!handoffHeading) {
+  if (!phase5HandoffHeading) {
     throw new TypeError('.project/HANDOFF.md has no reviewed Phase 5 checkpoint');
   }
-  const handoffSelector = `markdown.heading:${handoffHeading}`;
+  const handoffSelector = `markdown.heading:${phase5HandoffHeading}`;
   const handoffCheckpoint = select(handoffRaw, handoffSelector, '.project/HANDOFF.md');
   const handoffReference = reviewedHandoffReference(reader, handoffSelector, handoffCheckpoint);
   const handoffBindings = reviewedCheckpointBindings(reader.root, handoffCheckpoint, handoffReference);
   const handoffReviewed = /Phase 5 decisions and reviewed planning checkpoint/.test(handoffCheckpoint)
-    && !/unreviewed/i.test(handoffHeading)
+    && !/unreviewed/i.test(phase5HandoffHeading)
     && handoffBindings.matches;
 
   const planRecords = PLAN_PATHS.map((relativePath, planIndex) => {
