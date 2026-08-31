@@ -58,8 +58,18 @@ const privatePatterns = [
   { name: 'raw private user UUID from exports', pattern: new RegExp('d00e212d-3726-4b83-b68c-' + 'ab661d0bd0db', 'i') },
 ];
 
+const liveDeploymentAuthorityFiles = new Set([
+  'docs/architecture/contracts/cambium-cloudflare-resource-map.v1.json',
+  'docs/superpowers/specs/2026-08-31-labs-consolidation-design.md',
+  'scripts/quests-wrangler-profile.mjs',
+  'scripts/quests-wrangler-profile.test.mjs',
+  'workers/quests/DEPLOY.md',
+  'workers/quests/DEPLOY-LABS.md',
+]);
+
 export function isAllowedLiveDeploymentEvidencePath(file) {
-  return /^(README\.md|ISA\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/archive\/|docs\/diagrams\/|docs\/evidence\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/.test(file);
+  return liveDeploymentAuthorityFiles.has(file)
+    || /^(README\.md|ISA\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/archive\/|docs\/diagrams\/|docs\/evidence\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/.test(file);
 }
 
 const liveDefaultPatterns = [

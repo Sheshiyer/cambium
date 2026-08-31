@@ -14,6 +14,7 @@ import { buildDocumentationInventorySources } from './documentation-inventory-so
 const root = new URL('..', import.meta.url);
 const repositoryRoot = fs.realpathSync(path.resolve(new URL('.', root).pathname));
 const approvedGoal = "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.";
+const labsConsolidationGoal = "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.";
 
 function run(command, args, { encoding = 'utf8', cwd = repositoryRoot } = {}) {
   const result = spawnSync(command, args, {
@@ -237,6 +238,14 @@ const syntheticPrivacyFixtures = new Map([
     ["receiptPath: '", "/", "Users/example/private.json'"].join(''),
     ["provider: 'Bearer ", "top-secret-token'"].join(''),
   ]],
+  ['scripts/prove-marketing-create-prepare.sh', [
+    ['request_', 'body="$proof_tmp/request.json"'].join(''),
+  ]],
+  ['scripts/prove-marketing-create-prepare.test.mjs', [
+    ['/tmp/', 'cambium-curl-argv-'].join(''),
+    ['file://', '/dev/null'].join(''),
+    ['/tmp/', 'cambium-curl-home-'].join(''),
+  ]],
   ['scripts/infinite-game-anchors.test.mjs', [
     ["presentPurpose = 'Bearer ", "abcdefghijklmnop'"].join(''),
     ["prompt", "Body = 'private prompt'"].join(''),
@@ -437,6 +446,7 @@ function checkbox(source, id) {
 const PHASE5_CRITERIA = ['ISC-1282', 'ISC-1283', 'ISC-1284', 'ISC-1285'];
 const PHASE6_CRITERIA = ['ISC-1286', 'ISC-1287', 'ISC-1288', 'ISC-1289'];
 const PHASE7_CRITERIA = ['ISC-1290', 'ISC-1291', 'ISC-1292', 'ISC-1293'];
+const PHASE8_CRITERIA = ['ISC-2470', 'ISC-2471', 'ISC-2472', 'ISC-2473'];
 
 function isCoherentIsaPhaseState(
   frontmatter,
@@ -447,6 +457,8 @@ function isCoherentIsaPhaseState(
   phase6AcceptanceHeading = null,
   phase7Checks = {},
   phase7AcceptanceHeading = null,
+  phase8Checks = {},
+  phase8AcceptanceHeading = null,
 ) {
   const phase3Complete = Object.values(phase3Checks).every(Boolean);
   const phase4Pending = Object.values(phase4Checks).every((value) => !value);
@@ -515,15 +527,40 @@ function isCoherentIsaPhaseState(
   const phase7Verified = /^phase: verify$/m.test(frontmatter) && phase7Progress === 4 && phase7Complete;
   const phase7Active = phase7AcceptanceHeading === 'Active Phase 7 acceptance';
   const phase7Completed = phase7AcceptanceHeading === 'Completed Phase 7 acceptance';
-  return phase3Complete
+  const phase7Result = phase3Complete
     && phase4Complete
     && phase5Complete
     && phase6Complete
     && ((phase7Active && (phase7PlanStart || phase7ExecuteStart || phase7ExecutePrefix))
       || (phase7Completed && phase7Verified));
+  const phase8Known = PHASE8_CRITERIA.every((id) => typeof phase8Checks[id] === 'boolean');
+  if (!phase8Known) return phase7Result;
+
+  const phase8Pending = PHASE8_CRITERIA.every((id) => phase8Checks[id] === false);
+  const phase8Complete = PHASE8_CRITERIA.every((id) => phase8Checks[id] === true);
+  const phase8Prefix = PHASE8_CRITERIA.findIndex((id) => phase8Checks[id] !== true);
+  const checkedPhase8Prefix = phase8Prefix === -1 ? PHASE8_CRITERIA.length : phase8Prefix;
+  const phase8Progress = progress ? Number(progress[1]) : null;
+  const phase8PlanStart = /^phase: plan$/m.test(frontmatter) && phase8Progress === 0 && phase8Pending;
+  const phase8ExecuteStart = /^phase: execute$/m.test(frontmatter) && phase8Progress === 0 && phase8Pending;
+  const phase8ExecutePrefix = /^phase: execute$/m.test(frontmatter)
+    && phase8Progress === checkedPhase8Prefix
+    && checkedPhase8Prefix > 0
+    && checkedPhase8Prefix < PHASE8_CRITERIA.length
+    && checkedPhase8Prefix === PHASE8_CRITERIA.filter((id) => phase8Checks[id] === true).length;
+  const phase8Verified = /^phase: verify$/m.test(frontmatter) && phase8Progress === 4 && phase8Complete;
+  const phase8Active = phase8AcceptanceHeading === 'Active Phase 8 acceptance';
+  const phase8Completed = phase8AcceptanceHeading === 'Completed Phase 8 acceptance';
+  return phase3Complete
+    && phase4Complete
+    && phase5Complete
+    && phase6Complete
+    && phase7Complete
+    && ((phase8Active && (phase8PlanStart || phase8ExecuteStart || phase8ExecutePrefix))
+      || (phase8Completed && phase8Verified));
 }
 
-test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, Phase 5, Phase 6, and Phase 7 states', () => {
+test('ISA lifecycle accepts only coherent completed Phase 3 through active or completed Phase 8 states', () => {
   const phase3Complete = Object.fromEntries(['ISC-1273', 'ISC-1274', 'ISC-1275', 'ISC-1276'].map((id) => [id, true]));
   const phase4Pending = Object.fromEntries(['ISC-1277', 'ISC-1278', 'ISC-1279', 'ISC-1280', 'ISC-1281'].map((id) => [id, false]));
   const phase4GapExecution = { ...Object.fromEntries(Object.keys(phase4Pending).map((id) => [id, true])), 'ISC-1280': false };
@@ -597,6 +634,23 @@ test('ISA lifecycle accepts only coherent completed Phase 3, Phase 4, Phase 5, P
     'Completed Phase 6 acceptance', phase7Complete, 'Active Phase 7 acceptance'), false);
   assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Pending,
     'Active Phase 6 acceptance', phase7Pending, 'Active Phase 7 acceptance'), false);
+
+  const phase8Pending = Object.fromEntries(PHASE8_CRITERIA.map((id) => [id, false]));
+  const phase8Prefix2 = { ...phase8Pending, 'ISC-2470': true, 'ISC-2471': true };
+  const phase8NonPrefix = { ...phase8Pending, 'ISC-2470': true, 'ISC-2472': true };
+  const phase8Complete = Object.fromEntries(PHASE8_CRITERIA.map((id) => [id, true]));
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Completed Phase 6 acceptance', phase7Complete, 'Completed Phase 7 acceptance', phase8Pending, 'Active Phase 8 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Completed Phase 6 acceptance', phase7Complete, 'Completed Phase 7 acceptance', phase8Pending, 'Active Phase 8 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Completed Phase 6 acceptance', phase7Complete, 'Completed Phase 7 acceptance', phase8Prefix2, 'Active Phase 8 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: verify\nprogress: 4/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Completed Phase 6 acceptance', phase7Complete, 'Completed Phase 7 acceptance', phase8Complete, 'Completed Phase 8 acceptance'), true);
+  assert.equal(isCoherentIsaPhaseState('phase: execute\nprogress: 2/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Completed Phase 6 acceptance', phase7Complete, 'Completed Phase 7 acceptance', phase8NonPrefix, 'Active Phase 8 acceptance'), false);
+  assert.equal(isCoherentIsaPhaseState('phase: plan\nprogress: 0/4', phase3Complete, phase4Complete, phase5Complete, phase6Complete,
+    'Completed Phase 6 acceptance', phase7Pending, 'Active Phase 7 acceptance', phase8Pending, 'Active Phase 8 acceptance'), false);
 });
 
 // ANCHOR-01 and ANCHOR-02: one enduring Vision and one renewable Mission.
@@ -643,13 +697,14 @@ test('canonical root anchors declare singular doctrine and authority', () => {
 });
 
 // ANCHOR-04: the anchors remain subordinate to ISA/GSD goal and planning authority.
-test('ISA binds the approved v0.4 goal without erasing history', () => {
+test('ISA binds the approved v0.5 Labs goal without erasing v0.4 history', () => {
   const isa = read('ISA.md');
   const frontmatter = (isa.match(/^---\n([\s\S]*?)\n---/) || [])[1] || '';
   const activeGoal = (isa.split('\n## Goal\n')[1] || '').trimStart();
 
-  assert.ok(frontmatter.includes(`task: "${approvedGoal}"`), 'ISA frontmatter must bind the approved v0.4 goal exactly');
-  assert.ok(activeGoal.startsWith(approvedGoal), 'ISA Goal must lead with the approved v0.4 goal exactly');
+  assert.ok(frontmatter.includes(`task: "${labsConsolidationGoal}"`), 'ISA frontmatter must bind the approved v0.5 goal exactly');
+  assert.ok(activeGoal.startsWith(labsConsolidationGoal), 'ISA Goal must lead with the approved v0.5 goal exactly');
+  assert.ok(isa.includes(`Historical v0.4 goal: ${approvedGoal}`), 'ISA must retain the approved v0.4 goal as history');
   assert.match(isa, /historical acceptance evidence/i);
   assert.match(isa, /historical[\s\S]{0,160}issue #331|issue #331[\s\S]{0,160}historical/i);
   assert.match(isa, /ISC-1273\.\.1276[\s\S]*scripts\/infinite-game-anchors\.test\.mjs/i);
@@ -660,10 +715,13 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
   const phase5Checks = Object.fromEntries(PHASE5_CRITERIA.map((id) => [id, checkbox(isa, id)]));
   const phase6Checks = Object.fromEntries(PHASE6_CRITERIA.map((id) => [id, checkbox(isa, id)]));
   const phase7Checks = Object.fromEntries(PHASE7_CRITERIA.map((id) => [id, checkbox(isa, id)]));
+  const phase8Checks = Object.fromEntries(PHASE8_CRITERIA.map((id) => [id, checkbox(isa, id)]));
   const phase6AcceptanceHeadings = [...isa.matchAll(/^### ((?:Active|Completed) Phase 6 acceptance)$/gm)].map((match) => match[1]);
   const phase7AcceptanceHeadings = [...isa.matchAll(/^### ((?:Active|Completed) Phase 7 acceptance)$/gm)].map((match) => match[1]);
+  const phase8AcceptanceHeadings = [...isa.matchAll(/^### ((?:Active|Completed) Phase 8 acceptance)$/gm)].map((match) => match[1]);
   assert.equal(phase6AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 6 acceptance heading');
   assert.equal(phase7AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 7 acceptance heading');
+  assert.equal(phase8AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 8 acceptance heading');
   assert.ok(
     isCoherentIsaPhaseState(
       frontmatter,
@@ -674,8 +732,10 @@ test('ISA binds the approved v0.4 goal without erasing history', () => {
       phase6AcceptanceHeadings[0],
       phase7Checks,
       phase7AcceptanceHeadings[0],
+      phase8Checks,
+      phase8AcceptanceHeadings[0],
     ),
-    'ISA must be coherent at completed Phase 3–6 and active or verified Phase 7',
+    'ISA must be coherent at completed Phase 3–7 and active or verified Phase 8',
   );
 });
 
@@ -712,8 +772,10 @@ test('Phase 7 acceptance binds deterministic safety without creating authority',
     assert.equal(checkbox(isa, 'ISC-1293'), false);
   } else {
     assert.equal(headings[0], 'Completed Phase 7 acceptance');
-    assert.match(frontmatter, /^phase: verify$/m);
-    assert.match(frontmatter, /^progress: 4\/4$/m);
+    if (!/^### (?:Active|Completed) Phase 8 acceptance$/m.test(isa)) {
+      assert.match(frontmatter, /^phase: verify$/m);
+      assert.match(frontmatter, /^progress: 4\/4$/m);
+    }
     assert.equal(checkbox(isa, 'ISC-1290'), true);
     assert.equal(checkbox(isa, 'ISC-1291'), true);
     assert.equal(checkbox(isa, 'ISC-1292'), true);
@@ -876,28 +938,29 @@ test('DOCS-03 / D-03: additive navigation resolves direct owners without copied 
   assert.throws(() => rejectCopiedLiveStatus('status: active\nnext command is `/gsd:execute-phase 7`'), /delegate mutable status/i);
 });
 
-test('DOCS-03 / D-03: live STATE publishes one coherent closed-milestone transition', () => {
+test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent gated v0.5 transition', () => {
   const state = read('.planning/STATE.md');
   const roadmap = read('.planning/ROADMAP.md');
   const roadmapArchive = read('.planning/milestones/v0.4-ROADMAP.md');
   const requirements = read('.planning/milestones/v0.4-REQUIREMENTS.md');
   const frontmatter = state.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 
-  assert.match(frontmatter, /^status: Awaiting next milestone$/m);
-  assert.match(frontmatter, /^stopped_at: Milestone v0\.4 archived; next milestone planning pending$/m);
-  assert.match(frontmatter, /^\s+total_phases: 5$/m);
-  assert.match(frontmatter, /^\s+completed_phases: 5$/m);
-  assert.match(frontmatter, /^\s+total_plans: 16$/m);
-  assert.match(frontmatter, /^\s+completed_plans: 16$/m);
-  assert.match(frontmatter, /^\s+percent: 100$/m);
+  assert.match(frontmatter, /^milestone: v0\.5$/m);
+  assert.match(frontmatter, /^status: Active$/m);
+  assert.match(frontmatter, /^stopped_at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate$/m);
+  assert.match(frontmatter, /^\s+total_phases: 3$/m);
+  assert.match(frontmatter, /^\s+completed_phases: 1$/m);
+  assert.match(frontmatter, /^\s+total_plans: 1$/m);
+  assert.match(frontmatter, /^\s+completed_plans: 1$/m);
+  assert.match(frontmatter, /^\s+percent: 33$/m);
 
-  assert.match(state, /^\*\*Current focus:\*\* Planning the next milestone$/m);
-  assert.match(state, /^Phase: Milestone v0\.4 complete$/m);
-  assert.match(state, /^Plan: —$/m);
-  assert.match(state, /^Status: Awaiting next milestone$/m);
-  assert.match(state, /^Stopped at: Milestone v0\.4 archived$/m);
-  assert.match(state, /^Resume file: \.planning\/MILESTONES\.md$/m);
-  assert.match(state, /`\/gsd-new-milestone`/);
+  assert.match(state, /^\*\*Current focus:\*\* Plan exact authenticated read-only `9d9d` inventory while$/m);
+  assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
+  assert.match(state, /^Plan: Not planned$/m);
+  assert.match(state, /^Status: Active$/m);
+  assert.match(state, /^Stopped at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate$/m);
+  assert.match(state, /^Resume file: \.planning\/STATE\.md$/m);
+  assert.match(state, /`\/gsd:plan-phase 9`/);
   assert.doesNotMatch(state, /\/gsd:plan-phase 7/);
   assert.doesNotMatch(state, /\/gsd:secure-phase 6/);
 
@@ -914,6 +977,45 @@ test('DOCS-03 / D-03: live STATE publishes one coherent closed-milestone transit
     assert.match(requirements, new RegExp(`^\\| ${requirement} \\| Phase 7 \\| Complete \\|$`, 'm'));
     assert.match(requirements, new RegExp(`^- \\[x\\] \\*\\*${requirement}\\*\\*`, 'm'));
   }
+});
+
+test('Labs consolidation planning keeps production and legacy authority separate', () => {
+  const isa = read('ISA.md');
+  const state = read('.planning/STATE.md');
+  const roadmap = read('.planning/ROADMAP.md');
+  const project = read('.planning/PROJECT.md');
+  const requirements = read('.planning/REQUIREMENTS.md');
+  const milestoneContext = read('.planning/v0.5-MILESTONE-CONTEXT.md');
+  const phaseContext = read('.planning/phases/08-labs-authority-and-profile-safety/08-CONTEXT.md');
+  const phasePlan = read('.planning/phases/08-labs-authority-and-profile-safety/08-01-PLAN.md');
+  const goal = JSON.parse(read('.temperance/goal.json'));
+  const config = JSON.parse(read('.planning/config.json'));
+
+  assert.ok(isa.includes(`task: "${labsConsolidationGoal}"`));
+  assert.match(isa, /^### Completed Phase 8 acceptance$/m);
+  for (const id of ['ISC-2470', 'ISC-2471', 'ISC-2472', 'ISC-2473']) {
+    assert.equal(checkbox(isa, id), true, `${id} must be complete after Phase 8 verification`);
+  }
+
+  assert.match(state, /^milestone: v0\.5$/m);
+  assert.match(state, /^status: Active$/m);
+  assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
+  assert.match(state, /^Plan: Not planned$/m);
+  assert.match(roadmap, /^- 🚧 \*\*v0\.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement\*\* — Phases 8–10 active$/m);
+  assert.match(roadmap, /^- \[x\] \*\*Phase 8: Labs Authority and Profile Safety\*\*/m);
+
+  for (const source of [project, requirements, milestoneContext, phaseContext, phasePlan]) {
+    assert.match(source, /thoughtseed-labs/i);
+    assert.match(source, /9d9d/i);
+    assert.match(source, /read-only/i);
+  }
+  for (const requirement of ['AUTH-01', 'MAP-01', 'RUN-01']) {
+    assert.ok(requirements.includes(`- [x] **${requirement}**`));
+    assert.ok(requirements.includes(`| ${requirement} | Phase 8 | Complete |`));
+  }
+  assert.equal(goal.text, labsConsolidationGoal);
+  assert.equal(goal.gsd_command, 'plan-phase');
+  assert.equal(config.temperance.fleet_combo, 'noesis-execute');
 });
 
 test('DOCS-04 / D-04: evidence stays recoverable and exceptions remain source-backed and non-destructive', (t) => {
@@ -1039,8 +1141,10 @@ test('SAFE-04 / D-16: reviewed handoff records write set, fixtures, D-15 holds, 
   }
 
   assert.equal(headings[0], 'Completed Phase 7 acceptance');
-  assert.match(frontmatter, /^phase: verify$/m);
-  assert.match(frontmatter, /^progress: 4\/4$/m);
+  if (!/^### (?:Active|Completed) Phase 8 acceptance$/m.test(isa)) {
+    assert.match(frontmatter, /^phase: verify$/m);
+    assert.match(frontmatter, /^progress: 4\/4$/m);
+  }
   for (const id of PHASE7_CRITERIA) assert.equal(checkbox(isa, id), true, `${id} must be checked at implementation close`);
   assert.match(handoff, PHASE7_CHECKPOINT_HEADING);
   const checkpointHeading = (handoff.match(PHASE7_CHECKPOINT_HEADING) ?? []).at(-1) ?? '';

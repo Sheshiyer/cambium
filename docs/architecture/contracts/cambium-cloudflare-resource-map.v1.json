@@ -1,0 +1,157 @@
+{
+  "schema": "cambium.cloudflare-resource-map.v1",
+  "tenant": "cambium",
+  "production": {
+    "profile": "thoughtseed-labs",
+    "config": "workers/quests/wrangler.labs.jsonc",
+    "account_id": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+    "worker": {
+      "name": "cambium-quests",
+      "custom_domain": "curious.thoughtseed.space",
+      "strategy": "preserve-labs-production-authority"
+    },
+    "access": {
+      "team_domain": "thoughtseedlabs.cloudflareaccess.com",
+      "applications": {
+        "CAMBIUM_CURIOUS": {
+          "hostname": "curious.thoughtseed.space",
+          "audience": "29e1c8a6760778891fe1278ea0c8639afba1eb41a0008a7fd14850e4168911b5",
+          "identity": "team"
+        },
+        "HERMES_RUNNER_API": {
+          "hostname": "curious.thoughtseed.space",
+          "path": "/v1/bridge/*",
+          "audience": "481fc6643a62b3a4f58778e61b21f571b7039e6357c6e481a4949101f27776fe",
+          "identity": "service"
+        },
+        "PLEXUS_API": {
+          "hostname": "plexus-api.thoughtseed.space",
+          "audience": "38b502a01f4063c5521191e084c7fd9b086099c0061b045145cd93165b9af8d0",
+          "identity": "team"
+        },
+        "TEAMFORGE_API": {
+          "hostname": "forge.thoughtseed.space",
+          "audience": "dd832e556cd9ee7c4e2fb9fddc6bb16bccd64d1b28b0784f84884a69f8a2f3d9",
+          "identity": "team"
+        },
+        "COMPANY_OMNIROUTE": {
+          "hostnames": [
+            "strength-08.thoughtseed.space",
+            "omniroute.thoughtseed.space"
+          ],
+          "identity": "company-edge",
+          "strategy": "retain-current-labs-policy"
+        }
+      }
+    },
+    "d1": {
+      "BRIDGE_DB": {
+        "name": "cambium-bridge",
+        "id": "c0aba88a-5c83-4481-b625-50356d8c98e8",
+        "strategy": "preserve-target-authority"
+      }
+    },
+    "kv": {
+      "QUESTS": {
+        "id": "439547e617d9455fb752bfd651da9765",
+        "strategy": "review-keys-before-change"
+      },
+      "SECRETS": {
+        "id": "3ab0824953064453b8a1995a0b4da05e",
+        "strategy": "target-only-never-copy-values"
+      }
+    },
+    "r2": {
+      "THOUGHTSEED_VAULT": {
+        "bucket": "thoughtseed-vault",
+        "strategy": "per-key-reconcile"
+      },
+      "CONTEXT_PROJECTIONS": {
+        "bucket": "thoughtseed-context-projections",
+        "strategy": "per-key-reconcile"
+      }
+    },
+    "vectorize": {
+      "CAMBIUM_CORTEX": {
+        "index": "cambium-cortex",
+        "dimensions": 1024,
+        "metric": "cosine",
+        "strategy": "rebuild-from-provenance"
+      }
+    }
+  },
+  "legacy_source": {
+    "profile": "9d9d",
+    "config": "workers/quests/wrangler.jsonc",
+    "account_id": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+    "mode": "read-only-rollback",
+    "allowed_operations": [
+      "read"
+    ],
+    "worker": {
+      "name": "cambium-quests",
+      "custom_domain": null,
+      "strategy": "retain-until-retirement-window"
+    },
+    "access": {
+      "team_domain": "red-queen-4dfa.cloudflareaccess.com",
+      "configured_audiences": [
+        "027d9959d1bab2ffb291b294b2cf49427fe63608a44c228fd05c3c7731ee60d7",
+        "5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200",
+        "d3892b5d2a62027029b09b2fd015a9e8074d5efb38c443099f803517cb3feb51"
+      ],
+      "application_inventory_status": "requires-authenticated-source-read",
+      "strategy": "retain-until-retirement-window"
+    },
+    "d1": {
+      "BRIDGE_DB": {
+        "name": "cambium-bridge",
+        "id": "f6b950ac-2480-4a7d-9dac-1ff7e951d936",
+        "strategy": "inventory-only-never-overwrite-target"
+      }
+    },
+    "kv": {
+      "QUESTS": {
+        "id": "10aaa6e0a8a545c1afb5ceee7ef61c14",
+        "strategy": "inventory-only"
+      }
+    },
+    "r2": {
+      "THOUGHTSEED_VAULT": {
+        "bucket": "thoughtseed-vault",
+        "strategy": "approved-prefix-inventory-only"
+      },
+      "CONTEXT_PROJECTIONS": {
+        "bucket": "thoughtseed-context-projections",
+        "strategy": "approved-prefix-inventory-only"
+      }
+    },
+    "vectorize": {
+      "CAMBIUM_CORTEX": {
+        "index": "cambium-cortex",
+        "dimensions": 1024,
+        "metric": "cosine",
+        "strategy": "retain-as-rollback-evidence"
+      }
+    }
+  },
+  "reconciliation": {
+    "approved_prefixes": [
+      "portfolio/thoughtseed/workobjects/",
+      "context/v1/daily-standup-digest/standups/"
+    ],
+    "matched": "no-copy",
+    "target_newer": "preserve-target",
+    "source_only": "require-founder-per-key-allowlist",
+    "digest_conflict": "stop-for-review",
+    "bulk_copy": "forbidden"
+  },
+  "retirement_gates": [
+    "fresh-authenticated-source-key-inventory",
+    "per-key-classification-and-digest-readback",
+    "zero-source-writers",
+    "zero-source-traffic",
+    "authenticated-labs-flow-proof",
+    "founder-approved-rollback-window"
+  ]
+}

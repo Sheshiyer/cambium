@@ -1,8 +1,21 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import test from 'node:test';
 
 const scriptUrl = new URL('stage-marketing-create-secrets.sh', import.meta.url);
+const scriptPath = decodeURIComponent(scriptUrl.pathname);
+
+test('legacy secret staging refuses every non-read-only invocation before Wrangler', () => {
+  const result = spawnSync('/bin/bash', [scriptPath], {
+    encoding: 'utf8',
+    env: { HOME: '/tmp', PATH: '/usr/bin:/bin' },
+  });
+
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /legacy_source_read_only/);
+  assert.doesNotMatch(`${result.stdout}${result.stderr}`, /required command not found|trusted interactive TTY/);
+});
 
 test('marketing-create secret staging helper is fail-closed and non-deploying', () => {
   const script = fs.readFileSync(scriptUrl, 'utf8');

@@ -177,18 +177,31 @@ test('prepare proof check-only gate fails closed on a wrong Wrangler version', (
   assert.equal(result.stdout, '');
 });
 
-test('prepare proof requires the operator-supplied reviewed Worker origin', async (t) => {
-  const rejectedOrigins = [
-    ['', 'base_url_required'],
-    ['http://example.invalid', 'base_url_must_be_canonical_https_origin'],
-    ['https://operator:secret@example.invalid', 'base_url_must_be_canonical_https_origin'],
-    ['https://example.invalid/path', 'base_url_must_be_canonical_https_origin'],
-    ['https://example.invalid?probe=1', 'base_url_must_be_canonical_https_origin'],
-    ['https://example.invalid#fragment', 'base_url_must_be_canonical_https_origin'],
-    ['https://example.invalid/\nurl = "https://attacker.invalid"', 'base_url_must_be_canonical_https_origin'],
+test('prepare proof refuses every legacy write-capable invocation before credentials or network', () => {
+  const result = runPrepare([], {
+    BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
+    CAMBIUM_QUESTS_BASE_URL: 'https://example.invalid/',
+  });
+
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /error=legacy_source_read_only\n$/);
+  assert.doesNotMatch(`${result.stdout}${result.stderr}`, /proof-token-must-remain-hidden/);
+});
+
+test('prepare proof keeps former origin inputs behind the legacy read-only boundary', async (t) => {
+  const formerInputs = [
+    '',
+    'http://example.invalid',
+    'https://operator:secret@example.invalid',
+    'https://example.invalid/path',
+    'https://example.invalid?probe=1',
+    'https://example.invalid#fragment',
+    'https://example.invalid/\nurl = "https://attacker.invalid"',
+    'https://example.invalid/',
+    `https://${['cambium-quests', 'sheshnarayan-iyer', 'workers', 'dev'].join('.')}/`,
   ];
 
-  for (const [baseUrl, expectedError] of rejectedOrigins) {
+  for (const baseUrl of formerInputs) {
     await t.test(baseUrl || 'missing origin', () => {
       const result = runPrepare([], {
         BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
@@ -196,35 +209,8 @@ test('prepare proof requires the operator-supplied reviewed Worker origin', asyn
       });
 
       assert.equal(result.status, 1, result.stdout);
-      assert.match(result.stderr, new RegExp(`error=${expectedError}\\n$`));
+      assert.match(result.stderr, /error=legacy_source_read_only\n$/);
       assert.doesNotMatch(`${result.stdout}${result.stderr}`, /proof-token-must-remain-hidden/);
     });
   }
-
-  await t.test('unreviewed canonical HTTPS origin is rejected before token use', () => {
-    const result = runPrepare([], {
-      BRIDGE_TOKEN: 'proof-token-must-remain-hidden',
-      CAMBIUM_QUESTS_BASE_URL: 'https://example.invalid/',
-    });
-
-    assert.equal(result.status, 1, result.stdout);
-    assert.match(result.stderr, /error=base_url_not_reviewed_worker_origin\n$/);
-    assert.doesNotMatch(`${result.stdout}${result.stderr}`, /proof-token-must-remain-hidden/);
-  });
-
-  await t.test('reviewed Worker origin reaches the hidden-token gate', () => {
-    const reviewedWorkerOrigin = `https://${[
-      'cambium-quests',
-      'sheshnarayan-iyer',
-      'workers',
-      'dev',
-    ].join('.')}/`;
-    const result = runPrepare([], {
-      BRIDGE_TOKEN: '',
-      CAMBIUM_QUESTS_BASE_URL: reviewedWorkerOrigin,
-    });
-
-    assert.equal(result.status, 1, result.stdout);
-    assert.match(result.stderr, /error=bridge_token_must_be_loaded_or_entered_on_tty\n$/);
-  });
 });

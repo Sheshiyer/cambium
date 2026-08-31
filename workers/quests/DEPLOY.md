@@ -1,5 +1,17 @@
 # Quest Worker Deployment
 
+> **Production authority:** Use [DEPLOY-LABS.md](./DEPLOY-LABS.md). It names
+> `workers/quests/wrangler.labs.jsonc` and `thoughtseed-labs` explicitly
+> for `curious.thoughtseed.space`. This longer file retains pre-cutover
+> procedures as historical evidence. Any example below that uses
+> `workers/quests/wrangler.jsonc` targets the legacy source and is read-only;
+> it is not an executable production, secret, migration, rollback, or deploy
+> instruction.
+> `scripts/stage-marketing-create-secrets.sh` and
+> `scripts/prove-marketing-create-prepare.sh` retain their historical
+> validation logic but reject every non-check invocation with
+> `legacy_source_read_only`.
+
 ## Production configuration authority
 
 The Labs production custom domain is deployed from the Thoughtseed Labs account
