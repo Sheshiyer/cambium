@@ -15,6 +15,12 @@ const PROFILE_CONTRACTS = Object.freeze({
     workerName: 'cambium-quests',
     route: 'curious.thoughtseed.space',
     accessTeamDomain: 'thoughtseedlabs.cloudflareaccess.com',
+    accessAudienceIds: Object.freeze([
+      'dd832e556cd9ee7c4e2fb9fddc6bb16bccd64d1b28b0784f84884a69f8a2f3d9',
+      '38b502a01f4063c5521191e084c7fd9b086099c0061b045145cd93165b9af8d0',
+      '29e1c8a6760778891fe1278ea0c8639afba1eb41a0008a7fd14850e4168911b5',
+      '481fc6643a62b3a4f58778e61b21f571b7039e6357c6e481a4949101f27776fe',
+    ]),
     d1DatabaseId: 'c0aba88a-5c83-4481-b625-50356d8c98e8',
     questsKvId: '439547e617d9455fb752bfd651da9765',
     secretsKvId: '3ab0824953064453b8a1995a0b4da05e',
@@ -29,6 +35,11 @@ const PROFILE_CONTRACTS = Object.freeze({
     workerName: 'cambium-quests',
     route: null,
     accessTeamDomain: 'red-queen-4dfa.cloudflareaccess.com',
+    accessAudienceIds: Object.freeze([
+      '027d9959d1bab2ffb291b294b2cf49427fe63608a44c228fd05c3c7731ee60d7',
+      '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200',
+      'd3892b5d2a62027029b09b2fd015a9e8074d5efb38c443099f803517cb3feb51',
+    ]),
     d1DatabaseId: 'f6b950ac-2480-4a7d-9dac-1ff7e951d936',
     questsKvId: '10aaa6e0a8a545c1afb5ceee7ef61c14',
     secretsKvId: null,
@@ -107,6 +118,15 @@ function assertEqual(actual, expected, code) {
   if (actual !== expected) throw new Error(code);
 }
 
+function assertArrayEqual(actual, expected, code) {
+  if (
+    actual.length !== expected.length
+    || actual.some((value, index) => value !== expected[index])
+  ) {
+    throw new Error(code);
+  }
+}
+
 function assertNamedBindings(actualBindings, expectedBindings, valueField, codePrefix) {
   for (const [binding, expected] of expectedBindings) {
     assertEqual(
@@ -132,6 +152,11 @@ function validateConfig(contract) {
     config.vars?.TF_ACCESS_TEAM_DOMAIN ?? null,
     contract.accessTeamDomain,
     'unexpected_access_team_domain',
+  );
+  assertArrayEqual(
+    (config.vars?.TF_ACCESS_AUD ?? '').split(',').map((value) => value.trim()).filter(Boolean),
+    contract.accessAudienceIds,
+    'unexpected_access_audiences',
   );
   assertEqual(
     bindingValue(config.d1_databases, 'BRIDGE_DB', 'database_id'),
@@ -170,6 +195,8 @@ export function resolveQuestsWranglerProfile({ profile, operation } = {}) {
     accountId: contract.accountId,
     workerName: contract.workerName,
     route: contract.route,
+    accessTeamDomain: contract.accessTeamDomain,
+    accessAudienceIds: [...contract.accessAudienceIds],
     d1DatabaseId: contract.d1DatabaseId,
     questsKvId: contract.questsKvId,
     secretsKvId: contract.secretsKvId,

@@ -40,6 +40,13 @@ test('resource map matches both validated Wrangler profile receipts', () => {
   assert.equal(map.production.account_id, labs.accountId);
   assert.equal(map.production.worker.name, labs.workerName);
   assert.equal(map.production.worker.custom_domain, labs.route);
+  assert.equal(map.production.access.team_domain, labs.accessTeamDomain);
+  assert.deepEqual(
+    Object.values(map.production.access.applications)
+      .flatMap((application) => application.audience ? [application.audience] : [])
+      .sort(),
+    [...labs.accessAudienceIds].sort(),
+  );
   assert.equal(map.production.d1.BRIDGE_DB.id, labs.d1DatabaseId);
   assert.equal(map.production.kv.QUESTS.id, labs.questsKvId);
   assert.equal(map.production.kv.SECRETS.id, labs.secretsKvId);
@@ -48,6 +55,15 @@ test('resource map matches both validated Wrangler profile receipts', () => {
   assert.equal(map.legacy_source.config, legacy.config);
   assert.equal(map.legacy_source.account_id, legacy.accountId);
   assert.equal(map.legacy_source.mode, legacy.sourceMode);
+  assert.equal(map.legacy_source.access.team_domain, legacy.accessTeamDomain);
+  assert.deepEqual(
+    map.legacy_source.access.configured_audiences,
+    legacy.accessAudienceIds,
+  );
+  assert.equal(
+    map.legacy_source.access.application_inventory_status,
+    'requires-authenticated-source-read',
+  );
   assert.equal(map.legacy_source.d1.BRIDGE_DB.id, legacy.d1DatabaseId);
   assert.equal(map.legacy_source.kv.QUESTS.id, legacy.questsKvId);
   assert.deepEqual(map.legacy_source.allowed_operations, ['read']);
