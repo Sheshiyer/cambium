@@ -210,9 +210,12 @@ test('selected ISA task mutation makes check stale and names frontmatter.task', 
   t.after(fixture.cleanup);
   runGenerator(fixture.root, outputArgs(fixture, '--write'));
   const isa = path.join(fixture.root, 'ISA.md');
-  writeFileSync(isa, readFileSync(isa, 'utf8').replace(
-    "task: \"Consolidate Cambium's doctrine",
-    "task: \"Revise Cambium's doctrine",
+  const isaSource = readFileSync(isa, 'utf8');
+  const activeTask = isaSource.match(/^task: "([^"]+)"$/m);
+  assert.ok(activeTask, 'fixture ISA must expose one quoted frontmatter task');
+  writeFileSync(isa, isaSource.replace(
+    activeTask[0],
+    `task: "Mutated for freshness proof: ${activeTask[1]}"`,
   ), 'utf8');
   const result = runGenerator(fixture.root, outputArgs(fixture, '--check'), { succeeds: false });
   assert.match(result.stderr, /ISA\.md/);

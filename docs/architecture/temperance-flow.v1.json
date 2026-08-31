@@ -11,13 +11,13 @@
       "path": "ISA.md",
       "kind": "isa_goal",
       "selector": "frontmatter.task",
-      "digest": "sha256:6b14cd9a8118f0d0c44375d6446373cc429da72dc96826b253951dff8f9f153e"
+      "digest": "sha256:126b045367afe967fec429df4c99044e63b662a40b729fda8abc4a7dea7c51b2"
     },
     "gsd": {
       "path": ".planning/STATE.md",
       "kind": "gsd_state",
       "selector": "markdown.heading:Operator Next Step",
-      "digest": "sha256:711ff6b6d22f5269814c0662525db53ca5a60ac24abc1dd447728123a883a5e5"
+      "digest": "sha256:c07fe3ea332cbf97e2641c50516527eb26ff346250458813a1410c09f50cb61d"
     },
     "plan": {
       "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md",
@@ -28,7 +28,7 @@
     "intentGraph": {
       "path": "docs/architecture/intent-graph.v1.json",
       "schema": "cambium.intent-graph-projection.v1",
-      "digest": "sha256:300beff7eeaa22d3e27e0848f8308e1337fbb4cfcc72450340759f49e8073b1e"
+      "digest": "sha256:6d162aaa922d7bfb01a1e6bc4a410bf6ee02d592bc5f05769165ffe382b05cef"
     },
     "supporting": [
       {
@@ -50,12 +50,6 @@
         "digest": "sha256:27343c0d8e4f6757f35dd803bb456638f3a894ec5ac5569863e37c53d7dae3f9"
       },
       {
-        "path": ".planning/STATE.md",
-        "kind": "verification_evidence",
-        "selector": "text.line:Phase:",
-        "digest": "sha256:278f741ba04302bdd7a6f3ff3c9c99ef10c46bb80885cf8f62fc9d683c0f2ecf"
-      },
-      {
         "path": "ISA.md",
         "kind": "verification_evidence",
         "selector": "markdown.heading:Completed Phase 5 acceptance",
@@ -72,6 +66,12 @@
         "kind": "verification_evidence",
         "selector": "markdown.list-item:- 2026-08-19 11:06: refined:",
         "digest": "sha256:c2d03b18eb3e9725e1f1e498b17d2a394a3c5a9a5a4dc4932c45f8bb5bc447ba"
+      },
+      {
+        "path": ".planning/STATE.md",
+        "kind": "verification_evidence",
+        "selector": "text.line:Phase:",
+        "digest": "sha256:cbb645f2fc29e1bf4715e488e9102f9b36decd0fea2fdf89e1369bb2b38dd0d6"
       }
     ]
   },
@@ -97,7 +97,7 @@
       {
         "code": "gsd_state_not_live",
         "sources": [
-          ".planning/STATE.md#markdown.heading:Operator Next Step@sha256:711ff6b6d22f5269814c0662525db53ca5a60ac24abc1dd447728123a883a5e5"
+          ".planning/STATE.md#markdown.heading:Operator Next Step@sha256:c07fe3ea332cbf97e2641c50516527eb26ff346250458813a1410c09f50cb61d"
         ]
       },
       {
@@ -120,6 +120,6 @@
     "receipt": "missing"
   },
   "stops": [],
-  "sourceSetDigest": "sha256:4dff53f49303b429cbfa31e2b49fcddbc5752bce41732303dddd5474a64eaa76",
-  "flowDigest": "sha256:56131dedeeda5e5c10dacee2ad48902dd652048fb197af0f7e0cd7056d3050b1"
+  "sourceSetDigest": "sha256:3ec70027952f7a5d20ec03b8d49277eb949658edf42540367d7cf3f49a5b3183",
+  "flowDigest": "sha256:c96804351fef602c61b05fecc16f790c1f5346ceae14ff31d8e981a1af56e70b"
 }

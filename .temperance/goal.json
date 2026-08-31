@@ -1,8 +1,8 @@
 {
   "schema": "temperance.goal.v1",
-  "text": "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.",
+  "text": "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.",
   "planner": "isa",
-  "gsd_command": "plan-phase",
+  "gsd_command": "execute-phase",
   "evaluator": [
     {
       "id": "doctor",
@@ -17,8 +17,8 @@
   ],
   "status": "active",
   "native": {
-    "claude": "/goal Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.",
+    "claude": "/goal Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.",
     "codex": "wrapper"
   },
-  "updated_at": "2026-08-17T18:10:11.044Z"
+  "updated_at": "2026-08-31T18:30:00.000Z"
 }

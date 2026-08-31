@@ -1,17 +1,31 @@
 ---
 project: Cambium
-task: "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance."
+task: "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window."
 effort: E4
 effort_source: task-classification
-phase: verify
-progress: 4/4
+phase: execute
+progress: 0/4
 mode: interactive
-iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
+iteration: 2026-08-31-thoughtseed-labs-consolidation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-20T21:01:45Z
+updated: 2026-08-31T18:30:00Z
 ---
 
 ## Problem
+
+Cambium currently contains both a Thoughtseed Labs Wrangler configuration and
+a legacy `9d9d` configuration, while historical operator instructions can
+still look executable. The production route already belongs to Labs, but
+repository intent does not yet fail closed when an operator selects the
+legacy source for a write or deploy. Cross-account R2 totals also differ
+without an authenticated exact key-and-digest reconciliation, so a bulk copy
+or source retirement would risk overwriting newer target evidence or losing
+source-only objects.
+
+The current finite milestone therefore freezes the profile boundary before
+external action: Labs is production, `9d9d` is read-only, every Cloudflare
+primitive is mapped, and later inventory, copy, parity, and retirement work
+remain independently gated.
 
 Cambium can report green proofs while the founder cannot find the named control because production data, visual fixtures, plans, and GitHub checklists can each carry a different version of operational truth. The July ActionRequest incident exposed the full failure: production served `topic.sourceMessageId`, the renderer expected an enriched `telegram.messageId`, the fixture supplied fields production never supplied, and issue #230 kept instructing a state transition that had already happened.
 
@@ -145,9 +159,11 @@ For repository-first intake, every unresolved card begins with the exact GitHub 
 
 ## Goal
 
-Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.
+Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.
 
 ### Historical goals and acceptance evidence (issue #331 and earlier)
+
+Historical v0.4 goal: Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.
 
 Make operational drift mechanically difficult by aligning the ActionRequest runtime contract, renderer, fixtures, tests, runbooks, configuration ownership, GitHub state, and release evidence. The cleanup is complete only when production-shaped tests fail on the exact former mismatch, stale actionable instructions are removed from operational surfaces, deferred roadmap work is explicit, and current main can be released without touching unrelated local work.
 
@@ -229,6 +245,13 @@ Implementation acceptance evidence (independent Phase 7 verification remains pen
 - At implementation head `3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585`, two package-level `npm run --silent safety:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` runs were byte-identical, performed zero repository or Git-index writes, and exited 0 with receipt `deterministic safety check passed: 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585 sha256:5780fe97f205bd6d559a2a2a391fc77058a19c82951627f4068e6a22315f99be entries=546`.
 - `npm run --silent docs:inventory:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` exited 0 for 546 entries with inventory digest `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
 - `SAFE-PRIVACY / T-07` passed while scanning the normalized Phase 7 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact `safety:check` stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
+
+### Active Phase 8 acceptance
+
+- [ ] ISC-2470: AUTH-01 proves the tested profile resolver accepts Labs production operations, permits legacy read-only inspection, and rejects every `9d9d` write or deploy intent before Wrangler command construction.
+- [ ] ISC-2471: MAP-01 proves one secret-free machine-readable contract maps Worker, route, Access team, D1, KV, R2, and Vectorize identities for both account profiles.
+- [ ] ISC-2472: RUN-01 proves one canonical production runbook names the Labs config and `thoughtseed-labs` profile explicitly while marking legacy instructions historical and read-only.
+- [ ] ISC-2473: Phase 8 planning and handoff prove the Labs consolidation branch remains independent from Telegram promotion and admission work, with every Cloudflare mutation, merge, transfer, and retirement gate explicit.
 
 
 ### Historical acceptance evidence (issue #331 and earlier)

@@ -22,6 +22,12 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ DOCS-01–DOCS-04 establish one five-class lifecycle map, exhaustive explicit-commit JSON/Markdown inventory readbacks, direct-owner navigation, recoverable historical evidence, and privacy-safe non-destructive stewardship — Phase 6 verification.
 - ✓ SAFE-01–SAFE-04 establish SHA-bound authority, freshness, and privacy validation plus a reviewed handoff without replacing doctrine, ISA, GSD, or D1 authority — Phase 7 verification.
 
+### Active
+
+- AUTH-01, MAP-01, and RUN-01 make `thoughtseed-labs` the fail-closed
+  production profile, keep `9d9d` read-only, and publish the stable
+  Cloudflare map and canonical operator entrypoint — Phase 8.
+
 ### Out of Scope
 
 - External delivery, email, publication, e-signature, or signature requests — this slice stops at awaiting human approval.
@@ -45,7 +51,8 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Phase 6 complete:** Documentation Stewardship passed independent verification 4/4 after closing the live STATE coherence gap; its review fixed all five Critical/Warning findings, and the final repository suite passed 1900/1900.
 - **Phase 7 complete:** Deterministic Safety and Handoff passed independent verification; the SHA-bound safety compiler remains a zero-write validator and preserves explicit held boundaries.
 - **Milestone closed:** v0.4 is archived with 5 phases, 16 plans, 35 tasks, and 21 mapped requirements. Phase directories remain as retained execution history.
-- **Next transition:** Plan the next finite milestone. Deployment, host/provider mutation, relocation, deletion, and externalization remain separately held.
+- **Active milestone:** v0.5 consolidates production Cloudflare authority in Thoughtseed Labs and governs exact `9d9d` reconciliation through Phases 8–10.
+- **Current transition:** Execute repository-only Phase 8. Deployment, traffic, DNS, Access, tunnel, R2 copy, source retirement, and merge remain separately held.
 
 ## Most Recently Completed Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
@@ -78,6 +85,10 @@ This compatibility record does not establish an active milestone. New finite wor
 
 - Keep ISA and GSD as the only goal and planning authorities.
 - Preserve the repository-only boundary until a future scope explicitly authorizes runtime or connected-repository changes.
+- Treat `thoughtseed-labs` as the only production Wrangler profile and
+  `9d9d` as read-only source and rollback evidence.
+- Require exact authenticated key-and-digest inventory before proposing any
+  per-key transfer allowlist.
 
 ## Evolution
 

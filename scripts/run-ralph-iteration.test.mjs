@@ -54,11 +54,13 @@ function fixture() {
   // Make the copied durable state agree with the executable transition.
   const statePath = path.join(root, '.planning/STATE.md');
   const stateSource = readFileSync(statePath, 'utf8');
-  // The live STATE may be past its last phase-bounded command (post-milestone);
-  // fixtures need an executable transition, so inject one when absent.
-  const withCommand = /(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/.test(stateSource)
-    ? stateSource.replace(/(## Operator Next Step\n\n`)\/gsd:[^`]+(`)/, '$1/gsd:execute-phase 5$2')
-    : `${stateSource.replace(/^## Operator Next Step$/m, '## Operator Next Step\n\n`/gsd:execute-phase 5`\n')}`;
+  // The live STATE may be past Phase 5 or contain a newer phase-bounded
+  // command. Fixtures replace the final Operator Next Step body with the one
+  // historical Phase 5 transition under test.
+  const withCommand = stateSource.replace(
+    /^## Operator Next Step\n[\s\S]*$/m,
+    '## Operator Next Step\n\n`/gsd:execute-phase 5`\n',
+  );
   writeFileSync(statePath, withCommand
     .replace(/^Phase: [^\n]+$/m, 'Phase: 5 of 7 (Ralph and Temperance Flow Projection)'));
   const executable = path.join(hostRoot, 'fixture-executor.mjs');
@@ -191,7 +193,7 @@ test('FLOW-02 / ISC-1283 / D-03..D-05: execute then verify then summary/state/ha
   const beforeFiles = files(fx.root);
   const result = await requireRunner('bounded execute-verify-persist-exit')(runOptions(fx));
   assert.equal(result.status, 'stop');
-  assert.equal(result.reason, 'iteration_complete');
+  assert.equal(result.reason, 'iteration_complete', JSON.stringify(result));
   assert.deepEqual(readFileSync(fx.effects, 'utf8').trim().split('\n'), ['execute', 'verify']);
   for (const surface of [fx.summaryPath, fx.statePath, fx.handoffPath]) {
     const body = readFileSync(path.join(fx.root, surface), 'utf8');

@@ -2,12 +2,13 @@
 
 ## Overview
 
-Cambium's v0.4 milestone established canonical doctrine anchors, deterministic read-only intent and flow projections, documentation stewardship, and safety validation without creating another planning or operational writer. The milestone is archived; the next horizon is intentionally unplanned.
+Cambium's v0.4 milestone established canonical doctrine anchors, deterministic read-only intent and flow projections, documentation stewardship, and safety validation without creating another planning or operational writer. Milestone v0.5 now consolidates production Cloudflare authority in Thoughtseed Labs while keeping 9d9d read-only until exact reconciliation and retirement gates pass.
 
 ## Milestones
 
 - ✅ **v0.3 Managerial Control Loop** — Phases 1–2 shipped 2026-08-17 ([archive](./milestones/v0.3-ROADMAP.md))
 - ✅ **v0.4 Cambium Infinite-Game Doctrine and Intent Graph** — Phases 3–7 shipped 2026-08-29 ([archive](./milestones/v0.4-ROADMAP.md))
+- 🚧 **v0.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement** — Phases 8–10 active
 
 ## Phases
 
@@ -16,6 +17,15 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 
 - [x] **Phase 1: D1-Leased Service-Agreement Draft** — Proved one replay-safe synthetic service-agreement flow through durable artifact readback.
 - [x] **Phase 2: Telegram Operator Intake** — Exposed the bounded flow through feature-gated Telegram intake and redacted status readback.
+
+</details>
+
+<details open>
+<summary>🚧 v0.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement (Phases 8–10) — ACTIVE</summary>
+
+- [ ] **Phase 8: Labs Authority and Profile Safety** — Make `thoughtseed-labs` the fail-closed production profile, map every Cloudflare primitive, and keep `9d9d` read-only.
+- [ ] **Phase 9: Source Inventory and Classification** — Obtain exact authenticated source keys and digests, then classify every delta without copying.
+- [ ] **Phase 10: Allowlisted Reconciliation and Retirement** — Copy only approved keys, verify parity, observe rollback, and retire through a separate gate.
 
 </details>
 
@@ -54,7 +64,10 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 | 5. Ralph and Temperance Flow Projection | v0.4 | 3/3 | Complete | 2026-08-19 |
 | 6. Documentation Stewardship | v0.4 | 4/4 | Complete | 2026-08-20 |
 | 7. Deterministic Safety and Handoff | v0.4 | 3/3 | Verified | 2026-08-22 |
+| 8. Labs Authority and Profile Safety | v0.5 | 0/1 | In progress | — |
+| 9. Source Inventory and Classification | v0.5 | 0/0 | Held | — |
+| 10. Allowlisted Reconciliation and Retirement | v0.5 | 0/0 | Held | — |
 
 ## Next
 
-Start the next finite planning horizon with `/gsd-new-milestone`. Runtime, provider, deployment, D1 CAS, and connected-repository changes remain separately owner-approved.
+Continue Phase 8 with `/gsd:execute-phase 8`. Cloudflare mutation, source-object transfer, retirement, and merge remain separately owner-approved.
