@@ -348,7 +348,13 @@ export function buildTemperanceFlowSources(repositoryRoot, options = {}) {
   const statePhaseSelector = 'text.line:Phase:';
   const statePhase = select(stateRaw, statePhaseSelector, '.planning/STATE.md');
   const stateLive = commands.length === 1 && /^Phase: 5 of 7 \(/.test(statePhase);
-  const handoffHeading = /^###\s+(.+)$/m.exec(handoffRaw)?.[1] ?? '';
+  const handoffHeadings = [...handoffRaw.matchAll(/^###\s+(.+)$/gm)].map((match) => match[1]);
+  const handoffHeading = handoffHeadings.find((heading) => (
+    /Phase 5 decisions and reviewed planning checkpoint/.test(heading)
+  ));
+  if (!handoffHeading) {
+    throw new TypeError('.project/HANDOFF.md has no reviewed Phase 5 checkpoint');
+  }
   const handoffSelector = `markdown.heading:${handoffHeading}`;
   const handoffCheckpoint = select(handoffRaw, handoffSelector, '.project/HANDOFF.md');
   const handoffReference = reviewedHandoffReference(reader, handoffSelector, handoffCheckpoint);

@@ -23,7 +23,7 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 <details open>
 <summary>🚧 v0.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement (Phases 8–10) — ACTIVE</summary>
 
-- [ ] **Phase 8: Labs Authority and Profile Safety** — Make `thoughtseed-labs` the fail-closed production profile, map every Cloudflare primitive, and keep `9d9d` read-only.
+- [x] **Phase 8: Labs Authority and Profile Safety** — Made `thoughtseed-labs` the fail-closed production profile, mapped every Cloudflare primitive, and kept `9d9d` read-only.
 - [ ] **Phase 9: Source Inventory and Classification** — Obtain exact authenticated source keys and digests, then classify every delta without copying.
 - [ ] **Phase 10: Allowlisted Reconciliation and Retirement** — Copy only approved keys, verify parity, observe rollback, and retire through a separate gate.
 
@@ -64,10 +64,10 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 | 5. Ralph and Temperance Flow Projection | v0.4 | 3/3 | Complete | 2026-08-19 |
 | 6. Documentation Stewardship | v0.4 | 4/4 | Complete | 2026-08-20 |
 | 7. Deterministic Safety and Handoff | v0.4 | 3/3 | Verified | 2026-08-22 |
-| 8. Labs Authority and Profile Safety | v0.5 | 0/1 | In progress | — |
+| 8. Labs Authority and Profile Safety | v0.5 | 1/1 | Verified | 2026-08-31 |
 | 9. Source Inventory and Classification | v0.5 | 0/0 | Held | — |
 | 10. Allowlisted Reconciliation and Retirement | v0.5 | 0/0 | Held | — |
 
 ## Next
 
-Continue Phase 8 with `/gsd:execute-phase 8`. Cloudflare mutation, source-object transfer, retirement, and merge remain separately owner-approved.
+Continue repository planning with `/gsd:plan-phase 9`. Executing authenticated read-only `9d9d` inventory, Cloudflare mutation, source-object transfer, retirement, and merge remain separately owner-approved.

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
-stopped_at: Phase 8 Plan 08-01 implementation in progress
-last_updated: "2026-08-31T18:30:00.000Z"
-last_activity: 2026-08-31 — approved repository-only Labs consolidation implementation started
+stopped_at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate
+last_updated: "2026-08-31T18:31:00.000Z"
+last_activity: 2026-08-31 — Phase 8 repository guardrails independently reviewed and verified
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -25,16 +25,16 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** An operator action counts only when its durable task, lease,
 artifact, outcome, and readback agree.
-**Current focus:** Freeze Thoughtseed Labs production authority while keeping
-`9d9d` read-only.
+**Current focus:** Plan exact authenticated read-only `9d9d` inventory while
+preserving verified Thoughtseed Labs production authority.
 
 ## Current Position
 
-Phase: 8 of 10 (Labs Authority and Profile Safety)
-Plan: 08-01 (in progress)
+Phase: 9 of 10 (Source Inventory and Classification)
+Plan: Not planned
 Status: Active
-Last activity: 2026-08-31 — profile guard, resource map, runbook, and v0.5
-planning integration underway
+Last activity: 2026-08-31 — Phase 8 profile guard, resource map, runbook,
+planning integration, full suite, and independent review complete
 
 ## Accumulated Context
 
@@ -55,7 +55,6 @@ planning integration underway
 
 ### Pending Todos
 
-- Complete and verify Plan 08-01.
 - Obtain authenticated source-key inventory authority before Phase 9.
 - Keep Phase 10 copy and retirement work held behind separate approval.
 
@@ -68,12 +67,13 @@ planning integration underway
 
 ## Session Continuity
 
-Last session: 2026-08-31T18:30:00Z
-Stopped at: Phase 8 Plan 08-01 implementation in progress
-Resume file: .planning/phases/08-labs-authority-and-profile-safety/08-01-PLAN.md
+Last session: 2026-08-31T18:31:00Z
+Stopped at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate
+Resume file: .planning/STATE.md
 
 ## Operator Next Step
 
-Continue `/gsd:execute-phase 8` in the isolated implementation worktree.
-Do not run a Cloudflare write, deploy, copy, or retirement command from this
-planning state.
+Continue with `/gsd:plan-phase 9` to specify the authenticated read-only
+inventory and classification proof. Executing that inventory still requires
+explicit owner authorization. Do not run a Cloudflare write, deploy, copy,
+DNS, Access, tunnel, or retirement command from this planning state.

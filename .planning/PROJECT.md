@@ -21,12 +21,14 @@ An operator action counts only when its authoritative task, lease, artifact, out
 - ✓ FLOW-01–FLOW-04 establish one deterministic Temperance next-action projection, a bounded execute/verify/CAS-persist/exit Ralph lifecycle, receipt-gated host attribution, and fail-closed non-authority boundaries without adding a mutable ledger or operational writer — Phase 5 verification.
 - ✓ DOCS-01–DOCS-04 establish one five-class lifecycle map, exhaustive explicit-commit JSON/Markdown inventory readbacks, direct-owner navigation, recoverable historical evidence, and privacy-safe non-destructive stewardship — Phase 6 verification.
 - ✓ SAFE-01–SAFE-04 establish SHA-bound authority, freshness, and privacy validation plus a reviewed handoff without replacing doctrine, ISA, GSD, or D1 authority — Phase 7 verification.
+- ✓ AUTH-01, MAP-01, and RUN-01 establish `thoughtseed-labs` as the fail-closed
+  production profile, preserve `9d9d` as read-only, and publish the stable
+  Cloudflare map and canonical operator entrypoint — Phase 8 verification.
 
 ### Active
 
-- AUTH-01, MAP-01, and RUN-01 make `thoughtseed-labs` the fail-closed
-  production profile, keep `9d9d` read-only, and publish the stable
-  Cloudflare map and canonical operator entrypoint — Phase 8.
+- INV-01 and CLASS-01 require authenticated read-only `9d9d` inventory and
+  exact source/target classification before any copy proposal — Phase 9 held.
 
 ### Out of Scope
 
@@ -52,7 +54,7 @@ The July ecosystem audit found that direct agent and CLI primitives work while t
 - **Phase 7 complete:** Deterministic Safety and Handoff passed independent verification; the SHA-bound safety compiler remains a zero-write validator and preserves explicit held boundaries.
 - **Milestone closed:** v0.4 is archived with 5 phases, 16 plans, 35 tasks, and 21 mapped requirements. Phase directories remain as retained execution history.
 - **Active milestone:** v0.5 consolidates production Cloudflare authority in Thoughtseed Labs and governs exact `9d9d` reconciliation through Phases 8–10.
-- **Current transition:** Execute repository-only Phase 8. Deployment, traffic, DNS, Access, tunnel, R2 copy, source retirement, and merge remain separately held.
+- **Current transition:** Phase 8 is verified and Phase 9 is ready for repository planning. Executing authenticated source inventory still requires explicit authorization; deployment, traffic, DNS, Access, tunnel, R2 copy, source retirement, and merge remain separately held.
 
 ## Most Recently Completed Milestone: v0.4 Cambium Infinite-Game Doctrine and Intent Graph
 
@@ -137,4 +139,4 @@ This document evolves at phase transitions and milestone boundaries.
 | Archive finite planning only after independent verification and a zero-open-artifact audit | Keeps historical evidence recoverable while preventing an unverified phase from being represented as a shipped milestone | ✓ Proven in v0.4 closeout |
 
 ---
-*Last updated: 2026-08-29 after v0.4 milestone closeout*
+*Last updated: 2026-08-31 after Phase 8 repository verification*

@@ -3,12 +3,12 @@ project: Cambium
 task: "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window."
 effort: E4
 effort_source: task-classification
-phase: execute
-progress: 0/4
+phase: verify
+progress: 4/4
 mode: interactive
 iteration: 2026-08-31-thoughtseed-labs-consolidation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-31T18:30:00Z
+updated: 2026-08-31T18:31:00Z
 ---
 
 ## Problem
@@ -246,12 +246,20 @@ Implementation acceptance evidence (independent Phase 7 verification remains pen
 - `npm run --silent docs:inventory:check -- --source-revision 3d3cfe1ce3b09e10e164eec1b9c9bf17f53f8585` exited 0 for 546 entries with inventory digest `sha256:c2f1385e6f8edc91b28e680d551b4a23898a11870f7072216d86b8964d4ab220`.
 - `SAFE-PRIVACY / T-07` passed while scanning the normalized Phase 7 committed/staged/unstaged/untracked path union, present worktree bytes, added diff lines, deletion/rename gates, and exact `safety:check` stdout. This is bounded implementation acceptance, not independent verification or production deployment approval.
 
-### Active Phase 8 acceptance
+### Completed Phase 8 acceptance
 
-- [ ] ISC-2470: AUTH-01 proves the tested profile resolver accepts Labs production operations, permits legacy read-only inspection, and rejects every `9d9d` write or deploy intent before Wrangler command construction.
-- [ ] ISC-2471: MAP-01 proves one secret-free machine-readable contract maps Worker, route, Access team, D1, KV, R2, and Vectorize identities for both account profiles.
-- [ ] ISC-2472: RUN-01 proves one canonical production runbook names the Labs config and `thoughtseed-labs` profile explicitly while marking legacy instructions historical and read-only.
-- [ ] ISC-2473: Phase 8 planning and handoff prove the Labs consolidation branch remains independent from Telegram promotion and admission work, with every Cloudflare mutation, merge, transfer, and retirement gate explicit.
+- [x] ISC-2470: AUTH-01 proves the tested profile resolver accepts Labs production operations, permits legacy read-only inspection, and rejects every `9d9d` write or deploy intent before Wrangler command construction.
+- [x] ISC-2471: MAP-01 proves one secret-free machine-readable contract maps Worker, route, Access team and audiences, D1, KV, R2, and Vectorize identities for both account profiles.
+- [x] ISC-2472: RUN-01 proves one canonical production runbook names the Labs config and `thoughtseed-labs` profile explicitly while marking legacy instructions historical and read-only.
+- [x] ISC-2473: Phase 8 planning and handoff prove the Labs consolidation branch remains independent from Telegram promotion and admission work, with every Cloudflare mutation, merge, transfer, and retirement gate explicit.
+
+Implementation acceptance evidence:
+
+- Commits `2aad38a`, `d8d3ae6`, and `4753af1` separate the profile/map/runbook implementation, the v0.5 planning spine, and the review repair that source-binds both production and legacy Access audience sets.
+- Focused guard, map, release, helper, and standalone-audit suites pass 36/36 after the review repair; the exact committed pre-repair tree passed the full repository suite 1974/1974 twice, including one independent reviewer run.
+- Independent review found one P1 Access-inventory omission. The follow-up review confirmed `4753af1` closes it with no remaining actionable findings and keeps unknown legacy application names and hostnames held for authenticated Phase 9 inventory.
+- Phase closeout also regression-hardens the historical Temperance Flow source adapter so newer handoff checkpoints cannot hide its reviewed Phase 5 evidence; the combined Ralph/flow suites pass 32/32.
+- Cloudflare mutation, Worker upload or promotion, DNS, Access, tunnel, R2 copy or deletion, D1/KV/Vectorize writes, source retirement, merge, and push were not performed or authorized by this acceptance.
 
 
 ### Historical acceptance evidence (issue #331 and earlier)

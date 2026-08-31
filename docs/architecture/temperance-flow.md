@@ -4,8 +4,8 @@
 
 - Schema: `cambium.temperance-flow-projection.v1`
 - Projection authority: `read_only`
-- Source-set digest: `sha256:3ec70027952f7a5d20ec03b8d49277eb949658edf42540367d7cf3f49a5b3183`
-- Flow digest: `sha256:c96804351fef602c61b05fecc16f790c1f5346ceae14ff31d8e981a1af56e70b`
+- Source-set digest: `sha256:7519a4cee12b8697d93ad4f17b1460887af8afb41f1d6aec05d2e774dbee1dac`
+- Flow digest: `sha256:03617c87e230185cdd6c8a21c4001dcaecc1d3b6c019985dbe3445c1f0a6b0ca`
 - Result: `blocked`
 - Command: `—`
 - Selected task: `—`
@@ -21,7 +21,7 @@
 | Role | Reference |
 | --- | --- |
 | ISA | `ISA.md#frontmatter.task@sha256:126b045367afe967fec429df4c99044e63b662a40b729fda8abc4a7dea7c51b2` |
-| GSD state | `.planning/STATE.md#markdown.heading:Operator Next Step@sha256:c07fe3ea332cbf97e2641c50516527eb26ff346250458813a1410c09f50cb61d` |
+| GSD state | `.planning/STATE.md#markdown.heading:Operator Next Step@sha256:08c563d93bf20c3841aacced0815b090e78ad49340698398839f7fe6c3b4db90` |
 | Active plan | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#whole-file@sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c` |
 | Intent Graph | `docs/architecture/intent-graph.v1.json#cambium.intent-graph-projection.v1@sha256:6d162aaa922d7bfb01a1e6bc4a410bf6ee02d592bc5f05769165ffe382b05cef` |
 | Supporting evidence | `.project/HANDOFF.md#markdown.heading:2026-08-19 Phase 5 decisions and reviewed planning checkpoint — review-fix iteration 3@sha256:16f7a9499b80fd70deef93870997270847600296208e7dfd24492050aec80710` |
@@ -30,7 +30,7 @@
 | Supporting evidence | `ISA.md#markdown.heading:Completed Phase 5 acceptance@sha256:289e496ae6dff3b641505e34711c5b55bf666b71a06122995779cf1877d3ade9` |
 | Supporting evidence | `.planning/phases/05-ralph-and-temperance-flow-projection/05-02-SUMMARY.md#markdown.heading:Self-Check: PASSED@sha256:8b9cb73161e7932994b9362203f6a9a773a8fb14a33bef791b91edf09d94bf74` |
 | Supporting evidence | `ISA.md#markdown.list-item:- 2026-08-19 11:06: refined:@sha256:c2d03b18eb3e9725e1f1e498b17d2a394a3c5a9a5a4dc4932c45f8bb5bc447ba` |
-| Supporting evidence | `.planning/STATE.md#text.line:Phase:@sha256:cbb645f2fc29e1bf4715e488e9102f9b36decd0fea2fdf89e1369bb2b38dd0d6` |
+| Supporting evidence | `.planning/STATE.md#text.line:Phase:@sha256:de38d75e438fc5c7187c0fcdea41a26c8639074e99f9808f63714a78e74cda77` |
 
 ## Lifecycle
 
@@ -59,7 +59,7 @@
 ## Blocked reasons
 
 - `active_plan_not_unique_or_active`: .planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#whole-file@sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c
-- `gsd_state_not_live`: .planning/STATE.md#markdown.heading:Operator Next Step@sha256:c07fe3ea332cbf97e2641c50516527eb26ff346250458813a1410c09f50cb61d
+- `gsd_state_not_live`: .planning/STATE.md#markdown.heading:Operator Next Step@sha256:08c563d93bf20c3841aacced0815b090e78ad49340698398839f7fe6c3b4db90
 - `no_dependency_ready_task`: source unavailable
 
 Source bodies and host routing policy remain in their owning systems.

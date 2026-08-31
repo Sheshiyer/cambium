@@ -140,17 +140,17 @@
 - Consumes: verified diff and live branch readbacks
 - Produces: a bounded handoff that names PR order and external holds
 
-- [ ] **Step 1: Re-read branch topology**
+- [x] **Step 1: Re-read branch topology**
 
   Run: `git worktree list --porcelain`, `git branch -vv`, and
   `gh pr list --state open`.
 
-- [ ] **Step 2: Append one checkpoint**
+- [x] **Step 2: Append one checkpoint**
 
   Record the implementation worktree/branch, write set, RED/GREEN evidence,
   Telegram-first PR order, held admission branch, and all external gates.
 
-- [ ] **Step 3: Verify no private or machine-local state entered tracked files**
+- [x] **Step 3: Verify no private or machine-local state entered tracked files**
 
   Run: `git diff --check` and the named privacy/safety tests.
 
@@ -159,23 +159,23 @@
 **Files:**
 - Verify only
 
-- [ ] **Step 1: Run focused contracts**
+- [x] **Step 1: Run focused contracts**
 
   Run:
   `node --test scripts/quests-wrangler-profile.test.mjs scripts/release-contract.test.mjs`
 
-- [ ] **Step 2: Run repository gates**
+- [x] **Step 2: Run repository gates**
 
   Run: `npm test`, `npm run render-docs:check`,
   `node scripts/generate-temperance-flow.mjs --check`, and
   `git diff --check`.
 
-- [ ] **Step 3: Review the diff and source boundaries**
+- [x] **Step 3: Review the diff and source boundaries**
 
   Run: `git status --short`, `git diff --stat`, and
   `git diff --check`.
 
-- [ ] **Step 4: Create reviewable commits**
+- [x] **Step 4: Create reviewable commits**
 
   Commit the profile/map/runbook slice separately from the GSD/ISA/checkpoint
   slice. Do not push, open a PR, merge, deploy, or mutate Cloudflare unless the

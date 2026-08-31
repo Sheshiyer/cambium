@@ -2,7 +2,7 @@
   "schema": "temperance.goal.v1",
   "text": "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.",
   "planner": "isa",
-  "gsd_command": "execute-phase",
+  "gsd_command": "plan-phase",
   "evaluator": [
     {
       "id": "doctor",
@@ -20,5 +20,5 @@
     "claude": "/goal Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.",
     "codex": "wrapper"
   },
-  "updated_at": "2026-08-31T18:30:00.000Z"
+  "updated_at": "2026-08-31T18:31:00.000Z"
 }

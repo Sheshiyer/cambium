@@ -4,13 +4,13 @@
 
 ### Phase 8 — Labs Authority and Profile Safety
 
-- [ ] **AUTH-01** — A tested resolver names `thoughtseed-labs` as production,
+- [x] **AUTH-01** — A tested resolver names `thoughtseed-labs` as production,
   permits legacy `9d9d` reads, and rejects every legacy write or deploy
   request before a Wrangler command is constructed.
-- [ ] **MAP-01** — One machine-readable contract maps Worker, route, Access
-  team, D1, KV, R2, and Vectorize identities for both profiles without
-  secrets or mutable object counts.
-- [ ] **RUN-01** — One canonical production runbook uses the Labs config and
+- [x] **MAP-01** — One machine-readable contract maps Worker, route, Access
+  team and audience sets, D1, KV, R2, and Vectorize identities for both
+  profiles without secrets or mutable object counts.
+- [x] **RUN-01** — One canonical production runbook uses the Labs config and
   `thoughtseed-labs` profile explicitly and treats `9d9d` as read-only.
 
 ### Phase 9 — Source Inventory and Classification
@@ -35,9 +35,9 @@
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| AUTH-01 | Phase 8 | Pending |
-| MAP-01 | Phase 8 | Pending |
-| RUN-01 | Phase 8 | Pending |
+| AUTH-01 | Phase 8 | Complete |
+| MAP-01 | Phase 8 | Complete |
+| RUN-01 | Phase 8 | Complete |
 | INV-01 | Phase 9 | Held |
 | CLASS-01 | Phase 9 | Held |
 | COPY-01 | Phase 10 | Held |

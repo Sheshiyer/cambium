@@ -938,7 +938,7 @@ test('DOCS-03 / D-03: additive navigation resolves direct owners without copied 
   assert.throws(() => rejectCopiedLiveStatus('status: active\nnext command is `/gsd:execute-phase 7`'), /delegate mutable status/i);
 });
 
-test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent active v0.5 transition', () => {
+test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent gated v0.5 transition', () => {
   const state = read('.planning/STATE.md');
   const roadmap = read('.planning/ROADMAP.md');
   const roadmapArchive = read('.planning/milestones/v0.4-ROADMAP.md');
@@ -947,20 +947,20 @@ test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent active
 
   assert.match(frontmatter, /^milestone: v0\.5$/m);
   assert.match(frontmatter, /^status: Active$/m);
-  assert.match(frontmatter, /^stopped_at: Phase 8 Plan 08-01 implementation in progress$/m);
+  assert.match(frontmatter, /^stopped_at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate$/m);
   assert.match(frontmatter, /^\s+total_phases: 3$/m);
-  assert.match(frontmatter, /^\s+completed_phases: 0$/m);
+  assert.match(frontmatter, /^\s+completed_phases: 1$/m);
   assert.match(frontmatter, /^\s+total_plans: 1$/m);
-  assert.match(frontmatter, /^\s+completed_plans: 0$/m);
-  assert.match(frontmatter, /^\s+percent: 0$/m);
+  assert.match(frontmatter, /^\s+completed_plans: 1$/m);
+  assert.match(frontmatter, /^\s+percent: 33$/m);
 
-  assert.match(state, /^\*\*Current focus:\*\* Freeze Thoughtseed Labs production authority while keeping$/m);
-  assert.match(state, /^Phase: 8 of 10 \(Labs Authority and Profile Safety\)$/m);
-  assert.match(state, /^Plan: 08-01 \(in progress\)$/m);
+  assert.match(state, /^\*\*Current focus:\*\* Plan exact authenticated read-only `9d9d` inventory while$/m);
+  assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
+  assert.match(state, /^Plan: Not planned$/m);
   assert.match(state, /^Status: Active$/m);
-  assert.match(state, /^Stopped at: Phase 8 Plan 08-01 implementation in progress$/m);
-  assert.match(state, /^Resume file: \.planning\/phases\/08-labs-authority-and-profile-safety\/08-01-PLAN\.md$/m);
-  assert.match(state, /`\/gsd:execute-phase 8`/);
+  assert.match(state, /^Stopped at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate$/m);
+  assert.match(state, /^Resume file: \.planning\/STATE\.md$/m);
+  assert.match(state, /`\/gsd:plan-phase 9`/);
   assert.doesNotMatch(state, /\/gsd:plan-phase 7/);
   assert.doesNotMatch(state, /\/gsd:secure-phase 6/);
 
@@ -992,17 +992,17 @@ test('Labs consolidation planning keeps production and legacy authority separate
   const config = JSON.parse(read('.planning/config.json'));
 
   assert.ok(isa.includes(`task: "${labsConsolidationGoal}"`));
-  assert.match(isa, /^### Active Phase 8 acceptance$/m);
+  assert.match(isa, /^### Completed Phase 8 acceptance$/m);
   for (const id of ['ISC-2470', 'ISC-2471', 'ISC-2472', 'ISC-2473']) {
-    assert.equal(checkbox(isa, id), false, `${id} must remain pending until Phase 8 verification`);
+    assert.equal(checkbox(isa, id), true, `${id} must be complete after Phase 8 verification`);
   }
 
   assert.match(state, /^milestone: v0\.5$/m);
   assert.match(state, /^status: Active$/m);
-  assert.match(state, /^Phase: 8 of 10 \(Labs Authority and Profile Safety\)$/m);
-  assert.match(state, /^Plan: 08-01 \(in progress\)$/m);
+  assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
+  assert.match(state, /^Plan: Not planned$/m);
   assert.match(roadmap, /^- 🚧 \*\*v0\.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement\*\* — Phases 8–10 active$/m);
-  assert.match(roadmap, /^- \[ \] \*\*Phase 8: Labs Authority and Profile Safety\*\*/m);
+  assert.match(roadmap, /^- \[x\] \*\*Phase 8: Labs Authority and Profile Safety\*\*/m);
 
   for (const source of [project, requirements, milestoneContext, phaseContext, phasePlan]) {
     assert.match(source, /thoughtseed-labs/i);
@@ -1010,11 +1010,11 @@ test('Labs consolidation planning keeps production and legacy authority separate
     assert.match(source, /read-only/i);
   }
   for (const requirement of ['AUTH-01', 'MAP-01', 'RUN-01']) {
-    assert.ok(requirements.includes(`- [ ] **${requirement}**`));
-    assert.ok(requirements.includes(`| ${requirement} | Phase 8 | Pending |`));
+    assert.ok(requirements.includes(`- [x] **${requirement}**`));
+    assert.ok(requirements.includes(`| ${requirement} | Phase 8 | Complete |`));
   }
   assert.equal(goal.text, labsConsolidationGoal);
-  assert.equal(goal.gsd_command, 'execute-phase');
+  assert.equal(goal.gsd_command, 'plan-phase');
   assert.equal(config.temperance.fleet_combo, 'noesis-execute');
 });
 
