@@ -96,6 +96,8 @@ if (( $# == 1 )); then
   exit 0
 fi
 
+fail 'legacy_source_read_only'
+
 check_static_contract
 
 base_url_input="${CAMBIUM_QUESTS_BASE_URL-}"

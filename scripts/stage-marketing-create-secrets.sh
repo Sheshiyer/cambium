@@ -401,6 +401,9 @@ print_receipt() {
 
 main() {
   parse_arguments "$@"
+  if [[ "$CHECK_ONLY" == false ]]; then
+    die 'legacy_source_read_only'
+  fi
   require_operator_custody
   prepare_private_runtime
   assert_candidate_identity

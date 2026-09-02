@@ -9,6 +9,9 @@ const ci = read('.github/workflows/ci.yml');
 const releaseWorkflow = read('.github/workflows/release.yml');
 const releaseScript = read('scripts/release.sh');
 const workerDeploy = read('workers/quests/DEPLOY.md');
+const labsWorkerDeploy = read('workers/quests/DEPLOY-LABS.md');
+const legacySecretStaging = read('scripts/stage-marketing-create-secrets.sh');
+const legacyPrepareProof = read('scripts/prove-marketing-create-prepare.sh');
 
 test('release contract · one deterministic command owns local and workflow gates', () => {
   assert.equal(pkg.scripts['drift:audit'], 'node scripts/drift-audit.mjs');
@@ -47,9 +50,25 @@ test('release contract · codename output uses a shell-safe workflow block', () 
 
 test('release contract · Worker deployment documents an isolated verified rollback', () => {
   assert.match(workerDeploy, /## Rollback/);
+  assert.match(workerDeploy, /DEPLOY-LABS\.md/);
+  assert.match(workerDeploy, /legacy source.*read-only/is);
   assert.match(workerDeploy, /previous known-good release tag/);
   assert.match(workerDeploy, /isolated clean clone/);
-  assert.match(workerDeploy, /wrangler deploy --config workers\/quests\/wrangler\.jsonc/);
+  assert.match(labsWorkerDeploy, /quests-wrangler-profile\.mjs/);
+  assert.match(labsWorkerDeploy, /--profile thoughtseed-labs/);
+  assert.match(labsWorkerDeploy, /--config workers\/quests\/wrangler\.labs\.jsonc/);
+  const sourceInventory = labsWorkerDeploy.indexOf('## Read-only 9d9d inventory');
+  assert.ok(sourceInventory > 0, 'Labs runbook has an explicit source-inventory boundary');
+  assert.doesNotMatch(
+    labsWorkerDeploy.slice(0, sourceInventory),
+    /workers\/quests\/wrangler\.jsonc/,
+  );
+  assert.match(
+    labsWorkerDeploy.slice(sourceInventory),
+    /--profile legacy-source --operation read/,
+  );
+  assert.match(legacySecretStaging, /CHECK_ONLY.*false[\s\S]{0,80}legacy_source_read_only/);
+  assert.match(legacyPrepareProof, /fail 'legacy_source_read_only'/);
   assert.match(workerDeploy, /healthz\/gate/);
   assert.match(workerDeploy, /HTTP 401/);
 });
