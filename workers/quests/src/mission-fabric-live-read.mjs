@@ -5,7 +5,7 @@
 //     node workers/quests/src/mission-fabric-live-read.mjs
 //
 // Optional Access service-token headers (deployed endpoint behind CF Access):
-//   CF_ACCESS_CLIENT_ID=... CF_ACCESS_CLIENT_SECRET=... BASE_URL=https://curious.thoughtseed.space ...
+//   CF_ACCESS_CLIENT_ID=... CF_ACCESS_CLIENT_SECRET=... BASE_URL=https://<your-deployed-host> ...
 //
 // GET only. Never writes. Prints the client's gap/summary verdict as JSON so
 // the outcome is auditable. Exits 0 on ok projection, 2 on a gap (still a valid,

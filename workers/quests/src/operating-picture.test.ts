@@ -8,7 +8,7 @@ import { operatingPicture, renderOperatingLine } from './operating-picture.ts';
 import type { FetchLike } from './mission-fabric-read-client.ts';
 
 const TENANT = 'cambium-synthetic';
-const BASE_URL = 'https://curious.thoughtseed.space';
+const BASE_URL = 'https://example.invalid';
 const CLOCK = { now: () => '2026-07-28T09:00:03.000Z' };
 
 function projectionFetch(): FetchLike {

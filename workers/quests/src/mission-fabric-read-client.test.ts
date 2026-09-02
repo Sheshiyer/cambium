@@ -21,7 +21,7 @@ import {
 } from './mission-fabric-read-client.ts';
 
 const TENANT = 'cambium-synthetic';
-const BASE_URL = 'https://curious.thoughtseed.space';
+const BASE_URL = 'https://example.invalid';
 const CLOCK = { now: () => '2026-07-28T09:00:03.000Z' };
 
 /** A real, self-consistent projection (graphDigest === projectionDigest). */
@@ -50,12 +50,12 @@ function fakeFetch(status: number, body: unknown, opts: { throwErr?: Error; capt
 test('missionFabricUrl builds the canonical read path with tenant encoding', () => {
   assert.equal(
     missionFabricUrl(BASE_URL, 'cambium'),
-    'https://curious.thoughtseed.space/v1/mission-fabric/cambium',
+    'https://example.invalid/v1/mission-fabric/cambium',
   );
   // trailing slash on base is trimmed; tenant is encoded
   assert.equal(
     missionFabricUrl(`${BASE_URL}/`, 'a b'),
-    'https://curious.thoughtseed.space/v1/mission-fabric/a%20b',
+    'https://example.invalid/v1/mission-fabric/a%20b',
   );
 });
 

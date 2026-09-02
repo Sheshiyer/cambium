@@ -54,7 +54,7 @@ export interface MissionFabricAuth {
 }
 
 export interface MissionFabricReadConfig {
-  /** e.g. "https://curious.thoughtseed.space" (thoughtseed-labs profile). */
+  /** e.g. "https://example.invalid" — the deployed profile's base URL, injected via config; never hardcoded here. */
   baseUrl: string;
   /** Tenant path segment for /v1/mission-fabric/{tenant}. */
   tenantId: string;
