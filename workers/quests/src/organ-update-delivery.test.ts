@@ -14,11 +14,11 @@ import {
 
 const DIGEST = `sha256:${'a'.repeat(64)}`;
 const ROUTES = [
-  ['genesis', 'brand-intake', 'inbox', 800],
-  ['taste', 'qa', 'digests', 798],
-  ['hands', 'verification', 'dev', 862],
-  ['will', 'approved-business', 'clients', 804],
-  ['cortex', 'learning', 'agent_ops', 802],
+  ['genesis', 'brand-intake', 'inbox', 5],
+  ['taste', 'qa', 'digests', 3],
+  ['hands', 'verification', 'dev', 4],
+  ['will', 'approved-business', 'clients', 9],
+  ['cortex', 'learning', 'agent_ops', 7],
 ] as const;
 
 function signal(overrides: Record<string, unknown> = {}): Record<string, unknown> {
@@ -97,7 +97,7 @@ for (const status of ['blocked', 'failed', 'drifted'] as const) {
     for (const [organ, trigger] of ROUTES) {
       const delivery = compileOrganUpdateDelivery(signal({ organ, trigger, status }));
       assert.equal(delivery.route.topicKey, 'alerts');
-      assert.equal(delivery.route.threadId, 803);
+      assert.equal(delivery.route.threadId, 8);
     }
   });
 }
@@ -113,7 +113,7 @@ test('equal canonical signals produce equal delivery identities and digests', ()
   assert.deepEqual(first, second);
   assert.equal(validateOrganUpdateDelivery(first), true);
   assert.equal(validateOrganUpdateDelivery({ ...first, deliveryDigest: `sha256:${'f'.repeat(64)}` }), false);
-  assert.equal(validateOrganUpdateDelivery({ ...first, route: { ...first.route, threadId: 797 } }), false);
+  assert.equal(validateOrganUpdateDelivery({ ...first, route: { ...first.route, threadId: 2 } }), false);
 });
 
 test('changing proof, workflow, route-driving status, or message changes the digest', () => {

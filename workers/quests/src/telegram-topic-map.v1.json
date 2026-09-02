@@ -1,14 +1,14 @@
 {
   "version": "thoughtseed.telegram-topic-map.v1",
-  "chatId": "-1002691202808",
+  "chatId": "-1003942929819",
   "topics": {
-    "hermes": { "topicName": "Hermes", "threadId": 797, "questId": "the-gate", "priority": "normal", "taskType": "operations" },
-    "digests": { "topicName": "Digests", "threadId": 798, "questId": "the-review", "priority": "normal", "taskType": "research" },
-    "dev": { "topicName": "Dev", "threadId": 862, "questId": "the-build", "priority": "high", "taskType": "engineering" },
-    "inbox": { "topicName": "Inbox", "threadId": 800, "questId": "the-brief", "priority": "normal", "taskType": "general" },
-    "calendar": { "topicName": "Calendar", "threadId": 801, "questId": "the-brief", "priority": "normal", "taskType": "operations" },
-    "agent_ops": { "topicName": "Agent Ops", "threadId": 802, "questId": "living-org", "priority": "high", "taskType": "operations" },
-    "alerts": { "topicName": "Alerts", "threadId": 803, "questId": "the-ship-gate", "priority": "urgent", "taskType": "operations" },
-    "clients": { "topicName": "Clients", "threadId": 804, "questId": "the-handoff", "priority": "high", "taskType": "general" }
+    "hermes": { "topicName": "Hermes", "threadId": 2, "questId": "the-gate", "priority": "normal", "taskType": "operations" },
+    "digests": { "topicName": "Digests", "threadId": 3, "questId": "the-review", "priority": "normal", "taskType": "research" },
+    "dev": { "topicName": "Dev", "threadId": 4, "questId": "the-build", "priority": "high", "taskType": "engineering" },
+    "inbox": { "topicName": "Inbox", "threadId": 5, "questId": "the-brief", "priority": "normal", "taskType": "general" },
+    "calendar": { "topicName": "Calendar", "threadId": 6, "questId": "the-brief", "priority": "normal", "taskType": "operations" },
+    "agent_ops": { "topicName": "Agent Ops", "threadId": 7, "questId": "living-org", "priority": "high", "taskType": "operations" },
+    "alerts": { "topicName": "Alerts", "threadId": 8, "questId": "the-ship-gate", "priority": "urgent", "taskType": "operations" },
+    "clients": { "topicName": "Clients", "threadId": 9, "questId": "the-handoff", "priority": "high", "taskType": "general" }
   }
 }

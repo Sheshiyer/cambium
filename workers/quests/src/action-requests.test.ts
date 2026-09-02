@@ -40,9 +40,9 @@ function hrActionRequest() {
     projectName: 'ThoughtSeed People Operations',
     questId: 'living-org',
     topic: {
-      chatId: '-1002691202808',
+      chatId: '-1003942929819',
       topicKey: 'agent-ops',
-      threadId: 802,
+      threadId: 7,
       sourceMessageId: '5512',
     },
     title: 'Approve Imran separation packet',
@@ -87,7 +87,7 @@ test('generic HR ActionRequest is accepted and projected without Telegram chat i
   assert.equal(listed.status, 200);
   const serialized = JSON.stringify(listed.body);
   assert.match(serialized, /telegram-reply-or-button/);
-  assert.doesNotMatch(serialized, /-1002691202808/);
+  assert.doesNotMatch(serialized, /-1003942929819/);
 });
 
 test('generic workflow rejects unknown work objects and approval windows longer than thirty minutes', async () => {
@@ -110,7 +110,7 @@ test('HR button approval revalidates the founder allowlist and queues high-risk 
     tenantId: 'cambium',
     optionId: 'approve-final-render',
     founderTelegramUserId: '999',
-    actor: { telegramUserId: '999', chatId: '-1002691202808', threadId: 802 },
+    actor: { telegramUserId: '999', chatId: '-1003942929819', threadId: 7 },
   }, () => '2026-08-18T10:10:00.000Z', FOUNDERS);
   assert.equal(rejected.status, 403);
   assert.match(String(rejected.body.error), /not an authorized founder/);
@@ -119,7 +119,7 @@ test('HR button approval revalidates the founder allowlist and queues high-risk 
     tenantId: 'cambium',
     optionId: 'approve-final-render',
     founderTelegramUserId: FOUNDER_B,
-    actor: { telegramUserId: FOUNDER_B, chatId: '-1002691202808', threadId: 802 },
+    actor: { telegramUserId: FOUNDER_B, chatId: '-1003942929819', threadId: 7 },
   }, () => '2026-08-18T10:10:00.000Z', FOUNDERS);
   assert.equal(approved.status, 200);
   assert.equal((approved.body.actionRequest as any).status, 'queued');
@@ -133,7 +133,7 @@ test('reply approval is exact, reply-bound, unique, and expires after thirty min
     tenantId: 'cambium',
     phrase: 'yes',
     founderTelegramUserId: FOUNDER_A,
-    actor: { telegramUserId: FOUNDER_A, chatId: '-1002691202808', threadId: 802 },
+    actor: { telegramUserId: FOUNDER_A, chatId: '-1003942929819', threadId: 7 },
     reply: { actionRequestId: 'a-different-card', replyToOwnMessage: true },
   }, () => '2026-08-18T10:10:00.000Z', FOUNDERS);
   assert.equal(ambient.status, 409);
@@ -144,7 +144,7 @@ test('reply approval is exact, reply-bound, unique, and expires after thirty min
     tenantId: 'cambium',
     phrase: 'approve',
     founderTelegramUserId: FOUNDER_A,
-    actor: { telegramUserId: FOUNDER_A, chatId: '-1002691202808', threadId: 802 },
+    actor: { telegramUserId: FOUNDER_A, chatId: '-1003942929819', threadId: 7 },
     reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
   }, () => '2026-08-18T10:29:59.000Z', FOUNDERS);
   assert.equal(approved.status, 200);
@@ -157,7 +157,7 @@ test('reply approval is exact, reply-bound, unique, and expires after thirty min
     tenantId: 'cambium',
     phrase: 'yes',
     founderTelegramUserId: FOUNDER_A,
-    actor: { telegramUserId: FOUNDER_A, chatId: '-1002691202808', threadId: 802 },
+    actor: { telegramUserId: FOUNDER_A, chatId: '-1003942929819', threadId: 7 },
     reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
   }, () => EXPIRES_AT, FOUNDERS);
   assert.equal(expired.status, 410);

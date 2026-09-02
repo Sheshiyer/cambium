@@ -145,8 +145,8 @@ export async function auditRepository(rootValue = process.cwd()) {
   if (/const\s+TOPIC_QUEST_ROUTES\s*=|const\s+THOUGHTSEED_TELEGRAM_CHAT_ID\s*=/.test(handler)) failures.push('handler duplicates Telegram routing configuration');
 
   const routingContract = await readOptional(join(root, 'docs/architecture/contracts/hermes-topic-routing-to-quests.md')) || '';
-  if (!/\| Dev \| 862 \|/.test(routingContract)) failures.push('active routing contract does not match pinned Hermes Dev topic 862');
-  if (/\| Dev \| 799 \|/.test(routingContract)) failures.push('active routing contract still contains retired Dev topic 799');
+  if (!/\| Dev \| 4 \|/.test(routingContract)) failures.push('active routing contract does not match pinned Thoughtseed Labs Dev topic 4');
+  if (/\| Dev \| (?:799|862) \|/.test(routingContract)) failures.push('active routing contract still contains a retired Dev topic');
 
   const wrangler = await readOptional(join(root, 'workers/quests/wrangler.jsonc')) || '';
   if (/CAMBIUM_PUBLIC_BASE_URL/.test(wrangler)) failures.push('Wrangler contains dead CAMBIUM_PUBLIC_BASE_URL configuration');

@@ -60,8 +60,8 @@ Hosted deliveries:
 
 | Routine | Hermes job | Telegram topic |
 | --- | --- | --- |
-| `daily-standup-digest` | `thoughtseed-daily-standup-digest` | Digests `798` |
-| `plexus-kpi-standup` | `thoughtseed-plexus-kpi-standup` | Agent Ops `802` |
+| `daily-standup-digest` | `thoughtseed-daily-standup-digest` | Digests `3` |
+| `plexus-kpi-standup` | `thoughtseed-plexus-kpi-standup` | Agent Ops `7` |
 
 The KPI job is bound to the repo-owned
 `thoughtseed-plexus-kpi-standup.sh` wrapper so the shared Python routine cannot
@@ -80,8 +80,8 @@ Use a real authenticated Plexus session and real work:
    `/ts-standup <member> <YYYY-MM-DD> --refresh`.
 5. Run `/ts-vault standups/standup-<member>-<YYYY-MM-DD>.md` and verify the
    signed real marker and matching event tuple.
-6. Trigger both hosted Hermes jobs and confirm topics `798` and `802` show the
-   same latest date and project/blocker facts. Topic `802` must identify
+6. Trigger both hosted Hermes jobs and confirm topics `3` and `7` show the
+   same latest date and project/blocker facts. Topic `7` must identify
    `Routine snapshot (plexus-kpi-standup)`.
 
 Do not treat a generated local standup, a queued outbox row, a `count:0` route,

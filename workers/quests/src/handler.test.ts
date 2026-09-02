@@ -2510,7 +2510,7 @@ test('push then get · includes redacted ActionRequests when bridge records exis
   assert.equal(projection.actionRequests.rows[0].id, 'ar_iverif_autogtm_lead_gap');
   assert.equal(projection.actionRequests.rows[0].status, 'needs_signed_confirmation');
   assert.equal(projection.actionRequests.rows[0].selectedOptionId, 'draft-follow-up');
-  assert.doesNotMatch(get.body, /-1002691202808|telegramMessageId|initData|tgWebAppData|Bearer|bridge-token/i);
+  assert.doesNotMatch(get.body, /-1003942929819|telegramMessageId|initData|tgWebAppData|Bearer|bridge-token/i);
 });
 
 test('push then get · redacts generic social proof from public quest JSON', async () => {
@@ -5173,7 +5173,7 @@ test('page · iVerif ActionRequest fixture projects into Gate Story and Inspect'
   assert.match(gate, /data-kind="confirm-action-request"/);
   assert.match(gate, /data-action-request-selected-option-id="draft-follow-up"/);
   assert.match(gate, />Confirm</);
-  assert.doesNotMatch(gate, /Confirm signed|GateRoutePill|GateLatestReceipt|GateReceiptSummary|Clients · topic 804 · message 1068|Needs signed confirmation in the Mini App/);
+  assert.doesNotMatch(gate, /Confirm signed|GateRoutePill|GateLatestReceipt|GateReceiptSummary|Clients · topic 9 · message 1068|Needs signed confirmation in the Mini App/);
   assert.match(PAGE, /data-component="GateProgressSummary"[\s\S]*<div class="gauge" id="gauge" data-component="OrbitProgress"><\/div>/);
   const gateHeroMarkup = PAGE.match(/<section class="gate-hero"[\s\S]*?<\/section>/)?.[0] ?? '';
   assert.doesNotMatch(gateHeroMarkup, /id="gauge"/);
@@ -5462,7 +5462,7 @@ test('page · production ActionRequest projection renders message choice receipt
   assert.match(card, /data-component="GateQueuedState"/);
   assert.match(card, /<b>Queued<\/b><small>awaits operator<\/small>/);
   assert.match(card, /class="gate-proof-copy"><b>Proof<\/b>/);
-  assert.doesNotMatch(card, /GateRoutePill|GateLatestReceipt|Selected option<\/b>|Latest receipt<\/b>|Clients · topic 804 · message 1068/);
+  assert.doesNotMatch(card, /GateRoutePill|GateLatestReceipt|Selected option<\/b>|Latest receipt<\/b>|Clients · topic 9 · message 1068/);
   assert.doesNotMatch(card, /data-signed-action-entrypoint="confirm-action-request"/);
   assert.doesNotMatch(card, /query_id=|auth_date=|tgWebAppData|callbackNonce|Bearer\s|secret-signature/i);
 });
@@ -5506,7 +5506,7 @@ test('page · iVerif ActionRequest projection does not render raw Telegram secre
     rendered.elements.get('sheetBody')!.innerHTML,
   ].join('\n');
 
-  assert.doesNotMatch(combined, /-1002691202808/);
+  assert.doesNotMatch(combined, /-1003942929819/);
   assert.doesNotMatch(combined, /query_id=|auth_date=|tgWebAppData|callbackNonce|telegramMessageId|Bearer\s+[A-Za-z0-9._-]{12,}|secret-hash|secret-signature/i);
   assert.match(combined, /redaction/);
 });
@@ -7253,7 +7253,7 @@ test('visual fixtures · iVerif ActionRequest fixture is a reusable W5 branch pr
     'message provenance uses the public topic.sourceMessageId field',
   );
   const fixtureText = JSON.stringify(IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE);
-  assert.doesNotMatch(fixtureText, /-1002691202808/);
+  assert.doesNotMatch(fixtureText, /-1003942929819/);
   assert.doesNotMatch(fixtureText, /query_id=|auth_date=|tgWebAppData|callbackNonce|telegramMessageId|Bearer\s+[A-Za-z0-9._-]{12,}|secret-hash|secret-signature/i);
 });
 
@@ -10644,7 +10644,7 @@ test('bridge · GitHub command route executes only through admin bridge token', 
     source: 'telegram-manual',
     actorId: 'shesh',
     topicKey: 'dev',
-    threadId: 862,
+    threadId: 4,
     repo: 'Sheshiyer/hermes-aws-ts',
     title: 'Manual command proof',
     body: 'Create the audit route',
@@ -10918,9 +10918,9 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
   const queued = await handle(req('POST', '/v1/bridge/topic-assignment', {
     headers: { authorization: 'Bearer assign-only' },
     body: JSON.stringify({
-      chatId: '-1002691202808',
+      chatId: '-1003942929819',
       topicKey: 'dev',
-      threadId: 862,
+      threadId: 4,
       sourceMessageId: '852',
       memberId: 'shesh',
       summary: 'Build route proof is stale and needs a fresh worker probe.',
@@ -10942,7 +10942,7 @@ test('bridge · scoped Hermes topic routing creates quest-linked assignments', a
   assert.equal(queued.status, 200);
   assert.equal(body(queued).id, 'assign-topic-dev-1');
   assert.equal(body(queued).eventId, 'topic:thoughtseed-ops:dev:852:assigned');
-  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 862, questId: 'the-build' });
+  assert.deepEqual(body(queued).topic, { topicKey: 'dev', threadId: 4, questId: 'the-build' });
 
   const pending = await handle(req('GET', '/v1/bridge/directives/shesh', {
     headers: { authorization: 'Bearer bridge' },
@@ -10982,7 +10982,7 @@ test('bridge · topic routing validates the live Thoughtseed topic map', async (
 
   const wrongThread = await handle(req('POST', '/v1/bridge/topic-assignment', {
     headers: { authorization: 'Bearer assign-only' },
-    body: JSON.stringify({ topicKey: 'dev', threadId: 804, sourceMessageId: 'wrong-thread' }),
+    body: JSON.stringify({ topicKey: 'dev', threadId: 9, sourceMessageId: 'wrong-thread' }),
   }), deps);
   assert.equal(wrongThread.status, 400);
   assert.match(body(wrongThread).error, /topic thread mismatch/);
@@ -11009,7 +11009,7 @@ test('bridge · Alerts topic signals become urgent operations assignments', asyn
     headers: { authorization: 'Bearer assign-only' },
     body: JSON.stringify({
       topicKey: 'alerts',
-      threadId: 803,
+      threadId: 8,
       sourceMessageId: '856',
       summary: 'Cron delivery failed and needs acknowledgement.',
     }),
@@ -11041,9 +11041,9 @@ function iverifActionRequest() {
     projectName: 'IVerif',
     questId: 'the-handoff',
     topic: {
-      chatId: '-1002691202808',
+      chatId: '-1003942929819',
       topicKey: 'clients',
-      threadId: 804,
+      threadId: 9,
       sourceMessageId: 'iverif-autogtm-leads-1',
     },
     title: 'Approval needed: Prepare client handoff signal',
@@ -11088,7 +11088,7 @@ test('bridge · creates iVerif ActionRequest idempotently', async () => {
   assert.equal(created.ok, true);
   assert.equal(created.duplicate, false);
   assert.equal(created.actionRequest.branchId, 'iverif');
-  assert.equal(created.actionRequest.topic.threadId, 804);
+  assert.equal(created.actionRequest.topic.threadId, 9);
 
   const duplicate = await handle(req('POST', '/v1/bridge/action-requests', {
     headers: { authorization: 'Bearer bridge' },
@@ -11116,7 +11116,7 @@ test('bridge · resolves low-risk iVerif callback to queued with meaningful rece
       tenantId: 'cambium',
       optionId: 'make-branch-task',
       founderTelegramUserId: TEST_FOUNDER_B,
-      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1003942929819', threadId: 9 },
     }),
   }), deps);
 
@@ -11134,7 +11134,7 @@ test('bridge · resolves low-risk iVerif callback to queued with meaningful rece
       tenantId: 'cambium',
       optionId: 'make-branch-task',
       founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 804 },
+      actor: { telegramUserId: 'founder-1', chatId: '-1003942929819', threadId: 9 },
     }),
   }), deps);
   assert.equal(duplicate.status, 200);
@@ -11160,7 +11160,7 @@ test('bridge · escalates high-risk iVerif callback and rejects wrong topic acto
       tenantId: 'cambium',
       optionId: 'draft-follow-up',
       founderTelegramUserId: 'founder-1',
-      actor: { telegramUserId: 'founder-1', chatId: '-1002691202808', threadId: 797 },
+      actor: { telegramUserId: 'founder-1', chatId: '-1003942929819', threadId: 2 },
     }),
   }), deps);
   assert.equal(wrongTopic.status, 403);
@@ -11172,7 +11172,7 @@ test('bridge · escalates high-risk iVerif callback and rejects wrong topic acto
       tenantId: 'cambium',
       optionId: 'draft-follow-up',
       founderTelegramUserId: TEST_FOUNDER_B,
-      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1003942929819', threadId: 9 },
     }),
   }), deps);
 
@@ -11203,7 +11203,7 @@ test('gate · signed Mini App confirmation queues high-risk iVerif ActionRequest
       tenantId: 'cambium',
       optionId: 'draft-follow-up',
       founderTelegramUserId: TEST_FOUNDER_B,
-      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1002691202808', threadId: 804 },
+      actor: { telegramUserId: TEST_FOUNDER_B, chatId: '-1003942929819', threadId: 9 },
     }),
   }), deps);
   assert.equal(body(escalated).actionRequest.status, 'needs_signed_confirmation');
@@ -11413,13 +11413,13 @@ test('bridge · lists redacted iVerif ActionRequests for Mini App projection', a
   assert.equal(projection.rows[0].id, 'ar_iverif_autogtm_receipt_complete');
   assert.equal(projection.rows[1].status, 'queued');
   assert.equal(projection.rows[2].status, 'needs_signed_confirmation');
-  assert.equal(projection.rows[2].topic.threadId, 804);
+  assert.equal(projection.rows[2].topic.threadId, 9);
   assert.equal(projection.rows[2].priority.source, 'cambium-action-requests@v1');
   assert.match(projection.rows[2].rerollConsequence, /signed Mini App confirmation/);
   assert.equal(projection.rows[2].receipts.latest.kind, 'callback');
 
   const redacted = JSON.stringify(projection);
-  assert.doesNotMatch(redacted, /-1002691202808/);
+  assert.doesNotMatch(redacted, /-1003942929819/);
   assert.doesNotMatch(redacted, /telegramMessageId|callbackNonce|initData|tgWebAppData|Bearer|bridge-token/i);
 });
 
@@ -12907,7 +12907,7 @@ test('bridge · HR reply approval is founder-allowlisted and bound to one pendin
     createdAt: '2026-08-18T10:00:00.000Z', updatedAt: '2026-08-18T10:00:00.000Z',
     branchId: 'thoughtseed-hr', branchLabel: 'ThoughtSeed HR',
     projectId: 'thoughtseed-hr', projectName: 'ThoughtSeed People Operations', questId: 'living-org',
-    topic: { chatId: '-1002691202808', topicKey: 'agent-ops', threadId: 802, sourceMessageId: '5512' },
+    topic: { chatId: '-1003942929819', topicKey: 'agent-ops', threadId: 7, sourceMessageId: '5512' },
     title: 'Approve Imran separation packet', summary: 'Render official documents without sending email.',
     why: 'Official employee documents require founder approval.',
     approval: { mode: 'telegram-reply-or-button', expiresAt: '2026-08-18T10:30:00.000Z', workObjectId: 'program:thoughtseed-vault' },
@@ -12926,7 +12926,7 @@ test('bridge · HR reply approval is founder-allowlisted and bound to one pendin
     headers: { authorization: 'Bearer bridge' },
     body: JSON.stringify({
       tenantId: 'cambium', phrase: 'yes', founderTelegramUserId: '999',
-      actor: { telegramUserId: '999', chatId: '-1002691202808', threadId: 802 },
+      actor: { telegramUserId: '999', chatId: '-1003942929819', threadId: 7 },
       reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
     }),
   }), deps);
@@ -12936,7 +12936,7 @@ test('bridge · HR reply approval is founder-allowlisted and bound to one pendin
     headers: { authorization: 'Bearer bridge' },
     body: JSON.stringify({
       tenantId: 'cambium', phrase: 'approve', founderTelegramUserId: TEST_FOUNDER_A,
-      actor: { telegramUserId: TEST_FOUNDER_A, chatId: '-1002691202808', threadId: 802 },
+      actor: { telegramUserId: TEST_FOUNDER_A, chatId: '-1003942929819', threadId: 7 },
       reply: { actionRequestId: 'ar_hr_imran_exit_packet', replyToOwnMessage: true },
     }),
   }), deps);
