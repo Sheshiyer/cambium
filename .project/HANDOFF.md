@@ -1,5 +1,15 @@
 # Project handoff
 
+### 2026-09-03 WIP classification and Phase 9 read-only inventory gate
+
+- Branch `codex/wip-classification-phase9-20260903` starts from exact `origin/main` `746acf814b4ffce1a6ccef295ba1f4b0a09760b6`. It reconstructs only the reviewed WIP classification packet from fresh main rather than merging the dirty root checkout or stale Labs consolidation branch.
+- Added Phase 9 planning under `.planning/phases/09-source-inventory-and-classification/` for authenticated, read-only `9d9d` source inventory against the `thoughtseed-labs` target. The phase stops before allowlists, copy, deletion, retirement, deployment, D1/KV/R2/Vectorize mutation, Telegram action, EC2/Hermes execution, or directive execution.
+- Added the stale-but-useful 2026-08-31 `9d9d`/Labs prefix reconciliation evidence as archival input only. It remains explicitly `not-current`, `transfer.performed=false`, `credentialsRecorded=false`, and `privateContentRead=false`; it cannot prove parity or authorize bulk encrypted R2 copy.
+- Added the local runtime -> portfolio -> Labs vault map as a read-only proposal contract. It records authority separation among host runtime, repository planning, Vault context, Cambium D1, and Hermes/Telegram without copying runtime homes, credentials, sessions, raw memory, logs, caches, or provider stores.
+- Added `MISSION_FABRIC_TENANTS="cambium"` to the Labs Worker config because the merged Worker code reads that allowlist and fails closed when it is absent. This is a checked-in config alignment only; no `wrangler deploy`, secret write, route change, Access change, D1/KV/R2/Vectorize write, or Cloudflare asset mutation was performed.
+- Verification passed in this fresh worktree: JSON parse/readback for both new machine artifacts, bounded privacy scan over the added/configured files, `node --test workers/quests/src/handler.test.ts workers/quests/src/mission-fabric-read-client.test.ts workers/quests/src/context-bindings.test.ts` (`433/433`), `npm run validate`, `npm run standalone:audit`, and `git diff --check`.
+- The dirty root checkout, `codex/labs-consolidation-20260831`, `codex/superset-cambium-admission-canary`, `codex/v0.4-closeout`, and unclassified generated/accidental files remain preserved for separate owner review. No branch cleanup, reset, discard, push, PR creation, or merge is included in this checkpoint.
+
 ### 2026-08-31 Phase 8 Labs authority and profile safety — verified implementation candidate
 
 - Branch `codex/labs-consolidation-v05-20260831` starts from exact `origin/main` `5caca954be9d7b646286773be7e1dccf03cfad7c`. Its reviewed pre-checkpoint implementation head is `4753af1d87a9e37d2081913be2b3f407bcd78ce3`; commits `2aad38a`, `d8d3ae6`, and `4753af1` separate the Cloudflare guardrails, v0.5 planning spine, and Access-inventory review repair.
