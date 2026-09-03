@@ -1,0 +1,35 @@
+{
+  "schema": "temperance.plan-options.v1",
+  "research": [
+    {
+      "kind": "bounded-capture-scope",
+      "source": "docs/guide/capture.config.json",
+      "detail": "Only the synthetic manifest-overview surface is proposed."
+    },
+    {
+      "kind": "safety-boundary",
+      "source": "docs/guide/cambium-moosh-coverage-model.md",
+      "detail": "Request, approval, and execution remain separate states."
+    }
+  ],
+  "options": [
+    {
+      "option_id": "opt_moosh_manifest_overview",
+      "label": "Request bounded Moosh manifest overview capture",
+      "recommendation": true,
+      "rationale": "Use the existing synthetic capture contract as the only approved surface candidate; keep the workflow request-only.",
+      "tasks": [
+        {
+          "id": "moosh-manifest-overview",
+          "parallel": false,
+          "desc": "Request the bounded product-guides workflow for the manifest-overview surface; do not launch workers or capture tools.",
+          "phase": "capture-gate",
+          "source": "docs/guide/capture.config.json"
+        }
+      ],
+      "combo": "te-build",
+      "concurrency": 1,
+      "worktree_required": false
+    }
+  ]
+}

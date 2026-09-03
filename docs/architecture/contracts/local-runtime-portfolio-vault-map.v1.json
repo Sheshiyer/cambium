@@ -1,0 +1,280 @@
+{
+  "schema": "cambium.local-runtime-portfolio-vault-map.v1",
+  "status": "observed-proposal",
+  "authority": "read_only_projection",
+  "generated_at": "2026-08-31T15:00:00Z",
+  "scope": {
+    "host_planes": [
+      "TEMPERANCE_HOME",
+      "GSD_HOME",
+      "OMNIROUTE_HOME",
+      "SUPERSET_HOME"
+    ],
+    "portfolio_root": "PORTFOLIO_ROOT",
+    "vault_repo": "LABS_VAULT",
+    "execution_peer": "HERMES_EC2"
+  },
+  "authority_principles": [
+    "Host runtime chooses eligible inference seats; it does not own project identity or vault content.",
+    "Each repository project rail owns its doctrine pointers, ISA acceptance, and finite GSD planning.",
+    "The portfolio map is a reviewed classification projection, not a WorkObject or Goal Graph writer.",
+    "The Labs vault owns durable company context and the single guarded Git note transport.",
+    "D1 Goal Graph remains the sole operational writer; Hermes remains Telegram transport.",
+    "Private credentials, sessions, local databases, raw memory, and runtime logs never enter Git or EC2 sync."
+  ],
+  "planes": [
+    {
+      "id": "temperance-host",
+      "source": "TEMPERANCE_HOME",
+      "role": "host_control_plane",
+      "observed": {
+        "project_packet": ".temperance/project.json",
+        "manifest_bridge": "loopback:8766",
+        "omniroute_endpoint": "loopback:20128",
+        "project_rail_census": 37,
+        "skill_surface_index": 809,
+        "mode": "live_write_default_off"
+      },
+      "owns": [
+        "provider eligibility and combo routing",
+        "host manifests and bridge health",
+        "skill-cluster discovery and runtime adapters",
+        "provider credentials and budgets"
+      ],
+      "does_not_own": [
+        "portfolio WorkObject classification",
+        "Cambium D1 Goal Graph state",
+        "vault note transport",
+        "Telegram authority"
+      ],
+      "projection": {
+        "target": "CAMBIUM_REPO/.temperance/project.json",
+        "kind": "bounded project identity pointer",
+        "write_mode": "read_only_reference"
+      },
+      "ec2_sync": "never_sync_runtime_home"
+    },
+    {
+      "id": "gsd-host",
+      "source": "GSD_HOME",
+      "role": "host_defaults_only",
+      "observed": {
+        "safe_metadata": "defaults.json",
+        "default_policy": "resolve_model_ids=omit"
+      },
+      "owns": [
+        "host-level GSD defaults"
+      ],
+      "does_not_own": [
+        "repository planning state",
+        "ISA acceptance",
+        "vault roadmap"
+      ],
+      "projection": {
+        "target": "REPOSITORY_PROJECT_RAIL/.planning",
+        "kind": "none; project-local state wins",
+        "write_mode": "no_host_copy"
+      },
+      "ec2_sync": "never_sync_host_defaults"
+    },
+    {
+      "id": "omniroute-host",
+      "source": "OMNIROUTE_HOME",
+      "role": "inference_transport",
+      "observed": {
+        "gateway": "loopback:20128",
+        "quick_tunnel": "stopped",
+        "target": "loopback:20128"
+      },
+      "owns": [
+        "model-call transport beneath Temperance"
+      ],
+      "does_not_own": [
+        "provider account identity",
+        "project enrollment",
+        "portfolio or vault records",
+        "deployment or approval state"
+      ],
+      "projection": {
+        "target": "CAMBIUM_REPO",
+        "kind": "provider attribution evidence only",
+        "write_mode": "no_runtime_config_copy"
+      },
+      "ec2_sync": "never_sync_credentials_or_runtime_store"
+    },
+    {
+      "id": "superset-host",
+      "source": "SUPERSET_HOME",
+      "role": "operator_workspace_surface",
+      "observed": {
+        "disabled_skill_count": 0,
+        "project_binding": "cambium",
+        "workspace_contract": ".superset/setup.sh + .superset/run.sh"
+      },
+      "owns": [
+        "human workspace and Hands binding",
+        "local workspace state",
+        "portable repository setup/run contract"
+      ],
+      "does_not_own": [
+        "provider credentials outside the host",
+        "vault canonical notes",
+        "D1 operational truth",
+        "automatic deployment"
+      ],
+      "projection": {
+        "target": "REPOSITORY_PROJECT_RAIL/.superset",
+        "kind": "portable setup/run contract only",
+        "write_mode": "reviewed_repository_change"
+      },
+      "ec2_sync": "sync_portable_contracts_only"
+    }
+  ],
+  "portfolio_mapping": {
+    "id": "portfolio-root",
+    "source": "PORTFOLIO_ROOT",
+    "authority": "proposal_only",
+    "catalog": "portfolio-map.v1.json",
+    "path_grammar": "<projects-root>/thoughtseed/<repository>",
+    "cambium": {
+      "work_objects": [
+        "sapling:cambium",
+        "program:cambium-operating-fabric"
+      ],
+      "repository": "Sheshiyer/cambium",
+      "superset_role": "cambium · fabric",
+      "cloudflare_profile": "thoughtseed-labs",
+      "cloudflare_account": "Labs account",
+      "worker": "cambium-quests",
+      "active_worker_version": "dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3",
+      "traffic": "100_percent",
+      "cron": "0_active_11_paused",
+      "projection": "Mission Control portfolio catalog and Mission Fabric sidecar",
+      "operational_writer": "D1 Goal Graph",
+      "workbench_readback": {
+        "source_records": 72,
+        "active_cards": 71,
+        "classification": {
+          "saplings": 17,
+          "branches": 40,
+          "programs": 15,
+          "needs_review": 0
+        },
+        "terminal_closeout_in_archive": 1
+      }
+    },
+    "sibling_repositories": {
+      "identity_source": "Git origin plus project-local .temperance and .planning packets",
+      "classification_source": "Vault WorkObject registry and reviewed portfolio map",
+      "relationship_rule": "shared or nested repositories remain explicit; never flatten into one WorkObject"
+    },
+    "excluded_from_workobjects": [
+      "portfolio root directory itself",
+      "vault infrastructure directory",
+      "host runtime homes",
+      "EC2 runtime checkout"
+    ]
+  },
+  "vault_mapping": {
+    "id": "labs-vault",
+    "source": "LABS_VAULT",
+    "repository": "Sheshiyer/thoughtseed-vault",
+    "remote_rule": "origin only",
+    "authority": "company_context_and_durable_documents",
+    "canonical_surfaces": [
+      "00-meta/system-of-records.md",
+      "00-meta/connected-infra-map.md",
+      "00-meta/founder-vault-sync-contract.md",
+      "00-meta/wrangler-account-map.md",
+      "20-operations/",
+      "40-products/",
+      "60-client-ecosystem/"
+    ],
+    "project_rail": {
+      "path": ".temperance/README.md",
+      "meaning": "project-side contract; host runtime remains outside the vault"
+    },
+    "planning": {
+      "path": ".planning/",
+      "meaning": "vault-owned finite roadmap; not Cambium planning authority"
+    },
+    "private_or_ignored": [
+      ".cortex/memory.db",
+      "MEMORY/",
+      ".claude/",
+      ".planning/ local runtime state",
+      "logs/",
+      "nested runtime repositories"
+    ],
+    "r2": {
+      "role": "one_way_encrypted_backup",
+      "transport": "not Git sync and not Worker operational truth"
+    }
+  },
+  "ec2_sync_contract": {
+    "id": "hermes-vault-sync",
+    "peer": "HERMES_EC2",
+    "steward": "Hermes execution plane fast-forwards the canonical vault checkout and regenerates bounded read models",
+    "helper": "HERMES_REPO/scripts/hermes-runner-remote.mjs vault-sync",
+    "direction": "founder-reviewed reconciliation -> origin/main -> EC2 ff-only pull -> read-model regeneration",
+    "remote": "origin -> Sheshiyer/thoughtseed-vault",
+    "current_status": "synced_verified",
+    "current_evidence": [
+      "founder vault main, origin/main, GitHub main, and HERMES_EC2 main resolve to 5960d3dba3b7d50e3bd6ebaf6a5a083bc2269659",
+      "the reconciliation commit has parents 884aeb46de8f92cdd2d9b62f69247db1ded2d1de and fed316cc81f17a642b5640331be4db7fe0e4e5bd with a tree identical to the pre-merge origin tree",
+      "HERMES_EC2 main tracks origin/main at ahead 0 and behind 0",
+      "hermes-repo-sync and hermes-vault-sync returned success and both timers remain active",
+      "the founder checkout retained all 128 dirty-path contents with matching pre/post manifest digest 92c59d03df98ddf22ace4cf6b3165f165f7d761c60ddb75a0f4b4ae433d3b3e9"
+    ],
+    "preconditions": [
+      "founder reconciles the vault branch and confirms the exact commit",
+      "working tree has no unmerged paths",
+      "sync runs only against the dedicated vault repository",
+      "origin is the sole remote",
+      "no credentials, sessions, databases, raw memory, or logs are present"
+    ],
+    "allowed": [
+      "tracked Markdown, JSON, YAML, text, and approved sync scripts",
+      "read-model regeneration on EC2 after a successful pull",
+      "bounded human-readable context consumed by Hermes"
+    ],
+    "forbidden": [
+      "copying TEMPERANCE_HOME, GSD_HOME, OMNIROUTE_HOME, or SUPERSET_HOME",
+      "pushing a second vault remote",
+      "syncing .cortex memory databases or raw transcripts",
+      "writing D1, KV, R2, Vectorize, Telegram, or Access state",
+      "treating EC2 checkout state as portfolio or Goal Graph authority"
+    ]
+  },
+  "context_skill_flow": {
+    "company_context": "LABS_VAULT tracked notes -> guarded Git -> Hermes read model",
+    "private_memory": "host-local memory remains private; no raw memory sync",
+    "skills": "host skill-cluster registry -> Hermes loadout -> Cambium read-only overlay",
+    "flows": "VISION/MISSION -> ISA -> GSD -> bounded execution -> evidence -> learning",
+    "operations": "Hermes Telegram signal -> Cambium classification -> signed Gate -> D1 Goal Graph",
+    "receipts": "Worker and Hermes receipts are evidence; they do not rewrite doctrine"
+  },
+  "evidence": [
+    "PROJECT.md and .project/CONTEXT.md",
+    ".temperance/project.json",
+    ".planning/STATE.md",
+    "docs/architecture/portfolio-workbench-miniapp-linkage.md",
+    "docs/guide/cambium-system-capability-map.md",
+    "thoughtseed-labs/00-meta/system-of-records.md",
+    "thoughtseed-labs/00-meta/founder-vault-sync-contract.md",
+    "thoughtseed-labs/00-meta/thoughtseed-local-gh-map.md",
+    "hermes-aws-ts/docs/runbooks/hermes-vault-sync.md",
+    "docs/evidence/2026-08-31-cambium-9d9d-labs-prefix-reconciliation.v1.json"
+  ],
+  "mutation_gate": {
+    "status": "vault_sync_complete_other_mutations_held",
+    "satisfied": [
+      "founder-reviewed vault divergence resolution",
+      "exact EC2 checkout and branch receipt"
+    ],
+    "requires": [
+      "separate owner approval for any host, registry, provider, or deployment change",
+      "separate release and rollback gate for production changes"
+    ]
+  }
+}

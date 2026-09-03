@@ -1,5 +1,38 @@
 # Project handoff
 
+### 2026-09-03 Labs Access cutover and legacy-runtime closure checkpoint
+
+- Created the Labs Cloudflare Access service token `hermes-runner-labs-20260903` with a one-year expiry and attached it through Service Auth policy `hermes-runner-labs-service-auth-20260903` (policy `5f29cf5e-f934-4707-8f3f-23b13a4dacb9`) to the existing Hermes Runner API destinations only: `/v1/bridge/ack`, `/v1/bridge/directives/*`, and `/v1/bridge/executions/*`. The token secret is not recorded here.
+- Installed the credential pair on Hermes EC2 through the existing AWS Session Manager / EC2 Instance Connect rotation helper. The root-only files `/etc/hermes/credentials/cf_access_client_id` and `cf_access_client_secret` are present with mode `0400`; the helper performed its backup, restart, canary, and transfer-file cleanup without displaying values.
+- The two temporary outage policies were then removed by exact name: `emergency-public-hermes-20260902` and `emergency-public-cambium-20260902`. Existing `cf-down`, team-email, `service-tokens`, and `cambiumflow` policies were retained. The service-token credential itself remains retained for the runner's one-year rotation window.
+- Post-cutover EC2 readback: `omniroute.service`, `temperance-proxy.service`, `hermes-gateway.service`, and `hermes-runner.timer` are active; `hermes-runner.service.result=success`, exit `0`; both Access credential files are present root-only; and the guarded canary passed after the Hermes bypass was removed. No secret value was printed or committed. Cloudflare's token table still reports this new token as `Not Seen Yet`, so edge-level Service Auth acceptance remains an outage-era observation hold even though the runner canary is green.
+- Current edge probes: Labs custom domain `/` and `/healthz` return HTTP `200`; `/api/quests/cambium` returns the application-layer `401 access_identity_required`; unauthenticated bridge requests return the application-layer `401 bad or missing bridge credential`; and the retired personal `cambium-quests.sheshnarayan-iyer.workers.dev` endpoint remains HTTP `404`. This is not a claim that every site path is public or that application authentication was removed.
+- The 9d9d Worker remains retained but quiesced: no deletion, code deployment, DNS change, route change, D1/KV/R2 write, or legacy Access-policy deletion occurred. The outstanding separate issue is the stale deployed Labs command registry (`ts-status`), which requires its own reviewed Worker redeploy and rollback receipt.
+
+### 2026-08-31 architecture refresh sentinel privacy cleanup
+
+- Preserved `docs/architecture/REFRESH-NEEDED.md` and its stale-asset purpose while replacing the embedded, truncated remote command with portable trigger context. The refresh timestamp, `git-tag` event, affected asset list, and `/refresh-architecture` continuation remain visible.
+- Root-cause inspection confirmed that the host-owned `ArchitectureAssetsSync.hook.ts` template serializes the first 200 characters of a triggering shell command. Host hooks are outside this repository's mutation boundary and were not changed, so a future release event can recreate the unsafe line until a separate owner-approved host-runtime fix is made.
+- The exact privacy regression passes 2/2. The complete `scripts/infinite-game-anchors.test.mjs` suite passes 20/20, `npm run validate` passes, and `npm run render-docs:check` confirms 6 pages / 91 components remain synchronized.
+- No privacy allowlist or scanner was weakened. No commit, deployment, vault write, host-runtime mutation, provider or credential change, D1/KV/R2/Vectorize write, or Telegram action was performed.
+
+### 2026-08-31 Labs vault → Hermes EC2 synchronization receipt
+
+- Founder authorization cleared only the vault Git / Hermes read-model synchronization gate. No Worker deployment, host-runtime configuration, registry, provider, D1/KV/R2/Vectorize, Telegram, Access, binding, route, credential, or production mutation was included.
+- The vault sibling commits `884aeb46de8f92cdd2d9b62f69247db1ded2d1de` and `fed316cc81f17a642b5640331be4db7fe0e4e5bd` were reconciled by merge commit `5960d3dba3b7d50e3bd6ebaf6a5a083bc2269659`. The merge tree is byte-identical to the newer pre-merge `origin/main` tree and retains both commits as parents.
+- The founder checkout, canonical `origin/main`, GitHub `main`, and Hermes/EC2 `main` all resolve to `5960d3dba3b7d50e3bd6ebaf6a5a083bc2269659`. EC2 reports branch `main`, upstream `origin/main`, ahead 0 / behind 0, successful `hermes-repo-sync` and `hermes-vault-sync` results, and active timers.
+- The founder checkout's 128 dirty-path contents were preserved byte-for-byte with matching pre/post manifest digest `92c59d03df98ddf22ace4cf6b3165f165f7d761c60ddb75a0f4b4ae433d3b3e9`. Its status classification is now 37 tracked modifications and 91 untracked files because origin began tracking the locally edited project-map JSON; nothing was staged.
+- The post-index EC2 checkout reports 63 uncommitted paths after read-model regeneration. This is not claimed as a clean-tree receipt; exact branch/upstream/head and successful service results are the bounded proof.
+- Corrected the clean local `hermes-aws-ts/docs/runbooks/hermes-vault-sync.md` source so founder push, write-back merge, and deploy-key instructions use canonical `origin` / `thoughtseed-vault` only. No Hermes source commit or deployment was performed.
+
+### 2026-08-31 local runtime → portfolio → Labs vault mapping checkpoint
+
+- Added the read-only, proposal-only mapping contract at `docs/architecture/contracts/local-runtime-portfolio-vault-map.v1.json` with its human readback at `docs/architecture/contracts/local-runtime-portfolio-vault-map.v1.md`.
+- The map relates logical host surfaces (`TEMPERANCE_HOME`, `GSD_HOME`, `OMNIROUTE_HOME`, and `SUPERSET_HOME`) to Cambium project rails, the proposal-only Thoughtseed portfolio map, the Labs vault repository, and the Hermes EC2 read-model peer without copying machine paths, secrets, sessions, databases, or raw memory.
+- Authority remains separated: host routing chooses inference seats; repository rails own doctrine/ISA/GSD pointers; the Vault owns durable company context and the single `origin` Git transport; Cambium D1 remains the sole operational writer; Hermes remains Telegram transport.
+- EC2 vault sync is explicitly held because the current vault `main` is one commit ahead and one behind `origin/main` with dirty/untracked changes. No sync, host-runtime mutation, registry write, provider change, deployment, D1/KV/R2/Vectorize write, or Telegram action was performed.
+- The next gate is founder reconciliation of the vault branch followed by an exact EC2 checkout/branch receipt and separate owner approval for any external mutation. The current Worker version, bindings, secrets, routes, receipts, and Telegram authority remain unchanged.
+
 ### 2026-08-19 Phase 5 decisions and reviewed planning checkpoint — review-fix iteration 3
 
 - The reviewed repository implementation is complete at exact `implementation_head` is `1aff7d79a942317ddfe5ef626c53dde2639a9504`. Iteration 3 closes all repository-owned portions of CR-01 through CR-04 and WR-01 through WR-04: lazy dry-run inspection, fail-closed host-boundary reporting, checkout/root/head/cwd binding and revalidation, lock-held versioned CAS, canonical projection families, closed ready/stop semantics, dirty-handoff invalidation, and serialized generator publication.
@@ -2434,3 +2467,527 @@ kind and branch identity registration.
 - The project manifest and untracked next-wave receipt were normalized to portable paths after the standalone audit identified machine-local path leakage. The audit, drift check, rendered-doc check, and SHA-bound deterministic safety check passed afterward.
 - The one generated architecture-hook update triggered during tag preflight was restored to its committed, source-reviewed content; no unreviewed generated architecture content enters this closeout.
 - No runtime, provider, deployment, D1/KV/R2, Telegram, credential, connected-repository, or external-system mutation is included. Git tag creation remains local-only; no tag push is authorized by this checkpoint.
+
+### 2026-08-29 Hermes EC2 activation and control-surface checkpoint
+
+- The Hermes/Nous diagnosis supplied in the Claude Code desktop session was not persisted to this checkout. This appended checkpoint reconstructs only the repository-grounded, next-session context; it does not claim that the absent Claude-session plan file exists locally.
+- Current Cambium source is `5caca954be9d7b646286773be7e1dccf03cfad7c`; the cross-checked `hermes-aws-ts` source is `e09ebfed7d6cbe69652d979c3c63f261c27fe27a`. Cambium v0.4 is closed, so the proposed activation work requires a new finite milestone rather than replaying an archived phase.
+- The deployed Worker contract is intentionally split: its six-hour scheduled handler runs the Fitcheck L4 / quest-template tick and stores Mini App projections plus Hermes delivery intents; it does not send Telegram or write the D1 Goal Graph. The bridge route preserves the same boundary. Telegram transport therefore cannot repair an absent admission.
+- `INTEGRATION.md` keeps Issue mapping, Verify mapping, Establish eligibility, Admit, Pin, Execute, and Preserve held. The required causal order is immutable mapping receipt/readback, one eligible D1 proposal, exact admission, pinned loadout, then one expiry-bounded directive. Moving or replacing the EC2 host cannot bypass that order.
+- Read-only EC2 status via the guarded SSM helper succeeded: OmniRoute, Temperance proxy, Hermes gateway, and runner timer were active; the latest runner exit was successful; Cloudflare Access credential files were present with root-only permissions. The deliberately unauthenticated Worker health request redirected to Cloudflare Access. This is not authenticated bridge, Telegram, D1, or directive-execution proof; recent runner-success and access-error counters were both zero.
+- Retain EC2 as the narrow Hermes execution body. Cloudflare remains the authority for D1, queues, audit truth, and provider secrets. EC2 receives only the scoped bridge member token and Cloudflare Access service credentials. Telegram setup may be proven while native directive execution remains disabled; only one gateway may poll the bot token at a time.
+- Treat the Nous Hermes desktop application as a separate optional operator-agent plane. Its `Connect via SSH` mode installs/launches Nous Hermes Agent on EC2 and tunnels that application's dashboard; its `Remote gateway` mode needs a running Nous `hermes serve` backend. Neither mode currently proves protocol compatibility with `hermes-aws-ts`, so neither is the Cambium runner control plane and no Nous-hosted migration is in scope.
+- The existing `curious.thoughtseed.space` Worker is an Access-protected Cambium control surface, not a hostname to rebind to EC2. A new public EC2 hostname, reverse proxy, or dashboard must be separately selected and approved; the default runner design deliberately exposes no unauthenticated public ports.
+
+#### Next session starts here
+
+1. Create a new finite Cambium milestone for **D1 admission and Hermes EC2 activation**. Begin with a read-only D1/Worker preflight that identifies one exact WorkObject, mapping receipt/readback, approved task candidate, loadout, expiry, rollback reference, and verification receipt shape. Do not perform D1 CAS or emit a directive during this step.
+2. Prepare the EC2 Telegram gateway without enabling execution: operator creates or supplies the new bot through the approved secret path; verify secret names, founder/group allowlists, topic-map digest, gateway ownership, and one inbound receipt without printing token or chat credentials. Keep `HERMES_RUNNER_EXECUTE_DIRECTIVES=false` and `HERMES_RUNNER_LEGACY_ACK_WITHOUT_EXECUTION=false`.
+3. Run the existing proactive-delivery consumer only in its default dry-run mode after authenticated bridge preflight. It may read pending delivery intents, but must not use `--tick`, `--founder-approve`, `--assign`, `--claim`, or `--send` until the corresponding owner approvals are separately recorded.
+4. After the admission gate is approved, execute exactly one rollback-bounded runner canary and capture terminal outcome, ACK, foldback, and inbound Telegram receipts. A healthy timer, status endpoint, or configured token is not a substitute for this proof.
+5. Keep the Access-protected Cambium Workbench/Mini App as the first control dashboard. Evaluate a separate EC2 web dashboard only after its hostname, identity provider, reverse-proxy boundary, and read-only/operator-action contract are specified. Evaluate Nous SSH connectivity later as a separate installation decision, not as a migration of `hermes-aws-ts`.
+
+- No Telegram send, bot creation, EC2 configuration, DNS/domain change, D1/KV/R2 mutation, Nous installation, deployment, or credential read/write was performed in this checkpoint.
+
+### 2026-08-29 Nous SSH connection preflight checkpoint
+
+- Live read-only AWS verification with profile `safvr` succeeded against account `992382756552`: `hermes-runner-01` (`i-056c5f1d3a9f74190`) is running and managed by an online Ubuntu SSM agent. This proves AWS/SSM control-plane read access only; the human CLI profile is not an SSH credential and must not become a runner runtime credential.
+- The EC2 instance names the key pair `hermes-runner-safvr-20260622`, but the current Mac has no loaded SSH-agent identity and no matching SSH-config declaration. Its port-22 security group allows only one different `/32`; a local TCP probe timed out. Therefore the Nous desktop app's `Connect via SSH` path is currently unreachable from this Mac before it can install or launch a separate Nous Hermes backend.
+- Do not open SSH broadly. If the operator elects to proceed, first approve one exact access design: a time-bounded current-client `/32` with the existing private key loaded, or a private-network/tunnel alternative. Supply the login username and key reference through the desktop app/SSH agent, never in repository files or chat. Then add the named SSH gateway and use its `Test` control before opening an agent. Do not alter the existing `hermes-aws-ts` systemd gateway, runner, bot token ownership, Cloudflare Access credentials, or public Cambium hostname.
+- The official Nous documentation distinguishes the desktop SSH gateway (app tunnels to a separate remote Hermes installation and starts its dashboard on demand) from the terminal SSH backend. The terminal-backend documentation describes synchronizing `~/.hermes` state to a remote sandbox; that behavior has not been established for the desktop gateway path and must be checked before handling any credentials in the separate Nous installation.
+- The reply confirming the D1 path did not name an exact WorkObject/directive candidate. `fitcheck-shopify-widget-qa` is a source-backed historical pilot identity, but it is not selected as a live candidate by this checkpoint. Keep all D1 admission, pinning, directive emission, and runner canary execution held until the operator selects one exact candidate plus expiry and rollback reference.
+- No security-group change, SSH login, Nous installation, Telegram configuration, D1/Worker mutation, bot send, DNS change, deployment, or credential value read/write occurred during this preflight.
+
+### 2026-08-29 Existing Nous agent and Telegram safety checkpoint
+
+- The private SSM-to-localhost SSH route was validated without changing the EC2 security group: the registered runner key authenticated as `ubuntu` through a local-only port forward. An alternate RSA key supplied for comparison did not match the EC2's registered ED25519 key pair and was rejected by the host; it was not copied, changed, or installed.
+- Contrary to the earlier assumption that self-hosted Nous Hermes was unstarted, EC2 already contains Hermes Agent v0.18.0 under the `ubuntu` user's existing `.hermes` home. Its `hermes-gateway.service` is active and uses that source tree. The gateway reports that its configured Telegram credential is rejected upstream. Treat this as an invalid transport configuration, not as evidence of a usable Telegram channel or a reason to print, rotate, or reuse any token.
+- The desktop client is v0.20.6 while the remote agent is v0.18.0. The disabled `hermes-agent.service` references a `hermes launch` command absent from the remote version; the remote version does support loopback `hermes serve` / `hermes dashboard` commands. The desktop action bridge was unavailable for UI writes in this session, so no desktop connection was saved or reconnected.
+- Do not run `hermes update`, restart the existing gateway, or overwrite the remote agent in place: the remote Hermes source tree has uncommitted gateway, CLI-command, and Telegram-adapter changes plus a local backup artifact. Any upgrade must begin with a separate source-diff review, a backup/rollback decision, and an explicit decision about whether this Nous gateway or `hermes-aws-ts` owns the one Telegram bot poller.
+- The EC2 host has measured headroom for a separate agent process, but capacity does not waive the single-poller, no-secret-printing, and Cambium-authority boundaries. Continue to keep D1 admission, directive emission, runner execution, DNS, and bot configuration held until the owner chooses the exact transport owner and provides a newly created bot through an approved secret path.
+- No EC2 service restart, package update, Telegram send, bot-token read/write, D1/KV/R2 mutation, domain/DNS change, deployment, or public ingress change occurred during this checkpoint.
+
+### 2026-08-29 Private SSH transport completion checkpoint
+
+- The Mac SSH alias `hermes-nous-ec2` now authenticates to `hermes-runner-01` as `ubuntu` through AWS Session Manager's SSH proxy document. Its configuration uses the existing matched EC2 key and `safvr` only to establish the SSM transport; it does not open a security-group rule, expose port 22, or repurpose `safvr` as a runtime credential.
+- A direct alias probe passed. The one-off localhost port-forward used during initial verification was terminated immediately afterward, leaving no long-lived local listener. The Hermes desktop UI can select `hermes-nous-ec2` from its documented SSH-alias picker when its action bridge is available.
+- No desktop SSH connection was saved, no remote dashboard or agent was launched, and no remote source/service was changed. Do not compensate for the unavailable desktop UI bridge by editing undocumented desktop settings files.
+
+### 2026-08-29 Telegram CLI identity preflight checkpoint
+
+- The local `tg` CLI has a valid personal-account session, but no configured Bot API session. A personal Telegram login can inspect or administer a channel where the user has authority; it cannot reveal, replace, or validate the Bot API token required by the EC2 Nous gateway without a separate approved secret path.
+- Metadata-only lookup found no Cambium, Hermes, Noesis, or Thoughtseed channel candidate in the first 1,000 main or archived dialogs, and the historical Thoughtseed channel identifier was not reachable from this account. Do not guess a chat identifier or use a similarly named channel as a substitute.
+- The active EC2 Nous gateway remains in its previously observed invalid-Telegram-credential state. No bot token, message history, channel membership, admin role, bot configuration, or gateway service was changed. “Clear it” is intentionally unresolved: clearing messages, a stale token, a local session, or a gateway configuration have distinct destructive scopes.
+- Next safe input is the exact channel `@username` or `t.me` link plus a declaration of the intended clear target. To repair transport, the operator must place the selected bot token through the EC2/desktop approved secret path without pasting it into chat; then verify bot identity, channel admin role, allowlists, topic mapping, and exactly one inbound receipt before sending any proactive delivery.
+
+### 2026-08-29 Private-channel evidence correction
+
+- Operator-supplied Telegram desktop evidence and the local personal-session dialog inventory confirm that the designated private Cambium channel is present and that the supplied bot username resolves to the displayed channel administrator. This supersedes the earlier inference that no channel candidate was available from a title-only query.
+- The `tg` CLI's direct channel-management commands did not accept the Bot API-style private-channel identifier, even though the session's dialog inventory carries the channel. This is a peer-reference/access-hash limitation in the current CLI path, not a basis to substitute another channel or dispute the operator's administrator evidence.
+- No Bot API token is configured in the local `tg` client, and the remote Nous gateway's existing credential remains rejected. The remaining transport precondition is still a valid bot token placed through the approved EC2/Desktop secret interface; do not retrieve or print it from BotFather or message history.
+- No Telegram message, membership, history, gateway process, token, D1 record, or external configuration was changed while reconciling this evidence.
+
+### 2026-08-30 Hermes Desktop → EC2 SSH compatibility checkpoint
+
+- The local AWS session behind profile `safvr` was renewed by the operator. Fresh read-only checks then confirmed both the AWS session and the `hermes-nous-ec2` SSH alias: the alias reaches the EC2 host as `ubuntu` through SSM, without public SSH ingress.
+- Hermes Desktop was opened at **Settings → Gateways → Connect via SSH** and populated from the `hermes-nous-ec2` alias. The Desktop form resolved the expected Ubuntu user and matched identity file from `~/.ssh/config`; the OS-keychain protection toggle remained enabled. No connection was saved or made primary.
+- The Desktop SSH test reached the host, but it cannot complete its version-negotiation contract. Its safe diagnostic command checks the remote `hermes serve --help` for `ssh-session-token-file` and `ssh-owner-nonce`; the EC2 Hermes executable does not expose those options. This is a confirmed desktop-to-remote Hermes Agent version/protocol mismatch, independent of AWS authentication, key validity, public port access, Cambium, or Telegram.
+- Do **not** use `Save and reconnect` against this mismatch and do not repair it by running `hermes update` on EC2. The remote Hermes source remains user-modified, so upgrade, stash/backup, service restart, and rollback require a separate owner-approved compatibility change.
+- During the unsuccessful Desktop test, the local Hermes launcher initiated its own app-managed update and restarted the Desktop app. Its local update log reports completion at Desktop v0.20.6. This was a local application update only; this session did not invoke an EC2 upgrade, change remote source, save a Desktop EC2 gateway, restart an EC2 service, modify Telegram, send a message, write D1, deploy, or change DNS.
+- Operator-supplied Desktop evidence also confirms that the separately saved Hermes Cloud gateway cannot refresh its WebSocket ticket. That banner concerns the former cloud endpoint, not the EC2 SSH alias or `safvr` transport; leave the saved Cloud entry unchanged unless the operator explicitly asks to remove it.
+
+#### Next session starts here — autonomous planning boundary
+
+1. **Autonomous/read-only:** let the restarted Desktop app settle, then capture its local version and inspect the EC2 Hermes Agent CLI/source/service contracts needed by Desktop SSH (`serve --help`, package/version metadata, tracked-vs-dirty source diff, service ownership). Produce a concrete compatibility/rollback plan; do not update, stash, or restart anything.
+2. **Decision gate:** choose either (a) a separately approved EC2 Hermes Agent upgrade/rollback procedure that preserves its user-owned changes, or (b) a time-bounded SSM tunnel plus the Desktop **Remote gateway** mode only after API-compatibility proof. Option (b) is an operator-plane experiment, not a migration of `hermes-aws-ts` and not a public dashboard.
+3. **Autonomous/read-only Cambium planning:** create the next finite milestone proposal for D1 admission and Hermes activation, starting with one exact WorkObject candidate, mapping receipt/readback, candidate directive shape, expiry, rollback reference, and verification receipt. Do not perform D1 CAS, admission, pinning, directive emission, or a runner canary.
+4. **Held owner gates:** any EC2 update/stash/restart; Bot API token write or Telegram gateway restart; inbound/outbound Telegram proof; D1/KV/R2 mutation; directive execution; Cloudflare deploy; domain/DNS or public ingress; and a separate web dashboard. Preserve `HERMES_RUNNER_EXECUTE_DIRECTIVES=false` and `HERMES_RUNNER_LEGACY_ACK_WITHOUT_EXECUTION=false` until the relevant approvals are recorded.
+
+### 2026-08-30 Hermes EC2 Remote Gateway tunnel checkpoint
+
+- The operator approved the time-bounded SSM tunnel experiment for connecting the Mac Hermes Desktop through **Remote gateway** mode. This did not approve EC2 Hermes Agent upgrade, source stash, service restart, D1/KV/R2 mutation, Telegram token write, DNS, deployment, directive execution, or saving a mismatched Desktop SSH gateway.
+- The remote loopback dashboard was started as `ubuntu` from the existing dirty Hermes Agent tree without updating or restarting existing services: PID `4004274`, command `$HOME/.hermes/hermes-agent/venv/bin/hermes serve --host 127.0.0.1 --port 9119 --skip-build`, log `$TMPDIR/hermes-serve-20260830T130638Z.log`.
+- A local Mac tmux session named `hermes_ec2_tunnel` keeps the SSM-backed SSH forward alive: local `127.0.0.1:19119` forwards to EC2 `127.0.0.1:9119` through SSH alias `hermes-nous-ec2`. Verified listener PID during setup was local `69755`.
+- Verification passed through the tunnel: `curl http://127.0.0.1:19119/` returned `HTTP=200` with the Hermes Dashboard HTML, and unauthenticated API probing remained protected. The dashboard HTML included a runtime session token; it was intentionally not recorded in this handoff.
+- The supported operator test path is Hermes Desktop **Remote gateway** with URL `http://127.0.0.1:19119/`. Do not use **Connect via SSH** until the EC2 Hermes Agent exposes the Desktop-required SSH-session flags or an approved upgrade/rollback procedure completes.
+- Stop commands, if needed: local tunnel `tmux kill-session -t hermes_ec2_tunnel`; remote loopback dashboard `ssh hermes-nous-ec2 'kill 4004274'`. Recheck with `lsof -nP -iTCP:19119 -sTCP:LISTEN` locally and `ssh hermes-nous-ec2 '$HOME/.hermes/hermes-agent/venv/bin/hermes serve --status'` remotely.
+
+### 2026-08-30 Hermes Desktop EC2 SSH primary checkpoint
+
+- Correction to the preceding tunnel checkpoint: the loopback **Remote gateway**
+  was only a diagnostic bridge and was not the operator's desired end state.
+  The desired end state is the Mac Hermes Desktop app using the EC2 Hermes Agent
+  through its SSH gateway path.
+- The EC2 Hermes Agent now reports `Hermes Agent v0.20.6 (2026.8.27)`, install
+  directory `~/.hermes/hermes-agent`, install method `git`, Python
+  `3.11.15`, and OpenAI SDK `2.24.0`. The `hermes-nous-ec2` SSH alias reaches
+  the host as `ubuntu` through the existing private SSM-backed SSH transport.
+- Hermes Desktop Settings -> Gateways now has `hermes-nous-ec2` marked
+  `Primary`, with connection type `SSH · ubuntu@hermes-nous-ec2`. The visible
+  Desktop status bar still reports registered gateways, gateway ready, user
+  `ubuntu`, client `v0.20.6`, and backend `v0.20.6`.
+- The temporary local tunnel `hermes_ec2_tunnel` was stopped and rechecked with
+  no listener on `127.0.0.1:19119`. The temporary remote `hermes_ec2_serve`
+  tmux session was stopped. Do not resume from the localhost Remote Gateway path
+  unless a future operator explicitly requests another bounded diagnostic tunnel.
+- No Telegram send, bot creation, EC2 systemd restart, D1/KV/R2 mutation,
+  directive execution, DNS/domain change, Cloudflare deployment, credential
+  printing, or `hermes-aws-ts` runtime change was performed in this checkpoint.
+
+### 2026-08-30 Hermes Desktop EC2 model picker recovery checkpoint
+
+- The Hermes Desktop Model settings pane showed a stale-checkout guard:
+  the active EC2 Desktop-managed dashboard backend was running code `66666f6e`
+  while the EC2 checkout on disk was `5cc1369fa2`. The model picker correctly
+  refused to load provider/model options until the Desktop-managed SSH backend
+  was restarted from the current checkout.
+- EC2 inspection found two `hermes serve --isolated` processes under the
+  `ubuntu` user. The older process was terminated first; the remaining process
+  still served the stale state and the Desktop status briefly showed gateway
+  offline. The remaining isolated backend was then terminated so Desktop could
+  respawn a fresh EC2 SSH backend.
+- Hermes Desktop rechecked `hermes-nous-ec2` through the SSH gateway and
+  returned to `Gateway ready`. The Model pane then loaded normally with provider
+  `OmniRoute (local Temperance routing layer)`, model `temperance-coding`, and
+  reasoning `Medium`; the red stale-checkout error was gone, and Apply was
+  pressed once.
+- Fresh EC2 readback after recovery reports `Hermes Agent v0.20.6 (2026.8.27)`
+  at upstream `5cc1369f`, with one Desktop-managed `hermes serve --isolated`
+  process running from the current checkout. No localhost `19119` tunnel was
+  restarted.
+- No Telegram send, bot creation, EC2 systemd restart, D1/KV/R2 mutation,
+  directive execution, DNS/domain change, Cloudflare deployment, credential
+  printing, or `hermes-aws-ts` runtime change was performed in this checkpoint.
+
+### 2026-08-31 Hermes EC2 upstream update and public dashboard guard checkpoint
+
+- The local AWS `safvr` session had expired, which caused Hermes Desktop's SSH
+  test to fail through the AWS SSM proxy with `aws: [ERROR]: Your session has
+  expired`. This was an AWS authentication/session problem, not proof that EC2
+  TCP port 22 or the SSH alias was misconfigured.
+- After `aws login --profile safvr`, AWS readback confirmed account
+  `992382756552`, instance `hermes-runner-01` (`i-056c5f1d3a9f74190`), Elastic
+  IP `32.199.4.57`, private IP `172.31.43.244`, and security group
+  `sg-05b20a088127a6717`.
+- EC2 Hermes Agent was updated to match upstream `origin/main` at
+  `4f22543509`. The pre-update carried local commit `5cc1369fa2` was preserved
+  on backup branch `pre-update-20260830T210242Z`; active `main` now matches
+  `origin/main`. The pre-existing untracked file
+  `hermes_cli/commands.py.bak-goalmenu-20260727T210914Z` remains untouched.
+- A public dashboard listener was attempted at `0.0.0.0:9119` so the Elastic-IP
+  URL would be `http://32.199.4.57:9119/`, but Hermes refused to bind publicly
+  because no dashboard auth provider is registered. The refusal stated that
+  non-loopback binds require password or OAuth dashboard auth; there is no
+  unauthenticated public-dashboard option.
+- A temporary security-group rule for TCP `9119` from the current client
+  `/32` was created during the attempt and then revoked after the dashboard
+  refused to start. The security group is back to only its existing TCP `22`
+  operator SSH rule. No public dashboard is currently exposed.
+- Next safe step for a static-IP browser URL: configure an approved dashboard
+  auth provider first, then start the dashboard on `0.0.0.0:9119` and add a
+  narrow `/32` ingress rule. Do not publish `0.0.0.0/0` dashboard access.
+- No Telegram send, bot creation, D1/KV/R2 mutation, directive execution,
+  DNS/domain change, Cloudflare deployment, credential printing, or
+  `hermes-aws-ts` runtime change was performed in this checkpoint.
+
+### 2026-08-31 Hermes EC2 authenticated narrow dashboard checkpoint
+
+- The operator explicitly approved configuring dashboard authentication,
+  opening TCP `9119` narrowly, and starting the EC2 dashboard. AWS profile
+  `safvr` and the SSM-backed `hermes-nous-ec2` SSH alias both passed fresh
+  readback before the change.
+- Hermes' bundled password provider is now configured as user `admin` in
+  `~/.hermes/config.yaml`. Only a scrypt password hash and stable
+  signing secret are stored remotely; the plaintext field is empty and the
+  config remains mode `0600`. The generated 48-character password is stored
+  only in the Mac Keychain item
+  `Hermes EC2 Dashboard 32.199.4.57:9119`; its value was not printed or
+  recorded here.
+- The original pre-auth config is preserved at
+  `~/.hermes/config.yaml.pre-dashboard-auth-20260830T211829Z`.
+  A second pre-rotation backup is preserved at
+  `~/.hermes/config.yaml.pre-dashboard-auth-rotation-20260830T211903Z`.
+- AWS security-group rule `sgr-06407f7ebf77adfd6` allows TCP `9119` only
+  from the operator's verified current IPv4 `223.185.133.89/32`. The existing
+  TCP `22` rule remains unchanged; no `0.0.0.0/0` or IPv6 dashboard ingress
+  exists.
+- The dashboard is running in tmux session `hermes_public_dashboard` from the
+  updated Hermes checkout, bound to `0.0.0.0:9119`. Its log is
+  `~/.hermes/logs/public-dashboard-9119.log`; final readback found
+  no traceback, bind refusal, or missing-provider error.
+- External verification against `http://32.199.4.57:9119/` passed: the root
+  redirects to login (`302`), provider discovery returns the `basic` provider
+  (`200`), unauthenticated `/api/auth/me` is denied (`401`), password login
+  succeeds (`200`), and the resulting authenticated `/api/auth/me` succeeds
+  (`200`). Session cookies used for verification remained in memory and were
+  not written to disk.
+- This is authenticated but plain HTTP over a public Elastic IP. Keep the
+  `/32` restriction, do not broaden it, and treat HTTPS/reverse-proxy work as
+  a separate deployment. The tmux process is not reboot-persistent. If the
+  operator's public IPv4 changes, the current rule will intentionally stop
+  admitting the browser until a separately approved narrow rule update.
+- Immediate rollback is reversible and SSM-safe: revoke security-group rule
+  `sgr-06407f7ebf77adfd6` from group `sg-05b20a088127a6717`, then stop the
+  listener with
+  `ssh hermes-nous-ec2 'tmux kill-session -t hermes_public_dashboard'`.
+- No Telegram send, bot creation, D1/KV/R2 mutation, directive execution,
+  DNS/domain change, Cloudflare deployment, systemd persistence, credential
+  printing, or `hermes-aws-ts` runtime change was performed.
+
+### 2026-08-31 Hermes EC2 Telegram bot relink checkpoint
+
+- The operator explicitly approved replacing the stale EC2 Telegram bot token
+  with the token held in the Mac clipboard and authorizing Telegram user
+  `8530027555` (`@witnessalchemst`, Shesh Iyer). The bot token was validated
+  and transferred without printing or recording its value.
+- The stale-token cause was service precedence, not deleted Hermes state:
+  `hermes-gateway.service` imports `/etc/hermes/.env`, which contained a
+  revoked Telegram token (`getMe` returned `401`) and no user allowlist.
+  `~/.hermes/.env` contained the target user allowlist but no bot
+  token, so the running service continued receiving the stale system value.
+- Both authoritative env files now carry the same validated replacement token
+  for Telegram bot `@curious_self_bot` (`8544753627`, display name
+  `Cambium Flow`) and include user `8530027555` in
+  `TELEGRAM_ALLOWED_USERS`. Existing assignments and allowlist entries were
+  preserved; only the Telegram token and additive user authorization were in
+  the write set.
+- Protected rollback copies are
+  `/etc/hermes/.env.pre-telegram-relink-20260830T214016Z` (mode `0640`, owner
+  `root:ubuntu`) and
+  `~/.hermes/.env.pre-telegram-relink-20260830T214016Z` (mode
+  `0600`, owner `ubuntu:ubuntu`). The live files retained those same modes and
+  owners.
+- Only `hermes-gateway.service` was restarted. Final systemd readback reports
+  active/running with PID `4117673`. The dashboard and Desktop-managed SSH
+  backend were not restarted; the authenticated dashboard remained reachable.
+- Runtime verification passed at three independent layers: the new process
+  environment contains one allowed user and the target ID; Telegram `getMe`
+  resolves the process credential to `@curious_self_bot`; Telegram `getChat`
+  resolves `8530027555` to `@witnessalchemst`; and the authenticated Hermes
+  dashboard test endpoint reports Telegram `connected`.
+- The bot has no webhook and no pending Telegram updates. Existing Telegram
+  home-channel routing remains configured for `-1002691202808`; no home
+  channel, group allowlist, topic, pairing record, or unrelated platform
+  setting was changed.
+- Preservation readback remained stable across the relink: `sessions` stayed
+  at 14 files / 1,393,112 bytes, `memories` stayed at 2 files / 173 bytes, and
+  no `chats` directory files were deleted. No Telegram message was sent during
+  verification.
+- The installed gateway base unit still reports an upstream-definition refresh
+  recommendation. It was intentionally not auto-refreshed because the current
+  custom timezone, environment, and OnFailure drop-ins are outside this token
+  relink. A future service-maintenance task should reconcile that warning
+  separately rather than folding it into channel activation.
+- Rollback, if required, is to restore both timestamped env backups to their
+  original paths and restart only `hermes-gateway.service` through the existing
+  SSM-backed SSH path.
+- No session, memory, chat, pairing, WhatsApp data, D1/KV/R2 state, directive,
+  DNS/domain, Cloudflare deployment, repository source, or `hermes-aws-ts`
+  runtime was deleted or changed.
+
+### 2026-08-31 Thoughtseed Labs Telegram forum activation checkpoint
+
+- The operator confirmed that the intended `Thoughtseed Labs` supergroup is
+  `-1003942929819`. Telegram live readback identified user `8530027555` as the
+  group creator and `@curious_self_bot` (`Cambium Flow`) as an administrator.
+  The private invite link was used only for live identity confirmation and was
+  not recorded in repository configuration or evidence.
+- The existing supergroup was converted in place to a Telegram forum. Its
+  existing messages remain under `General` (thread `1`); no chat, member, or
+  prior message was removed.
+- The planned Hermes-owned topic topology now exists live with these exact
+  thread IDs: `Hermes=2`, `Digests=3`, `Dev=4`, `Inbox=5`, `Calendar=6`,
+  `Agent Ops=7`, `Alerts=8`, and `Clients=9`.
+- The topic-to-quest meaning remains the reviewed contract: Hermes ->
+  `the-gate`, Digests -> `the-review`, Dev -> `the-build`, Inbox and Calendar
+  -> `the-brief`, Agent Ops -> `living-org`, Alerts -> `the-ship-gate`, and
+  Clients -> `the-handoff`.
+- EC2 runtime routing now admits only the new group in
+  `TELEGRAM_ALLOWED_CHATS` and `TELEGRAM_GROUP_ALLOWED_CHATS`, uses it as
+  `TELEGRAM_HOME_CHANNEL`, and defaults home/Hermes delivery to thread `2`,
+  cron delivery to thread `3`, and alerts to thread `8`. The founder user ID
+  was added to the YAML Telegram `allow_from` list without removing the two
+  existing entries.
+- All eleven entries in `~/.hermes/cron/jobs.json` were remapped to
+  the new chat and topic IDs. They remain disabled (`0/11` enabled), so this
+  checkpoint caused no scheduled Telegram delivery.
+- Permission-preserving rollback copies are
+  `/etc/hermes/.env.pre-thoughtseed-forum-20260830T220747Z`,
+  `~/.hermes/.env.pre-thoughtseed-forum-20260830T220747Z`,
+  `~/.hermes/config.yaml.pre-thoughtseed-forum-20260830T220747Z`,
+  and
+  `~/.hermes/cron/jobs.json.pre-thoughtseed-forum-20260830T220747Z`.
+- `hermes-gateway.service` restarted active/running with PID `4122787`.
+  Telegram live readback reports the target as a forum, the bot as an
+  administrator, no webhook, and zero pending updates. The authenticated
+  dashboard reports Telegram `Connected`.
+- Preservation readback remained stable: `sessions` stayed at 14 files /
+  1,393,112 bytes, `memories` at 2 files / 173 bytes, and `chats` at 0 files.
+  No ordinary Telegram message was sent during activation or verification.
+- This checkpoint proves the forum structure and generic Hermes transport. It
+  does **not** yet prove the custom quest bridge end to end: the canonical
+  `hermes-aws-ts` topic contract, deployed Thoughtseed plugin defaults, and
+  Cambium Worker consumer still pin the prior chat/thread topology. They must
+  be migrated canonical-owner first, tested in both repositories, promoted
+  under a separate production approval, and then proven with one labeled
+  inbound topic message and one receipt-backed response. Until that promotion,
+  treat topic-to-quest automation as held even though ordinary Hermes Telegram
+  conversation is connected.
+
+### 2026-08-31 Thoughtseed Labs topic-contract migration checkpoint
+
+- This checkpoint supersedes only the preceding source-pinned hold. The live
+  forum and generic Hermes transport remain as recorded above; no production
+  plugin, Worker, cron, dashboard, or Telegram delivery was changed here.
+- Hermes now owns the migrated `thoughtseed.telegram-topic-map.v1` contract for
+  the new forum and topics `2` through `9`. The canonical bytes hash to
+  `edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a`.
+  Branch routing, native topology, routine defaults, active plugin workflows,
+  helper scripts, current contracts, and current runbooks use the same map.
+- The Hermes plugin founder allowlist adds Telegram user `8530027555` while
+  preserving the two existing founder IDs. A dedicated regression test proves
+  that this identity enters the same bounded founder semantic-recall path.
+- Cambium vendors a byte-identical topic manifest with the same digest. Its
+  Worker routing, ActionRequest validation, iVerif binding, proactive loop,
+  organ delivery, visual fixtures, contracts, and runbooks use the new map.
+- Verification passed: Hermes focused Node `58/58`, plugin `128/128`; Cambium
+  focused migration `41/41`, Worker handler `397/397`; drift audit `4/4`; and
+  the canonical Telegram viewport proof regenerated `47/47` artifacts against
+  PAGE digest `3f6ea85b1e3d50a86b1b423be14c3cd2b883a23e766702c845509106a85a6ce8`.
+- The full Hermes run reached `220/221`; its only failure is the unrelated
+  retired-vocabulary scan of an untouched historical evidence file. Cambium's
+  full run reached `1958/1961`; the migration-owned drift failure was then
+  fixed and reran green, while both remaining privacy assertions now name only
+  the pre-existing untracked architecture refresh note. That user-owned note
+  was not edited or deleted.
+- Final read-only EC2 readback found `hermes-gateway.service` active with PID
+  `4128307`, all non-secret Telegram routing keys targeting the new forum, all
+  `11` cron routes remapped, and `0` jobs enabled. This check performed no
+  service restart, file write, or Telegram delivery.
+- Production quest automation remains held. The next owner-approved step is a
+  reviewed EC2 Thoughtseed plugin promotion plus Cambium Worker deployment,
+  followed by exactly one labeled inbound message and one receipt-backed reply.
+  No ordinary Telegram message, D1/KV/R2 write, cron enablement, DNS change, or
+  deployment occurred in this source-migration checkpoint.
+
+### 2026-08-31 Thoughtseed Labs topic-to-quest production promotion checkpoint
+
+- The operator approved the held production promotion. The exact reviewed
+  Hermes source is `1931f6c2d0d9260cfbf29c37413e1504e7ebf9e4`; the exact
+  Cambium source is `73e18d6a747f6b0dce184a820a5df77295f76fa2`; and both pin
+  canonical topic-manifest digest
+  `edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a`.
+- EC2 was intentionally promoted as a 12-file partial release rather than with
+  the generic full-tree deployer: the live full-tree release is still
+  `a9aac494f5f06f8b129232ed7fada179b6310f58`, while current repository main
+  differs from it by 195 files. The separate truthful receipt is
+  `/opt/hermes-aws-ts/.hermes-topic-promotion.json`; it keeps
+  `fullTreeRelease=false` and `labeledInboundProof=pending`.
+- The restorable EC2 archive is
+  `/var/backups/hermes/topic-promotion-20260830T231941Z.tgz`. EC2-native
+  verification passed 17 topic/topology tests, 128 plugin tests, and 3 routine
+  tests before mutation. Post-promotion readback matched source/plugin hashes;
+  `hermes-gateway.service`, `hermes-runner.timer`, and
+  `hermes-proactive-loop.timer` were active; the proactive timer did not fire;
+  and all 11 Hermes cron jobs remained disabled.
+- Cambium Worker version `42d74fc1-9b4a-471b-b342-833256a19dd1` carried the
+  exact source bundle and passed inert preview health plus the unauthenticated
+  topic-assignment denial before receiving traffic. The subsequent signed-Gate
+  version `7909f579-48f3-45e8-89d9-3a6556a03892` preserves the same script
+  etag and all 36 binding names/types while rotating only `GATE_BOT_ID` to
+  `@curious_self_bot` and additively authorizing founder `8530027555`.
+- Production now has only Worker version
+  `7909f579-48f3-45e8-89d9-3a6556a03892` at 100 percent. Immediate rollback is
+  exact: deploy `42d74fc1-9b4a-471b-b342-833256a19dd1@100%` to retain the new
+  topic code with the previous Gate secrets, or
+  `fd8b6555-c286-4df6-a3cc-ec99895dbb68@100%` for the pre-promotion Worker.
+- The chmod-600 local recovery envelope was updated atomically after promotion;
+  its permission-preserving rollback copy is
+  `~/.config/thoughtseed/labs-secrets-mint-2026-08-06.json.pre-gate-rotation-20260830T233235Z`.
+- Telegram readback identifies `@curious_self_bot` as group administrator and
+  `@witnessalchemst` as group creator. Only founder user `8530027555` now has a
+  `Mission Control` Web App menu button, pointing to the verified direct
+  production Worker origin. The custom domain remains behind Cloudflare Access
+  and was deliberately not used as the Telegram URL; menu rollback is the
+  founder-specific `default` menu button.
+- In-app-browser verification loaded the production `Cambium - Mission
+  Control` shell and exercised all five current scenes: Mission, Gate, Tools,
+  Story, and Inspect. Outside Telegram it truthfully reports authenticated
+  access needed; inside Telegram, signed `initData` is the sole founder Gate.
+- Docs-only follow-up `637cee2bf3626036675f0950170d152cdf453bd7` corrects the
+  proactive-loop runbook to name the Labs production config and the versioned
+  upload/preview/promotion procedure. It is not a second deployed code version.
+- No ordinary Telegram message, authenticated assignment request, D1 migration,
+  cron enablement, DNS/Access change, or deletion was performed. Post-release
+  preservation readback found 14 session files, 4 memory files, and 0 chat
+  files; the first two stores only grew relative to the prior checkpoint.
+- Source/runtime promotion is complete, but end-to-end topic automation remains
+  unproven until exactly one labeled inbound message is sent in a mapped topic
+  and its receipt-backed reply is observed. Telegram remains a signal and
+  receipt plane; D1 Goal Graph and the signed Mini App Gate remain authority.
+
+### 2026-08-31 founder-authored Dev proof checkpoint
+
+- Founder Telegram user `8530027555` sent labeled Dev-topic message `98` in
+  thread `4`. The immutable signal classified as an approval-free engineering
+  assignment for quest `the-build`, task `task_topic-dev-98`, and event /
+  correlation ID `topic:thoughtseed-ops:dev:98:assigned`.
+- The authenticated Hermes operator boundary forwarded that exact decision to
+  Cambium and received HTTP `200`. Cambium created assignment receipt
+  `task_shesh_2026-08-31T12:56:21.487Z` for member `shesh`; an independent
+  protected readback found the matching pending `project_task_assignment` with
+  the same task, event, correlation, and quest identifiers.
+- `@curious_self_bot` returned Telegram receipt message `103` in Dev thread `4`
+  as a direct reply to founder message `98`. A separate `tg` history readback
+  confirmed the bot identity, reply chain, and receipt marker.
+- Runtime cron truth had drifted from the preceding `0/11` checkpoint: live
+  Hermes reported all `11` jobs active, with several prior run records. No job
+  was enabled during this proof. All `11` were reversibly paused (none deleted),
+  and the final readback reports `0` active, `11` paused, and no active jobs.
+- This proof performed no Goal Graph write, Worker deployment, DNS/Access
+  change, secret disclosure, data deletion, or automatic task execution. It
+  closes the labeled inbound assignment-and-receipt hold; the queued assignment
+  remains distinct from downstream execution evidence.
+
+### 2026-08-31 Mission Fabric candidate and 9d9d vault reconciliation checkpoint
+
+- The reviewed source/target manifest is
+  `docs/evidence/2026-08-31-cambium-9d9d-labs-prefix-reconciliation.v1.json`.
+  It scopes `portfolio/thoughtseed/workobjects/` and
+  `context/v1/daily-standup-digest/standups/`, records the source-auth failure,
+  labels prior inventory counts as historical, and performs no R2 transfer.
+- The Labs candidate adds only the non-secret
+  `MISSION_FABRIC_TENANTS=cambium` variable to
+  `workers/quests/wrangler.labs.jsonc`. The portfolio catalog and Canopy code
+  were already present and remain read-only, founder-authenticated, and joined
+  through D1 Goal Graph authority.
+- Candidate Version `dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3` was uploaded from
+  isolated commit `f6c25791c4fb0f13277f366060115f064d33ec89` with preview alias
+  `mission-fabric-f6c25791c4fb`. Preview probes are health `200`, gate `200`,
+  and unauthenticated Mission Fabric `401` for missing Telegram `initData`.
+- Production remains exactly Version
+  `7909f579-48f3-45e8-89d9-3a6556a03892` at 100 percent. No D1, KV, R2,
+  secret, route, Telegram, Hermes, cron, or Goal Graph mutation occurred.
+- The IAB session can reach the personal `9d9d` dashboard URL but Cloudflare
+  denies the R2 overview for the authenticated Labs identity. Source vault
+  object-level readback and any transfer remain blocked until an approved
+  read-only source credential/session is available. Production promotion of
+  the candidate remains a separate rollback-gated owner action.
+
+### 2026-08-31 Zero Trust and mapped-assets parity checkpoint
+
+- The Labs Zero Trust policy is already ported and live under
+  `thoughtseedlabs.cloudflareaccess.com`. The target apps are `Cambium Curious`,
+  `Hermes Runner API`, `Plexus API`, `TeamForge API`, and `Company OmniRoute`,
+  with the reviewed team-email and machine-service-token policy pattern. The
+  personal `red-queen-4dfa.cloudflareaccess.com` apps remain retained only as
+  rollback evidence; none were deleted.
+- Read-only edge probes confirm the mapped policy: `curious` root and
+  Mission/Workbench paths return `302` to the Labs Access team; bridge paths
+  return Access `403` with the Hermes Runner AUD; `forge`, `plexus-api`,
+  `strength-08`, and `omniroute` return Labs Access `302`.
+- Target control-plane readback confirms the declared Worker assets: D1
+  `cambium-bridge` `c0aba88a-…`, KV `QUESTS` `439547e6-…`, KV `SECRETS`
+  `3ab08249-…`, R2 `thoughtseed-vault` and
+  `thoughtseed-context-projections`, Vectorize `cambium-cortex` (1024 cosine),
+  and healthy tunnel `company-omniroute`. The active production Version is
+  `dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3` at 100 percent.
+- The exact mapping and redacted policy receipt is in
+  `docs/evidence/2026-08-31-cambium-9d9d-labs-prefix-reconciliation.v1.json`.
+  No source vault object transfer, secret-value read, D1 write, route change,
+  Telegram authority change, cron enablement, or source rollback deletion was
+  performed.
+
+### 2026-08-31 authenticated Workbench browser proof
+
+- The authenticated in-app browser reached
+  `https://curious.thoughtseed.space/admin/portfolio/web` through the Labs
+  Access session and rendered `Thoughtseed Portfolio Workbench`.
+- Live classification badges show `17 Saplings`, `40 Branches`, and
+  `15 Programs`; `Needs Review` is `0`, and the source receipt remains visible.
+- The active Workbench renders `71` cards because one seeded terminal
+  closeout is intentionally represented in `Project Archive / Finished Work`;
+  no source WorkObject was removed.
+- Browser console readback returned no warnings or errors. No portfolio action,
+  form submission, server write, or external message was performed.
+
+### 2026-09-02 temporary outage Access bypass checkpoint
+
+- During the Cloudflare outage, two separately named, reversible Cloudflare
+  Access Bypass policies were added and attached without deleting or editing
+  the existing policies: `emergency-public-cambium-20260902` on `Cambium
+  Curious` (policy `031cb463-11ff-4a63-bcf6-2c4544be2e5a`) and
+  `emergency-public-hermes-20260902` on `Hermes Runner API` (policy
+  `cbec4b0a-27db-402e-94eb-ebf2a0150805`). The first covers the Curious
+  hostname; the second covers only the existing `/v1/bridge/*` destinations.
+- No global Zero Trust setting, Worker code, route, DNS, secret, or original
+  Access policy was changed. The existing `cf-down`, team-email, service-token,
+  and `cambiumflow` policies remain retained.
+- Post-change live probes: `https://curious.thoughtseed.space/` and
+  `/healthz` return HTTP `200` without an Access redirect; the Hermes bridge
+  reaches the Worker and returns application-layer HTTP `401` (`bad or missing
+  bridge credential`); `/api/quests/cambium` remains application-layer HTTP
+  `401` (`access_identity_required`). This is edge Access bypass only, not a
+  full removal of application authentication.
+- Rollback is scoped to disabling/removing only the two named emergency
+  policies above; restore the existing Access-enforced behavior afterward.
+
+### 2026-09-02 9d9d Worker retirement checkpoint
+
+- Runtime ownership is now separated: Labs account `9d7cec1b5a32b2df8c6cdc1321ccd00b`
+  owns the live `curious.thoughtseed.space` custom domain and remains at 100%
+  on Version `dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3`; personal account
+  `9d9d23b27f32e70ae3afb6a1aa2c0f10` held a distinct `cambium-quests` Worker
+  deployment at 100% but did not own the custom-domain route.
+- The personal Worker was gracefully quiesced without deletion: its only Cron
+  Trigger (`0 */6 * * *`) was replaced with an empty schedule, and its
+  production plus preview `workers.dev` subdomains were disabled. The old
+  endpoint `cambium-quests.sheshnarayan-iyer.workers.dev` changed from HTTP
+  `200` to HTTP `404`; deployment/version history remains retained.
+- `workers/quests/wrangler.jsonc` is now an explicit retired-target guard with
+  the 9d9d account pinned, `workers_dev:false`, `preview_urls:false`, and
+  `triggers.crons:[]`. A legacy-config `wrangler deploy --dry-run` passed with
+  no upload; no Worker code was deployed.
+- Labs production was not changed by this retirement. The Labs custom domain
+  still returns HTTP `200`; the previously added temporary Access bypasses and
+  their rollback scope remain unchanged.

@@ -10,15 +10,15 @@ import {
 test('Telegram routing snapshot records its Hermes provenance', () => {
   assert.equal(TELEGRAM_ROUTING_CONTRACT.schema, 'thoughtseed.telegram-topic-map.v1');
   assert.equal(TELEGRAM_ROUTING_CONTRACT.sourceRepository, 'Sheshiyer/hermes-aws-ts');
-  assert.equal(TELEGRAM_ROUTING_CONTRACT.sourceCommit, '0e4736254b1846259b2ea317fb791cc6e9b7e312');
-  assert.equal(TELEGRAM_ROUTING_CONTRACT.manifestSha256, '520fef0b316f8029e858674e7bb948be997d772f0b2ccffd64a3dfd0b6eebd8c');
+  assert.equal(TELEGRAM_ROUTING_CONTRACT.sourceCommit, 'e09ebfed7d6cbe69652d979c3c63f261c27fe27a');
+  assert.equal(TELEGRAM_ROUTING_CONTRACT.manifestSha256, 'edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a');
   assert.match(TELEGRAM_ROUTING_CONTRACT.tracker, /^https:\/\/github\.com\/Sheshiyer\/hermes-aws-ts\/issues\/\d+$/);
 });
 
-test('Telegram routing snapshot uses the current Hermes Dev topic and stable Clients topic', () => {
-  assert.equal(THOUGHTSEED_TELEGRAM_CHAT_ID, '-1002691202808');
-  assert.equal(TOPIC_QUEST_ROUTES.dev.threadId, 862);
-  assert.equal(TOPIC_QUEST_ROUTES.clients.threadId, 804);
+test('Telegram routing snapshot uses the current Thoughtseed Labs forum topics', () => {
+  assert.equal(THOUGHTSEED_TELEGRAM_CHAT_ID, '-1003942929819');
+  assert.equal(TOPIC_QUEST_ROUTES.dev.threadId, 4);
+  assert.equal(TOPIC_QUEST_ROUTES.clients.threadId, 9);
   assert.deepEqual(Object.keys(TOPIC_QUEST_ROUTES), [
     'hermes', 'digests', 'dev', 'inbox', 'calendar', 'agent_ops', 'alerts', 'clients',
   ]);

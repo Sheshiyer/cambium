@@ -48,7 +48,7 @@ The route returns the same idempotent assignment shape as
   "queued": true,
   "topic": {
     "topicKey": "dev",
-    "threadId": 862,
+    "threadId": 4,
     "questId": "the-build"
   }
 }
@@ -61,7 +61,7 @@ Minimum:
 ```json
 {
   "topicKey": "dev",
-  "threadId": 862,
+  "threadId": 4,
   "sourceMessageId": "852",
   "summary": "Build route proof is stale and needs a fresh worker probe."
 }
@@ -69,7 +69,7 @@ Minimum:
 
 Optional fields:
 
-- `chatId`: if present, must be `-1002691202808`.
+- `chatId`: if present, must be `-1003942929819`.
 - `memberId`: defaults to `shesh`.
 - `projectId`: defaults to `thoughtseed-ops`.
 - `projectName`: defaults to `Thoughtseed Ops`.
@@ -82,14 +82,14 @@ Optional fields:
 
 | Topic | Thread | Default quest | Default task type | Default priority |
 | --- | ---: | --- | --- | --- |
-| Hermes | 797 | `the-gate` | `operations` | `normal` |
-| Digests | 798 | `the-review` | `research` | `normal` |
-| Dev | 862 | `the-build` | `engineering` | `high` |
-| Inbox | 800 | `the-brief` | `general` | `normal` |
-| Calendar | 801 | `the-brief` | `operations` | `normal` |
-| Agent Ops | 802 | `living-org` | `operations` | `high` |
-| Alerts | 803 | `the-ship-gate` | `operations` | `urgent` |
-| Clients | 804 | `the-handoff` | `general` | `high` |
+| Hermes | 2 | `the-gate` | `operations` | `normal` |
+| Digests | 3 | `the-review` | `research` | `normal` |
+| Dev | 4 | `the-build` | `engineering` | `high` |
+| Inbox | 5 | `the-brief` | `general` | `normal` |
+| Calendar | 6 | `the-brief` | `operations` | `normal` |
+| Agent Ops | 7 | `living-org` | `operations` | `high` |
+| Alerts | 8 | `the-ship-gate` | `operations` | `urgent` |
+| Clients | 9 | `the-handoff` | `general` | `high` |
 
 ## Proactive Rules
 

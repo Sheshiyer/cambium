@@ -1,0 +1,152 @@
+{
+  "schema": "cambium.9d9d-labs-prefix-reconciliation.v1",
+  "observedAt": "2026-08-31T14:24:54Z",
+  "scope": {
+    "tenant": "cambium",
+    "sourceProfile": "9d9d",
+    "targetProfile": "thoughtseed-labs",
+    "sourceBucket": "thoughtseed-vault",
+    "targetBucket": "thoughtseed-vault",
+    "prefixes": [
+      "portfolio/thoughtseed/workobjects/",
+      "context/v1/daily-standup-digest/standups/"
+    ]
+  },
+  "authority": {
+    "targetWorkerVersion": "dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3",
+    "targetAccountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+    "sourceAccountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+    "r2Role": "immutable-idempotent-evidence-and-durability",
+    "operationalWriter": "target D1 Goal Graph",
+    "r2IsOperationalWriter": false
+  },
+  "access": {
+    "sourceReadOnlyRefresh": "bucket-list-verified; object-list-blocked",
+    "sourceReadback": "Wrangler 9d9d profile lists thoughtseed-vault; rclone-crypt object listing still rejects Cloudflare R2 Authorization",
+    "targetReadback": "available",
+    "credentialsRecorded": false,
+    "privateContentRead": false
+  },
+  "inventory": {
+    "basis": "historical bounded readback captured before this refresh; source was not re-listed after auth failure",
+    "freshness": "not-current",
+    "sourceVault": { "objects": 9693, "bytesApproximate": "4.41GB", "objectGranularity": "unavailable", "evidenceAge": "prior-readback" },
+    "targetVault": { "objects": 8703, "bytesApproximate": "4.26GB", "objectGranularity": "available", "evidenceAge": "prior-readback" },
+    "sourceTargetDelta": {
+      "candidateSourceOnlyCount": 990,
+      "classificationConfidence": "prefix-level-only",
+      "disposition": "hold-until-source-auth-refresh"
+    },
+    "contextProjection": {
+      "key": "context/v1/daily-standup-digest/standups/latest.json",
+      "classification": "matched",
+      "bytes": 1346,
+      "sha256": "8bc2d77cde9da6541252bd0a25352df8f871a115b5e96281c756fe6ab05401e9",
+      "disposition": "retain-target-no-copy"
+    },
+    "fitcheckMappingReceipt": {
+      "key": "portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json",
+      "classification": "target-newer",
+      "targetBytes": 1484,
+      "targetSha256": "0939d0dffcb30e93a3cb66502336ebcb9b8ef89e0f5b8c1fb171eb7a46430af5",
+      "sourceComparison": "not-readable-after-encryption-auth-failure",
+      "disposition": "retain-target-no-copy"
+    }
+  },
+  "classification": {
+    "matched": [
+      "context/v1/daily-standup-digest/standups/latest.json"
+    ],
+    "targetNewer": [
+      "portfolio/thoughtseed/workobjects/sapling:fitcheck/mapping/pmr_9de251ce89564f07f3e4c510.json"
+    ],
+    "sourceOnlyCandidates": [
+      {
+        "prefix": "portfolio/thoughtseed/workobjects/",
+        "count": 990,
+        "status": "candidate-not-reviewed",
+        "reason": "source inventory is encrypted and currently unauthenticated"
+      }
+    ],
+    "unrelatedOrPrivate": [
+      {
+        "prefix": "thoughtseed-vault/* outside the scoped prefixes",
+        "status": "unread-and-held",
+        "reason": "no object-level evidence; never copy by bucket delta"
+      }
+    ]
+  },
+  "transfer": {
+    "performed": false,
+    "reviewedSourceOnlyKeys": [],
+    "reason": "No source-only object has an authenticated, reviewed, exact key and digest."
+  },
+  "preservation": {
+    "workerVersionPreserved": true,
+    "priorProductionVersion": "7909f579-48f3-45e8-89d9-3a6556a03892",
+    "candidateVersion": "dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3",
+    "candidatePreviewAlias": "https://mission-fabric-f6c25791c4fb-cambium-quests.thoughtseedlabs.workers.dev",
+    "candidateTrafficPercentBeforePromotion": 0,
+    "promotedCandidateTrafficPercent": 100,
+    "liveWorkerVersionAfterPromotion": "dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3",
+    "d1DatabaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8",
+    "goalGraphHead": { "tenant": "cambium", "version": 1, "digest": "846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e", "changes": 0, "rowsWritten": 0 },
+    "d1OperationalTruthPreserved": true,
+    "secretsChanged": false,
+    "routesChanged": false,
+    "receiptsChanged": false,
+    "telegramAuthorityChanged": false,
+    "cronDeliveryEnabled": false
+  },
+  "zeroTrustAndAssetMapping": {
+    "status": "target-recreated-and-live; source-retained-for-rollback",
+    "sourceTeam": "red-queen-4dfa.cloudflareaccess.com",
+    "targetTeam": "thoughtseedlabs.cloudflareaccess.com",
+    "policyPattern": "team email allow plus any_valid_service_token where machine identity is appropriate",
+    "targetAccessApplications": [
+      { "name": "Cambium Curious", "id": "4ea32673-b7a5-4135-a7d5-ea50f3f62be4", "aud": "29e1c8a6760778891fe1278ea0c8639afba1eb41a0008a7fd14850e4168911b5", "domains": ["curious.thoughtseed.space"] },
+      { "name": "Hermes Runner API", "id": "93d796b9-62a4-41eb-859b-23becf6cc99c", "aud": "481fc6643a62b3a4f58778e61b21f571b7039e6357c6e481a4949101f27776fe", "domains": ["curious.thoughtseed.space/v1/bridge/ack", "curious.thoughtseed.space/v1/bridge/directives/*", "curious.thoughtseed.space/v1/bridge/executions/*"] },
+      { "name": "Plexus API", "id": "b419f0f1-fbbc-4711-a23b-c82a17d4c2fe", "aud": "38b502a01f4063c5521191e084c7fd9b086099c0061b045145cd93165b9af8d0", "domains": ["plexus-api.thoughtseed.space"] },
+      { "name": "TeamForge API", "id": "564adbeb-f94f-4fbe-8e07-1cd3a2904d64", "aud": "dd832e556cd9ee7c4e2fb9fddc6bb16bccd64d1b28b0784f84884a69f8a2f3d9", "domains": ["forge.thoughtseed.space"] },
+      { "name": "Company OmniRoute", "id": "a5da1a84-530f-4944-a7f0-5c5d19635416", "aud": "aefafc30bc9532f3459416995fb2f099124e623f73860439e6177f1bf8c6bb5c", "domains": ["strength-08.thoughtseed.space", "omniroute.thoughtseed.space"] }
+    ],
+    "targetServiceTokens": ["teamforge-api-client", "hermes-runner-ec2", "company-omniroute-edge"],
+    "targetTunnels": [
+      { "name": "company-omniroute", "id": "3b65461c-15f6-46cf-b948-005d04a1e418", "status": "healthy", "ingress": ["strength-08.thoughtseed.space", "omniroute.thoughtseed.space"] }
+    ],
+    "sourceRollbackResources": {
+      "accessAppsRetained": ["plexus-api", "Hermes Runner API", "TeamForge API"],
+      "tunnel": { "name": "plexus-clio-relay", "id": "afc8f429-4744-47f3-83ed-7c3b0c1b8f3f", "status": "healthy", "omnirouteIngress": "stripped; source retained" }
+    },
+    "workerBindingMap": [
+      { "binding": "BRIDGE_DB", "kind": "d1", "targetId": "c0aba88a-5c83-4481-b625-50356d8c98e8", "sourceId": "f6b950ac-2480-4a7d-9dac-1ff7e951d936", "status": "target-recreated" },
+      { "binding": "QUESTS", "kind": "kv", "targetId": "439547e617d9455fb752bfd651da9765", "sourceId": "10aaa6e0a8a545c1afb5ceee7ef61c14", "status": "target-recreated" },
+      { "binding": "SECRETS", "kind": "kv", "targetId": "3ab0824953064453b8a1995a0b4da05e", "status": "target-only secret namespace" },
+      { "binding": "THOUGHTSEED_VAULT", "kind": "r2", "bucket": "thoughtseed-vault", "status": "name-present; encrypted source object parity held" },
+      { "binding": "CONTEXT_PROJECTIONS", "kind": "r2", "bucket": "thoughtseed-context-projections", "status": "name-present; known latest projection matched" },
+      { "binding": "CAMBIUM_CORTEX", "kind": "vectorize", "index": "cambium-cortex", "dimensions": 1024, "metric": "cosine", "status": "target-recreated" }
+    ],
+    "routeProbes": {
+      "curiousRoot": { "status": 302, "accessTeam": "thoughtseedlabs.cloudflareaccess.com", "aud": "29e1c8a6760778891fe1278ea0c8639afba1eb41a0008a7fd14850e4168911b5" },
+      "curiousBridge": { "status": 403, "accessTeam": "thoughtseedlabs.cloudflareaccess.com", "aud": "481fc6643a62b3a4f58778e61b21f571b7039e6357c6e481a4949101f27776fe" },
+      "forge": { "status": 302, "accessTeam": "thoughtseedlabs.cloudflareaccess.com" },
+      "plexusApi": { "status": 302, "accessTeam": "thoughtseedlabs.cloudflareaccess.com" },
+      "omniroute": { "status": 302, "accessTeam": "thoughtseedlabs.cloudflareaccess.com" }
+    },
+    "targetWorkerSecretBindingCount": 23,
+    "secretValuesRead": false,
+    "sourceAccessAppsDeleted": false,
+    "sourceRollbackPreserved": true
+  },
+  "nextGate": {
+    "required": [
+      "founder signs into the 9d9d Cloudflare account in the in-app browser or supplies an approved read-only R2 session",
+      "re-run exact object listing and digest comparison for the two prefixes",
+      "review each Cambium source-only key before any idempotent target copy"
+    ],
+    "never": [
+      "bulk-copy the encrypted vault",
+      "replace target D1, Worker, secrets, routes, receipts, or Telegram authority"
+    ]
+  }
+}

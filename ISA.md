@@ -8,7 +8,7 @@ progress: 4/4
 mode: interactive
 iteration: 2026-08-18-infinite-game-doctrine-and-intent-graph
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-20T21:01:45Z
+updated: 2026-08-31T14:32:43Z
 ---
 
 ## Problem
@@ -1856,15 +1856,15 @@ Implementation acceptance evidence (independent Phase 7 verification remains pen
 
 <!-- arch-assets:start -->
 
-_Maintained during the 2026-07-22 architecture refresh; source-backed inventory plus reviewed LLM-generated assets._
-_Last refreshed: 2026-07-22T09:00:00Z_
+_Auto-maintained by `ArchitectureAssetsSync.hook.ts` on release events._
+_Last refreshed: 2026-08-30T13:04:17.234Z_
 
 | Asset | Status | How it's generated |
 |---|---|---|
-| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✅ current | auto (file scan) |
-| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✅ current | auto (file scan) |
-| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ✅ current | architecture-diagram skill, reviewed against source |
-| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ✅ current | architecture refresh prompt, reviewed against source |
+| [`docs/architecture/SERVICES.md`](docs/architecture/SERVICES.md) | ✓ current | auto (file scan) |
+| [`docs/architecture/DEPENDENCY-GRAPH.md`](docs/architecture/DEPENDENCY-GRAPH.md) | ✓ current | auto (file scan) |
+| [`docs/architecture/architecture.html`](docs/architecture/architecture.html) | ⚠ STALE — run `/refresh-architecture` | manual (LLM skill) |
+| [`docs/architecture/notebooklm-prompt.md`](docs/architecture/notebooklm-prompt.md) | ⚠ STALE — run `/refresh-architecture` | manual (LLM skill) |
 
 **To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
 
@@ -2297,6 +2297,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   refuted by: Import, JSON, Markdown, Copy, and Reset continued to present an obsolete one-time handoff workflow while every meaningful action still stopped in browser-local state
   learned: hosted admin intent needs a founder-authenticated server boundary, immutable replay-safe evidence, and a governed next-flow trigger without letting R2 or the browser become a second operational writer
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
+
+- 2026-08-31 | conjectured: the direct workers.dev Mission Control URL could prove founder portfolio visibility outside Telegram
+  refuted by: the direct origin correctly failed closed without signed Telegram `initData`, while the authenticated Labs custom-domain continuation reached the protected Workbench
+  learned: browser proof must distinguish the Telegram signal-plane shell from the Access-authenticated founder Workbench; active-card counts may exclude an explicitly seeded terminal closeout without changing source classification counts
+  criterion now: ISC-2470..2473 require authenticated Access continuation, visible source receipts and classification badges, explicit archive accounting, and zero browser warnings without submitting an action
 
 ## Verification
 
@@ -2835,3 +2840,41 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - [x] ISC-1249: Each root uncommitted path receives a reviewed disposition: already merged, candidate PR, generated/local-only, or explicit hold.
 - [x] ISC-1250: No workflow deletion enters a PR unless its exact source diff is independently justified and tested.
 - [x] ISC-1251: Fitcheck, Vantyx, IVerif, DLOCK, and Snow Gloves repositories each have live default-branch, open-PR, remote-branch, and issue readback evidence.
+
+## 2026-08-31 9d9d vault reconciliation and Mission Control portfolio projection
+
+- [x] ISC-2459: The source and target Wrangler profiles are explicit: `9d9d` is read-only source and `thoughtseed-labs` owns production bindings and traffic.
+- [x] ISC-2460: A prefix-scoped reconciliation manifest records the two reviewed prefixes, target Worker version, source-auth failure, known matching projection, target mapping receipt, and preservation flags.
+- [ ] ISC-2461: Source-only Cambium objects have authenticated object-level keys, digests, and founder review before any transfer; blocked while encrypted source authorization is invalid.
+- [x] ISC-2462: No R2 bulk copy, D1 write, secret change, route change, receipt mutation, Telegram authority change, or cron delivery was performed by this checkpoint.
+- [x] ISC-2463: The canonical 72-record portfolio catalog and read-only Mission Fabric sidecar remain joined through the existing authenticated Canopy path.
+- [x] ISC-2464: The reviewed Labs candidate enables only `MISSION_FABRIC_TENANTS=cambium`; production now serves it at 100 percent, with anonymous requests still fail-closed and founder Telegram authentication required.
+- [ ] ISC-2465: Canopy browser proof with a valid founder Telegram `initData` session remains pending; production activation itself is complete.
+- [x] ISC-2466: Exact candidate `dd40e9d5-081a-4b75-b8e3-4ee979a6d5c3` is live at 100 percent with binding parity, health `200`, gate health `200`, and unauthenticated Mission Fabric `401`.
+
+Verification: local configuration inspection, existing route/renderer test corpus, live candidate readback (`200/200/401`), Wrangler deployment status (`dd40e9d5…` at 100 percent), D1 Goal Graph readback (`version 1`, `changes 0`, `rows_written 0`), Telegram history, and prefix evidence manifest `docs/evidence/2026-08-31-cambium-9d9d-labs-prefix-reconciliation.v1.json`. Advisor inference was unavailable because its OAuth session expired. Source vault object transfer remains held; the prior Worker is retained as the exact rollback target.
+
+## 2026-08-31 Zero Trust and mapped Cloudflare assets
+
+- [x] ISC-2467: Labs Zero Trust parity is live: `thoughtseedlabs.cloudflareaccess.com` fronts the recreated Cambium, Hermes Runner, Plexus, TeamForge, and Company OmniRoute applications with team-email and machine-token policy coverage; personal Access apps remain rollback evidence.
+- [x] ISC-2468: Cambium's Labs Worker binding map is explicit and read back: `BRIDGE_DB`, `QUESTS`, `SECRETS`, both R2 buckets, and `CAMBIUM_CORTEX` resolve to the target account's resources while the active Worker remains at the approved version.
+- [ ] ISC-2469: Personal Zero Trust apps, legacy tunnel, and source vault objects remain retained until a separately approved rollback/retirement window; no deletion or bulk transfer is implied by parity.
+
+Verification: target profile resource listings, active Version binding readback, custom-hostname Access redirects/denials, historical Labs Access creation receipt, and the redacted parity section of `docs/evidence/2026-08-31-cambium-9d9d-labs-prefix-reconciliation.v1.json`. Secret values were never read.
+
+### 2026-08-31 authenticated Workbench browser proof
+
+- [x] ISC-2470: An authenticated in-app browser session reaches the Labs
+  Workbench continuation at `/admin/portfolio/web` through the
+  `thoughtseedlabs.cloudflareaccess.com` Access boundary.
+- [x] ISC-2471: The live Workbench renders the source receipt and the expected
+  `17` Saplings, `40` Branches, and `15` Programs classification badges.
+- [x] ISC-2472: The live Workbench reports zero Needs Review records and keeps
+  the one terminal closeout in Project Archive / Finished Work.
+- [x] ISC-2473: Browser console readback reports no warning or error entries;
+  no action form was submitted and no server state changed.
+
+Verification: authenticated IAB DOM snapshot and read-only evaluation at
+`https://curious.thoughtseed.space/admin/portfolio/web`; `71` active cards are
+consistent with one locally seeded terminal closeout excluded from active
+views, while classification badges remain `17 + 40 + 15 = 72` source records.

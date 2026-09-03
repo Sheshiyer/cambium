@@ -1,0 +1,14 @@
+{
+  "schema": "temperance.approvals.v1",
+  "approvals": [
+    {
+      "approval_id": "apr_2888680a72ee774804d0",
+      "plan_id": "plan_71da68d23287247084d5",
+      "option_id": "opt_moosh_manifest_overview",
+      "policy_hash": "f41f6873f99821c46610410fd977e0b454cbc60fd898ef6e8d06c4333bc32605",
+      "expires_at": "2026-08-15T03:10:07.840Z",
+      "approved_at": "2026-08-15T03:00:31.640Z",
+      "actor": "local-operator"
+    }
+  ]
+}

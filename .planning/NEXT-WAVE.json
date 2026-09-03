@@ -1,0 +1,623 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-09-01T22:04:29.162Z",
+  "cwd": "/Volumes/madara/2026/Projects/thoughtseed/cambium",
+  "github": "Sheshiyer/cambium",
+  "gsd": {
+    "phase": "Milestone v0.4 complete",
+    "status": "Awaiting next milestone",
+    "resume": ".planning/MILESTONES.md",
+    "focus": "** Planning the next milestone",
+    "complete": true
+  },
+  "sources": [
+    {
+      "kind": "gsd",
+      "path": ".planning/STATE.md",
+      "weight": 100
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/01-d1-leased-service-agreement-draft/01-01-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/02-telegram-operator-intake/02-01-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/03-canonical-infinite-game-anchors/03-01-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/03-canonical-infinite-game-anchors/03-02-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/03-canonical-infinite-game-anchors/03-CONTEXT.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/03-canonical-infinite-game-anchors/03-DISCUSSION-LOG.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/03-canonical-infinite-game-anchors/03-RESEARCH.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/03-canonical-infinite-game-anchors/03-VALIDATION.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/03-canonical-infinite-game-anchors/03-VERIFICATION.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/04-provenance-preserving-intent-graph/04-01-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/04-provenance-preserving-intent-graph/04-02-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/04-provenance-preserving-intent-graph/04-03-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/04-provenance-preserving-intent-graph/04-04-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/04-provenance-preserving-intent-graph/04-REVIEW.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/04-provenance-preserving-intent-graph/04-VERIFICATION.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-01-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-02-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-CONTEXT.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-DISCUSSION-LOG.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-PATTERNS.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-REVIEW-FIX.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-REVIEW.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-VERIFICATION.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-01-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-02-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-03-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-04-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-CONTEXT.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-DISCUSSION-LOG.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-PATTERNS.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-REVIEW-FIX.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-REVIEW.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-SECURITY.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/06-documentation-stewardship/06-VERIFICATION.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-01-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-02-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-03-PLAN.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-CONTEXT.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-DISCUSSION-LOG.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-PATTERNS.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-RESEARCH.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/07-VALIDATION.md",
+      "weight": 70
+    },
+    {
+      "kind": "gsd-phase",
+      "path": ".planning/phases/07-deterministic-safety-and-handoff/VERIFICATION.md",
+      "weight": 70
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/superpowers/plans/2026-08-14-fitcheck-founder-evidence-pilot.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/superpowers/plans/2026-08-06-portfolio-catalog-resync.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/plans/2026-08-08-project-r2-mapping-execution.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/plans/product-branches/dlock.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/plans/product-branches/fitcheck-growth-quest-backlog.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/plans/product-branches/iverif.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "docs/plans/2026-08-12-github-planning-reconciliation-execution.md",
+      "weight": 45
+    },
+    {
+      "kind": "plan-doc",
+      "path": "tasks/lessons.md",
+      "weight": 45
+    },
+    {
+      "kind": "gsd",
+      "path": ".planning/ROADMAP.md",
+      "weight": 40
+    },
+    {
+      "kind": "gsd",
+      "path": ".planning/PROJECT.md",
+      "weight": 40
+    }
+  ],
+  "progress": {
+    "open": 0,
+    "done": 9,
+    "source": "/Volumes/madara/2026/Projects/thoughtseed/cambium/.planning/phases/03-canonical-infinite-game-anchors/03-VALIDATION.md",
+    "orphan_open_ignored": 68
+  },
+  "wave": {
+    "action": "complete",
+    "reason": "GSD STATE is complete (Awaiting next milestone) — ignored 68 orphan open checkbox(es) in historical plans",
+    "mode": "none",
+    "phase": "Milestone v0.4 complete",
+    "combo": "noesis-observe",
+    "tasks": []
+  },
+  "orchestration": {
+    "schema": "temperance.orchestration.v1",
+    "plan_id": "plan_36a9e1eef434876ece4f",
+    "state": "draft",
+    "mapping": {
+      "policy_hash": "f41f6873f99821c46610410fd977e0b454cbc60fd898ef6e8d06c4333bc32605",
+      "phase_combo_map": "temperance.phase-combo-map.v2",
+      "planner": "temperance-next-wave"
+    },
+    "source_fingerprints": [
+      {
+        "path": ".planning/STATE.md",
+        "fingerprint": "a434bff230425e0010067c89ebd27565e9b43e12bebc2114aa29169fe5894eb7"
+      },
+      {
+        "path": ".planning/phases/01-d1-leased-service-agreement-draft/01-01-PLAN.md",
+        "fingerprint": "1531420e1d272988109ec05dc3769e1448429a664dccb950f2de7ef218a38995"
+      },
+      {
+        "path": ".planning/phases/02-telegram-operator-intake/02-01-PLAN.md",
+        "fingerprint": "7bf8449aaf222323a23e3e8035823a5b9ed1ed25ed3db57ed1261f57bb33b9fb"
+      },
+      {
+        "path": ".planning/phases/03-canonical-infinite-game-anchors/03-01-PLAN.md",
+        "fingerprint": "6822d173954d3a6297529cce5a2bd6fc565b0db098d3d7dee6e3d140f672fec9"
+      },
+      {
+        "path": ".planning/phases/03-canonical-infinite-game-anchors/03-02-PLAN.md",
+        "fingerprint": "90a71197035bd84009cc9e674b8d763af9e66d5961b22070cefbc64176ded80b"
+      },
+      {
+        "path": ".planning/phases/03-canonical-infinite-game-anchors/03-CONTEXT.md",
+        "fingerprint": "139267c3fcde45a3702080c324ae3072f0abbca6be5beb251a6a687962889de5"
+      },
+      {
+        "path": ".planning/phases/03-canonical-infinite-game-anchors/03-DISCUSSION-LOG.md",
+        "fingerprint": "da488569e3459d376395712d518a6683c7adae523d2b3d77fac15fa5816ab7c0"
+      },
+      {
+        "path": ".planning/phases/03-canonical-infinite-game-anchors/03-RESEARCH.md",
+        "fingerprint": "e591834b6cf71e41db829201a4ae8809f2a5070f5faa334079a3961e40a2ec2b"
+      },
+      {
+        "path": ".planning/phases/03-canonical-infinite-game-anchors/03-VALIDATION.md",
+        "fingerprint": "e78b62ea482046519195918acbf331848b09334542b4aa7feb9fa4f52a65ae51"
+      },
+      {
+        "path": ".planning/phases/03-canonical-infinite-game-anchors/03-VERIFICATION.md",
+        "fingerprint": "ff144af9cdaaba26a251b4aa82ea39e1600175b7dc98b62c9d1b6f96b6af8983"
+      },
+      {
+        "path": ".planning/phases/04-provenance-preserving-intent-graph/04-01-PLAN.md",
+        "fingerprint": "7b8e14f7b4aac341755448f786d07dcad3a199afdafeb9b6181e24dc8a75d842"
+      },
+      {
+        "path": ".planning/phases/04-provenance-preserving-intent-graph/04-02-PLAN.md",
+        "fingerprint": "d3815bb35a536b437bea012b83b5d3c3d3b81d75a38af2cf36649469b85bd565"
+      },
+      {
+        "path": ".planning/phases/04-provenance-preserving-intent-graph/04-03-PLAN.md",
+        "fingerprint": "9eff78c1e0c2b3b281d25d66c1e4d0ece2f5f2e007af155de1caa607b0e666f7"
+      },
+      {
+        "path": ".planning/phases/04-provenance-preserving-intent-graph/04-04-PLAN.md",
+        "fingerprint": "0308f381f3f3a9fe8b7266f888e209aaa86fa5c2a2d58f3c49d1055ba9e292d6"
+      },
+      {
+        "path": ".planning/phases/04-provenance-preserving-intent-graph/04-REVIEW.md",
+        "fingerprint": "5b8f4ec7ddbe423b1c11e592d9a516f88b08ee4f8da3a6d93397c73409866c57"
+      },
+      {
+        "path": ".planning/phases/04-provenance-preserving-intent-graph/04-VERIFICATION.md",
+        "fingerprint": "ff8152911b70bbfd22c18bc44bced3047532ac97ab9bde2ea8d9371df2b78077"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-01-PLAN.md",
+        "fingerprint": "599fdc03354a4415f51e5bc633bbc5f2b1457965d4a978e14b1c21062ed5a021"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-02-PLAN.md",
+        "fingerprint": "d08ae5fe784920255664e6b209fdb7657a77758882d6ecf26d2b9a3c4a8a9061"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md",
+        "fingerprint": "fdcbb09a6efa6000b32c05b6f7ebea235151e9465f68e9fd8731843cfbbb6d98"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-CONTEXT.md",
+        "fingerprint": "d6a8f58304747c07f44dc5fc050ef09723b7ba9165e3833cf7fe46949d032b66"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-DISCUSSION-LOG.md",
+        "fingerprint": "2623d08ff5342e7830d4753263e249ef85df7277eedb2cdc19c59cb328a60b28"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-PATTERNS.md",
+        "fingerprint": "c96eb1a09ef1c70a092711fcf2b10bbb3ae225e037c7b6cab5c12f639e6d1d6a"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-REVIEW-FIX.md",
+        "fingerprint": "dcf2a30d7b6eeeafbae478496816eb1936f4957d4764d8ffd0eaf5e6e1f5d697"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-REVIEW.md",
+        "fingerprint": "8e28f36a021a523c447327cdf8d22bf717db921fbf0be33ae9294339605c5614"
+      },
+      {
+        "path": ".planning/phases/05-ralph-and-temperance-flow-projection/05-VERIFICATION.md",
+        "fingerprint": "df47feb8f98316e5f2c0110c3f97c7a5bfb94751d6914e5670b037a6468f2ab7"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-01-PLAN.md",
+        "fingerprint": "0b0ce7706962ae6656942dc1698b2021393514e54a191d1dbe1c972ee9a55272"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-02-PLAN.md",
+        "fingerprint": "744d076ab7166702547bafb73911c684d092a61951cfafd09e15d695db10f025"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-03-PLAN.md",
+        "fingerprint": "6aad27ebe815b2d45dfd509267f075436012529da8da5c55579484b585510799"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-04-PLAN.md",
+        "fingerprint": "bf3faa92fe11bf3c8c492224ce061130e655a73c1c79b2255458095d73f0f264"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-CONTEXT.md",
+        "fingerprint": "392298296624cab67108445f436b5f5b9a13508f372ebd2462b587e06fbb05ef"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-DISCUSSION-LOG.md",
+        "fingerprint": "4ecd412d2c9740fea278c0a181a5e3e410a57fddd79283a256508de83664553d"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-PATTERNS.md",
+        "fingerprint": "4178060084f1e735ad43cd8a472b6e94de2bb2681a0952f669e215a32eb26ad6"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-REVIEW-FIX.md",
+        "fingerprint": "8ecaa1228ed5e73a0e1355eec9b07462c6eb7d9e5ae003cb760a6b56ac1efdd2"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-REVIEW.md",
+        "fingerprint": "4b71ba1f80776c1d89d65c093cffca99a9ac4bf2e0ba75e7e40b0a8602811d7b"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-SECURITY.md",
+        "fingerprint": "242d895799918b5fb8db1dd812c2f08efeadf145f73fd5af9feded743d5f63dd"
+      },
+      {
+        "path": ".planning/phases/06-documentation-stewardship/06-VERIFICATION.md",
+        "fingerprint": "6e1573cc22e6424f5127f6137e45bd0faef5c4ca48ffac945f91eb64d4599362"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-01-PLAN.md",
+        "fingerprint": "3cfc7907afbf8c598eef756e9c459c63a713d938f33b3f9e8c4386d5eb61b4cd"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-02-PLAN.md",
+        "fingerprint": "d1ff43eeac17842af769be44826ee53d523cc06f81ac272cf73ac036e0d3bb63"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-03-PLAN.md",
+        "fingerprint": "442879c6bf1aa756dfea638dd7dbff33a50ae6889165493beeaa93268b89a792"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-CONTEXT.md",
+        "fingerprint": "07c9baab4a6faac1ca4878f51731b32510310e5afc44e39d10ca08583f339846"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-DISCUSSION-LOG.md",
+        "fingerprint": "e0d2a29fc3d59d419ac73dc5c70aaa298467315990f7b62fd881436c18f2b335"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-PATTERNS.md",
+        "fingerprint": "f7dd665dccc105dc7280a450655a711a220e507850f5c0199b76ac23dcd59f0f"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-RESEARCH.md",
+        "fingerprint": "d22e8dcadeb388c0f007c26ab837b44d50432f03860bdcf13064f72674812de4"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/07-VALIDATION.md",
+        "fingerprint": "36904c79e1ce74d83687ae8ac39725742f5c194bd044c5e22a03f11a6267260c"
+      },
+      {
+        "path": ".planning/phases/07-deterministic-safety-and-handoff/VERIFICATION.md",
+        "fingerprint": "c62f49dfe721a0fd6ab6fdde66d798bb518f982061d56deafd9506f3daf0a5e4"
+      },
+      {
+        "path": "docs/superpowers/plans/2026-08-14-fitcheck-founder-evidence-pilot.md",
+        "fingerprint": "667b135a196f6f5aa14ce80d5c67996bddc91be58110e5bdc45e4ba0d5560f32"
+      },
+      {
+        "path": "docs/superpowers/plans/2026-08-06-portfolio-catalog-resync.md",
+        "fingerprint": "4e5090cc8fbc5a74db87d6ccc1abffbb1181cb3764c24cc4f6a89593e65563ff"
+      },
+      {
+        "path": "docs/plans/2026-08-08-project-r2-mapping-execution.md",
+        "fingerprint": "dec2a220044fbe57b37ba2a8eed4244809891de4cab70963c482caef97c8b463"
+      },
+      {
+        "path": "docs/plans/product-branches/dlock.md",
+        "fingerprint": "e726ad4c6ec0aa26d45efb0182d23f9e674ca3e0989d46189984d2837f530038"
+      },
+      {
+        "path": "docs/plans/product-branches/fitcheck-growth-quest-backlog.md",
+        "fingerprint": "c5a390e94dd3ee6be09f38271e2f3dab9de481fbe40df1c3c4f5b678ec74078f"
+      },
+      {
+        "path": "docs/plans/product-branches/iverif.md",
+        "fingerprint": "e7d023e9e543bb9e40884b66f9b0a15735d6486181bad4f2600cf197b5e1793d"
+      },
+      {
+        "path": "docs/plans/2026-08-11-mini-app-page-wiring-swarm-plan.md",
+        "fingerprint": "65ef69d5f141dcfbe740d37ab1280d60249e427062877824ae224c5f0eec5818"
+      },
+      {
+        "path": "docs/plans/2026-08-12-github-planning-reconciliation-execution.md",
+        "fingerprint": "c8fd656474de922f33f5a69e569ebf113ddd64f6f7ea48c73cd715e680de1135"
+      },
+      {
+        "path": "tasks/lessons.md",
+        "fingerprint": "1779f6abbbc0cff04d91d4a614fb552eb9a333deeef290e77182104cf25cc852"
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "fingerprint": "5235dc37ff0cd919e72784a112d6d88a5672e6d1c50a2f084192cb102cb5e95c"
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "fingerprint": "e2286001a3778b49300dbdc837be79d6830de88455de484174bfdfb34f0c44b5"
+      }
+    ],
+    "research": [
+      {
+        "kind": "bounded-capture-scope",
+        "source": "docs/guide/capture.config.json",
+        "detail": "Only the synthetic manifest-overview surface is proposed."
+      },
+      {
+        "kind": "safety-boundary",
+        "source": "docs/guide/cambium-moosh-coverage-model.md",
+        "detail": "Request, approval, and execution remain separate states."
+      }
+    ],
+    "option_admission": {
+      "status": "ignored",
+      "source": ".planning/PLAN-OPTIONS.json",
+      "issues": [
+        "schema_unsupported"
+      ]
+    },
+    "options": [],
+    "approval": null,
+    "readiness": {
+      "status": "blocked",
+      "checks": [
+        "human_approval",
+        "source_freshness",
+        "quota_snapshot",
+        "dispatch_receipt"
+      ]
+    },
+    "execution": {
+      "status": "blocked",
+      "reason": "no executable proposal"
+    },
+    "reporting": {
+      "status": "pending",
+      "required_receipts": [
+        "dispatch",
+        "task",
+        "verification"
+      ]
+    },
+    "cockpit_handoff": {
+      "schema": "temperance.cockpit-handoff.source.v1",
+      "status": "incomplete",
+      "reason": "command_invalid",
+      "command": null,
+      "gsd_phase": "Milestone v0.4 complete",
+      "gsd_phase_label": "Milestone v0.4 complete",
+      "canonical_combo": null,
+      "execution_plane": null,
+      "policy_hash": "f41f6873f99821c46610410fd977e0b454cbc60fd898ef6e8d06c4333bc32605",
+      "source_fingerprint": "adbf5fea73b246a71c05028ffd2882673c2946c51b1e993c4da2cb170e5ff782",
+      "task_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "git_head": "5caca954be9d7b646286773be7e1dccf03cfad7c",
+      "approval_id": "apr_487481587c884fa1c738",
+      "option_id": null,
+      "observed_at": "2026-09-01T22:04:29.113Z",
+      "evidence": {
+        "quota": {
+          "label": "quota_snapshot",
+          "path": ".planning/quota-snapshot.json",
+          "observed_at": null,
+          "freshness": "unavailable"
+        },
+        "sources": [
+          {
+            "label": "orchestration",
+            "path": ".planning/ORCHESTRATION.json"
+          },
+          {
+            "label": "quota_snapshot",
+            "path": ".planning/quota-snapshot.json"
+          }
+        ]
+      }
+    }
+  },
+  "agent_instruction": "NEXT-WAVE (proposal only — human approval required before dispatch):\n  action=complete · GSD STATE is complete (Awaiting next milestone) — ignored 68 orphan open checkbox(es) in historical plans\n  gsd_phase=Milestone v0.4 complete status=Awaiting next milestone\n  github=Sheshiyer/cambium\n  DO: report completion; offer Learn/ship — do not invent new work.\n  SYNC: plan-issue-sync LaunchAgent promotes open plan docs → Sheshiyer/thoughtseed-vault issues hourly; run temperance-next-wave --sync to force."
+}

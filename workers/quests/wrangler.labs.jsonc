@@ -15,6 +15,7 @@
   ],
   "vars": {
     "CONTEXT_ALLOWED_TENANTS": "cambium",
+    "MISSION_FABRIC_TENANTS": "cambium",
     "CONTEXT_EMBEDDING_PROVIDER": "nvidia",
     "CONTEXT_EMBEDDING_MODEL": "nvidia/nv-embedqa-e5-v5",
     "COMMAND_CODE_BASE_URL": "https://fd7cth5o4oyqwn6vne76wncxeu0ehmvc.lambda-url.us-east-1.on.aws/provider/v1",

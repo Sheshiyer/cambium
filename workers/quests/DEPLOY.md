@@ -16,6 +16,29 @@ The Cortex ingestion route additionally requires a Worker secret named
 npx wrangler secret list --config workers/quests/wrangler.labs.jsonc
 ```
 
+## Labs Zero Trust and mapped asset contract
+
+Production uses the recreated Labs Zero Trust team
+`thoughtseedlabs.cloudflareaccess.com`; the personal team
+`red-queen-4dfa.cloudflareaccess.com` is rollback history only. Access policy
+is split by surface so browser and machine identities cannot bypass the Worker
+or Telegram gate:
+
+| Surface | Labs Access application | AUD / policy role |
+|---|---|---|
+| `curious.thoughtseed.space` (Mission Control, Workbench) | Cambium Curious | `29e1c8a6760778891fe1278ea0c8639afba1eb41a0008a7fd14850e4168911b5` · team identity |
+| `curious.thoughtseed.space/v1/bridge/*` | Hermes Runner API | `481fc6643a62b3a4f58778e61b21f571b7039e6357c6e481a4949101f27776fe` · service token |
+| `forge.thoughtseed.space` | TeamForge API | `dd832e556cd9ee7c4e2fb9fddc6bb16bccd64d1b28b0784f84884a69f8a2f3d9` · team identity |
+| `plexus-api.thoughtseed.space` | Plexus API | `38b502a01f4063c5521191e084c7fd9b086099c0061b045145cd93165b9af8d0` · team identity |
+| `strength-08.thoughtseed.space`, `omniroute.thoughtseed.space` | Company OmniRoute | separate company-edge policy |
+
+The `curious` root and browser paths must redirect to Labs Access without a
+session; bridge paths must reject missing service-token identity at Access;
+the direct `workers.dev` origin remains Worker-authenticated and does not
+inherit an Access session. The Worker config maps these policies to the target
+D1, KV, R2, and Vectorize resources; this section does not authorize policy,
+secret, route, or data mutation.
+
 ## Telegram Signed Gate
 
 The signed Mini App gate is available only when both Cloudflare Worker bindings exist:
@@ -28,7 +51,7 @@ Keep their values out of the repository. `GATE_TG_PUBKEY` is optional; the Worke
 Confirm the binding names after deployment without reading their values:
 
 ```bash
-npx wrangler secret list --config workers/quests/wrangler.jsonc
+npx wrangler secret list --config workers/quests/wrangler.labs.jsonc --profile thoughtseed-labs
 ```
 
 Then run the fail-closed capability probe:

@@ -50,6 +50,7 @@ Root doctrine files are catalogued under [`doctrine/`](doctrine/) so they stay a
 | System design and operating maps | [`architecture/`](architecture/) |
 | Portfolio and repository coordination | [`project-management/`](project-management/) |
 | Deep Cambium capability and surface map | [`guide/cambium-system-capability-map.md`](guide/cambium-system-capability-map.md) |
+| Local runtime, portfolio, vault, and EC2 map | [`architecture/contracts/local-runtime-portfolio-vault-map.v1.md`](architecture/contracts/local-runtime-portfolio-vault-map.v1.md) · [machine JSON](architecture/contracts/local-runtime-portfolio-vault-map.v1.json) |
 | Moosh UI/request-response/authority coverage model | [`guide/cambium-moosh-coverage-model.md`](guide/cambium-moosh-coverage-model.md) |
 | Moosh multi-surface operator procedure | [`runbooks/cambium-moosh-multi-surface.md`](runbooks/cambium-moosh-multi-surface.md) |
 
