@@ -308,7 +308,21 @@ export function createCortexMcpServer(env: Env) {
         }
       }
 
-      const pack = composeStructuredPack(intent, target, tasteHits, msHits);
+      let grokfilmTechniques: import("./taste-compose.ts").GrokFilmTechnique[] = [];
+      if (env.TASTE_BLOBS) {
+        try {
+          const obj = await env.TASTE_BLOBS.get("taste/grokfilm/techniques.json");
+          if (obj) {
+            const raw = await obj.text();
+            const parsed = JSON.parse(raw);
+            grokfilmTechniques = parsed.techniques || [];
+          }
+        } catch {
+          grokfilmTechniques = [];
+        }
+      }
+
+      const pack = composeStructuredPack(intent, target, tasteHits, msHits, [], grokfilmTechniques);
       const markdown = renderPackMarkdown(pack);
       return {
         content: [
