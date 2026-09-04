@@ -6,7 +6,7 @@ import {
 import { ORGAN_ATLAS } from "./organ-atlas.ts";
 import { evaluateCapabilityHit } from "./capability-hits.ts";
 import {
-  composePack,
+  composeStructuredPack,
   renderPackMarkdown,
   type ComposeHit,
   type ComposeTarget,
@@ -48,6 +48,19 @@ export interface Env {
   };
   TASTE_BLOBS?: {
     get: (key: string) => Promise<{ text: () => Promise<string> } | null>;
+    put?: (key: string, value: string) => Promise<void>;
+  };
+  MOTIONSITES_PROMPTS?: {
+    query: (
+      vector: number[],
+      options: { topK?: number; returnMetadata?: string }
+    ) => Promise<{
+      matches: Array<{
+        id: string;
+        score: number;
+        metadata?: Record<string, unknown>;
+      }>;
+    }>;
   };
 }
 
@@ -95,7 +108,7 @@ export function createCortexMcpServer(env: Env) {
         {
           name: "taste_cortex_compose",
           description:
-            "Build an optimized, paste-ready generation prompt plus relevant assets from Taste Cortex. Searches prompts, techniques, and media-refs, then composes one prompt pack — not a raw blob dump.",
+            "Compose a MotionSites-structured prompt pack: build brief, asset plan with real image/video URLs, extracted skill-cluster handles, and a paste-ready prompt. Uses ingested MotionSites corpus + Taste Cortex + design skills.",
           inputSchema: {
             type: "object",
             properties: {
@@ -225,24 +238,25 @@ export function createCortexMcpServer(env: Env) {
         text: [intent.slice(0, 2000)],
       });
       const queryVector = aiRes.data[0];
-      const results = await env.TASTE_CORTEX.query(queryVector, {
-        topK: 12,
+
+      const tasteResults = await env.TASTE_CORTEX.query(queryVector, {
+        topK: 10,
         returnMetadata: "all",
       });
 
-      const buckets: Record<string, typeof results.matches> = {
+      const buckets: Record<string, NonNullable<typeof tasteResults.matches>> = {
         prompts: [],
         techniques: [],
         "media-refs": [],
       };
-      for (const m of results.matches || []) {
+      for (const m of tasteResults.matches || []) {
         const cat = String(m.metadata?.category || "");
         if (buckets[cat] && buckets[cat].length < perCat) buckets[cat].push(m);
       }
-      const selected = [...buckets.prompts, ...buckets["media-refs"], ...buckets.techniques];
+      const selectedTaste = [...buckets.prompts, ...buckets["media-refs"], ...buckets.techniques];
 
-      const hits: ComposeHit[] = [];
-      for (const m of selected) {
+      const tasteHits: ComposeHit[] = [];
+      for (const m of selectedTaste) {
         const meta = m.metadata || {};
         const slug = String(meta.slug || "");
         const cat = String(meta.category || "");
@@ -251,7 +265,7 @@ export function createCortexMcpServer(env: Env) {
           const obj = await env.TASTE_BLOBS.get(`taste/${cat}/${slug}.md`);
           if (obj) body = await obj.text();
         }
-        hits.push({
+        tasteHits.push({
           id: m.id,
           score: m.score,
           category: cat,
@@ -260,10 +274,41 @@ export function createCortexMcpServer(env: Env) {
           title: String(meta.title || slug),
           r2_key: slug && cat ? `taste/${cat}/${slug}.md` : undefined,
           body,
+          source: "taste",
         });
       }
 
-      const pack = composePack(intent, target, hits);
+      const msHits: ComposeHit[] = [];
+      if (env.MOTIONSITES_PROMPTS) {
+        const msResults = await env.MOTIONSITES_PROMPTS.query(queryVector, {
+          topK: 3,
+          returnMetadata: "all",
+        });
+        for (const m of msResults.matches || []) {
+          const meta = m.metadata || {};
+          const id = String(m.id || meta.id || "");
+          let body = String(meta.excerpt || "");
+          if (env.TASTE_BLOBS && id) {
+            const obj = await env.TASTE_BLOBS.get(`taste/motionsites/${id}.md`);
+            if (obj) body = await obj.text();
+          }
+          msHits.push({
+            id,
+            score: m.score,
+            category: String(meta.category || meta.page_type || "hero"),
+            slug: id,
+            author: "motionsites",
+            title: String(meta.title || id),
+            r2_key: id ? `taste/motionsites/${id}.md` : undefined,
+            body,
+            video_url: String(meta.video_preview_url || "") || undefined,
+            image_url: String(meta.image_preview_url || "") || undefined,
+            source: "motionsites",
+          });
+        }
+      }
+
+      const pack = composeStructuredPack(intent, target, tasteHits, msHits);
       const markdown = renderPackMarkdown(pack);
       return {
         content: [
