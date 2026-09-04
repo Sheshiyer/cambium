@@ -77,3 +77,33 @@ test('capability-hits: topic mismatch returns refusal even with high score', () 
   assert.equal(res.eligible, false);
   assert.match(res.refusalReason || '', /topic_mismatch/);
 });
+
+import { composePack } from "./taste-compose.ts";
+
+test("taste-compose: builds paste-ready prompt and assets from mixed blobs", () => {
+  const pack = composePack("luxury dark product jar, slow zoom", "video", [
+    {
+      id: "a",
+      score: 0.8,
+      category: "media-refs",
+      slug: "jar-zoom",
+      author: "@oggii_0",
+      title: "jar",
+      body: "Nano Banana Pro + Kling 3.0\n\nPrompt: Use the uploaded image as the exact visual reference.\n\nCamera:\nTop-down camera slowly zooms in.\n\nAction:\nThe jar remains still.\n\nhttps://x.com/oggii_0/status/1",
+    },
+    {
+      id: "b",
+      score: 0.7,
+      category: "techniques",
+      slug: "flora-pipe",
+      author: "@Motion_Viz",
+      title: "pipeline",
+      body: "the pipeline: Flora (base) → Texture Match → product placement\nhttps://example.com/flora",
+    },
+  ]);
+  assert.match(pack.paste_ready_prompt, /luxury dark product jar/);
+  assert.match(pack.paste_ready_prompt, /uploaded image|visual reference/i);
+  assert.ok(pack.assets.some((a) => a.kind === "model" && /Kling|Nano Banana/i.test(a.label)));
+  assert.ok(pack.assets.some((a) => a.url && a.url.includes("x.com")));
+  assert.equal(pack.sources.length, 2);
+});
