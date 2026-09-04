@@ -1,0 +1,42 @@
+{
+  "name": "cortex-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "account_id": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+  "observability": { "enabled": true },
+  "routes": [
+    {
+      "pattern": "cortex.thoughtseed.space",
+      "custom_domain": true
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production",
+    "CONTEXT_ALLOWED_TENANTS": "cambium,thoughtseed,codigo-olimpo,parkarea"
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "vectorize": [
+    {
+      "binding": "TASTE_CORTEX",
+      "index_name": "taste-cortex"
+    },
+    {
+      "binding": "CAMBIUM_CORTEX",
+      "index_name": "cambium-cortex"
+    },
+    {
+      "binding": "MOTIONSITES_PROMPTS",
+      "index_name": "motionsites-prompts"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "TASTE_BLOBS",
+      "bucket_name": "thoughtseed-context-projections"
+    }
+  ]
+}
