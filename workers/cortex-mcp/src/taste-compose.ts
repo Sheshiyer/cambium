@@ -34,6 +34,23 @@ export interface ExtractedSkill {
   why: string;
 }
 
+export interface GrokFilmTechnique {
+  name: string;
+  category: string;
+  mood: string;
+  slug: string;
+  clause: string;
+}
+
+export interface SectionSlot {
+  id: string;
+  purpose: string;
+  copy_slots: string[];
+  layout_spec: string;
+  asset_dependencies: string[];
+  interaction_dependencies: string[];
+}
+
 export interface StructuredPack {
   intent: string;
   target: ComposeTarget;
@@ -62,6 +79,8 @@ export interface StructuredPack {
     section_assets: PromptAsset[];
   };
   skills_extracted: ExtractedSkill[];
+  section_plan: SectionSlot[];
+  grokfilm_techniques: GrokFilmTechnique[];
   paste_ready_prompt: string;
   operator_notes: string;
   taste_lineage: Array<{ slug: string; category: string; score: number; author: string }>;
@@ -193,12 +212,102 @@ function motionStyle(intent: string, target: ComposeTarget): string {
   return "premium-ui";
 }
 
+export function parseSections(body: string): SectionSlot[] {
+  const slots: SectionSlot[] = [];
+  if (!body) return slots;
+  // MotionSites prompts use ### NAME COMPONENT or SECTION: name
+  const re = /(?:^|\n)(?:### ([A-Z][A-Z ]+?)(?:\s+COMPONENT)?\s*\n|SECTION:\s*([^\n]+)\n)([\s\S]*?)(?=\n### [A-Z]|\nSECTION:|$)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(body)) !== null) {
+    const name = (m[1] || m[2] || "").trim();
+    const chunk = m[3] || "";
+    const purpose = (chunk.match(/Purpose:\s*([^\n]+)/i) || [])[1]?.trim() || "";
+    const copyRaw = (chunk.match(/Copy slots?:\s*([\s\S]*?)(?=\n\s*- Assets|\n\s*- Components|\n\s*- Interactions|$)/i) || [])[1] || "";
+    const copySlots = copyRaw
+      .split(/\n/)
+      .map((l) => l.replace(/^\s*[-*]\s*/, "").replace(/:\s*$/, "").trim())
+      .filter(Boolean);
+    const layout = (chunk.match(/Layout:\s*([\s\S]*?)(?=\n\s*- Copy|\n\s*- Assets|$)/i) || [])[1]?.trim() || "";
+    const assets = (chunk.match(/Assets required?:\s*([\s\S]*?)(?=\n\s*- Components|\n\s*- Interactions|$)/i) || [])[1] || "";
+    const assetDeps = assets
+      .split(/\n/)
+      .map((l) => l.replace(/^\s*[-*]\s*/, "").replace(/[({].*$/, "").trim())
+      .filter(Boolean);
+    const inter = (chunk.match(/Interactions?:\s*([\s\S]*?)(?=$)/i) || [])[1] || "";
+    const interDeps = inter
+      .split(/\n/)
+      .map((l) => l.replace(/^\s*[-*]\s*/, "").replace(/[({].*$/, "").trim())
+      .filter(Boolean);
+    slots.push({
+      id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+      purpose,
+      copy_slots: copySlots.slice(0, 6),
+      layout_spec: layout.slice(0, 300),
+      asset_dependencies: assetDeps.slice(0, 6),
+      interaction_dependencies: interDeps.slice(0, 6),
+    });
+  }
+  // Fallback: if no explicit sections, synthesize a hero section from the body
+  if (slots.length === 0 && body.length > 100) {
+    const brief = body.slice(0, 500);
+    slots.push({
+      id: "hero",
+      purpose: "Primary value proposition",
+      copy_slots: [],
+      layout_spec: brief.match(/Container.*?(?=\n\n)/s)?.[0]?.slice(0, 300) || "",
+      asset_dependencies: [],
+      interaction_dependencies: [],
+    });
+  }
+  return slots.slice(0, 8);
+}
+
+export function parseBrandSystem(body: string): { voice: string; headline_direction: string; cta_direction: string; visual_direction: string } {
+  const defaults = { voice: "precise, premium, specific — never generic SaaS", headline_direction: "", cta_direction: "", visual_direction: "" };
+  if (!body) return defaults;
+  const pick = (re: RegExp) => {
+    const m = body.match(re);
+    return m ? m[1].trim().slice(0, 200) : "";
+  };
+  return {
+    voice: pick(/Voice:\s*([^\n]+)/i) || defaults.voice,
+    headline_direction: pick(/(?:Hero headline|Headline):\s*([^\n]+)/i),
+    cta_direction: pick(/(?:Primary CTA|CTA):\s*([^\n]+)/i),
+    visual_direction: pick(/(?:Visual direction|Motion language):\s*([^\n]+)/i),
+  };
+}
+
+export function matchGrokFilmTechniques(intent: string, techniques: GrokFilmTechnique[]): GrokFilmTechnique[] {
+  const q = intent.toLowerCase();
+  const qNoPunct = q.replace(/[^a-z0-9]+/g, "");
+  const scored = techniques.map((t) => {
+    const tname = t.name.toLowerCase();
+    const tNoPunct = tname.replace(/[^a-z0-9]+/g, "");
+    let n = 0;
+    // full multi-word phrase match (handles "top-down", "aerial shot")
+    if (tNoPunct.length >= 4 && qNoPunct.includes(tNoPunct)) n += 6;
+    // word token overlap
+    for (const tok of q.split(/[^a-z0-9]+/).filter((x) => x.length >= 3)) {
+      if (tNoPunct.includes(tok)) n += 3;
+      if (t.category.toLowerCase().includes(tok)) n += 2;
+      if (t.mood.toLowerCase().includes(tok)) n += 1;
+    }
+    if (q.includes("cinematic") && t.mood.toLowerCase() === "cinematic") n += 1;
+    // category-mood default fallback for cinematic asks
+    if (q.includes("cinematic") && t.category.toLowerCase() === "camera") n += 1;
+    return { t, n };
+  });
+  scored.sort((a, b) => b.n - a.n);
+  return scored.filter((x) => x.n > 0).slice(0, 3).map((x) => x.t);
+}
+
 export function composeStructuredPack(
   intent: string,
   target: ComposeTarget,
   tasteHits: ComposeHit[],
   msHits: ComposeHit[],
-  skills: SkillSpoke[] = []
+  skills: SkillSpoke[] = [],
+  grokfilm: GrokFilmTechnique[] = []
 ): StructuredPack {
   const ms = msHits[0];
   const all = [...msHits, ...tasteHits];
@@ -252,6 +361,9 @@ export function composeStructuredPack(
   const scope = target === "ui" ? "hero / landing page" : target === "video" ? "cinematic product film" : "hero visual";
   const mood = motionStyle(intent, target);
   const build_brief = `Build a ${scope} for a ${archetype(intent, ms)} brand called "${brand}" using React + TypeScript + Tailwind. The experience should feel ${mood}, precise, and non-generic. Structure and motion follow the nearest MotionSites template; only the skin (subject, copy, palette, assets) changes.`;
+  const parsedBrand = parseBrandSystem(ms?.body || "");
+  const parsedSections = parseSections(ms?.body || "");
+  const grokfilmTechniques = target === "video" || target === "image" ? matchGrokFilmTechniques(intent, grokfilm) : [];
 
   const paste =
     target === "ui"
@@ -276,6 +388,7 @@ export function composeStructuredPack(
           action ? `Action: ${action.replace(/\n+/g, " ")}` : "",
           "",
           heroAssets[0]?.url ? `Reference asset: ${heroAssets[0].url}` : "",
+          ...grokfilmTechniques.map((g) => g.clause),
           "Constraints: no watermark, no UI chrome, no extra text overlay, keep subject identity and palette consistent with the reference.",
           models.length ? `Stack cues: ${models.join(", ")}.` : "",
         ]
@@ -283,6 +396,12 @@ export function composeStructuredPack(
           .join("\n");
 
   const skills_extracted = matchSkills(intent, target, skills);
+  if (grokfilmTechniques.length && !skills_extracted.some((s) => s.name === "grokfilm")) {
+    skills_extracted.unshift({
+      name: "grokfilm",
+      why: grokfilmTechniques.map((g) => g.name).join(", "),
+    });
+  }
 
   return {
     intent,
@@ -300,10 +419,10 @@ export function composeStructuredPack(
     },
     build_brief,
     brand_system: {
-      voice: "precise, premium, specific — never generic SaaS",
-      headline_direction: intent.slice(0, 120),
-      cta_direction: target === "ui" ? "single primary CTA, quiet secondary" : "n/a — generation prompt",
-      visual_direction: `${mood}; lock one reference direction from retrieved template/taste lineage`,
+      voice: parsedBrand.voice,
+      headline_direction: parsedBrand.headline_direction || intent.slice(0, 120),
+      cta_direction: parsedBrand.cta_direction || (target === "ui" ? "single primary CTA, quiet secondary" : "n/a — generation prompt"),
+      visual_direction: parsedBrand.visual_direction || `${mood}; lock one reference direction from retrieved template/taste lineage`,
     },
     tech_contract: {
       framework: "React",
@@ -316,6 +435,8 @@ export function composeStructuredPack(
       section_assets: sectionAssets,
     },
     skills_extracted,
+    section_plan: parsedSections,
+    grokfilm_techniques: grokfilmTechniques,
     paste_ready_prompt: paste.trim(),
     operator_notes: [
       "## Motionskin rule",
