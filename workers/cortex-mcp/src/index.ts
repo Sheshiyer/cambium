@@ -23,6 +23,10 @@ export interface Env {
         metadata?: Record<string, unknown>;
       }>;
     }>;
+    getByIds?: (ids: string[]) => Promise<Array<{
+      id: string;
+      metadata?: Record<string, unknown>;
+    }>>;
   };
   CAMBIUM_CORTEX?: {
     query: (
@@ -84,18 +88,18 @@ export function createCortexMcpServer(env: Env) {
         },
         {
           name: "taste_cortex_get_blob",
-          description: "Retrieve full markdown content of a curated taste reference blob by ID from R2.",
+          description: "Retrieve full markdown of a taste blob from R2. Pass metadata.slug from taste_cortex_query (preferred) or the vector id — both resolve.",
           inputSchema: {
             type: "object",
             properties: {
-              id: { type: "string", description: "Identifier/filename of the blob" },
+              id: { type: "string", description: "metadata.slug from taste_cortex_query, or the vector id" },
               category: {
                 type: "string",
-                description: "Category: prompts, techniques, or media-refs",
+                description: "Category: prompts, techniques, or media-refs. Optional if id is a vector id.",
                 enum: ["prompts", "techniques", "media-refs"],
               },
             },
-            required: ["id", "category"],
+            required: ["id"],
           },
         },
         {
@@ -248,30 +252,78 @@ export function createCortexMcpServer(env: Env) {
         filter,
       });
 
+      const hits = (results.matches || []).map((m) => {
+        const meta = m.metadata || {};
+        const slug = String(meta.slug || "");
+        const cat = String(meta.category || category || "");
+        return {
+          ...m,
+          blob_id: slug || m.id,
+          r2_key: slug && cat ? `taste/${cat}/${slug}.md` : undefined,
+        };
+      });
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(results.matches, null, 2),
+            text: JSON.stringify(hits, null, 2),
           },
         ],
       };
     }
 
     if (name === "taste_cortex_get_blob") {
-      const id = String(args?.id || "");
-      const category = String(args?.category || "");
-      const key = `taste/${category}/${id}.md`;
+      const rawId = String(args?.id || "").trim();
+      let category = args?.category ? String(args.category) : "";
 
       if (!env.TASTE_BLOBS) {
         throw new Error("R2 TASTE_BLOBS binding not configured");
       }
 
-      const obj = await env.TASTE_BLOBS.get(key);
+      const cats = category ? [category] : ["prompts", "techniques", "media-refs"];
+      const candidates: string[] = [];
+      for (const cat of cats) {
+        candidates.push(`taste/${cat}/${rawId}.md`);
+        if (rawId.startsWith(`${cat}-`)) {
+          candidates.push(`taste/${cat}/${rawId.slice(cat.length + 1)}.md`);
+        }
+      }
+
+      let slugFromIndex = "";
+      if (env.TASTE_CORTEX.getByIds) {
+        try {
+          const rows = await env.TASTE_CORTEX.getByIds([rawId]);
+          const meta = rows?.[0]?.metadata || {};
+          slugFromIndex = String(meta.slug || "");
+          const catFromIndex = String(meta.category || category || "");
+          if (slugFromIndex && catFromIndex) {
+            candidates.unshift(`taste/${catFromIndex}/${slugFromIndex}.md`);
+          }
+        } catch {
+          // getByIds is optional; fall through to key guesses
+        }
+      }
+
+      let obj: { text: () => Promise<string> } | null = null;
+      let hitKey = "";
+      for (const key of candidates) {
+        obj = await env.TASTE_BLOBS.get(key);
+        if (obj) {
+          hitKey = key;
+          break;
+        }
+      }
+
       if (!obj) {
         return {
           isError: true,
-          content: [{ type: "text", text: `Blob not found: ${key}` }],
+          content: [
+            {
+              type: "text",
+              text: `Blob not found for id=${rawId}. Tried: ${candidates.join(", ")}. Prefer metadata.slug from taste_cortex_query.`,
+            },
+          ],
         };
       }
 
