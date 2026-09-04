@@ -5,6 +5,12 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { ORGAN_ATLAS } from "./organ-atlas.ts";
 import { evaluateCapabilityHit } from "./capability-hits.ts";
+import {
+  composePack,
+  renderPackMarkdown,
+  type ComposeHit,
+  type ComposeTarget,
+} from "./taste-compose.ts";
 
 export interface Env {
   ENVIRONMENT: string;
@@ -81,6 +87,32 @@ export function createCortexMcpServer(env: Env) {
                 type: "number",
                 description: "Number of nearest neighbor blobs to retrieve (default: 6, max: 20)",
                 default: 6,
+              },
+            },
+            required: ["intent"],
+          },
+        },
+        {
+          name: "taste_cortex_compose",
+          description:
+            "Build an optimized, paste-ready generation prompt plus relevant assets from Taste Cortex. Searches prompts, techniques, and media-refs, then composes one prompt pack — not a raw blob dump.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              intent: {
+                type: "string",
+                description: "What to generate (scene, brand, motion, product, UI mood)",
+              },
+              target: {
+                type: "string",
+                description: "Generator target",
+                enum: ["image", "video", "ui", "copy"],
+                default: "image",
+              },
+              per_category: {
+                type: "number",
+                description: "Max blobs to pull per category (default 2, max 4)",
+                default: 2,
               },
             },
             required: ["intent"],
@@ -176,6 +208,72 @@ export function createCortexMcpServer(env: Env) {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
+
+    if (name === "taste_cortex_compose") {
+      const intent = String(args?.intent || args?.query || "").trim();
+      const target = (String(args?.target || "image") as ComposeTarget) || "image";
+      const perCat = Math.min(Math.max(Number(args?.per_category || 2), 1), 4);
+
+      if (!intent) {
+        return {
+          isError: true,
+          content: [{ type: "text", text: "intent is required" }],
+        };
+      }
+
+      const aiRes = await env.AI.run("@cf/baai/bge-base-en-v1.5", {
+        text: [intent.slice(0, 2000)],
+      });
+      const queryVector = aiRes.data[0];
+      const results = await env.TASTE_CORTEX.query(queryVector, {
+        topK: 12,
+        returnMetadata: "all",
+      });
+
+      const buckets: Record<string, typeof results.matches> = {
+        prompts: [],
+        techniques: [],
+        "media-refs": [],
+      };
+      for (const m of results.matches || []) {
+        const cat = String(m.metadata?.category || "");
+        if (buckets[cat] && buckets[cat].length < perCat) buckets[cat].push(m);
+      }
+      const selected = [...buckets.prompts, ...buckets["media-refs"], ...buckets.techniques];
+
+      const hits: ComposeHit[] = [];
+      for (const m of selected) {
+        const meta = m.metadata || {};
+        const slug = String(meta.slug || "");
+        const cat = String(meta.category || "");
+        let body = "";
+        if (env.TASTE_BLOBS && slug && cat) {
+          const obj = await env.TASTE_BLOBS.get(`taste/${cat}/${slug}.md`);
+          if (obj) body = await obj.text();
+        }
+        hits.push({
+          id: m.id,
+          score: m.score,
+          category: cat,
+          slug,
+          author: String(meta.author || "unknown"),
+          title: String(meta.title || slug),
+          r2_key: slug && cat ? `taste/${cat}/${slug}.md` : undefined,
+          body,
+        });
+      }
+
+      const pack = composePack(intent, target, hits);
+      const markdown = renderPackMarkdown(pack);
+      return {
+        content: [
+          {
+            type: "text",
+            text: markdown + "\n\n## JSON\n\n```json\n" + JSON.stringify(pack, null, 2) + "\n```",
+          },
+        ],
+      };
+    }
 
     if (name === "cortex_health") {
       return {
