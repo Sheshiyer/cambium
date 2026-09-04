@@ -27,6 +27,10 @@
     {
       "binding": "CAMBIUM_CORTEX",
       "index_name": "cambium-cortex"
+    },
+    {
+      "binding": "MOTIONSITES_PROMPTS",
+      "index_name": "motionsites-prompts"
     }
   ],
   "r2_buckets": [
