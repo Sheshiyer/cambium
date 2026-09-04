@@ -232,9 +232,9 @@ export function createCortexMcpServer(env: Env) {
     }
 
     if (name === "taste_cortex_query") {
-      const intent = String(args?.intent || "");
+      const intent = String(args?.intent || args?.query || "");
       const category = args?.category ? String(args.category) : undefined;
-      const topK = Math.min(Number(args?.top_k || 6), 20);
+      const topK = Math.min(Number(args?.top_k ?? args?.topK ?? 6), 20);
 
       const aiRes = await env.AI.run("@cf/baai/bge-base-en-v1.5", {
         text: [intent.slice(0, 2000)],
@@ -356,25 +356,59 @@ export default {
         const server = createCortexMcpServer(env);
 
         const { id, method, params } = body as any;
+        const rpcHeaders = {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        };
+        const rpcOk = (result: unknown) =>
+          new Response(JSON.stringify({ jsonrpc: "2.0", id, result }), { headers: rpcHeaders });
+        const rpcErr = (code: number, message: string, status = 200) =>
+          new Response(JSON.stringify({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }), {
+            headers: rpcHeaders,
+            status,
+          });
+
+        // MCP handshake — Hermes (and Claude) call initialize before tools/list.
+        // Missing this parks cortex as MCPError: Method not found.
+        if (method === "initialize") {
+          const requested = String(params?.protocolVersion || "2024-11-05");
+          return rpcOk({
+            protocolVersion: requested || "2024-11-05",
+            capabilities: { tools: { listChanged: false } },
+            serverInfo: { name: "cortex-mcp", version: "1.1.1" },
+            instructions:
+              "Read-only Cortex MCP. Tools: taste_cortex_query, taste_cortex_get_blob, semantic_recall, organ_atlas_lookup, capability_hit_evaluate, cortex_health.",
+          });
+        }
+
+        if (method === "notifications/initialized" || method === "initialized") {
+          return new Response(null, { status: 202, headers: { "Access-Control-Allow-Origin": "*" } });
+        }
+
+        if (method === "ping") {
+          return rpcOk({});
+        }
+
+        // Hermes 2026-07-28 fallback after initialize is rejected
+        if (method === "server/discover") {
+          return rpcOk({
+            protocolVersion: "2025-06-18",
+            capabilities: { tools: { listChanged: false } },
+            serverInfo: { name: "cortex-mcp", version: "1.1.1" },
+          });
+        }
 
         if (method === "tools/list") {
           const res = await (server as any)._requestHandlers.get("tools/list")({ method, params });
-          return new Response(JSON.stringify({ jsonrpc: "2.0", id, result: res }), {
-            headers: { "Content-Type": "application/json" },
-          });
+          return rpcOk(res);
         }
 
         if (method === "tools/call") {
           const res = await (server as any)._requestHandlers.get("tools/call")({ method, params });
-          return new Response(JSON.stringify({ jsonrpc: "2.0", id, result: res }), {
-            headers: { "Content-Type": "application/json" },
-          });
+          return rpcOk(res);
         }
 
-        return new Response(
-          JSON.stringify({ jsonrpc: "2.0", id, error: { code: -32601, message: "Method not found" } }),
-          { headers: { "Content-Type": "application/json" }, status: 404 }
-        );
+        return rpcErr(-32601, `Method not found: ${method}`);
       } catch (err: any) {
         return new Response(
           JSON.stringify({ jsonrpc: "2.0", error: { code: -32603, message: err.message || "Internal error" } }),
