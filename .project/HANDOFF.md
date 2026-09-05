@@ -12,6 +12,13 @@
 - The source snapshot, generator, browser/worker modules, domain projection, and current proposal digest references agree. Targeted suites pass 95 tests with one existing skip; exact generation parity and invalid metadata checks pass.
 - The older reviewed foundation approval pin remains unchanged and still blocks the broader linkage audit. The GSD quick summary records the exact pre-task and current digest distinction.
 - No external root headers, enrollment, relocation, publication, runtime, vault, primary checkout, or deployment changes occurred. Phase 9 and its existing approval boundaries remain unchanged.
+### 2026-09-05 Plexus P7 graph-reference prerequisite — reviewed source candidate
+
+- Branch `codex/plexus-admission-contract-20260905` starts from `746acf814b4ffce1a6ccef295ba1f4b0a09760b6`. This bounded support task belongs to [Cambium #371](https://github.com/Sheshiyer/cambium/issues/371); Plexus ISC-277 retains integrated acceptance.
+- [The contract](../docs/architecture/contracts/plexus-work-reference-v1.md) and `resolvePlexusWorkReference` require a trusted exact-tenant principal, an explicit expiring server-resolved resource grant, exact canonical WorkObject/node identity, and a pinned graph version/digest. Head/nodes/head snapshots and the existing digest algorithm verify a consistent committed reference with read-only store capabilities.
+- Success is `graph-reference-verified`. It grants no action or execution authority. The authenticated adapter, grant producer, live revocation, deployed revision and installed Plexus integration remain open; the existing wildcard principal cannot be promoted into tenant authority from request data.
+- Verification: 24 new tests plus 31 compiler/store/Plexus-gate regression tests pass (55/55). Independent read-only review found no concrete issues and reran the 24 new tests. No endpoint, catalog, principal resolver or store implementation changed.
+- The source candidate is prepared for commit/push under the user's existing instruction. Main integration and runtime acceptance remain separate. No deployment, graph mutation, credential change or external delivery occurred. The original checkout's unrelated WIP remains preserved.
 
 ### 2026-08-31 Phase 8 Labs authority and profile safety — verified implementation candidate
 
