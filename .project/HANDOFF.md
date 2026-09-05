@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-09-05 Plexus P7 graph-reference prerequisite — reviewed source candidate
+
+- Branch `codex/plexus-admission-contract-20260905` starts from `746acf814b4ffce1a6ccef295ba1f4b0a09760b6`. This bounded support task belongs to [Cambium #371](https://github.com/Sheshiyer/cambium/issues/371); Plexus ISC-277 retains integrated acceptance.
+- [The contract](../docs/architecture/contracts/plexus-work-reference-v1.md) and `resolvePlexusWorkReference` require a trusted exact-tenant principal, an explicit expiring server-resolved resource grant, exact canonical WorkObject/node identity, and a pinned graph version/digest. Head/nodes/head snapshots and the existing digest algorithm verify a consistent committed reference with read-only store capabilities.
+- Success is `graph-reference-verified`. It grants no action or execution authority. The authenticated adapter, grant producer, live revocation, deployed revision and installed Plexus integration remain open; the existing wildcard principal cannot be promoted into tenant authority from request data.
+- Verification: 24 new tests plus 31 compiler/store/Plexus-gate regression tests pass (55/55). Independent read-only review found no concrete issues and reran the 24 new tests. No endpoint, catalog, principal resolver or store implementation changed.
+- The source candidate is prepared for commit/push under the user's existing instruction. Main integration and runtime acceptance remain separate. No deployment, graph mutation, credential change or external delivery occurred. The original checkout's unrelated WIP remains preserved.
+
 ### 2026-08-31 Phase 8 Labs authority and profile safety — verified implementation candidate
 
 - Branch `codex/labs-consolidation-v05-20260831` starts from exact `origin/main` `5caca954be9d7b646286773be7e1dccf03cfad7c`. Its reviewed pre-checkpoint implementation head is `4753af1d87a9e37d2081913be2b3f407bcd78ce3`; commits `2aad38a`, `d8d3ae6`, and `4753af1` separate the Cloudflare guardrails, v0.5 planning spine, and Access-inventory review repair.
