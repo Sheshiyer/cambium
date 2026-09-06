@@ -70,7 +70,7 @@ Last activity: 2026-09-07 — Completed quick task 260907-7pu: published the rec
 |---|-------------|------|--------|-----------|
 | 260907-3vu | Cambium Website display and nested Codigo Decodik proposal evidence | 2026-09-06 | 1be492a | [260907-3vu-correct-cambium-website-and-codigo-decod](./quick/260907-3vu-correct-cambium-website-and-codigo-decod/) |
 | 260907-5gp | Cambium Website semantics worktree infrastructure classification | 2026-09-07 | 3fb6d9f | [260907-5gp-classify-the-cambium-website-semantics-l](./quick/260907-5gp-classify-the-cambium-website-semantics-l/) |
-| 260907-7pu | Reconciled Thoughtseed and Tryambakam root header publication | 2026-09-07 | pending | [260907-7pu-publish-reconciled-portfolio-headers](./quick/260907-7pu-publish-reconciled-portfolio-headers/) |
+| 260907-7pu | Reconciled Thoughtseed and Tryambakam root header publication | 2026-09-07 | 64136f3 | [260907-7pu-publish-reconciled-portfolio-headers](./quick/260907-7pu-publish-reconciled-portfolio-headers/) |
 
 ## Session Continuity
 

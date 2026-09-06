@@ -2,6 +2,7 @@
 quick_id: 260907-7pu
 status: complete
 completed: 2026-09-07
+receipt_commit: 64136f3
 ---
 
 # Quick Summary: Reconciled portfolio header publication
