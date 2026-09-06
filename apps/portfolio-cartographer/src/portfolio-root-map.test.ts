@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 import {
   compareObservedDirectories,
+  renderGeneratedModule,
   renderPortfolioJson,
   renderPortfolioMarkdown,
   renderWorkerPolicyModule,
@@ -31,21 +32,49 @@ test('portfolio root snapshot exists before folder ingestion is rendered', async
   assert.equal(snapshot.schema, 'thoughtseed.portfolio-root-map.v1')
 })
 
-test('snapshot freezes the observed shallow portfolio counts and exclusions', async () => {
+test('snapshot preserves internally consistent shallow portfolio counts and exclusions', async () => {
   const snapshot = await readSnapshot()
   const thoughtseed = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'thoughtseed')
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 57)
-  assert.equal(thoughtseed.folders.length, 57)
-  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])
-  assert.equal(noesis.folderCount, 30)
-  assert.equal(noesis.folders.length, 30)
-  assert.deepEqual(noesis.infrastructure, ['selemene-engine-worktrees'])
+  assert.equal(thoughtseed.folderCount, thoughtseed.folders.length)
+  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website', '.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees', 'cambium-showcase-ui-rebuild', 'omniroute-governed', 'temperance_engine-phase-01'])
+  assert.equal(noesis.folderCount, noesis.folders.length)
+  assert.deepEqual(noesis.infrastructure, ['_portfolio-audit', 'antahkarana-recovery-20260831-pzm8eM'])
   assert.equal(noesis.archiveContainer, '_archive')
-  assert.equal(thoughtseed.folders.some((entry: { folder: string }) => ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'].includes(entry.folder)), false)
+  assert.equal(thoughtseed.folders.some((entry: { folder: string }) => thoughtseed.infrastructure.includes(entry.folder)), false)
   assert.equal(thoughtseed.folders.find((entry: { folder: string }) => entry.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
-  assert.equal(noesis.folders.some((entry: { folder: string }) => ['.agents', '_archive', 'selemene-engine-worktrees'].includes(entry.folder)), false)
+  assert.equal(noesis.folders.some((entry: { folder: string }) => ['.agents', '_archive', ...noesis.infrastructure].includes(entry.folder)), false)
+})
+
+test('Tryambakam root reconciliation preserves active projects and distinct archived copies', async () => {
+  const snapshot = await readSnapshot()
+  const noesis = snapshot.portfolios[1]
+  assert.equal(noesis.folderCount, 35)
+  const byFolder = new Map(noesis.folders.map((entry: { folder: string }) => [entry.folder, entry]))
+  const additions = {
+    '10869-space-v1': 'sapling:10869-space',
+    'FMRL-reactnative': 'sapling:fmrl',
+    'noesismirror-web': 'sapling:tryambakam',
+    'sankalpa': 'sapling:sankalpa',
+    'somaticcanticles-aleph': 'branch:somatic-canticles',
+    'spatial-anubis-noesis': 'sapling:tryambakam',
+  }
+  for (const [folder, workId] of Object.entries(additions)) {
+    assert.deepEqual(byFolder.get(folder), {
+      folder, proposedKind: 'project', accountId: null, workIds: [workId], status: 'mapping-proposal',
+    })
+  }
+  for (const absent of ['selemene-gw', 'serpentine-raising', 'twc-shell']) assert.equal(byFolder.has(absent), false)
+  assert.deepEqual(noesis.archivedProjects, ['noesismirror-web', 'spatial-anubis-noesis', 'witness-agents-intro-web'])
+  assert.equal(noesis.archiveContainer, '_archive')
+  assert.equal(noesis.infrastructure.includes('selemene-engine-worktrees'), false)
+  assert.equal(noesis.infrastructureWorkMappings?.some(({ folder }) => noesis.infrastructure.includes(folder)) ?? false, false)
+  const comparison = compareObservedDirectories(noesis, [
+    ...noesis.folders.map(({ folder }) => folder), ...noesis.infrastructure, noesis.archiveContainer,
+  ])
+  assert.equal(comparison.expected.length, 38)
+  assert.equal(comparison.ok, true)
 })
 
 test('snapshot uses only relative unique folders and bounded proposal kinds', async () => {
@@ -125,7 +154,7 @@ test('root headers use portfolio-specific grammar and relative proposal evidence
   assert.match(noesisMarkdown, /## Projects/)
   assert.doesNotMatch(noesisMarkdown, /Client Branch/)
   assert.equal(noesisJson.itemLabel, 'Project')
-  assert.equal(noesisJson.folders.length, 30)
+  assert.equal(noesisJson.folders.length, snapshot.portfolios[1].folderCount)
   assert.equal(JSON.stringify(noesisJson).includes('/Volumes/'), false)
 })
 
@@ -219,4 +248,176 @@ test('root header writer can scope a physical apply to one exact portfolio', asy
   assert.deepEqual(written.plans.map(({ portfolioId }) => portfolioId), ['thoughtseed'])
   assert.equal(existsSync(path.join(thoughtseedRoot, 'PORTFOLIO.md')), true)
   assert.equal(existsSync(path.join(projectsRoot, 'tryambakam-noesis/PORTFOLIO.md')), false)
+})
+
+
+test('safe reconciliations retain infrastructure and existing WorkObject relationships', async () => {
+  const snapshot = await readSnapshot()
+  const [thoughtseed, noesis] = snapshot.portfolios
+  assert.deepEqual(thoughtseed.infrastructureWorkMappings, [
+    { folder: 'thoughtseed-labs', workIds: ['program:thoughtseed-vault'] },
+  ])
+  assert.equal(thoughtseed.folders.some(({ folder }) => folder === 'thoughtseed-labs'), false)
+  assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'thoughtseed-organ-console'), {
+    folder: 'thoughtseed-organ-console', proposedKind: 'internal-program', accountId: null,
+    workIds: ['program:thoughtseed-organ-console'], status: 'mapping-proposal',
+  })
+  assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'cambium-telegram-showcase'), {
+    folder: 'cambium-telegram-showcase', proposedKind: 'sapling', accountId: null,
+    workIds: ['sapling:cambium'], status: 'mapping-proposal',
+  })
+  assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'codigo'), {
+    folder: 'codigo', proposedKind: 'client-branch', accountId: 'codigo-olimpo',
+    workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'], status: 'mapping-proposal',
+  })
+  for (const folder of ['cambium-telegram-showcase', 'codigo']) {
+    assert.equal(thoughtseed.infrastructure.includes(folder), false)
+  }
+  const relations = {
+    '10869x77': 'sapling:tryambakam',
+    'Selemene-engine': 'sapling:selemene',
+    'somatic-canticles-mobile-app': 'branch:somatic-canticles',
+    'tryambakam-space': 'sapling:tryambakam',
+    'urania-137': 'sapling:selemene',
+    'witness-agents': 'sapling:selemene',
+  }
+  for (const [folder, workId] of Object.entries(relations)) {
+    const entry = noesis.folders.find((candidate) => candidate.folder === folder)
+    assert.deepEqual(entry?.workIds, [workId], folder)
+    assert.equal(entry?.status, 'mapping-proposal', folder)
+  }
+  for (const folder of ['selemene-engine']) {
+    assert.equal(noesis.folders.some((entry) => entry.folder === folder), false)
+  }
+})
+
+test('folderCount validation derives from each portfolio instead of frozen counts', async () => {
+  const snapshot = await readSnapshot()
+  for (const portfolio of snapshot.portfolios) {
+    for (const folder of ['synthetic-program', 'another-synthetic-program']) {
+      portfolio.folders.push({ folder, proposedKind: 'internal-program', accountId: null, workIds: [], status: 'awaiting-ingestion' })
+    }
+    portfolio.folderCount = portfolio.folders.length
+    assert.equal(validateSnapshot(snapshot), snapshot)
+    portfolio.folderCount -= 1
+    assert.throws(() => validateSnapshot(snapshot), new RegExp(`${portfolio.portfolioId} folder count drift`))
+    portfolio.folderCount += 1
+  }
+})
+
+test('infrastructure mappings remain optional and round-trip through JSON and generated projections', async () => {
+  const snapshot = await readSnapshot()
+  const thoughtseed = snapshot.portfolios[0]
+  thoughtseed.infrastructureWorkMappings = [{ folder: 'thoughtseed-labs', workIds: ['program:thoughtseed-vault'] }]
+  const digest = snapshotDigest(snapshot)
+  assert.deepEqual(JSON.parse(renderPortfolioJson(thoughtseed, digest)).infrastructureWorkMappings, thoughtseed.infrastructureWorkMappings)
+  assert.match(renderGeneratedModule(snapshot), /"infrastructureWorkMappings"/)
+  assert.match(renderPortfolioMarkdown(thoughtseed, digest), /thoughtseed-labs.*program:thoughtseed-vault/)
+  delete thoughtseed.infrastructureWorkMappings
+  assert.equal(validateSnapshot(snapshot), snapshot)
+  assert.equal(Object.hasOwn(thoughtseed, 'infrastructureWorkMappings'), false)
+  assert.equal(Object.hasOwn(JSON.parse(renderPortfolioJson(thoughtseed, snapshotDigest(snapshot))), 'infrastructureWorkMappings'), false)
+  assert.doesNotMatch(renderPortfolioMarkdown(thoughtseed, snapshotDigest(snapshot)), /Infrastructure WorkObject evidence/)
+})
+
+test('infrastructure mapping validation rejects malformed, duplicate, unknown, and overlapping relations', async () => {
+  const source = await readSnapshot()
+  const invalidMappings = [
+    null, {}, [null],
+    [{ folder: 'not-infrastructure', workIds: ['program:thoughtseed-vault'] }],
+    [{ folder: 'thoughtseed-labs', workIds: ['program:thoughtseed-vault'], note: 'not-a-contract-field' }],
+    [{ folder: 'thoughtseed-labs', workIds: ['program:thoughtseed-vault'] }, { folder: 'thoughtseed-labs', workIds: ['program:thoughtseed-vault'] }],
+    ...[null, [], [''], ['program:'], ['not-canonical'], [1], ['program:one', 'program:one'], ['program:' + 'a'.repeat(121)], Array.from({ length: 129 }, (_, index) => `program:synthetic-${index}`)].map((workIds) => [{ folder: 'thoughtseed-labs', workIds }]),
+  ]
+  for (const infrastructureWorkMappings of invalidMappings) {
+    const snapshot = structuredClone(source)
+    snapshot.portfolios[0].infrastructureWorkMappings = infrastructureWorkMappings
+    assert.throws(() => validateSnapshot(snapshot), /infrastructure.*mapping|mapping.*infrastructure/i)
+  }
+  const overlap = structuredClone(source)
+  const folder = overlap.portfolios[0].folders[0].folder
+  overlap.portfolios[0].infrastructure.push(folder)
+  overlap.portfolios[0].infrastructureWorkMappings = [{ folder, workIds: ['program:thoughtseed-vault'] }]
+  assert.throws(() => validateSnapshot(overlap), /overlap/)
+})
+
+test('both generated root maps exactly match the source and include the verified Temperance relationship', async () => {
+  const expected = renderGeneratedModule(validateSnapshot(await readSnapshot()))
+  assert.equal(await readFile(generatedModulePath, 'utf8'), expected)
+  assert.equal(await readFile(workerGeneratedModulePath, 'utf8'), expected)
+  assert.match(expected, /"folder": "temperance_engine"/)
+})
+
+test('verified runtime, company website, and Selemene consumers retain exact WorkObject relationships', async () => {
+  const snapshot = await readSnapshot()
+  for (const [portfolioId, folder, proposedKind, workId] of [
+    ['thoughtseed', 'temperance_engine', 'internal-program', 'program:temperance-hermes'],
+    ['thoughtseed', 'thoughtseedlabs-website', 'internal-program', 'program:company-website'],
+    ['tryambakam-noesis', 'antahkarana', 'project', 'sapling:selemene'],
+    ['tryambakam-noesis', 'noesis-raycast', 'project', 'sapling:selemene'],
+  ]) {
+    const portfolio = snapshot.portfolios.find((candidate) => candidate.portfolioId === portfolioId)
+    assert.deepEqual(portfolio.folders.find((entry) => entry.folder === folder), {
+      folder, proposedKind, accountId: null, workIds: [workId], status: 'mapping-proposal',
+    })
+  }
+})
+
+test('the original twelve-directory Thoughtseed census is fully classified', async () => {
+  const thoughtseed = (await readSnapshot()).portfolios[0]
+  const census = ['.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees',
+    'cambium-showcase-ui-rebuild', 'cambium-telegram-showcase', 'codigo', 'omniroute-governed',
+    'temperance_engine', 'temperance_engine-phase-01', 'thoughtseed-organ-console', 'thoughtseedlabs-website']
+  const classified = new Set([...thoughtseed.folders.map(({ folder }) => folder), ...thoughtseed.infrastructure])
+  assert.deepEqual(census.filter((folder) => !classified.has(folder)), [])
+  assert.equal(thoughtseed.folderCount, 62)
+  assert.equal(classified.size, 74)
+})
+
+
+test('infrastructure mappings accept bounded IDs and safe hidden folders in either portfolio', async () => {
+  const snapshot = await readSnapshot()
+  const noesis = snapshot.portfolios[1]
+  noesis.infrastructureWorkMappings = [{ folder: '_portfolio-audit', workIds: ['program:example.v1_name', 'sapling:' + 'a'.repeat(120)] }]
+  assert.equal(validateSnapshot(snapshot), snapshot)
+  assert.match(renderPortfolioMarkdown(noesis, snapshotDigest(snapshot)), /_portfolio-audit.*program:example.v1_name/)
+  const thoughtseed = snapshot.portfolios[0]
+  thoughtseed.infrastructureWorkMappings = [{ folder: '.codex-data', workIds: ['program:example'] }]
+  assert.equal(validateSnapshot(snapshot), snapshot)
+  for (const folder of ['.', '..', '../escape', '/absolute', 'a/b']) {
+    const invalid = structuredClone(snapshot)
+    invalid.portfolios[0].infrastructure.push(folder)
+    invalid.portfolios[0].infrastructureWorkMappings = [{ folder, workIds: ['program:example'] }]
+    assert.throws(() => validateSnapshot(invalid), /unsafe.*infrastructure/)
+  }
+})
+
+
+test('infrastructure mapping limits accept boundary sizes and reject one extra entry', async () => {
+  const snapshot = await readSnapshot()
+  const thoughtseed = snapshot.portfolios[0]
+  const mappings = Array.from({ length: 256 }, (_, index) => ({
+    folder: `synthetic-infrastructure-${index}`,
+    workIds: Array.from({ length: 128 }, (_, workIndex) => `program:synthetic-${workIndex}`),
+  }))
+  thoughtseed.infrastructure.push(...mappings.map(({ folder }) => folder))
+  thoughtseed.infrastructureWorkMappings = mappings
+  assert.equal(validateSnapshot(snapshot), snapshot)
+  const extra = { folder: 'synthetic-infrastructure-extra', workIds: ['program:synthetic'] }
+  thoughtseed.infrastructure.push(extra.folder)
+  thoughtseed.infrastructureWorkMappings.push(extra)
+  assert.throws(() => validateSnapshot(snapshot), /invalid infrastructure mappings/)
+})
+
+
+test('infrastructure folder identifiers accept 128 characters and reject 129', async () => {
+  const snapshot = await readSnapshot()
+  const thoughtseed = snapshot.portfolios[0]
+  const folder = 'a'.repeat(128)
+  thoughtseed.infrastructure.push(folder)
+  thoughtseed.infrastructureWorkMappings = [{ folder, workIds: ['program:synthetic'] }]
+  assert.equal(validateSnapshot(snapshot), snapshot)
+  thoughtseed.infrastructure.push(folder + 'a')
+  thoughtseed.infrastructureWorkMappings = [{ folder: folder + 'a', workIds: ['program:synthetic'] }]
+  assert.throws(() => validateSnapshot(snapshot), /unsafe relative infrastructure folder/)
 })

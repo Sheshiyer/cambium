@@ -84,12 +84,21 @@ test('client families derive only from exact source account ids', () => {
   assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 15)
 })
 
-test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake', () => {
+test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake', async () => {
+  const snapshot = JSON.parse(await readFile(
+    new URL('../../../docs/project-management/portfolio-roots.v1.json', import.meta.url),
+    'utf8',
+  )) as { portfolios: Array<{ portfolioId: string; folderCount: number; folders: unknown[] }> }
   const thoughtseed = portfolioRoot('thoughtseed')
   const noesis = portfolioRoot('tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 57)
-  assert.equal(noesis.folderCount, 30)
+  for (const root of [thoughtseed, noesis]) {
+    const source = snapshot.portfolios.find((portfolio) => portfolio.portfolioId === root.portfolioId)!
+    assert.ok(source, `${root.portfolioId} must exist in the source snapshot`)
+    assert.equal(source.folderCount, source.folders.length)
+    assert.equal(root.folderCount, source.folderCount)
+    assert.equal(root.folders.length, source.folders.length)
+  }
   assert.equal(noesis.itemLabel, 'Project')
   assert.equal(thoughtseed.folders.find((folder) => folder.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
   assert.ok(noesis.folders.every((folder) => folder.proposedKind === 'project'))

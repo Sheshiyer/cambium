@@ -37,13 +37,36 @@ export function validateSnapshot(snapshot) {
       if (!Array.isArray(entry.workIds) || !entry.workIds.every((workId) => typeof workId === 'string' && workId.length <= 128)) throw new TypeError(`invalid workIds for ${entry.folder}`)
       if (entry.accountId !== null && (typeof entry.accountId !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(entry.accountId))) throw new TypeError(`invalid accountId for ${entry.folder}`)
     }
+    const infrastructure = new Set()
+    if (!Array.isArray(portfolio.infrastructure)) throw new TypeError(`invalid infrastructure in ${portfolio.portfolioId}`)
+    for (const folder of portfolio.infrastructure) {
+      if (typeof folder !== 'string' || folder.length > 128 || !/^[A-Za-z0-9_.-]+$/.test(folder) || folder === '.' || folder === '..') throw new TypeError(`unsafe relative infrastructure folder in ${portfolio.portfolioId}`)
+      if (infrastructure.has(folder)) throw new TypeError(`duplicate infrastructure folder ${folder}`)
+      if (folders.has(folder)) throw new TypeError(`infrastructure folder overlaps ordinary folder ${folder}`)
+      infrastructure.add(folder)
+    }
+    // Absence preserves legacy snapshots; a present field must be wholly valid.
+    if (Object.hasOwn(portfolio, 'infrastructureWorkMappings')) {
+      const mappings = portfolio.infrastructureWorkMappings
+      if (!Array.isArray(mappings) || mappings.length > 256) throw new TypeError(`invalid infrastructure mappings in ${portfolio.portfolioId}`)
+      const mappedFolders = new Set()
+      for (const mapping of mappings) {
+        if (!mapping || typeof mapping !== 'object' || Array.isArray(mapping) ||
+          Object.keys(mapping).some((key) => key !== 'folder' && key !== 'workIds') ||
+          !infrastructure.has(mapping.folder)) throw new TypeError('infrastructure mapping must name an existing infrastructure folder')
+        if (mappedFolders.has(mapping.folder)) throw new TypeError(`duplicate infrastructure mapping for ${mapping.folder}`)
+        mappedFolders.add(mapping.folder)
+        const workIds = mapping.workIds
+        if (!Array.isArray(workIds) || workIds.length === 0 || workIds.length > 128 ||
+          new Set(workIds).size !== workIds.length ||
+          !workIds.every((workId) => typeof workId === 'string' && workId.length <= 128 && /^(sapling|branch|program):[A-Za-z0-9][A-Za-z0-9._-]*$/.test(workId))) {
+          throw new TypeError(`invalid infrastructure mapping workIds for ${mapping.folder}`)
+        }
+      }
+    }
   }
-  const thoughtseed = snapshot.portfolios[0]
-  if (thoughtseed.folderCount !== 58) throw new TypeError('Thoughtseed folder count must remain 58')
-  if (JSON.stringify(thoughtseed.infrastructure) !== JSON.stringify(['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website'])) throw new TypeError('Thoughtseed infrastructure exclusions drifted')
   const noesis = snapshot.portfolios[1]
-  if (noesis.folderCount !== 30) throw new TypeError('Tryambakam-Noesis folder count must remain 30')
-  if (JSON.stringify(noesis.infrastructure) !== JSON.stringify(['selemene-engine-worktrees'])) throw new TypeError('Tryambakam-Noesis infrastructure exclusions drifted')
+  if (JSON.stringify(noesis.infrastructure) !== JSON.stringify(['_portfolio-audit', 'antahkarana-recovery-20260831-pzm8eM'])) throw new TypeError('Tryambakam-Noesis infrastructure exclusions drifted')
   if (noesis.archiveContainer !== '_archive') throw new TypeError('Tryambakam-Noesis archive container drifted')
   return snapshot
 }
@@ -135,6 +158,15 @@ export function renderPortfolioMarkdown(portfolio, digest) {
     for (const folder of portfolio.infrastructure) lines.push(`- \`${folder}\``)
     lines.push('')
   }
+  if (portfolio.infrastructureWorkMappings?.length) {
+    lines.push('## Infrastructure WorkObject evidence', '',
+      'These relations preserve infrastructure exclusions and do not create WorkObject folders.', '',
+      '| Infrastructure folder | WorkObject evidence |', '|---|---|')
+    for (const mapping of portfolio.infrastructureWorkMappings) {
+      lines.push(`| \`${mapping.folder}\` | ${mapping.workIds.join(', ')} |`)
+    }
+    lines.push('')
+  }
   lines.push('No repository directory was moved or nested by this header.', '')
   return lines.join('\n')
 }
@@ -149,6 +181,7 @@ export function renderPortfolioJson(portfolio, digest) {
     pathGrammar: `<projects-root>/${portfolio.portfolioId}/<repository>`,
     folders: portfolio.folders,
     infrastructure: portfolio.infrastructure ?? [],
+    ...(Object.hasOwn(portfolio, 'infrastructureWorkMappings') ? { infrastructureWorkMappings: portfolio.infrastructureWorkMappings } : {}),
     archiveContainer: portfolio.archiveContainer ?? null,
     archivedProjects: portfolio.archivedProjects ?? [],
     missingClientAccounts: portfolio.missingClientAccounts ?? [],
