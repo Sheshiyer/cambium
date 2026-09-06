@@ -38,7 +38,7 @@ test('snapshot preserves internally consistent shallow portfolio counts and excl
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
   assert.equal(thoughtseed.folderCount, thoughtseed.folders.length)
-  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website', '.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees', 'cambium-showcase-ui-rebuild', 'omniroute-governed', 'temperance_engine-phase-01'])
+  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website', '.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees', 'cambium-showcase-ui-rebuild', 'cambium-website-semantics', 'omniroute-governed', 'temperance_engine-phase-01'])
   assert.equal(noesis.folderCount, noesis.folders.length)
   assert.deepEqual(noesis.infrastructure, ['_portfolio-audit', 'antahkarana-recovery-20260831-pzm8eM'])
   assert.equal(noesis.archiveContainer, '_archive')
@@ -364,15 +364,17 @@ test('verified runtime, company website, and Selemene consumers retain exact Wor
   }
 })
 
-test('the original twelve-directory Thoughtseed census is fully classified', async () => {
+test('the original twelve-directory Thoughtseed census and Cambium Website worktree are fully classified', async () => {
   const thoughtseed = (await readSnapshot()).portfolios[0]
   const census = ['.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees',
-    'cambium-showcase-ui-rebuild', 'cambium-telegram-showcase', 'codigo', 'omniroute-governed',
+    'cambium-showcase-ui-rebuild', 'cambium-website-semantics', 'cambium-telegram-showcase', 'codigo', 'omniroute-governed',
     'temperance_engine', 'temperance_engine-phase-01', 'thoughtseed-organ-console', 'thoughtseedlabs-website']
   const classified = new Set([...thoughtseed.folders.map(({ folder }) => folder), ...thoughtseed.infrastructure])
   assert.deepEqual(census.filter((folder) => !classified.has(folder)), [])
+  assert.equal(thoughtseed.infrastructure.includes('cambium-website-semantics'), true)
+  assert.equal(thoughtseed.folders.some(({ folder }) => folder === 'cambium-website-semantics'), false)
   assert.equal(thoughtseed.folderCount, 62)
-  assert.equal(classified.size, 74)
+  assert.equal(classified.size, 75)
 })
 
 
