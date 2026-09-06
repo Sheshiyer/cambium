@@ -9,6 +9,32 @@ const defaultGeneratedPath = path.join(appRoot, 'src/portfolio-root-map.generate
 const defaultWorkerGeneratedPath = path.resolve(appRoot, '../../workers/quests/src/portfolio-root-map.generated.ts')
 const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
 
+function isDisplayName(value) {
+  return typeof value === 'string' && value.trim().length > 0 && value.length <= 128 && !/[\x00-\x1f\x7f|`<>]/.test(value)
+}
+
+// Nested evidence describes an existing repository beneath a shallow folder.
+// It inherits that folder's client and can only reference its existing work IDs.
+function validateFolderMetadata(entry) {
+  if (Object.hasOwn(entry, 'displayName') && !isDisplayName(entry.displayName)) throw new TypeError(`invalid display name for ${entry.folder}`)
+  if (!Object.hasOwn(entry, 'nestedRepositories')) return
+  if (!Array.isArray(entry.nestedRepositories) || entry.nestedRepositories.length > 128) throw new TypeError(`invalid nested repository evidence for ${entry.folder}`)
+  const paths = new Set()
+  for (const repository of entry.nestedRepositories) {
+    if (!repository || typeof repository !== 'object' || Array.isArray(repository) ||
+      Object.keys(repository).some((key) => !['relativePath', 'displayName', 'workIds'].includes(key)) ||
+      typeof repository.relativePath !== 'string' || repository.relativePath.length > 256 ||
+      !repository.relativePath.split('/').every((segment) => /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(segment)) ||
+      paths.has(repository.relativePath) || !isDisplayName(repository.displayName) ||
+      !Array.isArray(repository.workIds) || repository.workIds.length === 0 ||
+      new Set(repository.workIds).size !== repository.workIds.length ||
+      !repository.workIds.every((workId) => entry.workIds.includes(workId))) {
+      throw new TypeError(`invalid nested repository evidence for ${entry.folder}`)
+    }
+    paths.add(repository.relativePath)
+  }
+}
+
 export function stableJson(value) {
   if (Array.isArray(value)) return value.map(stableJson)
   if (!value || typeof value !== 'object') return value
@@ -36,6 +62,7 @@ export function validateSnapshot(snapshot) {
       if (!allowedKinds.has(entry.proposedKind)) throw new TypeError(`unsupported proposal kind ${entry.proposedKind}`)
       if (!Array.isArray(entry.workIds) || !entry.workIds.every((workId) => typeof workId === 'string' && workId.length <= 128)) throw new TypeError(`invalid workIds for ${entry.folder}`)
       if (entry.accountId !== null && (typeof entry.accountId !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(entry.accountId))) throw new TypeError(`invalid accountId for ${entry.folder}`)
+      validateFolderMetadata(entry)
     }
     const infrastructure = new Set()
     if (!Array.isArray(portfolio.infrastructure)) throw new TypeError(`invalid infrastructure in ${portfolio.portfolioId}`)
@@ -130,10 +157,10 @@ export function renderPortfolioMarkdown(portfolio, digest) {
   if (portfolio.portfolioId === 'thoughtseed') {
     for (const kind of ['client-branch', 'sapling', 'internal-program', 'needs-review']) {
       const entries = portfolio.folders.filter((entry) => entry.proposedKind === kind)
-      lines.push(`## ${kind === 'client-branch' ? 'Client Branch folders' : heading(kind)}`, '', '| Folder | Client / WorkObject evidence | Status |', '|---|---|---|')
+      lines.push(`## ${kind === 'client-branch' ? 'Client Branch folders' : heading(kind)}`, '', '| Folder | Product / display name | Client / WorkObject evidence | Status |', '|---|---|---|---|')
       for (const entry of entries) {
         const evidence = entry.accountId ? `client:${entry.accountId}` : entry.workIds.join(', ') || 'unmapped'
-        lines.push(`| \`${entry.folder}\` | ${evidence} | ${entry.status} |`)
+        lines.push(`| \`${entry.folder}\` | ${entry.displayName ?? '—'} | ${evidence} | ${entry.status} |`)
       }
       lines.push('')
     }
@@ -156,6 +183,18 @@ export function renderPortfolioMarkdown(portfolio, digest) {
     for (const folder of portfolio.archivedProjects) lines.push(`- \`${portfolio.archiveContainer}/${folder}\``)
     lines.push('', '## Portfolio infrastructure', '')
     for (const folder of portfolio.infrastructure) lines.push(`- \`${folder}\``)
+    lines.push('')
+  }
+  const nestedParents = portfolio.folders.filter((entry) => entry.nestedRepositories?.length)
+  if (nestedParents.length) {
+    lines.push('## Nested repository evidence', '',
+      'Nested repository evidence inherits the existing parent client and WorkObject relationships; it does not add shallow folders or new WorkObjects.', '',
+      '| Relative repository path | Product / display name | Parent client | Existing WorkObject evidence |', '|---|---|---|---|')
+    for (const entry of nestedParents) {
+      for (const repository of entry.nestedRepositories) {
+        lines.push(`| \`${entry.folder}/${repository.relativePath}\` | ${repository.displayName} | ${entry.accountId ? `client:${entry.accountId}` : '—'} | ${repository.workIds.join(', ')} |`)
+      }
+    }
     lines.push('')
   }
   if (portfolio.infrastructureWorkMappings?.length) {

@@ -41,6 +41,7 @@ import {
   normalizeReviewNote,
   parsePacket,
   portfolioFolderMappingsForGroup,
+  portfolioFolderMappingsForWork,
   portfolioRoot,
   resolvePipeline,
   signalProvenance,
@@ -878,4 +879,20 @@ test('planning history is mutually exclusive and state replacement safe', () => 
   assert.deepEqual(afterLaterBulk, { quick: [], bulk: bulkSnapshot })
   assert.deepEqual(discardBulkUndo(afterLaterBulk), emptyPlanningHistory())
   assert.deepEqual(emptyPlanningHistory(), { quick: [], bulk: null })
+})
+
+
+test('folder projections preserve product labels and nested Codigo evidence separately from identity', () => {
+  const cambium = portfolioFolderMappingsForWork('sapling:cambium').find(({ folder }) => folder === 'cambium-telegram-showcase')!
+  assert.equal(cambium.displayName, 'Cambium Website')
+  assert.equal(cambium.path, 'thoughtseed/cambium-telegram-showcase')
+  assert.deepEqual(cambium.workIds, ['sapling:cambium'])
+  const codigo = portfolioFolderMappingsForWork('branch:codigo-olimpo').find(({ folder }) => folder === 'codigo')!
+  assert.equal(codigo.displayName, 'Codigo')
+  assert.equal(codigo.accountId, 'codigo-olimpo')
+  assert.deepEqual(codigo.nestedRepositories, [{
+    relativePath: 'research/Decodik', displayName: 'Decodik',
+    workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'],
+  }])
+  assert.equal(portfolioFolderMappingsForWork('branch:decodik').length, 0)
 })

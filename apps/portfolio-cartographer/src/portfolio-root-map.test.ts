@@ -263,11 +263,12 @@ test('safe reconciliations retain infrastructure and existing WorkObject relatio
     workIds: ['program:thoughtseed-organ-console'], status: 'mapping-proposal',
   })
   assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'cambium-telegram-showcase'), {
-    folder: 'cambium-telegram-showcase', proposedKind: 'sapling', accountId: null,
+    folder: 'cambium-telegram-showcase', displayName: 'Cambium Website', proposedKind: 'sapling', accountId: null,
     workIds: ['sapling:cambium'], status: 'mapping-proposal',
   })
   assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'codigo'), {
-    folder: 'codigo', proposedKind: 'client-branch', accountId: 'codigo-olimpo',
+    folder: 'codigo', displayName: 'Codigo', proposedKind: 'client-branch', accountId: 'codigo-olimpo',
+    nestedRepositories: [{ relativePath: 'research/Decodik', displayName: 'Decodik', workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'] }],
     workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'], status: 'mapping-proposal',
   })
   for (const folder of ['cambium-telegram-showcase', 'codigo']) {
@@ -420,4 +421,42 @@ test('infrastructure folder identifiers accept 128 characters and reject 129', a
   thoughtseed.infrastructure.push(folder + 'a')
   thoughtseed.infrastructureWorkMappings = [{ folder: folder + 'a', workIds: ['program:synthetic'] }]
   assert.throws(() => validateSnapshot(snapshot), /unsafe relative infrastructure folder/)
+})
+
+
+test('display names and nested Codigo evidence render without changing folder or WorkObject identity', async () => {
+  const snapshot = validateSnapshot(await readSnapshot())
+  const thoughtseed = snapshot.portfolios[0]
+  const markdown = renderPortfolioMarkdown(thoughtseed, snapshotDigest(snapshot))
+  assert.match(markdown, /\| `cambium-telegram-showcase` \| Cambium Website \| sapling:cambium \| mapping-proposal \|/)
+  assert.match(markdown, /\| `codigo\/research\/Decodik` \| Decodik \| client:codigo-olimpo \| branch:codigo-olimpo, branch:codigo-olimpo-creator-platform \|/)
+  assert.match(markdown, /Nested repository evidence.*existing parent.*WorkObject/s)
+  const json = JSON.parse(renderPortfolioJson(thoughtseed, snapshotDigest(snapshot)))
+  assert.equal(json.authority, 'proposal-only')
+  assert.deepEqual(json.folders, thoughtseed.folders)
+  assert.equal(thoughtseed.folders.some(({ folder }) => /decodik/i.test(folder)), false)
+  const expected = thoughtseed.folders.map(({ folder }) => folder).concat(thoughtseed.infrastructure)
+  assert.equal(compareObservedDirectories(thoughtseed, expected).ok, true)
+})
+
+test('optional display and nested evidence preserve legacy snapshots and reject unsafe or invented identities', async () => {
+  const snapshot = await readSnapshot()
+  const codigo = snapshot.portfolios[0].folders.find(({ folder }) => folder === 'codigo')
+  delete codigo.displayName
+  delete codigo.nestedRepositories
+  assert.equal(validateSnapshot(snapshot), snapshot)
+  for (const displayName of ['', 'a'.repeat(129), 'Name|row', 'Name\nrow', 'Name`code', '<script>', null]) {
+    codigo.displayName = displayName
+    assert.throws(() => validateSnapshot(snapshot), /display name/)
+  }
+  delete codigo.displayName
+  const valid = { relativePath: 'research/Decodik', displayName: 'Decodik', workIds: ['branch:codigo-olimpo'] }
+  for (const relativePath of ['../Decodik', '/research/Decodik', 'research/../Decodik', 'research//Decodik', 'research\\Decodik', '.', 'research/Decodik/']) {
+    codigo.nestedRepositories = [{ ...valid, relativePath }]
+    assert.throws(() => validateSnapshot(snapshot), /nested repository/)
+  }
+  for (const nestedRepositories of [null, [valid, valid], [{ ...valid, workIds: ['branch:decodik'] }], [{ ...valid, workIds: [] }], [{ ...valid, workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo'] }], [{ ...valid, displayName: 'bad|name' }], [{ ...valid, accountId: 'invented' }]]) {
+    codigo.nestedRepositories = nestedRepositories
+    assert.throws(() => validateSnapshot(snapshot), /nested repository/)
+  }
 })

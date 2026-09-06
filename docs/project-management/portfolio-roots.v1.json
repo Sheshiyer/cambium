@@ -114,7 +114,8 @@
           "workIds": [
             "sapling:cambium"
           ],
-          "status": "mapping-proposal"
+          "status": "mapping-proposal",
+          "displayName": "Cambium Website"
         },
         {
           "folder": "codigo",
@@ -124,7 +125,18 @@
             "branch:codigo-olimpo",
             "branch:codigo-olimpo-creator-platform"
           ],
-          "status": "mapping-proposal"
+          "status": "mapping-proposal",
+          "displayName": "Codigo",
+          "nestedRepositories": [
+            {
+              "relativePath": "research/Decodik",
+              "displayName": "Decodik",
+              "workIds": [
+                "branch:codigo-olimpo",
+                "branch:codigo-olimpo-creator-platform"
+              ]
+            }
+          ]
         },
         {
           "folder": "coproperty",
