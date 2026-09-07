@@ -2,7 +2,7 @@
   "schema": "thoughtseed.repository-intake-source.v1",
   "observedAt": "2026-09-07T00:12:26Z",
   "cutoffAt": "2026-08-07T23:49:35Z",
-  "rootMapDigest": "af47cc75f373414ab7dae230e90f3884ca850028211753c98c32bc2f07af9312",
+  "rootMapDigest": "52a106d39fe92ac84f6ff47362845fbcd1c5a0c7d11d9a1cd1e24729bdf678a0",
   "collection": {
     "local": "complete",
     "remote": "complete"
@@ -611,6 +611,56 @@
       "local": null,
       "activityKind": "github-push",
       "activityAt": "2026-08-16T06:58:09Z"
+    }
+  ],
+  "ownershipDecisions": [
+    {
+      "fullName": "Sheshiyer/session-atlas",
+      "repositoryId": "R_kgDOUAjRiQ",
+      "workObjectId": "program:session-atlas",
+      "portfolioId": "thoughtseed",
+      "displayName": "Session Atlas",
+      "ownership": "thoughtseed",
+      "relationship": "modular-organ-of",
+      "relatedWorkId": "sapling:cambium",
+      "decisionId": "owner-portfolio-mapping-2026-09-07",
+      "status": "reviewed-local"
+    },
+    {
+      "fullName": "Sheshiyer/meristem",
+      "repositoryId": "R_kgDOS1oGpg",
+      "workObjectId": "program:meristem-brand-system",
+      "portfolioId": "thoughtseed",
+      "displayName": "Meristem Brand System",
+      "ownership": "thoughtseed",
+      "relationship": "modular-organ-of",
+      "relatedWorkId": "sapling:cambium",
+      "decisionId": "owner-portfolio-mapping-2026-09-07",
+      "status": "reviewed-local"
+    },
+    {
+      "fullName": "Sheshiyer/somatic-canticles-v3-book-trilogy",
+      "repositoryId": "R_kgDOSrh5QQ",
+      "workObjectId": "branch:somatic-canticles",
+      "portfolioId": "tryambakam-noesis",
+      "displayName": "Somatic Canticles",
+      "ownership": "tryambakam-noesis",
+      "relationship": "portfolio-member",
+      "relatedWorkId": null,
+      "decisionId": "owner-portfolio-mapping-2026-09-07",
+      "status": "reviewed-local"
+    },
+    {
+      "fullName": "Sheshiyer/synchronocities-blog",
+      "repositoryId": "R_kgDORmUU5w",
+      "workObjectId": "program:synchronocities-blog",
+      "portfolioId": "tryambakam-noesis",
+      "displayName": "Synchronocities",
+      "ownership": "partner",
+      "relationship": "personal-affiliated",
+      "relatedWorkId": null,
+      "decisionId": "owner-portfolio-mapping-2026-09-07",
+      "status": "reviewed-local"
     }
   ]
 }

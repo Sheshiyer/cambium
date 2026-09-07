@@ -75,7 +75,8 @@ function validateLocal(value, portfolios) {
 export function validateIntakeSource(source, rootMap, receiptBundle = checkedInMappingReceipts) {
   validateSnapshot(rootMap)
   closed(source, ['schema', 'observedAt', 'cutoffAt', 'rootMapDigest', 'collection', 'observations',
-    ...(Object.hasOwn(source ?? {}, 'identityMappings') ? ['identityMappings'] : [])], 'source envelope')
+    ...(Object.hasOwn(source ?? {}, 'identityMappings') ? ['identityMappings'] : []),
+    ...(Object.hasOwn(source ?? {}, 'ownershipDecisions') ? ['ownershipDecisions'] : [])], 'source envelope')
   if (source.schema !== INTAKE_SOURCE_SCHEMA) throw new TypeError('Unsupported intake source schema')
   const observedAt = timestamp(source.observedAt, 'observation')
   const cutoffAt = timestamp(source.cutoffAt, 'cutoff')
@@ -126,8 +127,44 @@ export function validateIntakeSource(source, rootMap, receiptBundle = checkedInM
       }
     }
   }
+  validateOwnershipDecisions(source, rootMap)
   validateIdentityMappings(source, rootMap, receiptBundle)
   return source
+}
+
+// Owner decisions classify identity and affiliation only. They are not issued receipts
+// and cannot supply observed paths, client accounts, or runtime authority.
+function validateOwnershipDecisions(source, rootMap) {
+  if (!Object.hasOwn(source, 'ownershipDecisions')) return
+  if (!Array.isArray(source.ownershipDecisions) || source.ownershipDecisions.length > 2000) throw new TypeError('Invalid ownership decisions')
+  const names = new Set()
+  const ids = new Set()
+  for (const decision of source.ownershipDecisions) {
+    closed(decision, ['fullName', 'repositoryId', 'workObjectId', 'portfolioId', 'displayName', 'ownership', 'relationship', 'relatedWorkId', 'decisionId', 'status'], 'ownership decision')
+    validateRepository({ fullName: decision.fullName, repositoryId: decision.repositoryId, nodeId: null })
+    const name = decision.fullName.toLowerCase()
+    if (!decision.repositoryId || names.has(name) || ids.has(decision.repositoryId) ||
+      source.identityMappings?.some((entry) => entry.repositoryId === decision.repositoryId || entry.fullName.toLowerCase() === name)) throw new TypeError('Conflicting ownership decision')
+    names.add(name)
+    ids.add(decision.repositoryId)
+    if (!source.observations.some((row) => row.repository?.fullName.toLowerCase() === name && row.repository.repositoryId === decision.repositoryId)) throw new TypeError('Ownership decision requires observed immutable identity')
+    if (source.observations.some((row) => row.repository?.repositoryId === decision.repositoryId && row.local !== null && row.local.kind !== 'portfolio-root')) throw new TypeError('Ownership decision cannot override unplaced or nested observation')
+    const portfolio = rootMap.portfolios.find((entry) => entry.portfolioId === decision.portfolioId)
+    if (!/^(sapling|branch|program):[A-Za-z0-9][A-Za-z0-9._-]*$/.test(decision.workObjectId) ||
+      !portfolio?.folders.some((entry) => entry.status === 'mapping-proposal' && entry.accountId === null && entry.workIds.includes(decision.workObjectId))) throw new TypeError('Ownership decision requires reviewed root WorkObject')
+    if (decision.status !== 'reviewed-local' || !/^owner-portfolio-mapping-\d{4}-\d{2}-\d{2}$/.test(decision.decisionId) ||
+      typeof decision.displayName !== 'string' || !decision.displayName.trim() || decision.displayName.length > 128 || /[\x00-\x1f\x7f|`<>]/.test(decision.displayName)) throw new TypeError('Invalid owner decision evidence')
+    const organ = decision.relationship === 'modular-organ-of' && decision.ownership === 'thoughtseed' && decision.portfolioId === 'thoughtseed' && decision.relatedWorkId === 'sapling:cambium' && decision.workObjectId !== decision.relatedWorkId
+    const member = decision.relationship === 'portfolio-member' && decision.ownership === 'tryambakam-noesis' && decision.portfolioId === 'tryambakam-noesis' && decision.relatedWorkId === null
+    const affiliated = decision.relationship === 'personal-affiliated' && decision.ownership === 'partner' && decision.relatedWorkId === null
+    if (!organ && !member && !affiliated) throw new TypeError('Invalid ownership relationship')
+    if (organ && !portfolio.folders.some((entry) => entry.workIds.includes(decision.workObjectId) && entry.relationship === 'modular-organ-of' && entry.relatedWorkId === decision.relatedWorkId)) throw new TypeError('Organ ownership root metadata mismatch')
+    if (affiliated && !portfolio.folders.some((entry) => entry.workIds.includes(decision.workObjectId) && entry.ownership === 'partner' && entry.relationship === 'personal-affiliated')) throw new TypeError('Affiliated ownership root metadata mismatch')
+    for (const row of source.observations.filter((entry) => entry.repository?.repositoryId === decision.repositoryId && entry.local?.kind === 'portfolio-root')) {
+      const folder = rootMap.portfolios.find((entry) => entry.portfolioId === row.local.portfolioId)?.folders.find((entry) => entry.folder === row.local.folder)
+      if (row.local.portfolioId !== decision.portfolioId || !folder?.workIds.includes(decision.workObjectId) || folder.status !== 'mapping-proposal' || folder.accountId !== null) throw new TypeError('Ownership decision conflicts with local root mapping')
+    }
+  }
 }
 
 function validateIdentityMappings(source, rootMap, receiptBundle) {
@@ -182,7 +219,7 @@ function validateIdentityMappings(source, rootMap, receiptBundle) {
   }
 }
 
-function reconcile(row, rootMap, identityMappings, receiptBundle) {
+function reconcile(row, rootMap, identityMappings, receiptBundle, ownershipDecisions) {
   const local = row.local
   let proposal = null
   let classification = 'awaiting-ingestion'
@@ -222,6 +259,20 @@ function reconcile(row, rootMap, identityMappings, receiptBundle) {
         contentDigest: receipt.contentDigest, receiptStatus: receipt.status },
     }
   }
+  const ownershipDecision = row.repository && ownershipDecisions.find((entry) => entry.repositoryId === row.repository.repositoryId && entry.fullName.toLowerCase() === row.repository.fullName.toLowerCase())
+  if (ownershipDecision) {
+    classification = 'mapped'
+    proposal = {
+      portfolioId: ownershipDecision.portfolioId, folder: local?.kind === 'portfolio-root' ? local.folder : null,
+      nestedRelativePath: null, displayName: ownershipDecision.displayName, accountId: null,
+      workIds: [ownershipDecision.workObjectId], status: 'mapping-proposal',
+      ...(rootMap.portfolios.find((entry) => entry.portfolioId === ownershipDecision.portfolioId)?.folders.some((entry) => entry.workIds.includes(ownershipDecision.workObjectId) && entry.identityStatus === 'reviewed-local-node') ? { identityStatus: 'reviewed-local-node' } : {}),
+      ownership: ownershipDecision.ownership, relationship: ownershipDecision.relationship,
+      relatedWorkId: ownershipDecision.relatedWorkId,
+      evidence: { kind: 'reviewed-owner-decision', decisionId: ownershipDecision.decisionId,
+        contentDigest: `sha256:${digest(ownershipDecision)}`, status: ownershipDecision.status },
+    }
+  }
   const gaps = []
   if (row.activityKind === 'unknown') gaps.push('activity-unavailable')
   if (!row.repository) gaps.push('repository-identity-unavailable')
@@ -238,7 +289,8 @@ export function compileRepositoryIntake(source, rootMap, receiptBundle = checked
   validateIntakeSource(source, rootMap, receiptBundle)
   const normalized = { ...structuredClone(source), observations: [...source.observations].sort(compare) }
   if (source.identityMappings) normalized.identityMappings = [...source.identityMappings].sort(compare)
-  const observations = normalized.observations.map((row) => reconcile(row, rootMap, normalized.identityMappings ?? [], receiptBundle)).sort(compare)
+  if (source.ownershipDecisions) normalized.ownershipDecisions = [...source.ownershipDecisions].sort(compare)
+  const observations = normalized.observations.map((row) => reconcile(row, rootMap, normalized.identityMappings ?? [], receiptBundle, normalized.ownershipDecisions ?? [])).sort(compare)
   const gaps = Object.entries(source.collection).filter(([, value]) => value !== 'complete').map(([key, value]) => `${key}-collection-${value}`)
   return {
     schema: INTAKE_OBSERVATION_SCHEMA, authority: 'observation-only', observedAt: source.observedAt, cutoffAt: source.cutoffAt,

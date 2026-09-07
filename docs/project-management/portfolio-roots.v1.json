@@ -1,6 +1,6 @@
 {
   "schema": "thoughtseed.portfolio-root-map.v1",
-  "capturedAt": "2026-08-13T06:08:50Z",
+  "capturedAt": "2026-09-07T15:13:26Z",
   "authority": "proposal-only",
   "pathGrammar": "<projects-root>/<portfolio>/<repository>",
   "portfolios": [
@@ -311,7 +311,10 @@
           "workIds": [
             "program:meristem-brand-system"
           ],
-          "status": "awaiting-ingestion"
+          "status": "mapping-proposal",
+          "ownership": "thoughtseed",
+          "relationship": "modular-organ-of",
+          "relatedWorkId": "sapling:cambium"
         },
         {
           "folder": "monthlymealprep",
@@ -446,8 +449,15 @@
           "folder": "session-atlas",
           "proposedKind": "internal-program",
           "accountId": null,
-          "workIds": [],
-          "status": "awaiting-ingestion"
+          "workIds": [
+            "program:session-atlas"
+          ],
+          "status": "mapping-proposal",
+          "displayName": "Session Atlas",
+          "ownership": "thoughtseed",
+          "relationship": "modular-organ-of",
+          "relatedWorkId": "sapling:cambium",
+          "identityStatus": "reviewed-local-node"
         },
         {
           "folder": "skill-clusters",
@@ -862,8 +872,14 @@
           "folder": "synchronocities-blog",
           "proposedKind": "project",
           "accountId": null,
-          "workIds": [],
-          "status": "awaiting-ingestion"
+          "workIds": [
+            "program:synchronocities-blog"
+          ],
+          "status": "mapping-proposal",
+          "displayName": "Synchronocities",
+          "ownership": "partner",
+          "relationship": "personal-affiliated",
+          "identityStatus": "reviewed-local-node"
         },
         {
           "folder": "tpothp",

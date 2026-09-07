@@ -211,8 +211,8 @@ test('activity provenance binds the requested window and rejects malformed or ou
   assert.ok(unknown.gaps.includes('activity-unavailable'))
 })
 
-test('exact awaiting-ingestion roots such as session-atlas stay held without candidate bindings', () => {
-  for (const folder of ['session-atlas', 'synchronocities-blog']) {
+test('remaining awaiting-ingestion roots stay held without candidate bindings', () => {
+  for (const folder of ['somatic-canticles-book', 'somatic-canticles-webapp']) {
     const portfolio = roots.portfolios.find((entry) => entry.folders.some((row) => row.folder === folder))
     const mapped = portfolio.folders.find((row) => row.folder === folder)
     assert.equal(mapped.status, 'awaiting-ingestion')
@@ -356,14 +356,61 @@ test('committed intake snapshot renders exactly and preserves corrected portfoli
   assert.equal(decodik?.classification, 'mapped')
   assert.deepEqual(decodik?.proposal?.workIds, ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'])
   const sessionAtlas = compiled.observations.find((row) => row.repository?.fullName === 'Sheshiyer/session-atlas')
-  assert.equal(sessionAtlas?.classification, 'awaiting-ingestion')
-  assert.equal(sessionAtlas?.proposal, null)
-  assert.ok(sessionAtlas?.gaps.includes('root-map-proposal-held'))
-  for (const fullName of ['Sheshiyer/meristem', 'Sheshiyer/somatic-canticles-v3-book-trilogy', 'Sheshiyer/synchronocities-blog']) {
-    const held = compiled.observations.find((row) => row.repository?.fullName === fullName)
-    assert.equal(held.classification, 'awaiting-ingestion')
-    assert.equal(held.proposal, null)
+  assert.equal(sessionAtlas?.classification, 'mapped')
+  assert.deepEqual(sessionAtlas.proposal.workIds, ['program:session-atlas'])
+  assert.equal(sessionAtlas.proposal.identityStatus, 'reviewed-local-node')
+  for (const decision of currentSource.ownershipDecisions) {
+    const row = compiled.observations.find((entry) => entry.repository?.repositoryId === decision.repositoryId)
+    assert.equal(row.classification, 'mapped')
+    assert.deepEqual(row.proposal.workIds, [decision.workObjectId])
+    assert.equal(row.proposal.ownership, decision.ownership)
+    assert.equal(row.proposal.relationship, decision.relationship)
+    assert.equal(row.proposal.relatedWorkId, decision.relatedWorkId)
+    assert.equal(row.proposal.accountId, null)
+    assert.equal(row.proposal.evidence.kind, 'reviewed-owner-decision')
+    assert.equal(row.proposal.evidence.status, 'reviewed-local')
+    if (decision.repositoryId !== 'R_kgDOUAjRiQ') {
+      assert.equal(row.local, null)
+      assert.equal(row.proposal.folder, null)
+      assert.ok(row.gaps.includes('local-observation-unavailable'))
+    }
   }
   assert.deepEqual(currentSource.identityMappings, reviewedMappings)
   assert.equal(compiled.observations.filter((row) => row.proposal?.evidence?.kind === 'reviewed-repository-identity').length, 3)
+})
+
+
+test('owner decisions reject conflicting identity, placement, relationship, authority and extra fields', async () => {
+  const original = JSON.parse(await readFile(currentSourcePath, 'utf8'))
+  for (const mutate of [
+    (s) => { s.ownershipDecisions.push(s.ownershipDecisions[0]) },
+    (s) => { s.ownershipDecisions[0].repositoryId = 'R_OTHER' },
+    (s) => { s.observations.find((r) => r.repository?.repositoryId === 'R_kgDOS1oGpg').local = { kind: 'infrastructure', portfolioId: null, folder: null, relativePath: null } },
+    (s) => { s.ownershipDecisions[0].workObjectId = 'sapling:cambium' },
+    (s) => { s.ownershipDecisions[0].portfolioId = 'tryambakam-noesis' },
+    (s) => { s.ownershipDecisions[0].status = 'issued' },
+    (s) => { s.ownershipDecisions[0].folder = 'invented' },
+    (s) => { s.ownershipDecisions[3].ownership = 'thoughtseed' },
+    (s) => { s.ownershipDecisions[0].relatedWorkId = 'program:session-atlas' },
+  ]) {
+    const changed = structuredClone(original)
+    mutate(changed)
+    assert.throws(() => compileRepositoryIntake(changed, roots))
+  }
+  const reversed = structuredClone(original)
+  reversed.ownershipDecisions.reverse()
+  reversed.observations.reverse()
+  assert.deepEqual(compileRepositoryIntake(reversed, roots), compileRepositoryIntake(original, roots))
+})
+
+
+test('owner decisions cannot override a held exact local folder using another eligible root', async () => {
+  const input = JSON.parse(await readFile(currentSourcePath, 'utf8'))
+  const changed = structuredClone(roots)
+  const portfolio = changed.portfolios[0]
+  const folder = portfolio.folders.find((entry) => entry.folder === 'session-atlas')
+  portfolio.folders.find((entry) => entry.folder === 'meristem').workIds.push('program:session-atlas')
+  folder.status = 'awaiting-ingestion'
+  input.rootMapDigest = snapshotDigest(changed)
+  assert.throws(() => compileRepositoryIntake(input, changed), /conflicts with local root mapping/)
 })

@@ -101,10 +101,10 @@ test('review holds and linked dual work stay explicit', async () => {
   ])
   assert.deepEqual(byFolder.get('klear-karma')?.workIds, ['branch:klear-karma'])
   assert.deepEqual(byFolder.get('meristem')?.workIds, ['program:meristem-brand-system'])
-  assert.equal(byFolder.get('meristem')?.status, 'awaiting-ingestion')
-  assert.deepEqual(byFolder.get('session-atlas')?.workIds, [])
+  assert.equal(byFolder.get('meristem')?.status, 'mapping-proposal')
+  assert.deepEqual(byFolder.get('session-atlas')?.workIds, ['program:session-atlas'])
   assert.equal(byFolder.get('session-atlas')?.proposedKind, 'internal-program')
-  assert.equal(byFolder.get('session-atlas')?.status, 'awaiting-ingestion')
+  assert.equal(byFolder.get('session-atlas')?.status, 'mapping-proposal')
   assert.deepEqual(byFolder.get('kristudios')?.workIds, ['branch:kristudios'])
   assert.equal(byFolder.get('virtualtryon-3d')?.proposedKind, 'needs-review')
   assert.deepEqual(byFolder.get('virtualtryon-3d')?.workIds, [])
@@ -460,5 +460,31 @@ test('optional display and nested evidence preserve legacy snapshots and reject 
   for (const nestedRepositories of [null, [valid, valid], [{ ...valid, workIds: ['branch:decodik'] }], [{ ...valid, workIds: [] }], [{ ...valid, workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo'] }], [{ ...valid, displayName: 'bad|name' }], [{ ...valid, accountId: 'invented' }]]) {
     codigo.nestedRepositories = nestedRepositories
     assert.throws(() => validateSnapshot(snapshot), /nested repository/)
+  }
+})
+
+
+test('root JSON and Markdown preserve reviewed modular-node and partner ownership semantics', async () => {
+  const snapshot = await readSnapshot()
+  const digest = snapshotDigest(snapshot)
+  const thoughtseed = snapshot.portfolios[0]
+  const noesis = snapshot.portfolios[1]
+  const markdown = renderPortfolioMarkdown(thoughtseed, digest)
+  assert.match(markdown, /session-atlas.*program:session-atlas.*thoughtseed.*modular-organ-of.*sapling:cambium.*reviewed-local-node/)
+  assert.match(markdown, /meristem.*program:meristem-brand-system.*modular-organ-of.*sapling:cambium/)
+  assert.match(markdown, /pending canonical registry promotion/)
+  assert.match(renderPortfolioMarkdown(noesis, digest), /synchronocities-blog.*program:synchronocities-blog.*partner.*personal-affiliated/)
+  const entry = JSON.parse(renderPortfolioJson(noesis, digest)).folders.find((row: { folder: string }) => row.folder === 'synchronocities-blog')
+  assert.equal(entry.ownership, 'partner')
+  assert.equal(entry.accountId, null)
+  assert.match(renderWorkerPolicyModule(snapshot), /personal-affiliated/)
+  for (const mutate of [
+    (f: any) => { f.accountId = 'invented-client' },
+    (f: any) => { f.relationship = 'client' },
+    (f: any) => { f.relatedWorkId = 'sapling:other' },
+  ]) {
+    const changed = structuredClone(snapshot)
+    mutate(changed.portfolios[0].folders.find((row: { folder: string }) => row.folder === 'session-atlas'))
+    assert.throws(() => validateSnapshot(changed), /ownership metadata/)
   }
 })

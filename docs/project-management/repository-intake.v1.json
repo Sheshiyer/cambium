@@ -3,9 +3,9 @@
   "authority": "observation-only",
   "observedAt": "2026-09-07T00:12:26Z",
   "cutoffAt": "2026-08-07T23:49:35Z",
-  "rootMapDigest": "af47cc75f373414ab7dae230e90f3884ca850028211753c98c32bc2f07af9312",
-  "sourceDigest": "cab4fea095db2dd0af9b10acea6c9457b7dd8b5cdc76dc230d73b8a9a58340a4",
-  "observationDigest": "a54b866b85435057fb1631602dab5033338ec88677bf67b1750761e0dc4fc1dd",
+  "rootMapDigest": "52a106d39fe92ac84f6ff47362845fbcd1c5a0c7d11d9a1cd1e24729bdf678a0",
+  "sourceDigest": "58c414493ac4bf0494165f0a3b9219f8c252ba8a53365cbd76ed58da0f06cca7",
+  "observationDigest": "55026c14c4f088aecd6ab9443cc5df7e6fd5d5ce91a35ed3fd125963e8aeef5e",
   "collection": {
     "local": "complete",
     "remote": "complete"
@@ -55,11 +55,29 @@
       },
       "activityKind": "local-branch",
       "activityAt": "2026-08-09T03:19:43Z",
-      "classification": "awaiting-ingestion",
-      "proposal": null,
-      "gaps": [
-        "root-map-proposal-held"
-      ]
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "session-atlas",
+        "nestedRelativePath": null,
+        "displayName": "Session Atlas",
+        "accountId": null,
+        "workIds": [
+          "program:session-atlas"
+        ],
+        "status": "mapping-proposal",
+        "identityStatus": "reviewed-local-node",
+        "ownership": "thoughtseed",
+        "relationship": "modular-organ-of",
+        "relatedWorkId": "sapling:cambium",
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:2a0d0bc832ec2d7e149eb7ab088edf21adda31c9f97e13c5f6fef7e74e7eb62f",
+          "status": "reviewed-local"
+        }
+      },
+      "gaps": []
     },
     {
       "repository": {
@@ -98,11 +116,29 @@
       "local": null,
       "activityKind": "github-push",
       "activityAt": "2026-08-11T10:47:57Z",
-      "classification": "awaiting-ingestion",
-      "proposal": null,
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "Meristem Brand System",
+        "accountId": null,
+        "workIds": [
+          "program:meristem-brand-system"
+        ],
+        "status": "mapping-proposal",
+        "ownership": "thoughtseed",
+        "relationship": "modular-organ-of",
+        "relatedWorkId": "sapling:cambium",
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:7fc0434eb38a3a370f289b331dd024eedadb4caae07f32d1aaf226a090c0c765",
+          "status": "reviewed-local"
+        }
+      },
       "gaps": [
-        "local-observation-unavailable",
-        "root-map-proposal-unavailable"
+        "local-observation-unavailable"
       ]
     },
     {
@@ -654,11 +690,29 @@
       "local": null,
       "activityKind": "github-push",
       "activityAt": "2026-09-03T01:14:21Z",
-      "classification": "awaiting-ingestion",
-      "proposal": null,
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "Somatic Canticles",
+        "accountId": null,
+        "workIds": [
+          "branch:somatic-canticles"
+        ],
+        "status": "mapping-proposal",
+        "ownership": "tryambakam-noesis",
+        "relationship": "portfolio-member",
+        "relatedWorkId": null,
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:a9e85375b76f0d1543fcf3a3c9d3bb0c551b0b33df79e331c5bf5dbd50adf9b4",
+          "status": "reviewed-local"
+        }
+      },
       "gaps": [
-        "local-observation-unavailable",
-        "root-map-proposal-unavailable"
+        "local-observation-unavailable"
       ]
     },
     {
@@ -833,11 +887,30 @@
       "local": null,
       "activityKind": "github-push",
       "activityAt": "2026-09-06T08:11:35Z",
-      "classification": "awaiting-ingestion",
-      "proposal": null,
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "Synchronocities",
+        "accountId": null,
+        "workIds": [
+          "program:synchronocities-blog"
+        ],
+        "status": "mapping-proposal",
+        "identityStatus": "reviewed-local-node",
+        "ownership": "partner",
+        "relationship": "personal-affiliated",
+        "relatedWorkId": null,
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:fc624d9f80c5539001ec525d5d3c8c2e8c0f185b0f3b0613c3276ba6ebdb67b0",
+          "status": "reviewed-local"
+        }
+      },
       "gaps": [
-        "local-observation-unavailable",
-        "root-map-proposal-unavailable"
+        "local-observation-unavailable"
       ]
     },
     {
