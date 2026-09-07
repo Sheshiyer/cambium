@@ -1,5 +1,9 @@
 # Repository identity reconciliation verification
 
+The four ownership decisions recorded as pending below are now superseded by
+[the approved mapping and publication receipt](../260907-si2-apply-approved-cambium-organ-and-noesis-/SUMMARY.md).
+The historical three prepared-receipt mappings remain unchanged.
+
 GSD quick task: `260907-fo0`. Base: `9f85b41`. Status: local implementation
 and verification complete. Source commit: `1b287d0`; no external apply.
 

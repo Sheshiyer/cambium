@@ -73,6 +73,7 @@ Last activity: 2026-09-07 — Completed quick task 260907-7q6: added an observat
 | 260907-7pu | Reconciled Thoughtseed and Tryambakam root header publication | 2026-09-07 | 64136f3 | [260907-7pu-publish-reconciled-portfolio-headers](./quick/260907-7pu-publish-reconciled-portfolio-headers/) |
 | 260907-7q6 | Observation-only active repository intake sidecar | 2026-09-07 | 11664b6 | [260907-7q6-add-repository-intake-observation-sidecar](./quick/260907-7q6-add-repository-intake-observation-sidecar/) |
 | 260907-fo0 | Reconcile three reviewed repository identities with explicit missing-local evidence | 2026-09-07 | 1b287d0 | [260907-fo0-reconcile-observed-repository-identities](./quick/260907-fo0-reconcile-observed-repository-identities/) |
+| 260907-si2 | Apply reviewed Cambium organ and Noesis affiliations; publish four local portfolio headers with verified backup and read-back | 2026-09-07 | e93fade | [260907-si2-apply-approved-cambium-organ-and-noesis-](./quick/260907-si2-apply-approved-cambium-organ-and-noesis-/) |
 
 ## Session Continuity
 
