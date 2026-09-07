@@ -3,6 +3,7 @@ import { lstat, readFile, realpath, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { snapshotDigest, stableJson, validateSnapshot } from './generate-portfolio-root-map.mjs'
+import checkedInMappingReceipts from '../../../docs/project-management/portfolio-mapping-receipts-batch-3.v1.json' with { type: 'json' }
 
 export const INTAKE_SOURCE_SCHEMA = 'thoughtseed.repository-intake-source.v1'
 export const INTAKE_OBSERVATION_SCHEMA = 'thoughtseed.repository-intake-observations.v1'
@@ -71,9 +72,10 @@ function validateLocal(value, portfolios) {
 }
 
 /** Validate declarations only: this function performs no Git, filesystem, or network observation. */
-export function validateIntakeSource(source, rootMap) {
+export function validateIntakeSource(source, rootMap, receiptBundle = checkedInMappingReceipts) {
   validateSnapshot(rootMap)
-  closed(source, ['schema', 'observedAt', 'cutoffAt', 'rootMapDigest', 'collection', 'observations'], 'source envelope')
+  closed(source, ['schema', 'observedAt', 'cutoffAt', 'rootMapDigest', 'collection', 'observations',
+    ...(Object.hasOwn(source ?? {}, 'identityMappings') ? ['identityMappings'] : [])], 'source envelope')
   if (source.schema !== INTAKE_SOURCE_SCHEMA) throw new TypeError('Unsupported intake source schema')
   const observedAt = timestamp(source.observedAt, 'observation')
   const cutoffAt = timestamp(source.cutoffAt, 'cutoff')
@@ -124,10 +126,63 @@ export function validateIntakeSource(source, rootMap) {
       }
     }
   }
+  validateIdentityMappings(source, rootMap, receiptBundle)
   return source
 }
 
-function reconcile(row, rootMap) {
+function validateIdentityMappings(source, rootMap, receiptBundle) {
+  if (!Object.hasOwn(source, 'identityMappings')) return
+  if (!Array.isArray(source.identityMappings) || source.identityMappings.length > 2000) throw new TypeError('Invalid identity mappings')
+  const names = new Set()
+  const ids = new Set()
+  for (const mapping of source.identityMappings) {
+    closed(mapping, ['fullName', 'repositoryId', 'workObjectId', 'receiptId', 'contentDigest'], 'identity mapping')
+    validateRepository({ fullName: mapping.fullName, repositoryId: mapping.repositoryId, nodeId: null })
+    if (!mapping.repositoryId || !/^(sapling|branch|program):[A-Za-z0-9][A-Za-z0-9._-]*$/.test(mapping.workObjectId) ||
+      !/^pmr_[a-f0-9]{24}$/.test(mapping.receiptId) || !/^sha256:[a-f0-9]{64}$/.test(mapping.contentDigest)) {
+      throw new TypeError('Invalid identity mapping evidence')
+    }
+    const name = mapping.fullName.toLowerCase()
+    if (names.has(name) || ids.has(mapping.repositoryId)) throw new TypeError('Duplicate identity mapping')
+    names.add(name)
+    ids.add(mapping.repositoryId)
+    const observed = source.observations.filter((row) => row.repository?.fullName.toLowerCase() === name &&
+      row.repository.repositoryId === mapping.repositoryId && row.local === null)
+    if (observed.length !== 1 || (observed[0].repository.nodeId !== null && observed[0].repository.nodeId !== mapping.repositoryId)) {
+      throw new TypeError('Identity mapping requires matching remote observation')
+    }
+    if (receiptBundle?.schema !== 'thoughtseed.portfolio-mapping-receipt-bundle.v1' || !Array.isArray(receiptBundle.receipts)) {
+      throw new TypeError('Invalid mapping receipt bundle')
+    }
+    const receipts = receiptBundle.receipts.filter((receipt) => receipt.receiptId === mapping.receiptId)
+    if (receipts.length !== 1) throw new TypeError('Mapping receipt missing or ambiguous')
+    const receipt = receipts[0]
+    // Match the immutable receipt derivation in portfolio-mapping-receipts.ts.
+    // Prepared receipts are reviewed evidence, never proof of live issuance.
+    const { receiptKind, receiptId, contentDigest, idempotencyKey, r2Key, status, ...input } = receipt
+    const contentHash = digest(input)
+    if (receipt.schema !== 'thoughtseed.portfolio-mapping-receipt.v1' || receiptKind !== 'mapping' || status !== 'prepared' ||
+      receipt.decision !== 'map-reviewed-repository' || !receipt.founderApprovalId ||
+      receipt.founderApprovalId !== receiptBundle.founderApprovalId || receipt.batchId !== receiptBundle.batchId ||
+      receipt.portfolioId !== receiptBundle.portfolioId || receiptId !== `pmr_${contentHash.slice(0, 24)}` ||
+      contentDigest !== `sha256:${contentHash}` || contentDigest !== mapping.contentDigest ||
+      receipt.repository?.nameWithOwner.toLowerCase() !== name || receipt.repository.repositoryId !== mapping.repositoryId ||
+      receipt.workObjectId !== mapping.workObjectId || receipt.workObjectKind !== mapping.workObjectId.split(':')[0] ||
+      idempotencyKey !== `${receipt.portfolioId}:${receipt.batchId}:${mapping.workObjectId}:${mapping.repositoryId}` ||
+      r2Key !== `portfolio/${receipt.portfolioId}/workobjects/${mapping.workObjectId}/mapping/${receiptId}.json`) {
+      throw new TypeError('Mapping receipt identity or digest mismatch')
+    }
+    const folder = rootMap.portfolios.find((entry) => entry.portfolioId === receipt.portfolioId)?.folders
+      .find((entry) => entry.folder === receipt.rootMap?.folder)
+    if (receipt.rootMap?.status !== 'mapping-proposal' || !receipt.rootMap.workIds.includes(mapping.workObjectId) ||
+      !folder || folder.status !== 'mapping-proposal' || !folder.workIds.includes(mapping.workObjectId) ||
+      folder.accountId !== receipt.rootMap.accountId) {
+      throw new TypeError('Identity mapping root proposal held or changed')
+    }
+  }
+}
+
+function reconcile(row, rootMap, identityMappings, receiptBundle) {
   const local = row.local
   let proposal = null
   let classification = 'awaiting-ingestion'
@@ -154,6 +209,19 @@ function reconcile(row, rootMap) {
       }
     }
   }
+  const identityMapping = !local && row.repository && identityMappings.find((mapping) =>
+    mapping.fullName.toLowerCase() === row.repository.fullName.toLowerCase() && mapping.repositoryId === row.repository.repositoryId)
+  if (identityMapping) {
+    const receipt = receiptBundle.receipts.find((entry) => entry.receiptId === identityMapping.receiptId)
+    classification = 'mapped'
+    proposal = {
+      portfolioId: receipt.portfolioId, folder: null, nestedRelativePath: null,
+      displayName: receipt.repository.nameWithOwner.split('/')[1], accountId: receipt.rootMap.accountId,
+      workIds: [identityMapping.workObjectId], status: 'mapping-proposal',
+      evidence: { kind: 'reviewed-repository-identity', receiptId: receipt.receiptId,
+        contentDigest: receipt.contentDigest, receiptStatus: receipt.status },
+    }
+  }
   const gaps = []
   if (row.activityKind === 'unknown') gaps.push('activity-unavailable')
   if (!row.repository) gaps.push('repository-identity-unavailable')
@@ -166,10 +234,11 @@ function reconcile(row, rootMap) {
 }
 
 /** Compile a separate evidence projection; it never supplies reconciliation authority. */
-export function compileRepositoryIntake(source, rootMap) {
-  validateIntakeSource(source, rootMap)
+export function compileRepositoryIntake(source, rootMap, receiptBundle = checkedInMappingReceipts) {
+  validateIntakeSource(source, rootMap, receiptBundle)
   const normalized = { ...structuredClone(source), observations: [...source.observations].sort(compare) }
-  const observations = normalized.observations.map((row) => reconcile(row, rootMap)).sort(compare)
+  if (source.identityMappings) normalized.identityMappings = [...source.identityMappings].sort(compare)
+  const observations = normalized.observations.map((row) => reconcile(row, rootMap, normalized.identityMappings ?? [], receiptBundle)).sort(compare)
   const gaps = Object.entries(source.collection).filter(([, value]) => value !== 'complete').map(([key, value]) => `${key}-collection-${value}`)
   return {
     schema: INTAKE_OBSERVATION_SCHEMA, authority: 'observation-only', observedAt: source.observedAt, cutoffAt: source.cutoffAt,
@@ -179,8 +248,8 @@ export function compileRepositoryIntake(source, rootMap) {
   }
 }
 
-export function renderRepositoryIntake(source, rootMap) {
-  return `${JSON.stringify(compileRepositoryIntake(source, rootMap), null, 2)}\n`
+export function renderRepositoryIntake(source, rootMap, receiptBundle = checkedInMappingReceipts) {
+  return `${JSON.stringify(compileRepositoryIntake(source, rootMap, receiptBundle), null, 2)}\n`
 }
 
 function parseArgs(argv) {

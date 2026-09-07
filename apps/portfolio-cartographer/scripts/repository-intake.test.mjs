@@ -14,6 +14,10 @@ const rootPath = fileURLToPath(new URL('../../../docs/project-management/portfol
 const currentSourcePath = fileURLToPath(new URL('../../../docs/project-management/repository-intake-source.v1.json', import.meta.url))
 const currentOutputPath = fileURLToPath(new URL('../../../docs/project-management/repository-intake.v1.json', import.meta.url))
 const roots = JSON.parse(await readFile(rootPath, 'utf8'))
+const mappingReceipts = JSON.parse(await readFile(new URL('../../../docs/project-management/portfolio-mapping-receipts-batch-3.v1.json', import.meta.url), 'utf8'))
+const reviewedMappings = mappingReceipts.receipts.filter((row) => ['R_kgDOSzF56w', 'R_kgDOSwXJ7Q', 'R_kgDOSzK35A'].includes(row.repository.repositoryId))
+  .map((row) => ({ fullName: row.repository.nameWithOwner, repositoryId: row.repository.repositoryId,
+    workObjectId: row.workObjectId, receiptId: row.receiptId, contentDigest: row.contentDigest }))
 const repository = (fullName = 'Example/Website', repositoryId = 'R_WEBSITE') => ({ fullName, repositoryId, nodeId: repositoryId })
 const local = (kind = 'portfolio-root', folder = 'cambium-telegram-showcase', relativePath = null) => ({ kind, portfolioId: 'thoughtseed', folder, relativePath })
 const source = (observations = [{ repository: repository(), local: local() }]) => ({
@@ -21,6 +25,125 @@ const source = (observations = [{ repository: repository(), local: local() }]) =
   cutoffAt: '2026-08-08T00:00:00Z', rootMapDigest: snapshotDigest(roots),
   collection: { local: 'complete', remote: 'complete' },
   observations: observations.map((row) => ({ activityKind: 'unknown', activityAt: null, ...row })),
+})
+const identitySource = () => ({
+  ...source(reviewedMappings.map((mapping) => ({ repository: repository(mapping.fullName, mapping.repositoryId), local: null }))),
+  identityMappings: structuredClone(reviewedMappings),
+})
+
+test('reviewed immutable identities project only their selected existing work with receipt provenance', () => {
+  const input = identitySource()
+  const before = JSON.stringify({ input, roots, mappingReceipts })
+  const output = compileRepositoryIntake(input, roots, mappingReceipts)
+  for (const mapping of reviewedMappings) {
+    const row = output.observations.find((entry) => entry.repository.repositoryId === mapping.repositoryId)
+    assert.equal(row.classification, 'mapped')
+    assert.deepEqual(row.proposal.workIds, [mapping.workObjectId])
+    assert.equal(row.proposal.status, 'mapping-proposal')
+    assert.deepEqual(row.proposal.evidence, { kind: 'reviewed-repository-identity', receiptId: mapping.receiptId,
+      contentDigest: mapping.contentDigest, receiptStatus: 'prepared' })
+    assert.equal(row.local, null)
+    assert.equal(row.proposal.folder, null)
+    assert.equal(row.proposal.nestedRelativePath, null)
+    assert.equal(row.proposal.displayName, mapping.fullName.split('/')[1])
+    assert.ok(row.gaps.includes('local-observation-unavailable'))
+    assert.ok(!row.gaps.includes('root-map-proposal-unavailable'))
+  }
+  assert.equal(output.authority, 'observation-only')
+  assert.ok(!JSON.stringify(output).includes('panaroma-webapp'))
+  assert.equal(output.complete, false)
+  assert.equal(JSON.stringify({ input, roots, mappingReceipts }), before)
+})
+
+test('legacy remote observations gain no implicit mappings; declarations and observations sort deterministically', () => {
+  const input = identitySource()
+  const reversed = structuredClone(input)
+  reversed.identityMappings.reverse()
+  reversed.observations.reverse()
+  assert.equal(renderRepositoryIntake(input, roots), renderRepositoryIntake(reversed, roots))
+  delete reversed.identityMappings
+  assert.ok(compileRepositoryIntake(reversed, roots).observations.every((row) => row.proposal === null))
+  reversed.identityMappings = []
+  assert.ok(compileRepositoryIntake(reversed, roots).observations.every((row) => row.proposal === null))
+})
+
+test('identity declarations reject mismatched names, IDs, work, receipt pins, duplicate and injected fields', () => {
+  for (const mutate of [
+    (input) => { input.identityMappings[0].fullName = 'Other/fitcheck-landing' },
+    (input) => { input.identityMappings[0].repositoryId = 'R_OTHER' },
+    (input) => { input.identityMappings[0].repositoryId = null },
+    (input) => { input.identityMappings[0].workObjectId = 'sapling:iverif' },
+    (input) => { input.identityMappings[0].receiptId = reviewedMappings[1].receiptId },
+    (input) => { input.identityMappings[0].contentDigest = `sha256:${'0'.repeat(64)}` },
+    (input) => { input.identityMappings.push(structuredClone(input.identityMappings[0])) },
+    (input) => { input.identityMappings[0].local = local() },
+    (input) => { input.identityMappings = null },
+    (input) => { input.observations[0].repository.nodeId = 'R_OTHER' },
+    (input) => { input.observations[0].repository.repositoryId = null },
+    (input) => { input.observations.shift() },
+  ]) {
+    const input = identitySource()
+    mutate(input)
+    assert.throws(() => compileRepositoryIntake(input, roots))
+  }
+})
+
+test('matching source and observation still cannot bypass receipt repository identity binding', () => {
+  for (const field of ['fullName', 'repositoryId']) {
+    const input = identitySource()
+    input.identityMappings[0][field] = field === 'fullName' ? 'Other/fitcheck-landing' : 'R_OTHER'
+    input.observations[0].repository[field] = input.identityMappings[0][field]
+    if (field === 'repositoryId') input.observations[0].repository.nodeId = 'R_OTHER'
+    assert.throws(() => compileRepositoryIntake(input, roots), /receipt identity or digest mismatch/)
+  }
+})
+
+test('receipt lookup rejects missing, ambiguous, modified, or unreviewed checked-in evidence', () => {
+  const firstId = reviewedMappings[0].receiptId
+  for (const mutate of [
+    (bundle, receipt) => { bundle.receipts = bundle.receipts.filter((row) => row !== receipt) },
+    (bundle, receipt) => { bundle.receipts.push(structuredClone(receipt)) },
+    (_bundle, receipt) => { receipt.repository.nameWithOwner = 'Other/fitcheck-landing' },
+    (_bundle, receipt) => { receipt.workObjectId = 'sapling:iverif' },
+    (_bundle, receipt) => { receipt.lifecycle = 'modified-without-new-digest' },
+    (_bundle, receipt) => { receipt.contentDigest = `sha256:${'0'.repeat(64)}` },
+    (_bundle, receipt) => { receipt.decision = 'hold' },
+    (_bundle, receipt) => { receipt.status = 'issued' },
+    (_bundle, receipt) => { receipt.idempotencyKey = 'different' },
+    (bundle) => { bundle.founderApprovalId = 'different' },
+  ]) {
+    const bundle = structuredClone(mappingReceipts)
+    mutate(bundle, bundle.receipts.find((row) => row.receiptId === firstId))
+    assert.throws(() => compileRepositoryIntake(identitySource(), roots, bundle))
+  }
+})
+
+test('receipt identity cannot reopen held or changed roots even with refreshed source digest', () => {
+  for (const mutate of [
+    (folder) => { folder.status = 'awaiting-ingestion' },
+    (folder) => { folder.workIds = ['sapling:iverif'] },
+    (folder) => { folder.accountId = 'codigo-olimpo' },
+    (folder) => { folder.folder = 'renamed-fitcheck-root' },
+  ]) {
+    const changedRoots = structuredClone(roots)
+    mutate(changedRoots.portfolios.find((row) => row.portfolioId === 'thoughtseed').folders.find((row) => row.folder === 'fitcheck-landing'))
+    const input = identitySource()
+    input.rootMapDigest = snapshotDigest(changedRoots)
+    assert.throws(() => compileRepositoryIntake(input, changedRoots), /root proposal held or changed/)
+  }
+})
+
+test('identity declarations cannot override observed exclusions, dependencies, or local held roots', () => {
+  for (const observedLocal of [
+    { kind: 'infrastructure', portfolioId: null, folder: null, relativePath: null },
+    { kind: 'external-root', portfolioId: null, folder: null, relativePath: null },
+    local('nested-dependency', 'codigo', 'research/Dependency'),
+    local('portfolio-root', 'session-atlas'),
+  ]) {
+    const input = identitySource()
+    input.observations[0].local = observedLocal
+    assert.throws(() => compileRepositoryIntake(input, roots), /matching remote observation/)
+  }
 })
 
 test('exact root and nested tuples preserve existing proposal identity without mutation', () => {
@@ -236,4 +359,11 @@ test('committed intake snapshot renders exactly and preserves corrected portfoli
   assert.equal(sessionAtlas?.classification, 'awaiting-ingestion')
   assert.equal(sessionAtlas?.proposal, null)
   assert.ok(sessionAtlas?.gaps.includes('root-map-proposal-held'))
+  for (const fullName of ['Sheshiyer/meristem', 'Sheshiyer/somatic-canticles-v3-book-trilogy', 'Sheshiyer/synchronocities-blog']) {
+    const held = compiled.observations.find((row) => row.repository?.fullName === fullName)
+    assert.equal(held.classification, 'awaiting-ingestion')
+    assert.equal(held.proposal, null)
+  }
+  assert.deepEqual(currentSource.identityMappings, reviewedMappings)
+  assert.equal(compiled.observations.filter((row) => row.proposal?.evidence?.kind === 'reviewed-repository-identity').length, 3)
 })

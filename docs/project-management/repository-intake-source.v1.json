@@ -7,6 +7,29 @@
     "local": "complete",
     "remote": "complete"
   },
+  "identityMappings": [
+    {
+      "fullName": "Sheshiyer/fitcheck-landing",
+      "repositoryId": "R_kgDOSzF56w",
+      "workObjectId": "sapling:fitcheck",
+      "receiptId": "pmr_23d50a803ded382e2ee03af7",
+      "contentDigest": "sha256:23d50a803ded382e2ee03af79f466118efdff10dbfc2a44987952f788ee9063b"
+    },
+    {
+      "fullName": "Sheshiyer/iverif-wiki",
+      "repositoryId": "R_kgDOSwXJ7Q",
+      "workObjectId": "sapling:iverif",
+      "receiptId": "pmr_ea8abcff3022be70d1a75222",
+      "contentDigest": "sha256:ea8abcff3022be70d1a75222c9e222db14e64a12af12ab08ddc87b6e2fe2d7f0"
+    },
+    {
+      "fullName": "Sheshiyer/vantyx",
+      "repositoryId": "R_kgDOSzK35A",
+      "workObjectId": "sapling:vantyx",
+      "receiptId": "pmr_72f605f32bff2d595a9f7edb",
+      "contentDigest": "sha256:72f605f32bff2d595a9f7edb302e17c798a82970112acca0dc4e34216ccb4172"
+    }
+  ],
   "observations": [
     {
       "repository": {

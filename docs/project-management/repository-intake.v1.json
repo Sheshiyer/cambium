@@ -4,8 +4,8 @@
   "observedAt": "2026-09-07T00:12:26Z",
   "cutoffAt": "2026-08-07T23:49:35Z",
   "rootMapDigest": "af47cc75f373414ab7dae230e90f3884ca850028211753c98c32bc2f07af9312",
-  "sourceDigest": "f80b69bfe10658de4b96651236578160f1321ce0277fa88071c4650e4b98b61e",
-  "observationDigest": "c48f90ef2e4f0c80aeaf4c671b423fc1fa30642608a94e4a0585c803f78a9e9b",
+  "sourceDigest": "cab4fea095db2dd0af9b10acea6c9457b7dd8b5cdc76dc230d73b8a9a58340a4",
+  "observationDigest": "a54b866b85435057fb1631602dab5033338ec88677bf67b1750761e0dc4fc1dd",
   "collection": {
     "local": "complete",
     "remote": "complete"
@@ -190,11 +190,26 @@
       "local": null,
       "activityKind": "github-push",
       "activityAt": "2026-08-16T06:52:00Z",
-      "classification": "awaiting-ingestion",
-      "proposal": null,
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "fitcheck-landing",
+        "accountId": null,
+        "workIds": [
+          "sapling:fitcheck"
+        ],
+        "status": "mapping-proposal",
+        "evidence": {
+          "kind": "reviewed-repository-identity",
+          "receiptId": "pmr_23d50a803ded382e2ee03af7",
+          "contentDigest": "sha256:23d50a803ded382e2ee03af79f466118efdff10dbfc2a44987952f788ee9063b",
+          "receiptStatus": "prepared"
+        }
+      },
       "gaps": [
-        "local-observation-unavailable",
-        "root-map-proposal-unavailable"
+        "local-observation-unavailable"
       ]
     },
     {
@@ -206,11 +221,26 @@
       "local": null,
       "activityKind": "github-push",
       "activityAt": "2026-08-16T06:58:09Z",
-      "classification": "awaiting-ingestion",
-      "proposal": null,
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "vantyx",
+        "accountId": null,
+        "workIds": [
+          "sapling:vantyx"
+        ],
+        "status": "mapping-proposal",
+        "evidence": {
+          "kind": "reviewed-repository-identity",
+          "receiptId": "pmr_72f605f32bff2d595a9f7edb",
+          "contentDigest": "sha256:72f605f32bff2d595a9f7edb302e17c798a82970112acca0dc4e34216ccb4172",
+          "receiptStatus": "prepared"
+        }
+      },
       "gaps": [
-        "local-observation-unavailable",
-        "root-map-proposal-unavailable"
+        "local-observation-unavailable"
       ]
     },
     {
@@ -222,11 +252,26 @@
       "local": null,
       "activityKind": "github-push",
       "activityAt": "2026-08-16T07:53:57Z",
-      "classification": "awaiting-ingestion",
-      "proposal": null,
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "iverif-wiki",
+        "accountId": null,
+        "workIds": [
+          "sapling:iverif"
+        ],
+        "status": "mapping-proposal",
+        "evidence": {
+          "kind": "reviewed-repository-identity",
+          "receiptId": "pmr_ea8abcff3022be70d1a75222",
+          "contentDigest": "sha256:ea8abcff3022be70d1a75222c9e222db14e64a12af12ab08ddc87b6e2fe2d7f0",
+          "receiptStatus": "prepared"
+        }
+      },
       "gaps": [
-        "local-observation-unavailable",
-        "root-map-proposal-unavailable"
+        "local-observation-unavailable"
       ]
     },
     {
