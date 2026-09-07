@@ -95,6 +95,34 @@ The first command is a dry run. The writer fails closed on folder drift and may
 write only `PORTFOLIO.md` and `portfolio-map.v1.json` at each portfolio root; it
 does not create grouping directories or move repositories.
 
+## Repository observation intake
+
+`docs/project-management/repository-intake-source.v1.json` is a sanitized,
+time-bounded census of active owner repositories and local checkout observations.
+Its generated companion, `repository-intake.v1.json`, is explicitly
+`observation-only`: it records immutable GitHub identities when available and
+the exact root-map tuple when one exists, but it never creates or admits a
+WorkObject.
+
+```bash
+pnpm intake:check
+pnpm intake:write
+```
+
+`intake:check` validates the committed source and writes nothing. `intake:write`
+updates only the generated companion. Both commands are offline; a fresh
+authenticated GitHub or Git census must first be captured and reviewed into the
+sanitized source snapshot. The sidecar is deliberately separate from
+`REPOSITORY_INVENTORY` and `repository-evidence.ts`, so a newly observed name
+cannot change legacy `repo:*` resolution.
+
+An exact mapped observation preserves only the proposal IDs already in the root
+map. An unresolved repository remains `awaiting-ingestion`; external roots,
+infrastructure, undeclared nested checkouts, and profile repositories remain
+separate classifications with no portfolio binding. The physical
+`cambium-telegram-showcase` checkout is recorded as **Cambium Website**, while
+`codigo/research/Decodik` remains the mapped nested Codigo application.
+
 Then open `http://127.0.0.1:4176/bundle.html`. Local preview renders the complete
 UI but deliberately disables admin writes because its path is not one of the
 authenticated hosted routes.
