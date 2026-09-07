@@ -56,7 +56,7 @@ digest, and attempts to override excluded/dependency/held local observations.
 ## Preserved holds and boundaries
 
 Session Atlas, Meristem, Somatic Canticles book trilogy, and Synchronocities
-remain awaiting ingestion without proposals. Meristem's existing-program
+remain awaiting approved ownership mappings. Meristem's existing-program
 candidate is unverified. Cambium Website and the nested Codigo/Decodik app
 semantics remain unchanged. No WorkObject, root map, catalog, inventory, STATE,
 runtime, provider, service, GitHub, or deployment changes were made.
