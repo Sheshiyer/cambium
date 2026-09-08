@@ -16,7 +16,10 @@ import type {
   PortfolioAdminActionStoreLike,
 } from './portfolio-admin-actions.ts';
 import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
-import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
+import {
+  PORTFOLIO_ROOT_MAP_DIGEST,
+  REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
+} from './portfolio-root-map.generated.ts';
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_SCENES } from './page/operating-fabric/scaffold.ts';
 
@@ -29,7 +32,7 @@ const TEAM_DOMAIN = 'red-queen-4dfa.cloudflareaccess.com';
 const ACCESS_AUD = '5695e8409cd4e838eaaef4de4995541dae4f31a2773945ea67f136800977c200';
 const ACCESS_KID = 'portfolio-access-test-kid';
 const PORTFOLIO_BYTES_RE = /portfolio-workbench@v4; hosted-admin|data-bundled="portfolio-cartographer"/;
-const ROOT_DIGEST = PORTFOLIO_ROOT_MAP_DIGEST;
+const ROOT_DIGEST = REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST;
 const SOURCE_DIGEST = PORTFOLIO_CLASSIFICATION_DIGEST;
 const CATALOG_DIGEST = PORTFOLIO_CATALOG.catalogDigest;
 
@@ -278,6 +281,33 @@ test('founder receives the exact generated bundle with strict no-store and CSP h
   ));
   assert.equal(response.headers['x-content-type-options'], 'nosniff');
   assert.equal(fixture.writes(), 0);
+});
+
+test('generated browser action digest matches the server reviewed-root guard', async () => {
+  assert.notEqual(PORTFOLIO_ROOT_MAP_DIGEST, REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST);
+  assert.match(PORTFOLIO_WORKBENCH_HTML, new RegExp(REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST));
+
+  const jwt = signAccessJwt(validAccessPayload());
+  const events: string[] = [];
+  const stores = actionStores(events);
+  const fixture = deps(undefined, {
+    plexus: { teamDomain: TEAM_DOMAIN, aud: ACCESS_AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    plexusFetchImpl: plexusFetch(200, {
+      ok: true,
+      data: { email: 'founder@thoughtseed.space', role: 'admin', identityId: 'pid_founder' },
+    }),
+    portfolioActionStore: stores.store,
+    portfolioActionQueue: stores.queue,
+  });
+  const rejected = await handle(request(
+    'POST',
+    '/v1/admin/portfolio/actions',
+    { 'cf-access-jwt-assertion': jwt, 'content-type': 'application/json' },
+    { ...portfolioActionInput(), rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST },
+  ), fixture.value);
+
+  assert.equal(rejected.status, 400);
+  assert.deepEqual(events, []);
 });
 
 test('browser portfolio route serves the exact bundle for a canonical founder Cloudflare Access identity', async () => {
