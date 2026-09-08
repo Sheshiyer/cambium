@@ -174,6 +174,56 @@ test('working-root drift and unknown mapped WorkObjects block a candidate', asyn
   assert.equal(report.status, 'blocked')
 })
 
+test('reviewed local proposal identities render without becoming catalog or action authority', async () => {
+  const { buildPortfolioMiniappLinkageReport } = await loadSubject()
+  const report = buildPortfolioMiniappLinkageReport({
+    catalog,
+    branchStories,
+    rootMap: {
+      schema: 'thoughtseed.portfolio-root-map.v1',
+      portfolios: [{
+        portfolioId: 'thoughtseed',
+        folderCount: 1,
+        infrastructure: [],
+        folders: [{
+          folder: 'held-local',
+          proposedKind: 'internal-program',
+          status: 'mapping-proposal',
+          identityStatus: 'reviewed-local-node',
+          workIds: ['program:held-local'],
+        }],
+      }],
+    },
+    observedFolders: ['held-local'],
+    mirrors: { catalogData: true, catalogModule: true, rootMap: true },
+    pins: {
+      reviewedRootMapDigest: 'root-reviewed',
+      currentRootMapDigest: 'root-proposal',
+      reviewedCatalogDigest: 'sha256:local',
+      currentCatalogDigest: 'sha256:local',
+      reviewedClassificationDigest: 'classification-local',
+      currentClassificationDigest: 'classification-local',
+    },
+  })
+
+  assert.equal(report.status, 'aligned')
+  assert.deepEqual(report.filesystemAssimilation.heldProposalIdentities, [{
+    workId: 'program:held-local',
+    folders: ['held-local'],
+    admission: 'proposal-only-not-catalog-admitted',
+    executionAuthority: 'none',
+  }])
+  assert.deepEqual(report.filesystemAssimilation.unclassifiedMappedWorkIds, [])
+  assert.equal(report.catalogVisibility.workIds.includes('program:held-local'), false)
+  assert.deepEqual(report.rootMapAuthority, {
+    approvedExecutionDigest: 'root-reviewed',
+    currentProposalDigest: 'root-proposal',
+    proposalMatchesApprovedExecution: false,
+    proposalAuthority: 'render-only-census-evidence',
+    actionAuthority: 'approved-execution-foundation-only',
+  })
+})
+
 test('report preserves dated live and vault drift without leaking source paths', async () => {
   const { buildPortfolioMiniappLinkageReport } = await loadSubject()
   const vaultRegistry = Object.freeze({
@@ -230,7 +280,7 @@ test('report preserves dated live and vault drift without leaking source paths',
   assert.equal(JSON.stringify({ catalog, branchStories, vaultRegistry, liveSnapshot }), before)
 })
 
-test('missing canonical packet identity and mirror or pin drift block release without mutating sources', async () => {
+test('missing canonical packet identity and catalog drift block release while proposal drift stays visible', async () => {
   const { buildPortfolioMiniappLinkageReport } = await loadSubject()
   const report = buildPortfolioMiniappLinkageReport({
     catalog,
@@ -254,9 +304,9 @@ test('missing canonical packet identity and mirror or pin drift block release wi
   assert.deepEqual(report.releaseBlockers, [
     'catalog-data-mirror-drift',
     'portfolio-catalog-pin-drift',
-    'portfolio-root-map-pin-drift',
     'unknown-packet-work-id:sapling:missing',
   ])
+  assert.equal(report.rootMapAuthority.proposalMatchesApprovedExecution, false)
   assert.deepEqual(report.mutationsPerformed, [])
 })
 
@@ -302,7 +352,7 @@ test('repository audit composes real catalog, packet, mirror, pin, live, and off
 
   assert.equal(result.status, 0, result.stderr)
   const report = JSON.parse(result.stdout)
-  assert.equal(report.status, 'drift-observed')
+  assert.equal(report.status, 'blocked')
   assert.equal(report.catalogVisibility.recordCount, 72)
   assert.deepEqual(report.missionAdmission.canonicalPacketWorkIds, [
     'program:snow-gloves-os',
@@ -314,7 +364,17 @@ test('repository audit composes real catalog, packet, mirror, pin, live, and off
   assert.deepEqual(report.missionAdmission.templatePacketIds, [])
   assert.equal(report.observations.live.recordCount, 2)
   assert.equal(report.observations.vault.recordCount, 2)
-  assert.deepEqual(report.releaseBlockers, [])
+  assert.deepEqual(report.releaseBlockers, [
+    'unknown-root-map-work-id:branch:codigo-olimpo',
+    'unknown-root-map-work-id:branch:codigo-olimpo-creator-platform',
+    'unknown-root-map-work-id:program:thoughtseed-organ-console',
+  ])
+  assert.deepEqual(report.filesystemAssimilation.heldProposalIdentities, [{
+    workId: 'program:session-atlas',
+    folders: ['session-atlas'],
+    admission: 'proposal-only-not-catalog-admitted',
+    executionAuthority: 'none',
+  }])
   assert.doesNotMatch(result.stdout, /\/Volumes\/|\/Users\//)
   assert.deepEqual(report.mutationsPerformed, [])
 })

@@ -1,5 +1,12 @@
 # Project handoff
 
+### 2026-09-06 Cambium Website and Codigo proposal correction — local candidate
+
+- Implementation `1be492a` on `codex/cambium-portfolio-mapping-20260906` separates the Cambium Website display name from its historical folder and preserves `sapling:cambium`. Decodik is existing nested Codigo repository evidence; no WorkObject is created.
+- The source snapshot, generator, browser/worker modules, domain projection, and current proposal digest references agree. Targeted suites pass 95 tests with one existing skip; exact generation parity and invalid metadata checks pass.
+- The older reviewed foundation approval pin remains unchanged and still blocks the broader linkage audit. The GSD quick summary records the exact pre-task and current digest distinction.
+- No external root headers, enrollment, relocation, publication, runtime, vault, primary checkout, or deployment changes occurred. Phase 9 and its existing approval boundaries remain unchanged.
+
 ### 2026-08-31 Phase 8 Labs authority and profile safety — verified implementation candidate
 
 - Branch `codex/labs-consolidation-v05-20260831` starts from exact `origin/main` `5caca954be9d7b646286773be7e1dccf03cfad7c`. Its reviewed pre-checkpoint implementation head is `4753af1d87a9e37d2081913be2b3f407bcd78ce3`; commits `2aad38a`, `d8d3ae6`, and `4753af1` separate the Cloudflare guardrails, v0.5 planning spine, and Access-inventory review repair.
@@ -2446,3 +2453,7 @@ kind and branch identity registration.
 - The project manifest and untracked next-wave receipt were normalized to portable paths after the standalone audit identified machine-local path leakage. The audit, drift check, rendered-doc check, and SHA-bound deterministic safety check passed afterward.
 - The one generated architecture-hook update triggered during tag preflight was restored to its committed, source-reviewed content; no unreviewed generated architecture content enters this closeout.
 - No runtime, provider, deployment, D1/KV/R2, Telegram, credential, connected-repository, or external-system mutation is included. Git tag creation remains local-only; no tag push is authorized by this checkpoint.
+
+### 2026-09-08 Saanmai census and local headers
+
+GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current census is76Thoughtseed/38Noesis with no directory drift. Saanmai remains an observed needs-review folder with no minted WorkObject. Four local headers read back as exact reviewed bytes;109portfolio tests pass with one existing skip. See `.planning/quick/260908-lme-refresh-the-approved-portfolio-census-wi/SUMMARY.md`. Existing ownership and foundation approvals remain intact; canonical promotion and source merges remain separate.

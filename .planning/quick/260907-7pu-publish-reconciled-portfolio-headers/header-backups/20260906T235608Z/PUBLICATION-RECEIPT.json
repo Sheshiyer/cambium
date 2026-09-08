@@ -1,0 +1,41 @@
+{
+  "schema": "thoughtseed.portfolio-header-publication.v1",
+  "writtenAt": "2026-09-06T23:57:26.645Z",
+  "sourceSnapshotDigest": "af47cc75f373414ab7dae230e90f3884ca850028211753c98c32bc2f07af9312",
+  "writer": "writeRootHeaders",
+  "files": [
+    {
+      "path": "$THOUGHTSEED_ROOT/PORTFOLIO.md",
+      "backup": ".planning/quick/260907-7pu-publish-reconciled-portfolio-headers/header-backups/20260906T235608Z/thoughtseed-PORTFOLIO.md",
+      "beforeSha256": "35056ac0d0d96a2c29f45bf6508698bf36ae5b50086d69e58ca435ab8ced0b9e",
+      "afterSha256": "bdf1317585c9b225dcbf66e99841013a01d9768fb09136296d93fe47e1d199a7",
+      "changed": true
+    },
+    {
+      "path": "$THOUGHTSEED_ROOT/portfolio-map.v1.json",
+      "backup": ".planning/quick/260907-7pu-publish-reconciled-portfolio-headers/header-backups/20260906T235608Z/thoughtseed-portfolio-map.v1.json",
+      "beforeSha256": "9ec4a0b0e8f183b86ac55a992ae32f664713db586ac0b70dbaea4f925bc14f27",
+      "afterSha256": "ec31da89b9e03395a7d89773b6b104480be4afd494d5ca309c5656bca1dd1312",
+      "changed": true
+    },
+    {
+      "path": "$NOESIS_ROOT/PORTFOLIO.md",
+      "backup": ".planning/quick/260907-7pu-publish-reconciled-portfolio-headers/header-backups/20260906T235608Z/tryambakam-noesis-PORTFOLIO.md",
+      "beforeSha256": "c2ce9fa794601f1852ddfd32c6da06fca91b1aebe409aba9a13a663786facc7c",
+      "afterSha256": "ca973beeab47dafe0c25d0ec40645279f36eb38001bc8d1ffe5506903537ba17",
+      "changed": true
+    },
+    {
+      "path": "$NOESIS_ROOT/portfolio-map.v1.json",
+      "backup": ".planning/quick/260907-7pu-publish-reconciled-portfolio-headers/header-backups/20260906T235608Z/tryambakam-noesis-portfolio-map.v1.json",
+      "beforeSha256": "f83e81def00c1f9a26dc7b1d7eb14dc2667313b20b161c20bfe5670c3e957151",
+      "afterSha256": "c63f49a48c934e106479d30c4137f98c760c3fbb2361ca17f12eaeefe7017714",
+      "changed": true
+    }
+  ],
+  "verification": {
+    "sourceRendererReadback": true,
+    "thoughtseedCensus": "75/75",
+    "tryambakamNoesisCensus": "38/38"
+  }
+}

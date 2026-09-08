@@ -41,6 +41,7 @@ import {
   normalizeReviewNote,
   parsePacket,
   portfolioFolderMappingsForGroup,
+  portfolioFolderMappingsForWork,
   portfolioRoot,
   resolvePipeline,
   signalProvenance,
@@ -84,16 +85,35 @@ test('client families derive only from exact source account ids', () => {
   assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 15)
 })
 
-test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake', () => {
+test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake', async () => {
+  const snapshot = JSON.parse(await readFile(
+    new URL('../../../docs/project-management/portfolio-roots.v1.json', import.meta.url),
+    'utf8',
+  )) as { portfolios: Array<{ portfolioId: string; folderCount: number; folders: unknown[] }> }
   const thoughtseed = portfolioRoot('thoughtseed')
   const noesis = portfolioRoot('tryambakam-noesis')
 
-  assert.equal(thoughtseed.folderCount, 57)
-  assert.equal(noesis.folderCount, 30)
+  for (const root of [thoughtseed, noesis]) {
+    const source = snapshot.portfolios.find((portfolio) => portfolio.portfolioId === root.portfolioId)!
+    assert.ok(source, `${root.portfolioId} must exist in the source snapshot`)
+    assert.equal(source.folderCount, source.folders.length)
+    assert.equal(root.folderCount, source.folderCount)
+    assert.equal(root.folders.length, source.folders.length)
+  }
   assert.equal(noesis.itemLabel, 'Project')
   assert.equal(thoughtseed.folders.find((folder) => folder.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
   assert.ok(noesis.folders.every((folder) => folder.proposedKind === 'project'))
   assert.equal(noesis.folders.find((folder) => folder.folder === 'polyhymnia')?.status, 'empty-hold')
+
+  const sessionAtlas = portfolioFolderMappingsForWork('program:session-atlas')
+  assert.deepEqual(sessionAtlas.map((mapping) => ({
+    path: mapping.path,
+    identityStatus: mapping.identityStatus,
+  })), [{
+    path: 'thoughtseed/session-atlas',
+    identityStatus: 'reviewed-local-node',
+  }])
+  assert.equal(WORK_OBJECTS.some((work) => work.workId === 'program:session-atlas'), false)
 })
 
 test('Thoughtseed family headers resolve mapped folders while preserving explicit gaps', () => {
@@ -785,6 +805,7 @@ test('active Workbench is Thoughtseed-only and exposes governed project birth', 
   assert.match(source, /pending-cambium-ingestion/)
   assert.match(source, /kind: 'create-thoughtseed-project'/)
   assert.match(source, /sourceDigest: CLASSIFICATION_DIGEST/)
+  assert.equal([...source.matchAll(/rootMapDigest: REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST/g)].length, 3)
   assert.equal([...source.matchAll(/catalogDigest: PORTFOLIO_CATALOG_DIGEST/g)].length, 3)
   assert.doesNotMatch(source, /name="(?:path|destination)"/)
 })
@@ -869,4 +890,20 @@ test('planning history is mutually exclusive and state replacement safe', () => 
   assert.deepEqual(afterLaterBulk, { quick: [], bulk: bulkSnapshot })
   assert.deepEqual(discardBulkUndo(afterLaterBulk), emptyPlanningHistory())
   assert.deepEqual(emptyPlanningHistory(), { quick: [], bulk: null })
+})
+
+
+test('folder projections preserve product labels and nested Codigo evidence separately from identity', () => {
+  const cambium = portfolioFolderMappingsForWork('sapling:cambium').find(({ folder }) => folder === 'cambium-telegram-showcase')!
+  assert.equal(cambium.displayName, 'Cambium Website')
+  assert.equal(cambium.path, 'thoughtseed/cambium-telegram-showcase')
+  assert.deepEqual(cambium.workIds, ['sapling:cambium'])
+  const codigo = portfolioFolderMappingsForWork('branch:codigo-olimpo').find(({ folder }) => folder === 'codigo')!
+  assert.equal(codigo.displayName, 'Codigo')
+  assert.equal(codigo.accountId, 'codigo-olimpo')
+  assert.deepEqual(codigo.nestedRepositories, [{
+    relativePath: 'research/Decodik', displayName: 'Decodik',
+    workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'],
+  }])
+  assert.equal(portfolioFolderMappingsForWork('branch:decodik').length, 0)
 })

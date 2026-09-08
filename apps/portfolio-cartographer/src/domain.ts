@@ -8,6 +8,7 @@ import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts'
 import {
   PORTFOLIO_ROOT_MAP_DIGEST,
   PORTFOLIO_ROOTS,
+  REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
 } from './portfolio-root-map.generated.ts'
 
 export const WORKBENCH_SCHEMA = 'thoughtseed.portfolio-workbench.v4' as const
@@ -38,11 +39,19 @@ export type DerivedClassification = Classification | 'needs-review'
 export type RepositoryDisposition = 'resolved' | 'no-repository' | 'unmatched' | 'ambiguous'
 export type PortfolioId = 'thoughtseed' | 'tryambakam-noesis'
 export type PortfolioFolderKind = 'client-branch' | 'sapling' | 'internal-program' | 'needs-review' | 'project'
-export type PortfolioFolderStatus = 'mapping-proposal' | 'awaiting-ingestion' | 'empty-hold'
+export type PortfolioFolderStatus = 'mapping-proposal' | 'unmapped' | 'awaiting-ingestion' | 'empty-hold'
+export type PortfolioFolderIdentityStatus = 'reviewed-local-node'
 export type CloseoutDisposition = 'completed' | 'closed' | 'terminated'
 export type ActiveIndexDisposition = 'remove-from-active' | 'mark-finished'
 
 export interface PortfolioFolderMapping {
+  displayName?: string
+  identityStatus?: PortfolioFolderIdentityStatus
+  nestedRepositories?: readonly {
+    relativePath: string
+    displayName: string
+    workIds: readonly string[]
+  }[]
   portfolioId: PortfolioId
   portfolioLabel: string
   itemLabel: string
@@ -211,7 +220,7 @@ export interface WorkObjectGroup {
   signalSummary: Readonly<Record<PortfolioSignal, number>>
 }
 
-export { PORTFOLIO_ROOT_MAP_DIGEST, PORTFOLIO_ROOTS }
+export { PORTFOLIO_ROOT_MAP_DIGEST, PORTFOLIO_ROOTS, REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST }
 
 export function portfolioRoot(portfolioId: PortfolioId) {
   const root = PORTFOLIO_ROOTS.find((candidate) => candidate.portfolioId === portfolioId)
@@ -229,6 +238,9 @@ function toPortfolioFolderMapping(
     portfolioLabel: root.label,
     itemLabel: root.itemLabel,
     folder: folder.folder,
+    ...('displayName' in folder ? { displayName: folder.displayName } : {}),
+    ...('identityStatus' in folder ? { identityStatus: folder.identityStatus } : {}),
+    ...('nestedRepositories' in folder ? { nestedRepositories: folder.nestedRepositories } : {}),
     path: `${portfolioId}/${folder.folder}`,
     proposedKind: folder.proposedKind,
     accountId: folder.accountId,

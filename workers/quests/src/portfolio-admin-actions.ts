@@ -4,7 +4,7 @@ import {
   PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST,
 } from './portfolio-catalog.ts';
-import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
+import { REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
 export const PORTFOLIO_ADMIN_ACTION_SCHEMA = 'thoughtseed.portfolio-admin-action.v1' as const;
 export const PORTFOLIO_ADMIN_ACTION_EVIDENCE_SCHEMA = 'thoughtseed.portfolio-admin-action-evidence.v1' as const;
@@ -472,8 +472,8 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
     const rootMapDigest = digest(raw.rootMapDigest, 'rootMapDigest');
     const sourceDigest = digest(raw.sourceDigest, 'sourceDigest');
     const catalogDigest = digestRef(raw.catalogDigest, 'catalogDigest');
-    if (rootMapDigest !== PORTFOLIO_ROOT_MAP_DIGEST) {
-      throw new PortfolioAdminActionValidationError('rootMapDigest does not match the reviewed root map');
+    if (rootMapDigest !== REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST) {
+      throw new PortfolioAdminActionValidationError('rootMapDigest does not match the reviewed execution root map');
     }
     if (sourceDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
       throw new PortfolioAdminActionValidationError('sourceDigest does not match the reviewed classification source');
@@ -514,8 +514,8 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
   const rootMapDigest = digest(raw.rootMapDigest, 'rootMapDigest');
   const sourceDigest = digest(raw.sourceDigest, 'sourceDigest');
   const catalogDigest = digestRef(raw.catalogDigest, 'catalogDigest');
-  if (rootMapDigest !== PORTFOLIO_ROOT_MAP_DIGEST) {
-    throw new PortfolioAdminActionValidationError('rootMapDigest does not match the reviewed root map');
+  if (rootMapDigest !== REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST) {
+    throw new PortfolioAdminActionValidationError('rootMapDigest does not match the reviewed execution root map');
   }
   if (sourceDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
     throw new PortfolioAdminActionValidationError('sourceDigest does not match the reviewed classification source');

@@ -1,0 +1,60 @@
+{
+  "schema": "cambium.source-sanitization.v1",
+  "base": "746acf814b4ffce1a6ccef295ba1f4b0a09760b6",
+  "preservedLocalHead": "2f8458fc24f641806a5490b0e13ae75910afea6f",
+  "originalPatchSha256": "70f37e070e81a69dc56c7f0d2d71605ae2a58b3504089452badf0cc81ac83cb8",
+  "changedFiles": 39,
+  "sanitizedFiles": [
+    {
+      "file": ".planning/quick/260907-7pu-publish-reconciled-portfolio-headers/260907-7pu-PLAN.md",
+      "originalSha256": "0b363d4ebaa3881053c1addb63075e7655b48658e541ed8e34a4b917f4d01276",
+      "sanitizedSha256": "2631d7b6d87743ac8b7d12513b3dde05eb751685725dd98b4560152ac5ff9016"
+    },
+    {
+      "file": ".planning/quick/260907-7pu-publish-reconciled-portfolio-headers/260907-7pu-SUMMARY.md",
+      "originalSha256": "ff9ca5f8aaf6b9c8e3b29f37e7a71a404110c8171b2329a3a7b9a3650caba71f",
+      "sanitizedSha256": "81a91503c658b66aeb4e6145b72b5757d8381a6b558c5fd9158d98cc17f26d48"
+    },
+    {
+      "file": ".planning/quick/260907-7pu-publish-reconciled-portfolio-headers/header-backups/20260906T235608Z/PUBLICATION-RECEIPT.json",
+      "originalSha256": "a327940e2c8cfc918868ca313ea38b234f930509121a9f2498bc411be340dfc3",
+      "sanitizedSha256": "a4070612043e9fdfae633e8a069c27b747d0585dda77ba67b5958dc2e52d2577"
+    }
+  ],
+  "remainingPrivatePathLocations": [],
+  "originalPreservedPrivately": true,
+  "publicArtifacts": "sanitized derivative; portable root aliases preserve target meaning",
+  "publicHistory": "clean branch from pinned main; original history remains local",
+  "permittedDetectorLiterals": [
+    {
+      "file": "apps/portfolio-cartographer/src/github-repository-mapping-action-queue.test.ts",
+      "line": 519,
+      "reason": "test rejects a private-path prefix; no machine path value"
+    },
+    {
+      "file": "apps/portfolio-cartographer/src/github-repository-mapping-action-queue.test.ts",
+      "line": 575,
+      "reason": "test rejects a private-path prefix; no machine path value"
+    },
+    {
+      "file": "apps/portfolio-cartographer/src/github-repository-mapping-action-queue.test.ts",
+      "line": 600,
+      "reason": "test rejects a private-path prefix; no machine path value"
+    },
+    {
+      "file": "apps/portfolio-cartographer/src/github-repository-mapping-action-queue.test.ts",
+      "line": 645,
+      "reason": "test rejects a private-path prefix; no machine path value"
+    },
+    {
+      "file": "apps/portfolio-cartographer/src/github-repository-mapping-action-queue.test.ts",
+      "line": 695,
+      "reason": "test rejects a private-path prefix; no machine path value"
+    },
+    {
+      "file": "apps/portfolio-cartographer/src/portfolio-root-map.test.ts",
+      "line": 158,
+      "reason": "test rejects a private-path prefix; no machine path value"
+    }
+  ]
+}

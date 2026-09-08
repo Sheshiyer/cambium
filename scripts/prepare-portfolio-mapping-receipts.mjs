@@ -1,29 +1,17 @@
 import { createHash } from 'node:crypto'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import process from 'node:process'
 
-import { REPOSITORY_EVIDENCE_DIGEST } from '../apps/portfolio-cartographer/src/repository-evidence.generated.ts'
-import { REPOSITORY_INVENTORY } from '../apps/portfolio-cartographer/src/repository-inventory.generated.ts'
 import {
   PORTFOLIO_MAPPING_BUNDLE_SCHEMA,
   PORTFOLIO_MAPPING_RECEIPT_SCHEMA,
   canonicalMappingReceiptJson,
   preparePortfolioMappingReceipt,
 } from '../workers/quests/src/portfolio-mapping-receipts.ts'
-import {
-  PORTFOLIO_CATALOG,
-  PORTFOLIO_CLASSIFICATION_DIGEST,
-} from '../workers/quests/src/portfolio-catalog.ts'
-import { PORTFOLIO_ROOT_MAP_DIGEST } from '../workers/quests/src/portfolio-root-map.generated.ts'
+import { REVIEWED_ROOT_MAP_DIGEST } from './portfolio-foundation-pins.mjs'
+import historicalInput from './fixtures/portfolio-mapping-receipts-batch-3-input.v1.json' with { type: 'json' }
 
-const REPO_ROOT = new URL('../', import.meta.url)
-const BATCH_ID = 'github-batch-003-sapling-provenance'
-const FOUNDER_APPROVAL_ID = 'founder-direct-2026-08-09-batch3-mapping-receipts'
 const OUTPUT_PATH = new URL('../docs/project-management/portfolio-mapping-receipts-batch-3.v1.json', import.meta.url)
-
-async function json(relativePath) {
-  return JSON.parse(await readFile(new URL(relativePath, REPO_ROOT), 'utf8'))
-}
 
 function fail(message) {
   throw new Error(`Batch 3 mapping receipt preparation failed: ${message}`)
@@ -78,20 +66,37 @@ function sha256Ref(value) {
   return `sha256:${createHash('sha256').update(value, 'utf8').digest('hex')}`
 }
 
+function frozenBatch3Input() {
+  const { inputDigest, ...input } = historicalInput
+  if (input.schema !== 'thoughtseed.portfolio-mapping-receipt-input-snapshot.v1'
+    || input.purpose !== 'frozen-historical-batch-3-verification-only') {
+    fail('frozen historical input schema is invalid')
+  }
+  if (inputDigest !== sha256Ref(JSON.stringify(input))) fail('frozen historical input digest drifted')
+  const authority = input.authority
+  if (!authority || authority.rootMapDigest !== REVIEWED_ROOT_MAP_DIGEST
+    || authority.expectedReceiptCount !== 39
+    || authority.expectedBundleDigest !== 'sha256:180688749d4b12f0ae9815d69e2826a7b3d0608215f211f6d7b5fbc21e4dc001') {
+    fail('frozen historical authority is invalid')
+  }
+  if (!Array.isArray(input.repositoryInventory) || !Array.isArray(input.portfolioCatalogRecords)
+    || !input.repositoryMetadata || !input.queue || !input.rootMap) {
+    fail('frozen historical input is incomplete')
+  }
+  return input
+}
+
 export async function buildBatch3MappingReceiptBundle() {
-  const [queue, rootMap, metadata] = await Promise.all([
-    json('docs/project-management/github-repository-mapping-action-queue.v1.json'),
-    json('docs/project-management/portfolio-roots.v1.json'),
-    json('docs/evidence/2026-08-09-batch3-repository-metadata.v1.json'),
-  ])
-  const batch = queue.batches.find((entry) => entry.batchId === BATCH_ID)
+  const input = frozenBatch3Input()
+  const { authority, queue, rootMap, repositoryMetadata: metadata, repositoryInventory, portfolioCatalogRecords } = input
+  const batch = queue.batches.find((entry) => entry.batchId === authority.batchId)
   if (!batch) fail('reviewed batch is missing')
   if (batch.status !== 'founder-reviewed-provenance-split-ready-for-mapping-receipts') fail('batch is not receipt-ready')
   if (!Array.isArray(batch.founderHolds) || batch.founderHolds.length !== 0) fail('founder holds remain')
-  if (queue.currentDigests.rootMapDigest !== PORTFOLIO_ROOT_MAP_DIGEST
-    || queue.currentDigests.catalogDigest !== PORTFOLIO_CATALOG.catalogDigest
-    || queue.currentDigests.classificationDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
-    fail('queue digest pins do not match runtime authorities')
+  if (queue.currentDigests.rootMapDigest !== authority.rootMapDigest
+    || queue.currentDigests.catalogDigest !== authority.catalogDigest
+    || queue.currentDigests.classificationDigest !== authority.classificationDigest) {
+    fail('frozen queue digest pins do not match frozen authorities')
   }
 
   const assignments = collectAssignments(batch)
@@ -101,10 +106,10 @@ export async function buildBatch3MappingReceiptBundle() {
   if (repositoryNames.includes('Sheshiyer/snow-gloves-os')) fail('Snow Gloves contamination entered Batch 3')
   if (repositoryNames.includes('pineappleinnovationlabs/chakra-shine-admin')) fail('Tirak false-positive repository entered Batch 3')
 
-  const inventory = new Map(REPOSITORY_INVENTORY.map((entry) => [entry.fullName.toLowerCase(), entry]))
+  const inventory = new Map(repositoryInventory.map((entry) => [entry.fullName.toLowerCase(), entry]))
   const metadataByName = new Map(metadata.records.map((entry) => [entry.nameWithOwner.toLowerCase(), entry]))
   if (metadataByName.size !== assignments.length) fail('reviewed metadata cardinality does not match the assignment set')
-  const catalog = new Map(PORTFOLIO_CATALOG.records.map((entry) => [entry.workId, entry]))
+  const catalog = new Map(portfolioCatalogRecords.map((entry) => [entry.workId, entry]))
   const thoughtseed = rootMap.portfolios.find((entry) => entry.portfolioId === 'thoughtseed')
   if (!thoughtseed) fail('Thoughtseed root map is missing')
 
@@ -119,8 +124,8 @@ export async function buildBatch3MappingReceiptBundle() {
     receipts.push(await preparePortfolioMappingReceipt({
       schema: PORTFOLIO_MAPPING_RECEIPT_SCHEMA,
       portfolioId: 'thoughtseed',
-      batchId: BATCH_ID,
-      founderApprovalId: FOUNDER_APPROVAL_ID,
+      batchId: authority.batchId,
+      founderApprovalId: authority.founderApprovalId,
       decision: 'map-reviewed-repository',
       workObjectId: assignment.workObjectId,
       workObjectKind,
@@ -129,10 +134,10 @@ export async function buildBatch3MappingReceiptBundle() {
       repository: metadataRecord,
       rootMap: rootContext(assignment.workObjectId, thoughtseed.folders),
       lifecycle: catalogRecord.lifecycle ?? catalogRecord.portfolioStatus,
-      catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
-      classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
-      rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
-      repositoryEvidenceDigest: REPOSITORY_EVIDENCE_DIGEST,
+      catalogDigest: authority.catalogDigest,
+      classificationDigest: authority.classificationDigest,
+      rootMapDigest: authority.rootMapDigest,
+      repositoryEvidenceDigest: authority.repositoryEvidenceDigest,
     }))
   }
 
@@ -141,18 +146,18 @@ export async function buildBatch3MappingReceiptBundle() {
     preparedDate: '2026-08-09',
     status: 'prepared-not-issued',
     portfolioId: 'thoughtseed',
-    batchId: BATCH_ID,
-    founderApprovalId: FOUNDER_APPROVAL_ID,
+    batchId: authority.batchId,
+    founderApprovalId: authority.founderApprovalId,
     authority: {
       evidenceRole: 'immutable-idempotent-repository-to-workobject-mapping',
       liveApply: 'separately-approved-r2-conditional-put',
       notAuthorityFor: ['Sapling promotion', 'Goal Graph mutation', 'repository ownership', 'folder movement', 'deployment'],
     },
     digests: {
-      rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
-      classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
-      catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
-      repositoryEvidenceDigest: REPOSITORY_EVIDENCE_DIGEST,
+      rootMapDigest: authority.rootMapDigest,
+      classificationDigest: authority.classificationDigest,
+      catalogDigest: authority.catalogDigest,
+      repositoryEvidenceDigest: authority.repositoryEvidenceDigest,
     },
     summary: {
       receiptCount: receipts.length,
@@ -177,7 +182,9 @@ export async function buildBatch3MappingReceiptBundle() {
       correctionPolicy: 'immutable receipts are never edited or deleted; append a separately approved superseding receipt',
     },
   }
-  return { ...core, bundleDigest: sha256Ref(canonicalMappingReceiptJson(core)) }
+  const bundle = { ...core, bundleDigest: sha256Ref(canonicalMappingReceiptJson(core)) }
+  if (bundle.bundleDigest !== authority.expectedBundleDigest) fail('frozen historical input did not reproduce the reviewed bundle')
+  return bundle
 }
 
 async function main() {
@@ -190,9 +197,7 @@ async function main() {
     return
   }
   if (process.argv.includes('--write')) {
-    await writeFile(OUTPUT_PATH, output, 'utf8')
-    process.stdout.write(`Batch 3 mapping receipts prepared: ${bundle.summary.receiptCount} receipts, ${bundle.bundleDigest}\n`)
-    return
+    fail('historical receipt bundle is frozen; --write is not permitted')
   }
   process.stdout.write(output)
 }

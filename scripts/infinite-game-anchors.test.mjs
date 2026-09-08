@@ -263,6 +263,10 @@ const syntheticPrivacyFixtures = new Map([
     ['Bearer ', 'attacker-secret'].join(''),
     ['Bearer ', 'injected-secret'].join(''),
   ]],
+  ['scripts/portfolio-miniapp-linkage.test.mjs', [
+    ['/', 'Volumes/private/vault/00-meta/work-object-registry.v1.json'].join(''),
+    ['/', 'Users/private/live.json'].join(''),
+  ]],
   ['scripts/temperance-flow.test.mjs', [
     ['Bearer ', 'abcdefghijklmnop'].join(''),
     ['/', 'Users', '/operator/private-model'].join(''),
@@ -402,6 +406,18 @@ test('DOCS-PRIVACY: scanner rejects key material, quoted tokens, temporary paths
     ['scripts/documentation-inventory.test.mjs', fixtureAndSecret],
   ]) {
     assert.deepEqual(privacyViolations(relativePath, source), [`${relativePath}:1`]);
+  }
+});
+
+test('DOCS-PRIVACY: linkage fixtures allow only exact synthetic labels', () => {
+  const relativePath = 'scripts/portfolio-miniapp-linkage.test.mjs';
+  const fixtures = syntheticPrivacyFixtures.get(relativePath);
+  assert.equal(fixtures.length, 2);
+  for (const fixture of fixtures) {
+    assert.deepEqual(privacyViolations(relativePath, fixture), []);
+    assert.deepEqual(privacyViolations('unrelated.md', fixture), ['unrelated.md:1']);
+    const extraPath = ['/', 'Users/actual-operator/extra.json'].join('');
+    assert.deepEqual(privacyViolations(relativePath, `${fixture} ${extraPath}`), [`${relativePath}:1`]);
   }
 });
 

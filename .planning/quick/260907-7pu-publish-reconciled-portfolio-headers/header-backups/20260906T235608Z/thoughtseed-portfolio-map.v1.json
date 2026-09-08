@@ -1,0 +1,621 @@
+{
+  "schema": "thoughtseed.portfolio-root-header.v1",
+  "snapshotDigest": "d900a024b8b07c122cd7896fbc166814be78d162ccfff7f297116448799059f4",
+  "authority": "proposal-only",
+  "portfolioId": "thoughtseed",
+  "itemLabel": "WorkObject",
+  "pathGrammar": "<projects-root>/thoughtseed/<repository>",
+  "folders": [
+    {
+      "folder": "Airdronauts",
+      "proposedKind": "client-branch",
+      "accountId": "airdronauts-productions",
+      "workIds": [
+        "branch:airdronauts-panorama-viewer-delivery"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "agentfount",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:agentfount"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "archived-thoughtseedlabs-website",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:company-website"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "ashwinsheth-group",
+      "proposedKind": "client-branch",
+      "accountId": "ashwin-sheth-group",
+      "workIds": [
+        "branch:ashwinsheth-marina-one-mumbai",
+        "branch:ashwinsheth-marina-one-bangalore"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "brand-genesis",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "brandmint",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "brandmint-oracle-aleph",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "bwssb",
+      "proposedKind": "client-branch",
+      "accountId": "spaceblanket-ai",
+      "workIds": [
+        "branch:bwssb"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "cambium",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:cambium",
+        "program:cambium-operating-fabric"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "cambium-telegram-showcase",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:cambium"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "codigo",
+      "proposedKind": "client-branch",
+      "accountId": "codigo-olimpo",
+      "workIds": [
+        "branch:codigo-olimpo",
+        "branch:codigo-olimpo-creator-platform"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "coproperty",
+      "proposedKind": "client-branch",
+      "accountId": "co-property",
+      "workIds": [
+        "branch:co-property",
+        "sapling:nimbus-gate",
+        "sapling:wanderfruit"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "earthy-munchy",
+      "proposedKind": "client-branch",
+      "accountId": "yamuna-foods",
+      "workIds": [
+        "branch:earthy-munchy"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "fitcheck-landing",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:fitcheck"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "fitcheck-wiki",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:fitcheck"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "fmrl",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:fmrl"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "fmrl-reactnative",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:fmrl"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "gram-cli",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:operator-utilities"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "hdilint-backend-aleph",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:hdilint"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "hermes-aws-ts",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:temperance-hermes"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "heyzack",
+      "proposedKind": "client-branch",
+      "accountId": "heyzack",
+      "workIds": [
+        "branch:heyzack",
+        "branch:heyzack-zackai",
+        "branch:heyzack-crm",
+        "branch:heyzack-estimate",
+        "branch:heyzack-partner-portal",
+        "branch:heyzack-customer-portal",
+        "branch:heyzack-panel-app",
+        "branch:heyzack-landing",
+        "branch:heyzack-tooling",
+        "branch:heyzack-proposal",
+        "branch:heyzack-veloren-cee-ai"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "hostscale",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:hostscale"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "insightreality",
+      "proposedKind": "client-branch",
+      "accountId": "insight-realtors-legal-advisors",
+      "workIds": [
+        "branch:insight-realtors-legal-advisors"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "iverif",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:iverif"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "kacima",
+      "proposedKind": "client-branch",
+      "accountId": "kacima",
+      "workIds": [
+        "branch:kacima"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "klear-karma",
+      "proposedKind": "client-branch",
+      "accountId": "klear-karma",
+      "workIds": [
+        "branch:klear-karma"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "kristudios",
+      "proposedKind": "client-branch",
+      "accountId": "kristudios",
+      "workIds": [
+        "branch:kristudios"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "landingpage-ts-2026",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:company-website"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "meristem",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system"
+      ],
+      "status": "awaiting-ingestion"
+    },
+    {
+      "folder": "monthlymealprep",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:rasa"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "motionsites-export",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "motionsites-skills",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:meristem-brand-system",
+        "program:skill-clusters"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "newsense",
+      "proposedKind": "client-branch",
+      "accountId": "newsense",
+      "workIds": [
+        "branch:newsense"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "panaroma-webapp",
+      "proposedKind": "needs-review",
+      "accountId": null,
+      "workIds": [
+        "sapling:vantyx",
+        "branch:airdronauts-panorama-viewer-delivery"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "parkarea",
+      "proposedKind": "client-branch",
+      "accountId": "parkarea",
+      "workIds": [
+        "branch:parkarea"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "plexus-ts",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:plexus"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "plugins",
+      "proposedKind": "needs-review",
+      "accountId": null,
+      "workIds": [],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "professional-headshot-suite",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:explee-capabilities",
+        "program:skill-clusters"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "raycast-extensions",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:operator-utilities"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "reddit-cli",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:operator-utilities"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "readme-skill",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:explee-capabilities",
+        "program:operator-utilities",
+        "program:skill-clusters"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "sandboxlife",
+      "proposedKind": "client-branch",
+      "accountId": "valore-ventures",
+      "workIds": [
+        "branch:sandboxlife"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "safvr",
+      "proposedKind": "client-branch",
+      "accountId": "safvr",
+      "workIds": [
+        "branch:safvr-landing-page"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "session-atlas",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [],
+      "status": "awaiting-ingestion"
+    },
+    {
+      "folder": "skill-clusters",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:skill-clusters"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "skills",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:explee-capabilities",
+        "program:engineering-orchestration",
+        "program:skill-clusters"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "snow-gloves-os",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:snow-gloves-os"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "synchronized-universe-blog",
+      "proposedKind": "client-branch",
+      "accountId": "harshita",
+      "workIds": [
+        "branch:harsh-truths"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "team-forge-ts",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:teamforge-control-plane"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "temperance-engine-landing-page",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:temperance-hermes"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "temperance_engine",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:temperance-hermes"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "thoughtseed-brand-atlas",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:thoughtseed-brand-atlas",
+        "program:meristem-brand-system"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "thoughtseed-hermes",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:temperance-hermes"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "thoughtseed-organ-console",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:thoughtseed-organ-console"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "thoughtseedlabs-website",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:company-website"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "thoughtseedos-website",
+      "proposedKind": "internal-program",
+      "accountId": null,
+      "workIds": [
+        "program:company-website"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "tirak",
+      "proposedKind": "client-branch",
+      "accountId": "tirak",
+      "workIds": [
+        "branch:tirak"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "valmark",
+      "proposedKind": "client-branch",
+      "accountId": "valmark",
+      "workIds": [
+        "branch:valmark"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "vibrasonix",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:vibrasonix"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "virtualtryon-3d",
+      "proposedKind": "needs-review",
+      "accountId": null,
+      "workIds": [],
+      "status": "empty-hold"
+    },
+    {
+      "folder": "whspr",
+      "proposedKind": "sapling",
+      "accountId": null,
+      "workIds": [
+        "sapling:whspr"
+      ],
+      "status": "mapping-proposal"
+    },
+    {
+      "folder": "wtfmedia",
+      "proposedKind": "client-branch",
+      "accountId": "wtf-podcast",
+      "workIds": [
+        "branch:wtfmedia"
+      ],
+      "status": "mapping-proposal"
+    }
+  ],
+  "infrastructure": [
+    "_physical-relocation-archive-2026-08-08",
+    "openfang",
+    "scroll-world",
+    "thoughtseed-labs",
+    "website",
+    ".codex-data",
+    ".grok-worktrees",
+    ".superpowers",
+    ".superset-worktrees",
+    "cambium-showcase-ui-rebuild",
+    "omniroute-governed",
+    "temperance_engine-phase-01"
+  ],
+  "infrastructureWorkMappings": [
+    {
+      "folder": "thoughtseed-labs",
+      "workIds": [
+        "program:thoughtseed-vault"
+      ]
+    }
+  ],
+  "archiveContainer": null,
+  "archivedProjects": [],
+  "missingClientAccounts": [
+    "axdis-group",
+    "brightme",
+    "dorix",
+    "instal",
+    "mathis",
+    "pongotrasteros",
+    "symphonics",
+    "thaleos",
+    "wattconnect",
+    "wegrid"
+  ]
+}

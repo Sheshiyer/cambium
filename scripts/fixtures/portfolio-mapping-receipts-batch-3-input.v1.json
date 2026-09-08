@@ -1,0 +1,5800 @@
+{
+  "schema": "thoughtseed.portfolio-mapping-receipt-input-snapshot.v1",
+  "purpose": "frozen-historical-batch-3-verification-only",
+  "sourceRevisions": {
+    "foundation": "71eba373f366f5623da16b9a03e2a6580883f82d",
+    "receiptMaterialization": "cc549631f48bfae8dd44e6a348c0e426fa3e223a"
+  },
+  "sourceBlobs": {
+    "queue": {
+      "path": "docs/project-management/github-repository-mapping-action-queue.v1.json",
+      "revision": "71eba373f366f5623da16b9a03e2a6580883f82d",
+      "blob": "45435fd987671a32dd49e52cb25a94cd6c02ddaf"
+    },
+    "rootMap": {
+      "path": "docs/project-management/portfolio-roots.v1.json",
+      "revision": "71eba373f366f5623da16b9a03e2a6580883f82d",
+      "blob": "3c50ce6e09e4053819db6b573e6024761bce524b"
+    },
+    "repositoryMetadata": {
+      "path": "docs/evidence/2026-08-09-batch3-repository-metadata.v1.json",
+      "revision": "cc549631f48bfae8dd44e6a348c0e426fa3e223a",
+      "blob": "d0d56f8a764c7d4ae1ab331e60e27acefcc1f330"
+    },
+    "repositoryInventory": {
+      "path": "apps/portfolio-cartographer/src/repository-inventory.generated.ts",
+      "revision": "71eba373f366f5623da16b9a03e2a6580883f82d",
+      "blob": "c69506a6cd61576f903e7ff3720c48cbdeab66b1"
+    },
+    "catalogData": {
+      "path": "workers/quests/src/portfolio-catalog-data.ts",
+      "revision": "71eba373f366f5623da16b9a03e2a6580883f82d",
+      "blob": "cbd45cc3dc525bc28d11a3ab0319bd9ec26e8bdb"
+    },
+    "catalogModule": {
+      "path": "workers/quests/src/portfolio-catalog.ts",
+      "revision": "71eba373f366f5623da16b9a03e2a6580883f82d",
+      "blob": "cc53c29da9c7da0a56eef0b81b3deb24b6bcc760"
+    },
+    "repositoryEvidence": {
+      "path": "apps/portfolio-cartographer/src/repository-evidence.generated.ts",
+      "revision": "71eba373f366f5623da16b9a03e2a6580883f82d",
+      "blob": "b10b16da0aff5277952d57b6d52834a7643cf48c"
+    }
+  },
+  "authority": {
+    "batchId": "github-batch-003-sapling-provenance",
+    "founderApprovalId": "founder-direct-2026-08-09-batch3-mapping-receipts",
+    "rootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351",
+    "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+    "repositoryEvidenceDigest": "1d1e08adb8a7ff922a512e52d5042c62caf44ba79daa295b01453ba56ae33d99",
+    "expectedBundleDigest": "sha256:180688749d4b12f0ae9815d69e2826a7b3d0608215f211f6d7b5fbc21e4dc001",
+    "expectedReceiptCount": 39
+  },
+  "queue": {
+    "schema": "thoughtseed.github-repository-mapping-action-queue.v1",
+    "capturedDate": "2026-08-08",
+    "status": "founder-review-execution-queue",
+    "portfolioId": "thoughtseed",
+    "sourceAudit": "docs/evidence/2026-08-08-github-repository-mapping-audit.v1.json",
+    "dispatchReceipt": "docs/evidence/2026-08-08-temperance-github-mapping-dispatch.md",
+    "guardrails": {
+      "saplingRule": "only Thoughtseed-originated ventures may become Saplings",
+      "clientBranchRule": "client-originated repositories remain Client Branch even when new",
+      "r2Role": "immutable-idempotent-evidence-and-durability-only",
+      "noMutationWithoutFounderApproval": true,
+      "noCompleteInventoryDump": true
+    },
+    "railResult": {
+      "requestedSkill": "temperance-parallel-dispatch",
+      "externalRailAccepted": false,
+      "externalRailFailure": "temperance-batch printed dispatch-tasklist.sh not found; external combo rail unavailable in this session",
+      "fallbackRail": "in-session-subagents",
+      "fallbackTasks": [
+        "batch_thoughtseed_org_history",
+        "batch_client_branch_clusters",
+        "batch_sapling_provenance",
+        "batch_internal_programs_vault",
+        "batch_root_map_closeout_exclusion",
+        "folder_rename_readiness_audit"
+      ],
+      "solFamilyUsed": false
+    },
+    "folderRenameReadiness": {
+      "status": "phase-1-and-phase-2-applied-phase-3-held",
+      "readinessDocument": "docs/project-management/thoughtseed-folder-rename-readiness.v1.json",
+      "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
+      "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+      "boundary": "active WorkObject folders live directly under $PROJECTS_ROOT/thoughtseed/<folder>; thoughtseed-labs remains R2/vault infrastructure context, never a WorkObject folder",
+      "nextPhysicalPass": "Cambium and Temperance physical lanes are applied; Symphonics remains held with no authorized physical pass"
+    },
+    "currentDigests": {
+      "rootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351",
+      "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+      "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309"
+    },
+    "globalBlocks": [],
+    "resolvedFounderDecisions": [
+      {
+        "decisionId": "retire-virtualtryon-3d-2026-08-08",
+        "folder": "virtualtryon-3d",
+        "previousWorkId": "sapling:virtualtryon",
+        "candidateRepository": "Sheshiyer/virtualtryon",
+        "decision": "retired-ignore",
+        "rootMapState": "needs-review-empty-hold-without-workIds",
+        "reason": "founder instructed Cambium to ignore and retire virtualtryon-3d instead of creating or repairing a missing Sapling",
+        "safeNextAction": "do not create a WorkObject or active repository/R2 mapping receipt unless a future founder-gated branch explicitly reopens this surface"
+      }
+    ],
+    "batches": [
+      {
+        "batchId": "github-batch-001-thoughtseed-org-history",
+        "status": "founder-reviewed-ready-for-mapping-receipts",
+        "summary": {
+          "reposReviewed": 20,
+          "nonForks": 16,
+          "forks": 4,
+          "historicalProductOrResearch": 11,
+          "saplingEvidence": 2,
+          "externalForkReference": 3,
+          "archiveOnly": 4,
+          "needsReview": 0
+        },
+        "defaults": {
+          "receiptKind": "mapping",
+          "rootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351",
+          "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+          "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+          "founderDecisionStatus": "founder-reviewed",
+          "evidencePrefixTemplate": "portfolio/thoughtseed/workobjects/<targetWorkId>/mapping/"
+        },
+        "rows": [
+          {
+            "repository": "thoughtseed-labs/Breathspectrum",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NDQ0MjU=",
+            "databaseId": 301444425,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2020-10-05T14:53:42Z",
+            "classification": "historical-product-or-research",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseed-labs/DeepAR-Unity",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NDMxODE=",
+            "databaseId": 301443181,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2020-10-05T14:49:44Z",
+            "classification": "historical-product-or-research",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseed-labs/DezinerAI",
+            "repositoryId": "R_kgDOQZDb3Q",
+            "databaseId": 1100012509,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2025-12-04T06:48:17Z",
+            "classification": "historical-product-or-research",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived",
+            "founderResolution": {
+              "resolvedAt": "2026-08-08",
+              "instruction": "mark completed/not-found and archive out of active Projects",
+              "disposition": "archive-vault-evidence",
+              "githubRepositoryFound": true,
+              "githubRepositoryArchived": false,
+              "localProjectFolderFound": false,
+              "nextQueueRowAtResolution": "thoughtseed-labs/lockwell-portal",
+              "nextQueueRowCurrentStatus": "founder-resolved-new-sapling"
+            }
+          },
+          {
+            "repository": "thoughtseed-labs/faceananlysisbeta",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkyNjU5NjczMjc=",
+            "databaseId": 265967327,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2020-10-05T15:00:14Z",
+            "classification": "historical-product-or-research",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseed-labs/JetScan",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDY2MDkwNjE=",
+            "databaseId": 306609061,
+            "visibility": "PUBLIC",
+            "isFork": true,
+            "parentNameWithOwner": "devshank3/JetScan",
+            "pushedAt": "2020-10-07T16:38:50Z",
+            "classification": "external-fork-reference",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "reference-only"
+          },
+          {
+            "repository": "thoughtseed-labs/lockwell-portal",
+            "repositoryId": "R_kgDOP5AZyQ",
+            "databaseId": 1066408393,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2025-09-29T12:52:14Z",
+            "classification": "sapling",
+            "targetWorkId": "sapling:dlock",
+            "targetWorkIdStatus": "founder-resolved-new-sapling",
+            "lifecycle": "proof-only",
+            "founderResolution": {
+              "resolvedAt": "2026-08-08",
+              "instruction": "DLOCK is the new Sapling; map resources like Fitcheck and IVerif",
+              "disposition": "new-sapling-resource-map",
+              "productName": "DLOCK",
+              "liveUrl": "https://dlock-lp.vercel.app/",
+              "githubRepositoryFound": true,
+              "githubRepositoryArchived": false,
+              "localProjectFolderFound": false,
+              "rootMapState": "no-shallow-folder-row-yet",
+              "resourceFamilies": [
+                "landing-page",
+                "hardware-gallery:EKPL2",
+                "hardware-gallery:EKKB2-TY",
+                "hardware-gallery:SMKB2-BT",
+                "self-storage-imagery",
+                "TUYA-and-Bluetooth-access-foundation"
+              ],
+              "productBranchPacket": "docs/plans/product-branches/dlock.md"
+            }
+          },
+          {
+            "repository": "thoughtseed-labs/material_dump",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkyNjU5Njg0MzY=",
+            "databaseId": 265968436,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2020-05-21T22:54:49Z",
+            "classification": "archive-only",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseed-labs/museVR",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzODQyMDI3NTA=",
+            "databaseId": 384202750,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2021-07-08T17:34:38Z",
+            "classification": "historical-product-or-research",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseed-labs/Sense.Play",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzMzI4NjQ3MTk=",
+            "databaseId": 332864719,
+            "visibility": "PUBLIC",
+            "isFork": false,
+            "pushedAt": "2021-03-09T21:01:57Z",
+            "classification": "historical-product",
+            "targetWorkId": "historical-product:senseplay",
+            "targetWorkIdStatus": "existing",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseed-labs/TrueRNG-CMOS-Noise",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NTI5ODI=",
+            "databaseId": 301452982,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2020-10-05T15:21:47Z",
+            "classification": "historical-product-or-research",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseed-labs/Unity-Biosensors",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NDM4MzI=",
+            "databaseId": 301443832,
+            "visibility": "PRIVATE",
+            "isFork": false,
+            "pushedAt": "2020-10-05T14:51:50Z",
+            "classification": "historical-product-or-research",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseedlabs/AR-Video-Player",
+            "repositoryId": "R_kgDOGw898w",
+            "databaseId": 453983731,
+            "visibility": "PUBLIC",
+            "isFork": true,
+            "parentNameWithOwner": "psychon7/AR-Video-Player",
+            "pushedAt": "2022-01-31T11:43:20Z",
+            "classification": "external-fork-reference",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "reference-only"
+          },
+          {
+            "repository": "thoughtseedlabs/asm_test",
+            "repositoryId": "R_kgDOGGUNZA",
+            "databaseId": 409275748,
+            "visibility": "PUBLIC",
+            "isFork": false,
+            "pushedAt": "2021-09-22T16:21:49Z",
+            "classification": "archive-only",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseedlabs/didactic-octo-carnival",
+            "repositoryId": "R_kgDOGJyfZg",
+            "databaseId": 412917606,
+            "visibility": "PUBLIC",
+            "isFork": false,
+            "pushedAt": "2021-10-02T21:41:49Z",
+            "classification": "archive-only",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseedlabs/metaplex",
+            "repositoryId": "R_kgDOGKw-tg",
+            "databaseId": 413941430,
+            "visibility": "PUBLIC",
+            "isFork": true,
+            "parentNameWithOwner": "metaplex-foundation/metaplex",
+            "pushedAt": "2021-10-12T06:15:59Z",
+            "classification": "external-fork-reference",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "reference-only"
+          },
+          {
+            "repository": "thoughtseedlabs/Senselpay_Firmware",
+            "repositoryId": "MDEwOlJlcG9zaXRvcnkzOTI1OTk4ODc=",
+            "databaseId": 392599887,
+            "visibility": "PUBLIC",
+            "isFork": false,
+            "pushedAt": "2021-12-16T11:14:13Z",
+            "classification": "historical-product",
+            "targetWorkId": "historical-product:senseplay",
+            "targetWorkIdStatus": "existing",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseedlabs/senseplay_dashboard_v0.01",
+            "repositoryId": "R_kgDOGM0cYw",
+            "databaseId": 416095331,
+            "visibility": "PUBLIC",
+            "isFork": false,
+            "pushedAt": "2021-10-11T21:41:15Z",
+            "classification": "historical-product",
+            "targetWorkId": "historical-product:senseplay",
+            "targetWorkIdStatus": "existing",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseedlabs/solana-metaverse-test",
+            "repositoryId": "R_kgDOGGs7hA",
+            "databaseId": 409680772,
+            "visibility": "PUBLIC",
+            "isFork": false,
+            "pushedAt": "2021-09-24T17:31:00Z",
+            "classification": "archive-only",
+            "targetWorkId": "program:thoughtseed-vault",
+            "targetWorkIdStatus": "evidence-sink",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseedlabs/tomBTfirmware",
+            "repositoryId": "R_kgDOG5mKJg",
+            "databaseId": 463047206,
+            "visibility": "PUBLIC",
+            "isFork": false,
+            "pushedAt": "2022-02-24T07:17:26Z",
+            "classification": "historical-product",
+            "targetWorkId": "historical-product:senseplay",
+            "targetWorkIdStatus": "existing",
+            "lifecycle": "archived"
+          },
+          {
+            "repository": "thoughtseedlabs/Vibrasonix-Website",
+            "repositoryId": "R_kgDOIF5etA",
+            "databaseId": 543055540,
+            "visibility": "PUBLIC",
+            "isFork": true,
+            "parentNameWithOwner": "vibrasonix/Vibrasonix-Website",
+            "pushedAt": "2022-09-29T10:19:58Z",
+            "classification": "sapling-evidence",
+            "targetWorkId": "sapling:vibrasonix",
+            "targetWorkIdStatus": "existing",
+            "lifecycle": "evidence-only"
+          }
+        ]
+      },
+      {
+        "batchId": "github-batch-002-client-branch-clusters",
+        "status": "evidence-reviewed-ready-for-founder-receipt-approval-with-explicit-holds",
+        "summary": {
+          "clientFamiliesReviewed": 10,
+          "catalogClientBranchTargets": 17,
+          "catalogClientBranchTargetsWithRepositoryAssignments": 16,
+          "candidateRowsGrouped": 61,
+          "holdOrExcludeRows": 6,
+          "receiptEligibleRows": 55,
+          "blockedReceiptRows": 12,
+          "unavailableImmutableIdentityRows": 7,
+          "rootMapBlockedRows": 1,
+          "saplingPromotionsRecommended": 0
+        },
+        "clusters": [
+          {
+            "clientFamily": "heyzack",
+            "workIds": [
+              "branch:heyzack",
+              "branch:heyzack-estimate",
+              "branch:heyzack-proposal",
+              "branch:heyzack-tooling",
+              "branch:heyzack-partner-portal",
+              "branch:heyzack-panel-app",
+              "branch:heyzack-crm"
+            ],
+            "lifecycleSuggestion": "executing",
+            "candidateRepos": [
+              "HeyZack-Domotique/estimate-web",
+              "HeyZack-Domotique/heyzack-vinci-proposal",
+              "Heyzack-ai/Heyzack-Email-Templates",
+              "Heyzack-ai/PartnerCRMPortal-docs",
+              "Heyzack-ai/tuya-react-native",
+              "Sheshiyer/brochure-py-heyzack",
+              "Sheshiyer/email-engine-heyzack",
+              "Sheshiyer/heyzack-builder-pitch-experience",
+              "Sheshiyer/heyzack-dashboard",
+              "Sheshiyer/heyzack-design-token-system",
+              "Sheshiyer/heyzack-launchboom-wiki-v0.2",
+              "Sheshiyer/heyzack-miniapp-design-systems",
+              "Sheshiyer/products-list-heyzack-gen"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:heyzack",
+                "repositoryRefs": [
+                  "Heyzack-ai/Heyzack-Email-Templates",
+                  "Sheshiyer/heyzack-dashboard",
+                  "Sheshiyer/heyzack-launchboom-wiki-v0.2"
+                ]
+              },
+              {
+                "workId": "branch:heyzack-crm",
+                "repositoryRefs": [
+                  "Heyzack-ai/PartnerCRMPortal-docs/apps/partner-docs/content/crm"
+                ]
+              },
+              {
+                "workId": "branch:heyzack-estimate",
+                "repositoryRefs": [
+                  "HeyZack-Domotique/estimate-web"
+                ]
+              },
+              {
+                "workId": "branch:heyzack-partner-portal",
+                "repositoryRefs": [
+                  "Heyzack-ai/PartnerCRMPortal-docs/apps/partner-docs/content/partner"
+                ]
+              },
+              {
+                "workId": "branch:heyzack-tooling",
+                "repositoryRefs": [
+                  "Heyzack-ai/tuya-react-native",
+                  "Sheshiyer/brochure-py-heyzack",
+                  "Sheshiyer/email-engine-heyzack",
+                  "Sheshiyer/heyzack-design-token-system",
+                  "Sheshiyer/heyzack-miniapp-design-systems",
+                  "Sheshiyer/products-list-heyzack-gen"
+                ]
+              },
+              {
+                "workId": "branch:heyzack-proposal",
+                "repositoryRefs": [
+                  "HeyZack-Domotique/heyzack-vinci-proposal",
+                  "Sheshiyer/heyzack-builder-pitch-experience"
+                ]
+              }
+            ],
+            "holdRepos": [
+              "Heyzack-ai/tuya-mcp-sdk",
+              "Heyzack-ai/xiaozhi-esp32-server"
+            ],
+            "holdReasons": [
+              "Both hold repositories are upstream forks and remain external reference evidence rather than HeyZack-owned Client Branch receipt targets."
+            ]
+          },
+          {
+            "clientFamily": "tirak",
+            "workIds": [
+              "branch:tirak"
+            ],
+            "lifecycleSuggestion": "executing",
+            "candidateRepos": [
+              "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+              "pineappleinnovationlabs/tirak-admin-command-center",
+              "pineappleinnovationlabs/tirak-dream-journeys",
+              "pineappleinnovationlabs/tirak-website-v1",
+              "Sheshiyer/tirak-backend-alpha01",
+              "Sheshiyer/tirak-mobile-app-v2",
+              "Sheshiyer/tirak-website-v1",
+              "Sheshiyer/tirakplus",
+              "Sheshiyer/tirakplus0admin",
+              "Sheshiyer/wikiv2-tirakapp"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:tirak",
+                "repositoryRefs": [
+                  "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+                  "pineappleinnovationlabs/tirak-admin-command-center",
+                  "pineappleinnovationlabs/tirak-dream-journeys",
+                  "pineappleinnovationlabs/tirak-website-v1",
+                  "Sheshiyer/tirak-backend-alpha01",
+                  "Sheshiyer/tirak-mobile-app-v2",
+                  "Sheshiyer/tirak-website-v1",
+                  "Sheshiyer/tirakplus",
+                  "Sheshiyer/tirakplus0admin",
+                  "Sheshiyer/wikiv2-tirakapp"
+                ]
+              }
+            ],
+            "holdRepos": [
+              "pineappleinnovationlabs/chakra-shine-admin"
+            ],
+            "holdReasons": [
+              "chakra-shine-admin is a repository-name false positive and is excluded from Tirak receipts."
+            ]
+          },
+          {
+            "clientFamily": "valore-ventures",
+            "workIds": [
+              "branch:sandboxlife"
+            ],
+            "lifecycleSuggestion": "approved-paused",
+            "candidateRepos": [
+              "Valoreventures/diverse_vitality",
+              "Valoreventures/journal_icons",
+              "Valoreventures/landing-page-v0.1",
+              "Valoreventures/sandbox-beta",
+              "Valoreventures/sandboxlife-alpha",
+              "Valoreventures/sandboxlife-api",
+              "Valoreventures/sblchat",
+              "Valoreventures/website_videos",
+              "Sheshiyer/sandboxlife-v2"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:sandboxlife",
+                "repositoryRefs": [
+                  "Valoreventures/diverse_vitality",
+                  "Valoreventures/journal_icons",
+                  "Valoreventures/landing-page-v0.1",
+                  "Valoreventures/sandbox-beta",
+                  "Valoreventures/sandboxlife-alpha",
+                  "Valoreventures/sandboxlife-api",
+                  "Valoreventures/sblchat",
+                  "Valoreventures/website_videos",
+                  "Sheshiyer/sandboxlife-v2"
+                ]
+              }
+            ]
+          },
+          {
+            "clientFamily": "co-property",
+            "workIds": [
+              "branch:co-property"
+            ],
+            "lifecycleSuggestion": "executing",
+            "candidateRepos": [
+              "Coproperty/dashboard-0.1",
+              "Coproperty/sheets-sync",
+              "Coproperty/wiki",
+              "Sheshiyer/copropertyspace",
+              "Sheshiyer/dashboard-0.1-coproperty",
+              "Sheshiyer/v0-co-property",
+              "Sheshiyer/v0-coproperty-checklist",
+              "Sheshiyer/v0-coproperty-edu",
+              "Sheshiyer/wiki-coproperty",
+              "Sheshiyer/wiki-coproperty-v1"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:co-property",
+                "repositoryRefs": [
+                  "Sheshiyer/copropertyspace",
+                  "Sheshiyer/dashboard-0.1-coproperty",
+                  "Sheshiyer/v0-co-property",
+                  "Sheshiyer/v0-coproperty-checklist",
+                  "Sheshiyer/v0-coproperty-edu",
+                  "Sheshiyer/wiki-coproperty",
+                  "Sheshiyer/wiki-coproperty-v1"
+                ]
+              }
+            ],
+            "unavailableCandidateRepos": [
+              "Coproperty/dashboard-0.1",
+              "Coproperty/sheets-sync",
+              "Coproperty/wiki"
+            ],
+            "holdRepos": [
+              "Coproperty/nimbus-gate",
+              "Coproperty/wanderfruit-docs"
+            ],
+            "holdReasons": [
+              "The three Coproperty organization candidates and both product-side hold repositories lack retrievable immutable GitHub IDs under the current authenticated account.",
+              "nimbus-gate and wanderfruit-docs belong to sapling:nimbus-gate and sapling:wanderfruit provenance, not branch:co-property receipt targets."
+            ]
+          },
+          {
+            "clientFamily": "newsense",
+            "workIds": [
+              "branch:newsense"
+            ],
+            "lifecycleSuggestion": "executing",
+            "candidateRepos": [
+              "Sheshiyer/newsense",
+              "Sheshiyer/newsense-launch",
+              "Sheshiyer/newsense-spatial"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:newsense",
+                "repositoryRefs": [
+                  "Sheshiyer/newsense",
+                  "Sheshiyer/newsense-launch",
+                  "Sheshiyer/newsense-spatial"
+                ]
+              }
+            ]
+          },
+          {
+            "clientFamily": "kacima",
+            "workIds": [
+              "branch:kacima"
+            ],
+            "lifecycleSuggestion": "executing",
+            "candidateRepos": [
+              "Sheshiyer/kacima-new"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:kacima",
+                "repositoryRefs": [
+                  "Sheshiyer/kacima-new"
+                ]
+              }
+            ]
+          },
+          {
+            "clientFamily": "valmark",
+            "workIds": [
+              "branch:valmark"
+            ],
+            "lifecycleSuggestion": "proposed",
+            "candidateRepos": [
+              "Sheshiyer/Akshara-coauthor",
+              "Sheshiyer/ratandevelopers-property-coauthor",
+              "Sheshiyer/valmark-cocreate"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:valmark",
+                "repositoryRefs": [
+                  "Sheshiyer/Akshara-coauthor",
+                  "Sheshiyer/ratandevelopers-property-coauthor",
+                  "Sheshiyer/valmark-cocreate"
+                ]
+              }
+            ]
+          },
+          {
+            "clientFamily": "earthy-munchy",
+            "workIds": [
+              "branch:earthy-munchy"
+            ],
+            "lifecycleSuggestion": "proposed",
+            "candidateRepos": [
+              "Sheshiyer/coming-soon-earthymunchy",
+              "Sheshiyer/earthy-munchy-beta-launch",
+              "Sheshiyer/earthymunchy-alpha"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:earthy-munchy",
+                "repositoryRefs": [
+                  "Sheshiyer/coming-soon-earthymunchy",
+                  "Sheshiyer/earthy-munchy-beta-launch",
+                  "Sheshiyer/earthymunchy-alpha"
+                ]
+              }
+            ]
+          },
+          {
+            "clientFamily": "symphonics",
+            "workIds": [
+              "branch:symphonics"
+            ],
+            "lifecycleSuggestion": "executing",
+            "candidateRepos": [
+              "Sheshiyer/workforce-automation-app-symphonics"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:symphonics",
+                "repositoryRefs": [
+                  "Sheshiyer/workforce-automation-app-symphonics"
+                ],
+                "receiptStatus": "blocked-missing-shallow-folder"
+              }
+            ],
+            "requiresRootMapRepair": true,
+            "rootMapRepairStatus": "blocked-missing-shallow-folder"
+          },
+          {
+            "clientFamily": "ashwin-sheth-group",
+            "workIds": [
+              "branch:ashwinsheth-marina-one-mumbai",
+              "branch:ashwinsheth-marina-one-bangalore"
+            ],
+            "lifecycleSuggestion": "executing",
+            "candidateRepos": [
+              "ashwinsheth-group/panaroma-v2",
+              "ashwinsheth-group/marina-one-KA",
+              "Sheshiyer/panorama-viewer-marina-one",
+              "Sheshiyer/marina1-k",
+              "Sheshiyer/marina-one-v2-preview",
+              "Sheshiyer/panorama-viewer-marina-beta",
+              "Sheshiyer/skyline-viewer-ashwin-sheth-group",
+              "Raheman-08/panorama-viewer-marina"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:ashwinsheth-marina-one-mumbai",
+                "repositoryRefs": [
+                  "Sheshiyer/panorama-viewer-marina-one",
+                  "Sheshiyer/marina-one-v2-preview",
+                  "Sheshiyer/panorama-viewer-marina-beta",
+                  "Raheman-08/panorama-viewer-marina"
+                ],
+                "evidence": "44th through 75th floor configuration and explicit Mumbai skyline copy"
+              },
+              {
+                "workId": "branch:ashwinsheth-marina-one-bangalore",
+                "repositoryRefs": [
+                  "Sheshiyer/marina1-k",
+                  "Sheshiyer/skyline-viewer-ashwin-sheth-group"
+                ],
+                "evidence": "6th through 25th floor configuration and explicit Bengaluru copy"
+              }
+            ],
+            "unavailableCandidateRepos": [
+              "ashwinsheth-group/panaroma-v2",
+              "ashwinsheth-group/marina-one-KA"
+            ],
+            "holdRepos": [
+              "Sheshiyer/president-panaroma"
+            ],
+            "holdReasons": [
+              "The two Ashwin Sheth organization repositories lack retrievable immutable GitHub IDs under the current authenticated account.",
+              "president-panaroma is a separate President panorama surface and has no evidence binding it to either Marina One WorkObject."
+            ]
+          }
+        ]
+      },
+      {
+        "batchId": "github-batch-003-sapling-provenance",
+        "status": "founder-reviewed-provenance-split-ready-for-mapping-receipts",
+        "directSaplingMappings": [
+          {
+            "workId": "sapling:10869-space",
+            "candidateRepos": [
+              "Sheshiyer/10869-space-v1"
+            ]
+          },
+          {
+            "workId": "sapling:effort-glyph",
+            "candidateRepos": [
+              "Sheshiyer/effort-glyph",
+              "Sheshiyer/effort-glyph-dashboard-nftclaim",
+              "Sheshiyer/effort-glyph-user-dashboard"
+            ]
+          },
+          {
+            "workId": "sapling:fmrl",
+            "candidateRepos": [
+              "Sheshiyer/fmrl",
+              "Sheshiyer/FMRLcam"
+            ]
+          },
+          {
+            "workId": "sapling:fitcheck",
+            "candidateRepos": [
+              "Sheshiyer/fitcheck-landing"
+            ],
+            "guardrail": "Fitcheck owns product planning; program:hdilint remains the separately mapped backend capability"
+          },
+          {
+            "workId": "sapling:iverif",
+            "candidateRepos": [
+              "Sheshiyer/iverif-wiki"
+            ]
+          },
+          {
+            "workId": "sapling:vantyx",
+            "candidateRepos": [
+              "Sheshiyer/vantyx"
+            ],
+            "guardrail": "do not conflate with panaroma-webapp or Airdronauts overlap"
+          },
+          {
+            "workId": "sapling:vibrasonix",
+            "candidateRepos": [
+              "Sheshiyer/Vibrasonix-Wiki",
+              "Sheshiyer/vibrasonix-wiki-v1"
+            ]
+          },
+          {
+            "workId": "sapling:wanderfruit",
+            "candidateRepos": [
+              "Sheshiyer/wanderfruit-wiki-alpha"
+            ],
+            "guardrail": "split from Co.Property client delivery"
+          },
+          {
+            "workId": "sapling:whspr",
+            "candidateRepos": [
+              "Sheshiyer/whspr-assist",
+              "Sheshiyer/whspr-pitch-alpha",
+              "Sheshiyer/whspr-wiki"
+            ]
+          }
+        ],
+        "founderHolds": [],
+        "summary": {
+          "directSaplingMappings": 9,
+          "resolvedProvenanceSplits": 4,
+          "remainingFounderHolds": 0,
+          "clientBranchPromotions": 1,
+          "saplingProductReposMapped": 9,
+          "branchRepoFamiliesMapped": 16,
+          "excludedContaminationRows": 1,
+          "reclassificationNote": "per 2026-08-10 founder decision: ParkArea and Tirak collapsed to client-branch-only; Klear Karma reclassified as co-founded-venture (branch:klear-karma + co-founded-venture:klear-karma). Summary counts above reflect the original prepared-batch state; post-reclassification counts awaiting full rebundle."
+        },
+        "resolvedProvenanceSplits": [
+          {
+            "name": "Klear Karma",
+            "disposition": "co-founded-venture-with-snowglobe-contamination-excluded",
+            "targetWorkId": "branch:klear-karma",
+            "mappedRepos": [
+              "Sheshiyer/klear-karma",
+              "Sheshiyer/klear-karma-backend",
+              "Sheshiyer/klear-karma-pitchv1",
+              "Sheshiyer/kkv2-admin-panel",
+              "Sheshiyer/kkv2-klear-karma-RN",
+              "Sheshiyer/klear-karma-website-v2",
+              "Sheshiyer/Klearkarma-wiki",
+              "Sheshiyer/rork-klear-karma-mobile-app-frontend"
+            ],
+            "excludedContamination": [
+              {
+                "source": "klear-karma/snowglobe nested evidence",
+                "targetWorkId": "program:snow-gloves-os",
+                "repository": "Sheshiyer/snow-gloves-os",
+                "reason": "prior evidence says the nested snowglobe remote points to snow-gloves-os.git and is an internal ops automation tenant instance, not Klear Karma product source"
+              }
+            ],
+            "rootMapState": "folder-maps-to-co-founded-venture-klear-karma-with-snow-gloves-contamination-excluded"
+          },
+          {
+            "name": "Kristudios",
+            "disposition": "client-branch-not-sapling",
+            "previousWorkId": "sapling:kristudios",
+            "targetWorkId": "branch:kristudios",
+            "accountId": "kristudios",
+            "mappedRepos": [
+              "Sheshiyer/kristudios-heritage",
+              "Sheshiyer/kristudios-space",
+              "Sheshiyer/kristudios-v2-web",
+              "Sheshiyer/kristudios-wiki"
+            ],
+            "reason": "prior evidence identifies Kristudios (OPC) Private Limited as a separately incorporated company, so repository provenance is client-branch evidence unless future founder evidence proves Thoughtseed origin",
+            "rootMapState": "kristudios folder maps to branch:kristudios as client-branch proposal"
+          },
+          {
+            "name": "ParkArea",
+            "disposition": "client-branch-only",
+            "clientWorkId": "branch:parkarea",
+            "branchRepos": [
+              "Sheshiyer/parkarea-aleph",
+              "Sheshiyer/parkarea-wiki-v0"
+            ],
+            "saplingRepoState": "none; founder reclassified ParkArea as client-branch only per 2026-08-10 decision",
+            "rootMapState": "parkarea folder maps to branch:parkarea as client-branch only"
+          },
+          {
+            "name": "Tirak",
+            "disposition": "client-branch-only",
+            "clientWorkId": "branch:tirak",
+            "branchRepos": [
+              "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+              "pineappleinnovationlabs/tirak-admin-command-center",
+              "pineappleinnovationlabs/tirak-dream-journeys",
+              "pineappleinnovationlabs/tirak-website-v1",
+              "Sheshiyer/tirak-backend-alpha01",
+              "Sheshiyer/tirak-mobile-app-v2",
+              "Sheshiyer/tirak-website-v1",
+              "Sheshiyer/tirakplus",
+              "Sheshiyer/tirakplus0admin",
+              "Sheshiyer/wikiv2-tirakapp"
+            ],
+            "saplingRepoState": "none; founder reclassified Tirak as client-branch only per 2026-08-10 decision",
+            "excludedFalsePositiveRepos": [
+              "pineappleinnovationlabs/chakra-shine-admin"
+            ],
+            "rootMapState": "tirak folder maps to branch:tirak as client-branch only"
+          }
+        ]
+      },
+      {
+        "batchId": "github-batch-004-internal-programs-and-vault",
+        "status": "founder-reviewed-internal-programs-ready-for-mapping-receipts-with-explicit-holds",
+        "r2Boundary": "evidence-only; not live project state, code history, repository ownership, folder movement, planning authority, Goal Graph writes, or native session migration",
+        "rows": [
+          {
+            "context": "Sheshiyer/thoughtseed-labs, Sheshiyer/thoughtseed-vault, local thoughtseed-labs",
+            "workIds": [
+              "program:thoughtseed-vault"
+            ],
+            "disposition": "evidence-only vault/R2 context",
+            "candidateRepos": [
+              "Sheshiyer/thoughtseed-labs",
+              "Sheshiyer/thoughtseed-vault"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:thoughtseed-vault",
+                "repositoryRefs": [
+                  "Sheshiyer/thoughtseed-labs",
+                  "Sheshiyer/thoughtseed-vault"
+                ],
+                "receiptScope": "evidence-only-vault-context"
+              }
+            ],
+            "boundary": "R2/vault context is evidence-only and does not become live project state, code history, repository ownership, or planning authority"
+          },
+          {
+            "context": "ThoughtseedOS-Site, thoughtseed/thoughtseedlabs-web, archived-thoughtseedlabs-website, landingpage-ts-2026, thoughtseedos-website",
+            "workIds": [
+              "program:company-website"
+            ],
+            "disposition": "company website/internal-site evidence",
+            "candidateRepos": [
+              "thoughtseed/ThoughtseedOS-Site",
+              "thoughtseed/thoughtseedlabs-web",
+              "Sheshiyer/website",
+              "Sheshiyer/landingpage-ts-2026",
+              "Sheshiyer/thoughtseedos-website"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:company-website",
+                "repositoryRefs": [
+                  "thoughtseed/ThoughtseedOS-Site",
+                  "thoughtseed/thoughtseedlabs-web",
+                  "Sheshiyer/website"
+                ]
+              }
+            ],
+            "unavailableCandidateRepos": [
+              "Sheshiyer/landingpage-ts-2026",
+              "Sheshiyer/thoughtseedos-website"
+            ],
+            "holdReasons": [
+              "landingpage-ts-2026 and thoughtseedos-website are local shallow folders but do not expose retrievable immutable GitHub identities to the current authenticated account.",
+              "archived-thoughtseedlabs-website remains local/folder evidence and is not a repository receipt target."
+            ]
+          },
+          {
+            "context": "website/temperance-engine-landing-page, Sheshiyer/temperance_engine_landing_page, hermes-aws-ts, thoughtseed-hermes, temperance_engine",
+            "workIds": [
+              "program:temperance-hermes"
+            ],
+            "disposition": "map nested repo; do not create website WorkObject",
+            "candidateRepos": [
+              "Sheshiyer/temperance_engine_landing_page",
+              "Sheshiyer/hermes-aws-ts",
+              "Sheshiyer/temperance_engine",
+              "Sheshiyer/thoughtseed-hermes",
+              "thoughtseed-labs/hermes-aws-ts"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:temperance-hermes",
+                "repositoryRefs": [
+                  "Sheshiyer/temperance_engine_landing_page",
+                  "Sheshiyer/hermes-aws-ts",
+                  "Sheshiyer/temperance_engine"
+                ]
+              }
+            ],
+            "unavailableCandidateRepos": [
+              "Sheshiyer/thoughtseed-hermes",
+              "thoughtseed-labs/hermes-aws-ts"
+            ],
+            "holdReasons": [
+              "thoughtseed-hermes is a local shallow folder without retrievable immutable GitHub identity under the current authenticated account.",
+              "thoughtseed-labs/hermes-aws-ts is a stale owner/name form; the retrievable immutable repository is Sheshiyer/hermes-aws-ts.",
+              "website remains a container; only the nested Temperance Engine landing page repository maps to the existing internal-program row."
+            ]
+          },
+          {
+            "context": "brandmint-oracle-aleph",
+            "workIds": [
+              "program:meristem-brand-system"
+            ],
+            "disposition": "exact GitHub repo admit",
+            "candidateRepos": [
+              "Sheshiyer/brandmint-oracle-aleph"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:meristem-brand-system",
+                "repositoryRefs": [
+                  "Sheshiyer/brandmint-oracle-aleph"
+                ]
+              }
+            ]
+          },
+          {
+            "context": "motionsites-skills",
+            "workIds": [
+              "program:meristem-brand-system",
+              "program:skill-clusters"
+            ],
+            "disposition": "multi-bind brand and skills evidence",
+            "candidateRepos": [
+              "Sheshiyer/motionsites-skills"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:meristem-brand-system",
+                "repositoryRefs": [
+                  "Sheshiyer/motionsites-skills"
+                ]
+              },
+              {
+                "workId": "program:skill-clusters",
+                "repositoryRefs": [
+                  "Sheshiyer/motionsites-skills"
+                ]
+              }
+            ]
+          },
+          {
+            "context": "professional-headshot-suite",
+            "workIds": [
+              "program:explee-capabilities",
+              "program:skill-clusters"
+            ],
+            "disposition": "capability and skill evidence",
+            "candidateRepos": [
+              "Sheshiyer/professional-headshot-suite"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:explee-capabilities",
+                "repositoryRefs": [
+                  "Sheshiyer/professional-headshot-suite"
+                ]
+              },
+              {
+                "workId": "program:skill-clusters",
+                "repositoryRefs": [
+                  "Sheshiyer/professional-headshot-suite"
+                ]
+              }
+            ]
+          },
+          {
+            "context": "readme-skill",
+            "workIds": [
+              "program:explee-capabilities",
+              "program:operator-utilities",
+              "program:skill-clusters"
+            ],
+            "disposition": "capability/operator utility evidence",
+            "candidateRepos": [
+              "Sheshiyer/readme-skill"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:explee-capabilities",
+                "repositoryRefs": [
+                  "Sheshiyer/readme-skill"
+                ]
+              },
+              {
+                "workId": "program:operator-utilities",
+                "repositoryRefs": [
+                  "Sheshiyer/readme-skill"
+                ]
+              },
+              {
+                "workId": "program:skill-clusters",
+                "repositoryRefs": [
+                  "Sheshiyer/readme-skill"
+                ]
+              }
+            ]
+          },
+          {
+            "context": "plugins",
+            "workIds": [
+              "program:operator-utilities",
+              "program:engineering-orchestration"
+            ],
+            "disposition": "defer until Git identity or fold decision",
+            "candidateRepos": [],
+            "resolvedAssignments": [],
+            "deferredNoGitIdentity": true,
+            "holdReasons": [
+              "plugins has no exact retrievable GitHub identity; founder must create or attach a repository, or explicitly fold it into existing operator utility / engineering orchestration infrastructure."
+            ]
+          }
+        ],
+        "summary": {
+          "contextsReviewed": 8,
+          "internalProgramTargets": 8,
+          "internalProgramTargetsWithRepositoryAssignments": 7,
+          "candidateRowsGrouped": 16,
+          "executableRepositoryRows": 12,
+          "receiptEligibleBindings": 16,
+          "blockedReceiptRows": 5,
+          "unavailableImmutableIdentityRows": 4,
+          "deferredNoGitIdentityRows": 1,
+          "r2BoundaryRows": 1,
+          "saplingPromotionsRecommended": 0
+        }
+      },
+      {
+        "batchId": "github-batch-005-root-map-catalog-repair",
+        "status": "founder-reviewed-source-controlled-closeout-exclusion-ready-with-symphonics-founder-hold",
+        "summary": {
+          "rowsReviewed": 3,
+          "resolvedRetiredIgnoreRows": 1,
+          "closedClientBranchRows": 1,
+          "founderHoldMissingShallowFolderRows": 1,
+          "filesystemMutationRows": 0,
+          "relocationManifestRequiredRows": 1,
+          "saplingPromotionsRecommended": 0
+        },
+        "renameReadiness": {
+          "readinessDocument": "docs/project-management/thoughtseed-folder-rename-readiness.v1.json",
+          "filesystemMutationAuthorized": false,
+          "cambiumPhase1Applied": true,
+          "cambiumPhase1ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-1-apply-receipt.v1.json",
+          "temperancePhase2PreflightReady": false,
+          "temperancePhase2PreflightReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-preflight.v1.json",
+          "temperancePhase2Applied": true,
+          "temperancePhase2ApplyReceipt": "docs/project-management/relocation-manifests/2026-08-08-thoughtseed-physical-lane-phase-2-apply-receipt.v1.json",
+          "shallowPortfolioRoot": "$PROJECTS_ROOT/thoughtseed",
+          "vaultContextRoot": "$PROJECTS_ROOT/thoughtseed/thoughtseed-labs",
+          "thoughtseedLabsBoundary": "thoughtseed-labs is R2/vault infrastructure context, never a WorkObject folder",
+          "nextPhysicalPass": "none authorized; Symphonics remains held until its native-app role is exact"
+        },
+        "rows": [
+          {
+            "folder": "virtualtryon-3d",
+            "previousWorkId": "sapling:virtualtryon",
+            "candidateRepository": "Sheshiyer/virtualtryon",
+            "status": "complete-retired-ignore",
+            "lifecycleDisposition": "retired",
+            "closeoutArtifacts": {
+              "handoffMarkdownPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-handoff.md",
+              "closeoutReceiptJsonPath": "docs/project-management/closeouts/virtualtryon-3d-retirement.v1.json",
+              "agentMemoryJsonPath": "docs/project-management/closeouts/virtualtryon-3d-retirement-agent-memory.v1.json",
+              "activeIndexDisposition": "exclude-from-active"
+            },
+            "recommendedAction": "no Workbench action, no Sapling creation, and no active repository/R2 mapping receipt; keep as root-map empty-hold evidence only"
+          },
+          {
+            "folder": "safvr",
+            "currentWorkId": "branch:safvr-landing-page",
+            "observedRepository": "SAFVR-SG/Landingpage2.0",
+            "status": "complete-closed-client-branch",
+            "lifecycleDisposition": "closed",
+            "closeoutArtifacts": {
+              "handoffMarkdownPath": "docs/project-management/closeouts/safvr-landing-page-handoff.md",
+              "closeoutReceiptJsonPath": "docs/project-management/closeouts/safvr-landing-page-closeout.v1.json",
+              "agentMemoryJsonPath": "docs/project-management/closeouts/safvr-landing-page-agent-memory.v1.json",
+              "activeIndexDisposition": "remove-from-active"
+            },
+            "recommendedAction": "keep the folder mapped to branch:safvr-landing-page but remove it from active workflow; verify repository access only if the client relationship reopens"
+          },
+          {
+            "folder": "symphonics",
+            "currentWorkId": "branch:symphonics",
+            "candidateRepository": "Sheshiyer/workforce-automation-app-symphonics",
+            "status": "founder-hold-missing-shallow-folder",
+            "rootMapState": "missing-client-account-without-shallow-folder",
+            "repositoryEvidence": {
+              "nameWithOwner": "Sheshiyer/workforce-automation-app-symphonics",
+              "repositoryId": "R_kgDOOM0pmw",
+              "databaseId": 952969627,
+              "isFork": false,
+              "visibility": "public",
+              "defaultBranchRef": "main",
+              "pushedAt": "2025-03-22T09:47:22Z",
+              "planningFiles": [
+                "README.md",
+                "overview.md"
+              ]
+            },
+            "reviewEvidence": {
+              "reviewedAt": "2026-08-08",
+              "requestedRail": "temperance-parallel-dispatch",
+              "acceptedExternalRail": false,
+              "fallbackRail": "in-session-subagents-and-inline-local-review",
+              "previousWorkerTask": "queue-flow",
+              "previousTimedOutWorkerTasks": [
+                "rootmap-symphonics",
+                "generator-impact"
+              ],
+              "physicalFolderProbe": "$PROJECTS_ROOT/thoughtseed/symphonics is absent",
+              "repoPlanningProbe": "README.md and overview.md describe a documentation/planning repository for the Workforce Automation App; implementation has not begun.",
+              "futureScopeNote": "future custom native SDK / Tuya React Native app scope is intentionally left unmapped until the founder approves the exact shallow-folder and repository disposition"
+            },
+            "relocationGate": {
+              "requiresFounderApprovedManifest": true,
+              "requiredBeforeFolderCreateOrRename": [
+                "exact shallow folder name",
+                "repository role for the planning repo versus future native SDK app",
+                "archive or closeout disposition for any stale local material",
+                "dry-run directory comparison",
+                "live-apply approval"
+              ]
+            },
+            "recommendedAction": "keep symphonics in missingClientAccounts and do not add a root-map folder row, create a project folder, or generate active repository/R2 mapping receipts until founder approves an exact shallow-folder/repository disposition"
+          }
+        ]
+      },
+      {
+        "batchId": "github-batch-006-foundation-repository-reconciliation",
+        "status": "foundation-reviewed-with-explicit-repository-holds",
+        "summary": {
+          "rowsReviewed": 21,
+          "newResolvedAssignments": 8,
+          "existingBatchAssignmentsReconciled": 4,
+          "explicitUnavailableIdentityHolds": 6,
+          "unassignedClassificationHolds": 1,
+          "folderlessWorkObjectHolds": 2,
+          "inferredAssignments": 0
+        },
+        "rows": [
+          {
+            "sourceRef": "repo:plexus-ts",
+            "workIds": [
+              "program:plexus"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/plexus-ts"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:plexus",
+                "repositoryRefs": [
+                  "Sheshiyer/plexus-ts"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "repo:team-forge-ts",
+            "workIds": [
+              "program:teamforge-control-plane"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/team-forge-ts"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:teamforge-control-plane",
+                "repositoryRefs": [
+                  "Sheshiyer/team-forge-ts"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "repo:HDILINT-backend-aleph",
+            "workIds": [
+              "program:hdilint"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/HDILINT-backend-aleph"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:hdilint",
+                "repositoryRefs": [
+                  "Sheshiyer/HDILINT-backend-aleph"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "repo:Insightreality",
+            "workIds": [
+              "branch:insight-realtors-legal-advisors"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/Insightreality"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:insight-realtors-legal-advisors",
+                "repositoryRefs": [
+                  "Sheshiyer/Insightreality"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "repo:wtfmedia",
+            "workIds": [
+              "branch:wtfmedia"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/wtfmedia"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:wtfmedia",
+                "repositoryRefs": [
+                  "Sheshiyer/wtfmedia"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "repo:Sheshiyer/raycast-extensions",
+            "workIds": [
+              "program:operator-utilities"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/raycast-extensions"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:operator-utilities",
+                "repositoryRefs": [
+                  "Sheshiyer/raycast-extensions"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "repo:Sheshiyer/skill-clusters",
+            "workIds": [
+              "program:skill-clusters"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/skill-clusters"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "program:skill-clusters",
+                "repositoryRefs": [
+                  "Sheshiyer/skill-clusters"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "relocation-registry:bwssb",
+            "workIds": [
+              "branch:bwssb"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/bwssb"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:bwssb",
+                "repositoryRefs": [
+                  "Sheshiyer/bwssb"
+                ]
+              }
+            ],
+            "status": "resolved-live-immutable-identity"
+          },
+          {
+            "sourceRef": "repo:10869",
+            "workIds": [
+              "sapling:10869-space"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/10869-space-v1"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "sapling:10869-space",
+                "repositoryRefs": [
+                  "Sheshiyer/10869-space-v1"
+                ]
+              }
+            ],
+            "status": "reconciled-to-existing-batch-3-assignment",
+            "sourceRefDisposition": "legacy local alias is not repository identity"
+          },
+          {
+            "sourceRef": "repo:Panaroma-Webapp",
+            "workIds": [
+              "sapling:vantyx"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/vantyx"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "sapling:vantyx",
+                "repositoryRefs": [
+                  "Sheshiyer/vantyx"
+                ]
+              }
+            ],
+            "status": "reconciled-to-existing-batch-3-assignment",
+            "sourceRefDisposition": "overlap evidence only; do not conflate Vantyx with panaroma-webapp or Airdronauts"
+          },
+          {
+            "sourceRef": "repo:Kacima",
+            "workIds": [
+              "branch:kacima"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/kacima-new"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:kacima",
+                "repositoryRefs": [
+                  "Sheshiyer/kacima-new"
+                ]
+              }
+            ],
+            "status": "reconciled-to-existing-batch-2-assignment",
+            "sourceRefDisposition": "legacy local alias is not repository identity"
+          },
+          {
+            "sourceRef": "repo:earthy-munchy",
+            "workIds": [
+              "branch:earthy-munchy"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/coming-soon-earthymunchy",
+              "Sheshiyer/earthy-munchy-beta-launch",
+              "Sheshiyer/earthymunchy-alpha"
+            ],
+            "resolvedAssignments": [
+              {
+                "workId": "branch:earthy-munchy",
+                "repositoryRefs": [
+                  "Sheshiyer/coming-soon-earthymunchy",
+                  "Sheshiyer/earthy-munchy-beta-launch",
+                  "Sheshiyer/earthymunchy-alpha"
+                ]
+              }
+            ],
+            "status": "reconciled-to-existing-batch-2-assignment",
+            "sourceRefDisposition": "legacy local alias is not repository identity"
+          },
+          {
+            "sourceRef": "repo:Coproperty/nimbus-gate",
+            "workIds": [
+              "sapling:nimbus-gate"
+            ],
+            "candidateRepos": [
+              "Coproperty/nimbus-gate"
+            ],
+            "unavailableCandidateRepos": [
+              "Coproperty/nimbus-gate"
+            ],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-immutable-identity-unavailable",
+            "holdReasons": [
+              "Authenticated read-only GitHub lookup returned no retrievable immutable identity; do not substitute the Co.Property client repository family."
+            ]
+          },
+          {
+            "sourceRef": "repo:Coproperty/wanderfruit-docs",
+            "workIds": [
+              "sapling:wanderfruit"
+            ],
+            "candidateRepos": [
+              "Coproperty/wanderfruit-docs"
+            ],
+            "unavailableCandidateRepos": [
+              "Coproperty/wanderfruit-docs"
+            ],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-immutable-identity-unavailable",
+            "holdReasons": [
+              "Authenticated read-only GitHub lookup returned no retrievable immutable identity for this exact owner/name."
+            ],
+            "note": "Sheshiyer/wanderfruit-wiki-alpha remains the separate executable Batch 3 Sapling repository."
+          },
+          {
+            "sourceRef": "repo:SAFVR-SG/Landingpage2.0",
+            "workIds": [
+              "branch:safvr-landing-page"
+            ],
+            "candidateRepos": [
+              "SAFVR-SG/Landingpage2.0"
+            ],
+            "unavailableCandidateRepos": [
+              "SAFVR-SG/Landingpage2.0"
+            ],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-closed-branch-identity-unavailable",
+            "holdReasons": [
+              "The exact repository is unavailable under the authenticated account and SAFVR is already closed; do not reopen or remap it implicitly."
+            ]
+          },
+          {
+            "sourceRef": "repo:ashwinsheth-group/panaroma-v2",
+            "workIds": [
+              "branch:ashwinsheth-marina-one-mumbai"
+            ],
+            "candidateRepos": [
+              "ashwinsheth-group/panaroma-v2"
+            ],
+            "unavailableCandidateRepos": [
+              "ashwinsheth-group/panaroma-v2"
+            ],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-immutable-identity-unavailable",
+            "holdReasons": [
+              "Authenticated read-only GitHub lookup returned no retrievable immutable identity; existing Sheshiyer and Raheman alternatives remain separately assigned."
+            ]
+          },
+          {
+            "sourceRef": "repo:ashwinsheth-group/marina-one-KA/web",
+            "workIds": [
+              "branch:ashwinsheth-marina-one-bangalore"
+            ],
+            "candidateRepos": [
+              "ashwinsheth-group/marina-one-KA"
+            ],
+            "unavailableCandidateRepos": [
+              "ashwinsheth-group/marina-one-KA"
+            ],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-immutable-identity-unavailable",
+            "holdReasons": [
+              "Authenticated read-only GitHub lookup returned no retrievable immutable identity; existing Sheshiyer alternatives remain separately assigned."
+            ],
+            "sourcePath": "web"
+          },
+          {
+            "sourceRef": "repo:reddit-cli",
+            "workIds": [
+              "program:operator-utilities"
+            ],
+            "candidateRepos": [
+              "Sheshiyer/reddit-cli"
+            ],
+            "unavailableCandidateRepos": [
+              "Sheshiyer/reddit-cli"
+            ],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-no-retrievable-git-identity",
+            "holdReasons": [
+              "The shallow reddit-cli folder is non-Git and no exact Sheshiyer/reddit-cli repository is retrievable; preserve it as folder evidence only."
+            ]
+          },
+          {
+            "sourceRef": "relocation-registry:brandmint-showcase",
+            "workIds": [],
+            "candidateRepos": [
+              "Sheshiyer/brandmint-showcase"
+            ],
+            "resolvedAssignments": [],
+            "status": "classification-hold-unassigned",
+            "holdReasons": [
+              "Repository identity is exact, but no founder-reviewed WorkObject ownership or historical/exclusion disposition exists; never infer a Meristem assignment from folder nesting alone."
+            ]
+          },
+          {
+            "sourceRef": "catalog-folder-hold:sapling:whatslegal",
+            "workIds": [
+              "sapling:whatslegal"
+            ],
+            "candidateRepos": [],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-no-shallow-root-or-repository-evidence",
+            "holdReasons": [
+              "The canonical WorkObject is valid, but no reviewed shallow folder or exact repository identity exists; do not invent either from its display name."
+            ]
+          },
+          {
+            "sourceRef": "catalog-folder-hold:sapling:seedforge",
+            "workIds": [
+              "sapling:seedforge"
+            ],
+            "candidateRepos": [],
+            "resolvedAssignments": [],
+            "status": "explicit-hold-no-shallow-root-or-repository-evidence",
+            "holdReasons": [
+              "The linked Sapling identity is valid, but only program:seedforge has reviewed repository/root evidence; do not collapse or infer Sapling ownership."
+            ]
+          }
+        ]
+      }
+    ],
+    "requiredPayloadFieldsBeforeMutation": [
+      "batchId",
+      "portfolioId",
+      "founderApprovalId",
+      "decision",
+      "workObjectId",
+      "workObjectKind",
+      "originAssertion",
+      "repositoryRole",
+      "repository.nameWithOwner",
+      "repository.repositoryId",
+      "repository.databaseId",
+      "repository.isFork",
+      "repository.defaultBranchRef",
+      "repository.pushedAt",
+      "rootMap.folder",
+      "rootMap.proposedKind",
+      "rootMap.accountId",
+      "rootMap.workIds",
+      "rootMap.status",
+      "lifecycle",
+      "catalogDigest",
+      "classificationDigest",
+      "rootMapDigest",
+      "r2Receipt.receiptKind",
+      "r2Receipt.receiptId",
+      "r2Receipt.idempotencyKey",
+      "r2Receipt.prefix",
+      "blockedReason"
+    ]
+  },
+  "rootMap": {
+    "schema": "thoughtseed.portfolio-root-map.v1",
+    "capturedAt": "2026-08-13T06:08:50Z",
+    "authority": "proposal-only",
+    "pathGrammar": "<projects-root>/<portfolio>/<repository>",
+    "portfolios": [
+      {
+        "portfolioId": "thoughtseed",
+        "label": "Thoughtseed",
+        "itemLabel": "WorkObject",
+        "folderCount": 58,
+        "infrastructure": [
+          "_physical-relocation-archive-2026-08-08",
+          "openfang",
+          "scroll-world",
+          "thoughtseed-labs",
+          "website"
+        ],
+        "folders": [
+          {
+            "folder": "Airdronauts",
+            "proposedKind": "client-branch",
+            "accountId": "airdronauts-productions",
+            "workIds": [
+              "branch:airdronauts-panorama-viewer-delivery"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "agentfount",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:agentfount"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "archived-thoughtseedlabs-website",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:company-website"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "ashwinsheth-group",
+            "proposedKind": "client-branch",
+            "accountId": "ashwin-sheth-group",
+            "workIds": [
+              "branch:ashwinsheth-marina-one-mumbai",
+              "branch:ashwinsheth-marina-one-bangalore"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "brand-genesis",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:meristem-brand-system"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "brandmint",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:meristem-brand-system"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "brandmint-oracle-aleph",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:meristem-brand-system"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "bwssb",
+            "proposedKind": "client-branch",
+            "accountId": "spaceblanket-ai",
+            "workIds": [
+              "branch:bwssb"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "cambium",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:cambium",
+              "program:cambium-operating-fabric"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "coproperty",
+            "proposedKind": "client-branch",
+            "accountId": "co-property",
+            "workIds": [
+              "branch:co-property",
+              "sapling:nimbus-gate",
+              "sapling:wanderfruit"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "earthy-munchy",
+            "proposedKind": "client-branch",
+            "accountId": "yamuna-foods",
+            "workIds": [
+              "branch:earthy-munchy"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "fitcheck-landing",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:fitcheck"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "fitcheck-wiki",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:fitcheck"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "fmrl",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:fmrl"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "fmrl-reactnative",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:fmrl"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "gram-cli",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:operator-utilities"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "hdilint-backend-aleph",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:hdilint"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "hermes-aws-ts",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:temperance-hermes"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "heyzack",
+            "proposedKind": "client-branch",
+            "accountId": "heyzack",
+            "workIds": [
+              "branch:heyzack",
+              "branch:heyzack-zackai",
+              "branch:heyzack-crm",
+              "branch:heyzack-estimate",
+              "branch:heyzack-partner-portal",
+              "branch:heyzack-customer-portal",
+              "branch:heyzack-panel-app",
+              "branch:heyzack-landing",
+              "branch:heyzack-tooling",
+              "branch:heyzack-proposal",
+              "branch:heyzack-veloren-cee-ai"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "hostscale",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:hostscale"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "insightreality",
+            "proposedKind": "client-branch",
+            "accountId": "insight-realtors-legal-advisors",
+            "workIds": [
+              "branch:insight-realtors-legal-advisors"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "iverif",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:iverif"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "kacima",
+            "proposedKind": "client-branch",
+            "accountId": "kacima",
+            "workIds": [
+              "branch:kacima"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "klear-karma",
+            "proposedKind": "client-branch",
+            "accountId": "klear-karma",
+            "workIds": [
+              "branch:klear-karma"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "kristudios",
+            "proposedKind": "client-branch",
+            "accountId": "kristudios",
+            "workIds": [
+              "branch:kristudios"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "landingpage-ts-2026",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:company-website"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "meristem",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:meristem-brand-system"
+            ],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "monthlymealprep",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:rasa"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "motionsites-export",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:meristem-brand-system"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "motionsites-skills",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:meristem-brand-system",
+              "program:skill-clusters"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "newsense",
+            "proposedKind": "client-branch",
+            "accountId": "newsense",
+            "workIds": [
+              "branch:newsense"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "panaroma-webapp",
+            "proposedKind": "needs-review",
+            "accountId": null,
+            "workIds": [
+              "sapling:vantyx",
+              "branch:airdronauts-panorama-viewer-delivery"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "parkarea",
+            "proposedKind": "client-branch",
+            "accountId": "parkarea",
+            "workIds": [
+              "branch:parkarea"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "plexus-ts",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:plexus"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "plugins",
+            "proposedKind": "needs-review",
+            "accountId": null,
+            "workIds": [],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "professional-headshot-suite",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:explee-capabilities",
+              "program:skill-clusters"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "raycast-extensions",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:operator-utilities"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "reddit-cli",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:operator-utilities"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "readme-skill",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:explee-capabilities",
+              "program:operator-utilities",
+              "program:skill-clusters"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "sandboxlife",
+            "proposedKind": "client-branch",
+            "accountId": "valore-ventures",
+            "workIds": [
+              "branch:sandboxlife"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "safvr",
+            "proposedKind": "client-branch",
+            "accountId": "safvr",
+            "workIds": [
+              "branch:safvr-landing-page"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "session-atlas",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "skill-clusters",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:skill-clusters"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "skills",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:explee-capabilities",
+              "program:engineering-orchestration",
+              "program:skill-clusters"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "snow-gloves-os",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:snow-gloves-os"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "synchronized-universe-blog",
+            "proposedKind": "client-branch",
+            "accountId": "harshita",
+            "workIds": [
+              "branch:harsh-truths"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "team-forge-ts",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:teamforge-control-plane"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "temperance-engine-landing-page",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:temperance-hermes"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "temperance_engine",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:temperance-hermes"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "thoughtseed-brand-atlas",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:thoughtseed-brand-atlas",
+              "program:meristem-brand-system"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "thoughtseed-hermes",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:temperance-hermes"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "thoughtseedos-website",
+            "proposedKind": "internal-program",
+            "accountId": null,
+            "workIds": [
+              "program:company-website"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "tirak",
+            "proposedKind": "client-branch",
+            "accountId": "tirak",
+            "workIds": [
+              "branch:tirak"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "valmark",
+            "proposedKind": "client-branch",
+            "accountId": "valmark",
+            "workIds": [
+              "branch:valmark"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "vibrasonix",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:vibrasonix"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "virtualtryon-3d",
+            "proposedKind": "needs-review",
+            "accountId": null,
+            "workIds": [],
+            "status": "empty-hold"
+          },
+          {
+            "folder": "whspr",
+            "proposedKind": "sapling",
+            "accountId": null,
+            "workIds": [
+              "sapling:whspr"
+            ],
+            "status": "mapping-proposal"
+          },
+          {
+            "folder": "wtfmedia",
+            "proposedKind": "client-branch",
+            "accountId": "wtf-podcast",
+            "workIds": [
+              "branch:wtfmedia"
+            ],
+            "status": "mapping-proposal"
+          }
+        ],
+        "missingClientAccounts": [
+          "axdis-group",
+          "brightme",
+          "dorix",
+          "instal",
+          "mathis",
+          "pongotrasteros",
+          "symphonics",
+          "thaleos",
+          "wattconnect",
+          "wegrid"
+        ]
+      },
+      {
+        "portfolioId": "tryambakam-noesis",
+        "label": "Tryambakam · Noesis",
+        "itemLabel": "Project",
+        "folderCount": 30,
+        "folders": [
+          {
+            "folder": "10869x77",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "723",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "aleph1319xwebsite",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "aletheos-morphic-nexus",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "astrolens",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "astrolens-website",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "brand-docs-final",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "branding",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "bv-pip",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "content-engine",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "cosmo-align-workspace",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "dakm-philosophy",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "noesismirror-web-falseearth",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "paperclip-tn",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "phase-ion",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "polyhymnia",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "empty-hold"
+          },
+          {
+            "folder": "selemene-engine",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "selemene-gw",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "serpentine-raising",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "somatic-canticles-book",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "somatic-canticles-mobile-app",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "somatic-canticles-webapp",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "synchronocities-blog",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "tpothp",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "tryambakam-space",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "twc-shell",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "urania-137",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "watchthisokay-stremio",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "witness-agents",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          },
+          {
+            "folder": "witness0s-webshore",
+            "proposedKind": "project",
+            "accountId": null,
+            "workIds": [],
+            "status": "awaiting-ingestion"
+          }
+        ],
+        "infrastructure": [
+          "selemene-engine-worktrees"
+        ],
+        "archiveContainer": "_archive",
+        "archivedProjects": [
+          "noesismirror-web",
+          "sankalpa",
+          "spatial-anubis-noesis",
+          "witness-agents-intro-web"
+        ]
+      }
+    ]
+  },
+  "repositoryMetadata": {
+    "schema": "thoughtseed.github-repository-metadata.v1",
+    "observedDate": "2026-08-09",
+    "scope": "github-batch-003-sapling-provenance",
+    "method": "read-only GitHub REST repository metadata",
+    "records": [
+      {
+        "nameWithOwner": "Sheshiyer/10869-space-v1",
+        "repositoryId": "R_kgDOTH-UWA",
+        "databaseId": 1283429464,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-15T14:41:19Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/FMRLcam",
+        "repositoryId": "R_kgDOO-B17A",
+        "databaseId": 1004565996,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-06-18T20:40:19Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/Klearkarma-wiki",
+        "repositoryId": "R_kgDOPNXkIQ",
+        "databaseId": 1020650529,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T13:50:06Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/Vibrasonix-Wiki",
+        "repositoryId": "R_kgDOOMq9Fw",
+        "databaseId": 952810775,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-03-22T07:07:20Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/effort-glyph",
+        "repositoryId": "R_kgDONjuR3Q",
+        "databaseId": 909873629,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2024-12-31T03:16:08Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/effort-glyph-dashboard-nftclaim",
+        "repositoryId": "R_kgDONkLnaw",
+        "databaseId": 910354283,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2024-12-31T04:04:06Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/effort-glyph-user-dashboard",
+        "repositoryId": "R_kgDONjv5eg",
+        "databaseId": 909900154,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2024-12-31T04:30:32Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/fitcheck-landing",
+        "repositoryId": "R_kgDOSzF56w",
+        "databaseId": 1261533675,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:44:57Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/fmrl",
+        "repositoryId": "R_kgDORqSNzg",
+        "databaseId": 1185189326,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:44:59Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/iverif-wiki",
+        "repositoryId": "R_kgDOSwXJ7Q",
+        "databaseId": 1258670573,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:09Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/kkv2-admin-panel",
+        "repositoryId": "R_kgDOSzKl3w",
+        "databaseId": 1261610463,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-18T10:30:24Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/kkv2-klear-karma-RN",
+        "repositoryId": "R_kgDOSUMQlw",
+        "databaseId": 1229131927,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-29T05:45:30Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/klear-karma",
+        "repositoryId": "R_kgDOSTjD5w",
+        "databaseId": 1228456935,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-05-04T17:47:52Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/klear-karma-backend",
+        "repositoryId": "R_kgDOPT_ipA",
+        "databaseId": 1027596964,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T13:50:44Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/klear-karma-pitchv1",
+        "repositoryId": "R_kgDOPN3-TA",
+        "databaseId": 1021181516,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-07-17T07:19:00Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/klear-karma-website-v2",
+        "repositoryId": "R_kgDOSygkXA",
+        "databaseId": 1260921948,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:51:57Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/kristudios-heritage",
+        "repositoryId": "R_kgDOQR5HOw",
+        "databaseId": 1092503355,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-11-08T18:42:19Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/kristudios-space",
+        "repositoryId": "R_kgDOQoS0Lw",
+        "databaseId": 1115993135,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-12-14T05:19:12Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/kristudios-v2-web",
+        "repositoryId": "R_kgDOTwnX4g",
+        "databaseId": 1326045154,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:51:25Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/kristudios-wiki",
+        "repositoryId": "R_kgDORP_PqA",
+        "databaseId": 1157615528,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T15:02:31Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/parkarea-aleph",
+        "repositoryId": "R_kgDOSDqEkg",
+        "databaseId": 1211794578,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T02:00:02Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/parkarea-wiki-v0",
+        "repositoryId": "R_kgDOTFJkwA",
+        "databaseId": 1280468160,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:37Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/rork-klear-karma-mobile-app-frontend",
+        "repositoryId": "R_kgDOPcQ4Lg",
+        "databaseId": 1036269614,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-03-28T10:02:46Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/tirak-backend-alpha01",
+        "repositoryId": "R_kgDOO5Ekzg",
+        "databaseId": 999367886,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:52Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/tirak-mobile-app-v2",
+        "repositoryId": "R_kgDOSkuDKw",
+        "databaseId": 1246462763,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T03:16:16Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/tirak-website-v1",
+        "repositoryId": "R_kgDOQDvyvQ",
+        "databaseId": 1077670589,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-07-25T10:11:40Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/tirakplus",
+        "repositoryId": "R_kgDOSXh9KQ",
+        "databaseId": 1232633129,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:54Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/tirakplus0admin",
+        "repositoryId": "R_kgDOSXh9OQ",
+        "databaseId": 1232633145,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:56Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/vantyx",
+        "repositoryId": "R_kgDOSzK35A",
+        "databaseId": 1261615076,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:33Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/vibrasonix-wiki-v1",
+        "repositoryId": "R_kgDOPaqOtg",
+        "databaseId": 1034587830,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T15:03:25Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/wanderfruit-wiki-alpha",
+        "repositoryId": "R_kgDOQy3BzA",
+        "databaseId": 1127072204,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-01-03T05:45:18Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/whspr-assist",
+        "repositoryId": "R_kgDORkZPnw",
+        "databaseId": 1179013023,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-04-22T15:03:30Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/whspr-pitch-alpha",
+        "repositoryId": "R_kgDOQ3NmTg",
+        "databaseId": 1131636302,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-01-10T12:05:28Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/whspr-wiki",
+        "repositoryId": "R_kgDOQ9yhhw",
+        "databaseId": 1138532743,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-01-20T19:59:10Z"
+      },
+      {
+        "nameWithOwner": "Sheshiyer/wikiv2-tirakapp",
+        "repositoryId": "R_kgDOQ-nokA",
+        "databaseId": 1139402896,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:58Z"
+      },
+      {
+        "nameWithOwner": "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+        "repositoryId": "R_kgDOO4v-mw",
+        "databaseId": 999030427,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-05-18T12:27:11Z"
+      },
+      {
+        "nameWithOwner": "pineappleinnovationlabs/tirak-admin-command-center",
+        "repositoryId": "R_kgDOO4p3uw",
+        "databaseId": 998930363,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2026-08-07T00:45:50Z"
+      },
+      {
+        "nameWithOwner": "pineappleinnovationlabs/tirak-dream-journeys",
+        "repositoryId": "R_kgDOPHdksg",
+        "databaseId": 1014457522,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-10-16T14:32:32Z"
+      },
+      {
+        "nameWithOwner": "pineappleinnovationlabs/tirak-website-v1",
+        "repositoryId": "R_kgDOQDuQIw",
+        "databaseId": 1077645347,
+        "isFork": false,
+        "defaultBranchRef": "main",
+        "pushedAt": "2025-10-16T14:52:13Z"
+      }
+    ]
+  },
+  "repositoryInventory": [
+    {
+      "fullName": "Heyzack-ai/Heyzack-Email-Templates",
+      "repositoryId": "R_kgDOPLfAcQ",
+      "nodeId": "R_kgDOPLfAcQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-12-09T07:14:20Z",
+      "updatedAt": "2025-12-09T07:14:24Z"
+    },
+    {
+      "fullName": "Heyzack-ai/PartnerCRMPortal-docs",
+      "repositoryId": "R_kgDOSHinGg",
+      "nodeId": "R_kgDOSHinGg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2026-05-13T11:24:19Z",
+      "updatedAt": "2026-05-13T11:24:23Z"
+    },
+    {
+      "fullName": "Heyzack-ai/tuya-mcp-sdk",
+      "repositoryId": "R_kgDOQBbk4Q",
+      "nodeId": "R_kgDOQBbk4Q",
+      "visibility": "PUBLIC",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2025-10-13T08:32:34Z",
+      "updatedAt": "2025-10-13T08:32:38Z"
+    },
+    {
+      "fullName": "Heyzack-ai/tuya-react-native",
+      "repositoryId": "R_kgDOSo_8ww",
+      "nodeId": "R_kgDOSo_8ww",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T03:19:27Z",
+      "updatedAt": "2026-06-19T12:59:23Z"
+    },
+    {
+      "fullName": "Heyzack-ai/xiaozhi-esp32-server",
+      "repositoryId": "R_kgDOP0mUpQ",
+      "nodeId": "R_kgDOP0mUpQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-09-23T09:31:27Z",
+      "updatedAt": "2025-09-23T09:31:31Z"
+    },
+    {
+      "fullName": "HeyZack-Domotique/estimate-web",
+      "repositoryId": "R_kgDOOoalrw",
+      "nodeId": "R_kgDOOoalrw",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-05-12T08:02:22Z",
+      "updatedAt": "2026-04-15T06:30:27Z"
+    },
+    {
+      "fullName": "HeyZack-Domotique/heyzack-vinci-proposal",
+      "repositoryId": "R_kgDORJqh6w",
+      "nodeId": "R_kgDORJqh6w",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-02-05T23:14:28Z",
+      "updatedAt": "2026-02-05T23:14:28Z"
+    },
+    {
+      "fullName": "pineappleinnovationlabs/chakra-shine-admin",
+      "repositoryId": "R_kgDOPUaxDw",
+      "nodeId": "R_kgDOPUaxDw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T13:49:05Z",
+      "updatedAt": "2025-07-29T00:50:43Z"
+    },
+    {
+      "fullName": "pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+      "repositoryId": "R_kgDOO4v-mw",
+      "nodeId": "R_kgDOO4v-mw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-05-18T12:27:11Z",
+      "updatedAt": "2026-05-22T07:18:52Z"
+    },
+    {
+      "fullName": "pineappleinnovationlabs/tirak-admin-command-center",
+      "repositoryId": "R_kgDOO4p3uw",
+      "nodeId": "R_kgDOO4p3uw",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:50Z",
+      "updatedAt": "2026-08-07T00:46:11Z"
+    },
+    {
+      "fullName": "pineappleinnovationlabs/tirak-dream-journeys",
+      "repositoryId": "R_kgDOPHdksg",
+      "nodeId": "R_kgDOPHdksg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-10-16T14:32:32Z",
+      "updatedAt": "2025-10-16T14:32:37Z"
+    },
+    {
+      "fullName": "pineappleinnovationlabs/tirak-website-v1",
+      "repositoryId": "R_kgDOQDuQIw",
+      "nodeId": "R_kgDOQDuQIw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-10-16T14:52:13Z",
+      "updatedAt": "2025-10-16T14:52:16Z"
+    },
+    {
+      "fullName": "Raheman-08/panorama-viewer-marina",
+      "repositoryId": "R_kgDORD3zVQ",
+      "nodeId": "R_kgDORD3zVQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-01-29T07:31:18Z",
+      "updatedAt": "2026-01-29T07:31:22Z"
+    },
+    {
+      "fullName": "Sheshiyer/10869-space-v1",
+      "repositoryId": "R_kgDOTH-UWA",
+      "nodeId": "R_kgDOTH-UWA",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-15T14:41:19Z",
+      "updatedAt": "2026-07-15T14:43:37Z"
+    },
+    {
+      "fullName": "Sheshiyer/agentfount",
+      "repositoryId": "R_kgDOSxOQcw",
+      "nodeId": "R_kgDOSxOQcw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:48Z",
+      "updatedAt": "2026-08-07T00:44:53Z"
+    },
+    {
+      "fullName": "Sheshiyer/Akshara-coauthor",
+      "repositoryId": "R_kgDOTUSK7A",
+      "nodeId": "R_kgDOTUSK7A",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:44Z",
+      "updatedAt": "2026-08-07T00:44:48Z"
+    },
+    {
+      "fullName": "Sheshiyer/brandmint-oracle-aleph",
+      "repositoryId": "R_kgDORM3pEQ",
+      "nodeId": "R_kgDORM3pEQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T03:17:14Z",
+      "updatedAt": "2026-06-18T07:02:16Z"
+    },
+    {
+      "fullName": "Sheshiyer/brandmint-showcase",
+      "repositoryId": "R_kgDOROEMxA",
+      "nodeId": "R_kgDOROEMxA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:50Z",
+      "updatedAt": "2026-08-07T00:45:08Z"
+    },
+    {
+      "fullName": "Sheshiyer/brochure-py-heyzack",
+      "repositoryId": "R_kgDOPnpaSQ",
+      "nodeId": "R_kgDOPnpaSQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T13:49:02Z",
+      "updatedAt": "2025-09-15T13:22:51Z"
+    },
+    {
+      "fullName": "Sheshiyer/bwssb",
+      "repositoryId": "R_kgDOTQHXeA",
+      "nodeId": "R_kgDOTQHXeA",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:54Z",
+      "updatedAt": "2026-08-07T00:44:59Z"
+    },
+    {
+      "fullName": "Sheshiyer/coming-soon-earthymunchy",
+      "repositoryId": "R_kgDOQzKRuQ",
+      "nodeId": "R_kgDOQzKRuQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-01-04T11:14:29Z",
+      "updatedAt": "2026-01-04T11:14:33Z"
+    },
+    {
+      "fullName": "Sheshiyer/copropertyspace",
+      "repositoryId": "R_kgDOOlrLlg",
+      "nodeId": "R_kgDOOlrLlg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-12-11T11:21:18Z",
+      "updatedAt": "2025-12-11T11:21:22Z"
+    },
+    {
+      "fullName": "Sheshiyer/dashboard-0.1-coproperty",
+      "repositoryId": "R_kgDORD3wFQ",
+      "nodeId": "R_kgDORD3wFQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:55:43Z",
+      "updatedAt": "2026-04-22T14:51:44Z"
+    },
+    {
+      "fullName": "Sheshiyer/earthy-munchy-beta-launch",
+      "repositoryId": "R_kgDOQ8X-nw",
+      "nodeId": "R_kgDOQ8X-nw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-02-06T16:07:48Z",
+      "updatedAt": "2026-02-06T16:07:52Z"
+    },
+    {
+      "fullName": "Sheshiyer/earthymunchy-alpha",
+      "repositoryId": "R_kgDOQpZSyA",
+      "nodeId": "R_kgDOQpZSyA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:02:04Z",
+      "updatedAt": "2026-01-18T17:22:40Z"
+    },
+    {
+      "fullName": "Sheshiyer/effort-glyph",
+      "repositoryId": "R_kgDONjuR3Q",
+      "nodeId": "R_kgDONjuR3Q",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-12-31T03:16:08Z",
+      "updatedAt": "2024-12-31T03:16:11Z"
+    },
+    {
+      "fullName": "Sheshiyer/effort-glyph-dashboard-nftclaim",
+      "repositoryId": "R_kgDONkLnaw",
+      "nodeId": "R_kgDONkLnaw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-12-31T04:04:06Z",
+      "updatedAt": "2024-12-31T04:04:09Z"
+    },
+    {
+      "fullName": "Sheshiyer/effort-glyph-user-dashboard",
+      "repositoryId": "R_kgDONjv5eg",
+      "nodeId": "R_kgDONjv5eg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-12-31T04:30:32Z",
+      "updatedAt": "2024-12-31T04:31:46Z"
+    },
+    {
+      "fullName": "Sheshiyer/email-engine-heyzack",
+      "repositoryId": "R_kgDOPONy7Q",
+      "nodeId": "R_kgDOPONy7Q",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:02:06Z",
+      "updatedAt": "2025-07-17T14:49:48Z"
+    },
+    {
+      "fullName": "Sheshiyer/explee-skills",
+      "repositoryId": "R_kgDOSwLpNw",
+      "nodeId": "R_kgDOSwLpNw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:39Z",
+      "updatedAt": "2026-08-07T00:46:06Z"
+    },
+    {
+      "fullName": "Sheshiyer/fitcheck-landing",
+      "repositoryId": "R_kgDOSzF56w",
+      "nodeId": "R_kgDOSzF56w",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:57Z",
+      "updatedAt": "2026-08-07T00:45:01Z"
+    },
+    {
+      "fullName": "Sheshiyer/fitcheck-wiki",
+      "repositoryId": "R_kgDOT0IfLQ",
+      "nodeId": "R_kgDOT0IfLQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-10T11:12:26Z",
+      "updatedAt": "2026-08-10T11:12:31Z"
+    },
+    {
+      "fullName": "Sheshiyer/fmrl",
+      "repositoryId": "R_kgDORqSNzg",
+      "nodeId": "R_kgDORqSNzg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:59Z",
+      "updatedAt": "2026-08-07T00:45:06Z"
+    },
+    {
+      "fullName": "Sheshiyer/FMRLcam",
+      "repositoryId": "R_kgDOO-B17A",
+      "nodeId": "R_kgDOO-B17A",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-06-18T20:40:19Z",
+      "updatedAt": "2025-06-18T20:40:22Z"
+    },
+    {
+      "fullName": "Sheshiyer/github-next-wave-orchestrator",
+      "repositoryId": "R_kgDOR8yoLw",
+      "nodeId": "R_kgDOR8yoLw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:53:01Z",
+      "updatedAt": "2026-04-27T19:29:19Z"
+    },
+    {
+      "fullName": "Sheshiyer/glam-cli",
+      "repositoryId": "R_kgDORaamzA",
+      "nodeId": "R_kgDORaamzA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:01Z",
+      "updatedAt": "2026-08-07T00:45:25Z"
+    },
+    {
+      "fullName": "Sheshiyer/harshtruths-blog-v1",
+      "repositoryId": "R_kgDOTIQbHg",
+      "nodeId": "R_kgDOTIQbHg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:43Z",
+      "updatedAt": "2026-08-07T00:45:54Z"
+    },
+    {
+      "fullName": "Sheshiyer/HDILINT-backend-aleph",
+      "repositoryId": "R_kgDOS4jKmg",
+      "nodeId": "R_kgDOS4jKmg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:52:17Z",
+      "updatedAt": "2026-08-06T10:27:47Z"
+    },
+    {
+      "fullName": "Sheshiyer/hermes-aws-ts",
+      "repositoryId": "R_kgDOS6faAg",
+      "nodeId": "R_kgDOS6faAg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T03:16:54Z",
+      "updatedAt": "2026-07-29T12:05:56Z"
+    },
+    {
+      "fullName": "Sheshiyer/heyzack-builder-pitch-experience",
+      "repositoryId": "R_kgDORBv0fQ",
+      "nodeId": "R_kgDORBv0fQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-02-03T16:21:28Z",
+      "updatedAt": "2026-02-03T16:23:48Z"
+    },
+    {
+      "fullName": "Sheshiyer/heyzack-dashboard",
+      "repositoryId": "R_kgDOOECMkw",
+      "nodeId": "R_kgDOOECMkw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-03-07T10:38:16Z",
+      "updatedAt": "2025-03-07T10:38:19Z"
+    },
+    {
+      "fullName": "Sheshiyer/heyzack-design-token-system",
+      "repositoryId": "R_kgDOQ_7vEw",
+      "nodeId": "R_kgDOQ_7vEw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:02:19Z",
+      "updatedAt": "2026-01-23T18:50:31Z"
+    },
+    {
+      "fullName": "Sheshiyer/heyzack-launchboom-wiki-v0.2",
+      "repositoryId": "R_kgDOPtC3hA",
+      "nodeId": "R_kgDOPtC3hA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:41Z",
+      "updatedAt": "2026-08-07T00:44:46Z"
+    },
+    {
+      "fullName": "Sheshiyer/heyzack-miniapp-design-systems",
+      "repositoryId": "R_kgDOQ6CW7w",
+      "nodeId": "R_kgDOQ6CW7w",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:02:10Z",
+      "updatedAt": "2026-01-14T23:55:13Z"
+    },
+    {
+      "fullName": "Sheshiyer/hostscalev0",
+      "repositoryId": "R_kgDOOR3f_A",
+      "nodeId": "R_kgDOOR3f_A",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:04Z",
+      "updatedAt": "2026-08-07T00:45:18Z"
+    },
+    {
+      "fullName": "Sheshiyer/Insightreality",
+      "repositoryId": "R_kgDOSxg4Kw",
+      "nodeId": "R_kgDOSxg4Kw",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:06Z",
+      "updatedAt": "2026-08-07T00:45:13Z"
+    },
+    {
+      "fullName": "Sheshiyer/iverif-wiki",
+      "repositoryId": "R_kgDOSwXJ7Q",
+      "nodeId": "R_kgDOSwXJ7Q",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:09Z",
+      "updatedAt": "2026-06-04T23:09:08Z"
+    },
+    {
+      "fullName": "Sheshiyer/kacima-new",
+      "repositoryId": "R_kgDOQgKyqQ",
+      "nodeId": "R_kgDOQgKyqQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-23T18:24:32Z",
+      "updatedAt": "2026-07-23T18:24:36Z"
+    },
+    {
+      "fullName": "Sheshiyer/kkv2-admin-panel",
+      "repositoryId": "R_kgDOSzKl3w",
+      "nodeId": "R_kgDOSzKl3w",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-18T10:30:24Z",
+      "updatedAt": "2026-07-18T10:30:31Z"
+    },
+    {
+      "fullName": "Sheshiyer/kkv2-klear-karma-RN",
+      "repositoryId": "R_kgDOSUMQlw",
+      "nodeId": "R_kgDOSUMQlw",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-29T05:45:30Z",
+      "updatedAt": "2026-07-29T05:46:12Z"
+    },
+    {
+      "fullName": "Sheshiyer/klear-karma",
+      "repositoryId": "R_kgDOSTjD5w",
+      "nodeId": "R_kgDOSTjD5w",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-05-04T17:47:52Z",
+      "updatedAt": "2026-05-04T17:47:55Z"
+    },
+    {
+      "fullName": "Sheshiyer/klear-karma-backend",
+      "repositoryId": "R_kgDOPT_ipA",
+      "nodeId": "R_kgDOPT_ipA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T13:50:44Z",
+      "updatedAt": "2025-07-28T22:34:08Z"
+    },
+    {
+      "fullName": "Sheshiyer/klear-karma-pitchv1",
+      "repositoryId": "R_kgDOPN3-TA",
+      "nodeId": "R_kgDOPN3-TA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-07-17T07:19:00Z",
+      "updatedAt": "2025-07-17T07:20:02Z"
+    },
+    {
+      "fullName": "Sheshiyer/klear-karma-website-v2",
+      "repositoryId": "R_kgDOSygkXA",
+      "nodeId": "R_kgDOSygkXA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:51:57Z",
+      "updatedAt": "2026-08-07T00:52:21Z"
+    },
+    {
+      "fullName": "Sheshiyer/Klearkarma-wiki",
+      "repositoryId": "R_kgDOPNXkIQ",
+      "nodeId": "R_kgDOPNXkIQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T13:50:06Z",
+      "updatedAt": "2025-07-28T07:10:32Z"
+    },
+    {
+      "fullName": "Sheshiyer/kristudios-heritage",
+      "repositoryId": "R_kgDOQR5HOw",
+      "nodeId": "R_kgDOQR5HOw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-11-08T18:42:19Z",
+      "updatedAt": "2025-11-08T18:42:23Z"
+    },
+    {
+      "fullName": "Sheshiyer/kristudios-space",
+      "repositoryId": "R_kgDOQoS0Lw",
+      "nodeId": "R_kgDOQoS0Lw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-12-14T05:19:12Z",
+      "updatedAt": "2025-12-14T05:19:16Z"
+    },
+    {
+      "fullName": "Sheshiyer/kristudios-v2-web",
+      "repositoryId": "R_kgDOTwnX4g",
+      "nodeId": "R_kgDOTwnX4g",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:51:25Z",
+      "updatedAt": "2026-08-07T00:51:41Z"
+    },
+    {
+      "fullName": "Sheshiyer/kristudios-wiki",
+      "repositoryId": "R_kgDORP_PqA",
+      "nodeId": "R_kgDORP_PqA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:02:31Z",
+      "updatedAt": "2026-02-14T03:27:45Z"
+    },
+    {
+      "fullName": "Sheshiyer/manifest-skill-137",
+      "repositoryId": "R_kgDOS2vokQ",
+      "nodeId": "R_kgDOS2vokQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:41Z",
+      "updatedAt": "2026-08-07T00:45:52Z"
+    },
+    {
+      "fullName": "Sheshiyer/marina-one-v2-preview",
+      "repositoryId": "R_kgDOREKjnQ",
+      "nodeId": "R_kgDOREKjnQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:01:47Z",
+      "updatedAt": "2026-01-29T15:36:11Z"
+    },
+    {
+      "fullName": "Sheshiyer/marina1-k",
+      "repositoryId": "R_kgDOSydYag",
+      "nodeId": "R_kgDOSydYag",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-11T08:07:10Z",
+      "updatedAt": "2026-07-28T10:41:30Z"
+    },
+    {
+      "fullName": "Sheshiyer/meristem",
+      "repositoryId": "R_kgDOS1oGpg",
+      "nodeId": "R_kgDOS1oGpg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:52Z",
+      "updatedAt": "2026-08-07T00:45:06Z"
+    },
+    {
+      "fullName": "Sheshiyer/motionsites-skills",
+      "repositoryId": "R_kgDOS_VZjw",
+      "nodeId": "R_kgDOS_VZjw",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:17Z",
+      "updatedAt": "2026-08-07T00:45:29Z"
+    },
+    {
+      "fullName": "Sheshiyer/newsense",
+      "repositoryId": "R_kgDOSXaB2w",
+      "nodeId": "R_kgDOSXaB2w",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:27Z",
+      "updatedAt": "2026-05-08T05:18:28Z"
+    },
+    {
+      "fullName": "Sheshiyer/newsense-launch",
+      "repositoryId": "R_kgDOSe9pDg",
+      "nodeId": "R_kgDOSe9pDg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-05-16T05:50:31Z",
+      "updatedAt": "2026-05-20T05:15:46Z"
+    },
+    {
+      "fullName": "Sheshiyer/newsense-spatial",
+      "repositoryId": "R_kgDOSv-DFg",
+      "nodeId": "R_kgDOSv-DFg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:31Z",
+      "updatedAt": "2026-08-07T00:45:48Z"
+    },
+    {
+      "fullName": "Sheshiyer/panorama-viewer-marina-beta",
+      "repositoryId": "R_kgDORGVvKA",
+      "nodeId": "R_kgDORGVvKA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-11T06:38:51Z",
+      "updatedAt": "2026-07-28T10:41:35Z"
+    },
+    {
+      "fullName": "Sheshiyer/panorama-viewer-marina-one",
+      "repositoryId": "R_kgDORDIGYg",
+      "nodeId": "R_kgDORDIGYg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-01-28T10:24:29Z",
+      "updatedAt": "2026-01-28T10:26:21Z"
+    },
+    {
+      "fullName": "Sheshiyer/parkarea-aleph",
+      "repositoryId": "R_kgDOSDqEkg",
+      "nodeId": "R_kgDOSDqEkg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T02:00:02Z",
+      "updatedAt": "2026-08-07T02:00:22Z"
+    },
+    {
+      "fullName": "Sheshiyer/parkarea-wiki-v0",
+      "repositoryId": "R_kgDOTFJkwA",
+      "nodeId": "R_kgDOTFJkwA",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:37Z",
+      "updatedAt": "2026-08-07T00:45:42Z"
+    },
+    {
+      "fullName": "Sheshiyer/plexus-ts",
+      "repositoryId": "R_kgDOS3DVng",
+      "nodeId": "R_kgDOS3DVng",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-08T00:34:02Z",
+      "updatedAt": "2026-08-08T00:34:06Z"
+    },
+    {
+      "fullName": "Sheshiyer/president-panaroma",
+      "repositoryId": "R_kgDOSFeR0w",
+      "nodeId": "R_kgDOSFeR0w",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-28T15:55:02Z",
+      "updatedAt": "2026-04-28T15:56:24Z"
+    },
+    {
+      "fullName": "Sheshiyer/products-list-heyzack-gen",
+      "repositoryId": "R_kgDOPw5lqw",
+      "nodeId": "R_kgDOPw5lqw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:02:23Z",
+      "updatedAt": "2025-09-16T11:52:46Z"
+    },
+    {
+      "fullName": "Sheshiyer/professional-headshot-suite",
+      "repositoryId": "R_kgDOS5tCNQ",
+      "nodeId": "R_kgDOS5tCNQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-06-13T15:09:28Z",
+      "updatedAt": "2026-06-13T15:09:32Z"
+    },
+    {
+      "fullName": "Sheshiyer/rasa",
+      "repositoryId": "R_kgDOTONv-A",
+      "nodeId": "R_kgDOTONv-A",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:13Z",
+      "updatedAt": "2026-08-07T00:45:21Z"
+    },
+    {
+      "fullName": "Sheshiyer/ratandevelopers-property-coauthor",
+      "repositoryId": "R_kgDOTONgwQ",
+      "nodeId": "R_kgDOTONgwQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:44:46Z",
+      "updatedAt": "2026-08-07T00:45:11Z"
+    },
+    {
+      "fullName": "Sheshiyer/raycast-extensions",
+      "repositoryId": "R_kgDOSKrf_g",
+      "nodeId": "R_kgDOSKrf_g",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-26T16:41:13Z",
+      "updatedAt": "2026-04-26T16:43:24Z"
+    },
+    {
+      "fullName": "Sheshiyer/readme-skill",
+      "repositoryId": "R_kgDORUPtDw",
+      "nodeId": "R_kgDORUPtDw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-02-19T21:09:01Z",
+      "updatedAt": "2026-05-29T03:27:04Z"
+    },
+    {
+      "fullName": "Sheshiyer/rork-klear-karma-mobile-app-frontend",
+      "repositoryId": "R_kgDOPcQ4Lg",
+      "nodeId": "R_kgDOPcQ4Lg",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-03-28T10:02:46Z",
+      "updatedAt": "2026-03-28T10:02:50Z"
+    },
+    {
+      "fullName": "Sheshiyer/sandboxlife-v2",
+      "repositoryId": "R_kgDOQ6bPDQ",
+      "nodeId": "R_kgDOQ6bPDQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-02-25T00:42:05Z",
+      "updatedAt": "2026-02-25T00:42:09Z"
+    },
+    {
+      "fullName": "Sheshiyer/skill-clusters",
+      "repositoryId": "R_kgDOSxWr3Q",
+      "nodeId": "R_kgDOSxWr3Q",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T03:17:12Z",
+      "updatedAt": "2026-07-07T07:46:51Z"
+    },
+    {
+      "fullName": "Sheshiyer/skyline-viewer-ashwin-sheth-group",
+      "repositoryId": "R_kgDOQQelWQ",
+      "nodeId": "R_kgDOQQelWQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T13:50:37Z",
+      "updatedAt": "2026-01-29T14:44:34Z"
+    },
+    {
+      "fullName": "Sheshiyer/snow-gloves-os",
+      "repositoryId": "R_kgDOSgmVdA",
+      "nodeId": "R_kgDOSgmVdA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T23:01:43Z",
+      "updatedAt": "2026-06-18T07:21:14Z"
+    },
+    {
+      "fullName": "Sheshiyer/swarm-architect-skill",
+      "repositoryId": "R_kgDORnhHjQ",
+      "nodeId": "R_kgDORnhHjQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-06T06:21:14Z",
+      "updatedAt": "2026-08-06T06:21:24Z"
+    },
+    {
+      "fullName": "Sheshiyer/team-forge-ts",
+      "repositoryId": "R_kgDOR6-E3A",
+      "nodeId": "R_kgDOR6-E3A",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T23:02:43Z",
+      "updatedAt": "2026-07-27T21:25:48Z"
+    },
+    {
+      "fullName": "Sheshiyer/temperance_engine",
+      "repositoryId": "R_kgDOS4KUUg",
+      "nodeId": "R_kgDOS4KUUg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T02:22:29Z",
+      "updatedAt": "2026-08-06T20:16:34Z"
+    },
+    {
+      "fullName": "Sheshiyer/temperance_engine_landing_page",
+      "repositoryId": "R_kgDOS6corQ",
+      "nodeId": "R_kgDOS6corQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T01:02:49Z",
+      "updatedAt": "2026-08-07T01:03:00Z"
+    },
+    {
+      "fullName": "Sheshiyer/thoughtseed-brand-atlas",
+      "repositoryId": "R_kgDOTq9alA",
+      "nodeId": "R_kgDOTq9alA",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-06T03:18:58Z",
+      "updatedAt": "2026-08-06T03:19:09Z"
+    },
+    {
+      "fullName": "Sheshiyer/thoughtseed-labs",
+      "repositoryId": "R_kgDONimwZA",
+      "nodeId": "R_kgDONimwZA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-08T16:37:29Z",
+      "updatedAt": "2026-07-28T00:37:44Z"
+    },
+    {
+      "fullName": "Sheshiyer/thoughtseed-paperclip",
+      "repositoryId": "R_kgDOSJvzpQ",
+      "nodeId": "R_kgDOSJvzpQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:46Z",
+      "updatedAt": "2026-08-07T00:46:03Z"
+    },
+    {
+      "fullName": "Sheshiyer/thoughtseed-vault",
+      "repositoryId": "R_kgDOSJs3dQ",
+      "nodeId": "R_kgDOSJs3dQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T03:17:02Z",
+      "updatedAt": "2026-08-06T22:39:27Z"
+    },
+    {
+      "fullName": "Sheshiyer/tirak-backend-alpha01",
+      "repositoryId": "R_kgDOO5Ekzg",
+      "nodeId": "R_kgDOO5Ekzg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:52Z",
+      "updatedAt": "2026-08-07T00:46:04Z"
+    },
+    {
+      "fullName": "Sheshiyer/tirak-mobile-app-v2",
+      "repositoryId": "R_kgDOSkuDKw",
+      "nodeId": "R_kgDOSkuDKw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T03:16:16Z",
+      "updatedAt": "2026-05-27T07:15:21Z"
+    },
+    {
+      "fullName": "Sheshiyer/tirak-website-v1",
+      "repositoryId": "R_kgDOQDvyvQ",
+      "nodeId": "R_kgDOQDvyvQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-25T10:11:40Z",
+      "updatedAt": "2026-07-25T10:11:45Z"
+    },
+    {
+      "fullName": "Sheshiyer/tirakplus",
+      "repositoryId": "R_kgDOSXh9KQ",
+      "nodeId": "R_kgDOSXh9KQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:54Z",
+      "updatedAt": "2026-08-07T00:46:04Z"
+    },
+    {
+      "fullName": "Sheshiyer/tirakplus0admin",
+      "repositoryId": "R_kgDOSXh9OQ",
+      "nodeId": "R_kgDOSXh9OQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:56Z",
+      "updatedAt": "2026-08-07T00:46:03Z"
+    },
+    {
+      "fullName": "Sheshiyer/v0-co-property",
+      "repositoryId": "R_kgDOOhxT2w",
+      "nodeId": "R_kgDOOhxT2w",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-05-06T09:10:22Z",
+      "updatedAt": "2025-05-06T09:10:25Z"
+    },
+    {
+      "fullName": "Sheshiyer/v0-coproperty-checklist",
+      "repositoryId": "R_kgDOOrAk_Q",
+      "nodeId": "R_kgDOOrAk_Q",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-05-22T08:00:54Z",
+      "updatedAt": "2025-05-22T08:00:57Z"
+    },
+    {
+      "fullName": "Sheshiyer/v0-coproperty-edu",
+      "repositoryId": "R_kgDOOuZQ2A",
+      "nodeId": "R_kgDOOuZQ2A",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-05-22T07:58:00Z",
+      "updatedAt": "2025-05-22T07:58:04Z"
+    },
+    {
+      "fullName": "Sheshiyer/valmark-cocreate",
+      "repositoryId": "R_kgDOTmy2EQ",
+      "nodeId": "R_kgDOTmy2EQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-07-29T05:55:12Z",
+      "updatedAt": "2026-07-29T05:57:38Z"
+    },
+    {
+      "fullName": "Sheshiyer/vantyx",
+      "repositoryId": "R_kgDOSzK35A",
+      "nodeId": "R_kgDOSzK35A",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:33Z",
+      "updatedAt": "2026-08-07T00:46:00Z"
+    },
+    {
+      "fullName": "Sheshiyer/Vibrasonix-Wiki",
+      "repositoryId": "R_kgDOOMq9Fw",
+      "nodeId": "R_kgDOOMq9Fw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-03-22T07:07:20Z",
+      "updatedAt": "2025-03-22T07:07:24Z"
+    },
+    {
+      "fullName": "Sheshiyer/vibrasonix-wiki-v1",
+      "repositoryId": "R_kgDOPaqOtg",
+      "nodeId": "R_kgDOPaqOtg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:03:25Z",
+      "updatedAt": "2025-08-11T09:26:30Z"
+    },
+    {
+      "fullName": "Sheshiyer/virtualtryon",
+      "repositoryId": "R_kgDOSxfEqw",
+      "nodeId": "R_kgDOSxfEqw",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:46:00Z",
+      "updatedAt": "2026-08-07T00:46:14Z"
+    },
+    {
+      "fullName": "Sheshiyer/wanderfruit-wiki-alpha",
+      "repositoryId": "R_kgDOQy3BzA",
+      "nodeId": "R_kgDOQy3BzA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-01-03T05:45:18Z",
+      "updatedAt": "2026-01-03T05:45:21Z"
+    },
+    {
+      "fullName": "Sheshiyer/website",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzNzU1MDg0MDg=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzNzU1MDg0MDg=",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2021-10-02T16:43:26Z",
+      "updatedAt": "2021-10-02T16:43:29Z"
+    },
+    {
+      "fullName": "Sheshiyer/whspr-assist",
+      "repositoryId": "R_kgDORkZPnw",
+      "nodeId": "R_kgDORkZPnw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:03:30Z",
+      "updatedAt": "2026-03-13T09:26:12Z"
+    },
+    {
+      "fullName": "Sheshiyer/whspr-pitch-alpha",
+      "repositoryId": "R_kgDOQ3NmTg",
+      "nodeId": "R_kgDOQ3NmTg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-01-10T12:05:28Z",
+      "updatedAt": "2026-01-10T12:06:12Z"
+    },
+    {
+      "fullName": "Sheshiyer/whspr-wiki",
+      "repositoryId": "R_kgDOQ9yhhw",
+      "nodeId": "R_kgDOQ9yhhw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-01-20T19:59:10Z",
+      "updatedAt": "2026-01-20T19:59:14Z"
+    },
+    {
+      "fullName": "Sheshiyer/wiki-coproperty",
+      "repositoryId": "R_kgDOOf6QRA",
+      "nodeId": "R_kgDOOf6QRA",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-05-06T10:07:09Z",
+      "updatedAt": "2025-05-06T22:34:20Z"
+    },
+    {
+      "fullName": "Sheshiyer/wiki-coproperty-v1",
+      "repositoryId": "R_kgDOQy2PiQ",
+      "nodeId": "R_kgDOQy2PiQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-01-03T05:14:01Z",
+      "updatedAt": "2026-01-03T05:14:09Z"
+    },
+    {
+      "fullName": "Sheshiyer/wikiv2-tirakapp",
+      "repositoryId": "R_kgDOQ-nokA",
+      "nodeId": "R_kgDOQ-nokA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:58Z",
+      "updatedAt": "2026-07-14T09:48:32Z"
+    },
+    {
+      "fullName": "Sheshiyer/workforce-automation-app-symphonics",
+      "repositoryId": "R_kgDOOM0pmw",
+      "nodeId": "R_kgDOOM0pmw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-03-22T09:47:22Z",
+      "updatedAt": "2025-03-22T09:47:26Z"
+    },
+    {
+      "fullName": "Sheshiyer/wtfmedia",
+      "repositoryId": "R_kgDOSuOvow",
+      "nodeId": "R_kgDOSuOvow",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:46:05Z",
+      "updatedAt": "2026-08-07T00:46:45Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/Breathspectrum",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NDQ0MjU=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzMDE0NDQ0MjU=",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2020-10-05T14:53:42Z",
+      "updatedAt": "2020-10-05T14:53:41Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/DeepAR-Unity",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NDMxODE=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzMDE0NDMxODE=",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2020-10-05T14:49:44Z",
+      "updatedAt": "2020-10-05T14:49:42Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/DezinerAI",
+      "repositoryId": "R_kgDOQZDb3Q",
+      "nodeId": "R_kgDOQZDb3Q",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-12-04T06:48:17Z",
+      "updatedAt": "2025-12-04T06:48:20Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/faceananlysisbeta",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkyNjU5NjczMjc=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkyNjU5NjczMjc=",
+      "visibility": "PRIVATE",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2020-10-05T15:00:14Z",
+      "updatedAt": "2020-10-05T15:00:42Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/JetScan",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDY2MDkwNjE=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzMDY2MDkwNjE=",
+      "visibility": "PUBLIC",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2020-10-07T16:38:50Z",
+      "updatedAt": "2020-10-23T10:56:30Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/lockwell-portal",
+      "repositoryId": "R_kgDOP5AZyQ",
+      "nodeId": "R_kgDOP5AZyQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-09-29T12:52:14Z",
+      "updatedAt": "2025-09-29T12:52:21Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/material_dump",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkyNjU5Njg0MzY=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkyNjU5Njg0MzY=",
+      "visibility": "PRIVATE",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2020-05-21T22:54:49Z",
+      "updatedAt": "2020-05-21T22:54:51Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/museVR",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzODQyMDI3NTA=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzODQyMDI3NTA=",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2021-07-08T17:34:38Z",
+      "updatedAt": "2021-07-08T17:34:41Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/Sense.Play",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzMzI4NjQ3MTk=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzMzI4NjQ3MTk=",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2021-03-09T21:01:57Z",
+      "updatedAt": "2021-03-09T21:02:00Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/TrueRNG-CMOS-Noise",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NTI5ODI=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzMDE0NTI5ODI=",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2020-10-05T15:21:47Z",
+      "updatedAt": "2020-10-05T15:21:46Z"
+    },
+    {
+      "fullName": "thoughtseed-labs/Unity-Biosensors",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzMDE0NDM4MzI=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzMDE0NDM4MzI=",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2020-10-05T14:51:50Z",
+      "updatedAt": "2020-10-05T14:51:48Z"
+    },
+    {
+      "fullName": "thoughtseed/thoughtseedlabs-web",
+      "repositoryId": "R_kgDOOMP4gw",
+      "nodeId": "R_kgDOOMP4gw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2025-05-19T17:20:30Z",
+      "updatedAt": "2025-05-19T17:20:33Z"
+    },
+    {
+      "fullName": "thoughtseed/ThoughtseedOS-Site",
+      "repositoryId": "R_kgDOOv6Kmg",
+      "nodeId": "R_kgDOOv6Kmg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-08-07T00:45:48Z",
+      "updatedAt": "2026-08-07T00:45:52Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/AR-Video-Player",
+      "repositoryId": "R_kgDOGw898w",
+      "nodeId": "R_kgDOGw898w",
+      "visibility": "PUBLIC",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2022-01-31T11:43:20Z",
+      "updatedAt": "2022-01-31T11:43:23Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/asm_test",
+      "repositoryId": "R_kgDOGGUNZA",
+      "nodeId": "R_kgDOGGUNZA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2021-09-22T16:21:49Z",
+      "updatedAt": "2021-09-22T16:21:51Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/didactic-octo-carnival",
+      "repositoryId": "R_kgDOGJyfZg",
+      "nodeId": "R_kgDOGJyfZg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2021-10-02T21:41:49Z",
+      "updatedAt": "2021-10-02T21:42:43Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/metaplex",
+      "repositoryId": "R_kgDOGKw-tg",
+      "nodeId": "R_kgDOGKw-tg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2021-10-12T06:15:59Z",
+      "updatedAt": "2021-10-12T06:16:05Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/Senselpay_Firmware",
+      "repositoryId": "MDEwOlJlcG9zaXRvcnkzOTI1OTk4ODc=",
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzOTI1OTk4ODc=",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2021-12-16T11:14:13Z",
+      "updatedAt": "2021-12-16T11:14:17Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/senseplay_dashboard_v0.01",
+      "repositoryId": "R_kgDOGM0cYw",
+      "nodeId": "R_kgDOGM0cYw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2021-10-11T21:41:15Z",
+      "updatedAt": "2021-10-11T21:41:19Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/solana-metaverse-test",
+      "repositoryId": "R_kgDOGGs7hA",
+      "nodeId": "R_kgDOGGs7hA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "solona-ver1",
+      "archived": false,
+      "pushedAt": "2021-09-24T17:31:00Z",
+      "updatedAt": "2021-09-23T18:49:05Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/tomBTfirmware",
+      "repositoryId": "R_kgDOG5mKJg",
+      "nodeId": "R_kgDOG5mKJg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2022-02-24T07:17:26Z",
+      "updatedAt": "2022-02-24T07:17:25Z"
+    },
+    {
+      "fullName": "thoughtseedlabs/Vibrasonix-Website",
+      "repositoryId": "R_kgDOIF5etA",
+      "nodeId": "R_kgDOIF5etA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2022-09-29T10:19:58Z",
+      "updatedAt": "2022-09-29T10:20:02Z"
+    },
+    {
+      "fullName": "Valoreventures/diverse_vitality",
+      "repositoryId": "R_kgDOMIGsEg",
+      "nodeId": "R_kgDOMIGsEg",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-07-29T09:37:55Z",
+      "updatedAt": "2024-07-29T09:37:58Z"
+    },
+    {
+      "fullName": "Valoreventures/journal_icons",
+      "repositoryId": "R_kgDOLV_0FQ",
+      "nodeId": "R_kgDOLV_0FQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-03-15T10:34:21Z",
+      "updatedAt": "2024-02-21T14:45:34Z"
+    },
+    {
+      "fullName": "Valoreventures/landing-page-v0.1",
+      "repositoryId": "R_kgDOLBNkdQ",
+      "nodeId": "R_kgDOLBNkdQ",
+      "visibility": "PRIVATE",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-07-29T09:50:37Z",
+      "updatedAt": "2024-07-29T09:50:40Z"
+    },
+    {
+      "fullName": "Valoreventures/sandbox-beta",
+      "repositoryId": "R_kgDOLgV6NQ",
+      "nodeId": "R_kgDOLgV6NQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2026-04-22T15:02:49Z",
+      "updatedAt": "2024-11-24T17:40:27Z"
+    },
+    {
+      "fullName": "Valoreventures/sandboxlife-alpha",
+      "repositoryId": "R_kgDOLSSGAQ",
+      "nodeId": "R_kgDOLSSGAQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-03-13T18:52:09Z",
+      "updatedAt": "2024-03-01T06:48:36Z"
+    },
+    {
+      "fullName": "Valoreventures/sandboxlife-api",
+      "repositoryId": "R_kgDOLS3GAA",
+      "nodeId": "R_kgDOLS3GAA",
+      "visibility": "PUBLIC",
+      "defaultBranch": "master",
+      "archived": false,
+      "pushedAt": "2024-03-13T18:25:22Z",
+      "updatedAt": "2024-02-15T12:33:38Z"
+    },
+    {
+      "fullName": "Valoreventures/sblchat",
+      "repositoryId": "R_kgDOMiFqAQ",
+      "nodeId": "R_kgDOMiFqAQ",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-08-11T13:57:57Z",
+      "updatedAt": "2024-08-11T13:58:46Z"
+    },
+    {
+      "fullName": "Valoreventures/website_videos",
+      "repositoryId": "R_kgDONL7Frw",
+      "nodeId": "R_kgDONL7Frw",
+      "visibility": "PUBLIC",
+      "defaultBranch": "main",
+      "archived": false,
+      "pushedAt": "2024-11-07T16:11:17Z",
+      "updatedAt": "2024-11-07T16:11:20Z"
+    }
+  ],
+  "portfolioCatalogRecords": [
+    {
+      "canonicalId": "branch:airdronauts-panorama-viewer-delivery",
+      "workId": "branch:airdronauts-panorama-viewer-delivery",
+      "name": "Airdronauts Panorama Viewer Delivery",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/airdronauts-productions/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "airdronauts-productions"
+    },
+    {
+      "canonicalId": "branch:ashwinsheth-marina-one-bangalore",
+      "workId": "branch:ashwinsheth-marina-one-bangalore",
+      "name": "Marina One — Bangalore Panorama Viewer",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:ashwinsheth-group/marina-one-KA/web",
+        "repo:Sheshiyer/marina1-k",
+        "repo:Sheshiyer/skyline-viewer-ashwin-sheth-group",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "ashwin-sheth-group"
+    },
+    {
+      "canonicalId": "branch:ashwinsheth-marina-one-mumbai",
+      "workId": "branch:ashwinsheth-marina-one-mumbai",
+      "name": "Marina One — Mumbai Panorama Viewer",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:ashwinsheth-group/panaroma-v2",
+        "repo:Sheshiyer/panorama-viewer-marina-one",
+        "repo:Sheshiyer/marina-one-v2-preview",
+        "repo:Sheshiyer/panorama-viewer-marina-beta",
+        "repo:Raheman-08/panorama-viewer-marina",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "ashwin-sheth-group"
+    },
+    {
+      "canonicalId": "branch:axtech",
+      "workId": "branch:axtech",
+      "name": "Axtech",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/axtech/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "axdis-group"
+    },
+    {
+      "canonicalId": "branch:axtech-erp",
+      "workId": "branch:axtech-erp",
+      "name": "Axtech ERP",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/axtech/erp/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "axdis-group"
+    },
+    {
+      "canonicalId": "branch:brightme",
+      "workId": "branch:brightme",
+      "name": "Brightme",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "retired",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/brightme/project-brief.md"
+      ],
+      "linkedCanonicalIds": [
+        "historical-product:brightme"
+      ],
+      "aliases": [],
+      "accountId": "brightme",
+      "commercialReuse": "white-labelable"
+    },
+    {
+      "canonicalId": "branch:bwssb",
+      "workId": "branch:bwssb",
+      "name": "BWSSB",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "proposed",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/spaceblanket-ai/bwssb/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "spaceblanket-ai"
+    },
+    {
+      "canonicalId": "branch:co-property",
+      "workId": "branch:co-property",
+      "name": "Co.Property",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Sheshiyer/copropertyspace",
+        "repo:Sheshiyer/dashboard-0.1-coproperty",
+        "repo:Sheshiyer/v0-co-property",
+        "repo:Sheshiyer/v0-coproperty-checklist",
+        "repo:Sheshiyer/v0-coproperty-edu",
+        "repo:Sheshiyer/wiki-coproperty-v1",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [
+        "sapling:hostscale"
+      ],
+      "aliases": [],
+      "accountId": "co-property"
+    },
+    {
+      "canonicalId": "branch:dorix",
+      "workId": "branch:dorix",
+      "name": "Dorix",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "retired",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/dorix/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "dorix"
+    },
+    {
+      "canonicalId": "branch:earthy-munchy",
+      "workId": "branch:earthy-munchy",
+      "name": "Earthy Munchy",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "proposed",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:earthy-munchy",
+        "repo:Sheshiyer/coming-soon-earthymunchy",
+        "repo:Sheshiyer/earthy-munchy-beta-launch",
+        "repo:Sheshiyer/earthymunchy-alpha",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "yamuna-foods"
+    },
+    {
+      "canonicalId": "branch:harsh-truths",
+      "workId": "branch:harsh-truths",
+      "name": "Harsh Truths",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "approved",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:synchronized-universe-blog",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "harshita"
+    },
+    {
+      "canonicalId": "branch:heyzack",
+      "workId": "branch:heyzack",
+      "name": "HeyZack",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/project-brief.md",
+        "repo:Heyzack-ai/Heyzack-Email-Templates",
+        "repo:Sheshiyer/heyzack-dashboard",
+        "repo:Sheshiyer/heyzack-launchboom-wiki-v0.2",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-crm",
+      "workId": "branch:heyzack-crm",
+      "name": "HeyZack CRM",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/crm/project-brief.md",
+        "repo:Heyzack-ai/PartnerCRMPortal-docs/apps/partner-docs/content/crm",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-customer-portal",
+      "workId": "branch:heyzack-customer-portal",
+      "name": "HeyZack Customer Portal",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/customer-portal/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-estimate",
+      "workId": "branch:heyzack-estimate",
+      "name": "HeyZack Estimate",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/estimate/project-brief.md",
+        "repo:HeyZack-Domotique/estimate-web",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-landing",
+      "workId": "branch:heyzack-landing",
+      "name": "HeyZack Landing",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/landing/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-panel-app",
+      "workId": "branch:heyzack-panel-app",
+      "name": "HeyZack Panel App",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/panel-app/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-partner-portal",
+      "workId": "branch:heyzack-partner-portal",
+      "name": "HeyZack Partner Portal",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/partner-portal/project-brief.md",
+        "repo:Heyzack-ai/PartnerCRMPortal-docs/apps/partner-docs/content/partner",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-proposal",
+      "workId": "branch:heyzack-proposal",
+      "name": "HeyZack Proposal",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/proposal/project-brief.md",
+        "repo:HeyZack-Domotique/heyzack-vinci-proposal",
+        "repo:Sheshiyer/heyzack-builder-pitch-experience",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-tooling",
+      "workId": "branch:heyzack-tooling",
+      "name": "HeyZack Tooling",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/tooling/project-brief.md",
+        "repo:Heyzack-ai/tuya-react-native",
+        "repo:Sheshiyer/brochure-py-heyzack",
+        "repo:Sheshiyer/email-engine-heyzack",
+        "repo:Sheshiyer/heyzack-design-token-system",
+        "repo:Sheshiyer/heyzack-miniapp-design-systems",
+        "repo:Sheshiyer/products-list-heyzack-gen",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-veloren-cee-ai",
+      "workId": "branch:heyzack-veloren-cee-ai",
+      "name": "Veloren CEE AI",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/veloren-cee-ai/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:heyzack-zackai",
+      "workId": "branch:heyzack-zackai",
+      "name": "HeyZack ZackAI",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/heyzack/zackai/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "heyzack"
+    },
+    {
+      "canonicalId": "branch:insight-realtors-legal-advisors",
+      "workId": "branch:insight-realtors-legal-advisors",
+      "name": "Insight Realtors and Legal Advisors",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "approved",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Insightreality",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "insight-realtors-legal-advisors"
+    },
+    {
+      "canonicalId": "branch:instal",
+      "workId": "branch:instal",
+      "name": "Instal",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "retired",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/instal/project-brief.md"
+      ],
+      "linkedCanonicalIds": [
+        "historical-product:instal"
+      ],
+      "aliases": [],
+      "accountId": "instal",
+      "commercialReuse": "white-labelable"
+    },
+    {
+      "canonicalId": "branch:kacima",
+      "workId": "branch:kacima",
+      "name": "Kācima",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Kacima",
+        "repo:Sheshiyer/kacima-new",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "kacima"
+    },
+    {
+      "canonicalId": "branch:klear-karma",
+      "workId": "branch:klear-karma",
+      "name": "Klear Karma",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Sheshiyer/klear-karma",
+        "repo:klear-karma.kkv2-admin-panel",
+        "repo:klear-karma.kkv2-klear-karma-rn",
+        "repo:klear-karma.klear-karma-website-v2",
+        "repo:Sheshiyer/Klearkarma-wiki",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "klear-karma"
+    },
+    {
+      "canonicalId": "branch:kristudios",
+      "workId": "branch:kristudios",
+      "name": "Kristudios",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "proposed",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Sheshiyer/kristudios-heritage",
+        "repo:Sheshiyer/kristudios-space",
+        "repo:Sheshiyer/kristudios-v2-web",
+        "repo:Sheshiyer/kristudios-wiki",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "kristudios"
+    },
+    {
+      "canonicalId": "branch:mathis",
+      "workId": "branch:mathis",
+      "name": "Mathis Portal",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "approved",
+      "tenantIdentity": {
+        "status": "documented-not-runtime-verified",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/mathis/project-brief.md",
+        "vault:60-client-ecosystem/mathis/tenant.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "mathis"
+    },
+    {
+      "canonicalId": "branch:newsense",
+      "workId": "branch:newsense",
+      "name": "Newsense",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/newsense/project-brief.md",
+        "repo:Sheshiyer/newsense",
+        "repo:Sheshiyer/newsense-launch",
+        "repo:Sheshiyer/newsense-spatial",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "newsense"
+    },
+    {
+      "canonicalId": "branch:parkarea",
+      "workId": "branch:parkarea",
+      "name": "ParkArea Client Delivery",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/parkarea/project-brief.md",
+        "repo:parkarea.parkarea-aleph",
+        "repo:parkarea.wiki"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "parkarea"
+    },
+    {
+      "canonicalId": "branch:pongotrasteros",
+      "workId": "branch:pongotrasteros",
+      "name": "Pongotrasteros",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/pongotrasteros/project-brief.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "pongotrasteros"
+    },
+    {
+      "canonicalId": "branch:safvr-landing-page",
+      "workId": "branch:safvr-landing-page",
+      "name": "SAFVR Landing Page",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "complete",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:SAFVR-SG/Landingpage2.0",
+        "cambium:docs/project-management/project-r2-mapping-proposals.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "safvr"
+    },
+    {
+      "canonicalId": "branch:sandboxlife",
+      "workId": "branch:sandboxlife",
+      "name": "SandBoxLife",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "approved",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/valore-ventures/project-brief.md",
+        "repo:Valoreventures/landing-page-v0.1",
+        "repo:Valoreventures/sandbox-beta",
+        "repo:Valoreventures/sandboxlife-alpha",
+        "repo:Valoreventures/sandboxlife-api",
+        "repo:Valoreventures/sblchat",
+        "repo:Sheshiyer/sandboxlife-v2",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "valore-ventures",
+      "operationalOverlay": "paused"
+    },
+    {
+      "canonicalId": "branch:symphonics",
+      "workId": "branch:symphonics",
+      "name": "Symphonics",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/symphonics/project-brief.md",
+        "repo:Sheshiyer/workforce-automation-app-symphonics",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "symphonics"
+    },
+    {
+      "canonicalId": "branch:thaleos",
+      "workId": "branch:thaleos",
+      "name": "Thaleos",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "complete",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/thaleos/project-brief.md"
+      ],
+      "linkedCanonicalIds": [
+        "historical-product:thaleos"
+      ],
+      "aliases": [],
+      "accountId": "thaleos"
+    },
+    {
+      "canonicalId": "branch:tirak",
+      "workId": "branch:tirak",
+      "name": "Tirak Client Partnership",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/tirak/project-brief.md",
+        "repo:pineappleinnovationlabs/rork-tirak--companion-marketplace-in-thailand",
+        "repo:pineappleinnovationlabs/tirak-admin-command-center",
+        "repo:Sheshiyer/tirak-backend-alpha01",
+        "repo:Sheshiyer/tirak-mobile-app-v2",
+        "repo:Sheshiyer/tirak-website-v1",
+        "repo:Sheshiyer/wikiv2-tirakapp",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "tirak"
+    },
+    {
+      "canonicalId": "branch:valmark",
+      "workId": "branch:valmark",
+      "name": "Valmark",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "proposed",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:ratan-pitch",
+        "repo:ratandevelopers",
+        "repo:Sheshiyer/Akshara-coauthor",
+        "repo:Sheshiyer/ratandevelopers-property-coauthor",
+        "repo:Sheshiyer/valmark-cocreate",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "valmark"
+    },
+    {
+      "canonicalId": "branch:wattconnect",
+      "workId": "branch:wattconnect",
+      "name": "WattConnect",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "complete",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/wattconnect/project-brief.md"
+      ],
+      "linkedCanonicalIds": [
+        "historical-product:wattconnect"
+      ],
+      "aliases": [],
+      "accountId": "wattconnect"
+    },
+    {
+      "canonicalId": "branch:wegrid-ai",
+      "workId": "branch:wegrid-ai",
+      "name": "Wegrid.ai",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "retired",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:60-client-ecosystem/wegrid-ai/project-brief.md"
+      ],
+      "linkedCanonicalIds": [
+        "historical-product:wegrid"
+      ],
+      "aliases": [],
+      "accountId": "wegrid"
+    },
+    {
+      "canonicalId": "branch:wtfmedia",
+      "workId": "branch:wtfmedia",
+      "name": "WTF Media Workspace",
+      "kind": "program",
+      "classification": "client-branch",
+      "programKind": "client",
+      "lifecycle": "proposed",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:wtfmedia",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [],
+      "accountId": "wtf-podcast"
+    },
+    {
+      "canonicalId": "program:cambium-operating-fabric",
+      "workId": "program:cambium-operating-fabric",
+      "name": "Cambium Operating Fabric",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "operations",
+      "lifecycle": "verifying",
+      "tenantIdentity": {
+        "status": "canonical",
+        "tenantId": "cambium"
+      },
+      "parentTenant": "cambium",
+      "provenance": [
+        "cambium:docs/architecture/cambium-operating-fabric.md"
+      ],
+      "linkedCanonicalIds": [
+        "sapling:cambium"
+      ],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:company-website",
+      "workId": "program:company-website",
+      "name": "Thoughtseed Company Website",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "company",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:thoughtseed/ThoughtseedOS-Site",
+        "repo:thoughtseed/thoughtseedlabs-web",
+        "repo:Sheshiyer/website",
+        "pages:thoughtseed-os-site",
+        "vault:10-brand-essence/public-website-snapshot.md",
+        "vault:40-products/digital-platforms/company-website/technical-implementation/README.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [
+        "program:thoughtseed-brand-atlas"
+      ],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:engineering-orchestration",
+      "workId": "program:engineering-orchestration",
+      "name": "Engineering Orchestration",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:github-next-wave-orchestrator",
+        "repo:swarm-architect-skill"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:explee-capabilities",
+      "workId": "program:explee-capabilities",
+      "name": "Explee Capability Pack",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:explee-skills",
+        "repo:Sheshiyer/professional-headshot-suite",
+        "repo:Sheshiyer/readme-skill",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:hdilint",
+      "workId": "program:hdilint",
+      "name": "HDILINT",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:HDILINT-backend-aleph"
+      ],
+      "linkedCanonicalIds": [
+        "sapling:fitcheck"
+      ],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:meristem-brand-system",
+      "workId": "program:meristem-brand-system",
+      "name": "Meristem Brand System",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:brandmint-v2",
+        "repo:Sheshiyer/brandmint-oracle-aleph",
+        "repo:Sheshiyer/motionsites-skills",
+        "vault:00-meta/system-of-records.md",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [
+        "program:thoughtseed-brand-atlas"
+      ],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:operator-utilities",
+      "workId": "program:operator-utilities",
+      "name": "Operator Utilities",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:gram-cli",
+        "repo:reddit-cli",
+        "repo:Sheshiyer/raycast-extensions",
+        "repo:Sheshiyer/readme-skill",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:paperclip-retired",
+      "workId": "program:paperclip-retired",
+      "name": "Paperclip Retired Execution Plane",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "operations",
+      "lifecycle": "retired",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:00-meta/system-of-records.md",
+        "repo:thoughtseed-paperclip"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:plexus",
+      "workId": "program:plexus",
+      "name": "Plexus Work Coordination",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:00-meta/system-of-records.md",
+        "repo:plexus-ts"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:skill-clusters",
+      "workId": "program:skill-clusters",
+      "name": "Skill Clusters",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Sheshiyer/skill-clusters",
+        "repo:manifest-skill-cluster",
+        "repo:Sheshiyer/motionsites-skills",
+        "repo:Sheshiyer/professional-headshot-suite",
+        "repo:Sheshiyer/readme-skill",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:snow-gloves-os",
+      "workId": "program:snow-gloves-os",
+      "name": "Snow Gloves OS",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "cambium:docs/plans/product-branches/snow-gloves-os.md",
+        "repo:Sheshiyer/snow-gloves-os"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:teamforge-control-plane",
+      "workId": "program:teamforge-control-plane",
+      "name": "TeamForge Cloudflare Control Plane",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "capability",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:00-meta/system-of-records.md",
+        "repo:team-forge-ts"
+      ],
+      "linkedCanonicalIds": [
+        "sapling:seedforge"
+      ],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:temperance-hermes",
+      "workId": "program:temperance-hermes",
+      "name": "Hermes and Temperance Execution Plane",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "operations",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:00-meta/system-of-records.md",
+        "repo:Sheshiyer/temperance_engine",
+        "repo:Sheshiyer/hermes-aws-ts",
+        "repo:Sheshiyer/temperance_engine_landing_page",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:thoughtseed-brand-atlas",
+      "workId": "program:thoughtseed-brand-atlas",
+      "name": "Thoughtseed Brand Atlas",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "company",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:thoughtseed-brand-atlas",
+        "vault:10-brand-essence/visual-identity-2026-08/README.md"
+      ],
+      "linkedCanonicalIds": [
+        "program:company-website",
+        "program:meristem-brand-system"
+      ],
+      "aliases": []
+    },
+    {
+      "canonicalId": "program:thoughtseed-vault",
+      "workId": "program:thoughtseed-vault",
+      "name": "Thoughtseed Labs Vault",
+      "kind": "program",
+      "classification": "internal-program",
+      "programKind": "company",
+      "lifecycle": "executing",
+      "tenantIdentity": {
+        "status": "not-applicable",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:00-meta/system-of-records.md",
+        "repo:Sheshiyer/thoughtseed-labs",
+        "repo:Sheshiyer/thoughtseed-vault",
+        "cambium:docs/project-management/github-repository-mapping-action-queue.v1.json"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:10869-space",
+      "workId": "sapling:10869-space",
+      "name": "10869.space",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "supervised-branch",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:10869",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:agentfount",
+      "workId": "sapling:agentfount",
+      "name": "AgentFount",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:rssfeedscrapper",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:cambium",
+      "workId": "sapling:cambium",
+      "name": "Cambium",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "supervised-branch",
+      "tenantIdentity": {
+        "status": "canonical",
+        "tenantId": "cambium"
+      },
+      "parentTenant": "cambium",
+      "provenance": [
+        "vault:00-meta/entity-registry.md",
+        "vault:40-products/cambium/product-overview.md"
+      ],
+      "linkedCanonicalIds": [
+        "program:cambium-operating-fabric"
+      ],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:dlock",
+      "workId": "sapling:dlock",
+      "name": "DLOCK",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "canonical-parent",
+        "tenantId": "cambium"
+      },
+      "parentTenant": "cambium",
+      "provenance": [
+        "repo:thoughtseed-labs/lockwell-portal",
+        "repo-id:R_kgDOP5AZyQ",
+        "site:https://dlock-lp.vercel.app/",
+        "cambium:docs/plans/product-branches/dlock.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": [
+        {
+          "value": "dlock",
+          "namespace": "brand-alias",
+          "tenantAuthority": false
+        },
+        {
+          "value": "Lockwell",
+          "namespace": "legacy-repo-name",
+          "tenantAuthority": false
+        }
+      ]
+    },
+    {
+      "canonicalId": "sapling:effort-glyph",
+      "workId": "sapling:effort-glyph",
+      "name": "Effort Glyph",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:40-products/19-effort-glyph/README.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:fitcheck",
+      "workId": "sapling:fitcheck",
+      "name": "Fitcheck",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "supervised-branch",
+      "tenantIdentity": {
+        "status": "canonical-parent",
+        "tenantId": "cambium"
+      },
+      "parentTenant": "cambium",
+      "provenance": [
+        "repo:fitcheck-landing/README.md",
+        "repo-id:R_kgDOSzF56w",
+        "repo:Sheshiyer/fitcheck-wiki/README.md",
+        "repo-id:R_kgDOT0IfLQ",
+        "cambium:docs/plans/product-branches/fitcheck.md"
+      ],
+      "linkedCanonicalIds": [
+        "program:hdilint"
+      ],
+      "aliases": [
+        {
+          "value": "FitCheck",
+          "namespace": "legacy-product-name",
+          "tenantAuthority": false
+        },
+        {
+          "value": "getfitcheck",
+          "namespace": "brand-alias",
+          "tenantAuthority": false
+        }
+      ]
+    },
+    {
+      "canonicalId": "sapling:fmrl",
+      "workId": "sapling:fmrl",
+      "name": "FMRL",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:40-products/15-fmrl/product-overview.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:hostscale",
+      "workId": "sapling:hostscale",
+      "name": "HostScale",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:hostscalev0",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [
+        "branch:co-property"
+      ],
+      "aliases": [],
+      "commercialReuse": "white-labelable"
+    },
+    {
+      "canonicalId": "sapling:iverif",
+      "workId": "sapling:iverif",
+      "name": "IVerif",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "canonical-parent",
+        "tenantId": "cambium"
+      },
+      "parentTenant": "cambium",
+      "provenance": [
+        "repo:Sheshiyer/iverif-wiki",
+        "repo-id:R_kgDOSwXJ7Q",
+        "cambium:docs/plans/product-branches/iverif.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:nimbus-gate",
+      "workId": "sapling:nimbus-gate",
+      "name": "Nimbus Gate",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Coproperty/nimbus-gate",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:rasa",
+      "workId": "sapling:rasa",
+      "name": "Rasa",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "supervised-branch",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:monthlymealprep",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:seedforge",
+      "workId": "sapling:seedforge",
+      "name": "SeedForge",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:00-meta/entity-registry.md",
+        "vault:40-products/seedforge/product-overview.md"
+      ],
+      "linkedCanonicalIds": [
+        "program:teamforge-control-plane"
+      ],
+      "aliases": [
+        {
+          "value": "Seedforge",
+          "namespace": "vault-product-name",
+          "tenantAuthority": false
+        },
+        {
+          "value": "SeedForge",
+          "namespace": "founder-view-name",
+          "tenantAuthority": false
+        }
+      ]
+    },
+    {
+      "canonicalId": "sapling:vantyx",
+      "workId": "sapling:vantyx",
+      "name": "Vantyx",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "supervised-branch",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "cambium:docs/plans/product-branches/vantyx.md",
+        "repo:Panaroma-Webapp"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:vibrasonix",
+      "workId": "sapling:vibrasonix",
+      "name": "Vibrasonix",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:40-products/02-vibrasonix/product-overview.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:wanderfruit",
+      "workId": "sapling:wanderfruit",
+      "name": "WanderFruit",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "repo:Coproperty/wanderfruit-docs",
+        "cambium:docs/evidence/2026-08-06-classification-needed-findings.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:whatslegal",
+      "workId": "sapling:whatslegal",
+      "name": "WhatsLegal",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:40-products/16-whatslegal/product-overview.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    },
+    {
+      "canonicalId": "sapling:whspr",
+      "workId": "sapling:whspr",
+      "name": "WHSPR",
+      "kind": "sapling",
+      "classification": "sapling",
+      "portfolioStatus": "active",
+      "promotionState": "proof-only",
+      "tenantIdentity": {
+        "status": "unresolved",
+        "tenantId": null
+      },
+      "provenance": [
+        "vault:40-products/whspr/product-overview.md"
+      ],
+      "linkedCanonicalIds": [],
+      "aliases": []
+    }
+  ],
+  "inputDigest": "sha256:de3cd05fbd12385544a7ed38b89615d342131f2c7629eaad46557cd9258738b1"
+}

@@ -6,6 +6,7 @@ import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from '../../../wor
 import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts';
 import { REPOSITORY_INVENTORY } from './repository-inventory.generated.ts';
 import { PORTFOLIO_ROOT_MAP_DIGEST, PORTFOLIO_ROOTS } from './portfolio-root-map.generated.ts';
+import { snapshotDigest } from '../scripts/generate-portfolio-root-map.mjs';
 
 type Assignment = {
   workId: string;
@@ -245,6 +246,11 @@ if (!batch6) throw new Error('Batch 6 foundation reconciliation queue is missing
 const repositoryName = (repositoryRef: string): string => repositoryRef.split('/').slice(0, 2).join('/');
 
 test('current queue digests bind exact catalog and root authorities', () => {
+  const rootSnapshot = JSON.parse(readFileSync(
+    new URL('../../../docs/project-management/portfolio-roots.v1.json', import.meta.url),
+    'utf8',
+  ));
+  assert.equal(PORTFOLIO_ROOT_MAP_DIGEST, snapshotDigest(rootSnapshot));
   assert.deepEqual(queue.currentDigests, {
     rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
     catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
