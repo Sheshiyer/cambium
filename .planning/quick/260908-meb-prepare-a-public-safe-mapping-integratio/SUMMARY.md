@@ -33,7 +33,7 @@ patterns-established:
   - "Generated browser action bytes must contain the reviewed digest that the server guard accepts."
   - "Unclassified proposal identities remain explicit release blockers."
 requirements-completed: []
-duration: 2min
+duration: not_recorded
 completed: 2026-09-08
 ---
 
@@ -43,9 +43,7 @@ completed: 2026-09-08
 
 ## Performance
 
-- **Duration:** 2 min
-- **Started:** 2026-09-08T12:01:01Z
-- **Completed:** 2026-09-08T12:02:47Z
+- **Execution duration:** not reliably recorded; the summary-writing interval does not measure the complete task.
 - **Tasks:** 3
 - **Files modified:** 22
 
