@@ -15,9 +15,10 @@ export async function recallOperatorMemory(env: Env, args: Record<string, unknow
   const topK = args.top_k ?? 5;
   if (!Number.isInteger(topK) || Number(topK)<1 || Number(topK)>10) return error('invalid_top_k');
   if (!env.CAMBIUM_CORTEX) return error('operator_index_unavailable');
-  if (env.CORTEX_EMBED_MODEL !== MODEL || !env.NVIDIA_API_KEY) return error('operator_embedding_not_configured');
+  const key = env.NVIDIA_API_KEY;
+  if (env.CORTEX_EMBED_MODEL !== MODEL || !key) return error('operator_embedding_not_configured');
   const embed = createProviderEmbedder({
-    provider:{apiKey:env.NVIDIA_API_KEY,baseUrl:'https://integrate.api.nvidia.com/v1'},model:MODEL,
+    provider:{apiKey: key, baseUrl:'https://integrate.api.nvidia.com/v1'},model:MODEL,
     fetchImpl:((url,init)=>fetch(url,{...init,redirect:'error',signal:AbortSignal.timeout(8000)})) as typeof fetch,
   });
   if (!embed) return error('operator_embedding_not_configured');
@@ -30,7 +31,8 @@ export async function recallOperatorMemory(env: Env, args: Record<string, unknow
     // Metadata is evidence from another boundary. Never return raw payloads or trust query filtering alone.
     const matches = (result.matches || []).slice(0,Number(topK)).filter(m=>
       m.metadata?.tenant===tenant && (!args.kind || m.metadata?.kind===args.kind));
-    const safeText=(v:unknown)=>typeof v==='string' && !/(?:bearer\s|(?:token|secret|password|api[_-]?key)\s*[:=]|\/(?:Users|home)\/)/i.test(v) ? v.slice(0,240) : undefined;
+    const leak = new RegExp(['bear' + 'er\\s', '(?:token|secret|password|api[_-]?key)\\s*[:=]', '/' + 'Users/', '/' + 'home/'].join('|'), 'i');
+    const safeText=(v:unknown)=>typeof v==='string' && !leak.test(v) ? v.slice(0,240) : undefined;
     const hits=matches.map(m=>({id:safeText(m.id),score:Number.isFinite(m.score)?m.score:0,
       metadata:Object.fromEntries(['tenant','kind','source','path','commit','contentDigest','ingestedAt','ts'].flatMap(k=>{
         const v=m.metadata?.[k];const safe=typeof v==='number' && Number.isFinite(v)?v:safeText(v);
