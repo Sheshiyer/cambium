@@ -373,8 +373,8 @@ test('the original twelve-directory Thoughtseed census and Cambium Website workt
   assert.deepEqual(census.filter((folder) => !classified.has(folder)), [])
   assert.equal(thoughtseed.infrastructure.includes('cambium-website-semantics'), true)
   assert.equal(thoughtseed.folders.some(({ folder }) => folder === 'cambium-website-semantics'), false)
-  assert.equal(thoughtseed.folderCount, 62)
-  assert.equal(classified.size, 75)
+  assert.equal(thoughtseed.folderCount, 63)
+  assert.equal(classified.size, 76)
 })
 
 

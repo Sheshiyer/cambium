@@ -1,6 +1,6 @@
 {
   "schema": "thoughtseed.portfolio-root-map.v1",
-  "capturedAt": "2026-09-07T15:13:26Z",
+  "capturedAt": "2026-09-08T10:04:53Z",
   "authority": "proposal-only",
   "pathGrammar": "<projects-root>/<portfolio>/<repository>",
   "portfolios": [
@@ -8,7 +8,7 @@
       "portfolioId": "thoughtseed",
       "label": "Thoughtseed",
       "itemLabel": "WorkObject",
-      "folderCount": 62,
+      "folderCount": 63,
       "infrastructure": [
         "_physical-relocation-archive-2026-08-08",
         "openfang",
@@ -523,6 +523,14 @@
             "program:temperance-hermes"
           ],
           "status": "mapping-proposal"
+        },
+        {
+          "folder": "thai-seconds-marketplace",
+          "proposedKind": "needs-review",
+          "accountId": null,
+          "workIds": [],
+          "status": "unmapped",
+          "displayName": "Saanmai"
         },
         {
           "folder": "thoughtseed-brand-atlas",

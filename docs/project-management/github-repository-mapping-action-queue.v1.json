@@ -36,7 +36,7 @@
     "nextPhysicalPass": "Cambium and Temperance physical lanes are applied; Symphonics remains held with no authorized physical pass"
   },
   "currentDigests": {
-    "rootMapDigest": "52a106d39fe92ac84f6ff47362845fbcd1c5a0c7d11d9a1cd1e24729bdf678a0",
+    "rootMapDigest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
     "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
     "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309"
   },
@@ -69,7 +69,7 @@
       },
       "defaults": {
         "receiptKind": "mapping",
-        "rootMapDigest": "52a106d39fe92ac84f6ff47362845fbcd1c5a0c7d11d9a1cd1e24729bdf678a0",
+        "rootMapDigest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
         "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
         "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
         "founderDecisionStatus": "founder-reviewed",

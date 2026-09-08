@@ -2,7 +2,7 @@
   "schema": "thoughtseed.repository-intake-source.v1",
   "observedAt": "2026-09-07T00:12:26Z",
   "cutoffAt": "2026-08-07T23:49:35Z",
-  "rootMapDigest": "52a106d39fe92ac84f6ff47362845fbcd1c5a0c7d11d9a1cd1e24729bdf678a0",
+  "rootMapDigest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
   "collection": {
     "local": "complete",
     "remote": "complete"

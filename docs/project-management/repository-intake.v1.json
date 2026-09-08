@@ -3,8 +3,8 @@
   "authority": "observation-only",
   "observedAt": "2026-09-07T00:12:26Z",
   "cutoffAt": "2026-08-07T23:49:35Z",
-  "rootMapDigest": "52a106d39fe92ac84f6ff47362845fbcd1c5a0c7d11d9a1cd1e24729bdf678a0",
-  "sourceDigest": "58c414493ac4bf0494165f0a3b9219f8c252ba8a53365cbd76ed58da0f06cca7",
+  "rootMapDigest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
+  "sourceDigest": "a0f8996a6d0861e9817c688f2270d0bb5cc8c8863108b89b4415536f6a3b6c18",
   "observationDigest": "55026c14c4f088aecd6ab9443cc5df7e6fd5d5ce91a35ed3fd125963e8aeef5e",
   "collection": {
     "local": "complete",
