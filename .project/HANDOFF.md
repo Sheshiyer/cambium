@@ -2453,3 +2453,7 @@ kind and branch identity registration.
 - The project manifest and untracked next-wave receipt were normalized to portable paths after the standalone audit identified machine-local path leakage. The audit, drift check, rendered-doc check, and SHA-bound deterministic safety check passed afterward.
 - The one generated architecture-hook update triggered during tag preflight was restored to its committed, source-reviewed content; no unreviewed generated architecture content enters this closeout.
 - No runtime, provider, deployment, D1/KV/R2, Telegram, credential, connected-repository, or external-system mutation is included. Git tag creation remains local-only; no tag push is authorized by this checkpoint.
+
+### 2026-09-08 Saanmai census and local headers
+
+GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current census is76Thoughtseed/38Noesis with no directory drift. Saanmai remains an observed needs-review folder with no minted WorkObject. Four local headers read back as exact reviewed bytes;109portfolio tests pass with one existing skip. See `.planning/quick/260908-lme-refresh-the-approved-portfolio-census-wi/SUMMARY.md`. Existing ownership and foundation approvals remain intact; canonical promotion and source merges remain separate.
