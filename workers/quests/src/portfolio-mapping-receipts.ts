@@ -4,7 +4,7 @@ import {
   PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST,
 } from './portfolio-catalog.ts';
-import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
+import { REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
 export const PORTFOLIO_MAPPING_RECEIPT_SCHEMA = 'thoughtseed.portfolio-mapping-receipt.v1' as const;
 export const PORTFOLIO_MAPPING_BUNDLE_SCHEMA = 'thoughtseed.portfolio-mapping-receipt-bundle.v1' as const;
@@ -238,7 +238,7 @@ export function validatePortfolioMappingReceiptInput(raw: unknown): PortfolioMap
   if (!SHA256.test(classificationDigest) || classificationDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
     throw new PortfolioMappingReceiptValidationError('classificationDigest does not match the reviewed source');
   }
-  if (!SHA256.test(rootMapDigest) || rootMapDigest !== PORTFOLIO_ROOT_MAP_DIGEST) {
+  if (!SHA256.test(rootMapDigest) || rootMapDigest !== REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST) {
     throw new PortfolioMappingReceiptValidationError('rootMapDigest does not match the reviewed root map');
   }
   if (!SHA256.test(repositoryEvidenceDigest)) {

@@ -10,7 +10,10 @@ import {
   preparePortfolioMappingReceipt,
 } from './portfolio-mapping-receipts.ts';
 import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
-import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
+import {
+  PORTFOLIO_ROOT_MAP_DIGEST,
+  REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
+} from './portfolio-root-map.generated.ts';
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
 
@@ -44,7 +47,7 @@ function input(overrides: Record<string, unknown> = {}) {
     lifecycle: 'proposed',
     catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
     classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
-    rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+    rootMapDigest: REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
     repositoryEvidenceDigest: '5f745a2cc079aa56b3799d7a719bc1f41d3239c5fc7eba300d5882ed8639530f',
     ...overrides,
   };
@@ -65,6 +68,7 @@ test('rejects stale provenance pins and non-canonical WorkObject identity', asyn
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ catalogDigest: `sha256:${'0'.repeat(64)}` })), PortfolioMappingReceiptValidationError);
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ classificationDigest: '0'.repeat(64) })), PortfolioMappingReceiptValidationError);
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ rootMapDigest: '0'.repeat(64) })), PortfolioMappingReceiptValidationError);
+  await assert.rejects(() => preparePortfolioMappingReceipt(input({ rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST })), PortfolioMappingReceiptValidationError);
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ workObjectId: 'sapling:not-catalogued' })), PortfolioMappingReceiptValidationError);
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ workObjectKind: 'branch' })), PortfolioMappingReceiptValidationError);
 });

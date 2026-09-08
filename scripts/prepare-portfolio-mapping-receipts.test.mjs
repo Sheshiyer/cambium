@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 
 import { buildBatch3MappingReceiptBundle } from './prepare-portfolio-mapping-receipts.mjs'
+import {
+  PORTFOLIO_ROOT_MAP_DIGEST,
+  REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
+} from '../workers/quests/src/portfolio-root-map.generated.ts'
 
 test('compiles the complete reviewed Batch 3 mapping receipt set', async () => {
   const bundle = await buildBatch3MappingReceiptBundle()
@@ -32,7 +37,7 @@ test('preserves reviewed provenance splits without cross-contamination', async (
   assert.equal(bundle.receipts.some((receipt) => receipt.workObjectId === 'sapling:tirak'), false)
 })
 
-test('binds every receipt to current authorities and complete immutable metadata', async () => {
+test('binds every receipt to frozen reviewed authorities and complete immutable metadata', async () => {
   const bundle = await buildBatch3MappingReceiptBundle()
   for (const receipt of bundle.receipts) {
     assert.equal(receipt.rootMapDigest, bundle.digests.rootMapDigest)
@@ -43,4 +48,21 @@ test('binds every receipt to current authorities and complete immutable metadata
     assert.equal(Number.isSafeInteger(receipt.repository.databaseId), true)
     assert.equal(typeof receipt.repository.isFork, 'boolean')
   }
+})
+
+test('frozen historical inputs preserve existing receipt identities while the proposal census advances', async () => {
+  const [snapshotText, checkedInText] = await Promise.all([
+    readFile(new URL('./fixtures/portfolio-mapping-receipts-batch-3-input.v1.json', import.meta.url), 'utf8'),
+    readFile(new URL('../docs/project-management/portfolio-mapping-receipts-batch-3.v1.json', import.meta.url), 'utf8'),
+  ])
+  const snapshot = JSON.parse(snapshotText)
+  const checkedIn = JSON.parse(checkedInText)
+  const bundle = await buildBatch3MappingReceiptBundle()
+
+  assert.equal(snapshot.authority.rootMapDigest, REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST)
+  assert.notEqual(snapshot.authority.rootMapDigest, PORTFOLIO_ROOT_MAP_DIGEST)
+  assert.equal(snapshot.authority.expectedReceiptCount, 39)
+  assert.equal(snapshot.authority.expectedBundleDigest, checkedIn.bundleDigest)
+  assert.equal(bundle.bundleDigest, checkedIn.bundleDigest)
+  assert.deepEqual(bundle.receipts.map((receipt) => [receipt.receiptId, receipt.contentDigest]), checkedIn.receipts.map((receipt) => [receipt.receiptId, receipt.contentDigest]))
 })
