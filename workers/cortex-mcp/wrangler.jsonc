@@ -14,7 +14,7 @@
   ],
   "vars": {
     "ENVIRONMENT": "production",
-    "CORTEX_EMBED_MODEL": "nvidia/nv-embedqa-e5-v5",
+    "CORTEX_EMBED_MODEL": "nvidia/nemotron-3-embed-1b",
     "CONTEXT_ALLOWED_TENANTS": "cambium,thoughtseed,codigo-olimpo,parkarea"
   },
   "ai": {
@@ -27,7 +27,7 @@
     },
     {
       "binding": "CAMBIUM_CORTEX",
-      "index_name": "cambium-cortex"
+      "index_name": "cambium-cortex-n3"
     },
     {
       "binding": "MOTIONSITES_PROMPTS",

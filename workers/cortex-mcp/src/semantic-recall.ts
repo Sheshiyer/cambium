@@ -1,10 +1,22 @@
 import { createProviderEmbedder } from '../../quests/src/context-bindings.ts';
 import type { Env } from './index.ts';
 
-// Must match the producer in bin/operator/embed.ts; a dimension-only replacement is not parity.
-const MODEL = 'nvidia/nv-embedqa-e5-v5';
+// Hosted nv-embedqa-e5-v5 reached EOL 2026-08-25 (integrate.api.nvidia.com 410).
+// Surviving NVIDIA text embedder is nemotron-3-embed-1b (native 2048-d). Vectorize
+// rejects dimensions > 1536, so store the documented first-1024 slice after
+// L2-normalize. Do not query the frozen e5 cambium-cortex corpus with this producer.
+const MODEL = 'nvidia/nemotron-3-embed-1b';
+const NATIVE_DIMS = 2048;
+const STORE_DIMS = 1024;
 const KINDS = new Set(['decision','evidence','handoff','heartbeat','memory','note','routine','standup','task']);
 const error = (code: string) => ({isError:true,content:[{type:'text' as const,text:JSON.stringify({status:'unavailable',code})}]});
+
+function l2normalize(v: number[]): number[] {
+  let sum = 0;
+  for (const x of v) sum += x * x;
+  const n = Math.sqrt(sum) || 1;
+  return v.map((x) => x / n);
+}
 
 export async function recallOperatorMemory(env: Env, args: Record<string, unknown>) {
   const tenant = args.tenant;
@@ -19,12 +31,18 @@ export async function recallOperatorMemory(env: Env, args: Record<string, unknow
   if (env.CORTEX_EMBED_MODEL !== MODEL || !key) return error('operator_embedding_not_configured');
   const embed = createProviderEmbedder({
     provider:{apiKey: key, baseUrl:'https://integrate.api.nvidia.com/v1'},model:MODEL,
-    fetchImpl:((url,init)=>fetch(url,{...init,redirect:'error',signal:AbortSignal.timeout(8000)})) as typeof fetch,
+    fetchImpl:((url,init)=>{
+      const headers = new Headers(init?.headers);
+      headers.set('Accept', 'application/json');
+      return fetch(url,{...init,headers,signal:AbortSignal.timeout(20000)});
+    }) as typeof fetch,
   });
   if (!embed) return error('operator_embedding_not_configured');
   try {
-    const vector = await embed(args.query);
-    if (vector.length !== 1024 || !vector.every(Number.isFinite) || vector.every(v=>v===0)) return error('operator_embedding_contract_mismatch');
+    const native = await embed(args.query);
+    if (native.length !== NATIVE_DIMS || !native.every(Number.isFinite) || native.every(v=>v===0)) return error('operator_embedding_contract_mismatch');
+    const vector = l2normalize(native.slice(0, STORE_DIMS));
+    if (vector.length !== STORE_DIMS || !vector.every(Number.isFinite) || vector.every(v=>v===0)) return error('operator_embedding_contract_mismatch');
     const filter:Record<string,unknown>={tenant:{$eq:tenant}};
     if (args.kind) filter.kind={$eq:args.kind};
     const result = await env.CAMBIUM_CORTEX.query(vector,{topK:Number(topK),returnMetadata:'all',filter});
@@ -38,6 +56,12 @@ export async function recallOperatorMemory(env: Env, args: Record<string, unknow
         const v=m.metadata?.[k];const safe=typeof v==='number' && Number.isFinite(v)?v:safeText(v);
         return safe===undefined?[]:[[k,safe]];
       }))}));
-    return {content:[{type:'text' as const,text:JSON.stringify({status:hits.length?'ok':'empty',embedding_model:MODEL,dimensions:1024,hits,mutation_enabled:false})}]};
-  } catch { return error('operator_provider_error'); }
+    return {content:[{type:'text' as const,text:JSON.stringify({status:hits.length?'ok':'empty',embedding_model:MODEL,dimensions:STORE_DIMS,native_dimensions:NATIVE_DIMS,hits,mutation_enabled:false})}]};
+  } catch (err) {
+    const name = err instanceof Error ? err.name : '';
+    const msg = err instanceof Error ? err.message : '';
+    if (name === 'TimeoutError' || name === 'AbortError') return error('operator_provider_timeout');
+    if (msg.startsWith('embedding provider returned')) return error('operator_provider_error');
+    return error('operator_query_error');
+  }
 }

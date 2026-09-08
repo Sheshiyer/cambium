@@ -19,15 +19,16 @@ test('operator recall uses the producer-compatible NIM vector, not Taste embeddi
   t.mock.method(globalThis, 'fetch', async (url, init) => {
     embedded++;
     assert.equal(String(url), 'https://integrate.api.nvidia.com/v1/embeddings');
-    assert.deepEqual(JSON.parse(init.body), {model:'nvidia/nv-embedqa-e5-v5',input:['fixture memory'],input_type:'query',encoding_format:'float'});
-    return Response.json({data:[{embedding:Array(1024).fill(0.1)}]});
+    assert.deepEqual(JSON.parse(init.body), {model:'nvidia/nemotron-3-embed-1b',input:['fixture memory'],input_type:'query',encoding_format:'float'});
+    return Response.json({data:[{embedding:Array(2048).fill(0.1)}]});
   });
   const env = {
     CONTEXT_ALLOWED_TENANTS:'thoughtseed', NVIDIA_API_KEY:'test-only-key',
-    CORTEX_EMBED_MODEL:'nvidia/nv-embedqa-e5-v5',
+    CORTEX_EMBED_MODEL:'nvidia/nemotron-3-embed-1b',
     AI:{run:async()=>({data:[Array(768).fill(1)]})}, TASTE_CORTEX:{},
     CAMBIUM_CORTEX:{query:async (v, options)=>{
       queried++; assert.equal(v.length,1024);
+      assert.ok(Math.abs(Math.hypot(...v) - 1) < 1e-6);
       assert.deepEqual(options.filter,{tenant:{$eq:'thoughtseed'},kind:{$eq:'decision'}});
       return {matches:[{id:'fixture-record',score:0.9,metadata:{tenant:'thoughtseed',kind:'decision',source:'fixture',path:'evidence/fixture.md',payload:'private-body'}}]};
     }},
@@ -42,8 +43,8 @@ test('operator recall uses the producer-compatible NIM vector, not Taste embeddi
 
 test('operator recall refuses tenant/input/config errors before network and filters metadata', async (t) => {
   let network=0;
-  t.mock.method(globalThis,'fetch',async()=>{network++;return Response.json({data:[{embedding:Array(1024).fill(.1)}]});});
-  const env={CONTEXT_ALLOWED_TENANTS:'thoughtseed',NVIDIA_API_KEY:'test-only',CORTEX_EMBED_MODEL:'nvidia/nv-embedqa-e5-v5',CAMBIUM_CORTEX:{query:async()=>({matches:[
+  t.mock.method(globalThis,'fetch',async()=>{network++;return Response.json({data:[{embedding:Array(2048).fill(.1)}]});});
+  const env={CONTEXT_ALLOWED_TENANTS:'thoughtseed',NVIDIA_API_KEY:'test-only',CORTEX_EMBED_MODEL:'nvidia/nemotron-3-embed-1b',CAMBIUM_CORTEX:{query:async()=>({matches:[
     {id:'wrong',score:1,metadata:{tenant:'other',kind:'decision',payload:'secret'}},
     {id:'right',score:.9,metadata:{tenant:'thoughtseed',kind:'decision',source:'fixture',path:'safe.md',token:'secret',payload:'private',summary:'unreviewed text'}}
   ]})}};
@@ -59,9 +60,9 @@ test('operator recall refuses tenant/input/config errors before network and filt
 
 test('operator recall rejects malformed vectors and redacts provider failures',async(t)=>{
   let queries=0;
-  const env={CONTEXT_ALLOWED_TENANTS:'thoughtseed',NVIDIA_API_KEY:'test-only',CORTEX_EMBED_MODEL:'nvidia/nv-embedqa-e5-v5',CAMBIUM_CORTEX:{query:async()=>{queries++;return {matches:[]};}}};
+  const env={CONTEXT_ALLOWED_TENANTS:'thoughtseed',NVIDIA_API_KEY:'test-only',CORTEX_EMBED_MODEL:'nvidia/nemotron-3-embed-1b',CAMBIUM_CORTEX:{query:async()=>{queries++;return {matches:[]};}}};
   const args={tenant:'thoughtseed',query:'bounded'};
-  for (const vector of [Array(768).fill(.1),Array(1024).fill(0),[1,null]]) {
+  for (const vector of [Array(1024).fill(.1),Array(2048).fill(0),[1,null]]) {
     const mock=t.mock.method(globalThis,'fetch',async()=>Response.json({data:[{embedding:vector}]}));
     const r=await recallOperatorMemory(env as any,args);assert.equal(r.isError,true);mock.mock.restore();
   }
@@ -73,7 +74,7 @@ test('MCP fetch refuses missing route credential before tool dispatch', async ()
   const env = {
     CONTEXT_ALLOWED_TENANTS: 'thoughtseed',
     NVIDIA_API_KEY: 'test-only-key',
-    CORTEX_EMBED_MODEL: 'nvidia/nv-embedqa-e5-v5',
+    CORTEX_EMBED_MODEL: 'nvidia/nemotron-3-embed-1b',
     CONTEXT_ROUTE_TOKEN: ROUTE_TOKEN,
     AI: { run: async () => ({ data: [Array(768).fill(1)] }) },
     TASTE_CORTEX: {},
