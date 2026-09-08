@@ -13,6 +13,10 @@ import {
   CARTOGRAPHER_SCHEMA,
   CLASSIFICATION_DIGEST,
   CLASSIFICATION_COUNTS,
+  DISPLAY_CATALOG_PROPOSAL,
+  DISPLAY_CATALOG_SELECTION_DIGEST,
+  DISPLAY_PROPOSAL_WORK_IDS,
+  PORTFOLIO_CATALOG_DIGEST,
   V3_SCHEMA,
   HISTORICAL_RECORDS,
   LEGACY_SCHEMA,
@@ -53,16 +57,61 @@ import {
 
 test('canonical portfolio coverage remains exact', () => {
   assert.deepEqual(CLASSIFICATION_COUNTS, {
-    total: 72,
+    total: 75,
     saplings: 17,
-    clientBranches: 40,
-    internalPrograms: 15,
+    clientBranches: 42,
+    internalPrograms: 16,
     review: 0,
     historical: 20,
   })
-  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 72)
+  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 75)
   assert.equal(REVIEW_RECORDS.length, 0)
   assert.equal(HISTORICAL_RECORDS.length, 20)
+})
+
+test('finite source-backed display proposal preserves the reviewed action pins', () => {
+  assert.equal(CLASSIFICATION_DIGEST, '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309')
+  assert.equal(PORTFOLIO_CATALOG_DIGEST, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca')
+  assert.equal(DISPLAY_CATALOG_SELECTION_DIGEST, 'sha256:ce7c129bd24fd173089c069956b9d5cc18f8d829239ce32cbd2a6798252473ca')
+  assert.equal(DISPLAY_CATALOG_PROPOSAL.admission, 'render-and-proposal-only')
+  assert.deepEqual(DISPLAY_PROPOSAL_WORK_IDS, [
+    'branch:codigo-olimpo',
+    'branch:codigo-olimpo-creator-platform',
+    'program:thoughtseed-organ-console',
+  ])
+
+  const codigo = WORK_OBJECTS.find((work) => work.workId === 'branch:codigo-olimpo')!
+  const creator = WORK_OBJECTS.find((work) => work.workId === 'branch:codigo-olimpo-creator-platform')!
+  const organConsole = WORK_OBJECTS.find((work) => work.workId === 'program:thoughtseed-organ-console')!
+  assert.deepEqual({
+    classification: codigo.classification,
+    lifecycle: codigo.lifecycle,
+    tenantStatus: codigo.tenantStatus,
+    tenantId: codigo.tenantId,
+    accountId: codigo.accountId,
+    linkedWorkIds: codigo.linkedWorkIds,
+  }, {
+    classification: 'client-branch',
+    lifecycle: 'approved',
+    tenantStatus: 'documented-not-runtime-verified',
+    tenantId: null,
+    accountId: 'codigo-olimpo',
+    linkedWorkIds: ['branch:codigo-olimpo-creator-platform'],
+  })
+  assert.deepEqual(creator.linkedWorkIds, ['branch:codigo-olimpo'])
+  assert.deepEqual({
+    classification: organConsole.classification,
+    lifecycle: organConsole.lifecycle,
+    tenantStatus: organConsole.tenantStatus,
+    tenantId: organConsole.tenantId,
+    accountId: organConsole.accountId,
+  }, {
+    classification: 'internal-program',
+    lifecycle: 'approved',
+    tenantStatus: 'not-applicable',
+    tenantId: null,
+    accountId: null,
+  })
 })
 
 test('client families derive only from exact source account ids', () => {
@@ -82,7 +131,7 @@ test('client families derive only from exact source account ids', () => {
     group.groupId === `client:${work.accountId}` && group.members.includes(work)
   ))))
   assert.equal(groups.find((group) => group.kind === 'saplings')?.members.length, 17)
-  assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 15)
+  assert.equal(groups.find((group) => group.kind === 'internal-programs')?.members.length, 16)
 })
 
 test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake', async () => {
@@ -906,4 +955,13 @@ test('folder projections preserve product labels and nested Codigo evidence sepa
     workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'],
   }])
   assert.equal(portfolioFolderMappingsForWork('branch:decodik').length, 0)
+
+  const creator = portfolioFolderMappingsForWork('branch:codigo-olimpo-creator-platform')
+  assert.deepEqual(creator.map((mapping) => [mapping.folder, mapping.accountId, mapping.workIds]), [
+    ['codigo', 'codigo-olimpo', ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform']],
+  ])
+  const organConsole = portfolioFolderMappingsForWork('program:thoughtseed-organ-console')
+  assert.deepEqual(organConsole.map((mapping) => [mapping.folder, mapping.proposedKind, mapping.accountId, mapping.workIds]), [
+    ['thoughtseed-organ-console', 'internal-program', null, ['program:thoughtseed-organ-console']],
+  ])
 })

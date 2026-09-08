@@ -60,8 +60,9 @@ import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
 import { renderBranchMapSheet } from './branch-map-sheet.ts';
 import {
   PORTFOLIO_CATALOG,
+  PORTFOLIO_DISPLAY_CATALOG,
   buildPortfolioJoinReport,
-  portfolioCatalogForViewer,
+  portfolioDisplayCatalogForViewer,
   portfolioPairDigest,
 } from './portfolio-catalog.ts';
 import {
@@ -3384,16 +3385,19 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     // truth. Non-founder viewers receive aggregate counts only.
     if (tenant === 'cambium') {
       try {
-        const portfolio = portfolioCatalogForViewer(PORTFOLIO_CATALOG, isFounder ? 'founder' : 'viewer');
+        const portfolio = portfolioDisplayCatalogForViewer(PORTFOLIO_DISPLAY_CATALOG, isFounder ? 'founder' : 'viewer');
         const pairDigest = portfolioPairDigest(redacted.graphDigest, PORTFOLIO_CATALOG.catalogDigest);
         body.portfolioCatalogSummary = {
           ...portfolio.summary,
-          schema: PORTFOLIO_CATALOG.schema,
-          version: PORTFOLIO_CATALOG.version,
-          status: PORTFOLIO_CATALOG.status,
-          readOnly: PORTFOLIO_CATALOG.readOnly,
-          classificationDigest: PORTFOLIO_CATALOG.classificationDigest,
-          catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+          schema: PORTFOLIO_DISPLAY_CATALOG.schema,
+          version: PORTFOLIO_DISPLAY_CATALOG.version,
+          status: PORTFOLIO_DISPLAY_CATALOG.status,
+          readOnly: PORTFOLIO_DISPLAY_CATALOG.readOnly,
+          classificationDigest: PORTFOLIO_DISPLAY_CATALOG.classificationDigest,
+          catalogDigest: PORTFOLIO_DISPLAY_CATALOG.catalogDigest,
+          actionClassificationDigest: PORTFOLIO_CATALOG.classificationDigest,
+          actionCatalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+          actionAdmission: PORTFOLIO_DISPLAY_CATALOG.actionAuthority.admission,
         };
         delivery.portfolioPairDigest = pairDigest;
         responseDigest = pairDigest;

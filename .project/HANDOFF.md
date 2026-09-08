@@ -1,5 +1,11 @@
 # Project handoff
 
+### 2026-09-08 Finite catalog display promotion — source-ready candidate
+
+- Source commit `e58bbc0` adds a frozen, source-backed display/proposal inventory for exactly `branch:codigo-olimpo`, `branch:codigo-olimpo-creator-platform`, and `program:thoughtseed-organ-console`. The 75-record display catalog is pinned at `sha256:899d3b0443f27c5de923e369157bb3d1e94119780869a18ca0ac65442926356a` and carries the committed proposal selection `ce7c129bd24fd173089c069956b9d5cc18f8d829239ce32cbd2a6798252473ca`.
+- The approved 72-record action catalog, action root, eligible identities, tenant semantics, and action digest `sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca` remain unchanged. The Worker sends the expanded catalog only as read-only founder detail; joins, pair digests, and action validators remain 72-record authority. Display-only action attempts fail closed.
+- Scoped catalog/action/route tests, Cartographer domain tests, foundation-pin and linkage checks, and the 39-receipt mapping check pass. The broad root suite was stopped after duplicate runs stalled in the unrelated `scripts/infinite-game-anchors.test.mjs`; no complete-suite result is claimed. This is a source candidate awaiting parent review, with no Vault, Worker, D1, approval, deployment, or external mutation.
+
 ### 2026-09-06 Cambium Website and Codigo proposal correction — local candidate
 
 - Implementation `1be492a` on `codex/cambium-portfolio-mapping-20260906` separates the Cambium Website display name from its historical folder and preserves `sapling:cambium`. Decodik is existing nested Codigo repository evidence; no WorkObject is created.

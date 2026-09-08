@@ -160,18 +160,21 @@ async function requestPortfolio(userId: string) {
   };
 }
 
-test('Cambium founder route serves the complete bounded catalog and exact join report', async () => {
+test('Cambium founder route renders the finite proposal catalog while joins remain action-bound', async () => {
   const result = await requestPortfolio(FOUNDER_ID);
   assert.equal(result.response.status, 200);
-  assert.equal(result.json.portfolioCatalogSummary.total, 72);
+  assert.equal(result.json.portfolioCatalogSummary.total, 75);
   assert.equal(result.json.portfolioCatalogSummary.saplings, 17);
-  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 40);
-  assert.equal(result.json.portfolioCatalogSummary.internalPrograms, 15);
+  assert.equal(result.json.portfolioCatalogSummary.clientBranches, 42);
+  assert.equal(result.json.portfolioCatalogSummary.internalPrograms, 16);
   assert.equal(result.json.portfolioCatalogSummary.classificationReview, 0);
   assert.equal(result.json.portfolioCatalogSummary.historicalProducts, 20);
   assert.equal(result.json.portfolioCatalogSummary.operationalGaps, 48);
-  assert.equal(result.json.portfolioCatalog.status, 'proposed-read-only');
-  assert.equal(result.json.portfolioCatalog.records.length, 72);
+  assert.equal(result.json.portfolioCatalogSummary.status, 'render-and-proposal-only');
+  assert.equal(result.json.portfolioCatalogSummary.actionAdmission, 'none');
+  assert.equal(result.json.portfolioCatalogSummary.actionCatalogDigest, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca');
+  assert.equal(result.json.portfolioCatalog.status, 'render-and-proposal-only');
+  assert.equal(result.json.portfolioCatalog.records.length, 75);
   assert.equal(result.json.portfolioCatalog.classificationReview.length, 0);
   assert.equal(result.json.portfolioCatalog.historicalProducts.length, 20);
   assert.equal(result.json.portfolioCatalog.operationalGaps.length, 48);
@@ -186,12 +189,27 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
   assert.deepEqual(result.json.portfolioJoinReport.runtimeOrphans, ['cambium-operating-fabric']);
   assert.equal(result.json.portfolioJoinReport.runtimeIdentityCollisionCount, 0);
   assert.deepEqual(result.json.portfolioJoinReport.runtimeIdentityCollisions, []);
+  assert.equal(result.json.portfolioJoinReport.catalogOrphanCount, 71, 'display-only records never enter runtime joins');
   const fitcheck = result.json.portfolioCatalog.records.find((record: { workId: string }) => record.workId === 'sapling:fitcheck');
   assert.equal(fitcheck.parentTenant, 'cambium');
   assert.deepEqual(fitcheck.aliases.map((alias: { value: string; tenantAuthority: boolean }) => [alias.value, alias.tenantAuthority]), [
     ['FitCheck', false],
     ['getfitcheck', false],
   ]);
+  assert.deepEqual(
+    result.json.portfolioCatalog.records
+      .filter((record: { workId: string }) => [
+        'branch:codigo-olimpo',
+        'branch:codigo-olimpo-creator-platform',
+        'program:thoughtseed-organ-console',
+      ].includes(record.workId))
+      .map((record: { workId: string; tenantIdentity: unknown }) => [record.workId, record.tenantIdentity]),
+    [
+      ['branch:codigo-olimpo', { status: 'documented-not-runtime-verified', tenantId: null }],
+      ['branch:codigo-olimpo-creator-platform', { status: 'documented-not-runtime-verified', tenantId: null }],
+      ['program:thoughtseed-organ-console', { status: 'not-applicable', tenantId: null }],
+    ],
+  );
   assert.equal(result.response.headers.etag, result.json.delivery.portfolioPairDigest);
   assert.notEqual(result.response.headers.etag, result.json.projection.graphDigest);
   assert.equal(result.json.organUpdateDelivery.schema, 'cambium.organ-update-plan.v1');
@@ -220,8 +238,10 @@ test('Cambium founder route serves the complete bounded catalog and exact join r
 test('allowlisted non-founder receives aggregate catalog proof but no identities or join detail', async () => {
   const result = await requestPortfolio(VIEWER_ID);
   assert.equal(result.response.status, 200);
-  assert.equal(result.json.portfolioCatalogSummary.total, 72);
+  assert.equal(result.json.portfolioCatalogSummary.total, 75);
   assert.match(result.json.portfolioCatalogSummary.catalogDigest, /^sha256:[0-9a-f]{64}$/);
+  assert.equal(result.json.portfolioCatalogSummary.actionAdmission, 'none');
+  assert.equal(result.json.portfolioCatalogSummary.actionCatalogDigest, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca');
   assert.match(result.json.delivery.portfolioPairDigest, /^sha256:[0-9a-f]{64}$/);
   assert.equal(result.response.headers.etag, result.json.delivery.portfolioPairDigest);
   assert.equal(result.json.portfolioCatalog, undefined);
@@ -240,7 +260,7 @@ test('allowlisted non-founder receives aggregate catalog proof but no identities
     planDigest: result.json.organUpdateDeliverySummary.planDigest,
   });
   assert.match(result.json.organUpdateDeliverySummary.planDigest, /^sha256:[0-9a-f]{64}$/);
-  assert.doesNotMatch(String(result.response.body), /Fitcheck|ParkArea|SeedForge|getfitcheck/);
+  assert.doesNotMatch(String(result.response.body), /Fitcheck|ParkArea|SeedForge|getfitcheck|Codigo Olimpo|Thoughtseed Organ Console/);
   assert.equal(result.writes.d1, 0);
   assert.equal(result.writes.kv, 0);
 });

@@ -12,7 +12,11 @@ import {
   projectCreationIntentDigest,
   recordPortfolioAdminAction,
 } from './portfolio-admin-actions.ts';
-import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
+import {
+  PORTFOLIO_CATALOG,
+  PORTFOLIO_DISPLAY_CATALOG_DIGEST,
+  PORTFOLIO_CLASSIFICATION_DIGEST,
+} from './portfolio-catalog.ts';
 import {
   PORTFOLIO_ROOT_MAP_DIGEST,
   REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
@@ -258,8 +262,18 @@ test('binds Thoughtseed receipts to the shipped root map and catalog', async () 
     PortfolioAdminActionValidationError,
   );
   await assert.rejects(
+    () => recordPortfolioAdminAction(thoughtseedInput({ catalogDigest: PORTFOLIO_DISPLAY_CATALOG_DIGEST }), deps),
+    /catalogDigest does not match the shipped portfolio catalog/,
+  );
+  await assert.rejects(
     () => recordPortfolioAdminAction(thoughtseedInput({ subject: { id: 'sapling:invented', name: 'Invented' } }), deps),
     PortfolioAdminActionValidationError,
+  );
+  await assert.rejects(
+    () => recordPortfolioAdminAction(thoughtseedInput({
+      subject: { id: 'branch:codigo-olimpo', name: 'Codigo Olimpo (Brick And Mortar Client Acquisition FZCO)' },
+    }), deps),
+    /subject does not match the shipped portfolio catalog/,
   );
   await assert.rejects(
     () => recordPortfolioAdminAction(thoughtseedInput({ subject: { id: 'sapling:cambium', name: 'Renamed evidence' } }), deps),
