@@ -16,6 +16,7 @@ import {
   validateSnapshot,
   writeRootHeaders,
 } from '../scripts/generate-portfolio-root-map.mjs'
+import { REVIEWED_ROOT_MAP_DIGEST } from '../../../scripts/portfolio-foundation-pins.mjs'
 
 const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const snapshotPath = path.resolve(appRoot, '../../docs/project-management/portfolio-roots.v1.json')
@@ -346,6 +347,8 @@ test('both generated root maps exactly match the source and include the verified
   const expected = renderGeneratedModule(validateSnapshot(await readSnapshot()))
   assert.equal(await readFile(generatedModulePath, 'utf8'), expected)
   assert.equal(await readFile(workerGeneratedModulePath, 'utf8'), expected)
+  assert.match(expected, new RegExp(`^export const REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST = "${REVIEWED_ROOT_MAP_DIGEST}"`, 'm'))
+  assert.doesNotMatch(expected, new RegExp(`^export const PORTFOLIO_ROOT_MAP_DIGEST = "${REVIEWED_ROOT_MAP_DIGEST}"`, 'm'))
   assert.match(expected, /"folder": "temperance_engine"/)
 })
 

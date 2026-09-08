@@ -13,11 +13,14 @@ import {
   recordPortfolioAdminAction,
 } from './portfolio-admin-actions.ts';
 import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
-import { PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
+import {
+  PORTFOLIO_ROOT_MAP_DIGEST,
+  REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
+} from './portfolio-root-map.generated.ts';
 
 if (!globalThis.crypto) Object.defineProperty(globalThis, 'crypto', { value: webcrypto });
 
-const ROOT_DIGEST = PORTFOLIO_ROOT_MAP_DIGEST;
+const ROOT_DIGEST = REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST;
 const SOURCE_DIGEST = PORTFOLIO_CLASSIFICATION_DIGEST;
 const CATALOG_DIGEST = PORTFOLIO_CATALOG.catalogDigest;
 
@@ -240,6 +243,10 @@ test('binds Thoughtseed receipts to the shipped root map and catalog', async () 
 
   await assert.rejects(
     () => recordPortfolioAdminAction(thoughtseedInput({ rootMapDigest: '0'.repeat(64) }), deps),
+    PortfolioAdminActionValidationError,
+  );
+  await assert.rejects(
+    () => recordPortfolioAdminAction(thoughtseedInput({ rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST }), deps),
     PortfolioAdminActionValidationError,
   );
   await assert.rejects(

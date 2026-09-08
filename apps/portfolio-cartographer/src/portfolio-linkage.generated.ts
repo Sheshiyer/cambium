@@ -3,7 +3,7 @@ export const PORTFOLIO_LINKAGE_MANIFEST = {
   "schema": "cambium.portfolio-miniapp-linkage.v1",
   "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
   "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
-  "rootMapDigest": "e2abef8080c6ababab7a41e1803fa1eccc08b58a4dbf7876e586df78493bf351",
+  "rootMapDigest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
   "summary": {
     "totalWorkObjects": 72,
     "packetBackedStoryArcs": 5,
@@ -1511,6 +1511,7 @@ export const PORTFOLIO_LINKAGE_MANIFEST = {
         "folders": [
           "archived-thoughtseedlabs-website",
           "landingpage-ts-2026",
+          "thoughtseedlabs-website",
           "thoughtseedos-website"
         ]
       },
@@ -2149,7 +2150,8 @@ export const PORTFOLIO_LINKAGE_MANIFEST = {
       "filesystem": {
         "state": "mapped",
         "folders": [
-          "cambium"
+          "cambium",
+          "cambium-telegram-showcase"
         ]
       },
       "storyArc": {

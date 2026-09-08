@@ -104,6 +104,16 @@ test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake',
   assert.equal(thoughtseed.folders.find((folder) => folder.folder === 'safvr')?.workIds[0], 'branch:safvr-landing-page')
   assert.ok(noesis.folders.every((folder) => folder.proposedKind === 'project'))
   assert.equal(noesis.folders.find((folder) => folder.folder === 'polyhymnia')?.status, 'empty-hold')
+
+  const sessionAtlas = portfolioFolderMappingsForWork('program:session-atlas')
+  assert.deepEqual(sessionAtlas.map((mapping) => ({
+    path: mapping.path,
+    identityStatus: mapping.identityStatus,
+  })), [{
+    path: 'thoughtseed/session-atlas',
+    identityStatus: 'reviewed-local-node',
+  }])
+  assert.equal(WORK_OBJECTS.some((work) => work.workId === 'program:session-atlas'), false)
 })
 
 test('Thoughtseed family headers resolve mapped folders while preserving explicit gaps', () => {
@@ -795,6 +805,7 @@ test('active Workbench is Thoughtseed-only and exposes governed project birth', 
   assert.match(source, /pending-cambium-ingestion/)
   assert.match(source, /kind: 'create-thoughtseed-project'/)
   assert.match(source, /sourceDigest: CLASSIFICATION_DIGEST/)
+  assert.equal([...source.matchAll(/rootMapDigest: REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST/g)].length, 3)
   assert.equal([...source.matchAll(/catalogDigest: PORTFOLIO_CATALOG_DIGEST/g)].length, 3)
   assert.doesNotMatch(source, /name="(?:path|destination)"/)
 })

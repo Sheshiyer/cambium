@@ -10,9 +10,10 @@ import {
   REVIEWED_ROOT_MAP_DIGEST,
 } from './portfolio-foundation-pins.mjs'
 import { buildPortfolioMiniappLinkageReport } from './portfolio-miniapp-linkage.mjs'
-import { expectedDirectoryNames, observePortfolioFolders } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
+import { expectedDirectoryNames, observePortfolioFolders, snapshotDigest } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
 
-const ROOT_MAP_DIGEST = /PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
+const PROPOSAL_ROOT_MAP_DIGEST = /PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
+const REVIEWED_ROOT_MAP_DIGEST_PATTERN = /REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
 
 function optionValue(name: string): string | undefined {
   const index = process.argv.indexOf(name)
@@ -62,13 +63,23 @@ const [
   source('../workers/quests/src/portfolio-root-map.generated.ts'),
 ])
 
-const appRootMapDigest = ROOT_MAP_DIGEST.exec(appRootMap)?.[1]
-const workerRootMapDigest = ROOT_MAP_DIGEST.exec(workerRootMap)?.[1]
-if (!appRootMapDigest || !workerRootMapDigest) throw new Error('portfolio_root_map_digest_missing')
+const appProposalRootMapDigest = PROPOSAL_ROOT_MAP_DIGEST.exec(appRootMap)?.[1]
+const workerProposalRootMapDigest = PROPOSAL_ROOT_MAP_DIGEST.exec(workerRootMap)?.[1]
+const appReviewedRootMapDigest = REVIEWED_ROOT_MAP_DIGEST_PATTERN.exec(appRootMap)?.[1]
+const workerReviewedRootMapDigest = REVIEWED_ROOT_MAP_DIGEST_PATTERN.exec(workerRootMap)?.[1]
+if (!appProposalRootMapDigest || !workerProposalRootMapDigest || !appReviewedRootMapDigest || !workerReviewedRootMapDigest) {
+  throw new Error('portfolio_root_map_digest_missing')
+}
+if (appReviewedRootMapDigest !== REVIEWED_ROOT_MAP_DIGEST || workerReviewedRootMapDigest !== REVIEWED_ROOT_MAP_DIGEST) {
+  throw new Error('portfolio_root_map_reviewed_execution_digest_drift')
+}
 
 const liveInput = await jsonFile(optionValue('--live-snapshot'))
 const vaultRegistry = await jsonFile(optionValue('--vault-registry'))
 const rootMap = await jsonFile(fileURLToPath(new URL('../docs/project-management/portfolio-roots.v1.json', import.meta.url)))
+if (!rootMap || snapshotDigest(rootMap) !== appProposalRootMapDigest || appProposalRootMapDigest !== workerProposalRootMapDigest) {
+  throw new Error('portfolio_root_map_proposal_digest_drift')
+}
 const projectsRoot = optionValue('--projects-root')
 if (process.argv.includes('--strict') && !projectsRoot) throw new Error('strict_projects_root_required')
 const thoughtseedPortfolio = Array.isArray(rootMap?.portfolios)
@@ -90,7 +101,7 @@ const report = buildPortfolioMiniappLinkageReport({
   },
   pins: {
     reviewedRootMapDigest: REVIEWED_ROOT_MAP_DIGEST,
-    currentRootMapDigest: appRootMapDigest,
+    currentRootMapDigest: appProposalRootMapDigest,
     reviewedCatalogDigest: REVIEWED_PORTFOLIO_CATALOG_DIGEST,
     currentCatalogDigest: PORTFOLIO_CATALOG.catalogDigest,
     reviewedClassificationDigest: REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,

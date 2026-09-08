@@ -115,11 +115,19 @@ function normalizeRootMap(rootMap, observedFolders) {
     }
     const workIds = sortedUniqueStrings(entry.workIds, `root_map_folder_${index}_work_ids`)
     workIds.forEach((workId, workIndex) => parseWorkId(workId, `root_map_folder_${index}_work_id_${workIndex}`))
+    const identityStatus = entry.identityStatus == null ? null : entry.identityStatus
+    if (identityStatus !== null && identityStatus !== 'reviewed-local-node') {
+      throw new Error(`root_map_folder_${index}_identity_status_invalid`)
+    }
+    if (identityStatus === 'reviewed-local-node' && (entry.status !== 'mapping-proposal' || workIds.length === 0)) {
+      throw new Error(`root_map_folder_${index}_held_identity_invalid`)
+    }
     return {
       folder: entry.folder,
       proposedKind: entry.proposedKind,
       status: typeof entry.status === 'string' ? entry.status : null,
       workIds,
+      identityStatus,
     }
   }).sort((left, right) => left.folder.localeCompare(right.folder))
   if (new Set(folders.map((entry) => entry.folder)).size !== folders.length) throw new Error('root_map_folders_duplicate')
@@ -313,15 +321,32 @@ export function buildPortfolioMiniappLinkageReport(input) {
   if (pins.reviewedCatalogDigest !== pins.currentCatalogDigest) {
     releaseBlockers.push('portfolio-catalog-pin-drift')
   }
-  if (pins.reviewedRootMapDigest !== pins.currentRootMapDigest) {
-    releaseBlockers.push('portfolio-root-map-pin-drift')
-  }
   for (const workId of packetWorkIdsMissingFromCatalog) {
     releaseBlockers.push(`unknown-packet-work-id:${workId}`)
   }
   const mappedWorkIds = rootMap ? sortedUniqueStrings(rootMap.folders.flatMap((entry) => entry.workIds), 'root_map_mapped_work_ids') : []
+  const heldProposalFoldersByWorkId = new Map()
+  for (const entry of rootMap?.folders ?? []) {
+    if (entry.identityStatus !== 'reviewed-local-node' || entry.status !== 'mapping-proposal') continue
+    for (const workId of entry.workIds) {
+      if (catalogWorkIdSet.has(workId)) continue
+      const folders = heldProposalFoldersByWorkId.get(workId) ?? []
+      folders.push(entry.folder)
+      heldProposalFoldersByWorkId.set(workId, folders)
+    }
+  }
+  const heldProposalIdentities = [...heldProposalFoldersByWorkId.entries()]
+    .map(([workId, folders]) => ({
+      workId,
+      folders: [...new Set(folders)].sort(),
+      admission: 'proposal-only-not-catalog-admitted',
+      executionAuthority: 'none',
+    }))
+    .sort((left, right) => left.workId.localeCompare(right.workId))
+  const heldProposalWorkIdSet = new Set(heldProposalIdentities.map((identity) => identity.workId))
   const mappedWorkIdsMissingFromCatalog = mappedWorkIds.filter((workId) => !catalogWorkIdSet.has(workId))
-  for (const workId of mappedWorkIdsMissingFromCatalog) releaseBlockers.push(`unknown-root-map-work-id:${workId}`)
+  const unclassifiedMappedWorkIds = mappedWorkIdsMissingFromCatalog.filter((workId) => !heldProposalWorkIdSet.has(workId))
+  for (const workId of unclassifiedMappedWorkIds) releaseBlockers.push(`unknown-root-map-work-id:${workId}`)
   if (rootMap?.missing.length) releaseBlockers.push(...rootMap.missing.map((folder) => `missing-working-folder:${folder}`))
   if (rootMap?.unexpected.length) releaseBlockers.push(...rootMap.unexpected.map((folder) => `unmapped-working-folder:${folder}`))
 
@@ -418,6 +443,8 @@ export function buildPortfolioMiniappLinkageReport(input) {
       unexpectedFolders: rootMap.unexpected,
       unresolvedFolders: rootMap.folders.filter((entry) => entry.workIds.length === 0),
       mappedWorkIdsMissingFromCatalog,
+      heldProposalIdentities,
+      unclassifiedMappedWorkIds,
       catalogWorkIdsWithoutFolders: catalog.workIds.filter((workId) => !foldersByWorkId.has(workId)),
     } : null,
     operatingCoverage: {
@@ -443,6 +470,13 @@ export function buildPortfolioMiniappLinkageReport(input) {
       currentCatalogDigest: pins.currentCatalogDigest,
       reviewedClassificationDigest: pins.reviewedClassificationDigest,
       currentClassificationDigest: pins.currentClassificationDigest,
+    },
+    rootMapAuthority: {
+      approvedExecutionDigest: pins.reviewedRootMapDigest,
+      currentProposalDigest: pins.currentRootMapDigest,
+      proposalMatchesApprovedExecution: pins.reviewedRootMapDigest === pins.currentRootMapDigest,
+      proposalAuthority: 'render-only-census-evidence',
+      actionAuthority: 'approved-execution-foundation-only',
     },
     observations,
   }

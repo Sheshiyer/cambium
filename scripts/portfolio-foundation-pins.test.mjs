@@ -15,17 +15,25 @@ import {
   PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST,
 } from '../shared/portfolio-catalog-authority.ts'
+import { snapshotDigest } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
 
-const ROOT_DIGEST_PATTERN = /PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
+const PROPOSAL_ROOT_DIGEST_PATTERN = /PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
+const REVIEWED_ROOT_DIGEST_PATTERN = /REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
 
 async function sourceText(relativePath) {
   return readFile(new URL(relativePath, import.meta.url), 'utf8')
 }
 
-test('shared foundation pins match generated root-map and validated catalog sources', async () => {
-  const rootMap = await sourceText('../apps/portfolio-cartographer/src/portfolio-root-map.generated.ts')
+test('shared foundation pins keep proposal census and approved action roots distinct', async () => {
+  const [rootMap, rootSnapshotText] = await Promise.all([
+    sourceText('../apps/portfolio-cartographer/src/portfolio-root-map.generated.ts'),
+    sourceText('../docs/project-management/portfolio-roots.v1.json'),
+  ])
+  const rootSnapshot = JSON.parse(rootSnapshotText)
 
-  assert.equal(ROOT_DIGEST_PATTERN.exec(rootMap)?.[1], REVIEWED_ROOT_MAP_DIGEST)
+  assert.equal(PROPOSAL_ROOT_DIGEST_PATTERN.exec(rootMap)?.[1], snapshotDigest(rootSnapshot))
+  assert.equal(REVIEWED_ROOT_DIGEST_PATTERN.exec(rootMap)?.[1], REVIEWED_ROOT_MAP_DIGEST)
+  assert.notEqual(PROPOSAL_ROOT_DIGEST_PATTERN.exec(rootMap)?.[1], REVIEWED_ROOT_MAP_DIGEST)
   assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST)
   assert.equal(PORTFOLIO_CATALOG_DIGEST, REVIEWED_PORTFOLIO_CATALOG_DIGEST)
   assert.equal(REVIEWED_ACTION_SOURCE_DIGEST, REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST)
