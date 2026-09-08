@@ -1,0 +1,50 @@
+{
+  "schema": "temperance.portfolio-census-publication.v1",
+  "status": "published",
+  "source_commit": "3fb58d3c67cbff1b6d200ad3473eeaa2e5c86651",
+  "source_digest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
+  "backup_id": "portfolio-census-2026-09-08T101255803Z",
+  "restoration_proof": true,
+  "observed": [
+    {
+      "portfolio": "thoughtseed",
+      "count": 76
+    },
+    {
+      "portfolio": "tryambakam-noesis",
+      "count": 38
+    }
+  ],
+  "observed_at": "2026-09-08T10:16:44.869Z",
+  "readback_all_four": true,
+  "files": [
+    {
+      "portfolio": "thoughtseed",
+      "file": "PORTFOLIO.md",
+      "preimage_sha256": "7d7607884b746d58fdd74702a26ce8ad9363af73678276c6e0a0647fc023acb8",
+      "published_sha256": "c38b6a3f31f123159d29112bfb9d50efadec39be09341167103ac93e11156afc",
+      "mode": 420
+    },
+    {
+      "portfolio": "thoughtseed",
+      "file": "portfolio-map.v1.json",
+      "preimage_sha256": "b6f02f5f708a695c2df58a96d91023085abaed53d7e78aaa9e026cd6ea5b1283",
+      "published_sha256": "5ba1089e1031407212df270005ae9a74beb6a5cee2555283b9882cc939a9ad62",
+      "mode": 420
+    },
+    {
+      "portfolio": "tryambakam-noesis",
+      "file": "PORTFOLIO.md",
+      "preimage_sha256": "18d34c3c547f35b1158d2186022bb0bdc859a274d1d7067a99c58bce96301fa5",
+      "published_sha256": "be3bffbb365b0fb1fc7561d180e48ef28cfb155c980da79ed00d86c58cfc69de",
+      "mode": 420
+    },
+    {
+      "portfolio": "tryambakam-noesis",
+      "file": "portfolio-map.v1.json",
+      "preimage_sha256": "65ad16abc99b2901433a7b8fc44040a5b66a739133c41e9670e985a6c793d5ba",
+      "published_sha256": "f70824b4bbab838a87d6defad96eb8257172260eb8ee24038d03e7aee03c2148",
+      "mode": 420
+    }
+  ]
+}

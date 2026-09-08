@@ -1,0 +1,1079 @@
+{
+  "schema": "thoughtseed.repository-intake-observations.v1",
+  "authority": "observation-only",
+  "observedAt": "2026-09-07T00:12:26Z",
+  "cutoffAt": "2026-08-07T23:49:35Z",
+  "rootMapDigest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
+  "sourceDigest": "a0f8996a6d0861e9817c688f2270d0bb5cc8c8863108b89b4415536f6a3b6c18",
+  "observationDigest": "55026c14c4f088aecd6ab9443cc5df7e6fd5d5ce91a35ed3fd125963e8aeef5e",
+  "collection": {
+    "local": "complete",
+    "remote": "complete"
+  },
+  "complete": false,
+  "gaps": [],
+  "observations": [
+    {
+      "repository": {
+        "fullName": "Sheshiyer/10869x77",
+        "repositoryId": "R_kgDOSzLDsQ",
+        "nodeId": "R_kgDOSzLDsQ"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "tryambakam-noesis",
+        "folder": "10869x77",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-09T03:05:14Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": "10869x77",
+        "nestedRelativePath": null,
+        "displayName": "10869x77",
+        "accountId": null,
+        "workIds": [
+          "sapling:tryambakam"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/session-atlas",
+        "repositoryId": "R_kgDOUAjRiQ",
+        "nodeId": "R_kgDOUAjRiQ"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "session-atlas",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-09T03:19:43Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "session-atlas",
+        "nestedRelativePath": null,
+        "displayName": "Session Atlas",
+        "accountId": null,
+        "workIds": [
+          "program:session-atlas"
+        ],
+        "status": "mapping-proposal",
+        "identityStatus": "reviewed-local-node",
+        "ownership": "thoughtseed",
+        "relationship": "modular-organ-of",
+        "relatedWorkId": "sapling:cambium",
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:2a0d0bc832ec2d7e149eb7ab088edf21adda31c9f97e13c5f6fef7e74e7eb62f",
+          "status": "reviewed-local"
+        }
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/fitcheck-wiki",
+        "repositoryId": "R_kgDOT0IfLQ",
+        "nodeId": "R_kgDOT0IfLQ"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "fitcheck-wiki",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-10T11:20:22Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "fitcheck-wiki",
+        "nestedRelativePath": null,
+        "displayName": "fitcheck-wiki",
+        "accountId": null,
+        "workIds": [
+          "sapling:fitcheck"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/meristem",
+        "repositoryId": "R_kgDOS1oGpg",
+        "nodeId": "R_kgDOS1oGpg"
+      },
+      "local": null,
+      "activityKind": "github-push",
+      "activityAt": "2026-08-11T10:47:57Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "Meristem Brand System",
+        "accountId": null,
+        "workIds": [
+          "program:meristem-brand-system"
+        ],
+        "status": "mapping-proposal",
+        "ownership": "thoughtseed",
+        "relationship": "modular-organ-of",
+        "relatedWorkId": "sapling:cambium",
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:7fc0434eb38a3a370f289b331dd024eedadb4caae07f32d1aaf226a090c0c765",
+          "status": "reviewed-local"
+        }
+      },
+      "gaps": [
+        "local-observation-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/brandmint-oracle-aleph",
+        "repositoryId": "R_kgDORM3pEQ",
+        "nodeId": "R_kgDORM3pEQ"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "brandmint-oracle-aleph",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-12T05:06:56Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "brandmint-oracle-aleph",
+        "nestedRelativePath": null,
+        "displayName": "brandmint-oracle-aleph",
+        "accountId": null,
+        "workIds": [
+          "program:meristem-brand-system"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/manifest-skill-137",
+        "repositoryId": "R_kgDOS2vokQ",
+        "nodeId": "R_kgDOS2vokQ"
+      },
+      "local": {
+        "kind": "infrastructure",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "github-push",
+      "activityAt": "2026-08-14T07:30:50Z",
+      "classification": "infrastructure",
+      "proposal": null,
+      "gaps": [
+        "infrastructure-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/urania-137",
+        "repositoryId": "R_kgDOTZhxRQ",
+        "nodeId": "R_kgDOTZhxRQ"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "tryambakam-noesis",
+        "folder": "urania-137",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-15T04:01:26Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": "urania-137",
+        "nestedRelativePath": null,
+        "displayName": "urania-137",
+        "accountId": null,
+        "workIds": [
+          "sapling:selemene"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/fitcheck-landing",
+        "repositoryId": "R_kgDOSzF56w",
+        "nodeId": "R_kgDOSzF56w"
+      },
+      "local": null,
+      "activityKind": "github-push",
+      "activityAt": "2026-08-16T06:52:00Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "fitcheck-landing",
+        "accountId": null,
+        "workIds": [
+          "sapling:fitcheck"
+        ],
+        "status": "mapping-proposal",
+        "evidence": {
+          "kind": "reviewed-repository-identity",
+          "receiptId": "pmr_23d50a803ded382e2ee03af7",
+          "contentDigest": "sha256:23d50a803ded382e2ee03af79f466118efdff10dbfc2a44987952f788ee9063b",
+          "receiptStatus": "prepared"
+        }
+      },
+      "gaps": [
+        "local-observation-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/vantyx",
+        "repositoryId": "R_kgDOSzK35A",
+        "nodeId": "R_kgDOSzK35A"
+      },
+      "local": null,
+      "activityKind": "github-push",
+      "activityAt": "2026-08-16T06:58:09Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "vantyx",
+        "accountId": null,
+        "workIds": [
+          "sapling:vantyx"
+        ],
+        "status": "mapping-proposal",
+        "evidence": {
+          "kind": "reviewed-repository-identity",
+          "receiptId": "pmr_72f605f32bff2d595a9f7edb",
+          "contentDigest": "sha256:72f605f32bff2d595a9f7edb302e17c798a82970112acca0dc4e34216ccb4172",
+          "receiptStatus": "prepared"
+        }
+      },
+      "gaps": [
+        "local-observation-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/iverif-wiki",
+        "repositoryId": "R_kgDOSwXJ7Q",
+        "nodeId": "R_kgDOSwXJ7Q"
+      },
+      "local": null,
+      "activityKind": "github-push",
+      "activityAt": "2026-08-16T07:53:57Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "iverif-wiki",
+        "accountId": null,
+        "workIds": [
+          "sapling:iverif"
+        ],
+        "status": "mapping-proposal",
+        "evidence": {
+          "kind": "reviewed-repository-identity",
+          "receiptId": "pmr_ea8abcff3022be70d1a75222",
+          "contentDigest": "sha256:ea8abcff3022be70d1a75222c9e222db14e64a12af12ab08ddc87b6e2fe2d7f0",
+          "receiptStatus": "prepared"
+        }
+      },
+      "gaps": [
+        "local-observation-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/kkv2-klear-karma-RN",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "undeclared-nested",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-20T12:54:27Z",
+      "classification": "undeclared-nested",
+      "proposal": null,
+      "gaps": [
+        "immutable-id-unavailable",
+        "undeclared-nested-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/tirakplus0admin",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "undeclared-nested",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-21T23:27:08Z",
+      "classification": "undeclared-nested",
+      "proposal": null,
+      "gaps": [
+        "immutable-id-unavailable",
+        "undeclared-nested-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/thoughtseed-labs",
+        "repositoryId": "R_kgDONimwZA",
+        "nodeId": "R_kgDONimwZA"
+      },
+      "local": {
+        "kind": "infrastructure",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "github-push",
+      "activityAt": "2026-08-21T23:30:25Z",
+      "classification": "infrastructure",
+      "proposal": null,
+      "gaps": [
+        "infrastructure-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/temperance_engine_landing_page",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "temperance-engine-landing-page",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-22T01:05:41Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "temperance-engine-landing-page",
+        "nestedRelativePath": null,
+        "displayName": "temperance-engine-landing-page",
+        "accountId": null,
+        "workIds": [
+          "program:temperance-hermes"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": [
+        "immutable-id-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/landingpage-ts-2026",
+        "repositoryId": "R_kgDOUAjRzw",
+        "nodeId": "R_kgDOUAjRzw"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "landingpage-ts-2026",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-22T01:50:21Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "landingpage-ts-2026",
+        "nestedRelativePath": null,
+        "displayName": "landingpage-ts-2026",
+        "accountId": null,
+        "workIds": [
+          "program:company-website"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/archived-thoughtseedlabs-landing-page",
+        "repositoryId": "R_kgDOUAjUWg",
+        "nodeId": "R_kgDOUAjUWg"
+      },
+      "local": {
+        "kind": "nested-dependency",
+        "portfolioId": "thoughtseed",
+        "folder": "archived-thoughtseedlabs-website",
+        "relativePath": "landing-page"
+      },
+      "activityKind": "github-push",
+      "activityAt": "2026-08-22T11:45:32Z",
+      "classification": "nested-dependency",
+      "proposal": null,
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/archived-thoughtseed-2026-site",
+        "repositoryId": "R_kgDOUAjU7g",
+        "nodeId": "R_kgDOUAjU7g"
+      },
+      "local": {
+        "kind": "nested-dependency",
+        "portfolioId": "thoughtseed",
+        "folder": "archived-thoughtseedlabs-website",
+        "relativePath": "thoughtseed-2026/site"
+      },
+      "activityKind": "github-push",
+      "activityAt": "2026-08-22T11:45:40Z",
+      "classification": "nested-dependency",
+      "proposal": null,
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/thoughtseed-digital-wilderness",
+        "repositoryId": "R_kgDOUAwjlA",
+        "nodeId": "R_kgDOUAwjlA"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "thoughtseedlabs-website",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-22T16:20:47Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "thoughtseedlabs-website",
+        "nestedRelativePath": null,
+        "displayName": "thoughtseedlabs-website",
+        "accountId": null,
+        "workIds": [
+          "program:company-website"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/noesis",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "tryambakam-noesis",
+        "folder": "noesis-raycast",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-23T03:00:29Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": "noesis-raycast",
+        "nestedRelativePath": null,
+        "displayName": "noesis-raycast",
+        "accountId": null,
+        "workIds": [
+          "sapling:selemene"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": [
+        "immutable-id-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/noesis",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "undeclared-nested",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-23T03:00:29Z",
+      "classification": "undeclared-nested",
+      "proposal": null,
+      "gaps": [
+        "immutable-id-unavailable",
+        "undeclared-nested-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/temperance_engine",
+        "repositoryId": "R_kgDOS4KUUg",
+        "nodeId": "R_kgDOS4KUUg"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "temperance_engine",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-29T10:39:21Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "temperance_engine",
+        "nestedRelativePath": null,
+        "displayName": "temperance_engine",
+        "accountId": null,
+        "workIds": [
+          "program:temperance-hermes"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/Sheshiyer",
+        "repositoryId": "R_kgDORbIfOA",
+        "nodeId": "R_kgDORbIfOA"
+      },
+      "local": {
+        "kind": "excluded-profile",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "github-push",
+      "activityAt": "2026-08-31T09:50:42Z",
+      "classification": "excluded-profile",
+      "proposal": null,
+      "gaps": [
+        "github-profile-readme-excluded"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/antahkarana",
+        "repositoryId": "R_kgDOTyffLg",
+        "nodeId": "R_kgDOTyffLg"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "tryambakam-noesis",
+        "folder": "antahkarana",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-31T20:21:02Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": "antahkarana",
+        "nestedRelativePath": null,
+        "displayName": "antahkarana",
+        "accountId": null,
+        "workIds": [
+          "sapling:selemene"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/tirak-mobile-app-v2",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "undeclared-nested",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-08-31T20:37:39Z",
+      "classification": "undeclared-nested",
+      "proposal": null,
+      "gaps": [
+        "immutable-id-unavailable",
+        "undeclared-nested-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "wshobson/agents",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "undeclared-nested",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-01T22:36:23Z",
+      "classification": "undeclared-nested",
+      "proposal": null,
+      "gaps": [
+        "immutable-id-unavailable",
+        "undeclared-nested-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/14113-X-vault",
+        "repositoryId": "R_kgDORNF_TQ",
+        "nodeId": "R_kgDORNF_TQ"
+      },
+      "local": {
+        "kind": "external-root",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "github-push",
+      "activityAt": "2026-09-03T01:11:41Z",
+      "classification": "external-root",
+      "proposal": null,
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/somatic-canticles-v3-book-trilogy",
+        "repositoryId": "R_kgDOSrh5QQ",
+        "nodeId": "R_kgDOSrh5QQ"
+      },
+      "local": null,
+      "activityKind": "github-push",
+      "activityAt": "2026-09-03T01:14:21Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "Somatic Canticles",
+        "accountId": null,
+        "workIds": [
+          "branch:somatic-canticles"
+        ],
+        "status": "mapping-proposal",
+        "ownership": "tryambakam-noesis",
+        "relationship": "portfolio-member",
+        "relatedWorkId": null,
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:a9e85375b76f0d1543fcf3a3c9d3bb0c551b0b33df79e331c5bf5dbd50adf9b4",
+          "status": "reviewed-local"
+        }
+      },
+      "gaps": [
+        "local-observation-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/skill-clusters",
+        "repositoryId": "R_kgDOSxWr3Q",
+        "nodeId": "R_kgDOSxWr3Q"
+      },
+      "local": {
+        "kind": "infrastructure",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "github-push",
+      "activityAt": "2026-09-03T01:15:10Z",
+      "classification": "infrastructure",
+      "proposal": null,
+      "gaps": [
+        "infrastructure-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/hermes-aws-ts",
+        "repositoryId": "R_kgDOS6faAg",
+        "nodeId": "R_kgDOS6faAg"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "hermes-aws-ts",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-03T03:10:08Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "hermes-aws-ts",
+        "nestedRelativePath": null,
+        "displayName": "hermes-aws-ts",
+        "accountId": null,
+        "workIds": [
+          "program:temperance-hermes"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "decodikdevsteam-oss/Decodik",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "nested-application",
+        "portfolioId": "thoughtseed",
+        "folder": "codigo",
+        "relativePath": "research/Decodik"
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-03T16:37:52Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "codigo",
+        "nestedRelativePath": "research/Decodik",
+        "displayName": "Decodik",
+        "accountId": "codigo-olimpo",
+        "workIds": [
+          "branch:codigo-olimpo",
+          "branch:codigo-olimpo-creator-platform"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": [
+        "immutable-id-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/wtfmedia",
+        "repositoryId": "R_kgDOSuOvow",
+        "nodeId": "R_kgDOSuOvow"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "wtfmedia",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-04T12:51:55Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "wtfmedia",
+        "nestedRelativePath": null,
+        "displayName": "wtfmedia",
+        "accountId": "wtf-podcast",
+        "workIds": [
+          "branch:wtfmedia"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/thoughtseed-organ-console",
+        "repositoryId": "R_kgDOUOnKkA",
+        "nodeId": "R_kgDOUOnKkA"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "thoughtseed-organ-console",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-04T19:05:01Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "thoughtseed-organ-console",
+        "nestedRelativePath": null,
+        "displayName": "thoughtseed-organ-console",
+        "accountId": null,
+        "workIds": [
+          "program:thoughtseed-organ-console"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/plexus-ts",
+        "repositoryId": "R_kgDOS3DVng",
+        "nodeId": "R_kgDOS3DVng"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "plexus-ts",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-05T14:58:17Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "plexus-ts",
+        "nestedRelativePath": null,
+        "displayName": "plexus-ts",
+        "accountId": null,
+        "workIds": [
+          "program:plexus"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/synchronocities-blog",
+        "repositoryId": "R_kgDORmUU5w",
+        "nodeId": "R_kgDORmUU5w"
+      },
+      "local": null,
+      "activityKind": "github-push",
+      "activityAt": "2026-09-06T08:11:35Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": null,
+        "nestedRelativePath": null,
+        "displayName": "Synchronocities",
+        "accountId": null,
+        "workIds": [
+          "program:synchronocities-blog"
+        ],
+        "status": "mapping-proposal",
+        "identityStatus": "reviewed-local-node",
+        "ownership": "partner",
+        "relationship": "personal-affiliated",
+        "relatedWorkId": null,
+        "evidence": {
+          "kind": "reviewed-owner-decision",
+          "decisionId": "owner-portfolio-mapping-2026-09-07",
+          "contentDigest": "sha256:fc624d9f80c5539001ec525d5d3c8c2e8c0f185b0f3b0613c3276ba6ebdb67b0",
+          "status": "reviewed-local"
+        }
+      },
+      "gaps": [
+        "local-observation-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/thoughtseed-vault",
+        "repositoryId": "R_kgDOSJs3dQ",
+        "nodeId": "R_kgDOSJs3dQ"
+      },
+      "local": {
+        "kind": "infrastructure",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-06T10:51:45Z",
+      "classification": "infrastructure",
+      "proposal": null,
+      "gaps": [
+        "infrastructure-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/parkarea-aleph",
+        "repositoryId": "R_kgDOSDqEkg",
+        "nodeId": "R_kgDOSDqEkg"
+      },
+      "local": {
+        "kind": "undeclared-nested",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-06T11:03:08Z",
+      "classification": "undeclared-nested",
+      "proposal": null,
+      "gaps": [
+        "undeclared-nested-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/Selemene-engine",
+        "repositoryId": "R_kgDOPdYesw",
+        "nodeId": "R_kgDOPdYesw"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "tryambakam-noesis",
+        "folder": "Selemene-engine",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-06T17:10:45Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "tryambakam-noesis",
+        "folder": "Selemene-engine",
+        "nestedRelativePath": null,
+        "displayName": "Selemene-engine",
+        "accountId": null,
+        "workIds": [
+          "sapling:selemene"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    },
+    {
+      "repository": null,
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "cambium-telegram-showcase",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-06T21:23:56Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "cambium-telegram-showcase",
+        "nestedRelativePath": null,
+        "displayName": "Cambium Website",
+        "accountId": null,
+        "workIds": [
+          "sapling:cambium"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": [
+        "repository-identity-unavailable"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "diegosouzapw/OmniRoute",
+        "repositoryId": null,
+        "nodeId": null
+      },
+      "local": {
+        "kind": "infrastructure",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-06T22:22:59Z",
+      "classification": "infrastructure",
+      "proposal": null,
+      "gaps": [
+        "immutable-id-unavailable",
+        "infrastructure-observation-only"
+      ]
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/noesis-cambium",
+        "repositoryId": "R_kgDOUDuwTA",
+        "nodeId": "R_kgDOUDuwTA"
+      },
+      "local": {
+        "kind": "external-root",
+        "portfolioId": null,
+        "folder": null,
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-06T23:51:54Z",
+      "classification": "external-root",
+      "proposal": null,
+      "gaps": []
+    },
+    {
+      "repository": {
+        "fullName": "Sheshiyer/cambium",
+        "repositoryId": "R_kgDOS0OOtg",
+        "nodeId": "R_kgDOS0OOtg"
+      },
+      "local": {
+        "kind": "portfolio-root",
+        "portfolioId": "thoughtseed",
+        "folder": "cambium",
+        "relativePath": null
+      },
+      "activityKind": "local-branch",
+      "activityAt": "2026-09-06T23:59:34Z",
+      "classification": "mapped",
+      "proposal": {
+        "portfolioId": "thoughtseed",
+        "folder": "cambium",
+        "nestedRelativePath": null,
+        "displayName": "cambium",
+        "accountId": null,
+        "workIds": [
+          "sapling:cambium",
+          "program:cambium-operating-fabric"
+        ],
+        "status": "mapping-proposal"
+      },
+      "gaps": []
+    }
+  ]
+}

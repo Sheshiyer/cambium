@@ -43,6 +43,12 @@ export type CloseoutDisposition = 'completed' | 'closed' | 'terminated'
 export type ActiveIndexDisposition = 'remove-from-active' | 'mark-finished'
 
 export interface PortfolioFolderMapping {
+  displayName?: string
+  nestedRepositories?: readonly {
+    relativePath: string
+    displayName: string
+    workIds: readonly string[]
+  }[]
   portfolioId: PortfolioId
   portfolioLabel: string
   itemLabel: string
@@ -229,6 +235,8 @@ function toPortfolioFolderMapping(
     portfolioLabel: root.label,
     itemLabel: root.itemLabel,
     folder: folder.folder,
+    ...('displayName' in folder ? { displayName: folder.displayName } : {}),
+    ...('nestedRepositories' in folder ? { nestedRepositories: folder.nestedRepositories } : {}),
     path: `${portfolioId}/${folder.folder}`,
     proposedKind: folder.proposedKind,
     accountId: folder.accountId,
