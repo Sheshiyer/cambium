@@ -100,7 +100,7 @@ test('validation fails closed on digest drift, duplicate identity, invalid enum,
 test('catalog contains no absolute path and rejects path leakage', () => {
   assert.doesNotMatch(JSON.stringify(PORTFOLIO_CATALOG), /(?:^|")\/Volumes\//);
   const leaked = mutableCatalog();
-  leaked.records[0].provenance = ['/Volumes/private/source.md'];
+  leaked.records[0].provenance = ['/synthetic-catalog-fixture/source.md'];
   assert.throws(() => validatePortfolioCatalog(leaked), /absolute path/);
 });
 

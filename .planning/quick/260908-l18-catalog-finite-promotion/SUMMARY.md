@@ -70,3 +70,7 @@ No live Vault, Worker, D1, provider, tenant, approval, deployment, catalog-sourc
 - Source commit `e58bbc0` exists and contains the frozen display proposal and bounded consumer changes.
 - The quick plan, this summary, and the deferred record exist under the finite-promotion quick directory.
 - No tracked file deletion appears in the source commit.
+
+## Parent publication review follow-up
+
+PR373 CI found two privacy checks rejecting a pre-existing synthetic absolute-path test literal when this file entered the changed-file audit. The fixture now uses an explicitly synthetic root, preserving the same absolute-path rejection assertion without resembling private host data. The privacy detector and its exemptions are unchanged. The parent reran all 35 catalog, route, action and pin tests; exact-head CI is rerun after this fixture correction.
