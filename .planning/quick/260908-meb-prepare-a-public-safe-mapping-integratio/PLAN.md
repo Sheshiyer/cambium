@@ -19,3 +19,7 @@ No step grants execution authority or silently advances an approval pin. Canonic
 ## Validation
 
 Public path scan, deterministic source/intake parity, foundation and historical-receipt checks, focused action/hosted-route tests, typecheck/lint and repository release checks. Actual browser and runtime verification remain separately evidenced.
+
+## CI continuation
+
+PR372 CI found the census note nested inside the SHA-bound Operator Next Step section, plus synthetic negative-fixture paths not registered with the existing exact fixture scanner. Move the census note to a peer section, preserve the operator section and its recorded digest, register only the two exact synthetic labels for their test path, and prove unrelated-file and same-line path smuggling remains rejected. Remove literal fixture paths from the prose review. Rerun the committed-revision safety check and release verification; do not weaken scope, change authority pins or hide release blockers.

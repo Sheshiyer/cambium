@@ -81,13 +81,13 @@ Last session: 2026-08-31T18:31:00Z
 Stopped at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate
 Resume file: .planning/STATE.md
 
+## 2026-09-08 Saanmai census and local headers
+
+GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current census is76Thoughtseed/38Noesis with no directory drift. Saanmai remains an observed needs-review folder with no minted WorkObject. Four local headers read back as exact reviewed bytes;109portfolio tests pass with one existing skip. See `.planning/quick/260908-lme-refresh-the-approved-portfolio-census-wi/SUMMARY.md`. Existing ownership and foundation approvals remain intact; canonical promotion and source merges remain separate.
+
 ## Operator Next Step
 
 Continue with `/gsd:plan-phase 9` to specify the authenticated read-only
 inventory and classification proof. Executing that inventory still requires
 explicit owner authorization. Do not run a Cloudflare write, deploy, copy,
 DNS, Access, tunnel, or retirement command from this planning state.
-
-### 2026-09-08 Saanmai census and local headers
-
-GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current census is76Thoughtseed/38Noesis with no directory drift. Saanmai remains an observed needs-review folder with no minted WorkObject. Four local headers read back as exact reviewed bytes;109portfolio tests pass with one existing skip. See `.planning/quick/260908-lme-refresh-the-approved-portfolio-census-wi/SUMMARY.md`. Existing ownership and foundation approvals remain intact; canonical promotion and source merges remain separate.
