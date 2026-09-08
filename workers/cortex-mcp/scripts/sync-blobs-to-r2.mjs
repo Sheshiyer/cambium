@@ -1,14 +1,13 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { homedir } from 'node:os';
 
-const TASTE_DIR = join(homedir(), '.hermes/skills/design-agent/references/taste');
-const CF_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || '9d7cec1b5a32b2df8c6cdc1321ccd00b';
+const TASTE_DIR = process.env.TASTE_BLOB_DIR;
+const CF_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CF_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const BUCKET = 'thoughtseed-context-projections';
 
-if (!CF_API_TOKEN) {
-  console.error('CLOUDFLARE_API_TOKEN required');
+if (!CF_API_TOKEN || !CF_ACCOUNT_ID || !TASTE_DIR) {
+  console.error('CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, and TASTE_BLOB_DIR are required');
   process.exit(1);
 }
 

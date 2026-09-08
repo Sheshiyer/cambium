@@ -12,7 +12,12 @@ import {
   type ComposeTarget,
 } from "./taste-compose.ts";
 
+import { recallOperatorMemory } from "./semantic-recall.ts";
+
 export interface Env {
+  NVIDIA_API_KEY?: string;
+  CORTEX_EMBED_MODEL?: string;
+  CONTEXT_ROUTE_TOKEN?: string;
   ENVIRONMENT: string;
   CONTEXT_ALLOWED_TENANTS?: string;
   AI: {
@@ -374,17 +379,27 @@ export function createCortexMcpServer(env: Env) {
     }
 
     if (name === "capability_hit_evaluate") {
+      const scores = ["relevance", "freshness", "readiness", "ownerMatch", "novelty", "evidenceQuality"].map((key) => {
+        const n = Number(args?.[key] ?? 0);
+        return Number.isFinite(n) ? n : Number.NaN;
+      });
+      if (scores.some((n) => !Number.isFinite(n))) {
+        return {
+          isError: true,
+          content: [{ type: "text", text: JSON.stringify({ eligible: false, refusalReason: "invalid_score" }) }],
+        };
+      }
       const result = evaluateCapabilityHit({
         taskFingerprint: String(args?.taskFingerprint || ""),
         taskSummary: String(args?.taskSummary || ""),
         topicKey: args?.topicKey as any,
         candidateCapabilityId: String(args?.candidateCapabilityId || ""),
-        relevance: Number(args?.relevance ?? 1),
-        freshness: Number(args?.freshness ?? 1),
-        readiness: Number(args?.readiness ?? 1),
-        ownerMatch: Number(args?.ownerMatch ?? 1),
-        novelty: Number(args?.novelty ?? 1),
-        evidenceQuality: Number(args?.evidenceQuality ?? 1),
+        relevance: scores[0],
+        freshness: scores[1],
+        readiness: scores[2],
+        ownerMatch: scores[3],
+        novelty: scores[4],
+        evidenceQuality: scores[5],
       });
 
       return {
@@ -491,42 +506,7 @@ export function createCortexMcpServer(env: Env) {
     }
 
     if (name === "semantic_recall") {
-      const tenant = String(args?.tenant || "");
-      const query = String(args?.query || "");
-      const kind = args?.kind ? String(args.kind) : undefined;
-      const topK = Math.min(Number(args?.top_k || 5), 10);
-
-      if (!env.CAMBIUM_CORTEX) {
-        throw new Error("CAMBIUM_CORTEX binding not configured");
-      }
-
-      const allowedTenants = (env.CONTEXT_ALLOWED_TENANTS || "cambium").split(",").map((t) => t.trim());
-      if (!allowedTenants.includes(tenant)) {
-        throw new Error(`Unauthorized tenant: ${tenant}`);
-      }
-
-      const aiRes = await env.AI.run("@cf/baai/bge-base-en-v1.5", {
-        text: [query.slice(0, 1000)],
-      });
-      const queryVector = aiRes.data[0];
-
-      const filter: Record<string, unknown> = { tenant: { $eq: tenant } };
-      if (kind) filter.kind = { $eq: kind };
-
-      const results = await env.CAMBIUM_CORTEX.query(queryVector, {
-        topK,
-        returnMetadata: "all",
-        filter,
-      });
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(results.matches, null, 2),
-          },
-        ],
-      };
+      return recallOperatorMemory(env, args || {});
     }
 
     throw new Error(`Unknown tool: ${name}`);
@@ -559,6 +539,13 @@ export default {
       if (request.method !== "POST") {
         return new Response("MCP endpoint requires POST", { status: 405 });
       }
+      const token = env.CONTEXT_ROUTE_TOKEN;
+      if (!token || request.headers.get("authorization") !== `Bearer ${token}`) {
+        return new Response(JSON.stringify({ error: "bad or missing context route credential" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
 
       try {
         const body = await request.json();
@@ -577,16 +564,14 @@ export default {
             status,
           });
 
-        // MCP handshake — Hermes (and Claude) call initialize before tools/list.
-        // Missing this parks cortex as MCPError: Method not found.
+        // Hermes reports Method not found unless initialize is implemented.
         if (method === "initialize") {
-          const requested = String(params?.protocolVersion || "2024-11-05");
           return rpcOk({
-            protocolVersion: requested || "2024-11-05",
+            protocolVersion: "2025-06-18",
             capabilities: { tools: { listChanged: false } },
             serverInfo: { name: "cortex-mcp", version: "1.1.1" },
             instructions:
-              "Read-only Cortex MCP. Tools: taste_cortex_query, taste_cortex_get_blob, semantic_recall, organ_atlas_lookup, capability_hit_evaluate, cortex_health.",
+              "Read-only Cortex MCP. Tools: taste_cortex_query, taste_cortex_get_blob, taste_cortex_compose, semantic_recall, organ_atlas_lookup, capability_hit_evaluate, cortex_health.",
           });
         }
 
@@ -598,7 +583,6 @@ export default {
           return rpcOk({});
         }
 
-        // Hermes 2026-07-28 fallback after initialize is rejected
         if (method === "server/discover") {
           return rpcOk({
             protocolVersion: "2025-06-18",

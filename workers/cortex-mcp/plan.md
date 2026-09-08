@@ -10,7 +10,7 @@
 
 ## 1. Deep Pass Insights from the Vault (2026-09-03 Review Cut)
 
-The live Obsidian MCP connection to `/Volumes/madara/2026/Projects/thoughtseed/thoughtseed-labs/20-operations/growth/whitepaper` revealed crucial architecture contracts updated on **2026-09-03** that directly elevate the Stateless MCP implementation:
+The live Obsidian MCP connection to the vault note `20-operations/growth/whitepaper` revealed crucial architecture contracts updated on **2026-09-03** that directly elevate the Stateless MCP implementation:
 
 ### 1.1 The Dual Organ Hierarchy (5 Cambium + 6 Temperance)
 The internal organ atlas (`cambium-temperance-organ-atlas.md`) defines the complete split between operating and cognitive bodies:
@@ -100,7 +100,7 @@ The MCP server exposes 6 high-signal tools:
 ## 4. Phase-by-Phase Execution Roadmap
 
 ### Phase 1: Repository Scaffolding & Contract Verification (Complete)
-- [x] Scaffolding created in `/home/ubuntu/repos/cambium/workers/cortex-mcp`.
+- [x] Scaffolding created in `workers/cortex-mcp`.
 - [x] `package.json`, `wrangler.jsonc`, and base `src/index.ts` written.
 - [x] Extracted 231 taste blobs into `taste-blobs-manifest.json`.
 
@@ -121,7 +121,7 @@ The MCP server exposes 6 high-signal tools:
 
 ### Phase 4: Staging Deployment & Hermes Verification
 1. Deploy worker to `cortex-mcp.thoughtseedlabs.workers.dev` (and custom domain `cortex.thoughtseed.space`).
-2. Add `cortex-mcp` to `/home/ubuntu/.hermes/config.yaml` as a native MCP server:
+2. Add `cortex-mcp` to the Hermes profile `config.yaml` as a native MCP server:
    ```yaml
    mcp_servers:
      cortex:

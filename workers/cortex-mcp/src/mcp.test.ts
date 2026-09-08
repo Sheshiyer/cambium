@@ -60,6 +60,23 @@ test('capability-hits: score < 0.68 returns silence refusal', () => {
   assert.equal(res.card, undefined);
 });
 
+test('capability-hits: zero scores fail closed instead of emitting a hit', () => {
+  const res = evaluateCapabilityHit({
+    taskFingerprint: 'fp-missing',
+    taskSummary: 'Evaluate brand resonance for luxury aesthetic',
+    topicKey: 'digests',
+    candidateCapabilityId: 'cambium.taste',
+    relevance: 0,
+    freshness: 0,
+    readiness: 0,
+    ownerMatch: 0,
+    novelty: 0,
+    evidenceQuality: 0,
+  });
+  assert.equal(res.eligible, false);
+  assert.ok(res.score < 0.68);
+});
+
 test('capability-hits: topic mismatch returns refusal even with high score', () => {
   const res = evaluateCapabilityHit({
     taskFingerprint: 'fp-789',

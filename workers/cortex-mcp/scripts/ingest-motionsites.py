@@ -10,12 +10,16 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ACCOUNT = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "9d7cec1b5a32b2df8c6cdc1321ccd00b")
-TOKEN = os.environ["CLOUDFLARE_API_TOKEN"]
+ACCOUNT = os.environ.get("CLOUDFLARE_ACCOUNT_ID")
+TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN")
 INDEX = "motionsites-prompts"
 BUCKET = "thoughtseed-context-projections"
-SRC = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/motionsites-ingest.json")
-SKILLS = Path(sys.argv[2] if len(sys.argv) > 2 else "/tmp/design-spokes.json")
+if not ACCOUNT or not TOKEN or len(sys.argv) < 3:
+    raise SystemExit("usage: CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... ingest-motionsites.py <prompts.json> <skills.json>")
+SRC = Path(sys.argv[1])
+SKILLS = Path(sys.argv[2])
+if not SRC.is_file() or not SKILLS.is_file():
+    raise SystemExit("source JSON files must exist")
 
 
 def api(method: str, path: str, body=None, content_type="application/json"):

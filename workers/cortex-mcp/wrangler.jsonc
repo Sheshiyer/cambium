@@ -14,6 +14,7 @@
   ],
   "vars": {
     "ENVIRONMENT": "production",
+    "CORTEX_EMBED_MODEL": "nvidia/nv-embedqa-e5-v5",
     "CONTEXT_ALLOWED_TENANTS": "cambium,thoughtseed,codigo-olimpo,parkarea"
   },
   "ai": {

@@ -74,7 +74,7 @@ Before mutating production Cloudflare resources or deploying code, 5 critical re
                        └───────────────────────────┬────────────────────────────┘
                                                    │
                                      HTTP POST JSON-RPC 2.0
-                                (Bearer CONTEXT_ROUTE_TOKEN)
+                                (Bearer ${CONTEXT_ROUTE_TOKEN})
                                                    ▼
                        ┌────────────────────────────────────────────────────────┐
                        │           CLOUDFLARE WORKERS EDGE (LABS)               │
@@ -167,7 +167,7 @@ Phase 6: Hermes Native Integration & Capability Routing ─────── [ 
 - [ ] **T5.4:** Probe edge health endpoint `GET https://cortex.thoughtseed.space/health` $\to$ `200 OK`.
 
 ### 📋 Phase 6: Hermes & Multi-Agent Consumption
-- [ ] **T6.1:** Register `cortex-mcp` in `/home/ubuntu/.hermes/config.yaml`:
+- [ ] **T6.1:** Register `cortex-mcp` in the Hermes profile `config.yaml`:
   ```yaml
   mcp_servers:
     cortex:
