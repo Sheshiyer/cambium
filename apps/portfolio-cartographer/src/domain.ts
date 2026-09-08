@@ -4,6 +4,16 @@ import {
   RAW_PROGRAMS,
   RAW_SAPLINGS,
 } from './portfolio-catalog-data.ts'
+import {
+  PORTFOLIO_DISPLAY_PROPOSAL,
+  PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS,
+  PORTFOLIO_DISPLAY_PROPOSAL_WORK_IDS,
+  PORTFOLIO_DISPLAY_SELECTION_DIGEST,
+} from '../../../shared/portfolio-catalog-display-proposal.ts'
+import {
+  PORTFOLIO_ACTION_CATALOG_DIGEST,
+  PORTFOLIO_ACTION_CLASSIFICATION_DIGEST,
+} from '../../../shared/portfolio-catalog-authority.ts'
 import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts'
 import {
   PORTFOLIO_ROOT_MAP_DIGEST,
@@ -16,8 +26,14 @@ export const V3_SCHEMA = 'thoughtseed.portfolio-workbench.v3' as const
 export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
-export const CLASSIFICATION_DIGEST = '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309'
-export const PORTFOLIO_CATALOG_DIGEST = 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca'
+// These compatibility names deliberately remain action-bound. Workbench
+// actions retain the reviewed 72-record digest even while the display-only
+// proposal records below render in the cartographer.
+export const CLASSIFICATION_DIGEST = PORTFOLIO_ACTION_CLASSIFICATION_DIGEST
+export const PORTFOLIO_CATALOG_DIGEST = PORTFOLIO_ACTION_CATALOG_DIGEST
+export const DISPLAY_CATALOG_PROPOSAL = PORTFOLIO_DISPLAY_PROPOSAL
+export const DISPLAY_CATALOG_SELECTION_DIGEST = PORTFOLIO_DISPLAY_SELECTION_DIGEST
+export const DISPLAY_PROPOSAL_WORK_IDS = PORTFOLIO_DISPLAY_PROPOSAL_WORK_IDS
 export const SOURCE_SCHEMA = 'thoughtseed.work-object-registry.v1'
 export const SOURCE_GENERATED_AT = '2026-07-29T06:46:00Z'
 
@@ -376,7 +392,7 @@ const saplings: WorkObject[] = RAW_SAPLINGS.map((row) => {
   }
 })
 
-const programs: WorkObject[] = RAW_PROGRAMS.map((row) => {
+const programs: WorkObject[] = [...RAW_PROGRAMS, ...PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS].map((row) => {
   const [
     workId,
     name,

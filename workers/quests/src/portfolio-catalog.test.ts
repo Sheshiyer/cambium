@@ -6,9 +6,13 @@ import { FABRIC_SOURCE_FIXTURE } from './mission-fabric-fixture.ts';
 import {
   buildPortfolioJoinReport,
   PORTFOLIO_CATALOG,
+  PORTFOLIO_DISPLAY_CATALOG,
+  PORTFOLIO_DISPLAY_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST,
+  portfolioDisplayCatalogForViewer,
   portfolioCatalogForViewer,
   portfolioPairDigest,
+  validatePortfolioDisplayCatalog,
   validatePortfolioCatalog,
 } from './portfolio-catalog.ts';
 
@@ -244,4 +248,80 @@ test('the exported catalog is deeply frozen', () => {
   assert.throws(() => {
     (PORTFOLIO_CATALOG as unknown as { status: string }).status = 'approved';
   }, /read only|Cannot assign/i);
+});
+
+test('finite display catalog renders exactly three proposal records without widening action authority', () => {
+  validatePortfolioDisplayCatalog(PORTFOLIO_DISPLAY_CATALOG);
+  assert.equal(PORTFOLIO_DISPLAY_CATALOG.catalogDigest, PORTFOLIO_DISPLAY_CATALOG_DIGEST);
+  assert.notEqual(PORTFOLIO_DISPLAY_CATALOG.catalogDigest, PORTFOLIO_CATALOG.catalogDigest);
+  assert.equal(PORTFOLIO_DISPLAY_CATALOG.status, 'render-and-proposal-only');
+  assert.deepEqual(PORTFOLIO_DISPLAY_CATALOG.actionAuthority, {
+    schema: 'cambium.portfolio-action-authority.v1',
+    classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
+    catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+    admission: 'none',
+  });
+  assert.equal(PORTFOLIO_DISPLAY_CATALOG.records.length, 75);
+  assert.deepEqual(PORTFOLIO_DISPLAY_CATALOG.summary, {
+    total: 75,
+    saplings: 17,
+    clientBranches: 42,
+    internalPrograms: 16,
+    classificationReview: 0,
+    historicalProducts: 20,
+    operationalGaps: 48,
+  });
+
+  const actionById = new Map(PORTFOLIO_CATALOG.records.map((record) => [record.workId, record]));
+  for (const [workId, actionRecord] of actionById) {
+    assert.deepEqual(
+      PORTFOLIO_DISPLAY_CATALOG.records.find((record) => record.workId === workId),
+      actionRecord,
+      `${workId} retains the reviewed action projection`,
+    );
+  }
+  assert.deepEqual(
+    PORTFOLIO_DISPLAY_CATALOG.records
+      .filter((record) => !actionById.has(record.workId))
+      .map((record) => ({
+        workId: record.workId,
+        classification: record.classification,
+        lifecycle: record.lifecycle,
+        tenantIdentity: record.tenantIdentity,
+        accountId: record.accountId ?? null,
+      })),
+    [
+      {
+        workId: 'branch:codigo-olimpo',
+        classification: 'client-branch',
+        lifecycle: 'approved',
+        tenantIdentity: { status: 'documented-not-runtime-verified', tenantId: null },
+        accountId: 'codigo-olimpo',
+      },
+      {
+        workId: 'branch:codigo-olimpo-creator-platform',
+        classification: 'client-branch',
+        lifecycle: 'executing',
+        tenantIdentity: { status: 'documented-not-runtime-verified', tenantId: null },
+        accountId: 'codigo-olimpo',
+      },
+      {
+        workId: 'program:thoughtseed-organ-console',
+        classification: 'internal-program',
+        lifecycle: 'approved',
+        tenantIdentity: { status: 'not-applicable', tenantId: null },
+        accountId: null,
+      },
+    ],
+  );
+
+  const founder = portfolioDisplayCatalogForViewer(PORTFOLIO_DISPLAY_CATALOG, 'founder');
+  const viewer = portfolioDisplayCatalogForViewer(PORTFOLIO_DISPLAY_CATALOG, 'viewer');
+  assert.equal(founder.detail, PORTFOLIO_DISPLAY_CATALOG);
+  assert.equal(viewer.detail, null);
+  assert.equal(viewer.summary.total, 75);
+
+  const driftedAuthority = structuredClone(PORTFOLIO_DISPLAY_CATALOG) as Record<string, any>;
+  driftedAuthority.actionAuthority.catalogDigest = `sha256:${'0'.repeat(64)}`;
+  assert.throws(() => validatePortfolioDisplayCatalog(driftedAuthority), /action authority drifted/);
 });

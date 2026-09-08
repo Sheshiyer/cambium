@@ -5,6 +5,12 @@ import {
   PORTFOLIO_CATALOG_DIGEST as SHARED_PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST as SHARED_CLASSIFICATION_DIGEST,
 } from '../../../shared/portfolio-catalog-authority.ts';
+import {
+  PORTFOLIO_DISPLAY_CATALOG_DIGEST as EXPECTED_PORTFOLIO_DISPLAY_CATALOG_DIGEST,
+  PORTFOLIO_DISPLAY_CATALOG_COUNTS,
+  PORTFOLIO_DISPLAY_PROPOSAL,
+  PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS,
+} from '../../../shared/portfolio-catalog-display-proposal.ts';
 
 import {
   RAW_CLASSIFICATION_REVIEW,
@@ -144,9 +150,57 @@ export interface PortfolioCatalogV1 {
   operationalGaps: readonly PortfolioOperationalGap[];
 }
 
+export interface PortfolioDisplayCatalogSummary {
+  total: 75;
+  saplings: 17;
+  clientBranches: 42;
+  internalPrograms: 16;
+  classificationReview: 0;
+  historicalProducts: 20;
+  operationalGaps: 48;
+}
+
+/**
+ * A presentation-only augmentation of the reviewed catalog. Its action
+ * authority points at the immutable 72-record catalog, so this inventory can
+ * be rendered without becoming eligible for action, Mission Fabric joins, or
+ * approval packets.
+ */
+export interface PortfolioDisplayCatalogV1 {
+  schema: 'cambium.portfolio-display-catalog.v1';
+  version: 1;
+  status: 'render-and-proposal-only';
+  readOnly: true;
+  sourceSchema: 'thoughtseed.work-object-registry.v1';
+  sourceGeneratedAt: '2026-07-29T06:46:00Z';
+  classificationDigest: string;
+  catalogDigest: string;
+  authority: {
+    classification: 'vault';
+    operational: 'd1-goal-graph';
+  };
+  actionAuthority: {
+    schema: 'cambium.portfolio-action-authority.v1';
+    classificationDigest: string;
+    catalogDigest: string;
+    admission: 'none';
+  };
+  proposal: typeof PORTFOLIO_DISPLAY_PROPOSAL;
+  summary: PortfolioDisplayCatalogSummary;
+  records: readonly PortfolioCatalogRecord[];
+  historicalProducts: readonly PortfolioHistoricalProduct[];
+  classificationReview: readonly PortfolioClassificationReview[];
+  operationalGaps: readonly PortfolioOperationalGap[];
+}
+
 export interface PortfolioViewerProjection {
   summary: PortfolioCatalogSummary;
   detail: PortfolioCatalogV1 | null;
+}
+
+export interface PortfolioDisplayViewerProjection {
+  summary: PortfolioDisplayCatalogSummary;
+  detail: PortfolioDisplayCatalogV1 | null;
 }
 
 export interface PortfolioJoinMatch {
@@ -193,6 +247,10 @@ const SUMMARY: PortfolioCatalogSummary = Object.freeze({
   ...PORTFOLIO_CATALOG_COUNTS,
 });
 
+const DISPLAY_SUMMARY: PortfolioDisplayCatalogSummary = Object.freeze({
+  ...PORTFOLIO_DISPLAY_CATALOG_COUNTS,
+});
+
 function compact<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
 }
@@ -216,7 +274,12 @@ function materializeRecords(): PortfolioCatalogRecord[] {
       commercialReuse,
     });
   });
-  const programs: PortfolioCatalogRecord[] = RAW_PROGRAMS.map((row) => {
+  const programs = materializeProgramRows(RAW_PROGRAMS);
+  return [...saplings, ...programs].sort((a, b) => a.workId.localeCompare(b.workId));
+}
+
+function materializeProgramRows(rows: ReadonlyArray<typeof RAW_PROGRAMS[number]>): PortfolioCatalogRecord[] {
+  return rows.map((row) => {
     const [workId, name, programKind, lifecycle, tenantStatus, tenantId, provenance, accountId, linkedWorkIds = [], overlay, commercialReuse] = row;
     return compact({
       canonicalId: workId,
@@ -236,7 +299,6 @@ function materializeRecords(): PortfolioCatalogRecord[] {
       commercialReuse,
     });
   });
-  return [...saplings, ...programs].sort((a, b) => a.workId.localeCompare(b.workId));
 }
 
 function catalogHashPayload(catalog: Omit<PortfolioCatalogV1, 'catalogDigest'> | PortfolioCatalogV1): Record<string, unknown> {
@@ -465,11 +527,140 @@ const BUILT_CATALOG = buildCatalog();
 validatePortfolioCatalog(BUILT_CATALOG);
 export const PORTFOLIO_CATALOG: PortfolioCatalogV1 = deepFreeze(BUILT_CATALOG);
 
+function buildDisplayCatalog(): PortfolioDisplayCatalogV1 {
+  const actionAuthority = {
+    schema: 'cambium.portfolio-action-authority.v1' as const,
+    classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
+    catalogDigest: PORTFOLIO_CATALOG_DIGEST,
+    admission: 'none' as const,
+  };
+  const withoutDigest: Omit<PortfolioDisplayCatalogV1, 'catalogDigest'> = {
+    schema: 'cambium.portfolio-display-catalog.v1',
+    version: 1,
+    status: 'render-and-proposal-only',
+    readOnly: true,
+    sourceSchema: 'thoughtseed.work-object-registry.v1',
+    sourceGeneratedAt: '2026-07-29T06:46:00Z',
+    // The unchanged 72-record classification source remains the base of this
+    // mixed inventory. The newer canonical source is named only inside the
+    // finite proposal, so it cannot be mistaken for action authority.
+    classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
+    authority: {
+      classification: 'vault',
+      operational: 'd1-goal-graph',
+    },
+    actionAuthority,
+    proposal: PORTFOLIO_DISPLAY_PROPOSAL,
+    summary: DISPLAY_SUMMARY,
+    records: [
+      ...PORTFOLIO_CATALOG.records,
+      ...materializeProgramRows(PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS),
+    ].sort((a, b) => a.workId.localeCompare(b.workId)),
+    historicalProducts: PORTFOLIO_CATALOG.historicalProducts,
+    classificationReview: PORTFOLIO_CATALOG.classificationReview,
+    operationalGaps: PORTFOLIO_CATALOG.operationalGaps,
+  };
+  return {
+    ...withoutDigest,
+    catalogDigest: sha256(withoutDigest),
+  };
+}
+
+export function validatePortfolioDisplayCatalog(catalog: unknown): asserts catalog is PortfolioDisplayCatalogV1 {
+  if (!isRecord(catalog)) fail('display catalog is not an object');
+  if (catalog.schema !== 'cambium.portfolio-display-catalog.v1' || catalog.version !== 1) {
+    fail('display catalog schema or version drifted');
+  }
+  if (catalog.status !== 'render-and-proposal-only' || catalog.readOnly !== true) {
+    fail('display catalog is not render-and-proposal-only');
+  }
+  if (catalog.sourceSchema !== 'thoughtseed.work-object-registry.v1'
+    || catalog.sourceGeneratedAt !== '2026-07-29T06:46:00Z'
+    || catalog.classificationDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
+    fail('display catalog base source drifted');
+  }
+  if (!isRecord(catalog.authority)
+    || catalog.authority.classification !== 'vault'
+    || catalog.authority.operational !== 'd1-goal-graph') {
+    fail('display catalog authority drifted');
+  }
+  if (!isRecord(catalog.actionAuthority)
+    || catalog.actionAuthority.schema !== 'cambium.portfolio-action-authority.v1'
+    || catalog.actionAuthority.classificationDigest !== PORTFOLIO_CLASSIFICATION_DIGEST
+    || catalog.actionAuthority.catalogDigest !== PORTFOLIO_CATALOG_DIGEST
+    || catalog.actionAuthority.admission !== 'none') {
+    fail('display catalog action authority drifted');
+  }
+  if (canonicalJson(catalog.proposal) !== canonicalJson(PORTFOLIO_DISPLAY_PROPOSAL)) {
+    fail('display catalog proposal drifted');
+  }
+  if (!SHA256.test(String(catalog.catalogDigest ?? ''))) fail('display catalog digest is malformed');
+  rejectForbiddenMaterial(catalog, 'displayCatalog');
+
+  const records = catalog.records;
+  if (!Array.isArray(records) || records.length !== 75 || records.length > MAX_RECORDS) {
+    fail('display catalog record count drifted');
+  }
+  records.forEach((record, index) => validateRecord(record as PortfolioCatalogRecord, index));
+  const ids = records.map((record) => (record as PortfolioCatalogRecord).workId);
+  if (new Set(ids).size !== ids.length) fail('display catalog has duplicate WorkObject identity');
+  const saplings = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'sapling').length;
+  const clients = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'client-branch').length;
+  const programs = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'internal-program').length;
+  if (saplings !== 17 || clients !== 42 || programs !== 16) fail('display catalog classification counts drifted');
+  if (canonicalJson(catalog.summary) !== canonicalJson(DISPLAY_SUMMARY)) fail('display catalog summary drifted');
+
+  const actionRecords = new Map(PORTFOLIO_CATALOG.records.map((record) => [record.workId, record]));
+  for (const [workId, actionRecord] of actionRecords) {
+    const displayRecord = records.find((record) => (record as PortfolioCatalogRecord).workId === workId);
+    if (displayRecord === undefined || canonicalJson(displayRecord) !== canonicalJson(actionRecord)) {
+      fail(`display catalog changed approved action record ${workId}`);
+    }
+  }
+  const expectedProposals = materializeProgramRows(PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS);
+  const expectedProposalIds = new Set(expectedProposals.map((record) => record.workId));
+  for (const expected of expectedProposals) {
+    const displayRecord = records.find((record) => (record as PortfolioCatalogRecord).workId === expected.workId);
+    if (displayRecord === undefined || canonicalJson(displayRecord) !== canonicalJson(expected)) {
+      fail(`display catalog proposal record drifted: ${expected.workId}`);
+    }
+  }
+  if (ids.some((workId) => !actionRecords.has(workId) && !expectedProposalIds.has(workId))) {
+    fail('display catalog contains an unselected proposal identity');
+  }
+  if (canonicalJson(catalog.historicalProducts) !== canonicalJson(PORTFOLIO_CATALOG.historicalProducts)
+    || canonicalJson(catalog.classificationReview) !== canonicalJson(PORTFOLIO_CATALOG.classificationReview)
+    || canonicalJson(catalog.operationalGaps) !== canonicalJson(PORTFOLIO_CATALOG.operationalGaps)) {
+    fail('display catalog changed action catalog supplementary projections');
+  }
+  const actualDigest = sha256(catalogHashPayload(catalog as unknown as PortfolioCatalogV1));
+  if (actualDigest !== catalog.catalogDigest) fail('display catalog digest does not match canonical content');
+  if (actualDigest !== EXPECTED_PORTFOLIO_DISPLAY_CATALOG_DIGEST) {
+    fail(`display catalog digest drifted: expected ${EXPECTED_PORTFOLIO_DISPLAY_CATALOG_DIGEST}, received ${actualDigest}`);
+  }
+}
+
+const BUILT_DISPLAY_CATALOG = buildDisplayCatalog();
+validatePortfolioDisplayCatalog(BUILT_DISPLAY_CATALOG);
+export const PORTFOLIO_DISPLAY_CATALOG: PortfolioDisplayCatalogV1 = deepFreeze(BUILT_DISPLAY_CATALOG);
+export const PORTFOLIO_DISPLAY_CATALOG_DIGEST = PORTFOLIO_DISPLAY_CATALOG.catalogDigest;
+
 export function portfolioCatalogForViewer(
   catalog: PortfolioCatalogV1,
   role: PortfolioViewerRole | string,
 ): PortfolioViewerProjection {
   validatePortfolioCatalog(catalog);
+  return {
+    summary: catalog.summary,
+    detail: role === 'founder' ? catalog : null,
+  };
+}
+
+export function portfolioDisplayCatalogForViewer(
+  catalog: PortfolioDisplayCatalogV1,
+  role: PortfolioViewerRole | string,
+): PortfolioDisplayViewerProjection {
+  validatePortfolioDisplayCatalog(catalog);
   return {
     summary: catalog.summary,
     detail: role === 'founder' ? catalog : null,
