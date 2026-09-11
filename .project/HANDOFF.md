@@ -1,5 +1,11 @@
 # Project handoff
 
+### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
+
+- The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.
+- The contract explicitly records current non-claims: production candidate generation, accepted-result lineage, unbiased replay, utility-ranked live combo writes, projection purity, a durable board, and a live Hermes learning loop remain unproved.
+- `INTEGRATION.md` now links the contract from the existing Fitcheck golden-path boundary. No runtime, provider, D1, GitHub, deployment, publication, primary checkout, or connected-repository state is changed.
+
 ### 2026-09-08 Finite catalog display promotion — source-ready candidate
 
 - Source commit `e58bbc0` adds a frozen, source-backed display/proposal inventory for exactly `branch:codigo-olimpo`, `branch:codigo-olimpo-creator-platform`, and `program:thoughtseed-organ-console`. The 75-record display catalog is pinned at `sha256:899d3b0443f27c5de923e369157bb3d1e94119780869a18ca0ac65442926356a` and carries the committed proposal selection `ce7c129bd24fd173089c069956b9d5cc18f8d829239ce32cbd2a6798252473ca`.
