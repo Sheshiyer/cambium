@@ -4,6 +4,8 @@ Cambium's next integration problem is no longer “can the organs be named and i
 
 Fitcheck is the reference project for answering that question. See the [golden-path contract](./docs/architecture/fitcheck-golden-path.md).
 
+The companion [Temperance continuous-learning integration contract](./docs/architecture/temperance-continuous-learning-integration.md) defines how an immutable accepted work unit may travel from D1 admission through Hermes evidence, shadow evaluation, Vestibule/Adytum projection, and a separately gated policy proposal. It is doctrine/local documentation only and makes no installed or live-loop claim.
+
 ## Status vocabulary
 
 Every integration statement uses one of five states:
