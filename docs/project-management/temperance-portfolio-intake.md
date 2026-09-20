@@ -20,6 +20,7 @@ node scripts/generate-temperance-portfolio-intake.mjs \
   --enrollments /path/to/private-host-enrollments.json \
   --admission-evidence /path/to/private-resolver-audit.json \
   --holds /path/to/private-reviewed-holds.json \
+  --manual-associations /path/to/private-reviewed-associations.json \
   --out /path/to/private-intake.json
 node --test scripts/generate-temperance-portfolio-intake.test.mjs
 ```
@@ -32,6 +33,14 @@ host enrollment records are shown as observed baseline rows. Their admission
 field reflects a separate source-resolver receipt against Git identity and
 live Superset project/workspace binding. A board link or observed enrollment
 is not Hands authority.
+
+A reviewed manual association can connect a local Git identity with no origin
+to a private GitHub repository. The input must carry the exact Git common
+directory, immutable GitHub repository IDs, a user ownership decision, and a
+source intake receipt. The generator cross-checks the repository against the
+authenticated audit and the source PR URL and head against audited PR evidence.
+Duplicate or conflicting associations fail generation. The resulting entries
+remain held for source PR review and separate manual enrollment.
 
 Review the private audit and snapshot before using them in Manifest. Resolve
 scan errors, missing worktrees, source ownership questions, and PR overlap

@@ -137,18 +137,62 @@ function worktreeReview(tree) {
   return { state: 'clean', reason: 'local-status-observed' };
 }
 
-export function buildPortfolioIntake({ rootMap, mappingQueue, audit, boardItems = [], enrollments = { schema: 'temperance.project-enrollments.v1', enrollments: [] }, admissionEvidence = { schema: 'temperance.enrollment-audit.v1', rows: [] }, holds = { schema: 'temperance.portfolio-holds.v1', holds: [] }, asOf }) {
+function manualAssociationEvidence({ manualAssociations, audit, rootMap, liveById, holdByFolder }) {
+  const byCommonDir = new Map();
+  const usedRepositoryIds = new Set();
+  for (const association of manualAssociations.associations) {
+    const local = audit.repositories.filter((item) => item.common_dir === association.git_common_dir);
+    const repo = liveById.get(association.repositoryId);
+    const root = rootMap.portfolios.find((portfolio) => portfolio.portfolioId === association.portfolioId)?.folders?.find((folder) => folder.folder === association.folder);
+    const receipt = association.sourceReceipt;
+    const owner = association.ownerDecision;
+    const pr = receipt?.pull_request;
+    const matchingPr = (audit.open_prs ?? []).filter((item) => item.url === pr && item.repository?.nameWithOwner?.toLowerCase() === repo?.nameWithOwner?.toLowerCase());
+    if (
+      typeof association.git_common_dir !== 'string' || byCommonDir.has(association.git_common_dir) ||
+      usedRepositoryIds.has(association.repositoryId) || local.length !== 1 || local[0].origin || !repo || !root ||
+      holdByFolder.has(`${association.portfolioId}/${association.folder}`) ||
+      !Array.isArray(association.workObjects) || !association.workObjects.length ||
+      association.workObjects.some((id) => !root.workIds?.includes(id)) ||
+      association.nameWithOwner?.toLowerCase() !== repo.nameWithOwner.toLowerCase() ||
+      !Number.isInteger(association.repositoryDatabaseId) || association.repositoryDatabaseId <= 0 ||
+      repo.databaseId !== association.repositoryDatabaseId || repo.isPrivate !== true ||
+      receipt?.schema !== 'temperance.local-source-intake-receipt.v1' ||
+      receipt.destination_repository?.id !== association.repositoryDatabaseId ||
+      receipt.destination_repository?.nameWithOwner?.toLowerCase() !== repo.nameWithOwner.toLowerCase() ||
+      receipt.destination_repository?.private !== true ||
+      receipt.source_remote_at_capture != null || receipt.original_tree_preserved !== true ||
+      !local[0].known_paths?.includes(receipt.source_local_path) ||
+      !local[0].local_branches?.some((branch) => branch.head === receipt.source_git_head) ||
+      owner?.status !== 'confirmed-first-party' ||
+      typeof receipt.user_ownership_decision !== 'string' || !receipt.user_ownership_decision.trim() ||
+      owner.statementDigest !== digest(receipt.user_ownership_decision) ||
+      typeof pr !== 'string' || !pr.startsWith(`${repo.url}/pull/`) ||
+      !/^[1-9][0-9]*$/.test(pr.slice(`${repo.url}/pull/`.length)) ||
+      matchingPr.length !== 1 || !/^[a-f0-9]{40}$/.test(receipt.pr_head ?? '') ||
+      matchingPr[0].head_sha !== receipt.pr_head
+    ) throw new Error('invalid, ambiguous, or mismatched manual association');
+    byCommonDir.set(association.git_common_dir, { association, repo, root, receipt });
+    usedRepositoryIds.add(association.repositoryId);
+  }
+  return byCommonDir;
+}
+
+export function buildPortfolioIntake({ rootMap, mappingQueue, audit, boardItems = [], enrollments = { schema: 'temperance.project-enrollments.v1', enrollments: [] }, admissionEvidence = { schema: 'temperance.enrollment-audit.v1', rows: [] }, holds = { schema: 'temperance.portfolio-holds.v1', holds: [] }, manualAssociations = { schema: 'temperance.portfolio-manual-associations.v1', associations: [] }, asOf }) {
   if (rootMap?.schema !== 'thoughtseed.portfolio-root-map.v1' || !Array.isArray(rootMap.portfolios)) throw new Error('invalid root map');
   if (!Array.isArray(mappingQueue?.batches)) throw new Error('invalid mapping queue');
   if (audit?.schema !== 'temperance.portfolio-audit.v1' || !Array.isArray(audit.repositories) || !Array.isArray(audit.worktrees)) throw new Error('invalid private audit');
   if (enrollments?.schema !== 'temperance.project-enrollments.v1' || !Array.isArray(enrollments.enrollments)) throw new Error('invalid enrollment baseline');
   if (admissionEvidence?.schema !== 'temperance.enrollment-audit.v1' || !Array.isArray(admissionEvidence.rows)) throw new Error('invalid admission evidence');
   if (holds?.schema !== 'temperance.portfolio-holds.v1' || !Array.isArray(holds.holds)) throw new Error('invalid hold policy');
+  if (manualAssociations?.schema !== 'temperance.portfolio-manual-associations.v1' || !Array.isArray(manualAssociations.associations)) throw new Error('invalid manual associations');
   const generatedAt = audit.generated_at;
   if (!Number.isFinite(Date.parse(generatedAt))) throw new Error('invalid audit timestamp');
   const effectiveAsOf = asOf ?? generatedAt;
   if (!Number.isFinite(Date.parse(effectiveAsOf))) throw new Error('invalid as-of timestamp');
   const isStale = Date.parse(effectiveAsOf) - Date.parse(generatedAt) > 7 * 24 * 60 * 60 * 1000;
+  const manualObservedAt = audit.delta_provenance?.observed_at ?? generatedAt;
+  const manualObservationStale = Date.parse(effectiveAsOf) - Date.parse(manualObservedAt) > 7 * 24 * 60 * 60 * 1000;
   const holdByFolder = new Map();
   for (const hold of holds.holds) {
     const key = `${hold.portfolioId}/${hold.folder}`;
@@ -174,12 +218,15 @@ export function buildPortfolioIntake({ rootMap, mappingQueue, audit, boardItems 
     liveById.set(repo.id, repo);
   }
   const mappings = mappingEvidence(mappingQueue, liveByName);
+  const associationsByCommonDir = manualAssociationEvidence({ manualAssociations, audit, rootMap, liveById, holdByFolder });
+  const associationByRepositoryId = new Map([...associationsByCommonDir.values()].map((item) => [item.repo.id, item]));
   const boardsByName = boardEvidence(boardItems);
   const entries = rootEntries(rootMap, generatedAt, holdByFolder);
   for (const repo of liveById.values()) {
     const name = repo.nameWithOwner.toLowerCase();
-    const workObjects = sorted([...(mappings.get(repo.id)?.workIds ?? [])]);
-    const local = localState(audit.repositories, audit.worktrees, name);
+    const association = associationByRepositoryId.get(repo.id);
+    const workObjects = sorted([...(mappings.get(repo.id)?.workIds ?? []), ...(association?.association.workObjects ?? [])]);
+    const local = association ? localState([{ ...audit.repositories.find((item) => item.common_dir === association.association.git_common_dir), origin: repo.url }], audit.worktrees, name) : localState(audit.repositories, audit.worktrees, name);
     const category = workObjects.length ? workObjectCategory(workObjects) : repo.isFork ? 'third-party' : repo.isArchived ? 'archive' : 'unresolved';
     const review = workObjects.length ? local.review : { state: 'mapping-held', reason: repo.isFork ? 'fork-reference-only' : 'workobject-unresolved' };
     entries.push({
@@ -188,13 +235,23 @@ export function buildPortfolioIntake({ rootMap, mappingQueue, audit, boardItems 
       boards: [...(boardsByName.get(name)?.values() ?? [])].sort((a, b) => a.id.localeCompare(b.id)),
       pullRequests: (audit.open_prs ?? []).filter((pr) => String(pr.repository?.nameWithOwner ?? pr.repository).toLowerCase() === name && Number.isInteger(pr.number) && /^https:\/\/github\.com\//.test(pr.url ?? '')).map((pr) => ({ number: pr.number, url: pr.url })).sort((a, b) => a.number - b.number).slice(0, 50),
       review,
-      admission: { state: 'hold', reason: local.review.state === 'remote-only' ? 'no-verified-local-identity' : 'manual-enrollment-required' },
-      freshness: { observedAt: generatedAt, status: local.freshness === 'fresh' && isStale ? 'stale' : local.freshness },
+      admission: { state: 'hold', reason: association ? 'source-pr-review-required' : local.review.state === 'remote-only' ? 'no-verified-local-identity' : 'manual-enrollment-required' },
+      freshness: { observedAt: association ? manualObservedAt : generatedAt, status: local.freshness === 'fresh' && isStale ? 'stale' : local.freshness },
     });
+  }
+  for (const { association, repo } of associationsByCommonDir.values()) {
+    const rootEntry = entries.find((entry) => entry.id === `root:${safeId(association.portfolioId)}:${safeId(association.folder)}`);
+    const repositoryEntry = entries.find((entry) => entry.id === `github:${repo.id}`);
+    rootEntry.repository = repoProjection(repo);
+    rootEntry.boards = repositoryEntry.boards;
+    rootEntry.pullRequests = repositoryEntry.pullRequests;
+    rootEntry.review = { state: 'manual-association-reviewed', reason: 'owner-confirmed-source-pr-open' };
+    rootEntry.admission = { state: 'hold', reason: 'source-pr-review-required' };
+    rootEntry.freshness = { observedAt: manualObservedAt, status: manualObservationStale ? 'stale' : 'fresh' };
   }
   for (const local of audit.repositories) {
     const name = githubName(local.origin);
-    if (name && liveByName.has(name)) continue;
+    if ((name && liveByName.has(name)) || associationsByCommonDir.has(local.common_dir)) continue;
     const hold = holdForLocal(local);
     const commonDirs = new Set([local.common_dir]);
     const trees = audit.worktrees.filter((item) => commonDirs.has(item.common_dir));
@@ -211,9 +268,10 @@ export function buildPortfolioIntake({ rootMap, mappingQueue, audit, boardItems 
   for (const tree of audit.worktrees) {
     const local = localByCommonDir.get(tree.common_dir);
     const hold = holdForLocal(local);
-    const repo = liveByName.get(githubName(local?.origin));
+    const association = associationsByCommonDir.get(tree.common_dir);
+    const repo = association?.repo ?? liveByName.get(githubName(local?.origin));
     const repositoryEntry = repositoryEntryById.get(repo?.id);
-    const workObjects = sorted([...(mappings.get(repo?.id)?.workIds ?? []), ...(hold?.workObjects ?? [])]);
+    const workObjects = sorted([...(mappings.get(repo?.id)?.workIds ?? []), ...(hold?.workObjects ?? []), ...(association?.association.workObjects ?? [])]);
     const review = worktreeReview(tree);
     entries.push({
       id: `worktree:${digest(tree.path).slice(0, 20)}`,
@@ -221,7 +279,7 @@ export function buildPortfolioIntake({ rootMap, mappingQueue, audit, boardItems 
       workObjects,
       repository: repoProjection(repo),
       boards: repositoryEntry?.boards ?? [], pullRequests: repositoryEntry?.pullRequests ?? [], review,
-      admission: { state: 'hold', reason: hold?.reason ?? 'manual-enrollment-required' },
+      admission: { state: 'hold', reason: association ? 'source-pr-review-required' : hold?.reason ?? 'manual-enrollment-required' },
       freshness: { observedAt: generatedAt, status: review.state === 'scan-error' || review.state === 'missing-worktree' ? 'unavailable' : isStale ? 'stale' : 'fresh' },
     });
   }
@@ -259,7 +317,7 @@ export function buildPortfolioIntake({ rootMap, mappingQueue, audit, boardItems 
   }
   entries.sort((a, b) => a.id.localeCompare(b.id));
   if (new Set(entries.map((entry) => entry.id)).size !== entries.length) throw new Error('duplicate intake entry');
-  return { schema: SCHEMA, generatedAt, sourceDigest: digest({ rootMap, mappingQueue, audit, boardItems, enrollments, admissionEvidence, holds, asOf: effectiveAsOf, entries }), entries };
+  return { schema: SCHEMA, generatedAt, sourceDigest: digest({ rootMap, mappingQueue, audit, boardItems, enrollments, admissionEvidence, holds, manualAssociations, asOf: effectiveAsOf, entries }), entries };
 }
 
 function arg(name) {
@@ -270,7 +328,7 @@ function arg(name) {
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const auditPath = arg('--audit');
   const outputPath = arg('--out');
-  if (!auditPath || !outputPath) throw new Error('usage: node scripts/generate-temperance-portfolio-intake.mjs --audit PRIVATE_AUDIT_JSON --out PRIVATE_SNAPSHOT_JSON [--board-items PRIVATE_BOARD_ITEMS_JSON] [--holds PRIVATE_HOLDS_JSON] [--enrollments PRIVATE_ENROLLMENTS_JSON]');
+  if (!auditPath || !outputPath) throw new Error('usage: node scripts/generate-temperance-portfolio-intake.mjs --audit PRIVATE_AUDIT_JSON --out PRIVATE_SNAPSHOT_JSON [--board-items PRIVATE_BOARD_ITEMS_JSON] [--holds PRIVATE_HOLDS_JSON] [--enrollments PRIVATE_ENROLLMENTS_JSON] [--manual-associations PRIVATE_ASSOCIATIONS_JSON]');
   const destination = resolve(outputPath);
   const repositoryRoot = realpathSync(fileURLToPath(ROOT));
   const canonicalDestination = resolve(realpathSync(dirname(destination)), basename(destination));
@@ -289,6 +347,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     enrollments: arg('--enrollments') ? readJson(arg('--enrollments')) : undefined,
     admissionEvidence: arg('--admission-evidence') ? readJson(arg('--admission-evidence')) : undefined,
     holds: arg('--holds') ? readJson(arg('--holds')) : undefined,
+    manualAssociations: arg('--manual-associations') ? readJson(arg('--manual-associations')) : undefined,
     asOf: arg('--as-of') ?? undefined,
   });
   writeFileSync(destination, `${JSON.stringify(snapshot, null, 2)}\n`, { mode: 0o600 });
