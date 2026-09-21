@@ -21,6 +21,7 @@ node scripts/generate-temperance-portfolio-intake.mjs \
   --admission-evidence /path/to/private-resolver-audit.json \
   --holds /path/to/private-reviewed-holds.json \
   --manual-associations /path/to/private-reviewed-associations.json \
+  --folder-observations /path/to/private-folder-observations.json \
   --out /path/to/private-intake.json
 node --test scripts/generate-temperance-portfolio-intake.test.mjs
 ```
@@ -41,6 +42,22 @@ source intake receipt. The generator cross-checks the repository against the
 authenticated audit and the source PR URL and head against audited PR evidence.
 Duplicate or conflicting associations fail generation. The resulting entries
 remain held for source PR review and separate manual enrollment.
+
+The same private association input can instead contain a `verified-duplicate`
+receipt for an archived checkout with no origin. It must identify one live
+checkout with an authenticated origin and prove equal branch tips, worktree
+heads, dirty change hashes, and full file inventories. The receipt also binds
+the GitHub repository's immutable IDs and observed remote branch tip. Both
+worktrees remain in the snapshot, linked to one repository identity; the
+archive stays unenrollable and dirty work stays held for reconciliation.
+
+Private folder observations cover newly discovered top-level recovery folders,
+plain source folders, and folders with external Git origins without publishing
+their names or paths. The generator checks each observation against the audit
+when Git identity exists, emits a pseudonymous root context row, and keeps
+the mapping and admission on hold. A root map archive container is represented
+as an archive context row. Transient task worktrees remain in the worktree
+audit rather than becoming permanent portfolio roots.
 
 Review the private audit and snapshot before using them in Manifest. Resolve
 scan errors, missing worktrees, source ownership questions, and PR overlap

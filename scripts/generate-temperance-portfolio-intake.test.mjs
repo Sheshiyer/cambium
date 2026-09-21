@@ -29,7 +29,42 @@ function reviewedAssociationInput() {
     repositoryId: 'R_alpha', repositoryDatabaseId: 42, nameWithOwner: 'Sheshiyer/alpha',
     workObjects: ['branch:alpha'],
     ownerDecision: { status: 'confirmed-first-party', statementDigest: createHash('sha256').update(JSON.stringify(statement)).digest('hex') },
-    sourceReceipt: { schema: 'temperance.local-source-intake-receipt.v1', destination_repository: { id: 42, nameWithOwner: 'Sheshiyer/alpha', private: true }, source_local_path: localPath, source_remote_at_capture: null, source_git_head: sourceHead, original_tree_preserved: true, user_ownership_decision: statement, pull_request: 'https://github.com/Sheshiyer/alpha/pull/9', pr_head: prHead },
+    sourceReceipt: { schema: 'temperance.local-source-intake-receipt.v1', generated_at: asOf, destination_repository: { id: 42, nameWithOwner: 'Sheshiyer/alpha', private: true }, source_local_path: localPath, source_remote_at_capture: null, source_git_head: sourceHead, original_tree_preserved: true, user_ownership_decision: statement, pull_request: 'https://github.com/Sheshiyer/alpha/pull/9', pr_head: prHead },
+  }] };
+  return input;
+}
+
+function reviewedDuplicateInput() {
+  const input = defaults();
+  const archivedPath = '/synthetic/_archive/alpha';
+  const referencePath = '/synthetic/local/alpha';
+  const head = 'a'.repeat(40);
+  const changes = [{ path: 'changed.txt', content: { kind: 'file', sha256: 'b'.repeat(64), size: 5 }, xy: ' M' }];
+  input.rootMap.portfolios[0].archivedProjects = ['alpha'];
+  input.rootMap.portfolios[0].archiveContainer = '_archive';
+  input.audit.github_repositories.Sheshiyer[0] = repo('R_alpha', 'alpha', { databaseId: 42, isPrivate: true, defaultBranchRef: { name: 'main' } });
+  input.audit.repositories = [
+    { common_dir: `${archivedPath}/.git`, known_paths: [archivedPath], origin: null, local_branches: [{ name: 'main', head }] },
+    { common_dir: `${referencePath}/.git`, known_paths: [referencePath], origin: 'https://github.com/Sheshiyer/alpha.git', local_branches: [{ name: 'main', head }] },
+  ];
+  input.audit.worktrees = [
+    { path: archivedPath, common_dir: `${archivedPath}/.git`, branch: 'refs/heads/main', head, status: 'dirty', changes: structuredClone(changes) },
+    { path: referencePath, common_dir: `${referencePath}/.git`, branch: 'refs/heads/main', head, status: 'dirty', changes: structuredClone(changes) },
+  ];
+  input.manualAssociations = { schema: 'temperance.portfolio-manual-associations.v1', associations: [{
+    kind: 'verified-duplicate', git_common_dir: `${archivedPath}/.git`, portfolioId: 'thoughtseed', folder: 'alpha',
+    repositoryId: 'R_alpha', repositoryDatabaseId: 42, nameWithOwner: 'Sheshiyer/alpha', workObjects: ['branch:alpha'],
+    duplicateReceipt: {
+      schema: 'temperance.duplicate-checkout-receipt.v1', observed_at: asOf,
+      archived_common_dir: `${archivedPath}/.git`, archived_path: archivedPath,
+      reference_common_dir: `${referencePath}/.git`, reference_path: referencePath,
+      repository_id: 'R_alpha', repository_database_id: 42, repository_name: 'Sheshiyer/alpha',
+      git_head: head, git_tree: 'c'.repeat(40), remote_branch: 'main', remote_head: head,
+      archived_commit_count: 1, reference_commit_count: 1,
+      archived_history_sha256: 'e'.repeat(64), reference_history_sha256: 'e'.repeat(64),
+      file_count: 7, archived_inventory_sha256: 'd'.repeat(64), reference_inventory_sha256: 'd'.repeat(64),
+      original_trees_preserved: true,
+    },
   }] };
   return input;
 }
@@ -183,6 +218,73 @@ test('manual association rejects duplicate, origin, immutable ID, source PR, and
     mutate(input);
     assert.throws(() => buildPortfolioIntake(input), /invalid, ambiguous, or mismatched manual association/);
   }
+});
+
+test('verified archived duplicate inherits immutable repository identity while both dirty trees remain held', () => {
+  const input = reviewedDuplicateInput();
+  const result = buildPortfolioIntake(input);
+  assert.equal(result.entries.filter((entry) => entry.id === 'github:R_alpha').length, 1);
+  const archive = result.entries.find((entry) => entry.id === 'archive:thoughtseed:alpha');
+  const root = result.entries.find((entry) => entry.id === 'root:thoughtseed:alpha');
+  const trees = result.entries.filter((entry) => entry.id.startsWith('worktree:'));
+  assert.equal(archive.repository.id, 'R_alpha');
+  assert.equal(root.repository.id, 'R_alpha');
+  assert.equal(archive.category, 'archive');
+  assert.equal(archive.admission.reason, 'archive-not-enrollable');
+  assert.deepEqual(trees.map((entry) => entry.repository.id), ['R_alpha', 'R_alpha']);
+  assert.deepEqual(trees.map((entry) => entry.admission.reason), ['duplicate-work-review-required', 'duplicate-work-review-required']);
+  assert.deepEqual(trees.map((entry) => entry.category), ['client-branch', 'client-branch']);
+  assert.equal(result.entries.some((entry) => entry.id.startsWith('local-unmatched:')), false);
+  assert.equal(JSON.stringify(result).includes('/synthetic/'), false);
+  input.manualAssociations.associations[0].duplicateReceipt.file_count = 8;
+  assert.notEqual(buildPortfolioIntake(input).sourceDigest, result.sourceDigest);
+});
+
+test('verified duplicate rejects ambiguous history, remote, working bytes, and receipt evidence', () => {
+  const cases = [
+    (input) => input.manualAssociations.associations.push(structuredClone(input.manualAssociations.associations[0])),
+    (input) => { input.audit.repositories[1].origin = 'https://github.com/Sheshiyer/other.git'; },
+    (input) => { input.audit.repositories[1].local_branches[0].head = 'f'.repeat(40); },
+    (input) => { input.audit.worktrees[0].changes[0].content.sha256 = 'f'.repeat(64); },
+    (input) => { input.audit.worktrees[0].status = 'scan-error'; },
+    (input) => { input.manualAssociations.associations[0].duplicateReceipt.remote_head = 'f'.repeat(40); },
+    (input) => { input.manualAssociations.associations[0].duplicateReceipt.reference_history_sha256 = 'f'.repeat(64); },
+    (input) => { input.manualAssociations.associations[0].duplicateReceipt.reference_inventory_sha256 = 'f'.repeat(64); },
+    (input) => { input.manualAssociations.associations[0].duplicateReceipt.repository_database_id = 43; },
+  ];
+  for (const mutate of cases) {
+    const input = reviewedDuplicateInput();
+    mutate(input);
+    assert.throws(() => buildPortfolioIntake(input), /invalid, ambiguous, or mismatched manual association/);
+  }
+});
+
+test('private folder observations map recovery, plain source, and external origin without names or paths', () => {
+  const input = defaults();
+  input.rootMap.portfolios[0].archiveContainer = '_archive';
+  input.audit.repositories = [
+    { common_dir: '/synthetic/thoughtseed/recovery/core/.git', known_paths: ['/synthetic/thoughtseed/recovery/core'], origin: 'https://github.com/Sheshiyer/alpha.git' },
+    { common_dir: '/synthetic/thoughtseed/source/.git', known_paths: ['/synthetic/thoughtseed/source'], origin: 'https://example.invalid/private.git' },
+  ];
+  input.folderObservations = { schema: 'temperance.portfolio-folder-observations.v1', rows: [
+    { portfolioId: 'thoughtseed', folder: 'recovery', path: '/synthetic/thoughtseed/recovery', category: 'recovery', reason: 'recovery-copy-review-required', workObjects: ['branch:alpha'], observed_at: asOf, identity: { kind: 'nested-repositories', count: 1 } },
+    { portfolioId: 'thoughtseed', folder: 'new-source', path: '/synthetic/thoughtseed/new-source', category: 'project', reason: 'repository-identity-unverified', workObjects: [], observed_at: asOf, identity: { kind: 'no-audited-git' } },
+    { portfolioId: 'thoughtseed', folder: 'source', path: '/synthetic/thoughtseed/source', category: 'project', reason: 'external-origin-review-required', workObjects: [], observed_at: asOf, identity: { kind: 'local-repository', common_dir: '/synthetic/thoughtseed/source/.git', origin: 'https://example.invalid/private.git' } },
+  ] };
+  const result = buildPortfolioIntake(input);
+  const observed = result.entries.filter((entry) => entry.id.startsWith('root-observed:'));
+  assert.equal(observed.length, 3);
+  assert.deepEqual(observed.map((entry) => entry.category).sort(), ['project', 'project', 'recovery']);
+  assert.equal(observed.every((entry) => entry.admission.state === 'hold'), true);
+  assert.equal(result.entries.some((entry) => entry.id === 'archive-container:thoughtseed:_archive'), true);
+  assert.equal(JSON.stringify(result).includes('/synthetic/'), false);
+  assert.equal(JSON.stringify(result).includes('new-source'), false);
+  const duplicate = structuredClone(input);
+  duplicate.folderObservations.rows.push(structuredClone(duplicate.folderObservations.rows[0]));
+  assert.throws(() => buildPortfolioIntake(duplicate), /invalid or duplicate private folder observation/);
+  const mismatched = structuredClone(input);
+  mismatched.folderObservations.rows[0].identity.count = 2;
+  assert.throws(() => buildPortfolioIntake(mismatched), /invalid or duplicate private folder observation/);
 });
 
 test('CLI refuses to write the full private inventory inside its public repository', () => {
