@@ -28,6 +28,9 @@ Every adapter should document:
 - [GitHub](./github.md): repository and issue events as project evidence.
 - [Cloudflare](./cloudflare.md): optional deployment and memory infrastructure.
 - [Telegram](./telegram.md): one approval/chat surface, not the default product identity.
+- [Platform-playbook Telegram readiness](./platform-playbook-telegram-readiness.md): controlled Agent Ops dry-run preparation that never sends a message.
+- [Platform-playbook messaging consent](./platform-playbook-messaging-consent.md): policy- and consent-aware local readiness for Telegram and unconfigured WhatsApp transport.
+- [Platform-playbook live-test authorization](./platform-playbook-live-test-authorization.md): one-test approval boundary that must precede any external adapter request.
 - [Project feed](./project-feed.md): issue/project evidence from a generic delivery system.
 - [Agent plane](./agent-plane.md): agent activity and archive ceremony evidence.
 - [IVerif Explee](./iverif-explee.md): fixed, observe-only campaign boundary for the IVerif reference slice.
