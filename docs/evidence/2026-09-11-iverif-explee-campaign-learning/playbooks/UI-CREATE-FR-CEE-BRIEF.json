@@ -1,0 +1,32 @@
+{
+  "projectId": 35674,
+  "domain": "iverif.fr",
+  "action": "UI Customize/Add campaign — NOT import, NOT lead upload to 159185",
+  "name": "FR CEE — Délégataires & ops (Meristem)",
+  "language": "fr",
+  "geography": "France",
+  "target_url": "https://iverif.fr",
+  "offer": "Validation documentaire IA pour dossiers CEE / Primes Énergie avant dépôt (contrôles inter-documents + piste d’audit) — iverif.fr",
+  "customer_problem": "Les back-offices croisent 10–20 pièces par dossier; les écarts découverts trop tard coûtent cher et fragilisent l’audit.",
+  "target_role": "Operations / back-office managers in French délégataires and energy-subsidy operators (Marie Durand archetype)",
+  "company_size": "50–500 employees",
+  "positive_criteria": [
+    "Runs CEE or Primes Énergie dossiers",
+    "Needs pre-submission document checks",
+    "Wants audit trail for compliance review"
+  ],
+  "negative_criteria": [
+    "Homeowners or end consumers",
+    "Generic public agencies outside energy-subsidy ops",
+    "Markets outside France for v1"
+  ],
+  "afterCreate": {
+    "daily_budget_usd": 10,
+    "autopilot": false,
+    "auto_reply": true,
+    "start": true
+  },
+  "ignoreCampaignIds": [
+    159185
+  ]
+}

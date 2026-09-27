@@ -1,0 +1,20 @@
+{
+  "schema": "cambium.visual-projection-retirement.v1",
+  "sourceRevision": "e7058ef5d1c120df6dad80e09feb76edc9d4cd39",
+  "disposition": "retired-generated-projection",
+  "replacement": "docs/assets/visual-flow/README.md",
+  "records": [
+    {
+      "path": "docs/visual/cambium-infra-spine-flow.html",
+      "sha256": "71d7a2bb96ec6f4bf0e67159d275c1b1d323d1dac0153db40bb8758967d2fc85"
+    },
+    {
+      "path": "docs/visual/cambium-operating-fabric-flow.html",
+      "sha256": "c4b2f530aa9ea49f19c40dde987f55e5b7d4f08a3eb33fc03504a6e2f864a833"
+    },
+    {
+      "path": "docs/visual/cambium-operating-fabric-flow.png",
+      "sha256": "cebf801b53cd2f41e829c4afc2f04da0dffdda934807bab9db8623669368c667"
+    }
+  ]
+}

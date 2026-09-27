@@ -18,17 +18,10 @@ perceptual review remains separate dated evidence.
 GitHub owns milestone and issue state. This directory intentionally contains no
 copied issue list, open/closed status, or waiting-for-review flag.
 
-## Operating fabric design baseline
+## Visual source provenance
 
-The next Telegram visual-workflow slice has a source-backed, offline design
-artifact:
-
-- [`cambium-operating-fabric-flow.html`](cambium-operating-fabric-flow.html) —
-  live HTML/SVG workflow
-- [`cambium-operating-fabric-flow.png`](cambium-operating-fabric-flow.png) —
-  browser-captured review image
-- [`../architecture/cambium-operating-fabric.md`](../architecture/cambium-operating-fabric.md) —
-  ontology and authority contract
-
-These are planning artifacts. They do not claim that the runtime pages, route,
-or production deployment exist.
+The retired generated operating-fabric HTML and PNG are no longer active review surfaces.
+The source assets and their provenance are maintained in
+[`../assets/visual-flow/README.md`](../assets/visual-flow/README.md), with the
+[`../architecture/cambium-operating-fabric.md`](../architecture/cambium-operating-fabric.md)
+ontology and authority contract. Source assets do not establish deployment or human acceptance.

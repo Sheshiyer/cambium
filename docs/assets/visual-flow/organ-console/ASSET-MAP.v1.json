@@ -1,0 +1,3024 @@
+{
+  "schema": "thoughtseed.cambium.organ-console-visual-export.v1",
+  "generatedOn": "2026-09-12",
+  "source": {
+    "package": "Thoughtseed Labs Organ Console live-islands visual production",
+    "generationManifestSha256": "a9960b13c68b4d8aab4bec2e1ee42db2270e988e24d391774dbfd402ff12fa17",
+    "brandLockSha256": "b50fa3a87873558421a18683e62c7bc173f8849e87b82381deeb9bf2c8411756",
+    "policy": "non-destructive public-safe export; Thoughtseed Labs remains planning authority"
+  },
+  "counts": {
+    "registered": 140,
+    "exported": 97,
+    "selected": 81,
+    "generated": 16,
+    "held": 43,
+    "exportedOrgans": 42,
+    "exportedFeatures": 49,
+    "exportedViews": 6,
+    "reviewBoards": 23
+  },
+  "naming": {
+    "pattern": "{owner-type}/{owner}/{variation}-v1.png",
+    "ownerTypes": [
+      "organs",
+      "features",
+      "views"
+    ],
+    "canonicalIdentity": "canonicalAssetId remains authoritative; renamed paths are Cambium discovery aliases"
+  },
+  "exclusions": [
+    "raw prompt bodies",
+    "provider response bodies",
+    "machine-local generation paths and session identifiers",
+    "rejected drafts",
+    "private notes and imported seed corpus",
+    "runtime or deployment state"
+  ],
+  "assets": [
+    {
+      "canonicalAssetId": "TSOC-ORG-GENESIS-CONCEPT-V1",
+      "exclusiveOwner": "organ:genesis",
+      "ownerType": "organ",
+      "owner": "genesis",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/genesis/concept-v1.png",
+      "sha256": "79d32dd26a7d75d33df898a1aef9cfe9568b366bf2d67e443d19b3f2a99993fd",
+      "dimensions": "1254x1254",
+      "promptSha256": "199150d0ff01622e13deda3f5cb9dcd9b2be8ea159521b25ad06ac355acda8c7",
+      "derivesFrom": [
+        "cambium.specimen.genesis-crystal",
+        "cambium.page.system.island-genesis"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-GENESIS-GEOMETRY-V1",
+      "exclusiveOwner": "organ:genesis",
+      "ownerType": "organ",
+      "owner": "genesis",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/genesis/geometry-v1.png",
+      "sha256": "37b25828951ac279b7700ce2233a2c7eeaed88df41f2a91a599ebab539a63cdb",
+      "dimensions": "1254x1254",
+      "promptSha256": "5feee97c88b362b83f41963b52c5a5fade0ca68b1416a1e5ea86adc490026058",
+      "derivesFrom": [
+        "cambium.specimen.genesis-crystal",
+        "cambium.page.system.island-genesis",
+        "TSOC-ORG-GENESIS-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-GENESIS-STATE-V1",
+      "exclusiveOwner": "organ:genesis",
+      "ownerType": "organ",
+      "owner": "genesis",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/genesis/state-v1.png",
+      "sha256": "b0755683dc9ec22ba396612cac971365e57fce0f729d759478c1f44a41658ef4",
+      "dimensions": "1402x1122",
+      "promptSha256": "8adb51b03f990da370c8518a5f4630d2f2f500f4d79bfe3afe22c7cff61bc1e6",
+      "derivesFrom": [
+        "cambium.specimen.genesis-crystal",
+        "cambium.page.system.island-genesis",
+        "TSOC-ORG-GENESIS-CONCEPT-V1",
+        "TSOC-ORG-GENESIS-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-GENESIS-INSPECTION-V1",
+      "exclusiveOwner": "organ:genesis",
+      "ownerType": "organ",
+      "owner": "genesis",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.genesis-crystal",
+        "cambium.page.system.island-genesis"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-GENESIS-WIDE-V1",
+      "exclusiveOwner": "organ:genesis",
+      "ownerType": "organ",
+      "owner": "genesis",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.genesis-crystal",
+        "cambium.page.system.island-genesis"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-GENESIS-NARROW-V1",
+      "exclusiveOwner": "organ:genesis",
+      "ownerType": "organ",
+      "owner": "genesis",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.genesis-crystal",
+        "cambium.page.system.island-genesis"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-TASTE-CONCEPT-V1",
+      "exclusiveOwner": "organ:taste",
+      "ownerType": "organ",
+      "owner": "taste",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/taste/concept-v1.png",
+      "sha256": "3e8297ea17130f15e35883df36d4446a863725eea572bdce8a802d569c7f3e1a",
+      "dimensions": "1254x1254",
+      "promptSha256": "222e3d2aacfd4ca4b0f293d1b10c62735cbf9978be7de1d14b1e11ea18918fbb",
+      "derivesFrom": [
+        "cambium.specimen.taste-link",
+        "cambium.page.system.island-taste"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-TASTE-GEOMETRY-V1",
+      "exclusiveOwner": "organ:taste",
+      "ownerType": "organ",
+      "owner": "taste",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/taste/geometry-v1.png",
+      "sha256": "95a5358ba90feddafd7a3dc1293262fe8440c13661ecaacec9de3fb178d436f3",
+      "dimensions": "1254x1254",
+      "promptSha256": "f6c9444e11a45525afddf4748f145c12247a810c49f2681130263052a8a78f4d",
+      "derivesFrom": [
+        "cambium.specimen.taste-link",
+        "cambium.page.system.island-taste",
+        "TSOC-ORG-TASTE-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-TASTE-STATE-V1",
+      "exclusiveOwner": "organ:taste",
+      "ownerType": "organ",
+      "owner": "taste",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/taste/state-v1.png",
+      "sha256": "d0b546823c339b6d4b41e7ec434df657a52d3cbaa2a4f8d7237eaf14f2ca80b5",
+      "dimensions": "1402x1122",
+      "promptSha256": "bc13a08469520a1a99d78a43d5efcaaef001e174718a0293c3a66b7979458e1c",
+      "derivesFrom": [
+        "cambium.specimen.taste-link",
+        "cambium.page.system.island-taste",
+        "TSOC-ORG-TASTE-CONCEPT-V1",
+        "TSOC-ORG-TASTE-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-TASTE-INSPECTION-V1",
+      "exclusiveOwner": "organ:taste",
+      "ownerType": "organ",
+      "owner": "taste",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.taste-link",
+        "cambium.page.system.island-taste"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-TASTE-WIDE-V1",
+      "exclusiveOwner": "organ:taste",
+      "ownerType": "organ",
+      "owner": "taste",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.taste-link",
+        "cambium.page.system.island-taste"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-TASTE-NARROW-V1",
+      "exclusiveOwner": "organ:taste",
+      "ownerType": "organ",
+      "owner": "taste",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.taste-link",
+        "cambium.page.system.island-taste"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-HANDS-CONCEPT-V1",
+      "exclusiveOwner": "organ:hands",
+      "ownerType": "organ",
+      "owner": "hands",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/hands/concept-v1.png",
+      "sha256": "681c61b4b2971f2ebe35a9087da5b16c669b49567e9aab866a621f3f85891015",
+      "dimensions": "1254x1254",
+      "promptSha256": "7de8fc9d1e01cb9e32c76e65b104a512ce662d483d3354b26196cdacdc286f2a",
+      "derivesFrom": [
+        "cambium.specimen.build-emblem",
+        "cambium.page.system.island-build"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-HANDS-GEOMETRY-V1",
+      "exclusiveOwner": "organ:hands",
+      "ownerType": "organ",
+      "owner": "hands",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/hands/geometry-v1.png",
+      "sha256": "8b30e4a6e75edb43206e9711c5e5ea87a3ea1789dc0c8dd29c132065a7328505",
+      "dimensions": "1254x1254",
+      "promptSha256": "03f87c20d4a2a7522cd855c5e2be4c2db836e6bdf709480779fdb0b5c9d9d41a",
+      "derivesFrom": [
+        "cambium.specimen.build-emblem",
+        "cambium.page.system.island-build",
+        "TSOC-ORG-HANDS-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-HANDS-STATE-V1",
+      "exclusiveOwner": "organ:hands",
+      "ownerType": "organ",
+      "owner": "hands",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/hands/state-v1.png",
+      "sha256": "e750e2a898bfd7724b23d712a754693d84c8df5abc742694abe4eb6541305f1f",
+      "dimensions": "1402x1122",
+      "promptSha256": "3288e7661002d0677f5edba3141689304858a919c57a3f3ae33cb2dc42ecca18",
+      "derivesFrom": [
+        "cambium.specimen.build-emblem",
+        "cambium.page.system.island-build",
+        "TSOC-ORG-HANDS-CONCEPT-V1",
+        "TSOC-ORG-HANDS-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-HANDS-INSPECTION-V1",
+      "exclusiveOwner": "organ:hands",
+      "ownerType": "organ",
+      "owner": "hands",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.build-emblem",
+        "cambium.page.system.island-build"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-HANDS-WIDE-V1",
+      "exclusiveOwner": "organ:hands",
+      "ownerType": "organ",
+      "owner": "hands",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.build-emblem",
+        "cambium.page.system.island-build"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-HANDS-NARROW-V1",
+      "exclusiveOwner": "organ:hands",
+      "ownerType": "organ",
+      "owner": "hands",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.build-emblem",
+        "cambium.page.system.island-build"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-WILL-CONCEPT-V1",
+      "exclusiveOwner": "organ:will",
+      "ownerType": "organ",
+      "owner": "will",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/will/concept-v1.png",
+      "sha256": "cbafb5fc3f2c25c542eba66351e9ca52be3eb7568beee3ac0f7204f38aeb7d15",
+      "dimensions": "1254x1254",
+      "promptSha256": "d24a7b7c9568b5639cac5e8b2375f6b0d517ad4a7b99c60b14a6a1137eaabe39",
+      "derivesFrom": [
+        "cambium.specimen.ops-source",
+        "cambium.page.system.island-ops"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-WILL-GEOMETRY-V1",
+      "exclusiveOwner": "organ:will",
+      "ownerType": "organ",
+      "owner": "will",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/will/geometry-v1.png",
+      "sha256": "c4ca14f6c5345ab392b29d9a27acd9aa3cb093137e2c62efac8cd874389db60a",
+      "dimensions": "1254x1254",
+      "promptSha256": "78a2ed3417be2d908cdc043d55657d09ab76a28d5d09b3de157d2e1be7052c08",
+      "derivesFrom": [
+        "cambium.specimen.ops-source",
+        "cambium.page.system.island-ops",
+        "TSOC-ORG-WILL-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-WILL-STATE-V1",
+      "exclusiveOwner": "organ:will",
+      "ownerType": "organ",
+      "owner": "will",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/will/state-v1.png",
+      "sha256": "6817bbd9bb562c171971b7f1f2e65d1bedeb53d212452e35bc17ee19c5fd628a",
+      "dimensions": "1402x1122",
+      "promptSha256": "7cc5d30ac291dc586ea78f4b2737c809c2dad5e4d57c015f7d10089ab5a2cac7",
+      "derivesFrom": [
+        "cambium.specimen.ops-source",
+        "cambium.page.system.island-ops",
+        "TSOC-ORG-WILL-CONCEPT-V1",
+        "TSOC-ORG-WILL-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-WILL-INSPECTION-V1",
+      "exclusiveOwner": "organ:will",
+      "ownerType": "organ",
+      "owner": "will",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.ops-source",
+        "cambium.page.system.island-ops"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-WILL-WIDE-V1",
+      "exclusiveOwner": "organ:will",
+      "ownerType": "organ",
+      "owner": "will",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.ops-source",
+        "cambium.page.system.island-ops"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-WILL-NARROW-V1",
+      "exclusiveOwner": "organ:will",
+      "ownerType": "organ",
+      "owner": "will",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [
+        "cambium.specimen.ops-source",
+        "cambium.page.system.island-ops"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CORTEX-CONCEPT-V1",
+      "exclusiveOwner": "organ:cortex",
+      "ownerType": "organ",
+      "owner": "cortex",
+      "variation": "concept",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/cortex/concept-v1.png",
+      "sha256": "807406fe6a7c3726a2bfbe46da4d1708090dd573a4b438861c1d69b9e98c8b83",
+      "dimensions": "1254x1254",
+      "promptSha256": "1cbc58bb9e31ca2c182beef3f50e715c57599be009f0bc135177e2571ad0a7fc",
+      "derivesFrom": [
+        "cambium.specimen.cortex-wheel",
+        "cambium.page.system.island-cortex"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CORTEX-GEOMETRY-V1",
+      "exclusiveOwner": "organ:cortex",
+      "ownerType": "organ",
+      "owner": "cortex",
+      "variation": "geometry",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/cortex/geometry-v1.png",
+      "sha256": "544eab674d53c174fcd3714828667095c689f703ad289da52ab6af6b328554f2",
+      "dimensions": "1024x1536",
+      "promptSha256": "3e46e301ce2391793df92a9ba9ed129e2f1c3b4b199e0cc11d93790e52dd6232",
+      "derivesFrom": [
+        "cambium.specimen.cortex-wheel",
+        "cambium.page.system.island-cortex",
+        "TSOC-ORG-CORTEX-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CORTEX-STATE-V1",
+      "exclusiveOwner": "organ:cortex",
+      "ownerType": "organ",
+      "owner": "cortex",
+      "variation": "state",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/cortex/state-v1.png",
+      "sha256": "4e42a8342876df9c066bacc15c12dca9586d9c6eaee8845b88d4fab4adf8ad10",
+      "dimensions": "1536x1024",
+      "promptSha256": "42b8d5174cc3138f6d90391e48fe043f3c7c1c5c50162c8c289d7de2bdd8ccd3",
+      "derivesFrom": [
+        "cambium.specimen.cortex-wheel",
+        "cambium.page.system.island-cortex",
+        "TSOC-ORG-CORTEX-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CORTEX-INSPECTION-V1",
+      "exclusiveOwner": "organ:cortex",
+      "ownerType": "organ",
+      "owner": "cortex",
+      "variation": "inspection",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/cortex/inspection-v1.png",
+      "sha256": "8af8ae63ae3a3c5dc92dd8541fbb8f7c4ca2fa9d4bad6c68f61ff0fd5a4966af",
+      "dimensions": "1536x1024",
+      "promptSha256": "5359060009066019587b45615fdb931faedc9daf2ea0ae5c46f8d0201ded0f92",
+      "derivesFrom": [
+        "cambium.specimen.cortex-wheel",
+        "cambium.page.system.island-cortex",
+        "TSOC-ORG-CORTEX-CONCEPT-V1",
+        "TSOC-ORG-CORTEX-GEOMETRY-V1",
+        "TSOC-ORG-CORTEX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CORTEX-WIDE-V1",
+      "exclusiveOwner": "organ:cortex",
+      "ownerType": "organ",
+      "owner": "cortex",
+      "variation": "wide",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/cortex/wide-v1.png",
+      "sha256": "807c4e834071b6f5efcbea0b647468075f796c44dc1c59f5fb7581b799c6d267",
+      "dimensions": "1672x941",
+      "promptSha256": "109556cbf1e79547ca8a728c58c42c728ad199c19ec06602edb1e28d94726d93",
+      "derivesFrom": [
+        "cambium.specimen.cortex-wheel",
+        "cambium.page.system.island-cortex",
+        "TSOC-ORG-CORTEX-CONCEPT-V1",
+        "TSOC-ORG-CORTEX-GEOMETRY-V1",
+        "TSOC-ORG-CORTEX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CORTEX-NARROW-V1",
+      "exclusiveOwner": "organ:cortex",
+      "ownerType": "organ",
+      "owner": "cortex",
+      "variation": "narrow",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/cortex/narrow-v1.png",
+      "sha256": "4209278bb09e161672500da0416ccb1549a162abaa5535815c8d75bbaed784ac",
+      "dimensions": "864x1821",
+      "promptSha256": "69ff2b05354560560764b51c4868a955edc7519040359d3d944d2f58567ad5bb",
+      "derivesFrom": [
+        "cambium.specimen.cortex-wheel",
+        "cambium.page.system.island-cortex",
+        "TSOC-ORG-CORTEX-CONCEPT-V1",
+        "TSOC-ORG-CORTEX-GEOMETRY-V1",
+        "TSOC-ORG-CORTEX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-VESTIBULE-CONCEPT-V1",
+      "exclusiveOwner": "organ:vestibule",
+      "ownerType": "organ",
+      "owner": "vestibule",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/vestibule/concept-v1.png",
+      "sha256": "7e17cc2f7d71e6422da96e455bcd920a98233a788aa614da579df2db3e7b57d1",
+      "dimensions": "1254x1254",
+      "promptSha256": "b81c7d98d37154663d919299b7fd39b5265c0a22d126ed2bb044de2e76d10567",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-VESTIBULE-GEOMETRY-V1",
+      "exclusiveOwner": "organ:vestibule",
+      "ownerType": "organ",
+      "owner": "vestibule",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/vestibule/geometry-v1.png",
+      "sha256": "85919ca6389fe034aa6cfc042d8f0e3f09c971fe9b19c377b0c8e454e00c39c0",
+      "dimensions": "1254x1254",
+      "promptSha256": "b02a94513218c6249e399ee570cef7136c92960a20788cebfeb14bb77d8d0b4b",
+      "derivesFrom": [
+        "TSOC-ORG-VESTIBULE-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-VESTIBULE-STATE-V1",
+      "exclusiveOwner": "organ:vestibule",
+      "ownerType": "organ",
+      "owner": "vestibule",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/vestibule/state-v1.png",
+      "sha256": "285e1f86617f64e31994d1212d38af24523677c4e65c41bd2f32eea7b0786ac1",
+      "dimensions": "1402x1122",
+      "promptSha256": "eb3faec609b727e5ffb85f9031d51126cf8b04832ed212e36801086c3da8ee6d",
+      "derivesFrom": [
+        "TSOC-ORG-VESTIBULE-CONCEPT-V1",
+        "TSOC-ORG-VESTIBULE-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-VESTIBULE-INSPECTION-V1",
+      "exclusiveOwner": "organ:vestibule",
+      "ownerType": "organ",
+      "owner": "vestibule",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-VESTIBULE-WIDE-V1",
+      "exclusiveOwner": "organ:vestibule",
+      "ownerType": "organ",
+      "owner": "vestibule",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-VESTIBULE-NARROW-V1",
+      "exclusiveOwner": "organ:vestibule",
+      "ownerType": "organ",
+      "owner": "vestibule",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-ADYTUM-CONCEPT-V1",
+      "exclusiveOwner": "organ:adytum",
+      "ownerType": "organ",
+      "owner": "adytum",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/adytum/concept-v1.png",
+      "sha256": "5516429af4ffccba266d97f90c181f1a22cfb71ec8132a924d1096621f65ebd1",
+      "dimensions": "1254x1254",
+      "promptSha256": "5cde03a1c19f2405eb284fdfed68e7b3236b8f99a0fc0a5e281ca73b79a52d02",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-ADYTUM-GEOMETRY-V1",
+      "exclusiveOwner": "organ:adytum",
+      "ownerType": "organ",
+      "owner": "adytum",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/adytum/geometry-v1.png",
+      "sha256": "a14382a3aaa2f661fdb228f5aadff91492d300a63690ce3720b3807cf2ad5aeb",
+      "dimensions": "1254x1254",
+      "promptSha256": "1eba004e9810c738f2c43d0cc8a8e7a8b7be56ab8b2daea0d303d241dadd0d4e",
+      "derivesFrom": [
+        "TSOC-ORG-ADYTUM-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-ADYTUM-STATE-V1",
+      "exclusiveOwner": "organ:adytum",
+      "ownerType": "organ",
+      "owner": "adytum",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/adytum/state-v1.png",
+      "sha256": "3a0de64919792e973ce183da1fe45fd7252a64e4778c8f8e9c14c30942e625e7",
+      "dimensions": "1402x1122",
+      "promptSha256": "424457c60960ca54f1ba5a6d892e048dff849264cc511355956644cc043732cc",
+      "derivesFrom": [
+        "TSOC-ORG-ADYTUM-CONCEPT-V1",
+        "TSOC-ORG-ADYTUM-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-ADYTUM-INSPECTION-V1",
+      "exclusiveOwner": "organ:adytum",
+      "ownerType": "organ",
+      "owner": "adytum",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-ADYTUM-WIDE-V1",
+      "exclusiveOwner": "organ:adytum",
+      "ownerType": "organ",
+      "owner": "adytum",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-ADYTUM-NARROW-V1",
+      "exclusiveOwner": "organ:adytum",
+      "ownerType": "organ",
+      "owner": "adytum",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-NUTRIX-CONCEPT-V1",
+      "exclusiveOwner": "organ:nutrix",
+      "ownerType": "organ",
+      "owner": "nutrix",
+      "variation": "concept",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/nutrix/concept-v1.png",
+      "sha256": "56867df74391d0073abce31073fd11b272b994f6e6ac59749a3a7873eb7b0cf8",
+      "dimensions": "1254x1254",
+      "promptSha256": "adcdd173f15658205d75fb760f211e02154c8dafe3426034e0da93c57b729f89",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-NUTRIX-GEOMETRY-V1",
+      "exclusiveOwner": "organ:nutrix",
+      "ownerType": "organ",
+      "owner": "nutrix",
+      "variation": "geometry",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/nutrix/geometry-v1.png",
+      "sha256": "fb96c1d70fe88c0190d15371a8bac070a46665c5a735bd8e00ec1fdb9c727a72",
+      "dimensions": "1254x1254",
+      "promptSha256": "ed6adeb7e90ce3623ac32d78c8979c539e02164261a8b0fd8658c77ad6963000",
+      "derivesFrom": [
+        "TSOC-ORG-NUTRIX-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-NUTRIX-STATE-V1",
+      "exclusiveOwner": "organ:nutrix",
+      "ownerType": "organ",
+      "owner": "nutrix",
+      "variation": "state",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/nutrix/state-v1.png",
+      "sha256": "359838aa96959e3552451bfc21108578f1bae663614534a0a08b38cb9b7d586a",
+      "dimensions": "1536x1024",
+      "promptSha256": "d0a9d6f15bbec2f9328aa912b45a49b7cd2fdf11a58c216d8ba4be8099628b94",
+      "derivesFrom": [
+        "TSOC-ORG-NUTRIX-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-NUTRIX-INSPECTION-V1",
+      "exclusiveOwner": "organ:nutrix",
+      "ownerType": "organ",
+      "owner": "nutrix",
+      "variation": "inspection",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/nutrix/inspection-v1.png",
+      "sha256": "31348a44cd03c696e83c49619761e82d7049c01e744700dea85c87d644306e15",
+      "dimensions": "1402x1122",
+      "promptSha256": "e55126ede807e200c1ad4186e412760ef3440409769f832d51754d4073d40b2a",
+      "derivesFrom": [
+        "TSOC-ORG-NUTRIX-CONCEPT-V1",
+        "TSOC-ORG-NUTRIX-GEOMETRY-V1",
+        "TSOC-ORG-NUTRIX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-NUTRIX-WIDE-V1",
+      "exclusiveOwner": "organ:nutrix",
+      "ownerType": "organ",
+      "owner": "nutrix",
+      "variation": "wide",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/nutrix/wide-v1.png",
+      "sha256": "5e78bbfa65196271d3128314cd235e4e7d9684443b3a62954a8b5e971f3fb9d8",
+      "dimensions": "1672x941",
+      "promptSha256": "422dddf77c81b76d328d655b928392e8df5489a3466e4ea23fd1443fed788537",
+      "derivesFrom": [
+        "TSOC-ORG-NUTRIX-CONCEPT-V1",
+        "TSOC-ORG-NUTRIX-GEOMETRY-V1",
+        "TSOC-ORG-NUTRIX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-NUTRIX-NARROW-V1",
+      "exclusiveOwner": "organ:nutrix",
+      "ownerType": "organ",
+      "owner": "nutrix",
+      "variation": "narrow",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/nutrix/narrow-v1.png",
+      "sha256": "8b9f15872317c6f0277a42a7da7b55ecfeb99f8f50670063592e0b7b2aefdb78",
+      "dimensions": "864x1821",
+      "promptSha256": "ed23306bb70942dbc665271a1e341290093bafdebb32f9b5bac562caacfa9989",
+      "derivesFrom": [
+        "TSOC-ORG-NUTRIX-CONCEPT-V1",
+        "TSOC-ORG-NUTRIX-GEOMETRY-V1",
+        "TSOC-ORG-NUTRIX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-AUSPEX-CONCEPT-V1",
+      "exclusiveOwner": "organ:auspex",
+      "ownerType": "organ",
+      "owner": "auspex",
+      "variation": "concept",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/auspex/concept-v1.png",
+      "sha256": "97591506d190f2e3472223092062f696bfd2f7c1ca0b5e939de604945ac55298",
+      "dimensions": "1254x1254",
+      "promptSha256": "234cd077a27302cd43fc86fe71d7a0f9bffa9d8497a38e32ef1d358ebe601fa3",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-AUSPEX-GEOMETRY-V1",
+      "exclusiveOwner": "organ:auspex",
+      "ownerType": "organ",
+      "owner": "auspex",
+      "variation": "geometry",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/auspex/geometry-v1.png",
+      "sha256": "dbe38182d4d2176c4ede0cb928e546f9afdcc705ab3fbc922a7697ab3085aef9",
+      "dimensions": "1149x1369",
+      "promptSha256": "2b9bb67481712d6bb8f3142294f4e27ac25068a7560f3257272270e4244e03e4",
+      "derivesFrom": [
+        "TSOC-ORG-AUSPEX-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-AUSPEX-STATE-V1",
+      "exclusiveOwner": "organ:auspex",
+      "ownerType": "organ",
+      "owner": "auspex",
+      "variation": "state",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/auspex/state-v1.png",
+      "sha256": "a159f6f8c7a3a15fd604208420d69db39fab0c496299275e301b60196a214b39",
+      "dimensions": "1536x1024",
+      "promptSha256": "8e41448f798993a163979e0e98c5d52535964558a808fee14709d0a6a963e4ba",
+      "derivesFrom": [
+        "TSOC-ORG-AUSPEX-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-AUSPEX-INSPECTION-V1",
+      "exclusiveOwner": "organ:auspex",
+      "ownerType": "organ",
+      "owner": "auspex",
+      "variation": "inspection",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/auspex/inspection-v1.png",
+      "sha256": "e2db99040a055dc64c92b3cd5e2fac4ed914b6e927e44779a8b4a21f835dc807",
+      "dimensions": "1402x1122",
+      "promptSha256": "eaa216583fa72f4c93a35a66748198b8632812369e60ee98b6a0ba84ccc8e524",
+      "derivesFrom": [
+        "TSOC-ORG-AUSPEX-CONCEPT-V1",
+        "TSOC-ORG-AUSPEX-GEOMETRY-V1",
+        "TSOC-ORG-AUSPEX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-AUSPEX-WIDE-V1",
+      "exclusiveOwner": "organ:auspex",
+      "ownerType": "organ",
+      "owner": "auspex",
+      "variation": "wide",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/auspex/wide-v1.png",
+      "sha256": "04d7319f06f27cd70fe24f4de265540ea0e0ab6004cb7a2e527dcadced5af54b",
+      "dimensions": "1672x941",
+      "promptSha256": "d40127574c668cde23a99fb96ef71c9ba9de244d417f3c66aef9ec32e39a5e6a",
+      "derivesFrom": [
+        "TSOC-ORG-AUSPEX-CONCEPT-V1",
+        "TSOC-ORG-AUSPEX-GEOMETRY-V1",
+        "TSOC-ORG-AUSPEX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-AUSPEX-NARROW-V1",
+      "exclusiveOwner": "organ:auspex",
+      "ownerType": "organ",
+      "owner": "auspex",
+      "variation": "narrow",
+      "batch": "batch-1",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/auspex/narrow-v1.png",
+      "sha256": "83cc7f4f5b079264eb3980ab060c70025cc2f63fc72116648fbec6d1d613c02b",
+      "dimensions": "836x1881",
+      "promptSha256": "cc3325518a70d7c49170479e311692b90a4f92b33ee16f1dab20ce1ede6bab86",
+      "derivesFrom": [
+        "TSOC-ORG-AUSPEX-CONCEPT-V1",
+        "TSOC-ORG-AUSPEX-GEOMETRY-V1",
+        "TSOC-ORG-AUSPEX-STATE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CIRCULATOR-CONCEPT-V1",
+      "exclusiveOwner": "organ:circulator",
+      "ownerType": "organ",
+      "owner": "circulator",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/circulator/concept-v1.png",
+      "sha256": "ef8bea47fe95589ae63726ca95046a6230cc4bbc00b7911a08a6a6fd0ef4e934",
+      "dimensions": "1254x1254",
+      "promptSha256": "5897656bcbe0205a6bd96ec2647bccef90fbe06df75c6a9dc6ba2bb3f2009fb8",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CIRCULATOR-GEOMETRY-V1",
+      "exclusiveOwner": "organ:circulator",
+      "ownerType": "organ",
+      "owner": "circulator",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/circulator/geometry-v1.png",
+      "sha256": "bd0af248581a3d3ca76dc07e4609cc8e59a421037f025dbf1e9d53943391a9c4",
+      "dimensions": "1254x1254",
+      "promptSha256": "285285ffebc7fc98ce88ff1110d0e57d72ace15203758578a2f94214048d94e7",
+      "derivesFrom": [
+        "TSOC-ORG-CIRCULATOR-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CIRCULATOR-STATE-V1",
+      "exclusiveOwner": "organ:circulator",
+      "ownerType": "organ",
+      "owner": "circulator",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/circulator/state-v1.png",
+      "sha256": "f0427b3d8d282a6ae017fef189bb6ac558200d2c72686c837c76c45e8580ab97",
+      "dimensions": "1254x1254",
+      "promptSha256": "448f89077f103f93ded8fc0c1abad0fe3ee7efd478454ca3f444cf41dc81d323",
+      "derivesFrom": [
+        "TSOC-ORG-CIRCULATOR-CONCEPT-V1",
+        "TSOC-ORG-CIRCULATOR-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CIRCULATOR-INSPECTION-V1",
+      "exclusiveOwner": "organ:circulator",
+      "ownerType": "organ",
+      "owner": "circulator",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CIRCULATOR-WIDE-V1",
+      "exclusiveOwner": "organ:circulator",
+      "ownerType": "organ",
+      "owner": "circulator",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-CIRCULATOR-NARROW-V1",
+      "exclusiveOwner": "organ:circulator",
+      "ownerType": "organ",
+      "owner": "circulator",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-PRAECEPTOR-CONCEPT-V1",
+      "exclusiveOwner": "organ:praeceptor",
+      "ownerType": "organ",
+      "owner": "praeceptor",
+      "variation": "concept",
+      "batch": "batch-2",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-derivation",
+      "exportStatus": "exported",
+      "relativePath": "organs/praeceptor/concept-v1.png",
+      "sha256": "41aae60d381a35dcc256702ba32e1a3544deabb2701f24d8b454c91c61077365",
+      "dimensions": "1254x1254",
+      "promptSha256": "33d09d354f82182f649fe387e5c87674dff504560e3091c5b4999a837c1e4b97",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-PRAECEPTOR-GEOMETRY-V1",
+      "exclusiveOwner": "organ:praeceptor",
+      "ownerType": "organ",
+      "owner": "praeceptor",
+      "variation": "geometry",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/praeceptor/geometry-v1.png",
+      "sha256": "ed49ae1b2fa197116ca9ce6071029f1b09d66def6922f8bb8f78b825083f82f2",
+      "dimensions": "1149x1369",
+      "promptSha256": "1b1d9702ae8412a299acbe117940f60307fd13d75a64228fa03bc050353f9cde",
+      "derivesFrom": [
+        "TSOC-ORG-PRAECEPTOR-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-PRAECEPTOR-STATE-V1",
+      "exclusiveOwner": "organ:praeceptor",
+      "ownerType": "organ",
+      "owner": "praeceptor",
+      "variation": "state",
+      "batch": "batch-2",
+      "sourceStatus": "generated",
+      "reviewStatus": "pending-founder-review",
+      "exportStatus": "exported",
+      "relativePath": "organs/praeceptor/state-v1.png",
+      "sha256": "6e92f9ee6faf049fa6cc12652afe456e03db28fd2b2d5bec8a9c60cb48eea6b7",
+      "dimensions": "1402x1122",
+      "promptSha256": "9273f2cc69fa1d3ab9a3d89fff6ca6e0ce1361c60d5430422852530ddc522504",
+      "derivesFrom": [
+        "TSOC-ORG-PRAECEPTOR-CONCEPT-V1",
+        "TSOC-ORG-PRAECEPTOR-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-PRAECEPTOR-INSPECTION-V1",
+      "exclusiveOwner": "organ:praeceptor",
+      "ownerType": "organ",
+      "owner": "praeceptor",
+      "variation": "inspection",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-PRAECEPTOR-WIDE-V1",
+      "exclusiveOwner": "organ:praeceptor",
+      "ownerType": "organ",
+      "owner": "praeceptor",
+      "variation": "wide",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-ORG-PRAECEPTOR-NARROW-V1",
+      "exclusiveOwner": "organ:praeceptor",
+      "ownerType": "organ",
+      "owner": "praeceptor",
+      "variation": "narrow",
+      "batch": "batch-2",
+      "sourceStatus": "planned",
+      "reviewStatus": "pending",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": null,
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-EVIDENCE_SOCKET-GEOMETRY-V1",
+      "exclusiveOwner": "feature:evidence-socket",
+      "ownerType": "feature",
+      "owner": "evidence-socket",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/evidence-socket/geometry-v1.png",
+      "sha256": "a44daeb2bb46f894a847fef87c5dacc10ffdb163edda9e4cfd8e50a0a5e68501",
+      "dimensions": "1254x1254",
+      "promptSha256": "308c48cd5b2394954627d7147dc97f73d2fe7f552c67f51d3f4b69842c1a525e",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-EVIDENCE_SOCKET-STATE-V1",
+      "exclusiveOwner": "feature:evidence-socket",
+      "ownerType": "feature",
+      "owner": "evidence-socket",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/evidence-socket/state-v1.png",
+      "sha256": "777482433a479ab4a466f6439ddd4f0a1c12658f9e06418e3aebc0cb0bf8a5f8",
+      "dimensions": "1254x1254",
+      "promptSha256": "9c218d46f1df434e7b16bc811b6b4bc4ab8c8fdfd5f2c38438ce78ac32c52736",
+      "derivesFrom": [
+        "TSOC-FEAT-EVIDENCE_SOCKET-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-EVIDENCE_SOCKET-USAGE-V1",
+      "exclusiveOwner": "feature:evidence-socket",
+      "ownerType": "feature",
+      "owner": "evidence-socket",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/evidence-socket/usage-v1.png",
+      "sha256": "5b1f85bc819f625c46dba3a399fdd27dbe4bc734e4f5ee19a2fd75b132ebe5b2",
+      "dimensions": "1254x1254",
+      "promptSha256": "fa8dc33f0e0ed8d2c60d7fdb705d7bb09f8963f5d4c2350a84055fe74a256188",
+      "derivesFrom": [
+        "TSOC-FEAT-EVIDENCE_SOCKET-GEOMETRY-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-STATE-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-EVIDENCE_SOCKET-WIDE-V1",
+      "exclusiveOwner": "feature:evidence-socket",
+      "ownerType": "feature",
+      "owner": "evidence-socket",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/evidence-socket/wide-v1.png",
+      "sha256": "dd79a2a3bb5ce5d400e876addc90c819d688ad139d3aee040cfb9e1ab32a23f7",
+      "dimensions": "1672x941",
+      "promptSha256": "789c3eba744fced06ffabebdfe5fe015d82cffe634180c70ec42d2081a6e35b5",
+      "derivesFrom": [
+        "TSOC-FEAT-EVIDENCE_SOCKET-GEOMETRY-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-STATE-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-EVIDENCE_SOCKET-NARROW-V1",
+      "exclusiveOwner": "feature:evidence-socket",
+      "ownerType": "feature",
+      "owner": "evidence-socket",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/evidence-socket/narrow-v1.png",
+      "sha256": "58b6ddc107bb0a5facbb9b7d7efd62730df3810249cd626837a5a5075c21d752",
+      "dimensions": "887x1774",
+      "promptSha256": "805d72dfcca2baed035432a012d62b541d34c7b080c5dd7d8f475539b1afd5c2",
+      "derivesFrom": [
+        "TSOC-FEAT-EVIDENCE_SOCKET-GEOMETRY-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-STATE-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-STREAM_CONTINUITY-GEOMETRY-V1",
+      "exclusiveOwner": "feature:stream-continuity",
+      "ownerType": "feature",
+      "owner": "stream-continuity",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/stream-continuity/geometry-v1.png",
+      "sha256": "ced2b21c0a6605c88afcd19d25f9184390a2a124c2538297f738e6a05b1759bd",
+      "dimensions": "1254x1254",
+      "promptSha256": "3165bf1bf975137669865714ade0dbd1c1d418f5ac573f6648cfb8e1ff0d3ea9",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-STREAM_CONTINUITY-STATE-V1",
+      "exclusiveOwner": "feature:stream-continuity",
+      "ownerType": "feature",
+      "owner": "stream-continuity",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/stream-continuity/state-v1.png",
+      "sha256": "ae6c2f55879771eef26aaee6e1d78bc60ba7e01285c13eb81c9e2937ef74b86c",
+      "dimensions": "1254x1254",
+      "promptSha256": "99b72caccde51d49b9ed6305ed3fff7fa350e30bcca586ea08c2907ee0285d18",
+      "derivesFrom": [
+        "TSOC-FEAT-STREAM_CONTINUITY-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-STREAM_CONTINUITY-USAGE-V1",
+      "exclusiveOwner": "feature:stream-continuity",
+      "ownerType": "feature",
+      "owner": "stream-continuity",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/stream-continuity/usage-v1.png",
+      "sha256": "bfcf1d959c19e866db887fd9dc71b9d43ae2e4e9acd98eb108daddf177828c1f",
+      "dimensions": "1254x1254",
+      "promptSha256": "ba4774d5e099557aac68408e7d2128a393be8a440e358a8340ad80def33a688d",
+      "derivesFrom": [
+        "TSOC-FEAT-STREAM_CONTINUITY-GEOMETRY-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-STATE-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-STREAM_CONTINUITY-WIDE-V1",
+      "exclusiveOwner": "feature:stream-continuity",
+      "ownerType": "feature",
+      "owner": "stream-continuity",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/stream-continuity/wide-v1.png",
+      "sha256": "2274755cdbb71a32de9378d58e79a21ffb4f0e91fd60b430622541ec616bd801",
+      "dimensions": "1672x941",
+      "promptSha256": "874c018836a9b7b57abac7879030bcc754d4bb1a4990fa0471699d5e6900848f",
+      "derivesFrom": [
+        "TSOC-FEAT-STREAM_CONTINUITY-GEOMETRY-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-STATE-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-STREAM_CONTINUITY-NARROW-V1",
+      "exclusiveOwner": "feature:stream-continuity",
+      "ownerType": "feature",
+      "owner": "stream-continuity",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/stream-continuity/narrow-v1.png",
+      "sha256": "b114489d84c07464c5019266820c59334e4dc15f66c8c827d559892eab155633",
+      "dimensions": "864x1821",
+      "promptSha256": "caca88831450cb7eb7136a846b159b9e1a0bf53ce650e5ded6b8d3b83c8a1031",
+      "derivesFrom": [
+        "TSOC-FEAT-STREAM_CONTINUITY-GEOMETRY-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-STATE-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-MULTI_CLOCK-GEOMETRY-V1",
+      "exclusiveOwner": "feature:multi-clock",
+      "ownerType": "feature",
+      "owner": "multi-clock",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/multi-clock/geometry-v1.png",
+      "sha256": "45c7390164d1f9f76e05ee2b520edbb957dfb2a012bc4fb96e26ddadbec76d7a",
+      "dimensions": "1254x1254",
+      "promptSha256": "81ffad578ecb1abc1bef2a019aac00ef7767ca0d3a6a522401511e7698aab814",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-MULTI_CLOCK-STATE-V1",
+      "exclusiveOwner": "feature:multi-clock",
+      "ownerType": "feature",
+      "owner": "multi-clock",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/multi-clock/state-v1.png",
+      "sha256": "ee8dd9873c92cf751396b79e05324ccda22ea3ff5a9b13a3b32e3cb1438466bc",
+      "dimensions": "1774x887",
+      "promptSha256": "21a11b618df71b5c62417e921ed551269eecc5c9a26e6447198b2d40b3f9e864",
+      "derivesFrom": [
+        "TSOC-FEAT-MULTI_CLOCK-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-MULTI_CLOCK-USAGE-V1",
+      "exclusiveOwner": "feature:multi-clock",
+      "ownerType": "feature",
+      "owner": "multi-clock",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/multi-clock/usage-v1.png",
+      "sha256": "a38b2b2558aecd0baa7f33295dd563d71e4dccb7178822b52b87c82d9a06d1df",
+      "dimensions": "1254x1254",
+      "promptSha256": "56116af680a29a02327433b32b0810f12489dd67054fad821dc6cefe86f4d8f0",
+      "derivesFrom": [
+        "TSOC-FEAT-MULTI_CLOCK-GEOMETRY-V1",
+        "TSOC-FEAT-MULTI_CLOCK-STATE-V1",
+        "TSOC-FEAT-MULTI_CLOCK-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-MULTI_CLOCK-WIDE-V1",
+      "exclusiveOwner": "feature:multi-clock",
+      "ownerType": "feature",
+      "owner": "multi-clock",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/multi-clock/wide-v1.png",
+      "sha256": "82e0bca0315e01f868e0bddf2111d8edf41c39853ee5f765375a80bb7be09b33",
+      "dimensions": "1672x941",
+      "promptSha256": "1b7d83585d46bf5183ada5542920389d01f887eecb2fe517a2e767d755bbdfbb",
+      "derivesFrom": [
+        "TSOC-FEAT-MULTI_CLOCK-GEOMETRY-V1",
+        "TSOC-FEAT-MULTI_CLOCK-STATE-V1",
+        "TSOC-FEAT-MULTI_CLOCK-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-MULTI_CLOCK-NARROW-V1",
+      "exclusiveOwner": "feature:multi-clock",
+      "ownerType": "feature",
+      "owner": "multi-clock",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/multi-clock/narrow-v1.png",
+      "sha256": "4680ea54e93c16443c8e6ca59257b1425c4ef18438a24e70a22274f97211fbae",
+      "dimensions": "941x1672",
+      "promptSha256": "14b9d1880e4e0dd86e9f991104f55730fdf8ea2c52364e480da110785c1f5d9b",
+      "derivesFrom": [
+        "TSOC-FEAT-MULTI_CLOCK-GEOMETRY-V1",
+        "TSOC-FEAT-MULTI_CLOCK-STATE-V1",
+        "TSOC-FEAT-MULTI_CLOCK-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-LISTENER_SENSOR-GEOMETRY-V1",
+      "exclusiveOwner": "feature:listener-sensor",
+      "ownerType": "feature",
+      "owner": "listener-sensor",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/listener-sensor/geometry-v1.png",
+      "sha256": "3adc7e629ccafbf147a418b9598c94f1ac8e03cb551e16b7ad8466cbd6f0fa47",
+      "dimensions": "1400x1123",
+      "promptSha256": "93b5f97e6d2c0881419e038cd8a7e5576314a823404a84c96b6e174e411be488",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-LISTENER_SENSOR-STATE-V1",
+      "exclusiveOwner": "feature:listener-sensor",
+      "ownerType": "feature",
+      "owner": "listener-sensor",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/listener-sensor/state-v1.png",
+      "sha256": "1be0f570d35950eec96f49967a32b29e1020a20ff0c6ad29bebce2adde1e748e",
+      "dimensions": "1254x1254",
+      "promptSha256": "eac06affd235c61d52f9ef49f5390259568cbf5a4bc25f43376bba3195ccca7b",
+      "derivesFrom": [
+        "TSOC-FEAT-LISTENER_SENSOR-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-LISTENER_SENSOR-USAGE-V1",
+      "exclusiveOwner": "feature:listener-sensor",
+      "ownerType": "feature",
+      "owner": "listener-sensor",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/listener-sensor/usage-v1.png",
+      "sha256": "c0ad87feb0f5b12e40b992d6d46ee791dfec27c7214d354c47d43ad1f44852a7",
+      "dimensions": "1254x1254",
+      "promptSha256": "2362b2aa518ab8c78ff52aba36b9a246055d1f1ba540e890288ba39c0875f4e5",
+      "derivesFrom": [
+        "TSOC-FEAT-LISTENER_SENSOR-GEOMETRY-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-STATE-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-LISTENER_SENSOR-WIDE-V1",
+      "exclusiveOwner": "feature:listener-sensor",
+      "ownerType": "feature",
+      "owner": "listener-sensor",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/listener-sensor/wide-v1.png",
+      "sha256": "a42ba5f1a5a38eb95a28a5cc4487650b89ad8175373a32fb075d0690ee248d86",
+      "dimensions": "1536x1024",
+      "promptSha256": "0b4fdc4a836519cc2f4f98dab1b788b7c6ef5b2a692263fc00d5989733ab0325",
+      "derivesFrom": [
+        "TSOC-FEAT-LISTENER_SENSOR-GEOMETRY-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-STATE-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-LISTENER_SENSOR-NARROW-V1",
+      "exclusiveOwner": "feature:listener-sensor",
+      "ownerType": "feature",
+      "owner": "listener-sensor",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/listener-sensor/narrow-v1.png",
+      "sha256": "6909208e6979c14d7880e0915f0a88bcb6a9e48118610678651d9a87ceaa9d0f",
+      "dimensions": "864x1821",
+      "promptSha256": "762181a6e20cb50709e24e7105bbdfa15bbefae488b59218c6a57d786cd18e5f",
+      "derivesFrom": [
+        "TSOC-FEAT-LISTENER_SENSOR-GEOMETRY-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-STATE-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+      "exclusiveOwner": "feature:run-river",
+      "ownerType": "feature",
+      "owner": "run-river",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "generation-failed-after-repair",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "292e87a5559101b00ce6da2daa38fe1129da328d31b42651e76c9f12cdef47ac",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RUN_RIVER-STATE-V1",
+      "exclusiveOwner": "feature:run-river",
+      "ownerType": "feature",
+      "owner": "run-river",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "a64e91863b43aec06d9455d1315e0a5bc620aa55dd558d45432727fb9cc16df6",
+      "derivesFrom": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RUN_RIVER-USAGE-V1",
+      "exclusiveOwner": "feature:run-river",
+      "ownerType": "feature",
+      "owner": "run-river",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "d3d40c6bd4f9715987849c350f4fa7ccbe057356c00c9fbf3ad32570843b8fc8",
+      "derivesFrom": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-RUN_RIVER-STATE-V1",
+        "TSOC-FEAT-RUN_RIVER-USAGE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-RUN_RIVER-STATE-V1",
+        "TSOC-FEAT-RUN_RIVER-USAGE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RUN_RIVER-WIDE-V1",
+      "exclusiveOwner": "feature:run-river",
+      "ownerType": "feature",
+      "owner": "run-river",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "56e88fe81e279d4d97ddf7885efb3919083cf0f22e9afcb31acd8acb4ab124ff",
+      "derivesFrom": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-RUN_RIVER-STATE-V1",
+        "TSOC-FEAT-RUN_RIVER-USAGE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-RUN_RIVER-STATE-V1",
+        "TSOC-FEAT-RUN_RIVER-USAGE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RUN_RIVER-NARROW-V1",
+      "exclusiveOwner": "feature:run-river",
+      "ownerType": "feature",
+      "owner": "run-river",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "ab4f27af818ba9e94b681a35d872deb34dbe6c10dbd519cd926677c63878abb0",
+      "derivesFrom": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-RUN_RIVER-STATE-V1",
+        "TSOC-FEAT-RUN_RIVER-USAGE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-RUN_RIVER-STATE-V1",
+        "TSOC-FEAT-RUN_RIVER-USAGE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-PROVIDER_EVIDENCE-GEOMETRY-V1",
+      "exclusiveOwner": "feature:provider-evidence",
+      "ownerType": "feature",
+      "owner": "provider-evidence",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/provider-evidence/geometry-v1.png",
+      "sha256": "6756267f5bc8cbecb1bc49a0b16a1dfcf76ad29a8a8f7c2e9e78057438b54325",
+      "dimensions": "1402x1122",
+      "promptSha256": "4bd4972d3c20eaa7871800188310a2a3faf030f600495c6cbee854cc740b81c0",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-PROVIDER_EVIDENCE-STATE-V1",
+      "exclusiveOwner": "feature:provider-evidence",
+      "ownerType": "feature",
+      "owner": "provider-evidence",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/provider-evidence/state-v1.png",
+      "sha256": "503e02ab1687823f0785f264208de6551312fcaf0e68b282ae0b3946d755511b",
+      "dimensions": "1254x1254",
+      "promptSha256": "50c8a942df8ea693f6a471b3e53db98d824e3810a4e9d9dc339ef510d7a150b2",
+      "derivesFrom": [
+        "TSOC-FEAT-PROVIDER_EVIDENCE-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-PROVIDER_EVIDENCE-USAGE-V1",
+      "exclusiveOwner": "feature:provider-evidence",
+      "ownerType": "feature",
+      "owner": "provider-evidence",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/provider-evidence/usage-v1.png",
+      "sha256": "e1f73cc9eae4cb8a0e727f1d503131b0714605b57f58dee0eed7fa2b9e812de6",
+      "dimensions": "1254x1254",
+      "promptSha256": "d1ae68af8bb5371dcb5e64212bf0c48fe86ef8a25de42306732478c7dece56f3",
+      "derivesFrom": [
+        "TSOC-FEAT-PROVIDER_EVIDENCE-GEOMETRY-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-STATE-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-PROVIDER_EVIDENCE-WIDE-V1",
+      "exclusiveOwner": "feature:provider-evidence",
+      "ownerType": "feature",
+      "owner": "provider-evidence",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/provider-evidence/wide-v1.png",
+      "sha256": "715a8bb40ea7e38a850c35897dd3eb94d447bffa1f04d0e5ed4f4033c6f85be5",
+      "dimensions": "1536x1024",
+      "promptSha256": "1cb88a26822812e4c6a132e2ec7ee21db50caed59e53d9cd321e2a0e445c6734",
+      "derivesFrom": [
+        "TSOC-FEAT-PROVIDER_EVIDENCE-GEOMETRY-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-STATE-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-PROVIDER_EVIDENCE-NARROW-V1",
+      "exclusiveOwner": "feature:provider-evidence",
+      "ownerType": "feature",
+      "owner": "provider-evidence",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "generation-failed-after-repair",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "07eb03ee5cd30e437f969e03e9844b0b81210813013402e4c88d7b649c73b2eb",
+      "derivesFrom": [
+        "TSOC-FEAT-PROVIDER_EVIDENCE-GEOMETRY-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-STATE-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-IDENTITY_SEAM-GEOMETRY-V1",
+      "exclusiveOwner": "feature:identity-seam",
+      "ownerType": "feature",
+      "owner": "identity-seam",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/identity-seam/geometry-v1.png",
+      "sha256": "78c935c491e554a65e2bc1184dbc0b355d2c0c450724391ecf89dce735124912",
+      "dimensions": "1254x1254",
+      "promptSha256": "be5d4c62d68955651a18c7719fa59c7d53f92117d729dd4afcf500a35c41a92e",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-IDENTITY_SEAM-STATE-V1",
+      "exclusiveOwner": "feature:identity-seam",
+      "ownerType": "feature",
+      "owner": "identity-seam",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/identity-seam/state-v1.png",
+      "sha256": "81cbaf8686adc7db0f73c1543b2e1d22f462962464ec21a9df96f1ad7d0cd596",
+      "dimensions": "1254x1254",
+      "promptSha256": "85875aca317983c6884c06203760eb247e2d0da44af8d52b512b04d498a13049",
+      "derivesFrom": [
+        "TSOC-FEAT-IDENTITY_SEAM-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-IDENTITY_SEAM-USAGE-V1",
+      "exclusiveOwner": "feature:identity-seam",
+      "ownerType": "feature",
+      "owner": "identity-seam",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/identity-seam/usage-v1.png",
+      "sha256": "6b4e025b5ece153e37f2ab778c2712d7f1e8749b2e61beeacf24708444dc5bbf",
+      "dimensions": "1254x1254",
+      "promptSha256": "e13d3d2bfafb5b442815496d93aab7ad703e9313466f82d5d8aa2c767164d8e6",
+      "derivesFrom": [
+        "TSOC-FEAT-IDENTITY_SEAM-GEOMETRY-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-STATE-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-IDENTITY_SEAM-WIDE-V1",
+      "exclusiveOwner": "feature:identity-seam",
+      "ownerType": "feature",
+      "owner": "identity-seam",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/identity-seam/wide-v1.png",
+      "sha256": "773db424f387b9f49951f9feaa5deae67d8f79c3f7f3f40b9c9a3077be0895cb",
+      "dimensions": "1672x941",
+      "promptSha256": "94eed1ac7a5720efecb03cf7ef0468536b96f453c28937be9c92fd0f8c1d7faa",
+      "derivesFrom": [
+        "TSOC-FEAT-IDENTITY_SEAM-GEOMETRY-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-STATE-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-IDENTITY_SEAM-NARROW-V1",
+      "exclusiveOwner": "feature:identity-seam",
+      "ownerType": "feature",
+      "owner": "identity-seam",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/identity-seam/narrow-v1.png",
+      "sha256": "4001dbd6dab3e491445206923316cdace66499c3a67594fcfb27cc7ec246b431",
+      "dimensions": "1024x1535",
+      "promptSha256": "8b9ec8679b8bf52a8c9391efdc9f4594c5f27c876038a348925f8483db8482a3",
+      "derivesFrom": [
+        "TSOC-FEAT-IDENTITY_SEAM-GEOMETRY-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-STATE-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+      "exclusiveOwner": "feature:held-gate",
+      "ownerType": "feature",
+      "owner": "held-gate",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "generation-failed-after-repair",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "5c4a5dfa86434e76a9e86d004e3d5827b1c7581c011aa905430f75ec1c7e2f8a",
+      "derivesFrom": [
+        "cambium.specimen.process-beacon"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-HELD_GATE-STATE-V1",
+      "exclusiveOwner": "feature:held-gate",
+      "ownerType": "feature",
+      "owner": "held-gate",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "12b004aa595aa2c78b71f3b9d97fbc6fdbab93fc47609bd041d7844e64971615",
+      "derivesFrom": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-HELD_GATE-USAGE-V1",
+      "exclusiveOwner": "feature:held-gate",
+      "ownerType": "feature",
+      "owner": "held-gate",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "ba1d3eab4e07a4ebb0aa3c4b92c6f6eed2ba71b6f3896bd76c07cb88f47fccad",
+      "derivesFrom": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-HELD_GATE-STATE-V1",
+        "TSOC-FEAT-HELD_GATE-USAGE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-HELD_GATE-STATE-V1",
+        "TSOC-FEAT-HELD_GATE-USAGE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-HELD_GATE-WIDE-V1",
+      "exclusiveOwner": "feature:held-gate",
+      "ownerType": "feature",
+      "owner": "held-gate",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "1b4e22be9e01fc9f6cb134495944d758ed8748f9cfae6fe79a137bf11c15b9de",
+      "derivesFrom": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-HELD_GATE-STATE-V1",
+        "TSOC-FEAT-HELD_GATE-USAGE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-HELD_GATE-STATE-V1",
+        "TSOC-FEAT-HELD_GATE-USAGE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-HELD_GATE-NARROW-V1",
+      "exclusiveOwner": "feature:held-gate",
+      "ownerType": "feature",
+      "owner": "held-gate",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "8cd8c002a27f9267055fbce75237dcc519c21139241a9f290da4b97400909df0",
+      "derivesFrom": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-HELD_GATE-STATE-V1",
+        "TSOC-FEAT-HELD_GATE-USAGE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-HELD_GATE-STATE-V1",
+        "TSOC-FEAT-HELD_GATE-USAGE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RECEIPT_STRATA-GEOMETRY-V1",
+      "exclusiveOwner": "feature:receipt-strata",
+      "ownerType": "feature",
+      "owner": "receipt-strata",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/receipt-strata/geometry-v1.png",
+      "sha256": "3db454c58298c085704d30136785cc317392076a7202dfb162e37aa403be3f7e",
+      "dimensions": "1254x1254",
+      "promptSha256": "28bd4668b288b4b41a4ce4fa3617d7e8ebaaf931c6f19e92df9adb307c50b04a",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RECEIPT_STRATA-STATE-V1",
+      "exclusiveOwner": "feature:receipt-strata",
+      "ownerType": "feature",
+      "owner": "receipt-strata",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/receipt-strata/state-v1.png",
+      "sha256": "f2841c7bc879efdb19ee72d11c9f40fdafcc07383d5f1d159455e94b466d7abf",
+      "dimensions": "1254x1254",
+      "promptSha256": "ead1f63700fdeb41d78317e5831a6e5b2182238c5652fc4f2ce55161a9207a34",
+      "derivesFrom": [
+        "TSOC-FEAT-RECEIPT_STRATA-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RECEIPT_STRATA-USAGE-V1",
+      "exclusiveOwner": "feature:receipt-strata",
+      "ownerType": "feature",
+      "owner": "receipt-strata",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/receipt-strata/usage-v1.png",
+      "sha256": "8fccbf63a341ad8b96dbe240f56ec8d8411a6c5aae87437590482e3ba6980228",
+      "dimensions": "1254x1254",
+      "promptSha256": "356b145b2c791cf0fb32ff32e8d3d40a5443b09ca23c6cbfdfb701e719424353",
+      "derivesFrom": [
+        "TSOC-FEAT-RECEIPT_STRATA-GEOMETRY-V1",
+        "TSOC-FEAT-RECEIPT_STRATA-STATE-V1",
+        "TSOC-FEAT-RECEIPT_STRATA-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RECEIPT_STRATA-WIDE-V1",
+      "exclusiveOwner": "feature:receipt-strata",
+      "ownerType": "feature",
+      "owner": "receipt-strata",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/receipt-strata/wide-v1.png",
+      "sha256": "f276f98c34202ef4b9775b41dfff882a472ad2ef58572bb84ed7724db29a9f28",
+      "dimensions": "1672x941",
+      "promptSha256": "4da2d121ef01e651a88c32208a35a6a0f661a77a7013bdb8ba9b9b22d3f0b40b",
+      "derivesFrom": [
+        "TSOC-FEAT-RECEIPT_STRATA-GEOMETRY-V1",
+        "TSOC-FEAT-RECEIPT_STRATA-STATE-V1",
+        "TSOC-FEAT-RECEIPT_STRATA-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RECEIPT_STRATA-NARROW-V1",
+      "exclusiveOwner": "feature:receipt-strata",
+      "ownerType": "feature",
+      "owner": "receipt-strata",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/receipt-strata/narrow-v1.png",
+      "sha256": "8878563ea2078669e4722499f9d793ca8888db70e93f17b5b50ad9fb34353df3",
+      "dimensions": "1024x1536",
+      "promptSha256": "48d25fbce17a91fa7fbf6c8652e121300b38e46acb118f54d9f814e756640001",
+      "derivesFrom": [
+        "TSOC-FEAT-RECEIPT_STRATA-GEOMETRY-V1",
+        "TSOC-FEAT-RECEIPT_STRATA-STATE-V1",
+        "TSOC-FEAT-RECEIPT_STRATA-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-WORK_SHORELINE-GEOMETRY-V1",
+      "exclusiveOwner": "feature:work-shoreline",
+      "ownerType": "feature",
+      "owner": "work-shoreline",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/work-shoreline/geometry-v1.png",
+      "sha256": "f0e6558d84b59770cbcbccb4e1c825261126fab87dee5c412b734827f67762e4",
+      "dimensions": "1254x1254",
+      "promptSha256": "f6599ac1f45c0e3ede1e01b257ef9a907e4cfe03917b4daa9af538b8e6277729",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-WORK_SHORELINE-STATE-V1",
+      "exclusiveOwner": "feature:work-shoreline",
+      "ownerType": "feature",
+      "owner": "work-shoreline",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/work-shoreline/state-v1.png",
+      "sha256": "6e8a9889d89f9aa79b5c57b0d0f4908a7e8fabeaad4de234790ef939b6ea2784",
+      "dimensions": "1774x887",
+      "promptSha256": "a40b3415a2c209e881ec1db68d8dc50627bbe4ee1e5e915bb4b9851908b69c41",
+      "derivesFrom": [
+        "TSOC-FEAT-WORK_SHORELINE-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-WORK_SHORELINE-USAGE-V1",
+      "exclusiveOwner": "feature:work-shoreline",
+      "ownerType": "feature",
+      "owner": "work-shoreline",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/work-shoreline/usage-v1.png",
+      "sha256": "b0c0b0a4744998ccb63e22228f3bcd7ef7d839ac5cd9bd7a9dc0156e928387c9",
+      "dimensions": "1254x1254",
+      "promptSha256": "0a101e1379853025dd017d1c585c7f4d37d139266deb8dd864029687e202a287",
+      "derivesFrom": [
+        "TSOC-FEAT-WORK_SHORELINE-GEOMETRY-V1",
+        "TSOC-FEAT-WORK_SHORELINE-STATE-V1",
+        "TSOC-FEAT-WORK_SHORELINE-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-WORK_SHORELINE-WIDE-V1",
+      "exclusiveOwner": "feature:work-shoreline",
+      "ownerType": "feature",
+      "owner": "work-shoreline",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/work-shoreline/wide-v1.png",
+      "sha256": "b52bab84e844df4d40ed54e8ee305691470fe757ec06a7847ee8d7ec44adaf45",
+      "dimensions": "1536x1024",
+      "promptSha256": "b706dc6f66820a65dccd6c32b1c44f387ebca4a52f534cb13118b2de47f304a9",
+      "derivesFrom": [
+        "TSOC-FEAT-WORK_SHORELINE-GEOMETRY-V1",
+        "TSOC-FEAT-WORK_SHORELINE-STATE-V1",
+        "TSOC-FEAT-WORK_SHORELINE-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-WORK_SHORELINE-NARROW-V1",
+      "exclusiveOwner": "feature:work-shoreline",
+      "ownerType": "feature",
+      "owner": "work-shoreline",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/work-shoreline/narrow-v1.png",
+      "sha256": "3b92c3e1c0260b766d7584d16a07d9751daefe665cd6afca1193e67bab7b5321",
+      "dimensions": "1024x1536",
+      "promptSha256": "3b27cbd159847a2723203cc2c1ae8687e0a5121f2e4c1f6c7f3d844db54fdaaf",
+      "derivesFrom": [
+        "TSOC-FEAT-WORK_SHORELINE-GEOMETRY-V1",
+        "TSOC-FEAT-WORK_SHORELINE-STATE-V1",
+        "TSOC-FEAT-WORK_SHORELINE-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-TYPED_HANDOFF-GEOMETRY-V1",
+      "exclusiveOwner": "feature:typed-handoff",
+      "ownerType": "feature",
+      "owner": "typed-handoff",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/typed-handoff/geometry-v1.png",
+      "sha256": "049fb8963be1ac1dfee542f407f0ccde54f6fb67a146116aa5ecea0926c6a491",
+      "dimensions": "1254x1254",
+      "promptSha256": "d31398d9792e5b097655bf8c6ef4a603633b3f0fbd8a12553566789bcf2d6f18",
+      "derivesFrom": [
+        "cambium.specimen.rail-arc",
+        "cambium.specimen.signal-packet"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-TYPED_HANDOFF-STATE-V1",
+      "exclusiveOwner": "feature:typed-handoff",
+      "ownerType": "feature",
+      "owner": "typed-handoff",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/typed-handoff/state-v1.png",
+      "sha256": "ec2dc2decbe76386f5777f6f3fe68a6ada94e7a40f072cb6e8d9f3f76c90a27b",
+      "dimensions": "2172x724",
+      "promptSha256": "6ddd9c39c73f015970db40040ea3b7bbcd2afd871f536dc282be5838719d3be2",
+      "derivesFrom": [
+        "TSOC-FEAT-TYPED_HANDOFF-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-TYPED_HANDOFF-USAGE-V1",
+      "exclusiveOwner": "feature:typed-handoff",
+      "ownerType": "feature",
+      "owner": "typed-handoff",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/typed-handoff/usage-v1.png",
+      "sha256": "ba08f9621d3e743f3dc016ddd2f46221e045923bf34ab140dc122e9430c31437",
+      "dimensions": "1254x1254",
+      "promptSha256": "4902907fb9c62be25dc598819f9fcc2f1fff60c37cb6b2cb07c46fc92d713917",
+      "derivesFrom": [
+        "TSOC-FEAT-TYPED_HANDOFF-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-STATE-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-TYPED_HANDOFF-WIDE-V1",
+      "exclusiveOwner": "feature:typed-handoff",
+      "ownerType": "feature",
+      "owner": "typed-handoff",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/typed-handoff/wide-v1.png",
+      "sha256": "c003922a6fb424db8d3f55ab9eec1c7bfb94deec20b7ac0673498703014d0f30",
+      "dimensions": "1536x1024",
+      "promptSha256": "df7b49ec4751b5cfe2a59c7caf6c2bf7be9f70df68f6fb3683298fe5f8d16c4a",
+      "derivesFrom": [
+        "TSOC-FEAT-TYPED_HANDOFF-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-STATE-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-TYPED_HANDOFF-NARROW-V1",
+      "exclusiveOwner": "feature:typed-handoff",
+      "ownerType": "feature",
+      "owner": "typed-handoff",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/typed-handoff/narrow-v1.png",
+      "sha256": "27402455e551b013ac7e88512d1eb8cfe33ecb761df9b5067f2650a65096d47c",
+      "dimensions": "977x1610",
+      "promptSha256": "e1cfc799eb5d68010f19cbaa402fe60ed5969cc306c2442c1505ff24a326693b",
+      "derivesFrom": [
+        "TSOC-FEAT-TYPED_HANDOFF-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-STATE-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RESPONSIVE_COMPRESSION-GEOMETRY-V1",
+      "exclusiveOwner": "feature:responsive-compression",
+      "ownerType": "feature",
+      "owner": "responsive-compression",
+      "variation": "geometry",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/responsive-compression/geometry-v1.png",
+      "sha256": "db04b707b6f651986f4344abda07379adaa6e2153a8857aca9be8ebe8578b34e",
+      "dimensions": "1254x1254",
+      "promptSha256": "404534c22c1c31a56ffa0b64f6d4c71e6b87e0aac7b6910b6b26e8be7c3805b8",
+      "derivesFrom": [],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RESPONSIVE_COMPRESSION-STATE-V1",
+      "exclusiveOwner": "feature:responsive-compression",
+      "ownerType": "feature",
+      "owner": "responsive-compression",
+      "variation": "state",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/responsive-compression/state-v1.png",
+      "sha256": "37e6374653a656b5b029b0902cd19b4272421e1827991fffdba97887c8268ff2",
+      "dimensions": "1774x887",
+      "promptSha256": "4229c5de6aeb11fd9706224491328d5fae8da78ef0944db26e6cecc89468a8e3",
+      "derivesFrom": [
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RESPONSIVE_COMPRESSION-USAGE-V1",
+      "exclusiveOwner": "feature:responsive-compression",
+      "ownerType": "feature",
+      "owner": "responsive-compression",
+      "variation": "usage",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/responsive-compression/usage-v1.png",
+      "sha256": "5ba18372101ffe29a663d8222dbbc3c0cd23c54e40329e6dd4f0e9dd1baa3890",
+      "dimensions": "1254x1254",
+      "promptSha256": "75b38842559f9575414d2ad6ac50266be65a78a62bc1aea361ae6366bba20ef3",
+      "derivesFrom": [
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-GEOMETRY-V1",
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-STATE-V1",
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RESPONSIVE_COMPRESSION-WIDE-V1",
+      "exclusiveOwner": "feature:responsive-compression",
+      "ownerType": "feature",
+      "owner": "responsive-compression",
+      "variation": "wide",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/responsive-compression/wide-v1.png",
+      "sha256": "ae8836c1e9ae48a33c6575d130e2933f0d3d7566180e29f384d2aab22df2696f",
+      "dimensions": "1536x1024",
+      "promptSha256": "6af5a0dbf627722af7f374ffa8e18cfca4a0afd0b3302b455ce7d6d5ebdd3834",
+      "derivesFrom": [
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-GEOMETRY-V1",
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-STATE-V1",
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-FEAT-RESPONSIVE_COMPRESSION-NARROW-V1",
+      "exclusiveOwner": "feature:responsive-compression",
+      "ownerType": "feature",
+      "owner": "responsive-compression",
+      "variation": "narrow",
+      "batch": "batch-3",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-4-composition",
+      "exportStatus": "exported",
+      "relativePath": "features/responsive-compression/narrow-v1.png",
+      "sha256": "fcacf84d1611460a5d3dd39cf97a441d2dc9baf9d8ca69d6ea7f687d1e7cba64",
+      "dimensions": "941x1672",
+      "promptSha256": "113d24df6edf9c2fbb271562292fd974fc2aecb3268d53865b1c84acfd910872",
+      "derivesFrom": [
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-GEOMETRY-V1",
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-STATE-V1",
+        "TSOC-FEAT-RESPONSIVE_COMPRESSION-USAGE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-CANOPY-WIDE-V1",
+      "exclusiveOwner": "view:canopy",
+      "ownerType": "view",
+      "owner": "canopy",
+      "variation": "wide",
+      "batch": "batch-4",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-5",
+      "exportStatus": "exported",
+      "relativePath": "views/canopy/wide-v1.png",
+      "sha256": "0885aa3f3c97ab529f9d060c83dea573f2927fc9b460b4f6eeca9e8cd6396109",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "promptSha256": "fd3578b70f2a8fb7d7d6eaecdef940f0e6a46993590bea364587fca3117309a5",
+      "derivesFrom": [
+        "TSOC-SRC-CAMBIUM-1157",
+        "TSOC-SRC-CAMBIUM-1156"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-CANOPY-NARROW-V1",
+      "exclusiveOwner": "view:canopy",
+      "ownerType": "view",
+      "owner": "canopy",
+      "variation": "narrow",
+      "batch": "batch-4",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-5",
+      "exportStatus": "exported",
+      "relativePath": "views/canopy/narrow-v1.png",
+      "sha256": "3b41327f956396788b8d537c3385a8e28191c970bf082fad3af289e7edb0c8c5",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "promptSha256": "6f1c94e5035b5061756afbe7aa0252d28523b0b3e63e1172e825416e2608340f",
+      "derivesFrom": [
+        "TSOC-VIEW-CANOPY-WIDE-V1",
+        "TSOC-SRC-CAMBIUM-1157",
+        "TSOC-SRC-CAMBIUM-1156"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-ORGAN_ATLAS-WIDE-V1",
+      "exclusiveOwner": "view:organ-atlas",
+      "ownerType": "view",
+      "owner": "organ-atlas",
+      "variation": "wide",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "generation-failed-after-repair",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "c13275c58f005b69e13bb00afd14d6ca4c06f7b649223098ba54a4af52a42575",
+      "derivesFrom": [
+        "TSOC-ORG-CORTEX-CONCEPT-V1",
+        "TSOC-ORG-NUTRIX-CONCEPT-V1",
+        "TSOC-ORG-AUSPEX-CONCEPT-V1",
+        "TSOC-ORG-GENESIS-CONCEPT-V1",
+        "TSOC-ORG-TASTE-CONCEPT-V1",
+        "TSOC-ORG-HANDS-CONCEPT-V1",
+        "TSOC-ORG-WILL-CONCEPT-V1",
+        "TSOC-ORG-VESTIBULE-CONCEPT-V1",
+        "TSOC-ORG-ADYTUM-CONCEPT-V1",
+        "TSOC-ORG-CIRCULATOR-CONCEPT-V1",
+        "TSOC-ORG-PRAECEPTOR-CONCEPT-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-ORGAN_ATLAS-NARROW-V1",
+      "exclusiveOwner": "view:organ-atlas",
+      "ownerType": "view",
+      "owner": "organ-atlas",
+      "variation": "narrow",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "3f6d47a9119ce363dfd3f561733a7bac374d205cd6d6ed7c76402e3002bf2a8e",
+      "derivesFrom": [
+        "TSOC-VIEW-ORGAN_ATLAS-WIDE-V1",
+        "TSOC-ORG-CORTEX-CONCEPT-V1",
+        "TSOC-ORG-NUTRIX-CONCEPT-V1",
+        "TSOC-ORG-AUSPEX-CONCEPT-V1",
+        "TSOC-ORG-GENESIS-CONCEPT-V1",
+        "TSOC-ORG-TASTE-CONCEPT-V1",
+        "TSOC-ORG-HANDS-CONCEPT-V1",
+        "TSOC-ORG-WILL-CONCEPT-V1",
+        "TSOC-ORG-VESTIBULE-CONCEPT-V1",
+        "TSOC-ORG-ADYTUM-CONCEPT-V1",
+        "TSOC-ORG-CIRCULATOR-CONCEPT-V1",
+        "TSOC-ORG-PRAECEPTOR-CONCEPT-V1"
+      ],
+      "blockedBy": [
+        "TSOC-VIEW-ORGAN_ATLAS-WIDE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-FLOW-WIDE-V1",
+      "exclusiveOwner": "view:flow",
+      "ownerType": "view",
+      "owner": "flow",
+      "variation": "wide",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "6acbcfdf195cfcc59550f7e32cbaa601cb1b1be1675d98583d5ad547a4d235cc",
+      "derivesFrom": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-WIDE-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-WIDE-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-WIDE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-FLOW-NARROW-V1",
+      "exclusiveOwner": "view:flow",
+      "ownerType": "view",
+      "owner": "flow",
+      "variation": "narrow",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "d5adfe7273157c8c1c9e73257919eb126ee0e2274453bd08d0b8449facd1b5b4",
+      "derivesFrom": [
+        "TSOC-VIEW-FLOW-WIDE-V1",
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-NARROW-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-NARROW-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-NARROW-V1"
+      ],
+      "blockedBy": [
+        "TSOC-VIEW-FLOW-WIDE-V1",
+        "TSOC-FEAT-RUN_RIVER-GEOMETRY-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-WORK-WIDE-V1",
+      "exclusiveOwner": "view:work",
+      "ownerType": "view",
+      "owner": "work",
+      "variation": "wide",
+      "batch": "batch-4",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-5",
+      "exportStatus": "exported",
+      "relativePath": "views/work/wide-v1.png",
+      "sha256": "2e569c60a7b4466a6765b5e602c94aeba61dc58b4c7ff0fcfadc267de252c88d",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "promptSha256": "1fba3ed6fa3064e30c4255f0985a55bafd1a371f74a0302eb1310e020d4ff1db",
+      "derivesFrom": [
+        "TSOC-FEAT-WORK_SHORELINE-GEOMETRY-V1",
+        "TSOC-FEAT-WORK_SHORELINE-STATE-V1",
+        "TSOC-FEAT-WORK_SHORELINE-USAGE-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-GEOMETRY-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-WORK-NARROW-V1",
+      "exclusiveOwner": "view:work",
+      "ownerType": "view",
+      "owner": "work",
+      "variation": "narrow",
+      "batch": "batch-4",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-5",
+      "exportStatus": "exported",
+      "relativePath": "views/work/narrow-v1.png",
+      "sha256": "f565a02c89b8c67e9cb3f09f2e6f3211d025bf2b2833199681f158638c141c2a",
+      "dimensions": {
+        "width": 941,
+        "height": 1672
+      },
+      "promptSha256": "7c9eeaae93cdd8d2f27e328b99318624f4a03d74f3a5ad04f37a43c21dc7c319",
+      "derivesFrom": [
+        "TSOC-VIEW-WORK-WIDE-V1",
+        "TSOC-FEAT-WORK_SHORELINE-NARROW-V1",
+        "TSOC-FEAT-IDENTITY_SEAM-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-NARROW-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-PLANT_HEALTH-WIDE-V1",
+      "exclusiveOwner": "view:plant-health",
+      "ownerType": "view",
+      "owner": "plant-health",
+      "variation": "wide",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "generation-failed-after-repair",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "435a7a334ed83e360aec86edfcd7d01ef3e7c8ee816b89c833c71bc331a4bb88",
+      "derivesFrom": [
+        "TSOC-FEAT-STREAM_CONTINUITY-GEOMETRY-V1",
+        "TSOC-FEAT-MULTI_CLOCK-STATE-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-GEOMETRY-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-GEOMETRY-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-STATE-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-USAGE-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-WIDE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-PLANT_HEALTH-NARROW-V1",
+      "exclusiveOwner": "view:plant-health",
+      "ownerType": "view",
+      "owner": "plant-health",
+      "variation": "narrow",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "13afb8dabdd2a078940ab720c4fa1c72efd67083ff87014737fe6038149a9c09",
+      "derivesFrom": [
+        "TSOC-VIEW-PLANT_HEALTH-WIDE-V1",
+        "TSOC-FEAT-STREAM_CONTINUITY-GEOMETRY-V1",
+        "TSOC-FEAT-MULTI_CLOCK-STATE-V1",
+        "TSOC-FEAT-LISTENER_SENSOR-NARROW-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-GEOMETRY-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-STATE-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-USAGE-V1",
+        "TSOC-FEAT-PROVIDER_EVIDENCE-WIDE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-VIEW-PLANT_HEALTH-WIDE-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-ACTIONS-WIDE-V1",
+      "exclusiveOwner": "view:actions",
+      "ownerType": "view",
+      "owner": "actions",
+      "variation": "wide",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "b9aadecb27b384f98697f1748f0e6646db3052d73f5375c6a9b8cac6700e098d",
+      "derivesFrom": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-WIDE-V1"
+      ],
+      "blockedBy": [
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-ACTIONS-NARROW-V1",
+      "exclusiveOwner": "view:actions",
+      "ownerType": "view",
+      "owner": "actions",
+      "variation": "narrow",
+      "batch": "batch-4",
+      "sourceStatus": "planned",
+      "reviewStatus": "blocked-by-upstream",
+      "exportStatus": "held",
+      "relativePath": null,
+      "sha256": null,
+      "dimensions": null,
+      "promptSha256": "f9e2baf41b7c6993cccf3b2209778321ecfd782dce774cb403a9c7a791517e50",
+      "derivesFrom": [
+        "TSOC-VIEW-ACTIONS-WIDE-V1",
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-NARROW-V1"
+      ],
+      "blockedBy": [
+        "TSOC-VIEW-ACTIONS-WIDE-V1",
+        "TSOC-FEAT-HELD_GATE-GEOMETRY-V1"
+      ]
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-RECEIPTS-WIDE-V1",
+      "exclusiveOwner": "view:receipts",
+      "ownerType": "view",
+      "owner": "receipts",
+      "variation": "wide",
+      "batch": "batch-4",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-5",
+      "exportStatus": "exported",
+      "relativePath": "views/receipts/wide-v1.png",
+      "sha256": "23859203e61fe26a880ddb744311974af33b851303f4d25b109724e3c6b07971",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "promptSha256": "bf09d153018b85dc57048faddc2a3befbb32901d1698c42a5987a1fcc47664b7",
+      "derivesFrom": [
+        "TSOC-FEAT-RECEIPT_STRATA-WIDE-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-WIDE-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-WIDE-V1",
+        "TSOC-FEAT-MULTI_CLOCK-WIDE-V1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "canonicalAssetId": "TSOC-VIEW-RECEIPTS-NARROW-V1",
+      "exclusiveOwner": "view:receipts",
+      "ownerType": "view",
+      "owner": "receipts",
+      "variation": "narrow",
+      "batch": "batch-4",
+      "sourceStatus": "selected",
+      "reviewStatus": "selected-for-batch-5",
+      "exportStatus": "exported",
+      "relativePath": "views/receipts/narrow-v1.png",
+      "sha256": "c021ae2280e6e26b7342c1c778922e73f943085693ed66b3bd2059922c18e259",
+      "dimensions": {
+        "width": 934,
+        "height": 1684
+      },
+      "promptSha256": "934c831a7ee2acf60b37155ffb447d1d484ebceca94b1dcbe247bcba54423815",
+      "derivesFrom": [
+        "TSOC-VIEW-RECEIPTS-WIDE-V1",
+        "TSOC-FEAT-RECEIPT_STRATA-NARROW-V1",
+        "TSOC-FEAT-EVIDENCE_SOCKET-NARROW-V1",
+        "TSOC-FEAT-TYPED_HANDOFF-NARROW-V1",
+        "TSOC-FEAT-MULTI_CLOCK-NARROW-V1"
+      ],
+      "blockedBy": []
+    }
+  ],
+  "reviews": [
+    {
+      "sourceName": "BATCH-1A-CONCEPTS-V1.png",
+      "relativePath": "reviews/batch-1-a-concepts-v1.png",
+      "sha256": "f0ff3aa370370599ef39b139c24e16548ef717edf23a6b7876f192578e47fa72"
+    },
+    {
+      "sourceName": "BATCH-1B-GEOMETRY-V1.png",
+      "relativePath": "reviews/batch-1-b-geometry-v1.png",
+      "sha256": "16a02541a21d401bd1d120e6d9a5b0b4132c6b29b6e1b1b1342ed4afcb4bb2a6"
+    },
+    {
+      "sourceName": "BATCH-1B-REVIEW-V1.png",
+      "relativePath": "reviews/batch-1-b-review-v1.png",
+      "sha256": "f13f9a1c73b899470c202facac42389a3662071dc726de3ed8b75376acd87520"
+    },
+    {
+      "sourceName": "BATCH-1B-STATES-V1.png",
+      "relativePath": "reviews/batch-1-b-states-v1.png",
+      "sha256": "b26c793255d363c49a17a5df03762ca60c6b8dc86e5e5b73aa6af60bac6c00f1"
+    },
+    {
+      "sourceName": "BATCH-1C-INSPECTION-V1.png",
+      "relativePath": "reviews/batch-1-c-inspection-v1.png",
+      "sha256": "f9f068480167ac5e573d9b9639d1111ced574a24730f798f59f3d5a815301211"
+    },
+    {
+      "sourceName": "BATCH-1C-NARROW-V1.png",
+      "relativePath": "reviews/batch-1-c-narrow-v1.png",
+      "sha256": "d36946585dc645b7b6d868528a76889e14708f7c428712777d6ccdb4208216b9"
+    },
+    {
+      "sourceName": "BATCH-1C-REVIEW-V1.png",
+      "relativePath": "reviews/batch-1-c-review-v1.png",
+      "sha256": "ba91f532c1d91879cac6970f2aab9a84d13f1ba1bf597b9ba33289585648abba"
+    },
+    {
+      "sourceName": "BATCH-1C-WIDE-V1.png",
+      "relativePath": "reviews/batch-1-c-wide-v1.png",
+      "sha256": "f6b85c7ffe6be5950d2ea71b450f583133464d813dde71420c89bd2269ccd886"
+    },
+    {
+      "sourceName": "BATCH-2A-CONCEPTS-V1.png",
+      "relativePath": "reviews/batch-2-a-concepts-v1.png",
+      "sha256": "608f10584a27c825e1c60652ccac10b797344a2168d211c861d084d985127b77"
+    },
+    {
+      "sourceName": "BATCH-2B-GEOMETRY-V1.png",
+      "relativePath": "reviews/batch-2-b-geometry-v1.png",
+      "sha256": "9a5bb0836a18359cc43ac949a5ad68290a9683c3f0e1ca795aac6f2ac9ee3068"
+    },
+    {
+      "sourceName": "BATCH-2B-REVIEW-V1.png",
+      "relativePath": "reviews/batch-2-b-review-v1.png",
+      "sha256": "3603eebf4d0483929de19ccee0e0313085aaff44fdb7923e548c9ddf6d0b43d3"
+    },
+    {
+      "sourceName": "BATCH-2B-STATES-V1.png",
+      "relativePath": "reviews/batch-2-b-states-v1.png",
+      "sha256": "777691467d788a11dda58be7d934e250bfceda901fb7a550f5bdfd1e36ff161b"
+    },
+    {
+      "sourceName": "TSOC-BATCH-3-GEOMETRY-V1.png",
+      "relativePath": "reviews/tsoc-batch-3-geometry-v1.png",
+      "sha256": "f8bf0e9a2b3720be2b9d899548efc3cbeb67207b40022cf207bf8699b7beb6bf"
+    },
+    {
+      "sourceName": "TSOC-BATCH-3-NARROW-V1.png",
+      "relativePath": "reviews/tsoc-batch-3-narrow-v1.png",
+      "sha256": "e5f64624564798e8e79ee3cce7f0c6fa7fd63b3d233b4a37370360fafb0969f1"
+    },
+    {
+      "sourceName": "TSOC-BATCH-3-REVIEW-V1.png",
+      "relativePath": "reviews/tsoc-batch-3-review-v1.png",
+      "sha256": "d3f6c051d62bf83e6b58ecb17d9f5fcf8575c47bd8563410f105278d3a785859"
+    },
+    {
+      "sourceName": "TSOC-BATCH-3-STATE-V1.png",
+      "relativePath": "reviews/tsoc-batch-3-state-v1.png",
+      "sha256": "764656cc35f0a4e18a5926ab4f3f4b0a0ddaec561d25617e65b94ee2fa9212cb"
+    },
+    {
+      "sourceName": "TSOC-BATCH-3-USAGE-V1.png",
+      "relativePath": "reviews/tsoc-batch-3-usage-v1.png",
+      "sha256": "6c3831e143ece2c09be1c1ea9f8403cca1695e7d6bf87af56a20de8f2a32a52d"
+    },
+    {
+      "sourceName": "TSOC-BATCH-3-WIDE-V1.png",
+      "relativePath": "reviews/tsoc-batch-3-wide-v1.png",
+      "sha256": "3cd18da0f71f9d6726be4e17dddba3a198a1a490cf586f9a5c23e04c802b8e8c"
+    },
+    {
+      "sourceName": "TSOC-BATCH-4-NARROW-V1.png",
+      "relativePath": "reviews/tsoc-batch-4-narrow-v1.png",
+      "sha256": "6c419d7d970848ae86a9b9ee6cbf76086ca28bd2c201eeee9fd4444a3ae8b341"
+    },
+    {
+      "sourceName": "TSOC-BATCH-4-REVIEW-V1.png",
+      "relativePath": "reviews/tsoc-batch-4-review-v1.png",
+      "sha256": "cdcb8f16eeb0280316870ebced3a3bbb32f87593edf63c9bd518da1bdcd33bcf"
+    },
+    {
+      "sourceName": "TSOC-BATCH-4-SELECTED-FEATURE-GEOMETRIES-V1.png",
+      "relativePath": "reviews/tsoc-batch-4-selected-feature-geometries-v1.png",
+      "sha256": "9fe1003d341f85036adaa3a98cb2c7c9c6d83b6fff3a99668d0478b73b1c9762"
+    },
+    {
+      "sourceName": "TSOC-BATCH-4-SELECTED-ORGAN-IDENTITIES-V1.png",
+      "relativePath": "reviews/tsoc-batch-4-selected-organ-identities-v1.png",
+      "sha256": "bc85cd679a54f79806b72571f10f8a114f14e28f3fab45257a3656fcb792426e"
+    },
+    {
+      "sourceName": "TSOC-BATCH-4-WIDE-V1.png",
+      "relativePath": "reviews/tsoc-batch-4-wide-v1.png",
+      "sha256": "e9b93da934aed710260e95c3f12660753c1a13823eaad40f6d95bf1002ebdda5"
+    }
+  ]
+}

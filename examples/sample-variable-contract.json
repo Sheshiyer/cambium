@@ -10,6 +10,10 @@
     "differentiators": ["fractal self-similar organs", "taste cortex that learns you", "viability-first infinite operator"],
     "voice_principles": ["precise but warm", "systems thinker who has shipped", "no hype, only mechanism and proof"]
   },
+  "market": {
+    "region": "FR",
+    "language": "fr"
+  },
   "copy_system": {
     "copy_slots": {
       "hero_headline": "An idea goes in. A self-running, on-brand business comes out.",

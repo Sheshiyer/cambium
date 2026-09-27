@@ -20,7 +20,8 @@
       "contract_requires": [
         "brand_system",
         "copy_system",
-        "visual_system"
+        "visual_system",
+        "market"
       ],
       "contract_produces": [
         "taste_brief",
@@ -54,10 +55,11 @@
       "contract_produces": [
         "brand_system",
         "copy_system",
-        "visual_system"
+        "visual_system",
+        "market"
       ],
       "contract_version": "1.0.0",
-      "note": "Active Genesis flow: runs the Cambium Meristem contract shim from the Cambium checkout. The Meristem checkout path is the stage input and defaults to ../meristem; the tenant selects brands/{tenant}."
+      "note": "Active Genesis flow: runs the Cambium Meristem contract shim from the Cambium checkout. The Meristem checkout path is the stage input and defaults to ../meristem; the tenant selects brands/{tenant}. MERISTEM_V2 is available via --mode MERISTEM_V2 for wiki + evidence-ledger + MDS packets. Market is threaded from compose --market and preserved across stages."
     },
     "hands": {
       "root_id": "hands",
@@ -76,6 +78,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",
@@ -99,13 +102,14 @@
       "spend_reason": "brand_to_gtm drives PAID Explee search/enrich via the explee-proxy (needs an APPROVED Brief + EXPLEE_PROXY_TOKEN); constitution #4",
       "input_default": "Content-Engine/_gtm/brief-partner.md",
       "output": "json:gtm-candidates",
-      "note": "brand_to_gtm exists as a gated library fn (scripts/lib/gtm.py); the thin scripts/gtm_cli.py CLI wrapper is the snow-gloves follow-up \u2014 the function + the approval gate are already there.",
+      "note": "brand_to_gtm exists as a gated library fn (scripts/lib/gtm.py); the thin scripts/gtm_cli.py CLI wrapper is the snow-gloves follow-up \u2014 the function + the approval gate are already there. Approve sequentially with genesis|taste|build|ops only; do not invent hands/will stage ids. Path A draft-only keeps Explee mutation_enabled false.",
       "contract_requires": [
         "artifact",
         "brand_docs",
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",

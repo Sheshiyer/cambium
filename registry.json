@@ -18,7 +18,8 @@
         "idea",
         "brand_system",
         "copy_system",
-        "visual_system"
+        "visual_system",
+        "market"
       ],
       "contract_requires": [
         "idea"
@@ -26,7 +27,8 @@
       "contract_produces": [
         "brand_system",
         "copy_system",
-        "visual_system"
+        "visual_system",
+        "market"
       ]
     },
     "hands": {
@@ -41,6 +43,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",
@@ -52,6 +55,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",
@@ -74,6 +78,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "taste_brief",
         "asset_plan",
         "section_plan",
@@ -83,7 +88,8 @@
       "contract_requires": [
         "brand_system",
         "copy_system",
-        "visual_system"
+        "visual_system",
+        "market"
       ],
       "contract_produces": [
         "taste_brief",
@@ -107,6 +113,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",
@@ -119,6 +126,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",

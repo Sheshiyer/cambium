@@ -1,0 +1,18 @@
+{
+  "observedAt": "2026-09-11T14:33:42.066Z",
+  "method": "GET-only",
+  "operatorNote": "Campaigns archived in Explee UI manually for iverif; restart proper flow from beginning",
+  "project": {
+    "id": 35674,
+    "domain": "iverif.fr",
+    "daily_budget_usd": 10
+  },
+  "autopilot": {
+    "project_id": 35674,
+    "autopilot_enabled": false,
+    "auto_reply_enabled": false,
+    "auto_reply_delay_minutes": 1440,
+    "reply_cc_emails": "redacted"
+  },
+  "campaigns": []
+}

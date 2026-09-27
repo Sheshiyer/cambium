@@ -192,6 +192,28 @@ function isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd) {
     && /^\*\*Status:\*\* SHIPPED$/m.test(archive);
 }
 
+function isApprovedVisualProjectionRetirement(status, relativePath, cwd) {
+  if (status !== 'D') return false;
+  const approved = new Set([
+    'docs/visual/cambium-infra-spine-flow.html',
+    'docs/visual/cambium-operating-fabric-flow.html',
+    'docs/visual/cambium-operating-fabric-flow.png',
+  ]);
+  if (!approved.has(relativePath)) return false;
+  const receiptPath = path.join(cwd, 'docs/visual/retirement-2026-09-27.json');
+  if (!fs.existsSync(receiptPath)) return false;
+  const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+  if (receipt.schema !== 'cambium.visual-projection-retirement.v1'
+    || receipt.sourceRevision !== 'e7058ef5d1c120df6dad80e09feb76edc9d4cd39'
+    || receipt.disposition !== 'retired-generated-projection'
+    || receipt.replacement !== 'docs/assets/visual-flow/README.md'
+    || !fs.existsSync(path.join(cwd, receipt.replacement))
+    || fs.existsSync(path.join(cwd, relativePath))) return false;
+  const record = receipt.records.find((entry) => entry.path === relativePath);
+  const original = run('/usr/bin/git', ['show', `${receipt.sourceRevision}:${relativePath}`], { cwd, encoding: null });
+  return record?.sha256 === digest(original);
+}
+
 function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase 6') {
   const collections = [
     // Two-dot (not three-dot): the fallback base can be the empty tree, which
@@ -207,7 +229,8 @@ function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase
     for (let index = 0; index < records.length;) {
       const status = records[index++];
       const relativePath = records[index++];
-      if (!isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd)) {
+      if (!isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd)
+        && !isApprovedVisualProjectionRetirement(status, relativePath, cwd)) {
         assert.doesNotMatch(status, /^[DR]/, `${phaseLabel} must not delete or rename paths (${status})`);
       }
       if (relativePath) paths.add(relativePath);
@@ -217,6 +240,14 @@ function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase
 }
 
 const syntheticPrivacyFixtures = new Map([
+  ['workers/quests/src/index.ts', [
+    ...['OLLAMA_API_KEY', 'NVIDIA_API_KEY', 'NEBIUS_API_KEY', 'COMMAND_CODE_API_KEY', 'KIMI_CODING_API_KEY', 'NVIDIA_MARKETING_CREATE_API_KEY'].map((key) => ['api', 'Key: env.', key].join('')),
+    ['api', 'Key: opencodeApiKey'].join(''),
+    ['api', 'Key: iverifApiKey'].join(''),
+  ]],
+  ['workers/quests/src/plexus-work-reference.test.ts', [
+    ['secret', ": 'PRIVATE_METADATA'"].join(''),
+  ]],
   ['README.md', [
     ['/tmp/', 'demo-org.tapestry.json'].join(''),
   ]],
@@ -387,6 +418,18 @@ function privacyViolations(relativePath, source) {
   }
   return violations;
 }
+
+test('DOCS-PRIVACY: exact environment expressions and synthetic canaries never mask appended secrets', () => {
+  const cases = [
+    ['workers/quests/src/index.ts', ['api', 'Key: env.OLLAMA_API_KEY'].join('')],
+    ['workers/quests/src/plexus-work-reference.test.ts', ['secret', ": 'PRIVATE_METADATA'"].join('')],
+  ];
+  const injected = ['"access_', 'token": "not-an-environment-expression"'].join('');
+  for (const [relativePath, expression] of cases) {
+    assert.deepEqual(privacyViolations(relativePath, expression), []);
+    assert.deepEqual(privacyViolations(relativePath, `${expression}; ${injected}`), [`${relativePath}:1`]);
+  }
+});
 
 test('DOCS-PRIVACY: scanner rejects key material, quoted tokens, temporary paths, and fixture-line smuggling', () => {
   const privateKeyMarker = ['-----BEGIN ', 'PRIVATE KEY-----'].join('');
@@ -963,26 +1006,41 @@ test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent gated 
   const roadmap = read('.planning/ROADMAP.md');
   const roadmapArchive = read('.planning/milestones/v0.4-ROADMAP.md');
   const requirements = read('.planning/milestones/v0.4-REQUIREMENTS.md');
+  const phase9PlanPath = '.planning/phases/09-source-inventory-and-classification/09-01-PLAN.md';
+  assert.equal(fs.existsSync(path.join(repositoryRoot, phase9PlanPath)), true, 'Phase 9 must retain its executable plan');
+  const phase9Plan = read(phase9PlanPath);
   const frontmatter = state.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 
   assert.match(frontmatter, /^milestone: v0\.5$/m);
   assert.match(frontmatter, /^status: Active$/m);
-  assert.match(frontmatter, /^stopped_at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate$/m);
+  assert.match(frontmatter, /^stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain$/m);
   assert.match(frontmatter, /^\s+total_phases: 3$/m);
   assert.match(frontmatter, /^\s+completed_phases: 1$/m);
-  assert.match(frontmatter, /^\s+total_plans: 1$/m);
+  assert.match(frontmatter, /^\s+total_plans: 2$/m);
   assert.match(frontmatter, /^\s+completed_plans: 1$/m);
   assert.match(frontmatter, /^\s+percent: 33$/m);
 
-  assert.match(state, /^\*\*Current focus:\*\* Plan exact authenticated read-only `9d9d` inventory while$/m);
+  assert.match(state, /^\*\*Current focus:\*\* Review the reconciled source and implement the planned exact read-only `9d9d` inventory tooling while\npreserving verified Thoughtseed Labs production authority\.$/m);
   assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
-  assert.match(state, /^Plan: Not planned$/m);
+  assert.match(state, /^Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed$/m);
+  assert.doesNotMatch(state, /^Plan: Not planned$/m);
   assert.match(state, /^Status: Active$/m);
-  assert.match(state, /^Stopped at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate$/m);
+  assert.match(state, /^Stopped at: Phase 9 plan ready; collector implementation and authenticated inventory remain$/m);
   assert.match(state, /^Resume file: \.planning\/STATE\.md$/m);
-  assert.match(state, /`\/gsd:plan-phase 9`/);
+  assert.match(state, /^- Implement and synthetically verify Phase 9 Task 1, then obtain the exact authenticated source\/target inventory authorization before live reads\.$/m);
+  assert.match(state, /then execute Task 1 in `09-01-PLAN\.md` before the exact authenticated-read checkpoint\./);
+  assert.match(state, /The plan now exists; do not restart phase planning or mark INV-01\/CLASS-01 complete from synthetic tests\./);
+  assert.match(state, /The collector\/classifier has not been implemented by this reconciliation\./);
   assert.doesNotMatch(state, /\/gsd:plan-phase 7/);
   assert.doesNotMatch(state, /\/gsd:secure-phase 6/);
+
+  const task1Start = phase9Plan.indexOf('<name>Task 1: Build and test the bounded inventory collector</name>');
+  const task2Start = phase9Plan.indexOf('<name>Task 2: Obtain owner approval for one authenticated read-only inventory</name>');
+  assert.ok(task1Start >= 0 && task2Start > task1Start, 'Task 1 must precede the authenticated-read approval gate');
+  const task1 = phase9Plan.slice(phase9Plan.lastIndexOf('<task ', task1Start), task2Start);
+  assert.match(task1, /^<task type="auto" tdd="true">$/m);
+  assert.match(task1, /node --test scripts\/cloudflare-r2-source-inventory\.test\.mjs/);
+  assert.match(phase9Plan.slice(task2Start), /stop before any authenticated source or target inventory read/i);
 
   assert.match(roadmap, /^- ✅ \*\*v0\.4 Cambium Infinite-Game Doctrine and Intent Graph\*\* — Phases 3–7 shipped 2026-08-29 \(\[archive\]\(\.\/milestones\/v0\.4-ROADMAP\.md\)\)$/m);
   assert.match(roadmap, /^- \[x\] \*\*Phase 6: Documentation Stewardship\*\* — Added source-backed lifecycle classification and direct-owner navigation\.$/m);
@@ -1020,7 +1078,7 @@ test('Labs consolidation planning keeps production and legacy authority separate
   assert.match(state, /^milestone: v0\.5$/m);
   assert.match(state, /^status: Active$/m);
   assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
-  assert.match(state, /^Plan: Not planned$/m);
+  assert.match(state, /^Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed$/m);
   assert.match(roadmap, /^- 🚧 \*\*v0\.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement\*\* — Phases 8–10 active$/m);
   assert.match(roadmap, /^- \[x\] \*\*Phase 8: Labs Authority and Profile Safety\*\*/m);
 

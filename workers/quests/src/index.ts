@@ -13,6 +13,7 @@ import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { d1MarketingRenderStore } from './marketing-render-store.ts';
 import { d1GoalGraphStore } from './goal-graph-store.ts';
 import { d1BranchMapReceiptStore } from './branch-map-receipt-store.ts';
+import { handleWebsiteIntake, purgeExpiredWebsiteLeads } from './website-intake.ts';
 import type {
   BridgeAssignmentRecord,
   BridgeBusinessArtifactReceipt,
@@ -116,6 +117,17 @@ interface Env {
   TF_ACCESS_TEAM_DOMAIN?: string;
   TF_ACCESS_AUD?: string;
   PLEXUS_WHOAMI_URL?: string;
+  WEBSITE_ORIGINS?: string;
+  WEBSITE_AI_CONSENT_VERSION?: string;
+  WEBSITE_LEAD_CONSENT_VERSION?: string;
+  WEBSITE_OPS_EMAILS?: string;
+  WEBSITE_ACCESS_TEAM_DOMAIN?: string;
+  WEBSITE_ACCESS_AUDIENCE?: string;
+  WEBSITE_AI_LIMITER?: { limit(input: { key: string }): Promise<{ success: boolean }> };
+  WEBSITE_LEAD_LIMITER?: { limit(input: { key: string }): Promise<{ success: boolean }> };
+  OPENAI_API_KEY?: string;
+  OPENAI_MODEL?: string;
+  OPENAI_RESPONSES_URL?: string;
 }
 
 function parseJsonRecord(raw: string | null | undefined): Record<string, unknown> {
@@ -1255,7 +1267,11 @@ export default {
    * Cloudflare Cron: run Fitcheck L4 + quest template tick, store Mini App projection
    * and Hermes delivery intents. Does not send Telegram or write D1.
    */
-  async scheduled(_event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
+  async scheduled(event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
+    if (event.cron === '0 0 * * *') {
+      if (env.BRIDGE_DB) await purgeExpiredWebsiteLeads(env.BRIDGE_DB);
+      return;
+    }
     const { runAndStoreProactiveLoopTick } = await import('./proactive-loop-runtime.ts');
     const { d1GoalGraphStore } = await import('./goal-graph-store.ts');
     const kv = {
@@ -1275,6 +1291,21 @@ export default {
   },
 
   async fetch(request: Request, env: Env): Promise<Response> {
+    const websiteIntake = await handleWebsiteIntake(request, {
+      BRIDGE_DB: env.BRIDGE_DB,
+      WEBSITE_ORIGINS: env.WEBSITE_ORIGINS,
+      WEBSITE_AI_CONSENT_VERSION: env.WEBSITE_AI_CONSENT_VERSION,
+      WEBSITE_LEAD_CONSENT_VERSION: env.WEBSITE_LEAD_CONSENT_VERSION,
+      WEBSITE_OPS_EMAILS: env.WEBSITE_OPS_EMAILS,
+      WEBSITE_ACCESS_TEAM_DOMAIN: env.WEBSITE_ACCESS_TEAM_DOMAIN,
+      WEBSITE_ACCESS_AUDIENCE: env.WEBSITE_ACCESS_AUDIENCE,
+      WEBSITE_AI_LIMITER: env.WEBSITE_AI_LIMITER,
+      WEBSITE_LEAD_LIMITER: env.WEBSITE_LEAD_LIMITER,
+      OPENAI_API_KEY: env.OPENAI_API_KEY,
+      OPENAI_MODEL: env.OPENAI_MODEL,
+      OPENAI_RESPONSES_URL: env.OPENAI_RESPONSES_URL,
+    });
+    if (websiteIntake) return websiteIntake;
     const url = new URL(request.url);
     const headers: Record<string, string> = {};
     request.headers.forEach((v, k) => { headers[k.toLowerCase()] = v; });

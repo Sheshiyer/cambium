@@ -16,7 +16,8 @@ export const sourceContract = {
         "produces": [
           "brand_system",
           "copy_system",
-          "visual_system"
+          "visual_system",
+          "market"
         ],
         "blocking": [
           "brand_system",
@@ -25,7 +26,8 @@ export const sourceContract = {
         ],
         "downstream_effects": [
           "Seeds the canonical brand vocabulary consumed by taste, build, and ops",
-          "Establishes the visual system downstream stages preserve and refine"
+          "Establishes the visual system downstream stages preserve and refine",
+          "Threads market.region and market.language for capability and recipe filtering"
         ]
       },
       {
@@ -37,7 +39,8 @@ export const sourceContract = {
         "requires": [
           "brand_system",
           "copy_system",
-          "visual_system"
+          "visual_system",
+          "market"
         ],
         "produces": [
           "taste_brief",
@@ -68,6 +71,7 @@ export const sourceContract = {
           "brand_system",
           "copy_system",
           "visual_system",
+          "market",
           "asset_plan",
           "section_plan",
           "interaction_plan",
@@ -103,6 +107,7 @@ export const sourceContract = {
           "brand_system",
           "copy_system",
           "visual_system",
+          "market",
           "asset_plan",
           "section_plan",
           "interaction_plan",

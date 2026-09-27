@@ -1,0 +1,38 @@
+{
+  "schema": "cambium.source-redaction.v1",
+  "date": "2026-09-27",
+  "records": [
+    {
+      "path": "fetch.log",
+      "sha256": "8a41346e9e8a277a41d7ebadae44b503fe731be6d97dd6d08230bb2c152bbdf4",
+      "bytes": 382,
+      "disposition": "raw transport observations retained locally and in recovery history; excluded from curated publication"
+    },
+    {
+      "path": "fetch2.log",
+      "sha256": "bf4facf404d9d08518e06d2d212771f97a8715910f4eb1e71daf07cdc6361c40",
+      "bytes": 382,
+      "disposition": "raw transport observations retained locally and in recovery history; excluded from curated publication"
+    },
+    {
+      "path": "network-log.json",
+      "sha256": "c4d216eca9122c55428706b310ad36475d85879f8ce4b0d3a708026bb440ab50",
+      "bytes": 507,
+      "disposition": "raw transport observations retained locally and in recovery history; excluded from curated publication"
+    },
+    {
+      "path": "fetch-read-only.mjs",
+      "sha256": "031a809b44ef1814e25939940cd64a040346f00e95f52a4d70f80dbce03ff400",
+      "bytes": 10269,
+      "disposition": "Fixed-target operational capture/send script retained only as local recovery evidence; not a current authorized runbook"
+    },
+    {
+      "path": "post-tg-handoff-via-ssm.py",
+      "sha256": "984a1781de333ba681f0a98a76614138d1ad2a924654a0a0644938f3ca37e40d",
+      "bytes": 5279,
+      "disposition": "Fixed-target operational capture/send script retained only as local recovery evidence; not a current authorized runbook"
+    }
+  ],
+  "contactDisposition": "contacts.json retains zero raw contacts; historical 207-contact observation retained only as count and digest",
+  "replyCcDisposition": "Six dated provider snapshots replace personal reply_cc_emails values with an empty redacted array; not proof the provider setting changed."
+}

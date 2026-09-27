@@ -1,0 +1,80 @@
+[
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/projects/16763/autopilot",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=50",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=100",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=150",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox/40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox/0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox/27f0b52c-005b-4a14-bfb7-334d72a60a65",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox/4d2abc82-9bc3-41c4-85a2-c5bbd6588f2b",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox/c04b057b-82b4-40da-9d8e-e41da41f321a",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox/6b737f33-8c14-4751-a008-d75940f70cd6",
+    "status": 200,
+    "ok": true
+  }
+]

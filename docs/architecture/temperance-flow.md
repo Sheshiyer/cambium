@@ -4,8 +4,8 @@
 
 - Schema: `cambium.temperance-flow-projection.v1`
 - Projection authority: `read_only`
-- Source-set digest: `sha256:7519a4cee12b8697d93ad4f17b1460887af8afb41f1d6aec05d2e774dbee1dac`
-- Flow digest: `sha256:03617c87e230185cdd6c8a21c4001dcaecc1d3b6c019985dbe3445c1f0a6b0ca`
+- Source-set digest: `sha256:cce21c14dcfdd30b4aad846dfd3f92a7ee5097d06908760e89965f53fd0ed807`
+- Flow digest: `sha256:8473beaae27888a6c4a972d7b7a361daff262a693210f19c3d449c562bd0e66a`
 - Result: `blocked`
 - Command: `—`
 - Selected task: `—`
@@ -21,7 +21,7 @@
 | Role | Reference |
 | --- | --- |
 | ISA | `ISA.md#frontmatter.task@sha256:126b045367afe967fec429df4c99044e63b662a40b729fda8abc4a7dea7c51b2` |
-| GSD state | `.planning/STATE.md#markdown.heading:Operator Next Step@sha256:08c563d93bf20c3841aacced0815b090e78ad49340698398839f7fe6c3b4db90` |
+| GSD state | `.planning/STATE.md#markdown.heading:Operator Next Step@sha256:eaa1557d42e18b09575ddc5f662894875162227f19673f284396937934bd7737` |
 | Active plan | `.planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#whole-file@sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c` |
 | Intent Graph | `docs/architecture/intent-graph.v1.json#cambium.intent-graph-projection.v1@sha256:6d162aaa922d7bfb01a1e6bc4a410bf6ee02d592bc5f05769165ffe382b05cef` |
 | Supporting evidence | `.project/HANDOFF.md#markdown.heading:2026-08-19 Phase 5 decisions and reviewed planning checkpoint — review-fix iteration 3@sha256:16f7a9499b80fd70deef93870997270847600296208e7dfd24492050aec80710` |
@@ -59,7 +59,7 @@
 ## Blocked reasons
 
 - `active_plan_not_unique_or_active`: .planning/phases/05-ralph-and-temperance-flow-projection/05-03-PLAN.md#whole-file@sha256:7b2b8ea730319f0a0bf00a0e7142aba5c61d1aab848a8ea37564bec004f56d4c
-- `gsd_state_not_live`: .planning/STATE.md#markdown.heading:Operator Next Step@sha256:08c563d93bf20c3841aacced0815b090e78ad49340698398839f7fe6c3b4db90
+- `gsd_state_not_live`: .planning/STATE.md#markdown.heading:Operator Next Step@sha256:eaa1557d42e18b09575ddc5f662894875162227f19673f284396937934bd7737
 - `no_dependency_ready_task`: source unavailable
 
 Source bodies and host routing policy remain in their owning systems.

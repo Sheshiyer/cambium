@@ -2331,6 +2331,18 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Verification
 
+### 2026-09-05 Plexus P7 supporting source checkpoint
+
+Plexus [#160](https://github.com/Sheshiyer/plexus-ts/issues/160) owns ISC-277;
+Cambium [#371](https://github.com/Sheshiyer/cambium/issues/371) supplies the
+[graph-reference contract](docs/architecture/contracts/plexus-work-reference-v1.md).
+The 24 new resolver fixtures and 31 Goal Graph/Plexus-gate regressions pass.
+Independent review found no concrete issues. This local prerequisite does not
+change the scoped migration count above, close Plexus acceptance, or establish
+live identity, admission, deployment or recipient proof. See the latest
+[handoff checkpoint](.project/HANDOFF.md) for the branch and remaining boundaries.
+
+
 - ISC-1433 independent review proof — review found same-Sapling receipt substitution, locally forgeable authority claims, caller-asserted foldback admission, and a DLOCK role contradiction. Admission now binds the exact issued receipt; dispatch and foldback require injected external readback verifiers; DLOCK is consistently folderless planning authority. Negative-path regressions pass and final review returns APPROVE with no remaining P0-P2 issue.
 - ISC-1434 handoff/commit proof — `.project/HANDOFF.md` records exact identities, digests, tests, held live gates, and next separately approved operations. One local commit preserves the current branch and worktree without merge, push, PR, deployment, promotion, provider, traffic, or external write.
 - ISC-1387..1401 identity/activation proof — catalog, packets, branch map, architecture note, and held preflight bind exactly `sapling:fitcheck`, `sapling:iverif`, and `sapling:dlock` to tenant `cambium` and immutable repositories; DLOCK is folderless; activation manifest digest is `sha256:5771482d006cf73ef94c4d4e633b5c983b5af74f82f4fdec035c33429cd1499d`; every checked-in receipt/admission flag remains false.
@@ -2866,3 +2878,16 @@ Verification: sanitized receipt `docs/evidence/2026-08-14-gate-descriptor-inert-
 - [x] ISC-1249: Each root uncommitted path receives a reviewed disposition: already merged, candidate PR, generated/local-only, or explicit hold.
 - [x] ISC-1250: No workflow deletion enters a PR unless its exact source diff is independently justified and tested.
 - [x] ISC-1251: Fitcheck, Vantyx, IVerif, DLOCK, and Snow Gloves repositories each have live default-branch, open-PR, remote-branch, and issue readback evidence.
+
+## 2026-09-27 Cambium local source convergence acceptance
+
+This source integration is a bounded repository task within the active v0.5 milestone. Its acceptance does not close authenticated inventory, parity, retirement, deployed website intake, messaging transport, or installed Plexus acceptance. Historical checked criteria above remain dated evidence.
+
+- [x] REC-01: Account for each original local branch as upstream integrated, reconciled candidate, superseded historical evidence, or an exact separately owned frontier.
+- [x] REC-02: Preserve origin/main privacy and proposal/action authority corrections while combining scoped local source candidates.
+- [ ] REC-03: Full repository and relevant new shared/mail/intake/composition tests pass on the reconciled source.
+- [x] REC-04: Privacy, drift, rendered-doc, asset provenance, and diff checks pass without weakening their contracts.
+- [x] REC-05: Phase 9 has a concrete executable plan with producer validation, privacy, synthetic-test requirements, and an exact authenticated-read checkpoint; collector implementation and live INV-01/CLASS-01 remain explicitly incomplete.
+- [ ] REC-06: Final source commit is clean and reviewable with branch disposition, test receipts, and explicit remaining operational gates.
+
+The exact remaining gates and source ownership are recorded in `.planning/RECONCILIATION-2026-09-27.md`. No local test result mints send, spend, provider, migration, deployment, data-transfer, or retirement authority.

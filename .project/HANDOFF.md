@@ -1,5 +1,11 @@
 # Project handoff
 
+### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
+
+- The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.
+- The contract explicitly records current non-claims: production candidate generation, accepted-result lineage, unbiased replay, utility-ranked live combo writes, projection purity, a durable board, and a live Hermes learning loop remain unproved.
+- `INTEGRATION.md` now links the contract from the existing Fitcheck golden-path boundary. No runtime, provider, D1, GitHub, deployment, publication, primary checkout, or connected-repository state is changed.
+
 ### 2026-09-08 Finite catalog display promotion — source-ready candidate
 
 - Source commit `e58bbc0` adds a frozen, source-backed display/proposal inventory for exactly `branch:codigo-olimpo`, `branch:codigo-olimpo-creator-platform`, and `program:thoughtseed-organ-console`. The 75-record display catalog is pinned at `sha256:899d3b0443f27c5de923e369157bb3d1e94119780869a18ca0ac65442926356a` and carries the committed proposal selection `ce7c129bd24fd173089c069956b9d5cc18f8d829239ce32cbd2a6798252473ca`.
@@ -12,6 +18,30 @@
 - The source snapshot, generator, browser/worker modules, domain projection, and current proposal digest references agree. Targeted suites pass 95 tests with one existing skip; exact generation parity and invalid metadata checks pass.
 - The older reviewed foundation approval pin remains unchanged and still blocks the broader linkage audit. The GSD quick summary records the exact pre-task and current digest distinction.
 - No external root headers, enrollment, relocation, publication, runtime, vault, primary checkout, or deployment changes occurred. Phase 9 and its existing approval boundaries remain unchanged.
+### 2026-09-05 Plexus P7 graph-reference prerequisite — reviewed source candidate
+
+- Branch `codex/plexus-admission-contract-20260905` starts from `746acf814b4ffce1a6ccef295ba1f4b0a09760b6`. This bounded support task belongs to [Cambium #371](https://github.com/Sheshiyer/cambium/issues/371); Plexus ISC-277 retains integrated acceptance.
+- [The contract](../docs/architecture/contracts/plexus-work-reference-v1.md) and `resolvePlexusWorkReference` require a trusted exact-tenant principal, an explicit expiring server-resolved resource grant, exact canonical WorkObject/node identity, and a pinned graph version/digest. Head/nodes/head snapshots and the existing digest algorithm verify a consistent committed reference with read-only store capabilities.
+- Success is `graph-reference-verified`. It grants no action or execution authority. The authenticated adapter, grant producer, live revocation, deployed revision and installed Plexus integration remain open; the existing wildcard principal cannot be promoted into tenant authority from request data.
+- Verification: 24 new tests plus 31 compiler/store/Plexus-gate regression tests pass (55/55). Independent read-only review found no concrete issues and reran the 24 new tests. No endpoint, catalog, principal resolver or store implementation changed.
+- The source candidate is prepared for commit/push under the user's existing instruction. Main integration and runtime acceptance remain separate. No deployment, graph mutation, credential change or external delivery occurred. The original checkout's unrelated WIP remains preserved.
+### 2026-09-12 Cambium visual-flow source library — verified uncommitted checkpoint
+
+- The 46 pre-existing numbered Telegram Mini App and R3F images in `docs/assets/visual-flow/` are now mapped non-destructively into `docs/assets/visual-flow/source-library/`. Every numbered source remains unchanged at the root.
+- The source library contains 10 Telegram Mini App aliases and 36 R3F aliases, separated into boards, screens, motion, explicit organ adaptations, semantic components, mesh turntables, product pages, brand material, contact sheets, and unresolved models.
+- `SOURCE-ASSET-MAP.v1.json` records deterministic `CVF-SRC-*` identifiers, source filenames, organized paths, dimensions, SHA-256 hashes, source roles, organ/component ownership where evidenced, and four explicit duplicate relationships.
+- Five visually distinct unnamed previews remain segregated as `unresolved-model-01` through `unresolved-model-05`; no unsupported organ identity was inferred.
+- `scripts/organize-visual-flow-source-library.mjs --check` verifies source/destination hashes, dimensions, unique IDs and paths, duplicate relations, unresolved-model count, generated indexes, and source preservation. The earlier Organ Console package remains independently valid and unchanged.
+- No runtime, deployment, Cloudflare, provider, credential, or external state changed. This remains uncommitted because the primary checkout is dirty with unrelated user-owned work and four commits behind `origin/main`; no reset, clean, stash, branch switch, merge, push, or commit was performed.
+
+### 2026-09-12 Organ Console visual-flow export — verified uncommitted checkpoint
+
+- The latest Thoughtseed Labs Organ Console generation manifest was exported non-destructively into `docs/assets/visual-flow/organ-console/`. The existing 47-file flat Telegram/R3F corpus in `docs/assets/visual-flow/` remains untouched.
+- The organized package contains 97 accepted images: 42 organ studies, 49 semantic-feature studies, and 6 page-view compositions. Twenty-three review boards are included under `reviews/`.
+- `ASSET-MAP.v1.json` maps all 140 canonical `TSOC-*` records, including the 43 planned, failed, or dependency-held records that intentionally have no exported image. Renamed paths follow `{owner-type}/{owner}/{variation}-v1.png`; canonical IDs remain authoritative.
+- `scripts/export-organ-console-visual-flow.mjs <source-package> --check` verifies source/destination hashes, record counts, renamed paths, review boards, and generated indexes. The verified source manifest digest is `a9960b13c68b4d8aab4bec2e1ee42db2270e988e24d391774dbfd402ff12fa17`.
+- Raw prompts, provider responses, local generation paths, session identifiers, rejected drafts, private notes, and imported seed corpora were excluded. No runtime, deployment, Cloudflare, provider, credential, or external state changed.
+- This remains an uncommitted checkpoint because the primary checkout was already dirty with unrelated user-owned work and four commits behind `origin/main`. No reset, clean, stash, branch switch, merge, push, or commit was performed.
 
 ### 2026-08-31 Phase 8 Labs authority and profile safety — verified implementation candidate
 
@@ -2463,3 +2493,26 @@ kind and branch identity registration.
 ### 2026-09-08 Saanmai census and local headers
 
 GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current census is76Thoughtseed/38Noesis with no directory drift. Saanmai remains an observed needs-review folder with no minted WorkObject. Four local headers read back as exact reviewed bytes;109portfolio tests pass with one existing skip. See `.planning/quick/260908-lme-refresh-the-approved-portfolio-census-wi/SUMMARY.md`. Existing ownership and foundation approvals remain intact; canonical promotion and source merges remain separate.
+
+### 2026-09-27 Stage 3–4 platform-playbook messaging readiness checkpoint
+
+- Isolated branches `codex/cambium-stage3-readiness` and `codex/hermes-stage3-readiness` add a reviewable local-only messaging readiness stack. Both primary repositories remained dirty and untouched.
+- Stage 3 binds one Telegram proposal to the Hermes-owned Agent Ops topic map, a message digest, a named future-send approval reference, bounded 30-minute approval timing, and a body-redacted receipt. Its implementation contains no network, sender, credential, scheduler, bridge, storage, queue, D1, KV, or Goal Graph operation.
+- Stage 4 adds a controlled-dry-run messaging consent gate. Telegram requires an approved Stage 3 receipt for the exact same route and message. WhatsApp requires opaque recipient reference, explicit opt-in and category evidence, fresh opt-out check, current policy review, template or service-window conditions, human escalation, business profile, privacy notice, and evidence-backed general content classification. WhatsApp transport remains unconfigured.
+- Hermes-owned and Cambium-vendored Stage 3 and Stage 4 contracts are byte-identical. Focused Stage 3/4, topic-map, organ-delivery, and gate suites pass; Hermes readiness and proactive-loop smokes pass with zero mock Telegram sends; Hermes full Node suite passes 334/334. Cambium full suite passes 2022/2022 once source state remains fixed.
+- Policy provenance: WhatsApp Business Messaging Policy at `https://whatsappbusiness.com/policy/`, last updated 2026-09-23; the local policy review is recorded as 2026-09-27. This is a cited readiness input, not an assertion of a live WhatsApp account, template, consent record, or send authorization.
+- No message, account connection, provider credential, bridge, queue, schedule, D1/KV/Goal Graph record, deployment, or external state changed. Transport needs a separate scope-specific approval, managed credentials, controlled authenticated integration test, error receipt, and final human send confirmation.
+### 2026-09-23 Phase 9 projection plan and Cambium/Hermes remediation plan
+
+- `09-01-PLAN.md` now requires the exact projection envelope, markdown digest, canonical JSON bytes, HTTP content type, and exact-key HEAD/list metadata for both source and target candidates. Its classification matrix covers valid, absent, conflicting, and unproven candidates; authenticated source/target reads stop at a blocking owner-approval checkpoint. The temporary local Worker head route remains exact-key and prefix-bound.
+- `.planning/POST-PHASE-9-CAMBIUM-HERMES-REMEDIATION-PLAN.md` records the watchdog source defects, runner Access and gateway evidence gaps, distinct systemd/cron planes, topic-map provenance mismatch, and redacted Telegram owner-held clusters.
+- Local topic-map manifests matched at SHA-256 `8680362398721c473cb768cf977d5d43d3621720d5edb35d871513ff4f93a630`; Cambium's pinned Hermes source commit resolves to a different manifest digest. Do not rewrite provenance until the canonical Hermes map has an authorized committed revision.
+- This checkpoint changes planning only. The final GSD plan-checker pass found no remaining blockers or warnings. No tests, successful Telegram history read, Cloudflare inventory, live runtime checks, source implementation, or production mutation were performed; preserve all existing dirty files and both checkout heads.
+- Read-only `tg chats list` found two dialogs with the same display name but distinct peer types. The supplied join link is unsupported by `tg history`/`tg topics list`, and the cached numeric peer cannot resolve; no membership change or peer substitution was made. Continue after the owner provides an exact username or Desktop export.
+
+### 2026-09-27 local source reconciliation
+
+- Integrated consent/readiness, Plexus references, bounded learning docs, the seven primary checkpoint slices, Iverif draft composition, and website intake into one local candidate. Exact original branch dispositions and remaining frontiers are in `.planning/RECONCILIATION-2026-09-27.md`.
+- Preserved main privacy/authority corrections; curated transport evidence excludes raw logs/contact records and redacts personal reply addresses. Publish a fresh single-commit tree on main rather than the recovery checkpoint ancestry.
+- Restored the committed eight-topic Hermes pin; uncommitted Adytum topic remains an upstream hold. PAGE digest exactly matches the historical viewport receipt; no new visual capture or human acceptance claimed.
+- Targeted tests and privacy/drift/render/compose checks pass. Full-suite receipt belongs in the local review-ready handoff after the source commit. Phase 9 collector implementation and authenticated inventory remain incomplete under the existing executable plan; no Cloudflare/runtime/delivery/retirement action was performed.
