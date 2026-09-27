@@ -25,6 +25,23 @@
 - Success is `graph-reference-verified`. It grants no action or execution authority. The authenticated adapter, grant producer, live revocation, deployed revision and installed Plexus integration remain open; the existing wildcard principal cannot be promoted into tenant authority from request data.
 - Verification: 24 new tests plus 31 compiler/store/Plexus-gate regression tests pass (55/55). Independent read-only review found no concrete issues and reran the 24 new tests. No endpoint, catalog, principal resolver or store implementation changed.
 - The source candidate is prepared for commit/push under the user's existing instruction. Main integration and runtime acceptance remain separate. No deployment, graph mutation, credential change or external delivery occurred. The original checkout's unrelated WIP remains preserved.
+### 2026-09-12 Cambium visual-flow source library — verified uncommitted checkpoint
+
+- The 46 pre-existing numbered Telegram Mini App and R3F images in `docs/assets/visual-flow/` are now mapped non-destructively into `docs/assets/visual-flow/source-library/`. Every numbered source remains unchanged at the root.
+- The source library contains 10 Telegram Mini App aliases and 36 R3F aliases, separated into boards, screens, motion, explicit organ adaptations, semantic components, mesh turntables, product pages, brand material, contact sheets, and unresolved models.
+- `SOURCE-ASSET-MAP.v1.json` records deterministic `CVF-SRC-*` identifiers, source filenames, organized paths, dimensions, SHA-256 hashes, source roles, organ/component ownership where evidenced, and four explicit duplicate relationships.
+- Five visually distinct unnamed previews remain segregated as `unresolved-model-01` through `unresolved-model-05`; no unsupported organ identity was inferred.
+- `scripts/organize-visual-flow-source-library.mjs --check` verifies source/destination hashes, dimensions, unique IDs and paths, duplicate relations, unresolved-model count, generated indexes, and source preservation. The earlier Organ Console package remains independently valid and unchanged.
+- No runtime, deployment, Cloudflare, provider, credential, or external state changed. This remains uncommitted because the primary checkout is dirty with unrelated user-owned work and four commits behind `origin/main`; no reset, clean, stash, branch switch, merge, push, or commit was performed.
+
+### 2026-09-12 Organ Console visual-flow export — verified uncommitted checkpoint
+
+- The latest Thoughtseed Labs Organ Console generation manifest was exported non-destructively into `docs/assets/visual-flow/organ-console/`. The existing 47-file flat Telegram/R3F corpus in `docs/assets/visual-flow/` remains untouched.
+- The organized package contains 97 accepted images: 42 organ studies, 49 semantic-feature studies, and 6 page-view compositions. Twenty-three review boards are included under `reviews/`.
+- `ASSET-MAP.v1.json` maps all 140 canonical `TSOC-*` records, including the 43 planned, failed, or dependency-held records that intentionally have no exported image. Renamed paths follow `{owner-type}/{owner}/{variation}-v1.png`; canonical IDs remain authoritative.
+- `scripts/export-organ-console-visual-flow.mjs <source-package> --check` verifies source/destination hashes, record counts, renamed paths, review boards, and generated indexes. The verified source manifest digest is `a9960b13c68b4d8aab4bec2e1ee42db2270e988e24d391774dbfd402ff12fa17`.
+- Raw prompts, provider responses, local generation paths, session identifiers, rejected drafts, private notes, and imported seed corpora were excluded. No runtime, deployment, Cloudflare, provider, credential, or external state changed.
+- This remains an uncommitted checkpoint because the primary checkout was already dirty with unrelated user-owned work and four commits behind `origin/main`. No reset, clean, stash, branch switch, merge, push, or commit was performed.
 
 ### 2026-08-31 Phase 8 Labs authority and profile safety — verified implementation candidate
 
@@ -2485,3 +2502,10 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 - Hermes-owned and Cambium-vendored Stage 3 and Stage 4 contracts are byte-identical. Focused Stage 3/4, topic-map, organ-delivery, and gate suites pass; Hermes readiness and proactive-loop smokes pass with zero mock Telegram sends; Hermes full Node suite passes 334/334. Cambium full suite passes 2022/2022 once source state remains fixed.
 - Policy provenance: WhatsApp Business Messaging Policy at `https://whatsappbusiness.com/policy/`, last updated 2026-09-23; the local policy review is recorded as 2026-09-27. This is a cited readiness input, not an assertion of a live WhatsApp account, template, consent record, or send authorization.
 - No message, account connection, provider credential, bridge, queue, schedule, D1/KV/Goal Graph record, deployment, or external state changed. Transport needs a separate scope-specific approval, managed credentials, controlled authenticated integration test, error receipt, and final human send confirmation.
+### 2026-09-23 Phase 9 projection plan and Cambium/Hermes remediation plan
+
+- `09-01-PLAN.md` now requires the exact projection envelope, markdown digest, canonical JSON bytes, HTTP content type, and exact-key HEAD/list metadata for both source and target candidates. Its classification matrix covers valid, absent, conflicting, and unproven candidates; authenticated source/target reads stop at a blocking owner-approval checkpoint. The temporary local Worker head route remains exact-key and prefix-bound.
+- `.planning/POST-PHASE-9-CAMBIUM-HERMES-REMEDIATION-PLAN.md` records the watchdog source defects, runner Access and gateway evidence gaps, distinct systemd/cron planes, topic-map provenance mismatch, and redacted Telegram owner-held clusters.
+- Local topic-map manifests matched at SHA-256 `8680362398721c473cb768cf977d5d43d3621720d5edb35d871513ff4f93a630`; Cambium's pinned Hermes source commit resolves to a different manifest digest. Do not rewrite provenance until the canonical Hermes map has an authorized committed revision.
+- This checkpoint changes planning only. The final GSD plan-checker pass found no remaining blockers or warnings. No tests, successful Telegram history read, Cloudflare inventory, live runtime checks, source implementation, or production mutation were performed; preserve all existing dirty files and both checkout heads.
+- Read-only `tg chats list` found two dialogs with the same display name but distinct peer types. The supplied join link is unsupported by `tg history`/`tg topics list`, and the cached numeric peer cannot resolve; no membership change or peer substitution was made. Continue after the owner provides an exact username or Desktop export.

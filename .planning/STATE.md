@@ -4,8 +4,8 @@ milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
 stopped_at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate
-last_updated: "2026-09-07T00:12:26.000Z"
-last_activity: 2026-09-07 — quick 260907-7q6 added a bounded observation-only repository intake sidecar with a verified current census
+last_updated: "2026-09-12T12:50:00.000Z"
+last_activity: 2026-09-12 — Organ Console visual-flow export completed without changing Phase 9 authority
 progress:
   total_phases: 3
   completed_phases: 1
@@ -84,6 +84,12 @@ Resume file: .planning/STATE.md
 ## 2026-09-08 Saanmai census and local headers
 
 GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current census is76Thoughtseed/38Noesis with no directory drift. Saanmai remains an observed needs-review folder with no minted WorkObject. Four local headers read back as exact reviewed bytes;109portfolio tests pass with one existing skip. See `.planning/quick/260908-lme-refresh-the-approved-portfolio-census-wi/SUMMARY.md`. Existing ownership and foundation approvals remain intact; canonical promotion and source merges remain separate.
+## Quick Tasks Completed
+
+| ID | Task | Completed | Result |
+|---|---|---|---|
+| 260912-pay | Export governed Organ Console visual assets | 2026-09-12 | 97 accepted images and 23 review boards organized under `docs/assets/visual-flow/organ-console/`; 140 canonical records mapped |
+| 260912-pk8 | Organize pre-existing Cambium visual-flow images | 2026-09-12 | 46 source images mapped into 10 Telegram and 36 R3F aliases; four duplicates explicit and five models unresolved |
 
 ## Operator Next Step
 

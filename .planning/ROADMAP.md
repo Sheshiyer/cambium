@@ -12,6 +12,8 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 
 ## Phases
 
+### v0.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement
+
 <details>
 <summary>✅ v0.3 Managerial Control Loop (Phases 1–2) — SHIPPED 2026-08-17</summary>
 
@@ -26,6 +28,14 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 - [x] **Phase 8: Labs Authority and Profile Safety** — Made `thoughtseed-labs` the fail-closed production profile, mapped every Cloudflare primitive, and kept `9d9d` read-only.
 - [ ] **Phase 9: Source Inventory and Classification** — Obtain exact authenticated source keys and digests, then classify every delta without copying.
 - [ ] **Phase 10: Allowlisted Reconciliation and Retirement** — Copy only approved keys, verify parity, observe rollback, and retire through a separate gate.
+
+### Phase 9: Source Inventory and Classification
+
+**Goal:** Authenticated read-only inventory captures exact R2 metadata and content digests for approved prefixes, then classifies source/target deltas without copying data.
+
+**Depends on:** Phase 8
+
+**Requirements:** INV-01, CLASS-01
 
 </details>
 
