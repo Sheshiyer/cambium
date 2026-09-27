@@ -1,0 +1,37 @@
+{
+  "schema": "cambium.platform-playbook-telegram-readiness.v1",
+  "version": 1,
+  "status": "controlled_dry_run_only",
+  "owners": {
+    "readiness": "Cambium",
+    "topicRouting": "Hermes",
+    "transport": "Hermes"
+  },
+  "mode": {
+    "allowed": ["dry-run"],
+    "networkSend": false,
+    "executionAllowed": false
+  },
+  "destination": {
+    "allowedTopicKeys": ["agent_ops"],
+    "requiredTopicMapContract": "thoughtseed.telegram-topic-map.v1",
+    "requireExactThreadBinding": true
+  },
+  "message": {
+    "maxBytes": 1024,
+    "requiresNextAction": true,
+    "nextActionPattern": "\\/ts-[a-z0-9-]+"
+  },
+  "approval": {
+    "schema": "cambium.platform-playbook-approval.v1",
+    "requiredForFutureSend": true,
+    "requiredScope": "telegram:send:agent_ops",
+    "maxWindowMinutes": 30,
+    "binds": ["approvalRef", "approvedBy", "approvedAt", "expiresAt", "proposalId", "proposalDigest", "topicKey", "threadId", "messageDigest"],
+    "readinessOnly": true
+  },
+  "receipt": {
+    "dropMessageBody": true,
+    "requires": ["receiptId", "receiptDigest", "contractDigest", "topicMapDigest", "approvalState", "transport"]
+  }
+}
