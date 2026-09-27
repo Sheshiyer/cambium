@@ -23,7 +23,10 @@
     // Use the direct Worker origin for server-to-server role resolution. The
     // plexus-api custom hostname has its own Access app, which rejects the
     // already-verified curious app JWT before TeamForge can validate it.
-    "PLEXUS_WHOAMI_URL": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami"
+    "PLEXUS_WHOAMI_URL": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami",
+    // Restore pre-deploy live allowlist: GET /v1/mission-fabric/cambium reached
+    // the Telegram initData check (401 missing initData), not 403 tenant-disabled.
+    "MISSION_FABRIC_TENANTS": "cambium"
   },
   "kv_namespaces": [
     { "binding": "QUESTS", "id": "439547e617d9455fb752bfd651da9765" },

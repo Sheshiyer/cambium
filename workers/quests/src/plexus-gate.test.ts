@@ -424,3 +424,68 @@ test('handler gate · plexus unset (dev) → no principal → public body (pre-e
   assert.equal(body.tenant, 'cambium', 'public envelope served');
   assert.equal(body.surface, undefined, 'no surface scope without a principal');
 });
+
+const fabricAuthDeps = (kv: KvLike, extras: Record<string, unknown> = {}) => ({
+  kv,
+  missionFabricTenants: ['cambium'],
+  goalGraphStore: {
+    async readHead() { return null; },
+    async readNodes() { return []; },
+    async commit() { throw new Error('mission fabric must never write'); },
+  },
+  branchMapReceiptStore: {
+    async recordReceipt() { throw new Error('mission fabric must never write'); },
+    async listReceipts() { return []; },
+  },
+  ...extras,
+});
+
+test('mission fabric · Access founder reaches graph without Telegram initData', async () => {
+  const kv = fakeKv();
+  const jwt = signJwt(validPayload());
+  const res = await handle(
+    { method: 'GET', path: '/v1/mission-fabric/cambium', headers: { 'cf-access-jwt-assertion': jwt } },
+    fabricAuthDeps(kv, {
+      plexus: { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+      plexusFetchImpl: jwksFetch(200, {
+        email: 'shesh@thoughtseed.space',
+        role: 'admin',
+        isActive: true,
+        identityId: 'pid_admin_shesh',
+      }),
+    }),
+  );
+  assert.equal(res.status, 404);
+  assert.match(String(res.body), /graph not found/);
+});
+
+test('mission fabric · Access non-founder is forbidden', async () => {
+  const kv = fakeKv();
+  const jwt = signJwt(validPayload({ email: 'member@thoughtseed.space' }));
+  const res = await handle(
+    { method: 'GET', path: '/v1/mission-fabric/cambium', headers: { 'cf-access-jwt-assertion': jwt } },
+    fabricAuthDeps(kv, {
+      plexus: { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+      plexusFetchImpl: jwksFetch(200, {
+        email: 'member@thoughtseed.space',
+        role: 'employee',
+        isActive: true,
+        identityId: 'pid_member',
+      }),
+    }),
+  );
+  assert.equal(res.status, 403);
+  assert.match(String(res.body), /founder identity required/);
+});
+
+test('mission fabric · webapp without Access JWT asks for identity, not Telegram initData', async () => {
+  const kv = fakeKv();
+  const res = await handle(
+    { method: 'GET', path: '/v1/mission-fabric/cambium', headers: {} },
+    fabricAuthDeps(kv, {
+      plexus: { teamDomain: TEAM_DOMAIN, aud: AUD, whoamiUrl: 'https://plexus-api.test/v1/whoami' },
+    }),
+  );
+  assert.equal(res.status, 401);
+  assert.match(String(res.body), /access_identity_required/);
+});

@@ -577,7 +577,7 @@ function validFounderConversation(topic: Record<string, unknown>): boolean {
   const threadId = Number(topic.threadId);
   const groupTopics: Record<string, number> = {
     hermes: 2, digests: 3, dev: 4, inbox: 5, calendar: 6,
-    'agent-ops': 7, alerts: 8, clients: 9,
+    'agent-ops': 7, agent_ops: 7, alerts: 8, clients: 9, adytum: 147,
   };
   if (chatId === '-1003942929819') return groupTopics[topicKey] === threadId;
   return topicKey === 'direct' && threadId === 0 && /^\d{6,15}$/.test(chatId);
