@@ -1,0 +1,22 @@
+{
+  "observedAt": "2026-09-11T10:17:03.310Z",
+  "campaignCount": 14,
+  "networkCalls": 60,
+  "nonGet": 0,
+  "failures": 0,
+  "spendTotal": 194.52,
+  "guzzlers": [
+    {
+      "id": 45711,
+      "name": "Public Agencies",
+      "spend": 88.02,
+      "replies": 0
+    },
+    {
+      "id": 45709,
+      "name": "Energy Consultants",
+      "spend": 23.1,
+      "replies": 0
+    }
+  ]
+}

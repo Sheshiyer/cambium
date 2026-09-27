@@ -3,6 +3,15 @@
   "observedAt": "2026-09-11T14:20:35.390Z",
   "purpose": "non-explee-channel reuse via other organs; not an Explee write back",
   "projectId": 16763,
+  "historicalSourceObservations": [
+    {
+      "observedAt": "2026-09-11T10:17:03.310Z",
+      "contactCount": 207,
+      "contentDigest": "sha256:4a862b4dc5e7e1c5a6bc4a85c7a38c3839720c18a60ac965fb0effbed73f0017",
+      "recordDisposition": "raw contact records deliberately excluded from source-controlled evidence",
+      "notRuntimeInput": true
+    }
+  ],
   "contactCount": 0,
   "contacts": []
 }

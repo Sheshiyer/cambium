@@ -5,6 +5,13 @@
   "campaignId": 159185,
   "updatedAt": "2026-09-11T14:40:21.858047Z",
   "do_not_start": true,
+  "snapshotHistory": [
+    {
+      "createdAt": "2026-09-11T13:47:00.436779+00:00",
+      "status": "draft_not_created",
+      "disposition": "initial template snapshot; superseded by the later clean-start record"
+    }
+  ],
   "recommended": {
     "name": "FR CEE — Délégataires & ops (Meristem)",
     "target_url": "https://iverif.fr",

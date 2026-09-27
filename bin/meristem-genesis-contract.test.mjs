@@ -486,7 +486,7 @@ test('CLI writes payload and evidence files with --out and --evidence-out', () =
 test('CLI rejects value flags without values with usage-style errors', () => {
   const root = createMeristemFixture();
   try {
-    for (const flag of ['--meristem-root', '--brand-dir', '--out', '--evidence-out']) {
+    for (const flag of ['--meristem-root', '--brand-dir', '--mode', '--out', '--evidence-out']) {
       const argv = flag === '--meristem-root'
         ? [SCRIPT, flag]
         : [SCRIPT, '--meristem-root', root, flag];
@@ -497,6 +497,89 @@ test('CLI rejects value flags without values with usage-style errors', () => {
       assert.match(result.stderr, new RegExp(`${flag} expects a value`), flag);
       assert.match(result.stderr, /usage: node scripts\/meristem-genesis-contract\.mjs/, flag);
     }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+const V2_FIXTURE = fileURLToPath(new URL('./fixtures/meristem-v2-iverif', import.meta.url));
+
+test('buildGenesisContract MERISTEM_V2 maps wiki + evidence ledger + MDS into Cambium groups', () => {
+  const { payload, evidence } = buildGenesisContract({
+    meristemRoot: V2_FIXTURE,
+    brandDir: '.',
+    mode: 'MERISTEM_V2',
+  });
+
+  assert.deepEqual(Object.keys(payload), ['brand_system', 'copy_system', 'visual_system']);
+  assert.deepEqual(Object.keys(payload.brand_system), EXPECTED_BRAND_SYSTEM_KEYS);
+  assert.deepEqual(Object.keys(payload.copy_system), EXPECTED_COPY_SYSTEM_KEYS);
+  assert.deepEqual(Object.keys(payload.copy_system.copy_slots), EXPECTED_COPY_SLOT_KEYS);
+  assert.deepEqual(Object.keys(payload.visual_system), EXPECTED_VISUAL_SYSTEM_KEYS);
+  assert.equal(payload.brand_system.brand_id, 'iverif');
+  assert.equal(payload.brand_system.brand_name, 'IVerif');
+  assert.match(payload.brand_system.audience, /Energy subsidy operators/);
+  assert.match(payload.copy_system.copy_slots.hero_headline, /Catch dossier errors/);
+  assert.equal(payload.copy_system.copy_slots.cta_primary, 'Review the draft validation packet');
+  assert.ok(Array.isArray(payload.copy_system.copy_slots.proof_points));
+  assert.equal(evidence.mode, 'MERISTEM_V2');
+  assert.ok(evidence.sources.evidenceLedger.endsWith('research/EVIDENCE-LEDGER.md'));
+  assert.ok(evidence.sources.mds.some((path) => path.endsWith('MDS.md')));
+  assert.ok(evidence.consumedSkills.includes('research/EVIDENCE-LEDGER.md'));
+});
+
+test('buildGenesisContract MERISTEM_V2 fails closed without evidence ledger', () => {
+  const root = mkdtempSync(join(tmpdir(), 'meristem-v2-missing-'));
+  try {
+    mkdirSync(join(root, 'wiki'), { recursive: true });
+    writeFileSync(join(root, 'wiki', 'MDS.md'), [
+      '# MDS',
+      '',
+      '## Audiences',
+      'Operators',
+      '',
+      '## Positioning',
+      'Validation',
+      '',
+      '## Promise',
+      'Proof before claim',
+      '',
+      'Headline: Hello',
+      'Subhead: World',
+      'CTA: Start',
+      'Secondary CTA: Review',
+      '',
+    ].join('\n'));
+    writeFileSync(join(root, 'wiki', 'visual.md'), [
+      '# Visual',
+      '',
+      'Primary: #111111',
+      'Header Font: Sans',
+      'Body Font: Serif',
+      '',
+      '## Design Philosophy',
+      'Clean',
+      '',
+      '## Logo Usage',
+      'Keep mark intact',
+      '',
+    ].join('\n'));
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root, brandDir: '.', mode: 'MERISTEM_V2' }),
+      /missing required meristem evidence ledger: research\/EVIDENCE-LEDGER\.md/,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('buildGenesisContract rejects unknown genesis mode', () => {
+  const root = createMeristemFixture();
+  try {
+    assert.throws(
+      () => buildGenesisContract({ meristemRoot: root, mode: 'MERISTEM_V9' }),
+      /unsupported genesis mode: MERISTEM_V9/,
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -134,7 +134,7 @@ GET Explee (clean project) + historical learning pack
 ### P2 — Clean channel container
 - [ ] UI-create Explee project if needed (API cannot create)
 - [ ] Bind `{projectId, domain}` via GET
-- [ ] Autopilot OFF, auto-reply OFF
+- [ ] Autopilot OFF; auto-reply OFF unless an explicit operator approval declares the sole reply writer
 - [ ] Stop AutoGTM clone ICPs; retarget **one** campaign from Meristem fields or create new in UI
 
 ### P3 — Compose drafts (Hands)

@@ -22,6 +22,7 @@ import { defaultCortex } from './lib/cortex.mjs';
 import { validateLeadOps } from './lib/lead-ops.mjs';
 import { validateLeadContractCatalog } from './lib/lead-contracts.mjs';
 import {
+  parseMarketLocale,
   validateMarketingAssetCatalog,
   validateMarketingCapabilityCatalog,
 } from './lib/marketing-orchestration.mjs';
@@ -33,9 +34,9 @@ import { validateLeadAdapterCatalog } from './lib/lead-adapters.mjs';
 /**
  * Resolve a pipeline against a registry into an ordered, organ-resolved plan.
  * Throws loudly if an organ referenced by a stage is not in the registry.
- * @param {{registry: object, pipeline: object, tenant?: string}} args
+ * @param {{registry: object, pipeline: object, tenant?: string, market?: {region: string, language: string} | null}} args
  */
-export function planPipeline({ registry, pipeline, tenant } = {}) {
+export function planPipeline({ registry, pipeline, tenant, market = null } = {}) {
   if (!registry || typeof registry.organs !== 'object') {
     throw new Error('registry.organs missing — not a valid registry');
   }
@@ -75,7 +76,14 @@ export function planPipeline({ registry, pipeline, tenant } = {}) {
     ...organOf(c.organ, `crosscutting "${c.id}"`),
     feeds: c.feeds || [],
   }));
-  return { tenant: tenant || '<tenant>', steps, crosscutting };
+  return {
+    tenant: tenant || '<tenant>',
+    market: market || null,
+    steps,
+    crosscutting,
+    approvalMode: 'sequential',
+    approveStages: ['genesis', 'taste', 'build', 'ops'],
+  };
 }
 
 const tierTag = (tier) => (tier === 'paid' ? '💲 paid' : '○ free');
@@ -84,7 +92,13 @@ const tierTag = (tier) => (tier === 'paid' ? '💲 paid' : '○ free');
 export function formatPlan(plan) {
   const lines = [];
   lines.push(`Cambium composition plan — tenant: ${plan.tenant}`);
+  if (plan.market) {
+    lines.push(`market: ${plan.market.language}-${plan.market.region}  (region=${plan.market.region}, language=${plan.market.language})`);
+  } else {
+    lines.push('market: <unscoped>');
+  }
   lines.push('idea → genesis → taste → build → ops   (cortex feeds all)');
+  lines.push('approval: sequential --approve genesis|taste|build|ops (do not invent hands/will stage ids)');
   lines.push('');
   for (const s of plan.steps) {
     lines.push(`  ${s.order}. ${s.stage.padEnd(8)} → ${s.organName}  [${tierTag(s.tier)}]`);
@@ -106,6 +120,26 @@ export function formatPlan(plan) {
     lines.push(`     ${c.repo}`);
   }
   return lines.join('\n');
+}
+
+export function parsePlanArgs(rest = []) {
+  const flags = { tenant: undefined, market: null };
+  for (let i = 0; i < rest.length; i++) {
+    const a = rest[i];
+    if (a === '--market') {
+      const value = rest[i + 1];
+      if (!value || value.startsWith('--')) {
+        throw new Error('--market expects a locale like fr-FR');
+      }
+      flags.market = parseMarketLocale(value);
+      i += 1;
+    } else if (!a.startsWith('--') && flags.tenant === undefined) {
+      flags.tenant = a;
+    } else if (a.startsWith('--')) {
+      throw new Error(`unknown plan option: ${a}`);
+    }
+  }
+  return flags;
 }
 
 // ───────────────────────── I/O shell (disk only here) ─────────────────────────
@@ -474,7 +508,22 @@ export async function main(argv, root) {
       leadAdapterIds,
       createAdapterIds,
     } = loadComposition(root);
-    const plan = planPipeline({ registry, pipeline, tenant: cmd === 'plan' ? rest[0] : '<validate>' });
+    let tenant = '<validate>';
+    let market = null;
+    if (cmd === 'plan') {
+      try {
+        ({ tenant = undefined, market } = parsePlanArgs(rest));
+      } catch (error) {
+        console.log(`fail-closed: ${error.message}`);
+        return 1;
+      }
+    }
+    const plan = planPipeline({
+      registry,
+      pipeline,
+      tenant: cmd === 'plan' ? (tenant || '<tenant>') : '<validate>',
+      market,
+    });
     if (cmd === 'plan') {
       console.log(formatPlan(plan));
     } else {
@@ -486,7 +535,7 @@ export async function main(argv, root) {
   if (cmd === 'run') {
     return runCmd(root, parseRunArgs(rest));
   }
-  console.log('usage: compose <plan|validate|run> [tenant] [--execute] [--approve <stage>] [--intent <stage>]');
+  console.log('usage: compose <plan|validate|run> [tenant] [--market fr-FR] [--execute] [--approve <stage>] [--intent <stage>]');
   return cmd ? 1 : 0;
 }
 

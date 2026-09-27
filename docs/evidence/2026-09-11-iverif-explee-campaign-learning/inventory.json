@@ -11,6 +11,21 @@
     "do_not_post": true,
     "spend_freeze": true
   },
+  "historicalSourceObservations": [
+    {
+      "observedAt": "2026-09-11T10:17:03.310Z",
+      "projectCount": 2,
+      "campaignCount": 14,
+      "contentDigest": "sha256:a2b4e7c34f3b36e7c7ac70eea21cd26369a96b7942b28193bf305d7e0c9e7e20",
+      "networkLog": {
+        "requestCount": 60,
+        "get200Count": 60,
+        "contentDigest": "sha256:c288ab155491059cce34875b64720a3d04271768f544bee314942ad6513125c1"
+      },
+      "recordDisposition": "raw provider and request records deliberately excluded from source-controlled evidence",
+      "notRuntimeInput": true
+    }
+  ],
   "network": {
     "calls": 4,
     "methods": [

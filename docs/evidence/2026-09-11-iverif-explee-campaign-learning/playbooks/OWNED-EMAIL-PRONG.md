@@ -33,14 +33,14 @@ Flow: Hands draft → `compileOwnedEmailWillDispatch` → stub (`liveSend: false
 1. **Genesis** ← Meristem packet
 2. **Hands** ← draft package / outreach frames
 3. **Will** chooses delivery adapter:
-   - `explee-read` / gated write — surgical AutogTM (e.g. campaign `159036`)
+   - `explee-read` / gated write — surgical AutoGTM (later clean-start campaign `159185`; prior `159036` is historical)
    - **owned-email** — Zoho/Composio via `owned-email-will-adapter` (`wave@`)
    - LinkedIn FR — growth-content / social spokes
 4. Spend/send on any prong requires explicit first-response gate + `--approve will`
 
-## Explee FR CEE campaign (applied)
-- Project `35674` campaign `159036` retargeted from Meristem packet
-- Name: `FR CEE — Délégataires & ops (Meristem)`
-- language=`fr`, geo=`France`
-- **Not started**; spend later on your approve
-- Other clones remain stopped — UI-archive when convenient
+## Explee FR CEE campaign observations
+
+- `2026-09-11T13:56:55.057Z`: project `35674` campaign `159036` was retargeted from the Meristem packet; it is retained as an earlier observation, not the active wedge.
+- `2026-09-11T14:40:21.858047Z`: the later clean-start record names campaign `159185`, `FR CEE — Délégataires & ops (Meristem)`, language `fr`, and geography `France`; its creation snapshot was stopped.
+- `2026-09-11T14:47:26.009Z`: a separate arm receipt records later Explee state. It does not authorize or imply an owned-email send; the Will stub remains `liveSend: false` until its own explicit gate and approval.
+- Other clone campaigns remain stopped; UI archive is a later hygiene action.

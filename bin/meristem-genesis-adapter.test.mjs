@@ -24,7 +24,7 @@ test('meristem Genesis adapter is active and brandmint is rollback-only', () => 
   assert.equal(genesis.input_default, '../meristem');
   assert.equal(genesis.output, 'json:brand-dna');
   assert.deepEqual(genesis.contract_requires, ['idea']);
-  assert.deepEqual(genesis.contract_produces, ['brand_system', 'copy_system', 'visual_system']);
+  assert.deepEqual(genesis.contract_produces, ['brand_system', 'copy_system', 'visual_system', 'market']);
 
   assert.equal(config.candidate_adapters?.genesis_meristem_candidate, undefined);
 
