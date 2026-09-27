@@ -32,3 +32,6 @@ motionsites-export/
 # machine-local Temperance runtime manifests (project.json is committed; these are not)
 .temperance/manifest.json
 .temperance/goal.json
+
+# Path A draft-only organ outputs (genesis/taste/hands/will/cortex receipts)
+.state/

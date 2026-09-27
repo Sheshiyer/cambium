@@ -1,0 +1,3744 @@
+{
+  "schema": "cambium.iverif.crm-export.v1",
+  "observedAt": "2026-09-11T10:17:03.310Z",
+  "purpose": "non-explee-channel reuse via other organs; not an Explee write back",
+  "projectId": 16763,
+  "contactCount": 207,
+  "contacts": [
+    {
+      "contactId": "explee:16763:45711:40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+      "personId": "40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "hot_lead",
+      "sentCount": 3,
+      "replyCount": 2,
+      "latestSentAt": "2026-07-21T06:26:54.581042Z",
+      "latestReplyAt": "2026-07-17T09:44:06Z",
+      "nextAction": "human_review_qualify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+      "personId": "0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "hot_lead",
+      "sentCount": 3,
+      "replyCount": 2,
+      "latestSentAt": "2026-07-17T11:35:31.623030Z",
+      "latestReplyAt": "2026-07-17T06:17:06Z",
+      "nextAction": "human_review_qualify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:1f7d77e7-38ea-448b-8bb4-eca4caa7a6f3",
+      "personId": "1f7d77e7-38ea-448b-8bb4-eca4caa7a6f3",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:18:12.464107Z",
+      "latestReplyAt": "2026-07-16T09:43:34Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:a6619149-f699-43c8-b1f3-a935e407598d",
+      "personId": "a6619149-f699-43c8-b1f3-a935e407598d",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:09:10.461154Z",
+      "latestReplyAt": "2026-07-16T08:52:15Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:eee0d722-36c3-47a2-bb8a-68d927d391ad",
+      "personId": "eee0d722-36c3-47a2-bb8a-68d927d391ad",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-15T19:38:50.994663Z",
+      "latestReplyAt": "2026-07-16T08:27:00Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:73946c77-8c86-46e7-b74e-86170a09997e",
+      "personId": "73946c77-8c86-46e7-b74e-86170a09997e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:24:13.619092Z",
+      "latestReplyAt": "2026-07-16T07:59:44Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:6c3d0654-220f-48ce-aa35-b0dc3ff4cb0c",
+      "personId": "6c3d0654-220f-48ce-aa35-b0dc3ff4cb0c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-15T23:06:31.178437Z",
+      "latestReplyAt": "2026-07-16T07:56:17Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:b7bac285-7339-43ce-82be-1c57a7d05085",
+      "personId": "b7bac285-7339-43ce-82be-1c57a7d05085",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:30:11.252171Z",
+      "latestReplyAt": "2026-07-16T06:34:08Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:e84bb8f0-31c1-4d21-aa3b-5965f368949c",
+      "personId": "e84bb8f0-31c1-4d21-aa3b-5965f368949c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:30:17.741990Z",
+      "latestReplyAt": "2026-07-16T06:33:54Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:bd7f9da4-200a-4bc2-92a1-8a9038194597",
+      "personId": "bd7f9da4-200a-4bc2-92a1-8a9038194597",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:30:12.679878Z",
+      "latestReplyAt": "2026-07-16T06:31:00Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:c1c37f7f-a1b2-4270-83e2-3217b47a4daf",
+      "personId": "c1c37f7f-a1b2-4270-83e2-3217b47a4daf",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:30:13.334927Z",
+      "latestReplyAt": "2026-07-16T06:30:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:cafe67da-b107-4949-a3ae-5783e5b4d141",
+      "personId": "cafe67da-b107-4949-a3ae-5783e5b4d141",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:30:15.676220Z",
+      "latestReplyAt": "2026-07-16T06:30:52Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:09603678-ceca-427c-953f-0bfeaafd86a7",
+      "personId": "09603678-ceca-427c-953f-0bfeaafd86a7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:21:28.118752Z",
+      "latestReplyAt": "2026-07-16T06:23:51Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:3cc42e46-cc2c-40c2-a184-7926f336f6b7",
+      "personId": "3cc42e46-cc2c-40c2-a184-7926f336f6b7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T07:36:22.787241Z",
+      "latestReplyAt": "2026-07-16T06:22:46Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:140ecb1b-4694-4644-9e60-7f3121702cce",
+      "personId": "140ecb1b-4694-4644-9e60-7f3121702cce",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:21:30.249955Z",
+      "latestReplyAt": "2026-07-16T06:22:31Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:d9d840bd-fbf2-42aa-918a-d54d2f402db7",
+      "personId": "d9d840bd-fbf2-42aa-918a-d54d2f402db7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:18:15.257907Z",
+      "latestReplyAt": "2026-07-16T06:18:45Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:87cba6e2-1301-4b94-b626-2ff916f8bdcb",
+      "personId": "87cba6e2-1301-4b94-b626-2ff916f8bdcb",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:15:29.093755Z",
+      "latestReplyAt": "2026-07-16T06:16:44Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:5ca6b386-868b-460a-801d-da63757df26c",
+      "personId": "5ca6b386-868b-460a-801d-da63757df26c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:15:26.389497Z",
+      "latestReplyAt": "2026-07-16T06:16:38Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:0048ab38-aade-426c-b99c-6b9f0f5b9cb7",
+      "personId": "0048ab38-aade-426c-b99c-6b9f0f5b9cb7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:15:19.941914Z",
+      "latestReplyAt": "2026-07-16T06:16:36Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:6906fdda-d010-482c-a38a-7758c705fa36",
+      "personId": "6906fdda-d010-482c-a38a-7758c705fa36",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:15:27.579368Z",
+      "latestReplyAt": "2026-07-16T06:16:35Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:84ff9654-6718-497c-8ebd-f66deb964351",
+      "personId": "84ff9654-6718-497c-8ebd-f66deb964351",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:15:28.599517Z",
+      "latestReplyAt": "2026-07-16T06:16:29Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:e565d11e-c28b-40be-a488-396349a77458",
+      "personId": "e565d11e-c28b-40be-a488-396349a77458",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:09:14.400384Z",
+      "latestReplyAt": "2026-07-16T06:09:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:3fcf5cfd-113c-44db-8027-13eae0a44b58",
+      "personId": "3fcf5cfd-113c-44db-8027-13eae0a44b58",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:06:10.704788Z",
+      "latestReplyAt": "2026-07-16T06:07:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:510b5bbb-0da3-4ec3-8d60-9dde6454bb0e",
+      "personId": "510b5bbb-0da3-4ec3-8d60-9dde6454bb0e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:06:11.821375Z",
+      "latestReplyAt": "2026-07-16T06:07:00Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:6c0da5e5-35fb-4fa0-a471-9b865bcf0733",
+      "personId": "6c0da5e5-35fb-4fa0-a471-9b865bcf0733",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:06:12.198298Z",
+      "latestReplyAt": "2026-07-16T06:06:49Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:9871ff3e-93bc-4c70-b344-e8201a7fc5f9",
+      "personId": "9871ff3e-93bc-4c70-b344-e8201a7fc5f9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T06:06:14.471856Z",
+      "latestReplyAt": "2026-07-16T06:06:42Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:851518e3-4a66-48c2-a518-3d9a09584bd6",
+      "personId": "851518e3-4a66-48c2-a518-3d9a09584bd6",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T00:07:27.668863Z",
+      "latestReplyAt": "2026-07-16T00:08:36Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:bc362d04-23df-4d01-874c-29b87fde99e4",
+      "personId": "bc362d04-23df-4d01-874c-29b87fde99e4",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-15T13:25:35.089401Z",
+      "latestReplyAt": "2026-07-15T15:12:00Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:05775c23-e3b3-4a5e-83f9-8b407ee5e37e",
+      "personId": "05775c23-e3b3-4a5e-83f9-8b407ee5e37e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-15T13:07:17.354418Z",
+      "latestReplyAt": "2026-07-15T13:19:44Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:1bc2a242-598a-489c-a08e-1837effa5a26",
+      "personId": "1bc2a242-598a-489c-a08e-1837effa5a26",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-14T11:01:23.957542Z",
+      "latestReplyAt": "2026-07-14T18:54:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:89c8769d-60f2-424c-8e78-8fec7c61919d",
+      "personId": "89c8769d-60f2-424c-8e78-8fec7c61919d",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T07:47:24.972389Z",
+      "latestReplyAt": "2026-07-14T18:29:06Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:d0a50e1f-4c31-4cf5-a3b7-e0e1521f085f",
+      "personId": "d0a50e1f-4c31-4cf5-a3b7-e0e1521f085f",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:42:02.008021Z",
+      "latestReplyAt": "2026-07-14T16:55:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:d2f01d2a-6eff-4c30-9374-0f3bad20858e",
+      "personId": "d2f01d2a-6eff-4c30-9374-0f3bad20858e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:42:02.776886Z",
+      "latestReplyAt": "2026-07-14T11:08:37Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:a444ee8b-75cd-4ce7-9a0e-a2016573c015",
+      "personId": "a444ee8b-75cd-4ce7-9a0e-a2016573c015",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:33:15.253236Z",
+      "latestReplyAt": "2026-07-14T09:27:30Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:9aa4b3d5-761a-4e6b-aa02-5e48f8885607",
+      "personId": "9aa4b3d5-761a-4e6b-aa02-5e48f8885607",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:33:12.571610Z",
+      "latestReplyAt": "2026-07-14T09:18:05Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:ef836636-8cf0-4be2-b09b-dfc8f20560cd",
+      "personId": "ef836636-8cf0-4be2-b09b-dfc8f20560cd",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:48:13.863826Z",
+      "latestReplyAt": "2026-07-14T09:02:40Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:d0fd65e3-c389-447a-ba1a-541cd8edf839",
+      "personId": "d0fd65e3-c389-447a-ba1a-541cd8edf839",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:42:02.427791Z",
+      "latestReplyAt": "2026-07-14T08:59:50Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:ed2a1277-5e83-483b-b5fe-67226de11584",
+      "personId": "ed2a1277-5e83-483b-b5fe-67226de11584",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:48:12.834652Z",
+      "latestReplyAt": "2026-07-14T08:25:41Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:ca7276c1-b284-4af4-83b2-8a905eedf2f8",
+      "personId": "ca7276c1-b284-4af4-83b2-8a905eedf2f8",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T08:42:00.083820Z",
+      "latestReplyAt": "2026-07-14T06:55:17Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:24dfb139-97b4-486e-b468-d60ee61c2cf5",
+      "personId": "24dfb139-97b4-486e-b468-d60ee61c2cf5",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T06:56:51.384296Z",
+      "latestReplyAt": "2026-07-13T10:24:38Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:56a38ff5-6166-4dab-a613-f969f1ee8da3",
+      "personId": "56a38ff5-6166-4dab-a613-f969f1ee8da3",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T07:39:14.088896Z",
+      "latestReplyAt": "2026-07-13T09:28:37Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:508a3017-5d22-450d-a7ca-58adeecf60f0",
+      "personId": "508a3017-5d22-450d-a7ca-58adeecf60f0",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T07:39:12.027580Z",
+      "latestReplyAt": "2026-07-13T07:43:02Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:5e44e2a3-ec7b-420b-86fb-06508ae1393b",
+      "personId": "5e44e2a3-ec7b-420b-86fb-06508ae1393b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T07:39:15.967873Z",
+      "latestReplyAt": "2026-07-13T07:40:08Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:b38e05f4-3cfc-443b-883b-4a78fd51c106",
+      "personId": "b38e05f4-3cfc-443b-883b-4a78fd51c106",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-11T19:18:29.820121Z",
+      "latestReplyAt": "2026-07-13T06:47:06Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:3229bd61-e7b6-476c-9ae0-a4fe13cd97bd",
+      "personId": "3229bd61-e7b6-476c-9ae0-a4fe13cd97bd",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-12T14:30:28.552538Z",
+      "latestReplyAt": "2026-07-13T06:07:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:af9bcfed-4c5d-4005-b754-c7975fc2d43b",
+      "personId": "af9bcfed-4c5d-4005-b754-c7975fc2d43b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T09:12:51.991136Z",
+      "latestReplyAt": "2026-07-10T10:33:42Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:3d8314c7-fdf5-407c-bd94-d553e42e14f2",
+      "personId": "3d8314c7-fdf5-407c-bd94-d553e42e14f2",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T09:12:47.454544Z",
+      "latestReplyAt": "2026-07-10T09:17:13Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:946595ae-49db-4993-9e0d-125953e8c3da",
+      "personId": "946595ae-49db-4993-9e0d-125953e8c3da",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-09T10:56:29.030212Z",
+      "latestReplyAt": "2026-07-10T09:15:35Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:7fe65eb8-cf1d-450c-adee-3fd373816fe8",
+      "personId": "7fe65eb8-cf1d-450c-adee-3fd373816fe8",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T09:12:50.354500Z",
+      "latestReplyAt": "2026-07-10T09:14:24Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45711:76176a31-73f1-4852-8fbf-a89105e2508c",
+      "personId": "76176a31-73f1-4852-8fbf-a89105e2508c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T09:12:49.078725Z",
+      "latestReplyAt": "2026-07-10T09:14:13Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:f073b3d6-186d-493b-a57a-739862eb3f30",
+      "personId": "f073b3d6-186d-493b-a57a-739862eb3f30",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T15:19:50.375680Z",
+      "latestReplyAt": "2026-06-19T16:08:06Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:a9c1e4bd-840d-4b72-a061-022300ae7cc7",
+      "personId": "a9c1e4bd-840d-4b72-a061-022300ae7cc7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-15T07:51:44.034506Z",
+      "latestReplyAt": "2026-05-15T07:58:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:acb26934-2795-4d68-93b2-d2408f361185",
+      "personId": "acb26934-2795-4d68-93b2-d2408f361185",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-12T08:58:28.398857Z",
+      "latestReplyAt": "2026-05-12T09:45:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:90cac94f-8b57-4043-86fb-756e7706a8cf",
+      "personId": "90cac94f-8b57-4043-86fb-756e7706a8cf",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-12T09:23:38.355961Z",
+      "latestReplyAt": "2026-05-12T09:24:17Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:b1f28ee5-48ad-459d-9151-92f03b06f82b",
+      "personId": "b1f28ee5-48ad-459d-9151-92f03b06f82b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": null,
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-12T07:18:03.410337Z",
+      "latestReplyAt": "2026-05-12T07:31:37Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:b3d1abbf-d0ff-4536-9dba-d05f8cffb0ef",
+      "personId": "b3d1abbf-d0ff-4536-9dba-d05f8cffb0ef",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T12:40:12.562121Z",
+      "latestReplyAt": "2026-05-11T16:02:49Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:07e1f985-5470-47dd-a315-5e114547feaa",
+      "personId": "07e1f985-5470-47dd-a315-5e114547feaa",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T11:56:02.141457Z",
+      "latestReplyAt": "2026-05-11T11:45:21Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45709:38dd1a38-4f9b-4e28-bd96-70598cb6fb33",
+      "personId": "38dd1a38-4f9b-4e28-bd96-70598cb6fb33",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45709,
+      "campaignName": "Energy Consultants",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T06:49:23.748826Z",
+      "latestReplyAt": "2026-05-11T06:41:04Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:192fc91b-98fd-4668-8760-268a0dbf8d00",
+      "personId": "192fc91b-98fd-4668-8760-268a0dbf8d00",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": null,
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-01T04:07:01.998911Z",
+      "latestReplyAt": "2026-07-01T07:26:46Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:6bd7d8cc-f44a-491a-a10a-3f73b611e233",
+      "personId": "6bd7d8cc-f44a-491a-a10a-3f73b611e233",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-01T06:40:25.745926Z",
+      "latestReplyAt": "2026-07-01T06:53:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:751b7898-182f-4dee-8b75-ce513464c8f7",
+      "personId": "751b7898-182f-4dee-8b75-ce513464c8f7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-01T06:52:46.138513Z",
+      "latestReplyAt": "2026-07-01T06:53:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:58e73a7b-d5ec-4363-9c6f-fe12d14c4a47",
+      "personId": "58e73a7b-d5ec-4363-9c6f-fe12d14c4a47",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T11:13:05.598607Z",
+      "latestReplyAt": "2026-06-23T10:00:32Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:c2ff422b-e74a-46de-976f-649629dccebd",
+      "personId": "c2ff422b-e74a-46de-976f-649629dccebd",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T06:48:23.899086Z",
+      "latestReplyAt": "2026-06-23T08:04:36Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:a82c39da-912d-4427-9d8a-ce51d02ae05e",
+      "personId": "a82c39da-912d-4427-9d8a-ce51d02ae05e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T06:36:30.967568Z",
+      "latestReplyAt": "2026-06-23T07:52:09Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:4231fa2a-021d-4adb-8182-7e14cc02de98",
+      "personId": "4231fa2a-021d-4adb-8182-7e14cc02de98",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T06:06:16.562944Z",
+      "latestReplyAt": "2026-06-23T07:29:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:28f20377-ce0b-444f-a02b-b71bd5ff8ab1",
+      "personId": "28f20377-ce0b-444f-a02b-b71bd5ff8ab1",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T06:06:16.342326Z",
+      "latestReplyAt": "2026-06-23T06:10:06Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:2c460cac-899d-4270-9353-67bb2818aea1",
+      "personId": "2c460cac-899d-4270-9353-67bb2818aea1",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:24:15.592968Z",
+      "latestReplyAt": "2026-06-22T11:11:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:ddbb0462-1410-48b4-a3ad-799d10bb5206",
+      "personId": "ddbb0462-1410-48b4-a3ad-799d10bb5206",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:36:25.377292Z",
+      "latestReplyAt": "2026-06-22T10:59:10Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:7227f6a8-c642-42c9-beaf-1dc70adf4e90",
+      "personId": "7227f6a8-c642-42c9-beaf-1dc70adf4e90",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:28:01.639799Z",
+      "latestReplyAt": "2026-06-22T09:46:21Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:6ed9d9bf-6862-474b-accb-959212a5bae2",
+      "personId": "6ed9d9bf-6862-474b-accb-959212a5bae2",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:28:00.869843Z",
+      "latestReplyAt": "2026-06-22T09:20:33Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:7a85b7de-0335-4fc7-a74c-f9ca12fc78af",
+      "personId": "7a85b7de-0335-4fc7-a74c-f9ca12fc78af",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T00:03:13.102795Z",
+      "latestReplyAt": "2026-06-22T09:17:01Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:582db37f-b9cd-4437-86bc-0ff3b695b154",
+      "personId": "582db37f-b9cd-4437-86bc-0ff3b695b154",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:24:17.580331Z",
+      "latestReplyAt": "2026-06-22T08:45:32Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:7d70188f-5bdf-497d-854b-cc9be4d5eaa9",
+      "personId": "7d70188f-5bdf-497d-854b-cc9be4d5eaa9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:28:03.476851Z",
+      "latestReplyAt": "2026-06-22T08:12:54Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:57dd009b-f435-4e5b-9ac9-5800dd837200",
+      "personId": "57dd009b-f435-4e5b-9ac9-5800dd837200",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:24:17.463011Z",
+      "latestReplyAt": "2026-06-22T08:05:08Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:88101f3c-d171-46f9-870e-11cb0a8d1533",
+      "personId": "88101f3c-d171-46f9-870e-11cb0a8d1533",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T15:51:50.001118Z",
+      "latestReplyAt": "2026-06-22T07:52:49Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:263d7774-03ae-4aa6-af22-7460e50bf6e5",
+      "personId": "263d7774-03ae-4aa6-af22-7460e50bf6e5",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T15:45:26.968371Z",
+      "latestReplyAt": "2026-06-22T07:45:01Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:6344fe0b-6be2-4d00-b005-02165d3f5abf",
+      "personId": "6344fe0b-6be2-4d00-b005-02165d3f5abf",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:27:59.266624Z",
+      "latestReplyAt": "2026-06-22T07:40:08Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:0100b7f4-88dd-4ca9-954f-c75b5c7e56fc",
+      "personId": "0100b7f4-88dd-4ca9-954f-c75b5c7e56fc",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:24:18.369107Z",
+      "latestReplyAt": "2026-06-22T07:39:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:cc369bda-94eb-470e-9005-a31c42b254e0",
+      "personId": "cc369bda-94eb-470e-9005-a31c42b254e0",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T08:00:40.843836Z",
+      "latestReplyAt": "2026-06-22T07:30:40Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:3d96bd13-a3ec-4618-82d1-a4cd0e71fb25",
+      "personId": "3d96bd13-a3ec-4618-82d1-a4cd0e71fb25",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:21:16.875708Z",
+      "latestReplyAt": "2026-06-22T06:37:01Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:d75c86b7-2e08-4379-8202-8dbe75f89d9c",
+      "personId": "d75c86b7-2e08-4379-8202-8dbe75f89d9c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:36:24.615195Z",
+      "latestReplyAt": "2026-06-22T06:30:09Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:ad75942c-4fee-412a-8e2b-b6caa81cbd70",
+      "personId": "ad75942c-4fee-412a-8e2b-b6caa81cbd70",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:30:34.712341Z",
+      "latestReplyAt": "2026-06-22T06:13:05Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45710:f9d475c8-f8e9-48fe-8317-dcbc7475f136",
+      "personId": "f9d475c8-f8e9-48fe-8317-dcbc7475f136",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45710,
+      "campaignName": "Utility Providers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T13:39:37.258716Z",
+      "latestReplyAt": "2026-06-22T06:05:00Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:50767:a66fa4c0-54f1-4afb-ba63-640670a01c91",
+      "personId": "a66fa4c0-54f1-4afb-ba63-640670a01c91",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 50767,
+      "campaignName": "RGE Renovation Installers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T07:18:50.668783Z",
+      "latestReplyAt": "2026-06-23T08:29:10Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:50767:b6e675c7-5c78-42e3-9576-b0b5866d7ca1",
+      "personId": "b6e675c7-5c78-42e3-9576-b0b5866d7ca1",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 50767,
+      "campaignName": "RGE Renovation Installers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T00:02:08.770511Z",
+      "latestReplyAt": "2026-06-22T09:40:58Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:50767:74c88b3f-6e66-4ba5-959f-5e2354774d79",
+      "personId": "74c88b3f-6e66-4ba5-959f-5e2354774d79",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 50767,
+      "campaignName": "RGE Renovation Installers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T01:15:49.398785Z",
+      "latestReplyAt": "2026-06-22T09:02:48Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:50767:8f4cf5d8-a945-4a35-8154-be4adc265819",
+      "personId": "8f4cf5d8-a945-4a35-8154-be4adc265819",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 50767,
+      "campaignName": "RGE Renovation Installers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T01:39:42.876000Z",
+      "latestReplyAt": "2026-06-22T08:47:03Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:50767:ee41710c-880f-4c2d-999a-b9a2c45a28c6",
+      "personId": "ee41710c-880f-4c2d-999a-b9a2c45a28c6",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 50767,
+      "campaignName": "RGE Renovation Installers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T01:48:41.498401Z",
+      "latestReplyAt": "2026-06-22T07:49:01Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:50767:28c75772-6dca-40fc-8407-56231080d76b",
+      "personId": "28c75772-6dca-40fc-8407-56231080d76b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 50767,
+      "campaignName": "RGE Renovation Installers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-20T01:36:26.526749Z",
+      "latestReplyAt": "2026-06-22T07:26:07Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:50767:c654b406-4afd-4b02-bbb8-0df3594ea044",
+      "personId": "c654b406-4afd-4b02-bbb8-0df3594ea044",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 50767,
+      "campaignName": "RGE Renovation Installers",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T07:33:46.699870Z",
+      "latestReplyAt": "2026-06-22T06:59:23Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:5f02e6ef-bbad-4e6d-8ea0-623dbfaa027b",
+      "personId": "5f02e6ef-bbad-4e6d-8ea0-623dbfaa027b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T18:23:14.017358Z",
+      "latestReplyAt": "2026-06-29T10:58:51Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:b7cad880-56c9-4e30-8962-c855d37491dc",
+      "personId": "b7cad880-56c9-4e30-8962-c855d37491dc",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-26T10:37:04.940303Z",
+      "latestReplyAt": "2026-06-26T19:57:29Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:1c27aa33-9344-4d43-956a-ba7e30470b39",
+      "personId": "1c27aa33-9344-4d43-956a-ba7e30470b39",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T09:34:52.561907Z",
+      "latestReplyAt": "2026-06-25T10:12:56Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:67313bdd-c0f1-4404-8234-02bb7187a3f4",
+      "personId": "67313bdd-c0f1-4404-8234-02bb7187a3f4",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T09:34:53.554680Z",
+      "latestReplyAt": "2026-06-25T09:35:54Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:ac5ea425-b0c8-47e3-93f2-e8fe0a8d8c5b",
+      "personId": "ac5ea425-b0c8-47e3-93f2-e8fe0a8d8c5b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T18:54:49.345775Z",
+      "latestReplyAt": "2026-06-24T08:44:26Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:5011dca9-0f67-42d8-89f0-4d5ff698cbc7",
+      "personId": "5011dca9-0f67-42d8-89f0-4d5ff698cbc7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T18:52:11.276394Z",
+      "latestReplyAt": "2026-06-24T07:16:32Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:41ed9a69-7fda-4961-a968-f85abdfcbab2",
+      "personId": "41ed9a69-7fda-4961-a968-f85abdfcbab2",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T13:16:11.101693Z",
+      "latestReplyAt": "2026-06-23T16:55:45Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:883e7e9c-14d5-462c-a9ba-8743f60f062b",
+      "personId": "883e7e9c-14d5-462c-a9ba-8743f60f062b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T13:18:31.813375Z",
+      "latestReplyAt": "2026-06-23T12:30:06Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:b3fd251d-896e-43f9-a02a-45db3349f770",
+      "personId": "b3fd251d-896e-43f9-a02a-45db3349f770",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T13:01:23.172513Z",
+      "latestReplyAt": "2026-06-23T11:38:41Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:7e318d88-674a-43dc-8358-0b97e95e1b59",
+      "personId": "7e318d88-674a-43dc-8358-0b97e95e1b59",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T14:27:18.958350Z",
+      "latestReplyAt": "2026-06-23T10:45:07Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:a63ad173-4e9e-4c97-833d-6c7a06ffaf19",
+      "personId": "a63ad173-4e9e-4c97-833d-6c7a06ffaf19",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T11:13:28.769234Z",
+      "latestReplyAt": "2026-06-23T09:57:35Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:6b20641f-3bc0-4f4f-ab69-f2c5b8796732",
+      "personId": "6b20641f-3bc0-4f4f-ab69-f2c5b8796732",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-23T10:01:11.635895Z",
+      "latestReplyAt": "2026-06-23T08:01:47Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:945bb9c8-6cec-4c02-a7d6-083310ece7f8",
+      "personId": "945bb9c8-6cec-4c02-a7d6-083310ece7f8",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:51:52.222243Z",
+      "latestReplyAt": "2026-06-22T19:57:01Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:0c3b7649-f292-4134-afae-550e4551fb67",
+      "personId": "0c3b7649-f292-4134-afae-550e4551fb67",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:30:53.829591Z",
+      "latestReplyAt": "2026-06-22T19:39:07Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:7219e134-8b49-4a47-bbbb-61a35660b9b3",
+      "personId": "7219e134-8b49-4a47-bbbb-61a35660b9b3",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:28:11.381260Z",
+      "latestReplyAt": "2026-06-22T19:35:47Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:7257cf04-00c3-407b-ad1e-deb1ca58da55",
+      "personId": "7257cf04-00c3-407b-ad1e-deb1ca58da55",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T14:13:00.224637Z",
+      "latestReplyAt": "2026-06-22T14:18:47Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:5a6d36b3-e1bd-4c38-ae4d-e637291b04a0",
+      "personId": "5a6d36b3-e1bd-4c38-ae4d-e637291b04a0",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:51:47.291223Z",
+      "latestReplyAt": "2026-06-22T14:09:24Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:7c9c7960-863e-4e05-9b26-8c0b772ce067",
+      "personId": "7c9c7960-863e-4e05-9b26-8c0b772ce067",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T13:57:41.178286Z",
+      "latestReplyAt": "2026-06-22T14:03:44Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:b48b0db9-36b3-4421-a457-143057e25e53",
+      "personId": "b48b0db9-36b3-4421-a457-143057e25e53",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:49:18.020560Z",
+      "latestReplyAt": "2026-06-22T13:59:14Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:f207df66-a52e-4086-8561-ef702477e493",
+      "personId": "f207df66-a52e-4086-8561-ef702477e493",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:49:21.113602Z",
+      "latestReplyAt": "2026-06-22T13:56:17Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:b7748470-c37d-4fad-a4b6-c39e8831312c",
+      "personId": "b7748470-c37d-4fad-a4b6-c39e8831312c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:43:12.291875Z",
+      "latestReplyAt": "2026-06-22T13:55:48Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:66aaba3a-db63-4ea0-af37-2f4626c7eea2",
+      "personId": "66aaba3a-db63-4ea0-af37-2f4626c7eea2",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:43:10.040695Z",
+      "latestReplyAt": "2026-06-22T13:52:29Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:5a0b3c04-2849-45cb-bce8-ff3425a3e29b",
+      "personId": "5a0b3c04-2849-45cb-bce8-ff3425a3e29b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:51:46.938574Z",
+      "latestReplyAt": "2026-06-22T13:51:26Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:92b4adec-4a6e-476a-b0c0-a03caf88cd51",
+      "personId": "92b4adec-4a6e-476a-b0c0-a03caf88cd51",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:30:56.444180Z",
+      "latestReplyAt": "2026-06-22T13:51:07Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:1e8b569e-fdbe-4af1-8def-1d714dee35f2",
+      "personId": "1e8b569e-fdbe-4af1-8def-1d714dee35f2",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:46:15.595640Z",
+      "latestReplyAt": "2026-06-22T13:09:09Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:2592933e-3163-499e-8a8a-f212a7db59aa",
+      "personId": "2592933e-3163-499e-8a8a-f212a7db59aa",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:46:16.272322Z",
+      "latestReplyAt": "2026-06-22T13:06:34Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:79da5f2e-8888-4ec6-9897-c56c4dcac32d",
+      "personId": "79da5f2e-8888-4ec6-9897-c56c4dcac32d",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:46:17.074284Z",
+      "latestReplyAt": "2026-06-22T13:05:17Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:9082be36-7749-4d5d-a4ae-7856fba90ef0",
+      "personId": "9082be36-7749-4d5d-a4ae-7856fba90ef0",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:28:11.488336Z",
+      "latestReplyAt": "2026-06-22T13:01:11Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:17e54ca8-625f-4465-9d73-59c18026a778",
+      "personId": "17e54ca8-625f-4465-9d73-59c18026a778",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:43:07.617268Z",
+      "latestReplyAt": "2026-06-22T13:00:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:817bea47-51c9-425f-9334-9d388733d3c9",
+      "personId": "817bea47-51c9-425f-9334-9d388733d3c9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:30:56.013106Z",
+      "latestReplyAt": "2026-06-22T13:00:47Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:51190:7ff09297-25a1-41bd-9f4e-7e2b661df863",
+      "personId": "7ff09297-25a1-41bd-9f4e-7e2b661df863",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 51190,
+      "campaignName": "Research Funding Councils",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-22T12:30:55.756463Z",
+      "latestReplyAt": "2026-06-22T12:57:08Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45708:66002efa-8571-44d0-8612-cc900616021d",
+      "personId": "66002efa-8571-44d0-8612-cc900616021d",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45708,
+      "campaignName": "Subsidy Aggregators",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-12T22:24:35.884755Z",
+      "latestReplyAt": "2026-05-12T22:19:34Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45708:a76ac92e-9b87-48e1-9b2b-6836b0aa0f5f",
+      "personId": "a76ac92e-9b87-48e1-9b2b-6836b0aa0f5f",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45708,
+      "campaignName": "Subsidy Aggregators",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-12T07:18:01.720663Z",
+      "latestReplyAt": "2026-05-12T07:18:18Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45708:febb7d21-93b8-4e55-9203-7ede230dbaf6",
+      "personId": "febb7d21-93b8-4e55-9203-7ede230dbaf6",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45708,
+      "campaignName": "Subsidy Aggregators",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T12:15:06.242274Z",
+      "latestReplyAt": "2026-05-11T14:51:15Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45708:c54b6273-d254-4158-a598-daff26b00834",
+      "personId": "c54b6273-d254-4158-a598-daff26b00834",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45708,
+      "campaignName": "Subsidy Aggregators",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-09T18:21:26.477743Z",
+      "latestReplyAt": "2026-05-11T07:08:38Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:66a7f4fd-cda6-42b2-9a55-39e2c6920af9",
+      "personId": "66a7f4fd-cda6-42b2-9a55-39e2c6920af9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:41:25.497334Z",
+      "latestReplyAt": "2026-07-10T20:32:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:b96985d1-3ee5-4a03-8037-7d84741fb02b",
+      "personId": "b96985d1-3ee5-4a03-8037-7d84741fb02b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T11:21:19.928847Z",
+      "latestReplyAt": "2026-07-08T08:35:02Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:99dbe1e2-acc3-478b-8a1e-80d12c27acd9",
+      "personId": "99dbe1e2-acc3-478b-8a1e-80d12c27acd9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-07T01:25:16.294167Z",
+      "latestReplyAt": "2026-07-07T09:42:37Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:eeedb56e-fa27-4d1d-a8e4-97da74f1d49a",
+      "personId": "eeedb56e-fa27-4d1d-a8e4-97da74f1d49a",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T14:50:44.944958Z",
+      "latestReplyAt": "2026-07-07T08:11:30Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:c382ab0f-536e-4e4d-870d-d8e4bcc0cad4",
+      "personId": "c382ab0f-536e-4e4d-870d-d8e4bcc0cad4",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-07T01:25:15.746123Z",
+      "latestReplyAt": "2026-07-07T01:25:39Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:e2cc418b-25d3-4a69-9bf0-900b37a4ba42",
+      "personId": "e2cc418b-25d3-4a69-9bf0-900b37a4ba42",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T13:31:37.468351Z",
+      "latestReplyAt": "2026-07-06T16:12:15Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:288bd041-45ab-40fb-a853-82165f2713a9",
+      "personId": "288bd041-45ab-40fb-a853-82165f2713a9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T13:31:40.011006Z",
+      "latestReplyAt": "2026-07-06T15:10:30Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:7223e013-cecf-4fd0-a662-007e03be6c95",
+      "personId": "7223e013-cecf-4fd0-a662-007e03be6c95",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T13:31:38.184325Z",
+      "latestReplyAt": "2026-07-06T13:32:59Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:b9fdd88c-ba43-4566-a6cf-89ca6444ffc9",
+      "personId": "b9fdd88c-ba43-4566-a6cf-89ca6444ffc9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T11:21:18.855821Z",
+      "latestReplyAt": "2026-07-06T11:22:02Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:9f73ea1e-af5f-4285-945a-3a62ff209704",
+      "personId": "9f73ea1e-af5f-4285-945a-3a62ff209704",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T10:16:25.980312Z",
+      "latestReplyAt": "2026-07-06T10:18:39Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:947b33a1-63b4-4ec2-815e-3ea68716f73a",
+      "personId": "947b33a1-63b4-4ec2-815e-3ea68716f73a",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:28:40.456035Z",
+      "latestReplyAt": "2026-07-03T10:22:00Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:12554755-044a-4cec-aaae-61be91f54234",
+      "personId": "12554755-044a-4cec-aaae-61be91f54234",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:41:22.638259Z",
+      "latestReplyAt": "2026-07-03T10:19:45Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:6dc3e3c7-dba7-4508-bda6-deb03fc8f124",
+      "personId": "6dc3e3c7-dba7-4508-bda6-deb03fc8f124",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T08:46:20.880882Z",
+      "latestReplyAt": "2026-07-03T10:18:42Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:119a45c2-6cd0-493a-a72a-c921a8a7ad16",
+      "personId": "119a45c2-6cd0-493a-a72a-c921a8a7ad16",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:41:22.356555Z",
+      "latestReplyAt": "2026-07-03T09:46:33Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:733e86ab-547c-4661-8351-b19a91f5bd50",
+      "personId": "733e86ab-547c-4661-8351-b19a91f5bd50",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T04:45:19.352198Z",
+      "latestReplyAt": "2026-07-03T09:36:33Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:0d50cc85-0c32-46ff-b786-dffbcb409a26",
+      "personId": "0d50cc85-0c32-46ff-b786-dffbcb409a26",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:55:39.442625Z",
+      "latestReplyAt": "2026-07-03T09:35:57Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:c71bf25b-a9d2-4d38-991e-76086534043b",
+      "personId": "c71bf25b-a9d2-4d38-991e-76086534043b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T04:46:23.900438Z",
+      "latestReplyAt": "2026-07-03T09:32:05Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:22e316a8-fb86-42bc-95df-cb79c9eedc2d",
+      "personId": "22e316a8-fb86-42bc-95df-cb79c9eedc2d",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:28:36.883681Z",
+      "latestReplyAt": "2026-07-03T09:30:19Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:3d606b0d-1669-4c2b-a6b6-f43b4e1719be",
+      "personId": "3d606b0d-1669-4c2b-a6b6-f43b4e1719be",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T08:46:20.678890Z",
+      "latestReplyAt": "2026-07-03T09:26:30Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:737c8dd8-c774-415e-be4e-c5fef5679738",
+      "personId": "737c8dd8-c774-415e-be4e-c5fef5679738",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T04:51:28.452822Z",
+      "latestReplyAt": "2026-07-03T09:26:11Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:efc589bd-e681-4aeb-b230-66481fb8cc78",
+      "personId": "efc589bd-e681-4aeb-b230-66481fb8cc78",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T08:46:22.071304Z",
+      "latestReplyAt": "2026-07-03T09:05:44Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:e49b473e-4728-40cc-b781-17a7592cfdb7",
+      "personId": "e49b473e-4728-40cc-b781-17a7592cfdb7",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:13:18.327044Z",
+      "latestReplyAt": "2026-07-03T09:02:59Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:9d34d44a-71e5-4707-8aa8-0fdd79b630be",
+      "personId": "9d34d44a-71e5-4707-8aa8-0fdd79b630be",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T04:45:20.229273Z",
+      "latestReplyAt": "2026-07-03T09:01:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:49c6a2d4-d458-44cc-b66b-0111f8ea935e",
+      "personId": "49c6a2d4-d458-44cc-b66b-0111f8ea935e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T09:47:47.315894Z",
+      "latestReplyAt": "2026-07-03T09:01:16Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:11bc79aa-6b0b-41ab-8326-3d0e143413b2",
+      "personId": "11bc79aa-6b0b-41ab-8326-3d0e143413b2",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T08:46:20.092550Z",
+      "latestReplyAt": "2026-07-03T08:52:31Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:f3ff92f9-99b1-4e5c-87b0-bfc103e96b83",
+      "personId": "f3ff92f9-99b1-4e5c-87b0-bfc103e96b83",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T08:46:22.253988Z",
+      "latestReplyAt": "2026-07-03T08:52:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:ac12f222-83ce-4443-8e1d-211fa7dcf65a",
+      "personId": "ac12f222-83ce-4443-8e1d-211fa7dcf65a",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T08:44:28.962658Z",
+      "latestReplyAt": "2026-07-03T08:51:44Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:c489d88f-b18f-4faa-9770-3d386f54f58b",
+      "personId": "c489d88f-b18f-4faa-9770-3d386f54f58b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T08:44:31.493154Z",
+      "latestReplyAt": "2026-07-03T08:49:47Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:a1624190-954a-4672-8abd-031be6211713",
+      "personId": "a1624190-954a-4672-8abd-031be6211713",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T04:49:21.751382Z",
+      "latestReplyAt": "2026-07-03T07:16:23Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56316:f16305ab-5d23-49ba-b46d-cdd75b0579d8",
+      "personId": "f16305ab-5d23-49ba-b46d-cdd75b0579d8",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56316,
+      "campaignName": "Grant-Making Foundations",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-03T04:49:22.601473Z",
+      "latestReplyAt": "2026-07-03T07:04:54Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:dd9d9ed9-59ff-43a0-9276-aa7f08a7ddc4",
+      "personId": "dd9d9ed9-59ff-43a0-9276-aa7f08a7ddc4",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-01T04:01:25.049260Z",
+      "latestReplyAt": "2026-07-01T07:20:33Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:54df00eb-14ca-47e3-996b-002c072f6441",
+      "personId": "54df00eb-14ca-47e3-996b-002c072f6441",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-01T06:47:15.691503Z",
+      "latestReplyAt": "2026-07-01T06:53:35Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:59b70b98-2d1a-43b4-b807-064295e8f034",
+      "personId": "59b70b98-2d1a-43b4-b807-064295e8f034",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-01T06:40:26.218985Z",
+      "latestReplyAt": "2026-07-01T06:51:51Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:7d75c8e7-6a27-494b-b87e-e336b444f5e0",
+      "personId": "7d75c8e7-6a27-494b-b87e-e336b444f5e0",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": null,
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T20:36:16.218685Z",
+      "latestReplyAt": "2026-06-25T11:12:17Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:efa13fb8-8737-4192-b0a3-b8783df2ee7d",
+      "personId": "efa13fb8-8737-4192-b0a3-b8783df2ee7d",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T20:39:17.041150Z",
+      "latestReplyAt": "2026-06-22T10:37:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:86a781ed-063a-4dca-b130-1ec549e7f2c1",
+      "personId": "86a781ed-063a-4dca-b130-1ec549e7f2c1",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T20:36:17.779309Z",
+      "latestReplyAt": "2026-06-22T07:54:05Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:f06540a3-baca-4f6b-aeff-6aa1575af659",
+      "personId": "f06540a3-baca-4f6b-aeff-6aa1575af659",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T20:39:17.581957Z",
+      "latestReplyAt": "2026-06-22T07:52:05Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:9545704a-bb6e-4d47-a979-d3e88f8fd71b",
+      "personId": "9545704a-bb6e-4d47-a979-d3e88f8fd71b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T20:36:18.949993Z",
+      "latestReplyAt": "2026-06-22T07:38:49Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:7a5570f5-247f-46cc-872d-0d23ffac97b3",
+      "personId": "7a5570f5-247f-46cc-872d-0d23ffac97b3",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T21:15:26.681011Z",
+      "latestReplyAt": "2026-06-22T07:31:23Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:37edc508-e4b9-4c26-9531-01f636d66f8e",
+      "personId": "37edc508-e4b9-4c26-9531-01f636d66f8e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": null,
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T21:15:25.952326Z",
+      "latestReplyAt": "2026-06-22T07:19:57Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:18015ed7-47d1-4e49-80c1-693545a80412",
+      "personId": "18015ed7-47d1-4e49-80c1-693545a80412",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T20:20:30.046589Z",
+      "latestReplyAt": "2026-06-22T06:56:45Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45712:14b7cc8e-4feb-4d85-b38f-02787af5ee26",
+      "personId": "14b7cc8e-4feb-4d85-b38f-02787af5ee26",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45712,
+      "campaignName": "Energy Lenders",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-19T20:23:31.474624Z",
+      "latestReplyAt": "2026-06-22T06:29:32Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:aea9b278-6ea8-4b39-b0d9-e844e340e56b",
+      "personId": "aea9b278-6ea8-4b39-b0d9-e844e340e56b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "not_interested",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T09:19:38.701818Z",
+      "latestReplyAt": "2026-07-10T10:16:08Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:9e2248f4-54ba-4d44-a34d-a40edf19a0d4",
+      "personId": "9e2248f4-54ba-4d44-a34d-a40edf19a0d4",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "recipient_gone",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T07:25:46.316791Z",
+      "latestReplyAt": "2026-07-10T07:51:35Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:e1eff458-135a-43ad-a705-0adddee7807e",
+      "personId": "e1eff458-135a-43ad-a705-0adddee7807e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T06:41:59.501067Z",
+      "latestReplyAt": "2026-07-10T06:44:24Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:6bfd403c-9525-461d-a968-fb2a82b1e500",
+      "personId": "6bfd403c-9525-461d-a968-fb2a82b1e500",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-09T08:56:53.153231Z",
+      "latestReplyAt": "2026-07-09T08:57:45Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:fe7251d0-5a20-4dd5-b3f9-dbd5c569ee9c",
+      "personId": "fe7251d0-5a20-4dd5-b3f9-dbd5c569ee9c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-09T06:09:41.992077Z",
+      "latestReplyAt": "2026-07-09T06:10:14Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:6a426785-1a6e-4352-a72f-d8d4069d9654",
+      "personId": "6a426785-1a6e-4352-a72f-d8d4069d9654",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T15:17:13.939672Z",
+      "latestReplyAt": "2026-07-07T10:21:59Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:3dc65a1d-90ec-4c73-84a0-313edb79608c",
+      "personId": "3dc65a1d-90ec-4c73-84a0-313edb79608c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T15:17:10.824482Z",
+      "latestReplyAt": "2026-07-07T08:45:33Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:b0f37d4c-acec-4224-b02c-ca76c660e124",
+      "personId": "b0f37d4c-acec-4224-b02c-ca76c660e124",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T06:50:11.512534Z",
+      "latestReplyAt": "2026-07-07T06:01:13Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:ca809418-9c5c-4c34-a3db-453fbde0fd4e",
+      "personId": "ca809418-9c5c-4c34-a3db-453fbde0fd4e",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-04T03:12:23.600989Z",
+      "latestReplyAt": "2026-07-06T09:20:09Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:21c3974d-7491-4f5e-aed9-f9d745fb47cb",
+      "personId": "21c3974d-7491-4f5e-aed9-f9d745fb47cb",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-06T02:00:07.078950Z",
+      "latestReplyAt": "2026-07-06T08:43:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:3c49c4e1-a918-46b4-8ae2-c4f637052104",
+      "personId": "3c49c4e1-a918-46b4-8ae2-c4f637052104",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-04T04:28:43.375236Z",
+      "latestReplyAt": "2026-07-06T06:44:35Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:b2226fb7-b603-4c9e-9dcf-e7d7d424734f",
+      "personId": "b2226fb7-b603-4c9e-9dcf-e7d7d424734f",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-04T04:32:03.383987Z",
+      "latestReplyAt": "2026-07-06T06:32:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:56828:58804041-6fdd-4cbf-9d6a-f2bbe0dc6613",
+      "personId": "58804041-6fdd-4cbf-9d6a-f2bbe0dc6613",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 56828,
+      "campaignName": "Structural Fund Authorities",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-04T03:09:19.315978Z",
+      "latestReplyAt": "2026-07-06T06:28:48Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:6cb02a92-1301-49ce-957b-024f2afc53ca",
+      "personId": "6cb02a92-1301-49ce-957b-024f2afc53ca",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T12:15:05.771855Z",
+      "latestReplyAt": "2026-05-11T13:50:14Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:2a05b70e-0a54-413c-91aa-a63c5d0c955b",
+      "personId": "2a05b70e-0a54-413c-91aa-a63c5d0c955b",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T13:10:36.764095Z",
+      "latestReplyAt": "2026-05-11T13:40:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:e4806802-56d5-4f8b-92b2-168daba0b25a",
+      "personId": "e4806802-56d5-4f8b-92b2-168daba0b25a",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T11:39:28.162673Z",
+      "latestReplyAt": "2026-05-11T13:06:34Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:1c05c116-9170-479c-acbc-10923ee20dc1",
+      "personId": "1c05c116-9170-479c-acbc-10923ee20dc1",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T11:39:26.979028Z",
+      "latestReplyAt": "2026-05-11T12:10:24Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:67c5f0aa-3b37-40e1-a5b1-e590b75bedde",
+      "personId": "67c5f0aa-3b37-40e1-a5b1-e590b75bedde",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T11:07:44.838896Z",
+      "latestReplyAt": "2026-05-11T11:11:28Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:5f05787f-2f4d-485a-a2d3-b10ae8d30c97",
+      "personId": "5f05787f-2f4d-485a-a2d3-b10ae8d30c97",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T11:07:44.727867Z",
+      "latestReplyAt": "2026-05-11T11:11:05Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:f9a6b29c-3f30-40f2-ad3d-bfed20580c32",
+      "personId": "f9a6b29c-3f30-40f2-ad3d-bfed20580c32",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-11T09:37:43.402342Z",
+      "latestReplyAt": "2026-05-11T09:13:20Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:45707:2c7a394e-a2d8-438b-9135-35ddc558487f",
+      "personId": "2c7a394e-a2d8-438b-9135-35ddc558487f",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 45707,
+      "campaignName": "Energy EPC Firms",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-05-09T18:21:26.106840Z",
+      "latestReplyAt": "2026-05-11T06:47:04Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60825:8eaae6b9-f2b1-46e6-a1af-f02e0ddac498",
+      "personId": "8eaae6b9-f2b1-46e6-a1af-f02e0ddac498",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60825,
+      "campaignName": "National Funding Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T15:50:10.781501Z",
+      "latestReplyAt": "2026-07-16T15:54:10Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60825:c5eac0fd-d441-475b-91c8-283e8cf4ede4",
+      "personId": "c5eac0fd-d441-475b-91c8-283e8cf4ede4",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60825,
+      "campaignName": "National Funding Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T15:36:20.799794Z",
+      "latestReplyAt": "2026-07-16T15:39:44Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60825:ffedd02c-56fc-42d9-ab28-0b2ddbf9cf34",
+      "personId": "ffedd02c-56fc-42d9-ab28-0b2ddbf9cf34",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60825,
+      "campaignName": "National Funding Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T15:36:19.600136Z",
+      "latestReplyAt": "2026-07-16T15:37:20Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60825:353b4e51-b66c-486d-96ac-2a8cfdb328fd",
+      "personId": "353b4e51-b66c-486d-96ac-2a8cfdb328fd",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60825,
+      "campaignName": "National Funding Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-16T09:46:56.639770Z",
+      "latestReplyAt": "2026-07-16T09:47:31Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60825:9aef3170-1f14-4ae2-ad1c-a52fe80fa7b9",
+      "personId": "9aef3170-1f14-4ae2-ad1c-a52fe80fa7b9",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60825,
+      "campaignName": "National Funding Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T15:30:57.493873Z",
+      "latestReplyAt": "2026-07-13T15:34:38Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60825:1465027d-bbbc-4f92-8bb1-6884d5127f58",
+      "personId": "1465027d-bbbc-4f92-8bb1-6884d5127f58",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60825,
+      "campaignName": "National Funding Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T06:55:10.974908Z",
+      "latestReplyAt": "2026-07-13T09:26:22Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60825:0a6724ec-24c4-4cbe-8af2-a7fca0947838",
+      "personId": "0a6724ec-24c4-4cbe-8af2-a7fca0947838",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60825,
+      "campaignName": "National Funding Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-13T06:55:09.865092Z",
+      "latestReplyAt": "2026-07-13T08:05:23Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:55b80fde-e425-42a6-866d-5a3f53325726",
+      "personId": "55b80fde-e425-42a6-866d-5a3f53325726",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-26T10:31:51.633171Z",
+      "latestReplyAt": "2026-06-26T12:26:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:03fa8206-145f-4ffb-b87c-2389792a5086",
+      "personId": "03fa8206-145f-4ffb-b87c-2389792a5086",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T16:00:29.017176Z",
+      "latestReplyAt": "2026-06-26T09:59:42Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:cacb2ff4-ccec-408f-8d94-cafb1302bb34",
+      "personId": "cacb2ff4-ccec-408f-8d94-cafb1302bb34",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T16:04:17.613964Z",
+      "latestReplyAt": "2026-06-26T09:43:45Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:ae686b7f-845d-4919-a520-cf92fa5d2cf8",
+      "personId": "ae686b7f-845d-4919-a520-cf92fa5d2cf8",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T16:04:15.524033Z",
+      "latestReplyAt": "2026-06-26T08:47:00Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:31fb3c63-8c2f-4fe9-8f1a-e2e63593b862",
+      "personId": "31fb3c63-8c2f-4fe9-8f1a-e2e63593b862",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T16:00:24.052459Z",
+      "latestReplyAt": "2026-06-26T08:37:42Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:fea69843-bea7-4e9e-bf2e-e5dd5c2db460",
+      "personId": "fea69843-bea7-4e9e-bf2e-e5dd5c2db460",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": null,
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T16:09:21.385043Z",
+      "latestReplyAt": "2026-06-26T07:55:41Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:a5e099d7-0bca-41db-a127-357096086aa8",
+      "personId": "a5e099d7-0bca-41db-a127-357096086aa8",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T16:04:15.178768Z",
+      "latestReplyAt": "2026-06-26T07:33:01Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:9bc79b52-a9eb-476a-bd59-fd7c06ebbf76",
+      "personId": "9bc79b52-a9eb-476a-bd59-fd7c06ebbf76",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T16:04:14.499687Z",
+      "latestReplyAt": "2026-06-26T06:35:55Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:52261:ab33c881-88ff-418f-97aa-833e04e03d21",
+      "personId": "ab33c881-88ff-418f-97aa-833e04e03d21",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 52261,
+      "campaignName": "Innovation Enterprise Agencies",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-06-25T03:31:55.856231Z",
+      "latestReplyAt": "2026-06-25T08:16:18Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:63001:43ba6f88-436c-4227-9e56-53a370fc56fa",
+      "personId": "43ba6f88-436c-4227-9e56-53a370fc56fa",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 63001,
+      "campaignName": "Public Agencies South",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "out_of_office",
+      "sentCount": 1,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-15T09:03:12.605324Z",
+      "latestReplyAt": "2026-07-15T09:03:56Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:63001:5efa2cb2-b7c4-401f-8f89-217c4989ae0c",
+      "personId": "5efa2cb2-b7c4-401f-8f89-217c4989ae0c",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 63001,
+      "campaignName": "Public Agencies South",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-15T07:33:26.509361Z",
+      "latestReplyAt": "2026-07-15T07:25:04Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    },
+    {
+      "contactId": "explee:16763:60150:e190bfba-56eb-40e8-993e-0b98b072e567",
+      "personId": "e190bfba-56eb-40e8-993e-0b98b072e567",
+      "source": "explee-public-api",
+      "projectId": 16763,
+      "campaignId": 60150,
+      "campaignName": "Education Fund Administrators",
+      "channelHints": [
+        "email"
+      ],
+      "latestIntent": "email_changed",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-10T13:59:03.689826Z",
+      "latestReplyAt": "2026-07-10T13:41:27Z",
+      "nextAction": "classify",
+      "pii": "redacted_at_boundary"
+    }
+  ],
+  "intentSummary": {
+    "hot_lead": 2,
+    "not_interested": 13,
+    "out_of_office": 159,
+    "email_changed": 18,
+    "recipient_gone": 10,
+    "unknown": 5
+  },
+  "metricsNote": "opaque person IDs only; no subjects/bodies/emails"
+}

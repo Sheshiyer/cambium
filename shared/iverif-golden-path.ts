@@ -48,6 +48,8 @@ export const IVERIF_GOLDEN_PATH = compileOperationalPacketProjection({
     { stage: 'mapping-receipt-verified', authority: 'issued mapping receipt plus byte-identical R2 readback', current: true, surface: 'intake' },
     { stage: 'planned', authority: 'repository-owned IVerif packet', current: true, surface: 'both' },
     { stage: 'd1-eligible', authority: 'mapping receipt readback plus reviewed operational packet; proposal unlocked but not applied', current: true, surface: 'intake' },
+    // Residual founder gate: no D1 CAS commit / Mini App Gate approval in this worktree.
+    // Keep admitted.current false; do not invent fake D1 evidence for a draft-only flip.
     { stage: 'admitted', authority: 'D1 Goal Graph exact WorkObject anchor', current: false, surface: 'execution' },
     { stage: 'pinned', authority: 'D1 loadout anchor plus loadout registry', current: false, surface: 'execution' },
     { stage: 'executed', authority: 'fenced run plus terminal receipt', current: false, surface: 'execution' },
@@ -73,8 +75,8 @@ export const IVERIF_GOLDEN_PATH = compileOperationalPacketProjection({
     arcTitle: 'Wiki Infrastructure Verification',
     vision: 'IVerif becomes the second governed Thoughtseed Sapling, proving a portfolio-mapped wiki identity can anchor a verified, admitted, and pinned D1 Task without collapsing planning, operational state, execution evidence, and learning into one ambiguous record.',
     icp: 'Thoughtseed founder or operator who needs verifiable WorkObject admission and loadout pinning from portfolio-mapped wiki infrastructure.',
-    currentFrontier: 'Mapping receipt issued and read back; D1 anchor remains pending founder-signed Mini App Gate approval.',
-    antiClaims: 'Do not claim tenant admission, loadout pin, or execution before issued mapping receipt readback and D1 CAS commit.',
+    currentFrontier: 'Draft-only FR GTM/composition may plan (market fr-FR + MERISTEM_V2). Mapping receipt is issued and read back, but D1 CAS and Mini App Gate remain missing — admitted.current stays false.',
+    antiClaims: 'Do not claim D1 admission, loadout pin, Explee mutation, or execution before founder-signed Mini App Gate approval and a real D1 CAS commit. Path A draft-only planning is not execution admission.',
   },
   feedbackLoop: [
     'intent',
@@ -133,8 +135,9 @@ export const IVERIF_GOLDEN_PATH = compileOperationalPacketProjection({
     },
   ],
   gates: [
-    { gate: 'Human approvals', status: 'pending', requiredProof: 'Founder-signed Mini App Gate approval for D1 CAS commit of the issued receipt.' },
+    { gate: 'Human approvals', status: 'pending', requiredProof: 'Founder-signed Mini App Gate approval for D1 CAS commit of the issued receipt. Residual blocker for admitted.current=true.' },
     { gate: 'Credentials', status: 'verified', requiredProof: 'Byte-identical R2 readback of exact mapping evidence.' },
+    { gate: 'Draft-only composition', status: 'verified', requiredProof: 'Path A draft-only plan axis with Explee active_read_only / mutation_enabled false; no Explee POST.' },
   ],
   proofs: [
     {

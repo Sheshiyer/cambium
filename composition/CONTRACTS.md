@@ -22,12 +22,15 @@ The `input`/`output` tokens below are the contract identifiers referenced by the
 
 ### 1. `genesis` — Mint the brand · organ: **genesis** (`meristem`) · *free*
 - **in** `idea` — a Meristem checkout path whose `brands/thoughtseed/brand-config.yaml` and `.brandmint`
-  outputs carry the seed idea.
-- **out** `brand-dna` — structured Cambium JSON containing `brand_system`, `copy_system`, and
-  `visual_system`. The canonical brand registration.
+  outputs carry the seed idea, or a MERISTEM_V2 wiki/research/MDS packet.
+- **out** `brand-dna` — structured Cambium JSON containing `brand_system`, `copy_system`,
+  `visual_system`, and optional `market`. The canonical brand registration.
 - **fulfilled by** Cambium's Meristem contract shim:
-  `node scripts/meristem-genesis-contract.mjs --meristem-root <meristem-root> --brand-dir brands/thoughtseed --out -`.
-  The shim maps existing Meristem `.brandmint` outputs rather than running paid generation.
+  `node scripts/meristem-genesis-contract.mjs --meristem-root <meristem-root> --brand-dir brands/thoughtseed --out -`
+  (add `--mode MERISTEM_V2` for wiki + `research/EVIDENCE-LEDGER.md` + MDS sources).
+  The shim maps existing Meristem outputs rather than running paid generation.
+- **approval**: sequential only — `compose run <tenant> --execute --approve genesis`, then
+  `taste`, `build`, and `ops` one stage at a time. Do not invent hands/will stage ids.
 
 ### 2. `taste` — Set the taste · organ: **taste** (`skill-clusters/taste`) · *paid*
 - **in** `brand-dna` (+ an artifact to check, on later passes).
@@ -73,6 +76,17 @@ brand, copy, visuals, assets, sections, interactions, and acceptance checks.
 - **Optional**: `brand_id`, `category`, `differentiators`.
 - **If required fields are missing**: treat the hand-off as contract drift to repair; downstream stages
   should not infer the missing brand core from prose alone.
+
+### `market`
+- **Variables**: `region` (ISO-3166 alpha-2, e.g. `FR`), `language` (BCP-47 primary tag, e.g. `fr`).
+- **Owned by**: `genesis` seeds it from the composition `--market` axis (for example `fr-FR` →
+  `{ region: "FR", language: "fr" }`); downstream stages must preserve the exact pair.
+- **Consumed by**: `taste`, `build`, `ops`, marketing capability filtering, and `cortex`.
+- **Required**: `region`, `language` when a market-scoped plan or marketing filter is requested.
+- **Optional**: omit only for unscoped dry-run plans that do not filter capabilities/recipes.
+- **If required fields are missing**: do not invent a locale; fail closed or keep the plan unscoped.
+- **Runtime note**: marketing orchestration filters capabilities/recipes by `brand.market`, treating
+  catalog `regions[]` / `languages[]` wildcards (`*`) as eligible for every market.
 
 ### `copy_system`
 - **Variables**: a top-level `copy_system` group containing a `copy_slots` map for reusable messaging

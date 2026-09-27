@@ -7,7 +7,7 @@ branch_kind: product
 name: IVerif
 role: Compliance and proof product candidate
 promotion_state: proof-only
-current_gate: Claim/proof separation and live campaign reconciliation before automation
+current_gate: Draft-only FR GTM composition may plan; D1 CAS and Mini App Gate still block execution admission
 packet_owner: cambium
 canonical_parent_tenant: cambium
 repository_planning_evidence: Sheshiyer/iverif-wiki@R_kgDOSwXJ7Q
@@ -15,7 +15,7 @@ repository_planning_evidence: Sheshiyer/iverif-wiki@R_kgDOSwXJ7Q
 
 # IVerif Branch Packet
 
-IVerif is a proof-only Cambium product candidate for AI document validation in EU energy subsidy workflows. Current evidence supports a brand/wiki/research packet, not live product readiness, compliance readiness, or branch promotion readiness.
+IVerif is a proof-only Cambium product candidate for AI document validation in EU energy subsidy workflows. Path A draft-only composition may now plan a FR market axis (`fr-FR`) and MERISTEM_V2 wiki/evidence genesis without enabling Explee mutation. Current evidence still does **not** support D1 Goal Graph admission, live product readiness, compliance readiness, or branch promotion readiness.
 
 Owning repository task: [`Sheshiyer/iverif-wiki#91`](https://github.com/Sheshiyer/iverif-wiki/issues/91). Cambium retains cross-portfolio sequencing; the owning repository now holds implementation and local proof.
 
@@ -52,7 +52,7 @@ and never supersede the canonical parent tenant.
 
 | Organ | Owner | Input | Output | Proof Path | Current Gate |
 | --- | --- | --- | --- | --- | --- |
-| Genesis | Brandmint/IVerif source | Brand, wiki, and research assets | `brand_system`, `copy_system`, `visual_system` | Brandmint outputs and wiki artifacts | verified for packet only |
+| Genesis | Brandmint/IVerif source + MERISTEM_V2 | Brand, wiki, MDS, and evidence-ledger assets | `brand_system`, `copy_system`, `visual_system`, `market` | Brandmint outputs, wiki/MDS, `research/EVIDENCE-LEDGER.md`, and `bin/fixtures/meristem-v2-iverif` | verified for draft-only packet |
 | Taste | Cambium taste/compliance review | Public claims and product copy | Claim/reroll verdict | Future source-linked review | blocked |
 | Hands | IVerif repo/wiki site | Build/route verification tasks | Build proof and route proof | Future wiki commands | blocked |
 | Will | GTM/operator routines | Approved claims and operator targets | Pilot outreach/tasking | Future approval log | blocked |
@@ -64,8 +64,9 @@ and never supersede the canonical parent tenant.
 
 | Group | Current Source | Status |
 | --- | --- | --- |
-| `brand_system` | `brand-config.yaml`, `.brandmint-state.json`, `.brandmint/outputs/*.json` | verified for brand packet |
-| `copy_system` | Wiki output, brand outputs, NotebookLM artifacts | pending claim/proof review |
+| `brand_system` | `brand-config.yaml`, `.brandmint-state.json`, `.brandmint/outputs/*.json`, MERISTEM_V2 wiki/MDS | verified for brand packet |
+| `market` | compose `--market fr-FR` → `{ region: "FR", language: "fr" }` | verified for draft-only plan axis |
+| `copy_system` | Wiki output, brand outputs, NotebookLM artifacts, MERISTEM_V2 MDS | pending claim/proof review |
 | `visual_system` | Website assets guide, generated/publish manifests, image provider references | pending asset/source review |
 | `asset_plan` | NotebookLM artifacts and website assets | pending |
 | `section_plan` | Astro wiki-site source and wiki-output docs | pending build proof |
@@ -93,6 +94,8 @@ and never supersede the canonical parent tenant.
 | verified | `wiki-site/package.json` declares `dev`, `build`, `preview`, `verify:data`, and `verify:routes`. |
 | verified | A direct Explee read observation on 2026-07-16 bound project `16763` and Public Agencies campaign `45711`: 2,921 sends, 17 replies, 0.6 percent provider-reported reply rate, six provider-labelled hot leads, $87.63 spend, and 2,779/2,887 pool usage. This verifies provider state only, not product demand or claims. |
 | verified | Cortex receipt-derived read model records IVerif among five canonical packets with semantic recall verified. Redacted summary: `docs/evidence/2026-08-12-cambium-branch-cortex-ingestion.v1.json`. |
+| verified | Path A draft-only FR GTM may plan through Cambium (`compose plan iverif --market fr-FR`) with Explee remaining `active_read_only` / `mutation_enabled: false`. |
+| residual | **D1 CAS / Mini App Gate still missing.** No founder-signed Mini App Gate approval and no D1 Goal Graph CAS commit for `sapling:iverif` exist in this worktree. Do not invent fake D1 evidence. `admitted.current` remains false. |
 | blocked | All 17 observed replies require classification before a qualified-reply baseline or experiment winner can be declared. |
 | blocked | Live campaign activity conflicts with the packet's blocked customer-contact gate; provider auto-reply state and one-writer ownership must be reconciled before any campaign mutation. |
 | blocked | `wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established. |
@@ -125,7 +128,7 @@ and never supersede the canonical parent tenant.
 9. Get explicit operator approval before any product-branch promotion or campaign change.
 10. Keep Cambium provider mutation disabled and the product proof-only until the above gates close.
 
-Current frontier: classify replies and prove redacted read parity while claim/proof and customer-contact gates remain blocked.
+Current frontier: draft-only FR market/genesis composition may plan; classify replies and prove redacted read parity while claim/proof, customer-contact, and D1 CAS/Mini App Gate remain blocked.
 
 Garden cadence: weekly proof review only; no autonomous execution cadence.
 
@@ -146,7 +149,7 @@ First real pilot proof: one operator-approved validation workflow with sourced r
 | arc_title | `Claim Proof Separation` |
 | vision | IVerif becomes a proof-only compliance candidate whose public claims, build routes, and privacy statements are separated before any automation. |
 | icp | Compliance operator or subsidy workflow owner who needs source-linked validation claims and auditable dossier checks. |
-| current_frontier | Claim table, wiki build/route proof, privacy/security evidence, and explicit operator approval. |
+| current_frontier | Draft-only FR plan axis ready; residual founder gate is D1 CAS + Mini App Gate before `admitted.current=true`. |
 | narrative_voice | Compliance reviewer voice: cite the claim, prove the route, block unsupported automation. |
 | anti_claims | Do not claim compliance certification, performance, uptime, market leadership, or live SaaS validation before direct evidence. |
 

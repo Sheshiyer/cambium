@@ -1,0 +1,362 @@
+[
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/projects",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns?project_id=16763",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/projects/16763/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/projects/16763/autopilot",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45707/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45707",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45707/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45707/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45708/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45708",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45708/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45708/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45709/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45709",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45709/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45709/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45710/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45710",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45710/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45710/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45712/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45712",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45712/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/45712/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/50767/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/50767",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/50767/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/50767/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/51190/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/51190",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/51190/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/51190/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/52261/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/52261",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/52261/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/52261/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56316/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56316",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56316/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56316/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56828/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56828",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56828/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/56828/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60150/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60150",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60150/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60150/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60825/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60825",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60825/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/60825/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/63001/analytics?period=all",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/63001",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/63001/inbox?tab=need_reply&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns/63001/inbox?tab=replied&limit=50&offset=0",
+    "status": 200,
+    "ok": true
+  }
+]

@@ -1,0 +1,42 @@
+{
+  "schema": "cambium.iverif.explee-campaign-template.v1",
+  "status": "draft_not_created",
+  "projectId": 35674,
+  "createdAt": "2026-09-11T13:47:00.436779+00:00",
+  "do_not_start": true,
+  "recommended": {
+    "name": "FR CEE \u2014 D\u00e9l\u00e9gataires & ops (clean)",
+    "target_url": "https://iverif.fr",
+    "offer": "Validation documentaire IA pour dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit).",
+    "customer_problem": "Les back-offices croisent 10\u201320 pi\u00e8ces par dossier; les \u00e9carts d\u00e9couverts trop tard co\u00fbtent cher et fragilisent l\u2019audit.",
+    "target_role": "Operations / back-office managers in French d\u00e9l\u00e9gataires and energy-subsidy operators (Marie Durand archetype)",
+    "target_geography": "France",
+    "target_company_size": "50\u2013500 employees",
+    "positive_criteria": [
+      "Runs CEE or Primes \u00c9nergie dossiers",
+      "Needs pre-submission document checks",
+      "Wants audit trail"
+    ],
+    "negative_criteria": [
+      "Homeowners/consumers",
+      "Non-energy public agencies generic outreach",
+      "Markets outside France for v1"
+    ],
+    "language": "fr",
+    "instructions": "Ton pr\u00e9cis, autoritaire, sans hype. Vouvoiement. Ne pas se pr\u00e9senter comme oblig\u00e9/d\u00e9l\u00e9gataire. CTA d\u00e9mo FR.",
+    "followup_instructions": "Rester factuel; rappeler le besoin de contr\u00f4le avant d\u00e9p\u00f4t; proposer d\u00e9mo 20 min; pas de pression."
+  },
+  "cloneCampaignsToAvoidRestarting": [
+    159032,
+    159033,
+    159034,
+    159035,
+    159036,
+    159037
+  ],
+  "nextSteps": [
+    "Operator creates this campaign in UI (Customize / Add) OR authorizes a careful PATCH on one clone after retarget",
+    "Keep autopilot/auto-reply off",
+    "Do not Start until FR copy HITL + budget intentional"
+  ]
+}

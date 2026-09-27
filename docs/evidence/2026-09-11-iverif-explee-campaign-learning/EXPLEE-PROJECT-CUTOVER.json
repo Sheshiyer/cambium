@@ -1,0 +1,102 @@
+{
+  "schema": "cambium.iverif.explee-project-cutover.v1",
+  "decidedAt": "2026-09-11T13:36:22.452002+00:00",
+  "decision": "archive_old_project_use_fresh_project",
+  "reason": "Avoid polluting/deflating campaign stats by reusing historical money-guzzler project 16763",
+  "oldProject": {
+    "projectId": 16763,
+    "status": "archived_absent_from_active_projects_list",
+    "reuseForNewOutreach": false,
+    "reuseForStatsBaseline": false,
+    "allowedUses": [
+      "learning_pack",
+      "failure_mode_analysis",
+      "crm_redacted_history",
+      "evidence_receipts"
+    ],
+    "disallowedUses": [
+      "new_sends",
+      "new_campaigns",
+      "stats_denominator_for_new_fr_gtm",
+      "import_hot_leads_into_fresh_project"
+    ],
+    "notableCampaigns": [
+      {
+        "id": 45711,
+        "name": "Public Agencies",
+        "role": "primary_money_guzzler"
+      },
+      {
+        "id": 56316,
+        "name": "Grant-Making Foundations",
+        "role": "thin_relative_winner_historical_only"
+      }
+    ],
+    "note": "GET /projects no longer returns 16763 after operator archive"
+  },
+  "newProject": {
+    "projectId": 35674,
+    "domain": "iverif.fr",
+    "status": "bound",
+    "boundAt": "2026-09-11T13:44:19.486579+00:00",
+    "createViaPublicApi": false,
+    "observed": {
+      "daily_budget_usd": 10,
+      "autopilot_enabled": true,
+      "auto_reply_enabled": true,
+      "campaigns": [
+        {
+          "id": 159032,
+          "name": "Energy EPC Firms"
+        },
+        {
+          "id": 159033,
+          "name": "Subsidy Aggregators"
+        },
+        {
+          "id": 159034,
+          "name": "Energy Consultants"
+        },
+        {
+          "id": 159035,
+          "name": "Utility Providers"
+        },
+        {
+          "id": 159036,
+          "name": "Public Agencies"
+        },
+        {
+          "id": 159037,
+          "name": "Energy Lenders"
+        }
+      ],
+      "total_emails_sent": 0,
+      "total_spend_usd": 0
+    },
+    "warnings": [
+      "New project already contains 6 campaigns with the SAME names as the archived money-guzzler set \u2014 targeting may still be polluted even with zero sends.",
+      "autopilot_enabled=true and auto_reply_enabled=true \u2014 turn off before arming spend.",
+      "Operator chose to leave project daily budget at $10 (manage in UI)."
+    ],
+    "intendedUse": "Clean FR GTM for iverif.fr \u2014 prefer new FR CEE/d\u00e9l\u00e9gataire campaigns, do not revive Public Agencies ICP"
+  },
+  "hotLeadQueueFromOldProject": {
+    "action": "dropped_from_active_queue",
+    "count": 6,
+    "personIds": [
+      "40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+      "0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+      "27f0b52c-005b-4a14-bfb7-334d72a60a65",
+      "4d2abc82-9bc3-41c4-85a2-c5bbd6588f2b",
+      "c04b057b-82b4-40da-9d8e-e41da41f321a",
+      "6b737f33-8c14-4751-a008-d75940f70cd6"
+    ],
+    "outreachPackStatus": "archived_do_not_send"
+  },
+  "operatorSteps": [
+    "In Explee UI: archive or fully stop project 16763 campaigns; leave as historical",
+    "In Explee UI: create new project named e.g. iverif-fr-gtm-clean",
+    "Paste new project ID back to agent",
+    "Agent rebinds playbooks/CRM/draft package to new ID; keeps 16763 evidence read-only"
+  ]
+}

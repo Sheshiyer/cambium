@@ -1,0 +1,107 @@
+{
+  "observedAt": "2026-09-11T13:50:37.510Z",
+  "action": "POST stop all clone campaigns",
+  "results": [
+    {
+      "id": 159032,
+      "status": 200,
+      "ok": true,
+      "body": {
+        "accepted": true
+      }
+    },
+    {
+      "id": 159033,
+      "status": 200,
+      "ok": true,
+      "body": {
+        "accepted": true
+      }
+    },
+    {
+      "id": 159034,
+      "status": 200,
+      "ok": true,
+      "body": {
+        "accepted": true
+      }
+    },
+    {
+      "id": 159035,
+      "status": 200,
+      "ok": true,
+      "body": {
+        "accepted": true
+      }
+    },
+    {
+      "id": 159036,
+      "status": 200,
+      "ok": true,
+      "body": {
+        "accepted": true
+      }
+    },
+    {
+      "id": 159037,
+      "status": 200,
+      "ok": true,
+      "body": {
+        "accepted": true
+      }
+    }
+  ],
+  "after": {
+    "campaigns": [
+      {
+        "id": 159032,
+        "project_id": 35674,
+        "name": "Energy EPC Firms",
+        "target_url": null,
+        "daily_limit_usd": 10,
+        "status": "listening"
+      },
+      {
+        "id": 159033,
+        "project_id": 35674,
+        "name": "Subsidy Aggregators",
+        "target_url": null,
+        "daily_limit_usd": 10,
+        "status": "listening"
+      },
+      {
+        "id": 159034,
+        "project_id": 35674,
+        "name": "Energy Consultants",
+        "target_url": null,
+        "daily_limit_usd": 10,
+        "status": "listening"
+      },
+      {
+        "id": 159035,
+        "project_id": 35674,
+        "name": "Utility Providers",
+        "target_url": null,
+        "daily_limit_usd": 10,
+        "status": "listening"
+      },
+      {
+        "id": 159036,
+        "project_id": 35674,
+        "name": "Public Agencies",
+        "target_url": null,
+        "daily_limit_usd": 10,
+        "status": "listening"
+      },
+      {
+        "id": 159037,
+        "project_id": 35674,
+        "name": "Energy Lenders",
+        "target_url": null,
+        "daily_limit_usd": 10,
+        "status": "listening"
+      }
+    ],
+    "total": 6
+  }
+}

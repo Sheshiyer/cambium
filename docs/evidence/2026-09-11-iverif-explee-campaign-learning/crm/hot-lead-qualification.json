@@ -1,0 +1,468 @@
+{
+  "schema": "cambium.iverif.hot-lead-qualification.v1",
+  "observedAt": "2026-09-11T13:28:35.079Z",
+  "projectId": 16763,
+  "campaignId": 45711,
+  "campaignName": "Public Agencies",
+  "posture": {
+    "methods": [
+      "GET"
+    ],
+    "mutation_enabled": false,
+    "do_not_post": true
+  },
+  "autopilot": {
+    "project_id": 16763,
+    "autopilot_enabled": false,
+    "auto_reply_enabled": true,
+    "auto_reply_delay_minutes": 1440,
+    "reply_cc_emails": "redacted"
+  },
+  "analytics": {
+    "emails_sent": 2934,
+    "total_replies": 19,
+    "reply_rate_pct": 0.6,
+    "hot_leads": 5,
+    "spend_usd": 88.02,
+    "cost_per_lead_usd": 17.6,
+    "status": "listening",
+    "status_reason": "user_pause",
+    "manual_status_counts": {
+      "Hot": 5,
+      "Unqualified": 1
+    }
+  },
+  "inboxScan": {
+    "repliedContactsScanned": 169,
+    "needReplyCount": 0,
+    "hotLeadIntentCount": 6,
+    "intentHistogram": {
+      "hot_lead": 6,
+      "not_interested": 10,
+      "out_of_office": 135,
+      "email_changed": 8,
+      "recipient_gone": 7,
+      "unknown": 3
+    }
+  },
+  "hotLeads": [
+    {
+      "personId": "40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+      "latestIntent": "hot_lead",
+      "sentCount": 3,
+      "replyCount": 2,
+      "latestSentAt": "2026-07-21T06:26:54.581042Z",
+      "latestReplyAt": "2026-07-17T09:44:06Z",
+      "manualStatus": null
+    },
+    {
+      "personId": "0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+      "latestIntent": "hot_lead",
+      "sentCount": 3,
+      "replyCount": 2,
+      "latestSentAt": "2026-07-17T11:35:31.623030Z",
+      "latestReplyAt": "2026-07-17T06:17:06Z",
+      "manualStatus": null
+    },
+    {
+      "personId": "27f0b52c-005b-4a14-bfb7-334d72a60a65",
+      "latestIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-17T05:43:13.543490Z",
+      "latestReplyAt": "2026-07-09T15:33:59Z",
+      "manualStatus": null
+    },
+    {
+      "personId": "4d2abc82-9bc3-41c4-85a2-c5bbd6588f2b",
+      "latestIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-17T05:43:31.998722Z",
+      "latestReplyAt": "2026-07-07T12:40:56Z",
+      "manualStatus": null
+    },
+    {
+      "personId": "c04b057b-82b4-40da-9d8e-e41da41f321a",
+      "latestIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-17T05:45:11.384947Z",
+      "latestReplyAt": "2026-06-25T09:12:42Z",
+      "manualStatus": null
+    },
+    {
+      "personId": "6b737f33-8c14-4751-a008-d75940f70cd6",
+      "latestIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestSentAt": "2026-07-17T05:45:31.772535Z",
+      "latestReplyAt": "2026-06-22T08:52:59Z",
+      "manualStatus": null
+    }
+  ],
+  "threads": [
+    {
+      "personId": "40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+      "contact": {
+        "personId": "40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+        "latestIntent": "hot_lead",
+        "sentCount": 3,
+        "replyCount": 2,
+        "latestSentAt": "2026-07-21T06:26:54.581042Z",
+        "latestReplyAt": "2026-07-17T09:44:06Z",
+        "manualStatus": null
+      },
+      "canReply": false,
+      "replyBlockedReason": "mailbox_unavailable",
+      "latestIntent": "hot_lead",
+      "messageCount": 5,
+      "messages": [
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        }
+      ],
+      "redactedThreadKeys": [
+        "messages",
+        "can_reply",
+        "reply_blocked_reason",
+        "latest_intent",
+        "lead"
+      ]
+    },
+    {
+      "personId": "0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+      "contact": {
+        "personId": "0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+        "latestIntent": "hot_lead",
+        "sentCount": 3,
+        "replyCount": 2,
+        "latestSentAt": "2026-07-17T11:35:31.623030Z",
+        "latestReplyAt": "2026-07-17T06:17:06Z",
+        "manualStatus": null
+      },
+      "canReply": true,
+      "replyBlockedReason": null,
+      "latestIntent": "hot_lead",
+      "messageCount": 5,
+      "messages": [
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        }
+      ],
+      "redactedThreadKeys": [
+        "messages",
+        "can_reply",
+        "reply_blocked_reason",
+        "latest_intent",
+        "lead"
+      ]
+    },
+    {
+      "personId": "27f0b52c-005b-4a14-bfb7-334d72a60a65",
+      "contact": {
+        "personId": "27f0b52c-005b-4a14-bfb7-334d72a60a65",
+        "latestIntent": "hot_lead",
+        "sentCount": 2,
+        "replyCount": 1,
+        "latestSentAt": "2026-07-17T05:43:13.543490Z",
+        "latestReplyAt": "2026-07-09T15:33:59Z",
+        "manualStatus": null
+      },
+      "canReply": true,
+      "replyBlockedReason": null,
+      "latestIntent": "hot_lead",
+      "messageCount": 3,
+      "messages": [
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        }
+      ],
+      "redactedThreadKeys": [
+        "messages",
+        "can_reply",
+        "reply_blocked_reason",
+        "latest_intent",
+        "lead"
+      ]
+    },
+    {
+      "personId": "4d2abc82-9bc3-41c4-85a2-c5bbd6588f2b",
+      "contact": {
+        "personId": "4d2abc82-9bc3-41c4-85a2-c5bbd6588f2b",
+        "latestIntent": "hot_lead",
+        "sentCount": 2,
+        "replyCount": 1,
+        "latestSentAt": "2026-07-17T05:43:31.998722Z",
+        "latestReplyAt": "2026-07-07T12:40:56Z",
+        "manualStatus": null
+      },
+      "canReply": false,
+      "replyBlockedReason": "mailbox_unavailable",
+      "latestIntent": "hot_lead",
+      "messageCount": 3,
+      "messages": [
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        }
+      ],
+      "redactedThreadKeys": [
+        "messages",
+        "can_reply",
+        "reply_blocked_reason",
+        "latest_intent",
+        "lead"
+      ]
+    },
+    {
+      "personId": "c04b057b-82b4-40da-9d8e-e41da41f321a",
+      "contact": {
+        "personId": "c04b057b-82b4-40da-9d8e-e41da41f321a",
+        "latestIntent": "hot_lead",
+        "sentCount": 2,
+        "replyCount": 1,
+        "latestSentAt": "2026-07-17T05:45:11.384947Z",
+        "latestReplyAt": "2026-06-25T09:12:42Z",
+        "manualStatus": null
+      },
+      "canReply": true,
+      "replyBlockedReason": null,
+      "latestIntent": "hot_lead",
+      "messageCount": 3,
+      "messages": [
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        }
+      ],
+      "redactedThreadKeys": [
+        "messages",
+        "can_reply",
+        "reply_blocked_reason",
+        "latest_intent",
+        "lead"
+      ]
+    },
+    {
+      "personId": "6b737f33-8c14-4751-a008-d75940f70cd6",
+      "contact": {
+        "personId": "6b737f33-8c14-4751-a008-d75940f70cd6",
+        "latestIntent": "hot_lead",
+        "sentCount": 2,
+        "replyCount": 1,
+        "latestSentAt": "2026-07-17T05:45:31.772535Z",
+        "latestReplyAt": "2026-06-22T08:52:59Z",
+        "manualStatus": null
+      },
+      "canReply": true,
+      "replyBlockedReason": null,
+      "latestIntent": "hot_lead",
+      "messageCount": 3,
+      "messages": [
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        },
+        {
+          "type": "reply",
+          "intent": "hot_lead",
+          "status": null,
+          "timestamp": null
+        },
+        {
+          "type": "sent",
+          "intent": null,
+          "status": "sent",
+          "timestamp": null
+        }
+      ],
+      "redactedThreadKeys": [
+        "messages",
+        "can_reply",
+        "reply_blocked_reason",
+        "latest_intent",
+        "lead"
+      ]
+    }
+  ],
+  "network": [
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/projects/16763/autopilot",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/analytics?period=all",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=0",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=50",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=100",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=replied&limit=50&offset=150",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox?tab=need_reply&limit=50&offset=0",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox/40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox/0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox/27f0b52c-005b-4a14-bfb7-334d72a60a65",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox/4d2abc82-9bc3-41c4-85a2-c5bbd6588f2b",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox/c04b057b-82b4-40da-9d8e-e41da41f321a",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "method": "GET",
+      "url": "/public/api/v1/autogtm/campaigns/45711/inbox/6b737f33-8c14-4751-a008-d75940f70cd6",
+      "status": 200,
+      "ok": true
+    }
+  ]
+}

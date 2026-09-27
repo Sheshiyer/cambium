@@ -1,0 +1,3498 @@
+{
+  "schema": "cambium.iverif.explee-campaign-inventory.v1",
+  "observedAt": "2026-09-11T10:17:03.310Z",
+  "projectId": 16763,
+  "provider": "explee-public-api",
+  "posture": {
+    "methods": [
+      "GET"
+    ],
+    "mutation_enabled": false,
+    "do_not_post": true,
+    "spend_freeze": true
+  },
+  "network": {
+    "calls": 60,
+    "methods": [
+      "GET"
+    ],
+    "nonGet": [],
+    "failures": []
+  },
+  "projects": {
+    "projects": [
+      {
+        "id": 17755,
+        "domain": "getfitcheck.space",
+        "daily_budget_usd": 15
+      },
+      {
+        "id": 16763,
+        "domain": "iverif.fr",
+        "daily_budget_usd": 10
+      }
+    ],
+    "total": 2
+  },
+  "projectAnalytics": {
+    "project_id": 16763,
+    "period": "all",
+    "total_emails_sent": 6484,
+    "total_replies": 33,
+    "total_auto_replies": 252,
+    "overall_reply_rate_pct": 0.5,
+    "total_hot_leads": 5,
+    "total_spend_usd": 194.52,
+    "campaigns": [
+      {
+        "campaign_id": 45709,
+        "name": "Energy Consultants",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "emails_sent": 770,
+        "total_replies": 2,
+        "reply_rate_pct": 0.3,
+        "hot_leads": 0,
+        "spend_usd": 23.1,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 10,
+        "leads_pool_used": 755,
+        "leads_pool_total": 1275,
+        "leads_pool_pending": 44,
+        "collected_leads_total": 3543,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 45708,
+        "name": "Subsidy Aggregators",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "emails_sent": 303,
+        "total_replies": 1,
+        "reply_rate_pct": 0.3,
+        "hot_leads": 0,
+        "spend_usd": 9.09,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 301,
+        "leads_pool_total": 294,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 841,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 45710,
+        "name": "Utility Providers",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "emails_sent": 486,
+        "total_replies": 1,
+        "reply_rate_pct": 0.2,
+        "hot_leads": 0,
+        "spend_usd": 14.58,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 414,
+        "leads_pool_total": 430,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 1256,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 45712,
+        "name": "Energy Lenders",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "emails_sent": 269,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 8.07,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 165,
+        "leads_pool_total": 237,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 1066,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 45707,
+        "name": "Energy EPC Firms",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "emails_sent": 214,
+        "total_replies": 1,
+        "reply_rate_pct": 0.5,
+        "hot_leads": 0,
+        "spend_usd": 6.42,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 10,
+        "leads_pool_used": 212,
+        "leads_pool_total": 198,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 451,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 51190,
+        "name": "Research Funding Councils",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "emails_sent": 327,
+        "total_replies": 2,
+        "reply_rate_pct": 0.6,
+        "hot_leads": 0,
+        "spend_usd": 9.81,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 4,
+        "leads_pool_used": 323,
+        "leads_pool_total": 331,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 493,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 52261,
+        "name": "Innovation Enterprise Agencies",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "emails_sent": 87,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 2.61,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 1,
+        "leads_pool_used": 84,
+        "leads_pool_total": 89,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 463,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 50767,
+        "name": "RGE Renovation Installers",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "emails_sent": 372,
+        "total_replies": 1,
+        "reply_rate_pct": 0.3,
+        "hot_leads": 0,
+        "spend_usd": 11.16,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 339,
+        "leads_pool_total": 340,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 1215,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 56316,
+        "name": "Grant-Making Foundations",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "emails_sent": 287,
+        "total_replies": 5,
+        "reply_rate_pct": 1.7,
+        "hot_leads": 0,
+        "spend_usd": 8.61,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 3,
+        "leads_pool_used": 193,
+        "leads_pool_total": 198,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 429,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 56828,
+        "name": "Structural Fund Authorities",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "emails_sent": 232,
+        "total_replies": 1,
+        "reply_rate_pct": 0.4,
+        "hot_leads": 0,
+        "spend_usd": 6.96,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 4,
+        "leads_pool_used": 120,
+        "leads_pool_total": 139,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 416,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 60150,
+        "name": "Education Fund Administrators",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "emails_sent": 27,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 0.81,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 2,
+        "leads_pool_used": 23,
+        "leads_pool_total": 27,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 73,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 60825,
+        "name": "National Funding Agencies",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "emails_sent": 132,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 3.96,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 68,
+        "leads_pool_total": 68,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 222,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 63001,
+        "name": "Public Agencies South",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "emails_sent": 44,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 1.32,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 10,
+        "leads_pool_used": 44,
+        "leads_pool_total": 44,
+        "leads_pool_pending": 120,
+        "collected_leads_total": 281,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      {
+        "campaign_id": 45711,
+        "name": "Public Agencies",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "emails_sent": 2934,
+        "total_replies": 19,
+        "reply_rate_pct": 0.6,
+        "hot_leads": 5,
+        "spend_usd": 88.02,
+        "cost_per_lead_usd": 17.6,
+        "daily_budget_usd": 9,
+        "leads_pool_used": 2790,
+        "leads_pool_total": 2921,
+        "leads_pool_pending": 2791,
+        "collected_leads_total": 6782,
+        "manual_status_counts": {
+          "Hot": 5,
+          "Unqualified": 1
+        },
+        "cold_lost": 0
+      }
+    ]
+  },
+  "autopilot": {
+    "project_id": 16763,
+    "autopilot_enabled": false,
+    "auto_reply_enabled": true,
+    "auto_reply_delay_minutes": 1440,
+    "reply_cc_emails": "redacted"
+  },
+  "campaignCount": 14,
+  "campaigns": [
+    {
+      "campaignId": 45711,
+      "name": "Public Agencies",
+      "status": "listening",
+      "statusReason": "user_pause",
+      "metrics": {
+        "emailsSent": 2934,
+        "replies": 19,
+        "spend": 88.02,
+        "hot": 5,
+        "replyRate": 0.6,
+        "costPerLeadUsd": 17.6,
+        "costPerReply": 4.632631578947368,
+        "dailyBudgetUsd": 9.0,
+        "poolUsed": 2790,
+        "poolTotal": 2921,
+        "poolPending": 2791,
+        "collectedLeadsTotal": 6782,
+        "manualStatusCounts": {
+          "Hot": 5,
+          "Unqualified": 1
+        },
+        "statusReason": "user_pause"
+      },
+      "label": "money_guzzler",
+      "analytics": {
+        "campaign_id": 45711,
+        "name": "Public Agencies",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "period": "all",
+        "emails_sent": 2934,
+        "total_replies": 19,
+        "reply_rate_pct": 0.6,
+        "hot_leads": 5,
+        "spend_usd": 88.02,
+        "cost_per_lead_usd": 17.6,
+        "daily_budget_usd": 9,
+        "leads_pool_used": 2790,
+        "leads_pool_total": 2921,
+        "leads_pool_pending": 2791,
+        "collected_leads_total": 6782,
+        "manual_status_counts": {
+          "Hot": 5,
+          "Unqualified": 1
+        },
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 45711,
+        "project_id": 16763,
+        "name": "Public Agencies",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "daily_limit_usd": 9,
+        "target_url": null,
+        "offer": "Review applications, cross-check supporting evidence, and prevent fraudulent payouts",
+        "customer_problem": "Fraud and errors waste budgets",
+        "target_role": "we look for program managers responsible for reviewing subsidy applications and preventing fraud at public agencies",
+        "target_geography": "France, Germany, Belgium, Netherlands",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Disburses public funds",
+          "Strict audit requirements",
+          "Large application queues"
+        ],
+        "negative_criteria": [
+          "No subsidy workflows",
+          "Pure private lending"
+        ],
+        "example_clients": [
+          "ADEME",
+          "Business Finland",
+          "SEAI",
+          "BEIS",
+          "CDP"
+        ],
+        "keywords": "public agency, grant admin, subsidy claims, dossier review, document validation, compliance checks, energy funding",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 169,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+            "latestIntent": "hot_lead",
+            "sentCount": 3,
+            "replyCount": 2,
+            "latestSentAt": "2026-07-21T06:26:54.581042Z",
+            "latestReplyAt": "2026-07-17T09:44:06Z"
+          },
+          {
+            "personId": "0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+            "latestIntent": "hot_lead",
+            "sentCount": 3,
+            "replyCount": 2,
+            "latestSentAt": "2026-07-17T11:35:31.623030Z",
+            "latestReplyAt": "2026-07-17T06:17:06Z"
+          },
+          {
+            "personId": "1f7d77e7-38ea-448b-8bb4-eca4caa7a6f3",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:18:12.464107Z",
+            "latestReplyAt": "2026-07-16T09:43:34Z"
+          },
+          {
+            "personId": "a6619149-f699-43c8-b1f3-a935e407598d",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:09:10.461154Z",
+            "latestReplyAt": "2026-07-16T08:52:15Z"
+          },
+          {
+            "personId": "eee0d722-36c3-47a2-bb8a-68d927d391ad",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-15T19:38:50.994663Z",
+            "latestReplyAt": "2026-07-16T08:27:00Z"
+          },
+          {
+            "personId": "73946c77-8c86-46e7-b74e-86170a09997e",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:24:13.619092Z",
+            "latestReplyAt": "2026-07-16T07:59:44Z"
+          },
+          {
+            "personId": "6c3d0654-220f-48ce-aa35-b0dc3ff4cb0c",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-15T23:06:31.178437Z",
+            "latestReplyAt": "2026-07-16T07:56:17Z"
+          },
+          {
+            "personId": "b7bac285-7339-43ce-82be-1c57a7d05085",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:30:11.252171Z",
+            "latestReplyAt": "2026-07-16T06:34:08Z"
+          },
+          {
+            "personId": "e84bb8f0-31c1-4d21-aa3b-5965f368949c",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:30:17.741990Z",
+            "latestReplyAt": "2026-07-16T06:33:54Z"
+          },
+          {
+            "personId": "bd7f9da4-200a-4bc2-92a1-8a9038194597",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:30:12.679878Z",
+            "latestReplyAt": "2026-07-16T06:31:00Z"
+          },
+          {
+            "personId": "c1c37f7f-a1b2-4270-83e2-3217b47a4daf",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:30:13.334927Z",
+            "latestReplyAt": "2026-07-16T06:30:55Z"
+          },
+          {
+            "personId": "cafe67da-b107-4949-a3ae-5783e5b4d141",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:30:15.676220Z",
+            "latestReplyAt": "2026-07-16T06:30:52Z"
+          },
+          {
+            "personId": "09603678-ceca-427c-953f-0bfeaafd86a7",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:21:28.118752Z",
+            "latestReplyAt": "2026-07-16T06:23:51Z"
+          },
+          {
+            "personId": "3cc42e46-cc2c-40c2-a184-7926f336f6b7",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T07:36:22.787241Z",
+            "latestReplyAt": "2026-07-16T06:22:46Z"
+          },
+          {
+            "personId": "140ecb1b-4694-4644-9e60-7f3121702cce",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:21:30.249955Z",
+            "latestReplyAt": "2026-07-16T06:22:31Z"
+          },
+          {
+            "personId": "d9d840bd-fbf2-42aa-918a-d54d2f402db7",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:18:15.257907Z",
+            "latestReplyAt": "2026-07-16T06:18:45Z"
+          },
+          {
+            "personId": "87cba6e2-1301-4b94-b626-2ff916f8bdcb",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:15:29.093755Z",
+            "latestReplyAt": "2026-07-16T06:16:44Z"
+          },
+          {
+            "personId": "5ca6b386-868b-460a-801d-da63757df26c",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:15:26.389497Z",
+            "latestReplyAt": "2026-07-16T06:16:38Z"
+          },
+          {
+            "personId": "0048ab38-aade-426c-b99c-6b9f0f5b9cb7",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:15:19.941914Z",
+            "latestReplyAt": "2026-07-16T06:16:36Z"
+          },
+          {
+            "personId": "6906fdda-d010-482c-a38a-7758c705fa36",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:15:27.579368Z",
+            "latestReplyAt": "2026-07-16T06:16:35Z"
+          },
+          {
+            "personId": "84ff9654-6718-497c-8ebd-f66deb964351",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:15:28.599517Z",
+            "latestReplyAt": "2026-07-16T06:16:29Z"
+          },
+          {
+            "personId": "e565d11e-c28b-40be-a488-396349a77458",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:09:14.400384Z",
+            "latestReplyAt": "2026-07-16T06:09:55Z"
+          },
+          {
+            "personId": "3fcf5cfd-113c-44db-8027-13eae0a44b58",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:06:10.704788Z",
+            "latestReplyAt": "2026-07-16T06:07:55Z"
+          },
+          {
+            "personId": "510b5bbb-0da3-4ec3-8d60-9dde6454bb0e",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:06:11.821375Z",
+            "latestReplyAt": "2026-07-16T06:07:00Z"
+          },
+          {
+            "personId": "6c0da5e5-35fb-4fa0-a471-9b865bcf0733",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:06:12.198298Z",
+            "latestReplyAt": "2026-07-16T06:06:49Z"
+          },
+          {
+            "personId": "9871ff3e-93bc-4c70-b344-e8201a7fc5f9",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T06:06:14.471856Z",
+            "latestReplyAt": "2026-07-16T06:06:42Z"
+          },
+          {
+            "personId": "851518e3-4a66-48c2-a518-3d9a09584bd6",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T00:07:27.668863Z",
+            "latestReplyAt": "2026-07-16T00:08:36Z"
+          },
+          {
+            "personId": "bc362d04-23df-4d01-874c-29b87fde99e4",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-15T13:25:35.089401Z",
+            "latestReplyAt": "2026-07-15T15:12:00Z"
+          },
+          {
+            "personId": "05775c23-e3b3-4a5e-83f9-8b407ee5e37e",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-15T13:07:17.354418Z",
+            "latestReplyAt": "2026-07-15T13:19:44Z"
+          },
+          {
+            "personId": "1bc2a242-598a-489c-a08e-1837effa5a26",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-14T11:01:23.957542Z",
+            "latestReplyAt": "2026-07-14T18:54:22Z"
+          },
+          {
+            "personId": "89c8769d-60f2-424c-8e78-8fec7c61919d",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T07:47:24.972389Z",
+            "latestReplyAt": "2026-07-14T18:29:06Z"
+          },
+          {
+            "personId": "d0a50e1f-4c31-4cf5-a3b7-e0e1521f085f",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:42:02.008021Z",
+            "latestReplyAt": "2026-07-14T16:55:22Z"
+          },
+          {
+            "personId": "d2f01d2a-6eff-4c30-9374-0f3bad20858e",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:42:02.776886Z",
+            "latestReplyAt": "2026-07-14T11:08:37Z"
+          },
+          {
+            "personId": "a444ee8b-75cd-4ce7-9a0e-a2016573c015",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:33:15.253236Z",
+            "latestReplyAt": "2026-07-14T09:27:30Z"
+          },
+          {
+            "personId": "9aa4b3d5-761a-4e6b-aa02-5e48f8885607",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:33:12.571610Z",
+            "latestReplyAt": "2026-07-14T09:18:05Z"
+          },
+          {
+            "personId": "ef836636-8cf0-4be2-b09b-dfc8f20560cd",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:48:13.863826Z",
+            "latestReplyAt": "2026-07-14T09:02:40Z"
+          },
+          {
+            "personId": "d0fd65e3-c389-447a-ba1a-541cd8edf839",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:42:02.427791Z",
+            "latestReplyAt": "2026-07-14T08:59:50Z"
+          },
+          {
+            "personId": "ed2a1277-5e83-483b-b5fe-67226de11584",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:48:12.834652Z",
+            "latestReplyAt": "2026-07-14T08:25:41Z"
+          },
+          {
+            "personId": "ca7276c1-b284-4af4-83b2-8a905eedf2f8",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T08:42:00.083820Z",
+            "latestReplyAt": "2026-07-14T06:55:17Z"
+          },
+          {
+            "personId": "24dfb139-97b4-486e-b468-d60ee61c2cf5",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T06:56:51.384296Z",
+            "latestReplyAt": "2026-07-13T10:24:38Z"
+          },
+          {
+            "personId": "56a38ff5-6166-4dab-a613-f969f1ee8da3",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T07:39:14.088896Z",
+            "latestReplyAt": "2026-07-13T09:28:37Z"
+          },
+          {
+            "personId": "508a3017-5d22-450d-a7ca-58adeecf60f0",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T07:39:12.027580Z",
+            "latestReplyAt": "2026-07-13T07:43:02Z"
+          },
+          {
+            "personId": "5e44e2a3-ec7b-420b-86fb-06508ae1393b",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T07:39:15.967873Z",
+            "latestReplyAt": "2026-07-13T07:40:08Z"
+          },
+          {
+            "personId": "b38e05f4-3cfc-443b-883b-4a78fd51c106",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-11T19:18:29.820121Z",
+            "latestReplyAt": "2026-07-13T06:47:06Z"
+          },
+          {
+            "personId": "3229bd61-e7b6-476c-9ae0-a4fe13cd97bd",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-12T14:30:28.552538Z",
+            "latestReplyAt": "2026-07-13T06:07:22Z"
+          },
+          {
+            "personId": "af9bcfed-4c5d-4005-b754-c7975fc2d43b",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T09:12:51.991136Z",
+            "latestReplyAt": "2026-07-10T10:33:42Z"
+          },
+          {
+            "personId": "3d8314c7-fdf5-407c-bd94-d553e42e14f2",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T09:12:47.454544Z",
+            "latestReplyAt": "2026-07-10T09:17:13Z"
+          },
+          {
+            "personId": "946595ae-49db-4993-9e0d-125953e8c3da",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-09T10:56:29.030212Z",
+            "latestReplyAt": "2026-07-10T09:15:35Z"
+          },
+          {
+            "personId": "7fe65eb8-cf1d-450c-adee-3fd373816fe8",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T09:12:50.354500Z",
+            "latestReplyAt": "2026-07-10T09:14:24Z"
+          },
+          {
+            "personId": "76176a31-73f1-4852-8fbf-a89105e2508c",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T09:12:49.078725Z",
+            "latestReplyAt": "2026-07-10T09:14:13Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "hot_lead": 2,
+        "not_interested": 3,
+        "out_of_office": 42,
+        "email_changed": 1,
+        "recipient_gone": 2
+      }
+    },
+    {
+      "campaignId": 45709,
+      "name": "Energy Consultants",
+      "status": "listening",
+      "statusReason": "agent_stop",
+      "metrics": {
+        "emailsSent": 770,
+        "replies": 2,
+        "spend": 23.1,
+        "hot": 0,
+        "replyRate": 0.3,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 11.55,
+        "dailyBudgetUsd": 10.0,
+        "poolUsed": 755,
+        "poolTotal": 1275,
+        "poolPending": 44,
+        "collectedLeadsTotal": 3543,
+        "manualStatusCounts": {},
+        "statusReason": "agent_stop"
+      },
+      "label": "mixed_low_yield",
+      "analytics": {
+        "campaign_id": 45709,
+        "name": "Energy Consultants",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "period": "all",
+        "emails_sent": 770,
+        "total_replies": 2,
+        "reply_rate_pct": 0.3,
+        "hot_leads": 0,
+        "spend_usd": 23.1,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 10,
+        "leads_pool_used": 755,
+        "leads_pool_total": 1275,
+        "leads_pool_pending": 44,
+        "collected_leads_total": 3543,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 45709,
+        "project_id": 16763,
+        "name": "Energy Consultants",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "daily_limit_usd": 10,
+        "target_url": null,
+        "offer": "Audit client documents, verify eligibility evidence, and strengthen approval rates",
+        "customer_problem": "Clients lose subsidies from errors",
+        "target_role": "we look for consulting leads who oversee client subsidy files and approval quality",
+        "target_geography": "France, Germany, Belgium, Netherlands",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Advises on incentives",
+          "Produces compliance reports",
+          "Serves SMB clients"
+        ],
+        "negative_criteria": [
+          "Only basic paperwork support",
+          "No subsidy filing role"
+        ],
+        "example_clients": [
+          "Deloitte",
+          "EY",
+          "Wavestone",
+          "BearingPoint",
+          "McKinsey"
+        ],
+        "keywords": "energy consultant, subsidy claims, grant dossiers, dossier review, energy efficiency, eu programmes, compliance support",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 8,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "f073b3d6-186d-493b-a57a-739862eb3f30",
+            "latestIntent": "email_changed",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T15:19:50.375680Z",
+            "latestReplyAt": "2026-06-19T16:08:06Z"
+          },
+          {
+            "personId": "a9c1e4bd-840d-4b72-a061-022300ae7cc7",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-15T07:51:44.034506Z",
+            "latestReplyAt": "2026-05-15T07:58:22Z"
+          },
+          {
+            "personId": "acb26934-2795-4d68-93b2-d2408f361185",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-12T08:58:28.398857Z",
+            "latestReplyAt": "2026-05-12T09:45:27Z"
+          },
+          {
+            "personId": "90cac94f-8b57-4043-86fb-756e7706a8cf",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-12T09:23:38.355961Z",
+            "latestReplyAt": "2026-05-12T09:24:17Z"
+          },
+          {
+            "personId": "b1f28ee5-48ad-459d-9151-92f03b06f82b",
+            "latestIntent": null,
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-12T07:18:03.410337Z",
+            "latestReplyAt": "2026-05-12T07:31:37Z"
+          },
+          {
+            "personId": "b3d1abbf-d0ff-4536-9dba-d05f8cffb0ef",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T12:40:12.562121Z",
+            "latestReplyAt": "2026-05-11T16:02:49Z"
+          },
+          {
+            "personId": "07e1f985-5470-47dd-a315-5e114547feaa",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T11:56:02.141457Z",
+            "latestReplyAt": "2026-05-11T11:45:21Z"
+          },
+          {
+            "personId": "38dd1a38-4f9b-4e28-bd96-70598cb6fb33",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T06:49:23.748826Z",
+            "latestReplyAt": "2026-05-11T06:41:04Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "email_changed": 3,
+        "out_of_office": 3,
+        "not_interested": 1,
+        "unknown": 1
+      }
+    },
+    {
+      "campaignId": 45710,
+      "name": "Utility Providers",
+      "status": "listening",
+      "statusReason": "lead_pool_exhausted",
+      "metrics": {
+        "emailsSent": 486,
+        "replies": 1,
+        "spend": 14.58,
+        "hot": 0,
+        "replyRate": 0.2,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 14.58,
+        "dailyBudgetUsd": 0.0,
+        "poolUsed": 414,
+        "poolTotal": 430,
+        "poolPending": 0,
+        "collectedLeadsTotal": 1256,
+        "manualStatusCounts": {},
+        "statusReason": "lead_pool_exhausted"
+      },
+      "label": "mixed_low_yield",
+      "analytics": {
+        "campaign_id": 45710,
+        "name": "Utility Providers",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "period": "all",
+        "emails_sent": 486,
+        "total_replies": 1,
+        "reply_rate_pct": 0.2,
+        "hot_leads": 0,
+        "spend_usd": 14.58,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 414,
+        "leads_pool_total": 430,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 1256,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 45710,
+        "project_id": 16763,
+        "name": "Utility Providers",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "daily_limit_usd": 0,
+        "target_url": null,
+        "offer": "Check customer files, validate program rules, and speed grant processing",
+        "customer_problem": "Backlogs slow customer onboarding",
+        "target_role": "we look for those who manage customer grant processing and onboarding operations at utilities",
+        "target_geography": "France, Germany, Belgium, Netherlands",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Offers subsidy programs",
+          "High application intake",
+          "Strong compliance focus"
+        ],
+        "negative_criteria": [
+          "No grant workflows",
+          "Single local market"
+        ],
+        "example_clients": [
+          "EDF",
+          "Engie",
+          "Iberdrola",
+          "Enel",
+          "RWE"
+        ],
+        "keywords": "energy utility, subsidy claims, dossier review, grant validation, compliance checks, document verification, utility operator",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 25,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "192fc91b-98fd-4668-8760-268a0dbf8d00",
+            "latestIntent": null,
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-01T04:07:01.998911Z",
+            "latestReplyAt": "2026-07-01T07:26:46Z"
+          },
+          {
+            "personId": "6bd7d8cc-f44a-491a-a10a-3f73b611e233",
+            "latestIntent": "not_interested",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-01T06:40:25.745926Z",
+            "latestReplyAt": "2026-07-01T06:53:55Z"
+          },
+          {
+            "personId": "751b7898-182f-4dee-8b75-ce513464c8f7",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-01T06:52:46.138513Z",
+            "latestReplyAt": "2026-07-01T06:53:27Z"
+          },
+          {
+            "personId": "58e73a7b-d5ec-4363-9c6f-fe12d14c4a47",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T11:13:05.598607Z",
+            "latestReplyAt": "2026-06-23T10:00:32Z"
+          },
+          {
+            "personId": "c2ff422b-e74a-46de-976f-649629dccebd",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T06:48:23.899086Z",
+            "latestReplyAt": "2026-06-23T08:04:36Z"
+          },
+          {
+            "personId": "a82c39da-912d-4427-9d8a-ce51d02ae05e",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T06:36:30.967568Z",
+            "latestReplyAt": "2026-06-23T07:52:09Z"
+          },
+          {
+            "personId": "4231fa2a-021d-4adb-8182-7e14cc02de98",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T06:06:16.562944Z",
+            "latestReplyAt": "2026-06-23T07:29:27Z"
+          },
+          {
+            "personId": "28f20377-ce0b-444f-a02b-b71bd5ff8ab1",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T06:06:16.342326Z",
+            "latestReplyAt": "2026-06-23T06:10:06Z"
+          },
+          {
+            "personId": "2c460cac-899d-4270-9353-67bb2818aea1",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:24:15.592968Z",
+            "latestReplyAt": "2026-06-22T11:11:22Z"
+          },
+          {
+            "personId": "ddbb0462-1410-48b4-a3ad-799d10bb5206",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:36:25.377292Z",
+            "latestReplyAt": "2026-06-22T10:59:10Z"
+          },
+          {
+            "personId": "7227f6a8-c642-42c9-beaf-1dc70adf4e90",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:28:01.639799Z",
+            "latestReplyAt": "2026-06-22T09:46:21Z"
+          },
+          {
+            "personId": "6ed9d9bf-6862-474b-accb-959212a5bae2",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:28:00.869843Z",
+            "latestReplyAt": "2026-06-22T09:20:33Z"
+          },
+          {
+            "personId": "7a85b7de-0335-4fc7-a74c-f9ca12fc78af",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T00:03:13.102795Z",
+            "latestReplyAt": "2026-06-22T09:17:01Z"
+          },
+          {
+            "personId": "582db37f-b9cd-4437-86bc-0ff3b695b154",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:24:17.580331Z",
+            "latestReplyAt": "2026-06-22T08:45:32Z"
+          },
+          {
+            "personId": "7d70188f-5bdf-497d-854b-cc9be4d5eaa9",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:28:03.476851Z",
+            "latestReplyAt": "2026-06-22T08:12:54Z"
+          },
+          {
+            "personId": "57dd009b-f435-4e5b-9ac9-5800dd837200",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:24:17.463011Z",
+            "latestReplyAt": "2026-06-22T08:05:08Z"
+          },
+          {
+            "personId": "88101f3c-d171-46f9-870e-11cb0a8d1533",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T15:51:50.001118Z",
+            "latestReplyAt": "2026-06-22T07:52:49Z"
+          },
+          {
+            "personId": "263d7774-03ae-4aa6-af22-7460e50bf6e5",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T15:45:26.968371Z",
+            "latestReplyAt": "2026-06-22T07:45:01Z"
+          },
+          {
+            "personId": "6344fe0b-6be2-4d00-b005-02165d3f5abf",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:27:59.266624Z",
+            "latestReplyAt": "2026-06-22T07:40:08Z"
+          },
+          {
+            "personId": "0100b7f4-88dd-4ca9-954f-c75b5c7e56fc",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:24:18.369107Z",
+            "latestReplyAt": "2026-06-22T07:39:22Z"
+          },
+          {
+            "personId": "cc369bda-94eb-470e-9005-a31c42b254e0",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T08:00:40.843836Z",
+            "latestReplyAt": "2026-06-22T07:30:40Z"
+          },
+          {
+            "personId": "3d96bd13-a3ec-4618-82d1-a4cd0e71fb25",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:21:16.875708Z",
+            "latestReplyAt": "2026-06-22T06:37:01Z"
+          },
+          {
+            "personId": "d75c86b7-2e08-4379-8202-8dbe75f89d9c",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:36:24.615195Z",
+            "latestReplyAt": "2026-06-22T06:30:09Z"
+          },
+          {
+            "personId": "ad75942c-4fee-412a-8e2b-b6caa81cbd70",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:30:34.712341Z",
+            "latestReplyAt": "2026-06-22T06:13:05Z"
+          },
+          {
+            "personId": "f9d475c8-f8e9-48fe-8317-dcbc7475f136",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T13:39:37.258716Z",
+            "latestReplyAt": "2026-06-22T06:05:00Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "unknown": 1,
+        "not_interested": 1,
+        "email_changed": 3,
+        "out_of_office": 20
+      }
+    },
+    {
+      "campaignId": 50767,
+      "name": "RGE Renovation Installers",
+      "status": "listening",
+      "statusReason": "lead_pool_exhausted",
+      "metrics": {
+        "emailsSent": 372,
+        "replies": 1,
+        "spend": 11.16,
+        "hot": 0,
+        "replyRate": 0.3,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 11.16,
+        "dailyBudgetUsd": 0.0,
+        "poolUsed": 339,
+        "poolTotal": 340,
+        "poolPending": 0,
+        "collectedLeadsTotal": 1215,
+        "manualStatusCounts": {},
+        "statusReason": "lead_pool_exhausted"
+      },
+      "label": "mixed_low_yield",
+      "analytics": {
+        "campaign_id": 50767,
+        "name": "RGE Renovation Installers",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "period": "all",
+        "emails_sent": 372,
+        "total_replies": 1,
+        "reply_rate_pct": 0.3,
+        "hot_leads": 0,
+        "spend_usd": 11.16,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 339,
+        "leads_pool_total": 340,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 1215,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 50767,
+        "project_id": 16763,
+        "name": "RGE Renovation Installers",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "daily_limit_usd": 0,
+        "target_url": null,
+        "offer": "Validate CEE and renovation grant files per project before submitting them",
+        "customer_problem": "Rejected energy claims erode installer margins",
+        "target_role": "we look for those who own subsidy claim filing and administrative back-office at installer companies",
+        "target_geography": "France, Italy, Germany, Spain, Belgium",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Certified energy renovation installer",
+          "High volume of jobs",
+          "Files subsidy claims regularly"
+        ],
+        "negative_criteria": [
+          "No subsidy filing",
+          "Large multi-site EPC contractor"
+        ],
+        "example_clients": [
+          "Effy",
+          "Hellio",
+          "Enpal",
+          "Sonergia",
+          "IZI by EDF"
+        ],
+        "keywords": "heat pump installer, insulation, rge contractor, cee claims, maprimerenov, energy renovation, home retrofit",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 7,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "a66fa4c0-54f1-4afb-ba63-640670a01c91",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T07:18:50.668783Z",
+            "latestReplyAt": "2026-06-23T08:29:10Z"
+          },
+          {
+            "personId": "b6e675c7-5c78-42e3-9576-b0b5866d7ca1",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T00:02:08.770511Z",
+            "latestReplyAt": "2026-06-22T09:40:58Z"
+          },
+          {
+            "personId": "74c88b3f-6e66-4ba5-959f-5e2354774d79",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T01:15:49.398785Z",
+            "latestReplyAt": "2026-06-22T09:02:48Z"
+          },
+          {
+            "personId": "8f4cf5d8-a945-4a35-8154-be4adc265819",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T01:39:42.876000Z",
+            "latestReplyAt": "2026-06-22T08:47:03Z"
+          },
+          {
+            "personId": "ee41710c-880f-4c2d-999a-b9a2c45a28c6",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T01:48:41.498401Z",
+            "latestReplyAt": "2026-06-22T07:49:01Z"
+          },
+          {
+            "personId": "28c75772-6dca-40fc-8407-56231080d76b",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-20T01:36:26.526749Z",
+            "latestReplyAt": "2026-06-22T07:26:07Z"
+          },
+          {
+            "personId": "c654b406-4afd-4b02-bbb8-0df3594ea044",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T07:33:46.699870Z",
+            "latestReplyAt": "2026-06-22T06:59:23Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "out_of_office": 3,
+        "email_changed": 2,
+        "recipient_gone": 2
+      }
+    },
+    {
+      "campaignId": 51190,
+      "name": "Research Funding Councils",
+      "status": "listening",
+      "statusReason": "agent_stop",
+      "metrics": {
+        "emailsSent": 327,
+        "replies": 2,
+        "spend": 9.81,
+        "hot": 0,
+        "replyRate": 0.6,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 4.905,
+        "dailyBudgetUsd": 4.0,
+        "poolUsed": 323,
+        "poolTotal": 331,
+        "poolPending": 0,
+        "collectedLeadsTotal": 493,
+        "manualStatusCounts": {},
+        "statusReason": "agent_stop"
+      },
+      "label": "mixed_low_yield",
+      "analytics": {
+        "campaign_id": 51190,
+        "name": "Research Funding Councils",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "period": "all",
+        "emails_sent": 327,
+        "total_replies": 2,
+        "reply_rate_pct": 0.6,
+        "hot_leads": 0,
+        "spend_usd": 9.81,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 4,
+        "leads_pool_used": 323,
+        "leads_pool_total": 331,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 493,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 51190,
+        "project_id": 16763,
+        "name": "Research Funding Councils",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "daily_limit_usd": 4,
+        "target_url": null,
+        "offer": "Review research grant applications, cross-check eligibility evidence, and prevent erroneous awards",
+        "customer_problem": "High application volumes hide eligibility errors",
+        "target_role": "we look for programme officers who own grant application review and award quality",
+        "target_geography": "Netherlands, Germany, France, United Kingdom, Belgium",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Funds research programmes",
+          "Reviews many applications",
+          "Public science mandate"
+        ],
+        "negative_criteria": [
+          "No application review workflows",
+          "Energy-only subsidy focus"
+        ],
+        "example_clients": [
+          "NWO",
+          "UKRI",
+          "Deutsche Forschungsgemeinschaft",
+          "Agence Nationale de la Recherche",
+          "Research Foundation Flanders"
+        ],
+        "keywords": "research council, science funding, grant review, research funding, application screening, innovation funding, eligibility checks",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 31,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "5f02e6ef-bbad-4e6d-8ea0-623dbfaa027b",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T18:23:14.017358Z",
+            "latestReplyAt": "2026-06-29T10:58:51Z"
+          },
+          {
+            "personId": "b7cad880-56c9-4e30-8962-c855d37491dc",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-26T10:37:04.940303Z",
+            "latestReplyAt": "2026-06-26T19:57:29Z"
+          },
+          {
+            "personId": "1c27aa33-9344-4d43-956a-ba7e30470b39",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T09:34:52.561907Z",
+            "latestReplyAt": "2026-06-25T10:12:56Z"
+          },
+          {
+            "personId": "67313bdd-c0f1-4404-8234-02bb7187a3f4",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T09:34:53.554680Z",
+            "latestReplyAt": "2026-06-25T09:35:54Z"
+          },
+          {
+            "personId": "ac5ea425-b0c8-47e3-93f2-e8fe0a8d8c5b",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T18:54:49.345775Z",
+            "latestReplyAt": "2026-06-24T08:44:26Z"
+          },
+          {
+            "personId": "5011dca9-0f67-42d8-89f0-4d5ff698cbc7",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T18:52:11.276394Z",
+            "latestReplyAt": "2026-06-24T07:16:32Z"
+          },
+          {
+            "personId": "41ed9a69-7fda-4961-a968-f85abdfcbab2",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T13:16:11.101693Z",
+            "latestReplyAt": "2026-06-23T16:55:45Z"
+          },
+          {
+            "personId": "883e7e9c-14d5-462c-a9ba-8743f60f062b",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T13:18:31.813375Z",
+            "latestReplyAt": "2026-06-23T12:30:06Z"
+          },
+          {
+            "personId": "b3fd251d-896e-43f9-a02a-45db3349f770",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T13:01:23.172513Z",
+            "latestReplyAt": "2026-06-23T11:38:41Z"
+          },
+          {
+            "personId": "7e318d88-674a-43dc-8358-0b97e95e1b59",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T14:27:18.958350Z",
+            "latestReplyAt": "2026-06-23T10:45:07Z"
+          },
+          {
+            "personId": "a63ad173-4e9e-4c97-833d-6c7a06ffaf19",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T11:13:28.769234Z",
+            "latestReplyAt": "2026-06-23T09:57:35Z"
+          },
+          {
+            "personId": "6b20641f-3bc0-4f4f-ab69-f2c5b8796732",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-23T10:01:11.635895Z",
+            "latestReplyAt": "2026-06-23T08:01:47Z"
+          },
+          {
+            "personId": "945bb9c8-6cec-4c02-a7d6-083310ece7f8",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:51:52.222243Z",
+            "latestReplyAt": "2026-06-22T19:57:01Z"
+          },
+          {
+            "personId": "0c3b7649-f292-4134-afae-550e4551fb67",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:30:53.829591Z",
+            "latestReplyAt": "2026-06-22T19:39:07Z"
+          },
+          {
+            "personId": "7219e134-8b49-4a47-bbbb-61a35660b9b3",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:28:11.381260Z",
+            "latestReplyAt": "2026-06-22T19:35:47Z"
+          },
+          {
+            "personId": "7257cf04-00c3-407b-ad1e-deb1ca58da55",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T14:13:00.224637Z",
+            "latestReplyAt": "2026-06-22T14:18:47Z"
+          },
+          {
+            "personId": "5a6d36b3-e1bd-4c38-ae4d-e637291b04a0",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:51:47.291223Z",
+            "latestReplyAt": "2026-06-22T14:09:24Z"
+          },
+          {
+            "personId": "7c9c7960-863e-4e05-9b26-8c0b772ce067",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T13:57:41.178286Z",
+            "latestReplyAt": "2026-06-22T14:03:44Z"
+          },
+          {
+            "personId": "b48b0db9-36b3-4421-a457-143057e25e53",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:49:18.020560Z",
+            "latestReplyAt": "2026-06-22T13:59:14Z"
+          },
+          {
+            "personId": "f207df66-a52e-4086-8561-ef702477e493",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:49:21.113602Z",
+            "latestReplyAt": "2026-06-22T13:56:17Z"
+          },
+          {
+            "personId": "b7748470-c37d-4fad-a4b6-c39e8831312c",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:43:12.291875Z",
+            "latestReplyAt": "2026-06-22T13:55:48Z"
+          },
+          {
+            "personId": "66aaba3a-db63-4ea0-af37-2f4626c7eea2",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:43:10.040695Z",
+            "latestReplyAt": "2026-06-22T13:52:29Z"
+          },
+          {
+            "personId": "5a0b3c04-2849-45cb-bce8-ff3425a3e29b",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:51:46.938574Z",
+            "latestReplyAt": "2026-06-22T13:51:26Z"
+          },
+          {
+            "personId": "92b4adec-4a6e-476a-b0c0-a03caf88cd51",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:30:56.444180Z",
+            "latestReplyAt": "2026-06-22T13:51:07Z"
+          },
+          {
+            "personId": "1e8b569e-fdbe-4af1-8def-1d714dee35f2",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:46:15.595640Z",
+            "latestReplyAt": "2026-06-22T13:09:09Z"
+          },
+          {
+            "personId": "2592933e-3163-499e-8a8a-f212a7db59aa",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:46:16.272322Z",
+            "latestReplyAt": "2026-06-22T13:06:34Z"
+          },
+          {
+            "personId": "79da5f2e-8888-4ec6-9897-c56c4dcac32d",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:46:17.074284Z",
+            "latestReplyAt": "2026-06-22T13:05:17Z"
+          },
+          {
+            "personId": "9082be36-7749-4d5d-a4ae-7856fba90ef0",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:28:11.488336Z",
+            "latestReplyAt": "2026-06-22T13:01:11Z"
+          },
+          {
+            "personId": "17e54ca8-625f-4465-9d73-59c18026a778",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:43:07.617268Z",
+            "latestReplyAt": "2026-06-22T13:00:55Z"
+          },
+          {
+            "personId": "817bea47-51c9-425f-9334-9d388733d3c9",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:30:56.013106Z",
+            "latestReplyAt": "2026-06-22T13:00:47Z"
+          },
+          {
+            "personId": "7ff09297-25a1-41bd-9f4e-7e2b661df863",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-22T12:30:55.756463Z",
+            "latestReplyAt": "2026-06-22T12:57:08Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "not_interested": 2,
+        "out_of_office": 25,
+        "recipient_gone": 2,
+        "email_changed": 2
+      }
+    },
+    {
+      "campaignId": 45708,
+      "name": "Subsidy Aggregators",
+      "status": "listening",
+      "statusReason": "lead_pool_exhausted",
+      "metrics": {
+        "emailsSent": 303,
+        "replies": 1,
+        "spend": 9.09,
+        "hot": 0,
+        "replyRate": 0.3,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 9.09,
+        "dailyBudgetUsd": 0.0,
+        "poolUsed": 301,
+        "poolTotal": 294,
+        "poolPending": 0,
+        "collectedLeadsTotal": 841,
+        "manualStatusCounts": {},
+        "statusReason": "lead_pool_exhausted"
+      },
+      "label": "mixed_low_yield",
+      "analytics": {
+        "campaign_id": 45708,
+        "name": "Subsidy Aggregators",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "period": "all",
+        "emails_sent": 303,
+        "total_replies": 1,
+        "reply_rate_pct": 0.3,
+        "hot_leads": 0,
+        "spend_usd": 9.09,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 301,
+        "leads_pool_total": 294,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 841,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 45708,
+        "project_id": 16763,
+        "name": "Subsidy Aggregators",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "daily_limit_usd": 0,
+        "target_url": null,
+        "offer": "Screen high volumes, standardize claim files, and flag incomplete dossiers",
+        "customer_problem": "Manual review misses costly errors",
+        "target_role": "we look for operations leaders responsible for dossier review workflows at subsidy aggregators",
+        "target_geography": "France, Germany, Belgium, Netherlands",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Manages many applications",
+          "Works across regions",
+          "Deadline-driven operations"
+        ],
+        "negative_criteria": [
+          "Single-project applicants",
+          "No document review workload"
+        ],
+        "example_clients": [
+          "Deloitte",
+          "PwC",
+          "KPMG",
+          "Accenture",
+          "Capgemini"
+        ],
+        "keywords": "subsidy claims, dossier review, energy grants, claim validation, compliance checks, document checks, eu subsidies",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 4,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "66002efa-8571-44d0-8612-cc900616021d",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-12T22:24:35.884755Z",
+            "latestReplyAt": "2026-05-12T22:19:34Z"
+          },
+          {
+            "personId": "a76ac92e-9b87-48e1-9b2b-6836b0aa0f5f",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-12T07:18:01.720663Z",
+            "latestReplyAt": "2026-05-12T07:18:18Z"
+          },
+          {
+            "personId": "febb7d21-93b8-4e55-9203-7ede230dbaf6",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T12:15:06.242274Z",
+            "latestReplyAt": "2026-05-11T14:51:15Z"
+          },
+          {
+            "personId": "c54b6273-d254-4158-a598-daff26b00834",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-09T18:21:26.477743Z",
+            "latestReplyAt": "2026-05-11T07:08:38Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "email_changed": 1,
+        "out_of_office": 2,
+        "not_interested": 1
+      }
+    },
+    {
+      "campaignId": 56316,
+      "name": "Grant-Making Foundations",
+      "status": "listening",
+      "statusReason": "agent_stop",
+      "metrics": {
+        "emailsSent": 287,
+        "replies": 5,
+        "spend": 8.61,
+        "hot": 0,
+        "replyRate": 1.7,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 1.722,
+        "dailyBudgetUsd": 3.0,
+        "poolUsed": 193,
+        "poolTotal": 198,
+        "poolPending": 0,
+        "collectedLeadsTotal": 429,
+        "manualStatusCounts": {},
+        "statusReason": "agent_stop"
+      },
+      "label": "relative_winner",
+      "analytics": {
+        "campaign_id": 56316,
+        "name": "Grant-Making Foundations",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "period": "all",
+        "emails_sent": 287,
+        "total_replies": 5,
+        "reply_rate_pct": 1.7,
+        "hot_leads": 0,
+        "spend_usd": 8.61,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 3,
+        "leads_pool_used": 193,
+        "leads_pool_total": 198,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 429,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 56316,
+        "project_id": 16763,
+        "name": "Grant-Making Foundations",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "daily_limit_usd": 3,
+        "target_url": null,
+        "offer": "Review grant applications and cross-check eligibility documents to reduce erroneous awards",
+        "customer_problem": "High application volumes hide eligibility errors",
+        "target_role": "we look for programme officers who own grant application review and award decisions at foundations",
+        "target_geography": "Italy, France, Germany, Spain, Belgium, United Kingdom, Netherlands",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Awards grants to applicants",
+          "Reviews many applications",
+          "Philanthropic charitable mission"
+        ],
+        "negative_criteria": [
+          "Corporate operating company",
+          "No application review workflow"
+        ],
+        "example_clients": [
+          "Fondazione Cariplo",
+          "King Baudouin Foundation",
+          "Robert Bosch Stiftung",
+          "Fondation de France",
+          "Fundaci\u00f3n La Caixa"
+        ],
+        "keywords": "foundation, philanthropy, grant funding, application review, charitable trust, nonprofit funder, award committee",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 30,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "66a7f4fd-cda6-42b2-9a55-39e2c6920af9",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:41:25.497334Z",
+            "latestReplyAt": "2026-07-10T20:32:55Z"
+          },
+          {
+            "personId": "b96985d1-3ee5-4a03-8037-7d84741fb02b",
+            "latestIntent": "not_interested",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T11:21:19.928847Z",
+            "latestReplyAt": "2026-07-08T08:35:02Z"
+          },
+          {
+            "personId": "99dbe1e2-acc3-478b-8a1e-80d12c27acd9",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-07T01:25:16.294167Z",
+            "latestReplyAt": "2026-07-07T09:42:37Z"
+          },
+          {
+            "personId": "eeedb56e-fa27-4d1d-a8e4-97da74f1d49a",
+            "latestIntent": "not_interested",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T14:50:44.944958Z",
+            "latestReplyAt": "2026-07-07T08:11:30Z"
+          },
+          {
+            "personId": "c382ab0f-536e-4e4d-870d-d8e4bcc0cad4",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-07T01:25:15.746123Z",
+            "latestReplyAt": "2026-07-07T01:25:39Z"
+          },
+          {
+            "personId": "e2cc418b-25d3-4a69-9bf0-900b37a4ba42",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T13:31:37.468351Z",
+            "latestReplyAt": "2026-07-06T16:12:15Z"
+          },
+          {
+            "personId": "288bd041-45ab-40fb-a853-82165f2713a9",
+            "latestIntent": "recipient_gone",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T13:31:40.011006Z",
+            "latestReplyAt": "2026-07-06T15:10:30Z"
+          },
+          {
+            "personId": "7223e013-cecf-4fd0-a662-007e03be6c95",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T13:31:38.184325Z",
+            "latestReplyAt": "2026-07-06T13:32:59Z"
+          },
+          {
+            "personId": "b9fdd88c-ba43-4566-a6cf-89ca6444ffc9",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T11:21:18.855821Z",
+            "latestReplyAt": "2026-07-06T11:22:02Z"
+          },
+          {
+            "personId": "9f73ea1e-af5f-4285-945a-3a62ff209704",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T10:16:25.980312Z",
+            "latestReplyAt": "2026-07-06T10:18:39Z"
+          },
+          {
+            "personId": "947b33a1-63b4-4ec2-815e-3ea68716f73a",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:28:40.456035Z",
+            "latestReplyAt": "2026-07-03T10:22:00Z"
+          },
+          {
+            "personId": "12554755-044a-4cec-aaae-61be91f54234",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:41:22.638259Z",
+            "latestReplyAt": "2026-07-03T10:19:45Z"
+          },
+          {
+            "personId": "6dc3e3c7-dba7-4508-bda6-deb03fc8f124",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T08:46:20.880882Z",
+            "latestReplyAt": "2026-07-03T10:18:42Z"
+          },
+          {
+            "personId": "119a45c2-6cd0-493a-a72a-c921a8a7ad16",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:41:22.356555Z",
+            "latestReplyAt": "2026-07-03T09:46:33Z"
+          },
+          {
+            "personId": "733e86ab-547c-4661-8351-b19a91f5bd50",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T04:45:19.352198Z",
+            "latestReplyAt": "2026-07-03T09:36:33Z"
+          },
+          {
+            "personId": "0d50cc85-0c32-46ff-b786-dffbcb409a26",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:55:39.442625Z",
+            "latestReplyAt": "2026-07-03T09:35:57Z"
+          },
+          {
+            "personId": "c71bf25b-a9d2-4d38-991e-76086534043b",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T04:46:23.900438Z",
+            "latestReplyAt": "2026-07-03T09:32:05Z"
+          },
+          {
+            "personId": "22e316a8-fb86-42bc-95df-cb79c9eedc2d",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:28:36.883681Z",
+            "latestReplyAt": "2026-07-03T09:30:19Z"
+          },
+          {
+            "personId": "3d606b0d-1669-4c2b-a6b6-f43b4e1719be",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T08:46:20.678890Z",
+            "latestReplyAt": "2026-07-03T09:26:30Z"
+          },
+          {
+            "personId": "737c8dd8-c774-415e-be4e-c5fef5679738",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T04:51:28.452822Z",
+            "latestReplyAt": "2026-07-03T09:26:11Z"
+          },
+          {
+            "personId": "efc589bd-e681-4aeb-b230-66481fb8cc78",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T08:46:22.071304Z",
+            "latestReplyAt": "2026-07-03T09:05:44Z"
+          },
+          {
+            "personId": "e49b473e-4728-40cc-b781-17a7592cfdb7",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:13:18.327044Z",
+            "latestReplyAt": "2026-07-03T09:02:59Z"
+          },
+          {
+            "personId": "9d34d44a-71e5-4707-8aa8-0fdd79b630be",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T04:45:20.229273Z",
+            "latestReplyAt": "2026-07-03T09:01:27Z"
+          },
+          {
+            "personId": "49c6a2d4-d458-44cc-b66b-0111f8ea935e",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T09:47:47.315894Z",
+            "latestReplyAt": "2026-07-03T09:01:16Z"
+          },
+          {
+            "personId": "11bc79aa-6b0b-41ab-8326-3d0e143413b2",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T08:46:20.092550Z",
+            "latestReplyAt": "2026-07-03T08:52:31Z"
+          },
+          {
+            "personId": "f3ff92f9-99b1-4e5c-87b0-bfc103e96b83",
+            "latestIntent": "not_interested",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T08:46:22.253988Z",
+            "latestReplyAt": "2026-07-03T08:52:22Z"
+          },
+          {
+            "personId": "ac12f222-83ce-4443-8e1d-211fa7dcf65a",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T08:44:28.962658Z",
+            "latestReplyAt": "2026-07-03T08:51:44Z"
+          },
+          {
+            "personId": "c489d88f-b18f-4faa-9770-3d386f54f58b",
+            "latestIntent": "recipient_gone",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T08:44:31.493154Z",
+            "latestReplyAt": "2026-07-03T08:49:47Z"
+          },
+          {
+            "personId": "a1624190-954a-4672-8abd-031be6211713",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T04:49:21.751382Z",
+            "latestReplyAt": "2026-07-03T07:16:23Z"
+          },
+          {
+            "personId": "f16305ab-5d23-49ba-b46d-cdd75b0579d8",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-03T04:49:22.601473Z",
+            "latestReplyAt": "2026-07-03T07:04:54Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "not_interested": 4,
+        "out_of_office": 20,
+        "recipient_gone": 3,
+        "email_changed": 3
+      }
+    },
+    {
+      "campaignId": 45712,
+      "name": "Energy Lenders",
+      "status": "listening",
+      "statusReason": "lead_pool_exhausted",
+      "metrics": {
+        "emailsSent": 269,
+        "replies": 0,
+        "spend": 8.07,
+        "hot": 0,
+        "replyRate": 0.0,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": null,
+        "dailyBudgetUsd": 0.0,
+        "poolUsed": 165,
+        "poolTotal": 237,
+        "poolPending": 0,
+        "collectedLeadsTotal": 1066,
+        "manualStatusCounts": {},
+        "statusReason": "lead_pool_exhausted"
+      },
+      "label": "low_spend_low_yield",
+      "analytics": {
+        "campaign_id": 45712,
+        "name": "Energy Lenders",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "period": "all",
+        "emails_sent": 269,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 8.07,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 165,
+        "leads_pool_total": 237,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 1066,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 45712,
+        "project_id": 16763,
+        "name": "Energy Lenders",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "daily_limit_usd": 0,
+        "target_url": null,
+        "offer": "Verify financing files, confirm grant eligibility, and avoid deal delays",
+        "customer_problem": "Unverified dossiers stall financing",
+        "target_role": "we look for credit or underwriting leads who validate grant-backed financing dossiers at energy lenders",
+        "target_geography": "France, Germany, Belgium, Netherlands",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Finances energy projects",
+          "Requires document checks",
+          "Risk-sensitive underwriting"
+        ],
+        "negative_criteria": [
+          "No public funding exposure",
+          "Pure consumer lending"
+        ],
+        "example_clients": [
+          "BNP Paribas",
+          "Soci\u00e9t\u00e9 G\u00e9n\u00e9rale",
+          "Cr\u00e9dit Agricole",
+          "ING",
+          "Santander"
+        ],
+        "keywords": "energy loans, subsidy claims, dossier checks, grant financing, renovation funding, loan underwriting, document validation",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 12,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "dd9d9ed9-59ff-43a0-9276-aa7f08a7ddc4",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-01T04:01:25.049260Z",
+            "latestReplyAt": "2026-07-01T07:20:33Z"
+          },
+          {
+            "personId": "54df00eb-14ca-47e3-996b-002c072f6441",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-01T06:47:15.691503Z",
+            "latestReplyAt": "2026-07-01T06:53:35Z"
+          },
+          {
+            "personId": "59b70b98-2d1a-43b4-b807-064295e8f034",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-01T06:40:26.218985Z",
+            "latestReplyAt": "2026-07-01T06:51:51Z"
+          },
+          {
+            "personId": "7d75c8e7-6a27-494b-b87e-e336b444f5e0",
+            "latestIntent": null,
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T20:36:16.218685Z",
+            "latestReplyAt": "2026-06-25T11:12:17Z"
+          },
+          {
+            "personId": "efa13fb8-8737-4192-b0a3-b8783df2ee7d",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T20:39:17.041150Z",
+            "latestReplyAt": "2026-06-22T10:37:55Z"
+          },
+          {
+            "personId": "86a781ed-063a-4dca-b130-1ec549e7f2c1",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T20:36:17.779309Z",
+            "latestReplyAt": "2026-06-22T07:54:05Z"
+          },
+          {
+            "personId": "f06540a3-baca-4f6b-aeff-6aa1575af659",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T20:39:17.581957Z",
+            "latestReplyAt": "2026-06-22T07:52:05Z"
+          },
+          {
+            "personId": "9545704a-bb6e-4d47-a979-d3e88f8fd71b",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T20:36:18.949993Z",
+            "latestReplyAt": "2026-06-22T07:38:49Z"
+          },
+          {
+            "personId": "7a5570f5-247f-46cc-872d-0d23ffac97b3",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T21:15:26.681011Z",
+            "latestReplyAt": "2026-06-22T07:31:23Z"
+          },
+          {
+            "personId": "37edc508-e4b9-4c26-9531-01f636d66f8e",
+            "latestIntent": null,
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T21:15:25.952326Z",
+            "latestReplyAt": "2026-06-22T07:19:57Z"
+          },
+          {
+            "personId": "18015ed7-47d1-4e49-80c1-693545a80412",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T20:20:30.046589Z",
+            "latestReplyAt": "2026-06-22T06:56:45Z"
+          },
+          {
+            "personId": "14b7cc8e-4feb-4d85-b38f-02787af5ee26",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-19T20:23:31.474624Z",
+            "latestReplyAt": "2026-06-22T06:29:32Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "out_of_office": 10,
+        "unknown": 2
+      }
+    },
+    {
+      "campaignId": 56828,
+      "name": "Structural Fund Authorities",
+      "status": "listening",
+      "statusReason": "agent_stop",
+      "metrics": {
+        "emailsSent": 232,
+        "replies": 1,
+        "spend": 6.96,
+        "hot": 0,
+        "replyRate": 0.4,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 6.96,
+        "dailyBudgetUsd": 4.0,
+        "poolUsed": 120,
+        "poolTotal": 139,
+        "poolPending": 0,
+        "collectedLeadsTotal": 416,
+        "manualStatusCounts": {},
+        "statusReason": "agent_stop"
+      },
+      "label": "mixed_low_yield",
+      "analytics": {
+        "campaign_id": 56828,
+        "name": "Structural Fund Authorities",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "period": "all",
+        "emails_sent": 232,
+        "total_replies": 1,
+        "reply_rate_pct": 0.4,
+        "hot_leads": 0,
+        "spend_usd": 6.96,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 4,
+        "leads_pool_used": 120,
+        "leads_pool_total": 139,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 416,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 56828,
+        "project_id": 16763,
+        "name": "Structural Fund Authorities",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "daily_limit_usd": 4,
+        "target_url": null,
+        "offer": "Review beneficiary claims and cross-check eligibility for ERDF and ESF cohesion programmes",
+        "customer_problem": "Ineligible claims cause audits and financial corrections",
+        "target_role": "we look for programme managers who own beneficiary claim verification and first-level control at managing authorities",
+        "target_geography": "Italy, Spain, France, Germany, Belgium",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Manages EU cohesion funds",
+          "High beneficiary claim volume",
+          "Strict audit obligations"
+        ],
+        "negative_criteria": [
+          "Energy-only subsidy focus",
+          "No claim review workflow"
+        ],
+        "example_clients": [
+          "Agenzia per la Coesione",
+          "Bpifrance R\u00e9gions",
+          "Regione Lombardia",
+          "Junta de Andaluc\u00eda",
+          "VLAIO"
+        ],
+        "keywords": "structural funds, cohesion policy, managing authority, erdf, esf, claim verification, regional development",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 13,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "aea9b278-6ea8-4b39-b0d9-e844e340e56b",
+            "latestIntent": "not_interested",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T09:19:38.701818Z",
+            "latestReplyAt": "2026-07-10T10:16:08Z"
+          },
+          {
+            "personId": "9e2248f4-54ba-4d44-a34d-a40edf19a0d4",
+            "latestIntent": "recipient_gone",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T07:25:46.316791Z",
+            "latestReplyAt": "2026-07-10T07:51:35Z"
+          },
+          {
+            "personId": "e1eff458-135a-43ad-a705-0adddee7807e",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T06:41:59.501067Z",
+            "latestReplyAt": "2026-07-10T06:44:24Z"
+          },
+          {
+            "personId": "6bfd403c-9525-461d-a968-fb2a82b1e500",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-09T08:56:53.153231Z",
+            "latestReplyAt": "2026-07-09T08:57:45Z"
+          },
+          {
+            "personId": "fe7251d0-5a20-4dd5-b3f9-dbd5c569ee9c",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-09T06:09:41.992077Z",
+            "latestReplyAt": "2026-07-09T06:10:14Z"
+          },
+          {
+            "personId": "6a426785-1a6e-4352-a72f-d8d4069d9654",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T15:17:13.939672Z",
+            "latestReplyAt": "2026-07-07T10:21:59Z"
+          },
+          {
+            "personId": "3dc65a1d-90ec-4c73-84a0-313edb79608c",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T15:17:10.824482Z",
+            "latestReplyAt": "2026-07-07T08:45:33Z"
+          },
+          {
+            "personId": "b0f37d4c-acec-4224-b02c-ca76c660e124",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T06:50:11.512534Z",
+            "latestReplyAt": "2026-07-07T06:01:13Z"
+          },
+          {
+            "personId": "ca809418-9c5c-4c34-a3db-453fbde0fd4e",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-04T03:12:23.600989Z",
+            "latestReplyAt": "2026-07-06T09:20:09Z"
+          },
+          {
+            "personId": "21c3974d-7491-4f5e-aed9-f9d745fb47cb",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-06T02:00:07.078950Z",
+            "latestReplyAt": "2026-07-06T08:43:27Z"
+          },
+          {
+            "personId": "3c49c4e1-a918-46b4-8ae2-c4f637052104",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-04T04:28:43.375236Z",
+            "latestReplyAt": "2026-07-06T06:44:35Z"
+          },
+          {
+            "personId": "b2226fb7-b603-4c9e-9dcf-e7d7d424734f",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-04T04:32:03.383987Z",
+            "latestReplyAt": "2026-07-06T06:32:27Z"
+          },
+          {
+            "personId": "58804041-6fdd-4cbf-9d6a-f2bbe0dc6613",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-04T03:09:19.315978Z",
+            "latestReplyAt": "2026-07-06T06:28:48Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "not_interested": 1,
+        "recipient_gone": 1,
+        "out_of_office": 11
+      }
+    },
+    {
+      "campaignId": 45707,
+      "name": "Energy EPC Firms",
+      "status": "listening",
+      "statusReason": "user_pause",
+      "metrics": {
+        "emailsSent": 214,
+        "replies": 1,
+        "spend": 6.42,
+        "hot": 0,
+        "replyRate": 0.5,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": 6.42,
+        "dailyBudgetUsd": 10.0,
+        "poolUsed": 212,
+        "poolTotal": 198,
+        "poolPending": 0,
+        "collectedLeadsTotal": 451,
+        "manualStatusCounts": {},
+        "statusReason": "user_pause"
+      },
+      "label": "mixed_low_yield",
+      "analytics": {
+        "campaign_id": 45707,
+        "name": "Energy EPC Firms",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "period": "all",
+        "emails_sent": 214,
+        "total_replies": 1,
+        "reply_rate_pct": 0.5,
+        "hot_leads": 0,
+        "spend_usd": 6.42,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 10,
+        "leads_pool_used": 212,
+        "leads_pool_total": 198,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 451,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 45707,
+        "project_id": 16763,
+        "name": "Energy EPC Firms",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "daily_limit_usd": 10,
+        "target_url": null,
+        "offer": "Validate project dossiers, catch missing proofs, and reduce submission rejections",
+        "customer_problem": "Rejected claims delay cashflow",
+        "target_role": "we look for those who own subsidy claim submissions and project administration at EPC firms",
+        "target_geography": "France, Germany, Belgium, Netherlands",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Works on retrofit projects",
+          "Handles grant paperwork",
+          "Multi-site operations"
+        ],
+        "negative_criteria": [
+          "Pure installation crews",
+          "No subsidy work"
+        ],
+        "example_clients": [
+          "VINCI",
+          "Bouygues",
+          "Eiffage",
+          "Skanska",
+          "Ferrovial"
+        ],
+        "keywords": "energy subsidy, epc firm, dossier review, claim validation, compliance checks, grant submission, document audit",
+        "instructions": "Lead with the cashflow risk: rejected subsidy claims stall payment and create avoidable rework for EPC teams managing retrofit programmes. Frame the platform as a pre-submission safety net that checks dossiers, cross-validates evidence, and flags missing proofs across multi-site grant paperwork so claims go in clean the first time.",
+        "followup_instructions": "Follow up by sharpening the operational angle: every rejected dossier means another cycle of admin, corrections, and delayed release of funds. Push the idea that the platform helps EPC firms standardize validation across projects and countries, reducing submission errors before they hit the authority and protecting project cashflow.",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 8,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "6cb02a92-1301-49ce-957b-024f2afc53ca",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T12:15:05.771855Z",
+            "latestReplyAt": "2026-05-11T13:50:14Z"
+          },
+          {
+            "personId": "2a05b70e-0a54-413c-91aa-a63c5d0c955b",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T13:10:36.764095Z",
+            "latestReplyAt": "2026-05-11T13:40:27Z"
+          },
+          {
+            "personId": "e4806802-56d5-4f8b-92b2-168daba0b25a",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T11:39:28.162673Z",
+            "latestReplyAt": "2026-05-11T13:06:34Z"
+          },
+          {
+            "personId": "1c05c116-9170-479c-acbc-10923ee20dc1",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T11:39:26.979028Z",
+            "latestReplyAt": "2026-05-11T12:10:24Z"
+          },
+          {
+            "personId": "67c5f0aa-3b37-40e1-a5b1-e590b75bedde",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T11:07:44.838896Z",
+            "latestReplyAt": "2026-05-11T11:11:28Z"
+          },
+          {
+            "personId": "5f05787f-2f4d-485a-a2d3-b10ae8d30c97",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T11:07:44.727867Z",
+            "latestReplyAt": "2026-05-11T11:11:05Z"
+          },
+          {
+            "personId": "f9a6b29c-3f30-40f2-ad3d-bfed20580c32",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-11T09:37:43.402342Z",
+            "latestReplyAt": "2026-05-11T09:13:20Z"
+          },
+          {
+            "personId": "2c7a394e-a2d8-438b-9135-35ddc558487f",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-05-09T18:21:26.106840Z",
+            "latestReplyAt": "2026-05-11T06:47:04Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "out_of_office": 7,
+        "email_changed": 1
+      }
+    },
+    {
+      "campaignId": 60825,
+      "name": "National Funding Agencies",
+      "status": "listening",
+      "statusReason": "lead_pool_exhausted",
+      "metrics": {
+        "emailsSent": 132,
+        "replies": 0,
+        "spend": 3.96,
+        "hot": 0,
+        "replyRate": 0.0,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": null,
+        "dailyBudgetUsd": 0.0,
+        "poolUsed": 68,
+        "poolTotal": 68,
+        "poolPending": 0,
+        "collectedLeadsTotal": 222,
+        "manualStatusCounts": {},
+        "statusReason": "lead_pool_exhausted"
+      },
+      "label": "low_spend_low_yield",
+      "analytics": {
+        "campaign_id": 60825,
+        "name": "National Funding Agencies",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "period": "all",
+        "emails_sent": 132,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 3.96,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 0,
+        "leads_pool_used": 68,
+        "leads_pool_total": 68,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 222,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 60825,
+        "project_id": 16763,
+        "name": "National Funding Agencies",
+        "status": "listening",
+        "status_reason": "lead_pool_exhausted",
+        "daily_limit_usd": 0,
+        "target_url": null,
+        "offer": "Screen national grant and subsidy claims, verify supporting documents before disbursing public money",
+        "customer_problem": "Errors and fraud waste public budgets",
+        "target_role": "we look for programme officers who own grant claim verification and disbursement at national funding agencies",
+        "target_geography": "Italy, Spain, United Kingdom",
+        "target_company_size": null,
+        "positive_criteria": [
+          "National public funding agency",
+          "Administers grant programmes",
+          "Strict audit obligations",
+          "High application volumes"
+        ],
+        "negative_criteria": [
+          "Private operating company",
+          "No claim review workflow",
+          "Energy-only subsidy focus"
+        ],
+        "example_clients": [
+          "Invitalia",
+          "Instituto de Cr\u00e9dito Oficial",
+          "British Business Bank",
+          "Homes England",
+          "ENISA"
+        ],
+        "keywords": "national agency, public funding, subsidy programme, grant disbursement, incentive scheme, government funding, compliance review",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 7,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "8eaae6b9-f2b1-46e6-a1af-f02e0ddac498",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T15:50:10.781501Z",
+            "latestReplyAt": "2026-07-16T15:54:10Z"
+          },
+          {
+            "personId": "c5eac0fd-d441-475b-91c8-283e8cf4ede4",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T15:36:20.799794Z",
+            "latestReplyAt": "2026-07-16T15:39:44Z"
+          },
+          {
+            "personId": "ffedd02c-56fc-42d9-ab28-0b2ddbf9cf34",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T15:36:19.600136Z",
+            "latestReplyAt": "2026-07-16T15:37:20Z"
+          },
+          {
+            "personId": "353b4e51-b66c-486d-96ac-2a8cfdb328fd",
+            "latestIntent": "out_of_office",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-16T09:46:56.639770Z",
+            "latestReplyAt": "2026-07-16T09:47:31Z"
+          },
+          {
+            "personId": "9aef3170-1f14-4ae2-ad1c-a52fe80fa7b9",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T15:30:57.493873Z",
+            "latestReplyAt": "2026-07-13T15:34:38Z"
+          },
+          {
+            "personId": "1465027d-bbbc-4f92-8bb1-6884d5127f58",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T06:55:10.974908Z",
+            "latestReplyAt": "2026-07-13T09:26:22Z"
+          },
+          {
+            "personId": "0a6724ec-24c4-4cbe-8af2-a7fca0947838",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-13T06:55:09.865092Z",
+            "latestReplyAt": "2026-07-13T08:05:23Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "out_of_office": 7
+      }
+    },
+    {
+      "campaignId": 52261,
+      "name": "Innovation Enterprise Agencies",
+      "status": "listening",
+      "statusReason": "agent_stop",
+      "metrics": {
+        "emailsSent": 87,
+        "replies": 0,
+        "spend": 2.61,
+        "hot": 0,
+        "replyRate": 0.0,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": null,
+        "dailyBudgetUsd": 1.0,
+        "poolUsed": 84,
+        "poolTotal": 89,
+        "poolPending": 0,
+        "collectedLeadsTotal": 463,
+        "manualStatusCounts": {},
+        "statusReason": "agent_stop"
+      },
+      "label": "low_spend_low_yield",
+      "analytics": {
+        "campaign_id": 52261,
+        "name": "Innovation Enterprise Agencies",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "period": "all",
+        "emails_sent": 87,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 2.61,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 1,
+        "leads_pool_used": 84,
+        "leads_pool_total": 89,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 463,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 52261,
+        "project_id": 16763,
+        "name": "Innovation Enterprise Agencies",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "daily_limit_usd": 1,
+        "target_url": null,
+        "offer": "Review business and innovation funding applications, cross-check eligibility evidence before awarding public money",
+        "customer_problem": "Eligibility errors cause wrongful or rejected awards",
+        "target_role": "we look for programme managers who own funding application review and award decisions at public business-support agencies",
+        "target_geography": "France, Germany, Netherlands, United Kingdom, Belgium",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Administers public business funding",
+          "Reviews many applications",
+          "Regional or national mandate"
+        ],
+        "negative_criteria": [
+          "Energy-only subsidy focus",
+          "No application review workflows"
+        ],
+        "example_clients": [
+          "Bpifrance",
+          "Innovate UK",
+          "Netherlands Enterprise Agency",
+          "VLAIO",
+          "Enterprise Ireland"
+        ],
+        "keywords": "innovation agency, enterprise agency, business funding, public subsidy, application review, economic development, sme support",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 9,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "55b80fde-e425-42a6-866d-5a3f53325726",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-26T10:31:51.633171Z",
+            "latestReplyAt": "2026-06-26T12:26:27Z"
+          },
+          {
+            "personId": "03fa8206-145f-4ffb-b87c-2389792a5086",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T16:00:29.017176Z",
+            "latestReplyAt": "2026-06-26T09:59:42Z"
+          },
+          {
+            "personId": "cacb2ff4-ccec-408f-8d94-cafb1302bb34",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T16:04:17.613964Z",
+            "latestReplyAt": "2026-06-26T09:43:45Z"
+          },
+          {
+            "personId": "ae686b7f-845d-4919-a520-cf92fa5d2cf8",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T16:04:15.524033Z",
+            "latestReplyAt": "2026-06-26T08:47:00Z"
+          },
+          {
+            "personId": "31fb3c63-8c2f-4fe9-8f1a-e2e63593b862",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T16:00:24.052459Z",
+            "latestReplyAt": "2026-06-26T08:37:42Z"
+          },
+          {
+            "personId": "fea69843-bea7-4e9e-bf2e-e5dd5c2db460",
+            "latestIntent": null,
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T16:09:21.385043Z",
+            "latestReplyAt": "2026-06-26T07:55:41Z"
+          },
+          {
+            "personId": "a5e099d7-0bca-41db-a127-357096086aa8",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T16:04:15.178768Z",
+            "latestReplyAt": "2026-06-26T07:33:01Z"
+          },
+          {
+            "personId": "9bc79b52-a9eb-476a-bd59-fd7c06ebbf76",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T16:04:14.499687Z",
+            "latestReplyAt": "2026-06-26T06:35:55Z"
+          },
+          {
+            "personId": "ab33c881-88ff-418f-97aa-833e04e03d21",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-06-25T03:31:55.856231Z",
+            "latestReplyAt": "2026-06-25T08:16:18Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "out_of_office": 8,
+        "unknown": 1
+      }
+    },
+    {
+      "campaignId": 63001,
+      "name": "Public Agencies South",
+      "status": "listening",
+      "statusReason": "user_pause",
+      "metrics": {
+        "emailsSent": 44,
+        "replies": 0,
+        "spend": 1.32,
+        "hot": 0,
+        "replyRate": 0.0,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": null,
+        "dailyBudgetUsd": 10.0,
+        "poolUsed": 44,
+        "poolTotal": 44,
+        "poolPending": 120,
+        "collectedLeadsTotal": 281,
+        "manualStatusCounts": {},
+        "statusReason": "user_pause"
+      },
+      "label": "low_spend_low_yield",
+      "analytics": {
+        "campaign_id": 63001,
+        "name": "Public Agencies South",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "period": "all",
+        "emails_sent": 44,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 1.32,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 10,
+        "leads_pool_used": 44,
+        "leads_pool_total": 44,
+        "leads_pool_pending": 120,
+        "collected_leads_total": 281,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 63001,
+        "project_id": 16763,
+        "name": "Public Agencies South",
+        "status": "listening",
+        "status_reason": "user_pause",
+        "daily_limit_usd": 10,
+        "target_url": null,
+        "offer": "Review applications, cross-check supporting evidence, and prevent fraudulent payouts",
+        "customer_problem": "Fraud and errors waste public budgets",
+        "target_role": "we look for program managers responsible for reviewing subsidy applications and preventing fraud at public agencies",
+        "target_geography": "Italy, Spain, United Kingdom",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Disburses public funds",
+          "Strict audit requirements",
+          "Large application queues"
+        ],
+        "negative_criteria": [
+          "No subsidy workflows",
+          "Pure private lending"
+        ],
+        "example_clients": [
+          "GSE Italy",
+          "IDAE Spain",
+          "Ofgem",
+          "Enea Italy",
+          "Ente Nazionale"
+        ],
+        "keywords": "public agency, grant admin, subsidy claims, dossier review, document validation, compliance checks, energy funding",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 2,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "43ba6f88-436c-4227-9e56-53a370fc56fa",
+            "latestIntent": "out_of_office",
+            "sentCount": 1,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-15T09:03:12.605324Z",
+            "latestReplyAt": "2026-07-15T09:03:56Z"
+          },
+          {
+            "personId": "5efa2cb2-b7c4-401f-8f89-217c4989ae0c",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-15T07:33:26.509361Z",
+            "latestReplyAt": "2026-07-15T07:25:04Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "out_of_office": 1,
+        "email_changed": 1
+      }
+    },
+    {
+      "campaignId": 60150,
+      "name": "Education Fund Administrators",
+      "status": "listening",
+      "statusReason": "agent_stop",
+      "metrics": {
+        "emailsSent": 27,
+        "replies": 0,
+        "spend": 0.81,
+        "hot": 0,
+        "replyRate": 0.0,
+        "costPerLeadUsd": 0.0,
+        "costPerReply": null,
+        "dailyBudgetUsd": 2.0,
+        "poolUsed": 23,
+        "poolTotal": 27,
+        "poolPending": 0,
+        "collectedLeadsTotal": 73,
+        "manualStatusCounts": {},
+        "statusReason": "agent_stop"
+      },
+      "label": "low_spend_low_yield",
+      "analytics": {
+        "campaign_id": 60150,
+        "name": "Education Fund Administrators",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "period": "all",
+        "emails_sent": 27,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 0.81,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 2,
+        "leads_pool_used": 23,
+        "leads_pool_total": 27,
+        "leads_pool_pending": 0,
+        "collected_leads_total": 73,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      },
+      "detail": {
+        "id": 60150,
+        "project_id": 16763,
+        "name": "Education Fund Administrators",
+        "status": "listening",
+        "status_reason": "agent_stop",
+        "daily_limit_usd": 2,
+        "target_url": null,
+        "offer": "Review education and training funding applications and cross-check eligibility before releasing public grants",
+        "customer_problem": "Errors in funding files cause misallocated grants",
+        "target_role": "we look for programme officers who own education and training funding application review and disbursement",
+        "target_geography": "France, Germany, United Kingdom, Netherlands, Spain, Italy, Belgium",
+        "target_company_size": null,
+        "positive_criteria": [
+          "Disburses education or training funds",
+          "Reviews many applications",
+          "Public education mandate"
+        ],
+        "negative_criteria": [
+          "Single school or university",
+          "No funding review workflow"
+        ],
+        "example_clients": [
+          "Education and Skills Funding Agency",
+          "Senatsverwaltung fur Bildung Berlin",
+          "France Competences",
+          "Caisse des Depots",
+          "DUO Netherlands"
+        ],
+        "keywords": "education funding, skills funding, training grants, vocational funding, education authority, application review, apprenticeship funding",
+        "instructions": "",
+        "followup_instructions": "",
+        "language": "auto",
+        "reply_instructions": "",
+        "schedule": {
+          "days": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri"
+          ],
+          "use_system_schedule": true,
+          "timezone": null,
+          "working_hours": null
+        },
+        "followups": {
+          "max_touches": 2,
+          "delay_days": 3
+        },
+        "targeting_editable": true
+      },
+      "inbox": {
+        "needReplyTotal": 0,
+        "repliedTotal": 1,
+        "needReplySample": [],
+        "repliedSample": [
+          {
+            "personId": "e190bfba-56eb-40e8-993e-0b98b072e567",
+            "latestIntent": "email_changed",
+            "sentCount": 2,
+            "replyCount": 1,
+            "latestSentAt": "2026-07-10T13:59:03.689826Z",
+            "latestReplyAt": "2026-07-10T13:41:27Z"
+          }
+        ]
+      },
+      "intentTallies": {
+        "email_changed": 1
+      }
+    }
+  ],
+  "metricsRebuiltAt": "2026-09-11T10:18:21.795686+00:00",
+  "projectSummary": {
+    "totalSpendUsd": 194.52,
+    "totalReplies": 33,
+    "totalEmailsSent": 6484,
+    "totalHot": 5,
+    "overallReplyRatePct": 0.5089450956199877,
+    "autoReplyEnabled": true,
+    "autopilotEnabled": false
+  }
+}

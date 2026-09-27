@@ -1,0 +1,244 @@
+{
+  "observedAt": "2026-09-11T13:32:39.988Z",
+  "autopilot": {
+    "autopilot_enabled": false,
+    "auto_reply_enabled": true,
+    "auto_reply_delay_minutes": 1440
+  },
+  "campaigns": [
+    {
+      "id": 45707,
+      "name": "Energy EPC Firms",
+      "status": "listening",
+      "reason": "user_pause",
+      "dailyBudget": 10,
+      "spend": 6.42,
+      "sent": 214,
+      "replies": 1
+    },
+    {
+      "id": 45709,
+      "name": "Energy Consultants",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 10,
+      "spend": 23.1,
+      "sent": 770,
+      "replies": 2
+    },
+    {
+      "id": 63001,
+      "name": "Public Agencies South",
+      "status": "listening",
+      "reason": "user_pause",
+      "dailyBudget": 10,
+      "spend": 1.32,
+      "sent": 44,
+      "replies": 0
+    },
+    {
+      "id": 45711,
+      "name": "Public Agencies",
+      "status": "listening",
+      "reason": "user_pause",
+      "dailyBudget": 9,
+      "spend": 88.02,
+      "sent": 2934,
+      "replies": 19
+    },
+    {
+      "id": 51190,
+      "name": "Research Funding Councils",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 4,
+      "spend": 9.81,
+      "sent": 327,
+      "replies": 2
+    },
+    {
+      "id": 56828,
+      "name": "Structural Fund Authorities",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 4,
+      "spend": 6.96,
+      "sent": 232,
+      "replies": 1
+    },
+    {
+      "id": 56316,
+      "name": "Grant-Making Foundations",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 3,
+      "spend": 8.61,
+      "sent": 287,
+      "replies": 5
+    },
+    {
+      "id": 60150,
+      "name": "Education Fund Administrators",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 2,
+      "spend": 0.81,
+      "sent": 27,
+      "replies": 0
+    },
+    {
+      "id": 52261,
+      "name": "Innovation Enterprise Agencies",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 1,
+      "spend": 2.61,
+      "sent": 87,
+      "replies": 0
+    },
+    {
+      "id": 45708,
+      "name": "Subsidy Aggregators",
+      "status": "listening",
+      "reason": "lead_pool_exhausted",
+      "dailyBudget": 0,
+      "spend": 9.09,
+      "sent": 303,
+      "replies": 1
+    },
+    {
+      "id": 45710,
+      "name": "Utility Providers",
+      "status": "listening",
+      "reason": "lead_pool_exhausted",
+      "dailyBudget": 0,
+      "spend": 14.58,
+      "sent": 486,
+      "replies": 1
+    },
+    {
+      "id": 45712,
+      "name": "Energy Lenders",
+      "status": "listening",
+      "reason": "lead_pool_exhausted",
+      "dailyBudget": 0,
+      "spend": 8.07,
+      "sent": 269,
+      "replies": 0
+    },
+    {
+      "id": 50767,
+      "name": "RGE Renovation Installers",
+      "status": "listening",
+      "reason": "lead_pool_exhausted",
+      "dailyBudget": 0,
+      "spend": 11.16,
+      "sent": 372,
+      "replies": 1
+    },
+    {
+      "id": 60825,
+      "name": "National Funding Agencies",
+      "status": "listening",
+      "reason": "lead_pool_exhausted",
+      "dailyBudget": 0,
+      "spend": 3.96,
+      "sent": 132,
+      "replies": 0
+    }
+  ],
+  "budgetsStillPositive": [
+    {
+      "id": 45707,
+      "name": "Energy EPC Firms",
+      "status": "listening",
+      "reason": "user_pause",
+      "dailyBudget": 10,
+      "spend": 6.42,
+      "sent": 214,
+      "replies": 1
+    },
+    {
+      "id": 45709,
+      "name": "Energy Consultants",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 10,
+      "spend": 23.1,
+      "sent": 770,
+      "replies": 2
+    },
+    {
+      "id": 63001,
+      "name": "Public Agencies South",
+      "status": "listening",
+      "reason": "user_pause",
+      "dailyBudget": 10,
+      "spend": 1.32,
+      "sent": 44,
+      "replies": 0
+    },
+    {
+      "id": 45711,
+      "name": "Public Agencies",
+      "status": "listening",
+      "reason": "user_pause",
+      "dailyBudget": 9,
+      "spend": 88.02,
+      "sent": 2934,
+      "replies": 19
+    },
+    {
+      "id": 51190,
+      "name": "Research Funding Councils",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 4,
+      "spend": 9.81,
+      "sent": 327,
+      "replies": 2
+    },
+    {
+      "id": 56828,
+      "name": "Structural Fund Authorities",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 4,
+      "spend": 6.96,
+      "sent": 232,
+      "replies": 1
+    },
+    {
+      "id": 56316,
+      "name": "Grant-Making Foundations",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 3,
+      "spend": 8.61,
+      "sent": 287,
+      "replies": 5
+    },
+    {
+      "id": 60150,
+      "name": "Education Fund Administrators",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 2,
+      "spend": 0.81,
+      "sent": 27,
+      "replies": 0
+    },
+    {
+      "id": 52261,
+      "name": "Innovation Enterprise Agencies",
+      "status": "listening",
+      "reason": "agent_stop",
+      "dailyBudget": 1,
+      "spend": 2.61,
+      "sent": 87,
+      "replies": 0
+    }
+  ],
+  "networkCount": 16,
+  "nonGet": 0
+}

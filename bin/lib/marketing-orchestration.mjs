@@ -8,7 +8,7 @@ const OFFICIAL_REPOSITORY = 'https://github.com/coreyhaines31/marketingskills';
 const OFFICIAL_COMMIT = '67264763cb107d61749f418d081c56e5bcbc0209';
 const OFFICIAL_LICENSE_DIGEST = 'b70d71e24e40fce5da8f4b6f9cd862096a048e433db7f3c8cac5e348e6d34591';
 const OFFICIAL_CAPABILITY_SET_DIGEST = '7147c3e52094acce76e4cba08d0131eef40292d4c4ecab54a61013253f56faf5';
-const OFFICIAL_ORCHESTRATION_SET_DIGEST = '223d63575fdcf0c57f25eb76a1b2e00e12f981c67614245b4e5d3cd47410ce4d';
+const OFFICIAL_ORCHESTRATION_SET_DIGEST = 'ccdecce92e1fab83a6facff8abe9dc8c41b1f35e6768e3fadf5b97b108d5ae11';
 const EXPECTED_CAPABILITY_COUNT = 47;
 const OBSERVED_UPSTREAM_LOOP_COUNT = 45;
 const MARKETING_ASSET_CONTRACTS = Object.freeze([
@@ -86,6 +86,9 @@ const VERSIONED_ID = /^[a-z][a-z0-9_-]*@\d+\.\d+\.\d+$/;
 const DIGEST = /^[a-f0-9]{64}$/;
 const COMMIT = /^[a-f0-9]{40}$/;
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
+const REGION_TAG = /^(?:\*|[A-Z]{2})$/;
+const LANGUAGE_TAG = /^(?:\*|[a-z]{2}(?:-[A-Z]{2})?)$/;
+const MARKET_LOCALE = /^([a-z]{2})-([A-Z]{2})$/;
 
 function fail(message, path = '') {
   throw new Error(`marketing orchestration validation: ${message}${path ? ` at ${path}` : ''}`);
@@ -184,6 +187,64 @@ function assertVersionedId(value, label) {
 
 function assertDigest(value, label) {
   string(value, label, { min: 64, max: 64, pattern: DIGEST });
+}
+
+function assertMarketAxis(value, label) {
+  exactKeys(value, ['region', 'language'], label);
+  string(value.region, `${label}.region`, { min: 2, max: 2, pattern: /^[A-Z]{2}$/ });
+  string(value.language, `${label}.language`, { min: 2, max: 16, pattern: /^[a-z]{2}(?:-[A-Z]{2})?$/ });
+  return value;
+}
+
+function assertMarketTags(value, label) {
+  const regions = stringArray(value.regions, `${label}.regions`, { min: 1, max: 64, unique: true });
+  const languages = stringArray(value.languages, `${label}.languages`, { min: 1, max: 64, unique: true });
+  regions.forEach((region, index) => {
+    if (!REGION_TAG.test(region)) fail(`${label}.regions[${index}] must be * or an ISO-3166 alpha-2 code`);
+  });
+  languages.forEach((language, index) => {
+    if (!LANGUAGE_TAG.test(language)) fail(`${label}.languages[${index}] must be * or a BCP-47 language tag`);
+  });
+  return { regions, languages };
+}
+
+function marketTagMatches(tags, needle, wildcard = '*') {
+  return tags.includes(wildcard) || tags.includes(needle);
+}
+
+/** Parse compose --market fr-FR into brand.market { region, language }. */
+export function parseMarketLocale(locale) {
+  string(locale, 'market locale', { min: 5, max: 5, pattern: MARKET_LOCALE });
+  const [, language, region] = locale.match(MARKET_LOCALE);
+  return { region, language };
+}
+
+/** Filter capabilities/recipes by brand.market; wildcard * remains eligible. */
+export function filterCatalogByMarket(catalog, brand) {
+  object(catalog, 'marketing capability catalog');
+  object(brand, 'brand');
+  exactKeys(brand, ['market'], 'brand');
+  const market = assertMarketAxis(brand.market, 'brand.market');
+  const capabilitiesIn = array(catalog.capabilities, 'capabilities', { min: 1 });
+  const recipesIn = array(catalog.recipes, 'recipes', { min: 1 });
+  capabilitiesIn.forEach((capability, index) => assertMarketTags(capability, `capabilities[${index}]`));
+  recipesIn.forEach((recipe, index) => assertMarketTags(recipe, `recipes[${index}]`));
+  const capabilities = capabilitiesIn.filter((capability) => (
+    marketTagMatches(capability.regions, market.region)
+    && marketTagMatches(capability.languages, market.language)
+  ));
+  const recipes = recipesIn.filter((recipe) => (
+    marketTagMatches(recipe.regions, market.region)
+    && marketTagMatches(recipe.languages, market.language)
+  ));
+  if (!capabilities.length) fail(`no capabilities match brand.market ${market.language}-${market.region}`);
+  if (!recipes.length) fail(`no recipes match brand.market ${market.language}-${market.region}`);
+  return {
+    ...catalog,
+    capabilities,
+    recipes,
+    market,
+  };
 }
 
 function assertNoAuthorityFields(value, label) {
@@ -330,6 +391,8 @@ function validateCapability(capability, index, policy) {
     'prohibited_output_actions',
     'attribution',
     'semantic_fixture_ids',
+    'regions',
+    'languages',
   ], label);
   assertVersionedId(capability.id, `${label}.id`);
   string(capability.upstream_version, `${label}.upstream_version`, { max: 64, pattern: SEMVER });
@@ -396,6 +459,7 @@ function validateCapability(capability, index, policy) {
       fail(`${label}.semantic_fixture_ids must bind the audited upstream evaluation suite`);
     }
   }
+  assertMarketTags(capability, label);
 }
 
 function validateDisabledSpend(spend, lowBudgetQuote, label) {
@@ -451,6 +515,8 @@ function validateRecipe(recipe, index, capabilitiesById) {
     'accessibility_companion',
     'spend',
     'low_budget_quote',
+    'regions',
+    'languages',
   ], label);
   assertVersionedId(recipe.id, `${label}.id`);
   string(recipe.name, `${label}.name`, { max: 128 });
@@ -495,6 +561,7 @@ function validateRecipe(recipe, index, capabilitiesById) {
     fail(`${label}.accessibility_companion references an unknown contract`);
   }
   validateDisabledSpend(recipe.spend, recipe.low_budget_quote, `${label}.spend`);
+  assertMarketTags(recipe, label);
 }
 
 function validateLoop(loop, index, capabilitiesById) {

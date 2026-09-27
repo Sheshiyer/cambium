@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { planPipeline, formatPlan, loadJson, loadComposition, parseRunArgs } from './compose.mjs';
+import { planPipeline, formatPlan, loadJson, loadComposition, parsePlanArgs, parseRunArgs } from './compose.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
@@ -23,6 +23,7 @@ const machineReadableContractGroups = new Set([
   'brand_system',
   'copy_system',
   'visual_system',
+  'market',
   'taste_brief',
   'asset_plan',
   'section_plan',
@@ -258,12 +259,14 @@ test('compose plan surfaces variable contract metadata for each stage', () => {
   const plan = planPipeline({ registry, pipeline, tenant: 'acme' });
   const out = formatPlan(plan);
 
-  assert.match(out, /contract: requires \[idea\] → produces \[brand_system, copy_system, visual_system\]/);
+  assert.match(out, /contract: requires \[idea\] → produces \[brand_system, copy_system, visual_system, market\]/);
   assert.match(out, /brand_system/);
   assert.match(out, /visual_system/);
+  assert.match(out, /market/);
   assert.match(out, /asset_plan/);
   assert.match(out, /blocking: taste_brief, asset_plan, section_plan, interaction_plan, acceptance_checks/);
   assert.match(out, /downstream: Turns brand intent into structured visual and build constraints/);
+  assert.match(out, /approval: sequential --approve genesis\|taste\|build\|ops/);
 });
 
 test('missing registry.organs throws', () => {
@@ -324,15 +327,17 @@ test('contracts doc defines the variable contract vocabulary', async () => {
   assert.match(text, /copy_system/i);
   assert.match(text, /copy_slots/i);
   assert.match(text, /visual_system/i);
+  assert.match(text, /### `market`/i);
   assert.match(text, /asset_plan/i);
   assert.match(text, /section_plan/i);
   assert.match(text, /interaction_plan/i);
   assert.match(text, /acceptance_checks/i);
 });
 
-test('sample variable contract includes brand, copy, asset, and section groups', async () => {
+test('sample variable contract includes brand, market, copy, asset, and section groups', async () => {
   const sample = JSON.parse(await fs.readFile(join(root, 'examples', 'sample-variable-contract.json'), 'utf8'));
   assert.ok(sample.brand_system);
+  assert.deepEqual(sample.market, { region: 'FR', language: 'fr' });
   assert.ok(sample.copy_system);
   assert.ok(sample.visual_system);
   assert.ok(sample.asset_plan);
@@ -414,4 +419,25 @@ test('parseRunArgs parses tenant + execute + approve', () => {
 test('parseRunArgs treats a dangling --approve (followed by a flag) as no approval', () => {
   // operator reorders flags: `--approve --execute` must NOT approve a stage named "--execute"
   assert.equal(parseRunArgs(['acme', '--approve', '--execute']).approve, null);
+});
+
+test('parsePlanArgs threads --market fr-FR into brand.market', () => {
+  assert.deepEqual(parsePlanArgs(['iverif', '--market', 'fr-FR']), {
+    tenant: 'iverif',
+    market: { region: 'FR', language: 'fr' },
+  });
+});
+
+test('compose plan output includes market when scoped', () => {
+  const plan = planPipeline({
+    registry,
+    pipeline,
+    tenant: 'iverif',
+    market: { region: 'FR', language: 'fr' },
+  });
+  const out = formatPlan(plan);
+  assert.match(out, /market: fr-FR/);
+  assert.match(out, /region=FR/);
+  assert.match(out, /language=fr/);
+  assert.deepEqual(plan.approveStages, ['genesis', 'taste', 'build', 'ops']);
 });
