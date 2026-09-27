@@ -1,0 +1,209 @@
+{
+  "observedAt": "2026-09-11T13:42:48.165Z",
+  "projectId": 35674,
+  "campaigns": {
+    "status": 200,
+    "body": {
+      "campaigns": [
+        {
+          "id": 159032,
+          "project_id": 35674,
+          "name": "Energy EPC Firms",
+          "target_url": null,
+          "daily_limit_usd": 10,
+          "status": "listening"
+        },
+        {
+          "id": 159033,
+          "project_id": 35674,
+          "name": "Subsidy Aggregators",
+          "target_url": null,
+          "daily_limit_usd": 10,
+          "status": "listening"
+        },
+        {
+          "id": 159034,
+          "project_id": 35674,
+          "name": "Energy Consultants",
+          "target_url": null,
+          "daily_limit_usd": 10,
+          "status": "listening"
+        },
+        {
+          "id": 159035,
+          "project_id": 35674,
+          "name": "Utility Providers",
+          "target_url": null,
+          "daily_limit_usd": 10,
+          "status": "listening"
+        },
+        {
+          "id": 159036,
+          "project_id": 35674,
+          "name": "Public Agencies",
+          "target_url": null,
+          "daily_limit_usd": 10,
+          "status": "listening"
+        },
+        {
+          "id": 159037,
+          "project_id": 35674,
+          "name": "Energy Lenders",
+          "target_url": null,
+          "daily_limit_usd": 10,
+          "status": "listening"
+        }
+      ],
+      "total": 6
+    }
+  },
+  "autopilot": {
+    "status": 200,
+    "body": {
+      "project_id": 35674,
+      "autopilot_enabled": true,
+      "auto_reply_enabled": true,
+      "auto_reply_delay_minutes": 1440,
+      "reply_cc_emails": "redacted"
+    }
+  },
+  "budget": {
+    "status": 200,
+    "body": {
+      "project_id": 35674,
+      "daily_budget_usd": 10
+    }
+  },
+  "analytics": {
+    "status": 200,
+    "body": {
+      "project_id": 35674,
+      "period": "all",
+      "total_emails_sent": 0,
+      "total_replies": 0,
+      "total_auto_replies": 0,
+      "overall_reply_rate_pct": 0,
+      "total_hot_leads": 0,
+      "total_spend_usd": 0,
+      "campaigns": [
+        {
+          "campaign_id": 159033,
+          "name": "Subsidy Aggregators",
+          "status": "listening",
+          "status_reason": "user_pause",
+          "emails_sent": 0,
+          "total_replies": 0,
+          "reply_rate_pct": 0,
+          "hot_leads": 0,
+          "spend_usd": 0,
+          "cost_per_lead_usd": 0,
+          "daily_budget_usd": 10,
+          "leads_pool_used": 0,
+          "leads_pool_total": 0,
+          "leads_pool_pending": 0,
+          "collected_leads_total": 0,
+          "manual_status_counts": {},
+          "cold_lost": 0
+        },
+        {
+          "campaign_id": 159034,
+          "name": "Energy Consultants",
+          "status": "listening",
+          "status_reason": "user_pause",
+          "emails_sent": 0,
+          "total_replies": 0,
+          "reply_rate_pct": 0,
+          "hot_leads": 0,
+          "spend_usd": 0,
+          "cost_per_lead_usd": 0,
+          "daily_budget_usd": 10,
+          "leads_pool_used": 0,
+          "leads_pool_total": 0,
+          "leads_pool_pending": 0,
+          "collected_leads_total": 0,
+          "manual_status_counts": {},
+          "cold_lost": 0
+        },
+        {
+          "campaign_id": 159037,
+          "name": "Energy Lenders",
+          "status": "listening",
+          "status_reason": "user_pause",
+          "emails_sent": 0,
+          "total_replies": 0,
+          "reply_rate_pct": 0,
+          "hot_leads": 0,
+          "spend_usd": 0,
+          "cost_per_lead_usd": 0,
+          "daily_budget_usd": 10,
+          "leads_pool_used": 0,
+          "leads_pool_total": 0,
+          "leads_pool_pending": 0,
+          "collected_leads_total": 0,
+          "manual_status_counts": {},
+          "cold_lost": 0
+        },
+        {
+          "campaign_id": 159032,
+          "name": "Energy EPC Firms",
+          "status": "listening",
+          "status_reason": "user_pause",
+          "emails_sent": 0,
+          "total_replies": 0,
+          "reply_rate_pct": 0,
+          "hot_leads": 0,
+          "spend_usd": 0,
+          "cost_per_lead_usd": 0,
+          "daily_budget_usd": 10,
+          "leads_pool_used": 0,
+          "leads_pool_total": 0,
+          "leads_pool_pending": 3,
+          "collected_leads_total": 3,
+          "manual_status_counts": {},
+          "cold_lost": 0
+        },
+        {
+          "campaign_id": 159036,
+          "name": "Public Agencies",
+          "status": "listening",
+          "status_reason": "user_pause",
+          "emails_sent": 0,
+          "total_replies": 0,
+          "reply_rate_pct": 0,
+          "hot_leads": 0,
+          "spend_usd": 0,
+          "cost_per_lead_usd": 0,
+          "daily_budget_usd": 10,
+          "leads_pool_used": 0,
+          "leads_pool_total": 0,
+          "leads_pool_pending": 0,
+          "collected_leads_total": 0,
+          "manual_status_counts": {},
+          "cold_lost": 0
+        },
+        {
+          "campaign_id": 159035,
+          "name": "Utility Providers",
+          "status": "listening",
+          "status_reason": "user_pause",
+          "emails_sent": 0,
+          "total_replies": 0,
+          "reply_rate_pct": 0,
+          "hot_leads": 0,
+          "spend_usd": 0,
+          "cost_per_lead_usd": 0,
+          "daily_budget_usd": 10,
+          "leads_pool_used": 0,
+          "leads_pool_total": 0,
+          "leads_pool_pending": 0,
+          "collected_leads_total": 0,
+          "manual_status_counts": {},
+          "cold_lost": 0
+        }
+      ]
+    }
+  },
+  "methods": [
+    "GET"
+  ]
+}

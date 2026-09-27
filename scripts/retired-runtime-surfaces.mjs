@@ -12,6 +12,8 @@ const EXCLUDED_DIRECTORIES = new Set([
 ]);
 const HISTORICAL_FILES = new Set([
   'VERSIONS.md',
+  // Imported 2026-09-06 research: historical source, never callable runtime doctrine.
+  'docs/Downloads-2026-09-06/Kimi_Agent_Game Design Review for Cambium/research/cambium_integration_dim03.md',
   'docs/plans/2026-06-10-curios-self-ecosystem-map.md',
   'docs/plans/2026-06-11-next-map.md',
   'docs/plans/2026-06-16-followons.md',

@@ -62,7 +62,7 @@
     "activation_state": "blocked",
     "blocking_reason": "canonical_approval_contract_not_wired"
   },
-  "orchestration_set_digest": "223d63575fdcf0c57f25eb76a1b2e00e12f981c67614245b4e5d3cd47410ce4d",
+  "orchestration_set_digest": "ccdecce92e1fab83a6facff8abe9dc8c41b1f35e6768e3fadf5b97b108d5ae11",
   "capabilities": [
     {
       "id": "ab-testing@2.0.0",
@@ -120,7 +120,13 @@
         "directory": "ab-testing",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "ad-creative@2.8.0",
@@ -178,7 +184,13 @@
         "directory": "ad-creative",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "ads@2.2.0",
@@ -236,7 +248,13 @@
         "directory": "ads",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "ai-seo@2.2.0",
@@ -301,6 +319,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:ai-seo@2.2.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -366,6 +390,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:analytics@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -424,7 +454,13 @@
         "directory": "aso",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "churn-prevention@2.0.0",
@@ -482,7 +518,13 @@
         "directory": "churn-prevention",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "co-marketing@2.0.0",
@@ -540,7 +582,13 @@
         "directory": "co-marketing",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "cold-email@2.0.0",
@@ -598,7 +646,13 @@
         "directory": "cold-email",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "community-marketing@2.0.0",
@@ -663,6 +717,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:community-marketing@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -728,6 +788,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:competitor-profiling@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -793,6 +859,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:competitors@2.0.1"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -858,6 +930,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:content-strategy@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -923,6 +1001,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:copy-editing@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -988,6 +1072,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:copywriting@2.0.1"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1053,6 +1143,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:cro@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1118,6 +1214,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:customer-research@2.0.1"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1176,7 +1278,13 @@
         "directory": "directory-submissions",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "emails@2.0.0",
@@ -1241,6 +1349,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:emails@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1306,6 +1420,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:free-tools@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1372,6 +1492,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:image@2.0.1"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1430,7 +1556,13 @@
         "directory": "launch",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "lead-magnets@2.0.0",
@@ -1495,6 +1627,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:lead-magnets@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1553,7 +1691,13 @@
         "directory": "marketing-council",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "marketing-ideas@2.0.0",
@@ -1618,6 +1762,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:marketing-ideas@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1683,6 +1833,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:marketing-loops@1.2.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -1741,7 +1897,13 @@
         "directory": "marketing-plan",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "marketing-psychology@2.0.0",
@@ -1799,7 +1961,13 @@
         "directory": "marketing-psychology",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "offers@1.0.0",
@@ -1857,7 +2025,13 @@
         "directory": "offers",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "onboarding@2.0.0",
@@ -1915,7 +2089,13 @@
         "directory": "onboarding",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "paywalls@2.0.0",
@@ -1973,7 +2153,13 @@
         "directory": "paywalls",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "popups@2.0.0",
@@ -2031,7 +2217,13 @@
         "directory": "popups",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "pricing@2.0.1",
@@ -2089,7 +2281,13 @@
         "directory": "pricing",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "product-marketing@2.1.0",
@@ -2154,6 +2352,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:product-marketing@2.1.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -2212,7 +2416,13 @@
         "directory": "programmatic-seo",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "prospecting@1.1.0",
@@ -2270,7 +2480,13 @@
         "directory": "prospecting",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "public-relations@1.0.0",
@@ -2328,7 +2544,13 @@
         "directory": "public-relations",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "referrals@2.0.0",
@@ -2386,7 +2608,13 @@
         "directory": "referrals",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "revops@2.0.0",
@@ -2444,7 +2672,13 @@
         "directory": "revops",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "sales-enablement@2.0.1",
@@ -2509,6 +2743,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:sales-enablement@2.0.1"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -2574,6 +2814,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:schema@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -2639,6 +2885,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:seo-audit@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -2697,7 +2949,13 @@
         "directory": "signup",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "site-architecture@2.0.0",
@@ -2762,6 +3020,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:site-architecture@2.0.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -2820,7 +3084,13 @@
         "directory": "sms",
         "license": "MIT"
       },
-      "semantic_fixture_ids": []
+      "semantic_fixture_ids": [],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "social@2.2.0",
@@ -2885,6 +3155,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:social@2.2.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     },
     {
@@ -2951,6 +3227,12 @@
       },
       "semantic_fixture_ids": [
         "upstream-eval:video@2.1.0"
+      ],
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
       ]
     }
   ],
@@ -3023,7 +3305,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "founder-article-draft@1.0.0",
@@ -3092,7 +3380,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "social-repurposing@1.0.0",
@@ -3164,7 +3458,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "newsletter-draft@1.0.0",
@@ -3232,7 +3532,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "community-response-brief@1.0.0",
@@ -3300,7 +3606,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "lead-magnet-outline@1.0.0",
@@ -3369,7 +3681,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "case-study-draft@1.0.0",
@@ -3438,7 +3756,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     },
     {
       "id": "landing-page-improvement-brief@1.0.0",
@@ -3509,7 +3833,13 @@
         "billing_unit": "reviewed_package",
         "quote_expires_at": "2027-07-18T00:00:00.000Z",
         "zero_spend_precursor_contract": "channel_package@1.0.0"
-      }
+      },
+      "regions": [
+        "*"
+      ],
+      "languages": [
+        "*"
+      ]
     }
   ],
   "loops": [

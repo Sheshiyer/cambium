@@ -1,3 +1,5 @@
+import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-routing.ts';
+
 export interface ActionRequestKvLike {
   get(key: string): Promise<string | null>;
   put(key: string, value: string): Promise<void>;
@@ -575,11 +577,11 @@ function validFounderConversation(topic: Record<string, unknown>): boolean {
   const chatId = clean(topic.chatId);
   const topicKey = clean(topic.topicKey);
   const threadId = Number(topic.threadId);
-  const groupTopics: Record<string, number> = {
-    hermes: 2, digests: 3, dev: 4, inbox: 5, calendar: 6,
-    'agent-ops': 7, alerts: 8, clients: 9,
-  };
-  if (chatId === '-1003942929819') return groupTopics[topicKey] === threadId;
+  const canonicalTopicKey = topicKey === 'agent-ops' ? 'agent_ops' : topicKey;
+  if (chatId === THOUGHTSEED_TELEGRAM_CHAT_ID) {
+    const route = TOPIC_QUEST_ROUTES[canonicalTopicKey as keyof typeof TOPIC_QUEST_ROUTES];
+    return Boolean(route && route.threadId === threadId);
+  }
   return topicKey === 'direct' && threadId === 0 && /^\d{6,15}$/.test(chatId);
 }
 

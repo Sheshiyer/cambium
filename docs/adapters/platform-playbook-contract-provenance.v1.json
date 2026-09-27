@@ -1,0 +1,21 @@
+{
+  "schema": "cambium.platform-playbook-contract-provenance.v1",
+  "sourceRepository": "Sheshiyer/hermes-aws-ts",
+  "sourceCommit": "9865f716995790dd22e1366051483e7594b825ec",
+  "observedDate": "2026-09-27",
+  "assurance": "Exact committed source bytes observed read-only; no claim of upstream merge, deployed transport, or live parity. Portable tests bind vendored bytes to reviewed hashes.",
+  "records": [
+    {
+      "canonicalPath": "contracts/cambium.platform-playbook-telegram-readiness.v1.json",
+      "vendorPath": "workers/quests/src/platform-playbook-telegram-readiness.v1.json",
+      "sha256": "e1321e12f9fbf9dc33452b4f1811da9d30f27c69e8ef754f32b54f1617e09be0",
+      "bytes": 1132
+    },
+    {
+      "canonicalPath": "contracts/cambium.platform-playbook-messaging-consent.v1.json",
+      "vendorPath": "workers/quests/src/platform-playbook-messaging-consent.v1.json",
+      "sha256": "b4cfc79a885cec8e02460ea47011c16c5247972c295dbd96d3aa77440fdee411",
+      "bytes": 2188
+    }
+  ]
+}

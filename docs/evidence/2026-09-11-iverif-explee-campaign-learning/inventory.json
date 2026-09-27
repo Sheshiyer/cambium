@@ -1,0 +1,79 @@
+{
+  "schema": "cambium.iverif.explee-campaign-inventory.v1",
+  "observedAt": "2026-09-11T14:20:35.390Z",
+  "projectId": 16763,
+  "provider": "explee-public-api",
+  "posture": {
+    "methods": [
+      "GET"
+    ],
+    "mutation_enabled": false,
+    "do_not_post": true,
+    "spend_freeze": true
+  },
+  "historicalSourceObservations": [
+    {
+      "observedAt": "2026-09-11T10:17:03.310Z",
+      "projectCount": 2,
+      "campaignCount": 14,
+      "contentDigest": "sha256:a2b4e7c34f3b36e7c7ac70eea21cd26369a96b7942b28193bf305d7e0c9e7e20",
+      "networkLog": {
+        "requestCount": 60,
+        "get200Count": 60,
+        "contentDigest": "sha256:c288ab155491059cce34875b64720a3d04271768f544bee314942ad6513125c1"
+      },
+      "recordDisposition": "raw provider and request records deliberately excluded from source-controlled evidence",
+      "notRuntimeInput": true
+    }
+  ],
+  "network": {
+    "calls": 4,
+    "methods": [
+      "GET"
+    ],
+    "nonGet": [],
+    "failures": [
+      {
+        "method": "GET",
+        "url": "/public/api/v1/autogtm/campaigns?project_id=16763",
+        "status": 404,
+        "ok": false
+      },
+      {
+        "method": "GET",
+        "url": "/public/api/v1/autogtm/projects/16763/analytics?period=all",
+        "status": 404,
+        "ok": false
+      },
+      {
+        "method": "GET",
+        "url": "/public/api/v1/autogtm/projects/16763/autopilot",
+        "status": 404,
+        "ok": false
+      }
+    ]
+  },
+  "projects": {
+    "projects": [
+      {
+        "id": 35674,
+        "domain": "iverif.fr",
+        "daily_budget_usd": 10
+      },
+      {
+        "id": 17755,
+        "domain": "getfitcheck.space",
+        "daily_budget_usd": 15
+      }
+    ],
+    "total": 2
+  },
+  "projectAnalytics": {
+    "detail": "Project not found"
+  },
+  "autopilot": {
+    "detail": "Project not found"
+  },
+  "campaignCount": 0,
+  "campaigns": []
+}

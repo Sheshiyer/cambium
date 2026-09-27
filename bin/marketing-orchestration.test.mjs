@@ -8,6 +8,8 @@ import {
   compileMarketingPlan,
   evaluateManualMarketingLoop,
   assessReviewPackageBridgeReadiness,
+  filterCatalogByMarket,
+  parseMarketLocale,
   runOfflineMarketingProof,
   validateMarketingAssetCatalog,
   validateMarketingCapabilityCatalog,
@@ -122,6 +124,12 @@ test('curates every capability and keeps execution authority structurally absent
     } else {
       assert.ok(capability.curation_reason.length > 0);
     }
+    assert.ok(Array.isArray(capability.regions) && capability.regions.length > 0);
+    assert.ok(Array.isArray(capability.languages) && capability.languages.length > 0);
+  }
+  for (const recipe of capabilities.recipes) {
+    assert.ok(Array.isArray(recipe.regions) && recipe.regions.length > 0);
+    assert.ok(Array.isArray(recipe.languages) && recipe.languages.length > 0);
   }
 });
 
@@ -459,7 +467,7 @@ test('founder CLI exposes a redacted validate, proof, and manual-loop surface', 
     mode: 'offline-review-only',
     capability_count: 47,
     capability_set_digest: '7147c3e52094acce76e4cba08d0131eef40292d4c4ecab54a61013253f56faf5',
-    orchestration_set_digest: '223d63575fdcf0c57f25eb76a1b2e00e12f981c67614245b4e5d3cd47410ce4d',
+    orchestration_set_digest: 'ccdecce92e1fab83a6facff8abe9dc8c41b1f35e6768e3fadf5b97b108d5ae11',
     recipe_count: 8,
     loop_count: 5,
     asset_contract_count: 6,
@@ -661,4 +669,33 @@ test('bridges through content_asset while preserving twenty lead records and six
     'receipt',
     'task',
   ]);
+});
+
+test('parseMarketLocale maps fr-FR into brand.market region and language', () => {
+  assert.deepEqual(parseMarketLocale('fr-FR'), { region: 'FR', language: 'fr' });
+  assert.throws(() => parseMarketLocale('FR'), /market locale/i);
+});
+
+test('filterCatalogByMarket keeps wildcard-tagged caps and recipes for fr-FR', async () => {
+  const { capabilities } = await inputs();
+  const filtered = filterCatalogByMarket(capabilities, {
+    market: parseMarketLocale('fr-FR'),
+  });
+  assert.equal(filtered.market.region, 'FR');
+  assert.equal(filtered.market.language, 'fr');
+  assert.equal(filtered.capabilities.length, capabilities.capabilities.length);
+  assert.equal(filtered.recipes.length, capabilities.recipes.length);
+});
+
+test('filterCatalogByMarket fails closed when brand.market has no matching recipe', async () => {
+  const { capabilities } = await inputs();
+  const narrowed = clone(capabilities);
+  for (const recipe of narrowed.recipes) {
+    recipe.regions = ['US'];
+    recipe.languages = ['en'];
+  }
+  assert.throws(
+    () => filterCatalogByMarket(narrowed, { market: parseMarketLocale('fr-FR') }),
+    /no recipes match brand\.market fr-FR/i,
+  );
 });

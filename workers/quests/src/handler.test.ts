@@ -9083,6 +9083,28 @@ test('gate · valid founder signature passes and identifies the founder', async 
   assert.deepEqual(verdict, { ok: true, userId: TEST_FOUNDER_A });
 });
 
+test('quests · plexus Access 401 does not preempt valid Telegram initData', async () => {
+  const kv = fakeKv();
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10,
+  });
+  await kv.put('ledger:cambium', ENVELOPE);
+  const deps = {
+    kv,
+    gate: gateCfg(pubKeyHex),
+    plexus: { teamDomain: 'thoughtseedlabs.cloudflareaccess.com', aud: 'test-aud' },
+  };
+  const blocked = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.equal(blocked.status, 401);
+  assert.match(blocked.body, /access_identity_required/);
+  const allowed = await handle(req('GET', '/api/quests/cambium', {
+    headers: { 'x-telegram-init-data': initData },
+  }), deps);
+  assert.equal(allowed.status, 200);
+  assert.doesNotMatch(allowed.body, /access_identity_required/);
+  assert.match(allowed.body, /"tenant":"cambium"/);
+});
+
 test('gate · tampered payload is rejected', async () => {
   const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 30, tamper: true });
   const verdict = await validateInitData(initData, gateCfg(pubKeyHex));
@@ -15902,6 +15924,8 @@ test('Goal Graph readback hides pending candidate existence from every non-found
     await founderOutcomeQuestEnvelope(harness),
     await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('team')),
     await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('consultant')),
+    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('team'), { authenticateFounder: true }),
+    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('consultant'), { authenticateFounder: true }),
     await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder', { expiresAt: '2020-01-01T00:00:00.000Z' })),
   ];
   for (const envelope of projections) {

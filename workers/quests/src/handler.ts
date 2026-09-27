@@ -3194,14 +3194,36 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
   }
   const allowlist = deps.missionFabricTenants ?? [];
   if (!allowlist.includes(tenant)) return json(403, { error: 'mission fabric tenant is not enabled' });
-  if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
   const initData = (req.headers['x-telegram-init-data'] ?? req.headers['telegram-init-data'] ?? '').trim();
-  const auth = await authenticateInitData(initData, deps.gate);
-  if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
   const viewerIds = deps.missionFabricViewerIds ?? [];
-  const isFounder = deps.gate.founderIds.includes(auth.userId);
-  const isViewer = viewerIds.includes(auth.userId);
-  if (!isFounder && !isViewer) return json(401, { error: 'telegram authentication failed', reason: 'not authorized for mission fabric' });
+  let isFounder = false;
+  let isViewer = false;
+  if (initData) {
+    if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
+    const auth = await authenticateInitData(initData, deps.gate);
+    if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
+    isFounder = deps.gate.founderIds.includes(auth.userId);
+    isViewer = viewerIds.includes(auth.userId);
+    if (!isFounder && !isViewer) {
+      return json(401, { error: 'telegram authentication failed', reason: 'not authorized for mission fabric' });
+    }
+  } else if (deps.plexus) {
+    const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
+    if (resolved.kind === 'unauthenticated') {
+      return json(401, { error: 'access_identity_required', message: 'A verified Cloudflare Access identity is required.' });
+    }
+    if (resolved.kind !== 'principal') {
+      return json(503, { error: 'plexus_gate_misconfigured', message: 'Plexus gate is enabled but Access env is incomplete.' });
+    }
+    if (resolved.principal.role !== 'founder') {
+      return json(403, { error: 'forbidden: founder identity required', assignedRole: resolved.principal.role });
+    }
+    isFounder = true;
+  } else {
+    if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
+    const auth = await authenticateInitData(initData, deps.gate);
+    if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
+  }
   if (!deps.goalGraphStore || !deps.branchMapReceiptStore) {
     return json(503, { error: 'mission fabric authority is not configured' });
   }
@@ -5074,7 +5096,24 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
     let principal: Principal | null = null;
     let founderOutcomeAuthorized = false;
-    if (deps.plexus) {
+    // Mini App sends only x-telegram-init-data. Validate that before Plexus/Access
+    // fail-closed, otherwise TG.initData never reaches founder authorization.
+    const telegramInitData = (req.headers['x-telegram-init-data'] ?? '').trim();
+    if (telegramInitData && deps.gate) {
+      const verdict = await validateInitData(telegramInitData, deps.gate);
+      if (verdict.ok) {
+        founderOutcomeAuthorized = true;
+        // Preserve explicit legacy projection scope and expiry; Plexus ignores caller-supplied principals.
+        principal = (!deps.plexus ? resolveSurfacePrincipal(req) : null) ?? {
+          id: `telegram:${verdict.userId}`,
+          tenant,
+          role: 'founder',
+          allow: [],
+          createdBy: 'telegram-init-data',
+        };
+      }
+    }
+    if (!principal && deps.plexus) {
       const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
       if (resolved.kind === 'unauthenticated') {
         return json(401, { error: 'access_identity_required', message: 'A verified Cloudflare Access identity is required.' });
@@ -5088,20 +5127,6 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       }
     }
     if (!principal) principal = resolveSurfacePrincipal(req);
-    const telegramInitData = (req.headers['x-telegram-init-data'] ?? '').trim();
-    if (telegramInitData && deps.gate) {
-      const verdict = await validateInitData(telegramInitData, deps.gate);
-      if (verdict.ok) {
-        founderOutcomeAuthorized = true;
-        principal ??= {
-          id: `telegram:${verdict.userId}`,
-          tenant,
-          role: 'founder',
-          allow: [],
-          createdBy: 'telegram-init-data',
-        };
-      }
-    }
     if (!principal) {
       return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
     }

@@ -1,0 +1,83 @@
+{
+  "schema": "cambium.sapling-multi-prong-gtm-preflight.v1",
+  "generatedAt": "2026-09-11T14:01:18.150163+00:00",
+  "sor": {
+    "runbook": "docs/runbooks/sapling-multi-prong-gtm-sop.md",
+    "loopPack": "shared/sapling-gtm-loop-pack.ts",
+    "learningLoop": "shared/sapling-gtm-learning-loop.ts",
+    "tgHandoff": "shared/sapling-gtm-tg-handoff.ts",
+    "ownedEmailWill": "shared/owned-email-will-adapter.ts",
+    "seams": "docs/evidence/2026-09-11-iverif-explee-campaign-learning/SEAMS.md",
+    "workflow": ".grok/workflows/sapling-multi-prong-gtm.rhai"
+  },
+  "awsProfileSafvr": "admin-cli-only-not-org-agent",
+  "hermesProfiles": [
+    "thoughtseed-ceo",
+    "thoughtseed-scientist",
+    "thoughtseed-engineer",
+    "thoughtseed-designer",
+    "thoughtseed-synthesist"
+  ],
+  "skillClusters": [
+    "explee-master",
+    "growth-content",
+    "marketing-campaign"
+  ],
+  "cambiumOrgans": [
+    "genesis",
+    "taste",
+    "hands",
+    "will",
+    "cortex"
+  ],
+  "telegramTopics": {
+    "clients": 9,
+    "agent_ops": 7,
+    "dev": 4,
+    "alerts": 8
+  },
+  "deliverySurfaces": {
+    "primaryBoards": "telegram-topics",
+    "firstResponseInterchangeable": ["telegram", "mini-app", "fifo"],
+    "note": "Until Mini App UI is complete, TG channels are main delivery + internal workflow boards; Mini App and FIFO replace each other as first-response for spend/high-risk."
+  },
+  "prongBOwnedEmail": {
+    "status": "infra-named",
+    "address": "wave@thoughtseed.space",
+    "cloudflareEmailRouting": {
+      "wranglerProfile": "thoughtseed-labs",
+      "zone": "thoughtseed.space",
+      "verifiedDestinations": ["shesh@thoughtseed.space", "wave@thoughtseed.space"],
+      "catchAll": "shesh@thoughtseed.space"
+    },
+    "sendAdapter": "zoho-via-composio-on-hermes-ec2",
+    "awsProfileSafvr": "admin-cli-only-not-org-agent",
+    "willAdapterTypedContract": "contract+hermes-stub",
+    "compiler": "shared/owned-email-will-adapter.ts",
+    "hermesStubPath": ".state/sapling-iverif/will/owned-email.hermes-dispatch.json",
+    "committedFixture": "docs/evidence/2026-09-11-iverif-explee-campaign-learning/playbooks/owned-email.hermes-dispatch.stub.json",
+    "liveSend": false
+  },
+  "continuousLearning": {
+    "compiler": "shared/sapling-gtm-learning-loop.ts",
+    "historicalProjectId": 16763,
+    "cleanProjectId": 35674,
+    "receipt": "docs/evidence/2026-09-11-iverif-explee-campaign-learning/CONTINUOUS-LEARNING-RECEIPT.json",
+    "foldbackTopic": "clients"
+  },
+  "tgHandoffBoard": {
+    "compiler": "shared/sapling-gtm-tg-handoff.ts",
+    "role": "workflow-handoff-and-self-learning-board",
+    "hermesTransport": "Bot API sendMessage + message_thread_id on EC2",
+    "topics": { "clients": 9, "agent_ops": 7, "alerts": 8, "dev": 4 },
+    "boardPath": ".state/sapling-iverif/tg-handoff/board.json",
+    "livePostReceipt": "docs/evidence/2026-09-11-iverif-explee-campaign-learning/tg-handoff-post-receipt.json"
+  },
+  "example": {
+    "sapling": "sapling:iverif",
+    "expleeProjectId": 35674,
+    "frCampaignId": 159185,
+    "ownedEmail": "wave@thoughtseed.space"
+  },
+  "writesGoalGraph": false
+}

@@ -14,7 +14,8 @@
       "produces": [
         "brand_system",
         "copy_system",
-        "visual_system"
+        "visual_system",
+        "market"
       ],
       "blocking": [
         "brand_system",
@@ -23,7 +24,8 @@
       ],
       "downstream_effects": [
         "Seeds the canonical brand vocabulary consumed by taste, build, and ops",
-        "Establishes the visual system downstream stages preserve and refine"
+        "Establishes the visual system downstream stages preserve and refine",
+        "Threads market.region and market.language for capability and recipe filtering"
       ]
     },
     {
@@ -35,7 +37,8 @@
       "requires": [
         "brand_system",
         "copy_system",
-        "visual_system"
+        "visual_system",
+        "market"
       ],
       "produces": [
         "taste_brief",
@@ -66,6 +69,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",
@@ -101,6 +105,7 @@
         "brand_system",
         "copy_system",
         "visual_system",
+        "market",
         "asset_plan",
         "section_plan",
         "interaction_plan",

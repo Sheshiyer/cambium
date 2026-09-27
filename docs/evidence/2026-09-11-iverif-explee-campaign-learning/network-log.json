@@ -1,0 +1,7 @@
+{
+  "schema": "cambium.redacted-network-summary.v1",
+  "observationDate": "2026-09-11",
+  "requestCount": 4,
+  "rawSha256": "c4d216eca9122c55428706b310ad36475d85879f8ce4b0d3a708026bb440ab50",
+  "disposition": "Raw request records excluded; no authentication headers, URLs, contact records, or response payloads retained."
+}
