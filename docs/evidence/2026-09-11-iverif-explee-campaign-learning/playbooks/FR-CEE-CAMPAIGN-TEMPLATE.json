@@ -1,0 +1,39 @@
+{
+  "schema": "cambium.iverif.explee-campaign-template.v1",
+  "status": "created_stopped_clean_start",
+  "projectId": 35674,
+  "campaignId": 159185,
+  "updatedAt": "2026-09-11T14:40:21.858047Z",
+  "do_not_start": true,
+  "recommended": {
+    "name": "FR CEE — Délégataires & ops (Meristem)",
+    "target_url": "https://iverif.fr",
+    "offer": "Validation documentaire IA pour dossiers CEE / Primes Énergie avant dépôt (contrôles inter-documents + piste d’audit).",
+    "customer_problem": "Les back-offices croisent 10–20 pièces par dossier; les écarts découverts trop tard coûtent cher et fragilisent l’audit.",
+    "target_role": "Operations / back-office managers in French délégataires and energy-subsidy operators (Marie Durand archetype)",
+    "target_geography": "France",
+    "positive_criteria": [
+      "Runs CEE or Primes Énergie dossiers",
+      "Needs pre-submission document checks",
+      "Wants audit trail for compliance review"
+    ],
+    "negative_criteria": [
+      "Homeowners or end consumers",
+      "Generic public agencies outside energy-subsidy ops",
+      "Markets outside France for v1"
+    ],
+    "language": "fr"
+  },
+  "creationNotes": {
+    "method": "POST /campaigns/import then POST /stop then PATCH messaging",
+    "placeholderLead": "wave+iverif-gtm-placeholder@thoughtseed.space",
+    "requiredLeadFields": ["email", "first_name", "last_name", "company_domain", "job_title"],
+    "targeting_editable": false,
+    "priorArchivedCampaignId": 159036
+  },
+  "nextSteps": [
+    "Keep autopilot/auto-reply off",
+    "Do not Start until FR copy HITL + explicit spend approve",
+    "Optional: UI-refine ICP list if import list is too thin (API targeting locked on import campaigns)"
+  ]
+}

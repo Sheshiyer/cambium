@@ -1,0 +1,98 @@
+{
+  "observedAt": "2026-09-11T14:21:16.719Z",
+  "method": "GET-only",
+  "projectId": 35674,
+  "project": {
+    "id": 35674,
+    "domain": "iverif.fr",
+    "daily_budget_usd": 10
+  },
+  "autopilot": {
+    "project_id": 35674,
+    "autopilot_enabled": false,
+    "auto_reply_enabled": false,
+    "auto_reply_delay_minutes": 1440,
+    "reply_cc_emails": [
+      "sheshnarayan.iyer@gmail.com"
+    ]
+  },
+  "campaigns": [
+    {
+      "id": 159032,
+      "name": "Energy EPC Firms",
+      "status": "listening",
+      "reason": null,
+      "daily_limit_usd": 10,
+      "spend": null,
+      "sent": null,
+      "replies": null
+    },
+    {
+      "id": 159033,
+      "name": "Subsidy Aggregators",
+      "status": "listening",
+      "reason": null,
+      "daily_limit_usd": 10,
+      "spend": null,
+      "sent": null,
+      "replies": null
+    },
+    {
+      "id": 159034,
+      "name": "Energy Consultants",
+      "status": "listening",
+      "reason": null,
+      "daily_limit_usd": 10,
+      "spend": null,
+      "sent": null,
+      "replies": null
+    },
+    {
+      "id": 159035,
+      "name": "Utility Providers",
+      "status": "listening",
+      "reason": null,
+      "daily_limit_usd": 10,
+      "spend": null,
+      "sent": null,
+      "replies": null
+    },
+    {
+      "id": 159036,
+      "name": "FR CEE — Délégataires & ops (Meristem)",
+      "status": "listening",
+      "reason": null,
+      "daily_limit_usd": 10,
+      "spend": null,
+      "sent": null,
+      "replies": null
+    },
+    {
+      "id": 159037,
+      "name": "Energy Lenders",
+      "status": "listening",
+      "reason": null,
+      "daily_limit_usd": 10,
+      "spend": null,
+      "sent": null,
+      "replies": null
+    }
+  ],
+  "frCee": {
+    "id": 159036,
+    "name": "FR CEE — Délégataires & ops (Meristem)",
+    "status": "listening",
+    "reason": null,
+    "daily_limit_usd": 10,
+    "spend": null,
+    "sent": null,
+    "replies": null
+  },
+  "cloneIdsStillPresent": [
+    159032,
+    159033,
+    159034,
+    159035,
+    159037
+  ]
+}

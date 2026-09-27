@@ -1,0 +1,26 @@
+{
+  "observedAt": "2026-09-11T14:40:16.600Z",
+  "campaign": {
+    "id": 159185,
+    "name": "FR CEE — Délégataires & ops (Meristem)",
+    "status": "listening",
+    "status_reason": "user_pause",
+    "language": "fr",
+    "offer": "Validation documentaire IA pour dossiers CEE / Primes Énergie avant dépôt (contrôles inter-documents + piste d’audit) — iverif.fr",
+    "customer_problem": "Les back-offices croisent 10–20 pièces par dossier; les écarts découverts trop tard coûtent cher et fragilisent l’audit.",
+    "target_role": "Operations / back-office managers in French délégataires and energy-subsidy operators (Marie Durand archetype)",
+    "positive_criteria": [
+      "Runs CEE or Primes Énergie dossiers",
+      "Needs pre-submission document checks",
+      "Wants audit trail for compliance review"
+    ],
+    "negative_criteria": [
+      "Homeowners or end consumers",
+      "Generic public agencies outside energy-subsidy ops",
+      "Markets outside France for v1"
+    ],
+    "targeting_editable": false,
+    "daily_limit_usd": 10
+  },
+  "do_not_start": true
+}

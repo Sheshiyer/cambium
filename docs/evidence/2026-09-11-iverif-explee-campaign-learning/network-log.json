@@ -1,0 +1,26 @@
+[
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/projects",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/campaigns?project_id=16763",
+    "status": 404,
+    "ok": false
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/projects/16763/analytics?period=all",
+    "status": 404,
+    "ok": false
+  },
+  {
+    "method": "GET",
+    "url": "/public/api/v1/autogtm/projects/16763/autopilot",
+    "status": 404,
+    "ok": false
+  }
+]

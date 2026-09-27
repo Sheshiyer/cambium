@@ -1,0 +1,50 @@
+{
+  "observedAt": "2026-09-11T20:10:19.078Z",
+  "campaign": {
+    "id": 159185,
+    "status": "outreach",
+    "status_reason": "lead_pool_exhausted",
+    "language": "fr",
+    "daily_limit_usd": 10
+  },
+  "autopilot": {
+    "project_id": 35674,
+    "autopilot_enabled": false,
+    "auto_reply_enabled": true,
+    "auto_reply_delay_minutes": 1440,
+    "reply_cc_emails": [
+      "sheshnarayan.iyer@gmail.com"
+    ]
+  },
+  "analytics": {
+    "project_id": 35674,
+    "period": "all",
+    "total_emails_sent": 0,
+    "total_replies": 0,
+    "total_auto_replies": 0,
+    "overall_reply_rate_pct": 0,
+    "total_hot_leads": 0,
+    "total_spend_usd": 0,
+    "campaigns": [
+      {
+        "campaign_id": 159185,
+        "name": "FR CEE — Délégataires & ops (Meristem)",
+        "status": "outreach",
+        "status_reason": "lead_pool_exhausted",
+        "emails_sent": 0,
+        "total_replies": 0,
+        "reply_rate_pct": 0,
+        "hot_leads": 0,
+        "spend_usd": 0,
+        "cost_per_lead_usd": 0,
+        "daily_budget_usd": 10,
+        "leads_pool_used": 0,
+        "leads_pool_total": 0,
+        "leads_pool_pending": 1,
+        "collected_leads_total": 1,
+        "manual_status_counts": {},
+        "cold_lost": 0
+      }
+    ]
+  }
+}
