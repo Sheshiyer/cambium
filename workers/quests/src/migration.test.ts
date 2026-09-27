@@ -7,6 +7,7 @@ const businessArtifactsMigrationUrl = new URL('../migrations/0004_business_artif
 const marketingRendererMigrationUrl = new URL('../migrations/0005_marketing_create_renderer.sql', import.meta.url);
 const leadRuntimeMigrationUrl = new URL('../migrations/0006_lead_runtime_spine.sql', import.meta.url);
 const branchMapReceiptsMigrationUrl = new URL('../migrations/0008_branch_transition_receipts.sql', import.meta.url);
+const websiteIntakeMigrationUrl = new URL('../migrations/0010_website_intake.sql', import.meta.url);
 const schemaUrl = new URL('../schema/bridge.sql', import.meta.url);
 
 function triggerDefinitions(sql: string): Record<string, string> {
@@ -196,4 +197,23 @@ test('branch transition receipt migration is represented in the canonical schema
   assert.match(migration, /UNIQUE \(tenant_id, receipt_digest\)/);
   assert.match(migration, /PRIMARY KEY \(tenant_id, receipt_id\)/);
   assert.match(migration, /status IN \('verified', 'pending', 'unknown', 'blocked'\)/);
+});
+
+test('website intake migration matches the Cambium canonical schema and keeps retention deletable', async () => {
+  const [migration, schema] = await Promise.all([
+    readFile(websiteIntakeMigrationUrl, 'utf8'),
+    readFile(schemaUrl, 'utf8'),
+  ]);
+  for (const sql of [migration, schema]) {
+    assert.match(sql, /CREATE TABLE IF NOT EXISTS website_intake_leads[\s\S]*?\);/);
+    assert.match(sql, /brief_json TEXT NOT NULL CHECK \(json_valid\(brief_json\)\)/);
+    assert.match(sql, /reply_channel TEXT NOT NULL CHECK \(reply_channel IN \('email', 'whatsapp'\)\)/);
+    assert.match(sql, /consent_version TEXT NOT NULL CHECK \(consent_version = 'lead-storage-90d-v1'\)/);
+    assert.match(sql, /expires_at TEXT NOT NULL CHECK \(expires_at > created_at\)/);
+    assert.match(sql, /CREATE INDEX IF NOT EXISTS website_intake_leads_expiry_idx/);
+    assert.doesNotMatch(sql, /CREATE TRIGGER IF NOT EXISTS website_intake_leads_immutable_delete/);
+  }
+  const table = (sql: string) => sql.match(/CREATE TABLE IF NOT EXISTS website_intake_leads[\s\S]*?\);/)?.[0].replace(/\s+/g, ' ').trim();
+  assert.equal(table(migration), table(schema));
+  assert.equal(migration.match(/CREATE INDEX IF NOT EXISTS website_intake_leads_[A-Za-z0-9_]+[\s\S]*?;/g)?.map((value) => value.replace(/\s+/g, ' ').trim()).join('\n'), schema.match(/CREATE INDEX IF NOT EXISTS website_intake_leads_[A-Za-z0-9_]+[\s\S]*?;/g)?.map((value) => value.replace(/\s+/g, ' ').trim()).join('\n'));
 });
