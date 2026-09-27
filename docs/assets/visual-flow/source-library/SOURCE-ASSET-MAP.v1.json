@@ -1,0 +1,899 @@
+{
+  "schema": "thoughtseed.cambium.visual-flow-source-library.v1",
+  "generatedOn": "2026-09-12",
+  "policy": "non-destructive organized aliases; numbered originals remain source evidence",
+  "counts": {
+    "sourceAssets": 46,
+    "telegramMiniApp": 10,
+    "r3f": 36,
+    "duplicateAssets": 4,
+    "unresolvedModels": 5,
+    "excludedMetadataFiles": 1
+  },
+  "exclusions": [
+    {
+      "path": ".DS_Store",
+      "reason": "Finder metadata; not a visual asset"
+    }
+  ],
+  "naming": {
+    "pattern": "{family}/{category-or-owner}/{descriptive-variation}-v1.{ext}",
+    "canonicalIdentity": "sourceId and originalFilename remain authoritative; organizedPath is a discovery alias"
+  },
+  "assets": [
+    {
+      "sourceId": "CVF-SRC-0059",
+      "number": "0059",
+      "destination": "telegram-mini-app/boards/component-glyph-state-board-desktop-v1.png",
+      "family": "telegram-mini-app",
+      "category": "state-board",
+      "semanticOwner": null,
+      "variation": "desktop",
+      "duplicateOf": null,
+      "originalFilename": "0059--telegram-mini-app--01-component-glyph-state-board.png",
+      "organizedPath": "telegram-mini-app/boards/component-glyph-state-board-desktop-v1.png",
+      "sha256": "44ef90e4a79379a87d82d0b40ae02f615b6983f3e8c9220e3d5c304e2675e1e9",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0060",
+      "number": "0060",
+      "destination": "telegram-mini-app/screens/mission-control-state-stack-mobile-v1.png",
+      "family": "telegram-mini-app",
+      "category": "mission-control-screen",
+      "semanticOwner": null,
+      "variation": "mobile",
+      "duplicateOf": null,
+      "originalFilename": "0060--telegram-mini-app--02-mission-control-state-stack-mobile.png",
+      "organizedPath": "telegram-mini-app/screens/mission-control-state-stack-mobile-v1.png",
+      "sha256": "5192d6a2ef56807e79e10b935638833fd1bc0b3e57b30bc1760e156a245df408",
+      "dimensions": {
+        "width": 862,
+        "height": 1825
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0061",
+      "number": "0061",
+      "destination": "telegram-mini-app/motion/mission-control-motion-storyboard-mobile-v1.png",
+      "family": "telegram-mini-app",
+      "category": "motion-storyboard",
+      "semanticOwner": null,
+      "variation": "mobile",
+      "duplicateOf": null,
+      "originalFilename": "0061--telegram-mini-app--03-motion-storyboard-mobile.png",
+      "organizedPath": "telegram-mini-app/motion/mission-control-motion-storyboard-mobile-v1.png",
+      "sha256": "a221654e0db8df5466a41085c711b1e46971ef10f2163cb12def1f7e90fb13b7",
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0062",
+      "number": "0062",
+      "destination": "telegram-mini-app/boards/cambium-atlas-source-v1.png",
+      "family": "telegram-mini-app",
+      "category": "atlas-board",
+      "semanticOwner": null,
+      "variation": "source",
+      "duplicateOf": null,
+      "originalFilename": "0062--telegram-mini-app--cambium-atlas-source.png",
+      "organizedPath": "telegram-mini-app/boards/cambium-atlas-source-v1.png",
+      "sha256": "71924815f4198e37bf27542441499961c710e61223d9868bf74427132d13c6b5",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0063",
+      "number": "0063",
+      "destination": "telegram-mini-app/boards/cambium-design-system-source-v1.png",
+      "family": "telegram-mini-app",
+      "category": "design-system-board",
+      "semanticOwner": null,
+      "variation": "source",
+      "duplicateOf": null,
+      "originalFilename": "0063--telegram-mini-app--cambium-design-system-source.png",
+      "organizedPath": "telegram-mini-app/boards/cambium-design-system-source-v1.png",
+      "sha256": "f1ca130b98787017fe04356ab0667cb7807487717c6512dae868adfcc5a9de7b",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0064",
+      "number": "0064",
+      "destination": "telegram-mini-app/screens/commands-mobile-v1.png",
+      "family": "telegram-mini-app",
+      "category": "commands-screen",
+      "semanticOwner": null,
+      "variation": "mobile-v1",
+      "duplicateOf": null,
+      "originalFilename": "0064--telegram-mini-app--commands-mobile.png",
+      "organizedPath": "telegram-mini-app/screens/commands-mobile-v1.png",
+      "sha256": "1fc98de3ecfe65358a22c3b5ff2ae2451ddc9f296b338eede88e4855a0b46cbe",
+      "dimensions": {
+        "width": 780,
+        "height": 1688
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0065",
+      "number": "0065",
+      "destination": "telegram-mini-app/screens/commands-mobile-v2.png",
+      "family": "telegram-mini-app",
+      "category": "commands-screen",
+      "semanticOwner": null,
+      "variation": "mobile-v2",
+      "duplicateOf": null,
+      "originalFilename": "0065--telegram-mini-app--commands-mobile.png",
+      "organizedPath": "telegram-mini-app/screens/commands-mobile-v2.png",
+      "sha256": "9a06e31c9ea90abce04ea51b0a287ea440b24c67a31be74655dba1d05231fef6",
+      "dimensions": {
+        "width": 780,
+        "height": 1688
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0066",
+      "number": "0066",
+      "destination": "telegram-mini-app/screens/component-glyph-state-board-mobile-v1.png",
+      "family": "telegram-mini-app",
+      "category": "state-board-screen",
+      "semanticOwner": null,
+      "variation": "mobile-v1",
+      "duplicateOf": null,
+      "originalFilename": "0066--telegram-mini-app--component-glyph-state-board-mobile.png",
+      "organizedPath": "telegram-mini-app/screens/component-glyph-state-board-mobile-v1.png",
+      "sha256": "0834c2eeacef9d70f95c673e578a63061f19f9669ab3ccd9c6dca930d662ced8",
+      "dimensions": {
+        "width": 780,
+        "height": 1688
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0067",
+      "number": "0067",
+      "destination": "telegram-mini-app/screens/component-glyph-state-board-mobile-v2.png",
+      "family": "telegram-mini-app",
+      "category": "state-board-screen",
+      "semanticOwner": null,
+      "variation": "mobile-v2",
+      "duplicateOf": null,
+      "originalFilename": "0067--telegram-mini-app--component-glyph-state-board-mobile.png",
+      "organizedPath": "telegram-mini-app/screens/component-glyph-state-board-mobile-v2.png",
+      "sha256": "011306c2707d9bc18fdee4f74c878fcb6cb77e377e42690b69c9fc5ad7463ea4",
+      "dimensions": {
+        "width": 780,
+        "height": 1688
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-0068",
+      "number": "0068",
+      "destination": "telegram-mini-app/screens/component-glyph-state-board-mobile-v3.png",
+      "family": "telegram-mini-app",
+      "category": "state-board-screen",
+      "semanticOwner": null,
+      "variation": "mobile-v3",
+      "duplicateOf": null,
+      "originalFilename": "0068--telegram-mini-app--component-glyph-state-board-mobile.png",
+      "organizedPath": "telegram-mini-app/screens/component-glyph-state-board-mobile-v3.png",
+      "sha256": "8276809db97356bfd25aee2b616f78eefe99e14f3a0bc86df7f6e287a4eb81b8",
+      "dimensions": {
+        "width": 780,
+        "height": 1688
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-1065",
+      "number": "1065",
+      "destination": "r3f/mesh-turntables/genesis/alpha-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "organ:genesis",
+      "variation": "alpha",
+      "duplicateOf": null,
+      "originalFilename": "1065--r3f--thumbnail-alpha.png",
+      "organizedPath": "r3f/mesh-turntables/genesis/alpha-v1.png",
+      "sha256": "c58b7f90906a032948f16af31f5e1e3041b75fa3bac04d94a0d5c3eeb7ce7963",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1066",
+      "number": "1066",
+      "destination": "r3f/mesh-turntables/genesis/back-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "organ:genesis",
+      "variation": "back",
+      "duplicateOf": null,
+      "originalFilename": "1066--r3f--thumbnail-back.png",
+      "organizedPath": "r3f/mesh-turntables/genesis/back-v1.png",
+      "sha256": "1df54defcca786b0b4185fadfafda8cd2644415f60af2af22774b27f5a1f02fb",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1067",
+      "number": "1067",
+      "destination": "r3f/mesh-turntables/genesis/front-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "organ:genesis",
+      "variation": "front",
+      "duplicateOf": null,
+      "originalFilename": "1067--r3f--thumbnail-front.png",
+      "organizedPath": "r3f/mesh-turntables/genesis/front-v1.png",
+      "sha256": "342249683d9f47c05dda7bc4e4ada4177bc3adb2d64b8e327d49c1150124426d",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1068",
+      "number": "1068",
+      "destination": "r3f/mesh-turntables/genesis/left-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "organ:genesis",
+      "variation": "left",
+      "duplicateOf": null,
+      "originalFilename": "1068--r3f--thumbnail-left.png",
+      "organizedPath": "r3f/mesh-turntables/genesis/left-v1.png",
+      "sha256": "bc9f9e85eec7881c632dc23731206c0b2e09dbef0b8b6a315ccb6a03a48f22cf",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1069",
+      "number": "1069",
+      "destination": "r3f/mesh-turntables/genesis/right-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "organ:genesis",
+      "variation": "right",
+      "duplicateOf": null,
+      "originalFilename": "1069--r3f--thumbnail-right.png",
+      "organizedPath": "r3f/mesh-turntables/genesis/right-v1.png",
+      "sha256": "406d7512626b7db895f90f1bcf6a14f593cb5edb58be77255ecdfba5cd919b91",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1070",
+      "number": "1070",
+      "destination": "r3f/mesh-turntables/genesis/front-duplicate-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "organ:genesis",
+      "variation": "front-duplicate",
+      "duplicateOf": "CVF-SRC-1067",
+      "originalFilename": "1070--r3f--thumbnail.png",
+      "organizedPath": "r3f/mesh-turntables/genesis/front-duplicate-v1.png",
+      "sha256": "342249683d9f47c05dda7bc4e4ada4177bc3adb2d64b8e327d49c1150124426d",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1071",
+      "number": "1071",
+      "destination": "r3f/mesh-turntables/rail-arc/perspective-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "component:rail-arc",
+      "variation": "perspective",
+      "duplicateOf": null,
+      "originalFilename": "1071--r3f--thumbnail.png",
+      "organizedPath": "r3f/mesh-turntables/rail-arc/perspective-v1.png",
+      "sha256": "857930a2d3c3cd68c8f83f47e9e919cb10484b5f3fdd5fc13e5fa2f00adec25c",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1072",
+      "number": "1072",
+      "destination": "r3f/mesh-turntables/rail-arc/alpha-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "component:rail-arc",
+      "variation": "alpha",
+      "duplicateOf": null,
+      "originalFilename": "1072--r3f--thumbnail-alpha.png",
+      "organizedPath": "r3f/mesh-turntables/rail-arc/alpha-v1.png",
+      "sha256": "a931cd6e0362f403d4dd6137e1b052b508a604b7e0aedfe90b69945ccec9390f",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1073",
+      "number": "1073",
+      "destination": "r3f/mesh-turntables/rail-arc/back-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "component:rail-arc",
+      "variation": "back",
+      "duplicateOf": null,
+      "originalFilename": "1073--r3f--thumbnail-back.png",
+      "organizedPath": "r3f/mesh-turntables/rail-arc/back-v1.png",
+      "sha256": "416744cbf3f6e08160408d11f1018f079191c131ad8d54eaa33c0e33b70081c9",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1074",
+      "number": "1074",
+      "destination": "r3f/mesh-turntables/rail-arc/front-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "component:rail-arc",
+      "variation": "front",
+      "duplicateOf": null,
+      "originalFilename": "1074--r3f--thumbnail-front.png",
+      "organizedPath": "r3f/mesh-turntables/rail-arc/front-v1.png",
+      "sha256": "b845c456ebb4f736d96457dc6265e213370e97fe129a20f4c8c5cbee15b9f7f7",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1075",
+      "number": "1075",
+      "destination": "r3f/mesh-turntables/rail-arc/left-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "component:rail-arc",
+      "variation": "left",
+      "duplicateOf": null,
+      "originalFilename": "1075--r3f--thumbnail-left.png",
+      "organizedPath": "r3f/mesh-turntables/rail-arc/left-v1.png",
+      "sha256": "a1025fe675fff9bbc20c9a309d9e4d2acaf5c2e45d92d9beccd2ed049e5d4c42",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1076",
+      "number": "1076",
+      "destination": "r3f/mesh-turntables/rail-arc/right-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "component:rail-arc",
+      "variation": "right",
+      "duplicateOf": null,
+      "originalFilename": "1076--r3f--thumbnail-right.png",
+      "organizedPath": "r3f/mesh-turntables/rail-arc/right-v1.png",
+      "sha256": "b0c1c4a7dcc9ba0cda5eac1b40ae029673c53c709ce3e8c825f89e86055c9731",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1077",
+      "number": "1077",
+      "destination": "r3f/mesh-turntables/rail-arc/front-duplicate-v1.png",
+      "family": "r3f",
+      "category": "mesh-turntable",
+      "semanticOwner": "component:rail-arc",
+      "variation": "front-duplicate",
+      "duplicateOf": "CVF-SRC-1074",
+      "originalFilename": "1077--r3f--thumbnail.png",
+      "organizedPath": "r3f/mesh-turntables/rail-arc/front-duplicate-v1.png",
+      "sha256": "b845c456ebb4f736d96457dc6265e213370e97fe129a20f4c8c5cbee15b9f7f7",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1078",
+      "number": "1078",
+      "destination": "r3f/organs/genesis/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-specimen",
+      "semanticOwner": "organ:genesis",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1078--r3f--genesis.png",
+      "organizedPath": "r3f/organs/genesis/semantic-specimen-v1.png",
+      "sha256": "5cb14af6fe151465b2ddcb55836391288c96d8291d9ee4031d7a84cee7cb7ab5",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1079",
+      "number": "1079",
+      "destination": "r3f/components/rail-arc/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-component",
+      "semanticOwner": "component:rail-arc",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1079--r3f--rail-arc.png",
+      "organizedPath": "r3f/components/rail-arc/semantic-specimen-v1.png",
+      "sha256": "679f1af2daf1337b9af3167f7647967a59e117e97e22215cba83a97f8f9e384e",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1080",
+      "number": "1080",
+      "destination": "r3f/unresolved-models/unresolved-model-01/preview-v1.png",
+      "family": "r3f",
+      "category": "unresolved-model",
+      "semanticOwner": null,
+      "variation": "preview",
+      "duplicateOf": null,
+      "originalFilename": "1080--r3f--thumbnail.png",
+      "organizedPath": "r3f/unresolved-models/unresolved-model-01/preview-v1.png",
+      "sha256": "02cd81ccd62fef88b14178dcd1595cfd82c723fdae6b99e31d2ae5045d5c3a17",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "unresolved"
+    },
+    {
+      "sourceId": "CVF-SRC-1081",
+      "number": "1081",
+      "destination": "r3f/unresolved-models/unresolved-model-02/preview-v1.png",
+      "family": "r3f",
+      "category": "unresolved-model",
+      "semanticOwner": null,
+      "variation": "preview",
+      "duplicateOf": null,
+      "originalFilename": "1081--r3f--thumbnail.png",
+      "organizedPath": "r3f/unresolved-models/unresolved-model-02/preview-v1.png",
+      "sha256": "e9db5b48376a883524d9acdb4189335638d40cb4ab17e651c0724ec1c95e0369",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "unresolved"
+    },
+    {
+      "sourceId": "CVF-SRC-1082",
+      "number": "1082",
+      "destination": "r3f/unresolved-models/unresolved-model-03/preview-v1.png",
+      "family": "r3f",
+      "category": "unresolved-model",
+      "semanticOwner": null,
+      "variation": "preview",
+      "duplicateOf": null,
+      "originalFilename": "1082--r3f--thumbnail.png",
+      "organizedPath": "r3f/unresolved-models/unresolved-model-03/preview-v1.png",
+      "sha256": "bbb9add82a1ae07faf003abb906e6326cce4751cbbf49c5dda6e1da8a2f4bb21",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "unresolved"
+    },
+    {
+      "sourceId": "CVF-SRC-1083",
+      "number": "1083",
+      "destination": "r3f/unresolved-models/unresolved-model-04/preview-v1.png",
+      "family": "r3f",
+      "category": "unresolved-model",
+      "semanticOwner": null,
+      "variation": "preview",
+      "duplicateOf": null,
+      "originalFilename": "1083--r3f--thumbnail.png",
+      "organizedPath": "r3f/unresolved-models/unresolved-model-04/preview-v1.png",
+      "sha256": "4a40f7b948378e81e3b56ed8c8f797fe75effdd1a12a8620d7b4923dc953388a",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "unresolved"
+    },
+    {
+      "sourceId": "CVF-SRC-1084",
+      "number": "1084",
+      "destination": "r3f/unresolved-models/unresolved-model-05/preview-v1.png",
+      "family": "r3f",
+      "category": "unresolved-model",
+      "semanticOwner": null,
+      "variation": "preview",
+      "duplicateOf": null,
+      "originalFilename": "1084--r3f--thumbnail.png",
+      "organizedPath": "r3f/unresolved-models/unresolved-model-05/preview-v1.png",
+      "sha256": "054e1f4e86be0ecb217fe954014feceaa5e31ff6a482afef5d56aad34360b3ad",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "authority": "reference-only",
+      "identityConfidence": "unresolved"
+    },
+    {
+      "sourceId": "CVF-SRC-1085",
+      "number": "1085",
+      "destination": "r3f/brand/favicon-v1.svg",
+      "family": "r3f",
+      "category": "brand-mark",
+      "semanticOwner": null,
+      "variation": "favicon",
+      "duplicateOf": null,
+      "originalFilename": "1085--r3f--favicon.svg",
+      "organizedPath": "r3f/brand/favicon-v1.svg",
+      "sha256": "3e991fa51ccef8e4e3f8a0655a096d6d3bdf70e7eddd09033206ce7106c3f52d",
+      "dimensions": {
+        "width": 64,
+        "height": 64
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-1086",
+      "number": "1086",
+      "destination": "r3f/product-pages/taste-island-v1.png",
+      "family": "r3f",
+      "category": "product-page",
+      "semanticOwner": "organ:taste",
+      "variation": "island-page",
+      "duplicateOf": null,
+      "originalFilename": "1086--r3f--island-taste.png",
+      "organizedPath": "r3f/product-pages/taste-island-v1.png",
+      "sha256": "13150daabe04eedf8f63c5725c96979c035e84c43cfe9c7a19975553d2861c83",
+      "dimensions": {
+        "width": 1904,
+        "height": 898
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1087",
+      "number": "1087",
+      "destination": "r3f/contact-sheets/semantic-specimens-v1.png",
+      "family": "r3f",
+      "category": "contact-sheet",
+      "semanticOwner": null,
+      "variation": "semantic-specimens",
+      "duplicateOf": null,
+      "originalFilename": "1087--r3f--contact-sheet.png",
+      "organizedPath": "r3f/contact-sheets/semantic-specimens-v1.png",
+      "sha256": "cfa63460a914e8361a12b4ef33bcd63fb9e7c277e2c42dc4e1e57e96c8a5bcde",
+      "dimensions": {
+        "width": 1370,
+        "height": 1134
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-1088",
+      "number": "1088",
+      "destination": "r3f/organs/hands/build-semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-specimen",
+      "semanticOwner": "organ:hands",
+      "variation": "build-source",
+      "duplicateOf": null,
+      "originalFilename": "1088--r3f--build.png",
+      "organizedPath": "r3f/organs/hands/build-semantic-specimen-v1.png",
+      "sha256": "432ee49a1400b45fff610385cb85a5468935ee607ab8961c02382e12bdfdebcb",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1089",
+      "number": "1089",
+      "destination": "r3f/components/control-dial/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-component",
+      "semanticOwner": "component:control-dial",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1089--r3f--control-dial.png",
+      "organizedPath": "r3f/components/control-dial/semantic-specimen-v1.png",
+      "sha256": "31dfaa4dd436aea6dc5c87714e7d4af2776acaa8efd66f8806f4a116954a6dc6",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1090",
+      "number": "1090",
+      "destination": "r3f/organs/cortex/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-specimen",
+      "semanticOwner": "organ:cortex",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1090--r3f--cortex.png",
+      "organizedPath": "r3f/organs/cortex/semantic-specimen-v1.png",
+      "sha256": "f2939a20168be7819644ada2291f57d69d9b07efebe25794d79a7c05c1d8d7a7",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1091",
+      "number": "1091",
+      "destination": "r3f/components/emitter-node/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-component",
+      "semanticOwner": "component:emitter-node",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1091--r3f--emitter-node.png",
+      "organizedPath": "r3f/components/emitter-node/semantic-specimen-v1.png",
+      "sha256": "8ee608c315a072c8dae1b56761e789d4fa61b902184acecc46b2b4138940419a",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1092",
+      "number": "1092",
+      "destination": "r3f/organs/genesis/semantic-specimen-duplicate-v1.png",
+      "family": "r3f",
+      "category": "semantic-specimen",
+      "semanticOwner": "organ:genesis",
+      "variation": "duplicate",
+      "duplicateOf": "CVF-SRC-1078",
+      "originalFilename": "1092--r3f--genesis.png",
+      "organizedPath": "r3f/organs/genesis/semantic-specimen-duplicate-v1.png",
+      "sha256": "5cb14af6fe151465b2ddcb55836391288c96d8291d9ee4031d7a84cee7cb7ab5",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1093",
+      "number": "1093",
+      "destination": "r3f/organs/will/ops-semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-specimen",
+      "semanticOwner": "organ:will",
+      "variation": "ops-source",
+      "duplicateOf": null,
+      "originalFilename": "1093--r3f--ops.png",
+      "organizedPath": "r3f/organs/will/ops-semantic-specimen-v1.png",
+      "sha256": "326ab59593373de84b098d064bef86080534bd1ab7c265ad99b6918d3c950343",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1094",
+      "number": "1094",
+      "destination": "r3f/components/process-beacon/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-component",
+      "semanticOwner": "component:process-beacon",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1094--r3f--process-beacon.png",
+      "organizedPath": "r3f/components/process-beacon/semantic-specimen-v1.png",
+      "sha256": "4d94b00768ec8dc81c85db31c3353ee7fd34ae34fb98128bf05939607059975c",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1095",
+      "number": "1095",
+      "destination": "r3f/components/rail-arc/semantic-specimen-duplicate-v1.png",
+      "family": "r3f",
+      "category": "semantic-component",
+      "semanticOwner": "component:rail-arc",
+      "variation": "duplicate",
+      "duplicateOf": "CVF-SRC-1079",
+      "originalFilename": "1095--r3f--rail-arc.png",
+      "organizedPath": "r3f/components/rail-arc/semantic-specimen-duplicate-v1.png",
+      "sha256": "679f1af2daf1337b9af3167f7647967a59e117e97e22215cba83a97f8f9e384e",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1096",
+      "number": "1096",
+      "destination": "r3f/components/signal-packet/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-component",
+      "semanticOwner": "component:signal-packet",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1096--r3f--signal-packet.png",
+      "organizedPath": "r3f/components/signal-packet/semantic-specimen-v1.png",
+      "sha256": "0963dd08512ad52a3894399ffa9e1260d7cc3a5fef54c954962dc8aeff07cb76",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1097",
+      "number": "1097",
+      "destination": "r3f/organs/taste/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-specimen",
+      "semanticOwner": "organ:taste",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1097--r3f--taste.png",
+      "organizedPath": "r3f/organs/taste/semantic-specimen-v1.png",
+      "sha256": "42342c7033bd116eadbb353a93aee7c97aafe361f9084ff2d64d453a6c7444d7",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1098",
+      "number": "1098",
+      "destination": "r3f/components/visualization-lens/semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-component",
+      "semanticOwner": "component:visualization-lens",
+      "variation": "primary",
+      "duplicateOf": null,
+      "originalFilename": "1098--r3f--visualization-lens.png",
+      "organizedPath": "r3f/components/visualization-lens/semantic-specimen-v1.png",
+      "sha256": "e6558f202e9a155a98d269f4612244150eeefc0bdb884331a41281177114ad95",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    },
+    {
+      "sourceId": "CVF-SRC-1099",
+      "number": "1099",
+      "destination": "r3f/contact-sheets/mesh-turntables-v1.png",
+      "family": "r3f",
+      "category": "contact-sheet",
+      "semanticOwner": null,
+      "variation": "mesh-turntables",
+      "duplicateOf": null,
+      "originalFilename": "1099--r3f--master-contact-sheet.png",
+      "organizedPath": "r3f/contact-sheets/mesh-turntables-v1.png",
+      "sha256": "bd953ca0f00279e62c61a6eb6060ba02fe499d4eb05f9f6c3e4972c58ebf157e",
+      "dimensions": {
+        "width": 1104,
+        "height": 628
+      },
+      "authority": "reference-only",
+      "identityConfidence": "category-only"
+    },
+    {
+      "sourceId": "CVF-SRC-1100",
+      "number": "1100",
+      "destination": "r3f/organs/will/ops-source-semantic-specimen-v1.png",
+      "family": "r3f",
+      "category": "semantic-specimen",
+      "semanticOwner": "organ:will",
+      "variation": "ops-source-alternate",
+      "duplicateOf": null,
+      "originalFilename": "1100--r3f--ops-source.png",
+      "organizedPath": "r3f/organs/will/ops-source-semantic-specimen-v1.png",
+      "sha256": "6c0652e1b99aa6812f9d811d552d986178981568f52a1c6bf6e6f5b306a154e1",
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "authority": "reference-only",
+      "identityConfidence": "explicit-name-or-adaptation-lineage"
+    }
+  ]
+}
