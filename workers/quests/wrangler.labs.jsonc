@@ -23,7 +23,11 @@
     // Use the direct Worker origin for server-to-server role resolution. The
     // plexus-api custom hostname has its own Access app, which rejects the
     // already-verified curious app JWT before TeamForge can validate it.
-    "PLEXUS_WHOAMI_URL": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami"
+    "PLEXUS_WHOAMI_URL": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami",
+    "WEBSITE_ORIGINS": "https://pro.thoughtseed.space",
+    "WEBSITE_AI_CONSENT_VERSION": "ai-processing-v1",
+    "WEBSITE_LEAD_CONSENT_VERSION": "lead-storage-90d-v1",
+    "OPENAI_MODEL": "gpt-6-luna"
   },
   "kv_namespaces": [
     { "binding": "QUESTS", "id": "439547e617d9455fb752bfd651da9765" },
@@ -44,9 +48,22 @@
       "migrations_dir": "migrations"
     }
   ],
+  "ratelimits": [
+    {
+      "name": "WEBSITE_AI_LIMITER",
+      "namespace_id": "2026092401",
+      "simple": { "limit": 12, "period": 60 }
+    },
+    {
+      "name": "WEBSITE_LEAD_LIMITER",
+      "namespace_id": "2026092402",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ],
   "triggers": {
     "crons": [
-      "0 */6 * * *"
+      "0 */6 * * *",
+      "0 0 * * *"
     ]
   }
 }
