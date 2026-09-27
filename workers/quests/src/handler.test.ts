@@ -15924,6 +15924,8 @@ test('Goal Graph readback hides pending candidate existence from every non-found
     await founderOutcomeQuestEnvelope(harness),
     await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('team')),
     await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('consultant')),
+    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('team'), { authenticateFounder: true }),
+    await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('consultant'), { authenticateFounder: true }),
     await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder', { expiresAt: '2020-01-01T00:00:00.000Z' })),
   ];
   for (const envelope of projections) {

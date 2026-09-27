@@ -8,6 +8,7 @@ import {
   resolveActionRequestReplyRecord,
   type ActionRequestKvLike,
 } from './action-requests.ts';
+import { THOUGHTSEED_TELEGRAM_CHAT_ID, TOPIC_QUEST_ROUTES } from './telegram-routing.ts';
 
 const FOUNDER_A = ['137', '1522080'].join('');
 const FOUNDER_B = ['926', '168615'].join('');
@@ -15,12 +16,14 @@ const FOUNDERS = [FOUNDER_A, FOUNDER_B];
 const CREATED_AT = '2026-08-18T10:00:00.000Z';
 const EXPIRES_AT = '2026-08-18T10:30:00.000Z';
 
-function fakeKv(): ActionRequestKvLike {
+function fakeKv(): ActionRequestKvLike & { readonly writeCount: number } {
   const rows = new Map<string, string>();
+  let writes = 0;
   return {
     async get(key) { return rows.get(key) ?? null; },
-    async put(key, value) { rows.set(key, value); },
+    async put(key, value) { writes += 1; rows.set(key, value); },
     async list(prefix) { return [...rows.keys()].filter((key) => key.startsWith(prefix)); },
+    get writeCount() { return writes; },
   };
 }
 
@@ -102,6 +105,48 @@ test('generic workflow rejects unknown work objects and approval windows longer 
   assert.match(String(rejected.body.error), /30 minutes/);
 });
 
+test('ActionRequest founder group conversations use canonical routes and normalize the agent-ops alias', async () => {
+  const rejectedKv = fakeKv();
+  const adytum = structuredClone(hrActionRequest());
+  adytum.id = 'ar_hr_reject_adytum';
+  adytum.idempotencyKey = 'hr:reject-adytum:2026-08-18';
+  adytum.topic = {
+    chatId: THOUGHTSEED_TELEGRAM_CHAT_ID,
+    topicKey: 'adytum',
+    threadId: 147,
+  };
+
+  const rejected = await createActionRequestRecord(rejectedKv, adytum, () => CREATED_AT);
+  assert.equal(rejected.status, 400);
+  assert.match(String(rejected.body.error), /authorized ThoughtSeed topic/i);
+  assert.equal(rejectedKv.writeCount, 0, 'non-canonical group topics must be rejected before KV writes');
+
+  for (const topicKey of ['agent_ops', 'agent-ops']) {
+    const acceptedKv = fakeKv();
+    const request = structuredClone(hrActionRequest());
+    request.id = `ar_hr_accept_${topicKey.replace('-', '_')}`;
+    request.idempotencyKey = `hr:accept-${topicKey}:2026-08-18`;
+    request.topic = {
+      chatId: THOUGHTSEED_TELEGRAM_CHAT_ID,
+      topicKey,
+      threadId: TOPIC_QUEST_ROUTES.agent_ops.threadId,
+    };
+
+    const accepted = await createActionRequestRecord(acceptedKv, request, () => CREATED_AT);
+    assert.equal(accepted.status, 200, `${topicKey} should resolve to the canonical Agent Ops route`);
+    assert.equal(acceptedKv.writeCount, 2, `${topicKey} should create its record and idempotency receipt`);
+  }
+
+  const directKv = fakeKv();
+  const direct = structuredClone(hrActionRequest());
+  direct.id = 'ar_hr_direct_founder';
+  direct.idempotencyKey = 'hr:direct-founder:2026-08-18';
+  direct.topic = { chatId: '123456', topicKey: 'direct', threadId: 0 };
+  const directAccepted = await createActionRequestRecord(directKv, direct, () => CREATED_AT);
+  assert.equal(directAccepted.status, 200, 'founder direct chats remain valid');
+  assert.equal(directKv.writeCount, 2);
+});
+
 test('HR button approval revalidates the founder allowlist and queues high-risk bounded work', async () => {
   const kv = fakeKv();
   await createActionRequestRecord(kv, hrActionRequest(), () => CREATED_AT);
@@ -163,4 +208,3 @@ test('reply approval is exact, reply-bound, unique, and expires after thirty min
   assert.equal(expired.status, 410);
   assert.equal((expired.body.actionRequest as any).status, 'superseded');
 });
-

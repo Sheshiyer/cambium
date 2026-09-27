@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
@@ -14,6 +14,14 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CAMBIUM_ROOT = join(HERE, '..');
 const FIXTURE = join(HERE, 'fixtures', 'meristem-v2-iverif');
+
+function syntheticMeristemBrand() {
+  const meristemRoot = mkdtempSync(join(tmpdir(), 'iverif-draft-source-'));
+  const brandRoot = join(meristemRoot, 'brands', 'iverif');
+  mkdirSync(dirname(brandRoot), { recursive: true });
+  cpSync(FIXTURE, brandRoot, { recursive: true });
+  return { meristemRoot, brandRoot };
+}
 
 test('draft package writer creates Path A draft files offline without network', () => {
   const outRoot = mkdtempSync(join(tmpdir(), 'iverif-draft-package-'));
@@ -84,6 +92,8 @@ test('draft package writer creates Path A draft files offline without network', 
     assert.ok(taste.blocked_claims.some((claim) => claim.id === 'd1-residual'));
     assert.ok(taste.blocked_claims.some((claim) => claim.id === 'explee-read-only'));
     assert.match(taste.fr_copy.hero_headline, /dossier/i);
+    assert.ok(taste.evidence.verified.includes('Brand packet sources exist for IVerif wiki and Brandmint outputs'));
+    assert.ok(taste.evidence.proof_points.includes('Source-linked claim review before public compliance claims'));
 
     const landing = readFileSync(join(outRoot, 'hands', 'landing.fr.html'), 'utf8');
     assert.match(landing, /evidence_receipt/);
@@ -104,8 +114,13 @@ test('draft package writer creates Path A draft files offline without network', 
     const will = JSON.parse(readFileSync(join(outRoot, 'will', 'explee-payload.draft.json'), 'utf8'));
     assert.equal(will.do_not_post, true);
     assert.equal(will.mutation_enabled, false);
-    assert.equal(will.project_id, 16763);
-    assert.equal(will.campaign_id, 45711);
+    assert.equal(will.project_id, 35674);
+    assert.equal(will.campaign_id, 159185);
+    const cleanBinding = JSON.parse(readFileSync(join(CAMBIUM_ROOT, 'docs/evidence/2026-09-11-iverif-explee-campaign-learning/playbooks/FR-CEE-CAMPAIGN-TEMPLATE.json'), 'utf8'));
+    assert.equal(will.project_id, cleanBinding.projectId);
+    assert.equal(will.campaign_id, cleanBinding.campaignId);
+    assert.equal(will.activation, 'draft_only');
+    assert.match(will.binding_evidence.verification, /historical-source-only/);
     assert.equal(will.admitted.current, false);
     assert.match(will.filename, /draft/);
     assert.ok(Array.isArray(will.allowed_methods));
@@ -142,6 +157,94 @@ test('draft package writer reads live fixture meristem root when brand tree exis
     assert.equal(result.do_not_post, true);
     assert.equal(result.admitted.current, false);
   } finally {
+    rmSync(outRoot, { recursive: true, force: true });
+  }
+});
+
+test('draft package keeps pending competitor and hypothesis evidence out of verified receipts and escapes markup', () => {
+  const { meristemRoot, brandRoot } = syntheticMeristemBrand();
+  const outRoot = mkdtempSync(join(tmpdir(), 'iverif-draft-escaped-'));
+  try {
+    const ledgerPath = join(brandRoot, 'research', 'EVIDENCE-LEDGER.md');
+    const baseLedger = readFileSync(ledgerPath, 'utf8');
+    writeFileSync(ledgerPath, `${baseLedger.replace(
+      '## Proof Points',
+      '- Receipt marker --><script>window.receipt = 1</script>\n\n## Proof Points',
+    )}
+
+## FR competitor observations
+| ID | Observation | Evidence | Limits | Class |
+| --- | --- | --- | --- | --- |
+| FR-COMP-01 | Competitor positioning needs review | Public landing snapshot | confirmation pending | competitor observation |
+
+## Working hypotheses
+- A pending hypothesis must remain unverified
+`);
+
+    const brandConfigPath = join(brandRoot, 'brand-config.yaml');
+    writeFileSync(
+      brandConfigPath,
+      readFileSync(brandConfigPath, 'utf8').replace(
+        /^  name: .+$/m,
+        '  name: "<script>window.brand = 1</script>"',
+      ),
+    );
+    const outputsDir = join(brandRoot, '.brandmint', 'outputs');
+    mkdirSync(outputsDir, { recursive: true });
+    writeFileSync(join(outputsDir, 'landing-page-copy.json'), `${JSON.stringify({
+      data: {
+        hero: {
+          headline: '<script>window.headline = 1</script>',
+          subhead: '<script>window.subhead = 1</script>',
+          cta_button: '<mj-raw><script>window.cta = 1</script></mj-raw>',
+        },
+      },
+    })}\n`);
+
+    writeIverifDraftPackage({
+      meristemRoot,
+      brandDir: 'brands/iverif',
+      marketLocale: 'fr-FR',
+      cambiumRoot: CAMBIUM_ROOT,
+      outRoot,
+      now: new Date('2026-09-27T12:00:00.000Z'),
+    });
+
+    const taste = JSON.parse(readFileSync(join(outRoot, 'taste-report.json'), 'utf8'));
+    const competitor = taste.evidence.observations.find((row) => row.id === 'FR-COMP-01');
+    assert.deepEqual(competitor, {
+      id: 'FR-COMP-01',
+      observation: 'Competitor positioning needs review',
+      evidence: 'Public landing snapshot',
+      limits: 'confirmation pending',
+      limitations: 'confirmation pending',
+      class: 'competitor observation',
+      provenance: {
+        ledger_path: 'research/EVIDENCE-LEDGER.md',
+        section: 'FR competitor observations',
+      },
+      metadata: {
+        id: 'FR-COMP-01',
+        observation: 'Competitor positioning needs review',
+        evidence: 'Public landing snapshot',
+        limits: 'confirmation pending',
+        class: 'competitor observation',
+      },
+    });
+    assert.equal(taste.evidence.verified.some((line) => /FR-COMP-01|Competitor positioning|pending hypothesis/i.test(line)), false);
+    assert.ok(taste.evidence.observations.some((row) => /pending hypothesis/i.test(row.observation)));
+
+    const landing = readFileSync(join(outRoot, 'hands', 'landing.fr.html'), 'utf8');
+    const emails = readFileSync(join(outRoot, 'hands', 'emails.fr.mjml'), 'utf8');
+    assert.match(landing, /&lt;script&gt;window\.brand = 1&lt;\/script&gt;/);
+    assert.match(landing, /&lt;script&gt;window\.headline = 1&lt;\/script&gt;/);
+    assert.match(landing, /&lt;mj-raw&gt;&lt;script&gt;window\.cta = 1&lt;\/script&gt;&lt;\/mj-raw&gt;/);
+    assert.doesNotMatch(landing, /<script\b|--><script/i);
+    assert.match(landing, /<!-- evidence_receipt:[^<>\n]+ -->/);
+    assert.doesNotMatch(emails, /<script\b|<mj-raw\b|--><script/i);
+    assert.match(emails, /&lt;script&gt;window\.headline = 1&lt;\/script&gt;/);
+  } finally {
+    rmSync(meristemRoot, { recursive: true, force: true });
     rmSync(outRoot, { recursive: true, force: true });
   }
 });

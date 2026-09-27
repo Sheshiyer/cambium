@@ -840,7 +840,7 @@ function readFlagValue(argv, index, flag) {
 
 function usage() {
   return [
-    'usage: node scripts/meristem-genesis-contract.mjs --meristem-root /path/to/meristem [--brand-dir brands/thoughtseed] [--mode MERISTEM_V1|MERISTEM_V2] [--out /tmp/brand-dna.json] [--evidence-out /tmp/evidence.json]',
+    'usage: node scripts/meristem-genesis-contract.mjs --meristem-root /path/to/meristem [--brand-dir brands/thoughtseed] [--mode MERISTEM_V1|MERISTEM_V2] [--out ./output/brand-dna.json] [--evidence-out ./output/evidence.json]',
     '',
     'Emits Cambium Genesis JSON with top-level brand_system, copy_system, and visual_system.',
     'MERISTEM_V1 reads brandmint outputs. MERISTEM_V2 reads wiki docs + research/EVIDENCE-LEDGER.md + MDS.'

@@ -5103,7 +5103,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const verdict = await validateInitData(telegramInitData, deps.gate);
       if (verdict.ok) {
         founderOutcomeAuthorized = true;
-        principal = {
+        // Preserve explicit legacy projection scope and expiry; Plexus ignores caller-supplied principals.
+        principal = (!deps.plexus ? resolveSurfacePrincipal(req) : null) ?? {
           id: `telegram:${verdict.userId}`,
           tenant,
           role: 'founder',

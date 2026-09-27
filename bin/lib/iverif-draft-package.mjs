@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { buildGenesisContract } from '../../scripts/meristem-genesis-contract.mjs';
 import { parseMarketLocale } from './marketing-orchestration.mjs';
 
-export const EXPLEE_PROJECT_ID = 16763;
-export const EXPLEE_CAMPAIGN_ID = 45711;
+export const EXPLEE_PROJECT_ID = 35674;
+export const EXPLEE_CAMPAIGN_ID = 159185;
 export const DRAFT_PACKAGE_SCHEMA = 'cambium.iverif.draft-package.v1';
 
 const DEFAULT_BRAND_DIR = 'brands/iverif';
@@ -85,41 +85,117 @@ export function resolveMeristemBrandSources({
   };
 }
 
+function ledgerSection(heading) {
+  if (/^(?:Verified|Public[-\s]source facts|First[-\s]party product facts)\b/i.test(heading)) return 'verified';
+  if (/^(?:Proof Points|Rules for all downstream work)\b/i.test(heading)) return 'proof_points';
+  if (/^(?:Blocked|Prohibited public claims)\b/i.test(heading)) return 'blocked';
+  if (/^(?:(?:FR\s+)?competitor observations|Working hypotheses|Unverified|Claim classes)\b/i.test(heading)) return 'observations';
+  return null;
+}
+
+function observationClass(heading) {
+  if (/competitor/i.test(heading)) return 'competitor observation';
+  if (/hypoth/i.test(heading)) return 'hypothesis';
+  if (/unverified/i.test(heading)) return 'unverified';
+  if (/claim classes/i.test(heading)) return 'claim class';
+  return 'observation';
+}
+
+function tableCells(line) {
+  return line.replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
+}
+
+function tableHeaderKey(value) {
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+function isTableRule(cells) {
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+}
+
+function isTableHeader(cells) {
+  return cells.some((cell) => /^(?:id|finding|observation|meaning|evidence|source|limits?|limitations?|class|status|provenance)$/i.test(cell));
+}
+
+function firstMetadataValue(metadata, keys) {
+  for (const key of keys) {
+    if (metadata[key]) return metadata[key];
+  }
+  return null;
+}
+
 function parseEvidenceLedger(text, relativePath) {
-  const sections = { verified: [], proof_points: [], blocked: [] };
+  const sections = { verified: [], proof_points: [], blocked: [], observations: [] };
   let current = null;
+  let currentHeading = '';
+  let headers = null;
   for (const raw of String(text || '').split(/\r?\n/)) {
     const line = raw.trim();
-    if (/^##\s+(Verified|Public-source facts|First-party product facts|FR competitor observations)\b/i.test(line)) {
-      current = 'verified';
+    const heading = line.match(/^##\s+(.+?)\s*$/);
+    if (heading) {
+      currentHeading = heading[1];
+      current = ledgerSection(currentHeading);
+      headers = null;
       continue;
     }
-    if (/^##\s+(Proof Points|Working hypotheses|Claim classes|Rules for all downstream work)\b/i.test(line)) {
-      current = 'proof_points';
-      continue;
-    }
-    if (/^##\s+(Blocked|Prohibited public claims)\b/i.test(line)) {
-      current = 'blocked';
-      continue;
-    }
-    if (/^##\s+/.test(line)) { current = null; continue; }
     if (!current) continue;
 
-    // Markdown table rows: | ID | Finding | ... |
     if (line.startsWith('|')) {
-      const cells = line.split('|').map((cell) => cell.trim()).filter(Boolean);
-      if (cells.length >= 2 && !/^[-:]+$/.test(cells[0]) && cells[0].toLowerCase() !== 'id' && cells[0].toLowerCase() !== 'class') {
+      const cells = tableCells(line);
+      if (isTableRule(cells)) continue;
+      if (isTableHeader(cells)) {
+        headers = cells.map((cell, index) => tableHeaderKey(cell) || `column_${index + 1}`);
+        continue;
+      }
+      if (cells.length < 2) continue;
+
+      if (current === 'observations') {
+        const metadata = Object.fromEntries((headers || cells.map((_, index) => `column_${index + 1}`))
+          .map((key, index) => [key, cells[index] || '']));
+        const observation = firstMetadataValue(metadata, ['observation', 'finding', 'meaning']) || cells[1];
+        if (!observation || /^(?:finding|observation|meaning)$/i.test(observation)) continue;
+        const evidence = firstMetadataValue(metadata, ['evidence', 'source', 'provenance']);
+        const limits = firstMetadataValue(metadata, ['limits', 'limitations', 'limit', 'status']);
+        sections.observations.push({
+          id: firstMetadataValue(metadata, ['id']),
+          observation,
+          evidence,
+          limits,
+          limitations: limits,
+          class: firstMetadataValue(metadata, ['class', 'claim_class', 'classification']) || observationClass(currentHeading),
+          provenance: {
+            ledger_path: relativePath,
+            section: currentHeading,
+          },
+          metadata,
+        });
+      } else {
         const finding = cells[1];
-        if (finding && finding.toLowerCase() !== 'finding' && finding.toLowerCase() !== 'observation' && finding.toLowerCase() !== 'meaning') {
-          sections[current].push(`${cells[0]}: ${finding}`);
-        }
+        if (finding && !/^(?:finding|observation|meaning)$/i.test(finding)) sections[current].push(`${cells[0]}: ${finding}`);
       }
       continue;
     }
 
     if (!(line.startsWith('-') || /^\d+\./.test(line))) continue;
     const item = line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
-    if (item) sections[current].push(item);
+    if (!item) continue;
+    if (current === 'observations') {
+      sections.observations.push({
+        id: null,
+        observation: item,
+        evidence: null,
+        limits: null,
+        limitations: null,
+        class: observationClass(currentHeading),
+        provenance: {
+          ledger_path: relativePath,
+          section: currentHeading,
+        },
+        metadata: {},
+      });
+    } else {
+      sections[current].push(item);
+    }
   }
   return {
     path: relativePath,
@@ -231,35 +307,56 @@ function buildTasteReport({ market, frCopy, ledger, genesis, sourceMeta }) {
       verified: ledger.verified,
       proof_points: ledger.proof_points,
       blocked: ledger.blocked,
+      observations: ledger.observations,
       ledger_path: ledger.path,
     },
     blocked_claims,
     admitted: { current: false },
     mutation_enabled: false,
-    activation: 'active_read_only',
+    activation: 'draft_only',
     verdict: blocked_claims.length ? 'draft_with_blocked_claims' : 'draft_ok',
   };
 }
 
+function escapeMarkupText(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function encodeReceiptForMarkup(receipt) {
+  return encodeURIComponent(JSON.stringify(receipt) || 'null').replaceAll('-', '%2D');
+}
+
 function buildLandingHtml({ frCopy, receipt }) {
+  const brandName = escapeMarkupText(frCopy.brand_name);
+  const headline = escapeMarkupText(frCopy.hero_headline);
+  const subhead = escapeMarkupText(frCopy.hero_subhead);
+  const primaryCta = escapeMarkupText(frCopy.cta_primary);
+  const secondaryCta = escapeMarkupText(frCopy.cta_secondary);
+  const proofPoints = (frCopy.proof_points || []).map((point) => escapeMarkupText(point));
+  const encodedReceipt = escapeMarkupText(encodeReceiptForMarkup(receipt));
   return `<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>${frCopy.brand_name} — brouillon FR | iverif.fr</title>
+  <title>${brandName} — brouillon FR | iverif.fr</title>
   <meta name="robots" content="noindex,nofollow" />
 </head>
 <body data-draft-only="true" data-mutation-enabled="false" data-domain="iverif.fr">
   <main>
     <p class="eyebrow">iverif.fr · CEE / Primes Énergie · brouillon Path A</p>
-    <h1>${frCopy.hero_headline}</h1>
-    <p>${frCopy.hero_subhead}</p>
-    <p><strong>${frCopy.cta_primary}</strong> · <em>${frCopy.cta_secondary}</em></p>
+    <h1>${headline}</h1>
+    <p>${subhead}</p>
+    <p><strong>${primaryCta}</strong> · <em>${secondaryCta}</em></p>
     <ul>
-${(frCopy.proof_points || []).map((point) => `      <li>${point}</li>`).join('\n')}
+${proofPoints.map((point) => `      <li>${point}</li>`).join('\n')}
     </ul>
   </main>
-  <!-- evidence_receipt:${JSON.stringify(receipt)} -->
+  <!-- evidence_receipt:${encodedReceipt} -->
 </body>
 </html>
 `;
@@ -290,14 +387,18 @@ function buildAdsJson({ frCopy, receipt, market }) {
 }
 
 function buildEmailsMjml({ frCopy, receipt }) {
+  const headline = escapeMarkupText(frCopy.hero_headline);
+  const subhead = escapeMarkupText(frCopy.hero_subhead);
+  const primaryCta = escapeMarkupText(frCopy.cta_primary);
+  const encodedReceipt = escapeMarkupText(encodeReceiptForMarkup(receipt));
   return `<mjml>
   <mj-body>
     <mj-section>
       <mj-column>
-        <mj-text font-size="20px">${frCopy.hero_headline}</mj-text>
-        <mj-text>${frCopy.hero_subhead}</mj-text>
-        <mj-button>${frCopy.cta_primary}</mj-button>
-        <mj-text font-size="12px">Brouillon Path A — ne pas envoyer. evidence_receipt=${JSON.stringify(receipt)}</mj-text>
+        <mj-text font-size="20px">${headline}</mj-text>
+        <mj-text>${subhead}</mj-text>
+        <mj-button>${primaryCta}</mj-button>
+        <mj-text font-size="12px">Brouillon Path A — ne pas envoyer. evidence_receipt=${encodedReceipt}</mj-text>
       </mj-column>
     </mj-section>
   </mj-body>
@@ -335,12 +436,13 @@ function buildExpleeDraftPayload({ market, frCopy, receipt }) {
     filename: 'explee-payload.draft.json',
     do_not_post: true,
     mutation_enabled: false,
-    activation: 'active_read_only',
+    activation: 'draft_only',
     provider_mode: 'observe-only',
     allowed_methods: ['GET'],
     project_id: EXPLEE_PROJECT_ID,
     campaign_id: EXPLEE_CAMPAIGN_ID,
-    campaign_name: 'Public Agencies',
+    campaign_name: 'FR CEE — Délégataires & ops (Meristem)',
+    binding_evidence: { observed_at: '2026-09-11T14:40:21.858047Z', source: 'docs/evidence/2026-09-11-iverif-explee-campaign-learning/playbooks/FR-CEE-CAMPAIGN-TEMPLATE.json', verification: 'historical-source-only; live target must be revalidated before any future approval' },
     market,
     admitted: { current: false },
     draft: {
