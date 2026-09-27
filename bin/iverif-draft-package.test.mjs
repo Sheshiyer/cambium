@@ -248,3 +248,38 @@ test('draft package keeps pending competitor and hypothesis evidence out of veri
     rmSync(outRoot, { recursive: true, force: true });
   }
 });
+
+test('table receipts retain evidence, safe use, interpretation boundaries and uncertain row classes', () => {
+  const { meristemRoot, brandRoot } = syntheticMeristemBrand();
+  const outRoot = mkdtempSync(join(tmpdir(), 'iverif-ledger-metadata-'));
+  try {
+    writeFileSync(join(brandRoot, 'research', 'EVIDENCE-LEDGER.md'), `## First-party product facts
+| ID | Finding | Evidence | Safe use | Limits | Class |
+| --- | --- | --- | --- | --- | --- |
+| F1 | Source-backed feature | Product specification | Describe design only | No runtime proof | first-party fact |
+| F2 | Unconfirmed candidate | Draft note | Do not publish | Pending review | hypothesis |
+
+## FR competitor observations
+| ID | Observation | Evidence | Interpretation boundary |
+| --- | --- | --- | --- |
+| C3 | Candidate claim | Competitor page | confirmation pending |
+`);
+    writeIverifDraftPackage({ meristemRoot, brandDir: 'brands/iverif', marketLocale: 'fr-FR', cambiumRoot: CAMBIUM_ROOT, outRoot, now: new Date('2026-09-27T12:00:00.000Z') });
+    const taste = JSON.parse(readFileSync(join(outRoot, 'taste-report.json'), 'utf8'));
+    assert.deepEqual(taste.evidence.verified, ['F1: Source-backed feature']);
+    assert.equal(taste.evidence.observations.find((row) => row.id === 'C3').limits, 'confirmation pending');
+    assert.ok(taste.evidence.observations.some((row) => row.id === 'F2'));
+    const record = taste.evidence.records.find((row) => row.id === 'F1');
+    assert.equal(record.evidence, 'Product specification');
+    assert.equal(record.safe_use, 'Describe design only');
+    assert.equal(record.limits, 'No runtime proof');
+    assert.equal(record.class, 'first-party fact');
+    const landing = readFileSync(join(outRoot, 'hands', 'landing.fr.html'), 'utf8');
+    const encoded = landing.match(/<!-- evidence_receipt:([^ ]+) -->/)[1];
+    const receipt = JSON.parse(decodeURIComponent(encoded));
+    assert.deepEqual(receipt.records, [record]);
+  } finally {
+    rmSync(meristemRoot, { recursive: true, force: true });
+    rmSync(outRoot, { recursive: true, force: true });
+  }
+});

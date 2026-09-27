@@ -125,7 +125,7 @@ function firstMetadataValue(metadata, keys) {
 }
 
 function parseEvidenceLedger(text, relativePath) {
-  const sections = { verified: [], proof_points: [], blocked: [], observations: [] };
+  const sections = { verified: [], proof_points: [], blocked: [], observations: [], records: [] };
   let current = null;
   let currentHeading = '';
   let headers = null;
@@ -149,30 +149,22 @@ function parseEvidenceLedger(text, relativePath) {
       }
       if (cells.length < 2) continue;
 
-      if (current === 'observations') {
-        const metadata = Object.fromEntries((headers || cells.map((_, index) => `column_${index + 1}`))
-          .map((key, index) => [key, cells[index] || '']));
-        const observation = firstMetadataValue(metadata, ['observation', 'finding', 'meaning']) || cells[1];
-        if (!observation || /^(?:finding|observation|meaning)$/i.test(observation)) continue;
-        const evidence = firstMetadataValue(metadata, ['evidence', 'source', 'provenance']);
-        const limits = firstMetadataValue(metadata, ['limits', 'limitations', 'limit', 'status']);
-        sections.observations.push({
-          id: firstMetadataValue(metadata, ['id']),
-          observation,
-          evidence,
-          limits,
-          limitations: limits,
-          class: firstMetadataValue(metadata, ['class', 'claim_class', 'classification']) || observationClass(currentHeading),
-          provenance: {
-            ledger_path: relativePath,
-            section: currentHeading,
-          },
-          metadata,
-        });
-      } else {
-        const finding = cells[1];
-        if (finding && !/^(?:finding|observation|meaning)$/i.test(finding)) sections[current].push(`${cells[0]}: ${finding}`);
-      }
+      const metadata = Object.fromEntries((headers || cells.map((_, index) => `column_${index + 1}`))
+        .map((key, index) => [key, cells[index] || '']));
+      const observation = firstMetadataValue(metadata, ['observation', 'finding', 'meaning', 'fact']) || cells[1];
+      if (!observation || /^(?:finding|observation|meaning)$/i.test(observation)) continue;
+      const evidence = firstMetadataValue(metadata, ['evidence', 'source', 'provenance']);
+      const limits = firstMetadataValue(metadata, ['limits', 'limitations', 'limit', 'interpretation_boundary', 'status']);
+      const record = {
+        id: firstMetadataValue(metadata, ['id']), observation, evidence, limits, limitations: limits,
+        class: firstMetadataValue(metadata, ['class', 'claim_class', 'classification']) || observationClass(currentHeading),
+        provenance: { ledger_path: relativePath, section: currentHeading }, metadata,
+      };
+      const uncertainClass = firstMetadataValue(metadata, ['class', 'claim_class', 'classification', 'status']) || '';
+      const category = /competitor|unverified|hypothes|pending/i.test(uncertainClass) ? 'observations' : current;
+      sections.records.push({ ...record, category, safe_use: firstMetadataValue(metadata, ['safe_use', 'permitted_use']) });
+      if (category === 'observations') sections.observations.push(record);
+      else sections[category].push(`${cells[0]}: ${observation}`);
       continue;
     }
 
@@ -266,6 +258,8 @@ function evidenceReceipt(ledger, concept, lines = []) {
     ledger_path: ledger.path,
     concept,
     lines: lines.length ? lines : ledger[concept] || [],
+    records: (ledger.records || []).filter((record) => record.category === concept
+      && (!lines.length || lines.includes(`${record.id}: ${record.observation}`))),
   };
 }
 
@@ -308,6 +302,7 @@ function buildTasteReport({ market, frCopy, ledger, genesis, sourceMeta }) {
       proof_points: ledger.proof_points,
       blocked: ledger.blocked,
       observations: ledger.observations,
+      records: ledger.records,
       ledger_path: ledger.path,
     },
     blocked_claims,
