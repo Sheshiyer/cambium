@@ -2509,3 +2509,10 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 - Local topic-map manifests matched at SHA-256 `8680362398721c473cb768cf977d5d43d3621720d5edb35d871513ff4f93a630`; Cambium's pinned Hermes source commit resolves to a different manifest digest. Do not rewrite provenance until the canonical Hermes map has an authorized committed revision.
 - This checkpoint changes planning only. The final GSD plan-checker pass found no remaining blockers or warnings. No tests, successful Telegram history read, Cloudflare inventory, live runtime checks, source implementation, or production mutation were performed; preserve all existing dirty files and both checkout heads.
 - Read-only `tg chats list` found two dialogs with the same display name but distinct peer types. The supplied join link is unsupported by `tg history`/`tg topics list`, and the cached numeric peer cannot resolve; no membership change or peer substitution was made. Continue after the owner provides an exact username or Desktop export.
+
+### 2026-09-27 local source reconciliation
+
+- Integrated consent/readiness, Plexus references, bounded learning docs, the seven primary checkpoint slices, Iverif draft composition, and website intake into one local candidate. Exact original branch dispositions and remaining frontiers are in `.planning/RECONCILIATION-2026-09-27.md`.
+- Preserved main privacy/authority corrections; curated transport evidence excludes raw logs/contact records and redacts personal reply addresses. Publish a fresh single-commit tree on main rather than the recovery checkpoint ancestry.
+- Restored the committed eight-topic Hermes pin; uncommitted Adytum topic remains an upstream hold. PAGE digest exactly matches the historical viewport receipt; no new visual capture or human acceptance claimed.
+- Targeted tests and privacy/drift/render/compose checks pass. Full-suite receipt belongs in the local review-ready handoff after the source commit. Phase 9 collector implementation and authenticated inventory remain incomplete under the existing executable plan; no Cloudflare/runtime/delivery/retirement action was performed.

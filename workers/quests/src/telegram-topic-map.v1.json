@@ -9,7 +9,6 @@
     "calendar": { "topicName": "Calendar", "threadId": 6, "questId": "the-brief", "priority": "normal", "taskType": "operations" },
     "agent_ops": { "topicName": "Agent Ops", "threadId": 7, "questId": "living-org", "priority": "high", "taskType": "operations" },
     "alerts": { "topicName": "Alerts", "threadId": 8, "questId": "the-ship-gate", "priority": "urgent", "taskType": "operations" },
-    "clients": { "topicName": "Clients", "threadId": 9, "questId": "the-handoff", "priority": "high", "taskType": "general" },
-    "adytum": { "topicName": "Adytum", "threadId": 147, "questId": "living-org", "priority": "normal", "taskType": "operations" }
+    "clients": { "topicName": "Clients", "threadId": 9, "questId": "the-handoff", "priority": "high", "taskType": "general" }
   }
 }

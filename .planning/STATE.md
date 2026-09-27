@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
-stopped_at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate
-last_updated: "2026-09-12T12:50:00.000Z"
-last_activity: 2026-09-12 — Organ Console visual-flow export completed without changing Phase 9 authority
+stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain
+last_updated: "2026-09-27T19:45:00.000Z"
+last_activity: 2026-09-27 — Local branch reconciliation and deterministic source verification; no live inventory
 progress:
   total_phases: 3
   completed_phases: 1
@@ -25,15 +25,15 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** An operator action counts only when its durable task, lease,
 artifact, outcome, and readback agree.
-**Current focus:** Plan exact authenticated read-only `9d9d` inventory while
+**Current focus:** Review the reconciled source and implement the planned exact read-only `9d9d` inventory tooling while
 preserving verified Thoughtseed Labs production authority.
 
 ## Current Position
 
 Phase: 9 of 10 (Source Inventory and Classification)
-Plan: Not planned
+Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed
 Status: Active
-Last activity: 2026-09-07 — Completed quick task 260907-7q6: added an observation-only repository intake sidecar; Phase 9 position unchanged
+Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan retained with implementation and live evidence unclaimed
 
 ## Accumulated Context
 
@@ -54,7 +54,7 @@ Last activity: 2026-09-07 — Completed quick task 260907-7q6: added an observat
 
 ### Pending Todos
 
-- Obtain authenticated source-key inventory authority before Phase 9.
+- Implement and synthetically verify Phase 9 Task 1, then obtain the exact authenticated source/target inventory authorization before live reads.
 - Keep Phase 10 copy and retirement work held behind separate approval.
 
 ### Blockers/Concerns
@@ -77,8 +77,8 @@ Last activity: 2026-09-07 — Completed quick task 260907-7q6: added an observat
 
 ## Session Continuity
 
-Last session: 2026-08-31T18:31:00Z
-Stopped at: Phase 8 verified; Phase 9 ready to plan under authenticated-read gate
+Last session: 2026-09-27
+Stopped at: Phase 9 plan ready; collector implementation and authenticated inventory remain
 Resume file: .planning/STATE.md
 
 ## 2026-09-08 Saanmai census and local headers
@@ -93,7 +93,4 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 
 ## Operator Next Step
 
-Continue with `/gsd:plan-phase 9` to specify the authenticated read-only
-inventory and classification proof. Executing that inventory still requires
-explicit owner authorization. Do not run a Cloudflare write, deploy, copy,
-DNS, Access, tunnel, or retirement command from this planning state.
+Review the local reconciliation and test evidence in `RECONCILIATION-2026-09-27.md`, then execute Task 1 in `09-01-PLAN.md` before the exact authenticated-read checkpoint. The plan now exists; do not restart phase planning or mark INV-01/CLASS-01 complete from synthetic tests. The collector/classifier has not been implemented by this reconciliation. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by reconciliation.

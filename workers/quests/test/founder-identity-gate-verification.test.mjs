@@ -932,7 +932,7 @@ describe('Founder Identity Gate Review & Path Resolution Verification Suite', ()
   // 6. Phase G Read Client Fail-Closed Error Wrapping
   // =========================================================================
   describe('6. Phase G Read Client Fail-Closed Seam Guarantees', () => {
-    const BASE_URL = 'https://curious.thoughtseed.space';
+    const BASE_URL = 'https://cambium.invalid';
 
     function fakeFetch(status, body, opts = {}) {
       return async () => {

@@ -15,7 +15,7 @@ import {
 } from './telegram-routing.ts';
 
 /** SHA-256 of the canonical Hermes manifest at time of vendoring. */
-const PIN = '8680362398721c473cb768cf977d5d43d3621720d5edb35d871513ff4f93a630';
+const PIN = 'edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a';
 
 const VENDORED_URL = new URL('./telegram-topic-map.v1.json', import.meta.url);
 const VENDORED_BYTES = readFileSync(VENDORED_URL);

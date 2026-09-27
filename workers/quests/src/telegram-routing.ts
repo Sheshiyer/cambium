@@ -9,7 +9,7 @@ export const TELEGRAM_ROUTING_CONTRACT = {
   schema: 'thoughtseed.telegram-topic-map.v1',
   sourceRepository: 'Sheshiyer/hermes-aws-ts',
   sourceCommit: '1931f6c2d0d9260cfbf29c37413e1504e7ebf9e4',
-  manifestSha256: '8680362398721c473cb768cf977d5d43d3621720d5edb35d871513ff4f93a630',
+  manifestSha256: 'edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a',
   tracker: 'https://github.com/Sheshiyer/hermes-aws-ts/issues/88',
 } as const;
 
@@ -24,5 +24,4 @@ export const TOPIC_QUEST_ROUTES = {
   agent_ops: { topicName: 'Agent Ops', threadId: 7, questId: 'living-org', priority: 'high', taskType: 'operations', title: 'Investigate Agent Ops topic signal' },
   alerts: { topicName: 'Alerts', threadId: 8, questId: 'the-ship-gate', priority: 'urgent', taskType: 'operations', title: 'Escalate Alerts topic signal' },
   clients: { topicName: 'Clients', threadId: 9, questId: 'the-handoff', priority: 'high', taskType: 'general', title: 'Prepare Clients topic signal' },
-  adytum: { topicName: 'Adytum', threadId: 147, questId: 'living-org', priority: 'normal', taskType: 'operations', title: 'Orient Adytum organ signal' },
 } as const;

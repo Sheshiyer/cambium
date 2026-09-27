@@ -1,0 +1,25 @@
+{
+  "schema": "cambium.visual-release-scope.v1",
+  "standaloneReleaseGate": {
+    "status": "satisfied",
+    "reason": "Cambium's standalone product gate is the portable six-scale fractal tapestry contract, synthetic demo tenant path, adapter boundaries, memory boundaries, archive ceremony, asset governance, and passing release audit.",
+    "requiredEvidence": [
+      "README.md documents the standalone fractal tapestry and synthetic demo path",
+      "scripts/tapestry-snapshot.mjs exports cambium.fractal-tapestry.snapshot.v1",
+      "bin/tapestry-snapshot.test.mjs verifies the six-scale standalone map",
+      "docs/assets/provenance.json covers R3F runtime and QA visual assets",
+      "docs/archive/release-scope.json closes the archive release gate",
+      "docs/memory/boundary.json defines provider-neutral memory boundaries"
+    ]
+  },
+  "r3f": {
+    "releaseBlocker": false,
+    "scope": "maintained-visual-runtime",
+    "deterministicGates": [
+      "npm run r3f:test",
+      "npm run r3f:build"
+    ],
+    "humanAcceptance": "Human reference review is separate evidence and is never inferred from deterministic gates."
+  },
+  "releaseDecision": "Standalone portability remains the product release boundary; deterministic R3F gates are required while human perceptual acceptance remains separate evidence."
+}

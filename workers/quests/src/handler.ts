@@ -2022,7 +2022,7 @@ async function queueRoleTask(
 
 function topicQuestAssignment(raw: Record<string, unknown>, createId: () => string): Record<string, unknown> | { error: string } {
   const topicKey = optionalText(raw.topicKey ?? raw.topic, 80);
-  if (!topicKey || !(topicKey in TOPIC_QUEST_ROUTES)) return { error: 'topicKey must be one of hermes|digests|dev|inbox|calendar|agent_ops|alerts|clients|adytum' };
+  if (!topicKey || !(topicKey in TOPIC_QUEST_ROUTES)) return { error: 'topicKey must be one of hermes|digests|dev|inbox|calendar|agent_ops|alerts|clients' };
   const route = TOPIC_QUEST_ROUTES[topicKey as keyof typeof TOPIC_QUEST_ROUTES];
   const chatId = optionalText(raw.chatId, 80);
   if (chatId && chatId !== THOUGHTSEED_TELEGRAM_CHAT_ID) return { error: 'topic signal chatId is not THOUGHTSEED LABS' };

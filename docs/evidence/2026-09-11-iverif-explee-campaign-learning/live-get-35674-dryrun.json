@@ -12,9 +12,7 @@
     "autopilot_enabled": false,
     "auto_reply_enabled": false,
     "auto_reply_delay_minutes": 1440,
-    "reply_cc_emails": [
-      "sheshnarayan.iyer@gmail.com"
-    ]
+    "reply_cc_emails": "redacted"
   },
   "campaigns": [
     {

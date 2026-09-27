@@ -5,6 +5,10 @@
 **Applies to:** every Cambium sapling (`fitcheck`, `iverif`, `dlock`, future)  
 **Not a one-off skill.** Execution uses skill clusters + Cambium organs + Hermes org profiles.
 
+## Execution status
+
+This is a source-level procedure. The requirements below are conditional gates, not completed actions or fresh authorization. Iverif campaign values and transport observations are historical snapshots from 2026-09-11; re-observe the exact authorized target before any operational use.
+
 ## Disambiguation (read first)
 
 | Name | Meaning |
@@ -104,16 +108,16 @@ Telegram topic (clients:9 = primary GTM board; also internal workflow board)
 ## Repeatable phase checklist (per sapling)
 
 ### P0 — Bind identity
-- [ ] `sapling:<slug>` WorkObject / packet exists under Cambium parent tenant `cambium`
-- [ ] Meristem brand dir or PMC context present
-- [ ] TG topic for signals known (default `clients:9`)
+- Required: `sapling:<slug>` WorkObject / packet exists under Cambium parent tenant `cambium`
+- Required: Meristem brand dir or PMC context present
+- Required: TG topic for signals known (default `clients:9`)
 
 ### P1 — Observe & learn (no spend) · continuous loop
-- [ ] Inventory prior GTM (Explee projects/campaigns GET-only)
-- [ ] Archive/stop polluted projects/campaigns; do not reuse stats denominators
-- [ ] Compile continuous learning receipt via `shared/sapling-gtm-learning-loop.ts` (historical lessons + live clean-project GET)
-- [ ] Fold targeting rules into next Intent on TG board (`clients`) + Cortex — ban money-guzzler/clone ICPs; prefer Meristem FR wedge; fan packet to prongs B/C
-- [ ] Write/append learning receipt under `docs/evidence/`
+- Required: Inventory prior GTM (Explee projects/campaigns GET-only)
+- Required: Archive/stop polluted projects/campaigns; do not reuse stats denominators
+- Required: Compile continuous learning receipt via `shared/sapling-gtm-learning-loop.ts` (historical lessons + live clean-project GET)
+- Required: Fold targeting rules into next Intent on TG board (`clients`) + Cortex — ban money-guzzler/clone ICPs; prefer Meristem FR wedge; fan packet to prongs B/C
+- Required: Write/append learning receipt under `docs/evidence/`
 
 ## Continuous learning system (pipeline)
 
@@ -132,27 +136,27 @@ GET Explee (clean project) + historical learning pack
 **Iverif calibration pins:** historical `16763` lessons never become success stats; clean `35674` is the only Explee container; campaign **`159185`** is the Meristem FR CEE wedge (armed $10/day; needs FR ICP lead upload if `lead_pool_exhausted`); owned-email uses `wave@` stub (`liveSend: false`) while Explee auto-reply is ON (one-writer).
 
 ### P2 — Clean channel container
-- [ ] UI-create Explee project if needed (API cannot create)
-- [ ] Bind `{projectId, domain}` via GET
-- [ ] Autopilot OFF; auto-reply OFF unless an explicit operator approval declares the sole reply writer
-- [ ] Stop AutoGTM clone ICPs; retarget **one** campaign from Meristem fields or create new in UI
+- Required: UI-create Explee project if needed (API cannot create)
+- Required: Bind `{projectId, domain}` via GET
+- Required: Autopilot OFF; auto-reply OFF unless an explicit operator approval declares the sole reply writer
+- Required: Stop AutoGTM clone ICPs; retarget **one** campaign from Meristem fields or create new in UI
 
 ### P3 — Compose drafts (Hands)
-- [ ] Genesis from Meristem packet (`MERISTEM_V2` when available)
-- [ ] Hands drafts: landing/ads/emails/press with evidence receipts
-- [ ] Will payload stays `*.draft.json` / `do_not_post` until approved
+- Required: Genesis from Meristem packet (`MERISTEM_V2` when available)
+- Required: Hands drafts: landing/ads/emails/press with evidence receipts
+- Required: Will payload stays `*.draft.json` / `do_not_post` until approved
 
 ### P4 — Hermes / first-response gate (TG primary)
-- [ ] ActionRequest with branch + quest coordinates (else `binding_required`)
-- [ ] Post ActionRequest + options to the **TG workflow board** (default `clients:9`)
-- [ ] High-risk options → first-response gate: **TG operator resolve | Mini App signed | FIFO** (interchangeable; first valid response wins)
-- [ ] Do not stall the loop waiting on unfinished Mini App UI when TG/FIFO can gate
-- [ ] Low-risk observe/task queue only without spend
+- Required: ActionRequest with branch + quest coordinates (else `binding_required`)
+- Required: Post ActionRequest + options to the **TG workflow board** (default `clients:9`)
+- Required: High-risk options → first-response gate: **TG operator resolve | Mini App signed | FIFO** (interchangeable; first valid response wins)
+- Required: Do not stall the loop waiting on unfinished Mini App UI when TG/FIFO can gate
+- Required: Low-risk observe/task queue only without spend
 
 ### P5 — Arm (operator)
-- [ ] Explicit spend approve (via whichever first-response surface answered)
-- [ ] Choose prong(s); start only the intended campaign/channel
-- [ ] Foldback receipt to **TG board** + Cortex
+- Required: Explicit spend approve (via whichever first-response surface answered)
+- Required: Choose prong(s); start only the intended campaign/channel
+- Required: Foldback receipt to **TG board** + Cortex
 
 ## Worked example: iverif
 

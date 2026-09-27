@@ -80,4 +80,8 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 
 ## Next
 
-Continue repository planning with `/gsd:plan-phase 9`. Executing authenticated read-only `9d9d` inventory, Cloudflare mutation, source-object transfer, retirement, and merge remain separately owner-approved.
+The Phase 9 plan is present at `phases/09-source-inventory-and-classification/09-01-PLAN.md`. Implement Task 1 and complete its synthetic verification, review the reconciliation record, then stop at the authenticated-read checkpoint. Source integration does not satisfy INV-01/CLASS-01. Cloudflare mutation, source-object transfer, parity, retirement, and release remain distinct later operations.
+
+## 2026-09-27 source convergence
+
+Local source work combines messaging readiness, read-only Plexus graph references, learning doctrine, Iverif draft composition/GTM contracts, website intake, mail MCP, visual provenance, and the reviewed system field guide. See [branch reconciliation](./RECONCILIATION-2026-09-27.md) for integrated, superseded, and held lineages. v0.5 remains active with Phase 9/10 external evidence incomplete.
