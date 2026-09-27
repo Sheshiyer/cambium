@@ -32,3 +32,6 @@ motionsites-export/
 # machine-local Temperance runtime manifests (project.json is committed; these are not)
 .temperance/manifest.json
 .temperance/goal.json
+
+# Local organ dispatch stubs (Hermes consume paths)
+.state/

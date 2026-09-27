@@ -1,0 +1,33 @@
+{
+  "postedAt": "2026-09-11T20:10:27.873993Z",
+  "results": [
+    {
+      "cardId": "gtm-handoff-clients",
+      "topic": "clients",
+      "thread": 9,
+      "ok": true,
+      "message_id": 329
+    },
+    {
+      "cardId": "gtm-learning-agent-ops",
+      "topic": "agent_ops",
+      "thread": 7,
+      "ok": true,
+      "message_id": 330
+    },
+    {
+      "cardId": "gtm-activity-clients",
+      "topic": "clients",
+      "thread": 9,
+      "ok": true,
+      "message_id": 331
+    },
+    {
+      "cardId": "gtm-hygiene-alerts",
+      "topic": "alerts",
+      "thread": 8,
+      "ok": true,
+      "message_id": 332
+    }
+  ]
+}

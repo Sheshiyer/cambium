@@ -1,0 +1,47 @@
+{
+  "observedAt": "2026-09-11T14:38:57.296Z",
+  "operatorAuthorized": "POST /campaigns/import then immediately stop",
+  "importTaskId": "d08d6392-2440-44be-8625-a7c449374d8a",
+  "importResult": {
+    "campaign_id": 159185,
+    "project_id": 35674,
+    "name": "FR CEE — Délégataires & ops (Meristem)",
+    "leads_total": 1,
+    "leads_imported": 1,
+    "deduped": 0,
+    "enriched_from_base": 1,
+    "skipped_missing": 0,
+    "skipped_invalid_email": 0,
+    "flagged_freemail": 0,
+    "skipped": []
+  },
+  "projectId": 35674,
+  "meristemCampaignId": 159185,
+  "autopilot": {
+    "project_id": 35674,
+    "autopilot_enabled": false,
+    "auto_reply_enabled": false,
+    "auto_reply_delay_minutes": 1440,
+    "reply_cc_emails": [
+      "sheshnarayan.iyer@gmail.com"
+    ]
+  },
+  "campaignDetail": {
+    "id": 159185,
+    "name": "FR CEE — Délégataires & ops (Meristem)",
+    "status": "listening",
+    "language": "auto",
+    "offer": "Automatiser la validation dossier, croiser les pièces, réduire les rejets avant dépôt",
+    "daily_limit_usd": 10
+  },
+  "allCampaigns": [
+    {
+      "id": 159185,
+      "name": "FR CEE — Délégataires & ops (Meristem)",
+      "status": "listening"
+    }
+  ],
+  "placeholderLead": "wave+iverif-gtm-placeholder@thoughtseed.space",
+  "do_not_start": true,
+  "spendApproved": false
+}

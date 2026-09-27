@@ -1,0 +1,115 @@
+{
+  "schema": "cambium.sapling-gtm-learning-loop.v1",
+  "saplingId": "sapling:iverif",
+  "compiledAt": "2026-09-11T20:10:19.078Z",
+  "brandPacketRef": "meristem/brands/iverif",
+  "cleanExpleeProjectId": 35674,
+  "historicalProjectId": 16763,
+  "live": {
+    "campaignCount": 1,
+    "meristemTargetPresent": true,
+    "meristemTargetId": 159185,
+    "cloneIcpNamesStillPresent": [],
+    "allListening": false
+  },
+  "targetingRules": [
+    {
+      "id": "LR-1",
+      "severity": "ban",
+      "rule": "Do not restart AutoGTM clone ICPs (Public Agencies, Energy Consultants, …) on the clean project.",
+      "evidence": "live clones still named: none"
+    },
+    {
+      "id": "LR-2",
+      "severity": "ban",
+      "rule": "Do not reuse historical project denominators for success claims.",
+      "evidence": "historicalProjectId=16763; clean=35674"
+    },
+    {
+      "id": "LR-3",
+      "severity": "prefer",
+      "rule": "Prefer FR / France / délégataire-CEE back-office ICP from Meristem packet.",
+      "evidence": "meristem campaign 159185 status=outreach language=fr"
+    },
+    {
+      "id": "LR-4",
+      "severity": "watch",
+      "rule": "Relative winner Grant-Making Foundations is efficiency-only — do not generalize as ICP.",
+      "evidence": "Grant-Making Foundations 1.70%"
+    },
+    {
+      "id": "LR-5",
+      "severity": "prefer",
+      "rule": "Fan the same Meristem packet to owned-email (wave@) and LinkedIn FR — Explee is surgical, not exclusive.",
+      "evidence": "ownedEmailFrom=wave@thoughtseed.space"
+    },
+    {
+      "id": "LR-6",
+      "severity": "ban",
+      "rule": "No spend/start/send without first-response gate + explicit Will approve.",
+      "evidence": "spendApprovedRequired=true; Path A draft-only until approve"
+    },
+    {
+      "id": "LR-G-45711",
+      "severity": "ban",
+      "rule": "Money-guzzler pattern: Public Agencies",
+      "evidence": "Broad public-agency ICP burns spend; treat as ban for v1 FR CEE wedge."
+    }
+  ],
+  "nextHypotheses": [
+    {
+      "prong": "A-explee",
+      "name": "FR CEE — Délégataires & ops (Meristem)",
+      "language": "fr",
+      "geo": "France",
+      "role": "Operations / back-office managers in French délégataires and energy-subsidy operators",
+      "offer": "Validation documentaire IA pour dossiers CEE / Primes Énergie avant dépôt (contrôles inter-documents + piste d’audit) — iverif.fr",
+      "problem": "Les back-offices croisent 10–20 pièces par dossier; les écarts découverts trop tard coûtent cher et fragilisent l’audit.",
+      "negativeIcp": [
+        "Homeowners or end consumers",
+        "Generic public agencies outside energy-subsidy ops",
+        "Markets outside France for v1",
+        "AutoGTM default Public Agencies ICP"
+      ],
+      "gate": "Keep stopped until spend approve; autopilot/auto-reply OFF; UI-archive clones"
+    },
+    {
+      "prong": "B-owned-email",
+      "name": "wave@ FR CEE sequence (Will stub → Composio Zoho)",
+      "language": "fr-FR",
+      "geo": "France",
+      "role": "Same Meristem Marie Durand archetype — personal outbound",
+      "offer": "Same packet offer; owned mailbox wave@thoughtseed.space",
+      "problem": "Same packet problem framing",
+      "negativeIcp": [
+        "Homeowners or end consumers",
+        "Generic public agencies outside energy-subsidy ops",
+        "Markets outside France for v1",
+        "AutoGTM default Public Agencies ICP"
+      ],
+      "gate": "compileOwnedEmailWillDispatch liveSend=false until Will approve"
+    },
+    {
+      "prong": "C-linkedin",
+      "name": "LinkedIn FR connection + follow-up",
+      "language": "fr",
+      "geo": "France",
+      "role": "Délégataire / CEE ops managers",
+      "offer": "Short FR demo ask from Meristem frames",
+      "problem": "Late document gaps before dépôt",
+      "negativeIcp": [
+        "Homeowners or end consumers",
+        "Generic public agencies outside energy-subsidy ops",
+        "Markets outside France for v1",
+        "AutoGTM default Public Agencies ICP"
+      ],
+      "gate": "Drafts only from outreach-pack; no Explee write"
+    }
+  ],
+  "foldback": {
+    "telegramTopic": "clients",
+    "cortexNote": "Armed 159185 @ $10/day but lead_pool_exhausted (placeholder-only import). NEXT: upload FR CEE ICP leads in Explee UI; keep Meristem copy; do not restart clone ICPs; wave@ stays stub while auto-reply ON.",
+    "doNotReuseHistoricalStats": true,
+    "spendApprovedRequired": true
+  }
+}

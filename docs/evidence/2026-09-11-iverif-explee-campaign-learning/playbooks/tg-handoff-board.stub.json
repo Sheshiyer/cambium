@@ -1,0 +1,56 @@
+{
+  "schema": "cambium.sapling-gtm-tg-handoff.v1",
+  "saplingId": "sapling:iverif",
+  "compiledAt": "2026-09-11T20:10:19.078Z",
+  "chatId": "-1003942929819",
+  "role": "workflow-handoff-and-self-learning-board",
+  "hermesTransport": "Bot API sendMessage + message_thread_id on EC2",
+  "awsSafvrIsSendIdentity": false,
+  "cards": [
+    {
+      "cardId": "gtm-handoff-clients",
+      "kind": "workflow-handoff",
+      "topicKey": "clients",
+      "threadId": 9,
+      "topicName": "Clients",
+      "questId": "the-handoff",
+      "text": "GTM handoff · sapling:iverif\n\nWhat happened: Multi-prong pipeline active. Explee clean project 35674; Meristem wedge campaign 159185 (FR CEE — Délégataires & ops (Meristem)). Owned-email Will stub status=do_not_post liveSend=false.\nWhy surfacing: Clients topic is the primary delivery + workflow message board (quest the-handoff). Workflows hand off here via Hermes.\nRoute: TG clients:9 → Hermes → Cambium organs → prongs A-explee | B-owned-email | C-linkedin\nStatus: phase=full-flow-continuation→compose→observe; autopilotOff=true; autoReplyOff=false; spend=held\nProof boundary: brand=meristem/brands/iverif; no silent spend; safvr is admin CLI only\nNEXT: Review learning card on Agent Ops; archive clone ICPs; arm only after explicit approve",
+      "liveSend": false,
+      "transport": "hermes-bot-api"
+    },
+    {
+      "cardId": "gtm-learning-agent-ops",
+      "kind": "self-learning",
+      "topicKey": "agent_ops",
+      "threadId": 7,
+      "topicName": "Agent Ops",
+      "questId": "living-org",
+      "text": "Cortex learning · sapling:iverif\n\nWhat happened: Continuous learning receipt compiled from historical Explee + live GET. Rules: 1. 159185 armed $10/day but lead_pool_exhausted — upload FR ICP leads in UI | 2. Auto-reply ON → Explee owns replies; wave@ stub only | 3. Hands multi-prong drafts ready under .state/sapling-iverif/hands | 4. Continue continuous learning loop; do not reuse 16763\nWhy surfacing: Agent Ops is the self-learning / living-org board. Foldback informs next Intent without reusing polluted stats.\nRoute: Cortex learning → TG agent_ops:7 → next Hands compose from Meristem packet\nStatus: learning-receipt-ready; do_not_reuse_historical_stats=true\nProof boundary: shared/sapling-gtm-learning-loop.ts + CONTINUOUS-LEARNING-RECEIPT.json\nNEXT: Keep FR CEE Meristem wedge; fan packet to wave@ + LinkedIn; ban Public Agencies pattern",
+      "liveSend": false,
+      "transport": "hermes-bot-api"
+    },
+    {
+      "cardId": "gtm-activity-clients",
+      "kind": "delivery-activity",
+      "topicKey": "clients",
+      "threadId": 9,
+      "topicName": "Clients",
+      "questId": "the-handoff",
+      "text": "GTM activity lit · sapling:iverif\n\nWhat happened: Delivery surfaces lit for handoff: Explee 159185 (stopped/held), owned-email wave@ stub queued path, LinkedIn FR drafts from packet.\nWhy surfacing: Activity on this board is the operator-visible pulse between Bind/Route/Verify workflows and Will gates.\nRoute: Hands drafts → Will first-response (TG|MiniApp|FIFO) → optional arm → foldback here\nStatus: activity=lit; live_outbound=false\nProof boundary: owned-email-will-adapter liveSend=false; Explee Path A until spend approve\nNEXT: /ts-status or approve Will when ready to arm one prong",
+      "liveSend": false,
+      "transport": "hermes-bot-api"
+    },
+    {
+      "cardId": "gtm-hygiene-alerts",
+      "kind": "hygiene-alert",
+      "topicKey": "alerts",
+      "threadId": 8,
+      "topicName": "Alerts",
+      "questId": "the-ship-gate",
+      "text": "Lead pool · sapling:iverif\n\nWhat happened: Campaign 159185 is outreach/user_resume but status_reason=lead_pool_exhausted (placeholder lead only; 0 sends).\nWhy surfacing: Armed spend cannot deliver without FR CEE ICP leads. Import targeting is not API-editable.\nRoute: alerts:8 · the-ship-gate\nStatus: spend-armed; delivery-blocked-on-leads\nProof boundary: live-get-35674-post-arm.json + analytics leads_pool_total=0 pending=1\nNEXT: Upload FR délégataire/CEE ops leads in Explee UI for 159185 (or create list-based campaign with real ICP)",
+      "liveSend": false,
+      "transport": "hermes-bot-api"
+    }
+  ],
+  "consumePath": ".state/sapling-iverif/tg-handoff/board.json"
+}

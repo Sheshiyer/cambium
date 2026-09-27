@@ -1,0 +1,371 @@
+{
+  "schema": "cambium.iverif.outreach-pack.v1",
+  "createdAt": "2026-09-11T13:34:16.368605+00:00",
+  "market": {
+    "region": "FR",
+    "language": "fr-FR"
+  },
+  "posture": {
+    "send_ready_default": false,
+    "explee_mutation": false,
+    "do_not_post": true,
+    "channels": [
+      "linkedin_fr",
+      "email_manual"
+    ]
+  },
+  "pauseVerifyGet": {
+    "observedAt": "2026-09-11T13:32:39.988Z",
+    "operatorClaimedDone": true,
+    "apiAutoReplyEnabled": true,
+    "apiAutopilotEnabled": false,
+    "apiBudgetsStillPositive": [
+      {
+        "id": 45707,
+        "name": "Energy EPC Firms",
+        "status": "listening",
+        "reason": "user_pause",
+        "dailyBudget": 10,
+        "spend": 6.42,
+        "sent": 214,
+        "replies": 1
+      },
+      {
+        "id": 45709,
+        "name": "Energy Consultants",
+        "status": "listening",
+        "reason": "agent_stop",
+        "dailyBudget": 10,
+        "spend": 23.1,
+        "sent": 770,
+        "replies": 2
+      },
+      {
+        "id": 63001,
+        "name": "Public Agencies South",
+        "status": "listening",
+        "reason": "user_pause",
+        "dailyBudget": 10,
+        "spend": 1.32,
+        "sent": 44,
+        "replies": 0
+      },
+      {
+        "id": 45711,
+        "name": "Public Agencies",
+        "status": "listening",
+        "reason": "user_pause",
+        "dailyBudget": 9,
+        "spend": 88.02,
+        "sent": 2934,
+        "replies": 19
+      },
+      {
+        "id": 51190,
+        "name": "Research Funding Councils",
+        "status": "listening",
+        "reason": "agent_stop",
+        "dailyBudget": 4,
+        "spend": 9.81,
+        "sent": 327,
+        "replies": 2
+      },
+      {
+        "id": 56828,
+        "name": "Structural Fund Authorities",
+        "status": "listening",
+        "reason": "agent_stop",
+        "dailyBudget": 4,
+        "spend": 6.96,
+        "sent": 232,
+        "replies": 1
+      },
+      {
+        "id": 56316,
+        "name": "Grant-Making Foundations",
+        "status": "listening",
+        "reason": "agent_stop",
+        "dailyBudget": 3,
+        "spend": 8.61,
+        "sent": 287,
+        "replies": 5
+      },
+      {
+        "id": 60150,
+        "name": "Education Fund Administrators",
+        "status": "listening",
+        "reason": "agent_stop",
+        "dailyBudget": 2,
+        "spend": 0.81,
+        "sent": 27,
+        "replies": 0
+      },
+      {
+        "id": 52261,
+        "name": "Innovation Enterprise Agencies",
+        "status": "listening",
+        "reason": "agent_stop",
+        "dailyBudget": 1,
+        "spend": 2.61,
+        "sent": 87,
+        "replies": 0
+      }
+    ],
+    "driftNote": "Operator reported pause done; GET still showed auto_reply=true and budgets>0 at verify time. Re-check UI/API before any send."
+  },
+  "frames": {
+    "linkedin_connection_fr": "Bonjour {{prenom}}, je travaille sur la validation de dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit). Si vous g\u00e9rez un back-office d\u00e9l\u00e9gataire / ops, je serais preneur d\u2019un \u00e9change court.",
+    "linkedin_followup_fr": "Contexte: beaucoup d\u2019\u00e9quipes perdent du temps sur des incoh\u00e9rences de pi\u00e8ces d\u00e9couvertes trop tard. iverif.fr aide \u00e0 signaler les \u00e9carts avant d\u00e9p\u00f4t \u2014 sans se substituer \u00e0 l\u2019oblig\u00e9 / d\u00e9l\u00e9gataire. Seriez-vous ouvert \u00e0 une d\u00e9mo de 20 minutes sur un dossier type ?",
+    "email_subject_options": [
+      "Validation dossiers CEE avant d\u00e9p\u00f4t",
+      "Back-office Primes \u00c9nergie \u2014 contr\u00f4le inter-documents"
+    ],
+    "email_body_fr": "Bonjour {{prenom}},\n\nJe me permets de vous \u00e9crire au sujet du contr\u00f4le des dossiers d\u2019aides \u00e9nergie (CEE / Primes \u00c9nergie) avant d\u00e9p\u00f4t.\n\nBeaucoup de back-offices croisent 10 \u00e0 20 pi\u00e8ces par dossier; les \u00e9carts trouv\u00e9s trop tard co\u00fbtent cher et fragilisent la piste d\u2019audit.\n\niverif (iverif.fr) aide les op\u00e9rateurs \u00e0 valider pi\u00e8ces et champs contre des r\u00e8gles de programme, avec une trace horodat\u00e9e \u2014 sans transformer votre organisation en oblig\u00e9 ou d\u00e9l\u00e9gataire.\n\nSeriez-vous disponible pour une d\u00e9mo FR de 20 minutes sur un dossier type ?\n\nCordialement,\n{{signature}}",
+    "anti_patterns": [
+      "Do not lead with public-agency fraud prevention",
+      "No rejection-rate / 30-second / go-live SLA claims",
+      "No PNCEE endorsement",
+      "No Explee reply/send from this pack"
+    ]
+  },
+  "candidateCount": 6,
+  "candidates": [
+    {
+      "candidateId": "iverif-fr-out-01",
+      "personId": "40b873da-d4dc-4ea3-8a8b-5a74af73f7ea",
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "providerIntent": "hot_lead",
+      "sentCount": 3,
+      "replyCount": 2,
+      "latestReplyAt": "2026-07-17T09:44:06Z",
+      "canReply": false,
+      "replyBlockedReason": "mailbox_unavailable",
+      "messageMetaCount": 5,
+      "qualificationStatus": "dropped_with_old_project",
+      "send_ready": false,
+      "allowedChannels": [],
+      "forbiddenChannels": [
+        "explee_write",
+        "explee_post",
+        "auto_reply",
+        "linkedin_fr",
+        "email_manual"
+      ],
+      "drafts": {
+        "linkedin_connection_fr": "Bonjour {{prenom}}, je travaille sur la validation de dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit). Si vous g\u00e9rez un back-office d\u00e9l\u00e9gataire / ops, je serais preneur d\u2019un \u00e9change court.",
+        "linkedin_followup_fr": "Contexte: beaucoup d\u2019\u00e9quipes perdent du temps sur des incoh\u00e9rences de pi\u00e8ces d\u00e9couvertes trop tard. iverif.fr aide \u00e0 signaler les \u00e9carts avant d\u00e9p\u00f4t \u2014 sans se substituer \u00e0 l\u2019oblig\u00e9 / d\u00e9l\u00e9gataire. Seriez-vous ouvert \u00e0 une d\u00e9mo de 20 minutes sur un dossier type ?",
+        "email_subjects_fr": [
+          "Validation dossiers CEE avant d\u00e9p\u00f4t",
+          "Back-office Primes \u00c9nergie \u2014 contr\u00f4le inter-documents"
+        ],
+        "email_body_fr": "Bonjour {{prenom}},\n\nJe me permets de vous \u00e9crire au sujet du contr\u00f4le des dossiers d\u2019aides \u00e9nergie (CEE / Primes \u00c9nergie) avant d\u00e9p\u00f4t.\n\nBeaucoup de back-offices croisent 10 \u00e0 20 pi\u00e8ces par dossier; les \u00e9carts trouv\u00e9s trop tard co\u00fbtent cher et fragilisent la piste d\u2019audit.\n\niverif (iverif.fr) aide les op\u00e9rateurs \u00e0 valider pi\u00e8ces et champs contre des r\u00e8gles de programme, avec une trace horodat\u00e9e \u2014 sans transformer votre organisation en oblig\u00e9 ou d\u00e9l\u00e9gataire.\n\nSeriez-vous disponible pour une d\u00e9mo FR de 20 minutes sur un dossier type ?\n\nCordialement,\n{{signature}}"
+      },
+      "operatorChecklist": [
+        "Open personId in Explee UI and confirm real human interest (not OOO/mislabeled)",
+        "Confirm FR-relevant ICP (d\u00e9l\u00e9gataire/ops/CEE) \u2192 mark qualified_fr_operator",
+        "If wrong ICP \u2192 wrong_icp and do not send these drafts",
+        "Personalize {{prenom}} / {{signature}} outside git",
+        "Send only via LinkedIn FR or manual email \u2014 never Explee"
+      ]
+    },
+    {
+      "candidateId": "iverif-fr-out-02",
+      "personId": "0ae6da64-ff7a-47a3-92ec-7e8aa83edb00",
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "providerIntent": "hot_lead",
+      "sentCount": 3,
+      "replyCount": 2,
+      "latestReplyAt": "2026-07-17T06:17:06Z",
+      "canReply": true,
+      "replyBlockedReason": null,
+      "messageMetaCount": 5,
+      "qualificationStatus": "dropped_with_old_project",
+      "send_ready": false,
+      "allowedChannels": [],
+      "forbiddenChannels": [
+        "explee_write",
+        "explee_post",
+        "auto_reply",
+        "linkedin_fr",
+        "email_manual"
+      ],
+      "drafts": {
+        "linkedin_connection_fr": "Bonjour {{prenom}}, je travaille sur la validation de dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit). Si vous g\u00e9rez un back-office d\u00e9l\u00e9gataire / ops, je serais preneur d\u2019un \u00e9change court.",
+        "linkedin_followup_fr": "Contexte: beaucoup d\u2019\u00e9quipes perdent du temps sur des incoh\u00e9rences de pi\u00e8ces d\u00e9couvertes trop tard. iverif.fr aide \u00e0 signaler les \u00e9carts avant d\u00e9p\u00f4t \u2014 sans se substituer \u00e0 l\u2019oblig\u00e9 / d\u00e9l\u00e9gataire. Seriez-vous ouvert \u00e0 une d\u00e9mo de 20 minutes sur un dossier type ?",
+        "email_subjects_fr": [
+          "Validation dossiers CEE avant d\u00e9p\u00f4t",
+          "Back-office Primes \u00c9nergie \u2014 contr\u00f4le inter-documents"
+        ],
+        "email_body_fr": "Bonjour {{prenom}},\n\nJe me permets de vous \u00e9crire au sujet du contr\u00f4le des dossiers d\u2019aides \u00e9nergie (CEE / Primes \u00c9nergie) avant d\u00e9p\u00f4t.\n\nBeaucoup de back-offices croisent 10 \u00e0 20 pi\u00e8ces par dossier; les \u00e9carts trouv\u00e9s trop tard co\u00fbtent cher et fragilisent la piste d\u2019audit.\n\niverif (iverif.fr) aide les op\u00e9rateurs \u00e0 valider pi\u00e8ces et champs contre des r\u00e8gles de programme, avec une trace horodat\u00e9e \u2014 sans transformer votre organisation en oblig\u00e9 ou d\u00e9l\u00e9gataire.\n\nSeriez-vous disponible pour une d\u00e9mo FR de 20 minutes sur un dossier type ?\n\nCordialement,\n{{signature}}"
+      },
+      "operatorChecklist": [
+        "Open personId in Explee UI and confirm real human interest (not OOO/mislabeled)",
+        "Confirm FR-relevant ICP (d\u00e9l\u00e9gataire/ops/CEE) \u2192 mark qualified_fr_operator",
+        "If wrong ICP \u2192 wrong_icp and do not send these drafts",
+        "Personalize {{prenom}} / {{signature}} outside git",
+        "Send only via LinkedIn FR or manual email \u2014 never Explee"
+      ]
+    },
+    {
+      "candidateId": "iverif-fr-out-03",
+      "personId": "27f0b52c-005b-4a14-bfb7-334d72a60a65",
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "providerIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestReplyAt": "2026-07-09T15:33:59Z",
+      "canReply": true,
+      "replyBlockedReason": null,
+      "messageMetaCount": 3,
+      "qualificationStatus": "dropped_with_old_project",
+      "send_ready": false,
+      "allowedChannels": [],
+      "forbiddenChannels": [
+        "explee_write",
+        "explee_post",
+        "auto_reply",
+        "linkedin_fr",
+        "email_manual"
+      ],
+      "drafts": {
+        "linkedin_connection_fr": "Bonjour {{prenom}}, je travaille sur la validation de dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit). Si vous g\u00e9rez un back-office d\u00e9l\u00e9gataire / ops, je serais preneur d\u2019un \u00e9change court.",
+        "linkedin_followup_fr": "Contexte: beaucoup d\u2019\u00e9quipes perdent du temps sur des incoh\u00e9rences de pi\u00e8ces d\u00e9couvertes trop tard. iverif.fr aide \u00e0 signaler les \u00e9carts avant d\u00e9p\u00f4t \u2014 sans se substituer \u00e0 l\u2019oblig\u00e9 / d\u00e9l\u00e9gataire. Seriez-vous ouvert \u00e0 une d\u00e9mo de 20 minutes sur un dossier type ?",
+        "email_subjects_fr": [
+          "Validation dossiers CEE avant d\u00e9p\u00f4t",
+          "Back-office Primes \u00c9nergie \u2014 contr\u00f4le inter-documents"
+        ],
+        "email_body_fr": "Bonjour {{prenom}},\n\nJe me permets de vous \u00e9crire au sujet du contr\u00f4le des dossiers d\u2019aides \u00e9nergie (CEE / Primes \u00c9nergie) avant d\u00e9p\u00f4t.\n\nBeaucoup de back-offices croisent 10 \u00e0 20 pi\u00e8ces par dossier; les \u00e9carts trouv\u00e9s trop tard co\u00fbtent cher et fragilisent la piste d\u2019audit.\n\niverif (iverif.fr) aide les op\u00e9rateurs \u00e0 valider pi\u00e8ces et champs contre des r\u00e8gles de programme, avec une trace horodat\u00e9e \u2014 sans transformer votre organisation en oblig\u00e9 ou d\u00e9l\u00e9gataire.\n\nSeriez-vous disponible pour une d\u00e9mo FR de 20 minutes sur un dossier type ?\n\nCordialement,\n{{signature}}"
+      },
+      "operatorChecklist": [
+        "Open personId in Explee UI and confirm real human interest (not OOO/mislabeled)",
+        "Confirm FR-relevant ICP (d\u00e9l\u00e9gataire/ops/CEE) \u2192 mark qualified_fr_operator",
+        "If wrong ICP \u2192 wrong_icp and do not send these drafts",
+        "Personalize {{prenom}} / {{signature}} outside git",
+        "Send only via LinkedIn FR or manual email \u2014 never Explee"
+      ]
+    },
+    {
+      "candidateId": "iverif-fr-out-04",
+      "personId": "4d2abc82-9bc3-41c4-85a2-c5bbd6588f2b",
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "providerIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestReplyAt": "2026-07-07T12:40:56Z",
+      "canReply": false,
+      "replyBlockedReason": "mailbox_unavailable",
+      "messageMetaCount": 3,
+      "qualificationStatus": "dropped_with_old_project",
+      "send_ready": false,
+      "allowedChannels": [],
+      "forbiddenChannels": [
+        "explee_write",
+        "explee_post",
+        "auto_reply",
+        "linkedin_fr",
+        "email_manual"
+      ],
+      "drafts": {
+        "linkedin_connection_fr": "Bonjour {{prenom}}, je travaille sur la validation de dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit). Si vous g\u00e9rez un back-office d\u00e9l\u00e9gataire / ops, je serais preneur d\u2019un \u00e9change court.",
+        "linkedin_followup_fr": "Contexte: beaucoup d\u2019\u00e9quipes perdent du temps sur des incoh\u00e9rences de pi\u00e8ces d\u00e9couvertes trop tard. iverif.fr aide \u00e0 signaler les \u00e9carts avant d\u00e9p\u00f4t \u2014 sans se substituer \u00e0 l\u2019oblig\u00e9 / d\u00e9l\u00e9gataire. Seriez-vous ouvert \u00e0 une d\u00e9mo de 20 minutes sur un dossier type ?",
+        "email_subjects_fr": [
+          "Validation dossiers CEE avant d\u00e9p\u00f4t",
+          "Back-office Primes \u00c9nergie \u2014 contr\u00f4le inter-documents"
+        ],
+        "email_body_fr": "Bonjour {{prenom}},\n\nJe me permets de vous \u00e9crire au sujet du contr\u00f4le des dossiers d\u2019aides \u00e9nergie (CEE / Primes \u00c9nergie) avant d\u00e9p\u00f4t.\n\nBeaucoup de back-offices croisent 10 \u00e0 20 pi\u00e8ces par dossier; les \u00e9carts trouv\u00e9s trop tard co\u00fbtent cher et fragilisent la piste d\u2019audit.\n\niverif (iverif.fr) aide les op\u00e9rateurs \u00e0 valider pi\u00e8ces et champs contre des r\u00e8gles de programme, avec une trace horodat\u00e9e \u2014 sans transformer votre organisation en oblig\u00e9 ou d\u00e9l\u00e9gataire.\n\nSeriez-vous disponible pour une d\u00e9mo FR de 20 minutes sur un dossier type ?\n\nCordialement,\n{{signature}}"
+      },
+      "operatorChecklist": [
+        "Open personId in Explee UI and confirm real human interest (not OOO/mislabeled)",
+        "Confirm FR-relevant ICP (d\u00e9l\u00e9gataire/ops/CEE) \u2192 mark qualified_fr_operator",
+        "If wrong ICP \u2192 wrong_icp and do not send these drafts",
+        "Personalize {{prenom}} / {{signature}} outside git",
+        "Send only via LinkedIn FR or manual email \u2014 never Explee"
+      ]
+    },
+    {
+      "candidateId": "iverif-fr-out-05",
+      "personId": "c04b057b-82b4-40da-9d8e-e41da41f321a",
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "providerIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestReplyAt": "2026-06-25T09:12:42Z",
+      "canReply": true,
+      "replyBlockedReason": null,
+      "messageMetaCount": 3,
+      "qualificationStatus": "dropped_with_old_project",
+      "send_ready": false,
+      "allowedChannels": [],
+      "forbiddenChannels": [
+        "explee_write",
+        "explee_post",
+        "auto_reply",
+        "linkedin_fr",
+        "email_manual"
+      ],
+      "drafts": {
+        "linkedin_connection_fr": "Bonjour {{prenom}}, je travaille sur la validation de dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit). Si vous g\u00e9rez un back-office d\u00e9l\u00e9gataire / ops, je serais preneur d\u2019un \u00e9change court.",
+        "linkedin_followup_fr": "Contexte: beaucoup d\u2019\u00e9quipes perdent du temps sur des incoh\u00e9rences de pi\u00e8ces d\u00e9couvertes trop tard. iverif.fr aide \u00e0 signaler les \u00e9carts avant d\u00e9p\u00f4t \u2014 sans se substituer \u00e0 l\u2019oblig\u00e9 / d\u00e9l\u00e9gataire. Seriez-vous ouvert \u00e0 une d\u00e9mo de 20 minutes sur un dossier type ?",
+        "email_subjects_fr": [
+          "Validation dossiers CEE avant d\u00e9p\u00f4t",
+          "Back-office Primes \u00c9nergie \u2014 contr\u00f4le inter-documents"
+        ],
+        "email_body_fr": "Bonjour {{prenom}},\n\nJe me permets de vous \u00e9crire au sujet du contr\u00f4le des dossiers d\u2019aides \u00e9nergie (CEE / Primes \u00c9nergie) avant d\u00e9p\u00f4t.\n\nBeaucoup de back-offices croisent 10 \u00e0 20 pi\u00e8ces par dossier; les \u00e9carts trouv\u00e9s trop tard co\u00fbtent cher et fragilisent la piste d\u2019audit.\n\niverif (iverif.fr) aide les op\u00e9rateurs \u00e0 valider pi\u00e8ces et champs contre des r\u00e8gles de programme, avec une trace horodat\u00e9e \u2014 sans transformer votre organisation en oblig\u00e9 ou d\u00e9l\u00e9gataire.\n\nSeriez-vous disponible pour une d\u00e9mo FR de 20 minutes sur un dossier type ?\n\nCordialement,\n{{signature}}"
+      },
+      "operatorChecklist": [
+        "Open personId in Explee UI and confirm real human interest (not OOO/mislabeled)",
+        "Confirm FR-relevant ICP (d\u00e9l\u00e9gataire/ops/CEE) \u2192 mark qualified_fr_operator",
+        "If wrong ICP \u2192 wrong_icp and do not send these drafts",
+        "Personalize {{prenom}} / {{signature}} outside git",
+        "Send only via LinkedIn FR or manual email \u2014 never Explee"
+      ]
+    },
+    {
+      "candidateId": "iverif-fr-out-06",
+      "personId": "6b737f33-8c14-4751-a008-d75940f70cd6",
+      "campaignId": 45711,
+      "campaignName": "Public Agencies",
+      "providerIntent": "hot_lead",
+      "sentCount": 2,
+      "replyCount": 1,
+      "latestReplyAt": "2026-06-22T08:52:59Z",
+      "canReply": true,
+      "replyBlockedReason": null,
+      "messageMetaCount": 3,
+      "qualificationStatus": "dropped_with_old_project",
+      "send_ready": false,
+      "allowedChannels": [],
+      "forbiddenChannels": [
+        "explee_write",
+        "explee_post",
+        "auto_reply",
+        "linkedin_fr",
+        "email_manual"
+      ],
+      "drafts": {
+        "linkedin_connection_fr": "Bonjour {{prenom}}, je travaille sur la validation de dossiers CEE / Primes \u00c9nergie avant d\u00e9p\u00f4t (contr\u00f4les inter-documents + piste d\u2019audit). Si vous g\u00e9rez un back-office d\u00e9l\u00e9gataire / ops, je serais preneur d\u2019un \u00e9change court.",
+        "linkedin_followup_fr": "Contexte: beaucoup d\u2019\u00e9quipes perdent du temps sur des incoh\u00e9rences de pi\u00e8ces d\u00e9couvertes trop tard. iverif.fr aide \u00e0 signaler les \u00e9carts avant d\u00e9p\u00f4t \u2014 sans se substituer \u00e0 l\u2019oblig\u00e9 / d\u00e9l\u00e9gataire. Seriez-vous ouvert \u00e0 une d\u00e9mo de 20 minutes sur un dossier type ?",
+        "email_subjects_fr": [
+          "Validation dossiers CEE avant d\u00e9p\u00f4t",
+          "Back-office Primes \u00c9nergie \u2014 contr\u00f4le inter-documents"
+        ],
+        "email_body_fr": "Bonjour {{prenom}},\n\nJe me permets de vous \u00e9crire au sujet du contr\u00f4le des dossiers d\u2019aides \u00e9nergie (CEE / Primes \u00c9nergie) avant d\u00e9p\u00f4t.\n\nBeaucoup de back-offices croisent 10 \u00e0 20 pi\u00e8ces par dossier; les \u00e9carts trouv\u00e9s trop tard co\u00fbtent cher et fragilisent la piste d\u2019audit.\n\niverif (iverif.fr) aide les op\u00e9rateurs \u00e0 valider pi\u00e8ces et champs contre des r\u00e8gles de programme, avec une trace horodat\u00e9e \u2014 sans transformer votre organisation en oblig\u00e9 ou d\u00e9l\u00e9gataire.\n\nSeriez-vous disponible pour une d\u00e9mo FR de 20 minutes sur un dossier type ?\n\nCordialement,\n{{signature}}"
+      },
+      "operatorChecklist": [
+        "Open personId in Explee UI and confirm real human interest (not OOO/mislabeled)",
+        "Confirm FR-relevant ICP (d\u00e9l\u00e9gataire/ops/CEE) \u2192 mark qualified_fr_operator",
+        "If wrong ICP \u2192 wrong_icp and do not send these drafts",
+        "Personalize {{prenom}} / {{signature}} outside git",
+        "Send only via LinkedIn FR or manual email \u2014 never Explee"
+      ]
+    }
+  ],
+  "status": "archived_do_not_send",
+  "archivedAt": "2026-09-11T13:36:22.452002+00:00",
+  "archiveReason": "Old Explee project 16763 retired; hot queue dropped; fresh project required"
+}

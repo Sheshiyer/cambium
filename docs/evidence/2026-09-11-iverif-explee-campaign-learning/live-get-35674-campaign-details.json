@@ -1,0 +1,71 @@
+{
+  "observedAt": "2026-09-11T14:21:30.165Z",
+  "details": [
+    {
+      "http": 200,
+      "id": 159032,
+      "name": "Energy EPC Firms",
+      "status": "listening",
+      "language": "auto",
+      "role": "",
+      "offer": "Validate project dossiers, catch missing proofs, and reduce submission rejections",
+      "problem": "",
+      "daily_limit_usd": 10
+    },
+    {
+      "http": 200,
+      "id": 159033,
+      "name": "Subsidy Aggregators",
+      "status": "listening",
+      "language": "auto",
+      "role": "",
+      "offer": "Screen high volumes, standardize claim files, and flag incomplete dossiers",
+      "problem": "",
+      "daily_limit_usd": 10
+    },
+    {
+      "http": 200,
+      "id": 159034,
+      "name": "Energy Consultants",
+      "status": "listening",
+      "language": "auto",
+      "role": "",
+      "offer": "Audit client documents, verify eligibility evidence, and strengthen approval rates",
+      "problem": "",
+      "daily_limit_usd": 10
+    },
+    {
+      "http": 200,
+      "id": 159035,
+      "name": "Utility Providers",
+      "status": "listening",
+      "language": "auto",
+      "role": "",
+      "offer": "Check customer files, validate program rules, and speed grant processing",
+      "problem": "",
+      "daily_limit_usd": 10
+    },
+    {
+      "http": 200,
+      "id": 159036,
+      "name": "FR CEE — Délégataires & ops (Meristem)",
+      "status": "listening",
+      "language": "fr",
+      "role": "",
+      "offer": "Validation documentaire IA pour dossiers CEE / Primes Énergie avant dépôt (contrôles inter-documents + piste d’audit) — ",
+      "problem": "",
+      "daily_limit_usd": 10
+    },
+    {
+      "http": 200,
+      "id": 159037,
+      "name": "Energy Lenders",
+      "status": "listening",
+      "language": "auto",
+      "role": "",
+      "offer": "Verify financing files, confirm grant eligibility, and avoid deal delays",
+      "problem": "",
+      "daily_limit_usd": 10
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "observedAt": "2026-09-11T13:46:37.056Z",
+  "projectId": 35674,
+  "mutation": "PATCH /projects/{id}/autopilot",
+  "authorizedBy": "operator",
+  "request": {
+    "autopilot_enabled": false,
+    "auto_reply_enabled": false
+  },
+  "before": {
+    "autopilot_enabled": true,
+    "auto_reply_enabled": true,
+    "auto_reply_delay_minutes": 1440
+  },
+  "patchStatus": 200,
+  "after": {
+    "autopilot_enabled": false,
+    "auto_reply_enabled": false,
+    "auto_reply_delay_minutes": 1440
+  }
+}

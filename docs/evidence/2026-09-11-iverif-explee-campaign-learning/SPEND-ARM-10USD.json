@@ -1,0 +1,45 @@
+{
+  "observedAt": "2026-09-11T14:47:26.009Z",
+  "operatorApproved": {
+    "spendUsdPerDay": 10,
+    "startCampaignId": 159185,
+    "autoReplyOn": true,
+    "autopilotOn": false
+  },
+  "project": {
+    "id": 35674,
+    "domain": "iverif.fr",
+    "budget": {
+      "project_id": 35674,
+      "daily_budget_usd": 10
+    },
+    "autopilot": {
+      "project_id": 35674,
+      "autopilot_enabled": false,
+      "auto_reply_enabled": true,
+      "auto_reply_delay_minutes": 1440,
+      "reply_cc_emails": [
+        "sheshnarayan.iyer@gmail.com"
+      ]
+    }
+  },
+  "campaign": {
+    "id": 159185,
+    "name": "FR CEE — Délégataires & ops (Meristem)",
+    "status": "outreach",
+    "status_reason": "user_resume",
+    "language": "fr",
+    "daily_limit_usd": 10,
+    "offer": "Validation documentaire IA pour dossiers CEE / Primes Énergie avant dépôt (contrôles inter-documents + piste d’audit) — iverif.fr",
+    "target_role": "Operations / back-office managers in French délégataires and energy-subsidy operators (Marie Durand archetype)"
+  },
+  "allCampaigns": [
+    {
+      "id": 159185,
+      "name": "FR CEE — Délégataires & ops (Meristem)",
+      "status": "outreach",
+      "status_reason": null
+    }
+  ],
+  "oneWriterNote": "Operator chose Explee auto-reply ON — Explee owns inbound replies while armed; Cambium Will must not double-send."
+}
