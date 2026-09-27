@@ -17,8 +17,14 @@ const CONTRACTS = [
 ] as const;
 
 test('vendored platform-playbook contracts match reviewed canonical SHA-256 pins', () => {
-  for (const contract of CONTRACTS) {
+  const provenance = JSON.parse(readFileSync(new URL('../../../docs/adapters/platform-playbook-contract-provenance.v1.json', import.meta.url), 'utf8'));
+  assert.equal(provenance.sourceRepository, 'Sheshiyer/hermes-aws-ts');
+  assert.equal(provenance.sourceCommit, '9865f716995790dd22e1366051483e7594b825ec');
+  assert.equal(provenance.records.length, CONTRACTS.length);
+  for (const [index, contract] of CONTRACTS.entries()) {
     const vendor = readFileSync(contract.vendor);
+    assert.equal(provenance.records[index].sha256, contract.sha256);
+    assert.equal(provenance.records[index].bytes, vendor.length);
     assert.equal(createHash('sha256').update(vendor).digest('hex'), contract.sha256);
   }
 });

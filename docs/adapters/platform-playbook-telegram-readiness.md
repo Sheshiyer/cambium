@@ -30,3 +30,7 @@ node --test workers/quests/src/platform-playbook-telegram-readiness.test.ts
 ```
 
 The deterministic tests cover missing/invalid/expired approval, strict topic/thread routing, next-action requirement, secret-shaped input rejection, message size limit, body-redacted receipts, and transport denial.
+
+## Portable contract provenance
+
+The vendored readiness and consent JSON bytes are bound to reviewed SHA-256 pins and the committed Hermes source receipt in `platform-playbook-contract-provenance.v1.json`. Standalone tests require no sibling checkout. A future explicitly scoped owner readback may compare a new canonical revision; these pins do not claim current live transport state.
