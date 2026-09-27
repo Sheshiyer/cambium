@@ -75,7 +75,7 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 | 6. Documentation Stewardship | v0.4 | 4/4 | Complete | 2026-08-20 |
 | 7. Deterministic Safety and Handoff | v0.4 | 3/3 | Verified | 2026-08-22 |
 | 8. Labs Authority and Profile Safety | v0.5 | 1/1 | Verified | 2026-08-31 |
-| 9. Source Inventory and Classification | v0.5 | 0/0 | Held | — |
+| 9. Source Inventory and Classification | v0.5 | 0/1 | Planned; authenticated inventory held | — |
 | 10. Allowlisted Reconciliation and Retirement | v0.5 | 0/0 | Held | — |
 
 ## Next

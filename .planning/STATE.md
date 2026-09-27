@@ -9,7 +9,7 @@ last_activity: 2026-09-27 — Local branch reconciliation and deterministic sour
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 1
+  total_plans: 2
   completed_plans: 1
   percent: 33
 ---

@@ -1016,7 +1016,7 @@ test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent gated 
   assert.match(frontmatter, /^stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain$/m);
   assert.match(frontmatter, /^\s+total_phases: 3$/m);
   assert.match(frontmatter, /^\s+completed_phases: 1$/m);
-  assert.match(frontmatter, /^\s+total_plans: 1$/m);
+  assert.match(frontmatter, /^\s+total_plans: 2$/m);
   assert.match(frontmatter, /^\s+completed_plans: 1$/m);
   assert.match(frontmatter, /^\s+percent: 33$/m);
 
@@ -1078,7 +1078,7 @@ test('Labs consolidation planning keeps production and legacy authority separate
   assert.match(state, /^milestone: v0\.5$/m);
   assert.match(state, /^status: Active$/m);
   assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
-  assert.match(state, /^Plan: Not planned$/m);
+  assert.match(state, /^Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed$/m);
   assert.match(roadmap, /^- 🚧 \*\*v0\.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement\*\* — Phases 8–10 active$/m);
   assert.match(roadmap, /^- \[x\] \*\*Phase 8: Labs Authority and Profile Safety\*\*/m);
 
