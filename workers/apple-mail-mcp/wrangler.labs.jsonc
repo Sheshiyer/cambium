@@ -1,0 +1,18 @@
+{
+  "name": "apple-mail-mcp-gateway",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-20",
+  "workers_dev": true,
+  "account_id": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+  "observability": { "enabled": true },
+  "routes": [
+    {
+      "pattern": "mail-mcp.thoughtseed.space",
+      "custom_domain": true
+    }
+  ],
+  "vars": {
+    "ORIGIN_URL": "https://mail-mcp-origin.thoughtseed.space"
+  }
+  // MCP_BEARER and ORIGIN_SECRET are Worker secrets, never vars.
+}
