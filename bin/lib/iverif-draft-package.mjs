@@ -114,7 +114,8 @@ function isTableRule(cells) {
 }
 
 function isTableHeader(cells) {
-  return cells.some((cell) => /^(?:id|finding|observation|meaning|evidence|source|limits?|limitations?|class|status|provenance)$/i.test(cell));
+  return /^(?:id|class)$/i.test(cells[0] || '')
+    && cells.slice(1).some((cell) => /^(?:finding|observation|meaning|evidence|source|limits?|limitations?|status|provenance)$/i.test(cell));
 }
 
 function firstMetadataValue(metadata, keys) {
@@ -323,7 +324,8 @@ function escapeMarkupText(value) {
 }
 
 function encodeReceiptForMarkup(receipt) {
-  return encodeURIComponent(JSON.stringify(receipt) || 'null').replaceAll('-', '%2D');
+  return encodeURIComponent(JSON.stringify(receipt) || 'null')
+    .replace(/[!'()*-]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
 }
 
 function buildLandingHtml({ frCopy, receipt }) {
