@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thoughtseed.local/schemas/growth-index.v1.json",
+  "title": "Thoughtseed growth index",
+  "description": "Read-only, generated snapshot of the thoughtseed-labs 20-operations/growth vault: department cell frontmatter, desk inboxes, the X/LinkedIn case-study calendar, and HITL gate tables from the lane1/lane6 research notes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "generatedAt", "sourceRoot", "departments", "calendar", "gates"],
+  "properties": {
+    "schema": {
+      "const": "thoughtseed.growth-index.v1"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceRoot": {
+      "type": "string",
+      "description": "Absolute path to the growth vault folder that was read to build this index."
+    },
+    "laneSources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lane1": { "type": ["string", "null"] },
+        "lane6": { "type": ["string", "null"] }
+      }
+    },
+    "departments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/department" }
+    },
+    "calendar": { "$ref": "#/$defs/calendar" },
+    "gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate" }
+    }
+  },
+  "$defs": {
+    "department": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "cells", "inbox"],
+      "properties": {
+        "id": { "type": "string", "description": "Desk folder name, e.g. 02-copywriter" },
+        "role": { "type": ["string", "null"] },
+        "path": { "type": "string" },
+        "cells": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/cell" }
+        },
+        "inbox": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/inboxItem" }
+        }
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["path", "frontmatter"],
+      "properties": {
+        "path": { "type": "string" },
+        "frontmatter": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": { "type": "string" },
+            "role": { "type": "string" },
+            "cell": { "type": "string" },
+            "kind": { "type": "string" },
+            "organ": { "type": "string" },
+            "will_desk": { "type": "string" },
+            "pack": { "type": "string" },
+            "status": { "type": "string" },
+            "lane": { "type": "string" },
+            "krebs_role": { "type": "string" },
+            "inference_binding": { "type": "string" },
+            "public": { "type": "string" }
+          }
+        }
+      }
+    },
+    "inboxItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["date", "raw"],
+      "properties": {
+        "date": { "type": "string" },
+        "cell": { "type": ["string", "null"] },
+        "score": { "type": ["integer", "null"] },
+        "src": { "type": ["string", "null"] },
+        "status": { "type": ["string", "null"] },
+        "quote": { "type": ["string", "null"] },
+        "note": { "type": ["string", "null"] },
+        "raw": { "type": "string" }
+      }
+    },
+    "calendar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "frontmatter", "rows"],
+      "properties": {
+        "path": { "type": "string" },
+        "frontmatter": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "rows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/calendarRow" }
+        }
+      }
+    },
+    "calendarRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["week", "date", "channel", "windowIst", "format", "job", "status", "composioJobId", "permalink"],
+      "properties": {
+        "week": { "type": ["integer", "null"] },
+        "date": { "type": "string" },
+        "day": { "type": ["string", "null"] },
+        "channel": { "type": "string" },
+        "windowIst": { "type": "string" },
+        "format": { "type": "string" },
+        "job": { "type": "string" },
+        "status": { "type": "string" },
+        "composioJobId": { "type": "string" },
+        "permalink": { "type": "string" }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["source", "category", "id", "fields"],
+      "properties": {
+        "source": { "type": "string", "enum": ["lane1", "lane6"] },
+        "category": { "type": "string" },
+        "id": { "type": ["string", "null"] },
+        "fields": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}

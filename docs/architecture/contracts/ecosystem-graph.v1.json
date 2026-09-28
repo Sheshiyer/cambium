@@ -1,0 +1,78 @@
+{
+  "schema": "thoughtseed.ecosystem-graph.v1",
+  "authority": "proposal-only",
+  "generated": "2026-09-28",
+  "source": [
+    "scratchpad/lane5-ecosystem.md (node/edge sketch)",
+    "scratchpad/lane2-hermes.md",
+    "scratchpad/lane3-surfaces.md"
+  ],
+  "findings": [
+    {
+      "id": "skill-clusters-name-mismatch",
+      "summary": "cambium/registry.json and other registries refer to the hands/taste organ directory as \"Skill-clusters\" while the actual folder on disk is lowercase \"skill-clusters\" (lane5: 'No git at folder level ... skill-clusters (thoughtseed/skill-clusters, and registry says dir \"Skill-clusters\")'). Flagged here only; no registry file was modified by this task.",
+      "action": "none-registries-not-modified"
+    },
+    {
+      "id": "thoughtseed-hermes-identity-stale",
+      "summary": "The thoughtseed-hermes repo's PROJECT.md identifies it as the retired Paperclip plane (program:paperclip-retired), not the live Hermes runtime -- the name is misleading. The live Hermes runtime is hermes-aws-ts (lane2-hermes.md section 1).",
+      "action": "none-registries-not-modified"
+    },
+    {
+      "id": "cortex-organ-duplicated",
+      "summary": "The cortex organ is registered twice: cambium/registry.json lists it as taste-nim + brandmint DESIGN_MEMORY_WORKER, while the live implementation is cambium/workers/cortex-mcp (hosted Nemotron-3 per commit c464355). Lane5 notes \"I3 unifies\" as an open reconciliation item.",
+      "action": "none-registries-not-modified"
+    },
+    {
+      "id": "plexus-session-atlas-edge-unverified",
+      "summary": "The lane5 sketch marks the plexus-ts -> session-atlas edge with a trailing \"?\" as explicitly unverified. Carried into this graph as evidence:doc-inferred, confidence:low.",
+      "action": "none-registries-not-modified"
+    },
+    {
+      "id": "no-prior-machine-readable-edge-registry",
+      "summary": "Per lane5 gaps: no machine-readable cross-repo edge list existed before this file; DEPENDENCY-GRAPH.md only covers intra-repo apps/workers->shared edges and SERVICES.md is empty. This graph is a first proposal-only pass, not a replacement registry.",
+      "action": "none-registries-not-modified"
+    }
+  ],
+  "nodes": [
+    { "id": "cambium", "kind": "sapling", "status": "active", "last": "2026-09-28", "repo": "Sheshiyer/cambium", "localDir": "cambium" },
+    { "id": "meristem", "kind": "organ:genesis", "status": "active", "last": "2026-09-28", "localDir": "meristem" },
+    { "id": "skill-clusters", "kind": "organ:hands+taste", "status": "unknown-nogit", "localDir": "skill-clusters", "notes": "No git at folder level; see finding skill-clusters-name-mismatch for the casing discrepancy vs registry.json." },
+    { "id": "snow-gloves-os", "kind": "organ:will", "status": "unknown", "localDir": "snow-gloves-os" },
+    { "id": "cortex", "kind": "organ:cortex+plane", "status": "active", "notes": "Live implementation lives inside cambium at workers/cortex-mcp; see finding cortex-organ-duplicated." },
+    { "id": "plexus-ts", "kind": "program", "status": "cooling", "last": "2026-08-11", "localDir": "plexus-ts" },
+    { "id": "hermes-aws-ts", "kind": "program", "status": "recent", "last": "2026-09-03", "localDir": "hermes-aws-ts" },
+    { "id": "thoughtseed-hermes", "kind": "program", "status": "unknown-nogit", "localDir": "thoughtseed-hermes", "notes": "Retired Paperclip plane; see finding thoughtseed-hermes-identity-stale." },
+    { "id": "omniroute-governed", "kind": "gateway+plane", "status": "dormant", "last": "2026-07-29", "localDir": "omniroute-governed" },
+    { "id": "session-atlas", "kind": "program", "status": "cooling", "last": "2026-08-09", "localDir": "session-atlas" },
+    { "id": "thoughtseed-labs", "kind": "vault+plane", "status": "active", "last": "2026-09-27", "localDir": "thoughtseed-labs" },
+    { "id": "curious-gate", "kind": "plane", "status": "unknown", "host": "curious.thoughtseed.space", "notes": "Cloudflare Worker cambium-quests; not an independent git checkout, deployed from cambium/workers/quests." },
+    { "id": "autosocial", "kind": "tool", "status": "dormant", "last": "2026-06-10", "localDir": "autosocial" },
+    { "id": "iverif", "kind": "sapling", "status": "recent", "last": "2026-09-11", "localDir": "iverif" },
+    { "id": "safvr", "kind": "client", "status": "dormant", "last": "2026-06-04", "localDir": "safvr/Landingpage2.0", "notes": "safvr root has no git; the nested Landingpage2.0 checkout does (lane5)." },
+    { "id": "agent-sessions", "kind": "data-source", "status": "unknown", "notes": "Local ~/.codex, ~/.claude, command-code session/rollout directories read by session-atlas (lane5 registries table)." },
+    { "id": "manifest-bridge", "kind": "plane", "status": "unknown", "host": "localhost", "port": 8766, "notes": "Bun/TS VAS service under ~/.temperance_engine (lane3); out of scope for this repo's liveness git probe, port-only check." },
+    { "id": "pulse-compat", "kind": "plane", "status": "unknown", "host": "localhost", "port": 31337, "notes": "Athanor/Pulse-compat notify service (lane3); port-only check, forward not wired." },
+    { "id": "omniroute-local", "kind": "gateway+plane", "status": "unknown", "host": "localhost", "port": 20128, "notes": "Locally running OmniRoute instance observed in lane3; relationship to the omniroute-governed repo checkout is not confirmed (see edges)." }
+  ],
+  "edges": [
+    { "from": "cambium", "kind": "depends", "to": "meristem", "evidence": "code-verified", "confidence": "high", "source": "cambium/registry.json (organ registry v0.1.0, contract_requires/produces)" },
+    { "from": "cambium", "kind": "depends", "to": "skill-clusters", "evidence": "code-verified", "confidence": "high", "source": "cambium/registry.json (organ registry v0.1.0, contract_requires/produces)" },
+    { "from": "cambium", "kind": "depends", "to": "snow-gloves-os", "evidence": "code-verified", "confidence": "high", "source": "cambium/registry.json (organ registry v0.1.0, contract_requires/produces)" },
+    { "from": "cambium", "kind": "depends", "to": "cortex", "evidence": "code-verified", "confidence": "high", "source": "cambium/registry.json (organ registry v0.1.0, contract_requires/produces); cambium/workers/cortex-mcp" },
+    { "from": "cambium", "kind": "deploys", "to": "curious-gate", "evidence": "code-verified", "confidence": "high", "source": "cambium/docs/architecture/contracts/cambium-cloudflare-resource-map.v1.json; workers/quests/wrangler.labs.jsonc" },
+    { "from": "curious-gate", "kind": "depends", "to": "hermes-aws-ts", "evidence": "code-verified", "confidence": "medium", "source": "cambium-cloudflare-resource-map.v1.json Access app HERMES_RUNNER_API /v1/bridge/*" },
+    { "from": "hermes-aws-ts", "kind": "reads", "to": "thoughtseed-labs", "evidence": "code-verified", "confidence": "medium", "source": "lane2-hermes.md section 2: hermes-vault-sync, hermes-vault-writeback, hermes-obsidian-access-proxy systemd units" },
+    { "from": "plexus-ts", "kind": "writes", "to": "hermes-aws-ts", "evidence": "doc-inferred", "confidence": "medium", "source": "lane5-ecosystem.md entity graph narrative (member-scoped bridge to Hermes)" },
+    { "from": "plexus-ts", "kind": "reads", "to": "session-atlas", "evidence": "doc-inferred", "confidence": "low", "source": "lane5-ecosystem.md sketch edge marked \"session-atlas?\" (explicitly unverified)" },
+    { "from": "session-atlas", "kind": "reads", "to": "agent-sessions", "evidence": "code-verified", "confidence": "high", "source": "session-atlas/config/sources.v1.json (session-atlas.sources.v1 registry)" },
+    { "from": "omniroute-governed", "kind": "routes", "to": "cambium", "evidence": "doc-inferred", "confidence": "low", "source": "lane5-ecosystem.md entity graph narrative (fork of OmniRoute gateway)" },
+    { "from": "omniroute-governed", "kind": "routes", "to": "hermes-aws-ts", "evidence": "doc-inferred", "confidence": "low", "source": "lane5-ecosystem.md entity graph narrative" },
+    { "from": "cambium", "kind": "reads", "to": "thoughtseed-labs", "evidence": "code-verified", "confidence": "medium", "source": "cambium/CLAUDE.md knowledge_ref 00-meta/entity-registry.md" },
+    { "from": "thoughtseed-hermes", "kind": "depends", "to": "curious-gate", "evidence": "doc-inferred", "confidence": "low", "source": "lane5-ecosystem.md entity graph narrative (contains cambium-bridge/)" },
+    { "from": "iverif", "kind": "depends", "to": "meristem", "evidence": "doc-inferred", "confidence": "low", "source": "lane5-ecosystem.md sketch, explicitly marked (inferred)" },
+    { "from": "manifest-bridge", "kind": "reads", "to": "cambium", "evidence": "code-verified", "confidence": "medium", "source": "lane3-surfaces.md manifest-bridge row (reads hooks, planning files, routing, portfolio, cockpit-handoff); TE/manifest-bridge src/server.ts" },
+    { "from": "omniroute-local", "kind": "routes", "to": "cambium", "evidence": "doc-inferred", "confidence": "low", "source": "lane3-surfaces.md OmniRoute :20128 row; repo identity behind the running instance not confirmed" },
+    { "from": "pulse-compat", "kind": "notifies", "to": "cambium", "evidence": "doc-inferred", "confidence": "low", "source": "lane3-surfaces.md Athanor/Pulse-compat row (\"lastForward false\", forward not wired)" }
+  ]
+}
