@@ -1,6 +1,22 @@
 # Project handoff
 
-### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
+
+### 2026-09-29 Cross-worktree reconciliation, GH issue triage, and diagram fix — verified checkpoint
+
+- Full audit of four active worktrees (`hermes-stage3-readiness`, `cambium-stage3-readiness`, `cambium-website-intake-20260924`, `cambium-website-semantics`) confirmed all are clean with no uncommitted changes.
+- `codex/reconcile-cambium-20260927` had 19 commits NOT in main. These were pushed to origin and PR [#380](https://github.com/Sheshiyer/cambium/pull/380) opened against cambium main. The branch adds: messaging consent readiness gates, Plexus WorkObject reference validation (closes #371), Temperance learning authority docs, 7 checkpoint preservation commits, and 7 fix/docs reconciliation commits.
+- `codex/reconcile-cambium-reviewed-20260927` pushed to origin (1 additional reviewed integration commit).
+- `codex/website-intake-cambium-20260924` has 1 checkpoint commit not in main — held pending PR decision.
+- `codex/hermes-stage3-readiness` (ISA 100% complete, 157/157) pushed; PR [#160](https://github.com/Sheshiyer/hermes-aws-ts/pull/160) opened against hermes-aws-ts main.
+- GH issues #353 and #354 (GSD Phases 01 and 02) closed — both phases are ✅ Complete in ROADMAP since 2026-07-17.
+- GH issue #371 updated with ISA evidence; will close when PR #380 merges.
+- GH issue #377 updated with concrete dual-wrangler guard plan (human handoff; deploy-account risk).
+- Architecture diagram `docs/diagrams/thoughtseed-hermes-cloudflare-architecture.html` fixed: all Paperclip live-runtime labels updated to Hermes/Temperance with provenance notes (commit `0db9258`). Closes #368.
+- Cambium planning STATE still at Phase 9 active; Phase 9 R2 inventory requires separate owner authorization before execution.
+- Website semantics showcase (5-chapter scroll world) is locally implemented; deploy gate is a separate owner-approval decision.
+- No Cloudflare write, D1 mutation, credential read, deployment, or external-state mutation was performed.
+
+
 
 - The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.
 - The contract explicitly records current non-claims: production candidate generation, accepted-result lineage, unbiased replay, utility-ranked live combo writes, projection purity, a durable board, and a live Hermes learning loop remain unproved.
