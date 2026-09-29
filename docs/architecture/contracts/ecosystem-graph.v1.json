@@ -46,7 +46,7 @@
     { "id": "omniroute-governed", "kind": "gateway+plane", "status": "dormant", "last": "2026-07-29", "localDir": "omniroute-governed" },
     { "id": "session-atlas", "kind": "program", "status": "cooling", "last": "2026-08-09", "localDir": "session-atlas" },
     { "id": "thoughtseed-labs", "kind": "vault+plane", "status": "active", "last": "2026-09-27", "localDir": "thoughtseed-labs" },
-    { "id": "curious-gate", "kind": "plane", "status": "unknown", "host": "curious.thoughtseed.space", "notes": "Cloudflare Worker cambium-quests; not an independent git checkout, deployed from cambium/workers/quests." },
+    { "id": "curious-gate", "kind": "plane", "status": "unknown", "host": "ref:cambium-cloudflare-resource-map.v1.json", "notes": "Cloudflare Worker cambium-quests (hostname lives only in the resource map); not an independent git checkout, deployed from cambium/workers/quests." },
     { "id": "autosocial", "kind": "tool", "status": "dormant", "last": "2026-06-10", "localDir": "autosocial" },
     { "id": "iverif", "kind": "sapling", "status": "recent", "last": "2026-09-11", "localDir": "iverif" },
     { "id": "safvr", "kind": "client", "status": "dormant", "last": "2026-06-04", "localDir": "safvr/Landingpage2.0", "notes": "safvr root has no git; the nested Landingpage2.0 checkout does (lane5)." },
