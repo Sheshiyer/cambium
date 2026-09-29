@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "thoughtseed.ecosystem-graph.v1",
+  "title": "Thoughtseed Ecosystem Graph V1",
+  "description": "Proposal-only, read-only projection of Thoughtseed/Cambium repos, organs, and data planes with evidence-graded edges. Not a runtime dependency; not an authority for deploy, routing, or identity decisions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "authority", "generated", "source", "nodes", "edges"],
+  "properties": {
+    "schema": { "const": "thoughtseed.ecosystem-graph.v1" },
+    "authority": {
+      "const": "proposal-only",
+      "description": "This graph is a proposal/sketch, not a registry of record. It never gates deploys, routing, or identity."
+    },
+    "generated": { "$ref": "#/$defs/date" },
+    "source": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1, "maxLength": 256 },
+      "description": "Names of the background-research documents this graph was seeded from."
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" },
+      "description": "Notable discrepancies or gaps surfaced while assembling the graph. Informational only; does not authorize fixing the underlying registries."
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/node" },
+      "description": "Node `id` values must be unique; enforced by the validator script as a semantic check since JSON Schema has no portable keyword for uniqueness across an object property."
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9:+_-]*$"
+    },
+    "status": {
+      "enum": [
+        "active",
+        "recent",
+        "cooling",
+        "dormant",
+        "unknown",
+        "unknown-nogit",
+        "running-per-snapshot"
+      ]
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "kind": { "$ref": "#/$defs/kind" },
+        "status": { "$ref": "#/$defs/status" },
+        "last": { "$ref": "#/$defs/date" },
+        "repo": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "localDir": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Directory name relative to the ecosystem root, used only by the read-only liveness probe for `git log -1`. Omitted for nodes that are not their own git checkout (workers, data planes, ports)."
+        },
+        "host": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "notes": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      }
+    },
+    "edgeEvidence": {
+      "enum": ["doc-inferred", "code-verified"],
+      "description": "code-verified: backed by a concrete artifact cited in the research lanes (registry.json, adapters.json, a Cloudflare resource map, a named source file, a systemd unit file). doc-inferred: inferred from prose/narrative description only, or explicitly marked unverified in the source sketch."
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "kind", "to", "evidence", "confidence"],
+      "properties": {
+        "from": { "$ref": "#/$defs/identifier" },
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Verb describing the edge, e.g. depends, deploys, reads, writes, routes."
+        },
+        "to": { "$ref": "#/$defs/identifier" },
+        "evidence": { "$ref": "#/$defs/edgeEvidence" },
+        "confidence": { "enum": ["low", "medium", "high"] },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "The specific artifact or lane note this edge is graded from."
+        },
+        "notes": { "type": "string", "minLength": 1, "maxLength": 512 }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "summary"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "action": {
+          "const": "none-registries-not-modified",
+          "description": "Every finding here is informational; this contract never edits registry.json, adapters.json, or portfolio-map.v1.json."
+        }
+      }
+    }
+  }
+}
