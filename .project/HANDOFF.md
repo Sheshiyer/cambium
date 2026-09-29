@@ -1,5 +1,11 @@
 # Project handoff
 
+### 2026-09-29 Project-link v1 authority validator — source candidate
+
+- Added the canonical `thoughtseed.project-link.v1` runtime validator and focused tests against the approved 72-record action catalog and current generated root map. Validation is descriptive/read-only and grants no Goal Graph, provider, filesystem, deployment, or publication authority.
+- The contract now rejects unsupported `tool` classification, impossible calendar dates, malformed HTTPS/GitHub URLs, Unix/Windows/UNC absolute paths, stale authority digests, client/account mismatch, duplicate repositories, and array bound drift. The three vault mappings for Fitcheck, Klear Karma, and WTF Media validate against the runtime authority.
+- Validator/catalog/foundation-pin verification: 26/26. The broad `npm test` run progressed through the source-inventory tests but was terminated after reproducing the repository's previously recorded no-output stall; no complete-suite result is claimed and no new failure was emitted before the stall.
+
 ### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
 
 - The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.
