@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T17:09:13.250144+00:00",
+  "updated": "2026-10-01T17:32:47.714851+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -60,7 +60,12 @@
     "Fresh independent Task1r3/Task7r3 reports received: five contract gaps and archive/bootstrap blockers remain; candidates unaccepted",
     "Accepted source Task1 at distribution d704a64 after fresh independent r5PASS and integrated277tests/761assertions with exactBun1.3.5/source typecheck zero; ISC813..828checked only for source contracts",
     "Task7r4 terminal59behavioralstockBash3.2checks; independent archive/bootstrap review confirms fixes but finds blanketvendor privacy bypass, focused continuation running",
-    "Public enrichment source convergence14paths terminal100tests/362assertions; removes privateAtlas from publicbundle and correctsNEXTWAVE heldproposal wording, qualitative independentPASS with exactpin rerun pending beforeintegration"
+    "Public enrichment source convergence14paths terminal100tests/362assertions; removes privateAtlas from publicbundle and correctsNEXTWAVE heldproposal wording, qualitative independentPASS with exactpin rerun pending beforeintegration",
+    "Public enrichment prerequisite accepted at distribution c0f6f98 after independent exact Bun1.3.5 replay and parent100tests/362assertions/source typecheck zero; all29publicfiles/modes reconciled, privateAtlas omitted and nextwave proposal held",
+    "Task2 seven-path candidate independently reviewed: actual cumulative-byte overread, target-only falsecompatibility and duplicateidentity collapse require threeP2 repairs; sameisolatedproducer continuing",
+    "Task3 two-path candidate independently reviewed: finaldigest review timestamp ordering requires oneP1 repair; sameisolatedproducer continuing",
+    "Task7 r5 eightpath archive/bootstrap/privacy foundation passed fresh independent probes; integrated with recoverable preimages, parent stockBash validation running; not fullTask7 acceptance",
+    "Task4 fresh consumerABI/recovery brief identifies existingjournal cache hazard and unbound partial-capture compensation; no source changes frombrief"
   ],
   "remaining": [
     "Task 2: bounded inspect/export/diff",
@@ -73,7 +78,8 @@
   ],
   "blockers": [
     "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137",
-    "Tasks1/7 candidates still require semantic and artifact repairs; targeted green tests do not satisfy independently reproduced gaps"
+    "Task2 threeP2 andTask3 oneP1 findings require focused repairs and fresh review before dependent source integration",
+    "Task7 foundation review passes, but actual committed-source archive/CLI and finalTasks1\u20136 closure still pending"
   ],
   "decisions": [
     "Preserve Cambium saved OpenAI integration goal and Phase 9 authenticated-read gate",
@@ -108,9 +114,9 @@
   "uncommitted_files": [
     "Preserved Cambium OpenAI integration WIP from prior checkpoint",
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
-    "Distribution integration branch retains six old staged kit draft paths; accepted Task1 and two prerequisites are committed separately"
+    "Distribution integration branch has eight latest reviewed kit foundation paths plus ISA pending parent verification/commit; old six-path drafts replaced with retained preimages"
   ],
-  "next_action": "Continue native non-Sol Astra isolated Task2 migration_inspect_task2 and Task3 migration_planner_task3 from acceptedTask1d704a64; collect actualpatches/checks then freshindependentreviews. Kit r4archive/bootstrap fixes independentlyverified but blanketvendorprivacy bypass remains; kit_r4_producer focusedr5fix running sameeightpaths, finalTask7needsacceptedTasks1\u20136realbuild. Public enrichment source14pathconvergencehasqualitativePASS; migration_recovery_review reruns exactBun1.3.5targetedprobes beforeparentintegrates14paths+ISA asprerequisite. SourcepublicAtlasremoved/heldproposalsourceonly, installedprivateoverlayunchanged. Integrationhas sixOLDkitstageddrafts; newerkitcandidate notintegrated. Task4awaitacceptedTask3, Task5await2\u20134, Task6await5. PhysicalTask8identities/access/backups pending; sourceworkcontinues. No host/provider/cloud/vault/native stores orCambiumgoal/WIP edits.",
+  "next_action": "Continue sameisolated non-Sol Astra Task2 threeP2 repairs andTask3 post-plan finaldigest review ordering repair, then fresh independent reviews and parent exactpin validation beforetaskacceptance. Kit r5eightpaths foundation independentPASS integratedwithpreimages; finishparent66stockBash/sourceverifier/pathguard then exactpathcommit asprerequisite, buildcurrentcommittedsourcewith independentcache/vendor/outerdigest; finalTask7closureafterTasks1\u20136. Publicsourceconvergencec0f6f98accepted. Task4freshABIbrief readybutwaitacceptedTask3; Task5wait2\u20134, Task6wait5. PhysicalTask8targets/access/backups pending; continueauthorizedsourcework. No host/provider/cloud/vault/native stores orCambiumgoal/WIP mutations.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -238,19 +244,19 @@
     ],
     "task_status": {
       "1": "accepted-source-d704a64",
-      "2": "isolated-native-implementation-running",
-      "3": "isolated-native-implementation-running",
-      "4": "pending",
+      "2": "three-P2-focused-repair-running",
+      "3": "post-plan-review-timestamp-P1-focused-repair-running",
+      "4": "consumer-ABI-preflight-complete-waits-acceptedTask3",
       "5": "pending",
       "6": "pending",
-      "7": "r5-focused-vendor-privacy-repair-running-final-integration-pending",
+      "7": "r5-foundation-independent-PASS-integrated-parent-checks-running-final-closure-pending",
       "8": "pending"
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
     "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
-    "source_head": "d704a6487dd373f6d0f89a66741b5dec9c659ab3",
+    "source_head": "c0f6f98a4feca8a9fe14a14fe5969c47398490ab",
     "accepted_tasks": [
       1
     ]
