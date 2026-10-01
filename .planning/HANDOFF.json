@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T22:15:22.033289+00:00",
+  "updated": "2026-10-01T22:36:04.512764+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -47,7 +47,10 @@
     "Task5R3 fresh terminal CORE and CLI reviews both PASS; parent source and strict owned-test TypeScript passed. First parent suite had fixture umask077 failures, retained honestly; unchanged-source replay with fixture umask0022 passed1226 tests/1 explicit live skip/26511 assertions/67 files",
     "Task5 SOURCE accepted31f97b72ea738061a2b96b172bb1427171497db0 exact5sourcepaths plusISA877-892; current-owner/native Mac and physical acceptance remain pending",
     "Task6 clean detached worktree advanced to exactaccepted31f97b72 with byte-identical package/locks and frozen21dependencies; SAMEAstra producer dispatched full actualOpenTUI/CLI presentation/pairedprofiles/PTY implementation",
-    "Task7 read-only final preparation terminal: four ignored packets and20 qualification cases ready; actualfinalsource/build/qualification waitsacceptedTask6"
+    "Task7 read-only final preparation terminal: four ignored packets and20 qualification cases ready; actualfinalsource/build/qualification waitsacceptedTask6",
+    "Root reviewed exact retained bootstrap policy and actualinstaller OS/architecture guard; futuretemporary finalbootstrap executable addition ONLYstockuname -s/-m admitted in ignoredreceipt, criticaldenials unchanged, no execution",
+    "Task6 CORE and UI/CLI audit preparations terminalfrozen againstaccepted31f; no liveeditingcandidate inspected or executed. Parent reviewed matrices foractualvisibleanchors/fullReview/actionparity/settlement and graceful-vs-harddisconnectlimits",
+    "Task7 paired-profile ownerharness DRAFT terminalfrozen7files/freezeSHA24aec0da05d4: threeTSmodules/usage/schema/references/report; no execution/typecheck/native/build. Fresh-instance vs realprocessrestart limit and repeatedapplyHOLD explicit; Luna independentdraftsource/static review running"
   ],
   "remaining": [
     "Task6: actual rich shared-controller OpenTUI screens, paired-profile and failure/cancellation/PTY proof, fresh independent review and parent acceptance",
@@ -83,7 +86,7 @@
     "Integration CLEAN31f97b72; Task6 production changes owned by SAMEAstra only in modular-mac-tui-task6 base31f97b72, final candidate pending",
     "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
   ],
-  "next_action": "Continue actualTask6 implementation with SAMEAstra migration_controller_task5 in modular-mac-tui-task6 base31f97b72ea738061a2b96b172bb1427171497db0. Read terminal frozen exactpatch/per-filehash/report/tests and actualPTY/nativefailure/cancel evidence; fresh independent CORE and UI/CLI reviews before parent integration/ISA893-908 SOURCE acceptance. Task5 accepted31f source-only: both R3reviewsPASS,parent1226pass1liveoptinskip26511/source+strictTS0; parent firstfixtureumaskfailure and unchanged-source correctedreplay retained. Task7 finalprep terminal20cases ready; newfinalsource/archive/digest and actualbootstrap/profile/PTYqualification afteraccepted6; retainedcriticaldenialcontrols preserved, exactstockuname temporarypolicy admission requires root review. Task8 actualphysical identity/hardware/macOS/access/independentbackup inputs pending, no fabricatedreceipt. Growth100filecoveragecurrent editorialREADME4b1e46621d/no vault or accountauthority. Preserve51+5WIP/savedOpenAIgoal/Phase9/providercloudvaultnative bounds; noConstellation8770.",
+  "next_action": "Continue SAMEAstra Task6 movingcandidate in modular-mac-tui-task6 base31f97b72. Producer reports actualtensectionUI/minimalCLIjoin implemented and TestRendererbookmarkchecks, validating independentlyretainedfictionalowner->realtemporarydurableIO->cancel/headlesssameop and remainingcompiledPTY/nativecopyfailure; NOacceptanceuntilterminalfrozenexactpatch/perfilehash/fullreport/tests and freshCORE+UI/CLIreviews. Reviewplans terminalready in task-6-core-audit-preparation and task-6-ui-audit-preparation; parent gate note task-6-parent-review-gates.md clarifies ISC907 gracefulmode proof vs unavailablepostmaster-close measurement. Task7ownerharness DRAFT task-7-owner-harness-preparation freeze24aec0da05d4 Luna kit_r2_audit independentSOURCE/staticreview running; no runtime/FFI/kitqualification untilaccepted6/final7source/newimmutablearchive/admittedrootedpolicy. Future stockuname -s/-m ONLYtemporarybootstrap addition reviewed, receipt in task-7-final-preparation; allcriticaldenials preserved. Task5 SOURCEaccepted31f bothreviewsPASS,parent1226pass1liveskip26511/source+strictTS0, correctedfixturemaskreplay retained. Task8 physicaltarget/hardwaremacOS/access/independentbackup evidence pending. Preserve51+5WIP/savedOpenAIgoal/Phase9/providercloudvaultnative bounds; noConstellation8770.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -214,8 +217,8 @@
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
-      "6": "actual-OpenTUI-source-implementation-running-base31f97b72",
-      "7": "minimalbootstrap-prerequisite974bc0d-finalprep20cases-ready-waitaccepted6",
+      "6": "actual-OpenTUI-implemented-validation-in-progress-base31f97b72-unaccepted",
+      "7": "minimalbootstrap974bc0d-finalprep20cases-and-ownerharnessdraft-frozen-audit-running-waitaccepted6",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
