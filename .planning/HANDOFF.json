@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T22:54:05.037381+00:00",
+  "updated": "2026-10-01T23:47:44.927920+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -53,7 +53,12 @@
     "Task7 paired-profile ownerharness DRAFT terminalfrozen7files/freezeSHA24aec0da05d4: threeTSmodules/usage/schema/references/report; no execution/typecheck/native/build. Fresh-instance vs realprocessrestart limit and repeatedapplyHOLD explicit; Luna independentdraftsource/static review running",
     "Task6 producer reports bothprofile actualsyntheticdurablecancel/headlessreopen checks and firstcompiledq80x24 exactsttyPASS; stillmoving/unaccepted, remainingrichPTY/nativefault/cleanupvalidation",
     "Root readpinnedOpenTUI partialfactory/teardown rawconsoleerror seams andproducer confirmedactualsource issue; boundedperrendererstream/erroradapter underinvestigation, no globalconsoleoverride/dependencyrewrite",
-    "Old-volume pinnedBun startup and source/testread executions stalled; byteidenticalSHA66262f09 privateBun1.3.5 starts. Stalledruns retainedincomplete; root admitted newhash-boundprivate SOURCEclosure copy onlyforcurrentcandidate validation, notreleaseartifact"
+    "Old-volume pinnedBun startup and source/testread executions stalled; byteidenticalSHA66262f09 privateBun1.3.5 starts. Stalledruns retainedincomplete; root admitted newhash-boundprivate SOURCEclosure copy onlyforcurrentcandidate validation, notreleaseartifact",
+    "Root checkpoint commit8b658fa terminalconfirmed; pending Git operation settled without lock deletion/process mutation; integration CLEAN31f97b72 and freshly verified51Cambium+5distributionprimary capturedWIP byte-identical",
+    "Task7 seven-file paired owner harness freshLuna independentSOURCE-only audit PASS reportSHA173b91a9b3d5; staticcompiler attempt incomplete and no runtime/native/qualification proof. NEWrealOSrestart supervisor preparation admitted onlyignoredsource, noexecution",
+    "Task6 SAMEAstra nativeproducer resumed afteronecapacityfailure; R1privateclosure missingfiles/testimport INCOMPLETE, R2completeclosure producerreports55focused/885assertions/sourceTS0/strictTS0 and actualrendererprivate-errorcanary/broken-outputpipePASS withbeforeafterhashes; candidate remainsmoving/unaccepted",
+    "ParentFULL observerR2 source/tests/Expect review andactualsmallPython negativecontrols HOLD zero-widthUnicodeMark and unclosed synchronizedupdate falseMATCH; R3reportedfrozen awaitingfullparentread. ParentFULLhardcloseR2 supervisor/owner/child review HOLD independentissuer/root/payloadpins, exactsettleddurableoutcome andallpathownedreap; independentLuna sourceaudit corroborates, noexecution",
+    "Task6 newactualrenderedframeRED assertion caught lostwideviewporttop acrossnarrow-to-wide resize; SAMEproducer originalsource repair plusnewhash-boundprivateclosure validationrunning"
   ],
   "remaining": [
     "Task6: actual rich shared-controller OpenTUI screens, paired-profile and failure/cancellation/PTY proof, fresh independent review and parent acceptance",
@@ -86,11 +91,11 @@
     "Private reviewledgers ignored through local Gitinfo/exclude; no checked source or personalruntime config change"
   ],
   "uncommitted_files": [
-    "Captured51Cambium and5distributionprimary WIP remain byte-identical; other concurrent review-document WIP preserved, parent-owned structured handoff only",
+    "Freshly verified captured51Cambium and5distributionprimary WIP byte-identical; other concurrent review-document WIP preserved; only parent-owned structured handoff refreshed",
     "Integration CLEAN31f97b72; Task6 production changes owned by SAMEAstra only in modular-mac-tui-task6 base31f97b72, final candidate pending",
     "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
   ],
-  "next_action": "Continue SAMEAstra Task6 inmodular-mac-tui-task6 base31f97b72: producerhasmovingtensectionsharedUI/minimalCLIjoin, TestRendererbookmarks, bothprofilesactualtemporarydurablecancel/headlesssameop andfirstcompiledq80x24sttyPASS; NOTfrozen/accepted. Old-volume exactBun andsource/testreads stalled; verifiedprivateBun SHA66262f09 version1.3.5 receipt task-6-source/pty-build.json. Rootauthorizesnewcanonical0700private SOURCEclosure copy ofaccepted31fplusONLYownedcandidate/frozen21deps/native/Bun, fullinventorybytesmodes+candidatehashbefore/after/nooncopyfixes; stalledattemptsincomplete. RemainingactualrichPTY/nativecopyfault/brokenCLIoutput/safeactualpinnedpartialsetup-teardownerrors: sourceinternalconsoleerrorconfirmed, perrendererstreamadapterunderinvestigation, no globalconsole/dependencyrewrite. Frozenexactpatch/reports/tests thenfreshCORE+UI/CLIreviews usingpreparedmatrices, parentgateclarifies907gracefulproofvsunavailablehardcloseobservation. Task7ownerharnessdraftfreeze24aec0da05d4 Luna SOURCEaudit running/optionalstaticstallednotgreen; no runtime/FFI/finalkitqualificationuntilaccepted6/newimmutablecommittedkit/rootedpolicy. Temporarybootstrapstockuname -s/-m narrowlyadmittedallcriticaldenialsunchanged. Task8actualphysicaltarget/hardwaremacOS/access/backupinputs pending. Preserve51+5WIP/savedOpenAIgoal/Phase9/providercloudvaultnative boundaries; noConstellation8770.",
+  "next_action": "Continue SAMEAstra Task6 at31f: movingactualsharedOpenTUI/minimalCLIjoin; privateclosureR2 reports55/885/source+strictTS0/actualprivateerrorandbrokenpipechecks, notaccepted; newviewporttoprepair/privateclosurecandidatevalidationrunning. ReadFULLfrozenobserverR3/helperknownbytetests and hashbeforeadmittingrichPTY; R2parentactualnegativecontrolsHOLD UnicodeMark/sync andresizefullrepaintrequired, retained. HardcloseR2FULLparentHOLD independentissuer/root/payloadpins, settledclosedsidechannel/exactdurableoutcome/newprocessPID andallpathownedreap; freshLuna sourceauditcompleting, noexecution. ProducermustrepairNEWfreezeandrootadmitbeforeactualhardmasterclose; gracefullyobservablesttyvsunavailableclosedchannelexplicitISC907limit. FrozenexactTask6patch/tests/reports thenfreshCORE+UI/CLIreviews andparentappropriateacceptance. Task7ownerharnessdraft24aec0 staticLunaPASS173b91a9, TSincomplete/noFFI; SAMEAstra NEWignoredrealprocessrestartpreparationrunning onlysource. Final7source/newimmutablecommittedkit androotedpolicy afteraccepted6; stockuname-s/-m narrowadmission/criticaldenialsunchanged. Task8exactphysicaltargets/macOS/access/independentbackup inputs pending.51+5capturedWIP freshhashpreserved; savedOpenAIgoal/Phase9/vault/providercloudnativeboundaries untouched; noConstellation.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -221,8 +226,8 @@
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
-      "6": "moving-actualTUI-and-durablecases-private-source-copy-validation-rawcleanup-seam-fix-unaccepted",
-      "7": "minimalbootstrap974bc0d-finalprep20cases-and-ownerharnessdraft-frozen-audit-running-waitaccepted6",
+      "6": "moving-viewport-repair-privateclosure-validation-observerR3-review-hardcloseR2-HOLD-unaccepted",
+      "7": "minimalbootstrap974bc0d-finalprep20cases-ownerdraft-sourcePASS-processrestart-preparation-waitaccepted6",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
