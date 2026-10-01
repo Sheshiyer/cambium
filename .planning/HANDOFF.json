@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T16:13:46.967198+00:00",
+  "updated": "2026-10-01T16:18:03.541667+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -55,7 +55,8 @@
     "Existing compiled OpenTUI preliminary synthetic PTY harness at80x24 and120x40 navigates and restores terminal under observed Bun1.3.13; future migration views and exact-pin proof remain pending",
     "Repeated preservation probe confirms51Cambium and5primarydistribution captured files byte-identical",
     "Exact Bun1.3.5 compiled CLI/OpenTUI0.5.11 native renderer preliminary PTY at80x24/120x40 navigates Host to Projects and exits with terminal modes restored; source prerequisite receipt committed at9fd0588, migration UI criteria still pending",
-    "Kit r3 timed out after1801seconds; eight-path88241byte partial retained and assembled in separate candidate for fresh bounded review, no acceptance or source integration"
+    "Kit r3 timed out after1801seconds; eight-path88241byte partial retained and assembled in separate candidate for fresh bounded review, no acceptance or source integration",
+    "Task1 r3 terminal substantive four-path patch,121uniqueOpus4.8HTTP200calls; parent exactBun1.3.5 confirms148tests/299assertions and clean source typecheck; fresh review still pending and no acceptance"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -102,7 +103,7 @@
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
     "Distribution integration branch retains ten staged contract and kit draft paths; accepted prerequisite is committed separately"
   ],
-  "next_action": "Follow active run15 contracts-r3 from private handle/state; exactOpus4.8 qualified. Run14 kit-r3 terminal timeout with eight owned paths retained; native task7_kit_audit reviewing candidate r3 and suite stall, await precise report then continue retained patch on new independently tagged finite non-Sol run. Clean driver9fd0588, active15 frozenbase94c60f4. Candidate contains contracts-r2 (unaccepted), baseline-r2 and kit-r3. Read SUMMARY first and validate substantive output/attribution before acceptance. Task2/3 wait for acceptedTask1. Source baseline94c60f4 and exact-pin renderer receipt9fd0588 accepted prerequisites; no numberedTask1–8 accepted. Physical identities/access/backups pending; source Tasks1–7 continue.",
+  "next_action": "Both run14kitr3(timeout retained) and run15contractsr3(ok but unaccepted) are terminal. Separatecandidate now contains latestcontracts-r3+kit-r3+baseline-r2. Original native reviewers task1_contract_audit/task7_kit_audit are finishing fresh reports; collect task-1-r3-review.md/task-7-r3-review.md then continue retained patches with precise scoped fixes. Task1 positive scoped compatibility now works, but preliminary review shows stage freshness/time bypass, optional expected-stage bypass, unbound organ owner/version/plant/trigger, linked-work selected-scope bypass, vacuous empty selection, nested expected-key closure and absent original input dependencies. Clean driver9fd0588; integration ten old stageddrafts preserved; baseline94c60f4 and renderer9fd0588 are only acceptedprerequisites. Task2/3 wait for acceptedTask1; all numberedTasks1–8pending. Physical identities/access/backups pending; sourcework continues.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -223,7 +224,7 @@
       },
       {
         "ref": "run-15-contracts-r3",
-        "status": "running",
+        "status": "terminal-fresh-review-pending-not-accepted",
         "task": "Task1 complete typed lineage, required evidence and scoped compatibility repairs",
         "rail": "claude/claude-opus-4-8"
       }
