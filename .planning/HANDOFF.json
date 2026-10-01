@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T21:53:01.311743+00:00",
+  "updated": "2026-10-01T22:15:22.033289+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -43,24 +43,26 @@
     "Task5R2 terminalfrozen totalfivepaths125944bytesSHAfb71cd74a391/base508d665/source+strictTS0/focus61tests1205/operator57tests354/full1173pass1explicitliveskip26244assertions; parent exacthashes/reversepatch confirmed, fresh independentCORE/CLIreviews running",
     "Task5R2 terminalCORE/CLIHOLD: alloriginalR1threeP2 independentlyclosed, three newuniqueP2 public sparse/accessor/methodarray bypass, CLInullcommandcancel invalidprojection/exitmismatch, parser accessor/customiterator/extraargv accepted; SAMEproducerR3repair authorized SAME5paths/base508d665, R1/R2ledgers retained",
     "Task6 read-only ABI/render/key/PTY preparation in clean974bc0d; no module-selection/project/backup/lastdurablestep owner capability invented, rendering waitsacceptedTask5",
-    "Task5R3terminalfrozen exactfivepaths136013bytesSHA5ace1a495d4b/base508d665; publicdataarrays/parser+validCLIcancel repairs, focused114/1472/operator57/354/full1226pass1liveskip26511/source+strictTS0; parentexacthash/reversepatch confirmed freshCORE/CLIreviews running; explicitProxyreflectivelimit no JSsandboxclaim"
+    "Task5R3terminalfrozen exactfivepaths136013bytesSHA5ace1a495d4b/base508d665; publicdataarrays/parser+validCLIcancel repairs, focused114/1472/operator57/354/full1226pass1liveskip26511/source+strictTS0; parentexacthash/reversepatch confirmed freshCORE/CLIreviews running; explicitProxyreflectivelimit no JSsandboxclaim",
+    "Task5R3 fresh terminal CORE and CLI reviews both PASS; parent source and strict owned-test TypeScript passed. First parent suite had fixture umask077 failures, retained honestly; unchanged-source replay with fixture umask0022 passed1226 tests/1 explicit live skip/26511 assertions/67 files",
+    "Task5 SOURCE accepted31f97b72ea738061a2b96b172bb1427171497db0 exact5sourcepaths plusISA877-892; current-owner/native Mac and physical acceptance remain pending",
+    "Task6 clean detached worktree advanced to exactaccepted31f97b72 with byte-identical package/locks and frozen21dependencies; SAMEAstra producer dispatched full actualOpenTUI/CLI presentation/pairedprofiles/PTY implementation",
+    "Task7 read-only final preparation terminal: four ignored packets and20 qualification cases ready; actualfinalsource/build/qualification waitsacceptedTask6"
   ],
   "remaining": [
-    "Task5: finish shared closed CLI/agent controller, frozen patch, independent review and parent source acceptance",
-    "Task6: existing OpenTUI migration screens and actual synthetic PTY/failure cleanup proof",
-    "Task7: final accepted-source kit, real clean-root/bootstrap/profile/repeat/user-config/rollback proof and current docs",
-    "Task8: actual equal workstation/node owner acceptance with target/access/backup evidence"
+    "Task6: actual rich shared-controller OpenTUI screens, paired-profile and failure/cancellation/PTY proof, fresh independent review and parent acceptance",
+    "Task7: final accepted-source documentation and immutable kit, actual clean-root bootstrap/profile/repeat/configuration/recovery/current-TUI qualification and independent review",
+    "Task8: actual equal workstation/node owner acceptance after exact target/access/independent backup evidence"
   ],
   "blockers": [
     "Physical destination identity,hardware/macOS,access and independent backup locations remain unspecified; earlier question is pending",
-    "FinalTask7 dependsaccepted4–6; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
-    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope",
-    "Task5R2threepublicboundaryP2 requirefreshR3independentreviews andparentacceptance afterlocalcloseddataarray/parser/CLIcancel repairs beforeTask6"
+    "FinalTask7 dependsacceptedTask6; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
+    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
     "Cambium,Temperance and connected organs form one ecosystem with distinct existing owners; vault bodies remain referenced knowledge",
-    "FullTasks1–8 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
+    "FullTasks1\u20138 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
     "Preserve Cambium savedOpenAI goal,Phase9 authenticatedinventory gate,GSDstate and all unrelatedWIP",
     "Distribution owns implementation in isolated worktrees; primary sourceWIP and hostruntime remain untouched",
     "Reuse existing OpenTUI/controller/lifecycle journal/preimage/receipts/catalog; no secondexecutor/journal/approvalledger/secretstore",
@@ -77,12 +79,11 @@
     "Private reviewledgers ignored through local Gitinfo/exclude; no checked source or personalruntime config change"
   ],
   "uncommitted_files": [
-    "Preserved51Cambium and5distributionprimary WIP; parentownedhandoff only",
-    "Integrationclean974bc0d; Task5R3frozenunaccepted exact5paths awaitingfreshreviews onlyinmodular-mac-controller-task5 base508d665",
-    "Task6cleanmodular-mac-tui-task6 at974bc0d withignoredfrozendeps, implementationpending",
-    "FrozenTask4/kit/Task5R1candidates andignoredreviews/toolchains/preimages/PTYboundaryevidence retained"
+    "Captured51Cambium and5distributionprimary WIP remain byte-identical; other concurrent review-document WIP preserved, parent-owned structured handoff only",
+    "Integration CLEAN31f97b72; Task6 production changes owned by SAMEAstra only in modular-mac-tui-task6 base31f97b72, final candidate pending",
+    "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
   ],
-  "next_action": "ReadfreshterminalTask5R3CORE/CLIreports against parent-task5-r3-review.diff/json exact136013byteSHA5ace1a495d4b/base508d665. R1/R2heldpatches andallreportsretained; R3local1226pass1optinliveskip26511/source+strictTS0, noeditswhileaudits. IfbothPASS,parentguardedcopyexact5/fullsource+strict/operatorchecks thenISA877-892sourceonlycommit; iffindingssameproducerfocusednextrepaironly. Parentintegrationclean974bc0d; Task6clean974/workspace+task-6-preparation brief18lanes/PTYprotocolready mustadvanceacceptedTask5commit beforeAstraimplementation. Task7kit_safe_bootstrap READONLYignoredfinalpreparationrunning, nofinalbuilduntilaccepted5-6. Growth100filecoveragecurrent4b1e46621d editorialpointeronly refreshed/no vault oraccountacceptance. Task7 foundationPTYdenialcontrolsPASSrepeatnewartifact/TUIlater; Task8realphysicalidentityhardwaremacOSaccessindependentbackup inputs pending. Preserve51+5WIP/Cambium savedOpenAIgoal/Phase9/providercloudvaultnative bounds; noConstellation8770.",
+  "next_action": "Continue actualTask6 implementation with SAMEAstra migration_controller_task5 in modular-mac-tui-task6 base31f97b72ea738061a2b96b172bb1427171497db0. Read terminal frozen exactpatch/per-filehash/report/tests and actualPTY/nativefailure/cancel evidence; fresh independent CORE and UI/CLI reviews before parent integration/ISA893-908 SOURCE acceptance. Task5 accepted31f source-only: both R3reviewsPASS,parent1226pass1liveoptinskip26511/source+strictTS0; parent firstfixtureumaskfailure and unchanged-source correctedreplay retained. Task7 finalprep terminal20cases ready; newfinalsource/archive/digest and actualbootstrap/profile/PTYqualification afteraccepted6; retainedcriticaldenialcontrols preserved, exactstockuname temporarypolicy admission requires root review. Task8 actualphysical identity/hardware/macOS/access/independentbackup inputs pending, no fabricatedreceipt. Growth100filecoveragecurrent editorialREADME4b1e46621d/no vault or accountauthority. Preserve51+5WIP/savedOpenAIgoal/Phase9/providercloudvaultnative bounds; noConstellation8770.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -212,21 +213,22 @@
       "2": "accepted-source-49a16e9",
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
-      "5": "r3terminalfrozen-freshCORE-CLI-review-running-unaccepted",
-      "6": "cleanworkspace974bc0d-prepared-waitacceptedTask5ABI",
-      "7": "minimalbootstrap-prerequisiteaccepted974bc0d-full7pending5-6finalkit",
+      "5": "accepted-source-31f97b72",
+      "6": "actual-OpenTUI-source-implementation-running-base31f97b72",
+      "7": "minimalbootstrap-prerequisite974bc0d-finalprep20cases-ready-waitaccepted6",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
     "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
-    "source_head": "974bc0d9adff188aee7611c5c15c069f498bf6ea",
+    "source_head": "31f97b72ea738061a2b96b172bb1427171497db0",
     "accepted_tasks": [
       1,
       2,
       3,
-      4
+      4,
+      5
     ]
   }
 }
