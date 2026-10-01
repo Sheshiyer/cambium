@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T20:25:16.811619+00:00",
+  "updated": "2026-10-01T20:32:15.845472+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -34,7 +34,8 @@
     "Task7minimalbootstrapthreepathR1frozen26854bytesSHA35ab7085;111checks45actualsourcebootstrap+66foundation/sourceverifier/syntax/diffPASS. Parentcapturedexactpatch/perfiles; independentCORE/DISKreviews running, prerequisiteunaccepted",
     "Task4 R6 freshCORE/DISK terminalPASS and parent679tests23116assertions/source+strictTS0; exact5sourcepaths plusISA861..876 accepted508d665; existingjournal/preimages/receipts/exclusiveclaim, freshterminalrelease only",
     "Task7minimalbootstrapR2 complete30377byteSHAe948509b; producer123checks andfreshLuna11actualinstaller/libraryscenariosPASS; exact3filesintegrated,parentstockchecks running",
-    "Task5cleanworktreeadvanced508d665 andAstra sourceproducer dispatched withacceptedTasks1-4ABI/sharedclosedcontroller/readonlypublicsnapshotCLI seam; no realowner adapter"
+    "Task5cleanworktreeadvanced508d665 andAstra sourceproducer dispatched withacceptedTasks1-4ABI/sharedclosedcontroller/readonlypublicsnapshotCLI seam; no realowner adapter",
+    "Task7minimalbootstrapR2 accepted974bc0d exact3plusISAprereq afterfreshLuna11scenarios andparent123checks/sourceverifier/syntax/privateguardPASS; correctedmissingTEMPERANCE_ROOT sourcecheck invocation retained; ISC909-924unchecked"
   ],
   "remaining": [
     "Task5: finish shared closed CLI/agent controller, frozen patch, independent review and parent source acceptance",
@@ -68,11 +69,11 @@
   ],
   "uncommitted_files": [
     "Preserved51Cambium and5distributionprimary WIP; parentownedhandoff only",
-    "IntegrationTask4 accepted508d665; onlythreeTask7prerequisite install.sh/scripts/lib.sh/tests/migration-kit.sh uncommitted,parentchecks running",
+    "Integrationcleanat974bc0d; Task4accepted508d665 andportableminimalbootstrapprereqaccepted974bc0d",
     "Task5producerownscontroller/parser/two tests/minimalexistingcli branch in modular-mac-controller-task5 at508d665; sourceonly",
     "FrozenTask4/kitcandidate source and ignored reports/toolchains/preimages retained in owned worktrees"
   ],
-  "next_action": "Continue nativeAstra migration_controller_task5 in existingcleanbase508d665 worktree, exactcontroller/parser/two-tests/minimalcli paths, actualacceptedABI andreadonlysnapshotCLI seam, noambientowner/JSONauth/realhosteffects; frozenpatchthenindependentreviewparentchecksacceptTask5beforeTask6. ParentkitguardR2 session72199 running actual123shellsuite/sourceverifier/syntax/pathguard in clearedprivateenv; pollhandle, verifyexact3hashes, appendISAprereqONLY(not909-924) andexact3+ISAcommitafterPASS. Task4 is sourceaccepted508d665 withbothR6reviewsPASS,parent679tests23116assertions/TS0; ISC861-876checked. Refreshhandoffaschecksfinish; continuefinalTasks6-7compiledkit/actualminimalinstaller/pairedprofiles/repeat/ownedrollback/PTYunderinaccessibleoldvolumecontrols. Task8realidentityhardwareaccessindependentbackups pending; preserve51+5WIP/Cambiumsavedsession/Phase9/allhostprovidercloudvaultnativeboundaries; noConstellation8770.",
+  "next_action": "Continue nativeAstra migration_controller_task5 in existing508d665 worktree, exactcontroller/parser/two-tests/minimalcli paths, actualacceptedTasks1-4ABI andreadonlypublicSnapshot seam. InitialTDD7green, narrowingrepairrunning; noambientowner/JSONauth/realhosteffects. COREreviewer task4_r5_core prepares independentTask5checklistonly, do notinspectmovingproducerfiles. FreezeTask5exact5patchthenindependentreviewandparenttypecheck/regressions beforeTask6. Parentintegrationclean974bc0d: Task4sourceaccepted508d665/679tests23116assertions/bothR6reviewsPASS/ISC861-876checked; kitminimalguardaccepted974bc0d/123checks/11independent/sourceverifiercorrectedenv/syntax/privacyPASS/allISC909-924unchecked. Task6/T7preflightheadersrefreshed; finalactualkit/profile/repeat/rollback/compiledmigrationPTYstillpending. Task8realidentityhardwareaccessindependentbackups pending; preserve51+5WIP/Cambiumsavedsession/Phase9/hostprovidercloudvaultnativeboundaries; noConstellation8770.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -204,14 +205,14 @@
       "4": "accepted-source-508d665",
       "5": "native-astra-sourceimplementation-running-accepted508d665-base",
       "6": "pending",
-      "7": "minimalbootstrapR2-freshLunaPASS-parent123checks-running-full7pending4-6finalkit",
+      "7": "minimalbootstrap-prerequisiteaccepted974bc0d-full7pending5-6finalkit",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
     "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
-    "source_head": "508d66535356aba7418ccd6d0bdc074087e1da00",
+    "source_head": "974bc0d9adff188aee7611c5c15c069f498bf6ea",
     "accepted_tasks": [
       1,
       2,
