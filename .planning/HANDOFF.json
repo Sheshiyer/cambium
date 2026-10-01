@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T18:09:57.488883+00:00",
+  "updated": "2026-10-01T18:26:19.618916+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -75,7 +75,11 @@
     "Accepted fivefile sourcefixture hygiene prerequisite a4fcb04: independentlyreviewed andparent21pass1explicitliveskip54assertions/guard/sourceTS0; defaultCLIfakesysctl/exactruntime/nooverwrite, earlierone-time producer/reviewer actualmodelchipobservationsdisclosed",
     "Built actualcurrent sourcecandidate kit from25d617d:723committedsourcefiles/real21vendor/native/Bun closure, privacyclean,2303regularmembers, rawUSTAR/innerchecksumpassed; independentouter/artifactreviewrunning, noTask7fullacceptance",
     "Task4terminal retainedfivepath66927bytepatch reports511tests18617assertions and784disk-backedinterruptioncases/source+strictTS0; fresh coreanddiskreviewrunning, noacceptance",
-    "Fresh preservation confirms51capturedCambium+5distributionprimaryfiles byte-identical"
+    "Fresh preservation confirms51capturedCambium+5distributionprimaryfiles byte-identical",
+    "Task4 independent core and disk audits terminal: ten findings retained; same five-path producer repairs running with explicit exclusive publication capability and authenticated release",
+    "Independent source-candidate archive audit passed outer digest, closed archive, 173 COPY files and exact runtime/dependency bytes; one stale supplemental COPY provenance receipt found",
+    "Regenerated existing 18-record COPY provenance against reviewed 25d617d source; six fragments and both locks byte-identical; focused correction committed distribution 01d564c",
+    "Task5 current consumer ABI brief completed read-only; Task4 release extension will be reconciled after recovery acceptance"
   ],
   "remaining": [
     "Task 4: owned local lifecycle recovery bridge",
@@ -87,7 +91,8 @@
   "blockers": [
     "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137",
     "FinalTask7closure stillrequires acceptedTasks4\u20136 source andactualclean-root/profileCLI proof",
-    "Task4 preliminary independentcoreauditfindslegacyrollbackbinding-removalbypass, linkedjournal/receiptreads andequalprior-outputstatus inconsistency; finalcore/diskreports pending, candidateunaccepted"
+    "Task4 candidate unaccepted: ten core/disk audit findings under focused repair; fresh independent reviews required",
+    "Rebuilt source-candidate kit requires fresh artifact review; final Tasks4\u20136 closure and real physical acceptance pending"
   ],
   "decisions": [
     "Preserve Cambium saved OpenAI integration goal and Phase 9 authenticated-read gate",
@@ -122,9 +127,9 @@
   "uncommitted_files": [
     "Preserved Cambium OpenAI integration WIP from prior checkpoint",
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
-    "Distribution integration branch clean at25d617d; five Task4 sourcepaths remain in separateisolatedworktree awaitingreview/repairs"
+    "Distribution integration branch clean at01d564c; five unaccepted Task4 paths stay in separate isolated worktree"
   ],
-  "next_action": "CollectTask4fresh independentcore task1_contract_audit anddisk migration_recovery_review reports, then focused SAMEfivepath migration_recovery_task4 repair continuation; preliminarylegacyrollbackbindingremovalbypass/linkedjournalreceiptreads/equalprior-outputstatus gaps require fixes beforeacceptance. Task5waitaccepted4thenTask6wait5. SourceTasks1\u20133accepted. Current25d617dsourcecandidatekit actualbuiltprivacyclean/innerUSTARpassed; task7_kit_audit independentlyverifyingcapturedouterSHA03ed9058ab12b75b4d7097065d3604b4f8482bee6ae06ec322ef07d46570a5ea, noinstaller/runtimeactivation. FinalTask7rebuild/cleanroot/profileCLIafteracceptedTasks4\u20136. Task8blankequalownerpacketsourceaccepted; realphysicaltargets/access/backupsstillpending. Preserve51+5WIPfiles/Cambiumgoal/host/provider/cloud/vault/native stores.",
+  "next_action": "Continue SAME Task4 producer focused repair of all ten terminal core/disk findings. Optional actual OS no-replace capability must hold unsupported IO, preserve competitor content in existing authenticated custody, and document limits; release must be explicit owner-authenticated with terminal disk/receipt evidence. Do not accept or integrate before fresh core and disk review. In parallel collect owned kit r4 build from 01d564c and ask existing kit auditor to independently verify outer digest, all173COPY files, updated source objects and exact pins. Task5 waits accepted4 then reconcile release ABI; Task6 waits5; finalTask7 rebuild and clean-root/profileCLI follows4\u20136. Task8 real targets/access/backups pending. Preserve51+5WIP files and all host/provider/cloud/vault/native-store boundaries.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -254,17 +259,17 @@
       "1": "accepted-source-d704a64",
       "2": "accepted-source-49a16e9",
       "3": "accepted-source-40a2b70",
-      "4": "terminal-fivepath-candidate-independent-core-disk-reviews-running-preliminary-gaps",
-      "5": "pending",
+      "4": "focused-ten-finding-repair-running-in-same-five-path-worktree",
+      "5": "pending-accepted-task4-consumer-abi-brief-ready",
       "6": "pending",
-      "7": "foundationaccepted-current-sourcecandidatearchivebuilt-independentartifactreview-running-finalclosure-pending",
+      "7": "foundation-accepted-copy-provenance-corrected-r4-archive-rebuild-running-final-closure-pending",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
     "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
-    "source_head": "25d617d386adea39906e63bdb7f7d4716284e3c6",
+    "source_head": "01d564c60cf9689abfe360fe98c12e103658fa4e",
     "accepted_tasks": [
       1,
       2,
