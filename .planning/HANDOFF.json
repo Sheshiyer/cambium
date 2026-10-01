@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T14:02:06.830115+00:00",
+  "updated": "2026-10-01T14:22:46.957327+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -35,7 +35,10 @@
     "Recovered explicit full-plan execution authorization and native active goal after compaction",
     "Read current distribution owner contract; isolated source at d4748c9 on codex/modular-mac-lifecycle without absorbing primary WIP",
     "Distribution isolated branch 83563ff admits full source plan with 128 stable ISC-813..940; twelve owner ISA sections present",
-    "Frozen install-surface dependency closure installed only in isolated worktree; 33 onboarding/operator baseline tests pass"
+    "Frozen install-surface dependency closure installed only in isolated worktree; 33 onboarding/operator baseline tests pass",
+    "Two independent read-only preflight reviews supplied artifact/verdict/scope and disk/journal/ownership counterexamples",
+    "Gateway attribution for three resumed independently tagged runs confirms Claude Sonnet 4.6 tool-loop calls; no worker result accepted yet",
+    "Byte-level preservation probe: 51 captured Cambium files and five primary distribution files unchanged"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -65,13 +68,17 @@
     "Native worktree tool is scoped to calling Cambium repository; use ignored distribution worktree because no applicable native cross-repository tool exists",
     "Batch workers produce uncommitted exact-path patches; parent reviews, verifies and commits each integrated task so batch diff capture retains their changes",
     "Use absolute batch task/output paths; TEMPERANCE_ISLAND=0 for bounded source batch avoids optional hook status contamination without changing runtime files; required control and receipt checks remain",
-    "Bun runtime observed 1.3.13; dependency source pins remain 1.3.5/OpenTUI 0.5.11/AJV 8.20.0/TypeScript 5.9.3; exact portable runtime proof remains Task 7"
+    "Bun runtime observed 1.3.13; dependency source pins remain 1.3.5/OpenTUI 0.5.11/AJV 8.20.0/TypeScript 5.9.3; exact portable runtime proof remains Task 7",
+    "Retain contract and kit partial patches after token-watchdog stop; resume, do not restart completed work",
+    "Use separately tagged finite-budget runs so concurrent input does not consume another task cap; frozen successful non-Sol Sonnet rail pinned without provider/catalog mutation",
+    "Do not integrate worker-local node_modules symlink into source; exact owned-file allowlist drops private setup paths",
+    "Owner plan marker now resolves to distribution-relative admitted plan; original active run directory remains stable"
   ],
   "uncommitted_files": [
     "Preserved Cambium OpenAI integration WIP from prior checkpoint",
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch"
   ],
-  "next_action": "Recover distribution source ledger and ignored active-run.json; follow run-02/run-03-baseline to terminal indices, verify nontrivial output and provider receipts, integrate exact reviewed patches before dispatching dependent Tasks 2\u20136. Actual physical acceptance remains pending targets/access/backups; keep working on source.",
+  "next_action": "Continue active run-04-contracts (handle in ignored run state), run-05-kit and run-06-baseline. Read each SUMMARY before index, verify exact-tag provider evidence and substantive tests; integrate only exact owned paths, excluding node_modules symlink. Task 1 must pass source/scope/verdict hardening and review before parallel Tasks 2/3. Recover ledger, do not repeat finished tasks.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -110,7 +117,7 @@
       },
       {
         "ref": "run-02",
-        "status": "running",
+        "status": "terminal-partial-not-accepted",
         "tasks": [
           "Task 1 contracts",
           "Task 7 kit",
@@ -119,10 +126,28 @@
       },
       {
         "ref": "run-03-baseline",
-        "status": "running",
+        "status": "terminal-partial-not-accepted",
         "tasks": [
           "three existing LaunchAgent typecheck errors"
         ]
+      },
+      {
+        "ref": "run-04-contracts",
+        "status": "running",
+        "task": "Task 1 retained-patch continuation",
+        "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-05-kit",
+        "status": "running",
+        "task": "Task 7 retained-patch continuation",
+        "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-06-baseline",
+        "status": "running",
+        "task": "LaunchAgent prerequisite repair",
+        "rail": "claude/claude-sonnet-4-6"
       }
     ],
     "task_status": {
