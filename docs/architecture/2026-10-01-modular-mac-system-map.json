@@ -1,0 +1,815 @@
+{
+  "schema": "cambium.modular-mac-review-map.v1",
+  "status": "review-snapshot-not-runtime-registry",
+  "observed_date": "2026-10-01",
+  "scope": "Integrated component boundaries and selected implementation seams; not every portfolio application or full live inventory",
+  "authority": "Root ISA owns review acceptance; owning registries retain runtime authority",
+  "profiles": [
+    "workstation",
+    "always-on-node",
+    "recovery"
+  ],
+  "repositories": [
+    {
+      "id": "runtime",
+      "head": "679d70e7fb48ba926af6e3d52a00a68fa741b5ec",
+      "dirty_path_count": 17,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "distribution",
+      "head": "d4748c9eb524895192e597b77293e8ac9dea4b63",
+      "dirty_path_count": 5,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "skills",
+      "head": null,
+      "dirty_path_count": null,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "cambium",
+      "head": "535925ad0e97b830eb80509b1eead2ec927438bb",
+      "dirty_path_count": 41,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "hermes",
+      "head": "e45b84cd01279704f39ddcd3dda32c4ea2d4d2eb",
+      "dirty_path_count": 35,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "snowgloves",
+      "head": "b792f61d9af9e06ef12d060266aa83b0a953ef6e",
+      "dirty_path_count": 4,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "antahkarana",
+      "head": "f986ffa1d46499eb26ba05d4ee99fab74ce08d0f",
+      "dirty_path_count": 0,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "session-atlas",
+      "head": "c0f99d50b40f0b0a1c0b2b37e69d451b217beaa3",
+      "dirty_path_count": 9,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "factor",
+      "head": "795ae67e8cb6eb224fc8a5ff941d069c21203e88",
+      "dirty_path_count": 3,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "meristem",
+      "head": "51698c298a053845480f9283ff30497d98d9702a",
+      "dirty_path_count": 0,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "vault",
+      "head": "f55be96a55d90bdc68e93aa2eb3f26b80eac0718",
+      "dirty_path_count": 14,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    }
+  ],
+  "sources": [
+    {
+      "id": "runtime:README.md",
+      "owner": "runtime",
+      "relative_path": "README.md",
+      "sha256": "c11c35d388b817d8703298424bcdea3be16bee3f5f21e90b7209329d9e6bcb86",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:VERSION",
+      "owner": "runtime",
+      "relative_path": "VERSION",
+      "sha256": "c69b539495b3a5ad50050c96f9e77852a4dc56b210f577a2bbf6dc82ef2f7d4f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:docs/OWNERS.md",
+      "owner": "runtime",
+      "relative_path": "docs/OWNERS.md",
+      "sha256": "42db41129915a6b1816cf7b19ea360b29434c4d3a344b3e19d3e3f7cf2de7c15",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:docs/runbooks/RUNTIME.md",
+      "owner": "runtime",
+      "relative_path": "docs/runbooks/RUNTIME.md",
+      "sha256": "e399d2f137af4c7cb05078c1cc39f68e0708893cb3d0c6a1a0b30c5620b1d726",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:docs/architecture/HEADLESS-COHESION-REMAINING-2026-09-28.md",
+      "owner": "runtime",
+      "relative_path": "docs/architecture/HEADLESS-COHESION-REMAINING-2026-09-28.md",
+      "sha256": "c081b3f1b1dee811e06d97b0302a698b6630fdd1c84547bb0a1ecf4ab46a0fee",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:router/module-registry.v4.json",
+      "owner": "runtime",
+      "relative_path": "router/module-registry.v4.json",
+      "sha256": "f86e2d5f9bc39a15c29200320b769fd15082e7af0794507a93b50dbe941a2aaa",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:router/temperance-project-init.mjs",
+      "owner": "runtime",
+      "relative_path": "router/temperance-project-init.mjs",
+      "sha256": "eddc538a476aa3a75e53978bac99394fc613b8cf936266a0a4cd7833b08b42e0",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:scripts/stage-runtime-candidate.ts",
+      "owner": "runtime",
+      "relative_path": "scripts/stage-runtime-candidate.ts",
+      "sha256": "69f762b4cbeb3dd9a76ffc9fe681a0206e2c3e71973cc3bd2eed711a25f8637b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:bin/te-install.sh",
+      "owner": "runtime",
+      "relative_path": "bin/te-install.sh",
+      "sha256": "e9d1d563dc0e1b61f8c459bc689f543a6e1fb9820e814fb8530bdcf831ba6dda",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:bin/temperance-install-launchers",
+      "owner": "runtime",
+      "relative_path": "bin/temperance-install-launchers",
+      "sha256": "b65d058f29b558b1d0720e3f201f8187d2fdd73ee1ca9e0e0407c68d96344de3",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:README.md",
+      "owner": "distribution",
+      "relative_path": "README.md",
+      "sha256": "fdf9854946d7287a19f842d49b3d666943b3c586f02bceec10b09caa52c4b72b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:VERSION",
+      "owner": "distribution",
+      "relative_path": "VERSION",
+      "sha256": "97a5d6e540a6120d09c39ddb667e0e8e2bac7fcc2ffef813b82e08fd60365bce",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:install.sh",
+      "owner": "distribution",
+      "relative_path": "install.sh",
+      "sha256": "cf770ff562bfb05f76de09c36aa4a43956793dac5febe0662ba78a854bb772e7",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:bin/temperance",
+      "owner": "distribution",
+      "relative_path": "bin/temperance",
+      "sha256": "3296dcdba4128c54767f07330ccdd4d8f8cfeb0fe30273dd1fa86f55074cd8ed",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/package.json",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/package.json",
+      "sha256": "2d447d4b14af1a65e9e17a20a567ecd45397a6d873ce118384f98ce8a6559599",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/bun.lock",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/bun.lock",
+      "sha256": "65083b07d3b402c932dee70b01ac4495a462de73a0a525484da9591a57371387",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/docs/guided-onboarding.md",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/docs/guided-onboarding.md",
+      "sha256": "7a02576237defddadee261d26b68f43415e1037ef3dd1c9ae24f9afcaec3a58c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/docs/agent-operations.md",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/docs/agent-operations.md",
+      "sha256": "1709ca7a586987a2410b96722a9daf1b58047bde57037d513ae152e1581324fe",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/cli.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/cli.ts",
+      "sha256": "c21c4d62bd122b64ffb7b1f1872d61d0a6064fa7281fb9e2f11343054ede5f4e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/wizard.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/wizard.ts",
+      "sha256": "7ab09454506c805301e4e142eaf7e771312d642b982d8537c8b635dfb3e7178c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/core-catalog.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/core-catalog.ts",
+      "sha256": "1199560d7dffe470b7e20a71708569db36769b1388089366ea08121b5503776c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/host-identity.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/host-identity.ts",
+      "sha256": "db1562e1554736aa1bf33ca69ee4e8d3cecaa5daa9eff3aeba1f0b6207db4d07",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/operation-executor.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/operation-executor.ts",
+      "sha256": "e01e3140300f450df73dd159f64ee693e5c76e2c4f16718923bf1319d2aca8dd",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/lifecycle/executor.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/lifecycle/executor.ts",
+      "sha256": "3c61f0e428a540987441a9c4036ef8fb1757663812348502ff5c1f91fa7a96f5",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/lifecycle/journal.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/lifecycle/journal.ts",
+      "sha256": "24bcc4e073cce1583a6b141d3a9cd883c43e91fc21c942fb6dad25d377221b7c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/headless/package.json",
+      "owner": "distribution",
+      "relative_path": "package/headless/package.json",
+      "sha256": "69c8af82bad4d80bd16fe402124e675aebdb7a5980f47c6a47fd2fe1c55d45fd",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "skills:skill-clusters/skill-index.json",
+      "owner": "skills",
+      "relative_path": "skill-clusters/skill-index.json",
+      "sha256": "92fe870e020eb1e57eaa445ee5859c9b3af7e061b9545a954fec317ccc8771e4",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:PROJECT.md",
+      "owner": "cambium",
+      "relative_path": "PROJECT.md",
+      "sha256": "e86c6efaa99c2b57a40e6ce74af71d8c348b03c394926f0e70b9cc96c90afd03",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:.planning/STATE.md",
+      "owner": "cambium",
+      "relative_path": ".planning/STATE.md",
+      "sha256": "9cd7b0648326316261fc9ab061ce28cdcc1586c9d3d50770dfda0d200351bf48",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:.temperance/goal.json",
+      "owner": "cambium",
+      "relative_path": ".temperance/goal.json",
+      "sha256": "e3fde042d913ad64bc6e43c69b713c4effb18226d5ffe9a643ecb29c6099cd66",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:docs/architecture/contracts/personal-secrets-sync-v1.md",
+      "owner": "cambium",
+      "relative_path": "docs/architecture/contracts/personal-secrets-sync-v1.md",
+      "sha256": "629d62e960c810385d84dd0fb5363342040f72fc7c99ad937b43ae5930d89de1",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:README.md",
+      "owner": "hermes",
+      "relative_path": "README.md",
+      "sha256": "93aeeca9851fe7bcfcdaff1aed9567fdb1e6d6615fc28f3a21f10fb44e521399",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:package.json",
+      "owner": "hermes",
+      "relative_path": "package.json",
+      "sha256": "a843bf9a1018f48fe65e6d7c704b5bea311de1f6d817345a87f6c87496b2416e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:contracts/README.md",
+      "owner": "hermes",
+      "relative_path": "contracts/README.md",
+      "sha256": "ed7b73281838cacdb807e97e4e67a32ce5bedad09db23ccdb1eb467fb27c1570",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:docs/connected-repos.md",
+      "owner": "hermes",
+      "relative_path": "docs/connected-repos.md",
+      "sha256": "e3349908f62a048bbbd06f25993a1f6a83f1de7e623594dc7b558ba8c638492f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:README.md",
+      "owner": "snowgloves",
+      "relative_path": "README.md",
+      "sha256": "21e1b0d7a4103004be93c34e939409700061ea23f0c16568f2cab6623dceb035",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:requirements-tui.txt",
+      "owner": "snowgloves",
+      "relative_path": "requirements-tui.txt",
+      "sha256": "245973cea82f2773191e381d52157bfa5a573041255a8f487d6789ef7a4bb06a",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:scripts/tui_onboard.py",
+      "owner": "snowgloves",
+      "relative_path": "scripts/tui_onboard.py",
+      "sha256": "614c5444770a12f23b39b921bb7e4081b6d0e3776e8c149277de9eaa6be8d917",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:scripts/lib/tui_flow.py",
+      "owner": "snowgloves",
+      "relative_path": "scripts/lib/tui_flow.py",
+      "sha256": "2618b1b2bd5758c2ffe64c9ded05564350e810425df5485b04c79a5305c39c28",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:docs/MAC-MINI-NODE-ONBOARDING-PLAN.md",
+      "owner": "snowgloves",
+      "relative_path": "docs/MAC-MINI-NODE-ONBOARDING-PLAN.md",
+      "sha256": "0938ad5a6b067d73e9f36110967365f8e397e2889c0d32382841e445c4d3a57c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:docs/FLEET-CONTROL-PLANE-PLAN.md",
+      "owner": "snowgloves",
+      "relative_path": "docs/FLEET-CONTROL-PLANE-PLAN.md",
+      "sha256": "6dc70a951eb7628e0d2e559d2037cf9a07ac6570de2d140bfe2c1124e7d9d6e2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:docs/AGENTS-INFRA-HANDOFF-PLAN.md",
+      "owner": "snowgloves",
+      "relative_path": "docs/AGENTS-INFRA-HANDOFF-PLAN.md",
+      "sha256": "422030225e56e5fe28d6898b25bbee66cb451701db21d54430ef38541805b7f9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:.planning/PILOT-CONTRACT.md",
+      "owner": "snowgloves",
+      "relative_path": ".planning/PILOT-CONTRACT.md",
+      "sha256": "4450520e3080425db70487db5a229051dcffdc3b82bea8b564481542012f3742",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:.planning/HANDOFF.json",
+      "owner": "snowgloves",
+      "relative_path": ".planning/HANDOFF.json",
+      "sha256": "1be18156316d1816ac0da3e483e02841c35fed4ec9ab75e865f9c7b5e3504a31",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "antahkarana:package.json",
+      "owner": "antahkarana",
+      "relative_path": "package.json",
+      "sha256": "6da260279e3af800c3723702846915791cc3509ae8a42fbb1fc71bc68f7d31bc",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "antahkarana:cli/bin/antahkarana.mjs",
+      "owner": "antahkarana",
+      "relative_path": "cli/bin/antahkarana.mjs",
+      "sha256": "d5dffd6df7fd06d5fecfa7260ca15ea3862a5650d060b4b5835a0f287da762d2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "session-atlas:README.md",
+      "owner": "session-atlas",
+      "relative_path": "README.md",
+      "sha256": "d93ba478560013de958f90a5b01316d0b4e0baf8c0ead945fb72b6ed8eee8fb3",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "session-atlas:package.json",
+      "owner": "session-atlas",
+      "relative_path": "package.json",
+      "sha256": "7082002f6ddbdee1dde5d54b78abeba835ebc4b0a195140171a3c079112cc809",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "factor:README.md",
+      "owner": "factor",
+      "relative_path": "README.md",
+      "sha256": "5b5f8662de5b28bdb9b01af6d89d0c0cdece9517ecb6a857a80836119c42afa7",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "meristem:PROJECT.md",
+      "owner": "meristem",
+      "relative_path": "PROJECT.md",
+      "sha256": "1a0e73d1c0f9409cd46bc18f20b5d607df2662572239c7958af676fbdb996d75",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:PROJECT.md",
+      "owner": "vault",
+      "relative_path": "PROJECT.md",
+      "sha256": "0cdb59c3eb4a4f2fac3f0e4c92c121c993f53449db37328c6eab40774a46a263",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    }
+  ],
+  "components": [
+    {
+      "id": "foundation",
+      "source_owner": "distribution",
+      "depends_on": [],
+      "migration_class": "reinstall",
+      "description": "Machine tooling and project-scoped runtime requirements",
+      "proposed_activation": false
+    },
+    {
+      "id": "governance",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "PAI doctrine, ISA and GSD authorities",
+      "proposed_activation": false
+    },
+    {
+      "id": "skill-clusters",
+      "source_owner": "skills",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "regenerate",
+      "description": "Pinned catalog and hubs-only discovery; rebuild links/indexes",
+      "proposed_activation": false
+    },
+    {
+      "id": "setup-ui",
+      "source_owner": "distribution",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Existing OpenTUI wizard, shared headless controller and lifecycle",
+      "proposed_activation": false
+    },
+    {
+      "id": "personal-overlay",
+      "source_owner": "runtime",
+      "depends_on": [
+        "governance",
+        "skill-clusters"
+      ],
+      "migration_class": "regenerate",
+      "description": "Private bindings joined to the reviewed portable release",
+      "proposed_activation": false
+    },
+    {
+      "id": "router",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reauthenticate",
+      "description": "Explicit OmniRoute or 9router backend; no implicit cutover",
+      "proposed_activation": false
+    },
+    {
+      "id": "supervision",
+      "source_owner": "runtime",
+      "depends_on": [
+        "governance"
+      ],
+      "migration_class": "regenerate",
+      "description": "Supervisor, launchd ownership and admission",
+      "proposed_activation": false
+    },
+    {
+      "id": "execution",
+      "source_owner": "runtime",
+      "depends_on": [
+        "supervision",
+        "router",
+        "skill-clusters"
+      ],
+      "migration_class": "reconcile",
+      "description": "Hands/Superset and bounded executors; no copied leases",
+      "proposed_activation": false
+    },
+    {
+      "id": "manifest",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "regenerate",
+      "description": "Redacted Manifest events; projection only",
+      "proposed_activation": false
+    },
+    {
+      "id": "speculum",
+      "source_owner": "runtime",
+      "depends_on": [
+        "manifest"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional visual glass; not an execution authority",
+      "proposed_activation": false
+    },
+    {
+      "id": "notifications",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional Pulse/voice; Constellation deferred",
+      "proposed_activation": false
+    },
+    {
+      "id": "organs",
+      "source_owner": "runtime",
+      "depends_on": [
+        "governance"
+      ],
+      "migration_class": "reconcile",
+      "description": "Vestibule/Nutrix/Auspex/Circulator/Praeceptor; retain safety holds",
+      "proposed_activation": false
+    },
+    {
+      "id": "native-clients",
+      "source_owner": "distribution",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reauthenticate",
+      "description": "Codex/Claude/OpenCode/Cursor/Kimi/Grok: independent auth and sessions",
+      "proposed_activation": false
+    },
+    {
+      "id": "cambium",
+      "source_owner": "cambium",
+      "depends_on": [],
+      "migration_class": "leave-remote",
+      "description": "Independent D1 operational writer, Gate, quests and OpenAI packet; optional project attachment",
+      "proposed_activation": false,
+      "integration_kind": "external-only",
+      "bundled_with_temperance": false
+    },
+    {
+      "id": "hermes",
+      "source_owner": "hermes",
+      "depends_on": [],
+      "migration_class": "leave-remote",
+      "description": "Separate Cloudflare-first execution/delivery plant",
+      "proposed_activation": false,
+      "optional_integrations": [
+        "cambium"
+      ]
+    },
+    {
+      "id": "cloud-services",
+      "source_owner": "hermes",
+      "depends_on": [],
+      "migration_class": "leave-remote",
+      "description": "Declared D1/R2/KV/Queues/Vectorize/Access and optional EC2; no fresh live inventory",
+      "proposed_activation": false
+    },
+    {
+      "id": "vault",
+      "source_owner": "vault",
+      "depends_on": [],
+      "migration_class": "restore-selectively",
+      "description": "Approved knowledge attachment; no private corpus export",
+      "proposed_activation": false
+    },
+    {
+      "id": "snowgloves",
+      "source_owner": "snowgloves",
+      "depends_on": [],
+      "migration_class": "external-independent",
+      "description": "Separate optional product; existing Textual TUI and draft node/fleet plans are context only",
+      "proposed_activation": false,
+      "integration_kind": "external-only",
+      "bundled_with_temperance": false
+    },
+    {
+      "id": "secrets-sync",
+      "source_owner": "cambium",
+      "depends_on": [],
+      "migration_class": "exclude",
+      "description": "Design-only separate enrollment/sync service; no migration prerequisite",
+      "proposed_activation": false
+    },
+    {
+      "id": "antahkarana",
+      "source_owner": "antahkarana",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional headless JSON CLI; desktop separate",
+      "proposed_activation": false
+    },
+    {
+      "id": "session-atlas",
+      "source_owner": "session-atlas",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "regenerate",
+      "description": "Optional projection; native source records excluded from Git",
+      "proposed_activation": false
+    },
+    {
+      "id": "factor",
+      "source_owner": "factor",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "restore-selectively",
+      "description": "Selected company/department pack with scoped source knowledge",
+      "proposed_activation": false
+    },
+    {
+      "id": "meristem",
+      "source_owner": "meristem",
+      "depends_on": [],
+      "migration_class": "restore-selectively",
+      "description": "Selected brand project references; entry point remains draft-held",
+      "proposed_activation": false
+    },
+    {
+      "id": "browser-media-native",
+      "source_owner": "distribution",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional role packs with measured resource and access budgets",
+      "proposed_activation": false
+    }
+  ],
+  "existing_personal_module_registry": {
+    "source_ref": "runtime:router/module-registry.v4.json",
+    "schema": "temperance.module-registry.v1",
+    "count": 21,
+    "module_ids": [
+      "app.constellation",
+      "projection.manifest",
+      "projection.speculum",
+      "executor.superset",
+      "delegate.hands",
+      "transport.a2a",
+      "organ.runtime",
+      "projection.banner-island",
+      "executor.inline",
+      "executor.batch",
+      "executor.broker",
+      "executor.cli",
+      "harness.claude-phase-role",
+      "harness.codex",
+      "harness.grok",
+      "harness.opencode",
+      "harness.cursor",
+      "harness.antigravity",
+      "harness.temperance",
+      "provider.omniroute",
+      "provider.native"
+    ],
+    "all_default_disabled": true
+  },
+  "local_observation": {
+    "kind": "read-only-presence-metadata",
+    "listener_ports": [
+      20128,
+      20129,
+      8766,
+      8768,
+      8770,
+      31337,
+      5173
+    ],
+    "listeners_are_health_proof": false,
+    "service_metadata_is_activation_proof": false,
+    "private_credential_or_session_stores_read": false,
+    "external_inventory_performed": false
+  },
+  "verification": {
+    "existing_tui_slice": {
+      "passed": 26,
+      "failed": 3,
+      "errors": 3,
+      "test_files": 5,
+      "status": "dependency-closure-unavailable",
+      "loader_errors": [
+        "@opentui/core/testing unavailable in two test files",
+        "ajv/dist/2020.js unavailable in operation-executor test"
+      ]
+    },
+    "routed_review_provider_attribution": "unverified",
+    "physical_migration": "not-performed",
+    "installation": "not-performed",
+    "cloud_mutation": "not-performed",
+    "cato": "not-run-fixed-model-unsupported-on-account",
+    "post_deliverable_advisor": "timed-out-after-45000ms-no-verdict",
+    "documentation_criteria": {
+      "passed": 27,
+      "total": 27,
+      "implementation_acceptance": false
+    }
+  },
+  "product_boundaries": {
+    "operator_requirement": "Cambium, Temperance Engine and Snow Gloves OS remain separate products; no merge",
+    "migration_tool_owner": "distribution",
+    "cambium": "independent project and operational authority; no bundled runtime or deployment effects",
+    "snowgloves": "external optional product with independent installer, runtime, state and roadmap",
+    "profiles_require_snowgloves": false,
+    "snowgloves_owned_effects_allowed": false,
+    "cambium_operational_effects_allowed": false
+  }
+}

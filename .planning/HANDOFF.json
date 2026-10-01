@@ -1,0 +1,65 @@
+{
+  "schema": "cambium.review-handoff.v1",
+  "updated": "2026-10-01",
+  "status": "review-complete-implementation-proposed",
+  "active_task": "Review the integrated ecosystem and formulate a modular new-Mac migration and rich TUI plan",
+  "completed": [
+    "Read Cambium project, handoff, ISA, GSD state and saved OpenAI goal; preserved existing dirty work",
+    "Recovered the earlier Snow Gloves bootstrap, fleet, secrets and local-pilot planning context",
+    "Operator confirmed replacement workstation and additional always-on Mac are equally important",
+    "Inspected local Temperance service definitions and listeners without starting or changing services",
+    "Found existing Temperance distribution OpenTUI onboarding controller and separate Snow Gloves Textual capability-onboarding TUI",
+    "Read-only routed reviews returned suggestions; actual provider attribution was not verified",
+    "Delivered 24-component map with 51 hashed source references across 11 roots",
+    "Wrote integrated review, proposed design and eight-task implementation plan",
+    "Appended review-only ISA criteria and bounded project checkpoint",
+    "Focused existing tests: 26 pass, three dependency-loader errors; no dependencies installed",
+    "Advisor corrected universal cross-router fencing: shared scheduler ownership is the applicable fence boundary",
+    "Applied operator no-merge requirement: independent products, no Snow Gloves runtime pack, both Mac profiles independent",
+    "Cato attempted but fixed model unsupported on account; no independent pass or approval",
+    "Validated all 51 current source hashes, 24 component references and four portable document link sets",
+    "Verified all 27 review documentation criteria and all 12 required ISA sections",
+    "Read back the original request, both equal Mac uses and no-merge correction; all are represented",
+    "Verified saved goal and 32 unrelated baseline files unchanged",
+    "Final Advisor timed out; no verdict or approval inferred"
+  ],
+  "remaining": [
+    "Future, unapproved: review/adopt the design and admit Task 1\u20132 in the Temperance distribution owner repository",
+    "Future, unapproved: implement and prove local recovery, TUI, release kit and both physical Mac flows"
+  ],
+  "blockers": [],
+  "decisions": [
+    "Planning and review only; no host, service, credential, provider, cloud or external mutation",
+    "Preserve Cambium saved OpenAI integration goal and Phase 9 authenticated-read gate",
+    "Preserve Snow Gloves unrelated active profile-refresh handoff and source-only pilot",
+    "Reuse the existing Temperance OpenTUI surface and headless controller before creating another TUI",
+    "Public distribution names 9router; personal installed plant uses OmniRoute; do not infer an authorized router migration",
+    "Use symbolic roots and relative source references in repository artifacts",
+    "No merge of Cambium, Temperance Engine and Snow Gloves OS; both profiles must work without Snow Gloves"
+  ],
+  "uncommitted_files": [
+    "ISA.md (unrelated prior work preserved outside review commit)",
+    ".project/HANDOFF.md (unrelated prior work preserved outside review commit)"
+  ],
+  "next_action": "Review the independent-product design; if separately admitted, execute Task 1\u20132 only in the Temperance distribution repository. Do not merge Cambium, Temperance Engine or Snow Gloves OS, alter the preserved OpenAI goal or activate host/cloud/provider state from this documentation.",
+  "preserved_goal": {
+    "path": ".temperance/goal.json",
+    "status": "active",
+    "planner": "gsd",
+    "next_gate": "Phase 9 exact authenticated inventory authorization; OpenAI live activation independently held"
+  },
+  "review_limits": [
+    "Cato fixed model unsupported; final Advisor timed out; no independent audit approval",
+    "Focused existing tests have three dependency-loader errors; TUI readiness unverified",
+    "No new Mac, physical boot/restore or remote handoff evidence"
+  ],
+  "review_owned_paths": [
+    "docs/architecture/2026-10-01-modular-mac-system-review.md",
+    "docs/architecture/2026-10-01-modular-mac-system-map.json",
+    "docs/superpowers/specs/2026-10-01-modular-mac-design.md",
+    "docs/superpowers/plans/2026-10-01-modular-mac.md",
+    ".planning/HANDOFF.json",
+    "ISA.md (review additions only)",
+    ".project/HANDOFF.md (review section only)"
+  ]
+}

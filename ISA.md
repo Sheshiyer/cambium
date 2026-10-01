@@ -1657,7 +1657,47 @@ Implementation acceptance evidence:
 - [x] ISC-2457: The D1 Mission to Task proposal gate is unlocked but unapplied.
 - [x] ISC-2458: Anti: Fitcheck receipt issuance performs no D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
 
+### 2026-10-01 modular Mac architecture review (review only)
+
+This slice evaluates the delivered review and proposed design, not a built
+installer or a successful migration. The saved OpenAI goal and its 11/42
+progress remain unchanged. Implementation belongs to each owning repository.
+
+- [x] ISC-2506: The system review declares the boundaries of its evidence coverage.
+- [x] ISC-2507: The evidence map binds each source reference to current file bytes.
+- [x] ISC-2508: The system review assigns the mapped subsystems their existing owners.
+- [x] ISC-2509: The review provides explicit migration data classifications.
+- [x] ISC-2510: The design defines the replacement-workstation flow.
+- [x] ISC-2511: The design defines the always-on-node addition flow.
+- [x] ISC-2512: The design reuses the existing OpenTUI onboarding controller.
+- [x] ISC-2513: The plan reuses the existing lifecycle journal/executor seam.
+- [x] ISC-2514: The design explicitly holds unsupported personal router migration.
+- [x] ISC-2515: The review names the observed project toolchain incompatibility.
+- [x] ISC-2516: The design declares composable role profiles.
+- [x] ISC-2517: The plan distinguishes destination device identity from hardware observations.
+- [x] ISC-2518: The design represents authentication-pending as recoverable state.
+- [x] ISC-2519: The design binds rollback to a compatible release/binding generation.
+- [x] ISC-2520: The design defines a durable handoff excluding native session stores.
+- [x] ISC-2521: The design requires unknown remote outcomes to reconcile before replay.
+- [x] ISC-2522: The design defines keyboard-accessible recovery views.
+- [x] ISC-2523: The implementation plan names concrete owner-relative edit targets.
+- [x] ISC-2524: The plan keeps physical cold-boot acceptance separate from source tests.
+- [x] ISC-2525: The verification record reports the actual focused reuse-test result.
+- [x] ISC-2526: Review artifacts exclude machine-local absolute checkout paths.
+- [x] ISC-2527: Anti: this review performs no host, credential, provider, cloud or deployment mutation.
+- [x] ISC-2528: Anti: this review does not replace or complete the saved OpenAI goal.
+- [x] ISC-2529: The structured handoff records review pickup separately from the saved goal.
+- [x] ISC-2530: Anti: the design merges no Cambium, Temperance or Snow Gloves product, runtime or authority.
+- [x] ISC-2531: Both proposed Mac profiles require no Snow Gloves installation or enrollment.
+- [x] ISC-2532: The plan excludes Cambium operational state and Snow Gloves-owned effects from Temperance execution.
+
 ## Test Strategy
+
+- `ISC-2506..2532` | Review-artifact inspection | Named paragraphs/fields,
+  current source hash joins, actual test output, forbidden-content scan,
+  saved-goal hash readback and scoped Git diff. These probes establish
+  review completeness only; no proposed runtime feature is accepted.
+
 
 
 - ISC-1273..1276 | canonical infinite-game anchors | stable headings, direct paths, authority boundaries, coherent ISA state, and preserved Mission Fabric terminology | each criterion is binary and provenance-preserving | `node --test scripts/infinite-game-anchors.test.mjs`
@@ -1778,6 +1818,9 @@ Implementation acceptance evidence:
 | ISC-911..930 | Thoughtseed project closeout | terminal Completed / Closed state removes receipt-backed work from active views, queues closeout evidence, writes handoff/memory/index records through the local executor, and preserves no-relocation/no-production boundaries | focused domain/action/executor tests, Portfolio Cartographer check, bundle parity, source audit, `git diff --check` |
 
 ## Features
+
+- `ModularMacReview` | Map current ecosystem and propose both new-Mac flows | satisfies ISC-2506..2532 | depends_on source inventory | parallelizable false
+
 
 - `ThreeSaplingIdentityBinding` | Bind Fitcheck, IVerif, and DLOCK to exact tenant, repository, packet, and root-context evidence | satisfies ISC-1387..1395 | depends_on PortfolioFoundationReconciliation | parallelizable true
 - `ActivationManifestRegistry` | Compile deterministic receipt-gated activation records for the exact three-Sapling cohort | satisfies ISC-1396..1401 | depends_on ThreeSaplingIdentityBinding | parallelizable true
@@ -1902,6 +1945,29 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-10-01 13:20: operator correction: no merge of Cambium, Temperance Engine
+  and Snow Gloves OS. Snow Gloves is not a Temperance pack or node
+  prerequisite. Both profiles work independently; Cambium operational state
+  and Snow Gloves-owned lifecycle effects stay outside this executor.
+
+- 2026-10-01 13:20: refined: user requested a deep integrated-system review and
+  modular migration/TUI plan; replacement workstation and added always-on
+  node are equally important. This is a review lane, not activation of the
+  existing OpenAI goal, Snow Gloves pilot or remote services.
+- 2026-10-01 13:20: Reuse the distribution's existing OpenTUI/controller and
+  lifecycle/preimage/journal primitives. Its 9router catalog and the personal
+  OmniRoute plant remain separate source/installation authorities. Do not
+  infer a router replacement or transplant native stores.
+- 2026-10-01 13:20: The review uses 27 atomic documentation criteria rather than
+  padding to the E4 soft floor of 128. Six analytical capabilities are ISA,
+  FirstPrinciples, SystemsThinking, Advisor, FeedbackMemoryConsult and
+  ReReadCheck. Two bounded routed reviews returned advisory output without
+  verified provider attribution; no provider verdict is inferred.
+- 2026-10-01 13:20: Shared project frontmatter remains attached to the existing
+  goal; review progress is tracked by ISC-2506..2532. Pre-existing dirty
+  source and handoff material are preserved rather than committed wholesale.
+
 
 - 2026-08-18 06:25: refined: Phase 4 is a deterministic, content-addressed read projection over existing authorities, not a new graph database, planner, or D1 writer. A machine-readable contract and generated readback must share one source model; copied anchor authority, projection foldback, stale digests, unlabeled edges, and blocked-as-complete coercion are fail-closed test cases. The required pre-commit and post-deliverable Advisor invocations could not authenticate because the local OAuth session expired, so no advisory approval is inferred; independent GSD plan checking and deterministic repository probes remain mandatory before execution.
 - 2026-08-18 01:48: refined: the exact v0.4 infinite-game goal and ISC-1273..1276 are the active Phase 3 acceptance contract; all retained issue #331 and earlier Vision, Goal, Criteria, Decision, Changelog, and Verification material remains historical evidence and is neither rewritten nor treated as current doctrine.
@@ -2329,6 +2395,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   learned: hosted admin intent needs a founder-authenticated server boundary, immutable replay-safe evidence, and a governed next-flow trigger without letting R2 or the browser become a second operational writer
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
+- 2026-10-01 | conjectured: modular migration required a new installer and Snow Gloves could be a capability pack in a combined setup
+  refuted by: current Temperance source already contains OpenTUI onboarding and lifecycle recovery primitives; the operator explicitly rejects merging the three products
+  learned: the missing work is a portable Temperance lifecycle with independent external project and product boundaries, not a merged operating system
+  criterion now: ISC-2512/2513 require existing primitive reuse; ISC-2530..2532 require independent products and both profiles without Snow Gloves
+
 ## Verification
 
 ### 2026-09-05 Plexus P7 supporting source checkpoint
@@ -2664,6 +2735,40 @@ live identity, admission, deployment or recipient proof. See the latest
 - ISC-671..682, ISC-688: interaction and persistence proof — the Unplanned cards expose Now, Next, Later, Park, and Needs Review. Browser interaction applied IVerif→Next and FMRL→Later, reduced the queue 10→8, exposed two bounded undo steps, then restored both exact prior states 8→9→10. A separate-origin proof created IVerif→Next, imported an empty valid v3 packet, and observed zero plans plus zero stale Undo controls. The single `PlanningHistory` state proves bulk→quick clears bulk, quick undo remains bounded LIFO, later bulk clears quick, and discard/empty transitions stay safe; successful Import, confirmed Reset, drawer/signal edits, and ordinary plan edits clear every incompatible history. The review desk renders all 16 source records with deterministic rationale, `thoughtseed.review-suggestion.v1`, the complete 64-character source digest, visible `Suggested · local rule` labeling, four one-tap proposal choices, bounded family/note fields, and 0/16 progress. Choosing `review:10869` persisted 1/16 across reload; Reset restored 0/16. JSON v3 and Markdown round-trips preserve rule plus exact digest, and a mismatched digest fails closed rather than being relabeled; source review and locally flagged WorkObject counts stay separate.
 - ISC-683..687: responsive, safety, embed, and release proof — in-app-browser DOM at 390, 768, and 1440 pixels reports `scrollWidth === innerWidth`, all 16 review cards, all 16 rule markers, and zero warning/error console entries. At 390px, layout selection exposes `aria-pressed`, contextual quick/review labels include each record name, and every targeted new control measures exactly 44px. Canonical catalog bytes remain unchanged across grouping, suggestions, and export. `pnpm check` passes 25/25 domain tests, lint, TypeScript/Vite build, bundle, zero-egress audit, CSP smoke, and standalone smoke; full repository tests pass 1523/1523; route tests pass 4/4; root standalone audit checks 626 publishable files; root standalone smoke and Telegram mobile contract pass; strict Wrangler dry-run exits 0. `bundle.html` and the generated Worker embed are exact at 290,703 bytes with SHA-256 `cfc5f50405f96eb6b657d9fbbc6dca6739ddcea4d23384d647ab73a750d1859e`. Final independent Cato re-audit returns PASS with no remaining findings across planning history, import/reset isolation, provenance, accessibility, offline enforcement, bundle parity, and founder-route security. v2 and legacy v1 inputs migrate explicitly into v3 while invalid/future packets fail closed. No deployment, network request, Telegram send/menu, tenant, account, WorkObject, D1/KV/R2, schema, allowlist, traffic, or provider mutation occurred.
 - ISC-851..864 hosted-action focused proof: 47 active Workbench tests pass with one historical fixture skip; eight action/store tests prove closed validation against the exact shipped root-map/catalog digests, canonical WorkObject identities, reviewed shallow Project paths/status, R2-before-queue ordering, exact replay, conflict, Project-only grammar, and durable queue retry; ten route tests prove Cloudflare Access/Plexus and Telegram founder authorization, POST-only routing, 16 KiB rejection, exact bundle parity, and fail-closed persistence. The hosted artifact is 352,037 bytes with SHA-256 `a195927aaa9dff17326e52022a1f868a13e375456ff2e2df911124fe460b2348`. The complete deterministic release gate passes and independent re-audit reports no remaining P0-P2 findings. The client has one same-origin action endpoint, the queue exposes no R2 key, and no Goal Graph, production Worker, traffic, registry, provider, or live R2 state was mutated by this local implementation.
+
+### 2026-10-01 modular Mac architecture review — documentation verification
+
+- ISC-2506: artifact readback — "It did not inspect every portfolio"
+- ISC-2507: current hash join — "source_count: 51; source_drift: []"
+- ISC-2508: artifact readback — "The UI consumes owners"
+- ISC-2509: artifact readback — "Restore selectively"
+- ISC-2510: artifact readback — "## Workstation replacement"
+- ISC-2511: artifact readback — "## Always-on node addition"
+- ISC-2512: artifact readback — "onboarding/wizard.ts"
+- ISC-2513: artifact readback — "src/lifecycle/{executor,journal,receipts}.ts"
+- ISC-2514: artifact readback — "An unsupported personal adapter displays held"
+- ISC-2515: artifact readback — "Node `>=22 <23`"
+- ISC-2516: artifact readback — "| `always-on-node` |"
+- ISC-2517: artifact readback — "hardware/UID matching is only a compatibility observation"
+- ISC-2518: artifact readback — "authentication-pending"
+- ISC-2519: artifact readback — "compatible release and binding generation together"
+- ISC-2520: artifact readback — "Exclude vendor session IDs"
+- ISC-2521: artifact readback — "Unknown remote outcomes"
+- ISC-2522: artifact readback — "Search and keyboard navigation work without a"
+- ISC-2523: artifact readback — "src/migration/contracts.ts"
+- ISC-2524: artifact readback — "rehearse power/network loss, boot/login"
+- ISC-2525: test log readback — "26 pass; 3 fail; 3 errors; loader errors: @opentui/core/testing, ajv/dist/2020.js"
+- ISC-2526: portable artifact scan — "portable_documents: 4; missing_links: []; no machine-local absolute checkout paths or token-shaped values"
+- ISC-2527: scoped effects and source readback — "No host/service/provider configuration, credential access, cloud query, deployment or external delivery; 32 unrelated baseline files unchanged"
+- ISC-2528: saved-goal hash readback — "saved_goal_sha256: e3fde042d913ad64bc6e43c69b713c4effb18226d5ffe9a643ecb29c6099cd66"
+- ISC-2529: artifact readback — "preserved_goal"
+- ISC-2530: artifact readback — "explicitly rejects merging Cambium, Temperance Engine and"
+- ISC-2531: artifact readback — "Both `workstation` and `always-on-node` compose when Snow Gloves is absent"
+- ISC-2532: artifact readback — "reject plans that claim Cambium/Snow Gloves-owned state or service paths"
+
+- Review scope: 27/27 documentation criteria pass; 12 required ISA sections are populated. Existing OpenAI goal/frontmatter progress remains 11/42 and active. This records no implementation or physical migration acceptance.
+- Review availability: Cato fixed-model invocation failed because GPT-5.4 is unsupported on this ChatGPT-backed account. Final post-deliverable Advisor attempt timed out after 45000 ms. Earlier Advisor/conflict calls returned suggestions; none is independent release approval.
+- ReReadCheck: the original request calls for a deep system map and rich TUI plan, both Mac uses have equal priority, and the latest operator instruction rejects merging Cambium, Temperance Engine and Snow Gloves OS. The delivered proposal preserves those boundaries and leaves all implementation, installation and physical gates pending.
 
 ## 2026-08-11 Mini App page-wiring iteration
 

@@ -1,5 +1,32 @@
 # Project handoff
 
+### 2026-10-01 modular Mac migration architecture review
+
+- Added a source-grounded review, hashed evidence map, proposed design and
+  finite implementation plan under `docs/architecture/` and
+  `docs/superpowers/`. The operator confirmed workstation replacement and
+  always-on node addition are equally important.
+- Operator requires Cambium, Temperance Engine and Snow Gloves OS to stay
+  separate products, runtimes, installers, state and authority. Both Mac
+  profiles work without Snow Gloves; its lifecycle and Cambium operational
+  mutations are outside this plan.
+- Reuse the existing distribution OpenTUI wizard/headless controller and
+  lifecycle journals. Personal OmniRoute and distribution 9router remain
+  distinct; unsupported joins hold rather than switching backend.
+- Focused existing reuse tests: 26 pass, three loader errors because
+  `@opentui/core/testing` and `ajv/dist/2020.js` are absent in the inspected
+  local dependency closure. This is not a green TUI readiness claim.
+- Root ISA review criteria ISC-2506..2532 pass 27/27 for documentation only;
+  source hash joins pass 51/51. Cato could not run on its unsupported fixed
+  model; the final Advisor attempt timed out. No independent approval is inferred.
+- Review criteria are separate from the preserved
+  OpenAI goal and its 11/42 progress. Physical migration, restore, boot,
+  sign-in, enrollment and remote handoff remain unperformed.
+- No host/service/provider configuration, credentials, native sessions,
+  Vault contents, cloud state, deployment or external delivery changed.
+  Use `.planning/HANDOFF.json` for this review's current pickup.
+
+
 ### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
 
 - The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.
