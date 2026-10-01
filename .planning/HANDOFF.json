@@ -1,8 +1,8 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01",
-  "status": "growth-ecosystem-review-complete-implementation-proposed",
-  "active_task": "Read all growth files and revise the integrated Temperance/Cambium organ map and Mac migration/TUI proposal",
+  "updated": "2026-10-01T13:52:27.053781+00:00",
+  "status": "modular-mac-implementation-active",
+  "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
     "Read Cambium project, handoff, ISA, GSD state and saved OpenAI goal; preserved existing dirty work",
     "Recovered the earlier Snow Gloves bootstrap, fleet, secrets and local-pilot planning context",
@@ -31,12 +31,23 @@
     "Verified current Adytum source mismatch: eight Cambium routes versus nine Hermes owner routes",
     "Recorded enrollment authority, disabled capability-hit modes, cell/link gaps and stale/nonportable paper bundle",
     "Revised integrated Mac map, design and plan; both Mac uses remain equal and Snow Gloves excluded",
-    "Passed 32 documentation criteria and all twelve ISA section checks; preserved saved goal and 49 unrelated baseline files"
+    "Passed 32 documentation criteria and all twelve ISA section checks; preserved saved goal and 49 unrelated baseline files",
+    "Recovered explicit full-plan execution authorization and native active goal after compaction",
+    "Read current distribution owner contract; isolated source at d4748c9 on codex/modular-mac-lifecycle without absorbing primary WIP"
   ],
   "remaining": [
-    "Future implementation and physical Mac acceptance are outside this completed review"
+    "Task 1: closed migration capability and ecosystem contracts",
+    "Task 2: bounded inspect/export/diff",
+    "Task 3: pure destination planning",
+    "Task 4: owned local lifecycle recovery bridge",
+    "Task 5: shared CLI and agent controller",
+    "Task 6: OpenTUI views and real synthetic PTY proof",
+    "Task 7: locked portable kit and clean-root proof",
+    "Task 8: both actual physical Mac acceptance flows"
   ],
-  "blockers": [],
+  "blockers": [
+    "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137"
+  ],
   "decisions": [
     "Planning and review only; no host, service, credential, provider, cloud or external mutation",
     "Preserve Cambium saved OpenAI integration goal and Phase 9 authenticated-read gate",
@@ -45,12 +56,17 @@
     "Public distribution names 9router; personal installed plant uses OmniRoute; do not infer an authorized router migration",
     "Use symbolic roots and relative source references in repository artifacts",
     "No merge of Cambium, Temperance Engine and Snow Gloves OS; both profiles must work without Snow Gloves",
-    "Operator clarification: Cambium, Temperance and organs form one connected ecosystem; product authority boundaries must not erase those connections"
+    "Operator clarification: Cambium, Temperance and organs form one connected ecosystem; product authority boundaries must not erase those connections",
+    "2026-10-01 execution request supersedes review-only status and Task 1\u20132 proposed limit; execute Tasks 1\u20138 within each owner boundary",
+    "Distribution source is the implementation owner; source edits and isolated dependency setup authorized; host/cloud/provider changes remain separately scoped",
+    "Native worktree tool is scoped to calling Cambium repository; use ignored distribution worktree because no applicable native cross-repository tool exists",
+    "Batch workers produce uncommitted exact-path patches; parent reviews, verifies and commits each integrated task so batch diff capture retains their changes"
   ],
   "uncommitted_files": [
-    "Unrelated pre-existing OpenAI integration work remains dirty and unstaged; review additions are scoped to this checkpoint"
+    "Preserved Cambium OpenAI integration WIP from prior checkpoint",
+    "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch"
   ],
-  "next_action": "Present the completed growth deep review and integrated migration/TUI proposal. Future implementation begins only with an admitted distribution-owned typed ecosystem and read-only inspect/export/diff slice; do not activate services or change the saved Cambium OpenAI goal.",
+  "next_action": "Continue source implementation in distribution codex/modular-mac-lifecycle; recover its plan ledger and batch index before dispatching; never restart completed tasks or mutate the saved Cambium OpenAI goal.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -74,5 +90,23 @@
     ".project/HANDOFF.md (review section only)",
     "docs/architecture/2026-10-01-growth-ecosystem-review.md",
     "docs/architecture/2026-10-01-growth-file-coverage.json"
-  ]
+  ],
+  "implementation": {
+    "owner": "temperance_engine",
+    "base_commit": "d4748c9eb524895192e597b77293e8ac9dea4b63",
+    "branch": "codex/modular-mac-lifecycle",
+    "workspace_ref": "temperance_engine:.worktrees/modular-mac",
+    "plan": "docs/superpowers/plans/2026-10-01-modular-mac.md",
+    "batch_runs": [],
+    "task_status": {
+      "1": "pending",
+      "2": "pending",
+      "3": "pending",
+      "4": "pending",
+      "5": "pending",
+      "6": "pending",
+      "7": "pending",
+      "8": "pending"
+    }
+  }
 }
