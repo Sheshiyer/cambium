@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T17:43:21.355845+00:00",
+  "updated": "2026-10-01T18:09:57.488883+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -70,7 +70,12 @@
     "Accepted source Task3 at40a2b70 andTask2at49a16e9 after fresh independentr2PASS and parent334tests1158assertions/sourceTypeScriptzero; ISC829..860checked onlysourcecriteria",
     "Actualcurrentcommittedsource kitdryrun passes713sourcefiles andreal21dependencies; actualbuild correctlyheld onfiveexistingprivate-path-shapedtestfixtures, separateisolated sourcehygiene continuationprepared",
     "Task4isolated non-SolAstra lifecycle recovery worker launchedfrom accepted49a16e9 with frozen dependency copy andexistingjournal/prepared-surface/receipt ownership",
-    "Task8 retainedpacketpreflight found proposedcommands/identity issuance/concurrentapply/restore evidence defects; nophysicalevidence oracceptanceinferred"
+    "Task8 retainedpacketpreflight found proposedcommands/identity issuance/concurrentapply/restore evidence defects; nophysicalevidence oracceptanceinferred",
+    "Accepted Task8 blank equal-profile owner packet source preparation atdistribution290fe9c, physicalcriteria925..940unchangedpending; portablelink falsecredentialpattern fixed25d617d withoutprivacy scannerchange",
+    "Accepted fivefile sourcefixture hygiene prerequisite a4fcb04: independentlyreviewed andparent21pass1explicitliveskip54assertions/guard/sourceTS0; defaultCLIfakesysctl/exactruntime/nooverwrite, earlierone-time producer/reviewer actualmodelchipobservationsdisclosed",
+    "Built actualcurrent sourcecandidate kit from25d617d:723committedsourcefiles/real21vendor/native/Bun closure, privacyclean,2303regularmembers, rawUSTAR/innerchecksumpassed; independentouter/artifactreviewrunning, noTask7fullacceptance",
+    "Task4terminal retainedfivepath66927bytepatch reports511tests18617assertions and784disk-backedinterruptioncases/source+strictTS0; fresh coreanddiskreviewrunning, noacceptance",
+    "Fresh preservation confirms51capturedCambium+5distributionprimaryfiles byte-identical"
   ],
   "remaining": [
     "Task 4: owned local lifecycle recovery bridge",
@@ -81,8 +86,8 @@
   ],
   "blockers": [
     "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137",
-    "Task7 actualcurrentcommittedsource archive build is correctlyheld onfiveexistingprivate-path-shapedtestfixtures; isolatedhygienerepair necessary beforeartifactacceptance",
-    "FinalTask7closure stillrequires acceptedTasks4\u20136 source andactualclean-root/profileCLI proof"
+    "FinalTask7closure stillrequires acceptedTasks4\u20136 source andactualclean-root/profileCLI proof",
+    "Task4 preliminary independentcoreauditfindslegacyrollbackbinding-removalbypass, linkedjournal/receiptreads andequalprior-outputstatus inconsistency; finalcore/diskreports pending, candidateunaccepted"
   ],
   "decisions": [
     "Preserve Cambium saved OpenAI integration goal and Phase 9 authenticated-read gate",
@@ -117,9 +122,9 @@
   "uncommitted_files": [
     "Preserved Cambium OpenAI integration WIP from prior checkpoint",
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
-    "Distribution integration branch clean at49a16e9; Task4 andsourcefixturehygiene changes remain in separateignoredworktrees"
+    "Distribution integration branch clean at25d617d; five Task4 sourcepaths remain in separateisolatedworktree awaitingreview/repairs"
   ],
-  "next_action": "ContinueTask4isolated non-SolAstra migration_recovery_task4 existinglifecyclebridge andactualfaultmatrix fromaccepted49a16e9. SourceTasks1\u20133accepted. Actualcurrentkitdryrun closurepasses; buildheldonfiveexistingprivate-path-shapedtestfixtures; kit_r4_producer hygienerepairassignedseparatemodular-mac-source-fixtures worktreewithfivefileownership, neverweakenprivacy scanner. Fresh independentreview/parentverify thenexactpathcommit andrealarchivebuild/independentouterdigest verification. FinalTask7closureafteracceptedTasks4\u20136, Task5wait4thenTask6wait5. Prepare correctedTask8ownerpacketonlyafteractualCLIknown; physicaltargets/access/backups stillpending. PreserveallWIP/host/provider/cloud/vault/native stores/Cambiumgoal.",
+  "next_action": "CollectTask4fresh independentcore task1_contract_audit anddisk migration_recovery_review reports, then focused SAMEfivepath migration_recovery_task4 repair continuation; preliminarylegacyrollbackbindingremovalbypass/linkedjournalreceiptreads/equalprior-outputstatus gaps require fixes beforeacceptance. Task5waitaccepted4thenTask6wait5. SourceTasks1\u20133accepted. Current25d617dsourcecandidatekit actualbuiltprivacyclean/innerUSTARpassed; task7_kit_audit independentlyverifyingcapturedouterSHA03ed9058ab12b75b4d7097065d3604b4f8482bee6ae06ec322ef07d46570a5ea, noinstaller/runtimeactivation. FinalTask7rebuild/cleanroot/profileCLIafteracceptedTasks4\u20136. Task8blankequalownerpacketsourceaccepted; realphysicaltargets/access/backupsstillpending. Preserve51+5WIPfiles/Cambiumgoal/host/provider/cloud/vault/native stores.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -249,17 +254,17 @@
       "1": "accepted-source-d704a64",
       "2": "accepted-source-49a16e9",
       "3": "accepted-source-40a2b70",
-      "4": "isolated-native-implementation-running-from49a16e9",
+      "4": "terminal-fivepath-candidate-independent-core-disk-reviews-running-preliminary-gaps",
       "5": "pending",
       "6": "pending",
-      "7": "foundation-accepted-d0f7490-actualsourcefixtureprivacyhold-finalclosure-pending",
-      "8": "pending"
+      "7": "foundationaccepted-current-sourcecandidatearchivebuilt-independentartifactreview-running-finalclosure-pending",
+      "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
     "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
-    "source_head": "49a16e9",
+    "source_head": "25d617d386adea39906e63bdb7f7d4716284e3c6",
     "accepted_tasks": [
       1,
       2,
