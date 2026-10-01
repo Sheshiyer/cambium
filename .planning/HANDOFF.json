@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T19:52:15.253608+00:00",
+  "updated": "2026-10-01T20:03:22.785591+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -29,10 +29,12 @@
     "Task4r3 frozen128451byteSHAf5e5e2be;582tests21620assertions/1246IOcases. TerminalCOREr3PASS andDISKr3closedbothP1, oneP2 private losing-attempt release after winner destination change remains; sameproducer focusedR4running",
     "Task4r4 frozen137887bytesSHAab17e263;597tests21759assertions. FreshCOREr4PASS/DISKr4originalprivate-loserP2closed, one narrow invalidforeignglobalcontext hold gap remains; sameproducer focusedR5running",
     "Task5 ignored ABI brief refreshed actualr3/r4release interfaces and source-only snapshotentry proposal; Task7 actualsandbox controls/extraction/bundledBun/staticcompiledhelp foundationr2PASS, no installer/profile/TUIacceptance",
-    "Task4R5 terminalfrozen147634bytesSHA35d1d66a;617tests21920assertions/1246cases/source+strictTS0 withretainedlogs. Closedforeigncontext plus linkedmatchingBEGIN/capture/manifest and coherentlychangingpublication holds added. Fresh independentCORE/DISKreviews running aftermissingoldagenthandles recovered; no sourceintegrationyet"
+    "Task4R5 terminalfrozen147634bytesSHA35d1d66a;617tests21920assertions/1246cases/source+strictTS0 withretainedlogs. Closedforeigncontext plus linkedmatchingBEGIN/capture/manifest and coherentlychangingpublication holds added. Fresh independentCORE/DISKreviews running aftermissingoldagenthandles recovered; no sourceintegrationyet",
+    "FreshTask4R5COREPASS89focusedtests660assertions;DISKR5holdsoneP2 knownkindmalformedSTAGEjournalentry accepted. SamefivepathR6 comprehensiveforeignjournalshape/order/manifestbinding repairrunning, unchangedABI",
+    "Task7minimalbootstrapthreepathR1frozen26854bytesSHA35ab7085;111checks45actualsourcebootstrap+66foundation/sourceverifier/syntax/diffPASS. Parentcapturedexactpatch/perfiles; independentCORE/DISKreviews running, prerequisiteunaccepted"
   ],
   "remaining": [
-    "Task4: obtain fresh r5 core/disk verdicts, integrate exact frozen paths, parent checks and source acceptance",
+    "Task4: finish R6 complete foreign-history validation, fresh focused reviews, parent checks and source acceptance",
     "Task5: shared closed CLI/agent controller with accepted recovery/release ABI",
     "Task6: existing OpenTUI migration screens and actual synthetic PTY/failure cleanup proof",
     "Task7: final accepted-source kit, real clean-root/bootstrap/profile/repeat/user-config/rollback proof and current docs",
@@ -42,7 +44,7 @@
     "Physical destination identity,hardware/macOS,access and independent backup locations remain unspecified; earlier question is pending",
     "FinalTask7 dependsaccepted4\u20136; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
     "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope",
-    "Task4DISKr4P2: foreign globalowner emptycontext with validouterfields still permits privaterelease; closed context and safelylinked history validation underfocusedR5repair"
+    "Task4DISKR5P2: known-kind foreign journal STAGE missingrequiredfields accepted; R6 validates all events and legitimate ordering against existing writer without changingABI"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -67,9 +69,10 @@
     "Preserved Cambium OpenAI integration WIP as captured in private source-preservation ledger",
     "Preserved five distributionprimary WIP files; integration clean at4cef87a",
     "Five unaccepted Task4 paths remain only in separatemodular-mac-recovery-task4 worktree",
-    "Independent Task7 bootstrap guard prerequisite owned install.sh/scripts/lib.sh/tests/migration-kit.sh only in separate modular-mac-kit-guard worktree"
+    "Independent Task7 bootstrap guard prerequisite owned install.sh/scripts/lib.sh/tests/migration-kit.sh only in separate modular-mac-kit-guard worktree",
+    "Task5 prepared clean modular-mac-controller-task5 worktree at4cef with ignoredfrozen21deps; implementation stillwaitingacceptedTask4"
   ],
-  "next_action": "Fresh nativeAstra task4_r5_core andLuna task4_r5_disk independentlyreview frozen147634byteSHA35d1d66a Task4R5; previoushandles missingauthoritatively, priorR3/R4reports retained. OncebothPASS copyexactfivepathswithpreimages tointegration4cef87a, parent14suite/source+strictTS/diff, ISA861-876sourceacceptcommit thenTask5sharedCLI/controller usingactualunchangedreleaseABI/read-onlysnapshotseam. Task6tenviews/actualPTY followsaccepted5. Astra kit_safe_bootstrap continues EXISTINGthreepath250linepartial inmodular-mac-kit-guard at4cef, no restart, kitplatform/safeminimal/preserveconfig prerequisite; finalTask7build/installer/profile/repeat/rollback waits4-6. Foundation01d/c806actualextraction+Bun/statichelp works oldvolumeaccessdenied; no physicalabsenceclaim. Task8realidentity/access/backups pending; preserve51+5WIP andallhost/provider/cloud/vault/native boundaries.",
+  "next_action": "NativeAstra task4_r6_history continues EXISTINGfivepathrecoverycandidate after R5COREPASS andsingleDISKP2 malformednon-BEGINjournal event; full closed event schemas/order/manifestrefs derivedACTUALwriter, validinterrupted/resume/rollbackprefixes preserved, no ABI/foreignpermission/freshness change. CaptureterminalR6fivepatch/reports thenfreshCORE/DISK/parent14suite/TS/sourceacceptISA861-876 beforeTask5. NativeAstra task4_r5_core andLuna task4_r5_disk currently independentlyaudit Task7R1threepath safe-minimalbootstrap candidate26854SHA35ab7085/111checks; sourceproducerkit_safe_bootstrap terminalfrozen. AfterPASS exact3integration+parentchecks acceptedprereq; fullTask7stillwaits4-6finalactualkit/profile/repeat/rollback/PTY. Currentintegration4cef87a; preparedTask5cleanat4cef mustadvance toacceptedTask4HEAD beforeworker. Foundation01d/c806actualsandbox extraction+Bun/statichelp provedinaccessibleoldvolume, notunmount. Task8realinputs pending; preserve51+5WIP/allhost/provider/cloud/vault/native boundaries.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -198,10 +201,10 @@
       "1": "accepted-source-d704a64",
       "2": "accepted-source-49a16e9",
       "3": "accepted-source-40a2b70",
-      "4": "r5-frozen-fresh-core-disk-independent-review-running",
+      "4": "r6-foreign-journal-complete-shape-order-validation-running",
       "5": "pending-accepted-task4-consumer-abi-brief-ready",
       "6": "pending",
-      "7": "source-foundation-r4-artifactPASS-isolation-prep-r2PASS-independent-three-path-bootstrap-guard-prerequisite-running-final4-6kit-runtimepending",
+      "7": "minimal-bootstrap-r1-frozen111checks-fresh-two-audits-running-final4-6kit-runtimepending",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
