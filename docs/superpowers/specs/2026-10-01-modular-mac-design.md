@@ -14,6 +14,12 @@ what is held, what will change, and how to resume or reverse owned effects.
 Success is a capability graph verified on the destination, not a copied
 collection of dot directories or a successful installer exit.
 
+The [growth deep pass](../../architecture/2026-10-01-growth-ecosystem-review.md)
+adds the relationships that this graph must preserve: Cambium admission,
+five operating organs, six cognitive organs, selected Mac/Hermes plant,
+independent verification, receipt and proposed learning. They are one
+integrated ecosystem with different writers.
+
 ## Ownership and reuse
 
 The generic product owner should be the Temperance distribution repository,
@@ -24,11 +30,11 @@ with its own runtime, installer, state and roadmap; it supplies no bundled
 Temperance pack and is not required by either Mac profile. Hermes, Vault,
 Antahkarana, Session Atlas, Factor and Meristem retain their own ownership.
 
-The operator explicitly rejects merging Cambium, Temperance Engine and
-Snow Gloves OS. Sharing a machine or displaying external project status
-does not share installation, credentials, registries, releases or authority.
-Temperance may restore an approved Cambium checkout as project source;
-it cannot absorb Cambium's operational store or deployment lifecycle.
+The operator rejects merging this ecosystem into Snow Gloves OS. Cambium
+and Temperance work together; sharing contracts does not transfer credentials,
+registries, releases or operational authority. Temperance restores selected
+Cambium project source and reconnects owner interfaces; Cambium's operational
+store and deployment lifecycle stay with Cambium.
 Any later Snow Gloves integration requires a separate, narrow contract and
 must remain optional. Its install/update/uninstall is outside this executor.
 
@@ -70,6 +76,7 @@ publish content, or enable paid connectors.
 | `media-worker` | Selected codecs/tools, storage limits, approved provider references | Generation spend or publication by mere installation |
 | `native-build` | Selected Rust/Xcode/signing prerequisites | Signing identity transfer without owner action |
 | `noesis-personal` | Approved private bindings and memory references | Public export of personal contents |
+| `cambium-ecosystem` | Selected organ contracts, project/work identity, bounded owner-read adapters and evidence joins | D1 writes, paid/public delivery, new Telegram routes or held-organ activation |
 | `factor` / other approved reference packs | Scoped catalog/loadout and selected project refs | External product installation, brand permissions or connector authority by inheritance |
 
 Snow Gloves OS is an external product, not a profile pack. The default
@@ -108,6 +115,20 @@ digest, binding schema/version and private binding preimage digest,
 rendered-config hashes and the owned transaction. Rollback restores the
 compatible release and binding generation together, or holds for manual
 recovery. A missing backup is not permission to substitute current values.
+
+An ecosystem binding additionally identifies the owner, exact contract
+version/digest, WorkObject/tenant scope, plant/door, input dependencies,
+effect class, artifact/consumer references, verification and freshness.
+Keep these references joined to existing registries. Source metadata or an
+enrollment flag cannot issue authority on another machine. The current
+Thoughtseed map adapter requires a reviewed exact configuration fingerprint;
+the TUI must expose that boundary rather than treating explanatory HTML
+and effectful enrollment JSON alike.
+
+The current source join has eight Cambium topics and nine in the Hermes
+owner contract, including Adytum. Render Adytum as `source-parity-held`
+until owner versions and consumers reconcile. All four capability-hit modes
+remain disabled. Static console health labels are dated projections.
 
 ## Router choice
 
@@ -236,7 +257,17 @@ protection is not a claim of remote exactly-once execution.
 The default setup asks: replace workstation, add node, or recover an
 operation; then presents compatible profile packs. Existing onboarding steps
 remain available for detailed provider/module setup. Operations navigation
-is Machine, Modules, Projects, Access, Services, Handoffs and Recovery.
+is Ecosystem, Organs, Work, Knowledge, Machine, Modules, Access, Services,
+Handoffs and Recovery. Work contains selected project and WorkObject views.
+The initial setup stays guided; these views support inspection after setup.
+
+Ecosystem shows typed connections. Organs shows five operating and six
+cognitive organs, inputs, refusal bounds, triggers, artifacts, consumers
+and independent verdicts. Will's six desks are role filters. Knowledge
+shows canonical references and derived indexes with source/version/freshness;
+it neither copies vault bodies nor promotes learning. Mac plant, Hermes
+plant, Phloem and Clio are distinct bindings. A read-only adapter is an
+explicit selected capability, not a hidden provider refresh or new writer.
 
 Each list row shows requested state, actual evidence, age and a plain reason.
 The right panel explains dependencies, owned paths, source/installed versions,
@@ -246,18 +277,18 @@ mouse. Width 80 uses one panel; 120+ uses list/detail. Color is supplementary.
 
 ```text
 TEMPERANCE SETUP       Add node / worker       SOURCE: verified release
-Machine  Modules  Projects  Access  Services  Handoffs  Recovery
+Ecosystem  Organs  Work  Knowledge  Machine  Access  Recovery
 ----------------------------------------------------------------------
-Module                    Installed  Access          Verified
-Core + project rails      matched    scoped          yes
-Selected router           matched    pending-human   held
-Browser pack              absent     unrequested     no
-Cambium project           separate   unattached      no
+Connection                Source     Destination     Behavioral proof
+Cambium admission         pinned     selected        unknown
+Hands / Mac workspace     pinned     not bound       held
+Adytum / Hermes topic     drifted    unattached      held
+Cortex / Nutrix learning  scoped     not selected    unknown
 
-Selected: Router access
-Why held: destination provider sign-in is incomplete.
-Next: complete owner sign-in; then run the named read-only check.
-No queue is admitted and no job will be retried by this screen.
+Selected: Hands / Mac workspace
+Needs: admitted task, ISA/GSD phase, loadout, destination environment.
+Next: inspect owner binding; prepare a reviewable configuration diff.
+Last artifact: absent. Consumer acknowledgment: absent. Verdict: absent.
 ----------------------------------------------------------------------
 Enter details   / search   d diagnostics   ? help   Esc back   q close
 ```
@@ -276,6 +307,14 @@ Logs contain bounded local operator events; diagnostics are an allowlisted
 report, never raw provider logs, environment values or session exports.
 
 ## First proof and release gates
+
+Before export, prove an inspectable synthetic task chain through Cambium
+admission → Temperance/Vestibule → Taste/Hands → Mac workspace → artifact
+and independent verifier → Cambium receipt → Cortex/Nutrix proposal.
+The company-agent variant uses Hermes/Phloem instead of a Hands workspace.
+Fixtures prove contracts only. A physical destination must later prove the
+same owner-bound joins with actual callback and consumer evidence. Both
+profiles retain remote state and remain independent of Snow Gloves.
 
 First prove manifest-only inspect/export/diff on synthetic roots, then one
 digest-bound owned-file lifecycle transaction in a disposable directory.

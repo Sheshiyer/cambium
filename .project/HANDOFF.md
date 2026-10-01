@@ -1,5 +1,29 @@
 # Project handoff
 
+### 2026-10-01 complete growth ecosystem deep review
+
+- Read/reviewed all 100 growth files, including ignored assets; added the
+  full-folder coverage ledger and detailed growth ecosystem review.
+- Refined the Mac review/map/design/plan around one integrated Cambium,
+  Temperance and organ ecosystem: five operating organs, six cognitive
+  organs, six Will desks and typed work/evidence/learning connections.
+  Separate owners preserve integration. Snow Gloves stays outside the setup.
+- Current Cambium topic source has eight routes; Hermes owner contract has
+  nine including Adytum. Actual connection stays held pending bounded owner
+  source reconciliation. No topic, manifest or service was changed.
+- Found eleven unresolved local links, all 29 growth-cell files lacking the
+  four verb keys in frontmatter, stale full-PDF/HTML versions and nonportable
+  renderer/CDN assets. Repairs are proposals, not vault changes.
+- All 32 review criteria pass; 100 final growth hashes match. One concurrent
+  profile change was re-read; Snow Gloves' changed handoff is retained as a
+  historical cut. Saved goal and 49 unrelated baseline files remain unchanged.
+- Advisor returned an internal timeout, no verdict. Routed review claims
+  were independently checked; no independent audit approval is inferred.
+- Next source slice is proposed in the distribution plan: typed ecosystem
+  joins and read-only inspect/export/diff, followed by owned recovery/TUI and
+  both physical Mac proofs. No implementation, installation, runtime,
+  provider, publication or cloud action is authorized by this checkpoint.
+
 ### 2026-10-01 modular Mac migration architecture review
 
 - Added a source-grounded review, hashed evidence map, proposed design and

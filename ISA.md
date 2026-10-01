@@ -1691,7 +1691,52 @@ progress remain unchanged. Implementation belongs to each owning repository.
 - [x] ISC-2531: Both proposed Mac profiles require no Snow Gloves installation or enrollment.
 - [x] ISC-2532: The plan excludes Cambium operational state and Snow Gloves-owned effects from Temperance execution.
 
+### 2026-10-01 growth ecosystem deep review (review only)
+
+Review the complete authorized growth folder and reconcile its integrated
+Cambium/Temperance organ model with the proposed Mac migration design.
+The prior installation-only framing is refined; Snow Gloves remains outside
+this setup. These criteria accept review documents, not runtime activation.
+
+- [x] ISC-2533: The review inventory includes every file under the authorized growth root, including ignored artifacts.
+- [x] ISC-2534: The coverage ledger identifies the reading method used for every Markdown file.
+- [x] ISC-2535: The review records both machine-readable growth contracts and their authority labels.
+- [x] ISC-2536: The review covers all local HTML projections and their embedded behavior.
+- [x] ISC-2537: The review records page and content observations for both preserved PDF artifacts.
+- [x] ISC-2538: The review distinguishes bundled third-party libraries from first-party architecture.
+- [x] ISC-2539: The asset audit records local font metadata and reference closure.
+- [x] ISC-2540: The coverage ledger classifies filesystem metadata without treating it as architecture.
+- [x] ISC-2541: The integrated map names all five Cambium operating organs.
+- [x] ISC-2542: The integrated map names all six Temperance cognitive organs.
+- [x] ISC-2543: The map categorizes support surfaces separately from operating organs.
+- [x] ISC-2544: The review preserves Cambium D1 sole operational writer authority.
+- [x] ISC-2545: The review preserves Plexus human identity and role ceiling while Cambium retains task authority.
+- [x] ISC-2546: The review preserves ISA acceptance and GSD finite-plan authority.
+- [x] ISC-2547: The review distinguishes Mac plant, Hermes plant, Phloem and Clio bindings.
+- [x] ISC-2548: The review preserves bounded Hands skill-cluster loadouts.
+- [x] ISC-2549: The review distinguishes extract, feed, read and edit growth verbs.
+- [x] ISC-2550: The review names the separate public delivery and paid-generation gates.
+- [x] ISC-2551: The review treats capability-hit delivery as design-only until accepted activation evidence exists.
+- [x] ISC-2552: The review reconciles dated continuous-learning claims with current source evidence.
+- [x] ISC-2553: The review distinguishes empty, held, candidate and draft department states.
+- [x] ISC-2554: The review identifies retired lane vocabulary without silently remapping its semantics.
+- [x] ISC-2555: The link audit distinguishes missing local references from remote or vault links.
+- [x] ISC-2556: The review checks projection content and packaging claims against observed files.
+- [x] ISC-2557: The migration design distinguishes durable work from disposable projections.
+- [x] ISC-2558: The revised TUI design represents integrated organ relationships and their evidence.
+- [x] ISC-2559: The revised migration design preserves both equal Mac use cases.
+- [x] ISC-2560: The plan names the cross-system interface proof required before activation.
+- [x] ISC-2561: Anti: Snow Gloves is not merged into the integrated Cambium/Temperance ecosystem setup.
+- [x] ISC-2562: Anti: review work modifies no vault file or registry.
+- [x] ISC-2563: Anti: review work replaces or completes no saved Cambium OpenAI goal.
+- [x] ISC-2564: Anti: this review activates no host service, provider, message delivery or cloud resource.
+
 ## Test Strategy
+
+- `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
+  bounded source reconciliation, asset/PDF observations, link and privacy
+  checks, revised diagram/design/plan readback, and original file hashes.
+  This records architecture review only.
 
 - `ISC-2506..2532` | Review-artifact inspection | Named paragraphs/fields,
   current source hash joins, actual test output, forbidden-content scan,
@@ -1819,6 +1864,8 @@ progress remain unchanged. Implementation belongs to each owning repository.
 
 ## Features
 
+- `GrowthEcosystemReview` | Reconcile growth architecture with modular migration | satisfies ISC-2533..2564 | depends_on source inventory | parallelizable true
+
 - `ModularMacReview` | Map current ecosystem and propose both new-Mac flows | satisfies ISC-2506..2532 | depends_on source inventory | parallelizable false
 
 
@@ -1945,6 +1992,29 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+- 2026-10-01: refined: Plexus owns human identity and role ceiling; Cambium
+  retains operational task authority. The growth review preserves integration
+  without transferring either owner's rights to the migration TUI.
+- 2026-10-01: Current source holds the Adytum owner/consumer join: eight
+  Cambium topics versus nine Hermes topics. Enrollment JSON is effectful
+  configuration input behind an exact-fingerprint gate; capability-hit
+  scheduling is design-only and all four modes stay disabled.
+- 2026-10-01: Routed suggestions were not coverage proof; incorrect paths and
+  taxonomy were refuted by direct reads. Final Advisor exited on a 30-second
+  internal timeout with no verdict. E3 requires no Cato release audit.
+- 2026-10-01: Concurrent profile-pointer drift was re-read and recorded;
+  Snow Gloves' changed handoff remains historical context. No vault file
+  was written. Saved goal and 49 unrelated baseline files are unchanged.
+
+- 2026-10-01: refined: Temperance works with Cambium and the connected organs
+  as an integrated ecosystem. Separate authority is not architectural isolation.
+  Read all growth files, including ignored projections and render assets;
+  preserve Snow Gloves exclusion and all vault/runtime mutation boundaries.
+- 2026-10-01: E3 review selects ISA, FirstPrinciples, SystemsThinking,
+  FeedbackMemoryConsult and ReReadCheck. Bounded routed architecture and
+  department reviews supplement direct local reads; their actual provider
+  attribution and file coverage require evidence before any claim.
 
 - 2026-10-01 13:20: operator correction: no merge of Cambium, Temperance Engine
   and Snow Gloves OS. Snow Gloves is not a Temperance pack or node
@@ -2208,6 +2278,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-10-01 | conjectured: separate product ownership could be adequately represented by an installation inventory
+  refuted by: growth's five operating and six cognitive organs require typed input, task, plant, artifact, consumer and verification relationships
+  learned: portability must reconstruct the integrated work loop while preserving writer, memory and external-effect boundaries
+  criterion now: ISC-2541..2561 name the organ relationships, owner joins, both Mac uses and Snow Gloves exclusion
+
 - 2026-08-14 | conjectured: showing proof requirements and an existing Gate would be enough for the founder to advance a quest
   refuted by: the live UI contains no editable founder surface, the only evidence endpoint is admin-bearer scoped, and a direct quest-status route would let any caller relabel D1 state
   learned: founder evidence needs a closed authenticated ingress that creates a non-authoritative pending candidate; the Worker fixes authority fields and Gate signs before any D1 CAS
@@ -2401,6 +2476,55 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-2512/2513 require existing primitive reuse; ISC-2530..2532 require independent products and both profiles without Snow Gloves
 
 ## Verification
+
+### 2026-10-01 growth ecosystem deep review — documentation verification
+
+- ISC-2533: complete-folder inventory — "100 files; hidden, ignored and untracked included"
+- ISC-2534: reading-method ledger — "78 Markdown full-body records"
+- ISC-2535: contract authority readback — "Enrollment map has exact-fingerprint gate; capability hit remains design_only"
+- ISC-2536: HTML semantic/behavior audit — "Three projections; inline scripts and references reviewed"
+- ISC-2537: all-page extraction audit — "31 plus one PDF pages; zero empty text pages"
+- ISC-2538: vendor provenance boundary — "KaTeX 0.16.11 dependency inspection; first-party renderer distinguished"
+- ISC-2539: font/reference audit — "Eight fonts identified; 60 remote math-font URLs; offline closure false"
+- ISC-2540: metadata classification — "Finder metadata hashed and excluded from portable configuration"
+- ISC-2541: organ map readback — "Five operating organs; Cortex cross-cutting"
+- ISC-2542: cognitive map readback — "Six cognitive organs and lifecycle/consumer boundaries"
+- ISC-2543: support classification — "VAS, Athanor, Mercurius, Speculum, Constellation separate"
+- ISC-2544: authority invariant — "D1 is sole operational writer; UI/proposals cannot mutate it"
+- ISC-2545: identity/task authority boundary — "Plexus identity/ceiling; Cambium task authority"
+- ISC-2546: ledger authority boundary — "Separate acceptance and finite-plan ledgers; no third planner"
+- ISC-2547: plant and door classification — "Four bindings with separate endpoint/access scope"
+- ISC-2548: Hands contract readback — "Selected indexed capabilities, pinned task and git-root workspace"
+- ISC-2549: cell effect distinctions — "Inbox, draft promotion, pure read and owned edit remain distinct"
+- ISC-2550: external action gates — "Setup cannot publish, upload, spend or inherit account grants"
+- ISC-2551: capability-hit state readback — "Four modes disabled; source design is not activation proof"
+- ISC-2552: dated learning reconciliation — "Historical holds and newer checkpoint distinguished; lifecycle still unaccepted"
+- ISC-2553: department posture inspection — "Vacancy, held channel, editorial candidate and draft evidence separated"
+- ISC-2554: lane vocabulary reconciliation — "Remote legacy and current local naming kept plane-specific"
+- ISC-2555: local link resolution — "231 local links; 11 unresolved, one internal and ten outside growth"
+- ISC-2556: projection/package fidelity — "September 3 PDF differs from amended HTML; clone lacks local artifact closure"
+- ISC-2557: state class readback — "Durable source/evidence, rebuilt projections and excluded native session stores"
+- ISC-2558: TUI relationship design — "16 typed interlinks with no authority transfer; artifact/consumer/verdict views"
+- ISC-2559: two-scenario design readback — "Both equal uses; fresh destination binding and separate scheduler ownership"
+- ISC-2560: cross-owner proof plan — "Admission to artifact, verdict, receipt and learning; owner parity before connection"
+- ISC-2561: Snow Gloves exclusion — "No Snow Gloves pack, runtime, enrollment or physical node prerequisite"
+- ISC-2562: review-effect and hash readback — "No vault writes by review; 99 initial digests unchanged, one concurrent profile change re-read"
+- ISC-2563: saved-goal and WIP digest readback — "Active saved goal and all 49 unrelated baseline files unchanged"
+- ISC-2564: effect-class audit — "Review-owned documentation only; no service/provider/delivery/cloud mutation"
+
+- Completeness: 32/32 scoped documentation criteria; all twelve ISA sections
+  populated. IDs remain stable. The preserved project goal/frontmatter is
+  active; this review completes neither its OpenAI integration nor deployment.
+- Source integrity: all 100 final growth digests match; 99 initial digests
+  stayed unchanged and one concurrent profile edit was re-read. Of 164 map
+  references, 163 current source cuts match and one changed Snow Gloves
+  handoff remains explicitly historical, with no new-body claim.
+- ReReadCheck: “temperance works withe cambium and the connected organs adn
+  the ecosystem we have mapped here in the growth ... review all teh files
+  and do a deep pass” is represented by the full-folder ledger and integrated
+  organ/authority map. Both Mac scenarios retain equal priority; Snow Gloves
+  remains outside the setup. Proposal only: no implementation or activation.
+- DOC SYNC: skip; no PAI system file modified. No memory update requested.
 
 ### 2026-09-05 Plexus P7 supporting source checkpoint
 

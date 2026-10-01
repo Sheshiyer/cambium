@@ -10,8 +10,15 @@ and [plan](../superpowers/plans/2026-10-01-modular-mac.md) are proposals.
 
 The ecosystem has substantial modular infrastructure already. The missing
 piece is a reproducible Temperance machine lifecycle with explicit boundaries
-for separately owned projects and products.
+and verified relationships across Cambium, Temperance and connected organs.
 Starting another installer or TUI would duplicate existing foundations.
+
+The [complete growth deep pass](2026-10-01-growth-ecosystem-review.md)
+reviews all 100 local growth files and corrects this first inventory's
+installation-heavy framing. Five Cambium operating organs and six Temperance
+cognitive organs form a connected work and learning loop. The six Will desks
+are roles in that loop, not six new services. Separate writers must preserve
+these connections rather than erase them.
 
 The Temperance **distribution** has an OpenTUI seven-step onboarding wizard,
 one controller shared with agent mode, private host bindings, project
@@ -30,12 +37,12 @@ The operator confirmed two equal use cases: replacing the workstation and
 adding an always-on Mac. They share provisioning mechanics but have different
 identity, scheduler, recovery and authority transitions.
 
-The operator explicitly requires **no merge of Cambium, Temperance Engine
-and Snow Gloves OS**. Their repositories, runtimes, installers, state,
-credentials, releases and authorities remain separate. Temperance's new-Mac
-flows must work without Snow Gloves. Cambium is an independently restored
-project or explicitly attached remote service; Snow Gloves is a separate,
-optional product, never a Temperance runtime pack or a generic node prerequisite.
+The operator explicitly requires **no merge of this Cambium/Temperance
+ecosystem into Snow Gloves OS**. Cambium and Temperance work together through
+their owned contracts; repositories, operational stores, credentials and
+release authorities remain distinct. Both new-Mac flows must reconstruct
+selected integration paths without Snow Gloves. Snow Gloves is a separate,
+optional product, never a Temperance runtime pack or a node prerequisite.
 
 ## Scope and confidence
 
@@ -68,6 +75,14 @@ flowchart TD
   S --> V[Manifest event projection]
   V --> UI[OpenTUI / Speculum / optional native clients]
   C[Cambium D1 operational authority] --> HE[Hermes delivery plant]
+  C --> K
+  W --> CB[Cambium artifact and terminal receipt]
+  CB --> CX[Cortex source-linked retrieval]
+  CB --> L
+  CX --> G
+  L --> PR[Will and cognitive-organ proposals]
+  PR --> HG[Human and existing signed Gate]
+  HG --> C
   HE --> CF[Cloudflare service plane / optional EC2 body]
   CF --> C
   VA[Vault knowledge authority] --> SC
@@ -93,10 +108,10 @@ reviewed adapters; it does not inherit their authority.
 | Supervisor | Local admission, leases and execution receipts | Reinstall/rebind; recover only owner-approved durable outcomes | Do not transfer live leases or assume an old PID still identifies a run |
 | Manifest / Speculum / banner | Redacted event projection and optional glass | Reinstall from pinned artifacts; rebuild projections | Optional display failure must not stop headless recovery |
 | Pulse / voice / native widget | Notifications and optional native surfaces | Optional pack with exact service ownership | Constellation remains deferred; no new runtime probe or activation |
-| Organs / learning | Vestibule, Nutrix, Auspex, Circulator, Praeceptor seams | Install selected definitions; preserve holds; rebuild observations | Accepted work lineage and containment precede background enablement |
+| Organs / learning | Five operating and six cognitive organs, including Adytum | Rebind selected inputs, triggers, consumers and receipts; preserve holds | Accepted work lineage, owner parity and containment precede enablement |
 | Codex, Claude, OpenCode, Cursor, Kimi, Grok and other CLIs | Native wrappers and supported adapter contracts | Independent install, sign-in, config merge and callback proof | Native sessions, permissions and authentication differ by client |
 | Hands / Superset | Portable worktree setup/run/teardown contracts | Recreate selected workspaces from approved source | Hands stays on the Mac plant; Codex cockpit is not its worker |
-| Cambium | D1 Goal Graph, Gate, quests, ISA, GSD, portable MCP packet | Restore an independent project and attach explicit environment refs | Never folded into Temperance or Snow Gloves; setup does not redeploy Workers or complete OpenAI live gates |
+| Cambium | D1 Goal Graph, Gate, quests, ISA, GSD, organ contracts and receipt foldback | Restore selected project source and reconnect operational/compiler interfaces | Integration preserves D1 ownership; setup does not redeploy Workers or complete OpenAI live gates |
 | Hermes | Cloudflare-first bridge, topic-map ownership, optional EC2 runner | Attach as a remote integration; fresh destination credentials | Remains a separate execution plant; cannot inherit Mac paths or loopback URLs |
 | Cloudflare / remote access | Existing declared D1/R2/KV/Queues/Vectorize/Access/tunnels | Discover through owning contracts; retain remote data | Account and resource reuse require live owner verification; no new resources assumed |
 | Vault / Obsidian / retrieval | Knowledge authority and bounded references | Explicit approved attachment and scoped backup | No private note/corpus copying into Cambium or public release; rebuild projections |

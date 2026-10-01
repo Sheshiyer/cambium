@@ -6,12 +6,14 @@
 installation and migration are not authorized by this artifact.
 
 **Goal:** Extend the existing Temperance install surface into a modular,
-recoverable setup for a replacement workstation and an added always-on Mac.
+recoverable setup for a replacement workstation and an added always-on Mac,
+preserving the integrated Cambium/Temperance organ and evidence loop.
 
 **Architecture:** Keep one headless controller and lifecycle authority, using
 the existing OpenTUI wizard and install-surface journal/executor. Add a
 manifest-only migration contract, destination profile planning and evidence
-joins; then prove one local transaction before connecting remote fleet systems.
+joins, including owner-bound organ relationships; then prove one local
+transaction before connecting remote fleet scheduling.
 
 **Tech Stack:** existing Bun/TypeScript, AJV and OpenTUI, typed native adapters,
 macOS launchd/OS credentials and repository-native tools. Preserve the current
@@ -21,6 +23,9 @@ TypeScript `5.9.3`; a version change needs its own compatibility review.
 **Spec:** [modular Mac design](../specs/2026-10-01-modular-mac-design.md).
 **Evidence:** [system review](../../architecture/2026-10-01-modular-mac-system-review.md)
 and [map](../../architecture/2026-10-01-modular-mac-system-map.json).
+The [complete growth review](../../architecture/2026-10-01-growth-ecosystem-review.md)
+and [100-file coverage](../../architecture/2026-10-01-growth-file-coverage.json)
+define integration and source-fidelity requirements.
 
 ## Global constraints
 
@@ -32,11 +37,11 @@ and [map](../../architecture/2026-10-01-modular-mac-system-map.json).
 - First slice: manifest-only export and local fixture effects. No credentials,
   provider calls, real services, cloud writes, production data or native session import.
 - Workstation replacement and node addition have equal priority and separate flows.
-- Cambium, Temperance Engine and Snow Gloves OS remain separate products,
-  repositories, runtimes, installers, releases, state and authority.
+- Cambium, Temperance and connected organs work together through owned
+  contracts; operational stores, credential and release authorities stay distinct.
 - Neither Mac profile requires Snow Gloves. This plan creates no Snow Gloves
   pack, copies its catalog, or installs/updates/uninstalls its services.
-- Cambium is independent project source or an explicit remote attachment;
+- Cambium is the integrated compiler/admission and receipt owner;
   its operational store and deployment lifecycle are outside this executor.
 - Personal OmniRoute and distribution 9router remain explicit, distinct choices.
 - Keep optional UI/headless independence, scope holds and fresh admission evidence.
@@ -58,12 +63,12 @@ and [map](../../architecture/2026-10-01-modular-mac-system-map.json).
 
 | Tranche | Owner | Deliverable | Acceptance before next tranche |
 |---|---|---|---|
-| A: portability join | Temperance distribution with personal-runtime owner review | Contracts, version compatibility, read-only inventory/export/diff | Schema/privacy and source fidelity; no effects |
+| A: portability join | Temperance distribution with Cambium/personal-runtime/Hermes owner review | Organ relationships, contracts, compatibility, read-only inventory/export/diff | Synthetic integrated task path, schema/privacy and fidelity; no effects |
 | B: local recovery | Same install surface | Destination plan, one owned-file transaction, resume/rollback | Fault injection and exact preimage restoration |
 | C: TUI integration | Same install surface | Existing wizard extension and operations/recovery views | Shared agent action semantics and keyboard/terminal proof |
 | D: release kit | Distribution plus selected source owners | Verifiable installer/runtime closure and private overlay binding | Clean-root install, no mounted-volume dependency, rollback |
 | E: both physical flows | Owner and real destination Mac | Workstation readiness and always-on boot/recovery | Actual device golden paths and cold-boot/restore receipts |
-| F: optional external integrations | Each independent owning product | Narrow interoperability contracts, if later requested | Separate specs and authority; no combined product or installer |
+| F: optional expansion | Each independent owning product | Shared scheduling, paid/public delivery or further fleet services, if later requested | Separate specs and authority; no combined product or installer |
 
 Do not implement F to compensate for missing A–E. Snow Gloves' pilot is
 context for its own product, not the Temperance node contract or a dependency
@@ -85,6 +90,22 @@ paths were verified; new names define the suggested decomposition.
 | Human/agent UI | `src/onboarding/wizard.ts`, `tui.ts`, `operator-report-tui.ts` | `src/migration/controller.ts`, `tui.ts` |
 | CLI | `src/cli.ts` | `src/migration/cli-args.ts` |
 
+## Integration prerequisites
+
+Carry the five operating and six cognitive organs as relationships with
+owner/version/digest, inputs, trigger, scope, selected plant, artifact,
+consumer, verdict and freshness. The six Will desks are roles, not agents.
+Retain extract/feed/read/edit effects, canonical WorkObject and pack scope,
+separate memory planes and current owner gates. No public account or native
+session store is exported.
+
+Cambium/Hermes topic parity currently holds Adytum: eight consumer topics
+versus nine owner topics. Repair belongs to the owner source repositories
+as a separately admitted change, before an actual Adytum connection. A
+passing self-contained vendored test cannot prove current owner parity.
+Keep all four capability-hit modes disabled. The enrollment JSON is an
+effectful input; retain exact-file approval, fingerprint and map readback.
+
 ## Task 1: Declare the capability snapshot and compatibility join
 
 **Files:** create `package/install-surface/src/migration/contracts.ts`,
@@ -103,6 +124,12 @@ Device authorization requires a separate issued device identity; current
 `host-identity.ts` hardware/UID matching is only a compatibility observation.
 
 - [ ] Write fixtures for workstation, added worker and recovery profiles.
+- [ ] Define typed organ/interlink evidence references without copying owner
+  catalogs. Include trigger, admission, artifact, consumer and verdict separately.
+- [ ] Preserve cell verbs and per-WorkObject pack/plant binding; reject task,
+  owner, contract or source-digest substitution and staleness.
+- [ ] Model current Adytum parity hold and disabled capability-hit modes;
+  enrollment flags never issue destination execution authority.
 - [ ] Declare external product references separately from owned modules;
   prove Cambium/Snow Gloves references grant no install or state authority.
 - [ ] Assert closed fields, schema-major holds, duplicate module refs,
@@ -136,6 +163,10 @@ owner cannot be read. Export validates the complete snapshot again before
 an atomic private write. Destination is explicit and must not be a symlink.
 
 - [ ] Use fake adapters with counters; prove zero write/network/auth calls.
+- [ ] Inspect the synthetic integrated task chain and the Hermes variant.
+  Distinguish contract presence, artifact, consumption and independent verdict.
+- [ ] Keep canonical knowledge references and derived indexes separate;
+  show stale PDF/source pairs and unresolved links as findings, not approvals.
 - [ ] Cover denied roots, missing volume, non-regular file, path traversal,
   malformed service metadata and native binary present with unsupported version.
 - [ ] Verify no private values or native IDs survive export; round-trip exact bytes/digest.
@@ -234,6 +265,10 @@ joins and renderer reuse.
 **Consumes:** `MigrationViewV1` action contract. **Produces:** guided scenario
 selection, module list/detail, exact-change review and recovery screen.
 
+- [ ] Add Ecosystem/Organs/Work/Knowledge views using the same action contract;
+  explain each owner, source, input, trigger, artifact, consumer and verdict.
+- [ ] Keep Will desk views as role filters. A selection cannot admit work,
+  promote learning, publish, arm a cadence or alter provider configuration.
 - [ ] Add test views for replacement workstation and worker addition, held
   authentication, drift, interrupted transaction and unsupported backend.
 - [ ] Assert keyboard-only navigation at 80x24 and 120x40, focus restoration,
@@ -279,7 +314,8 @@ profiles and allowed mutations must be reviewed before installation.
 
 - [ ] Workstation: run trusted entry, inspect and review destination plan,
   complete fresh sign-ins, attach selected projects and prove one accepted
-  headless work unit plus one chosen native-client callback.
+  headless work unit plus one chosen native-client callback, independently
+  verified artifact, owner receipt and bounded Cortex/Nutrix learning proposal.
 - [ ] Always-on node: issue a fresh Temperance device identity without Snow
   Gloves, attach explicit endpoint/scope,
   prove one bounded job, stop/late-result handling and zero duplicate writers.
