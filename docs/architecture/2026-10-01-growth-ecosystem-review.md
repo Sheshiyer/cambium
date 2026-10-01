@@ -57,7 +57,7 @@ or accepted. A missing edge must remain visible as held or unknown.
 
 ## Complete-folder coverage
 
-The inventory contains **100 files / 2,340,480 bytes**: 78 Markdown notes,
+The inventory contains **100 files / 2,341,275 bytes**: 78 Markdown notes,
 three HTML projections, two JSON contracts, one first-party PDF renderer,
 three vendored KaTeX files, two font-license notices, eight fonts, two PDFs
 and Finder metadata. At inspection, 81 files were tracked, 16 ignored local
@@ -70,6 +70,17 @@ other 99 initial growth digests were unchanged. Snow Gloves' unrelated
 handoff also changed; its earlier review cut is retained as historical
 context, with no claim about its new body. This review wrote no vault or
 Snow Gloves file.
+
+A later freshness pass reconfirmed the same 100-file set and found only
+`profiles/README.md` changed again. Its full body was reread and its current
+digest recorded in the coverage ledger; the other 99 digests still match.
+This is an editorial public-account profile pointer to a separate canonical
+packet, not a Mac migration profile or organ authority. Its delivery claims
+remain authored source claims here: this review did not independently
+verify live account fields or authorize account writes or posts. Public
+editorial identity remains separate from Plexus member identity and legal
+records. The integrated ecosystem, equal Mac roles and Snow Gloves exclusion
+are unchanged.
 
 Markdown bodies, tables, fences and frontmatter were reviewed in full. HTML
 was reviewed through complete semantic text, inline behavior and asset

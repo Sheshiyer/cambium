@@ -6,7 +6,7 @@
   "scope": "Complete local folder including hidden, ignored and untracked files",
   "totals": {
     "files": 100,
-    "bytes": 2340480,
+    "bytes": 2341275,
     "by_extension": {
       "metadata": 1,
       ".md": 78,
@@ -1441,9 +1441,9 @@
     },
     {
       "path": "profiles/README.md",
-      "bytes": 3292,
+      "bytes": 4087,
       "lines": 35,
-      "sha256": "9df6a370129475b000372850183a1ce5f70f53da3cee80522aad8d2705a8255d",
+      "sha256": "4b1e46621d188e5299e30efe1dd067444fba914f59aa61dce8d1d796eea21147",
       "suffix": ".md",
       "utf8": true,
       "git_state": "tracked",
@@ -2040,6 +2040,13 @@
       "initial_sha256": "c7ed90637549a727e5cbe7af23e2be3318fef3242501172daccaf03b935adc95",
       "reviewed_final_sha256": "9df6a370129475b000372850183a1ce5f70f53da3cee80522aad8d2705a8255d",
       "handling": "Concurrent source drift detected; full file re-read. This review performed no vault write."
+    },
+    {
+      "path": "profiles/README.md",
+      "initial_sha256": "9df6a370129475b000372850183a1ce5f70f53da3cee80522aad8d2705a8255d",
+      "reviewed_final_sha256": "4b1e46621d188e5299e30efe1dd067444fba914f59aa61dce8d1d796eea21147",
+      "observed_at": "2026-10-01T21:31:58.799373+00:00",
+      "handling": "Full current file reread after concurrent editorial profile-pointer changes; referenced canonical account packet is not a runtime dependency. Authored account-delivery claims were not independently accepted as live proof or write authority. This review performed no vault write."
     }
   ]
 }
