@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T18:44:55.877642+00:00",
+  "updated": "2026-10-01T18:58:38.208855+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -24,7 +24,8 @@
     "Real01d564c source-foundation archive built723sourcefiles/21dependencies,Bun/native closure; independentr4PASS all18COPYreceipts/173COPYbytes/locks/privacy/USTAR/outerhash; receipt4cef87a",
     "Task5 consumerABI,Task6 rendererABI andTask7 finalcleanroot preparation ledgers ready; dependent implementation waitsacceptedownerAPIs",
     "Latestpreservation check confirms51capturedCambium and5distributionprimary files byte-identical",
-    "Task4 repair terminal exactfivepath106359bytepatch retainedSHA0d34f097a15f1eb443422719e9a0e1e8cea537e63513d7c662a9f63cbf0bbd9d; producer552tests21472assertions/1246interruptioncases/source+strictTS0; fresh core/disk r2 reviews launched, candidateunaccepted"
+    "Task4 repair terminal exactfivepath106359bytepatch retainedSHA0d34f097a15f1eb443422719e9a0e1e8cea537e63513d7c662a9f63cbf0bbd9d; producer552tests21472assertions/1246interruptioncases/source+strictTS0; fresh core/disk r2 reviews launched, candidateunaccepted",
+    "FreshTask4r2 core/disk reviews terminal: originaltenfindings independentlyclosed, but active-markerunsafe reads plus bootstrapclaimpublication and expiredterminalrelease deadends remain; SAMEfivepathr3repair running"
   ],
   "remaining": [
     "Task4: finish focused ten-finding repair, fresh core/disk review, parent checks and source acceptance",
@@ -35,9 +36,9 @@
   ],
   "blockers": [
     "Physical destination identity,hardware/macOS,access and independent backup locations remain unspecified; earlier question is pending",
-    "Task4 candidate unaccepted until all ten findings have fresh independent core/disk review",
     "FinalTask7 dependsaccepted4\u20136; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
-    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope"
+    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope",
+    "Task4r3repair pendingfreshreviews: activeownermarker safeIO, atomicpreparedclaim publication and separatelyfreshowner terminal-release context"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -63,7 +64,7 @@
     "Preserved five distributionprimary WIP files; integration clean at4cef87a",
     "Five unaccepted Task4 paths remain only in separatemodular-mac-recovery-task4 worktree"
   ],
-  "next_action": "Collect fresh independent task-4-core-r2-review.md and task-4-disk-r2-review.md against frozen parent-task4-r2-review.diff106359bytes SHA0d34f097a15f1eb443422719e9a0e1e8cea537e63513d7c662a9f63cbf0bbd9d. Repair only concrete findings in SAMEfivepaths if needed; noacceptance fromproducer552tests/1246cases alone. If bothPASS, integrateexactfivepaths with preimages, parentcombinedfocusedchecks/sourceTS, then acceptsourceISC861..876 and dispatchTask5 fromacceptedhead with actualrelease/releasedABI. Task6 waitsaccepted5; finalTask7 realkit/cleanroot/profileCLI/PTY after4\u20136. Task7r4foundationarchive independentlyPASS bound01d564c/outerc8067b49, currentsource4cef87a. Task8 realtargets/access/backups pending. Preserve51+5WIPfiles/Cambiumgoal/host/provider/cloud/vault/native stores.",
+  "next_action": "Continue SAME Task4 producer r3repair of the THREE terminalr2 findings recorded task-4-core-r2-review.md/task-4-disk-r2-review.md: guardedactive-owner metadata, privatelyprepared claim/history atomicallypublished viaactualno-replace with postclaimdestination revalidation, and independentlyissuedfreshownerreleasecontext fororiginalverifiedterminal/no-effectbootstrap only. Apply/resume/rollback freshness/unchangedintent/foreigncustody/unknownowner holds stay. Producer19oldregressions plus552tests/1246cases arer2 evidence only. Capture terminalr3fivepathpatch, fresh bothreviews, parentchecks and sourceaccept beforeTask5. Task5actualreleaseABI thenTask6sharedtenviews andrealPTY; finalTask7actualkit/installer/cleanroot/profile/repeat/rollback after4\u20136. Currentintegration4cef87a; r4foundationartifactPASS bound01d564c/outerc8067b49. Task8 realtargets/access/backups pending; preserve51+5WIP andallhost/provider/cloud/vault/native boundaries.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -192,7 +193,7 @@
       "1": "accepted-source-d704a64",
       "2": "accepted-source-49a16e9",
       "3": "accepted-source-40a2b70",
-      "4": "r2-fivepath-candidate-terminal-fresh-core-disk-reviews-running",
+      "4": "r3-focused-three-finding-repair-running-same-five-paths",
       "5": "pending-accepted-task4-consumer-abi-brief-ready",
       "6": "pending",
       "7": "source-foundation-r4-artifact-independent-PASS-final-runtime-cleanroot-closure-pending",
