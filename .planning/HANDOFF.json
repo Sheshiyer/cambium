@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T18:38:31.888297+00:00",
+  "updated": "2026-10-01T18:44:55.877642+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -23,7 +23,8 @@
     "Current supplemental COPY provenance regenerated with existing exactpin generator;18records checked,eightfragments/locks unchanged, accepted01d564c",
     "Real01d564c source-foundation archive built723sourcefiles/21dependencies,Bun/native closure; independentr4PASS all18COPYreceipts/173COPYbytes/locks/privacy/USTAR/outerhash; receipt4cef87a",
     "Task5 consumerABI,Task6 rendererABI andTask7 finalcleanroot preparation ledgers ready; dependent implementation waitsacceptedownerAPIs",
-    "Latestpreservation check confirms51capturedCambium and5distributionprimary files byte-identical"
+    "Latestpreservation check confirms51capturedCambium and5distributionprimary files byte-identical",
+    "Task4 repair terminal exactfivepath106359bytepatch retainedSHA0d34f097a15f1eb443422719e9a0e1e8cea537e63513d7c662a9f63cbf0bbd9d; producer552tests21472assertions/1246interruptioncases/source+strictTS0; fresh core/disk r2 reviews launched, candidateunaccepted"
   ],
   "remaining": [
     "Task4: finish focused ten-finding repair, fresh core/disk review, parent checks and source acceptance",
@@ -62,7 +63,7 @@
     "Preserved five distributionprimary WIP files; integration clean at4cef87a",
     "Five unaccepted Task4 paths remain only in separatemodular-mac-recovery-task4 worktree"
   ],
-  "next_action": "Continue SAME Task4 producer focused ten-finding repair; its19regressions nowpass and expandedinterruption/custody/release/cross-process tests are finishing. Capture terminal fullfivepathpatch, then fresh core Astra and disk Luna reviews of exactcandidate beforeintegration. Task5 waitsaccepted4 and actualreleaseABI; Task6 waitsaccepted5, tenoperationssections plusguidedviews; finalTask7 rebuild and realcompiledCLI/installer/PTYcleanroot matrix follows4\u20136, preservinguserconfig/unsupportedoverlay/oldvolume limits. Current01d564c r4sourcearchive independentlyPASS outerSHA c8067b49bdec3f1db72e18f6c83b0760333ee3f8977d9cf0c00f812fd5e878d2, foundationonly. Task8 realtargets/access/backups pending. Preserve51+5WIPfiles/Cambiumgoal/host/provider/cloud/vault/native stores.",
+  "next_action": "Collect fresh independent task-4-core-r2-review.md and task-4-disk-r2-review.md against frozen parent-task4-r2-review.diff106359bytes SHA0d34f097a15f1eb443422719e9a0e1e8cea537e63513d7c662a9f63cbf0bbd9d. Repair only concrete findings in SAMEfivepaths if needed; noacceptance fromproducer552tests/1246cases alone. If bothPASS, integrateexactfivepaths with preimages, parentcombinedfocusedchecks/sourceTS, then acceptsourceISC861..876 and dispatchTask5 fromacceptedhead with actualrelease/releasedABI. Task6 waitsaccepted5; finalTask7 realkit/cleanroot/profileCLI/PTY after4\u20136. Task7r4foundationarchive independentlyPASS bound01d564c/outerc8067b49, currentsource4cef87a. Task8 realtargets/access/backups pending. Preserve51+5WIPfiles/Cambiumgoal/host/provider/cloud/vault/native stores.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -191,7 +192,7 @@
       "1": "accepted-source-d704a64",
       "2": "accepted-source-49a16e9",
       "3": "accepted-source-40a2b70",
-      "4": "focused-ten-finding-repair-running-in-same-five-path-worktree",
+      "4": "r2-fivepath-candidate-terminal-fresh-core-disk-reviews-running",
       "5": "pending-accepted-task4-consumer-abi-brief-ready",
       "6": "pending",
       "7": "source-foundation-r4-artifact-independent-PASS-final-runtime-cleanroot-closure-pending",
