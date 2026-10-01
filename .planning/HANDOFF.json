@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T15:35:02.972386+00:00",
+  "updated": "2026-10-01T15:38:49.512468+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -97,7 +97,7 @@
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
     "Distribution integration branch retains ten staged contract and kit draft paths; accepted prerequisite is committed separately"
   ],
-  "next_action": "Continue run13 Task1 r2 from private state, qualified Opus 4.8, clean driver 94c60f4. Prepare independent Task7 r3 with precise r2 reproduced counterexamples and eight owned paths. Read terminal summaries then independently attribute and review substantive patches. Task2/3 wait for accepted Task1; retain all old patches and source preimages. Physical Mac identities, access and independent backups still pending; proceed with source Tasks1–7 only.",
+  "next_action": "Follow independently tagged run13 contracts-r2 and run14 kit-r3 using private states; exact Opus4.8 qualified, clean driver94c60f4. Read SUMMARY before index and substantively review returned scoped patches with exact-tag gateway metadata and meaningful counterexamples. No Task1–8 accepted; service-observation prerequisite94c60f4 accepted. Task2/3 wait for acceptedTask1. Existing integration drafts, candidate patches, unrelated source and primary WIP preserved. Physical Mac identities/access/backups pending, source Tasks1–7 continue.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -208,6 +208,12 @@
         "ref": "run-13-contracts-r2",
         "status": "running",
         "task": "Task 1 canonical ecosystem and independent compatibility joins",
+        "rail": "claude/claude-opus-4-8"
+      },
+      {
+        "ref": "run-14-kit-r3",
+        "status": "running",
+        "task": "Task7 trusted closed archive and output preservation repairs",
         "rail": "claude/claude-opus-4-8"
       }
     ],
