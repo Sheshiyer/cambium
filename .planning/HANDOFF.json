@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T20:03:22.785591+00:00",
+  "updated": "2026-10-01T20:25:16.811619+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -31,11 +31,13 @@
     "Task5 ignored ABI brief refreshed actualr3/r4release interfaces and source-only snapshotentry proposal; Task7 actualsandbox controls/extraction/bundledBun/staticcompiledhelp foundationr2PASS, no installer/profile/TUIacceptance",
     "Task4R5 terminalfrozen147634bytesSHA35d1d66a;617tests21920assertions/1246cases/source+strictTS0 withretainedlogs. Closedforeigncontext plus linkedmatchingBEGIN/capture/manifest and coherentlychangingpublication holds added. Fresh independentCORE/DISKreviews running aftermissingoldagenthandles recovered; no sourceintegrationyet",
     "FreshTask4R5COREPASS89focusedtests660assertions;DISKR5holdsoneP2 knownkindmalformedSTAGEjournalentry accepted. SamefivepathR6 comprehensiveforeignjournalshape/order/manifestbinding repairrunning, unchangedABI",
-    "Task7minimalbootstrapthreepathR1frozen26854bytesSHA35ab7085;111checks45actualsourcebootstrap+66foundation/sourceverifier/syntax/diffPASS. Parentcapturedexactpatch/perfiles; independentCORE/DISKreviews running, prerequisiteunaccepted"
+    "Task7minimalbootstrapthreepathR1frozen26854bytesSHA35ab7085;111checks45actualsourcebootstrap+66foundation/sourceverifier/syntax/diffPASS. Parentcapturedexactpatch/perfiles; independentCORE/DISKreviews running, prerequisiteunaccepted",
+    "Task4 R6 freshCORE/DISK terminalPASS and parent679tests23116assertions/source+strictTS0; exact5sourcepaths plusISA861..876 accepted508d665; existingjournal/preimages/receipts/exclusiveclaim, freshterminalrelease only",
+    "Task7minimalbootstrapR2 complete30377byteSHAe948509b; producer123checks andfreshLuna11actualinstaller/libraryscenariosPASS; exact3filesintegrated,parentstockchecks running",
+    "Task5cleanworktreeadvanced508d665 andAstra sourceproducer dispatched withacceptedTasks1-4ABI/sharedclosedcontroller/readonlypublicsnapshotCLI seam; no realowner adapter"
   ],
   "remaining": [
-    "Task4: finish R6 complete foreign-history validation, fresh focused reviews, parent checks and source acceptance",
-    "Task5: shared closed CLI/agent controller with accepted recovery/release ABI",
+    "Task5: finish shared closed CLI/agent controller, frozen patch, independent review and parent source acceptance",
     "Task6: existing OpenTUI migration screens and actual synthetic PTY/failure cleanup proof",
     "Task7: final accepted-source kit, real clean-root/bootstrap/profile/repeat/user-config/rollback proof and current docs",
     "Task8: actual equal workstation/node owner acceptance with target/access/backup evidence"
@@ -43,8 +45,7 @@
   "blockers": [
     "Physical destination identity,hardware/macOS,access and independent backup locations remain unspecified; earlier question is pending",
     "FinalTask7 dependsaccepted4\u20136; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
-    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope",
-    "Task4DISKR5P2: known-kind foreign journal STAGE missingrequiredfields accepted; R6 validates all events and legitimate ordering against existing writer without changingABI"
+    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -66,13 +67,12 @@
     "Private reviewledgers ignored through local Gitinfo/exclude; no checked source or personalruntime config change"
   ],
   "uncommitted_files": [
-    "Preserved Cambium OpenAI integration WIP as captured in private source-preservation ledger",
-    "Preserved five distributionprimary WIP files; integration clean at4cef87a",
-    "Five unaccepted Task4 paths remain only in separatemodular-mac-recovery-task4 worktree",
-    "Independent Task7 bootstrap guard prerequisite owned install.sh/scripts/lib.sh/tests/migration-kit.sh only in separate modular-mac-kit-guard worktree",
-    "Task5 prepared clean modular-mac-controller-task5 worktree at4cef with ignoredfrozen21deps; implementation stillwaitingacceptedTask4"
+    "Preserved51Cambium and5distributionprimary WIP; parentownedhandoff only",
+    "IntegrationTask4 accepted508d665; onlythreeTask7prerequisite install.sh/scripts/lib.sh/tests/migration-kit.sh uncommitted,parentchecks running",
+    "Task5producerownscontroller/parser/two tests/minimalexistingcli branch in modular-mac-controller-task5 at508d665; sourceonly",
+    "FrozenTask4/kitcandidate source and ignored reports/toolchains/preimages retained in owned worktrees"
   ],
-  "next_action": "NativeAstra task4_r6_history continues EXISTINGfivepathrecoverycandidate after R5COREPASS andsingleDISKP2 malformednon-BEGINjournal event; full closed event schemas/order/manifestrefs derivedACTUALwriter, validinterrupted/resume/rollbackprefixes preserved, no ABI/foreignpermission/freshness change. CaptureterminalR6fivepatch/reports thenfreshCORE/DISK/parent14suite/TS/sourceacceptISA861-876 beforeTask5. NativeAstra task4_r5_core andLuna task4_r5_disk currently independentlyaudit Task7R1threepath safe-minimalbootstrap candidate26854SHA35ab7085/111checks; sourceproducerkit_safe_bootstrap terminalfrozen. AfterPASS exact3integration+parentchecks acceptedprereq; fullTask7stillwaits4-6finalactualkit/profile/repeat/rollback/PTY. Currentintegration4cef87a; preparedTask5cleanat4cef mustadvance toacceptedTask4HEAD beforeworker. Foundation01d/c806actualsandbox extraction+Bun/statichelp provedinaccessibleoldvolume, notunmount. Task8realinputs pending; preserve51+5WIP/allhost/provider/cloud/vault/native boundaries.",
+  "next_action": "Continue nativeAstra migration_controller_task5 in existingcleanbase508d665 worktree, exactcontroller/parser/two-tests/minimalcli paths, actualacceptedABI andreadonlysnapshotCLI seam, noambientowner/JSONauth/realhosteffects; frozenpatchthenindependentreviewparentchecksacceptTask5beforeTask6. ParentkitguardR2 session72199 running actual123shellsuite/sourceverifier/syntax/pathguard in clearedprivateenv; pollhandle, verifyexact3hashes, appendISAprereqONLY(not909-924) andexact3+ISAcommitafterPASS. Task4 is sourceaccepted508d665 withbothR6reviewsPASS,parent679tests23116assertions/TS0; ISC861-876checked. Refreshhandoffaschecksfinish; continuefinalTasks6-7compiledkit/actualminimalinstaller/pairedprofiles/repeat/ownedrollback/PTYunderinaccessibleoldvolumecontrols. Task8realidentityhardwareaccessindependentbackups pending; preserve51+5WIP/Cambiumsavedsession/Phase9/allhostprovidercloudvaultnativeboundaries; noConstellation8770.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -201,21 +201,22 @@
       "1": "accepted-source-d704a64",
       "2": "accepted-source-49a16e9",
       "3": "accepted-source-40a2b70",
-      "4": "r6-foreign-journal-complete-shape-order-validation-running",
-      "5": "pending-accepted-task4-consumer-abi-brief-ready",
+      "4": "accepted-source-508d665",
+      "5": "native-astra-sourceimplementation-running-accepted508d665-base",
       "6": "pending",
-      "7": "minimal-bootstrap-r1-frozen111checks-fresh-two-audits-running-final4-6kit-runtimepending",
+      "7": "minimalbootstrapR2-freshLunaPASS-parent123checks-running-full7pending4-6finalkit",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
     "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
-    "source_head": "4cef87aeb7c0d8c941829052fb7473025723b050",
+    "source_head": "508d66535356aba7418ccd6d0bdc074087e1da00",
     "accepted_tasks": [
       1,
       2,
-      3
+      3,
+      4
     ]
   }
 }
