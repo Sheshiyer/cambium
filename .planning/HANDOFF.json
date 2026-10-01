@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T14:47:52.449759+00:00",
+  "updated": "2026-10-01T14:59:18.553990+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -45,7 +45,8 @@
     "Fresh independent reviews found contract closure, owner-binding and verdict/parity gaps, unsafe LaunchAgent destination reads, and incomplete portable-kit behavior",
     "Clean distribution dispatch driver at admitted commit 83563ff prepared for bounded repair continuations",
     "Official Bun 1.3.5 release asset metadata retained privately; no host runtime changed",
-    "Official Bun 1.3.5 arm64 asset checksum and byte count match; isolated binary reports exact 1.3.5; global runtime untouched"
+    "Official Bun 1.3.5 arm64 asset checksum and byte count match; isolated binary reports exact 1.3.5; global runtime untouched",
+    "Isolated exact Bun 1.3.5 runs forty onboarding/composition/operator-CLI regressions successfully; unrelated source preservation remains 51 plus five files byte-identical"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -90,7 +91,7 @@
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
     "Distribution integration branch has thirteen staged contract, service-doctor and kit draft paths pending fresh review fixes"
   ],
-  "next_action": "Follow active independent repair runs 07 contracts, 08 LaunchAgent, 09 kit using their ignored state handles. Read SUMMARY before index, exact-tag attribution and substantive red/green outputs. Assemble replacement candidates from clean 83563ff and full new owned patches so retained staged drafts are not overwritten by unsafe patch application. Re-review original findings before exact-path source commits. Then dispatch Tasks2/3 from accepted Task1. Recovery implementation brief is in progress read-only. Both actual physical Macs remain input-pending.",
+  "next_action": "Follow active run07 contracts and run10 baseline-r2/run11 kit-r2 from ignored handles. Run08/09 full owned patches are retained in separate clean83563ff candidate, not accepted: baseline r1 still linked-prestat race/cancellation; kit r1 no actual archive and invented unsupported overlay schemas. Use fresh candidate replacements per owned group; review, verify exact-tag substantive reports, original counterexamples and source pins before commits. Task2/3 wait for acceptedTask1. Recovery implementation brief retained. Physical target/access/backups still pending.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -169,14 +170,26 @@
       },
       {
         "ref": "run-08-baseline-r1",
-        "status": "running",
+        "status": "terminal-not-accepted-review-fixes-required",
         "task": "LaunchAgent safe destination review fixes",
         "rail": "claude/claude-sonnet-4-6"
       },
       {
         "ref": "run-09-kit-r1",
-        "status": "running",
+        "status": "terminal-not-accepted-review-fixes-required",
         "task": "Task 7 portable artifact review fixes",
+        "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-10-baseline-r2",
+        "status": "running",
+        "task": "LaunchAgent linked-prestat race and cancellation fixes",
+        "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-11-kit-r2",
+        "status": "running",
+        "task": "Task 7 actual archive and unsupported-overlay fixes",
         "rail": "claude/claude-sonnet-4-6"
       }
     ],
@@ -192,6 +205,7 @@
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
-    "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver"
+    "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
+    "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate"
   }
 }
