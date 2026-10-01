@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T14:40:26.161307+00:00",
+  "updated": "2026-10-01T14:47:52.449759+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -44,7 +44,8 @@
     "Focused integrated validation: 223 tests pass, zero fail; standalone install-surface typecheck exits zero",
     "Fresh independent reviews found contract closure, owner-binding and verdict/parity gaps, unsafe LaunchAgent destination reads, and incomplete portable-kit behavior",
     "Clean distribution dispatch driver at admitted commit 83563ff prepared for bounded repair continuations",
-    "Official Bun 1.3.5 release asset metadata retained privately; no host runtime changed"
+    "Official Bun 1.3.5 release asset metadata retained privately; no host runtime changed",
+    "Official Bun 1.3.5 arm64 asset checksum and byte count match; isolated binary reports exact 1.3.5; global runtime untouched"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -89,7 +90,7 @@
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
     "Distribution integration branch has thirteen staged contract, service-doctor and kit draft paths pending fresh review fixes"
   ],
-  "next_action": "Continue bounded repair round one from clean distribution dispatch driver. Repair Task 1 closed schema, exact owner binding, verdict lineage, actual Adytum topic parity and four disabled capability modes; repair LaunchAgent symlink/hardlink destination checks; repair Task 7 actual archive, source closure, pin verification and installer behavior. Review original findings and retained exact-path diffs, use copied frozen dependencies and independently tagged non-Sol runs. Keep Task 2/3 dependent on accepted Task 1. Physical identities/access/independent backups still pending; continue source work.",
+  "next_action": "Follow active independent repair runs 07 contracts, 08 LaunchAgent, 09 kit using their ignored state handles. Read SUMMARY before index, exact-tag attribution and substantive red/green outputs. Assemble replacement candidates from clean 83563ff and full new owned patches so retained staged drafts are not overwritten by unsafe patch application. Re-review original findings before exact-path source commits. Then dispatch Tasks2/3 from accepted Task1. Recovery implementation brief is in progress read-only. Both actual physical Macs remain input-pending.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -158,6 +159,24 @@
         "ref": "run-06-baseline",
         "status": "terminal-integrated-draft-review-fixes-required",
         "task": "LaunchAgent prerequisite repair",
+        "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-07-contracts-r1",
+        "status": "running",
+        "task": "Task 1 review fixes",
+        "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-08-baseline-r1",
+        "status": "running",
+        "task": "LaunchAgent safe destination review fixes",
+        "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-09-kit-r1",
+        "status": "running",
+        "task": "Task 7 portable artifact review fixes",
         "rail": "claude/claude-sonnet-4-6"
       }
     ],
