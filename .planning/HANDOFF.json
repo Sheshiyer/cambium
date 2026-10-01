@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T14:22:46.957327+00:00",
+  "updated": "2026-10-01T14:40:26.161307+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -38,7 +38,13 @@
     "Frozen install-surface dependency closure installed only in isolated worktree; 33 onboarding/operator baseline tests pass",
     "Two independent read-only preflight reviews supplied artifact/verdict/scope and disk/journal/ownership counterexamples",
     "Gateway attribution for three resumed independently tagged runs confirms Claude Sonnet 4.6 tool-loop calls; no worker result accepted yet",
-    "Byte-level preservation probe: 51 captured Cambium files and five primary distribution files unchanged"
+    "Byte-level preservation probe: 51 captured Cambium files and five primary distribution files unchanged",
+    "Runs 04 contracts, 05 kit and 06 baseline are terminal; substantive exact-tag Claude tool-loop attribution verified",
+    "Integrated only thirteen owned draft paths; worker node_modules links excluded and source remains uncommitted pending review",
+    "Focused integrated validation: 223 tests pass, zero fail; standalone install-surface typecheck exits zero",
+    "Fresh independent reviews found contract closure, owner-binding and verdict/parity gaps, unsafe LaunchAgent destination reads, and incomplete portable-kit behavior",
+    "Clean distribution dispatch driver at admitted commit 83563ff prepared for bounded repair continuations",
+    "Official Bun 1.3.5 release asset metadata retained privately; no host runtime changed"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -52,7 +58,7 @@
   ],
   "blockers": [
     "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137",
-    "Existing source typecheck has three LaunchAgent errors; isolated repair dispatched as prerequisite"
+    "Tasks 1 and 7 drafts require scoped review fixes; passing existing tests do not satisfy uncovered counterexamples"
   ],
   "decisions": [
     "Planning and review only; no host, service, credential, provider, cloud or external mutation",
@@ -72,13 +78,18 @@
     "Retain contract and kit partial patches after token-watchdog stop; resume, do not restart completed work",
     "Use separately tagged finite-budget runs so concurrent input does not consume another task cap; frozen successful non-Sol Sonnet rail pinned without provider/catalog mutation",
     "Do not integrate worker-local node_modules symlink into source; exact owned-file allowlist drops private setup paths",
-    "Owner plan marker now resolves to distribution-relative admitted plan; original active run directory remains stable"
+    "Owner plan marker now resolves to distribution-relative admitted plan; original active run directory remains stable",
+    "Fresh review findings take precedence over worker success reports; no source task has been accepted",
+    "Use clean dispatch-driver worktree for repairs while integration drafts remain staged",
+    "Worker frozen dependencies must be copied into an ignored directory, never captured as an absolute symlink",
+    "Verified Bun 1.3.5 may be used only as isolated private toolchain cache; no global install or source-pin change"
   ],
   "uncommitted_files": [
     "Preserved Cambium OpenAI integration WIP from prior checkpoint",
-    "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch"
+    "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
+    "Distribution integration branch has thirteen staged contract, service-doctor and kit draft paths pending fresh review fixes"
   ],
-  "next_action": "Continue active run-04-contracts (handle in ignored run state), run-05-kit and run-06-baseline. Read each SUMMARY before index, verify exact-tag provider evidence and substantive tests; integrate only exact owned paths, excluding node_modules symlink. Task 1 must pass source/scope/verdict hardening and review before parallel Tasks 2/3. Recover ledger, do not repeat finished tasks.",
+  "next_action": "Continue bounded repair round one from clean distribution dispatch driver. Repair Task 1 closed schema, exact owner binding, verdict lineage, actual Adytum topic parity and four disabled capability modes; repair LaunchAgent symlink/hardlink destination checks; repair Task 7 actual archive, source closure, pin verification and installer behavior. Review original findings and retained exact-path diffs, use copied frozen dependencies and independently tagged non-Sol runs. Keep Task 2/3 dependent on accepted Task 1. Physical identities/access/independent backups still pending; continue source work.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -133,34 +144,35 @@
       },
       {
         "ref": "run-04-contracts",
-        "status": "running",
+        "status": "terminal-integrated-draft-review-fixes-required",
         "task": "Task 1 retained-patch continuation",
         "rail": "claude/claude-sonnet-4-6"
       },
       {
         "ref": "run-05-kit",
-        "status": "running",
+        "status": "terminal-integrated-draft-review-fixes-required",
         "task": "Task 7 retained-patch continuation",
         "rail": "claude/claude-sonnet-4-6"
       },
       {
         "ref": "run-06-baseline",
-        "status": "running",
+        "status": "terminal-integrated-draft-review-fixes-required",
         "task": "LaunchAgent prerequisite repair",
         "rail": "claude/claude-sonnet-4-6"
       }
     ],
     "task_status": {
-      "1": "pending",
+      "1": "draft-review-fixes-required",
       "2": "pending",
       "3": "pending",
       "4": "pending",
       "5": "pending",
       "6": "pending",
-      "7": "pending",
+      "7": "foundation-draft-review-fixes-required",
       "8": "pending"
     },
     "preparation_commit": "83563ff",
-    "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md"
+    "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
+    "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver"
   }
 }
