@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T14:59:18.553990+00:00",
+  "updated": "2026-10-01T15:35:02.972386+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -46,7 +46,11 @@
     "Clean distribution dispatch driver at admitted commit 83563ff prepared for bounded repair continuations",
     "Official Bun 1.3.5 release asset metadata retained privately; no host runtime changed",
     "Official Bun 1.3.5 arm64 asset checksum and byte count match; isolated binary reports exact 1.3.5; global runtime untouched",
-    "Isolated exact Bun 1.3.5 runs forty onboarding/composition/operator-CLI regressions successfully; unrelated source preservation remains 51 plus five files byte-identical"
+    "Isolated exact Bun 1.3.5 runs forty onboarding/composition/operator-CLI regressions successfully; unrelated source preservation remains 51 plus five files byte-identical",
+    "Accepted and committed LaunchAgent observation prerequisite at distribution 94c60f4 after independent targeted review, 112 exact Bun 1.3.5 tests with 325 assertions and clean typecheck",
+    "Qualified exact non-Sol Claude Opus 4.8 tool loop using a discarded synthetic probe: thirteen independently attributed calls and nineteen parent-verified tests",
+    "Fresh Task 1 r1 review found incorrect canonical organs and desks, unchecked values, missing independent work authority and artifact/topic joins; draft remains unaccepted",
+    "Fresh Task 7 r2 review reproduced traversal manifest acceptance, unlisted member acceptance and user-output deletion; candidate remains unaccepted"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -59,11 +63,10 @@
     "Task 8: both actual physical Mac acceptance flows"
   ],
   "blockers": [
-    "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137",
+    "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1–7",
     "Tasks 1 and 7 drafts require scoped review fixes; passing existing tests do not satisfy uncovered counterexamples"
   ],
   "decisions": [
-    "Planning and review only; no host, service, credential, provider, cloud or external mutation",
     "Preserve Cambium saved OpenAI integration goal and Phase 9 authenticated-read gate",
     "Preserve Snow Gloves unrelated active profile-refresh handoff and source-only pilot",
     "Reuse the existing Temperance OpenTUI surface and headless controller before creating another TUI",
@@ -71,7 +74,7 @@
     "Use symbolic roots and relative source references in repository artifacts",
     "No merge of Cambium, Temperance Engine and Snow Gloves OS; both profiles must work without Snow Gloves",
     "Operator clarification: Cambium, Temperance and organs form one connected ecosystem; product authority boundaries must not erase those connections",
-    "2026-10-01 execution request supersedes review-only status and Task 1\u20132 proposed limit; execute Tasks 1\u20138 within each owner boundary",
+    "2026-10-01 execution request supersedes review-only status and Task 1–2 proposed limit; execute Tasks 1–8 within each owner boundary",
     "Distribution source is the implementation owner; source edits and isolated dependency setup authorized; host/cloud/provider changes remain separately scoped",
     "Native worktree tool is scoped to calling Cambium repository; use ignored distribution worktree because no applicable native cross-repository tool exists",
     "Batch workers produce uncommitted exact-path patches; parent reviews, verifies and commits each integrated task so batch diff capture retains their changes",
@@ -81,17 +84,20 @@
     "Use separately tagged finite-budget runs so concurrent input does not consume another task cap; frozen successful non-Sol Sonnet rail pinned without provider/catalog mutation",
     "Do not integrate worker-local node_modules symlink into source; exact owned-file allowlist drops private setup paths",
     "Owner plan marker now resolves to distribution-relative admitted plan; original active run directory remains stable",
-    "Fresh review findings take precedence over worker success reports; no source task has been accepted",
     "Use clean dispatch-driver worktree for repairs while integration drafts remain staged",
     "Worker frozen dependencies must be copied into an ignored directory, never captured as an absolute symlink",
-    "Verified Bun 1.3.5 may be used only as isolated private toolchain cache; no global install or source-pin change"
+    "Verified Bun 1.3.5 may be used only as isolated private toolchain cache; no global install or source-pin change",
+    "Authorized isolated source implementation continues; host, service, credential, provider, cloud, vault and native stores remain outside this task",
+    "Source prerequisite 94c60f4 is accepted; no numbered Task 1–8 is accepted yet",
+    "Use qualified exact Opus 4.8 for core contract repair without changing provider or combo configuration",
+    "Kit verification must bind a trusted outer digest, validate the complete archive before extraction and preserve all existing output; final native closure remains gated after Tasks 1–6"
   ],
   "uncommitted_files": [
     "Preserved Cambium OpenAI integration WIP from prior checkpoint",
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
-    "Distribution integration branch has thirteen staged contract, service-doctor and kit draft paths pending fresh review fixes"
+    "Distribution integration branch retains ten staged contract and kit draft paths; accepted prerequisite is committed separately"
   ],
-  "next_action": "Follow active run07 contracts and run10 baseline-r2/run11 kit-r2 from ignored handles. Run08/09 full owned patches are retained in separate clean83563ff candidate, not accepted: baseline r1 still linked-prestat race/cancellation; kit r1 no actual archive and invented unsupported overlay schemas. Use fresh candidate replacements per owned group; review, verify exact-tag substantive reports, original counterexamples and source pins before commits. Task2/3 wait for acceptedTask1. Recovery implementation brief retained. Physical target/access/backups still pending.",
+  "next_action": "Continue run13 Task1 r2 from private state, qualified Opus 4.8, clean driver 94c60f4. Prepare independent Task7 r3 with precise r2 reproduced counterexamples and eight owned paths. Read terminal summaries then independently attribute and review substantive patches. Task2/3 wait for accepted Task1; retain all old patches and source preimages. Physical Mac identities, access and independent backups still pending; proceed with source Tasks1–7 only.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -164,7 +170,7 @@
       },
       {
         "ref": "run-07-contracts-r1",
-        "status": "running",
+        "status": "terminal-blocking-review-findings",
         "task": "Task 1 review fixes",
         "rail": "claude/claude-sonnet-4-6"
       },
@@ -182,15 +188,27 @@
       },
       {
         "ref": "run-10-baseline-r2",
-        "status": "running",
+        "status": "terminal-accepted-prerequisite-94c60f4",
         "task": "LaunchAgent linked-prestat race and cancellation fixes",
         "rail": "claude/claude-sonnet-4-6"
       },
       {
         "ref": "run-11-kit-r2",
-        "status": "running",
+        "status": "terminal-blocking-review-findings",
         "task": "Task 7 actual archive and unsupported-overlay fixes",
         "rail": "claude/claude-sonnet-4-6"
+      },
+      {
+        "ref": "run-12-opus-wire-probe",
+        "status": "terminal-rail-qualified-probe-not-product",
+        "task": "Exact non-Sol frontier tool-loop qualification",
+        "rail": "claude/claude-opus-4-8"
+      },
+      {
+        "ref": "run-13-contracts-r2",
+        "status": "running",
+        "task": "Task 1 canonical ecosystem and independent compatibility joins",
+        "rail": "claude/claude-opus-4-8"
       }
     ],
     "task_status": {
@@ -206,6 +224,7 @@
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
-    "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate"
+    "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
+    "source_head": "94c60f4"
   }
 }
