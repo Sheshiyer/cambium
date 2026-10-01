@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T13:52:27.053781+00:00",
+  "updated": "2026-10-01T14:02:06.830115+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -33,7 +33,9 @@
     "Revised integrated Mac map, design and plan; both Mac uses remain equal and Snow Gloves excluded",
     "Passed 32 documentation criteria and all twelve ISA section checks; preserved saved goal and 49 unrelated baseline files",
     "Recovered explicit full-plan execution authorization and native active goal after compaction",
-    "Read current distribution owner contract; isolated source at d4748c9 on codex/modular-mac-lifecycle without absorbing primary WIP"
+    "Read current distribution owner contract; isolated source at d4748c9 on codex/modular-mac-lifecycle without absorbing primary WIP",
+    "Distribution isolated branch 83563ff admits full source plan with 128 stable ISC-813..940; twelve owner ISA sections present",
+    "Frozen install-surface dependency closure installed only in isolated worktree; 33 onboarding/operator baseline tests pass"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -46,7 +48,8 @@
     "Task 8: both actual physical Mac acceptance flows"
   ],
   "blockers": [
-    "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137"
+    "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1\u20137",
+    "Existing source typecheck has three LaunchAgent errors; isolated repair dispatched as prerequisite"
   ],
   "decisions": [
     "Planning and review only; no host, service, credential, provider, cloud or external mutation",
@@ -60,13 +63,15 @@
     "2026-10-01 execution request supersedes review-only status and Task 1\u20132 proposed limit; execute Tasks 1\u20138 within each owner boundary",
     "Distribution source is the implementation owner; source edits and isolated dependency setup authorized; host/cloud/provider changes remain separately scoped",
     "Native worktree tool is scoped to calling Cambium repository; use ignored distribution worktree because no applicable native cross-repository tool exists",
-    "Batch workers produce uncommitted exact-path patches; parent reviews, verifies and commits each integrated task so batch diff capture retains their changes"
+    "Batch workers produce uncommitted exact-path patches; parent reviews, verifies and commits each integrated task so batch diff capture retains their changes",
+    "Use absolute batch task/output paths; TEMPERANCE_ISLAND=0 for bounded source batch avoids optional hook status contamination without changing runtime files; required control and receipt checks remain",
+    "Bun runtime observed 1.3.13; dependency source pins remain 1.3.5/OpenTUI 0.5.11/AJV 8.20.0/TypeScript 5.9.3; exact portable runtime proof remains Task 7"
   ],
   "uncommitted_files": [
     "Preserved Cambium OpenAI integration WIP from prior checkpoint",
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch"
   ],
-  "next_action": "Continue source implementation in distribution codex/modular-mac-lifecycle; recover its plan ledger and batch index before dispatching; never restart completed tasks or mutate the saved Cambium OpenAI goal.",
+  "next_action": "Recover distribution source ledger and ignored active-run.json; follow run-02/run-03-baseline to terminal indices, verify nontrivial output and provider receipts, integrate exact reviewed patches before dispatching dependent Tasks 2\u20136. Actual physical acceptance remains pending targets/access/backups; keep working on source.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -97,7 +102,29 @@
     "branch": "codex/modular-mac-lifecycle",
     "workspace_ref": "temperance_engine:.worktrees/modular-mac",
     "plan": "docs/superpowers/plans/2026-10-01-modular-mac.md",
-    "batch_runs": [],
+    "batch_runs": [
+      {
+        "ref": "run-01",
+        "status": "failed-before-code",
+        "accepted_tasks": 0
+      },
+      {
+        "ref": "run-02",
+        "status": "running",
+        "tasks": [
+          "Task 1 contracts",
+          "Task 7 kit",
+          "Task 8 packet only"
+        ]
+      },
+      {
+        "ref": "run-03-baseline",
+        "status": "running",
+        "tasks": [
+          "three existing LaunchAgent typecheck errors"
+        ]
+      }
+    ],
     "task_status": {
       "1": "pending",
       "2": "pending",
@@ -107,6 +134,8 @@
       "6": "pending",
       "7": "pending",
       "8": "pending"
-    }
+    },
+    "preparation_commit": "83563ff",
+    "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md"
   }
 }
