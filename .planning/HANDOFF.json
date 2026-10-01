@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-01T15:38:49.512468+00:00",
+  "updated": "2026-10-01T15:53:46.534909+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -50,7 +50,10 @@
     "Accepted and committed LaunchAgent observation prerequisite at distribution 94c60f4 after independent targeted review, 112 exact Bun 1.3.5 tests with 325 assertions and clean typecheck",
     "Qualified exact non-Sol Claude Opus 4.8 tool loop using a discarded synthetic probe: thirteen independently attributed calls and nineteen parent-verified tests",
     "Fresh Task 1 r1 review found incorrect canonical organs and desks, unchecked values, missing independent work authority and artifact/topic joins; draft remains unaccepted",
-    "Fresh Task 7 r2 review reproduced traversal manifest acceptance, unlisted member acceptance and user-output deletion; candidate remains unaccepted"
+    "Fresh Task 7 r2 review reproduced traversal manifest acceptance, unlisted member acceptance and user-output deletion; candidate remains unaccepted",
+    "Task1 r2 terminal attributed to fifty-six unique exact Opus4.8 calls; parent exact Bun1.3.5 confirms104tests/190assertions and clean source typecheck, but fresh review finds incomplete lineage/completeness/privacy/context/scoped joins",
+    "Existing compiled OpenTUI preliminary synthetic PTY harness at80x24 and120x40 navigates and restores terminal under observed Bun1.3.13; future migration views and exact-pin proof remain pending",
+    "Repeated preservation probe confirms51Cambium and5primarydistribution captured files byte-identical"
   ],
   "remaining": [
     "Task 1: closed migration capability and ecosystem contracts",
@@ -64,7 +67,7 @@
   ],
   "blockers": [
     "Physical destination identities, OS/hardware, access and independent backup locations have not yet been supplied; this does not block source Tasks 1–7",
-    "Tasks 1 and 7 drafts require scoped review fixes; passing existing tests do not satisfy uncovered counterexamples"
+    "Tasks1/7 candidates still require semantic and artifact repairs; targeted green tests do not satisfy independently reproduced gaps"
   ],
   "decisions": [
     "Preserve Cambium saved OpenAI integration goal and Phase 9 authenticated-read gate",
@@ -97,7 +100,7 @@
     "Preserved distribution primary planning/manifest/AGENTS WIP; implementation occurs in isolated branch",
     "Distribution integration branch retains ten staged contract and kit draft paths; accepted prerequisite is committed separately"
   ],
-  "next_action": "Follow independently tagged run13 contracts-r2 and run14 kit-r3 using private states; exact Opus4.8 qualified, clean driver94c60f4. Read SUMMARY before index and substantively review returned scoped patches with exact-tag gateway metadata and meaningful counterexamples. No Task1–8 accepted; service-observation prerequisite94c60f4 accepted. Task2/3 wait for acceptedTask1. Existing integration drafts, candidate patches, unrelated source and primary WIP preserved. Physical Mac identities/access/backups pending, source Tasks1–7 continue.",
+  "next_action": "Continue active run14 kit-r3 and run15 contracts-r3 from private states, qualified exactOpus4.8, clean driver94c60f4. Run13 is terminal NOTaccepted despite104green: private task-1-r2-review.md requires typed source/release/install/consume work joins, closed expected context, positive reference grammar, bidirectional completeness, failed/expired holds and usable selected-scope success with execution_authorized false. Full canonical5+6 remains; unselectedAdytumvisibleheld. Read SUMMARY then index, substantively review exact owned patches and attribution; Task2/3 await acceptedTask1. Baseline94c60f4 accepted; no Task1–8 accepted. Physical identity/access/backup question remains pending; source Tasks1–7 continue.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -206,7 +209,7 @@
       },
       {
         "ref": "run-13-contracts-r2",
-        "status": "running",
+        "status": "terminal-blocking-review-findings",
         "task": "Task 1 canonical ecosystem and independent compatibility joins",
         "rail": "claude/claude-opus-4-8"
       },
@@ -214,6 +217,12 @@
         "ref": "run-14-kit-r3",
         "status": "running",
         "task": "Task7 trusted closed archive and output preservation repairs",
+        "rail": "claude/claude-opus-4-8"
+      },
+      {
+        "ref": "run-15-contracts-r3",
+        "status": "running",
+        "task": "Task1 complete typed lineage, required evidence and scoped compatibility repairs",
         "rail": "claude/claude-opus-4-8"
       }
     ],
