@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-02T12:16:56Z",
+  "updated": "2026-10-02T12:28:13Z",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -167,19 +167,21 @@
     "Pinned Python 3.9 tempfile source observation found underscore in its random suffix alphabet while policy-helper R3 rejects underscore; root creation remains blocked until a new reviewed/tested helper derivative resolves the grammar and validates the outer receipt envelope",
     "Task8 blank workstation/node owner packet R3 document review PASS after explicit separate configuration rollback steps; no target or physical evidence supplied, ISC-925..940 remain open",
     "Independent Task7 parent pre-PINS R1 audit returned HOLD at 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f; all eight tuples/lineage match, but exact R4 cannot pass its pinned null internal admission and receipt root grammar accepts impossible 9–24 suffixes",
-    "Task7 materializer derivative R5 source packet created and statically frozen fae7dece01a6914425b00191ed66d92089b4ae80f705a78f56d01b1a2ba9b003; exact root-only internal admission is pinned, downstream switches false, 14 static checks pass, independent source audit pending"
+    "Task7 materializer derivative R5 source packet created and statically frozen fae7dece01a6914425b00191ed66d92089b4ae80f705a78f56d01b1a2ba9b003; exact root-only internal admission is pinned, downstream switches false, 14 static checks pass, independent source audit pending",
+    "Independent materializer R5 audit returned HOLD; exact report ac17828acb0aba0a96d263305a01b98a309dacf5e533798f24cc580aa3ff6244 confirms all 29 frozen tuples and gate pins, but top-level base runner/launcher hashes conflict with its named R4 parent",
+    "Materializer R6 provenance-corrected source derivative frozen at 426ea567703892097b99cb07b1394cd037bcaa1be3ba75eac20b2909cd1cce7b; 32 member tuples, JSON, R5 parent freeze/audit bytes, immediate-parent pins and exact R6 terminal argv locally verified; candidate not run, independent audit pending"
   ],
   "remaining": [
-    "Task7: finish independent source audit of materializer R5 (freeze fae7dece); no candidate launch until audit passes. R5 contains the exact one-stage materialize-only admission and refreshes the launcher pin; no root exists.",
-    "Then create a new parent pre-PINS protocol derivative bound to exact R5. Use exactly eight root-suffix characters from the pinned tempfile alphabet including underscore; strict receipt fields/status/argv/root/source/binding/marker/claim joins must match the R5 command. Independently audit it.",
-    "Then derive a new helper from policy-controls R3 that validates the strict external parent receipt envelope and the exact eight-character root grammar; add meaningful focused synthetic tests and obtain fresh independent review. Keep R3 unchanged and PINS-null.",
+    "Task7: read and independently verify materializer R6 audit against freeze 426ea567703892097b99cb07b1394cd037bcaa1be3ba75eac20b2909cd1cce7b. If HOLD, preserve R6 and repair only in a new derivative; no candidate launch.",
+    "After exact R6 source PASS, freeze a new parent pre-PINS protocol bound to R6 freeze/launcher/admission/source pins. Require exactly eight suffix characters from abcdefghijklmnopqrstuvwxyz0123456789_ and complete strict outer-receipt cross-field joins; independently audit it.",
+    "Then derive a new helper from policy-controls R3 that validates the strict external parent receipt envelope and exact eight-character root grammar; add meaningful focused synthetic tests and obtain fresh independent review. Keep R3 unchanged and PINS-null.",
     "Do not replay stable-inputs R1 or permanent failed attempt receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c. Actual parser/22 controls, 28 focused cases, 59-step wrapper, kit/archive and 20 owner qualification stay held until all source gates pass.",
     "Task8 source owner packet is prepared and independently document-reviewed; physical workstation/node acceptance remains a separate owner-run gate with target, access, release/scope, independent backup and real evidence still absent.",
     "Complete authorized source/local-product work only after exact source integrity, independent review and bounded receipts pass; preserve physical acceptance and the saved Cambium OpenAI goal as separate states."
   ],
   "blockers": [
     "Permanent materialization attempt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c failed before root allocation and must never be replayed; no root is currently admitted.",
-    "Stable-inputs R1 materializer input cannot be reused. Frozen materializer R4 is not runnable because its pinned internal admission is null; R5 is a new one-stage admitted derivative but independent audit is pending.",
+    "Stable-inputs R1 materializer input cannot be reused. R5 remains immutable with independent provenance HOLD; R6 is a new provenance-corrected derivative awaiting independent source audit.",
     "Parent pre-PINS protocol R1 is independently HOLD (review 14af7a8d): receipt grammar allows 9–24 suffix characters although the pinned generator emits exactly eight and may include underscore. R1 remains immutable.",
     "Policy-controls helper R3 remains immutable, independently HOLD and PINS-null; its ROOT_PATTERN rejects underscore and it does not validate the new closed outer receipt envelope.",
     "No root is admitted at runtime, no external terminal receipt or PINS exists. Actual parser, 22 policy controls, 28 focused cases, 59-step wrapper, kit/archive and 20 owner qualification remain unexecuted.",
@@ -217,17 +219,21 @@
     "The failed stable-inputs R1 materializer attempt stays permanently non-replayable; the R4-derived materializer is a distinct source candidate and needs its own review and receipt chain.",
     "Materializer R5 adds only a pinned one-stage ROOT_ADMITTED_MATERIALIZE_ONLY file, refreshed launcher pin and source/control lineage; no candidate code or runtime execution occurred.",
     "No root or external terminal receipt may be used until R5 and the exact R5 parent receipt protocol are independently reviewed.",
-    "Parent protocol R1 and materializer R4 remain immutable HOLD/PASS evidence respectively; repairs use new source derivatives."
+    "Parent protocol R1 and materializer R4 remain immutable HOLD/PASS evidence respectively; repairs use new source derivatives.",
+    "R5 source packet remains frozen and unlaunched after independent HOLD ac17828ac; provenance repair is a new derivative only.",
+    "R6 binds exact R5 freeze, audit, runner and launcher, records the R4 correction history, preserves null execution fields and remains pending independent audit.",
+    "No candidate launch until an exact materializer source derivative, its parent receipt protocol and the strict helper derivative each pass their independent source gates."
   ],
   "uncommitted_files": [
     "Cambium primary contains unrelated user WIP; preserve it and stage only this structured handoff checkpoint.",
-    "Temperance implementation worktree remains clean in tracked files on codex/modular-mac-lifecycle at exact source A3 386232644d7f54dd06497e2b05384880ff2551f8; R5 and audit packets are ignored under .superpowers.",
-    "Materializer R5 freeze SHA-256 fae7dece01a6914425b00191ed66d92089b4ae80f705a78f56d01b1a2ba9b003; internal materialize-only authorization is pinned, but candidate not launched, no root or receipt exists; independent audit pending.",
+    "Temperance implementation worktree remains clean in tracked files on codex/modular-mac-lifecycle at exact source A3 386232644d7f54dd06497e2b05384880ff2551f8; source packets and audit ledgers remain ignored under .superpowers.",
+    "Materializer R5 remains frozen at fae7dece01a6914425b00191ed66d92089b4ae80f705a78f56d01b1a2ba9b003 with independent provenance HOLD ac17828acb0aba0a96d263305a01b98a309dacf5e533798f24cc580aa3ff6244; no launch, claim, root or receipt.",
+    "Materializer R6 freeze 426ea567703892097b99cb07b1394cd037bcaa1be3ba75eac20b2909cd1cce7b is a new source-only derivative; independent audit pending; candidate not launched.",
     "Parent protocol R1 remains frozen e4e7e125b8c677566834393549462a80fce3a1f4c91219b37af70c2a372dfdf2 with independent HOLD report 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f.",
     "Task8 packet R3 document review PASS remains source-only; physical acceptance remains pending.",
     "Permanent failed-attempt receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c remains immutable HOLD evidence."
   ],
-  "next_action": "Continue without operator clarification. Read the independent source audit of materializer R5 and verify its SHA-256 against freeze fae7dece01a6914425b00191ed66d92089b4ae80f705a78f56d01b1a2ba9b003. If source PASS, freeze a new parent pre-PINS protocol bound to exact R5 argv/launcher/admission/source pins; require exactly eight suffix characters from abcdefghijklmnopqrstuvwxyz0123456789_ and complete outer-envelope cross-field receipt checks. Independently review that protocol. Then derive and independently test/review a new helper based on policy R3 with the same exact grammar and outer receipt validation. Do not execute R5 until both exact derivatives pass; do not reuse stable-inputs R1 or replay failed attempt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c. Keep Task8 physical ISC-925..940 separate, preserve Cambium WIP and saved OpenAI goal, and keep Snow Gloves outside.",
+  "next_action": "Continue without operator clarification. Read the independent source audit of materializer R6 and verify its SHA-256 against freeze 426ea567703892097b99cb07b1394cd037bcaa1be3ba75eac20b2909cd1cce7b. If source PASS, freeze a new parent pre-PINS protocol bound to exact R6 argv/launcher/admission/source pins; require exactly eight suffix characters from abcdefghijklmnopqrstuvwxyz0123456789_ and complete closed outer-envelope cross-field checks. Independently audit that protocol. Then derive and independently test/review a new helper from policy-controls R3 with that grammar and receipt validation. Do not launch any materializer until the exact materializer, parent protocol and helper gates pass; do not reuse stable-inputs R1 or replay failed attempt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c. Keep Task8 physical ISC-925..940 separate, preserve Cambium WIP and saved OpenAI goal, and keep Snow Gloves outside.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -359,7 +365,7 @@
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
       "6": "accepted-source-and-bounded-disposable-runtime-0b21eb2",
-      "7": "R5 source packet frozen fae7dece with exact one-stage ROOT_ADMITTED_MATERIALIZE_ONLY admission and launcher self-pin refresh; 14 static checks PASS; independent audit pending, no candidate launch/root; parent protocol R1 remains HOLD for impossible suffix lengths; helper R3 remains HOLD/PINS null",
+      "7": "R5 freeze fae7dece with independent provenance HOLD ac17828; R6 derivative frozen 426ea567 with 32 local tuple/JSON/lineage/argv checks PASS and independent review pending; no launch, root, claim or receipt. Parent protocol R1 and helper R3 remain immutable HOLD/PINS-null.",
       "8": "blank equal-profile owner packet R3 document review PASS; physical target/access/backup/restore evidence absent; ISC-925..940 remain open"
     },
     "preparation_commit": "83563ff",
@@ -481,13 +487,13 @@
     "ISC-2505"
   ],
   "isc_done_count": 1287,
-  "wave": "Tasks 1–6 accepted; Task7 R5 one-stage materializer derivative in independent source audit; parent protocol R2 and helper derivative still required; Task8 physical acceptance pending",
+  "wave": "Tasks 1–6 accepted; Task7 R5 independent provenance HOLD and R6 source audit pending; parent protocol R2 and helper derivative still required; Task8 physical acceptance pending",
   "tier": "E5",
   "session_budget": {
     "window": 258400,
     "rollover_at": 167960,
     "used_at_handoff": 209101
   },
-  "next_command": "Read and verify the independent materializer R5 audit; do not launch the candidate.",
+  "next_command": "Read and verify the independent materializer R6 source audit; do not launch the candidate.",
   "extends": "gsd.pause-work.v1"
 }
