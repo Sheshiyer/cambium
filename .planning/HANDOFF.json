@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-02T00:15:23.924951+00:00",
+  "updated": "2026-10-02T00:38:31.684542+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -66,7 +66,11 @@
     "RichPTYR5/R6 source-onlysupersededpreparationsfrozen/noexecution; R6directownedPopen/closeEIO+EOF/budgetsfix, parentFULLsource/delta and1583payloadhashmodes+originalsource5/native/Bun/helperinventoryPASS. FreshLunaHOLD externallauncher/admission/inputprovenance, exactanchors/actionevidence andPTYpath-size readback; NEWR7prep only, finalpinsmustuseR2candidate",
     "HardcloseR2 source-onlyparent+LunaHOLD retained; NEWR3owner/supervisor sourcepreparationrunning, noexecution. Exactindependentissuer/rootpins/lazyapplynative/scopedIO/settledsharedcancel/newprocessandreapneeded; actualrenamereturnnotpowerlossdurability",
     "ExactR1regressionclosures incomplete: first60of62operator/partial1232pass1skip14fail1error fromlimitedprivateclosure/PATH omissions; subsequent62operatorPASS andpartial1245pass1skip4fail fromremainingfixture sourcecopyomissions, postinventorysettling. No productverdict or falsefullsuitePASS; sourceR1 nowheld",
-    "Task7processrestartdraftfreeze e644f2447114 terminalSOURCEonly; freshLuna HOLD6findings report24afdf79fe38 fordeadlinefaultcause/fullsemanticdurablebindings/spawn-errornotreaped/optionalIOcounter/repeatreleaseequality/finalarchive-sourcebinding. SAMEAstra NEWignoredR2repairauthorized, originaldraft7andprepR1immutable/no importsorqualification"
+    "Task7processrestartdraftfreeze e644f2447114 terminalSOURCEonly; freshLuna HOLD6findings report24afdf79fe38 fordeadlinefaultcause/fullsemanticdurablebindings/spawn-errornotreaped/optionalIOcounter/repeatreleaseequality/finalarchive-sourcebinding. SAMEAstra NEWignoredR2repairauthorized, originaldraft7andprepR1immutable/no importsorqualification",
+    "Task6 SOURCE R2 frozen exact5files110494patchSHA4525ef1c/base31f; root fullmetadata/report/core+UIreviews and original/private source identities/apply-reversechecks PASS; sourcecandidate not integrated",
+    "Task6 R2 fresh independent CORE boundedSOURCEPASS21tests218assertions and UI/CLI SOURCEPASS; all4R1findings closed/no newP0P1P2. Producer69focused1014assertions/source+strictTS0/operator62tests369/full1263pass1explicitliveskip27043; exactclosure inventories unchanged",
+    "Task6 richR7,hardcloseR3,nativefaultR1 preparations frozen SOURCEONLY and unexecuted; root readingfull source/pins, freshindependentreviewsdispatched; actualruntimegates remainpending",
+    "Task7 processrestart NEW R2 draft9payloadfiles frozen b249f9d78bda/report38995eda2f84 all6R1repairclaims; rootfullreport+freezeread, fresh SAME Luna SOURCEONLYrereviewrunning; no imports/typechecks/native/qualification"
   ],
   "remaining": [
     "Task6: actual rich shared-controller OpenTUI screens, paired-profile and failure/cancellation/PTY proof, fresh independent review and parent acceptance",
@@ -100,10 +104,10 @@
   ],
   "uncommitted_files": [
     "Freshly verified captured51Cambium and5distributionprimary WIP byte-identical; other concurrent review-document WIP preserved; only parent-owned structured handoff refreshed",
-    "Integration CLEANaccepted31f97b72; Task6 SOURCE R1 fivefiles frozenimmutable at d3ebe134 patch, COREHOLD; SAMEAstra owns movingR2repaironlyoriginal modular-mac-tui-task6; finalacceptancepending",
+    "Integration CLEANaccepted31f97b72; Task6 EXACTfive originalfiles R2 frozenpatch4525ef1c withfreshCORE/UIsourcePASS; runtimegatepreparationsfrozen/unexecuted, finalacceptancepending",
     "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
   ],
-  "next_action": "Continue SAMEAstra Task6 exactfivepathR2repair afterFULLterminalCORE6cb9beHOLD3P2: nestedconfirmationpayload/backlifetime, directResumefullsafeReview, exactimmutablelatestconfirmation/requestwholeplan-input-profile-op-review driftguard+reconsent, no controller/owner/ABI/depsrewrite. FreshLunaUI/CLI audits ONLYimmutableR1/privateclosureR4, notmovingR2; includeanyunique findingsbeforeR2freeze. R1/source/patchd3ebe/reports remainfrozen,55/886/source+strictTS0 produceronly. Fullregressions incomplete dueprivateclosure omissions/PATH; finishsettlingonlyownedalreadyruncommands, buildnewauthenticatedfullaccepted31f sourceclosure+R2 overlay/fixedprivateBunPATH, notR1qualification. ObserverR4 parentboundedsource+knownbytePASSb0da/a4f, noactualscreenproof. RichPTYR6 parentFULLsource+1583inventoryPASS butindependentprepHOLD588677 externalfixedlauncher/inputpins/PTYPATH-size andexactanchors/actionparity; NEWR7prep noexecutionandfinalpayloadregeneratedR2. HardcloseR2 parent+LunaHOLD7bd3f, NEWR3sourceprep only, noexecuteuntilfreshroot+indepreviews; sharedsettledcause/reap/newprocesssameopandindependentissuer/root/payloadpins, powerlossandclosedchannelsttyunproved. Task7oldownerdraft24aec0staticPASS, newprocessrestartprep e644SOURCEHOLD6findings24afdf: SAMEAstra NEWR2ignoredrepair/noimports/native/qualification. Final7source/newimmutablecommittedartifact afteraccepted6; admittedstockuname-s/-m only andcriticaldenialsunchanged. Task8exactphysicaltarget/macOS/access/independentbackupinputspending. Fresh51+5WIP/savedOpenAIgoal/Phase9/current100growth/vaultprovidercloudnativeboundariespreserved; noConstellation8770.",
+  "next_action": "Continue exact frozen Task6 R2 patch4525ef1c/base31f afterterminalCOREsourcePASS4fbf693b andUIsourcePASS/fullrootread. Parentoriginal+privatefivehashes/modes/apply-reversechecksPASS; producer69focused1014/source+strictTS0/operator62/369/full1263pass1explicitliveskip27043 inventoriesunchanged. Await/readFULLindependent sourcepreparationreviews richR7(SAMELuna),hardmastercloseR3(SAMEAstra),nativefaultR1(SAMEAstra); rootfullsource/payload/builderpins requiredbeforeany runtimeadmission. Exact new independent launcher+payload/snapshot/source5/canary+PTYidentity/currentR4observer pins, namedcriticaldenials unchanged; directPopenreap/noforcedcleanupgreen. Actualbothprofile80x24/120x40 richnavigation/resize/gracefulterminalrestore, copiednativefault+samecopyheadless, closedmastersharedsettledcause/trace/reap/distinctsameopreopen pending. ClosedchannelsttyUNAVAILABLE,powerlossUNPROVED. Task7processrestartR2draftfreeze b249f9/report38995/sourceonly; SAME Luna freshauditrunning ofall6R1fixes; noimports/typechecks/runtimeadmission. Final7source/newimmutablecommittedartifact/sourceA-separateacceptanceB afteraccepted6; stockuname-s/-monly exception andcriticaldenialsheld. Task8exactphysicaltarget/macOS/access/independentbackupinputspending. Preserve51+5capturedWIP/savedOpenAIgoal/Phase9/current100growth/vault/provider/cloud/nativeboundaries; noConstellation8770. RootownsHANDOFF/ISA/integration; workersignoredledgersonly.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -234,8 +238,8 @@
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
-      "6": "SOURCE-R1-frozen-CORE-HOLD3P2-UIaudit-running-SAMEproducer-R2repair-runtimepreps-held-unaccepted",
-      "7": "minimalbootstrap974bc0d-ownerdraft-sourcePASS-processrestartSOURCE-HOLD6-R2prep-repair-waitaccepted6",
+      "6": "SOURCE-R2-frozen-CORE-UI-sourcePASS-1263tests-runtimepreparationreviews-running-unaccepted",
+      "7": "minimalbootstrap974bc0d-ownerdraft-sourcePASS-processrestartR2frozen-sourceaudit-running-waitaccepted6",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
