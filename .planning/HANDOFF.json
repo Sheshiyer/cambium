@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-02T02:10:13.231431+00:00",
+  "updated": "2026-10-02T02:47:32.531905+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -99,19 +99,25 @@
     "Parent exact richR10 workstation80x24q actualrun HELD at41 checkpoints: R5 preserves firstartifactref atrow6/col3 andcompletewrapped digest throughresize/Help; strictmargincheck falsely includescol1scrollbar. IndependentLuna diagnostic13300da9 confirms unlikeR4 realanchorloss. All6children nowtimelyreaped/knownexits, forcedTERMtrue/noKILL/allintegritytrue; qnotreached/restorationfalse/historyimmutable.",
     "Parent exact nativeR4 actualrun HELD EARLY_EOF: actualfixeddiagnostic andcompletecancelled/noeffectJSON, all5children timelyreaped/exit1/noforcedcleanup/allintegritytrue. IndependentCORE diagnosisba9e2983 finds sourcepoll-to-read/capture orderingrace sharedwithrich; oldtrial lacksafter-stty/dimensions/headlessparity andneverpromoted.",
     "Parent exact hardR6 workstation actualrun HELD MISSING_rename-returned afterplanned/Review/form/confirmApply. Noactualrename/masterfault/reopen; onlyprivatepreparedclaim captured, destinationpriorbytespreserved. Cleanup SIGHUP/sharedcancelincomplete, all4timelyreaped/knownexits/forcedTERMtrue/noKILL/allintegritytrue. ParentwaitstopsPTYreading; backpressure plausiblebutnotproven, nohost/productdefectinferred.",
-    "SAMEproducer preparing NEW source-only richR11/nativeR5 boundedEOF/capture convergence andrichgutteroracle, hardR7 boundedPTYpump duringcontrolwaits; original8product paths remainfrozen, noactualproducerexecution. Root fresh51Cambium+5distributionWIP andall100growth bytes/membership unchanged."
+    "SAMEproducer preparing NEW source-only richR11/nativeR5 boundedEOF/capture convergence andrichgutteroracle, hardR7 boundedPTYpump duringcontrolwaits; original8product paths remainfrozen, noactualproducerexecution. Root fresh51Cambium+5distributionWIP andall100growth bytes/membership unchanged.",
+    "NEW richR11/nativeR5/hardR7 source-only copied packets froze with independent native and hard SOURCE PASS; richR11 narrow digest-wrap oracle P2 led to NEWrichR12 exact77+17/94 geometry,25 meaningful pure controls and freshLuna SOURCE PASS27f4f0. ProductR5 eight remains unchanged.",
+    "Root FULL-read new launchers/supervisors/deltas/helper controls/provenance and verified native5/hard7/rich12 top29/34/44, copiedpayload1610/1585/1610,2030privateinputs/original8 and current/prior helperpins; root43richnative+25hard+25richoracle pure source controls passed. Initial overbroad identity-root check held on retained validation logs/cache; corrected input scope documented, all actual source inputs match.",
+    "NativeR5 parent actualtrial held after observedexit/reap1 and identical before/after namedstty modes: retainedslave final dimension ioctl ENOTTY. All6ownedchildren timelyreaped/no forcedcleanup/allintegritytrue. CORE fa6dd380 source-only diagnosis confirms helper measurement assumption, not product restoration or Darwin rootcause; NEW nativeR6/richR13 verified same-device observation-fd source preparation authorized, no newnative/rich actualrun.",
+    "HardR7 parent actual workstation and always-on-node cases terminalexit0: realexclusive rename, actual lastmasterclose and stdin-end cause, awaitedsharedcancel incomplete1, distinctnewOS same-operation headlessstatus incomplete1, completeclosed/reopened evidencebyteequal; no native rename in reopen/allchildren reaped/noforcedcleanup/allintegritytrue. Bounded synthetic fixture only; terminalUNAVAILABLE/powerlossUNPROVED; fresh independentactual data review running.",
+    "Task7 three-document DRAFT R2 frozen after one opening verified-closure wording repair; rootFULL-read complete3docs and freshLuna deltaaudit66cfa73d PASS. Intendedproperty/finalarchivepending/nullsourceA-archive-receiptB explicit; no trackedprojection/build/qualification yet.",
+    "Freshcheckpoint confirms51capturedCambium+5distributionprimary WIP bytes preserved and100growth hashes/membership unchanged; savedOpenAIgoal/Phase9 retained."
   ],
   "remaining": [
-    "Task6: actual rich shared-controller OpenTUI screens, paired-profile and failure/cancellation/PTY proof, fresh independent review and parent acceptance",
-    "Task7: final accepted-source documentation and immutable kit, actual clean-root bootstrap/profile/repeat/configuration/recovery/current-TUI qualification and independent review",
-    "Task8: actual equal workstation/node owner acceptance after exact target/access/independent backup evidence"
+    "Task6: NEW nativeR6/richR13 same-device final-dimension helpers and meaningful pure controls, root/fullidentity and fresh SOURCE audits, actual rich both profiles/sizes/q/CtrlC/fullscreen parity and native-failure/headless parity; pairedhard actual independentdata acceptance, exact8source integration/ISA.",
+    "Task7: reviewed accepted-source documentation projection and immutable final kit, real clean-root qualification/pairedowner/repeat/recovery/rollback/release/OSrestart/currentTUI and independentreview.",
+    "Task8: actual equal workstation/node owner acceptance after exact target/access/independent backup evidence."
   ],
   "blockers": [
     "Physical destination identity,hardware/macOS,access and independent backup locations remain unspecified; earlier question is pending",
     "FinalTask7 dependsacceptedTask6; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
     "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope",
     "Source-volume tool/source reads stalled duringTask6 andoptionalTask7draftstaticcheck; boundedbyteidenticalprivateSOURCEcopy validation inprogress, no hostprobe/repair or releaseclaim",
-    "Task6 R5 product SOURCE passes, but actualqualification is HELD on test-supervisor margin/EOF/capture/controlwait-drain defects. NEW richR11/nativeR5/hardR7 source-only preparations and meaningful purecontrols are required, with root+peerreview/newliteraladmission beforeactualreruns; physical readiness remains unproved."
+    "NativeR5 actual final-dimensions measurement held ENOTTY after reaping; richR12 shares same assumption. NEW nativeR6/richR13 source-only measurement repair in progress; no restoration/parity or richactual acceptance until fresh reviews/exactadmission. ProductR5 SOURCE passes; pairedHardR7 actual limitedsynthetic observations awaitingpeerdatareview."
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -134,10 +140,10 @@
   ],
   "uncommitted_files": [
     "Freshly verified captured51Cambium and5distributionprimary WIP byte-identical; other concurrent review-document WIP preserved; only parent-owned structured handoff refreshed",
-    "Integration CLEAN31f97b72; Task6 R5 exact8sourcepaths frozen/rootidentity/freshCORE andUI SOURCE PASS. NEW richR11/nativeR5/hardR7 ignoredpreparations moving; actualrichR10/nativeR4/hardR6 heldhistories immutable. NoTask6 integration/ISA acceptance.",
+    "Integration CLEAN31f97b72; Task6R5 exact8source frozen/rootidentity/freshCORE+UI SOURCE PASS. NEWrich12/native5/hard7 ignoredpackets sourcePASS; native5actualdimensionHOLD and hard7pairedactualobserved. NEWrich13/native6 moving, Task7docsDRAFT R2 SOURCE/dataPASS. NoTask6 integration/ISA or finalkit qualification.",
     "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
   ],
-  "next_action": "Continue SAMEAstra ignored NEW richR11/nativeR5/hardR7 preparations, productSOURCE R5 eightpaths c1c5bc72b3c8/privateclosure21affd1068b7/base31f97b72 staysfrozen/rootidentity/freshCOREb2a64448+UI10460ad0 PASS. ThreeparentactualR5 trials areHOLD: richR10 margincol1scrollbarglyph falselyfails whilefixedrow6col3firstref+fullwrapped digest preserved (Luna13300da9); nativeR4 EOF/capture sourceorderingrace despitecompletefixeddiagnostic/publiccancelJSON (COREba9e2983); hardR6 Applythenmissingrenameflag, noBEGIN/rename/reopen andparentawait_file nondrainingPTY (backpressureunproven). Newrichoracle mustfixonlyreservedmargin blank/observedglyph withfixedrows/cols/fullref+digest/focus, meaningfuloldR4realanchorRED/perturbations. Sharedrich/native helper mustcontinueboundedpoll/reading afterearlyEOF/EIO includinglateroutput, requireactualexit/reap thenexactretainedslavestty+dims BEFOREclose andpostcaptureEOF/EIO+fullparity; noeofalone-success. HardR7 boundedpump whilecontrolwaits/raw+observerstate, retainexactissuer/root/review/op/actualrename/mastercause/fullsettledoracle/newOSreopen. Puremeaningfulcontrols/newfreeze/source/fullpayloadpins/rootFULLread+freshpeerSOURCEgate\u2192newliteralrootadmission\u2192adaptiveactualrichfirst, bothprofiles/sizesqCtrlC, nativefaultparity, hardbothprofiles. Allnewfailedhistoriesreapedknown/integritytrue, forcedrich/hardcleanupnotgracefulPASS; originalR4PID16144reapunknownneverbackfilled. ClosedterminalUNAVAILABLE/powerlossUNPROVED. Allrootunifiedsessions7681/9550/86827 terminalexit2/nopendingrootprocess. RootstructuredHANDOFF/ISA/integrationowner only; fresh51+5WIP/current100growth/savedOpenAIgoal/Phase9preserved. Integrateexact8+ISA893-908/precise907 onlyallruntime/sourcegatesPASS. Task7owner/restartR2SOURCE/strictcompilerPASS; finalsourceA/kit/qualification/externalreceiptB waitsaccepted6. Task8physicaltarget/access/independentbackups pending. Neverprobe/startConstellation8770 orhost/provider/cloud/native/vaultmutation.",
+  "next_action": "Continue SAMEAstra ignored NEW nativeR6/richR13 helper preparations against unchanged sourceR5 c1c5bc72/privateclosure21affd1068/base31f97b72. RootFULL-read CORE dimensiondiagnosisfa6dd380: actualnative5 held ENOTTY retainedslave ioctl afterexit/reap although exactnamedstty modesmatch; all6reaped/noforcedcleanup/allintegritytrue. Use fresh readonly/noctty/nofollow/cloexec/nonblock observationfd for exactsameowneddevice with complete originalfd/path/newfd identity joins and exact finaldimensions, guardedclose/errorsHOLD; preserveexistingmode/EOF/result/parity/cleanup gates. Pureactualoldcallback/drain RED/newhelper faultcontrols/newfreeze/copyprovenance/rootFULLidentity+freshpeer SOURCE PASS before exactnative/rich actualadmission. Frozenrich12 exactdigest77+17at80/full94row7at120 SOURCEPASS27f4f0/root25controlsPASS preserved; product8/native5/rich12/hard7/oldholdsimmutable. Hard7 workstation and node parentactualboth exit0 authenticrename/masterclose/cause/sharedcancelincomplete/distinctOSsameopreopen, completeevidenceequal/allreaped/noforcedcleanup/allintegritytrue; onlysynthetic, closedterminalUNAVAILABLE/powerlossUNPROVED, independentactualdataauditrunning. Rootsessions95400exit2,31460+23347exit0 allterminal/no pendingparentprocess. Task7DOC DRAFT R2 c978f08c/fullthree rootread/freshLuna66cfa73dPASS; finalacceptedsourceprojection/artifactA/actualqualification/externalreceiptB waitsaccepted6. OwnerrestartR2SOURCE/strictcompilerPASS. Rootexact8+ISA893-908/precise907 integration onlyallruntime/source/peer gatesPASS; Task8physicaltargets/access/backups pending. Fresh51+5WIP/current100growth/savedOpenAI/Phase9preserved. No Constellation8770/host/provider/cloud/native-store/vault effects/push/merge/deploy.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -268,8 +274,8 @@
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
-      "6": "R5-SOURCE-PASS-actualRichNativeHard-HOLD-newSupervisorPreparations-running",
-      "7": "minimalbootstrap974bc0d-ownerRestartR2-sourcePASS-strictCompilerPASS-waitaccepted6",
+      "6": "R5-SOURCE-PASS-hardR7-paired-actual-observed-nativeR5-dimensions-HOLD-new-nativeR6-richR13-sourcepreparation",
+      "7": "minimalbootstrap974bc0d-ownerRestartR2-sourcePASS-strictCompilerPASS-docDRAFT-R2-reviewPASS-waitaccepted6",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
