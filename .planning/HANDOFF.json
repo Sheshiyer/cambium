@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-02T11:59:09Z",
+  "updated": "2026-10-02T12:08:28Z",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -165,19 +165,21 @@
     "Task7 materialize-only R4 source packet independently PASS (freeze 1a863b75ddad3b7b275d43b9189849d040c12c2415cb468c6c007bb63fcc1bb9; audit 0fadccb4648f2a5792ebe6d0b98b71f9e80452d97b46a63e91173975f7e53224); all 28 tuples exact, candidate remains unexecuted",
     "Task7 parent pre-PINS R1 source protocol frozen at e4e7e125b8c677566834393549462a80fce3a1f4c91219b37af70c2a372dfdf2; eight tuples and 15 static consistency checks pass; independent audit pending; all runtime, root, receipt and PINS fields remain inert",
     "Pinned Python 3.9 tempfile source observation found underscore in its random suffix alphabet while policy-helper R3 rejects underscore; root creation remains blocked until a new reviewed/tested helper derivative resolves the grammar and validates the outer receipt envelope",
-    "Task8 blank workstation/node owner packet R3 document review PASS after explicit separate configuration rollback steps; no target or physical evidence supplied, ISC-925..940 remain open"
+    "Task8 blank workstation/node owner packet R3 document review PASS after explicit separate configuration rollback steps; no target or physical evidence supplied, ISC-925..940 remain open",
+    "Independent Task7 parent pre-PINS R1 audit returned HOLD at 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f; all eight tuples/lineage match, but exact R4 cannot pass its pinned null internal admission and receipt root grammar accepts impossible 9–24 suffixes"
   ],
   "remaining": [
-    "Task7 source qualification remains active: finish independent audit of the parent pre-PINS R1 protocol; then repair policy-helper root suffix grammar and strict outer-receipt validation in a new source derivative with meaningful focused tests and fresh independent review. Keep R3 immutable and PINS null. No materialization is admitted until all source gates pass.",
-    "Task7 actual parser/22 policy controls, 28 focused cases, 59-step wrapper, genuine immutable kit build/archive, and 20 owner qualification cases remain held; no qualified disposable root exists and the permanent failed attempt must never be replayed.",
+    "Task7 source qualification: preserve pre-PINS protocol R1 as immutable HOLD evidence. Derive a new materializer packet from R4 with an exact one-stage ROOT_ADMITTED_MATERIALIZE_ONLY admission and refreshed launcher/freeze pins; independently review it before any execution.",
+    "Bind a new parent pre-PINS protocol derivative to the newly reviewed materializer packet; constrain root suffix to exactly eight characters from the pinned tempfile alphabet including underscore. Then derive a new helper from policy-controls R3 that validates the strict outer receipt envelope and the same root grammar, with meaningful focused synthetic tests and fresh independent source review.",
+    "No root is admitted now. Do not create another materialization admission against stable-inputs R1 and never replay permanent failed receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c. Actual parser/22 controls, 28 focused cases, 59-step wrapper, genuine kit/archive and 20 owner qualification stay held until all source gates pass.",
     "Task8 source owner packet is prepared and independently document-reviewed; physical workstation/node acceptance remains a separate owner-run gate with target, access, release/scope, independent backup and real evidence still absent.",
     "Complete authorized source/local-product work only after exact source integrity, independent review and bounded receipts pass; preserve physical acceptance and the saved Cambium OpenAI goal as separate states."
   ],
   "blockers": [
     "Permanent materialization attempt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c failed before root allocation and must never be replayed; no root is currently admitted.",
-    "Stable-inputs R1 materializer input is immutable source-only evidence and cannot be reused for another attempt; the newly reviewed R4 candidate has no materialization admission.",
-    "Parent pre-PINS protocol R1 is frozen but independent audit is pending. Policy-controls helper R3 remains independently HOLD, unchanged and PINS-null; it does not validate the new closed outer receipt envelope.",
-    "Pinned Python 3.9 tempfile names may contain underscore while helper R3 ROOT_PATTERN excludes it; resolve and independently review/test this before any materialization admission or root creation.",
+    "Stable-inputs R1 materializer input cannot be reused. Frozen materializer R4 has a pinned SOURCE_ONLY_NOT_ADMITTED/null materialize admission, and its launcher pins that file; exact R4 cannot pass common.gate(materialize). A newly frozen/reviewed materializer derivative is required.",
+    "Parent pre-PINS protocol R1 is frozen and independently HOLD (review 14af7a8d); receipt predicates/schema allow 9–24 suffix characters although pinned Python tempfile emits exactly eight. Protocol R1 is not an admission.",
+    "Policy-controls helper R3 remains immutable, independently HOLD and PINS-null; ROOT_PATTERN rejects underscore and its receipt check does not validate the new closed outer envelope.",
     "Actual parser, 22 policy controls, 28 focused cases, 59-step wrapper, kit/archive and 20 owner qualification remain unexecuted and unqualified; no disposable root is admitted.",
     "Task8 physical targets, identity/access, allowed effects, independent backup and restore evidence are absent; ISC-925..940 remain unchecked.",
     "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope."
@@ -206,16 +208,21 @@
     "Parent pre-PINS protocol R1 is source-only and does not authorize a materializer run, root creation, receipt, helper invocation or PINS population.",
     "R3 policy helper remains immutable and HOLD; resolve root-name grammar and closed external receipt validation only in a new independently reviewed derivative.",
     "The Python tempfile suffix observation is limited to the pinned current-host runtime and does not qualify a new Mac.",
-    "Cambium live-rollout ISCs remain untouched; the active implementation queue is Temperance Modular Mac ISC-909..940."
+    "Cambium live-rollout ISCs remain untouched; the active implementation queue is Temperance Modular Mac ISC-909..940.",
+    "Keep materializer R4 and parent pre-PINS protocol R1 frozen with their independent HOLD; repair only in new reviewed derivatives.",
+    "Any future materializer derivative must pin an exact one-stage materialize-only admission internally and refresh the launcher/file closure before it can be considered runnable.",
+    "Pinned Python 3.9 tempfile path under /private/tmp uses prefix task7-canonical- plus exactly eight characters from abcdefghijklmnopqrstuvwxyz0123456789_; align parent schema and helper grammar with that exact generator.",
+    "The failed stable-inputs R1 materializer attempt stays permanently non-replayable; the R4-derived materializer is a distinct source candidate and needs its own review and receipt chain."
   ],
   "uncommitted_files": [
     "Cambium primary contains unrelated user WIP; preserve it and stage only this structured handoff checkpoint.",
-    "Temperance implementation worktree remains clean in tracked files on codex/modular-mac-lifecycle at exact source A3 386232644d7f54dd06497e2b05384880ff2551f8; source/review packets, including pre-PINS R1, are retained under ignored .superpowers evidence.",
-    "Parent pre-PINS R1 freeze SHA-256 e4e7e125b8c677566834393549462a80fce3a1f4c91219b37af70c2a372dfdf2; audit report pending. Static protocol consistency result: 15 checks PASS.",
-    "R4 materializer audit PASS and Task8 packet R3 document audit PASS are retained in ignored evidence; neither authorizes runtime or physical acceptance.",
+    "Temperance implementation worktree remains clean in tracked files on codex/modular-mac-lifecycle at exact source A3 386232644d7f54dd06497e2b05384880ff2551f8; ignored review/source packets are retained under .superpowers.",
+    "Parent pre-PINS protocol R1 freeze SHA-256 e4e7e125b8c677566834393549462a80fce3a1f4c91219b37af70c2a372dfdf2; independent HOLD report 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f. No root, receipt or PINS exists.",
+    "Materializer R4 remains freeze 1a863b75ddad3b7b275d43b9189849d040c12c2415cb468c6c007bb63fcc1bb9, independent PASS 0fadccb4648f2a5792ebe6d0b98b71f9e80452d97b46a63e91173975f7e53224, but its exact internal admission stays null and it has not been run.",
+    "Task8 packet R3 document review PASS is retained in ignored evidence; physical acceptance remains pending.",
     "Permanent failed-attempt receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c remains immutable HOLD evidence."
   ],
-  "next_action": "Continue without operator clarification. First read and verify the independent audit of `.superpowers/sdd/2026-10-01-modular-mac/task-7-parent-prepins-admission-r1/` against freeze SHA-256 e4e7e125b8c677566834393549462a80fce3a1f4c91219b37af70c2a372dfdf2. If it passes, create a new source-only policy-helper derivative that closes the underscore root-name mismatch and authenticates the exact outer terminal receipt, then run focused synthetic tests and obtain fresh independent review before any materialization admission. Keep R3 and PINS untouched; never replay receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c or the stable-inputs R1 materializer input. Task8 source packet is reviewed; physical ISC-925..940 remain separate. Preserve Cambium WIP, the saved OpenAI goal/Phase 9 gate, all owners and authority boundaries; no service/provider/vault/native/cloud/push/merge/deploy action; keep Snow Gloves OS separate.",
+  "next_action": "Continue without operator clarification. Create a new materializer source derivative from frozen R4 with an exact, root-only ROOT_ADMITTED_MATERIALIZE_ONLY file; refresh all launcher/self-pins, freeze the new packet and obtain independent source review before running it. Then bind a new parent pre-PINS receipt protocol to that exact derivative and correct root grammar to the pinned generator’s exact eight-character suffix including underscore; independently review that protocol and a new policy-helper derivative with strict outer-schema checks before materialization. Preserve R4 and protocol R1 as immutable HOLD evidence. Never reuse stable-inputs R1 or replay failed attempt receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c. Task8 physical ISC-925..940 remain separate. Keep all Cambium WIP, the saved OpenAI goal/Phase 9 gate, and Snow Gloves exclusion.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -347,7 +354,7 @@
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
       "6": "accepted-source-and-bounded-disposable-runtime-0b21eb2",
-      "7": "R4 materialize-only packet independently PASS (freeze 1a863b75; audit 0fadccb4); parent pre-PINS protocol R1 frozen e4e7e125 with 15 static consistency checks PASS, independent review pending; underscore root-name mismatch blocks root creation; helper R3 remains HOLD/PINS null; no materialization/parser/policy/fixture/archive/owner execution",
+      "7": "R4 source packet independently PASS but exact internal admission remains null and is not runnable; parent pre-PINS protocol R1 independently HOLD (review 14af7a8d); exact eight-character underscore-capable root grammar required; policy helper R3 remains HOLD/PINS null; no root/materialization/parser/policy/fixture/archive/owner execution",
       "8": "blank equal-profile owner packet R3 document review PASS; physical target/access/backup/restore evidence absent; ISC-925..940 remain open"
     },
     "preparation_commit": "83563ff",
@@ -404,12 +411,12 @@
     "ISC-940"
   ],
   "isc_done_count": 16,
-  "wave": "Tasks 1–6 accepted; Task 7 source-only pre-PINS admission audit; Task 8 owner packet document-reviewed, physical acceptance pending",
+  "wave": "Tasks 1–6 accepted; Task 7 materializer derivative and strict pre-PINS gate are in source review; Task 8 owner packet review passed, physical acceptance pending",
   "tier": "E5",
   "session_budget": {
     "goal_token_budget": 50000000,
-    "tokens_used_at_checkpoint": 28498317,
-    "tokens_remaining_at_checkpoint": 21501683
+    "tokens_used_at_checkpoint": 28518582,
+    "tokens_remaining_at_checkpoint": 21481418
   },
-  "next_command": "Read the independent parent pre-PINS R1 audit report and verify its reported SHA-256 against the frozen packet; do not materialize or populate PINS."
+  "next_command": "Prepare a new materializer derivative from R4 with the exact one-stage admission pinned and all other authority switches false; do not execute until independent review passes."
 }
