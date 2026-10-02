@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-02T04:04:29.367372+00:00",
+  "updated": "2026-10-02T04:27:43.267660+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -119,18 +119,22 @@
     "RootFULL Native8/Rich15 supervisors/deltas/launchers/allfourcontrolsources/copycode/provenance read; independent2030/eight/top75+90/payload1610/current14 and retained23pins PASS. Root actual10topology+196observation+43EOF+25anchor pure controls terminal0/byteidentical frozenproducer.",
     "Fresh CORE Native8 SOURCE2b9a22eb and Luna Rich15 SOURCE232ae754 PASS/rootFULLread. Exact Native8 admissionr10 then actual session24700 terminal0: fixed91diagnostic/fullcancelnoeffectJSON/samecopyheadlesssnapshot+heldstatus parity/exact220mode+positive80x24/originalidentity-freshfd-doubleclose-drain/all8reaped/no forced/all5integrity. Actualreceipt9c82b8f4, fresh independentFULL DATAauditfc2358ab PASS/rootFULLread.",
     "Four exact Rich15 cases all actualsupervisor0/app1/rootFULLreceipts: workstation80q46points receipt28ece2e4, workstation120explicitCtrlC50points36af068d, node80q46pointsce0dc9f0, node120explicitCtrlC50points7f059693. Realcompiled nativeOpenTUI/all10sections/6roles/exact94digest-wrap+Help+resize/topfocus/actionparity-ownerhold/noeffectcancel/sameheadlesssnapshot/exact220modes+positivesize/close-drain/all7reaped/no forced/all5integrity. Rootmatrix40df2c70; freshLuna savedraw/frame/fullmatrix DATAaudit inprogress.",
-    "NEW finalR5 fullsource regression recipe frozen5fbd642c/run759411fc/inputs f54d0cbd: rootFULLread+independent2030/eight/68tests/provenance/empty0700stage PASS. Exact admission8ca22a74; ROOT actualrecipe session43419 running exclusivecopy/genuinebuild/sourceTS/strictownedTS/onefullsuite. Counts/verdict notyetinferred."
+    "NEW finalR5 fullsource regression recipe frozen5fbd642c/run759411fc/inputs f54d0cbd: rootFULLread+independent2030/eight/68tests/provenance/empty0700stage PASS. Exact admission8ca22a74; ROOT actualrecipe session43419 running exclusivecopy/genuinebuild/sourceTS/strictownedTS/onefullsuite. Counts/verdict notyetinferred.",
+    "Final R5 source regression ROOTsession43419 terminal0:1270pass/one explicit opt-in live-Mac skip/0fail/27432assertions/68files; source and strict owned-test TS0, genuine28file build. Root complete programmatic log scan/all non-pass output and continuation context reviewed; all2030inputs/eight source/4integrity unchanged. All28generated build files match saved runtime payload, entrye4cf7450. Final parent resultd98d8d8d.",
+    "Fresh Luna Rich15 ALL4 saved-data audit8a6fc812 terminalPASS/rootFULLread: all46/50/46/50 recorded frames independently reproduced, complete public/headless parity and exact terminal evidence reviewed with bounded topology/coverage limits.",
+    "Root exact8R5 integrated on31f with all798nonowned tracked paths unchanged. Final narrow ISA wording audit retained P2 Review-attribution HOLDd2e3530f; root corrected fullReview to source/TestRenderer coverage, fresh closured6e42fef PASS/rootFULLread. ISA907 distinguishes graceful restoration from closed-channel unavailable state/distinct-process settled recovery; all prior HOLDs retained.",
+    "Task6 SOURCE and bounded disposable runtime ACCEPTED0b21eb2c7899239aac3f93e39a28e0d0e36e19af exact8source plusISA893-908; total808/962checked154unchecked. Integration CLEAN. Acceptance receipt0d63de83, no kit or physical acceptance inferred.",
+    "Fresh captured51Cambium and5distributionprimary preservation hashes unchanged. SAME Task7 Astra producer dispatched NEW ignored accepted-source documentation projection on0b21eb2:3DOC scope, final sourceA/archive/externalB stillpending, no tracked edits/build/runtime/commit."
   ],
   "remaining": [
-    "Task6: await finalR5 fullsource regression actualterminal/complete logs and freshRich15 ALL4 independentDATAaudit; rootexact8 integration+preciseISC907 clarification/ISA893-908 and exactcommit only allrequiredgatesPASS. Native8 actual+independentDATA and Hard7pairedactual+independentDATA PASS; allhistoricholds preserved.",
-    "Task7: accepted-source documentation projection and immutable finalkitA, actual clean-root20case qualification/pairedowner/repeat/recovery/rollback/release/OSrestart/currentTUI, independentreview and externalreceiptB.",
-    "Task8 SOURCE packet already prepared; finish authorized local source-product scope after A-D evidence. Physical workstation/node acceptance E remains separate and unchecked until exactowner/target/access/independentbackup scope."
+    "Task7: receive frozen accepted-source three-document projection, root review and fresh Luna source audit; integrate exact reviewed paths and commit sourceA. Build immutable finalkitA with reviewed frozen closure, independent outerhash/archive/source/COPY review; perform20cleanroot qualification cases, pairedowner/repeat/recovery/rollback/release/OSrestart/currentTUI with exact separate admissions; externalreceiptB qualifiesA.",
+    "Task8 SOURCE packet is prepared; finish authorized local source-product A-D after Task7. Physical workstation/node acceptance E remains separate and unchecked until exactowner/target/access/independentbackup scope.",
+    "Final authorized source completion: re-read criterion evidence, source integrity and ownership, bounded source/release receipts, repository handoff and goal completion with tokenusage only after all required local-source work passes."
   ],
   "blockers": [
-    "FinalTask7 depends acceptedTask6; actual finalarchive and synthetic/packaged qualification pending.",
-    "FinalR5 fullsource regression is active in newprivate staging; freshRich15 fourcase saveddata audit pending. SourceR5eight unintegrated untilthose finish; allhistoric Native7 zero-size/priorHOLDs retained. No remaining known productfinding; exactboundedruntime/source acceptance notyetfinal.",
+    "Task7 final documentation projection, immutable artifact and actual synthetic/packaged qualification remain pending. Task6 now accepted with no remaining known source/runtime finding.",
     "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope.",
-    "Physical target identity/access/independentbackup locations absent; this limits separate physical migration acceptance, not authorized source-product completion."
+    "Physical target identity/access/independentbackup locations absent; limits separate physical migration acceptance, not authorized source-product completion."
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -155,11 +159,11 @@
     "Finish full authorized SOURCE/local-product scope with Task8 source packet; do not infer or request gratuitous physical rollout authority as a source-completion prerequisite."
   ],
   "uncommitted_files": [
-    "Freshly verified captured51Cambium and5distributionprimary WIP byte-identical; other concurrent review-document WIP preserved; only parent-owned structured handoff refreshed",
-    "Integration CLEAN31f97b72; Task6R5exact8 frozen/sourcePASS, Native8actual+peerDATAPASS, Hard7pairedactual+peerDATAPASS, Rich15fouractualPASS/rootFULLread/freshpeerDATApending; fullR5regression ROOTsession43419 active. Task7DOCdraftR2/source+strictcompilerPASS, finalsourceprojection/artifact qualificationpending.",
-    "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
+    "Captured51Cambium and5distributionprimary WIP freshly verified byte-identical; other concurrent Cambium WIP preserved. Only parent-owned structured handoff refreshed for this checkpoint.",
+    "Integration CLEAN0b21eb2 Task6accepted. Task7 DOCdraftR2/source+ownerRestartR2/strictcompilerPASS frozen histories retained; NEW accepted-source documentation projection producer running onlyignoredsource, final artifact qualification pending.",
+    "Task5R1-R3/Task4/kit/source and runtime candidate histories, strict HOLDs, ignored reviews/toolchain/preimages/PTY evidence retained unchanged."
   ],
-  "next_action": "Continue in place active sourceplan. FIRST poll ROOT finalR5 regression session43419 toactualterminal; exactfrozenrecipe759411fc/stage ref task-6-final-r5-regression-preparation inputsf54d0cbd/freez5fbd642c/admission8ca22a74. It copies2030source/eight R5/68tests into new0700private stage, genuinebuild/sourceTS/strictownedTS/onecompletebun test; LIVE0/telemetryoff/umask022/per-commandclearedroots. Fullfinal logs/counts/skip/integrity/buildinventory/rootreview mandatory; timeout/nonzero/incomplete HOLD/no broadcleanup or descendant-proof. Await freshLunaALL4Rich15 savedraw/frame/data audit. All4actualsupervisors0/app1 rootFULLreceipts:workstation80q28ece2e4(46points),120CtrlC36af068d(50),node80qce0dc9f0(46),120CtrlC7f059693(50); all exactmodes220/positivefinaldimensions/closes/drain/noeffectviewparity/all7reaped/no forced/all5integrity, rootmatrix40df2c70. Native8 actual9c82b8f4+freshDATAfc2358ab rootFULLPASS; Hard7pairedactual+DATA d534fca6PASS no reruns. RootFULL N8/R15source/prep/control/provenance identities and274purecontrols PASS; SOURCEaudits2b9a22eb/232ae754PASS. SourceR5exact8 c1c5bc72/private21affd1068/base31f remainsfrozen/unintegrated; precise907 must separate graceful exactstate beforecleanup from hardclosedchannelUNAVAILABLE+distinctOS settledsameop recovery. DescriptorPTY withoutfixturectty evidence NOTjobcontrol/kernelCtrlC/absenceoflaterctty/nativeinternals/persistentshell; observation NOToldfdcontinuity/zeroOSopen/applicationonlycause/ABA/powerloss. AlloldHOLDs immutable. AfterrequiredfinalgatesPASS rootexact8+ISA893-908 commit, then Task7 DOCdraftR2 acceptedsourceprojection/immutablekitA/20actual cleanroot+pairedowner/restart/independentreview/externalB. Task8sourcepacketprepared; fullsource/localA-D completion authorized, physicalE separateunauthorized/unaccepted/not sourcegoal blocker. Preserve savedOpenAI/Phase9/51+5WIP/current100growth/SnowGlovesno-merge; no Constellation8770/host/provider/cloud/native-store/vault/push/merge/deploy.",
+  "next_action": "Continue in place same active fullSOURCE plan; no mode quiz or operator question. Task6 ACCEPTED0b21eb2c7899239aac3f93e39a28e0d0e36e19af CLEAN, exact8c1c5bc72+ISA893-908, fullR5 final1270pass/1optinliveskip/0fail/27432assertions/68/source+strictTS0/all28generated buildfiles identical runtimepayload. Root resultd98d8d8d/acceptance0d63de83. Native8 actual+DATAfc2358ab PASS; Hard7pairedactual+DATAd534fca6 PASS; Rich15fouractual+ALLDATA8a6fc812 PASS. Actualframecoverage46/50/46/50, source/TestRenderer fullReview (not fouractualruns), Filter menu only, heldowners/noeffects. Exactsame-device reopened observations/setsid-only descriptorPTY limits and all old HOLDs preserved; no powerloss/OScause/jobcontrol/kernelCtrlC/oldfdcontinuity/zeroopen/ABA/nativeinternals claim. FIRST receive SAME Task7producer NEW ignored accepted-source 3DOC projection on0b21eb2; candidatewording update only with finalsourceA/archiveB/qualification pending/null; 4shippingpathceiling ifconcretebuilderneed. RootFULLread/hashes/applycheck plusfresh SAME Luna source review, then exactintegration/sourceAcommit. Immutable finalkitA exactcommittedsource/toolchain/vendor/COPY/privacy closure, outerhash independentreview,20actualcleanrootcases pairedprofiles/owner/repeat/rollback/release/OSrestart/currentTUI with each exactrootadmission and complete actualterminal/log/bytes evidence; externalreceiptB qualifiesA no selfreference rebuild. Existing owner7freeze24aec0da/restartR2b249f9d SOURCEreviews and compiler97e52bf90/receipt13d1ed56PASS are source-only until admitted actualartifact runs. SourceTask8blankpacket prepared, physicalE separateunauthorized/unaccepted/not localA-D completion blocker. Preserve savedOpenAI/Phase9/51+5WIP/current100growth/SnowGlovesno-merge; no Constellation8770/host/provider/cloud/native-store/vault/push/merge/deploy. Continue through rollover.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -290,21 +294,22 @@
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
-      "6": "R5-SOURCE-PASS-Native8-actual-peerDATA-PASS-Hard7-paired-actual-peerDATA-PASS-Rich15-four-actualPASS-peerDATApending-finalR5-fullsuiteactive",
-      "7": "minimalbootstrap974bc0d-ownerRestartR2-sourcePASS-strictCompilerPASS-docDRAFT-R2-reviewPASS-waitaccepted6",
+      "6": "accepted-source-and-bounded-disposable-runtime-0b21eb2",
+      "7": "accepted-source-DOCprojection-running;minimalbootstrap974bc0d-ownerRestartR2-sourcePASS-strictCompilerPASS-finalartifactpending",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
     "ledger_ref": "temperance_engine:.worktrees/modular-mac/.superpowers/sdd/2026-10-01-modular-mac/progress.md",
     "dispatch_workspace_ref": "temperance_engine:.worktrees/modular-mac-driver",
     "candidate_workspace_ref": "temperance_engine:.worktrees/modular-mac-r1-candidate",
-    "source_head": "31f97b72ea738061a2b96b172bb1427171497db0",
+    "source_head": "0b21eb2c7899239aac3f93e39a28e0d0e36e19af",
     "accepted_tasks": [
       1,
       2,
       3,
       4,
-      5
+      5,
+      6
     ]
   }
 }
