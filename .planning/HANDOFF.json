@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-02T10:50:06+00:00",
+  "updated": "2026-10-02T10:57:50+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -160,22 +160,22 @@
     "Independent focused runner R3 audit FLAG report 55e644416fc900b44b2ebcf5978440298fc5e13c62f89acc61d8f56bca17754f: directory/file traversal closure PASS relative to supplied map and accidental-unconfined canary guard PASS only with parent-authenticated readable file; P2 source map may add files beyond execution closure, canary metadata not authenticated by runner; R4 exact closure repair dispatched, no execution.",
     "Focused runner R4 independent audit FLAG P2 found path-based read_bytes despite no-follow claim; R5 repaired with descriptor O_NOFOLLOW/O_NONBLOCK hashing and exact freeze 48eee21d, no execution",
     "Focused runner R5 independent audit FLAG P2 found raw preflight filesystem OSErrors; R6 normalized file_fact and top-level errors to HOLD/exit 2, freeze 152d4d33, no execution",
-    "Focused runner R6 independent audit FLAG P3 clarified pending PASS payload versus canonical result and external exit gate; R7 documentation/control-plan frozen at 7168ce60 with runner unchanged, fresh audit pending"
+    "Focused runner R6 independent audit FLAG P3 clarified pending PASS payload versus canonical result and external exit gate; R7 documentation/control-plan frozen at 7168ce60 with runner unchanged, fresh audit pending",
+    "Task7 focused fixture runner R8 independently PASS at .superpowers/sdd/2026-10-01-modular-mac/task-7-final-fixture-controls-runner-audit-r8/review.md SHA ea0ca5f47428d0a907a1d026f0a35901648d966d15e215b23de9a0e60b153e0a; 24 frozen tuples and R7 linkage verified, pending PASS payload explicitly diagnostic, canonical result plus external reaped exit-zero required; runtime remains held"
   ],
   "remaining": [
-    "Task7: finish root and independent full SOURCE reviews of actual canonical/fixture-control/build/pairedowner qualification executors; close concrete findings in new frozen packets. Rebind finalSourceA3 3862326/tree0de04801 and reviewed allsource/COPY/deps/tools/native inputs; actual owned policy/pure/28fixturecontrols then true59step disposable canonical suite, genuine immutable kitbuild and independent outerhash/archive/source/COPY/privacy review. Perform20 actual cleanroot pairedprofile/owner/repeat/rollback/release/OSrestart/currentTUI cases and externalreceiptB; ISA909-924 remain unchecked until materialevidence passes.",
-    "Task8 SOURCE packet is prepared; finish authorized local source-product A-D after Task7. Physical workstation/node acceptance E remains separate and unchecked until exactowner/target/access/independentbackup scope.",
-    "Final authorized source completion: re-read criterion evidence, source integrity and ownership, bounded source/release receipts, repository handoff and goal completion with tokenusage only after all required local-source work passes."
+    "Task7 source qualification: define and independently review the root-owned receipt/admission mechanism; continue only source-only preparation until all source gates pass. Do not populate policy helper PINS or replay the failed materialization. Actual parser/22 controls, 28 focused cases, true 59-step wrapper, genuine immutable kit build/archive, and 20 owner qualification cases remain held; ISA909-924 stays unchecked until evidence passes.",
+    "Task8 SOURCE packet is prepared; finish authorized local source-product A-D only where source evidence permits. Physical workstation/node acceptance E remains separate and unchecked until exact owner/target/access/independent-backup scope.",
+    "Final authorized source completion: re-read criterion evidence, source integrity and ownership, bounded source/release receipts, repository handoff and goal completion with token usage only after all required local-source work passes."
   ],
   "blockers": [
-    "Actual R1 canonical policy compiler rejected the unsupported 127.0.0.1 host grammar before any controls passed; fresh localhost syntax packet awaits independent review and new-root controls.",
-    "Build R3 modeled controls, true actual policy controls, one genuine 59-step wrapper, archive qualification and owner 20-case runtime qualification remain incomplete.",
+    "Permanent materialization attempt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c failed before root allocation and must never be replayed; no currently admitted materialized root exists.",
+    "Stable-inputs R1 is independently source-audited PASS (freeze 6474a53cc4c10b899bd6e612edd80c5f9a7455a924eee92a22f1241c39a8e827), but its runtime fields remain null; no new materialization admission is authorized on that input.",
+    "Policy-controls helper R3 remains independently HOLD until a concrete parent-controlled pre-PINS mechanism authenticates the exact materializer argv/launcher and external terminal receipt, then creates and invokes only an exact private pinned helper derivative.",
+    "R8 focused fixture runner source/document audit PASS; actual parser, 22 policy controls, 28 focused cases, 59-step wrapper, genuine kit/archive, and 20 owner cases remain unexecuted and unqualified.",
+    "Actual policy and fixture controls require a qualified disposable root; no current root is admitted and the prior failed materialization must not be replayed.",
     "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope.",
-    "Physical target identity/access/independent backup locations remain absent; physical migration acceptance is a separate gate.",
-    "The first actual fresh materialization attempt failed before root allocation because its pinned dependency-root and copied-Node paths had disappeared. A stable-source/path derivative and new materialize-only admission are required; no materialized root exists.",
-    "Policy-controls R2 source packet is independently HOLD until the materializer receipt gate requires reaped=true and timed_out=false and root completes its exact non-bypassable admission procedure.",
-    "Focused fixture runner R7 is frozen documentation-only after R6 audit; fresh independent source/document review is pending. Runtime, canary, policy, and all fixture cases remain held.",
-    "Policy-controls R3 source audit is HOLD until an exact root-owned pre-PINS gate authenticates the stable materializer invocation and external terminal receipt, then creates and invokes only the exact private pinned helper derivative."
+    "Physical target identity/access/independent backup locations remain absent; physical migration acceptance is a separate gate."
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -200,17 +200,15 @@
     "Finish full authorized SOURCE/local-product scope with Task8 source packet; do not infer or request gratuitous physical rollout authority as a source-completion prerequisite."
   ],
   "uncommitted_files": [
-    "Captured 51 Cambium and five distribution-primary WIP files plus all 100 growth files remain preserved; no content was changed in this checkpoint.",
-    "Integration worktree remains clean on exact Task7 source A3; ignored source/review/control evidence is retained separately. Parent confirmed the prior disposable R1 partial root is absent; its terminal receipt and independent data audit remain the durable HOLD evidence.",
+    "Integration worktree remains clean on exact Task7 source A3; ignored source/review/control evidence is retained separately. Parent confirmed the prior disposable R1 partial root is absent; its terminal receipt and independent data audit remain durable HOLD evidence.",
     "Only this structured handoff is parent-owned for this checkpoint; unrelated Cambium edits and Temperance histories remain untouched.",
-    "Implementation ignored ledger retains materialization R1 terminal HOLD receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c; frozen R3 admission is unchanged. All 51 captured Cambium and five distribution-primary WIP files remain preserved.",
-    "Ignored implementation reviews retain focused-binding R3 FLAG e89f17e42e2745d9d36372a1189719b7cc33a9cfcc874b17fea8a6dae7b33711 and policy-controls R2 HOLD 42f3bf2aa69ebcc8d7a9651cc48a45d86fb31afc0dde1c1eee334f9c2444409f; source-only repair work is in separate ignored packets.",
-    "Ignored implementation ledger now retains stable-inputs R1 freeze 6474a53cc4c10b899bd6e612edd80c5f9a7455a924eee92a22f1241c39a8e827 and independent PASS report cb2c9295a61afb5428a9e714ded29fe9cdd2f478801d8c4df66046da1a3fb98b; execution fields remain null.",
-    "Ignored implementation packets now include focused fixture runner R3 freeze 78106b0109231df23684eb3c4aff6216cec89309e9b9f2bb03460a2c37a9a95d and policy-controls helper R3 freeze 3414badc136edc6010a7cbc94b7f8092fb78a05a1014f5b5d331d217a50d7252; both remain null/unexecuted pending independent audits.",
-    "Focused runner R3 remains immutable source-only with audit FLAG; R4 repair is in a new ignored packet and will receive independent review. No runtime authority.",
-    "Ignored fixture runner history retains R4 FLAG report b52434aa; R5 FLAG report ec564ec4; R6 FLAG report 4e0c153d; R7 doc-only packet/freeze 7168ce60 awaits independent review. All dynamic admission values remain null and no runtime control ran."
+    "Implementation ignored ledger retains permanent materialization R1 terminal HOLD receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c; the attempt must never be replayed. All 51 captured Cambium and five distribution-primary WIP files remain preserved.",
+    "Stable-inputs R1 remains frozen at 6474a53cc4c10b899bd6e612edd80c5f9a7455a924eee92a22f1241c39a8e827 and independently source-audited PASS; execution fields remain null.",
+    "Policy-controls helper R3 remains frozen at 3414badc136edc6010a7cbc94b7f8092fb78a05a1014f5b5d331d217a50d7252 and held pending a concrete parent pre-PINS admission mechanism.",
+    "Focused fixture runner R8 is frozen at 54c83111ba1c0c4d5d01beefe75b06e7652f85bfa1016c29824a6851b8c2f84e; independent source/document review PASS is ea0ca5f47428d0a907a1d026f0a35901648d966d15e215b23de9a0e60b153e0a. Runtime fields remain null and no fixture/policy control ran.",
+    "Cambium checkout contains unrelated user WIP; stage and commit only this handoff checkpoint."
   ],
-  "next_action": "Continue full authorized SOURCE Tasks1-8 without asking the operator. Tasks1-6 remain accepted. Focused fixture runner R7 is frozen at `.superpowers/sdd/2026-10-01-modular-mac/task-7-final-fixture-controls-preparation-r7/` (freeze SHA-256 7168ce600c02904d56714939d465264b5c5c68c403b0f88df6ff78810913be67; runner SHA-256 1c35acb980ecb536439565cdead988a2e58d1c14297f6c540d095398ace133b4), after independent R4 FLAG P2, R5 FLAG P2, and R6 FLAG P3 repairs; fresh R7 independent review is underway. No candidate imports/tests/policy/canary/port/process/listener/runtime occurred. Preserve R4/R5/R6 packets and audits immutably. Next: wait for R7 review; repair any specific finding in a new derivative and independently review it. Then create a fresh stable-input-bound materialize-only admission only after clean source reviews, execute copy-only once, and capture actual external terminal/reaped/no-timeout receipt and fresh root/copy identity evidence. Before policy helper PINS, root must verify exact stable materializer command/launcher, actual receipt preimage and semantic source/root/copy joins, then create/invoke only an exact private pinned helper derivative; R3 helper stays null/inert until that mechanism is independently reviewed. Only then run the 22 parser/policy controls, followed by 28 focused cases, true 59-step suite, real immutable kit build/archive, and 20 owner qualification cases. Complete ISA909-924 and Tasks8 SOURCE A-D after evidence gates. Physical925-940 remain separate. Prior materialization attempt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c is permanent HOLD and must never be replayed. Preserve Cambium WIP and saved OpenAI goal/Phase9 gate. No Constellation/services/provider/vault/native/cloud/push/merge/deploy; keep Snow Gloves OS separate.",
+  "next_action": "Continue source-only Task7/Task8 work without asking the operator. R8 focused runner audit PASS is at `.superpowers/sdd/2026-10-01-modular-mac/task-7-final-fixture-controls-runner-audit-r8/review.md` SHA-256 ea0ca5f47428d0a907a1d026f0a35901648d966d15e215b23de9a0e60b153e0a; freeze 54c83111, 24 member pins match and runner remains 1c35acb9. Next, design a concrete root-controlled, pre-PINS source-only receipt verifier/admission protocol for the exact stable-inputs R1 materializer command and external terminal evidence, then freeze and independently review that packet. Keep policy helper R3 fields null/inert and do not populate PINS. Permanent failed materialization receipt 6031a0bfdc7a474ae6a5b0e1fbbde4206db1832e4023bad7fabb5567ef6e7d7c must never be replayed; do not create or execute another materialization admission on that input. The stable-inputs R1 freeze is 6474a53cc4c10b899bd6e612edd80c5f9a7455a924eee92a22f1241c39a8e827, independently audited source-only; no current root is admitted. Continue Task8 SOURCE A-D only where independent source evidence permits; physical ISC925-940 remain separate. Keep Cambium WIP and saved OpenAI goal/Phase9 gate. No Constellation/services/provider/vault/native/cloud/push/merge/deploy; keep Snow Gloves OS separate.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -342,7 +340,7 @@
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
       "6": "accepted-source-and-bounded-disposable-runtime-0b21eb2",
-      "7": "final source A3 3862326; focused runner R7 documentation-only source packet frozen, awaiting independent review; policy helper R3 source remains HOLD on root pre-PINS admission mechanism; all actual parser/28 fixtures/59 suite/build/archive/20 owner cases pending",
+      "7": "final source A3 3862326; focused runner R8 independently source-audited PASS, exact freeze 54c83111 / review ea0ca5f4; policy helper R3 remains HOLD pending a concrete parent-authenticated pre-PINS receipt mechanism; prior materialization attempt 6031a0bf is permanent HOLD and must not be replayed; parser/28 fixtures/59 suite/archive/20 owner qualification pending",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
     "preparation_commit": "83563ff",
