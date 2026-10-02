@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-02T01:33:59.759030+00:00",
+  "updated": "2026-10-02T01:44:43.002227+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -87,7 +87,12 @@
     "Fresh R4 independent BUILD source PASS0dd4453b and CORE delta PASS3102b98d close import-sensitivity P2; corrected prior UI R3 report9df39361 verifies four original files unchanged. Production/build/deps remain identical toR3; prior1265 full passes+1 live skip/kit126/operator62 not mislabeled as reruns.",
     "Root FULL read all frozen richR8/hardR4/nativeR2 helpers/launcher/build source/oracle; independently verified12/12/7 top files and1610/1585/1610 payload members plus2030 private source inputs. Fresh SOURCE audits close prior substantive findings but HOLD common late receipt publication/status error; rich also needs explicit signal-scope wording and R4 rebind.",
     "Same Astra producer NEW R4-bound richR9/hardR5/nativeR3 preparation repairs dispatched: provisional HOLD first, guarded restore, recomputed final atomic receipt/error exit, pure fault controls; SIGINT/TERM/HUP precisely scoped, other terminating signals unproved. All old freezes preserved and actual runtime remains unexecuted.",
-    "Fresh preservation receipt confirms all51 Cambium+5 distribution-primary captured WIP and all100 growth files unchanged with no added/missing/linked growth files."
+    "Fresh preservation receipt confirms all51 Cambium+5 distribution-primary captured WIP and all100 growth files unchanged with no added/missing/linked growth files.",
+    "NEW R4-bound richR9/hardR5/nativeR3 preparations frozen indexb692973a; root full deltas/build/finalizer source read,17/17/12 top files and1610/1585/1610 payload/23helper pins/2030source inputs PASS. Root pure36 mocked finalizer cases PASS andlegacy12 controls reproduce10 failures; source unchanged.",
+    "Fresh richR9/nativeR3/hardR5 independent SOURCE PASS after finalizer repair and exactR4 rebind; rootFULL reports read. Only root exactrichR9 workstation80x24q case admitted; otherlanes unexecuted.",
+    "First actual richR9 workstation80x24q run reached41 visible checkpoints/allsections/6roles/resize but HELD exit2 afternestedHelp/Esc DETAIL_FIELD_ANCHOR reset. Requestedq neverreached; no terminal restoration PASS. Final source/prepared/original/copied payload/canary allunchanged; deniedcanaryread/write controls held.",
+    "Failed-run cleanup honestly records forcedTERM/KILL andhistorical childreapUNVERIFIED afterwaittimeouts. Later root bounded exactPID16144 readback foundABSENT/no signalsent; no retroactive successfulreap inferred. Runtimefailedhistory preserved in parentrich-r9-first-run-held receipt.",
+    "SAME Astra NEW SOURCE R5 productionnavigation repair within existingexact8paths authorized, likelytui+TUItest only; meaningful TestRenderer RED longdetail-shortHelp-back withresize required. ExistingR4/preparations immutable, all furtheractualruns held untilnewsourcefreeze/reviews/finalsource-boundpreps. Failurecleanup ownedPTY/pipe-close-beforewait ordering may need newhelperrepair, nohostdiagnosis/broadcleanup."
   ],
   "remaining": [
     "Task6: actual rich shared-controller OpenTUI screens, paired-profile and failure/cancellation/PTY proof, fresh independent review and parent acceptance",
@@ -99,7 +104,7 @@
     "FinalTask7 dependsacceptedTask6; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
     "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope",
     "Source-volume tool/source reads stalled duringTask6 andoptionalTask7draftstaticcheck; boundedbyteidenticalprivateSOURCEcopy validation inprogress, no hostprobe/repair or releaseclaim",
-    "Task6 final rich/native/hard-close runtime preparations need narrow final-receipt repair, R4 source binding, fresh SOURCE review and exact temporary execution admission; no product source finding remains in R4."
+    "Task6 first actual rich run exposes detail scroll anchor loss after Help; new R5 source repair required. Failed cleanup lacks timely reap proof; all runtime qualification remains HELD until new source/preparation checks and observed success."
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -122,10 +127,10 @@
   ],
   "uncommitted_files": [
     "Freshly verified captured51Cambium and5distributionprimary WIP byte-identical; other concurrent review-document WIP preserved; only parent-owned structured handoff refreshed",
-    "Integration CLEAN accepted31f97b72; frozen Task6R4 exact8 patch5131337999a74 source/core/build reviews PASS, runtime unexecuted. Same producer NEW R4-bound runtime preparations only; no Task6 integration or ISA acceptance.",
+    "Integration CLEAN accepted31f97b72; frozenTask6R4 source/core/buildPASS preserved; SAMEproducer NEW R5 tui/navigation regression repair within8paths running. All runtimepreps and failedfirstactualhistory immutable. NoTask6 integration/ISA acceptance.",
     "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
   ],
-  "next_action": "Continue SAME Astra NEW R4-bound richR9/hardR5/nativeR3 source-only preparations; fix common final receipt status/persistence with provisional HOLD, independently guarded restore and atomic final publication, fault controls and explicit SIGINT/TERM/HUP scope. Old R3-bound freezes preserved. Task6 R4 exact8patch5131337999a74/report835bbe98/private74f27468 is frozen SOURCE/core/build PASS; focused72-1295/source+strictTS0, seven production/build/deps paths identical toR3, prior full1265+1liveSkip-27225/kit126/operator62 retained as prior evidence. Parent full source delta/hash/apply-reverse/private2030 PASS, independent reports0dd4453b/3102b98d/full read. Await newprepfreeze, root full source/pins/identity checks and fresh independent SOURCE audits before exact hash-pinned temporary runtime execution. Verify both profiles/both sizes rich navigation/long-detail/list anchors/action parity/graceful qCtrlC stty+dimensions beforecleanup, genuine native fault fixed fallback+headless parity, hardmaster close actualcause/sharedsettled/full semantic durable oracle/exact reaping/distinct-process same-op headless recovery. Closed channel UNAVAILABLE/powerloss UNPROVED; clarify ISA907 only at final root integration. Task7 owner/restartR2 SOURCE and strict compiler PASS; final immutable sourceA/artifact/external receiptB after accepted6. Task8 physical target/macOS/access/independent backup inputs pending. Preserve51+5 WIP/savedOpenAI goal/Phase9/current100growth/vault/provider/cloud/native. Never probe/start Constellation8770. Root alone owns HANDOFF/ISA/integration; workers ignored ledgers only.",
+  "next_action": "Continue SAME Astra Task6 NEW SOURCE R5 exact8path navigationrepair, likelytui.ts+TUItest: firstactualrichR9 workstation80x24q reached41 checkpoints/allsections/roles/resize but lost longdetailanchor on shortHelp/Esc; meaningful TestRenderer RED thenGREEN usingrealpinnedlayout APIs, no deps/ABI/buildflags/owner changes. FreezeR5/newprivateclosure/focused+strict checks/rootfullsourcehash/applychecks thenfreshindependentCORE/UI reviews beforenewruntimeprep binding. R4 patch5131337999a74/sourcePASS and alloldR2/R3/R4/preps frozen; firstactualfailure retainedparent-rich-r9-first-run-held. Cleanup recordedforcedTERM/KILL/reapUNVERIFIED; laterexactPID16144ABSENT doesnotbackfillproof. AssessNEWhelperfailure-only ownedPTY/pipes close-beforewait ordering toavoidblockedIO whilepreservingunprovedterminalstate/allguardedchecks, nohostprobes/groups/cleanup. R4-bound richR9/hardR5/nativeR3 sourcePASS/mocks36+legacyRED/all23helperpins/fullpayload verified but furtheractualrunsHELD: new finalsource-boundpreps/root+peerSOURCEgates+literal launcher pins required. Thenbothprofiles/bothsizes richqCtrlC/screens/anchors/fullReview/parity/beforecleanupsttydims, nativefaultfixedfallback/headless, hardcloseactualcause/settledfulloracle/distinctsameopreopen. ClosedterminalUNAVAILABLE/powerlossUNPROVED; ISA907preciseclarificationatfinalrootintegration. Task7owner/restartR2SOURCE/strictcompilerPASS; finalsourceA/artifact/receiptB afteraccepted6. Task8physicaltarget/access/backupinputspending. Preserve51+5WIP/savedOpenAIgoal/Phase9/current100growth/vault/provider/cloud/native. Neverprobe/startConstellation8770. RootownsHANDOFF/ISA/integration; workersignoredledgersonly.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -256,7 +261,7 @@
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
-      "6": "R4-frozen-SOURCE-CORE-BUILD-PASS-runtime-prep-finalizer-repair-pending-unaccepted",
+      "6": "R4-SOURCE-PASS-first-rich-runtime-HOLD-detailHelp-anchor-R5-source-repair-running",
       "7": "minimalbootstrap974bc0d-ownerRestartR2-sourcePASS-strictCompilerPASS-waitaccepted6",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
