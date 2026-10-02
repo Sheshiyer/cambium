@@ -1,6 +1,6 @@
 {
   "schema": "cambium.review-handoff.v1",
-  "updated": "2026-10-02T03:20:35.988519+00:00",
+  "updated": "2026-10-02T03:43:58.849375+00:00",
   "status": "modular-mac-implementation-active",
   "active_task": "Execute the full modular Mac implementation plan through Temperance Parallel Dispatch",
   "completed": [
@@ -110,24 +110,28 @@
     "Paired HardR7 actual receipts independently FULL-reviewed from saveddata by Astra d534fca6 PASS: complete independent plan/context/journal/surface/preimage/custody/claim/byteequality joins. Bothprofiles bounded authenticterminaldisconnect/newOSsameopstatus incomplete exit1; supervisor0, no commit/powerloss/physicalproof.",
     "Root exact nativeR6 actualcase terminalexit2: fixednativefallback diagnostic/canceloutput andchildexit1 observed; same-terminal observation failed errno9 Badfiledescriptor beforefirstidentitycheck/no freshfd. All5ownedchildren reaped/no forcedcleanup/all5integritytrue. Modes/dimensions/restoration/headlessparity unproved; savedHOLD immutable, fresh independentstaticdiagnosis dispatched.",
     "Freshpreservation all51Cambium+5distributionprimary/current100growthhashes+membership unchanged; savedOpenAIgoal/Phase9 preserved.",
-    "Root FULL-read independent diagnosis8169c078, primary-sourceaddendum68e8d45b and producerdiagnosis3383e774. OfficialApple revocation/exit/dead-vnode references justify explicit observation-precondition change, actualkernelcause unproved. NEWnativeR7/richR14 SOURCE-onlyscope authorized; allocation+immediateprechild originalfd/path identity, postchild originalidentity joinedexactpath+freshreadonlyfd, exactstate/close/drain/parity/integrity unchanged, boundedoperation/errnofacts. Methodlimitrecord90471059 preserved."
+    "Root FULL-read independent diagnosis8169c078, primary-sourceaddendum68e8d45b and producerdiagnosis3383e774. OfficialApple revocation/exit/dead-vnode references justify explicit observation-precondition change, actualkernelcause unproved. NEWnativeR7/richR14 SOURCE-onlyscope authorized; allocation+immediateprechild originalfd/path identity, postchild originalidentity joinedexactpath+freshreadonlyfd, exactstate/close/drain/parity/integrity unchanged, boundedoperation/errnofacts. Methodlimitrecord90471059 preserved.",
+    "NativeR7/RichR14 frozen packets fully root-reviewed with all original2030/eight/top58+73/payload1610 identities; root196 observation/43 EOF/25 anchor pure controls byte-match producer, fresh CORE NativeR7 and Luna RichR14 SOURCE PASS; retained amendment corrects modeled errno to EBADF.",
+    "Root NativeR7 actual trial terminalexit2: prechild and freshly reopened same-terminal identities and exact220byte mode comparison passed, actual final dimensions zero; strict TERMINAL_DIMENSIONS_CHANGED HOLD retained. All6 ownedchildren reaped without forcedcleanup, all5 integrity checks true; restoration/parity remain unproved.",
+    "Root FULL-read producer zero-size diagnosis5fb37472 and independent diagnosis a90fbde0. Published XNU close/reopen behavior supports possible zero-size mechanism, installed cause unverified. Minimal graceful/native fixture change justified only as new source candidate; no dimension-gate relaxation or product change.",
+    "NEW NativeR8/RichR15 SOURCE-only terminalfreezes received:75ba55a6/af66f929, packetindexde9f5418. Sole functional attach delta retains setsid and removes fixture TIOCSCTTY; direct child/realPTY/all strict observation/result/parity/cleanup gates unchanged. Frozen genuine compiled R5 product unchanged; fresh CORE/Luna SOURCE reviews dispatched, no runtime admission.",
+    "Canonical plan freshly reread: full Tasks1-8 SOURCE execution authorized, local product completion A-D synthetic/packaged, actual physicalTask8 E evidence separately unauthorized. Physical targets do not block finishing authorized source product; actual criteria remain unchecked."
   ],
   "remaining": [
-    "Task6: NEWnative7/rich14 source freeze/fullrootidentity+actualhelper196observation/43EOF/25anchorcontrol review/freshpeer SOURCE audits, then exactnative actualfallback/headlessparity and richbothprofiles/sizes/q/CtrlC/fullscreenparity; exact8sourceintegration/ISA. PairedHardR7 actual+independentdataPASS complete.",
-    "Task7: reviewed accepted-source documentation projection and immutable final kit, real clean-root qualification/pairedowner/repeat/recovery/rollback/release/OSrestart/currentTUI and independentreview.",
-    "Task8: actual equal workstation/node owner acceptance after exact target/access/independent backup evidence."
+    "Task6: rootFULL NativeR8/RichR15 source/delta/provenance/identity and10 setup+196 observation+43 EOF+25 anchor pure controls, fresh CORE Native8/Luna Rich15 SOURCE audits, then separately admitted exactnative actualfallback/headlessparity and richbothprofiles/sizes/q/CtrlC/fullscreenparity. Root exact8 sourceintegration/ISA only all required evidence PASS. HardR7 paired actual+independentdataPASS complete.",
+    "Task7: accepted-source documentation projection and immutable finalkitA, actual clean-root20case qualification/pairedowner/repeat/recovery/rollback/release/OSrestart/currentTUI, independentreview and externalreceiptB.",
+    "Task8 SOURCE packet already prepared; finish authorized local source-product scope after A-D evidence. Physical workstation/node acceptance E remains separate and unchecked until exactowner/target/access/independentbackup scope."
   ],
   "blockers": [
-    "Physical destination identity,hardware/macOS,access and independent backup locations remain unspecified; earlier question is pending",
-    "FinalTask7 dependsacceptedTask6; shellflags do not select migrationprofiles,universal no-overwrite/compatible rollback and absent oldvolume need actual proof",
-    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope",
-    "Source-volume tool/source reads stalled duringTask6 andoptionalTask7draftstaticcheck; boundedbyteidenticalprivateSOURCEcopy validation inprogress, no hostprobe/repair or releaseclaim",
-    "NativeR6 actualerrno9 hold preserved; officialApple source supports revokedhandle mechanism but actualcauseunverified. NEWnative7/rich14 repair removes unsupportedoldfdpost-exitusability precondition explicitly, while requiring originalprechildidentity/exactpostchildpath+freshfd/state. SOURCE-onlyfreeze pending; no runtimeadmission. SourceR5eight remainsunchanged, hard7pairedactual+peerdataPASS boundedsynthetic only."
+    "FinalTask7 depends acceptedTask6; actual finalarchive and synthetic/packaged qualification pending.",
+    "NativeR7 actual zero-dimension HOLD retained; minimal NativeR8/RichR15 source-only topology revision frozen, root and fresh peer source review pending before exact actual admission. Actual installed-kernel cause unverified; source R5 eight unchanged.",
+    "Unrelated adapter-inclusive ManifestBridge TS2322 baseline remains outside this source scope.",
+    "Physical target identity/access/independentbackup locations absent; this limits separate physical migration acceptance, not authorized source-product completion."
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
     "Cambium,Temperance and connected organs form one ecosystem with distinct existing owners; vault bodies remain referenced knowledge",
-    "FullTasks1\u20138 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
+    "FullTasks1–8 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
     "Preserve Cambium savedOpenAI goal,Phase9 authenticatedinventory gate,GSDstate and all unrelatedWIP",
     "Distribution owns implementation in isolated worktrees; primary sourceWIP and hostruntime remain untouched",
     "Reuse existing OpenTUI/controller/lifecycle journal/preimage/receipts/catalog; no secondexecutor/journal/approvalledger/secretstore",
@@ -141,14 +145,17 @@
     "Task7 currentr4 archive is source-foundation only, bound01d564c/outerc8067b49; finalrelease rebuild and physicalproof remain pending",
     "Task8 sourcepacket preparation does not accept any physicalcriterion; no fabricatedtarget/identity/command/receipt",
     "Never probe/start Constellation8770; no push/merge/tag/deploy/publication or external messages",
-    "Private reviewledgers ignored through local Gitinfo/exclude; no checked source or personalruntime config change"
+    "Private reviewledgers ignored through local Gitinfo/exclude; no checked source or personalruntime config change",
+    "Graceful/native NEW fixture retains setsid/direct genuine ownedPTY descriptor input-output without fixture-assigned controlling terminal. No claim of guaranteed absence of later ctty acquisition, foreground process groups, terminal-generated CtrlC, job control, persistent-shell equivalence or native internals; HardR7 controlling-terminal lane unchanged.",
+    "Same-reopened-device observations require original identity and exact modes/positive dimensions before cleanup; no oldfd-continuity, zero-open-effects, application-only-cause or ABA claim. All historic HOLDs immutable.",
+    "Finish full authorized SOURCE/local-product scope with Task8 source packet; do not infer or request gratuitous physical rollout authority as a source-completion prerequisite."
   ],
   "uncommitted_files": [
     "Freshly verified captured51Cambium and5distributionprimary WIP byte-identical; other concurrent review-document WIP preserved; only parent-owned structured handoff refreshed",
-    "Integration CLEAN31f97b72; Task6R5 exact8 frozen/rootidentity/freshCORE+UI SOURCEPASS. NEWnative6/rich13 ignoredpackets sourcePASS; native6 actualerrno9 HOLD and rich13 UNEXECUTED; hard7pairedactual+independentdataPASS. Task7docsDRAFT R2 source/dataPASS. NoTask6 integration/ISA/finalkitqualification.",
+    "Integration CLEAN31f97b72; Task6R5 exact8 frozen/sourcePASS. Native7 actualzero-dimension HOLD preserved; Native8/Rich15 NEW ignored frozenSOURCE packets in fresh review, no runtime admission; Hard7pairedactual+independentdataPASS. Task7docsDRAFT R2/source+strictcompilerPASS; no sourceprojection/finalkitqualification yet.",
     "Task5R1/R2/R3 and Task4/kit frozen candidate histories and ignored reviews/toolchain/preimages/PTY evidence retained unchanged"
   ],
-  "next_action": "Continue in place active fullplan. FIRST obtain SAMEAstra NEWnativeR7/richR14 SOURCE-only terminalfreezes. Bothhelpers/purecontrols reportedcomplete196observation+43EOF+25anchor; freezeassemblytoolingindentation error occurred BEFOREscriptwrite/payloadcopy and is beingcorrected, no productverdict/runtime. RootFULL-read bothdiagnoses+primaryAppleevidence: oldfdrevocation possible/actualkernelunverified; authorizedallocation+immediateprechild retainedfd/path identity, afterexit ORIGINAL identity joinedexactpath+freshreadonlyfd, no oldfdpost-exitdependency/errno->success/cachesizes/alternateTTY/setter. Exactmodes/dims/close/child/drain/result/parity/integrity mandatory, bounded labeledoperations/errno. Methodlimit90471059 explicitsame-reopened-deviceobservedstate, not continuity/zero-open-effects/application-onlycause/ABA. ProductR5exact8 c1c5bc72/private21affd1068/base31f unchanged; alloldpreps/actualholds immutable. RootFULLnewdeltas/helpercontrols/copyprovenance/launchers/source2030/original8/alltop+payloadpin identities, pure196/43/25actualAST, freshCOREnative/Lunarich SOURCEreviews beforeANYexactactualcase. NativeR6 oldsession56681exit2 all5reaped/noforcedcleanup/allintegritytrue, no restoration/parity; rich13unexecuted. Hard7bothprofiles ACTUAL+independentFULLdataauditd534fca6PASS, no rerununlessnewfinding. Task7DOC DRAFT R2/rootFULL3/freshLuna66cfa73dPASS+ownerRestartR2SOURCE/strictcompilerPASS; finalsourceprojection/artifactA/20actualqualificationcases/externalreceiptB waitsaccepted6. Rootexact8+ISA893-908 onlyallgatesPASS; Task8physicaltarget/access/backups pending. SavedOpenAI/Phase9/51+5WIP/current100growth preserved. No Constellation8770/host/provider/cloud/native-store/vault effects/push/merge/deploy.",
+  "next_action": "Continue in place active full source plan. FIRST rootFULL-read NEW NativeR8/RichR15 terminalSOURCE-only frozen packets/indexde9f5418/source8-private2030-copy1610/top75+90/launchers/current+prior pins/10setup-196obs-43EOF-25anchor purecontrols; await fresh CORE Native8 and Luna Rich15 SOURCE audits. Sole functional delta attach setsid-only removing fixture TIOCSCTTY, no guardian/extra process/product rebuild; explicit bounded descriptor-PTY coverage, not jobcontrol/kernelCtrlC/persistent-shell equivalence/native internals. All strict positive exact dimensions/modes/identity/close/drain/result/parity/cleanup/sourceguards remain. Native7 terminal2 zero-size HOLD and all historical holds immutable; no kernelcause proof. Then root separately admit exact Native8 case first with literal launcher SHA before parsing/PTY; await actualterminal andFULLreceipt, no implied PASS. Only after nativePASS admit richpairedprofile/sizes/q-CtrlC matrix, freshactual-data review. Hard7pairedactual+independentFULLdataauditd534fca6PASS no rerun. ProductR5eightc1c5bc72/private21affd1068/base31f unchanged; exact8+ISA893-908 afterallgatesPASS, then acceptedTask7 sourceprojection/immutablekitA/20actualqualification/externalB. SourceTasks1-8 authorized/localA-D completion; physicalE separateunauthorized/unaccepted, not sourcegoal blocker. Preserve savedOpenAI/Phase9/all unrelatedWIP/growth100/SnowGloves boundary; no Constellation8770/host/provider/cloud/native-store/vault/push/merge/deploy effects.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -279,7 +286,7 @@
       "3": "accepted-source-40a2b70",
       "4": "accepted-source-508d665",
       "5": "accepted-source-31f97b72",
-      "6": "R5-SOURCE-PASS-hardR7-paired-actual-peerPASS-nativeR6-errno9-HOLD-NEWnative7-rich14-sourcepreparation",
+      "6": "R5-SOURCE-PASS-hardR7-paired-actual-peerPASS-nativeR7-zero-dimensions-HOLD-NEWnative8-rich15-frozen-SOURCE-review",
       "7": "minimalbootstrap974bc0d-ownerRestartR2-sourcePASS-strictCompilerPASS-docDRAFT-R2-reviewPASS-waitaccepted6",
       "8": "blank-ownerpacket-sourceaccepted-physical-targets-evidencepending"
     },
