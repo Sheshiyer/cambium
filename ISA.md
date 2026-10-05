@@ -191,6 +191,13 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Criteria
 
+### Standalone composition source slice (2026-10-05)
+
+- [x] ISC-COMPC-01: Repository-owned composition source validates boundaries and rejects unsafe inputs.
+- [x] ISC-COMPC-02: Focused tests and actual read-only CLI pass fresh verification.
+- [ ] ISC-COMPC-03: Installed adapters, live causal lifecycle and independent runtime acceptance are proved.
+
+
 ### Completed Phase 3 acceptance
 
 - [x] ISC-1273: ANCHOR-01 proves the singular near-invariant root Vision through the binary probe `scripts/infinite-game-anchors.test.mjs`.
@@ -2891,3 +2898,7 @@ This source integration is a bounded repository task within the active v0.5 mile
 - [ ] REC-06: Final source commit is clean and reviewable with branch disposition, test receipts, and explicit remaining operational gates.
 
 The exact remaining gates and source ownership are recorded in `.planning/RECONCILIATION-2026-09-27.md`. No local test result mints send, spend, provider, migration, deployment, data-transfer, or retirement authority.
+
+### Composition source verification — 2026-10-05
+
+29 Node tests; actual fixed-path checker exit 0. Configuration-only output disables effects. These checks close only the two new source criteria; inherited criteria and runtime acceptance remain unchanged.
