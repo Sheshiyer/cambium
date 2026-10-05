@@ -45,5 +45,7 @@ It does not contact services or establish runtime readiness.
 
 Next gates: accepted cross-owner lineage, missing/duplicate callback recovery,
 git-only workspace admission, pre-consumption account/fallback enforcement, durable
-A2A cancellation, typed Constellation control, common projections, and independent
+A2A cancellation, headless owner controls, common projections, and independent
 plant-specific release proofs. Keep source, installed, runtime and UAT distinct.
+
+Operator scope update 2026-10-05: Constellation is permanently retired from standalone Temperance and the personal Noesis integration. Cambium must not require its application, installer, widget jobs or native release proofs. Generic projections and headless organs remain optional; company and plant authority boundaries remain unchanged.
