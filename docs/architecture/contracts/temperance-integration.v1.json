@@ -1,0 +1,66 @@
+{
+  "schema": "cambium.temperance-integration.v1",
+  "product": {
+    "repository": "github.com/Sheshiyer/temperance_engine",
+    "required_by_company": false,
+    "company_dependency_required": false
+  },
+  "integration": {
+    "repository": "github.com/Sheshiyer/noesis-cambium",
+    "required": false,
+    "plant_id": "thoughtseed-local",
+    "configuration_reference": "integration:thoughtseed.v1"
+  },
+  "company": {
+    "repository": "github.com/Sheshiyer/cambium",
+    "operational_writer": "d1-goal-graph",
+    "acceptance_owner": "isa",
+    "planning_owner": "gsd",
+    "identity_owner": "plexus",
+    "remote_executor": "hermes"
+  },
+  "seams": [
+    {
+      "id": "admitted-work",
+      "from": "cambium",
+      "to": "noesis-cambium",
+      "effect": "reference-only",
+      "requirements": [
+        "work-object",
+        "signed-gate",
+        "scope",
+        "expiry",
+        "artifact-contract"
+      ]
+    },
+    {
+      "id": "verified-result",
+      "from": "noesis-cambium",
+      "to": "cambium",
+      "effect": "reference-only",
+      "requirements": [
+        "run-lineage",
+        "artifact-digest",
+        "independent-verdict",
+        "owner-readback"
+      ]
+    },
+    {
+      "id": "learning-proposal",
+      "from": "noesis-cambium",
+      "to": "cambium",
+      "effect": "proposal-only",
+      "requirements": [
+        "source-reference",
+        "freshness",
+        "confidence",
+        "review-owner"
+      ]
+    }
+  ],
+  "excluded_plants": [
+    "heyzack-hosted",
+    "snow-gloves-fleet"
+  ],
+  "effects_authorized": false
+}
