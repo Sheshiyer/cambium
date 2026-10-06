@@ -1,0 +1,2053 @@
+{
+  "schema": "cambium.modular-mac-review-map.v1",
+  "status": "review-snapshot-not-runtime-registry",
+  "observed_date": "2026-10-01",
+  "scope": "Integrated component and organ relationship review; complete 100-file growth folder plus bounded current implementation seams. Not full live inventory or every portfolio application.",
+  "authority": "Root ISA owns review acceptance; owning registries retain runtime authority",
+  "profiles": [
+    "workstation",
+    "always-on-node",
+    "recovery"
+  ],
+  "repositories": [
+    {
+      "id": "runtime",
+      "head": "679d70e7fb48ba926af6e3d52a00a68fa741b5ec",
+      "dirty_path_count": 17,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "distribution",
+      "head": "d4748c9eb524895192e597b77293e8ac9dea4b63",
+      "dirty_path_count": 5,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "skills",
+      "head": null,
+      "dirty_path_count": null,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "cambium",
+      "head": "535925ad0e97b830eb80509b1eead2ec927438bb",
+      "dirty_path_count": 41,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "hermes",
+      "head": "e45b84cd01279704f39ddcd3dda32c4ea2d4d2eb",
+      "dirty_path_count": 35,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "snowgloves",
+      "head": "b792f61d9af9e06ef12d060266aa83b0a953ef6e",
+      "dirty_path_count": 4,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "antahkarana",
+      "head": "f986ffa1d46499eb26ba05d4ee99fab74ce08d0f",
+      "dirty_path_count": 0,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "session-atlas",
+      "head": "c0f99d50b40f0b0a1c0b2b37e69d451b217beaa3",
+      "dirty_path_count": 9,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "factor",
+      "head": "795ae67e8cb6eb224fc8a5ff941d069c21203e88",
+      "dirty_path_count": 3,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "meristem",
+      "head": "51698c298a053845480f9283ff30497d98d9702a",
+      "dirty_path_count": 0,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    },
+    {
+      "id": "vault",
+      "head": "f55be96a55d90bdc68e93aa2eb3f26b80eac0718",
+      "dirty_path_count": 14,
+      "observation": "source-metadata-only",
+      "source_is_release_proof": false
+    }
+  ],
+  "sources": [
+    {
+      "id": "runtime:README.md",
+      "owner": "runtime",
+      "relative_path": "README.md",
+      "sha256": "c11c35d388b817d8703298424bcdea3be16bee3f5f21e90b7209329d9e6bcb86",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:VERSION",
+      "owner": "runtime",
+      "relative_path": "VERSION",
+      "sha256": "c69b539495b3a5ad50050c96f9e77852a4dc56b210f577a2bbf6dc82ef2f7d4f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:docs/OWNERS.md",
+      "owner": "runtime",
+      "relative_path": "docs/OWNERS.md",
+      "sha256": "42db41129915a6b1816cf7b19ea360b29434c4d3a344b3e19d3e3f7cf2de7c15",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:docs/runbooks/RUNTIME.md",
+      "owner": "runtime",
+      "relative_path": "docs/runbooks/RUNTIME.md",
+      "sha256": "e399d2f137af4c7cb05078c1cc39f68e0708893cb3d0c6a1a0b30c5620b1d726",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:docs/architecture/HEADLESS-COHESION-REMAINING-2026-09-28.md",
+      "owner": "runtime",
+      "relative_path": "docs/architecture/HEADLESS-COHESION-REMAINING-2026-09-28.md",
+      "sha256": "c081b3f1b1dee811e06d97b0302a698b6630fdd1c84547bb0a1ecf4ab46a0fee",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:router/module-registry.v4.json",
+      "owner": "runtime",
+      "relative_path": "router/module-registry.v4.json",
+      "sha256": "f86e2d5f9bc39a15c29200320b769fd15082e7af0794507a93b50dbe941a2aaa",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:router/temperance-project-init.mjs",
+      "owner": "runtime",
+      "relative_path": "router/temperance-project-init.mjs",
+      "sha256": "eddc538a476aa3a75e53978bac99394fc613b8cf936266a0a4cd7833b08b42e0",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:scripts/stage-runtime-candidate.ts",
+      "owner": "runtime",
+      "relative_path": "scripts/stage-runtime-candidate.ts",
+      "sha256": "69f762b4cbeb3dd9a76ffc9fe681a0206e2c3e71973cc3bd2eed711a25f8637b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:bin/te-install.sh",
+      "owner": "runtime",
+      "relative_path": "bin/te-install.sh",
+      "sha256": "e9d1d563dc0e1b61f8c459bc689f543a6e1fb9820e814fb8530bdcf831ba6dda",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:bin/temperance-install-launchers",
+      "owner": "runtime",
+      "relative_path": "bin/temperance-install-launchers",
+      "sha256": "b65d058f29b558b1d0720e3f201f8187d2fdd73ee1ca9e0e0407c68d96344de3",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:README.md",
+      "owner": "distribution",
+      "relative_path": "README.md",
+      "sha256": "fdf9854946d7287a19f842d49b3d666943b3c586f02bceec10b09caa52c4b72b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:VERSION",
+      "owner": "distribution",
+      "relative_path": "VERSION",
+      "sha256": "97a5d6e540a6120d09c39ddb667e0e8e2bac7fcc2ffef813b82e08fd60365bce",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:install.sh",
+      "owner": "distribution",
+      "relative_path": "install.sh",
+      "sha256": "cf770ff562bfb05f76de09c36aa4a43956793dac5febe0662ba78a854bb772e7",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:bin/temperance",
+      "owner": "distribution",
+      "relative_path": "bin/temperance",
+      "sha256": "3296dcdba4128c54767f07330ccdd4d8f8cfeb0fe30273dd1fa86f55074cd8ed",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/package.json",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/package.json",
+      "sha256": "2d447d4b14af1a65e9e17a20a567ecd45397a6d873ce118384f98ce8a6559599",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/bun.lock",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/bun.lock",
+      "sha256": "65083b07d3b402c932dee70b01ac4495a462de73a0a525484da9591a57371387",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/docs/guided-onboarding.md",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/docs/guided-onboarding.md",
+      "sha256": "7a02576237defddadee261d26b68f43415e1037ef3dd1c9ae24f9afcaec3a58c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/docs/agent-operations.md",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/docs/agent-operations.md",
+      "sha256": "1709ca7a586987a2410b96722a9daf1b58047bde57037d513ae152e1581324fe",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/cli.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/cli.ts",
+      "sha256": "c21c4d62bd122b64ffb7b1f1872d61d0a6064fa7281fb9e2f11343054ede5f4e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/wizard.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/wizard.ts",
+      "sha256": "7ab09454506c805301e4e142eaf7e771312d642b982d8537c8b635dfb3e7178c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/core-catalog.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/core-catalog.ts",
+      "sha256": "1199560d7dffe470b7e20a71708569db36769b1388089366ea08121b5503776c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/host-identity.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/host-identity.ts",
+      "sha256": "db1562e1554736aa1bf33ca69ee4e8d3cecaa5daa9eff3aeba1f0b6207db4d07",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/onboarding/operation-executor.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/onboarding/operation-executor.ts",
+      "sha256": "e01e3140300f450df73dd159f64ee693e5c76e2c4f16718923bf1319d2aca8dd",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/lifecycle/executor.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/lifecycle/executor.ts",
+      "sha256": "3c61f0e428a540987441a9c4036ef8fb1757663812348502ff5c1f91fa7a96f5",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/install-surface/src/lifecycle/journal.ts",
+      "owner": "distribution",
+      "relative_path": "package/install-surface/src/lifecycle/journal.ts",
+      "sha256": "24bcc4e073cce1583a6b141d3a9cd883c43e91fc21c942fb6dad25d377221b7c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "distribution:package/headless/package.json",
+      "owner": "distribution",
+      "relative_path": "package/headless/package.json",
+      "sha256": "69c8af82bad4d80bd16fe402124e675aebdb7a5980f47c6a47fd2fe1c55d45fd",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "skills:skill-clusters/skill-index.json",
+      "owner": "skills",
+      "relative_path": "skill-clusters/skill-index.json",
+      "sha256": "92fe870e020eb1e57eaa445ee5859c9b3af7e061b9545a954fec317ccc8771e4",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:PROJECT.md",
+      "owner": "cambium",
+      "relative_path": "PROJECT.md",
+      "sha256": "e86c6efaa99c2b57a40e6ce74af71d8c348b03c394926f0e70b9cc96c90afd03",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:.planning/STATE.md",
+      "owner": "cambium",
+      "relative_path": ".planning/STATE.md",
+      "sha256": "9cd7b0648326316261fc9ab061ce28cdcc1586c9d3d50770dfda0d200351bf48",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:.temperance/goal.json",
+      "owner": "cambium",
+      "relative_path": ".temperance/goal.json",
+      "sha256": "e3fde042d913ad64bc6e43c69b713c4effb18226d5ffe9a643ecb29c6099cd66",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:docs/architecture/contracts/personal-secrets-sync-v1.md",
+      "owner": "cambium",
+      "relative_path": "docs/architecture/contracts/personal-secrets-sync-v1.md",
+      "sha256": "629d62e960c810385d84dd0fb5363342040f72fc7c99ad937b43ae5930d89de1",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:README.md",
+      "owner": "hermes",
+      "relative_path": "README.md",
+      "sha256": "93aeeca9851fe7bcfcdaff1aed9567fdb1e6d6615fc28f3a21f10fb44e521399",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:package.json",
+      "owner": "hermes",
+      "relative_path": "package.json",
+      "sha256": "a843bf9a1018f48fe65e6d7c704b5bea311de1f6d817345a87f6c87496b2416e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:contracts/README.md",
+      "owner": "hermes",
+      "relative_path": "contracts/README.md",
+      "sha256": "ed7b73281838cacdb807e97e4e67a32ce5bedad09db23ccdb1eb467fb27c1570",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:docs/connected-repos.md",
+      "owner": "hermes",
+      "relative_path": "docs/connected-repos.md",
+      "sha256": "e3349908f62a048bbbd06f25993a1f6a83f1de7e623594dc7b558ba8c638492f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:README.md",
+      "owner": "snowgloves",
+      "relative_path": "README.md",
+      "sha256": "21e1b0d7a4103004be93c34e939409700061ea23f0c16568f2cab6623dceb035",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:requirements-tui.txt",
+      "owner": "snowgloves",
+      "relative_path": "requirements-tui.txt",
+      "sha256": "245973cea82f2773191e381d52157bfa5a573041255a8f487d6789ef7a4bb06a",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:scripts/tui_onboard.py",
+      "owner": "snowgloves",
+      "relative_path": "scripts/tui_onboard.py",
+      "sha256": "614c5444770a12f23b39b921bb7e4081b6d0e3776e8c149277de9eaa6be8d917",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:scripts/lib/tui_flow.py",
+      "owner": "snowgloves",
+      "relative_path": "scripts/lib/tui_flow.py",
+      "sha256": "2618b1b2bd5758c2ffe64c9ded05564350e810425df5485b04c79a5305c39c28",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:docs/MAC-MINI-NODE-ONBOARDING-PLAN.md",
+      "owner": "snowgloves",
+      "relative_path": "docs/MAC-MINI-NODE-ONBOARDING-PLAN.md",
+      "sha256": "0938ad5a6b067d73e9f36110967365f8e397e2889c0d32382841e445c4d3a57c",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:docs/FLEET-CONTROL-PLANE-PLAN.md",
+      "owner": "snowgloves",
+      "relative_path": "docs/FLEET-CONTROL-PLANE-PLAN.md",
+      "sha256": "6dc70a951eb7628e0d2e559d2037cf9a07ac6570de2d140bfe2c1124e7d9d6e2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:docs/AGENTS-INFRA-HANDOFF-PLAN.md",
+      "owner": "snowgloves",
+      "relative_path": "docs/AGENTS-INFRA-HANDOFF-PLAN.md",
+      "sha256": "422030225e56e5fe28d6898b25bbee66cb451701db21d54430ef38541805b7f9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:.planning/PILOT-CONTRACT.md",
+      "owner": "snowgloves",
+      "relative_path": ".planning/PILOT-CONTRACT.md",
+      "sha256": "4450520e3080425db70487db5a229051dcffdc3b82bea8b564481542012f3742",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "snowgloves:.planning/HANDOFF.json",
+      "owner": "snowgloves",
+      "relative_path": ".planning/HANDOFF.json",
+      "sha256": "1be18156316d1816ac0da3e483e02841c35fed4ec9ab75e865f9c7b5e3504a31",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false,
+      "observation_status": "prior-review-cut-source-drift-observed",
+      "current_sha256_observed": "b785d888bf55727d48efba22fb1847ddf072bccb444710dc25a10d4877406cfa",
+      "current_body_reviewed": false
+    },
+    {
+      "id": "antahkarana:package.json",
+      "owner": "antahkarana",
+      "relative_path": "package.json",
+      "sha256": "6da260279e3af800c3723702846915791cc3509ae8a42fbb1fc71bc68f7d31bc",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "antahkarana:cli/bin/antahkarana.mjs",
+      "owner": "antahkarana",
+      "relative_path": "cli/bin/antahkarana.mjs",
+      "sha256": "d5dffd6df7fd06d5fecfa7260ca15ea3862a5650d060b4b5835a0f287da762d2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "session-atlas:README.md",
+      "owner": "session-atlas",
+      "relative_path": "README.md",
+      "sha256": "d93ba478560013de958f90a5b01316d0b4e0baf8c0ead945fb72b6ed8eee8fb3",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "session-atlas:package.json",
+      "owner": "session-atlas",
+      "relative_path": "package.json",
+      "sha256": "7082002f6ddbdee1dde5d54b78abeba835ebc4b0a195140171a3c079112cc809",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "factor:README.md",
+      "owner": "factor",
+      "relative_path": "README.md",
+      "sha256": "5b5f8662de5b28bdb9b01af6d89d0c0cdece9517ecb6a857a80836119c42afa7",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "meristem:PROJECT.md",
+      "owner": "meristem",
+      "relative_path": "PROJECT.md",
+      "sha256": "1a0e73d1c0f9409cd46bc18f20b5d607df2662572239c7958af676fbdb996d75",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:PROJECT.md",
+      "owner": "vault",
+      "relative_path": "PROJECT.md",
+      "sha256": "0cdb59c3eb4a4f2fac3f0e4c92c121c993f53449db37328c6eab40774a46a263",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/.DS_Store",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/.DS_Store",
+      "sha256": "14be4e1bf1bfae2fc763c7c4e13b0e25a21f80e6d9dfdb822752714409aaa9dc",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/2026-08-24-x-linkedin-case-study-calendar.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/2026-08-24-x-linkedin-case-study-calendar.md",
+      "sha256": "0683042d0807a6e2504799f826ec5813a6dde171ced16841b4fba6793d73c084",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/2026-10-06-linkedin-sapling-field-notes.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/2026-10-06-linkedin-sapling-field-notes.md",
+      "sha256": "339b585dcbc165e2bb158ee884589edd190c48fbf9cb4b310f2b1b87790df181",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/README.md",
+      "sha256": "50cd73ee236dbbb2b3828718a89672a378cbb0f64691f93bb3001ba980c7ea65",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/cambium-temperance-social-workflow.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/cambium-temperance-social-workflow.md",
+      "sha256": "a2cf18d17979e7c8ae596018628ce28b831509095d565e082a84cfb8fce6dc10",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/01-head-of-marketing/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/01-head-of-marketing/README.md",
+      "sha256": "9475913658d43b766475872d6abab0ff8c60b263710e2980fc4daa626aac4d85",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/01-head-of-marketing/_inbox.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/01-head-of-marketing/_inbox.md",
+      "sha256": "c397c0b4b4390643772aae9e00cf8a9eea8cbfa416e1b3fd4a0243f32c1244e9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/01-head-of-marketing/competitor-teardowns/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/01-head-of-marketing/competitor-teardowns/README.md",
+      "sha256": "93c4ba91e0c9252c5fcf8515b7ec0d8eb1d29575f76a18a77abfc76f81432b86",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/01-head-of-marketing/positioning/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/01-head-of-marketing/positioning/README.md",
+      "sha256": "7aaf64156f24a157b6aa373adc9b5c2679b4314611271fdc0edf9dc58474e5aa",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/01-head-of-marketing/pricing/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/01-head-of-marketing/pricing/README.md",
+      "sha256": "ab1c1864b3f44614bb9f2ca8258f47d5c6f3d4b548ffd2985fd106fc2bdd5f87",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/README.md",
+      "sha256": "7ad8b7cd54795e93c1c110c5b9f121b31db37a090797d08bebab8314059aa6a4",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/_inbox.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/_inbox.md",
+      "sha256": "b1ae89a80a63a55b17ef5ce6502e4c855e4aeda7d558528757b8cf60e439ce7e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/email-sequences/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/email-sequences/README.md",
+      "sha256": "e531946406d3c741aef65e1df4741a3e1ef776a167047eef63ae985d4f8216e9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/graded-copy/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/graded-copy/README.md",
+      "sha256": "3fe3ee68cef5dbbe88f64fe5133a22ab287fe822ec7739b071bececcfc0462c1",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/graded-copy/current.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/graded-copy/current.md",
+      "sha256": "6e613cbc1a1797f3539fb6b84fb1eb25961de8e68ac8a80f05845c8594d367da",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/social-posts/2026-10-06-snow-gloves-os-reinstall-contract.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/social-posts/2026-10-06-snow-gloves-os-reinstall-contract.md",
+      "sha256": "c5a54b925cad145fef6751f10f4379a01a120932193674593c7a5b354c4018a7",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/social-posts/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/social-posts/README.md",
+      "sha256": "ac890de3b6dd653a7f24420bf0f4c85126b231b0b35dbdfb6f0cdc7dfd14c638",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/02-copywriter/social-posts/current.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/02-copywriter/social-posts/current.md",
+      "sha256": "e89b7e7fa98102a4b682acb7a2c4c26e58a0acf4fd95f6aa8783196451a6966a",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/README.md",
+      "sha256": "1e6e1261f2388d33ae43088c5564105d4f4861e94fed97646c1dd05f834de342",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/_inbox.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/_inbox.md",
+      "sha256": "1093900cbcf66dd71ee1a477533eb513df1e193d0d84e4ed20b0e4a108e96b23",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/fatigue-vs-dead-audience/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/fatigue-vs-dead-audience/README.md",
+      "sha256": "2741c6f6472b8e363e7f186d5e0e4e1c9667a2e30af2b3c093e095c2745cd9f1",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/hooks/2026-09-23-ig-high-signal.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/hooks/2026-09-23-ig-high-signal.md",
+      "sha256": "14e1ca582194b26c9d83eceeb15eb7817ababdd293ae1ea48f11637bd9017ca0",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/hooks/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/hooks/README.md",
+      "sha256": "bd4aa37697bfd1d529e1074838bfd43cf487cfc69ab29b53d033303c32d8c060",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/ig-saved-harvest-2026-09-23.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/ig-saved-harvest-2026-09-23.md",
+      "sha256": "57fe0e66a1a9034be4c5440151bf911a1b7856a4673038ea4123ac4f9b17cce8",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/next-tests/2026-09-23-ig-high-signal.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/next-tests/2026-09-23-ig-high-signal.md",
+      "sha256": "8b5b2b9f16f4b0805d3f2514141ba3b24ae39ade0bc1f362b42f6be81b3f75fc",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/next-tests/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/next-tests/README.md",
+      "sha256": "8d7b261e636bc8e70842ff51ad7d50b72e993962773e3fa6a637462416c72783",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/03-creative-strategist/taste-saved-map.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/03-creative-strategist/taste-saved-map.md",
+      "sha256": "4b188c698d29a40613b2b05119771e196abd1a88d512d48c443857bb4c0991f2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/04-launch-lead/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/04-launch-lead/README.md",
+      "sha256": "0bed83e78bee695565590ff9e23ba35855c88a765f90bc90e5efdb45143ad3a3",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/04-launch-lead/_inbox.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/04-launch-lead/_inbox.md",
+      "sha256": "34819a413a8211952b599c811e649061c2e7816acdd2b8dec8541eba96033825",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/04-launch-lead/four-weeks-before/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/04-launch-lead/four-weeks-before/README.md",
+      "sha256": "bce7f60f5b4e0e6fab14a337eeb92150e34e7d847d164d8bc3661a86425b411f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/04-launch-lead/product-hunt-hour-by-hour/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/04-launch-lead/product-hunt-hour-by-hour/README.md",
+      "sha256": "1d5ee53286540fb15d14f8c7767f9f0b15af1ce03ef25214afd37601211219a1",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/README.md",
+      "sha256": "7f4f58197aa09fd2f2c6eb9295b571f049744a7bb39e307ac311d4afd45d85b4",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/_inbox.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/_inbox.md",
+      "sha256": "e568b82277931f2d4d9e1034e1255b409636ea658476214388fda9e5019ac4f4",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/aeo/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/aeo/README.md",
+      "sha256": "db804630561a217e5a3cc143237f78c85167cfbc6b0330b039ba79ee22b17611",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/aeo/sapling-iverif-claim-table.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/aeo/sapling-iverif-claim-table.md",
+      "sha256": "3fc792c196d6c1f5c69233d94c2cdc4fffcb149f91314998bb22437e49e8d48d",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/app-store-rankings/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/app-store-rankings/README.md",
+      "sha256": "8343763875b6a8456f649f7b4fc535a30b3647d8d29840bdded50faf968c64b2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/deo/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/deo/README.md",
+      "sha256": "cce5a9a044328a0ef4d0264d0b8571165319b2b23e32eb10deefdcae92b01d09",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/geo/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/geo/README.md",
+      "sha256": "641f611721e837e16cea93b172f0e49f6ff25d0a64f6256133af294cefd53b26",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/runs/2026-09-22-sapling-iverif.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/runs/2026-09-22-sapling-iverif.md",
+      "sha256": "a9240c525fc898bd08cb5a446729463250890f9d586ebe708d68cc337107aca5",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/runs/2026-09-22-thoughtseed-cambium.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/runs/2026-09-22-thoughtseed-cambium.md",
+      "sha256": "89a83952989847504e3e28cbea42715a965b6a966a6bd11b302fc5c8d41e0091",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/runs/2026-09-23-brand-thoughtseed.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/runs/2026-09-23-brand-thoughtseed.md",
+      "sha256": "7d442ec3864830de07d63d937170a791260680a188ec63044845212d862ef0c5",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/runs/2026-09-23-sapling-iverif-flow.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/runs/2026-09-23-sapling-iverif-flow.md",
+      "sha256": "e2ce6e7c54d02f33d4c5278fe294b8044f034051acb7f29f1a067f681c64170a",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/runs/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/runs/README.md",
+      "sha256": "b34ae840d66e2f645e0f710e90228666965f9e19d681b5b847c578e90eaf45cc",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/runs/_schema.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/runs/_schema.md",
+      "sha256": "deef79105dac044ffe75cda0765e40fc8b8821b8d4ab2bce64c5ac568e449b92",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/search-stack.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/search-stack.md",
+      "sha256": "c912b16a9bfdefcea0e2963d9f7b3fe5c3e980872d780ab2bcb39e9b515ad69e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/seo/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/seo/README.md",
+      "sha256": "8bbc303d6acf297700e6257880a43640139f7621537653e5ae1d7e10dd506b54",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/smo/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/smo/README.md",
+      "sha256": "d82ca3d46236211a2e1df4ce22181b82d98339a1825fbbb6ebf4a4bccada8da9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/05-seo-lead/sxo/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/05-seo-lead/sxo/README.md",
+      "sha256": "3477c5777ea8e14157f81e76868aff7a5eb256a98cb7ad69cac60b825a8d2fb9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/06-analyst/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/06-analyst/README.md",
+      "sha256": "1f25014a3bc3b8d4ce3c63852894cbb17cf9bae7df474ebdfc1ed23d653c1f3f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/06-analyst/_inbox.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/06-analyst/_inbox.md",
+      "sha256": "45ce535a7a592c32f81367b04ad56731c825bdfc40ea39ebb7a102732c9da195",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/06-analyst/site-audits/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/06-analyst/site-audits/README.md",
+      "sha256": "c7f77e335efd1b22958d2473c271d44551b9fb6c9b01f1a9a00daef3a740f6a3",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/06-analyst/spotting-ai-slop/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/06-analyst/spotting-ai-slop/README.md",
+      "sha256": "7dd05663e4a5a5eee4c32046f200e185077221f4a3876053c9fb869a9c3a5758",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/06-analyst/spotting-ai-slop/current.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/06-analyst/spotting-ai-slop/current.md",
+      "sha256": "28c8e6c53adbdef4330c176a3a41541a1b6eb4c759e7510e7126a4d6fb6b2e08",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/06-analyst/test-design/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/06-analyst/test-design/README.md",
+      "sha256": "0f95afea50c821e967fc21d44408c72de9777e03b722bafa684e207553a9c0de",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/README.md",
+      "sha256": "c27e789ede91e637ea2405402eea05fe1c512efa402fcb61baff0d690364d3f9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/_schema.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/_schema.md",
+      "sha256": "ffaaba3c156b06824a5e70b4de09c4872ccf2e6a4ac33554c245aa98a9723876",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/cambium-temperance-organ-atlas.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/cambium-temperance-organ-atlas.md",
+      "sha256": "c94496976bca1b28f6f59772f4586e5c9332c7f2d8e6c233db3ea9924d71c26b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/execute-plan.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/execute-plan.md",
+      "sha256": "af99ec01b15c8e777e9b9f74a927bc5bfe1963d14566abfc2bde767870f94c08",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/execution-map.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/execution-map.md",
+      "sha256": "e82ab9e7b65c9bb1c9712d78dd185fa658c9702bfbb9952d6f9159465374964f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/hands-autosocial.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/hands-autosocial.md",
+      "sha256": "efa504d39e5fc419a3b0d4ca3a9503d6fbcee7bf26c7578a4fc18dacade07987",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/hands-ig-saved-bind.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/hands-ig-saved-bind.md",
+      "sha256": "de1d304c2758e7690203e718d35e8e16413673f3cee1150e0adbc812c4bc0b40",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/ig-saved-schedule.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/ig-saved-schedule.md",
+      "sha256": "4a926addc3a0a8b4067a00455a661ccadf3b70bab57b31ff20be7ab94454cb04",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/organ-map.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/organ-map.md",
+      "sha256": "6f3ed1e1f49795b4d0046a5751d1f47569a5bb4eba696d7d68b67747140dd1cb",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/telegram-window-card.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/telegram-window-card.md",
+      "sha256": "360598de07fd93f508308ad0060b733b2bc05c7d0a5d90a014b7d0f4fb976cd9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/department/workflows.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/department/workflows.md",
+      "sha256": "ddad4342f3f4bee7d6f1a1b31168e4620b9cbcdfd562a9b48f0f6daf1d675011",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/linkedin-github-editorial-radar.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/linkedin-github-editorial-radar.md",
+      "sha256": "7eb1eadd46ba6160eeb014144ad6cc0f3464f180a5f0cc9ab8e74424465a4475",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/notebooklm-source-pack.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/notebooklm-source-pack.md",
+      "sha256": "911b242f52226e98b6da0f12f2f018ac6d83c7fa9e0eafabdc0215f061df291d",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/packs/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/packs/README.md",
+      "sha256": "19f9941c7862778ca4272c9af33d602ea8b67a32090ea02003bf677c2523c358",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/packs/_schema.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/packs/_schema.md",
+      "sha256": "836f86d97aa21e54a3baccc4db94511d5dc6fec54bb2bfffef0bb72a69a6979a",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/packs/thoughtseed-cambium/pack.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/packs/thoughtseed-cambium/pack.md",
+      "sha256": "0216a59ff425a2d607961040a4325e9ba1662a8e9f1b0c0cef2d2fbc5304fb42",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/profiles/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/profiles/README.md",
+      "sha256": "9df6a370129475b000372850183a1ce5f70f53da3cee80522aad8d2705a8255d",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/spines/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/spines/README.md",
+      "sha256": "947527eb4d79edbf231d11f4f8312085f09b9cb1b4bc91be4623b895c7c2d7e4",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/spines/week-1.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/spines/week-1.md",
+      "sha256": "356177bc0c552df2a2e2b5d9f718a4c72ffaa4c89aaf17bd064cec28e32545cf",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/temperance-continuous-learning-rollout.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/temperance-continuous-learning-rollout.md",
+      "sha256": "0f4212a9317c8c10dfcf1d1a6841bacab9aa787d8798f77c346065bbeb6fd83f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper-cambium-infinite-engine.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper-cambium-infinite-engine.md",
+      "sha256": "02b060b43b3bbd434da5b01e51ff53ae3100f359e2f9f8a4c77cd9ddfc71a2a2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper-cambium-temperance-outline.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper-cambium-temperance-outline.md",
+      "sha256": "731f87399398b4ecc5cf690a5d47b2cd9946b40efd31a0e85d78414896adad1b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/README.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/README.md",
+      "sha256": "3ef504c7afe11b6db5f8ab5c0259ea906c15950bf1a7ab3cb9f0d21b66908265",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/capability-console/telegram-capability-console.html",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/capability-console/telegram-capability-console.html",
+      "sha256": "f7d2687ce8cbe54315da9c1798a5dbc70bbe6fd330cd6e1dfb243f178e7c5c14",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/infinite-engine-full.html",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/infinite-engine-full.html",
+      "sha256": "12cc3ffbe5e6cd61ce1fd217a030b1e20552fa18c6357308de2c44ec55e45e95",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/infinite-engine-full.pdf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/infinite-engine-full.pdf",
+      "sha256": "f11ce7335e1968b910bd0afe01dbd80ff5a317f369b87d658cdc28854df81c2e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/infinite-engine-one-pager.html",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/infinite-engine-one-pager.html",
+      "sha256": "99f0980b124539ac7c3e291cf190f558a5f47da805214132b2865c9cf279277e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/infinite-engine-one-pager.pdf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/infinite-engine-one-pager.pdf",
+      "sha256": "e43667f7136588482f01ad719d65864869933733a2a323e3c41404db33666ed2",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/infinite-engine-project-map.v1.json",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/infinite-engine-project-map.v1.json",
+      "sha256": "a98812361e922d28c3498104dedd200f564fadae6b5b67970183b1b4369e5123",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/render-pdf.mjs",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/render-pdf.mjs",
+      "sha256": "f55b2773089c6ab8ac788bcbb1ab1a7fb4f6ee21e141599cba844b6b73f94246",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/telegram-capability-hit-system.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/telegram-capability-hit-system.md",
+      "sha256": "e6ca06b1c8731fee687d9d1240a4682cc1d8f2ebf054a129fea5639b76d736d0",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/telegram-capability-hit-system.v1.json",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/telegram-capability-hit-system.v1.json",
+      "sha256": "363bfebd50f529870135790d09a2fbbb96cad28af994b52371c65f1e7828436b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/auto-render.min.js",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/auto-render.min.js",
+      "sha256": "7b57d427ac6270677daf8d8380ded2cc73336f9149a167b8e1fe0d6ef66604ae",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/IBMPlexMono-Bold.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/IBMPlexMono-Bold.ttf",
+      "sha256": "dbd2a2fb024579438d6400a84e57579bfd2dbe67c306c8fd9fde92a61e4f2eea",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/IBMPlexMono-OFL.txt",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/IBMPlexMono-OFL.txt",
+      "sha256": "5294ce778857e1eb02e830b6ab06435537d38f43055327e73d03a2d4d57d5123",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/IBMPlexMono-Regular.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/IBMPlexMono-Regular.ttf",
+      "sha256": "ab08018ccd276b79fb2c636bb95b9c543598f9d50505fe92506fcb4dae7810cd",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-Bold.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-Bold.ttf",
+      "sha256": "444f85bf1c4b0e1ce1ca624f6be54bcd832207714ccaf4ea99ee531341683bdf",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-BoldItalic.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-BoldItalic.ttf",
+      "sha256": "3762f6cef95d6039489ad5ba5787d4c30f17a1ad01e9ac3c816ed69692722a68",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-Italic.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-Italic.ttf",
+      "sha256": "78e85858e371b2cb4e18f617c10f0f937c0e12a0887ffee98555b24ed305b3a7",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-OFL.txt",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-OFL.txt",
+      "sha256": "bf4dc6d13a8cccd4807133c77a1ee9619a16b92cb23322258725ab6731c2f6e5",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-Regular.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/InstrumentSans-Regular.ttf",
+      "sha256": "a22cb26e48fd79bcb01bf2fc92d36785474dce36d9c544ab0a8868c2657c4a87",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/InstrumentSerif-Italic.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/InstrumentSerif-Italic.ttf",
+      "sha256": "9c86e4d5a47b50224a2463a9eca8535835257c8e85c470c2c6b454b1af6f046e",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/fonts/InstrumentSerif-Regular.ttf",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/fonts/InstrumentSerif-Regular.ttf",
+      "sha256": "56ac3be03ac3ba283196b3e77850ab2ffcf56cfb6fd3212c5620109a972f8c99",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/katex.min.css",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/katex.min.css",
+      "sha256": "b4c6053209d886807bf9bcc0fcabaab50ec763f7ddb120080cff863b6f127bdf",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/whitepaper/vendor/katex.min.js",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/whitepaper/vendor/katex.min.js",
+      "sha256": "e6bfe5deebd4c7ccd272055bab63bd3ab2c73b907b6e6a22d352740a81381fd4",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "vault:20-operations/growth/x-linkedin-generation-pipeline.md",
+      "owner": "vault",
+      "relative_path": "20-operations/growth/x-linkedin-generation-pipeline.md",
+      "sha256": "bddba5e8aa0177b0940f22d4dbfa2c58a323f55fe566736025474694dd65816f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:router/organs.json",
+      "owner": "runtime",
+      "relative_path": "router/organs.json",
+      "sha256": "c957070e55e4d06799c7114634b165522d87f11a9eeca139f4ca90090e795227",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:router/thoughtseed-project-map.ts",
+      "owner": "runtime",
+      "relative_path": "router/thoughtseed-project-map.ts",
+      "sha256": "6d4eedd49b2136e408cf96ba311a2f7c122eda583121ab133a42dcf01b990a45",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:bin/te-organ-hook.py",
+      "owner": "runtime",
+      "relative_path": "bin/te-organ-hook.py",
+      "sha256": "b5944383dc717cea8ca02208ade67f3b31f96a2c2f0c4d68e528e77e131db3ad",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "runtime:bin/te-organ-events.py",
+      "owner": "runtime",
+      "relative_path": "bin/te-organ-events.py",
+      "sha256": "b176932aa68b41ff5a66dfa7f4b323a9d20f0d3623008577f87d4287e22e4361",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:scripts/meristem-genesis-contract.mjs",
+      "owner": "cambium",
+      "relative_path": "scripts/meristem-genesis-contract.mjs",
+      "sha256": "6a546b43acbe879ae318af82f6816810a99ed65578e656eabb845be2cb6fe4c9",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:workers/quests/src/organ-update-delivery.ts",
+      "owner": "cambium",
+      "relative_path": "workers/quests/src/organ-update-delivery.ts",
+      "sha256": "a7ec257cce40bd2860ef9c44378341743406f6a2ecad13468c66e054a487911b",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:workers/quests/src/hermes-execution-foldback.ts",
+      "owner": "cambium",
+      "relative_path": "workers/quests/src/hermes-execution-foldback.ts",
+      "sha256": "1e6d5aad357537798b343f292c5e354322f8bae5c549123e17712284b6018874",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:workers/quests/src/telegram-routing.ts",
+      "owner": "cambium",
+      "relative_path": "workers/quests/src/telegram-routing.ts",
+      "sha256": "18ec662007f595e851dc27616ed7358e554492e2bd17dd82be49bf4f2d7a6989",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:workers/quests/src/telegram-topic-map.v1.json",
+      "owner": "cambium",
+      "relative_path": "workers/quests/src/telegram-topic-map.v1.json",
+      "sha256": "edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "cambium:workers/quests/src/topic-map-drift.test.ts",
+      "owner": "cambium",
+      "relative_path": "workers/quests/src/topic-map-drift.test.ts",
+      "sha256": "e10ea7414a366e41844761ce561849763263aadbfa0ce95f0bd1aecdf5f5263f",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:src/org-topology.ts",
+      "owner": "hermes",
+      "relative_path": "src/org-topology.ts",
+      "sha256": "bc76ec226725fee28b77e02e8f37629919eaa68bc9c46bd31c05e6c60334b607",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:contracts/thoughtseed.telegram-topic-map.v1.json",
+      "owner": "hermes",
+      "relative_path": "contracts/thoughtseed.telegram-topic-map.v1.json",
+      "sha256": "8680362398721c473cb768cf977d5d43d3621720d5edb35d871513ff4f93a630",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    },
+    {
+      "id": "hermes:contracts/thoughtseed.telegram-next-action.v1.json",
+      "owner": "hermes",
+      "relative_path": "contracts/thoughtseed.telegram-next-action.v1.json",
+      "sha256": "f740358731757f61f0e7b01da3bfaf3efa712ee8dcf8c99640f3ee04fe4b1b60",
+      "evidence_kind": "source-bytes",
+      "live_acceptance": false
+    }
+  ],
+  "components": [
+    {
+      "id": "foundation",
+      "source_owner": "distribution",
+      "depends_on": [],
+      "migration_class": "reinstall",
+      "description": "Machine tooling and project-scoped runtime requirements",
+      "proposed_activation": false
+    },
+    {
+      "id": "governance",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "PAI doctrine, ISA and GSD authorities",
+      "proposed_activation": false
+    },
+    {
+      "id": "skill-clusters",
+      "source_owner": "skills",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "regenerate",
+      "description": "Pinned catalog and hubs-only discovery; rebuild links/indexes",
+      "proposed_activation": false
+    },
+    {
+      "id": "setup-ui",
+      "source_owner": "distribution",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Existing OpenTUI wizard, shared headless controller and lifecycle",
+      "proposed_activation": false
+    },
+    {
+      "id": "personal-overlay",
+      "source_owner": "runtime",
+      "depends_on": [
+        "governance",
+        "skill-clusters"
+      ],
+      "migration_class": "regenerate",
+      "description": "Private bindings joined to the reviewed portable release",
+      "proposed_activation": false
+    },
+    {
+      "id": "router",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reauthenticate",
+      "description": "Explicit OmniRoute or 9router backend; no implicit cutover",
+      "proposed_activation": false
+    },
+    {
+      "id": "supervision",
+      "source_owner": "runtime",
+      "depends_on": [
+        "governance"
+      ],
+      "migration_class": "regenerate",
+      "description": "Supervisor, launchd ownership and admission",
+      "proposed_activation": false
+    },
+    {
+      "id": "execution",
+      "source_owner": "runtime",
+      "depends_on": [
+        "supervision",
+        "router",
+        "skill-clusters"
+      ],
+      "migration_class": "reconcile",
+      "description": "Hands/Superset and bounded executors; no copied leases",
+      "proposed_activation": false
+    },
+    {
+      "id": "manifest",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "regenerate",
+      "description": "Redacted Manifest events; projection only",
+      "proposed_activation": false
+    },
+    {
+      "id": "speculum",
+      "source_owner": "runtime",
+      "depends_on": [
+        "manifest"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional visual glass; not an execution authority",
+      "proposed_activation": false
+    },
+    {
+      "id": "notifications",
+      "source_owner": "runtime",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional Pulse/voice; Constellation deferred",
+      "proposed_activation": false
+    },
+    {
+      "id": "organs",
+      "source_owner": "runtime",
+      "depends_on": [
+        "governance"
+      ],
+      "migration_class": "reconcile",
+      "description": "Six cognitive lifecycle organs integrated with five Cambium operating organs; source, admission and behavior stay distinct",
+      "proposed_activation": false
+    },
+    {
+      "id": "native-clients",
+      "source_owner": "distribution",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reauthenticate",
+      "description": "Codex/Claude/OpenCode/Cursor/Kimi/Grok: independent auth and sessions",
+      "proposed_activation": false
+    },
+    {
+      "id": "cambium",
+      "source_owner": "cambium",
+      "depends_on": [],
+      "migration_class": "leave-remote",
+      "description": "Integrated compiler/admission and receipt authority connected to Temperance and organs; remote state stays owned",
+      "proposed_activation": false,
+      "integration_kind": "external-only",
+      "bundled_with_temperance": false
+    },
+    {
+      "id": "hermes",
+      "source_owner": "hermes",
+      "depends_on": [],
+      "migration_class": "leave-remote",
+      "description": "Separate Cloudflare-first execution/delivery plant",
+      "proposed_activation": false,
+      "optional_integrations": [
+        "cambium"
+      ]
+    },
+    {
+      "id": "cloud-services",
+      "source_owner": "hermes",
+      "depends_on": [],
+      "migration_class": "leave-remote",
+      "description": "Declared D1/R2/KV/Queues/Vectorize/Access and optional EC2; no fresh live inventory",
+      "proposed_activation": false
+    },
+    {
+      "id": "vault",
+      "source_owner": "vault",
+      "depends_on": [],
+      "migration_class": "restore-selectively",
+      "description": "Approved knowledge attachment; no private corpus export",
+      "proposed_activation": false
+    },
+    {
+      "id": "snowgloves",
+      "source_owner": "snowgloves",
+      "depends_on": [],
+      "migration_class": "external-independent",
+      "description": "Separate optional product; existing Textual TUI and draft node/fleet plans are context only",
+      "proposed_activation": false,
+      "integration_kind": "external-only",
+      "bundled_with_temperance": false
+    },
+    {
+      "id": "secrets-sync",
+      "source_owner": "cambium",
+      "depends_on": [],
+      "migration_class": "exclude",
+      "description": "Design-only separate enrollment/sync service; no migration prerequisite",
+      "proposed_activation": false
+    },
+    {
+      "id": "antahkarana",
+      "source_owner": "antahkarana",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional headless JSON CLI; desktop separate",
+      "proposed_activation": false
+    },
+    {
+      "id": "session-atlas",
+      "source_owner": "session-atlas",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "regenerate",
+      "description": "Optional projection; native source records excluded from Git",
+      "proposed_activation": false
+    },
+    {
+      "id": "factor",
+      "source_owner": "factor",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "restore-selectively",
+      "description": "Selected company/department pack with scoped source knowledge",
+      "proposed_activation": false
+    },
+    {
+      "id": "meristem",
+      "source_owner": "meristem",
+      "depends_on": [],
+      "migration_class": "restore-selectively",
+      "description": "Selected brand project references; entry point remains draft-held",
+      "proposed_activation": false
+    },
+    {
+      "id": "browser-media-native",
+      "source_owner": "distribution",
+      "depends_on": [
+        "foundation"
+      ],
+      "migration_class": "reinstall",
+      "description": "Optional role packs with measured resource and access budgets",
+      "proposed_activation": false
+    }
+  ],
+  "existing_personal_module_registry": {
+    "source_ref": "runtime:router/module-registry.v4.json",
+    "schema": "temperance.module-registry.v1",
+    "count": 21,
+    "module_ids": [
+      "app.constellation",
+      "projection.manifest",
+      "projection.speculum",
+      "executor.superset",
+      "delegate.hands",
+      "transport.a2a",
+      "organ.runtime",
+      "projection.banner-island",
+      "executor.inline",
+      "executor.batch",
+      "executor.broker",
+      "executor.cli",
+      "harness.claude-phase-role",
+      "harness.codex",
+      "harness.grok",
+      "harness.opencode",
+      "harness.cursor",
+      "harness.antigravity",
+      "harness.temperance",
+      "provider.omniroute",
+      "provider.native"
+    ],
+    "all_default_disabled": true
+  },
+  "local_observation": {
+    "kind": "read-only-presence-metadata",
+    "listener_ports": [
+      20128,
+      20129,
+      8766,
+      8768,
+      8770,
+      31337,
+      5173
+    ],
+    "listeners_are_health_proof": false,
+    "service_metadata_is_activation_proof": false,
+    "private_credential_or_session_stores_read": false,
+    "external_inventory_performed": false
+  },
+  "verification": {
+    "existing_tui_slice": {
+      "passed": 26,
+      "failed": 3,
+      "errors": 3,
+      "test_files": 5,
+      "status": "dependency-closure-unavailable",
+      "loader_errors": [
+        "@opentui/core/testing unavailable in two test files",
+        "ajv/dist/2020.js unavailable in operation-executor test"
+      ]
+    },
+    "routed_review_provider_attribution": "unverified",
+    "physical_migration": "not-performed",
+    "installation": "not-performed",
+    "cloud_mutation": "not-performed",
+    "cato": "not-run-fixed-model-unsupported-on-account",
+    "post_deliverable_advisor": "timed-out-after-45000ms-no-verdict",
+    "documentation_criteria": {
+      "passed": 27,
+      "total": 27,
+      "implementation_acceptance": false
+    },
+    "growth_documentation": {
+      "status": "passed-documentation-only",
+      "coverage": 100,
+      "vault_writes_performed": false,
+      "concurrent_growth_source_drift_files": [
+        "profiles/README.md"
+      ],
+      "historical_external_handoff_drift": "Snow Gloves handoff changed; previous source cut retained, no current-body or runtime claim",
+      "criteria_passed": 32,
+      "criteria_total": 32,
+      "current_source_refs_matched": 163,
+      "historical_source_refs_with_drift": 1,
+      "advisor": "internal-timeout-30000ms-no-verdict",
+      "unrelated_baseline_files_unchanged": 49,
+      "saved_goal_unchanged": true
+    }
+  },
+  "product_boundaries": {
+    "operator_requirement": "Cambium and Temperance work together with connected organs; do not merge this ecosystem into Snow Gloves OS",
+    "migration_tool_owner": "distribution",
+    "cambium": "integrated operational/compiler owner and selected project/service attachment; no D1 or deployment effects from setup",
+    "snowgloves": "outside migration product; independent optional product, installer, runtime, state and roadmap",
+    "profiles_require_snowgloves": false,
+    "snowgloves_owned_effects_allowed": false,
+    "cambium_operational_effects_allowed": false
+  },
+  "ecosystem": {
+    "status": "integrated-source-map-not-runtime-catalog",
+    "operating_organs": [
+      {
+        "id": "cambium.genesis",
+        "name": "Genesis",
+        "role": "shape intent into a bounded brief or WorkObject seed",
+        "authority": "bounded operating organ; Cambium D1 retains admission",
+        "source_ref": "vault:20-operations/growth/department/cambium-temperance-organ-atlas.md"
+      },
+      {
+        "id": "cambium.taste",
+        "name": "Taste",
+        "role": "judge resonance, quality, and brand conformance",
+        "authority": "bounded operating organ; Cambium D1 retains admission",
+        "source_ref": "vault:20-operations/growth/department/cambium-temperance-organ-atlas.md"
+      },
+      {
+        "id": "cambium.hands",
+        "name": "Hands",
+        "role": "turn an admitted phase contract into bounded implementation",
+        "authority": "bounded operating organ; Cambium D1 retains admission",
+        "source_ref": "vault:20-operations/growth/department/cambium-temperance-organ-atlas.md"
+      },
+      {
+        "id": "cambium.will",
+        "name": "Will",
+        "role": "interpret evidence and prepare governed movement",
+        "authority": "bounded operating organ; Cambium D1 retains admission",
+        "source_ref": "vault:20-operations/growth/department/cambium-temperance-organ-atlas.md"
+      },
+      {
+        "id": "cambium.cortex",
+        "name": "Cortex",
+        "role": "retrieve and preserve source-linked derived memory",
+        "authority": "bounded operating organ; Cambium D1 retains admission",
+        "source_ref": "vault:20-operations/growth/department/cambium-temperance-organ-atlas.md"
+      }
+    ],
+    "cognitive_organs": [
+      {
+        "id": "temperance.vestibule",
+        "name": "Vestibule",
+        "role": "orient a new session from federated memory and current project state",
+        "authority": "bounded lifecycle organ; no D1 authority",
+        "source_ref": "runtime:router/organs.json"
+      },
+      {
+        "id": "temperance.adytum",
+        "name": "Adytum",
+        "role": "compose read-only context across the four sovereign planes",
+        "authority": "bounded lifecycle organ; no D1 authority",
+        "source_ref": "runtime:router/organs.json"
+      },
+      {
+        "id": "temperance.nutrix",
+        "name": "Nutrix",
+        "role": "harvest session learning into the local signal plane",
+        "authority": "bounded lifecycle organ; no D1 authority",
+        "source_ref": "runtime:router/organs.json"
+      },
+      {
+        "id": "temperance.auspex",
+        "name": "Auspex",
+        "role": "probe local substrate health and prepare scoped healing",
+        "authority": "bounded lifecycle organ; no D1 authority",
+        "source_ref": "runtime:router/organs.json"
+      },
+      {
+        "id": "temperance.circulator",
+        "name": "Circulator",
+        "role": "assemble a periodic recommendation digest",
+        "authority": "bounded lifecycle organ; no D1 authority",
+        "source_ref": "runtime:router/organs.json"
+      },
+      {
+        "id": "temperance.praeceptor",
+        "name": "Praeceptor",
+        "role": "prepare a small daily advisory set",
+        "authority": "bounded lifecycle organ; no D1 authority",
+        "source_ref": "runtime:router/organs.json"
+      }
+    ],
+    "support_surfaces": [
+      {
+        "id": "temperance.vas",
+        "name": "VAS / manifest bridge",
+        "role": "publish bounded local manifest and lifecycle projections",
+        "not_an_organ": true
+      },
+      {
+        "id": "temperance.athanor",
+        "name": "Athanor",
+        "role": "carry bounded voice and status notifications",
+        "not_an_organ": true
+      },
+      {
+        "id": "temperance.mercurius",
+        "name": "Mercurius / OmniRoute",
+        "role": "provide model transport and failover",
+        "not_an_organ": true
+      },
+      {
+        "id": "temperance.speculum",
+        "name": "Speculum",
+        "role": "render operator-facing projections",
+        "not_an_organ": true
+      },
+      {
+        "id": "temperance.constellation",
+        "name": "Constellation",
+        "role": "optional local companion view",
+        "not_an_organ": true
+      }
+    ],
+    "will_desks": [
+      "head-of-marketing",
+      "copywriter",
+      "creative-strategist",
+      "launch-lead",
+      "seo-lead",
+      "analyst"
+    ],
+    "existing_krebs_roles": [
+      "ceo",
+      "scientist",
+      "engineer",
+      "designer",
+      "synthesist",
+      "hermes"
+    ],
+    "cell_verbs": {
+      "extract": "dated role inbox",
+      "feed": "one item becomes a cell draft",
+      "read": "follow bounded references without mutation",
+      "edit": "owned cell/inbox mutation with provenance"
+    },
+    "authority_spine": [
+      "Vision",
+      "Mission",
+      "ISA acceptance",
+      "GSD finite plan",
+      "Cambium D1 admission",
+      "pinned loadout and selected execution plant",
+      "independent artifact verification",
+      "immutable receipt",
+      "bounded learning and next-intent proposal",
+      "fresh owner decision"
+    ],
+    "execution_bindings": {
+      "mac-plant": "local Hands workspace and endpoint",
+      "hermes-plant": "remote admitted company-agent execution",
+      "phloem": "off-box door to Hermes plant",
+      "clio-door": "desktop identity/access door to Hermes plant"
+    },
+    "interlinks": [
+      {
+        "from": "cambium.genesis",
+        "to": "cambium.taste",
+        "kind": "contract",
+        "payload": "structured DNA and asset provenance",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.taste",
+        "to": "cambium.hands",
+        "kind": "contract",
+        "payload": "quality constraints and reroll verdict",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.hands",
+        "to": "cambium.will",
+        "kind": "artifact",
+        "payload": "verified artifact and bounded handoff",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.cortex",
+        "to": "cambium.genesis",
+        "kind": "derived-context",
+        "payload": "source-linked retrieval",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.cortex",
+        "to": "cambium.taste",
+        "kind": "derived-context",
+        "payload": "prior exemplars and evidence",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.cortex",
+        "to": "cambium.hands",
+        "kind": "derived-context",
+        "payload": "relevant receipts and constraints",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.cortex",
+        "to": "cambium.will",
+        "kind": "derived-context",
+        "payload": "audience/evidence retrieval",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "temperance.vestibule",
+        "to": "cambium.hands",
+        "kind": "context",
+        "payload": "project/phase orientation; admission separate",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "temperance.adytum",
+        "to": "cambium.will",
+        "kind": "proposal",
+        "payload": "one reviewable next-action proposal",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.hands",
+        "to": "temperance.nutrix",
+        "kind": "learning",
+        "payload": "verified outcomes and redacted signals",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "temperance.nutrix",
+        "to": "cambium.cortex",
+        "kind": "proposal",
+        "payload": "bounded lesson candidate; no truth promotion",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "temperance.auspex",
+        "to": "temperance.vestibule",
+        "kind": "observation",
+        "payload": "scoped health evidence; no admission grant",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "temperance.nutrix",
+        "to": "temperance.circulator",
+        "kind": "evidence",
+        "payload": "redacted learning signals",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "cambium.cortex",
+        "to": "temperance.praeceptor",
+        "kind": "derived-context",
+        "payload": "fresh source-linked context",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "temperance.circulator",
+        "to": "cambium.will",
+        "kind": "proposal",
+        "payload": "recommendation digest",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      },
+      {
+        "from": "temperance.praeceptor",
+        "to": "cambium.hands",
+        "kind": "proposal",
+        "payload": "possible task; fresh human/ISA/GSD admission required",
+        "authority_transfer": false,
+        "runtime_acceptance": false
+      }
+    ],
+    "migration_connections_required": true,
+    "snow_gloves_required": false,
+    "topic_join": {
+      "cambium_topic_count": 8,
+      "hermes_topic_count": 9,
+      "cambium_manifest_sha256": "edcbbb34bb468107400767442df8c772c418a40a9e3747651404a23ec33c7d2a",
+      "hermes_manifest_sha256": "8680362398721c473cb768cf977d5d43d3621720d5edb35d871513ff4f93a630",
+      "missing_consumer_topic": "adytum",
+      "status": "source-parity-held",
+      "deployment_proof": false
+    },
+    "capability_hit": {
+      "status": "design_only",
+      "activation_enabled": false,
+      "cadence_modes": 4,
+      "enabled_cadences": 0,
+      "console_schedule_count_label": 2,
+      "source_ref": "vault:20-operations/growth/whitepaper/telegram-capability-hit-system.v1.json"
+    }
+  },
+  "growth_review": {
+    "coverage_ref": "2026-10-01-growth-file-coverage.json",
+    "report_ref": "2026-10-01-growth-ecosystem-review.md",
+    "files": 100,
+    "operating_organs": 5,
+    "cognitive_organs": 6,
+    "new_agents_required": false,
+    "vault_written": false,
+    "physical_migration": false
+  }
+}

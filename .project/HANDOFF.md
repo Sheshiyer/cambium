@@ -1,5 +1,56 @@
 # Project handoff
 
+### 2026-10-01 complete growth ecosystem deep review
+
+- Read/reviewed all 100 growth files, including ignored assets; added the
+  full-folder coverage ledger and detailed growth ecosystem review.
+- Refined the Mac review/map/design/plan around one integrated Cambium,
+  Temperance and organ ecosystem: five operating organs, six cognitive
+  organs, six Will desks and typed work/evidence/learning connections.
+  Separate owners preserve integration. Snow Gloves stays outside the setup.
+- Current Cambium topic source has eight routes; Hermes owner contract has
+  nine including Adytum. Actual connection stays held pending bounded owner
+  source reconciliation. No topic, manifest or service was changed.
+- Found eleven unresolved local links, all 29 growth-cell files lacking the
+  four verb keys in frontmatter, stale full-PDF/HTML versions and nonportable
+  renderer/CDN assets. Repairs are proposals, not vault changes.
+- All 32 review criteria pass; 100 final growth hashes match. One concurrent
+  profile change was re-read; Snow Gloves' changed handoff is retained as a
+  historical cut. Saved goal and 49 unrelated baseline files remain unchanged.
+- Advisor returned an internal timeout, no verdict. Routed review claims
+  were independently checked; no independent audit approval is inferred.
+- Next source slice is proposed in the distribution plan: typed ecosystem
+  joins and read-only inspect/export/diff, followed by owned recovery/TUI and
+  both physical Mac proofs. No implementation, installation, runtime,
+  provider, publication or cloud action is authorized by this checkpoint.
+
+### 2026-10-01 modular Mac migration architecture review
+
+- Added a source-grounded review, hashed evidence map, proposed design and
+  finite implementation plan under `docs/architecture/` and
+  `docs/superpowers/`. The operator confirmed workstation replacement and
+  always-on node addition are equally important.
+- Operator requires Cambium, Temperance Engine and Snow Gloves OS to stay
+  separate products, runtimes, installers, state and authority. Both Mac
+  profiles work without Snow Gloves; its lifecycle and Cambium operational
+  mutations are outside this plan.
+- Reuse the existing distribution OpenTUI wizard/headless controller and
+  lifecycle journals. Personal OmniRoute and distribution 9router remain
+  distinct; unsupported joins hold rather than switching backend.
+- Focused existing reuse tests: 26 pass, three loader errors because
+  `@opentui/core/testing` and `ajv/dist/2020.js` are absent in the inspected
+  local dependency closure. This is not a green TUI readiness claim.
+- Root ISA review criteria ISC-2506..2532 pass 27/27 for documentation only;
+  source hash joins pass 51/51. Cato could not run on its unsupported fixed
+  model; the final Advisor attempt timed out. No independent approval is inferred.
+- Review criteria are separate from the preserved
+  OpenAI goal and its 11/42 progress. Physical migration, restore, boot,
+  sign-in, enrollment and remote handoff remain unperformed.
+- No host/service/provider configuration, credentials, native sessions,
+  Vault contents, cloud state, deployment or external delivery changed.
+  Use `.planning/HANDOFF.json` for this review's current pickup.
+
+
 ### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
 
 - The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.

@@ -1,0 +1,2052 @@
+{
+  "schema": "cambium.growth-source-review.v1",
+  "status": "reviewed-source-only",
+  "observed_date": "2026-10-01",
+  "root_ref": "vault:20-operations/growth",
+  "scope": "Complete local folder including hidden, ignored and untracked files",
+  "totals": {
+    "files": 100,
+    "bytes": 2341275,
+    "by_extension": {
+      "metadata": 1,
+      ".md": 78,
+      ".html": 3,
+      ".pdf": 2,
+      ".json": 2,
+      ".mjs": 1,
+      ".js": 2,
+      ".ttf": 8,
+      ".txt": 2,
+      ".css": 1
+    },
+    "by_git_state": {
+      "ignored-local": 16,
+      "tracked": 81,
+      "untracked": 3
+    }
+  },
+  "method_limits": [
+    "Markdown content reviewed in full; architecture summaries do not copy private editorial bodies",
+    "HTML semantic and inline-behavior inspection is not browser acceptance",
+    "All PDF pages text-extracted and source-version checked; no all-page pixel-perfect claim",
+    "Font metadata and notices reviewed; no independent license or binary-security audit",
+    "Minified KaTeX provenance, version and dependency inspection is not full security review",
+    "Historical public URLs were read as source claims, not reverified on the internet",
+    "Routed advisory coverage and provider attribution were not accepted as proof"
+  ],
+  "structural_observations": {
+    "explicit_markdown_local_links": 231,
+    "unresolved_links": [
+      {
+        "source": "department/01-head-of-marketing/README.md",
+        "line": 37,
+        "target": "../../../10-brand-essence/05-positioning.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/01-head-of-marketing/competitor-teardowns/README.md",
+        "line": 30,
+        "target": "../../../../10-brand-essence/07-competitive-landscape.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/01-head-of-marketing/positioning/README.md",
+        "line": 35,
+        "target": "../../../../10-brand-essence/05-positioning.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/01-head-of-marketing/positioning/README.md",
+        "line": 36,
+        "target": "../../../../10-brand-essence/06-buyer-persona.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/01-head-of-marketing/positioning/README.md",
+        "line": 37,
+        "target": "../../../../10-brand-essence/04-voice-and-tone.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/01-head-of-marketing/positioning/README.md",
+        "line": 39,
+        "target": "../../../../10-brand-essence/brand-dna.json",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/03-creative-strategist/ig-saved-harvest-2026-09-23.md",
+        "line": 150,
+        "target": "../../06-analyst/spotting-ai-slop/README.md",
+        "exists": false,
+        "within_growth": true
+      },
+      {
+        "source": "department/05-seo-lead/app-store-rankings/README.md",
+        "line": 29,
+        "target": "../../../../40-products/fitcheck/README.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/05-seo-lead/seo/README.md",
+        "line": 32,
+        "target": "../../../../10-brand-essence/public-website-snapshot.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/05-seo-lead/sxo/README.md",
+        "line": 36,
+        "target": "../../../../10-brand-essence/public-website-snapshot.md",
+        "exists": false,
+        "within_growth": false
+      },
+      {
+        "source": "department/06-analyst/site-audits/README.md",
+        "line": 29,
+        "target": "../../../../10-brand-essence/public-website-snapshot.md",
+        "exists": false,
+        "within_growth": false
+      }
+    ],
+    "growth_cells": [
+      {
+        "path": "department/01-head-of-marketing/competitor-teardowns/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/01-head-of-marketing/positioning/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/01-head-of-marketing/pricing/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "empty"
+      },
+      {
+        "path": "department/02-copywriter/email-sequences/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "empty"
+      },
+      {
+        "path": "department/02-copywriter/graded-copy/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/02-copywriter/graded-copy/current.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "graded"
+      },
+      {
+        "path": "department/02-copywriter/social-posts/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "graded"
+      },
+      {
+        "path": "department/02-copywriter/social-posts/current.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "graded"
+      },
+      {
+        "path": "department/03-creative-strategist/fatigue-vs-dead-audience/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "empty"
+      },
+      {
+        "path": "department/03-creative-strategist/hooks/2026-09-23-ig-high-signal.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "draft"
+      },
+      {
+        "path": "department/03-creative-strategist/hooks/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "draft"
+      },
+      {
+        "path": "department/03-creative-strategist/ig-saved-harvest-2026-09-23.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "inbox"
+      },
+      {
+        "path": "department/03-creative-strategist/next-tests/2026-09-23-ig-high-signal.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "draft"
+      },
+      {
+        "path": "department/03-creative-strategist/next-tests/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "draft"
+      },
+      {
+        "path": "department/03-creative-strategist/taste-saved-map.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "inbox"
+      },
+      {
+        "path": "department/04-launch-lead/four-weeks-before/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/04-launch-lead/product-hunt-hour-by-hour/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "held"
+      },
+      {
+        "path": "department/05-seo-lead/aeo/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "draft"
+      },
+      {
+        "path": "department/05-seo-lead/aeo/sapling-iverif-claim-table.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "draft"
+      },
+      {
+        "path": "department/05-seo-lead/app-store-rankings/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "held"
+      },
+      {
+        "path": "department/05-seo-lead/deo/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "empty"
+      },
+      {
+        "path": "department/05-seo-lead/geo/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/05-seo-lead/seo/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "empty"
+      },
+      {
+        "path": "department/05-seo-lead/smo/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/05-seo-lead/sxo/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/06-analyst/site-audits/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "empty"
+      },
+      {
+        "path": "department/06-analyst/spotting-ai-slop/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      },
+      {
+        "path": "department/06-analyst/spotting-ai-slop/current.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "graded"
+      },
+      {
+        "path": "department/06-analyst/test-design/README.md",
+        "missing_verb_frontmatter": [
+          "edit",
+          "extract",
+          "feed",
+          "read"
+        ],
+        "status": "pointer"
+      }
+    ],
+    "html": [
+      {
+        "path": "whitepaper/capability-console/telegram-capability-console.html",
+        "semantic_characters": 4807,
+        "inline_scripts": 1,
+        "references": [
+          "../telegram-capability-hit-system.v1.json",
+          "../telegram-capability-hit-system.md",
+          "../vendor/fonts/InstrumentSans-Regular.ttf",
+          "../vendor/fonts/InstrumentSans-Bold.ttf",
+          "../vendor/fonts/InstrumentSerif-Regular.ttf",
+          "../vendor/fonts/InstrumentSerif-Italic.ttf",
+          "../vendor/fonts/IBMPlexMono-Regular.ttf",
+          "../vendor/fonts/IBMPlexMono-Bold.ttf"
+        ],
+        "missing": []
+      },
+      {
+        "path": "whitepaper/infinite-engine-full.html",
+        "semantic_characters": 52791,
+        "inline_scripts": 3,
+        "references": [
+          "vendor/katex.min.css",
+          "../department/cambium-temperance-organ-atlas.md",
+          "telegram-capability-hit-system.md",
+          "telegram-capability-hit-system.v1.json",
+          "capability-console/telegram-capability-console.html",
+          "../department/cambium-temperance-organ-atlas.md#genesis",
+          "../department/cambium-temperance-organ-atlas.md#taste",
+          "../department/cambium-temperance-organ-atlas.md#hands",
+          "../department/cambium-temperance-organ-atlas.md#will",
+          "../department/cambium-temperance-organ-atlas.md#cortex",
+          "../department/cambium-temperance-organ-atlas.md#genesis",
+          "../department/cambium-temperance-organ-atlas.md#taste",
+          "../department/cambium-temperance-organ-atlas.md#hands",
+          "../department/cambium-temperance-organ-atlas.md#will",
+          "../department/cambium-temperance-organ-atlas.md#cortex",
+          "../department/cambium-temperance-organ-atlas.md#vestibule",
+          "../department/cambium-temperance-organ-atlas.md#adytum",
+          "../department/cambium-temperance-organ-atlas.md#nutrix",
+          "../department/cambium-temperance-organ-atlas.md#auspex",
+          "../department/cambium-temperance-organ-atlas.md#circulator",
+          "../department/cambium-temperance-organ-atlas.md#praeceptor",
+          "../department/cambium-temperance-organ-atlas.md#vestibule",
+          "../department/cambium-temperance-organ-atlas.md#adytum",
+          "../department/cambium-temperance-organ-atlas.md#nutrix",
+          "../department/cambium-temperance-organ-atlas.md#auspex",
+          "../department/cambium-temperance-organ-atlas.md#circulator",
+          "../department/cambium-temperance-organ-atlas.md#praeceptor",
+          "../department/cambium-temperance-organ-atlas.md#support-surfaces",
+          "../department/cambium-temperance-organ-atlas.md#support-surfaces",
+          "../department/cambium-temperance-organ-atlas.md#support-surfaces",
+          "../department/cambium-temperance-organ-atlas.md#support-surfaces",
+          "../department/cambium-temperance-organ-atlas.md#support-surfaces",
+          "vendor/katex.min.js",
+          "vendor/auto-render.min.js",
+          "vendor/fonts/InstrumentSerif-Regular.ttf",
+          "vendor/fonts/InstrumentSerif-Italic.ttf",
+          "vendor/fonts/InstrumentSans-Regular.ttf",
+          "vendor/fonts/InstrumentSans-Italic.ttf",
+          "vendor/fonts/InstrumentSans-Bold.ttf",
+          "vendor/fonts/InstrumentSans-BoldItalic.ttf",
+          "vendor/fonts/IBMPlexMono-Regular.ttf",
+          "vendor/fonts/IBMPlexMono-Bold.ttf"
+        ],
+        "missing": []
+      },
+      {
+        "path": "whitepaper/infinite-engine-one-pager.html",
+        "semantic_characters": 3219,
+        "inline_scripts": 3,
+        "references": [
+          "vendor/katex.min.css",
+          "vendor/katex.min.js",
+          "vendor/auto-render.min.js",
+          "vendor/fonts/InstrumentSerif-Regular.ttf",
+          "vendor/fonts/InstrumentSerif-Italic.ttf",
+          "vendor/fonts/InstrumentSans-Regular.ttf",
+          "vendor/fonts/InstrumentSans-Italic.ttf",
+          "vendor/fonts/InstrumentSans-Bold.ttf",
+          "vendor/fonts/InstrumentSans-BoldItalic.ttf",
+          "vendor/fonts/IBMPlexMono-Regular.ttf",
+          "vendor/fonts/IBMPlexMono-Bold.ttf"
+        ],
+        "missing": []
+      }
+    ],
+    "katex": {
+      "observed_version": "0.16.11",
+      "stylesheet_remote_font_urls": 60,
+      "offline_asset_closure": false
+    },
+    "pdfs": [
+      {
+        "path": "whitepaper/infinite-engine-full.pdf",
+        "pages": 31,
+        "page_sizes": [
+          [
+            594.96,
+            841.92
+          ]
+        ],
+        "text_characters": 53273,
+        "empty_text_pages": []
+      },
+      {
+        "path": "whitepaper/infinite-engine-one-pager.pdf",
+        "pages": 1,
+        "page_sizes": [
+          [
+            594.96,
+            841.92
+          ]
+        ],
+        "text_characters": 3478,
+        "empty_text_pages": []
+      }
+    ],
+    "project_map": "effectful enrollment input; exact plan fingerprint and source-map readback required by owning adapter",
+    "capability_hit_map": "design_only; global activation false and four cadence modes disabled"
+  },
+  "files": [
+    {
+      "path": ".DS_Store",
+      "bytes": 6148,
+      "lines": 1,
+      "sha256": "14be4e1bf1bfae2fc763c7c4e13b0e25a21f80e6d9dfdb822752714409aaa9dc",
+      "suffix": "",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "finder-metadata-type-size-digest-only",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "2026-08-24-x-linkedin-case-study-calendar.md",
+      "bytes": 6510,
+      "lines": 126,
+      "sha256": "0683042d0807a6e2504799f826ec5813a6dde171ced16841b4fba6793d73c084",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "2026-10-06-linkedin-sapling-field-notes.md",
+      "bytes": 30386,
+      "lines": 465,
+      "sha256": "339b585dcbc165e2bb158ee884589edd190c48fbf9cb4b310f2b1b87790df181",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "untracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3095,
+      "lines": 60,
+      "sha256": "50cd73ee236dbbb2b3828718a89672a378cbb0f64691f93bb3001ba980c7ea65",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "cambium-temperance-social-workflow.md",
+      "bytes": 27684,
+      "lines": 527,
+      "sha256": "a2cf18d17979e7c8ae596018628ce28b831509095d565e082a84cfb8fce6dc10",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "department/01-head-of-marketing/README.md",
+      "bytes": 1245,
+      "lines": 37,
+      "sha256": "9475913658d43b766475872d6abab0ff8c60b263710e2980fc4daa626aac4d85",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/01-head-of-marketing/_inbox.md",
+      "bytes": 3031,
+      "lines": 65,
+      "sha256": "c397c0b4b4390643772aae9e00cf8a9eea8cbfa416e1b3fd4a0243f32c1244e9",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/01-head-of-marketing/competitor-teardowns/README.md",
+      "bytes": 1499,
+      "lines": 43,
+      "sha256": "93c4ba91e0c9252c5fcf8515b7ec0d8eb1d29575f76a18a77abfc76f81432b86",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/01-head-of-marketing/positioning/README.md",
+      "bytes": 1994,
+      "lines": 53,
+      "sha256": "7aaf64156f24a157b6aa373adc9b5c2679b4314611271fdc0edf9dc58474e5aa",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/01-head-of-marketing/pricing/README.md",
+      "bytes": 1124,
+      "lines": 38,
+      "sha256": "ab1c1864b3f44614bb9f2ca8258f47d5c6f3d4b548ffd2985fd106fc2bdd5f87",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/README.md",
+      "bytes": 1198,
+      "lines": 37,
+      "sha256": "7ad8b7cd54795e93c1c110c5b9f121b31db37a090797d08bebab8314059aa6a4",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/_inbox.md",
+      "bytes": 1889,
+      "lines": 48,
+      "sha256": "b1ae89a80a63a55b17ef5ce6502e4c855e4aeda7d558528757b8cf60e439ce7e",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/email-sequences/README.md",
+      "bytes": 1005,
+      "lines": 36,
+      "sha256": "e531946406d3c741aef65e1df4741a3e1ef776a167047eef63ae985d4f8216e9",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/graded-copy/README.md",
+      "bytes": 1711,
+      "lines": 47,
+      "sha256": "3fe3ee68cef5dbbe88f64fe5133a22ab287fe822ec7739b071bececcfc0462c1",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/graded-copy/current.md",
+      "bytes": 1414,
+      "lines": 41,
+      "sha256": "6e613cbc1a1797f3539fb6b84fb1eb25961de8e68ac8a80f05845c8594d367da",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/social-posts/2026-10-06-snow-gloves-os-reinstall-contract.md",
+      "bytes": 5663,
+      "lines": 106,
+      "sha256": "c5a54b925cad145fef6751f10f4379a01a120932193674593c7a5b354c4018a7",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "untracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/social-posts/README.md",
+      "bytes": 2192,
+      "lines": 51,
+      "sha256": "ac890de3b6dd653a7f24420bf0f4c85126b231b0b35dbdfb6f0cdc7dfd14c638",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/02-copywriter/social-posts/current.md",
+      "bytes": 5402,
+      "lines": 75,
+      "sha256": "e89b7e7fa98102a4b682acb7a2c4c26e58a0acf4fd95f6aa8783196451a6966a",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/README.md",
+      "bytes": 1190,
+      "lines": 33,
+      "sha256": "1e6e1261f2388d33ae43088c5564105d4f4861e94fed97646c1dd05f834de342",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/_inbox.md",
+      "bytes": 6356,
+      "lines": 126,
+      "sha256": "1093900cbcf66dd71ee1a477533eb513df1e193d0d84e4ed20b0e4a108e96b23",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/fatigue-vs-dead-audience/README.md",
+      "bytes": 1305,
+      "lines": 44,
+      "sha256": "2741c6f6472b8e363e7f186d5e0e4e1c9667a2e30af2b3c093e095c2745cd9f1",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/hooks/2026-09-23-ig-high-signal.md",
+      "bytes": 1701,
+      "lines": 39,
+      "sha256": "14e1ca582194b26c9d83eceeb15eb7817ababdd293ae1ea48f11637bd9017ca0",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/hooks/README.md",
+      "bytes": 2073,
+      "lines": 50,
+      "sha256": "bd4aa37697bfd1d529e1074838bfd43cf487cfc69ab29b53d033303c32d8c060",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/ig-saved-harvest-2026-09-23.md",
+      "bytes": 8824,
+      "lines": 157,
+      "sha256": "57fe0e66a1a9034be4c5440151bf911a1b7856a4673038ea4123ac4f9b17cce8",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/next-tests/2026-09-23-ig-high-signal.md",
+      "bytes": 1436,
+      "lines": 37,
+      "sha256": "8b5b2b9f16f4b0805d3f2514141ba3b24ae39ade0bc1f362b42f6be81b3f75fc",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/next-tests/README.md",
+      "bytes": 2018,
+      "lines": 51,
+      "sha256": "8d7b261e636bc8e70842ff51ad7d50b72e993962773e3fa6a637462416c72783",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/03-creative-strategist/taste-saved-map.md",
+      "bytes": 6102,
+      "lines": 111,
+      "sha256": "4b188c698d29a40613b2b05119771e196abd1a88d512d48c443857bb4c0991f2",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/04-launch-lead/README.md",
+      "bytes": 838,
+      "lines": 30,
+      "sha256": "0bed83e78bee695565590ff9e23ba35855c88a765f90bc90e5efdb45143ad3a3",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/04-launch-lead/_inbox.md",
+      "bytes": 936,
+      "lines": 29,
+      "sha256": "34819a413a8211952b599c811e649061c2e7816acdd2b8dec8541eba96033825",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/04-launch-lead/four-weeks-before/README.md",
+      "bytes": 1650,
+      "lines": 49,
+      "sha256": "bce7f60f5b4e0e6fab14a337eeb92150e34e7d847d164d8bc3661a86425b411f",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/04-launch-lead/product-hunt-hour-by-hour/README.md",
+      "bytes": 947,
+      "lines": 29,
+      "sha256": "1d5ee53286540fb15d14f8c7767f9f0b15af1ce03ef25214afd37601211219a1",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/README.md",
+      "bytes": 1409,
+      "lines": 37,
+      "sha256": "7f4f58197aa09fd2f2c6eb9295b571f049744a7bb39e307ac311d4afd45d85b4",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/_inbox.md",
+      "bytes": 3451,
+      "lines": 67,
+      "sha256": "e568b82277931f2d4d9e1034e1255b409636ea658476214388fda9e5019ac4f4",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/aeo/README.md",
+      "bytes": 1654,
+      "lines": 50,
+      "sha256": "db804630561a217e5a3cc143237f78c85167cfbc6b0330b039ba79ee22b17611",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/aeo/sapling-iverif-claim-table.md",
+      "bytes": 8491,
+      "lines": 140,
+      "sha256": "3fc792c196d6c1f5c69233d94c2cdc4fffcb149f91314998bb22437e49e8d48d",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/app-store-rankings/README.md",
+      "bytes": 864,
+      "lines": 29,
+      "sha256": "8343763875b6a8456f649f7b4fc535a30b3647d8d29840bdded50faf968c64b2",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/deo/README.md",
+      "bytes": 2025,
+      "lines": 60,
+      "sha256": "cce5a9a044328a0ef4d0264d0b8571165319b2b23e32eb10deefdcae92b01d09",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/geo/README.md",
+      "bytes": 1990,
+      "lines": 56,
+      "sha256": "641f611721e837e16cea93b172f0e49f6ff25d0a64f6256133af294cefd53b26",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/runs/2026-09-22-sapling-iverif.md",
+      "bytes": 8789,
+      "lines": 166,
+      "sha256": "a9240c525fc898bd08cb5a446729463250890f9d586ebe708d68cc337107aca5",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/runs/2026-09-22-thoughtseed-cambium.md",
+      "bytes": 5945,
+      "lines": 138,
+      "sha256": "89a83952989847504e3e28cbea42715a965b6a966a6bd11b302fc5c8d41e0091",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/runs/2026-09-23-brand-thoughtseed.md",
+      "bytes": 7906,
+      "lines": 163,
+      "sha256": "7d442ec3864830de07d63d937170a791260680a188ec63044845212d862ef0c5",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/runs/2026-09-23-sapling-iverif-flow.md",
+      "bytes": 5862,
+      "lines": 148,
+      "sha256": "e2ce6e7c54d02f33d4c5278fe294b8044f034051acb7f29f1a067f681c64170a",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/runs/README.md",
+      "bytes": 1952,
+      "lines": 57,
+      "sha256": "b34ae840d66e2f645e0f710e90228666965f9e19d681b5b847c578e90eaf45cc",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/runs/_schema.md",
+      "bytes": 1944,
+      "lines": 57,
+      "sha256": "deef79105dac044ffe75cda0765e40fc8b8821b8d4ab2bce64c5ac568e449b92",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/search-stack.md",
+      "bytes": 6981,
+      "lines": 136,
+      "sha256": "c912b16a9bfdefcea0e2963d9f7b3fe5c3e980872d780ab2bcb39e9b515ad69e",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/seo/README.md",
+      "bytes": 1317,
+      "lines": 41,
+      "sha256": "8bbc303d6acf297700e6257880a43640139f7621537653e5ae1d7e10dd506b54",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/smo/README.md",
+      "bytes": 1784,
+      "lines": 52,
+      "sha256": "d82ca3d46236211a2e1df4ce22181b82d98339a1825fbbb6ebf4a4bccada8da9",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/05-seo-lead/sxo/README.md",
+      "bytes": 1635,
+      "lines": 47,
+      "sha256": "3477c5777ea8e14157f81e76868aff7a5eb256a98cb7ad69cac60b825a8d2fb9",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/06-analyst/README.md",
+      "bytes": 1002,
+      "lines": 33,
+      "sha256": "1f25014a3bc3b8d4ce3c63852894cbb17cf9bae7df474ebdfc1ed23d653c1f3f",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/06-analyst/_inbox.md",
+      "bytes": 2032,
+      "lines": 45,
+      "sha256": "45ce535a7a592c32f81367b04ad56731c825bdfc40ea39ebb7a102732c9da195",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/06-analyst/site-audits/README.md",
+      "bytes": 1539,
+      "lines": 48,
+      "sha256": "c7f77e335efd1b22958d2473c271d44551b9fb6c9b01f1a9a00daef3a740f6a3",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/06-analyst/spotting-ai-slop/README.md",
+      "bytes": 2026,
+      "lines": 59,
+      "sha256": "7dd05663e4a5a5eee4c32046f200e185077221f4a3876053c9fb869a9c3a5758",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/06-analyst/spotting-ai-slop/current.md",
+      "bytes": 1245,
+      "lines": 37,
+      "sha256": "28c8e6c53adbdef4330c176a3a41541a1b6eb4c759e7510e7126a4d6fb6b2e08",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/06-analyst/test-design/README.md",
+      "bytes": 1594,
+      "lines": 50,
+      "sha256": "0f95afea50c821e967fc21d44408c72de9777e03b722bafa684e207553a9c0de",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/README.md",
+      "bytes": 4346,
+      "lines": 81,
+      "sha256": "c27e789ede91e637ea2405402eea05fe1c512efa402fcb61baff0d690364d3f9",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/_schema.md",
+      "bytes": 4569,
+      "lines": 117,
+      "sha256": "ffaaba3c156b06824a5e70b4de09c4872ccf2e6a4ac33554c245aa98a9723876",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/cambium-temperance-organ-atlas.md",
+      "bytes": 24730,
+      "lines": 317,
+      "sha256": "c94496976bca1b28f6f59772f4586e5c9332c7f2d8e6c233db3ea9924d71c26b",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/execute-plan.md",
+      "bytes": 10556,
+      "lines": 171,
+      "sha256": "af99ec01b15c8e777e9b9f74a927bc5bfe1963d14566abfc2bde767870f94c08",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/execution-map.md",
+      "bytes": 13094,
+      "lines": 199,
+      "sha256": "e82ab9e7b65c9bb1c9712d78dd185fa658c9702bfbb9952d6f9159465374964f",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/hands-autosocial.md",
+      "bytes": 6220,
+      "lines": 99,
+      "sha256": "efa504d39e5fc419a3b0d4ca3a9503d6fbcee7bf26c7578a4fc18dacade07987",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/hands-ig-saved-bind.md",
+      "bytes": 3551,
+      "lines": 70,
+      "sha256": "de1d304c2758e7690203e718d35e8e16413673f3cee1150e0adbc812c4bc0b40",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/ig-saved-schedule.md",
+      "bytes": 2574,
+      "lines": 59,
+      "sha256": "4a926addc3a0a8b4067a00455a661ccadf3b70bab57b31ff20be7ab94454cb04",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/organ-map.md",
+      "bytes": 6176,
+      "lines": 107,
+      "sha256": "6f3ed1e1f49795b4d0046a5751d1f47569a5bb4eba696d7d68b67747140dd1cb",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/telegram-window-card.md",
+      "bytes": 1201,
+      "lines": 35,
+      "sha256": "360598de07fd93f508308ad0060b733b2bc05c7d0a5d90a014b7d0f4fb976cd9",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "department/workflows.md",
+      "bytes": 6641,
+      "lines": 160,
+      "sha256": "ddad4342f3f4bee7d6f1a1b31168e4620b9cbcdfd562a9b48f0f6daf1d675011",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Organ/desk ownership, extract-feed-read-edit, source dependencies, status and effect gates"
+    },
+    {
+      "path": "linkedin-github-editorial-radar.md",
+      "bytes": 8384,
+      "lines": 139,
+      "sha256": "7eb1eadd46ba6160eeb014144ad6cc0f3464f180a5f0cc9ab8e74424465a4475",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "untracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "notebooklm-source-pack.md",
+      "bytes": 2528,
+      "lines": 49,
+      "sha256": "911b242f52226e98b6da0f12f2f018ac6d83c7fa9e0eafabdc0215f061df291d",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "packs/README.md",
+      "bytes": 362,
+      "lines": 17,
+      "sha256": "19f9941c7862778ca4272c9af33d602ea8b67a32090ea02003bf677c2523c358",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "packs/_schema.md",
+      "bytes": 1948,
+      "lines": 61,
+      "sha256": "836f86d97aa21e54a3baccc4db94511d5dc6fec54bb2bfffef0bb72a69a6979a",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "packs/thoughtseed-cambium/pack.md",
+      "bytes": 1817,
+      "lines": 42,
+      "sha256": "0216a59ff425a2d607961040a4325e9ba1662a8e9f1b0c0cef2d2fbc5304fb42",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "profiles/README.md",
+      "bytes": 4087,
+      "lines": 35,
+      "sha256": "4b1e46621d188e5299e30efe1dd067444fba914f59aa61dce8d1d796eea21147",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "spines/README.md",
+      "bytes": 949,
+      "lines": 22,
+      "sha256": "947527eb4d79edbf231d11f4f8312085f09b9cb1b4bc91be4623b895c7c2d7e4",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "spines/week-1.md",
+      "bytes": 3882,
+      "lines": 55,
+      "sha256": "356177bc0c552df2a2e2b5d9f718a4c72ffaa4c89aaf17bd064cec28e32545cf",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "temperance-continuous-learning-rollout.md",
+      "bytes": 9162,
+      "lines": 112,
+      "sha256": "0f4212a9317c8c10dfcf1d1a6841bacab9aa787d8798f77c346065bbeb6fd83f",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "whitepaper-cambium-infinite-engine.md",
+      "bytes": 16821,
+      "lines": 325,
+      "sha256": "02b060b43b3bbd434da5b01e51ff53ae3100f359e2f9f8a4c77cd9ddfc71a2a2",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "whitepaper-cambium-temperance-outline.md",
+      "bytes": 4290,
+      "lines": 89,
+      "sha256": "731f87399398b4ecc5cf690a5d47b2cd9946b40efd31a0e85d78414896adad1b",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "whitepaper/README.md",
+      "bytes": 4875,
+      "lines": 50,
+      "sha256": "3ef504c7afe11b6db5f8ab5c0259ea906c15950bf1a7ab3cb9f0d21b66908265",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "whitepaper/capability-console/telegram-capability-console.html",
+      "bytes": 41084,
+      "lines": 361,
+      "sha256": "f7d2687ce8cbe54315da9c1798a5dbc70bbe6fd330cd6e1dfb243f178e7c5c14",
+      "suffix": ".html",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "complete-semantic-text-inline-behavior-and-reference-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Explanatory projection, embedded behavior, static evidence, asset closure and owner interlinks"
+    },
+    {
+      "path": "whitepaper/infinite-engine-full.html",
+      "bytes": 100649,
+      "lines": 1014,
+      "sha256": "12cc3ffbe5e6cd61ce1fd217a030b1e20552fa18c6357308de2c44ec55e45e95",
+      "suffix": ".html",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "complete-semantic-text-inline-behavior-and-reference-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Explanatory projection, embedded behavior, static evidence, asset closure and owner interlinks"
+    },
+    {
+      "path": "whitepaper/infinite-engine-full.pdf",
+      "bytes": 621515,
+      "lines": 5585,
+      "sha256": "f11ce7335e1968b910bd0afe01dbd80ff5a317f369b87d658cdc28854df81c2e",
+      "suffix": ".pdf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "all-page-text-extraction-content-and-version-reconciliation",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "page_observations": [
+        {
+          "page": 1,
+          "text_characters": 1530,
+          "sha256_text": "4728343ae8cd3d78f556ff98bf4eb67295d29db88093123eea187a8e61191d77",
+          "has_text": true
+        },
+        {
+          "page": 2,
+          "text_characters": 2386,
+          "sha256_text": "d6f980ad69730fc1664662a4b8331a2ce68b77bbf57426b4ef9616d4c1dc0e33",
+          "has_text": true
+        },
+        {
+          "page": 3,
+          "text_characters": 233,
+          "sha256_text": "b54827fb2ac64e002350a421fed3aaa8efc43345baa110789d9a1bf2961f94de",
+          "has_text": true
+        },
+        {
+          "page": 4,
+          "text_characters": 2065,
+          "sha256_text": "5c4af51d9052d6c3e5001821a73b4b1e3f57bf9c9a99089945f447807440fc24",
+          "has_text": true
+        },
+        {
+          "page": 5,
+          "text_characters": 2151,
+          "sha256_text": "0ae7b5630f5d1fb01bd9aab3ad8d72410c011b0bbc5c320d89463810df364933",
+          "has_text": true
+        },
+        {
+          "page": 6,
+          "text_characters": 2206,
+          "sha256_text": "1611b40de2ca7e8479cb8022a85329aa051f155cff39aa9a4de3d897413f5903",
+          "has_text": true
+        },
+        {
+          "page": 7,
+          "text_characters": 2307,
+          "sha256_text": "8fe3845d64cb90ee43b03ea5c6b836307a2c2aa198fac03fe2c69e6a6dc8dfcd",
+          "has_text": true
+        },
+        {
+          "page": 8,
+          "text_characters": 1640,
+          "sha256_text": "25f6dadae502be06e560cac9dd1b696134c91c23f4c8f05cc48975065576c522",
+          "has_text": true
+        },
+        {
+          "page": 9,
+          "text_characters": 2926,
+          "sha256_text": "bd06de06b4a9ea21e6ecb8e8ffb47a643b1ea048a89fe9a6758fafb1aca12ce5",
+          "has_text": true
+        },
+        {
+          "page": 10,
+          "text_characters": 2589,
+          "sha256_text": "0074c73f1673ffaf2eff6243cf9380810fa1aff2860b5335b9dfc24cf12e4db6",
+          "has_text": true
+        },
+        {
+          "page": 11,
+          "text_characters": 346,
+          "sha256_text": "ce6747d168f0a0e929e49f88bafcf46401f4ef1c9bd14e86e31520b6861031af",
+          "has_text": true
+        },
+        {
+          "page": 12,
+          "text_characters": 2538,
+          "sha256_text": "e140daabb2b69a5654b1e4dfcb461d6d7eb25fc48aed5aab2b2b47aefc1378d3",
+          "has_text": true
+        },
+        {
+          "page": 13,
+          "text_characters": 1239,
+          "sha256_text": "292484214205f88174d39558c6b644514d7d5de59369eedf343366adbbeeef82",
+          "has_text": true
+        },
+        {
+          "page": 14,
+          "text_characters": 2312,
+          "sha256_text": "44ef4194b40c79c9078a5e9acfcf34e15f10a9c5b0b7729f93251472ad0e5169",
+          "has_text": true
+        },
+        {
+          "page": 15,
+          "text_characters": 2024,
+          "sha256_text": "85de6f377a089c09d18d3a041d901a85bd67979db4d10e9dc4b4c5960098beac",
+          "has_text": true
+        },
+        {
+          "page": 16,
+          "text_characters": 2302,
+          "sha256_text": "5722e4297a8449af2cdd813db5bd526c7d46899d08b35576de04ec11aa36bccf",
+          "has_text": true
+        },
+        {
+          "page": 17,
+          "text_characters": 1909,
+          "sha256_text": "a8764b0e2f746096fe82bc25ecc7e6b95f55004a387a332e638208413cbc8f82",
+          "has_text": true
+        },
+        {
+          "page": 18,
+          "text_characters": 2485,
+          "sha256_text": "956fd48556c69dbf64eece7695f8ab24dae34970c8b296a2fdd6fb6ea04d8d2f",
+          "has_text": true
+        },
+        {
+          "page": 19,
+          "text_characters": 651,
+          "sha256_text": "d3ac00ab4f6bc23454edc405353315062deeb8a762fadcf4ef0882867a1435e5",
+          "has_text": true
+        },
+        {
+          "page": 20,
+          "text_characters": 1245,
+          "sha256_text": "687cf016879913fd91e6e9bdc9ca1b055acaa3fee7c95852ab2a6f0a8206737e",
+          "has_text": true
+        },
+        {
+          "page": 21,
+          "text_characters": 1097,
+          "sha256_text": "9ba509c94a7726c57ccf66291d16b1f6492726c8f692aaac99395d365b9782db",
+          "has_text": true
+        },
+        {
+          "page": 22,
+          "text_characters": 1936,
+          "sha256_text": "300979cae949d7c78ab30f0b031ba8cfe40c3ac620c324aac7617ad867b7f6e6",
+          "has_text": true
+        },
+        {
+          "page": 23,
+          "text_characters": 1735,
+          "sha256_text": "3936afcbc37afbea34375c2f3a5bbaf4a5e2fb1fbd843a76f6e075670bda5c57",
+          "has_text": true
+        },
+        {
+          "page": 24,
+          "text_characters": 1732,
+          "sha256_text": "47cc50b67a6ea98656f5a6966a781e7e10dd2a0a9a4ae2f352bf328ed412886e",
+          "has_text": true
+        },
+        {
+          "page": 25,
+          "text_characters": 831,
+          "sha256_text": "4cc2bd3d748fa4c6ee114893637605532e97c00e76ac186547b640b40f53fe92",
+          "has_text": true
+        },
+        {
+          "page": 26,
+          "text_characters": 1126,
+          "sha256_text": "be59daf2aa3792e7ff92377a8637bc1b681bc7162134fce7cd1d91390e47ae93",
+          "has_text": true
+        },
+        {
+          "page": 27,
+          "text_characters": 629,
+          "sha256_text": "c6bd447e68718b28f9ceda10e19ba852119e4241bc6a08ef25abe0de8e72f60d",
+          "has_text": true
+        },
+        {
+          "page": 28,
+          "text_characters": 1529,
+          "sha256_text": "290fe62022f0e85f2839db280ecab0f41d6ff3c1e6c89033c18da38220443b97",
+          "has_text": true
+        },
+        {
+          "page": 29,
+          "text_characters": 2121,
+          "sha256_text": "64b07b8eb1b1f8af80a76c612dc37a8392eee66208aa7e5d2ca846072bcaaf36",
+          "has_text": true
+        },
+        {
+          "page": 30,
+          "text_characters": 2709,
+          "sha256_text": "2162e1a6060f7ae118ceb400c06230310123599a75a5bfc53fb39f6401b90092",
+          "has_text": true
+        },
+        {
+          "page": 31,
+          "text_characters": 744,
+          "sha256_text": "67ad5b00f6904b02b89644c96340d386595b63bf585c4a1f88827e8fb3ff1232",
+          "has_text": true
+        }
+      ]
+    },
+    {
+      "path": "whitepaper/infinite-engine-one-pager.html",
+      "bytes": 24249,
+      "lines": 307,
+      "sha256": "99f0980b124539ac7c3e291cf190f558a5f47da805214132b2865c9cf279277e",
+      "suffix": ".html",
+      "utf8": true,
+      "git_state": "ignored-local",
+      "review_method": "complete-semantic-text-inline-behavior-and-reference-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Explanatory projection, embedded behavior, static evidence, asset closure and owner interlinks"
+    },
+    {
+      "path": "whitepaper/infinite-engine-one-pager.pdf",
+      "bytes": 148317,
+      "lines": 1411,
+      "sha256": "e43667f7136588482f01ad719d65864869933733a2a323e3c41404db33666ed2",
+      "suffix": ".pdf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "all-page-text-extraction-content-and-version-reconciliation",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "page_observations": [
+        {
+          "page": 1,
+          "text_characters": 3478,
+          "sha256_text": "b0108dfdd9e32c5f0444d8f774df1b39b0e422a02af6ffde4f8695d7eb4bb5aa",
+          "has_text": true
+        }
+      ]
+    },
+    {
+      "path": "whitepaper/infinite-engine-project-map.v1.json",
+      "bytes": 613,
+      "lines": 23,
+      "sha256": "a98812361e922d28c3498104dedd200f564fadae6b5b67970183b1b4369e5123",
+      "suffix": ".json",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-contract-parse-and-authority-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "whitepaper/render-pdf.mjs",
+      "bytes": 2546,
+      "lines": 66,
+      "sha256": "f55b2773089c6ab8ac788bcbb1ab1a7fb4f6ee21e141599cba844b6b73f94246",
+      "suffix": ".mjs",
+      "utf8": true,
+      "git_state": "ignored-local",
+      "review_method": "full-renderer-source-and-portability-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "whitepaper/telegram-capability-hit-system.md",
+      "bytes": 9962,
+      "lines": 230,
+      "sha256": "e6ca06b1c8731fee687d9d1240a4682cc1d8f2ebf054a129fea5639b76d736d0",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    },
+    {
+      "path": "whitepaper/telegram-capability-hit-system.v1.json",
+      "bytes": 28652,
+      "lines": 542,
+      "sha256": "363bfebd50f529870135790d09a2fbbb96cad28af994b52371c65f1e7828436b",
+      "suffix": ".json",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-contract-parse-and-authority-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "whitepaper/vendor/auto-render.min.js",
+      "bytes": 3481,
+      "lines": 0,
+      "sha256": "7b57d427ac6270677daf8d8380ded2cc73336f9149a167b8e1fe0d6ef66604ae",
+      "suffix": ".js",
+      "utf8": true,
+      "git_state": "ignored-local",
+      "review_method": "vendored-library-provenance-version-and-dependency-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/IBMPlexMono-Bold.ttf",
+      "bytes": 136008,
+      "lines": 851,
+      "sha256": "dbd2a2fb024579438d6400a84e57579bfd2dbe67c306c8fd9fde92a61e4f2eea",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "IBM Plex Mono|Bold|131268"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/IBMPlexMono-OFL.txt",
+      "bytes": 4363,
+      "lines": 93,
+      "sha256": "5294ce778857e1eb02e830b6ab06435537d38f43055327e73d03a2d4d57d5123",
+      "suffix": ".txt",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "font-license-notice-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/IBMPlexMono-Regular.ttf",
+      "bytes": 133796,
+      "lines": 822,
+      "sha256": "ab08018ccd276b79fb2c636bb95b9c543598f9d50505fe92506fcb4dae7810cd",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "IBM Plex Mono|Regular|131268"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/InstrumentSans-Bold.ttf",
+      "bytes": 68084,
+      "lines": 471,
+      "sha256": "444f85bf1c4b0e1ce1ca624f6be54bcd832207714ccaf4ea99ee531341683bdf",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "Instrument Sans|Bold|65536"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/InstrumentSans-BoldItalic.ttf",
+      "bytes": 70004,
+      "lines": 420,
+      "sha256": "3762f6cef95d6039489ad5ba5787d4c30f17a1ad01e9ac3c816ed69692722a68",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "Instrument Sans|Bold Italic|65536"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/InstrumentSans-Italic.ttf",
+      "bytes": 69900,
+      "lines": 398,
+      "sha256": "78e85858e371b2cb4e18f617c10f0f937c0e12a0887ffee98555b24ed305b3a7",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "Instrument Sans|Italic|65536"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/InstrumentSans-OFL.txt",
+      "bytes": 4403,
+      "lines": 93,
+      "sha256": "bf4dc6d13a8cccd4807133c77a1ee9619a16b92cb23322258725ab6731c2f6e5",
+      "suffix": ".txt",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "font-license-notice-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/InstrumentSans-Regular.ttf",
+      "bytes": 68028,
+      "lines": 393,
+      "sha256": "a22cb26e48fd79bcb01bf2fc92d36785474dce36d9c544ab0a8868c2657c4a87",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "Instrument Sans|Regular|65536"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/InstrumentSerif-Italic.ttf",
+      "bytes": 70868,
+      "lines": 826,
+      "sha256": "9c86e4d5a47b50224a2463a9eca8535835257c8e85c470c2c6b454b1af6f046e",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "Instrument Serif|Italic|65536"
+    },
+    {
+      "path": "whitepaper/vendor/fonts/InstrumentSerif-Regular.ttf",
+      "bytes": 69312,
+      "lines": 826,
+      "sha256": "56ac3be03ac3ba283196b3e77850ab2ffcf56cfb6fd3212c5620109a972f8c99",
+      "suffix": ".ttf",
+      "utf8": false,
+      "git_state": "ignored-local",
+      "review_method": "font-metadata-and-reference-closure",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply",
+      "font_metadata": "Instrument Serif|Regular|65536"
+    },
+    {
+      "path": "whitepaper/vendor/katex.min.css",
+      "bytes": 26215,
+      "lines": 1,
+      "sha256": "b4c6053209d886807bf9bcc0fcabaab50ec763f7ddb120080cff863b6f127bdf",
+      "suffix": ".css",
+      "utf8": true,
+      "git_state": "ignored-local",
+      "review_method": "vendored-stylesheet-font-dependency-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "whitepaper/vendor/katex.min.js",
+      "bytes": 275414,
+      "lines": 0,
+      "sha256": "e6bfe5deebd4c7ccd272055bab63bd3ab2c73b907b6e6a22d352740a81381fd4",
+      "suffix": ".js",
+      "utf8": true,
+      "git_state": "ignored-local",
+      "review_method": "vendored-library-provenance-version-and-dependency-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Contract authority or artifact provenance and portability; review method bounds apply"
+    },
+    {
+      "path": "x-linkedin-generation-pipeline.md",
+      "bytes": 9046,
+      "lines": 170,
+      "sha256": "bddba5e8aa0177b0940f22d4dbfa2c58a323f55fe566736025474694dd65816f",
+      "suffix": ".md",
+      "utf8": true,
+      "git_state": "tracked",
+      "review_method": "full-body-frontmatter-table-fence-review",
+      "reviewed": true,
+      "runtime_acceptance": false,
+      "review_focus": "Workflow intent, provenance, public/private fence, ownership, lifecycle and dated evidence"
+    }
+  ],
+  "source_drift_during_review": [
+    {
+      "path": "profiles/README.md",
+      "initial_sha256": "c7ed90637549a727e5cbe7af23e2be3318fef3242501172daccaf03b935adc95",
+      "reviewed_final_sha256": "9df6a370129475b000372850183a1ce5f70f53da3cee80522aad8d2705a8255d",
+      "handling": "Concurrent source drift detected; full file re-read. This review performed no vault write."
+    },
+    {
+      "path": "profiles/README.md",
+      "initial_sha256": "9df6a370129475b000372850183a1ce5f70f53da3cee80522aad8d2705a8255d",
+      "reviewed_final_sha256": "4b1e46621d188e5299e30efe1dd067444fba914f59aa61dce8d1d796eea21147",
+      "observed_at": "2026-10-01T21:31:58.799373+00:00",
+      "handling": "Full current file reread after concurrent editorial profile-pointer changes; referenced canonical account packet is not a runtime dependency. Authored account-delivery claims were not independently accepted as live proof or write authority. This review performed no vault write."
+    }
+  ]
+}
