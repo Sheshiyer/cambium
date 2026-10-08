@@ -4,8 +4,8 @@
 
 - Schema: `cambium.intent-graph-projection.v1`
 - Projection authority: `read_only`
-- Source-set digest: `sha256:a550b3abca7e647fd1f1b6ad1f91aee1b098b19a8d92eec83ba663372ee832ca`
-- Graph digest: `sha256:d978f6892a6c3f268f8ad36bd55a6214e9e7b23d9fe4cb7c89cb8a1021541a11`
+- Source-set digest: `sha256:b8a835820342b5e02e05ef63398973876328f2872dbbc4d4cbe56f0b034d1d6b`
+- Graph digest: `sha256:3df0b0c64feaefa3a8c525cff1f8f514f6d7c636c7990876a113b09fe23d4a47`
 
 ## Authority legend
 
@@ -41,7 +41,7 @@
 | `intent_c2d7cd5192ba2e1718159839ed2dc067d940d00ebaecb237e82e901f6475fa1a` | task | `.planning/phases/04-provenance-preserving-intent-graph/04-02-PLAN.md#xml.task-name:Task 1: Commit the RED generator and readback-parity contract@sha256:8eb798d68c7c434c12661ce5945c4433ebfdf5d815b237bcdd76ece76dc982f6` | gsd_planning | planned | pending | not_required | fresh | none | false | — | — |
 | `intent_d434bdb73787e6a08278b3a0bbe3c299f846da6bb33e9535da81304b781ced33` | vision | `VISION.md#markdown.heading:Just Cause@sha256:e944a43364581a7115821814900bd2cf5f4a2a645f89538da66b55d77512f531` | vision_anchor | enduring | not_applicable | not_required | fresh | none | false | — | — |
 | `intent_e3d9e786983039c14c41112cc932c3723b6867426ed5a366d26959bb293f35b4` | gate | `ISA.md#markdown.list-item:- 2026-08-18 06:25: refined:@sha256:03efc29f09772d9b117a316702b542e0e260a9cad64e0d0bce640c7bc5ad002c` | isa_acceptance | gated | blocked | required | fresh | approval_boundary | false | Next-wave execution approval is recorded outside this read-only generated source model. | — |
-| `intent_ea8f88f08eede86b3b90bd49cb9a31d40b202b9b61521fbc581e34961c21dbbe` | goal | `ISA.md#frontmatter.task@sha256:126b045367afe967fec429df4c99044e63b662a40b729fda8abc4a7dea7c51b2` | isa_acceptance | finite | pending | approved | fresh | none | false | — | — |
+| `intent_ea8f88f08eede86b3b90bd49cb9a31d40b202b9b61521fbc581e34961c21dbbe` | goal | `ISA.md#frontmatter.task@sha256:90c1c52ae605489d9d34e8ddedbed9a9f7b745b6b7bf3f47cd52edeaae376fca` | isa_acceptance | finite | pending | approved | fresh | none | false | — | — |
 
 ## Edges
 

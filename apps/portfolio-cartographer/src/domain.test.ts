@@ -44,6 +44,7 @@ import {
   normalizeClientFamilyId,
   normalizeReviewNote,
   parsePacket,
+  portfolioFolderMappings,
   portfolioFolderMappingsForGroup,
   portfolioFolderMappingsForWork,
   portfolioRoot,
@@ -163,6 +164,28 @@ test('portfolio roots expose Thoughtseed grammar and Tryambakam project intake',
     identityStatus: 'reviewed-local-node',
   }])
   assert.equal(WORK_OBJECTS.some((work) => work.workId === 'program:session-atlas'), false)
+})
+
+test('current census references project held identity status without admitting new work', () => {
+  const mappings = portfolioFolderMappings('thoughtseed')
+  const expected = [
+    ['autosocial', 'reference-unresolved'],
+    ['mcp-obsidian-slice-b-20261001', 'reference-unresolved'],
+    ['factor', 'identity-unresolved'],
+    ['fieldwork', 'identity-unresolved'],
+    ['moodboard-ai-agent', 'identity-unresolved'],
+    ['skills-india-govt', 'identity-unresolved'],
+  ] as const
+  for (const [folder, status] of expected) {
+    const mapping = mappings.find((row) => row.folder === folder)
+    assert.ok(mapping, `${folder} must remain visible in the current census`)
+    assert.equal(mapping.status, status)
+    assert.equal(mapping.proposedKind, 'needs-review')
+    assert.equal(mapping.accountId, null)
+    assert.deepEqual(mapping.workIds, [])
+    assert.equal(groupWorkObjects().some((group) => portfolioFolderMappingsForGroup(group).some((row) => row.path === mapping.path)), false)
+  }
+  assert.equal(WORK_OBJECTS.length, 75)
 })
 
 test('Thoughtseed family headers resolve mapped folders while preserving explicit gaps', () => {
@@ -943,9 +966,9 @@ test('planning history is mutually exclusive and state replacement safe', () => 
 
 
 test('folder projections preserve product labels and nested Codigo evidence separately from identity', () => {
-  const cambium = portfolioFolderMappingsForWork('sapling:cambium').find(({ folder }) => folder === 'cambium-telegram-showcase')!
+  const cambium = portfolioFolderMappingsForWork('sapling:cambium').find(({ folder }) => folder === 'cambium-showcase-ui-rebuild')!
   assert.equal(cambium.displayName, 'Cambium Website')
-  assert.equal(cambium.path, 'thoughtseed/cambium-telegram-showcase')
+  assert.equal(cambium.path, 'thoughtseed/cambium-showcase-ui-rebuild')
   assert.deepEqual(cambium.workIds, ['sapling:cambium'])
   const codigo = portfolioFolderMappingsForWork('branch:codigo-olimpo').find(({ folder }) => folder === 'codigo')!
   assert.equal(codigo.displayName, 'Codigo')

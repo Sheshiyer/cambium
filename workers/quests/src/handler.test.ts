@@ -28,6 +28,9 @@ import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { PAGE } from './page.ts';
+import { LEGACY_PAGE } from './page/index.ts';
+import { OPERATING_FABRIC_PAGE } from './page/operating-fabric/index.ts';
+import { CURIOUS_WORLD_PAGE } from './page/components/curious-world.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { parseToolsCommandProjection } from './page/scenes/tools.ts';
 import {
@@ -1125,6 +1128,34 @@ function makeElement(id: string, tagName = 'div', initialAttrs: Map<string, stri
   return element;
 }
 
+function inlinePageScripts(page: string): string[] {
+  return [...page.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
+    .map((match) => match[1])
+    .filter((script) => script.trim().length > 0);
+}
+
+function legacyScriptFromServedPage(page: string): string {
+  const legacyScripts = inlinePageScripts(LEGACY_PAGE);
+  assert.equal(legacyScripts.length, 1, 'reviewed legacy page has one authored app script');
+  // The legacy harness does not emulate a renderer or Fabric document. Bind
+  // its script to the exact authored fragment, while checking every separate
+  // served script and its order. Unknown or duplicated scripts still fail.
+  assert.deepEqual(
+    inlinePageScripts(page),
+    [...legacyScripts, ...inlinePageScripts(OPERATING_FABRIC_PAGE), ...inlinePageScripts(CURIOUS_WORLD_PAGE)],
+    'served scripts match the legacy, Fabric and Curious fragment owners exactly',
+  );
+  return legacyScripts[0];
+}
+
+test('page · legacy harness binds the authored client and rejects unknown or duplicated scripts', () => {
+  const script = legacyScriptFromServedPage(PAGE);
+  assert.equal(script, inlinePageScripts(LEGACY_PAGE)[0]);
+  assert.throws(() => legacyScriptFromServedPage(PAGE.replace('</body>', '<script>unexpectedBoot()</script></body>')));
+  assert.throws(() => legacyScriptFromServedPage(PAGE.replace('</body>', `<script>${script}</script></body>`)));
+  assert.throws(() => legacyScriptFromServedPage(PAGE.replace(CURIOUS_WORLD_PAGE, '')));
+});
+
 async function renderPageFixtureContext(
   envelope: unknown,
   options: {
@@ -1139,17 +1170,7 @@ async function renderPageFixtureContext(
     fetchResponder?: (request: { url: string; init: RequestInit; index: number }) => unknown;
   } = {},
 ) {
-  const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
-    .map((match) => match[1])
-    .filter((script) => script.trim() && !script.includes('telegram-web-app'));
-  // Task 6 scope amendment: the operating-fabric fragment ships its own
-  // separate boot script alongside the legacy app script. The harness must
-  // evaluate only the legacy app script (every legacy behavior test below is
-  // unchanged) while asserting the boot script is present in the served page.
-  const bootScripts = scripts.filter((script) => script.includes('/v1/mission-fabric/'));
-  assert.equal(bootScripts.length, 1, 'page carries the operating-fabric boot script');
-  const appScripts = scripts.filter((script) => !script.includes('/v1/mission-fabric/'));
-  assert.equal(appScripts.length, 1, 'page has one inline app script');
+  const appScript = legacyScriptFromServedPage(PAGE);
 
   const elements = new Map<string, ReturnType<typeof makeElement>>();
   const getElementById = (id: string) => {
@@ -1212,7 +1233,7 @@ async function renderPageFixtureContext(
   };
   context.Telegram = (context.window as { Telegram?: unknown }).Telegram;
   context.globalThis = context;
-  vm.runInContext(appScripts[0], vm.createContext(context));
+  vm.runInContext(appScript, vm.createContext(context));
   await new Promise((resolve) => setTimeout(resolve, 0));
   await new Promise((resolve) => setTimeout(resolve, 0));
   return { elements, context, fetchCalls, fetchRequests, clipboardWrites, storage };
@@ -4581,8 +4602,14 @@ test('page · craft: skeleton, states, reduced motion, no pure black, no emoji i
   assert.match(PAGE, /ledger unreachable/);
   assert.match(PAGE, /no ledger yet/);
   assert.match(PAGE, /prefers-reduced-motion/);
-  assert.ok(!PAGE.includes('#000000'), 'no pure black');
-  assert.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(PAGE), 'no emoji glyphs');
+  legacyScriptFromServedPage(PAGE);
+  // The bundled renderer uses black as the absence of emissive light. This
+  // UI craft contract covers all served CSS, static markup and UI boot owners;
+  // renderer material parameters have their own geometry/material regressions.
+  const rendererScript = inlinePageScripts(CURIOUS_WORLD_PAGE)[0];
+  const uiSource = PAGE.replace(rendererScript, '');
+  assert.ok(!uiSource.includes('#000000'), 'no pure black in the served UI');
+  assert.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(uiSource), 'no emoji glyphs in the served UI');
 });
 
 test('page · Mission Control visual primitives are named and reduced-motion safe', () => {
@@ -5075,14 +5102,15 @@ test('page · empty gate names internal source and no open items', async () => {
   assert.doesNotMatch(gate, /source route/);
 });
 
-test('page · unreachable gate names network failure and no local queue write', async () => {
+test('page · unreachable gate stays held and offers a read-only retry', async () => {
   const rendered = await renderPageFixtureContext(NO_FAKE_PROGRESS_VISUAL_FIXTURE, { search: '?tenant=cambium&scene=gate', rejectFetch: true });
   const gate = rendered.elements.get('gate')!.innerHTML;
 
-  assert.match(gate, /data-gate-state="unreachable"/);
-  assert.match(gate, /network failure/);
-  assert.match(gate, /\/internal\/gate\/cambium unreachable/);
-  assert.match(gate, /no local queue write/);
+  assert.match(gate, /data-ledger-state="offline"/);
+  assert.match(gate, /ledger unreachable/);
+  assert.match(gate, /\/api\/quests\/cambium/);
+  assert.match(gate, /performs no local write/);
+  assert.doesNotMatch(gate, /Gate quiet|Queue clear/);
 });
 
 test('page · gate item cards show decision mission proof and queue-only fields', async () => {
@@ -5805,12 +5833,14 @@ test('page · mission scene keeps ecosystem provenance on its actions', async ()
   assert.doesNotMatch(stem, /class="q /);
 });
 
-test('page · empty ledger state shows push command without quest rows', async () => {
+test('page · empty ledger state offers retry and source inspection without quest rows', async () => {
   const rendered = await renderPageFixtureContext({ schema: 1, tenant: 'cambium' });
   const stem = rendered.elements.get('stem')!.innerHTML;
 
   assert.match(stem, /no ledger yet/);
-  assert.match(stem, /quine write quests push --tenant cambium/);
+  assert.match(stem, /data-ledger-retry/);
+  assert.match(stem, /data-ledger-system/);
+  assert.doesNotMatch(stem, /quine write quests push/);
   assert.match(stem, /No quest rows are rendered until a real ledger arrives/);
   assert.doesNotMatch(stem, /class="q /);
 });
@@ -5844,7 +5874,7 @@ test('page · empty ledger refresh clears stale quest summary handlers', async (
   await (rendered.context.load as () => Promise<void>)();
 
   assert.equal(progress.textContent, 'empty ledger');
-  assert.equal(here.textContent, 'push required');
+  assert.equal(here.textContent, 'awaiting data');
   assert.equal(progress.onclick, null);
   assert.equal(here.onclick, null);
   assert.equal(progress.dataset.interactionKind, undefined);

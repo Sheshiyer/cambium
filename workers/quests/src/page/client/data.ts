@@ -27,6 +27,38 @@ export function injectInitialQuestHydration(page: string): string {
 }
 
 export const CLIENT_DATA = `/* ── data ── */
+let QUEST_READ_REVISION = 0;
+let QUEST_READ_HELD = false;
+function unavailablePanel(title, detail, state){
+  return '<div class="state" data-ledger-state="' + esc(state || 'held') + '" role="status">' +
+    '<span class="state-kicker">Curious · ' + esc(TENANT) + '</span><b>' + esc(title) + '</b><p>' + esc(detail) + '</p>' +
+    '<div class="state-actions"><button type="button" data-ledger-retry>Retry connection</button>' +
+    '<button type="button" data-ledger-system>Explore the system</button></div></div>';
+}
+function wireUnavailablePanel(container){
+  if (!container) return;
+  container.querySelectorAll('[data-ledger-retry]').forEach(button => button.onclick = () => refresh());
+  container.querySelectorAll('[data-ledger-system]').forEach(button => button.onclick = () => {
+    INSPECT_PANE = 'system'; renderInspect(null); go(4);
+  });
+}
+function clearQuestPresentation(title, detail, state){
+  CuriousReadBridge.hold(state, QUEST_READ_REVISION);
+  QUEST_READ_HELD = true;
+  ECOSYSTEM_ENV = null; LEDGER = null; CMDDATA = null; cmdsDrawn = false;
+  $('fill').style.width = '0%';
+  GATE_ITEMS = []; GATE_FILTER = 'all'; GATE_PREFLIGHT_ORIGIN = null; STORY_BEATS = [];
+  MISSION_BRANCH_FOCUS = null;
+  // Discard old local detail and callbacks. Submitted server actions retain
+  // their request identity and are never cancelled or replayed by this read.
+  closeSheet(); sheetBody.innerHTML = '';
+  sheetBody._founderOutcomeSubmit = null; sheetBody._founderOutcomeOpenGate = null;
+  const html = unavailablePanel(title, detail, state);
+  ['stem','cmds','beats','gate'].forEach(id => { $(id).innerHTML = html; wireUnavailablePanel($(id)); });
+  const hero = $('gateHeroDecision');
+  if (hero) hero.innerHTML = '<b>' + esc(title) + '</b><span>Decisions wait for a verified read.</span>';
+  renderGauge(null); renderInspect(null);
+}
 // radial 270deg gauge of real progress (arcs grown / total) — the gate's evidence dial
 function renderGauge(L){
   const wrap = $('gauge'); if (!wrap) return;
@@ -60,6 +92,8 @@ function renderGauge(L){
     '</div>';
 }
 function paint(env){
+  CuriousReadBridge.quest(env, QUEST_READ_REVISION);
+  QUEST_READ_HELD = false;
   ECOSYSTEM_ENV = env;
   LEDGER = env.ledger;
   CMDDATA = env.commands || null;
@@ -70,43 +104,36 @@ function paint(env){
   if (SCENE_PARAM === 'components' || SCENE_PARAM === 'component' || SCENE_PARAM === 'board') renderComponentGallery(env);
   else renderInspect(env);
   renderStory(env); renderGauge(env.ledger); freshness(env);
+  GATE_ITEMS = gateItemsFromEnvelope(env);
+  const gateSource = '/internal/gate/' + TENANT;
+  renderGateHeroDecision(GATE_ITEMS, gateSource);
+  $('gate').innerHTML = renderGateQueue(GATE_ITEMS, gateSource);
+  loadGateWire($('gate'), gateSource);
 }
 function setLedgerUnreachableState(){
-  ECOSYSTEM_ENV = null;
-  LEDGER = null;
-  $('stem').innerHTML =
-    '<div class="state"><b>ledger unreachable</b><p>the mycelium is quiet — pull down to retry. Retry re-fetches ' + esc(REFRESH_ROUTE) + ' and performs no local write.</p></div>';
   FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'offline' };
+  clearQuestPresentation('ledger unreachable', 'The connection is quiet. Retry or pull down to retry. Retry re-fetches ' + REFRESH_ROUTE + ' and performs no local write.', 'offline');
   markFreshnessChip(REFRESH_ROUTE);
   resetQuestSummary('ledger offline', 'retry fetch');
   $('fresh').textContent = 'offline'; $('fresh').classList.add('stale');
 }
 function setAuthAccessState(){
-  ECOSYSTEM_ENV = null;
-  LEDGER = null;
-  $('stem').innerHTML =
-    '<div class="state"><b>authenticated access needed</b><p>this tenant ledger requires an authenticated session before data is shown.</p></div>';
   FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'auth needed' };
+  clearQuestPresentation('authenticated access needed', 'Open Curious through your approved Cloudflare Access session or the Telegram mini app, then retry. This tenant ledger requires an authenticated session before data is shown.', 'auth');
   markFreshnessChip(REFRESH_ROUTE);
   resetQuestSummary('authentication required', 'authorize tenant');
   $('fresh').textContent = 'auth'; $('fresh').classList.add('stale');
 }
 function setRouteUnavailableState(){
-  ECOSYSTEM_ENV = null;
-  LEDGER = null;
-  $('stem').innerHTML =
-    '<div class="state"><b>route unavailable</b><p>the requested tenant route is unavailable right now. Retry later.</p></div>';
   FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'route missing' };
+  clearQuestPresentation('route unavailable', 'The requested tenant route is unavailable right now. Retry later or explore the source system.', 'missing');
   markFreshnessChip(REFRESH_ROUTE);
   resetQuestSummary('ledger route unavailable', 'retry fetch');
   $('fresh').textContent = 'missing'; $('fresh').classList.add('stale');
 }
 function setServiceUnavailableState(){
-  ECOSYSTEM_ENV = null;
-  LEDGER = null;
-  $('stem').innerHTML =
-    '<div class="state"><b>service unavailable</b><p>the service is unavailable and must retry before this tenant can refresh.</p></div>';
   FRESHNESS_STATE = { derivedAt:'missing', source:REFRESH_ROUTE, age:null, stale:true, detail:'service down' };
+  clearQuestPresentation('service unavailable', 'The service is unavailable. Retry the connection before reviewing work, decisions or proof.', 'error');
   markFreshnessChip(REFRESH_ROUTE);
   resetQuestSummary('service unavailable', 'retry fetch');
   $('fresh').textContent = 'error'; $('fresh').classList.add('stale');
@@ -124,7 +151,10 @@ function fetchQuestEnvelope(){
   return fetch(REFRESH_ROUTE, options).finally(() => clearTimeout(timeout));
 }
 function load(){
+  const revision = ++QUEST_READ_REVISION;
+  CuriousReadBridge.pending(revision);
   return fetchQuestEnvelope().then((r) => {
+    if (revision !== QUEST_READ_REVISION) return;
     const status = Number(r && r.status) || 0;
     if (status === 401 || status === 403) {
       setAuthAccessState();
@@ -143,23 +173,22 @@ function load(){
       return;
     }
     return r.json().then((env) => {
+      if (revision !== QUEST_READ_REVISION) return;
+      if (!env || typeof env !== 'object' || Array.isArray(env)) { setLedgerUnreachableState(); return; }
       if (!shouldPaintEnvelope(env)){
         markStaleRefreshIgnored(env);
         return;
       }
       if (!env.ledger){
-        ECOSYSTEM_ENV = env;
-        LEDGER = null;
-        $('stem').innerHTML =
-          '<div class="state"><b>no ledger yet</b><p>the garden is unplanted for <strong>' + esc(TENANT) + '</strong>. No quest rows are rendered until a real ledger arrives.</p><code>quine write quests push --tenant ' + esc(TENANT) + '</code></div>';
         FRESHNESS_STATE = { derivedAt:'missing', source:'missing', age:null, stale:true, detail:'empty ledger' };
+        clearQuestPresentation('no ledger yet', 'The garden is unplanted for ' + TENANT + '. No quest rows are rendered until a real ledger arrives.', 'empty');
         markFreshnessChip('missing');
-        resetQuestSummary('empty ledger', 'push required');
+        resetQuestSummary('empty ledger', 'awaiting data');
         $('fresh').textContent = 'empty'; $('fresh').classList.add('stale'); return;
       }
       paint(env);
     });
-  }).catch(onFetchFailure);
+  }).catch(() => { if (revision === QUEST_READ_REVISION) onFetchFailure(); });
 }
 function refresh(){ return load(); }
 go(START_SCENE, true);
