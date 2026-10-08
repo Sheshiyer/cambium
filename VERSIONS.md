@@ -256,9 +256,11 @@ viability, NPC self-play (ICP + Founder), the composition layer.
 bash scripts/release.sh 0.3.0 Urania
 ```
 
-Pushing the `vX.Y.Z` tag triggers **`.github/workflows/release.yml`**. Local,
-CI, and release paths all call `npm run verify:release`; live Telegram readiness
-is generated and uploaded as separate dated evidence. A deterministic release
-does not claim founder-device proof.
+GitHub Actions is retired. Run `npm run verify:release` locally before tagging.
+The release script pushes the source commit and tag; it does not create a GitHub
+Release or upload assets. Generate live Telegram readiness separately with
+`npm run proof:tg-live-readiness`, retain its dated evidence, and explicitly
+publish the GitHub Release and intended assets using the reviewed manual procedure.
+A deterministic release does not claim founder-device proof.
 
 Before tagging, add the release's stanza to the **Current** section above (the Muse + what shipped).
