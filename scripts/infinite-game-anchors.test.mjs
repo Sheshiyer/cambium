@@ -520,6 +520,22 @@ const syntheticPrivacyFixtures = new Map([
   ]],
 ]);
 
+// These are exact public documentation/dependency expressions and reviewed
+// negative-test canaries, not path prefixes or general credential exceptions.
+const reviewedPrivacyExpressions = new Map([
+  ['VERSIONS.md', [['--input ', '/tmp/', 'meristem-sidecar-proof', '` spawned the Meristem shim with exit 0'].join('')]],
+  ['apps/cambium-r3f/package-lock.json', [['"resolved": "https://registry.npmjs.org/', 'tmp/-/tmp-0.2.7.tgz"'].join('')]],
+]);
+
+const readinessRejectCanary = ['Bearer should-not-', 'be-stored'].join('');
+const readinessHeaderCanary = ['Bearer ', 'secret-token'].join('');
+const reviewedReadinessCanaryLines = new Set([
+  `assert.doesNotMatch(text, /query_id=|auth_date=|tgWebAppData|${readinessRejectCanary}|QUESTS_PUSH_TOKEN=|initDataHash/);`,
+  `authorization: '${readinessRejectCanary}',`,
+  `assert.equal((calls[0].init.headers as Record<string, string>).authorization, '${readinessHeaderCanary}');`,
+  `assert.doesNotMatch(text, /${readinessRejectCanary}|QUESTS_PUSH_TOKEN=/);`,
+]);
+
 const D16_WORKER_VERSION = '089181f6-ed60-4710-aab6-cd10855360e0';
 const D16_GRAPH_DIGEST = '846400e1fa23704849d48a3ae0d3bf26b7e96d47e353abc0e26075f1cf89b05e';
 const PHASE7_CHECKPOINT_HEADING = /^### \d{4}-\d{2}-\d{2} Phase 7 deterministic safety and handoff implementation checkpoint$/m;
@@ -562,6 +578,16 @@ function privacyViolations(relativePath, source) {
   const violations = [];
   for (const [index, line] of source.split(/\r?\n/).entries()) {
     let candidate = line;
+    // Mask only these complete reviewed negative-test statements. A token
+    // extension, changed delimiter, prefix, or adjacent secret makes the line
+    // ineligible; the bearer/privacy scanners then see its original bytes.
+    if (relativePath === 'workers/quests/src/live-proof-readiness.test.ts' && reviewedReadinessCanaryLines.has(line.trim())) {
+      candidate = '<reviewed-readiness-rejection-fixture>';
+    }
+    for (const literal of reviewedPrivacyExpressions.get(relativePath) ?? []) {
+      const escaped = literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      candidate = candidate.replace(new RegExp(`(?<![A-Za-z0-9._~+\\/-])${escaped}(?![A-Za-z0-9._~+\\/-])`, 'g'), '<reviewed-public-expression>');
+    }
     for (const literal of fixtureLiterals) candidate = candidate.replaceAll(literal, '<synthetic-sensitive-fixture>');
     for (const pattern of patterns) {
       if (pattern.test(candidate)) violations.push(`${relativePath}:${index + 1}`);
@@ -615,6 +641,48 @@ test('DOCS-PRIVACY: linkage fixtures allow only exact synthetic labels', () => {
   }
 });
 
+test('DOCS-PRIVACY: public CLI and npm expressions reject suffixes and extra secrets', () => {
+  const extraSecret = ['"access_', 'token": "unreviewed-private-value"'].join('');
+  for (const [relativePath, expressions] of reviewedPrivacyExpressions) {
+    for (const expression of expressions) {
+      assert.deepEqual(privacyViolations(relativePath, expression), []);
+      assert.deepEqual(privacyViolations('unrelated.md', expression), ['unrelated.md:1']);
+      assert.deepEqual(privacyViolations(relativePath, `${expression}; ${extraSecret}`), [`${relativePath}:1`]);
+      const extended = expression.includes('.tgz"') ? expression.replace('.tgz"', '.tgz/extra"')
+        : expression.includes('meristem-sidecar-proof`') ? expression.replace('meristem-sidecar-proof`', 'meristem-sidecar-proof/extra`')
+          : `${expression}-extra-private-value`;
+      assert.deepEqual(privacyViolations(relativePath, extended), [`${relativePath}:1`]);
+    }
+  }
+});
+
+test('DOCS-PRIVACY: readiness canaries require exact reviewed statement contexts and preserve extensions', () => {
+  const relativePath = 'workers/quests/src/live-proof-readiness.test.ts';
+  const expectLeak = (input, target = relativePath) => assert.deepEqual([...new Set(privacyViolations(target, input))], [`${target}:1`]);
+  const extraSecret = ['"access_', 'token": "unreviewed-private-value"'].join('');
+  const source = read(relativePath);
+  assert.deepEqual(privacyViolations(relativePath, source), [], 'the actual readiness source must have no unreviewed privacy hits');
+  for (const statement of reviewedReadinessCanaryLines) {
+    assert.equal(source.split(/\r?\n/).filter((line) => line.trim() === statement).length, 1, 'each reviewed statement must exist exactly once');
+    assert.deepEqual(privacyViolations(relativePath, statement), []);
+    expectLeak(statement, 'unrelated.md');
+    expectLeak(`${statement}; ${extraSecret}`);
+    const canary = statement.includes(readinessRejectCanary) ? readinessRejectCanary : readinessHeaderCanary;
+    for (const suffix of ['=unreviewed-private-value', '==unreviewed-private-value', '-extra-private-value', 'ABC123', 'é別']) {
+      expectLeak(statement.replace(canary, `${canary}${suffix}`));
+    }
+    expectLeak(statement.replace(canary, `/${canary}`));
+    expectLeak(statement.replace(canary, `${canary}', ${extraSecret}, '`));
+  }
+  for (const canary of [readinessRejectCanary, readinessHeaderCanary]) {
+    expectLeak(canary);
+    for (const suffix of ['=unreviewed-private-value', '==unreviewed-private-value', 'ABC123', 'é別']) {
+      expectLeak(`authorization: '${canary}${suffix}'`);
+    }
+    expectLeak(`authorization: '/${canary}'`);
+  }
+});
+
 test('DOCS-PRIVACY: exact copies remain visible when repository copy detection is enabled', (t) => {
   const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cambium-privacy-copy-'));
   t.after(() => fs.rmSync(fixtureRoot, { recursive: true, force: true }));
@@ -643,6 +711,45 @@ function read(path) {
   assert.equal(fs.statSync(file).isFile(), true, `${path} must be a regular file`);
   return fs.readFileSync(file, 'utf8');
 }
+
+function assertIsaGoalHistoryBinding(isa, graph) {
+  const frontmatter = (isa.match(/^---\n([\s\S]*?)\n---/) || [])[1] || '';
+  const taskLines = frontmatter.split('\n').filter((line) => line.startsWith('task:'));
+  assert.equal(taskLines.length, 1, 'ISA must select exactly one current task');
+  const taskMatch = /^task: ("(?:[^"\\]|\\.)*")$/.exec(taskLines[0]);
+  assert.ok(taskMatch, 'ISA current task must be a quoted scalar');
+  const task = JSON.parse(taskMatch[1]);
+  assert.ok(task.trim().length > 0, 'ISA current task must be nonempty');
+  assert.equal([...isa.matchAll(/^## Goal$/gm)].length, 1, 'ISA must have exactly one Goal section');
+  const goalSection = (isa.split('\n## Goal\n')[1] || '').split('\n## ', 1)[0].trim();
+  const paragraphs = goalSection.split(/\n\s*\n/).map((paragraph) => paragraph.trim());
+  assert.ok(paragraphs[0]?.length > 0 && !paragraphs[0].startsWith('#'), 'ISA Goal must lead with a nonempty current goal');
+  assert.ok(paragraphs.includes(labsConsolidationGoal), 'ISA Goal must retain the exact reviewed Labs milestone goal');
+  assert.equal(graph.schema, 'cambium.intent-graph-projection.v1');
+  assert.equal(graph.projectionAuthority, 'read_only');
+  const projected = graph.nodes.filter((node) => node.source?.path === 'ISA.md' && node.source.selector === 'frontmatter.task');
+  assert.equal(projected.length, 1, 'current ISA task must have one exact intent-graph binding');
+  assert.equal(projected[0].kind, 'goal');
+  assert.equal(projected[0].source.authority, 'isa_acceptance');
+  assert.equal(projected[0].source.digest, `sha256:${digest(`${taskLines[0]}\n`)}`, 'current task projection must match the exact ISA task');
+  return { frontmatter, task };
+}
+
+test('ISA goal binding rejects missing goals, changed history and stale current task projections', () => {
+  const taskLine = 'task: "Reviewed next goal."';
+  const isa = `---\n${taskLine}\n---\n\n## Goal\n\nReviewed next goal with its bounded acceptance.\n\n${labsConsolidationGoal}\n\n## Constraints\n\nRetain approved boundaries.\n`;
+  const graph = { schema: 'cambium.intent-graph-projection.v1', projectionAuthority: 'read_only', nodes: [
+    { kind: 'goal', source: { path: 'ISA.md', selector: 'frontmatter.task', authority: 'isa_acceptance', digest: `sha256:${digest(`${taskLine}\n`)}` } },
+  ] };
+  assert.equal(assertIsaGoalHistoryBinding(isa, graph).task, 'Reviewed next goal.');
+  assert.throws(() => assertIsaGoalHistoryBinding(isa.replace('## Goal', '## Missing goal'), graph), /Goal section/);
+  assert.throws(() => assertIsaGoalHistoryBinding(isa.replace(labsConsolidationGoal, 'Renamed historical goal.'), graph), /exact reviewed Labs/);
+  assert.throws(() => assertIsaGoalHistoryBinding(isa.replace('Reviewed next goal."', 'Changed current goal."'), graph), /projection must match/);
+  assert.throws(() => assertIsaGoalHistoryBinding(isa.replace(taskLine, 'task: ""'), graph), /nonempty/);
+  assert.throws(() => assertIsaGoalHistoryBinding(isa.replace(taskLine, 'task: unquoted'), graph), /quoted scalar/);
+  assert.throws(() => assertIsaGoalHistoryBinding(isa.replace(taskLine, `${taskLine}\n${taskLine}`), graph), /exactly one current task/);
+  assert.throws(() => assertIsaGoalHistoryBinding(isa, { ...graph, nodes: [...graph.nodes, ...graph.nodes] }), /one exact intent-graph binding/);
+});
 
 function assertHeadings(source, headings, path) {
   for (const heading of headings) {
@@ -911,13 +1018,10 @@ test('canonical root anchors declare singular doctrine and authority', () => {
 });
 
 // ANCHOR-04: the anchors remain subordinate to ISA/GSD goal and planning authority.
-test('ISA binds the approved v0.5 Labs goal without erasing v0.4 history', () => {
+test('ISA binds its current goal projection while retaining approved v0.5 and v0.4 history', () => {
   const isa = read('ISA.md');
-  const frontmatter = (isa.match(/^---\n([\s\S]*?)\n---/) || [])[1] || '';
-  const activeGoal = (isa.split('\n## Goal\n')[1] || '').trimStart();
+  const { frontmatter, task } = assertIsaGoalHistoryBinding(isa, JSON.parse(read('docs/architecture/intent-graph.v1.json')));
 
-  assert.ok(frontmatter.includes(`task: "${labsConsolidationGoal}"`), 'ISA frontmatter must bind the approved v0.5 goal exactly');
-  assert.ok(activeGoal.startsWith(labsConsolidationGoal), 'ISA Goal must lead with the approved v0.5 goal exactly');
   assert.ok(isa.includes(`Historical v0.4 goal: ${approvedGoal}`), 'ISA must retain the approved v0.4 goal as history');
   assert.match(isa, /historical acceptance evidence/i);
   assert.match(isa, /historical[\s\S]{0,160}issue #331|issue #331[\s\S]{0,160}historical/i);
@@ -936,7 +1040,7 @@ test('ISA binds the approved v0.5 Labs goal without erasing v0.4 history', () =>
   assert.equal(phase6AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 6 acceptance heading');
   assert.equal(phase7AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 7 acceptance heading');
   assert.equal(phase8AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 8 acceptance heading');
-  assert.ok(
+  if (task === labsConsolidationGoal) assert.ok(
     isCoherentIsaPhaseState(
       frontmatter,
       phase3Checks,
@@ -951,6 +1055,20 @@ test('ISA binds the approved v0.5 Labs goal without erasing v0.4 history', () =>
     ),
     'ISA must be coherent at completed Phase 3–7 and active or verified Phase 8',
   );
+  else {
+    // A later active task cannot be forced back into the historical phase's
+    // 4/4 frontmatter. Its accepted criteria and completion evidence remain
+    // exact, independently of the current Algorithm phase and master count.
+    for (const checks of [phase3Checks, phase4Checks, phase5Checks, phase6Checks, phase7Checks, phase8Checks]) {
+      for (const [id, checked] of Object.entries(checks)) assert.equal(checked, true, `${id} historical acceptance must remain complete`);
+    }
+    assert.equal(phase6AcceptanceHeadings[0], 'Completed Phase 6 acceptance');
+    assert.equal(phase7AcceptanceHeadings[0], 'Completed Phase 7 acceptance');
+    assert.equal(phase8AcceptanceHeadings[0], 'Completed Phase 8 acceptance');
+    const summary = read('.planning/phases/08-labs-authority-and-profile-safety/08-01-SUMMARY.md');
+    assert.match(summary, /^requirements-completed: \[AUTH-01, MAP-01, RUN-01\]$/m);
+    assert.match(summary, /^completed: 2026-08-31$/m);
+  }
 });
 
 test('Phase 6 acceptance binds documentation stewardship without creating authority', () => {
@@ -1220,7 +1338,7 @@ test('Labs consolidation planning keeps production and legacy authority separate
   const goal = JSON.parse(read('.temperance/goal.json'));
   const config = JSON.parse(read('.planning/config.json'));
 
-  assert.ok(isa.includes(`task: "${labsConsolidationGoal}"`));
+  assertIsaGoalHistoryBinding(isa, JSON.parse(read('docs/architecture/intent-graph.v1.json')));
   assert.match(isa, /^### Completed Phase 8 acceptance$/m);
   for (const id of ['ISC-2470', 'ISC-2471', 'ISC-2472', 'ISC-2473']) {
     assert.equal(checkbox(isa, id), true, `${id} must be complete after Phase 8 verification`);

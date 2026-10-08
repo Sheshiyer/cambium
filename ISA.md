@@ -3,8 +3,8 @@ project: Cambium
 task: "Qualify and deploy reviewed Curious0.4.0 to Labs Cloudflare."
 effort: E4
 effort_source: task-classification
-phase: build
-progress: 1244/1342
+phase: verify
+progress: 1247/1342
 mode: interactive
 iteration: 2026-08-31-thoughtseed-labs-consolidation
 started: 2026-07-27T21:26:34Z
@@ -1712,11 +1712,11 @@ Implementation acceptance evidence:
 - [x] ISC-3073: One readable Labs rollback version owns100percent of current traffic.
 - [x] ISC-3074: The private deployment overlay preserves every live nonsecret binding identity.
 - [ ] ISC-3075: Deployment inherits all existing secret names without retrieving their values.
-- [ ] ISC-3076: The exact candidate dry-run produces a SHA256-bound Worker bundle.
-- [ ] ISC-3077: The production source is an isolated clean exact single-commit candidate.
+- [x] ISC-3076: The exact candidate dry-run produces a SHA256-bound Worker bundle.
+- [x] ISC-3077: The production source is an isolated clean exact single-commit candidate.
 - [ ] ISC-3078: Required full release qualification passes against the exact candidate.
 - [ ] ISC-3079: Strict current portfolio linkage census passes.
-- [ ] ISC-3080: Independent deployment review accepts the exact candidate and overlay.
+- [x] ISC-3080: Independent deployment review accepts the exact candidate and overlay.
 - [ ] ISC-3081: One uploaded inert version matches reviewed runtime and binding identities.
 - [ ] ISC-3082: Deployment readback assigns only that reviewed version100percent traffic.
 - [ ] ISC-3083: Live public health and unauthenticated denial probes pass after promotion.
@@ -2998,3 +2998,15 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - 2026-10-08 Curious release qualification: scoped source is approved for branch and draft PR publication. Fresh affected regressions752/752, R3F142/142 plus build, packaging5/5, mission/readiness38/38, Fitcheck13/13 and IAB receipt validation45/45 pass. Runtime22files match the accepted candidate. Release bundle SHA-256509e043659a813ddec29d44f0ca0c53fde5d29f89bcfd5e40f8ddbd4ab76e0b4 differs only through reviewed source pointers and retirement display alias. Atlas19checks and all36source selectors pass. Canonical viewport artifacts remain stale; trusted touch drag and strict320px Inspect geometry are held. Full core was contained after ten minutes; standalone smoke did not pass. No main merge, stable tag or deployment is accepted by this source proof.
 
 - 2026-10-08 publication readback: source commit60cc024137cfee039aa6d1989adedc63e26e8fe6 is pushed on codex/curious-release-0.4.0; draft PR384 is open against unchanged main026ebf6a0c87c0eb245ae1bcb05d4120e3f944e1, with102reviewed paths. GitHub release407038049 is a draft forv0.4.0 with published_at null. Remote v0.4.0 tag is absent. Current lane24/32 is accepted; stable main/tag/publication, drift/full core/standalone and mobile proof remain open. Intent readback10/10 and retired-owner provenance4/4 now pass; no canonical viewport artifact was relabeled.
+
+### 2026-10-08 Curious Cloudflare local qualification checkpoint
+
+- Exact isolated deployment candidate: `a3bc03311c861a1d8ae3f45e4db61b2940e46682`, one commit above main `026ebf6a0c87c0eb245ae1bcb05d4120e3f944e1`;109 reviewed paths. Prior candidate history is retained.
+- Fresh full core:2204 tests,2203 passed,1 failed,0 skipped. The remaining failure is the stale canonical viewport PAGE digest. This is a held full-suite result, not a full pass.
+- Fresh clean-copy core:2204 tests,2189 passed,1 identical visual-proof failure,14 Git-only skips. The six remaining smoke commands and the five-node synthetic tenant snapshot pass separately; their owned archive directory cleanup is verified. The complete fail-fast standalone smoke remains held.
+- Fresh renderer142 tests, strict TypeScript/Vite build,5 desktop packaging checks, generated docs,6 branch packets and the retired-runtime guard pass. Native SHA-bound safety passed980 entries; digest freshness checks remain intact.
+- ISC-3076: exact candidate deploy and version-upload dry runs pass with matching Worker SHA256 `66804e9dd566054e39dfad499c32102024de2a53361c586374e430d9913c5495`,2844202 bytes. Neither dry run creates a remote version.
+- ISC-3077: exact single-commit candidate is clean after final source tests and renderer generation.
+- ISC-3080: independent review approves the exact source and37-binding preservation overlay. Its concrete canary-extension finding was repaired and independently reproduced as rejected.
+- Strict portfolio census remains held by33 recorded blockers. Canonical screenshot/touch proof remains held. The owner question requests an exception only for these two gates, conditional on all other checks passing; no answer or exception has been assumed.
+- No Cloudflare upload, deployment, secret/resource/Access/trigger change, main merge, stable tag or stable GitHub Release publication has occurred. The existing Labs Version57 rollback remains captured privately.
