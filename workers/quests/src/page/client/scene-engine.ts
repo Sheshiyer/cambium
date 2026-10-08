@@ -32,13 +32,36 @@ function go(i, fromSwipe){
   place(-scene * W(), true);
   ind.style.transition = RM ? 'none' : 'transform .45s var(--ease)';
   ind.style.transform = 'translateX(' + (100 * scene) + '%)';
-  [0,1,2,3,4].forEach(n => { $('tb'+n).classList.toggle('on', n === scene); $('tb'+n).setAttribute && $('tb'+n).setAttribute('aria-selected', n === scene ? 'true' : 'false'); });
+  [0,1,2,3,4].forEach(n => {
+    const tab = $('tb'+n);
+    tab.classList.toggle('on', n === scene);
+    if (tab.setAttribute) {
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-selected', n === scene ? 'true' : 'false');
+      tab.setAttribute('tabindex', n === scene ? '0' : '-1');
+    }
+  });
+  track.querySelectorAll('.scene').forEach((panel, n) => {
+    panel.inert = n !== scene;
+    panel.setAttribute('aria-hidden', n === scene ? 'false' : 'true');
+    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-labelledby', 'tb' + n);
+    $('tb'+n).setAttribute('aria-controls', panel.id);
+  });
   updateSceneBadge();
   if (scene === 1) loadGate();
   if (scene === 2) renderCommands();
   if (!fromSwipe) buzz('light');
 }
-[0,1,2,3,4].forEach(n => $('tb'+n).onclick = () => go(n));
+[0,1,2,3,4].forEach(n => {
+  $('tb'+n).onclick = () => go(n);
+  $('tb'+n).onkeydown = event => {
+    const next = event.key === 'ArrowRight' ? (n+1)%SCN : event.key === 'ArrowLeft' ? (n+SCN-1)%SCN : event.key === 'Home' ? 0 : event.key === 'End' ? SCN-1 : null;
+    if (next === null) return;
+    event.preventDefault(); go(next);
+    if ($('tb'+next).focus) $('tb'+next).focus();
+  };
+});
 function updateSceneBadge(){
   const meta = SCENE_META[scene] || SCENE_META[0];
   const badge = $('sceneBadge');

@@ -11,7 +11,7 @@
       "path": "ISA.md",
       "kind": "isa_goal",
       "selector": "frontmatter.task",
-      "digest": "sha256:126b045367afe967fec429df4c99044e63b662a40b729fda8abc4a7dea7c51b2"
+      "digest": "sha256:90c1c52ae605489d9d34e8ddedbed9a9f7b745b6b7bf3f47cd52edeaae376fca"
     },
     "gsd": {
       "path": ".planning/STATE.md",
@@ -28,7 +28,7 @@
     "intentGraph": {
       "path": "docs/architecture/intent-graph.v1.json",
       "schema": "cambium.intent-graph-projection.v1",
-      "digest": "sha256:6d162aaa922d7bfb01a1e6bc4a410bf6ee02d592bc5f05769165ffe382b05cef"
+      "digest": "sha256:edb371814fa32acbeac62b4bfc23ca0a8af65b76859f13f16f2bdc9b27ea21d4"
     },
     "supporting": [
       {
@@ -120,6 +120,6 @@
     "receipt": "missing"
   },
   "stops": [],
-  "sourceSetDigest": "sha256:cce21c14dcfdd30b4aad846dfd3f92a7ee5097d06908760e89965f53fd0ed807",
-  "flowDigest": "sha256:8473beaae27888a6c4a972d7b7a361daff262a693210f19c3d449c562bd0e66a"
+  "sourceSetDigest": "sha256:13dad92b9825035ebc6061871ef99d27c23d280db97356f89ba0389c337f6245",
+  "flowDigest": "sha256:a280be0d60a58d9cbcc7e6dc18623e831dfef4aa47392a00179bfe44a8bba758"
 }

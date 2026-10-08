@@ -419,6 +419,9 @@ function toolSurfaceCard(surface, focus){
   '</button>';
 }
 function renderCommands(){
+  // Navigation and contextual return cannot replace the shared read's held
+  // panel with a successful-looking default tool surface.
+  if (typeof QUEST_READ_HELD !== 'undefined' && QUEST_READ_HELD) return;
   cmdsDrawn = true;
   const focus = toolFocusSurface();
   const cmds = $('cmds');

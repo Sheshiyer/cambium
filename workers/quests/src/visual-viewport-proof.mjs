@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
-import { basename, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { PAGE } from './page.ts';
 import { FRESH_ECOSYSTEM_VISUAL_FIXTURE, IVERIF_ACTION_REQUESTS_VISUAL_FIXTURE, NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
@@ -56,6 +56,8 @@ const MOBILE_CONTRACT_ONLY = argv.has('--mobile-contract');
 const DESKTOP_PAGE_BROWSER_ONLY = argv.has('--desktop-page-browser') || process.env.DESKTOP_PAGE_BROWSER_ONLY === '1';
 const INCLUDE_HEADED_BROWSER_PROBE = argv.has('--include-headed-browser-probe') || process.env.INCLUDE_HEADED_BROWSER_PROBE === '1';
 const PROOF_PATH_FILTER = String(process.env.TG_VIEWPORT_PROOF_FILTER || '').trim();
+const VERIFY_CAPTURE_ARGUMENT = process.argv.slice(2).find((value) => value.startsWith('--verify-capture='));
+const VERIFY_CAPTURE_REQUESTED = VERIFY_CAPTURE_ARGUMENT !== undefined || argv.has('--verify-capture');
 export function shouldWriteCanonicalViewportArtifacts(proofPathFilter, mobileContractOnly = false, desktopPageBrowserOnly = false) {
   return String(proofPathFilter || '').trim().length === 0 && mobileContractOnly !== true && desktopPageBrowserOnly !== true;
 }
@@ -966,6 +968,152 @@ export function selectDesktopViewportProofCaptureSteps() {
   return selectViewportProofCaptureSteps({ desktopPageBrowserOnly: true });
 }
 
+// An IAB capture is produced by the native browser controller. This verifier
+// only checks that its reviewed, local evidence still binds the exact PAGE,
+// capture instructions, observed outcomes and image bytes. It does not make
+// physical Telegram device or production-service claims.
+export function viewportCaptureStepDigest(stepOrSteps) {
+  return createHash('sha256').update(JSON.stringify(stepOrSteps)).digest('hex');
+}
+
+export function validateViewportCaptureReceipt(manifest, {
+  artifactDirectory,
+  mobileContractOnly = false,
+  now = Date.now(),
+  maxAgeMs = 60 * 60 * 1000,
+  maxDurationMs = 60 * 60 * 1000,
+} = {}) {
+  const issues = validateViewportProofManifest(manifest);
+  if (!isPlainObject(manifest)) return issues;
+  const fail = (message) => issues.push(message);
+  const equal = (actual, expected, label) => {
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) fail(`${label} does not match capture instructions`);
+  };
+  const positiveInteger = (value) => Number.isInteger(value) && value > 0;
+  const finitePositive = (value) => typeof value === 'number' && Number.isFinite(value) && value > 0;
+  const canonicalTimestamp = (value) => typeof value === 'string'
+    && Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
+  const capture = isPlainObject(manifest.capture) ? manifest.capture : {};
+  if (capture.schema !== 'cambium.tg-viewport-capture.v1') fail('capture.schema must be cambium.tg-viewport-capture.v1');
+  if (capture.adapter !== 'codex-iab') fail('capture.adapter must be codex-iab');
+  if (capture.mode !== 'iab-emulated-touch' || manifest.browserMode !== capture.mode) fail('capture.mode and browserMode must be iab-emulated-touch');
+  if (capture.status !== 'passed' || capture.held === true) fail('capture must have a passed, unheld outcome');
+  if (capture.physicalDevice !== false) fail('capture.physicalDevice must explicitly remain false');
+  if (manifest.pageSourceSha256 !== PAGE_SOURCE_SHA256) fail('capture PAGE digest is stale');
+  if (!canonicalTimestamp(capture.startedAt) || !canonicalTimestamp(capture.completedAt)) {
+    fail('capture timestamps must be canonical ISO timestamps');
+  } else {
+    const started = Date.parse(capture.startedAt);
+    const completed = Date.parse(capture.completedAt);
+    if (completed < started || completed - started > maxDurationMs) fail('capture duration must be orderly and bounded');
+    if (completed > now + 5000 || now - completed > maxAgeMs) fail('capture is stale or future-dated');
+    if (manifest.generatedAt !== capture.completedAt) fail('manifest.generatedAt must equal capture.completedAt');
+  }
+
+  const fullSteps = selectViewportProofCaptureSteps();
+  const mobileSteps = selectViewportProofCaptureSteps({ mobileContractOnly: true });
+  const proofs = Array.isArray(manifest.proofs) ? manifest.proofs : [];
+  // A full canonical capture is stronger coverage than the focused release
+  // subset. Both accepted shapes must be exact; partial or extra rows fail.
+  const steps = mobileContractOnly && proofs.length === mobileSteps.length ? mobileSteps : fullSteps;
+  equal(proofs.map((proof) => proof?.path), steps.map((step) => step.path), 'capture paths and ordering');
+  if (capture.stepSourceSha256 !== viewportCaptureStepDigest(steps)) fail('capture instruction digest is stale');
+  if (!artifactDirectory) fail('capture artifact directory is required');
+  else {
+    try {
+      equal(readdirSync(artifactDirectory).filter((path) => path.endsWith('.png')).sort(), proofs.map((proof) => proof.path).sort(), 'capture PNG set');
+    } catch { fail('capture artifact directory cannot be read'); }
+  }
+
+  for (const [index, step] of steps.entries()) {
+    const proof = proofs[index];
+    if (!isPlainObject(proof)) continue;
+    const prefix = step.path;
+    const evidence = isPlainObject(proof.capture) ? proof.capture : {};
+    if (evidence.status !== 'passed' || evidence.held === true) fail(`${prefix} is missing a passed, unheld capture`);
+    if (evidence.stepSha256 !== viewportCaptureStepDigest(step)) fail(`${prefix} capture instruction digest is stale`);
+    equal(proof.scene, step.scene, `${prefix} scene`);
+    equal(proof.fixture, fixtureForCaptureStep(step), `${prefix} fixture`);
+    equal(proof.intent, step.intent, `${prefix} intent`);
+    const expectedViewport = { ...viewport, ...(step.viewport || {}) };
+    equal(proof.viewport, expectedViewport, `${prefix} viewport metadata`);
+    const observedViewport = isPlainObject(evidence.viewport) ? evidence.viewport : {};
+    if (observedViewport.width !== expectedViewport.width || observedViewport.height !== expectedViewport.height || !finitePositive(observedViewport.devicePixelRatio)) {
+      fail(`${prefix} observed viewport must match the exact capture dimensions`);
+    }
+    if (proof.viewportMode !== 'iab-emulated-touch') fail(`${prefix} viewportMode must describe actual IAB emulation`);
+    for (const [instruction, outcome] of [
+      ['waitFor', 'waitForPassed'], ['prepareWaitFor', 'prepareWaitForPassed'],
+      ['prepareExpression', 'preparePassed'],
+      ['expression', 'expressionPassed'], ['waitAfterExpression', 'waitAfterPassed'],
+    ]) {
+      if (step[instruction] && evidence[outcome] !== true) fail(`${prefix} ${outcome} is required`);
+    }
+    if ((step.scrollSelector || Number.isFinite(step.scrollTop)) && evidence.scrollPassed !== true) fail(`${prefix} scrollPassed is required`);
+    if (step.assertExpression) {
+      if (proof.browserAssertions !== true || !(evidence.assertionResult === true || evidence.assertionResult?.ok === true)) fail(`${prefix} browser assertion did not pass`);
+    }
+    if (step.intent === 'clickability-proof') {
+      equal(proof.clickTargetSelector, step.clickTargetSelector, `${prefix} click target`);
+      equal(normalizedClickTargetCount(proof), normalizedClickTargetCount(step), `${prefix} click target count`);
+      equal(proof.interactionSurface, step.clipSelector ? 'sheet' : 'page', `${prefix} interaction surface`);
+    }
+    if (step.clipSelector) {
+      equal(proof.clipSelector, step.clipSelector, `${prefix} clip selector`);
+      equal(proof.sheet?.clipSelector, step.clipSelector, `${prefix} sheet clip selector`);
+      const clip = isPlainObject(evidence.clip) ? evidence.clip : {};
+      if (![clip.x, clip.y].every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0) || !finitePositive(clip.width) || !finitePositive(clip.height)) fail(`${prefix} requires its observed sheet clip`);
+      // DOM rectangles may land between CSS pixels. Match the one-pixel
+      // containment tolerance used by the existing browser assertions.
+      if (clip.x + clip.width > expectedViewport.width + 1 || clip.y + clip.height > expectedViewport.height + 1) fail(`${prefix} observed sheet clip must stay inside the viewport`);
+    } else if (proof.clipSelector || proof.sheet || evidence.clip) fail(`${prefix} has an unexpected sheet clip`);
+    if (Number.isFinite(Number(step.expectedWorkerPostCount))) {
+      equal(proof.expectedWorkerPostCount, step.expectedWorkerPostCount, `${prefix} expected Worker posts`);
+      equal(proof.workerPostCount, step.expectedWorkerPostCount, `${prefix} observed Worker posts`);
+    }
+    const input = isPlainObject(evidence.input) ? evidence.input : {};
+    if (step.tapTargetSelector || step.pointerTargetSelector) {
+      const tap = isPlainObject(input.tap) ? input.tap : {};
+      if (tap.kind !== 'native' || tap.selector !== (step.tapTargetSelector || step.pointerTargetSelector)
+        || !positiveInteger(tap.trustedEvents) || !['touch', 'mouse'].includes(tap.pointerType)) fail(`${prefix} requires observed trusted native tap input`);
+    }
+    if (step.touchDragTargetSelector) {
+      const touch = isPlainObject(input.touch) ? input.touch : {};
+      const measuredDelta = Math.abs(touch.afterScrollLeft - touch.beforeScrollLeft);
+      if (touch.selector !== step.touchDragTargetSelector
+        || !Number.isFinite(touch.beforeScrollLeft) || !Number.isFinite(touch.afterScrollLeft)
+        || !Number.isFinite(touch.delta) || touch.delta < 24 || Math.abs(touch.delta - measuredDelta) > 0.5
+        || touch.sceneBefore !== 'tb0' || touch.sceneAfter !== touch.sceneBefore
+        || touch.sheetBefore !== false || touch.sheetAfter !== false
+        || !isNonEmptyString(touch.trackBefore) || touch.trackAfter !== touch.trackBefore
+        || !positiveInteger(touch.touchStarts) || !positiveInteger(touch.touchMoves)
+        || !positiveInteger(touch.trustedTouchStarts) || !positiveInteger(touch.trustedTouchMoves)
+        || touch.trustedTouchStarts > touch.touchStarts || touch.trustedTouchMoves > touch.touchMoves) {
+        fail(`${prefix} requires measured, trusted touch drag and unchanged scene/sheet/track`);
+      }
+    }
+    if (!artifactDirectory || proof.path !== step.path) continue;
+    try {
+      const file = join(artifactDirectory, step.path);
+      const size = pngSize(file);
+      equal({ width: proof.width, height: proof.height, bytes: proof.bytes }, size, `${prefix} PNG dimensions and byte count`);
+      if (proof.sha256 !== createHash('sha256').update(readFileSync(file)).digest('hex')) fail(`${prefix} PNG digest mismatch`);
+      const imageArea = step.clipSelector ? evidence.clip : expectedViewport;
+      if (imageArea && finitePositive(observedViewport.devicePixelRatio)) {
+        for (const dimension of ['width', 'height']) {
+          if (Math.abs(size[dimension] - imageArea[dimension] * observedViewport.devicePixelRatio) > 2) fail(`${prefix} PNG ${dimension} does not match observed viewport/clip`);
+        }
+      }
+    } catch (error) { fail(`${prefix} PNG cannot be verified: ${error instanceof Error ? error.message : String(error)}`); }
+  }
+  return issues;
+}
+
+export function assertViewportCaptureReceipt(manifest, options = {}) {
+  const issues = validateViewportCaptureReceipt(manifest, options);
+  if (issues.length) throw new Error(`Viewport capture verification failed:\n- ${issues.join('\n- ')}`);
+}
+
 const gateFixture = {
   ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
   openItems: [
@@ -1426,7 +1574,7 @@ function pngSize(path) {
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), bytes: statSync(path).size };
 }
 
-async function withServer(fn) {
+export async function withServer(fn) {
   let activeFixture = NO_FAKE_PROGRESS_VISUAL_FIXTURE;
   let gatePostCount = 0;
   const server = createServer((req, res) => {
@@ -1451,7 +1599,13 @@ async function withServer(fn) {
                       ? operatingFabricQuestsFixture
                       : NO_FAKE_PROGRESS_VISUAL_FIXTURE;
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' });
-      res.end(proofPage);
+      // IAB does not expose addScriptToEvaluateOnNewDocument. Keep its fresh
+      // fixture clock equivalent to the browser harness, before PAGE scripts
+      // execute, without altering the production PAGE export.
+      const servedPage = fixture === 'fresh'
+        ? proofPage.replace('<head>', `<head><script data-viewport-proof-clock="fixture-only">${browserClockOverrideExpression(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock)}</script>`)
+        : proofPage;
+      res.end(servedPage);
       return;
     }
     if (url.pathname === '/telegram-web-app.js') {
@@ -2078,6 +2232,25 @@ function writeFailureArtifact(error) {
 }
 
 async function main() {
+if (VERIFY_CAPTURE_REQUESTED) {
+  if (PROOF_PATH_FILTER || DESKTOP_PAGE_BROWSER_ONLY || DIAGNOSE_BROWSER) throw new Error('Capture verification accepts only the complete canonical or mobile contract proof');
+  if (VERIFY_CAPTURE_ARGUMENT === undefined) throw new Error('--verify-capture requires an explicit manifest path using --verify-capture=PATH');
+  const capturePath = VERIFY_CAPTURE_ARGUMENT.slice('--verify-capture='.length).trim();
+  if (!capturePath) throw new Error('--verify-capture requires an explicit manifest path');
+  if (process.argv.slice(2).filter((value) => value === '--verify-capture' || value.startsWith('--verify-capture=')).length !== 1) throw new Error('--verify-capture must be supplied exactly once');
+  const file = resolve(capturePath);
+  const manifest = JSON.parse(readFileSync(file, 'utf8'));
+  assertViewportCaptureReceipt(manifest, {
+    artifactDirectory: dirname(file),
+    mobileContractOnly: MOBILE_CONTRACT_ONLY,
+  });
+  console.log(JSON.stringify({
+    status: 'passed', adapter: 'codex-iab', mode: manifest.capture.mode,
+    proofCount: manifest.proofs.length, pageSourceSha256: manifest.pageSourceSha256,
+    physicalDevice: false, evidence: 'Fresh observed local IAB capture; production and Telegram device acceptance remain separate.',
+  }, null, 2));
+  return;
+}
 if (DIAGNOSE_BROWSER) {
 const diagnostics = await writeBrowserDiagnosticsArtifact();
 console.log(JSON.stringify(diagnostics, null, 2));

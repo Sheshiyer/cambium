@@ -456,7 +456,8 @@ export async function renderPageFixtureContext(envelope, options = {}) {
   // separate boot script; the harness evaluates only the legacy app script.
   const bootScripts = scripts.filter((script) => script.includes('/v1/mission-fabric/'));
   if (bootScripts.length !== 1) throw new Error(`page has ${bootScripts.length} operating-fabric boot scripts, expected 1`);
-  const appScripts = scripts.filter((script) => !script.includes('/v1/mission-fabric/'));
+  // The source world is additive; this harness owns the existing quest UI.
+  const appScripts = scripts.filter((script) => script.includes('/* ── data ── */'));
   if (appScripts.length !== 1) throw new Error(`page has ${appScripts.length} inline app scripts, expected 1`);
 
   const elements = new Map();

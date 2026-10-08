@@ -4,8 +4,10 @@ This directory contains current system design, service maps, and contracts. For 
 
 ## Starting points
 
+- [The connected system](system-atlas.md) — interactive eleven-organ atlas, six growth desks, identity boundaries and receipt strata
+- [Visual field guide](../explainers/system-atlas-2026-10-07/index.html) — the same public source model used in the Mini App
 - [The 8-node infrastructure spine](../../INTEGRATION.md#the-8-node-infrastructure-spine) — the full system topology
-- [Visual flow diagram](../visual/cambium-infra-spine-flow.html) — browser-viewable SVG of the spine
+- [Printable system atlas](../explainers/system-atlas-2026-10-07/system-atlas.svg) — browser-viewable source map of the organ families and connected system
 - [Services](SERVICES.md)
 - [Dependency graph](DEPENDENCY-GRAPH.md)
 - [Cambium operating fabric](cambium-operating-fabric.md)
@@ -21,3 +23,10 @@ The Intent Graph is a generated, read-only, non-authoritative inspection project
 ```bash
 node scripts/generate-intent-graph.mjs --check
 ```
+
+## Visual system atlas
+
+[Contract](contracts/system-atlas-v1.md) · [Machine projection](system-atlas.v1.json) · [Portrait lineage](../assets/visual-flow/system-atlas/PORTRAITS.v1.json).
+The atlas is an inspection projection. Current policy, membership, callback,
+containment and outcome evidence remain with their owners. Verify the generated
+edition with `node scripts/generate-system-atlas.mjs --check`.

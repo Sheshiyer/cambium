@@ -1,5 +1,30 @@
 # Project handoff
 
+### Curious Labs deployment qualification
+
+- The owner now authorizes Cloudflare rollout of the reviewed visual candidate. Existing qualification and rollback checks remain required; main merge and stableGitHub publication stay separate.
+- Fresh Labs readback identifies cambium-quests and Version57 as the single100percent production/rollback Version. Private deployment evidence retains its UUID and full37binding inventory.
+- A reviewed private overlay preserves8plainvars,23inheritedsecret names and6resources; it excludes source-only website settings/limiters and the extra dailycron, and omits nonversioned settings synchronization.
+- Worker dry-run and local native-browser world rendering pass. Canonical screenshot/touch freshness and strict portfolio census remain held; the bounded owner exception question remains unanswered.
+- Full-core test transport now uses bounded byte-identical Git blob batches and retains all inventory/safety assertions. Only the accepted three Actions deletions receive a source-backed retirement exception; unknown changes remain rejected.
+- Freeze a clean exact source candidate for fresh full regressions. No upload or traffic assignment has occurred from this continuation.
+
+### Curious source release0.4.0 preparation
+
+- Published review branch: `codex/curious-release-0.4.0`; [draft PR384](https://github.com/Sheshiyer/cambium/pull/384).
+- [Terpsichore release draft](https://github.com/Sheshiyer/cambium/releases/tag/untagged-d760d6e13797d5e258b1) remains unpublished; no stable tag exists.
+
+- Scoped source imports only the reviewed atlas/workbench/walkable-world packet.
+  Historical Mac migration planning and private controller state stay excluded.
+- Current main Actions retirement and disabled local jobs are preserved.
+- Version0.4.0/Terpsichore identifies this source candidate; Cloudflare deployment and
+  physical Telegram/RAM/VRAM proof remain separately governed.
+- Stable publication remains held: fresh canonical viewport/touch proof, strict320px
+  Inspect geometry, full core, drift and standalone smoke need qualification.
+- Fresh affected752, R3F142/build, packaging5 and receipt-validation45 checks pass.
+- Push only the reviewed branch, create a draft PR/release; no main merge or tag
+  until the canonical release contract and exact remote readbacks pass.
+
 ### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
 
 - The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.

@@ -3,7 +3,7 @@ export const PORTFOLIO_LINKAGE_MANIFEST = {
   "schema": "cambium.portfolio-miniapp-linkage.v1",
   "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
   "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
-  "rootMapDigest": "47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430",
+  "rootMapDigest": "4efebf84f5eea45b134aca43a4a60eaebdb06981088fc26205eb6d2abf797ec2",
   "summary": {
     "totalWorkObjects": 72,
     "packetBackedStoryArcs": 5,
@@ -1884,7 +1884,9 @@ export const PORTFOLIO_LINKAGE_MANIFEST = {
       "filesystem": {
         "state": "mapped",
         "folders": [
-          "snow-gloves-os"
+          "snow-gloves-ops",
+          "snow-gloves-os",
+          "snow-gloves-wiki"
         ]
       },
       "storyArc": {
@@ -2151,7 +2153,7 @@ export const PORTFOLIO_LINKAGE_MANIFEST = {
         "state": "mapped",
         "folders": [
           "cambium",
-          "cambium-telegram-showcase"
+          "cambium-showcase-ui-rebuild"
         ]
       },
       "storyArc": {

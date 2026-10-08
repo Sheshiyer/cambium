@@ -4,7 +4,7 @@ import { realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 const FULL_COMMIT_SHA = /^[0-9a-f]{40}$/;
-const GIT_OBJECT_ID = /^[0-9a-f]{40,64}$/;
+const GIT_OBJECT_ID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
 const INDEX_PATH = 'docs/plans/product-branches/index.md';
 
 function isRecord(value) {
@@ -36,7 +36,7 @@ function repositoryRoot(value) {
   return resolved;
 }
 
-function runGit(root, args, { encoding = 'utf8' } = {}) {
+function runGit(root, args, { encoding = 'utf8', input, maxBuffer = 256 * 1024 * 1024 } = {}) {
   const result = spawnSync('/usr/bin/git', [
     '--no-replace-objects',
     '--no-optional-locks',
@@ -44,9 +44,10 @@ function runGit(root, args, { encoding = 'utf8' } = {}) {
     ...args,
   ], {
     encoding: encoding === null ? null : encoding,
+    input,
     env: { ...process.env, GIT_NO_REPLACE_OBJECTS: '1' },
-    maxBuffer: 256 * 1024 * 1024,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    maxBuffer,
+    stdio: [input === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'],
   });
   if (result.status !== 0) {
     const diagnostic = Buffer.isBuffer(result.stderr) ? result.stderr.toString('utf8') : result.stderr;
@@ -54,6 +55,83 @@ function runGit(root, args, { encoding = 'utf8' } = {}) {
     throw new TypeError(`Git revision read failed: ${bounded}`);
   }
   return result.stdout;
+}
+
+function blobHeader(header, expectedObjectId) {
+  const match = /^([0-9a-f]{40,64}) blob (0|[1-9][0-9]*)$/.exec(header);
+  if (!match || match[1] !== expectedObjectId || !GIT_OBJECT_ID.test(match[1])) {
+    throw new TypeError('Git blob batch contains missing, non-blob, or mismatched object identity');
+  }
+  const bytes = Number(match[2]);
+  if (!Number.isSafeInteger(bytes) || bytes > 256 * 1024 * 1024) {
+    throw new TypeError('Git blob batch byte count exceeds the bounded object read');
+  }
+  return bytes;
+}
+
+function assertObjectIds(objectIds) {
+  if (!Array.isArray(objectIds) || Array.from(objectIds).some((objectId) => typeof objectId !== 'string' || !GIT_OBJECT_ID.test(objectId))) {
+    throw new TypeError('Git blob batch requires exact object identities');
+  }
+}
+
+// Git's batch protocol is length-framed: binary NULs and embedded newlines are
+// body bytes, not delimiters. Reject any framing, identity, or content drift.
+export function parseGitBlobBatch(output, objectIds) {
+  assertObjectIds(objectIds);
+  if (!Buffer.isBuffer(output)) throw new TypeError('Git blob batch output must be bytes');
+  let cursor = 0;
+  const bodies = objectIds.map((objectId) => {
+    const end = output.indexOf(10, cursor);
+    if (end < 0) throw new TypeError('Git blob batch header is truncated');
+    const bytes = blobHeader(output.subarray(cursor, end).toString('utf8'), objectId);
+    cursor = end + 1;
+    if (cursor + bytes >= output.length || output[cursor + bytes] !== 10) {
+      throw new TypeError('Git blob batch body is truncated or has invalid framing');
+    }
+    const body = output.subarray(cursor, cursor + bytes);
+    const actualObjectId = createHash(objectId.length === 40 ? 'sha1' : 'sha256')
+      .update(`blob ${bytes}\0`).update(body).digest('hex');
+    if (actualObjectId !== objectId) throw new TypeError('Git blob batch content does not match object identity');
+    cursor += bytes + 1;
+    return body;
+  });
+  if (cursor !== output.length) throw new TypeError('Git blob batch contains trailing bytes or extra objects');
+  return bodies;
+}
+
+// Bound normal packets to 64 MiB, with the same 256 MiB per-object ceiling as
+// the original individual reads. Visit and discard bodies instead of retaining
+// the repository's entire binary documentation corpus in memory.
+export function visitGitBlobObjects(root, objectIds, visit) {
+  assertObjectIds(objectIds);
+  if (typeof visit !== 'function') throw new TypeError('Git blob visitor must be a function');
+  if (objectIds.length === 0) return;
+  const input = `${objectIds.join('\n')}\n`;
+  const metadata = String(runGit(root, ['cat-file', '--batch-check'], { input }));
+  const headers = metadata.split('\n');
+  if (headers.pop() !== '' || headers.length !== objectIds.length) {
+    throw new TypeError('Git blob batch metadata count or framing is invalid');
+  }
+  const sizes = headers.map((header, index) => blobHeader(header, objectIds[index]));
+  for (let start = 0; start < objectIds.length;) {
+    let end = start;
+    let packetBytes = 0;
+    do {
+      const nextBytes = sizes[end] + objectIds[end].length + 32;
+      if (end > start && packetBytes + nextBytes > 64 * 1024 * 1024) break;
+      packetBytes += nextBytes;
+      end += 1;
+    } while (end < objectIds.length);
+    const ids = objectIds.slice(start, end);
+    const output = runGit(root, ['cat-file', '--batch'], {
+      encoding: null,
+      input: `${ids.join('\n')}\n`,
+      maxBuffer: Math.max(256 * 1024 * 1024, packetBytes),
+    });
+    parseGitBlobBatch(output, ids).forEach((body, offset) => visit(body, start + offset));
+    start = end;
+  }
 }
 
 function parseTree(raw) {
@@ -131,18 +209,18 @@ export function buildDocumentationInventorySources(options) {
   const corpusPaths = corpusRecords.map(({ path: relativePath }) => relativePath);
   if (new Set(corpusPaths).size !== corpusPaths.length) throw new TypeError('commit-tree corpus contains duplicate path identity');
 
-  const bodies = new Map();
-  const blobs = corpusRecords.map((entry) => {
-    const body = runGit(root, ['show', `${resolved}:${entry.path}`], { encoding: null });
-    bodies.set(entry.path, body);
-    return {
+  const blobs = [];
+  let productIndexBody;
+  visitGitBlobObjects(root, corpusRecords.map(({ objectId }) => objectId), (body, index) => {
+    const entry = corpusRecords[index];
+    if (entry.path === INDEX_PATH) productIndexBody = Buffer.from(body);
+    blobs.push({
       path: entry.path,
       contentDigest: digestBuffer(body),
       bytes: body.length,
       contentKind: contentKind(body),
-    };
+    });
   });
-  const productIndexBody = bodies.get(INDEX_PATH);
 
   return {
     sourceRevision: resolved,
