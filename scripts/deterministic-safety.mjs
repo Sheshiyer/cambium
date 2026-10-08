@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { realpathSync, statSync } from 'node:fs';
 import path from 'node:path';
-import { buildDocumentationInventorySources } from './documentation-inventory-sources.mjs';
+import { buildDocumentationInventorySources, visitGitBlobObjects } from './documentation-inventory-sources.mjs';
 import { canonicalText, digestText, selectIntentGraphContent } from './intent-graph.mjs';
 import { redactReviewedHandoffForDigest, selectTemperanceFlowContent } from './temperance-flow.mjs';
 
@@ -167,15 +167,14 @@ function parseTree(raw) {
   return records;
 }
 
-function enumerateCorpusPaths(root, sha) {
+function enumerateCorpusRecords(root, sha) {
   const rootTree = parseTree(runGit(root, ['ls-tree', '-z', '--full-tree', sha]));
   const scopedTree = parseTree(runGit(root, ['ls-tree', '-r', '-z', '--full-tree', sha, '--', 'docs', '.planning']));
   return [
     ...rootTree.filter((entry) => entry.type === 'blob' && !entry.path.includes('/') && entry.path.endsWith('.md')),
     ...scopedTree.filter((entry) => entry.type === 'blob'),
   ]
-    .map((entry) => entry.path)
-    .sort(compareBytes);
+    .sort((left, right) => compareBytes(left.path, right.path));
 }
 
 function contentKind(value) {
@@ -496,20 +495,21 @@ export function compileDeterministicSafety(input) {
   if (!FULL_COMMIT_SHA.test(resolved)) {
     throw new TypeError('sourceRevision must resolve exactly once to a full commit SHA');
   }
-  const independent = enumerateCorpusPaths(root, resolved);
+  const independentRecords = enumerateCorpusRecords(root, resolved);
+  const independent = independentRecords.map((entry) => entry.path);
   if (!sameArray(independent, sources.corpusPaths)) {
     throw new TypeError('SAFE-01: independently enumerated corpusPaths must equal inventory path set');
   }
 
   const blobs = new Map();
-  for (const relativePath of sources.corpusPaths) {
-    const body = runGit(root, ['show', `${resolved}:${relativePath}`], { encoding: null });
+  visitGitBlobObjects(root, independentRecords.map(({ objectId }) => objectId), (body, index) => {
+    const relativePath = independentRecords[index].path;
     const kind = contentKind(body);
     blobs.set(relativePath, {
       contentKind: kind,
       text: kind === 'text' ? decodeText(body) : null,
     });
-  }
+  });
 
   scanSafe01(blobs);
   scanSafe02(root, resolved, blobs);

@@ -16,12 +16,13 @@ const repositoryRoot = fs.realpathSync(path.resolve(new URL('.', root).pathname)
 const approvedGoal = "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.";
 const labsConsolidationGoal = "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.";
 
-function run(command, args, { encoding = 'utf8', cwd = repositoryRoot } = {}) {
+function run(command, args, { encoding = 'utf8', cwd = repositoryRoot, input, maxBuffer = 256 * 1024 * 1024 } = {}) {
   const result = spawnSync(command, args, {
     cwd,
     encoding,
-    maxBuffer: 256 * 1024 * 1024,
-    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C' },
+    input,
+    maxBuffer,
+    env: { ...process.env, TZ: 'UTC', LC_ALL: 'C', GIT_OPTIONAL_LOCKS: '0' },
   });
   assert.equal(result.status, 0, Buffer.isBuffer(result.stderr) ? result.stderr.toString('utf8') : result.stderr || result.stdout);
   return result.stdout;
@@ -67,11 +68,23 @@ function repositorySnapshot() {
     records,
     index: digest(index),
     status: run('/usr/bin/git', ['status', '--porcelain=v1', '-z']),
+    head: git('rev-parse', '--verify', 'HEAD^{commit}'),
+    refs: run('/usr/bin/git', ['show-ref', '--head']),
   };
 }
 
+// These tests run sequentially and the file's repository operations are
+// read-only. Retain one initial full-byte baseline; after EVERY command still
+// hash every file and index and read back status, HEAD, and refs. This also
+// rejects changes between commands, instead of accepting them as a new input.
+let readOnlyCommandBaseline;
+function commandBaseline() {
+  if (readOnlyCommandBaseline === undefined) readOnlyCommandBaseline = repositorySnapshot();
+  return readOnlyCommandBaseline;
+}
+
 function runInventoryCommand(script, revision) {
-  const before = repositorySnapshot();
+  const before = commandBaseline();
   const result = spawnSync('npm', ['run', '--silent', script, '--', '--source-revision', revision], {
     cwd: repositoryRoot,
     encoding: 'utf8',
@@ -84,7 +97,7 @@ function runInventoryCommand(script, revision) {
 }
 
 function runSafetyCheck(revision) {
-  const before = repositorySnapshot();
+  const before = commandBaseline();
   const result = spawnSync('npm', ['run', '--silent', 'safety:check', '--', '--source-revision', revision], {
     cwd: repositoryRoot,
     encoding: 'utf8',
@@ -117,6 +130,64 @@ function corpusPathsAt(revision) {
       || relativePath.startsWith('.planning/')
     ))
     .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)));
+}
+
+// This reader is independent of the production inventory adapter. Every
+// selected SHA:path is resolved by native Git; every returned object retains
+// the exact byte-count and digest assertions below, without one process per
+// documentation asset.
+function committedBlobRecords(revision, paths) {
+  assert.match(revision, /^[0-9a-f]{40}$/);
+  for (const relativePath of paths) assert.doesNotMatch(relativePath, /[\r\n\0]/);
+  if (paths.length === 0) return [];
+  const headers = run('/usr/bin/git', ['--no-replace-objects', 'cat-file', '--batch-check'], {
+    input: `${paths.map((relativePath) => `${revision}:${relativePath}`).join('\n')}\n`,
+  }).split('\n');
+  assert.equal(headers.pop(), '', 'independent object metadata must end with a newline');
+  assert.equal(headers.length, paths.length, 'every selected committed path must have metadata');
+  return headers.map((header, index) => {
+    const match = /^((?:[0-9a-f]{40}|[0-9a-f]{64})) blob (0|[1-9][0-9]*)$/.exec(header);
+    assert.ok(match, `${paths[index]} must remain a recoverable committed blob`);
+    const bytes = Number(match[2]);
+    assert.ok(Number.isSafeInteger(bytes) && bytes <= 256 * 1024 * 1024, 'committed blob read must remain bounded');
+    return { path: paths[index], objectId: match[1], bytes };
+  });
+}
+
+function forEachCommittedBlob(revision, paths, visit) {
+  const records = committedBlobRecords(revision, paths);
+  for (let start = 0; start < records.length;) {
+    let end = start;
+    let packetBytes = 0;
+    do {
+      const size = records[end].bytes + records[end].objectId.length + 32;
+      if (end > start && packetBytes + size > 32 * 1024 * 1024) break;
+      packetBytes += size;
+      end += 1;
+    } while (end < records.length);
+    const batch = records.slice(start, end);
+    const output = run('/usr/bin/git', ['--no-replace-objects', 'cat-file', '--batch'], {
+      encoding: null,
+      input: `${batch.map((record) => record.objectId).join('\n')}\n`,
+      maxBuffer: Math.max(256 * 1024 * 1024, packetBytes),
+    });
+    let cursor = 0;
+    for (const [offset, record] of batch.entries()) {
+      const endOfHeader = output.indexOf(10, cursor);
+      assert.ok(endOfHeader >= cursor, `${record.path} object header must be complete`);
+      assert.equal(output.subarray(cursor, endOfHeader).toString('utf8'), `${record.objectId} blob ${record.bytes}`);
+      cursor = endOfHeader + 1;
+      assert.ok(cursor + record.bytes < output.length, `${record.path} object bytes must be complete`);
+      assert.equal(output[cursor + record.bytes], 10, `${record.path} object framing must be complete`);
+      const body = output.subarray(cursor, cursor + record.bytes);
+      assert.equal(createHash(record.objectId.length === 40 ? 'sha1' : 'sha256')
+        .update(`blob ${body.length}\0`).update(body).digest('hex'), record.objectId);
+      visit(body, start + offset);
+      cursor += record.bytes + 1;
+    }
+    assert.equal(cursor, output.length, 'independent byte read must not contain surplus objects or bytes');
+    start = end;
+  }
 }
 
 function markdownLinks(source) {
@@ -214,6 +285,38 @@ function isApprovedVisualProjectionRetirement(status, relativePath, cwd) {
   return record?.sha256 === digest(original);
 }
 
+const ACTIONS_RETIREMENT_SHA = '026ebf6a0c87c0eb245ae1bcb05d4120e3f944e1';
+const RETIRED_ACTIONS_PATHS = Object.freeze([
+  '.github/workflows/ci.yml',
+  '.github/workflows/desktop.yml',
+  '.github/workflows/release.yml',
+]);
+
+function isApprovedActionsRetirement(status, relativePath, cwd) {
+  if (status !== 'D' || !RETIRED_ACTIONS_PATHS.includes(relativePath)) return false;
+  if (spawnSync('/usr/bin/git', ['--no-replace-objects', 'merge-base', '--is-ancestor', ACTIONS_RETIREMENT_SHA, 'HEAD'], { cwd }).status !== 0) return false;
+  const accepted = spawnSync('/usr/bin/git', ['--no-replace-objects', 'show', '--format=', '--name-status', ACTIONS_RETIREMENT_SHA, '--', ...RETIRED_ACTIONS_PATHS], {
+    cwd, encoding: 'utf8',
+  });
+  if (accepted.status !== 0 || accepted.stdout.trim() !== RETIRED_ACTIONS_PATHS.map((entry) => `D\t${entry}`).join('\n')) return false;
+  const workflows = path.join(cwd, '.github/workflows');
+  if (fs.existsSync(workflows) && fs.readdirSync(workflows, { recursive: true, withFileTypes: true })
+    .some((entry) => entry.isSymbolicLink() || (!entry.isDirectory() && /\.ya?ml$/i.test(entry.name)))) return false;
+  try {
+    const readme = fs.readFileSync(path.join(cwd, 'README.md'), 'utf8');
+    if (!/GitHub Actions is retired\./.test(readme) || !readme.includes('.local-jobs/jobs.json')) return false;
+    const registry = JSON.parse(fs.readFileSync(path.join(cwd, '.local-jobs/jobs.json'), 'utf8'));
+    if (registry.schema !== 'thoughtseed.local-jobs.v1' || !Array.isArray(registry.jobs) || registry.jobs.length !== 2) return false;
+    const commands = new Map([
+      ['verify', ['npm', 'run', 'verify:release']],
+      ['live-readiness', ['npm', 'run', 'proof:tg-live-readiness']],
+    ]);
+    if (new Set(registry.jobs.map((job) => job.id)).size !== 2) return false;
+    return registry.jobs.every((job) => commands.has(job.id) && JSON.stringify(job.argv) === JSON.stringify(commands.get(job.id))
+      && job.enabled === false && job.daily === false && job.on_change === false);
+  } catch { return false; }
+}
+
 function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase 6') {
   const collections = [
     // Two-dot (not three-dot): the fallback base can be the empty tree, which
@@ -230,7 +333,8 @@ function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase
       const status = records[index++];
       const relativePath = records[index++];
       if (!isApprovedV04RequirementsArchiveDeletion(status, relativePath, cwd)
-        && !isApprovedVisualProjectionRetirement(status, relativePath, cwd)) {
+        && !isApprovedVisualProjectionRetirement(status, relativePath, cwd)
+        && !isApprovedActionsRetirement(status, relativePath, cwd)) {
         assert.doesNotMatch(status, /^[DR]/, `${phaseLabel} must not delete or rename paths (${status})`);
       }
       if (relativePath) paths.add(relativePath);
@@ -238,6 +342,53 @@ function changedPathsAndKinds(baseSha, cwd = repositoryRoot, phaseLabel = 'Phase
   }
   return [...paths].sort();
 }
+
+test('DOCS-RETIREMENT: only accepted Actions deletions with disabled local verification are exempt', (t) => {
+  requireLiveCheckout(t);
+  if (!hasLiveCheckout) return;
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'cambium-actions-retirement-'));
+  const checkout = path.join(temporary, 'checkout');
+  t.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
+  run('/usr/bin/git', ['clone', '--quiet', '--shared', '--no-checkout', repositoryRoot, checkout]);
+  fs.mkdirSync(path.join(checkout, '.local-jobs'), { recursive: true });
+  fs.copyFileSync(path.join(repositoryRoot, 'README.md'), path.join(checkout, 'README.md'));
+  const jobsPath = path.join(checkout, '.local-jobs/jobs.json');
+  const registry = JSON.parse(read('.local-jobs/jobs.json'));
+  const writeRegistry = (value) => fs.writeFileSync(jobsPath, `${JSON.stringify(value)}\n`);
+  writeRegistry(registry);
+  for (const relativePath of RETIRED_ACTIONS_PATHS) assert.equal(isApprovedActionsRetirement('D', relativePath, checkout), true);
+  assert.equal(isApprovedActionsRetirement('D', '.github/workflows/unreviewed.yml', checkout), false);
+  assert.equal(isApprovedActionsRetirement('D', 'docs/unreviewed.md', checkout), false);
+  assert.equal(isApprovedActionsRetirement('R', RETIRED_ACTIONS_PATHS[0], checkout), false);
+  fs.mkdirSync(path.join(checkout, '.github/workflows'), { recursive: true });
+  fs.writeFileSync(path.join(checkout, '.github/workflows/unexpected.yml'), 'name: unexpected fixture\n');
+  assert.equal(isApprovedActionsRetirement('D', RETIRED_ACTIONS_PATHS[0], checkout), false);
+  fs.rmSync(path.join(checkout, '.github/workflows/unexpected.yml'));
+  for (const jobIndex of [0, 1]) {
+    for (const flag of ['enabled', 'daily', 'on_change']) {
+      const changed = structuredClone(registry);
+      changed.jobs[jobIndex][flag] = true;
+      writeRegistry(changed);
+      assert.equal(isApprovedActionsRetirement('D', RETIRED_ACTIONS_PATHS[0], checkout), false);
+    }
+  }
+  for (const changed of [
+    { ...registry, schema: 'unknown' },
+    { ...registry, jobs: [...registry.jobs, registry.jobs[0]] },
+    { ...registry, jobs: [registry.jobs[0], registry.jobs[0]] },
+    { ...registry, jobs: registry.jobs.map((job) => ({ ...job, argv: ['npm', 'run', 'unreviewed'] })) },
+  ]) {
+    writeRegistry(changed);
+    assert.equal(isApprovedActionsRetirement('D', RETIRED_ACTIONS_PATHS[0], checkout), false);
+  }
+  writeRegistry(registry);
+  fs.writeFileSync(path.join(checkout, 'README.md'), '# Unreviewed fixture\n');
+  assert.equal(isApprovedActionsRetirement('D', RETIRED_ACTIONS_PATHS[0], checkout), false);
+  fs.copyFileSync(path.join(repositoryRoot, 'README.md'), path.join(checkout, 'README.md'));
+  const beforeRetirement = run('/usr/bin/git', ['rev-parse', `${ACTIONS_RETIREMENT_SHA}^`], { cwd: checkout }).trim();
+  run('/usr/bin/git', ['update-ref', 'HEAD', beforeRetirement], { cwd: checkout });
+  assert.equal(isApprovedActionsRetirement('D', RETIRED_ACTIONS_PATHS[0], checkout), false);
+});
 
 const syntheticPrivacyFixtures = new Map([
   ['workers/quests/src/index.ts', [
@@ -959,12 +1110,12 @@ test('DOCS-02 / D-02: explicit-revision inventory is exhaustive, deterministic, 
   const actualPaths = inventory.entries.map((entry) => entry.path);
   assert.deepEqual(actualPaths, expectedPaths);
   assert.equal(new Set(actualPaths).size, actualPaths.length);
-  for (const entry of inventory.entries) {
-    const committedBytes = run('/usr/bin/git', ['show', `${revision}:${entry.path}`], { encoding: null });
+  forEachCommittedBlob(revision, inventory.entries.map((entry) => entry.path), (committedBytes, index) => {
+    const entry = inventory.entries[index];
     assert.equal(entry.provenance.sourceRevision, revision);
     assert.equal(entry.provenance.contentDigest, `sha256:${digest(committedBytes)}`);
     assert.equal(entry.provenance.bytes, committedBytes.length);
-  }
+  });
   assert.doesNotMatch(jsonOne, /(?:sourceBody|promptBody|requestBody|responseBody|messageBody)/i);
   assert.doesNotMatch(markdownOne, /(?:sourceBody|promptBody|requestBody|responseBody|messageBody)/i);
 });
@@ -1116,10 +1267,8 @@ test('DOCS-04 / D-04: evidence stays recoverable and exceptions remain source-ba
 
   const recoverable = inventory.entries.filter((entry) => ['historical', 'evidentiary'].includes(entry.lifecycle));
   assert.ok(recoverable.length > 0);
-  for (const entry of recoverable) {
-    assert.equal(spawnSync('/usr/bin/git', ['cat-file', '-e', `${revision}:${entry.path}`], { cwd: repositoryRoot }).status, 0,
-      `${entry.path} must remain recoverable at the selected revision`);
-  }
+  assert.deepEqual(committedBlobRecords(revision, recoverable.map((entry) => entry.path)).map((record) => record.path),
+    recoverable.map((entry) => entry.path), 'every historical or evidentiary blob must remain recoverable at the selected revision');
   changedPathsAndKinds(phaseBaseSha());
 
   const rejectUnindexedPromotion = (entry) => {

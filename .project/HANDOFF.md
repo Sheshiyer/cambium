@@ -1,5 +1,14 @@
 # Project handoff
 
+### Curious Labs deployment qualification
+
+- The owner now authorizes Cloudflare rollout of the reviewed visual candidate. Existing qualification and rollback checks remain required; main merge and stableGitHub publication stay separate.
+- Fresh Labs readback identifies cambium-quests and Version57 as the single100percent production/rollback Version. Private deployment evidence retains its UUID and full37binding inventory.
+- A reviewed private overlay preserves8plainvars,23inheritedsecret names and6resources; it excludes source-only website settings/limiters and the extra dailycron, and omits nonversioned settings synchronization.
+- Worker dry-run and local native-browser world rendering pass. Canonical screenshot/touch freshness and strict portfolio census remain held; the bounded owner exception question remains unanswered.
+- Full-core test transport now uses bounded byte-identical Git blob batches and retains all inventory/safety assertions. Only the accepted three Actions deletions receive a source-backed retirement exception; unknown changes remain rejected.
+- Freeze a clean exact source candidate for fresh full regressions. No upload or traffic assignment has occurred from this continuation.
+
 ### Curious source release0.4.0 preparation
 
 - Published review branch: `codex/curious-release-0.4.0`; [draft PR384](https://github.com/Sheshiyer/cambium/pull/384).
