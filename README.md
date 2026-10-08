@@ -300,3 +300,9 @@ from derived, evidentiary, historical, and local-only material.
 [Project repository](https://github.com/Sheshiyer/cambium)
 
 </div>
+
+## Local verification after Actions retirement
+
+GitHub Actions is retired. `.local-jobs/jobs.json` defines explicit local checks with scheduling disabled. Select jobs and provision their dependencies before using a local runner; no scheduler, listener, signing, or publication job is activated by these definitions.
+
+Run `npm run verify:release` for deterministic release validation. `npm run proof:tg-live-readiness` produces separate local readiness evidence. `scripts/release.sh` pushes version source and a tag only; GitHub Release publication remains an explicit manual step.

@@ -5,32 +5,28 @@ import test from 'node:test';
 const root = new URL('..', import.meta.url);
 const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
 const pkg = JSON.parse(read('package.json'));
-const ci = read('.github/workflows/ci.yml');
-const releaseWorkflow = read('.github/workflows/release.yml');
+const localJobs = JSON.parse(read('.local-jobs/jobs.json')).jobs;
 const releaseScript = read('scripts/release.sh');
 const workerDeploy = read('workers/quests/DEPLOY.md');
 const labsWorkerDeploy = read('workers/quests/DEPLOY-LABS.md');
 const legacySecretStaging = read('scripts/stage-marketing-create-secrets.sh');
 const legacyPrepareProof = read('scripts/prove-marketing-create-prepare.sh');
 
-test('release contract · one deterministic command owns local and workflow gates', () => {
+test('release contract · one deterministic command owns explicit local verification', () => {
   assert.equal(pkg.scripts['drift:audit'], 'node scripts/drift-audit.mjs');
   assert.equal(pkg.scripts['verify:release'], 'node scripts/verify-release.mjs');
-  for (const workflow of [ci, releaseWorkflow]) {
-    assert.match(workflow, /npm ci --prefix apps\/cambium-r3f/);
-    assert.match(workflow, /npm run verify:release/);
-  }
+  assert.deepEqual(localJobs.find(job => job.id === 'verify').argv, ['npm', 'run', 'verify:release']);
+  assert.ok(localJobs.every(job => job.enabled === false && job.daily === false && job.on_change === false));
   assert.match(releaseScript, /npm run verify:release/);
   assert.match(read('scripts/verify-release.mjs'), /Fitcheck organ and quest projection/);
   assert.match(read('scripts/verify-release.mjs'), /fitcheck-mini-app-quest-states\.test\.ts/);
 });
 
-test('release contract · live readiness is uploaded without being mislabeled deterministic proof', () => {
-  assert.match(ci, /npm run proof:tg-live-readiness/);
-  assert.match(ci, /actions\/upload-artifact@v4/);
-  assert.match(ci, /\.artifacts\/tg-miniapp-live-proof\/readiness\.json/);
-  assert.match(releaseWorkflow, /Live readiness report \(separate evidence\)/);
-  assert.doesNotMatch(releaseWorkflow, /TG mini app readiness proof \(non-strict\)/);
+test('release contract · live readiness is separate local evidence', () => {
+  const readiness = localJobs.find(job => job.id === 'live-readiness');
+  assert.deepEqual(readiness.argv, ['npm', 'run', 'proof:tg-live-readiness']);
+  assert.equal(readiness.evidence_kind, 'live-readiness-separate');
+  assert.equal(readiness.output, '.artifacts/tg-miniapp-live-proof/readiness.json');
 });
 
 test('release contract · local release preflights before version mutation and uses no mtime authority', () => {
@@ -42,10 +38,9 @@ test('release contract · local release preflights before version mutation and u
   assert.match(releaseScript, /origin\/main/);
 });
 
-test('release contract · codename output uses a shell-safe workflow block', () => {
-  assert.match(releaseWorkflow, /CODENAME="\$\(node -p "require\('\.\/package\.json'\)\.codename \|\| 'Muse'"\)"/);
-  assert.match(releaseWorkflow, /printf 'codename=%s\\n' "\$CODENAME" >> "\$GITHUB_OUTPUT"/);
-  assert.doesNotMatch(releaseWorkflow, /node -p \\"/);
+test('release contract · tag push does not claim retired workflow publication', () => {
+  assert.doesNotMatch(releaseScript, /the Release workflow will/);
+  assert.match(releaseScript, /GitHub Actions is retired/);
 });
 
 test('release contract · Worker deployment documents an isolated verified rollback', () => {

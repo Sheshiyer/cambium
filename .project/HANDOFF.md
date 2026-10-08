@@ -2516,3 +2516,7 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 - Preserved main privacy/authority corrections; curated transport evidence excludes raw logs/contact records and redacts personal reply addresses. Publish a fresh single-commit tree on main rather than the recovery checkpoint ancestry.
 - Restored the committed eight-topic Hermes pin; uncommitted Adytum topic remains an upstream hold. PAGE digest exactly matches the historical viewport receipt; no new visual capture or human acceptance claimed.
 - Targeted tests and privacy/drift/render/compose checks pass. Full-suite receipt belongs in the local review-ready handoff after the source commit. Phase 9 collector implementation and authenticated inventory remain incomplete under the existing executable plan; no Cloudflare/runtime/delivery/retirement action was performed.
+
+### 2026-10-08 Actions retirement migration candidate
+
+Workflow source is removed in this PR. Explicit local release verification and separate readiness jobs are recorded in `.local-jobs/jobs.json`, with scheduling disabled. The 33 affected release/readiness tests pass against the local registry. Tag pushes no longer claim automatic publication. No service, deployment, signing, or release publication is activated. Original operator checkouts remain untouched.
