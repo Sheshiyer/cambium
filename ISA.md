@@ -4,7 +4,7 @@ task: "Qualify and deploy reviewed Curious0.4.0 to Labs Cloudflare."
 effort: E4
 effort_source: task-classification
 phase: verify
-progress: 1247/1342
+progress: 1248/1342
 mode: interactive
 iteration: 2026-08-31-thoughtseed-labs-consolidation
 started: 2026-07-27T21:26:34Z
@@ -1715,7 +1715,7 @@ Implementation acceptance evidence:
 - [x] ISC-3076: The exact candidate dry-run produces a SHA256-bound Worker bundle.
 - [x] ISC-3077: The production source is an isolated clean exact single-commit candidate.
 - [ ] ISC-3078: Required full release qualification passes against the exact candidate.
-- [ ] ISC-3079: Strict current portfolio linkage census passes.
+- [x] ISC-3079: Strict current portfolio linkage census passes.
 - [x] ISC-3080: Independent deployment review accepts the exact candidate and overlay.
 - [ ] ISC-3081: One uploaded inert version matches reviewed runtime and binding identities.
 - [ ] ISC-3082: Deployment readback assigns only that reviewed version100percent traffic.
@@ -3010,3 +3010,11 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - ISC-3080: independent review approves the exact source and37-binding preservation overlay. Its concrete canary-extension finding was repaired and independently reproduced as rejected.
 - Strict portfolio census remains held by33 recorded blockers. Canonical screenshot/touch proof remains held. The owner question requests an exception only for these two gates, conditional on all other checks passing; no answer or exception has been assumed.
 - No Cloudflare upload, deployment, secret/resource/Access/trigger change, main merge, stable tag or stable GitHub Release publication has occurred. The existing Labs Version57 rollback remains captured privately.
+
+### 2026-10-08 current physical census reconciliation
+
+- ISC-3079 now passes against the actual Thoughtseed root:102 expected and102 observed physical folders, zero missing or unexpected names. Four new intake folders and two external references retain empty WorkObject IDs and explicit unresolved status; no new action identity is admitted.
+- Eleven registered worktrees and nine retained artifact containers have exact portable provenance. Snow Gloves support folders reference its existing program. Both historical Website paths retain dispositions; the current checkout remains required.
+- Only the exact frozen display proposals and reviewed Session Atlas identity receive held proposal treatment. Unknown IDs and spoofed labels remain rejected. The72-record action catalog and approved execution digest are unchanged.
+- Fresh focused linkage/foundation16/16 and Cartographer115 pass,1 existing skip; strict TypeScript and Vite build pass. Independent read-only source review approves all14 changed paths. The pre-census root snapshot remains byte-identical to the prior committed blob and dated intake cannot adopt the new map.
+- The stale canonical screenshot/touch gate remains held. Fresh IAB alternatives produced zero trusted touch events, and the test server/tab cleanup is verified. The original scoped owner question remains unanswered; no Cloudflare upload or promotion has occurred. Prior suite and image/bundle counts above are historical to their exact candidate and do not mint a new full release pass.

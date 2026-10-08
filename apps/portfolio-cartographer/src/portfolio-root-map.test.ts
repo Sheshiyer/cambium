@@ -39,7 +39,14 @@ test('snapshot preserves internally consistent shallow portfolio counts and excl
   const noesis = snapshot.portfolios.find((portfolio: { portfolioId: string }) => portfolio.portfolioId === 'tryambakam-noesis')
 
   assert.equal(thoughtseed.folderCount, thoughtseed.folders.length)
-  assert.deepEqual(thoughtseed.infrastructure, ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website', '.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees', 'cambium-showcase-ui-rebuild', 'cambium-website-semantics', 'omniroute-governed', 'temperance_engine-phase-01'])
+  for (const folder of ['_physical-relocation-archive-2026-08-08', 'openfang', 'scroll-world', 'thoughtseed-labs', 'website', '.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees', 'omniroute-governed', 'temperance_engine-phase-01']) assert.ok(thoughtseed.infrastructure.includes(folder))
+  assert.equal(thoughtseed.infrastructure.length, 31)
+  assert.equal(thoughtseed.infrastructureEvidence.length, 20)
+  assert.equal(thoughtseed.infrastructureEvidence.filter((row: { kind: string }) => row.kind === 'linked-worktree').length, 11)
+  assert.equal(thoughtseed.infrastructureEvidence.filter((row: { kind: string }) => row.kind === 'retained-artifact').length, 9)
+  assert.equal(snapshot.capturedAt, '2026-09-08T10:04:53Z')
+  assert.match(thoughtseed.censusObservedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
+  assert.equal(Object.hasOwn(noesis, 'censusObservedAt'), false)
   assert.equal(noesis.folderCount, noesis.folders.length)
   assert.deepEqual(noesis.infrastructure, ['_portfolio-audit', 'antahkarana-recovery-20260831-pzm8eM'])
   assert.equal(noesis.archiveContainer, '_archive')
@@ -263,16 +270,17 @@ test('safe reconciliations retain infrastructure and existing WorkObject relatio
     folder: 'thoughtseed-organ-console', proposedKind: 'internal-program', accountId: null,
     workIds: ['program:thoughtseed-organ-console'], status: 'mapping-proposal',
   })
-  assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'cambium-telegram-showcase'), {
-    folder: 'cambium-telegram-showcase', displayName: 'Cambium Website', proposedKind: 'sapling', accountId: null,
+  assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'cambium-showcase-ui-rebuild'), {
+    folder: 'cambium-showcase-ui-rebuild', displayName: 'Cambium Website', proposedKind: 'sapling', accountId: null,
     workIds: ['sapling:cambium'], status: 'mapping-proposal',
+    sourceRefs: ['local:cambium-showcase-ui-rebuild/package.json#name', 'local:.cambium-recovery-20261004/cleanup-receipt.json#activeCheckout'],
   })
   assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === 'codigo'), {
     folder: 'codigo', displayName: 'Codigo', proposedKind: 'client-branch', accountId: 'codigo-olimpo',
     nestedRepositories: [{ relativePath: 'research/Decodik', displayName: 'Decodik', workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'] }],
     workIds: ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'], status: 'mapping-proposal',
   })
-  for (const folder of ['cambium-telegram-showcase', 'codigo']) {
+  for (const folder of ['cambium-showcase-ui-rebuild', 'codigo']) {
     assert.equal(thoughtseed.infrastructure.includes(folder), false)
   }
   const relations = {
@@ -372,12 +380,13 @@ test('the original twelve-directory Thoughtseed census and Cambium Website workt
   const census = ['.codex-data', '.grok-worktrees', '.superpowers', '.superset-worktrees',
     'cambium-showcase-ui-rebuild', 'cambium-website-semantics', 'cambium-telegram-showcase', 'codigo', 'omniroute-governed',
     'temperance_engine', 'temperance_engine-phase-01', 'thoughtseed-organ-console', 'thoughtseedlabs-website']
-  const classified = new Set([...thoughtseed.folders.map(({ folder }) => folder), ...thoughtseed.infrastructure])
+  const classified = new Set([...thoughtseed.folders.map(({ folder }) => folder), ...thoughtseed.infrastructure, ...thoughtseed.historicalFolders.map(({ folder }) => folder)])
   assert.deepEqual(census.filter((folder) => !classified.has(folder)), [])
-  assert.equal(thoughtseed.infrastructure.includes('cambium-website-semantics'), true)
+  assert.equal(thoughtseed.infrastructure.includes('cambium-website-semantics'), false)
+  assert.equal(thoughtseed.historicalFolders.some(({ folder }) => folder === 'cambium-website-semantics'), true)
   assert.equal(thoughtseed.folders.some(({ folder }) => folder === 'cambium-website-semantics'), false)
-  assert.equal(thoughtseed.folderCount, 63)
-  assert.equal(classified.size, 76)
+  assert.equal(thoughtseed.folderCount, 71)
+  assert.equal(classified.size, 104)
 })
 
 
@@ -433,7 +442,7 @@ test('display names and nested Codigo evidence render without changing folder or
   const snapshot = validateSnapshot(await readSnapshot())
   const thoughtseed = snapshot.portfolios[0]
   const markdown = renderPortfolioMarkdown(thoughtseed, snapshotDigest(snapshot))
-  assert.match(markdown, /\| `cambium-telegram-showcase` \| Cambium Website \| sapling:cambium \| mapping-proposal \|/)
+  assert.match(markdown, /\| `cambium-showcase-ui-rebuild` \| Cambium Website \| sapling:cambium \| mapping-proposal \|/)
   assert.match(markdown, /\| `codigo\/research\/Decodik` \| Decodik \| client:codigo-olimpo \| branch:codigo-olimpo, branch:codigo-olimpo-creator-platform \|/)
   assert.match(markdown, /Nested repository evidence.*existing parent.*WorkObject/s)
   const json = JSON.parse(renderPortfolioJson(thoughtseed, snapshotDigest(snapshot)))
@@ -490,4 +499,66 @@ test('root JSON and Markdown preserve reviewed modular-node and partner ownershi
     mutate(changed.portfolios[0].folders.find((row: { folder: string }) => row.folder === 'session-atlas'))
     assert.throws(() => validateSnapshot(changed), /ownership metadata/)
   }
+})
+
+test('historical Website paths retain provenance without suppressing physical drift', async () => {
+  const snapshot = validateSnapshot(await readSnapshot())
+  const thoughtseed = snapshot.portfolios[0]
+  const exact = thoughtseed.folders.map(({ folder }) => folder).concat(thoughtseed.infrastructure)
+  const stale = exact.filter((folder) => folder !== 'cambium-showcase-ui-rebuild').concat('cambium-telegram-showcase')
+  assert.deepEqual(compareObservedDirectories(thoughtseed, stale).missing, ['cambium-showcase-ui-rebuild'])
+  assert.deepEqual(compareObservedDirectories(thoughtseed, stale).unexpected, ['cambium-telegram-showcase'])
+  const json = JSON.parse(renderPortfolioJson(thoughtseed, snapshotDigest(snapshot)))
+  assert.deepEqual(json.historicalFolders, thoughtseed.historicalFolders)
+  assert.deepEqual(json.infrastructureEvidence, thoughtseed.infrastructureEvidence)
+  assert.equal(json.censusObservedAt, thoughtseed.censusObservedAt)
+  assert.match(renderPortfolioMarkdown(thoughtseed, snapshotDigest(snapshot)), /cambium-telegram-showcase.*replaced-checkout.*cambium-showcase-ui-rebuild/)
+  for (const patch of [
+    { folder: '../escape' }, { folder: '.worktrees' }, { folder: 'cambium' },
+    { currentFolder: '../escape' }, { currentFolder: 'missing-current' }, { currentFolder: '.worktrees' },
+    { disposition: 'ignore-if-missing' }, { sourceRefs: [] }, { sourceRefs: ['local:../private/receipt.json'] },
+    { sourceRefs: ['local:/absolute/receipt.json'] }, { sourceRefs: ['https://unreviewed.invalid'] },
+    { extra: 'not-a-contract-field' },
+  ]) {
+    const changed = structuredClone(snapshot)
+    Object.assign(changed.portfolios[0].historicalFolders[0], patch)
+    assert.throws(() => validateSnapshot(changed), /historical census|portable census/)
+  }
+  const duplicate = structuredClone(snapshot)
+  duplicate.portfolios[0].historicalFolders.push(duplicate.portfolios[0].historicalFolders[0])
+  assert.throws(() => validateSnapshot(duplicate), /historical census/)
+})
+
+test('physical evidence rows reject wildcard exclusions and unowned infrastructure', async () => {
+  const snapshot = await readSnapshot()
+  for (const patch of [{ folder: 'not-infrastructure' }, { folder: 'cambium-*' }, { kind: 'ignore-anything' }, { sourceRefs: [] }, { workIds: ['program:invented'] }]) {
+    const changed = structuredClone(snapshot)
+    Object.assign(changed.portfolios[0].infrastructureEvidence[0], patch)
+    assert.throws(() => validateSnapshot(changed), /infrastructure census|portable census/)
+  }
+  const duplicate = structuredClone(snapshot)
+  duplicate.portfolios[0].infrastructureEvidence.push(duplicate.portfolios[0].infrastructureEvidence[0])
+  assert.throws(() => validateSnapshot(duplicate), /infrastructure census/)
+  for (const censusObservedAt of [null, 'yesterday', '2026-02-30T01:00:00Z']) {
+    const changed = structuredClone(snapshot)
+    changed.portfolios[0].censusObservedAt = censusObservedAt
+    assert.throws(() => validateSnapshot(changed), /census observation time/)
+  }
+})
+
+test('external references and new identity intake stay held with empty WorkObject IDs', async () => {
+  const snapshot = validateSnapshot(await readSnapshot())
+  const thoughtseed = snapshot.portfolios[0]
+  for (const name of ['autosocial', 'mcp-obsidian-slice-b-20261001', 'factor', 'fieldwork', 'moodboard-ai-agent', 'skills-india-govt']) {
+    const entry = thoughtseed.folders.find(({ folder }) => folder === name)
+    assert.equal(entry.proposedKind, 'needs-review')
+    assert.equal(entry.accountId, null)
+    assert.deepEqual(entry.workIds, [])
+    for (const patch of [{ workIds: ['sapling:invented'] }, { accountId: 'invented-client' }, { status: 'mapping-proposal' }]) {
+      const changed = structuredClone(snapshot)
+      Object.assign(changed.portfolios[0].folders.find(({ folder }) => folder === name), patch)
+      assert.throws(() => validateSnapshot(changed), /unresolved census reference cannot grant identity/)
+    }
+  }
+  for (const name of ['snow-gloves-ops', 'snow-gloves-wiki']) assert.deepEqual(thoughtseed.folders.find(({ folder }) => folder === name).workIds, ['program:snow-gloves-os'])
 })

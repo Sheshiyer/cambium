@@ -1,3 +1,27 @@
+import { createHash } from 'node:crypto'
+import {
+  PORTFOLIO_DISPLAY_PROPOSAL,
+  PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS,
+  PORTFOLIO_DISPLAY_PROPOSAL_WORK_IDS,
+  PORTFOLIO_DISPLAY_CATALOG_DIGEST,
+} from '../shared/portfolio-catalog-display-proposal.ts'
+import { validatePortfolioCensusEvidence } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
+
+// Exact already-reviewed display source, deliberately independent of action pins.
+// No caller-supplied proposal IDs, schema or digest can extend this finite set.
+const REVIEWED_DISPLAY_SOURCE_SHA256 = '034de2a5cdd37fd028607a8966088f9b30655c0b01e59696899721799ca15f00'
+
+function reviewedDisplayProposalWorkIds() {
+  const digest = createHash('sha256').update(JSON.stringify({
+    proposal: PORTFOLIO_DISPLAY_PROPOSAL,
+    programs: PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS,
+    workIds: PORTFOLIO_DISPLAY_PROPOSAL_WORK_IDS,
+    catalogDigest: PORTFOLIO_DISPLAY_CATALOG_DIGEST,
+  })).digest('hex')
+  if (digest !== REVIEWED_DISPLAY_SOURCE_SHA256) throw new Error('reviewed_display_proposal_source_drift')
+  return new Set(PORTFOLIO_DISPLAY_PROPOSAL_WORK_IDS)
+}
+
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
@@ -106,6 +130,7 @@ function normalizeRootMap(rootMap, observedFolders) {
     throw new Error('root_map_thoughtseed_invalid')
   }
   if (portfolio.folders.length !== portfolio.folderCount) throw new Error('root_map_folder_count_drift')
+  validatePortfolioCensusEvidence(portfolio)
   const folders = portfolio.folders.map((entry, index) => {
     if (!isRecord(entry) || typeof entry.folder !== 'string' || !entry.folder) {
       throw new Error(`root_map_folder_${index}_invalid`)
@@ -122,12 +147,19 @@ function normalizeRootMap(rootMap, observedFolders) {
     if (identityStatus === 'reviewed-local-node' && (entry.status !== 'mapping-proposal' || workIds.length === 0)) {
       throw new Error(`root_map_folder_${index}_held_identity_invalid`)
     }
+    if (identityStatus === 'reviewed-local-node' && !(entry.folder === 'session-atlas' && entry.proposedKind === 'internal-program' &&
+      workIds.length === 1 && workIds[0] === 'program:session-atlas' && entry.accountId === null &&
+      entry.ownership === 'thoughtseed' && entry.relationship === 'modular-organ-of' && entry.relatedWorkId === 'sapling:cambium')) {
+      throw new Error(`root_map_folder_${index}_held_identity_unreviewed`)
+    }
     return {
       folder: entry.folder,
       proposedKind: entry.proposedKind,
       status: typeof entry.status === 'string' ? entry.status : null,
       workIds,
       identityStatus,
+      ...(entry.referenceKind ? { referenceKind: entry.referenceKind, admission: 'none', executionAuthority: 'none' } : {}),
+      ...(entry.sourceRefs ? { sourceRefs: [...entry.sourceRefs] } : {}),
     }
   }).sort((left, right) => left.folder.localeCompare(right.folder))
   if (new Set(folders.map((entry) => entry.folder)).size !== folders.length) throw new Error('root_map_folders_duplicate')
@@ -141,6 +173,9 @@ function normalizeRootMap(rootMap, observedFolders) {
     observed,
     missing: observed ? expected.filter((folder) => !observed.includes(folder)) : [],
     unexpected: observed ? observed.filter((folder) => !expected.includes(folder)) : [],
+    infrastructureEvidence: structuredClone(portfolio.infrastructureEvidence ?? []),
+    historicalFolders: structuredClone(portfolio.historicalFolders ?? []),
+    observedAt: portfolio.censusObservedAt ?? null,
   }
 }
 
@@ -293,6 +328,10 @@ function hasDiff(diff) {
 
 export function buildPortfolioMiniappLinkageReport(input) {
   if (!isRecord(input)) throw new Error('linkage_input_must_be_object')
+  for (const key of ['displayProposal', 'displayProposalWorkIds', 'displayCatalog', 'displaySelectionDigest']) {
+    if (Object.hasOwn(input, key)) throw new Error('display_proposal_override_forbidden')
+  }
+  const displayProposalWorkIds = reviewedDisplayProposalWorkIds()
 
   const catalog = normalizeCatalog(input.catalog)
   const branchStories = normalizeBranchStories(input.branchStories)
@@ -327,9 +366,10 @@ export function buildPortfolioMiniappLinkageReport(input) {
   const mappedWorkIds = rootMap ? sortedUniqueStrings(rootMap.folders.flatMap((entry) => entry.workIds), 'root_map_mapped_work_ids') : []
   const heldProposalFoldersByWorkId = new Map()
   for (const entry of rootMap?.folders ?? []) {
-    if (entry.identityStatus !== 'reviewed-local-node' || entry.status !== 'mapping-proposal') continue
+    if (entry.status !== 'mapping-proposal') continue
     for (const workId of entry.workIds) {
       if (catalogWorkIdSet.has(workId)) continue
+      if (entry.identityStatus !== 'reviewed-local-node' && !displayProposalWorkIds.has(workId)) continue
       const folders = heldProposalFoldersByWorkId.get(workId) ?? []
       folders.push(entry.folder)
       heldProposalFoldersByWorkId.set(workId, folders)
@@ -439,11 +479,22 @@ export function buildPortfolioMiniappLinkageReport(input) {
       mappedFolderCount: rootMap.folders.length,
       infrastructureCount: rootMap.infrastructure.length,
       observedCount: rootMap.observed?.length ?? null,
+      mappingObservedAt: rootMap.observedAt,
       missingFolders: rootMap.missing,
       unexpectedFolders: rootMap.unexpected,
       unresolvedFolders: rootMap.folders.filter((entry) => entry.workIds.length === 0),
       mappedWorkIdsMissingFromCatalog,
       heldProposalIdentities,
+      reviewedDisplayProposal: {
+        selectionDigest: PORTFOLIO_DISPLAY_PROPOSAL.selectionDigest,
+        catalogDigest: PORTFOLIO_DISPLAY_CATALOG_DIGEST,
+        workIds: [...displayProposalWorkIds].sort(),
+        admission: 'render-and-proposal-only',
+        executionAuthority: 'none',
+        actionAuthority: 'none',
+      },
+      infrastructureEvidence: rootMap.infrastructureEvidence,
+      historicalFolders: rootMap.historicalFolders,
       unclassifiedMappedWorkIds,
       catalogWorkIdsWithoutFolders: catalog.workIds.filter((workId) => !foldersByWorkId.has(workId)),
     } : null,
