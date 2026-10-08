@@ -765,7 +765,7 @@ test('queued viewport fixture is redacted and filtered proofs cannot replace can
   assert.match(viewportProofArtifactDirectory({ proofPathFilter:'gate' }), /\.artifacts\/tg-miniapp-viewport\/captures$/);
 });
 
-test('mobile contract proof is focused, noncanonical, and required by CI plus release', () => {
+test('mobile contract proof is focused, noncanonical, and required by explicit local release verification', () => {
   const steps = selectViewportProofCaptureSteps({ proofPathFilter:'', mobileContractOnly:true });
   assert.deepEqual(steps.map((proof) => proof.path), MOBILE_CONTRACT_PROOF_PATHS);
   assert.ok(steps.some((proof) => proof.fixture === 'action-request-queued' && proof.tapTargetSelector));
@@ -773,12 +773,10 @@ test('mobile contract proof is focused, noncanonical, and required by CI plus re
 
   const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
   assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
-  const ci = readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8');
-  const release = readFileSync(new URL('../../../.github/workflows/release.yml', import.meta.url), 'utf8');
+  const localJobs = JSON.parse(readFileSync(new URL('../../../.local-jobs/jobs.json', import.meta.url), 'utf8')).jobs;
   const verifyRelease = readFileSync(new URL('../../../scripts/verify-release.mjs', import.meta.url), 'utf8');
   assert.match(verifyRelease, /proof:tg-mobile-contract/);
-  assert.match(ci, /npm run verify:release/);
-  assert.match(release, /npm run verify:release/);
+  assert.deepEqual(localJobs.find((job: { id: string }) => job.id === 'verify').argv, ['npm', 'run', 'verify:release']);
 });
 
 test('mobile touch proof retries only when a real drag produced insufficient scroll', () => {
