@@ -2,6 +2,9 @@
 
 ### Curious source release0.4.0 preparation
 
+- Published review branch: `codex/curious-release-0.4.0`; [draft PR384](https://github.com/Sheshiyer/cambium/pull/384).
+- [Terpsichore release draft](https://github.com/Sheshiyer/cambium/releases/tag/untagged-d760d6e13797d5e258b1) remains unpublished; no stable tag exists.
+
 - Scoped source imports only the reviewed atlas/workbench/walkable-world packet.
   Historical Mac migration planning and private controller state stay excluded.
 - Current main Actions retirement and disabled local jobs are preserved.

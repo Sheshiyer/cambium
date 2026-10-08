@@ -4,7 +4,7 @@ task: "Publish reviewed Curious source release0.4.0."
 effort: E4
 effort_source: task-classification
 phase: build
-progress: 1239/1326
+progress: 1241/1326
 mode: interactive
 iteration: 2026-08-31-thoughtseed-labs-consolidation
 started: 2026-07-27T21:26:34Z
@@ -1695,8 +1695,8 @@ Implementation acceptance evidence:
 - [x] ISC-3061: The complete affected Curious and legacy/Fabric regression selection passes.
 - [x] ISC-3062: Release runtime source hashes match the reviewed candidate.
 - [x] ISC-3063: Independent review approves scoped branch and draft PR publication.
-- [ ] ISC-3064: Remote release branch matches the pushed local commit.
-- [ ] ISC-3065: Release PR is bound to the reviewed head and scope.
+- [x] ISC-3064: Remote release branch matches the pushed local commit.
+- [x] ISC-3065: Release PR is bound to the reviewed head and scope.
 - [ ] ISC-3066: Main integration follows the active squash-PR ruleset.
 - [ ] ISC-3067: Remote main includes the reviewed0.4.0 version bump.
 - [ ] ISC-3068: Annotatedv0.4.0 tag identifies the accepted main commit.
@@ -2953,3 +2953,5 @@ This source integration is a bounded repository task within the active v0.5 mile
 The exact remaining gates and source ownership are recorded in `.planning/RECONCILIATION-2026-09-27.md`. No local test result mints send, spend, provider, migration, deployment, data-transfer, or retirement authority.
 
 - 2026-10-08 Curious release qualification: scoped source is approved for branch and draft PR publication. Fresh affected regressions752/752, R3F142/142 plus build, packaging5/5, mission/readiness38/38, Fitcheck13/13 and IAB receipt validation45/45 pass. Runtime22files match the accepted candidate. Release bundle SHA-256509e043659a813ddec29d44f0ca0c53fde5d29f89bcfd5e40f8ddbd4ab76e0b4 differs only through reviewed source pointers and retirement display alias. Atlas19checks and all36source selectors pass. Canonical viewport artifacts remain stale; trusted touch drag and strict320px Inspect geometry are held. Full core was contained after ten minutes; standalone smoke did not pass. No main merge, stable tag or deployment is accepted by this source proof.
+
+- 2026-10-08 publication readback: source commit60cc024137cfee039aa6d1989adedc63e26e8fe6 is pushed on codex/curious-release-0.4.0; draft PR384 is open against unchanged main026ebf6a0c87c0eb245ae1bcb05d4120e3f944e1, with102reviewed paths. GitHub release407038049 is a draft forv0.4.0 with published_at null. Remote v0.4.0 tag is absent. Current lane24/32 is accepted; stable main/tag/publication, drift/full core/standalone and mobile proof remain open. Intent readback10/10 and retired-owner provenance4/4 now pass; no canonical viewport artifact was relabeled.
