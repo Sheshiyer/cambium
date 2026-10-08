@@ -1,17 +1,19 @@
 ---
 project: Cambium
-task: "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window."
+task: "Publish reviewed Curious source release0.4.0."
 effort: E4
 effort_source: task-classification
-phase: verify
-progress: 4/4
+phase: build
+progress: 1239/1326
 mode: interactive
 iteration: 2026-08-31-thoughtseed-labs-consolidation
 started: 2026-07-27T21:26:34Z
-updated: 2026-08-31T18:31:00Z
+updated: 2026-10-08
 ---
 
 ## Problem
+
+The reviewed Curious upgrade is local while the release branch still carries unrelated planning history. Fresh main retires GitHub Actions, so release integration must preserve that policy.
 
 Cambium currently contains both a Thoughtseed Labs Wrangler configuration and
 a legacy `9d9d` configuration, while historical operator instructions can
@@ -47,6 +49,8 @@ The Fitcheck Mission scene now names the correct authenticated Shopify QA quest 
 
 ## Vision
 
+Publish an inspectable source release whose version, accepted code, tag and notes refer to one reviewed main commit. The operator can distinguish release from live deployment.
+
 > **Historical iteration vision and acceptance evidence (issue #331 and earlier).** The retained material below records earlier implementation intent; canonical repository doctrine now lives in [`VISION.md`](./VISION.md) and [`MISSION.md`](./MISSION.md).
 
 A future maintainer can begin from current main, run one drift audit, and know which operational facts are canonical, generated, historical, deferred, or blocked. Production-shaped fixtures drive the UI proofs; state-specific controls appear only when valid; plans cannot masquerade as current runbooks; and GitHub milestones, issues, releases, and deployment receipts describe the same state without requiring founder memory.
@@ -66,6 +70,8 @@ For client-family planning, the founder sees one expandable HeyZack family rathe
 For repository-first intake, every unresolved card begins with the exact GitHub repository evidence and an explicit origin decision. Only Thoughtseed-originated ventures or products may resolve to Saplings; all client-originated work resolves to a Client Branch even when newly started; shared Thoughtseed capability or operations work resolves to an Internal Program; unknown origin remains Needs Review. Scheduling unlocks only after repository evidence, origin, planning authority, and legacy-evidence reconciliation agree. Repository issues and plans own project-local intent; Cambium owns cross-portfolio coordination and honest unresolved gaps.
 
 ## Out of Scope
+
+This release does not deploy Cloudflare, provision credentials, enable local recurring jobs or publish the old Mac-migration planning lane. Device and live integration proof stay separate.
 
 - No removal of authentication, signed-action, secret-redaction, idempotency, or no-fake-progress controls.
 - No deletion, reset, stash, cleanup, or rewriting of unrelated local work in the primary checkout.
@@ -97,6 +103,8 @@ For repository-first intake, every unresolved card begins with the exact GitHub 
 
 ## Principles
 
+Preserve provenance and existing authority. A release pointer identifies verified source; it cannot manufacture device or cloud evidence.
+
 - Runtime state outranks issue prose; issue prose must be regenerated or reconciled when runtime state changes.
 - Fixtures must be consumers of production contracts, never privileged sources with display-critical fields production does not emit.
 - Operational instructions describe state transitions, not one message number, one screenshot, or one remembered click path.
@@ -121,6 +129,8 @@ For repository-first intake, every unresolved card begins with the exact GitHub 
 - Filesystem address, portfolio membership, WorkObject kind, client relationship, and repository identity are separate fields joined by evidence rather than encoded into one path.
 
 ## Constraints
+
+Use the current main squash-PR ruleset without bypass. Preserve Actions retirement and use coherent root/desktop version metadata.
 
 - Cleanup changes are authored only in the clean `codex/drift-proof-cleanup` worktree based on fetched `origin/main`.
 - The Cloudflare Worker remains the production surface at `curious.thoughtseed.space`.
@@ -158,6 +168,8 @@ For repository-first intake, every unresolved card begins with the exact GitHub 
 - A redirect back to the public bootstrap after Access login would create a loop instead of reaching the Workbench.
 
 ## Goal
+
+Push the reviewed Curious/atlas release branch, integrate through the permitted PR route and publish0.4.0 with an exact annotated main tag after required checks. Independently read back branch, main, tag and release.
 
 Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.
 
@@ -1657,7 +1669,44 @@ Implementation acceptance evidence:
 - [x] ISC-2457: The D1 Mission to Task proposal gate is unlocked but unapplied.
 - [x] ISC-2458: Anti: Fitcheck receipt issuance performs no D1, Hermes, Cortex, agent-memory, deployment, promotion, provider, traffic, GitHub, or folder mutation.
 
+### Curious source release0.4.0 · 2026-10-08
+
+- [x] ISC-3040: Release delta contains only reviewed Curious/atlas source and required release metadata.
+- [x] ISC-3041: GitHub Actions retirement remains intact in the release tree.
+- [x] ISC-3042: No old migration planning packet enters the public release delta.
+- [x] ISC-3043: The embedded Curious bundle pins the reviewed release SHA-256 after source-reference and retirement-alias repair.
+- [x] ISC-3044: Root package version is0.4.0.
+- [x] ISC-3045: Desktop package version is0.4.0.
+- [x] ISC-3046: Desktop lockfile root versions are0.4.0.
+- [x] ISC-3047: VERSIONS contains the Terpsichore release stanza.
+- [x] ISC-3048: Retired runtime verification passes.
+- [ ] ISC-3049: Drift audit passes.
+- [ ] ISC-3050: Full core tests pass.
+- [x] ISC-3051: Generated documentation parity passes.
+- [x] ISC-3052: Product branch packet validation passes.
+- [x] ISC-3053: Fitcheck organ and quest projection checks pass.
+- [x] ISC-3054: Mission-fabric integration and readiness-contract checks pass.
+- [x] ISC-3055: Standalone privacy audit passes.
+- [ ] ISC-3056: Standalone smoke passes.
+- [ ] ISC-3057: Telegram mobile contract proof passes.
+- [x] ISC-3058: R3F regression tests pass.
+- [x] ISC-3059: R3F production build passes.
+- [x] ISC-3060: Electron packaging contract passes.
+- [x] ISC-3061: The complete affected Curious and legacy/Fabric regression selection passes.
+- [x] ISC-3062: Release runtime source hashes match the reviewed candidate.
+- [x] ISC-3063: Independent review approves scoped branch and draft PR publication.
+- [ ] ISC-3064: Remote release branch matches the pushed local commit.
+- [ ] ISC-3065: Release PR is bound to the reviewed head and scope.
+- [ ] ISC-3066: Main integration follows the active squash-PR ruleset.
+- [ ] ISC-3067: Remote main includes the reviewed0.4.0 version bump.
+- [ ] ISC-3068: Annotatedv0.4.0 tag identifies the accepted main commit.
+- [ ] ISC-3069: GitHubv0.4.0 release is published with reviewed notes.
+- [x] ISC-3070: Anti: source publication causes no Cloudflare deployment.
+- [x] ISC-3071: Anti: original candidate and primary state remain preserved.
+
 ## Test Strategy
+
+ISC-3040..3071 use staged-path/hash readback, canonical13release gates, affected394regressions and fresh GitHub branch/PR/main/tag/release API evidence. Every publication identity must match its reviewed commit.
 
 
 - ISC-1273..1276 | canonical infinite-game anchors | stable headings, direct paths, authority boundaries, coherent ISA state, and preserved Mission Fabric terminology | each criterion is binary and provenance-preserving | `node --test scripts/infinite-game-anchors.test.mjs`
@@ -1778,6 +1827,8 @@ Implementation acceptance evidence:
 | ISC-911..930 | Thoughtseed project closeout | terminal Completed / Closed state removes receipt-backed work from active views, queues closeout evidence, writes handoff/memory/index records through the local executor, and preserves no-relocation/no-production boundaries | focused domain/action/executor tests, Portfolio Cartographer check, bundle parity, source audit, `git diff --check` |
 
 ## Features
+
+ReleaseScope | reviewed91-path source patch plus portable ledger/notes | satisfies3040..3043,3071. ReleaseMetadata | coherent version and Muse notes | satisfies3044..3047. ReleaseProof | local gates and independent audit | satisfies3048..3063. ReleasePublication | push,squash PR,tag and GitHubRelease | satisfies3064..3070.
 
 - `ThreeSaplingIdentityBinding` | Bind Fitcheck, IVerif, and DLOCK to exact tenant, repository, packet, and root-context evidence | satisfies ISC-1387..1395 | depends_on PortfolioFoundationReconciliation | parallelizable true
 - `ActivationManifestRegistry` | Compile deterministic receipt-gated activation records for the exact three-Sapling cohort | satisfies ISC-1396..1401 | depends_on ThreeSaplingIdentityBinding | parallelizable true
@@ -1902,6 +1953,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 <!-- arch-assets:end -->
 
 ## Decisions
+
+2026-10-08 refined: user now authorizes push and release bump. Choose minor0.4.0/Terpsichore for the new walkable feature; preserve historicalv0.4 milestone. Use a fresh-main scoped branch instead of publishing83unrelated historical commits.32atomic criteria cover exact boundaries; expanding this release to128 would duplicate probes.
 
 - 2026-08-18 06:25: refined: Phase 4 is a deterministic, content-addressed read projection over existing authorities, not a new graph database, planner, or D1 writer. A machine-readable contract and generated readback must share one source model; copied anchor authority, projection foldback, stale digests, unlabeled edges, and blocked-as-complete coercion are fail-closed test cases. The required pre-commit and post-deliverable Advisor invocations could not authenticate because the local OAuth session expired, so no advisory approval is inferred; independent GSD plan checking and deterministic repository probes remain mandatory before execution.
 - 2026-08-18 01:48: refined: the exact v0.4 infinite-game goal and ISC-1273..1276 are the active Phase 3 acceptance contract; all retained issue #331 and earlier Vision, Goal, Criteria, Decision, Changelog, and Verification material remains historical evidence and is neither rewritten nor treated as current doctrine.
@@ -2142,6 +2195,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+2026-10-08 | conjectured: the reviewed local branch could be pushed directly as the release.
+  refuted by: fresh main026ebf6 retires Actions and the candidate includes an unrelated migration lane.
+  learned: release authority requires an exact source packet over current policy.
+  criterion now: ISC-3040..3043 bind scope,privacy and immutable runtime bytes.
+
 - 2026-08-14 | conjectured: showing proof requirements and an existing Gate would be enough for the founder to advance a quest
   refuted by: the live UI contains no editable founder surface, the only evidence endpoint is admin-bearer scoped, and a direct quest-status route would let any caller relabel D1 state
   learned: founder evidence needs a closed authenticated ingress that creates a non-authoritative pending candidate; the Worker fixes authority fields and Gate signs before any D1 CAS
@@ -2330,6 +2388,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-851..864 require the hosted action endpoint, R2-before-queue ordering, idempotent receipts, Project-only Tryambakam grammar, same-origin CSP, and preserved Goal Graph/promotion authority
 
 ## Verification
+
+Initial evidence: fresh GitHub ruleset requires a squash PR with zero mandatory approving reviews. Current main026ebf6 is the release base. Scoped91-path patch applied cleanly; version metadata is read back before local qualification.
 
 ### 2026-09-05 Plexus P7 supporting source checkpoint
 
@@ -2891,3 +2951,5 @@ This source integration is a bounded repository task within the active v0.5 mile
 - [ ] REC-06: Final source commit is clean and reviewable with branch disposition, test receipts, and explicit remaining operational gates.
 
 The exact remaining gates and source ownership are recorded in `.planning/RECONCILIATION-2026-09-27.md`. No local test result mints send, spend, provider, migration, deployment, data-transfer, or retirement authority.
+
+- 2026-10-08 Curious release qualification: scoped source is approved for branch and draft PR publication. Fresh affected regressions752/752, R3F142/142 plus build, packaging5/5, mission/readiness38/38, Fitcheck13/13 and IAB receipt validation45/45 pass. Runtime22files match the accepted candidate. Release bundle SHA-256509e043659a813ddec29d44f0ca0c53fde5d29f89bcfd5e40f8ddbd4ab76e0b4 differs only through reviewed source pointers and retirement display alias. Atlas19checks and all36source selectors pass. Canonical viewport artifacts remain stale; trusted touch drag and strict320px Inspect geometry are held. Full core was contained after ten minutes; standalone smoke did not pass. No main merge, stable tag or deployment is accepted by this source proof.

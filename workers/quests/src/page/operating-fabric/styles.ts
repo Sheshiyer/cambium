@@ -3,6 +3,7 @@
 // ride the shared tokens, and reduced motion collapses shell transitions.
 // Task 7 additive: shared visual grammar component styles (badges, cards,
 // chips, gaps, edges, states) reuse the same tokens and motion contracts.
+import { FABRIC_WORKBENCH_CSS } from './workbench.ts';
 export const OPERATING_FABRIC_STYLES = `<style>
 #operating-fabric{display:none}
 #operating-fabric.of-on{display:block}
@@ -110,5 +111,6 @@ export const OPERATING_FABRIC_STYLES = `<style>
 @media (prefers-reduced-motion: reduce){
   #operating-fabric, #operating-fabric *{transition:none !important;animation:none !important}
 }
+${FABRIC_WORKBENCH_CSS}
 </style>
 `;

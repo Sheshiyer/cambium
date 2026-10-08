@@ -1,6 +1,6 @@
 {
   "name": "@cambium/r3f-visual-engine",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "main": "desktop/main.cjs",
@@ -23,7 +23,10 @@
     "meshy:assets": "node scripts/meshy-island-assets.mjs",
     "meshy:image-to-3d": "node scripts/meshy-image-to-3d.mjs",
     "source-plates": "node scripts/generate-source-plates.mjs",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "curious:bundle": "node scripts/bundle-curious-world.mjs",
+    "curious:check": "node scripts/bundle-curious-world.mjs --check",
+    "curious:test": "node --test src/curious-world/*.test.ts"
   },
   "dependencies": {
     "@react-three/fiber": "^8.17.10",

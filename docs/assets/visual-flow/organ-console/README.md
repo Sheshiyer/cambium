@@ -5,7 +5,7 @@ This directory is the organized Cambium-facing export of the governed Thoughtsee
 ## Inventory
 
 - 140 canonical asset records mapped.
-- 97 accepted images exported: 81 selected and 16 generated.
+- 97 reference images exported: 81 selected and 16 generated pending their recorded review; export is not acceptance.
 - 43 planned, failed, or dependency-held records remain visible in the map without image files.
 - 23 review boards exported.
 - Existing flat assets in the parent visual-flow directory were preserved unchanged.
@@ -88,3 +88,8 @@ Files use `{owner-type}/{owner}/{variation}-v1.png`. The canonical `TSOC-*` ID, 
 ## Deliberate exclusions
 
 Raw prompts, provider responses, machine-local generation paths, rejected drafts, private notes, and imported seed corpora are not copied into Cambium. Flow and Actions remain held on missing owner geometry; Organ Atlas and Plant Health remain held after bounded visual QA failures.
+
+The [October system atlas](../../../explainers/system-atlas-2026-10-07/index.html)
+uses the selected organ concepts through [small bundled derivatives](../system-atlas/README.md).
+It implements a new source-contract view; the earlier held view studies above
+retain their recorded status. No original image or review status is changed.

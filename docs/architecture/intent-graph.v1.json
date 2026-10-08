@@ -1,8 +1,8 @@
 {
   "schema": "cambium.intent-graph-projection.v1",
   "projectionAuthority": "read_only",
-  "sourceSetDigest": "sha256:a550b3abca7e647fd1f1b6ad1f91aee1b098b19a8d92eec83ba663372ee832ca",
-  "graphDigest": "sha256:d978f6892a6c3f268f8ad36bd55a6214e9e7b23d9fe4cb7c89cb8a1021541a11",
+  "sourceSetDigest": "sha256:b8285e66ffe535902d10c6da0a78618664bacc603da3b51ad1b44ffbf514651d",
+  "graphDigest": "sha256:ac695e7e043cc23e4a3c8d2b9b89e898cc6dde4ecf00c451221051b72d999172",
   "nodes": [
     {
       "id": "intent_1b97be1f1a27b0a5c16764472b0c134973024eb2dd0c12cba3511ed48f42e6e8",
@@ -445,7 +445,7 @@
         "path": "ISA.md",
         "authority": "isa_acceptance",
         "selector": "frontmatter.task",
-        "digest": "sha256:126b045367afe967fec429df4c99044e63b662a40b729fda8abc4a7dea7c51b2"
+        "digest": "sha256:d09f8d8b52f1dd0648cb0c19cefb9e232439dffdcaed899c602f617c50b518e3"
       },
       "lifecycle": "finite",
       "state": {
