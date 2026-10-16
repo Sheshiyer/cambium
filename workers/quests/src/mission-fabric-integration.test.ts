@@ -16,7 +16,9 @@
 // contract in a parallel fake path.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { webcrypto } from 'node:crypto';
+import { webcrypto, createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 
 import { handle, buildDataCheckString } from './handler.ts';
 import type { GateConfig, HandlerDeps, SimpleRequest } from './handler.ts';
@@ -524,4 +526,12 @@ test('WTFMedia finite source-audit policy preserves exact loadout through the ac
   assert.ok(projection.edges.some((edge: any) => edge.kind === 'pins-loadout' && edge.fromId === 'branch:wtfmedia' && edge.toId === 'loadout:wtfmedia-source-audit'));
   assert.ok(!projection.gaps.some((gap: any) => gap.subjectId === 'task-fabric-contract' && /loadout.*(unproven|unregistered|unauthoriz)/i.test(gap.detail)));
   assert.equal(spies.d1Writes, 0); assert.equal(spies.kvWrites, 0);
+});
+
+test('WTFMedia loadout policy hash is exact and grants no production admission', () => {
+  const authority = GOAL_GRAPH_LOADOUT_AUTHORITY.resolve('loadout:wtfmedia-source-audit')!;
+  const bytes = readFileSync(new URL('../../../docs/project-management/wtfmedia-source-audit-loadout.v1.json', import.meta.url));
+  assert.equal(authority.authorityDigest, `sha256:${createHash('sha256').update(bytes).digest('hex')}`);
+  const policy = JSON.parse(bytes.toString());
+  assert.equal(policy.admissionIssued, false); assert.equal(policy.productionExecutionAuthorized, false); assert.equal(policy.wholeLifecycleAccepted, false);
 });
