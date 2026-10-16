@@ -171,7 +171,7 @@ export async function readFoldbackMissionFacts(args: {
     // A prepared terminal receipt is never semantic ISA acceptance.
     let accepted = false;
     const owner = args.acceptedWorkUnitReadback;
-    if (owner?.source === 'owner-readback' && isRecord(receipt?.execution) && projection.nextIntent && projection.cortex) {
+    if (owner?.source === 'owner-readback' && isRecord(receipt?.execution) && receipt.execution.status === 'executed' && projection.nextIntent && projection.cortex) {
       try {
         const unit = await owner.readAcceptedWorkUnit({ taskId: binding.goalGraph.taskId, workObjectId: binding.goalGraph.workObjectId });
         if (unit && unit.schema === 'temperance.accepted-work-unit.v1' && unit.taskAccepted === true
@@ -209,4 +209,40 @@ export interface AcceptedWorkUnitReadback {
 async function receiptDigest(receipt: AcceptedWorkUnitReceipt): Promise<string> {
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(receipt)));
   return `sha256:${Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/** Read-only, bounded discovery. A prefix is listed once, keys bind to one exact current task. */
+export async function discoverMissionFoldbackReferences(args: {
+  tenantId: string; graphVersion: number; nodes: readonly unknown[]; reader: HermesExecutionFoldbackReaderLike;
+}): Promise<{ references: Array<{ r2Key: string; binding: HermesExecutionFoldbackReadBinding }>; gaps: FabricGap[] }> {
+  const references: Array<{ r2Key: string; binding: HermesExecutionFoldbackReadBinding }> = [];
+  const groups = new Map<string, HermesExecutionFoldbackReadBinding[]>();
+  for (const raw of args.nodes) {
+    if (!isRecord(raw) || raw.status !== 'active' || raw.tenantId !== args.tenantId || raw.graphVersion !== args.graphVersion) continue;
+    const goalGraph = { nodeId: str(raw.nodeId), taskId: str(raw.externalId) ?? str(raw.nodeId), workObjectId: str(raw.workObjectId), workObjectKind: str(raw.workObjectKind), pinnedLoadoutId: str(raw.pinnedLoadoutId) };
+    if (!goalGraph.nodeId || !goalGraph.taskId || !goalGraph.workObjectId || !goalGraph.workObjectKind || !goalGraph.pinnedLoadoutId) continue;
+    if (!findEligibleNode(args.nodes, goalGraph, args.tenantId, args.graphVersion)) continue;
+    const binding = { tenantId: args.tenantId, graphVersion: args.graphVersion, goalGraph } as HermesExecutionFoldbackReadBinding;
+    const list = groups.get(goalGraph.workObjectId) ?? []; list.push(binding); groups.set(goalGraph.workObjectId, list);
+  }
+  const seen = new Set<string>();
+  try {
+    if (!args.reader.discover) return { references, gaps: [] };
+    for (const [workId, bindings] of groups) {
+      for (const r2Key of await args.reader.discover(bindings[0])) {
+        const identity = `${workId}\0${r2Key}`;
+        if (seen.has(identity)) continue;
+        seen.add(identity);
+        if (seen.size > MAX_REFERENCES) throw new Error('discovery limit');
+        for (const binding of bindings) {
+          try {
+            if (await args.reader.read(r2Key, binding)) { references.push({ r2Key, binding }); break; }
+          } catch { /* A historical/wrong-task key grants no current authority. */ }
+        }
+      }
+    }
+    return { references, gaps: [] };
+  } catch {
+    return { references: [], gaps: [{ gapId: 'gap-foldback-discovery', kind: 'foldback-discovery-held', subjectId: null, detail: 'Bounded immutable discovery is unavailable or exceeded its limit; no discovered receipt was promoted.', evidenceRef: null }] };
+  }
 }

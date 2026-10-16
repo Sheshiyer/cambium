@@ -8,7 +8,7 @@
 // green (the quest log's own arc VII — the feature gates itself).
 
 import type { AcceptedWorkUnitReadback } from './foldback-mission-consumer.ts';
-import { readFoldbackMissionFacts } from './foldback-mission-consumer.ts';
+import { readFoldbackMissionFacts, discoverMissionFoldbackReferences } from './foldback-mission-consumer.ts';
 import type { HermesExecutionFoldbackInput, HermesExecutionFoldbackReaderLike, HermesExecutionFoldbackStoreLike, HermesExecutionFoldbackActivationVerifier } from './hermes-execution-foldback.ts';
 import { foldbackExecution } from './execution-foldback-client.ts';
 import { PAGE } from './page.ts';
@@ -3302,20 +3302,9 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
 
     const foldbackReferences: any[] = isRecord(storedEnvelope) && Array.isArray(storedEnvelope.foldbackReceipts) ? storedEnvelope.foldbackReceipts : [];
     if (!foldbackReferences.length && deps.foldbackReader?.discover) {
-      // Discover only prefixes named by current authoritative task anchors. Every key is
-      // independently validated against tenant, graph, task and governed loadout below.
-      for (const raw of nodes) {
-        if (!isRecord(raw) || raw.status !== 'active' || raw.tenantId !== tenant || raw.graphVersion !== head.graphVersion) continue;
-        const workObjectId = typeof raw.workObjectId === 'string' ? raw.workObjectId : '';
-        const workObjectKind = raw.workObjectKind;
-        const pinnedLoadoutId = typeof raw.pinnedLoadoutId === 'string' ? raw.pinnedLoadoutId : '';
-        if (!workObjectId || !pinnedLoadoutId || !['sapling', 'branch', 'program'].includes(String(workObjectKind))) continue;
-        const binding = { tenantId: tenant, graphVersion: head.graphVersion, goalGraph: { nodeId: raw.nodeId, taskId: raw.externalId || raw.nodeId, workObjectId, workObjectKind, pinnedLoadoutId } };
-        for (const r2Key of await deps.foldbackReader.discover(binding as never)) {
-          foldbackReferences.push({ r2Key, binding });
-          if (foldbackReferences.length > 100) return json(503, { error: 'foldback_discovery_limit' });
-        }
-      }
+      const discovered = await discoverMissionFoldbackReferences({ tenantId: tenant, graphVersion: head.graphVersion, nodes, reader: deps.foldbackReader });
+      foldbackReferences.push(...discovered.references);
+      mergedGaps.push(...discovered.gaps);
     }
     if (foldbackReferences.length && deps.foldbackReader) {
       const foldbackFacts = await readFoldbackMissionFacts({ tenantId: tenant, graphVersion: head.graphVersion, nodes,

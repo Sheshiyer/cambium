@@ -53,3 +53,30 @@ test('legacy prepared receipt without verified activation cannot acquire semanti
     acceptedWorkUnitReadback: { source: 'owner-readback', async readAcceptedWorkUnit() { throw new Error('must not read owner'); } } });
   assert.equal(facts.gaps[0].kind, 'semantic-acceptance-unavailable');
 });
+
+test('failed terminal cannot consume matching positive acceptance receipt', async () => {
+  const f = fixture();
+  const projection = await adaptHermesExecutionFoldback({ ...f.input, execution: { ...f.input.execution, status: 'failed' } }, verifier);
+  let ownerReads = 0;
+  const facts = await readFoldbackMissionFacts({ tenantId: 'cambium', graphVersion: 8, nodes: [f.node],
+    references: [{ r2Key: projection.receipt.r2Key, binding: f.binding }], reader: { async read() { return projection; } },
+    acceptedWorkUnitReadback: { source: 'owner-readback', async readAcceptedWorkUnit() { ownerReads++; return f.unit; } } });
+  assert.equal(facts.gaps[0].kind, 'semantic-acceptance-unavailable'); assert.equal(ownerReads, 0);
+});
+
+test('discovery lists each WorkObject once, deduplicates keys and degrades overflow to a controlled gap', async () => {
+  const { discoverMissionFoldbackReferences } = await import('./foldback-mission-consumer.ts');
+  const f = fixture();
+  const projection = await adaptHermesExecutionFoldback(f.input, verifier);
+  const key = projection.receipt.r2Key;
+  let lists = 0;
+  const args = { tenantId: 'cambium', graphVersion: 8, nodes: [f.node, { ...f.node, nodeId: 'other', externalId: 'other-task' }], reader: {
+    async discover() { lists++; return [key, key]; },
+    async read(_key: string, binding: typeof f.binding) { return binding.goalGraph.nodeId === f.node.nodeId ? projection : null; },
+  } };
+  const found = await discoverMissionFoldbackReferences(args);
+  assert.equal(lists, 1); assert.equal(found.references.length, 1); assert.equal(found.gaps.length, 0);
+  const held = await discoverMissionFoldbackReferences({ ...args, reader: { ...args.reader, async discover() { throw new Error('private-overflow'); } } });
+  assert.equal(held.references.length, 0); assert.equal(held.gaps[0].kind, 'foldback-discovery-held');
+  assert.doesNotMatch(JSON.stringify(held), /private-overflow/);
+});
