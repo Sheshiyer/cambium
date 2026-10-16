@@ -1,0 +1,13 @@
+# Wave 0 immutable terminal foldback and accepted-task consumer
+
+Source candidate only; no deployment or production activation. Hosted noesis-build generated independent immutable read and Mission Fabric consumer slices (actual claude-sonnet-5-5, 14958ms and 61228ms). Two earlier larger calls failed Cloudflare 524 with no source output. Native review corrected key grammar, numeric graph versions, exact nested bindings, gap schema, reader invocation, active-task authority and acceptance gates.
+
+- Immutable store now independently reads exact canonical bytes after writes. Independent read validates receipt derivation, tenant, graph, task/node, WorkObject and pinned loadout.
+- Read-only prefix discovery is limited to 100 direct receipt keys under one D1-anchored WorkObject, rejects truncation and nested projections. GET Mission Fabric uses discovery when no explicit references exist, then validates each candidate; no mutable KV converter is introduced.
+- Real terminal ingress can call an injected trusted admission owner, checks every terminal identity, attestation/input/proof digests and stable finishedAt, then uses the real immutable foldback store. Production index injects only read-only R2 capabilities; no admission/acceptance verifier or fixture is wired into production.
+- Semantic acceptance requires verified activation plus owner-readback of a task-scoped accepted-work-unit receipt, exact task/goal/WorkObject, preregistered executionInputDigest, and exact receipt-byte SHA256 bound to terminal proof. Whole lifecycle and production admission remain false. Missing authority stays a gap.
+- Duplicate terminal business outcomes skip markOutcome. Owner exceptions after D1 recording remain truthful recorded+held responses. Stale-fence/ACK legacy behavior retained. No new unchanged-fence expiry or stop/cancellation execution-store policy is claimed; consumer excludes nonactive/stopped task anchors.
+
+Verification: 32 focused foldback/client/consumer/Mission Fabric tests and eight selected bridge execution tests pass. New probes cover corruption, wrong bindings, replay, read-after-write failure, bounded discovery, activation absence, stopped/draft/paused/retired and tenant/graph mismatch, accepted-owner mismatch, actual terminal ingress persistence/replay and owner failure. Fixtures are explicitly synthetic; parent WTFMedia source-audit receipt test supplies actual scoped owner evidence separately.
+
+Canonical handler/index contain existing unrelated MCP Gate changes. A direct patch does not apply at overlapping insertion context; integrate only these source hunks manually or via three-way preserving existing edits, and rerun tests on the resulting canonical tree. No canonical checkout was modified by this worker.

@@ -1,3 +1,4 @@
+import { createHermesExecutionFoldbackStore } from './hermes-execution-foldback.ts';
 // cambium-quests · pure handler tests (node:test, like everything beside it).
 
 import { test } from 'node:test';
@@ -9880,9 +9881,9 @@ test('bridge execution · outcome replay is idempotent and persists only redacte
     body: JSON.stringify(outcome),
   }), harness.deps);
   assert.equal(first.status, 200);
-  assert.deepEqual(body(first), { recorded: true, terminal: true });
+  assert.deepEqual(body(first), { recorded: true, foldback: { status: 'held', reason: 'terminal-foldback-owner-unconfigured' }, terminal: true });
   assert.equal(replay.status, 200);
-  assert.deepEqual(body(replay), { recorded: true, terminal: true, duplicate: true });
+  assert.deepEqual(body(replay), { recorded: true, foldback: { status: 'held', reason: 'terminal-foldback-owner-unconfigured' }, terminal: true, duplicate: true });
   assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_events').get() as any).count, 1);
 
   const stored = harness.db.prepare(`
@@ -9932,6 +9933,37 @@ test('bridge execution · outcome replay is idempotent and persists only redacte
   }), harness.deps);
   assert.equal(recoveredAck.status, 200);
   assert.equal(body(recoveredAck).acked, 1);
+});
+
+test('bridge execution · trusted terminal owner persists exact foldback once and owner failure stays held', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-15T10:10:00.000Z');
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps);
+  const claim = executionClaim();
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(claim) }), harness.deps);
+  const outcome = executionOutcome(claim, body(claimed));
+  const objects = new Map<string, string>();
+  let writes = 0;
+  const verifier = { source: 'external-admission-readback' as const, verifyActivationAuthority: () => true };
+  const store = createHermesExecutionFoldbackStore({
+    async get(key) { const value = objects.get(key); return value === undefined ? null : { async text() { return value; } }; },
+    async put(key, bytes) { writes++; objects.set(key, new TextDecoder().decode(bytes)); return { async text() { return objects.get(key)!; } }; },
+  }, verifier);
+  harness.deps.terminalFoldback = { store, activationVerifier: verifier, async prepare(terminal) {
+    return { schema: 'thoughtseed.hermes.execution-foldback.v1', tenantId: 'cambium', graphVersion: 8,
+      goalGraph: { nodeId: 'goal-fitcheck', taskId: 'task-fitcheck', workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:fitcheck' },
+      activation: { activationId: 'activation:synthetic', activationDigest: `sha256:${'3'.repeat(64)}`, mappingReceiptId: 'pmr_synthetic', mappingReceiptDigest: `sha256:${'4'.repeat(64)}`, issued: true, staleFence: false, workObjectId: 'sapling:fitcheck', taskId: 'task-fitcheck', pinnedLoadoutId: 'loadout:fitcheck', fencingToken: terminal.fencingToken },
+      execution: { memberId: terminal.memberId, directiveId: terminal.directiveId, idempotencyKey: terminal.idempotencyKey, executionId: terminal.executionId, claimId: terminal.claimId, fencingToken: terminal.fencingToken, attempt: terminal.attempt, status: terminal.status as 'executed', attestationId: terminal.attestation.id, inputDigest: terminal.attestation.inputDigest, terminalProofDigest: terminal.attestation.outputDigest ?? terminal.attestationDigest, recordedAt: terminal.attestation.finishedAt } };
+  } };
+  const deliver = () => handle(req('POST', '/v1/bridge/executions/outcome', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(outcome) }), harness.deps);
+  const first = body(await deliver());
+  const replay = body(await deliver());
+  assert.equal(first.recorded, true); assert.equal(first.foldback.status, 'prepared');
+  assert.equal(replay.foldback.receiptId, first.foldback.receiptId); assert.equal(replay.foldback.duplicate, true); assert.equal(writes, 1);
+  harness.deps.terminalFoldback.prepare = async () => { throw new Error('private-owner-error'); };
+  const held = body(await deliver());
+  assert.equal(held.recorded, true); assert.equal(held.foldback.reason, 'terminal-foldback-owner-unavailable');
+  assert.doesNotMatch(JSON.stringify(held), /private-owner-error/);
 });
 
 test('bridge execution · native directive identity is immutable and ACK binds the current contract', async (t) => {

@@ -1,3 +1,4 @@
+import { createHermesExecutionFoldbackReader } from './hermes-execution-foldback.ts';
 // cambium-quests · Workers runtime glue. All logic lives in handler.ts (pure, node:test-covered).
 
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
@@ -1422,6 +1423,8 @@ export default {
     }) : undefined;
     const res = await handle(simple, {
       kv,
+      // No admission or acceptance verifier is inferred from an R2 binding.
+      foldbackReader: env.THOUGHTSEED_VAULT ? createHermesExecutionFoldbackReader(env.THOUGHTSEED_VAULT) : undefined,
       pushToken: env.QUESTS_PUSH_TOKEN,
       gate,
       bridgeToken: env.BRIDGE_TOKEN,

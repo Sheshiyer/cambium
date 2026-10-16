@@ -7,6 +7,10 @@
 // (no fake liveness). Tenant gate: cambium only until M3's isolation suite is
 // green (the quest log's own arc VII — the feature gates itself).
 
+import type { AcceptedWorkUnitReadback } from './foldback-mission-consumer.ts';
+import { readFoldbackMissionFacts } from './foldback-mission-consumer.ts';
+import type { HermesExecutionFoldbackInput, HermesExecutionFoldbackReaderLike, HermesExecutionFoldbackStoreLike, HermesExecutionFoldbackActivationVerifier } from './hermes-execution-foldback.ts';
+import { foldbackExecution } from './execution-foldback-client.ts';
 import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
@@ -467,6 +471,14 @@ export interface FabricLedgerStoreLike {
 
 export interface HandlerDeps {
   kv: KvLike;
+  foldbackReader?: HermesExecutionFoldbackReaderLike;
+  acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
+  terminalFoldback?: {
+    store: HermesExecutionFoldbackStoreLike;
+    activationVerifier: HermesExecutionFoldbackActivationVerifier;
+    /** Server-owned admission lookup, never populated from request fields. */
+    prepare(outcome: BridgeExecutionOutcomeInput): Promise<HermesExecutionFoldbackInput | null>;
+  };
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
   bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
@@ -3288,6 +3300,34 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     ));
     const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
 
+    const foldbackReferences: any[] = isRecord(storedEnvelope) && Array.isArray(storedEnvelope.foldbackReceipts) ? storedEnvelope.foldbackReceipts : [];
+    if (!foldbackReferences.length && deps.foldbackReader?.discover) {
+      // Discover only prefixes named by current authoritative task anchors. Every key is
+      // independently validated against tenant, graph, task and governed loadout below.
+      for (const raw of nodes) {
+        if (!isRecord(raw) || raw.status !== 'active' || raw.tenantId !== tenant || raw.graphVersion !== head.graphVersion) continue;
+        const workObjectId = typeof raw.workObjectId === 'string' ? raw.workObjectId : '';
+        const workObjectKind = raw.workObjectKind;
+        const pinnedLoadoutId = typeof raw.pinnedLoadoutId === 'string' ? raw.pinnedLoadoutId : '';
+        if (!workObjectId || !pinnedLoadoutId || !['sapling', 'branch', 'program'].includes(String(workObjectKind))) continue;
+        const binding = { tenantId: tenant, graphVersion: head.graphVersion, goalGraph: { nodeId: raw.nodeId, taskId: raw.externalId || raw.nodeId, workObjectId, workObjectKind, pinnedLoadoutId } };
+        for (const r2Key of await deps.foldbackReader.discover(binding as never)) {
+          foldbackReferences.push({ r2Key, binding });
+          if (foldbackReferences.length > 100) return json(503, { error: 'foldback_discovery_limit' });
+        }
+      }
+    }
+    if (foldbackReferences.length && deps.foldbackReader) {
+      const foldbackFacts = await readFoldbackMissionFacts({ tenantId: tenant, graphVersion: head.graphVersion, nodes,
+        references: foldbackReferences as never[], reader: deps.foldbackReader, acceptedWorkUnitReadback: deps.acceptedWorkUnitReadback });
+      entries.push(...foldbackFacts.nodes);
+      mergedEdges.push(...foldbackFacts.edges);
+      mergedGaps.push(...foldbackFacts.gaps);
+    } else {
+      mergedGaps.push({ gapId: 'gap-foldback-reader', kind: 'accepted-result-unavailable', subjectId: null,
+        detail: 'Immutable foldback references and the trusted readback consumer are required; no semantic acceptance is inferred.', evidenceRef: null });
+    }
+
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
     for (let index = mergedEdges.length - 1; index >= 0; index -= 1) {
@@ -6064,15 +6104,37 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           ? json(409, { error: result.reason, code: 'stale_fence' })
           : json(409, { error: result.reason });
       }
-      if (contract.command === 'service_agreement.draft.render') {
+      if (!result.duplicate && contract.command === 'service_agreement.draft.render') {
         await deps.businessStore!.markOutcome(
           contract.input.gsdTaskId,
           outcome.status === 'executed' ? 'awaiting_human_approval' : outcome.status === 'failed' ? 'failed' : 'retrying',
           nowIso(),
         );
       }
+      let foldback: unknown = { status: 'held', reason: 'terminal-foldback-owner-unconfigured' };
+      if (result.terminal && deps.terminalFoldback) {
+        // Attestation's validated terminal timestamp is stable across duplicate delivery.
+        const boundOutcome = { ...outcome, attestationDigest, recordedAt: outcome.attestation.finishedAt };
+        try {
+        const input = await deps.terminalFoldback.prepare(boundOutcome);
+        // An injected owner must bind every terminal identity; no request-supplied admission.
+        if (input && input.activation && input.execution.executionId === outcome.executionId
+          && input.execution.memberId === outcome.memberId && input.execution.directiveId === outcome.directiveId
+          && input.execution.idempotencyKey === outcome.idempotencyKey && input.execution.claimId === outcome.claimId
+          && input.execution.fencingToken === outcome.fencingToken && input.execution.attempt === outcome.attempt
+          && input.execution.status === outcome.status
+          && input.execution.attestationId === outcome.attestation.id
+          && input.execution.inputDigest === outcome.attestation.inputDigest
+          && input.execution.terminalProofDigest === (outcome.attestation.outputDigest ?? attestationDigest)
+          && input.execution.recordedAt === outcome.attestation.finishedAt) {
+          const folded = await foldbackExecution(input, { persist: true, store: deps.terminalFoldback.store, activationVerifier: deps.terminalFoldback.activationVerifier });
+          foldback = folded.ok ? { status: 'prepared', receiptId: folded.projection.receipt.receiptId, duplicate: folded.duplicate } : { status: 'held', reason: folded.reason };
+        } else foldback = { status: 'held', reason: 'terminal-foldback-authority-missing-or-mismatched' };
+        } catch { foldback = { status: 'held', reason: 'terminal-foldback-owner-unavailable' }; }
+      }
       return json(200, {
         recorded: true,
+        foldback,
         terminal: result.terminal,
         ...(result.duplicate ? { duplicate: true } : {}),
       });
