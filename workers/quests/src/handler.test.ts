@@ -10022,7 +10022,17 @@ test('bridge execution · wave0 production owners: real D1 admission folds back 
   assert.equal(await admission.activationVerifier.verifyActivationAuthority(stored.activation, stored.execution), false);
 });
 
-test('bridge execution · source_verification.accept: signed owner envelope is verified at ingress and folds back as accepted work', async (t) => {
+interface SourceVerificationCase { slug: string; input: { schema: string; taskId: string; goalId: string; workObjectId: string; loadoutId: string; clusterId: string }; repoIdentity: string; inputDigest: string }
+
+// One finite task per registered source-audit loadout; the handler holds no task-specific code.
+const SOURCE_VERIFICATION_CASES: readonly SourceVerificationCase[] = [
+  { slug: 'wtfmedia', repoIdentity: 'Sheshiyer/wtfmedia', inputDigest: 'sha256:40b32bac88936d57b02feb4199a0ce7d1e62c91fcac9927692b89d577a9a59a3',
+    input: { schema: 'thoughtseed.source_verification.accept_input.v1', taskId: 'task-wtfmedia', goalId: 'goal-wtfmedia', workObjectId: 'branch:wtfmedia', loadoutId: 'loadout:wtfmedia-source-audit', clusterId: 'cluster:wtfmedia-source-verification' } },
+  { slug: 'parkarea', repoIdentity: 'Sheshiyer/parkarea-aleph', inputDigest: 'sha256:79cd6c4b680efc3c3cbbdbd589784305733b7fea0e4b7f29305d6ac9c806ee8a',
+    input: { schema: 'thoughtseed.source_verification.accept_input.v1', taskId: 'task-parkarea', goalId: 'goal-parkarea', workObjectId: 'branch:parkarea', loadoutId: 'loadout:parkarea-source-audit', clusterId: 'cluster:parkarea-source-verification' } },
+];
+
+for (const sv of SOURCE_VERIFICATION_CASES) test(`bridge execution · source_verification.accept (${sv.slug}): signed owner envelope is verified at ingress and folds back as accepted work`, async (t) => {
   const { generateKeyPairSync, sign } = await import('node:crypto');
   const { createGoalGraphTerminalAdmission, EXECUTION_ADMISSION_SCHEMA, executionAdmissionMetadata, importActivationKey } = await import('./terminal-admission.ts');
   const { acceptedReceiptDigest, attestationMessage, createAttestedAcceptanceStore, createAttestedAcceptedWorkUnitReadback } = await import('./accepted-work-unit-attestation.ts');
@@ -10030,19 +10040,21 @@ test('bridge execution · source_verification.accept: signed owner envelope is v
   const { readFoldbackMissionFacts } = await import('./foldback-mission-consumer.ts');
   const harness = nativeExecutionHarness(() => '2026-07-15T10:10:00.000Z');
   t.after(() => harness.db.close());
-  const directiveId = 'native-wtfmedia-accept-1';
-  const input = { schema: 'thoughtseed.source_verification.accept_input.v1', taskId: 'task-wtfmedia', goalId: 'goal-wtfmedia', workObjectId: 'branch:wtfmedia', loadoutId: 'loadout:wtfmedia-source-audit', clusterId: 'cluster:wtfmedia-source-verification' };
+  const directiveId = `native-${sv.slug}-accept-1`;
+  const input = sv.input;
   const queue = (payloadInput: Record<string, unknown>, id = directiveId) => handle(req('POST', '/v1/bridge/directive', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify({ id, memberId: 'shesh', idempotencyKey: id,
     payload: { type: 'native_execution', schema: 'thoughtseed.hermes.native_execution.v1', command: 'source_verification.accept', target: { memberId: 'shesh' }, input: payloadInput } }) }), harness.deps);
-  assert.equal((await queue({ ...input, workObjectId: 'sapling:fitcheck' }, 'native-wtfmedia-bad')).status, 400, 'WorkObject outside the loadout is not a valid contract');
-  assert.equal((await queue({ ...input, extra: true }, 'native-wtfmedia-bad2')).status, 400);
+  assert.equal((await queue({ ...input, workObjectId: 'sapling:fitcheck' }, `native-${sv.slug}-bad`)).status, 400, 'WorkObject outside the loadout is not a valid contract');
+  assert.equal((await queue({ ...input, extra: true }, `native-${sv.slug}-bad2`)).status, 400);
+  const other = SOURCE_VERIFICATION_CASES.find((c) => c !== sv)!.input;
+  assert.equal((await queue({ ...input, loadoutId: other.loadoutId, clusterId: other.clusterId }, `native-${sv.slug}-bad3`)).status, 400, 'another task\'s loadout does not cover this WorkObject');
   assert.equal((await queue(input)).status, 200);
   const claim = executionClaim({ directiveId, idempotencyKey: directiveId });
   const claimed = body(await handle(req('POST', '/v1/bridge/executions/claim', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(claim) }), harness.deps));
   assert.equal(claimed.status, 'claimed');
   const inputDigest = testDigestCanonical(input);
   // Pinned identically in Temperance router/wtfmedia-source-verify.test.ts and the Hermes runner tests.
-  assert.equal(inputDigest, 'sha256:40b32bac88936d57b02feb4199a0ce7d1e62c91fcac9927692b89d577a9a59a3');
+  assert.equal(inputDigest, sv.inputDigest);
 
   // Owner side (stands in for Temperance attest()): fresh key, canonical digest, domain-separated signature.
   const { privateKey, publicKey } = generateKeyPairSync('ed25519');
@@ -10053,7 +10065,7 @@ test('bridge execution · source_verification.accept: signed owner envelope is v
     const receiptDigest = await acceptedReceiptDigest(receipt);
     return { schema: 'temperance.accepted-work-unit-attestation.v1', algorithm: 'Ed25519', keyId, receiptDigest, signature: sign(null, attestationMessage(receiptDigest, keyId), privateKey).toString('base64url'), receipt };
   };
-  const unit = { schema: 'temperance.accepted-work-unit.v1', contractId: 'c'.repeat(64), binding: { taskId: input.taskId, goalId: input.goalId, workObjectId: input.workObjectId, executionInputDigest: inputDigest }, repoIdentity: 'Sheshiyer/wtfmedia', domain: 'local-source-verification', taskAccepted: true, wholeLifecycleAccepted: false, productionCambiumAdmission: false };
+  const unit = { schema: 'temperance.accepted-work-unit.v1', contractId: 'c'.repeat(64), binding: { taskId: input.taskId, goalId: input.goalId, workObjectId: input.workObjectId, executionInputDigest: inputDigest }, repoIdentity: sv.repoIdentity, domain: 'local-source-verification', taskAccepted: true, wholeLifecycleAccepted: false, productionCambiumAdmission: false };
   const envelope = await envelopeFor(unit);
   const outcomeFor = (outputDigest: string, extra: Record<string, unknown> = {}) => {
     const identity = { schema: 'thoughtseed.hermes.execution_attestation.v1', executionId: claim.executionId, directiveId, idempotencyKey: directiveId, runnerId: claim.runnerId, hostIdentity: claim.hostIdentity,
@@ -10066,8 +10078,8 @@ test('bridge execution · source_verification.accept: signed owner envelope is v
   // Without the production verifier the command fails closed and nothing is recorded.
   assert.equal((await deliver(outcomeFor(envelope.receiptDigest, { acceptedWorkUnitAttestation: envelope }))).status, 503);
 
-  const head = { tenantId: 'cambium', graphVersion: 8, graphDigest: `sha256:${'8'.repeat(64)}`, nodeIds: ['goal-wtfmedia'], sourceRef: null, sourceDigest: null, committedAt: '2026-07-15T10:00:00.000Z' };
-  const node = { nodeId: 'goal-wtfmedia', tenantId: 'cambium', namespace: 'thoughtseed', externalId: 'task-wtfmedia', parentNodeId: null, workObjectId: 'branch:wtfmedia', workObjectKind: 'branch' as const, pinnedLoadoutId: 'loadout:wtfmedia-source-audit', scope: 'proof' as const, desiredState: 'verified', currentState: 'admitted', owner: 'operator', nextAction: null, waitCondition: null, proofRequired: true, reviewAt: null, status: 'active' as const, sourceRef: 'gate:approval', sourceDigest: `sha256:${'5'.repeat(64)}`, graphVersion: 8,
+  const head = { tenantId: 'cambium', graphVersion: 8, graphDigest: `sha256:${'8'.repeat(64)}`, nodeIds: [input.goalId], sourceRef: null, sourceDigest: null, committedAt: '2026-07-15T10:00:00.000Z' };
+  const node = { nodeId: input.goalId, tenantId: 'cambium', namespace: 'thoughtseed', externalId: input.taskId, parentNodeId: null, workObjectId: input.workObjectId, workObjectKind: 'branch' as const, pinnedLoadoutId: input.loadoutId, scope: 'proof' as const, desiredState: 'verified', currentState: 'admitted', owner: 'operator', nextAction: null, waitCondition: null, proofRequired: true, reviewAt: null, status: 'active' as const, sourceRef: 'gate:approval', sourceDigest: `sha256:${'5'.repeat(64)}`, graphVersion: 8,
     metadata: executionAdmissionMetadata({ schema: EXECUTION_ADMISSION_SCHEMA, memberId: 'shesh', directiveId, idempotencyKey: directiveId, clusterId: input.clusterId, dispatchDigest: inputDigest }), createdAt: '2026-07-15T10:00:00.000Z', updatedAt: '2026-07-15T10:00:00.000Z' };
   const graph = { nodes: [{ ...node, currentState: 'stopped' }] as Array<typeof node> };
   const admission = createGoalGraphTerminalAdmission({ tenantId: 'cambium', activationKey: (await importActivationKey('k'.repeat(32)))!, goalGraphStore: { async readHead() { return head; }, async readNodes() { return graph.nodes as never; } } });
@@ -10100,9 +10112,9 @@ test('bridge execution · source_verification.accept: signed owner envelope is v
   assert.deepEqual(accepted.acceptance, { status: 'recorded', receiptDigest: envelope.receiptDigest, duplicate: true });
 
   // Read side exactly as production wiring injects it: the foldback joins D1 lineage and reads back as accepted.
-  const foldbackKey = `portfolio/thoughtseed/workobjects/branch:wtfmedia/foldback/${claim.executionId}.json`;
+  const foldbackKey = `portfolio/thoughtseed/workobjects/${input.workObjectId}/foldback/${claim.executionId}.json`;
   const facts = await readFoldbackMissionFacts({ tenantId: 'cambium', graphVersion: 8, nodes: [node],
-    references: [{ r2Key: foldbackKey, binding: { tenantId: 'cambium', graphVersion: 8, goalGraph: { nodeId: node.nodeId, taskId: 'task-wtfmedia', workObjectId: 'branch:wtfmedia', workObjectKind: 'branch', pinnedLoadoutId: node.pinnedLoadoutId } } }],
+    references: [{ r2Key: foldbackKey, binding: { tenantId: 'cambium', graphVersion: 8, goalGraph: { nodeId: node.nodeId, taskId: input.taskId, workObjectId: input.workObjectId, workObjectKind: 'branch', pinnedLoadoutId: node.pinnedLoadoutId } } }],
     reader: createHermesExecutionFoldbackReader(harness.r2, admission.activationVerifier), acceptedWorkUnitReadback: createAttestedAcceptedWorkUnitReadback(harness.r2, keys) });
   assert.deepEqual(facts.gaps, []);
   assert.equal(facts.nodes.length, 1);

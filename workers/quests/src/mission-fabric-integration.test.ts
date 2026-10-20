@@ -528,10 +528,13 @@ test('WTFMedia finite source-audit policy preserves exact loadout through the ac
   assert.equal(spies.d1Writes, 0); assert.equal(spies.kvWrites, 0);
 });
 
-test('WTFMedia loadout policy hash is exact and grants no production admission', () => {
-  const authority = GOAL_GRAPH_LOADOUT_AUTHORITY.resolve('loadout:wtfmedia-source-audit')!;
-  const bytes = readFileSync(new URL('../../../docs/project-management/wtfmedia-source-audit-loadout.v1.json', import.meta.url));
+for (const [slug, workObjectId] of [['wtfmedia', 'branch:wtfmedia'], ['parkarea', 'branch:parkarea']] as const) test(`${slug} source-audit loadout policy hash is exact and grants no production admission`, () => {
+  const authority = GOAL_GRAPH_LOADOUT_AUTHORITY.resolve(`loadout:${slug}-source-audit`)!;
+  const bytes = readFileSync(new URL(`../../../docs/project-management/${slug}-source-audit-loadout.v1.json`, import.meta.url));
   assert.equal(authority.authorityDigest, `sha256:${createHash('sha256').update(bytes).digest('hex')}`);
   const policy = JSON.parse(bytes.toString());
+  assert.equal(policy.loadoutId, authority.loadoutId);
+  assert.deepEqual(policy.eligibleWorkObjectIds, [workObjectId]); assert.deepEqual([...authority.eligibleWorkObjectIds], [workObjectId]);
+  assert.deepEqual(policy.authorizedClusterIds, [`cluster:${slug}-source-verification`]); assert.deepEqual([...authority.authorizedClusterIds], policy.authorizedClusterIds);
   assert.equal(policy.admissionIssued, false); assert.equal(policy.productionExecutionAuthorized, false); assert.equal(policy.wholeLifecycleAccepted, false);
 });
