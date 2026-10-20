@@ -2,7 +2,8 @@
 //
 // The only authority is the current D1 Goal Graph, which changes solely through
 // the Gate-approved sole graph writer. A node admits one native execution when
-// its metadata carries an exact `executionAdmission` record naming the member,
+// its metadata carries an exact execution admission (six flat `executionAdmission*`
+// scalar keys, see `executionAdmissionMetadata`) naming the member,
 // directive and idempotency key, the authorized cluster, and the dispatch
 // digest (the directive input digest). Nothing is read from the request: the
 // outcome only selects which admission to look up, and every field it claims is
@@ -11,8 +12,9 @@
 //
 // The activation digest is an HMAC-SHA256 under a Worker secret
 // (`WAVE0_ACTIVATION_KEY`), encoded as `sha256:<hex>` to fit the foldback
-// schema. Anyone who can write the vault R2 still cannot compute it, so a
-// planted receipt never reads as admitted. The verifier recomputes it from D1
+// schema, over the D1 admission AND the whole terminal execution tuple. Anyone
+// who can write the vault R2 can neither compute one nor copy a genuine one
+// onto a sibling receipt, so a planted receipt never reads as admitted. The verifier recomputes it from D1
 // on every read, so an activation also expires as soon as the graph stops
 // admitting exactly that task, loadout, cluster and dispatch.
 
@@ -43,6 +45,7 @@ export interface ExecutionAdmission {
 }
 
 type Activation = NonNullable<HermesExecutionFoldbackInput['activation']>;
+type Execution = HermesExecutionFoldbackInput['execution'];
 type GoalGraphReader = Pick<GoalGraphStoreLike, 'readHead' | 'readNodes'>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -71,11 +74,30 @@ async function digestOf(value: unknown): Promise<string> {
   return `sha256:${[...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, '0')).join('')}`;
 }
 
-/** Exact-shape parse of the D1 metadata record; anything else is not an admission. */
+/**
+ * The admission travels as six flat scalar metadata keys, because the Gate's
+ * Telegram intake (the sole graph writer's only input) accepts scalar metadata
+ * values only. Use `executionAdmissionMetadata` to produce them.
+ */
+const ADMISSION_KEYS = {
+  schema: 'executionAdmissionSchema',
+  memberId: 'executionAdmissionMemberId',
+  directiveId: 'executionAdmissionDirectiveId',
+  idempotencyKey: 'executionAdmissionIdempotencyKey',
+  clusterId: 'executionAdmissionClusterId',
+  dispatchDigest: 'executionAdmissionDispatchDigest',
+} as const satisfies Record<keyof ExecutionAdmission, string>;
+
+export function executionAdmissionMetadata(admission: ExecutionAdmission): Record<string, string> {
+  return Object.fromEntries(Object.entries(ADMISSION_KEYS).map(([field, key]) => [key, admission[field as keyof ExecutionAdmission]]));
+}
+
+/** Exact parse of the D1 metadata keys; a partial, extra or malformed admission is no admission. */
 export function parseExecutionAdmission(metadata: unknown): ExecutionAdmission | null {
-  if (!isRecord(metadata) || !isRecord(metadata.executionAdmission)) return null;
-  const raw = metadata.executionAdmission;
-  if (Object.keys(raw).sort().join(',') !== 'clusterId,directiveId,dispatchDigest,idempotencyKey,memberId,schema') return null;
+  if (!isRecord(metadata)) return null;
+  const known = new Set<string>(Object.values(ADMISSION_KEYS));
+  if (Object.keys(metadata).some((key) => key.startsWith('executionAdmission') && !known.has(key))) return null;
+  const raw = Object.fromEntries(Object.entries(ADMISSION_KEYS).map(([field, key]) => [field, metadata[key]]));
   if (raw.schema !== EXECUTION_ADMISSION_SCHEMA) return null;
   for (const field of ['memberId', 'directiveId', 'idempotencyKey', 'clusterId'] as const) {
     if (typeof raw[field] !== 'string' || !SAFE_ID.test(raw[field] as string)) return null;
@@ -107,12 +129,13 @@ function admittedNode(node: GoalGraphNode, head: GoalGraphHead, tenantId: string
   return { node, admission, goalGraph: { nodeId: node.nodeId, taskId, workObjectId, workObjectKind, pinnedLoadoutId } };
 }
 
-async function activationFor(key: CryptoKey, tenantId: string, head: GoalGraphHead, admitted: AdmittedNode, fencingToken: string): Promise<Activation> {
+async function activationFor(key: CryptoKey, tenantId: string, head: GoalGraphHead, admitted: AdmittedNode, execution: Execution): Promise<Activation> {
+  const fencingToken = execution.fencingToken;
   const mappingReceiptDigest = await digestOf({
     schema: MAPPING_SCHEMA, tenantId, ...admitted.goalGraph, sourceDigest: admitted.node.sourceDigest, admission: admitted.admission,
   });
   const activationDigest = await hmacOf(key, {
-    schema: ACTIVATION_SCHEMA, tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest, mappingReceiptDigest, fencingToken,
+    schema: ACTIVATION_SCHEMA, tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest, mappingReceiptDigest, execution,
   });
   return {
     activationId: `gga_${activationDigest.slice('sha256:'.length, 'sha256:'.length + 24)}`,
@@ -171,12 +194,7 @@ export function createGoalGraphTerminalAdmission(deps: {
         if (matches.length !== 1) return null;
         const [admitted] = matches;
         if (admitted.admission.dispatchDigest !== outcome.attestation.inputDigest) return null;
-        return {
-          schema: HERMES_EXECUTION_FOLDBACK_SCHEMA,
-          tenantId: deps.tenantId,
-          graphVersion: graph.head.graphVersion,
-          goalGraph: admitted.goalGraph,
-          execution: {
+        const execution: Execution = {
             memberId: outcome.memberId,
             directiveId: outcome.directiveId,
             idempotencyKey: outcome.idempotencyKey,
@@ -189,8 +207,14 @@ export function createGoalGraphTerminalAdmission(deps: {
             inputDigest: outcome.attestation.inputDigest,
             terminalProofDigest: outcome.attestation.outputDigest ?? outcome.attestationDigest,
             recordedAt: outcome.attestation.finishedAt,
-          },
-          activation: await activationFor(deps.activationKey, deps.tenantId, graph.head, admitted, outcome.fencingToken),
+        };
+        return {
+          schema: HERMES_EXECUTION_FOLDBACK_SCHEMA,
+          tenantId: deps.tenantId,
+          graphVersion: graph.head.graphVersion,
+          goalGraph: admitted.goalGraph,
+          execution,
+          activation: await activationFor(deps.activationKey, deps.tenantId, graph.head, admitted, execution),
         };
       } catch {
         return null;
@@ -198,8 +222,10 @@ export function createGoalGraphTerminalAdmission(deps: {
     },
     activationVerifier: {
       source: 'external-admission-readback',
-      async verifyActivationAuthority(activation) {
+      async verifyActivationAuthority(activation, execution) {
         try {
+          // Without the execution there is nothing to bind the activation to.
+          if (!execution || execution.fencingToken !== activation.fencingToken) return false;
           if (!activation.mappingReceiptId.startsWith(MAPPING_PREFIX)) return false;
           const nodeId = activation.mappingReceiptId.slice(MAPPING_PREFIX.length);
           const graph = await readGraph();
@@ -207,7 +233,9 @@ export function createGoalGraphTerminalAdmission(deps: {
           const node = graph.nodes.find((candidate) => candidate.nodeId === nodeId);
           const admitted = node ? admittedNode(node, graph.head, deps.tenantId, loadouts) : null;
           if (!admitted) return false;
-          const expected = await activationFor(deps.activationKey, deps.tenantId, graph.head, admitted, activation.fencingToken);
+          if (execution.memberId !== admitted.admission.memberId || execution.directiveId !== admitted.admission.directiveId
+            || execution.idempotencyKey !== admitted.admission.idempotencyKey || execution.inputDigest !== admitted.admission.dispatchDigest) return false;
+          const expected = await activationFor(deps.activationKey, deps.tenantId, graph.head, admitted, execution);
           return stable(expected) === stable(activation);
         } catch {
           return false;

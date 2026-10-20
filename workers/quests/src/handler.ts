@@ -218,7 +218,7 @@ export interface BridgeExecutionAttestation {
   idempotencyKey: string;
   runnerId: string;
   hostIdentity: string;
-  command: 'canary.record' | 'service_agreement.draft.render';
+  command: 'canary.record' | 'service_agreement.draft.render' | 'source_verification.accept';
   status: BridgeExecutionOutcomeStatus;
   exitCode: 0 | 1 | null;
   inputDigest: string;
@@ -1176,7 +1176,37 @@ interface ServiceAgreementDraftInput {
 
 type NativeExecutionContract =
   | { command: 'canary.record'; idempotencyKey: string; input: { nonce: string } }
-  | { command: 'service_agreement.draft.render'; idempotencyKey: string; input: ServiceAgreementDraftInput };
+  | { command: 'service_agreement.draft.render'; idempotencyKey: string; input: ServiceAgreementDraftInput }
+  | { command: 'source_verification.accept'; idempotencyKey: string; input: SourceVerificationAcceptInput };
+
+/**
+ * Wave0 finite source verification. The runner's Temperance owner returns an
+ * Ed25519-signed accepted-work-unit envelope; the executed outputDigest must be
+ * that envelope's receipt digest, which the outcome route verifies before
+ * recording. Static loadout eligibility here is not admission: D1 still decides.
+ */
+export interface SourceVerificationAcceptInput {
+  schema: 'thoughtseed.source_verification.accept_input.v1';
+  taskId: string;
+  goalId: string;
+  workObjectId: string;
+  loadoutId: string;
+  clusterId: string;
+}
+
+function parseSourceVerificationAcceptInput(value: Record<string, unknown>): SourceVerificationAcceptInput | null {
+  if (Object.keys(value).sort().join(',') !== 'clusterId,goalId,loadoutId,schema,taskId,workObjectId') return null;
+  if (value.schema !== 'thoughtseed.source_verification.accept_input.v1') return null;
+  const taskId = executionText(value.taskId);
+  const goalId = executionText(value.goalId);
+  const workObjectId = executionText(value.workObjectId);
+  const loadoutId = executionText(value.loadoutId);
+  const clusterId = executionText(value.clusterId);
+  if (!taskId || !goalId || !workObjectId || !loadoutId || !clusterId) return null;
+  const loadout = GOAL_GRAPH_LOADOUT_AUTHORITY.resolve(loadoutId);
+  if (!loadout || !loadout.eligibleWorkObjectIds.includes(workObjectId) || !loadout.authorizedClusterIds.includes(clusterId)) return null;
+  return { schema: 'thoughtseed.source_verification.accept_input.v1', taskId, goalId, workObjectId, loadoutId, clusterId };
+}
 
 interface BusinessTaskIntake {
   schema: 'thoughtseed.business_task_intake.v1';
@@ -1516,7 +1546,8 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
     || rawAttestation.idempotencyKey !== idempotencyKey
     || attestationRunnerId !== runnerId
     || attestationHostIdentity !== hostIdentity
-    || (rawAttestation.command !== 'canary.record' && rawAttestation.command !== 'service_agreement.draft.render')
+    || (rawAttestation.command !== 'canary.record' && rawAttestation.command !== 'service_agreement.draft.render'
+      && rawAttestation.command !== 'source_verification.accept')
     || rawAttestation.status !== status) return null;
   const exitCode: 0 | 1 | null = status === 'executed' ? 0 : status === 'failed' ? 1 : null;
   if (rawAttestation.exitCode !== exitCode) return null;
@@ -1588,6 +1619,10 @@ function nativeExecutionContract(
     const businessInput = parseServiceAgreementDraftInput(input);
     if (businessInput) return { command: 'service_agreement.draft.render', idempotencyKey, input: businessInput };
   }
+  if (payload.command === 'source_verification.accept') {
+    const sourceInput = parseSourceVerificationAcceptInput(input);
+    if (sourceInput) return { command: 'source_verification.accept', idempotencyKey, input: sourceInput };
+  }
   return null;
 }
 
@@ -1633,6 +1668,10 @@ async function validExecutionAttestation(
       };
       const expectedOutputDigest = `sha256:${await sha256hex(canonicalJson(proof))}`;
       if (outcome.attestation.outputDigest !== expectedOutputDigest) return false;
+    } else if (contract.command === 'source_verification.accept') {
+      // The output digest is bound to a signed envelope in the outcome route,
+      // which needs the owner public keys; nothing else may ride along.
+      if (outcome.attestation.businessReceipt !== undefined) return false;
     } else {
       const receipt = outcome.attestation.businessReceipt;
       const expectedArtifactId = `artifact_${(await sha256hex(`${contract.input.gsdTaskId}\u0000thoughtseed.hermes.native_execution.v1`)).slice(0, 32)}`;
@@ -6075,6 +6114,36 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       if (!await validExecutionAttestation(contract, outcome)) {
         return json(409, { error: 'execution attestation verification failed' });
       }
+      let ingressAcceptance: unknown;
+      if (contract.command === 'source_verification.accept' && outcome.status === 'executed') {
+        // Closes review M2: the one command whose outputDigest the runner chooses is only
+        // recorded when it carries an owner-signed envelope for exactly that digest, task
+        // and directive input. Nothing unverifiable reaches the execution store.
+        const acceptanceStore = deps.terminalFoldback?.acceptanceStore;
+        if (!acceptanceStore) return json(503, { error: 'source verification acceptance verifier unavailable' });
+        let verified: Awaited<ReturnType<AttestedAcceptanceStore['verify']>>;
+        try { verified = await acceptanceStore.verify(isRecord(raw) ? raw.acceptedWorkUnitAttestation : undefined); } catch {
+          return json(409, { error: 'source verification attestation invalid' });
+        }
+        const unitBinding = verified.receipt.binding;
+        if (verified.receiptDigest !== outcome.attestation.outputDigest
+          || unitBinding.taskId !== contract.input.taskId
+          || unitBinding.goalId !== contract.input.goalId
+          || unitBinding.workObjectId !== contract.input.workObjectId
+          || unitBinding.executionInputDigest !== outcome.attestation.inputDigest) {
+          return json(409, { error: 'source verification attestation does not bind this execution' });
+        }
+        // Store before recording (review MEDIUM-2): once the outcome is terminal the runner ACKs and
+        // never re-posts, so a held foldback must not be able to strand the verified envelope.
+        // Content-addressed and immutable, so replays are duplicates; a storage failure is a 503 the
+        // runner retries, with nothing recorded.
+        try {
+          const stored = await acceptanceStore.record(verified);
+          ingressAcceptance = { status: 'recorded', receiptDigest: stored.receiptDigest, duplicate: stored.duplicate };
+        } catch {
+          return json(503, { error: 'source verification acceptance store unavailable' });
+        }
+      }
       if (contract.command === 'service_agreement.draft.render') {
         if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
         const task = await deps.businessStore.getTask(contract.input.gsdTaskId);
@@ -6108,7 +6177,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       // stored only after this exact terminal folded back and only when the attestation's
       // output digest is the envelope's receipt digest; the store re-verifies the signature.
       const envelope = isRecord(raw) ? raw.acceptedWorkUnitAttestation : undefined;
-      let acceptance: unknown = envelope === undefined ? undefined : { status: 'held', reason: 'acceptance-store-unconfigured' };
+      let acceptance: unknown = ingressAcceptance
+        ?? (envelope === undefined ? undefined : { status: 'held', reason: 'acceptance-store-unconfigured' });
       if (result.terminal && deps.terminalFoldback) {
         // Attestation's validated terminal timestamp is stable across duplicate delivery.
         const boundOutcome = { ...outcome, attestationDigest, recordedAt: outcome.attestation.finishedAt };
@@ -6126,7 +6196,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           && input.execution.recordedAt === outcome.attestation.finishedAt) {
           const folded = await foldbackExecution(input, { persist: true, store: deps.terminalFoldback.store, activationVerifier: deps.terminalFoldback.activationVerifier });
           foldback = folded.ok ? { status: 'prepared', receiptId: folded.projection.receipt.receiptId, duplicate: folded.duplicate } : { status: 'held', reason: folded.reason };
-          if (envelope !== undefined && folded.ok && deps.terminalFoldback.acceptanceStore) {
+          if (ingressAcceptance === undefined && envelope !== undefined && folded.ok && deps.terminalFoldback.acceptanceStore) {
             const bound = isRecord(envelope) && isRecord(envelope.receipt) && isRecord(envelope.receipt.binding)
               && outcome.status === 'executed'
               && envelope.receiptDigest === outcome.attestation.outputDigest
@@ -6139,10 +6209,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
                 acceptance = { status: 'recorded', receiptDigest: stored.receiptDigest, duplicate: stored.duplicate };
               } catch { acceptance = { status: 'held', reason: 'acceptance-attestation-rejected' }; }
             }
-          } else if (envelope !== undefined && !folded.ok) acceptance = { status: 'held', reason: 'acceptance-requires-foldback' };
+          } else if (ingressAcceptance === undefined && envelope !== undefined && !folded.ok) acceptance = { status: 'held', reason: 'acceptance-requires-foldback' };
         } else foldback = { status: 'held', reason: 'terminal-foldback-authority-missing-or-mismatched' };
         } catch { foldback = { status: 'held', reason: 'terminal-foldback-owner-unavailable' }; }
-        if (envelope !== undefined && (foldback as { status?: string }).status !== 'prepared'
+        if (ingressAcceptance === undefined && envelope !== undefined && (foldback as { status?: string }).status !== 'prepared'
           && (acceptance as { reason?: string }).reason === 'acceptance-store-unconfigured' && deps.terminalFoldback.acceptanceStore) {
           acceptance = { status: 'held', reason: 'acceptance-requires-foldback' };
         }

@@ -162,8 +162,14 @@ export function createHermesExecutionFoldbackReader(bucket: R2BucketLike, activa
  */
 export interface HermesExecutionFoldbackActivationVerifier {
   readonly source: 'external-admission-readback';
+  /**
+   * `execution` is the validated terminal execution the activation claims to admit. Verifiers
+   * that bind authority to one execution (wave0 terminal admission) must check it; an
+   * activation copied onto a sibling receipt then fails.
+   */
   verifyActivationAuthority(
     activation: NonNullable<HermesExecutionFoldbackInput['activation']>,
+    execution?: HermesExecutionFoldbackInput['execution'],
   ): boolean | Promise<boolean>;
 }
 
@@ -409,7 +415,7 @@ export async function adaptHermesExecutionFoldback(
     if (!activationVerifier || activationVerifier.source !== 'external-admission-readback') {
       throw new HermesExecutionFoldbackValidationError('activation requires an external admission readback verifier');
     }
-    if (!await activationVerifier.verifyActivationAuthority(input.activation)) {
+    if (!await activationVerifier.verifyActivationAuthority(input.activation, input.execution)) {
       throw new HermesExecutionFoldbackValidationError('activation lacks external admission readback proof');
     }
   }

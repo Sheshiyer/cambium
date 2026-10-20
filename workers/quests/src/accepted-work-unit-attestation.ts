@@ -172,10 +172,11 @@ export async function verifyAcceptedWorkUnitAttestation(raw: unknown, options: {
 
 /**
  * Content-addressed: the key commits to the digest, and the signature commits to the owner.
- * TRIPWIRE (review M2): acceptance is looked up by receipt digest alone. That is safe only
- * while the bridge pins every native command's outputDigest. A command whose outputDigest
- * the runner chooses must verify it against a stored envelope at ingress, or bind this
- * object to the executionId/attestationDigest, before it ships.
+ * Acceptance is looked up by receipt digest alone (review M2). That is safe because every
+ * native command's outputDigest is either pinned by the bridge (canary, service agreement)
+ * or, for source_verification.accept, verified at ingress against an owner-signed envelope
+ * for that exact digest, task and directive input. Any new command whose outputDigest the
+ * runner chooses must do the same before it ships.
  */
 export function acceptanceObjectKey(workObjectId: string, receiptDigest: string): string {
   if (!WORK_ID.test(workObjectId)) fail('acceptance WorkObject is invalid');
@@ -184,12 +185,15 @@ export function acceptanceObjectKey(workObjectId: string, receiptDigest: string)
 }
 
 export interface AttestedAcceptanceStore {
+  /** Verification only, with the same trusted keys; no R2 access. */
+  verify(envelope: unknown): Promise<AcceptedWorkUnitAttestation>;
   record(envelope: unknown): Promise<{ r2Key: string; receiptDigest: string; duplicate: boolean }>;
 }
 
 /** Verify-then-write, immutable. A second write of different bytes to the same key is a conflict. */
 export function createAttestedAcceptanceStore(bucket: R2BucketLike, publicKeys: readonly AcceptanceOwnerPublicKey[]): AttestedAcceptanceStore {
   return {
+    verify: (envelope) => verifyAcceptedWorkUnitAttestation(envelope, { publicKeys }),
     async record(envelope) {
       if (!bucket.put) fail('acceptance R2 binding is not writable');
       const verified = await verifyAcceptedWorkUnitAttestation(envelope, { publicKeys });
