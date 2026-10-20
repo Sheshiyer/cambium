@@ -11,6 +11,7 @@ import type { AcceptedWorkUnitReadback } from './foldback-mission-consumer.ts';
 import { readFoldbackMissionFacts, discoverMissionFoldbackReferences } from './foldback-mission-consumer.ts';
 import type { HermesExecutionFoldbackInput, HermesExecutionFoldbackReaderLike, HermesExecutionFoldbackStoreLike, HermesExecutionFoldbackActivationVerifier } from './hermes-execution-foldback.ts';
 import { foldbackExecution } from './execution-foldback-client.ts';
+import type { AttestedAcceptanceStore } from './accepted-work-unit-attestation.ts';
 import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
@@ -478,6 +479,8 @@ export interface HandlerDeps {
     activationVerifier: HermesExecutionFoldbackActivationVerifier;
     /** Server-owned admission lookup, never populated from request fields. */
     prepare(outcome: BridgeExecutionOutcomeInput): Promise<HermesExecutionFoldbackInput | null>;
+    /** Route B: verify-then-store of the owner's Ed25519 accepted-work-unit attestation. */
+    acceptanceStore?: AttestedAcceptanceStore;
   };
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
@@ -6101,6 +6104,11 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         );
       }
       let foldback: unknown = { status: 'held', reason: 'terminal-foldback-owner-unconfigured' };
+      // Route B transport: an optional signed envelope rides with the terminal outcome. It is
+      // stored only after this exact terminal folded back and only when the attestation's
+      // output digest is the envelope's receipt digest; the store re-verifies the signature.
+      const envelope = isRecord(raw) ? raw.acceptedWorkUnitAttestation : undefined;
+      let acceptance: unknown = envelope === undefined ? undefined : { status: 'held', reason: 'acceptance-store-unconfigured' };
       if (result.terminal && deps.terminalFoldback) {
         // Attestation's validated terminal timestamp is stable across duplicate delivery.
         const boundOutcome = { ...outcome, attestationDigest, recordedAt: outcome.attestation.finishedAt };
@@ -6118,12 +6126,31 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           && input.execution.recordedAt === outcome.attestation.finishedAt) {
           const folded = await foldbackExecution(input, { persist: true, store: deps.terminalFoldback.store, activationVerifier: deps.terminalFoldback.activationVerifier });
           foldback = folded.ok ? { status: 'prepared', receiptId: folded.projection.receipt.receiptId, duplicate: folded.duplicate } : { status: 'held', reason: folded.reason };
+          if (envelope !== undefined && folded.ok && deps.terminalFoldback.acceptanceStore) {
+            const bound = isRecord(envelope) && isRecord(envelope.receipt) && isRecord(envelope.receipt.binding)
+              && outcome.status === 'executed'
+              && envelope.receiptDigest === outcome.attestation.outputDigest
+              && envelope.receipt.binding.taskId === input.goalGraph.taskId
+              && envelope.receipt.binding.workObjectId === input.goalGraph.workObjectId;
+            if (!bound) acceptance = { status: 'held', reason: 'acceptance-binding-mismatch' };
+            else {
+              try {
+                const stored = await deps.terminalFoldback.acceptanceStore.record(envelope);
+                acceptance = { status: 'recorded', receiptDigest: stored.receiptDigest, duplicate: stored.duplicate };
+              } catch { acceptance = { status: 'held', reason: 'acceptance-attestation-rejected' }; }
+            }
+          } else if (envelope !== undefined && !folded.ok) acceptance = { status: 'held', reason: 'acceptance-requires-foldback' };
         } else foldback = { status: 'held', reason: 'terminal-foldback-authority-missing-or-mismatched' };
         } catch { foldback = { status: 'held', reason: 'terminal-foldback-owner-unavailable' }; }
+        if (envelope !== undefined && (foldback as { status?: string }).status !== 'prepared'
+          && (acceptance as { reason?: string }).reason === 'acceptance-store-unconfigured' && deps.terminalFoldback.acceptanceStore) {
+          acceptance = { status: 'held', reason: 'acceptance-requires-foldback' };
+        }
       }
       return json(200, {
         recorded: true,
         foldback,
+        ...(acceptance !== undefined ? { acceptance } : {}),
         terminal: result.terminal,
         ...(result.duplicate ? { duplicate: true } : {}),
       });

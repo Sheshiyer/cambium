@@ -9966,6 +9966,62 @@ test('bridge execution · trusted terminal owner persists exact foldback once an
   assert.doesNotMatch(JSON.stringify(held), /private-owner-error/);
 });
 
+test('bridge execution · wave0 production owners: real D1 admission folds back through POST ingress; acceptance stays held for canary', async (t) => {
+  const { createGoalGraphTerminalAdmission, EXECUTION_ADMISSION_SCHEMA, importActivationKey } = await import('./terminal-admission.ts');
+  const { createAttestedAcceptanceStore } = await import('./accepted-work-unit-attestation.ts');
+  const harness = nativeExecutionHarness(() => '2026-07-15T10:10:00.000Z');
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps);
+  const claim = executionClaim();
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(claim) }), harness.deps);
+  const outcome = executionOutcome(claim, body(claimed));
+  const head = { tenantId: 'cambium', graphVersion: 8, graphDigest: `sha256:${'8'.repeat(64)}`, nodeIds: ['goal-wtfmedia'], sourceRef: null, sourceDigest: null, committedAt: '2026-07-15T10:00:00.000Z' };
+  const admittedNode = { nodeId: 'goal-wtfmedia', tenantId: 'cambium', namespace: 'thoughtseed', externalId: 'task-wtfmedia', parentNodeId: null, workObjectId: 'branch:wtfmedia', workObjectKind: 'branch' as const, pinnedLoadoutId: 'loadout:wtfmedia-source-audit', scope: 'proof' as const, desiredState: 'verified', currentState: 'admitted', owner: 'operator', nextAction: null, waitCondition: null, proofRequired: true, reviewAt: null, status: 'active' as const, sourceRef: 'gate:approval', sourceDigest: `sha256:${'5'.repeat(64)}`, graphVersion: 8,
+    metadata: { executionAdmission: { schema: EXECUTION_ADMISSION_SCHEMA, memberId: outcome.memberId, directiveId: outcome.directiveId, idempotencyKey: outcome.idempotencyKey, clusterId: 'cluster:wtfmedia-source-verification', dispatchDigest: outcome.attestation.inputDigest } },
+    createdAt: '2026-07-15T10:00:00.000Z', updatedAt: '2026-07-15T10:00:00.000Z' };
+  const graph = { nodes: [admittedNode] as Array<typeof admittedNode> };
+  const admission = createGoalGraphTerminalAdmission({ tenantId: 'cambium', activationKey: (await importActivationKey('k'.repeat(32)))!, goalGraphStore: { async readHead() { return head; }, async readNodes() { return graph.nodes as never; } } });
+  const objects = new Map<string, string>();
+  const bucket = {
+    async get(key: string) { const value = objects.get(key); return value === undefined ? null : { async text() { return value; } }; },
+    async put(key: string, bytes: Uint8Array, options?: { onlyIf?: { etagDoesNotMatch?: string } }) {
+      if (options?.onlyIf?.etagDoesNotMatch === '*' && objects.has(key)) return null;
+      objects.set(key, new TextDecoder().decode(bytes)); return { async text() { return objects.get(key)!; } };
+    },
+  };
+  harness.deps.terminalFoldback = { store: createHermesExecutionFoldbackStore(bucket, admission.activationVerifier), activationVerifier: admission.activationVerifier,
+    prepare: admission.prepare, acceptanceStore: createAttestedAcceptanceStore(bucket, []) };
+  const deliver = (extra: Record<string, unknown> = {}) => handle(req('POST', '/v1/bridge/executions/outcome', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify({ ...outcome, ...extra }) }), harness.deps);
+
+  const first = body(await deliver());
+  assert.equal(first.recorded, true); assert.equal(first.foldback.status, 'prepared'); assert.equal(first.acceptance, undefined);
+  const foldbackKeys = [...objects.keys()].filter((key) => key.includes('/foldback/'));
+  assert.deepEqual(foldbackKeys, [`portfolio/thoughtseed/workobjects/branch:wtfmedia/foldback/${outcome.executionId}.json`]);
+  const stored = JSON.parse(objects.get(foldbackKeys[0])!);
+  assert.equal(stored.activation.mappingReceiptId, 'gga:goal-wtfmedia');
+  assert.equal(await admission.activationVerifier.verifyActivationAuthority(stored.activation), true);
+  const replay = body(await deliver());
+  assert.equal(replay.foldback.duplicate, true); assert.equal(replay.foldback.receiptId, first.foldback.receiptId);
+
+  // A canary's output digest is fixed by the bridge, so no owner envelope can bind to it.
+  const envelope = { schema: 'temperance.accepted-work-unit-attestation.v1', algorithm: 'Ed25519', keyId: `ed25519:${'0'.repeat(64)}`, receiptDigest: `sha256:${'a'.repeat(64)}`, signature: 'AA',
+    receipt: { schema: 'temperance.accepted-work-unit.v1', binding: { taskId: 'task-wtfmedia', goalId: 'goal-wtfmedia', workObjectId: 'branch:wtfmedia' } } };
+  const canary = body(await deliver({ acceptedWorkUnitAttestation: envelope }));
+  assert.equal(canary.foldback.status, 'prepared'); assert.equal(canary.acceptance.reason, 'acceptance-binding-mismatch');
+  const bound = body(await deliver({ acceptedWorkUnitAttestation: { ...envelope, receiptDigest: outcome.attestation.outputDigest } }));
+  assert.equal(bound.acceptance.reason, 'acceptance-attestation-rejected', 'unsigned or untrusted envelope is never stored');
+  assert.equal([...objects.keys()].filter((key) => key.includes('/acceptance/')).length, 0);
+
+  // Late delivery after the node stops, or a rebound graph, folds nothing back and stays held.
+  graph.nodes = [{ ...admittedNode, currentState: 'stopped' }];
+  const late = body(await deliver({ acceptedWorkUnitAttestation: envelope }));
+  assert.equal(late.recorded, true); assert.equal(late.foldback.reason, 'terminal-foldback-authority-missing-or-mismatched');
+  assert.equal(late.acceptance.reason, 'acceptance-requires-foldback');
+  graph.nodes = [{ ...admittedNode, metadata: { executionAdmission: { ...admittedNode.metadata.executionAdmission, directiveId: 'another-directive' } } }];
+  assert.equal(body(await deliver()).foldback.reason, 'terminal-foldback-authority-missing-or-mismatched');
+  assert.equal(await admission.activationVerifier.verifyActivationAuthority(stored.activation), false);
+});
+
 test('bridge execution · native directive identity is immutable and ACK binds the current contract', async (t) => {
   const now = '2026-07-15T10:12:00.000Z';
   const harness = nativeExecutionHarness(() => now);

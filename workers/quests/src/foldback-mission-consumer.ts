@@ -3,6 +3,7 @@ import type {
   HermesExecutionFoldbackReadBinding,
 } from "./hermes-execution-foldback.ts";
 import type { FabricNode, FabricEdge, FabricGap } from "./mission-fabric.ts";
+import { acceptedReceiptDigest, PRODUCTION_ACCEPTANCE_DOMAINS } from "./accepted-work-unit-attestation.ts";
 
 const MAX_REFERENCES = 100;
 
@@ -91,8 +92,11 @@ export async function readFoldbackMissionFacts(args: {
   }[];
   reader: HermesExecutionFoldbackReaderLike;
   acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
+  /** Test seam only. Production callers omit it and get `local-source-verification` alone. */
+  acceptanceDomains?: readonly string[];
 }): Promise<{ nodes: FabricNode[]; edges: FabricEdge[]; gaps: FabricGap[] }> {
   const { tenantId, graphVersion, nodes, references, reader } = args;
+  const acceptanceDomains = args.acceptanceDomains ?? PRODUCTION_ACCEPTANCE_DOMAINS;
 
   if (references.length > MAX_REFERENCES) {
     throw new Error("foldback reference limit exceeded");
@@ -173,15 +177,16 @@ export async function readFoldbackMissionFacts(args: {
     const owner = args.acceptedWorkUnitReadback;
     if (owner?.source === 'owner-readback' && isRecord(receipt?.execution) && receipt.execution.status === 'executed' && projection.nextIntent && projection.cortex) {
       try {
-        const unit = await owner.readAcceptedWorkUnit({ taskId: binding.goalGraph.taskId, workObjectId: binding.goalGraph.workObjectId });
+        const unit = await owner.readAcceptedWorkUnit({ taskId: binding.goalGraph.taskId, workObjectId: binding.goalGraph.workObjectId,
+          terminalProofDigest: typeof receipt.execution.terminalProofDigest === 'string' ? receipt.execution.terminalProofDigest : undefined });
         if (unit && unit.schema === 'temperance.accepted-work-unit.v1' && unit.taskAccepted === true
           && unit.wholeLifecycleAccepted === false && unit.productionCambiumAdmission === false
-          && ['local-source-verification', 'test-fixture'].includes(unit.domain)
+          && acceptanceDomains.includes(unit.domain)
           && unit.binding.taskId === binding.goalGraph.taskId && unit.binding.goalId === binding.goalGraph.nodeId && unit.binding.workObjectId === binding.goalGraph.workObjectId
           && typeof unit.binding.executionInputDigest === 'string' && /^sha256:[0-9a-f]{64}$/.test(unit.binding.executionInputDigest) && unit.binding.executionInputDigest === receipt.execution.inputDigest
-          && await receiptDigest(unit) === receipt.execution.terminalProofDigest) {
+          && await acceptedReceiptDigest(unit) === receipt.execution.terminalProofDigest) {
           const node = projection.node as unknown as FabricNode;
-          if (node.kind === 'receipt') node.value.evidenceRefs.push(`accepted-work-unit:${await receiptDigest(unit)}`, `acceptance-contract:${unit.contractId}`, `acceptance-domain:${unit.domain}`);
+          if (node.kind === 'receipt') node.value.evidenceRefs.push(`accepted-work-unit:${await acceptedReceiptDigest(unit)}`, `acceptance-contract:${unit.contractId}`, `acceptance-domain:${unit.domain}`);
           accepted = true;
         }
       } catch { /* An unavailable owner never creates acceptance. */ }
@@ -204,11 +209,8 @@ export interface AcceptedWorkUnitReceipt {
 }
 export interface AcceptedWorkUnitReadback {
   readonly source: 'owner-readback';
-  readAcceptedWorkUnit(binding: { taskId: string; workObjectId: string }): Promise<AcceptedWorkUnitReceipt | null>;
-}
-async function receiptDigest(receipt: AcceptedWorkUnitReceipt): Promise<string> {
-  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(receipt)));
-  return `sha256:${Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+  /** `terminalProofDigest` is the canonical accepted-receipt digest the terminal attestation committed to. */
+  readAcceptedWorkUnit(binding: { taskId: string; workObjectId: string; terminalProofDigest?: string }): Promise<AcceptedWorkUnitReceipt | null>;
 }
 
 /** Read-only, bounded discovery. A prefix is listed once, keys bind to one exact current task. */
