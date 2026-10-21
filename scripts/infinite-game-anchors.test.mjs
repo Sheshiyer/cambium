@@ -248,6 +248,9 @@ const syntheticPrivacyFixtures = new Map([
   ['workers/quests/src/plexus-work-reference.test.ts', [
     ['secret', ": 'PRIVATE_METADATA'"].join(''),
   ]],
+  ['workers/quests/src/hermes-execution-foldback.test.ts', [
+    ['credential', ": 'credential-must-never-project'"].join(''),
+  ]],
   ['README.md', [
     ['/tmp/', 'demo-org.tapestry.json'].join(''),
   ]],
