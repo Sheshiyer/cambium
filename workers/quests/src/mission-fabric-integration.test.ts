@@ -528,7 +528,7 @@ test('WTFMedia finite source-audit policy preserves exact loadout through the ac
   assert.equal(spies.d1Writes, 0); assert.equal(spies.kvWrites, 0);
 });
 
-for (const [slug, workObjectId] of [['wtfmedia', 'branch:wtfmedia'], ['parkarea', 'branch:parkarea']] as const) test(`${slug} source-audit loadout policy hash is exact and grants no production admission`, () => {
+for (const [slug, workObjectId] of [['wtfmedia', 'branch:wtfmedia'], ['parkarea', 'branch:parkarea'], ['relovo', 'branch:relovo']] as const) test(`${slug} source-audit loadout policy hash is exact and grants no production admission`, () => {
   const authority = GOAL_GRAPH_LOADOUT_AUTHORITY.resolve(`loadout:${slug}-source-audit`)!;
   const bytes = readFileSync(new URL(`../../../docs/project-management/${slug}-source-audit-loadout.v1.json`, import.meta.url));
   assert.equal(authority.authorityDigest, `sha256:${createHash('sha256').update(bytes).digest('hex')}`);

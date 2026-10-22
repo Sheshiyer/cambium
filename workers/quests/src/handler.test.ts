@@ -10107,6 +10107,8 @@ const SOURCE_VERIFICATION_CASES: readonly SourceVerificationCase[] = [
     input: { schema: 'thoughtseed.source_verification.accept_input.v1', taskId: 'task-wtfmedia', goalId: 'goal-wtfmedia', workObjectId: 'branch:wtfmedia', loadoutId: 'loadout:wtfmedia-source-audit', clusterId: 'cluster:wtfmedia-source-verification' } },
   { slug: 'parkarea', repoIdentity: 'Sheshiyer/parkarea-aleph', inputDigest: 'sha256:79cd6c4b680efc3c3cbbdbd589784305733b7fea0e4b7f29305d6ac9c806ee8a',
     input: { schema: 'thoughtseed.source_verification.accept_input.v1', taskId: 'task-parkarea', goalId: 'goal-parkarea', workObjectId: 'branch:parkarea', loadoutId: 'loadout:parkarea-source-audit', clusterId: 'cluster:parkarea-source-verification' } },
+  { slug: 'relovo', repoIdentity: 'Sheshiyer/relovo', inputDigest: 'sha256:a833e1dcc2ae0b8721ac992cc406a084935eb2ecfaf1553b5ab60a9bafc86040',
+    input: { schema: 'thoughtseed.source_verification.accept_input.v1', taskId: 'task-relovo', goalId: 'goal-relovo', workObjectId: 'branch:relovo', loadoutId: 'loadout:relovo-source-audit', clusterId: 'cluster:relovo-source-verification' } },
 ];
 
 for (const sv of SOURCE_VERIFICATION_CASES) test(`bridge execution · source_verification.accept (${sv.slug}): signed owner envelope is verified at ingress and folds back as accepted work`, async (t) => {
