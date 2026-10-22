@@ -683,8 +683,11 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     updateInstrument();
     renderRead(bridge.getReadState());
     unsubscribe = bridge.subscribeRead(renderRead);
-    if (typeof bridge.subscribeGate === 'function') gateUnsubscribe = bridge.subscribeGate(onGate);
-    else if (typeof bridge.getGateState === 'function') onGate(bridge.getGateState());
+    // A Gate bridge fault holds only the Gate closed; the world keeps walking.
+    try {
+      if (typeof bridge.subscribeGate === 'function') gateUnsubscribe = bridge.subscribeGate(onGate);
+      else if (typeof bridge.getGateState === 'function') onGate(bridge.getGateState());
+    } catch { gateUnsubscribe = null; onGate(HELD_GATE); }
   } catch (error) {
     dispose();
     throw error instanceof Error ? error : new Error('Curious world could not start');
