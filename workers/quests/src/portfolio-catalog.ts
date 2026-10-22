@@ -4,6 +4,7 @@ import {
   PORTFOLIO_CATALOG_COUNTS,
   PORTFOLIO_CATALOG_DIGEST as SHARED_PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST as SHARED_CLASSIFICATION_DIGEST,
+  PORTFOLIO_REVIEWED_CATALOG_VERSIONS,
 } from '../../../shared/portfolio-catalog-authority.ts';
 import {
   PORTFOLIO_DISPLAY_CATALOG_DIGEST as EXPECTED_PORTFOLIO_DISPLAY_CATALOG_DIGEST,
@@ -121,13 +122,13 @@ export interface PortfolioOperationalGap {
 }
 
 export interface PortfolioCatalogSummary {
-  total: 72;
+  total: 73;
   saplings: 17;
-  clientBranches: 40;
+  clientBranches: 41;
   internalPrograms: 15;
   classificationReview: 0;
   historicalProducts: 20;
-  operationalGaps: 48;
+  operationalGaps: 49;
 }
 
 export interface PortfolioCatalogV1 {
@@ -151,18 +152,18 @@ export interface PortfolioCatalogV1 {
 }
 
 export interface PortfolioDisplayCatalogSummary {
-  total: 75;
+  total: 76;
   saplings: 17;
-  clientBranches: 42;
+  clientBranches: 43;
   internalPrograms: 16;
   classificationReview: 0;
   historicalProducts: 20;
-  operationalGaps: 48;
+  operationalGaps: 49;
 }
 
 /**
  * A presentation-only augmentation of the reviewed catalog. Its action
- * authority points at the immutable 72-record catalog, so this inventory can
+ * authority points at the immutable 73-record catalog, so this inventory can
  * be rendered without becoming eligible for action, Mission Fabric joins, or
  * approval packets.
  */
@@ -454,10 +455,10 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const historicalProducts = catalog.historicalProducts;
   const classificationReview = catalog.classificationReview;
   const operationalGaps = catalog.operationalGaps;
-  if (!Array.isArray(records) || records.length !== 72 || records.length > MAX_RECORDS) fail('record count drifted');
+  if (!Array.isArray(records) || records.length !== 73 || records.length > MAX_RECORDS) fail('record count drifted');
   if (!Array.isArray(historicalProducts) || historicalProducts.length !== 20 || historicalProducts.length > MAX_HISTORICAL) fail('historical count drifted');
   if (!Array.isArray(classificationReview) || classificationReview.length !== 0 || classificationReview.length > MAX_REVIEW) fail('classification review count drifted');
-  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 48 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
+  if (!Array.isArray(operationalGaps) || operationalGaps.length !== 49 || operationalGaps.length > MAX_GAPS) fail('operational gap count drifted');
 
   records.forEach((record, index) => validateRecord(record as PortfolioCatalogRecord, index));
   const ids = records.map((record) => (record as PortfolioCatalogRecord).workId);
@@ -465,7 +466,7 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
   const saplings = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'sapling').length;
   const clients = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'client-branch').length;
   const programs = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'internal-program').length;
-  if (saplings !== 17 || clients !== 40 || programs !== 15) fail('classification counts drifted');
+  if (saplings !== 17 || clients !== 41 || programs !== 15) fail('classification counts drifted');
 
   const historicalIds = new Set<string>();
   for (const [index, value] of historicalProducts.entries()) {
@@ -508,13 +509,13 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
 
   const summary = catalog.summary;
   if (!isRecord(summary)
-    || summary.total !== 72
+    || summary.total !== 73
     || summary.saplings !== 17
-    || summary.clientBranches !== 40
+    || summary.clientBranches !== 41
     || summary.internalPrograms !== 15
     || summary.classificationReview !== 0
     || summary.historicalProducts !== 20
-    || summary.operationalGaps !== 48) fail('summary drifted');
+    || summary.operationalGaps !== 49) fail('summary drifted');
 
   const actualDigest = sha256(catalogHashPayload(catalog as unknown as PortfolioCatalogV1));
   if (actualDigest !== catalog.catalogDigest) fail('catalog digest does not match canonical content');
@@ -526,6 +527,75 @@ export function validatePortfolioCatalog(catalog: unknown): asserts catalog is P
 const BUILT_CATALOG = buildCatalog();
 validatePortfolioCatalog(BUILT_CATALOG);
 export const PORTFOLIO_CATALOG: PortfolioCatalogV1 = deepFreeze(BUILT_CATALOG);
+
+export interface PortfolioReviewedCatalogVersion {
+  version: number;
+  catalogDigest: string;
+  workIds: readonly string[];
+}
+
+// Rebuilds every historical reviewed version by removing the admissions made
+// after it, and fails the module closed unless each rebuilt digest equals its
+// reviewed pin. Only these verified versions can bind a receipt.
+export function verifyReviewedCatalogVersions(
+  current: PortfolioCatalogV1,
+  versions: readonly { version: number; catalogDigest: string; admittedWorkIds: readonly string[] }[],
+): readonly PortfolioReviewedCatalogVersion[] {
+  const currentIds = new Set(current.records.map((record) => record.workId));
+  const latest = versions.at(-1);
+  if (!latest || latest.catalogDigest !== current.catalogDigest) fail('current reviewed catalog version drifted');
+  const digests = new Set<string>();
+  const admitted = new Set<string>();
+  versions.forEach((entry, index) => {
+    if (entry.version !== index + 1 || !SHA256.test(entry.catalogDigest) || digests.has(entry.catalogDigest)) {
+      fail(`reviewed catalog version ${index + 1} is invalid`);
+    }
+    digests.add(entry.catalogDigest);
+    if (index === 0 && entry.admittedWorkIds.length !== 0) fail('baseline reviewed catalog version cannot admit');
+    if (index > 0 && entry.admittedWorkIds.length === 0) fail(`reviewed catalog version ${entry.version} admits nothing`);
+    for (const workId of entry.admittedWorkIds) {
+      if (!currentIds.has(workId) || admitted.has(workId)) fail(`reviewed catalog version ${entry.version} admission is invalid`);
+      admitted.add(workId);
+    }
+  });
+
+  const { catalogDigest: _catalogDigest, ...payload } = current;
+  const removed = new Set<string>();
+  const result: PortfolioReviewedCatalogVersion[] = [];
+  for (let index = versions.length - 1; index >= 0; index -= 1) {
+    const entry = versions[index];
+    const records = payload.records.filter((record) => !removed.has(record.workId));
+    const historical = {
+      ...payload,
+      summary: {
+        ...payload.summary,
+        total: records.length,
+        saplings: records.filter((record) => record.classification === 'sapling').length,
+        clientBranches: records.filter((record) => record.classification === 'client-branch').length,
+        internalPrograms: records.filter((record) => record.classification === 'internal-program').length,
+        operationalGaps: payload.operationalGaps.filter((gap) => !removed.has(gap.workId)).length,
+      },
+      records,
+      operationalGaps: payload.operationalGaps.filter((gap) => !removed.has(gap.workId)),
+    };
+    if (sha256(historical) !== entry.catalogDigest) {
+      fail(`reviewed catalog version ${entry.version} is not reproducible from the current catalog`);
+    }
+    result.unshift(deepFreeze({
+      version: entry.version,
+      catalogDigest: entry.catalogDigest,
+      workIds: records.map((record) => record.workId).sort(),
+    }));
+    for (const workId of entry.admittedWorkIds) removed.add(workId);
+  }
+  return Object.freeze(result);
+}
+
+export const PORTFOLIO_REVIEWED_CATALOGS = verifyReviewedCatalogVersions(PORTFOLIO_CATALOG, PORTFOLIO_REVIEWED_CATALOG_VERSIONS);
+
+export function reviewedPortfolioCatalogVersion(catalogDigest: unknown): PortfolioReviewedCatalogVersion | null {
+  return PORTFOLIO_REVIEWED_CATALOGS.find((entry) => entry.catalogDigest === catalogDigest) ?? null;
+}
 
 function buildDisplayCatalog(): PortfolioDisplayCatalogV1 {
   const actionAuthority = {
@@ -541,7 +611,7 @@ function buildDisplayCatalog(): PortfolioDisplayCatalogV1 {
     readOnly: true,
     sourceSchema: 'thoughtseed.work-object-registry.v1',
     sourceGeneratedAt: '2026-07-29T06:46:00Z',
-    // The unchanged 72-record classification source remains the base of this
+    // The unchanged 73-record classification source remains the base of this
     // mixed inventory. The newer canonical source is named only inside the
     // finite proposal, so it cannot be mistaken for action authority.
     classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
@@ -598,7 +668,7 @@ export function validatePortfolioDisplayCatalog(catalog: unknown): asserts catal
   rejectForbiddenMaterial(catalog, 'displayCatalog');
 
   const records = catalog.records;
-  if (!Array.isArray(records) || records.length !== 75 || records.length > MAX_RECORDS) {
+  if (!Array.isArray(records) || records.length !== 76 || records.length > MAX_RECORDS) {
     fail('display catalog record count drifted');
   }
   records.forEach((record, index) => validateRecord(record as PortfolioCatalogRecord, index));
@@ -607,7 +677,7 @@ export function validatePortfolioDisplayCatalog(catalog: unknown): asserts catal
   const saplings = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'sapling').length;
   const clients = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'client-branch').length;
   const programs = records.filter((record) => (record as PortfolioCatalogRecord).classification === 'internal-program').length;
-  if (saplings !== 17 || clients !== 42 || programs !== 16) fail('display catalog classification counts drifted');
+  if (saplings !== 17 || clients !== 43 || programs !== 16) fail('display catalog classification counts drifted');
   if (canonicalJson(catalog.summary) !== canonicalJson(DISPLAY_SUMMARY)) fail('display catalog summary drifted');
 
   const actionRecords = new Map(PORTFOLIO_CATALOG.records.map((record) => [record.workId, record]));

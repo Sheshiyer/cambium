@@ -1,7 +1,7 @@
 // Browser-safe, finite proposal inventory for the Portfolio Cartographer.
 //
 // This is intentionally separate from portfolio-catalog-authority.ts. The
-// reviewed 72-record catalog remains the only action authority; these three
+// reviewed 73-record catalog remains the only action authority; these three
 // records are source-backed display/proposal material and carry no tenant,
 // runtime, approval, or action admission.
 
@@ -23,11 +23,11 @@ export const PORTFOLIO_DISPLAY_PROPOSAL_SELECTION_SHA256 =
 export const PORTFOLIO_DISPLAY_SELECTION_DIGEST =
   `sha256:${PORTFOLIO_DISPLAY_PROPOSAL_SELECTION_SHA256}` as const;
 
-// Canonical digest of the 72 reviewed records plus this exact three-record
+// Canonical digest of the 73 reviewed records plus this exact three-record
 // display selection. It is a presentation pin only and is deliberately not
 // accepted by action validators.
 export const PORTFOLIO_DISPLAY_CATALOG_DIGEST =
-  'sha256:899d3b0443f27c5de923e369157bb3d1e94119780869a18ca0ac65442926356a' as const;
+  'sha256:244df7a3e4197f4f252ed021cc9d3b9815a523395ab788bfd5673b4d5d9291e5' as const;
 
 export const PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS = [
   [
@@ -91,16 +91,16 @@ export const PORTFOLIO_DISPLAY_PROPOSAL = Object.freeze({
     classificationDigest: '08bdef05f45f948cfee07da2b64982a7f76487cee609ac900a3a6e485db24757',
   },
   selectionDigest: PORTFOLIO_DISPLAY_SELECTION_DIGEST,
-  intendedDisplayCount: 75,
+  intendedDisplayCount: 76,
   pendingDeltaReceipt: 'CATALOG-CURRENT-SOURCE-DELTA.json',
 } as const);
 
 export const PORTFOLIO_DISPLAY_CATALOG_COUNTS = Object.freeze({
-  total: 75,
+  total: 76,
   saplings: 17,
-  clientBranches: 42,
+  clientBranches: 43,
   internalPrograms: 16,
   classificationReview: 0,
   historicalProducts: 20,
-  operationalGaps: 48,
+  operationalGaps: 49,
 } as const);

@@ -27,7 +27,7 @@ export const V2_SCHEMA = 'thoughtseed.portfolio-workbench.v2' as const
 export const LEGACY_SCHEMA = 'thoughtseed.portfolio-cartographer.v1' as const
 export const CARTOGRAPHER_SCHEMA = WORKBENCH_SCHEMA
 // These compatibility names deliberately remain action-bound. Workbench
-// actions retain the reviewed 72-record digest even while the display-only
+// actions retain the reviewed 73-record digest even while the display-only
 // proposal records below render in the cartographer.
 export const CLASSIFICATION_DIGEST = PORTFOLIO_ACTION_CLASSIFICATION_DIGEST
 export const PORTFOLIO_CATALOG_DIGEST = PORTFOLIO_ACTION_CATALOG_DIGEST

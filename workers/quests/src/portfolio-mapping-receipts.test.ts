@@ -9,7 +9,11 @@ import {
   createPortfolioMappingReceiptStore,
   preparePortfolioMappingReceipt,
 } from './portfolio-mapping-receipts.ts';
-import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from './portfolio-catalog.ts';
+import {
+  PORTFOLIO_CATALOG,
+  PORTFOLIO_CLASSIFICATION_DIGEST,
+  PORTFOLIO_REVIEWED_CATALOGS,
+} from './portfolio-catalog.ts';
 import {
   PORTFOLIO_ROOT_MAP_DIGEST,
   REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST,
@@ -71,6 +75,30 @@ test('rejects stale provenance pins and non-canonical WorkObject identity', asyn
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST })), PortfolioMappingReceiptValidationError);
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ workObjectId: 'sapling:not-catalogued' })), PortfolioMappingReceiptValidationError);
   await assert.rejects(() => preparePortfolioMappingReceipt(input({ workObjectKind: 'branch' })), PortfolioMappingReceiptValidationError);
+});
+
+test('binds receipts to a reviewed catalog version without letting history carry later admissions', async () => {
+  const [historical, current] = PORTFOLIO_REVIEWED_CATALOGS;
+  assert.equal(historical.catalogDigest, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca');
+  assert.equal(current.catalogDigest, PORTFOLIO_CATALOG.catalogDigest);
+  const prior = await preparePortfolioMappingReceipt(input({ catalogDigest: historical.catalogDigest }));
+  assert.equal(prior.catalogDigest, historical.catalogDigest);
+  assert.notEqual(prior.receiptId, (await preparePortfolioMappingReceipt(input())).receiptId);
+
+  const relovo = {
+    workObjectId: 'branch:relovo',
+    workObjectKind: 'branch',
+    originAssertion: 'client-origin',
+    repositoryRole: 'client-branch-source',
+    rootMap: { folder: null, additionalFolders: [], proposedKind: null, accountId: null, workIds: [], status: 'no-shallow-folder' },
+    lifecycle: 'executing',
+  };
+  await assert.rejects(
+    () => preparePortfolioMappingReceipt(input({ ...relovo, catalogDigest: historical.catalogDigest })),
+    /absent from the bound catalog version/,
+  );
+  const admitted = await preparePortfolioMappingReceipt(input({ ...relovo, catalogDigest: current.catalogDigest }));
+  assert.equal(admitted.workObjectId, 'branch:relovo');
 });
 
 test('rejects incomplete repository identity and inconsistent provenance', async () => {

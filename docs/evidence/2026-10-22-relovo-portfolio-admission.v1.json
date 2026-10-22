@@ -1,0 +1,153 @@
+{
+  "schema": "cambium.portfolio-catalog-admission.v1",
+  "observedAt": "2026-10-22T00:00:00Z",
+  "tenant": "cambium",
+  "portfolioId": "thoughtseed",
+  "context": {
+    "decision": "temperance-d17-accepted-result-loop",
+    "firstProductionRun": "relovo",
+    "operatorSwitchDate": "2026-10-22",
+    "foldbackRequirement": "workers/quests/src/hermes-execution-foldback.ts requires a catalogued WorkObject anchor"
+  },
+  "admission": {
+    "workId": "branch:relovo",
+    "name": "Relovo",
+    "classification": "client-branch",
+    "programKind": "client",
+    "lifecycle": "executing",
+    "tenantIdentity": "unresolved",
+    "accountId": "relovo",
+    "provenance": [
+      "repo:Sheshiyer/relovo",
+      "repo:Sheshiyer/saanmai-marketplace"
+    ],
+    "operationalGap": "mission-data-needed",
+    "executionAuthorityGranted": "catalog-anchor-only"
+  },
+  "reviewedCatalogVersions": {
+    "previous": {
+      "version": 1,
+      "catalogDigest": "sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca",
+      "records": 72,
+      "approvalEvidence": "docs/evidence/2026-08-12-reviewed-pins-ledger-push.v1.json"
+    },
+    "admitted": {
+      "version": 2,
+      "catalogDigest": "sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c",
+      "admittedWorkIds": [
+        "branch:relovo"
+      ],
+      "counts": {
+        "total": 73,
+        "saplings": 17,
+        "clientBranches": 41,
+        "internalPrograms": 15,
+        "classificationReview": 0,
+        "historicalProducts": 20,
+        "operationalGaps": 49
+      }
+    },
+    "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "classificationAdvanced": false,
+    "registry": "shared/portfolio-catalog-authority.ts PORTFOLIO_REVIEWED_CATALOG_VERSIONS",
+    "reproducibility": "The Worker catalog module rebuilds version 1 from version 2 minus branch:relovo and fails closed unless it equals the version 1 pin.",
+    "callerSuppliedDigestsExtendAuthority": false
+  },
+  "historicalBindingsPreserved": {
+    "batch3MappingReceipts": {
+      "bundleDigest": "sha256:180688749d4b12f0ae9815d69e2826a7b3d0608215f211f6d7b5fbc21e4dc001",
+      "receipts": 39,
+      "boundCatalogVersion": 1
+    },
+    "githubRepositoryMappingActionQueue": {
+      "batches": "github-batch-001 through github-batch-006",
+      "boundCatalogVersion": 1,
+      "laterAdmissionsBackfilled": false
+    },
+    "receiptRule": "A mapping receipt validates only when its catalogDigest names a reviewed version that contains its WorkObject."
+  },
+  "currentBindingsAdvanced": [
+    "scripts/portfolio-foundation-pins.mjs",
+    "docs/project-management/thoughtseed-project-birth.v1.json",
+    "docs/project-management/thoughtseed-project-closeout.v1.json",
+    "shared/portfolio-catalog-authority.ts"
+  ],
+  "filesystem": {
+    "localProjectFolder": null,
+    "linkageState": "explicit-folderless-gap",
+    "censusTreatment": "explicit-folderless-gap-founder-approved"
+  },
+  "displayCatalog": {
+    "catalogDigest": "sha256:244df7a3e4197f4f252ed021cc9d3b9815a523395ab788bfd5673b4d5d9291e5",
+    "records": 76,
+    "admission": "render-and-proposal-only",
+    "canonicalSource": {
+      "revision": "4ab895653a3b5bc575dffb0b2360a70062221697",
+      "fileSha256": "1e6d2a3779c5ea901ae1135cb549c4e71fd803eb7bcc385a25a1edbc2e3a4aa3",
+      "classificationDigest": "08bdef05f45f948cfee07da2b64982a7f76487cee609ac900a3a6e485db24757",
+      "note": "The three display proposal records still come from this revision; the pin is unchanged by the Relovo admission."
+    },
+    "reviewedDisplaySourceSha256": "b8ae97a3b8d4a2752a7c49c543d0dfc5b96554b5b333d88eb7a261d58fbc3541"
+  },
+  "repositoryEvidence": {
+    "unresolvedSourceRefs": [
+      "repo:Sheshiyer/relovo",
+      "repo:Sheshiyer/saanmai-marketplace"
+    ],
+    "status": "unverified-immutable-id-unavailable",
+    "batch6Backfill": false,
+    "disposition": "requires its own reviewed repository-mapping disposition"
+  },
+  "loadout": {
+    "loadoutId": "loadout:relovo-source-audit",
+    "policy": "docs/project-management/relovo-source-audit-loadout.v1.json",
+    "authorityDigest": "sha256:51d13e1e61510aeacfa430d104fea72e74759c4922f1e45b505c31d93bab7000",
+    "acceptInputDigest": "sha256:a833e1dcc2ae0b8721ac992cc406a084935eb2ecfaf1553b5ab60a9bafc86040",
+    "clusterId": "cluster:relovo-source-verification",
+    "admissionIssued": false,
+    "productionExecutionAuthorized": false,
+    "sourceAudit": {
+      "repository": "Sheshiyer/relovo",
+      "path": "src/auth/apiClient.js",
+      "revision": "3a5e821b",
+      "tests": "15 node:test tests",
+      "provenance": "reported by the D17 controller session; not re-run in this admission"
+    }
+  },
+  "vaultClassification": {
+    "repository": "Sheshiyer/thoughtseed-vault",
+    "path": "00-meta/work-object-registry.v1.json",
+    "baseFileSha256": "1e6d2a3779c5ea901ae1135cb549c4e71fd803eb7bcc385a25a1edbc2e3a4aa3",
+    "patchedFileSha256": "04bf760f7ba8c620f7fab987d625ca3b66b9e861a9cf757cd99de3a39ab684ea",
+    "patchedClassificationDigest": "1ec08c0c49e9698aae3a5078ec9a141eab2820312dc6dad723a1ac3b0e8b27b5",
+    "status": "committed-locally-not-pushed",
+    "commit": "998c2c5eea75c34ff7859c5b7c71dde07cf3b1bc",
+    "committedFiles": [
+      "00-meta/work-object-registry.v1.json"
+    ],
+    "pinnedByCambium": false
+  },
+  "founderGate": {
+    "required": true,
+    "decision": "approved",
+    "approvedAt": "2026-10-22",
+    "channel": "claude-code-ask-user-question",
+    "answers": {
+      "admission": "approve branch:relovo as reviewed catalog version 2",
+      "census": "explicit folderless gap",
+      "vault": "commit the registry file locally only",
+      "displayPin": "restore the revision 4ab8956 canonical source pin"
+    }
+  },
+  "heldBoundaries": [
+    "no deployment or Worker upload",
+    "no production ledger push",
+    "no D1, KV, or R2 mutation",
+    "no Hermes or Relovo run"
+  ],
+  "followUps": [
+    "Reconcile the committed portfolio catalog with the vault work-object registry; they drift beyond Relovo.",
+    "Resolve immutable repository identities for the two Relovo source refs through a reviewed mapping disposition.",
+    "Advance the action classification digest once the vault registry is reconciled; it still lags the vault."
+  ]
+}

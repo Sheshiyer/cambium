@@ -1,8 +1,8 @@
 import type { R2BucketLike } from './context-bindings.ts';
 import {
   PORTFOLIO_CATALOG,
-  PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST,
+  reviewedPortfolioCatalogVersion,
 } from './portfolio-catalog.ts';
 import { REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST } from './portfolio-root-map.generated.ts';
 
@@ -232,8 +232,15 @@ export function validatePortfolioMappingReceiptInput(raw: unknown): PortfolioMap
   const classificationDigest = text(raw.classificationDigest, 'classificationDigest', 64);
   const rootMapDigest = text(raw.rootMapDigest, 'rootMapDigest', 64);
   const repositoryEvidenceDigest = text(raw.repositoryEvidenceDigest, 'repositoryEvidenceDigest', 64);
-  if (!SHA256_REF.test(catalogDigest) || catalogDigest !== PORTFOLIO_CATALOG_DIGEST) {
-    throw new PortfolioMappingReceiptValidationError('catalogDigest does not match the shipped catalog');
+  // A receipt binds the reviewed catalog version it was issued under; the
+  // WorkObject must belong to that version, so a historical digest can never
+  // carry a later admission.
+  const boundCatalog = SHA256_REF.test(catalogDigest) ? reviewedPortfolioCatalogVersion(catalogDigest) : null;
+  if (!boundCatalog) {
+    throw new PortfolioMappingReceiptValidationError('catalogDigest does not match a reviewed catalog version');
+  }
+  if (!boundCatalog.workIds.includes(workObjectId)) {
+    throw new PortfolioMappingReceiptValidationError('WorkObject is absent from the bound catalog version');
   }
   if (!SHA256.test(classificationDigest) || classificationDigest !== PORTFOLIO_CLASSIFICATION_DIGEST) {
     throw new PortfolioMappingReceiptValidationError('classificationDigest does not match the reviewed source');
