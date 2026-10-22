@@ -445,11 +445,14 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     let pending: Promise<unknown>;
     try { pending = Promise.resolve(bridge.signGate(kind, digest)); } catch { pending = Promise.reject(new Error('sign failed')); }
     pending.then(result => {
-      const outcome = result && typeof result === 'object' ? result as { ok?: unknown; message?: unknown } : {};
-      return { ok: outcome.ok === true, text: typeof outcome.message === 'string' ? outcome.message.slice(0, 200) : 'Refused · no write.' };
-    }, () => ({ ok: false, text: 'Signing failed · no write.' })).then(({ ok, text }) => {
+      const outcome = result && typeof result === 'object' ? result as { ok?: unknown; outcome?: unknown; message?: unknown } : {};
+      // Only the host's explicit outcome classes are trusted; anything else is unconfirmed.
+      const tone: 'ok' | 'pending' | 'refused' = outcome.ok === true ? 'ok'
+        : outcome.outcome === 'refused' || outcome.outcome === 'auth' || outcome.outcome === 'blocked' ? 'refused' : 'pending';
+      return { tone, text: typeof outcome.message === 'string' ? outcome.message.slice(0, 200) : 'Outcome unconfirmed · re-reading the Gate.' };
+    }, () => ({ tone: 'pending' as const, text: 'Outcome unconfirmed · re-reading the Gate.' })).then(({ tone, text }) => {
       if (disposed || gateDigest !== digest) return;
-      gateMessage = { text, tone: ok ? 'ok' : 'refused' };
+      gateMessage = { text, tone };
       renderGate();
     });
   }

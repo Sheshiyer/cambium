@@ -4996,23 +4996,40 @@ async function approveGoalGraphIntakeRoute(
   if (commit.status === 'unavailable') {
     return { status: 503, body: { ok: false, error: 'goal_graph_commit_unavailable', code: commit.code } };
   }
+  if (commit.code === 'decision_rejected') {
+    // The founder's D1 rejection won the decision fence. Mirror it into KV so
+    // the proposal leaves the gate list even if the rejection's own KV write
+    // was lost; the D1 row stays the record of who rejected and when.
+    try {
+      await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+        ...task,
+        status: 'rejected',
+        rejection: { decision: 'rejected', reconciledAt: now },
+        updatedAt: now,
+      }));
+    } catch { /* the 409 below already refuses; a later read retries */ }
+    return { status: 409, body: { ok: false, error: 'goal_graph_proposal_rejected', code: 'decision_rejected', ...evidence } };
+  }
   return { status: 409, body: { ok: false, error: 'goal_graph_commit_rejected', code: commit.code, changeDigest } };
 }
 
 // Founder rejection of a pending Telegram proposal. It rides the same
-// founder-verified /api/gate route as approval and never touches the D1 graph:
-// the KV task leaves `pending` for the terminal `rejected` state, so it drops out
-// of every gate projection. Rejection is refused for founder-outcome candidates
-// and for any task with a recorded approval attempt (a commit may be in flight),
-// and it reads the D1 head first so a proposal whose pinned head has moved is
-// marked stale, exactly as approval would, instead of being rejected.
+// founder-verified /api/gate route as approval and never changes the graph.
+// The decision itself is an immutable D1 `goal_graph_approvals` row sharing the
+// approval's primary key, so approval and rejection are mutually exclusive in
+// D1 whichever lands first; the KV task's terminal `rejected` state is only the
+// projection of that decision, and a lost KV write is reconciled on replay.
+// Rejection is refused for founder-outcome candidates and tasks with a recorded
+// approval attempt, and a proposal whose pinned head has moved is marked stale,
+// exactly as approval would, instead of being rejected.
 async function rejectGoalGraphIntakeRoute(
   deps: HandlerDeps,
   tenant: string,
   body: Record<string, unknown>,
   founderId: string,
 ): Promise<GoalGraphIntakeRouteResult> {
-  if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal graph authority is not configured' } };
+  const store = deps.goalGraphStore;
+  if (!store || typeof store.reject !== 'function') return { status: 503, body: { error: 'goal graph authority is not configured' } };
   const changeDigest = shortText(body.changeDigest || body.subject, '', 160);
   if (!/^(?:sha256:)?[a-f0-9]{64}$/.test(changeDigest)) {
     return { status: 400, body: { error: 'reject-goal-graph needs a changeDigest subject' } };
@@ -5057,7 +5074,7 @@ async function rejectGoalGraphIntakeRoute(
   const now = deps.now ? deps.now() : new Date().toISOString();
   let currentHead: GoalGraphHead | null;
   try {
-    currentHead = await deps.goalGraphStore.readHead(tenant);
+    currentHead = await store.readHead(tenant);
   } catch {
     return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
   }
@@ -5080,21 +5097,36 @@ async function rejectGoalGraphIntakeRoute(
       },
     };
   }
-  // Re-read immediately before the write so a concurrent approval that has
-  // already settled the task is never overwritten.
-  const latest = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
-  if (!latest || latest.status !== 'pending' || latest.updatedAt !== task.updatedAt || latest.approvalAttempt !== undefined) {
-    return { status: 409, body: { ok: false, error: 'goal_graph_task_changed', code: 'task_changed', ...evidence } };
+  const decision = await store.reject({
+    tenantId: tenant,
+    changeDigest,
+    intentVersion: Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1,
+    rejectorId: founderId,
+    expiresAt: descriptor.approvalExpiresAt,
+    nonce: descriptor.approvalNonce,
+    now,
+  }).catch(() => ({ status: 'unavailable' as const, changeDigest, code: 'decision_write_failed' }));
+  if (decision.status === 'conflict') {
+    return { status: 409, body: { ok: false, error: 'goal_graph_already_approved', code: 'already_approved', ...evidence } };
   }
+  if (decision.status === 'invalid') {
+    return { status: 409, body: { ok: false, error: 'goal_graph_rejection_invalid', code: decision.code, ...evidence } };
+  }
+  if (decision.status === 'unavailable') return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  const rejectedAt = decision.decidedAt;
   try {
     await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
       ...task,
       status: 'rejected',
-      rejection: { decision: 'rejected', rejectorId: founderId, rejectedAt: now, approvalNonce: descriptor.approvalNonce },
+      rejection: { decision: 'rejected', rejectorId: founderId, rejectedAt, approvalNonce: descriptor.approvalNonce },
       updatedAt: now,
     }));
   } catch {
-    return { status: 503, body: { error: 'goal_graph_rejection_persistence_unavailable' } };
+    // D1 already holds the rejection; a replay of this request reconciles KV.
+    return { status: 503, body: { error: 'goal_graph_rejection_reconciliation_required', ...evidence } };
+  }
+  if (decision.status === 'duplicate') {
+    return { status: 200, body: { ok: true, rejected: true, committed: false, duplicate: true, replayed: true, ...evidence, rejectedAt } };
   }
   return {
     status: 200,
@@ -5105,7 +5137,7 @@ async function rejectGoalGraphIntakeRoute(
       duplicate: false,
       replayed: false,
       ...evidence,
-      rejectedAt: now,
+      rejectedAt,
       consequence: `founder rejected telegram goal graph proposal ${changeDigest.slice(0, 16)}; the goal graph was not written`,
       reversibility: 'a rejected proposal never mutates the goal graph; send a fresh Telegram proposal to reconsider',
     },

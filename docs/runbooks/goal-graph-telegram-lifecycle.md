@@ -186,8 +186,18 @@ responsible for persistence and CAS.
    `nonce`/`expiresAt`. Signing is closed outside Telegram (read-only, "open in
    Telegram to sign"), without a consistent founder Inspect, during a read,
    and, for Approve only, once the approval window has expired.
-   `reject-goal-graph` writes only the KV task (`status: rejected`); it never
-   touches D1.
+   `reject-goal-graph` never changes the graph. It records the decision as an
+   immutable `goal_graph_approvals` row with `decision: rejected` under the
+   same primary key (`approval:<tenant>:<changeDigest>:<nonce>`) an approval
+   would use, so approval and rejection are mutually exclusive in D1: a
+   rejection that lands mid-approval makes the approval batch fail and roll
+   back, and a committed approval refuses any later rejection. The KV task's
+   `rejected` state mirrors that row; a lost KV write returns `503
+   goal_graph_rejection_reconciliation_required` and a replay reconciles it.
+   The Gate reports only an explicit receipt as success and only a readable
+   4xx refusal (or failed founder auth) as "no write"; a 5xx, an unreadable
+   body or a dropped response is shown as unconfirmed, and every attempt is
+   read back.
 6. **Readback** — `GET /v1/branch-map/{tenant}` with signed Telegram init
    data in `X-Telegram-Init-Data` returns the versioned projection, sheet,
    and proof (`cambium.telegram.branch-map-route.v1`). The tenant must be in
@@ -205,8 +215,10 @@ responsible for persistence and CAS.
 | Proposal no longer matches the head | 409 `goal_graph_stale_head` | No write; a stale approval also marks the KV task `stale` so a fresh message can pin the current head |
 | Replay of a committed approval | 200 `duplicate: true, replayed: true` | Original head, nonce, and approval digest returned; nothing written |
 | Unknown or non-pending task | 404 / 409 | Unknown change digest, or a task whose status cannot be approved |
-| Founder rejection | 200 `{ ok: true, rejected: true, committed: false }` | KV task becomes `rejected` and leaves the gate list; replay returns `duplicate: true`; D1 is never written |
-| Rejection refused | 409 `not_rejectable` / `goal_graph_stale_head` / `task_changed` | Founder-outcome candidate, an approval attempt on record, a moved head (marked `stale`), or a concurrent change; no rejection write |
+| Founder rejection | 200 `{ ok: true, rejected: true, committed: false }` | D1 records the immutable `rejected` decision row, the KV task becomes `rejected` and leaves the gate list; replay returns `duplicate: true`; the graph is never changed |
+| Rejection refused | 409 `not_rejectable` / `goal_graph_stale_head` / `already_approved` | Founder-outcome candidate, an approval attempt on record, a moved head (marked `stale`), or an approval already recorded in D1; no rejection is recorded |
+| Approval after rejection | 409 `decision_rejected` | D1 holds the rejection; nothing is committed and KV is mirrored to `rejected` |
+| Rejection KV write lost | 503 `goal_graph_rejection_reconciliation_required` | D1 holds the rejection; replay the same rejection to reconcile KV |
 | Goal graph store absent or unreadable | 503 | Fail-closed; no proposal, no commit |
 
 Committed graph revisions are immutable; supersede with a new approved

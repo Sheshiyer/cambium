@@ -145,18 +145,27 @@ const CuriousGateBridge = (() => {
       try {
         request = fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) });
       } catch (_) { request = Promise.reject(new Error('network')); }
-      return Promise.resolve(request).then(response => Promise.resolve().then(() => response.json()).catch(() => ({})).then(body => {
-        body = body && typeof body === 'object' ? body : {};
-        const settled = response && response.ok !== false && body.ok === true;
+      // Only an explicit receipt is success, and only a readable 4xx refusal
+      // (or the auth gate) is a confirmed "no write". A 5xx, an unreadable
+      // body, a receipt-less 2xx or a dropped response may follow a recorded
+      // decision, so it is reported as unconfirmed and always read back.
+      const UNREADABLE = {};
+      return Promise.resolve(request).then(response => Promise.resolve().then(() => response.json()).catch(() => UNREADABLE).then(body => {
+        const readable = body !== UNREADABLE && !!body && typeof body === 'object';
+        body = readable ? body : {};
+        const status = Number(response && response.status) || 0;
+        const settled = readable && response && response.ok !== false && body.ok === true;
         if (settled && verb === 'approve' && body.committed === true) return result(true, body.duplicate ? 'duplicate' : 'committed', body.duplicate ? 'Already committed · the original approval was reused.' : 'Approved · committed to the goal graph.');
         if (settled && verb === 'reject' && body.rejected === true) return result(true, body.duplicate ? 'duplicate' : 'rejected', body.duplicate ? 'Already rejected · nothing changed.' : 'Rejected · the goal graph was not written.');
-        const status = Number(response && response.status) || 0;
-        const reason = text(body.code || body.error, 80);
         if (status === 401 || status === 403) return result(false, 'auth', 'Telegram founder verification failed · no write.');
-        return result(false, 'refused', 'Refused · no write' + (reason ? ' · ' + reason : '') + '.');
-      }), () => result(false, 'network', 'Network failure · no write.')).then(outcome => {
+        const reason = text(body.code || body.error, 80);
+        if (readable && reason && (status === 400 || status === 404 || status === 409)) return result(false, 'refused', 'Refused · no write · ' + reason + '.');
+        if (body.error === 'goal_graph_commit_reconciliation_required') return result(false, 'uncertain', 'The goal graph may already hold this approval; its receipt needs reconciliation. Re-reading the Gate.');
+        return result(false, 'uncertain', 'Outcome unconfirmed · the decision may have been recorded. Re-reading the Gate before anything else.');
+      }), () => result(false, 'uncertain', 'Network failure · the outcome is unconfirmed. Re-reading the Gate before anything else.')).then(outcome => {
         inflight.delete(changeDigest); notify();
-        if (outcome.ok && typeof refresh === 'function') Promise.resolve().then(() => refresh()).catch(() => {});
+        // Read back after every settled attempt so the Gate shows the authority's state.
+        if (typeof refresh === 'function') Promise.resolve().then(() => refresh()).catch(() => {});
         return outcome;
       });
     },

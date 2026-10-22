@@ -15680,6 +15680,77 @@ test('founder gate reject · fails closed on auth, subject, descriptor, status a
   assert.equal(kv.store.get(taskKey), original);
 });
 
+test('founder gate fence · a recorded rejection is final: a later approval cannot commit and KV follows D1', async () => {
+  const { db, kv, deps, initData, changeDigest } = await founderGateHarness();
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const pending = kv.store.get(taskKey)!;
+  assert.equal((await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData })).status, 200);
+  const row = db.prepare('SELECT decision, approver_id FROM goal_graph_approvals WHERE change_digest = ?').get(changeDigest) as { decision: string; approver_id: string };
+  assert.deepEqual({ ...row }, { decision: 'rejected', approver_id: TEST_FOUNDER_A });
+  assert.throws(() => db.prepare("UPDATE goal_graph_approvals SET decision = 'approved'").run(), /immutable/);
+
+  // Even if KV still claimed pending, approval meets the D1 decision and writes nothing.
+  kv.store.set(taskKey, pending);
+  const approve = await postGate(deps, { kind: 'approve-goal-graph', subject: changeDigest, initData });
+  assert.equal(approve.status, 409);
+  assert.equal(body(approve).code, 'decision_rejected');
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+  assert.equal(JSON.parse(kv.store.get(taskKey)!).status, 'rejected', 'approval mirrors the D1 rejection into KV');
+});
+
+test('founder gate fence · a rejection landing between approval pre-check and D1 batch rolls the approval back', async () => {
+  const { db, kv, deps, initData, changeDigest } = await founderGateHarness();
+  const store = deps.goalGraphStore;
+  const task = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${changeDigest}`)!);
+  class RacingD1 extends GoalGraphBatchSqliteD1 {
+    async batch(statements: GoalGraphD1StatementLike[]): Promise<unknown[]> {
+      const raced = await store.reject!({
+        tenantId: 'cambium', changeDigest, intentVersion: 1, rejectorId: TEST_FOUNDER_B,
+        expiresAt: task.approvalExpiresAt, nonce: task.approvalNonce, now: GOAL_GRAPH_INTAKE_NOW,
+      });
+      assert.equal(raced.status, 'rejected');
+      return super.batch(statements);
+    }
+  }
+  const racing = { ...deps, goalGraphStore: d1GoalGraphStore(new RacingD1(db)) };
+  const approve = await postGate(racing, { kind: 'approve-goal-graph', subject: changeDigest, initData });
+  assert.equal(approve.status, 409);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'the losing approval left no head, node or event');
+  assert.equal((db.prepare('SELECT COUNT(*) AS n FROM goal_graph_events').get() as { n: number }).n, 0);
+  const decisions = db.prepare('SELECT decision FROM goal_graph_approvals WHERE change_digest = ?').all(changeDigest) as Array<{ decision: string }>;
+  assert.deepEqual(decisions.map((entry) => entry.decision), ['rejected']);
+});
+
+test('founder gate fence · rejection after a committed approval is refused even when KV still says pending', async () => {
+  const { kv, deps, initData, changeDigest } = await founderGateHarness();
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const pending = kv.store.get(taskKey)!;
+  assert.equal((await postGate(deps, { kind: 'approve-goal-graph', subject: changeDigest, initData })).status, 200);
+  const head = await deps.goalGraphStore.readHead('cambium');
+  // Simulate the approval's KV write being lost after the D1 commit; the moved
+  // head check is bypassed so the D1 decision row alone must refuse.
+  kv.store.set(taskKey, JSON.stringify({ ...JSON.parse(pending), expectedHeadVersion: head!.graphVersion }));
+  const reject = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(reject.status, 409);
+  assert.equal(body(reject).code, 'already_approved');
+  assert.equal(JSON.parse(kv.store.get(taskKey)!).status, 'pending', 'no rejection was recorded');
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), head);
+});
+
+test('founder gate fence · a lost KV write after the D1 rejection reports reconciliation, and replay reconciles', async () => {
+  const { kv, deps, initData, changeDigest } = await founderGateHarness();
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const failing = { ...deps, kv: { ...kv, get: kv.get.bind(kv), list: kv.list.bind(kv), put: async () => { throw new Error('kv down'); } } };
+  const first = await postGate(failing, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(first.status, 503);
+  assert.equal(body(first).error, 'goal_graph_rejection_reconciliation_required');
+  assert.equal(JSON.parse(kv.store.get(taskKey)!).status, 'pending');
+  const replay = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).duplicate, true);
+  assert.equal(JSON.parse(kv.store.get(taskKey)!).status, 'rejected');
+});
+
 // ── Fitcheck founder outcome · authenticated pending candidate intake ───────
 
 const FOUNDER_OUTCOME_NOW = '2026-08-14T10:00:00.000Z';

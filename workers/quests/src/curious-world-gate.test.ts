@@ -5,6 +5,7 @@ import { CLIENT_CURIOUS_GATE_BRIDGE } from './page/client/curious-gate-bridge.ts
 import { PAGE } from './page/index.ts';
 import { CURIOUS_WORLD_PAGE } from './page/components/curious-world.ts';
 
+const UNREADABLE = '__unreadable_body__';
 const DIGEST = '2967cf5be0c5128b850e0fb69e402340589ee0ad4b61c0284acdb07d02d7e5cf';
 const INIT_DATA = 'query_id=AAE-test&user=%7B%22id%22%3A424242%7D&auth_date=1783632000&hash=secret-signature';
 const ADMISSION = [
@@ -56,7 +57,7 @@ function harness(options: { initData?: string; respond?: (body: Record<string, u
       const reply = options.respond ? options.respond(JSON.parse(String(init.body))) : { status: 200, body: { ok: true, committed: true, duplicate: false } };
       if (reply instanceof Error) throw reply;
       const { status, body } = reply as { status: number; body: unknown };
-      return { ok: status >= 200 && status < 300, status, json: async () => body };
+      return { ok: status >= 200 && status < 300, status, json: async () => { if (body === UNREADABLE) throw new SyntaxError('unreadable'); return body; } };
     },
   });
   vm.runInContext(CLIENT_CURIOUS_GATE_BRIDGE, context);
@@ -206,23 +207,37 @@ test('world gate · reject signs the same route and an expired window still allo
   assert.equal(JSON.parse(String(h.requests[0].init.body)).kind, 'reject-goal-graph');
 });
 
-test('world gate · refusals, auth failures and network errors report no write; double submits are blocked', async () => {
+test('world gate · only readable refusals and the auth gate claim no write; everything else is unconfirmed and read back', async () => {
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
   const refusal = harness({ respond: () => ({ status: 409, body: { ok: false, error: 'goal_graph_stale_head' } }) });
   refusal.quest(envelope([row()]));
   assert.deepEqual(await refusal.sign('approve-goal-graph'), { ok: false, outcome: 'refused', message: 'Refused · no write · goal_graph_stale_head.' });
-  assert.equal(refusal.refreshes(), 0);
+  await tick();
+  assert.equal(refusal.refreshes(), 1, 'even a refusal is read back');
 
   const auth = harness({ respond: () => ({ status: 401, body: { error: 'not a founder' } }) });
   auth.quest(envelope([row()]));
   assert.equal((await auth.sign('reject-goal-graph')).outcome, 'auth');
 
-  const network = harness({ respond: () => new Error('offline') });
-  network.quest(envelope([row()]));
-  assert.equal((await network.sign('approve-goal-graph')).outcome, 'network');
-
-  const lie = harness({ respond: () => ({ status: 200, body: { ok: true } }) });
-  lie.quest(envelope([row()]));
-  assert.equal((await lie.sign('approve-goal-graph')).ok, false, 'success needs the explicit committed receipt');
+  const uncertain: Array<[string, () => unknown, RegExp]> = [
+    ['reconciliation', () => ({ status: 503, body: { error: 'goal_graph_commit_reconciliation_required' } }), /may already hold this approval/],
+    ['server error', () => ({ status: 503, body: { error: 'goal_graph_commit_unavailable' } }), /Outcome unconfirmed/],
+    ['unreadable 200', () => ({ status: 200, body: UNREADABLE }), /Outcome unconfirmed/],
+    ['unreadable 409', () => ({ status: 409, body: UNREADABLE }), /Outcome unconfirmed/],
+    ['receipt-less 200', () => ({ status: 200, body: { ok: true } }), /Outcome unconfirmed/],
+    ['dropped response', () => new Error('offline'), /Network failure · the outcome is unconfirmed/],
+  ];
+  for (const [label, respond, message] of uncertain) {
+    const h = harness({ respond });
+    h.quest(envelope([row()]));
+    const result = await h.sign('approve-goal-graph');
+    assert.equal(result.ok, false, label);
+    assert.equal(result.outcome, 'uncertain', label);
+    assert.match(result.message, message, label);
+    assert.doesNotMatch(result.message, /no write/, `${label} never claims no write`);
+    await tick();
+    assert.equal(h.refreshes(), 1, `${label} is read back`);
+  }
 
   const twice = harness();
   twice.quest(envelope([row()]));

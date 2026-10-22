@@ -89,9 +89,13 @@ flow.
   [Telegram Goal Graph intake lifecycle](../../runbooks/goal-graph-telegram-lifecycle.md)
   runbook.
 - `reject-goal-graph` (Field Atlas founder Gate, 2026-10-22) is keyed the same
-  way. It never touches the D1 graph: a pending KV proposal becomes terminal
-  `rejected` and leaves every gate projection. Replay returns `200` with
-  `duplicate: true`; a moved head marks the proposal `stale` (`409`); a
+  way. It never changes the graph: it records an immutable D1
+  `goal_graph_approvals` row with `decision: rejected` under the approval's
+  own primary key, so approval and rejection exclude each other in D1, and
+  the pending KV proposal becomes terminal `rejected`. Replay returns `200`
+  with `duplicate: true`; a moved head marks the proposal `stale` (`409`); an
+  already-recorded approval refuses it (`409 already_approved`), and a later
+  approval of a rejected proposal is refused (`409 decision_rejected`). A
   founder-outcome candidate or a task with a recorded approval attempt is
   refused (`409 not_rejectable`). Optional `nonce` / `expiresAt` must echo the
   served descriptor exactly, as for approval.
