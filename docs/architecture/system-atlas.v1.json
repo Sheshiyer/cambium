@@ -850,7 +850,7 @@
     },
     {
       "path": "docs/architecture/temperance-flow.md",
-      "sha256": "sha256:386d4bd16d13b244c75a2c05a861ecf620044ea8b02a65ad1728be8c2ed46921"
+      "sha256": "sha256:63fadd3ea757d31ce6b839bab368e5b87b66f31a4716d099f6323ebcc921a93f"
     },
     {
       "path": "docs/assets/visual-flow/system-atlas/PORTRAITS.v1.json",
@@ -906,7 +906,7 @@
     },
     {
       "path": "workers/quests/src/handler.ts",
-      "sha256": "sha256:a8913be89da5c0d673cad5c7a30beaba566abbf4feea54ff3082e47a09b8811e"
+      "sha256": "sha256:f710431e112211152affb1d147b72d3b585fea1e4eeeeeb202e32423cba9cb11"
     },
     {
       "path": "workers/quests/src/lib/access-jwt.ts",
@@ -1098,7 +1098,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "if (resolved.principal.role !== 'founder') {",
-      "sourceSha256": "sha256:a8913be89da5c0d673cad5c7a30beaba566abbf4feea54ff3082e47a09b8811e",
+      "sourceSha256": "sha256:f710431e112211152affb1d147b72d3b585fea1e4eeeeeb202e32423cba9cb11",
       "basis": "implementation"
     },
     {
@@ -1107,7 +1107,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "isViewer = viewerIds.includes(auth.userId);",
-      "sourceSha256": "sha256:a8913be89da5c0d673cad5c7a30beaba566abbf4feea54ff3082e47a09b8811e",
+      "sourceSha256": "sha256:f710431e112211152affb1d147b72d3b585fea1e4eeeeeb202e32423cba9cb11",
       "basis": "implementation"
     },
     {
