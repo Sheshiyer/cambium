@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { test } from 'node:test'
+import { PORTFOLIO_DISPLAY_PROPOSAL, PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS } from '../shared/portfolio-catalog-display-proposal.ts'
+import { expectedDirectoryNames } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
 
 const subjectUrl = new URL('./portfolio-miniapp-linkage.mjs', import.meta.url)
 const loadSubject = () => import(subjectUrl)
@@ -39,6 +41,80 @@ const branchStories = Object.freeze([
   Object.freeze({ productId: 'fitcheck', canonicalWorkId: 'sapling:fitcheck' }),
   Object.freeze({ productId: 'client-delivery' }),
 ])
+
+function linkageInput(rootMap) {
+  return {
+    catalog, branchStories, rootMap,
+    mirrors: { catalogData: true, catalogModule: true, rootMap: true },
+    pins: {
+      reviewedRootMapDigest: 'root-reviewed', currentRootMapDigest: 'root-proposal',
+      reviewedCatalogDigest: 'sha256:local', currentCatalogDigest: 'sha256:local',
+      reviewedClassificationDigest: 'classification-local', currentClassificationDigest: 'classification-local',
+    },
+  }
+}
+
+test('only the exact frozen display selection is held without action admission', async () => {
+  const { buildPortfolioMiniappLinkageReport } = await loadSubject()
+  const workIds = ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform', 'program:thoughtseed-organ-console']
+  const rootMap = {
+    schema: 'thoughtseed.portfolio-root-map.v1',
+    portfolios: [{ portfolioId: 'thoughtseed', folderCount: 1, infrastructure: [],
+      folders: [{ folder: 'display-proposals', proposedKind: 'needs-review', status: 'mapping-proposal', workIds }] }],
+  }
+  const report = buildPortfolioMiniappLinkageReport(linkageInput(rootMap))
+  assert.equal(report.status, 'aligned')
+  assert.deepEqual(report.filesystemAssimilation.heldProposalIdentities.map((row) => row.workId), workIds)
+  assert.deepEqual(report.catalogVisibility.workIds, ['branch:klear-karma', 'program:internal', 'sapling:fitcheck'])
+  assert.equal(report.rootMapAuthority.proposalMatchesApprovedExecution, false)
+  assert.deepEqual(report.missionAdmission.canonicalPacketWorkIds, ['sapling:fitcheck'])
+  for (const workId of ['branch:codigo-olimpo-spoof', 'program:thoughtseed-organ-console-spoof', 'program:unknown']) {
+    const changed = structuredClone(rootMap)
+    changed.portfolios[0].folders[0].workIds.push(workId)
+    assert.deepEqual(buildPortfolioMiniappLinkageReport(linkageInput(changed)).releaseBlockers, [`unknown-root-map-work-id:${workId}`])
+    changed.portfolios[0].folders[0].identityStatus = 'reviewed-local-node'
+    assert.throws(() => buildPortfolioMiniappLinkageReport(linkageInput(changed)), /held_identity_unreviewed/)
+  }
+})
+
+test('caller display lists and schema or digest overrides cannot extend the trusted source', async () => {
+  const { buildPortfolioMiniappLinkageReport } = await loadSubject()
+  for (const override of [
+    { displayProposalWorkIds: ['program:unreviewed'] },
+    { displayProposal: { ...PORTFOLIO_DISPLAY_PROPOSAL } },
+    { displayProposal: { ...PORTFOLIO_DISPLAY_PROPOSAL, schema: 'unreviewed' } },
+    { displayProposal: { ...PORTFOLIO_DISPLAY_PROPOSAL, selectionDigest: 'sha256:unreviewed' } },
+    { displayCatalog: { workIds: ['program:unreviewed'] } },
+    { displaySelectionDigest: PORTFOLIO_DISPLAY_PROPOSAL.selectionDigest },
+  ]) assert.throws(() => buildPortfolioMiniappLinkageReport({ ...linkageInput(), ...override }), /display_proposal_override_forbidden/)
+  const originalId = PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS[0][0]
+  try {
+    PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS[0][0] = 'branch:unreviewed'
+    assert.throws(() => buildPortfolioMiniappLinkageReport(linkageInput()), /reviewed_display_proposal_source_drift/)
+  } finally {
+    PORTFOLIO_DISPLAY_PROPOSAL_PROGRAMS[0][0] = originalId
+  }
+  assert.equal(buildPortfolioMiniappLinkageReport(linkageInput()).status, 'aligned')
+})
+
+test('unresolved reference rows reject WorkObject and account promotion', async () => {
+  const { buildPortfolioMiniappLinkageReport } = await loadSubject()
+  const rootMap = {
+    schema: 'thoughtseed.portfolio-root-map.v1',
+    portfolios: [{ portfolioId: 'thoughtseed', folderCount: 1, infrastructure: [], folders: [{
+      folder: 'external-reference', proposedKind: 'needs-review', workIds: [], accountId: null,
+      status: 'reference-unresolved', referenceKind: 'external-adapter', sourceRefs: ['repo:example/reference'],
+    }] }],
+  }
+  const report = buildPortfolioMiniappLinkageReport(linkageInput(rootMap))
+  assert.equal(report.filesystemAssimilation.unresolvedFolders[0].admission, 'none')
+  assert.equal(report.filesystemAssimilation.unresolvedFolders[0].executionAuthority, 'none')
+  for (const patch of [{ workIds: ['program:internal'] }, { accountId: 'invented-account' }, { identityStatus: 'reviewed-local-node' }, { status: 'mapping-proposal' }]) {
+    const changed = structuredClone(rootMap)
+    Object.assign(changed.portfolios[0].folders[0], patch)
+    assert.throws(() => buildPortfolioMiniappLinkageReport(linkageInput(changed)), /unresolved census reference cannot grant identity/)
+  }
+})
 
 test('work-object comparison sorts exact drift and exposes kind-set changes', async () => {
   const { compareWorkObjectSets } = await loadSubject()
@@ -186,15 +262,19 @@ test('reviewed local proposal identities render without becoming catalog or acti
         folderCount: 1,
         infrastructure: [],
         folders: [{
-          folder: 'held-local',
+          folder: 'session-atlas',
           proposedKind: 'internal-program',
           status: 'mapping-proposal',
           identityStatus: 'reviewed-local-node',
-          workIds: ['program:held-local'],
+          workIds: ['program:session-atlas'],
+          accountId: null,
+          ownership: 'thoughtseed',
+          relationship: 'modular-organ-of',
+          relatedWorkId: 'sapling:cambium',
         }],
       }],
     },
-    observedFolders: ['held-local'],
+    observedFolders: ['session-atlas'],
     mirrors: { catalogData: true, catalogModule: true, rootMap: true },
     pins: {
       reviewedRootMapDigest: 'root-reviewed',
@@ -208,13 +288,13 @@ test('reviewed local proposal identities render without becoming catalog or acti
 
   assert.equal(report.status, 'aligned')
   assert.deepEqual(report.filesystemAssimilation.heldProposalIdentities, [{
-    workId: 'program:held-local',
-    folders: ['held-local'],
+    workId: 'program:session-atlas',
+    folders: ['session-atlas'],
     admission: 'proposal-only-not-catalog-admitted',
     executionAuthority: 'none',
   }])
   assert.deepEqual(report.filesystemAssimilation.unclassifiedMappedWorkIds, [])
-  assert.equal(report.catalogVisibility.workIds.includes('program:held-local'), false)
+  assert.equal(report.catalogVisibility.workIds.includes('program:session-atlas'), false)
   assert.deepEqual(report.rootMapAuthority, {
     approvedExecutionDigest: 'root-reviewed',
     currentProposalDigest: 'root-proposal',
@@ -324,6 +404,34 @@ test('strict repository audit requires an observed working-root census', () => {
   assert.match(result.stderr, /strict_projects_root_required/)
 })
 
+test('strict repository census passes exact current folders and rejects extras and missing destinations', async (t) => {
+  const root = await mkdtemp(join(tmpdir(), 'cambium-current-census-'))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const snapshot = JSON.parse(await readFile(new URL('../docs/project-management/portfolio-roots.v1.json', import.meta.url), 'utf8'))
+  const thoughtseed = snapshot.portfolios[0]
+  await Promise.all(expectedDirectoryNames(thoughtseed).map((folder) => mkdir(join(root, folder))))
+  const audit = () => spawnSync(process.execPath, ['scripts/audit-portfolio-miniapp-linkage.ts', '--strict', '--projects-root', root], {
+    cwd: new URL('..', import.meta.url), encoding: 'utf8',
+  })
+  const exact = audit()
+  assert.equal(exact.status, 0, exact.stderr)
+  const report = JSON.parse(exact.stdout)
+  assert.equal(report.status, 'aligned')
+  assert.equal(report.catalogVisibility.recordCount, 72)
+  assert.equal(report.filesystemAssimilation.infrastructureEvidence.length, 20)
+  assert.deepEqual(report.filesystemAssimilation.unresolvedFolders.filter((row) => row.referenceKind === 'identity-intake').map((row) => row.folder), ['factor', 'fieldwork', 'moodboard-ai-agent', 'skills-india-govt'])
+  await mkdir(join(root, 'unmapped-new-folder'))
+  const extra = audit()
+  assert.equal(extra.status, 1)
+  assert.ok(JSON.parse(extra.stdout).releaseBlockers.includes('unmapped-working-folder:unmapped-new-folder'))
+  await rm(join(root, 'unmapped-new-folder'), { recursive: true })
+  await rm(join(root, 'cambium-showcase-ui-rebuild'), { recursive: true })
+  await mkdir(join(root, 'cambium-telegram-showcase'))
+  const stale = audit()
+  assert.equal(stale.status, 1)
+  assert.deepEqual(JSON.parse(stale.stdout).releaseBlockers, ['missing-working-folder:cambium-showcase-ui-rebuild', 'unmapped-working-folder:cambium-telegram-showcase'])
+})
+
 test('repository audit composes real catalog, packet, mirror, pin, live, and offline-vault evidence', async (t) => {
   const fixtureRoot = await mkdtemp(join(tmpdir(), 'cambium-linkage-'))
   t.after(() => rm(fixtureRoot, { recursive: true, force: true }))
@@ -352,7 +460,7 @@ test('repository audit composes real catalog, packet, mirror, pin, live, and off
 
   assert.equal(result.status, 0, result.stderr)
   const report = JSON.parse(result.stdout)
-  assert.equal(report.status, 'blocked')
+  assert.equal(report.status, 'drift-observed')
   assert.equal(report.catalogVisibility.recordCount, 72)
   assert.deepEqual(report.missionAdmission.canonicalPacketWorkIds, [
     'program:snow-gloves-os',
@@ -364,17 +472,26 @@ test('repository audit composes real catalog, packet, mirror, pin, live, and off
   assert.deepEqual(report.missionAdmission.templatePacketIds, [])
   assert.equal(report.observations.live.recordCount, 2)
   assert.equal(report.observations.vault.recordCount, 2)
-  assert.deepEqual(report.releaseBlockers, [
-    'unknown-root-map-work-id:branch:codigo-olimpo',
-    'unknown-root-map-work-id:branch:codigo-olimpo-creator-platform',
-    'unknown-root-map-work-id:program:thoughtseed-organ-console',
-  ])
-  assert.deepEqual(report.filesystemAssimilation.heldProposalIdentities, [{
+  assert.deepEqual(report.releaseBlockers, [])
+  assert.deepEqual(report.filesystemAssimilation.heldProposalIdentities, ['branch:codigo-olimpo', 'branch:codigo-olimpo-creator-platform'].map((workId) => ({
+    workId, folders: ['codigo'], admission: 'proposal-only-not-catalog-admitted', executionAuthority: 'none',
+  })).concat([{
     workId: 'program:session-atlas',
     folders: ['session-atlas'],
     admission: 'proposal-only-not-catalog-admitted',
     executionAuthority: 'none',
-  }])
+  }, {
+    workId: 'program:thoughtseed-organ-console',
+    folders: ['thoughtseed-organ-console'],
+    admission: 'proposal-only-not-catalog-admitted',
+    executionAuthority: 'none',
+  }]))
+  for (const workId of report.filesystemAssimilation.reviewedDisplayProposal.workIds) {
+    assert.equal(report.catalogVisibility.workIds.includes(workId), false)
+    assert.equal(report.missionAdmission.canonicalPacketWorkIds.includes(workId), false)
+    assert.equal(report.operatingCoverage.rows.some((row) => row.workId === workId), false)
+  }
+  assert.equal(report.filesystemAssimilation.reviewedDisplayProposal.actionAuthority, 'none')
   assert.doesNotMatch(result.stdout, /\/Volumes\/|\/Users\//)
   assert.deepEqual(report.mutationsPerformed, [])
 })

@@ -5,3 +5,9 @@ This directory preserves imported third-party research and generated synthesis a
 Use root `VISION.md` and `MISSION.md` for doctrine, `ISA.md` for acceptance, `.planning/` for finite plans, and the reviewed system field guide for the source-grounded eleven-organ explanation. In particular, do not promote imported suggestions into implemented Octalysis features, operational authority, production status, or new permission to contact users, spend, or change infrastructure.
 
 The paired DOCX and Markdown files are retained for provenance and reading convenience. Source adoption requires a named, reviewed change against current repository contracts.
+
+For the current visual projection, open [The connected system](../explainers/system-atlas-2026-10-07/index.html)
+or its [architecture readback](../architecture/system-atlas.md). The retained
+[September field guide](../explainers/system-field-guide-2026-09-27/README.md)
+provides the longer explanation. These pointers do not promote the imported
+research into implemented features or live acceptance.

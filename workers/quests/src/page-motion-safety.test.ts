@@ -225,7 +225,7 @@ test('T-12 · every operating fabric scene is a landmark section with a heading'
   const sceneIds = ['canopy', 'mission', 'flow', 'workforce', 'forge'];
   for (const sceneId of sceneIds) {
     const sectionRe = new RegExp(
-      `<section class="of-scene" data-of-scene="${sceneId}" aria-labelledby="ofScene${sceneId[0]!.toUpperCase()}${sceneId.slice(1)}Title"[^>]*>` +
+      `<section id="of-${sceneId}" class="of-scene" data-of-scene="${sceneId}" role="tabpanel" aria-hidden="(?:true|false)" aria-labelledby="ofScene${sceneId[0]!.toUpperCase()}${sceneId.slice(1)}Title"[^>]*>` +
         `<h2 id="ofScene${sceneId[0]!.toUpperCase()}${sceneId.slice(1)}Title"`,
     );
     assert.match(PAGE, sectionRe, `${sceneId} scene is a labelled landmark section with a heading`);

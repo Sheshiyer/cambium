@@ -1,3 +1,4 @@
+import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
 // cambium-quests · Workers runtime glue. All logic lives in handler.ts (pure, node:test-covered).
 
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
@@ -68,6 +69,10 @@ interface Env {
   };
   BRIDGE_DB?: D1DatabaseLike;
   THOUGHTSEED_VAULT?: R2BucketLike;
+  /** Wave0 Route B: JSON [{keyId, publicKey}] of the Temperance acceptance owner's Ed25519 public key(s). Not a secret. */
+  ACCEPTANCE_OWNER_PUBKEYS?: string;
+  /** Wave0 secret (>= 32 bytes) keying the activation digest so vault writers cannot forge admission. */
+  WAVE0_ACTIVATION_KEY?: string;
   CAMBIUM_CORTEX?: VectorizeIndexLike;
   QUESTS_PUSH_TOKEN?: string;
   GATE_BOT_ID?: string;
@@ -1422,6 +1427,8 @@ export default {
     }) : undefined;
     const res = await handle(simple, {
       kv,
+      // All-or-nothing: without D1, writable vault and owner public key this is the read-only reader.
+      ...await wave0OwnerBindings(env),
       pushToken: env.QUESTS_PUSH_TOKEN,
       gate,
       bridgeToken: env.BRIDGE_TOKEN,

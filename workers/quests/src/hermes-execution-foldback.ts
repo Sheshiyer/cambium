@@ -1,3 +1,4 @@
+import { readValidatedFoldback, confirmImmutableReadback } from './immutable-foldback-read.ts';
 import type { R2BucketLike } from './context-bindings.ts';
 import type { FabricEdge, FabricNode } from './mission-fabric.ts';
 import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
@@ -129,6 +130,31 @@ export interface HermesExecutionFoldbackStoreLike {
   record(receipt: HermesExecutionFoldbackReceipt): Promise<{ duplicate: boolean }>;
 }
 
+export interface HermesExecutionFoldbackReadBinding {
+  tenantId: string;
+  graphVersion: number;
+  goalGraph: HermesExecutionFoldbackInput['goalGraph'];
+}
+export interface HermesExecutionFoldbackReaderLike {
+  /** Bounded authoritative WorkObject-prefix discovery; each returned key still requires exact read validation. */
+  discover?(binding: HermesExecutionFoldbackReadBinding): Promise<readonly string[]>;
+  read(r2Key: string, binding: HermesExecutionFoldbackReadBinding): Promise<HermesExecutionFoldbackProjection | null>;
+}
+export function createHermesExecutionFoldbackReader(bucket: R2BucketLike, activationVerifier?: HermesExecutionFoldbackActivationVerifier): HermesExecutionFoldbackReaderLike {
+  return {
+    async discover(binding) {
+      if (!bucket.list) return [];
+      if (!WORK_ID.test(binding.goalGraph.workObjectId)) throw new HermesExecutionFoldbackValidationError('invalid discovery WorkObject');
+      const prefix = `portfolio/thoughtseed/workobjects/${binding.goalGraph.workObjectId}/foldback/`;
+      const result = await bucket.list({ prefix, limit: 100 });
+      if (result.truncated || result.objects.length > 100) throw new HermesExecutionFoldbackStorageError('foldback discovery exceeds bounded limit');
+      return result.objects.map(object => object.key).filter(key => key.startsWith(prefix) && !key.slice(prefix.length).includes('/')).sort();
+    },
+    read: (key, binding) => readValidatedFoldback(bucket, key, binding,
+    (raw) => validateHermesExecutionFoldbackReceipt(raw, activationVerifier),
+    (input) => adaptHermesExecutionFoldback(input, activationVerifier), canonicalHermesFoldbackJson) };
+}
+
 /**
  * Implemented by the trusted orchestration boundary using immutable admission
  * readback. Foldback never treats a caller-supplied activation envelope as
@@ -136,8 +162,14 @@ export interface HermesExecutionFoldbackStoreLike {
  */
 export interface HermesExecutionFoldbackActivationVerifier {
   readonly source: 'external-admission-readback';
+  /**
+   * `execution` is the validated terminal execution the activation claims to admit. Verifiers
+   * that bind authority to one execution (wave0 terminal admission) must check it; an
+   * activation copied onto a sibling receipt then fails.
+   */
   verifyActivationAuthority(
     activation: NonNullable<HermesExecutionFoldbackInput['activation']>,
+    execution?: HermesExecutionFoldbackInput['execution'],
   ): boolean | Promise<boolean>;
 }
 
@@ -383,7 +415,7 @@ export async function adaptHermesExecutionFoldback(
     if (!activationVerifier || activationVerifier.source !== 'external-admission-readback') {
       throw new HermesExecutionFoldbackValidationError('activation requires an external admission readback verifier');
     }
-    if (!await activationVerifier.verifyActivationAuthority(input.activation)) {
+    if (!await activationVerifier.verifyActivationAuthority(input.activation, input.execution)) {
       throw new HermesExecutionFoldbackValidationError('activation lacks external admission readback proof');
     }
   }
@@ -457,9 +489,10 @@ export async function validateHermesExecutionFoldbackReceipt(
 export function createHermesExecutionFoldbackStore(
   bucket: R2BucketLike,
   activationVerifier?: HermesExecutionFoldbackActivationVerifier,
-): HermesExecutionFoldbackStoreLike {
+): HermesExecutionFoldbackStoreLike & HermesExecutionFoldbackReaderLike {
   if (!bucket.put) throw new HermesExecutionFoldbackStorageError('foldback R2 binding is not writable');
   return {
+    ...createHermesExecutionFoldbackReader(bucket, activationVerifier),
     async record(receipt) {
       const validated = await validateHermesExecutionFoldbackReceipt(receipt, activationVerifier);
       const body = canonicalHermesFoldbackJson(validated);
@@ -481,7 +514,10 @@ export function createHermesExecutionFoldbackStore(
         if (await winner.text() !== body) throw new HermesExecutionFoldbackConflictError('foldback outcome conflict');
         return { duplicate: true };
       }
-      if (stored) return { duplicate: false };
+      if (stored) {
+        await confirmImmutableReadback(bucket, validated.r2Key, body);
+        return { duplicate: false };
+      }
       const winner = await bucket.get(validated.r2Key);
       if (!winner) throw new HermesExecutionFoldbackStorageError('foldback write was not confirmed');
       if (await winner.text() !== body) throw new HermesExecutionFoldbackConflictError('foldback outcome conflict');

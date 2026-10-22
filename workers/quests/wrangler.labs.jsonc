@@ -29,7 +29,10 @@
     "WEBSITE_ORIGINS": "https://pro.thoughtseed.space",
     "WEBSITE_AI_CONSENT_VERSION": "ai-processing-v1",
     "WEBSITE_LEAD_CONSENT_VERSION": "lead-storage-90d-v1",
-    "OPENAI_MODEL": "gpt-6-luna"
+    "OPENAI_MODEL": "gpt-6-luna",
+    // Public half of the Temperance accepted-work-unit owner key (Route B); not a secret.
+    // Wave0 owners are wired only when this and the WAVE0_ACTIVATION_KEY secret are both set.
+    "ACCEPTANCE_OWNER_PUBKEYS": "[{\"keyId\":\"ed25519:4d83c49e224a429d447403802bd68552dfba44808bcc5b83f72bb7e2bc576d52\",\"publicKey\":\"7jEJgr240kj3se2dSSLEIjSExeBykpaDp5Zqj0LO8FY\"}]"
   },
   "kv_namespaces": [
     { "binding": "QUESTS", "id": "439547e617d9455fb752bfd651da9765" },

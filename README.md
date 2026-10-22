@@ -36,7 +36,7 @@ The composition layer makes the first launch. The operator keeps the venture ali
 | **Cortex · structural memory** — CodeGraph code-recall lane | ✅ shipped (M2) | `operator coderecall` |
 | **Multi-tenancy** — one operator, many ventures | ✅ shipped (M3) — slug registry · adversarial isolation · all-tenant heartbeat | [`tenant.ts`](./bin/operator/tenant.ts) + [#20–#23](https://github.com/Sheshiyer/cambium/milestone/3) |
 | **Constellation visual engine** — MAP/SHEETS/WORKFORCE surface, shared contract, signed-action controls | ✅ shipped in v0.3.0 Urania | [`apps/cambium-r3f/`](./apps/cambium-r3f/) |
-| **Electron desktop package** — secure local shell, offline renderer, macOS artifact path | ✅ implemented on current `main`; signing/notarization separately governed | [`apps/cambium-r3f/desktop/`](./apps/cambium-r3f/desktop/) · [desktop workflow](./.github/workflows/desktop.yml) |
+| **Electron desktop package** — secure local shell, offline renderer, macOS artifact path | ✅ implemented on current `main`; signing/notarization separately governed | [`apps/cambium-r3f/desktop/`](./apps/cambium-r3f/desktop/) · [local verification](#local-verification-after-actions-retirement) |
 | **Tenant Worker runtime** — GitHub knowledge through Plexus, Vectorize cortex, KV quests, and D1/R2 operational/evidence receipts | ✅ implemented and CI-covered | [`workers/quests/`](./workers/quests/) · [`github-backed-knowledge-plane.md`](./docs/architecture/github-backed-knowledge-plane.md) |
 | **Lead runtime + IVerif observer** — fixed-tenant, GET-only, redacted, send-ineligible | ✅ implemented; proof-bound | [`lead-runtime-spine.md`](./docs/architecture/lead-runtime-spine.md) · [`iverif-explee.md`](./docs/adapters/iverif-explee.md) |
 | **Marketing Create** — bounded founder-article draft with signed review gate | 🟡 implemented; registered disabled and not deployed | [`marketing-create-worker-renderer.md`](./docs/architecture/marketing-create-worker-renderer.md) |
@@ -300,3 +300,9 @@ from derived, evidentiary, historical, and local-only material.
 [Project repository](https://github.com/Sheshiyer/cambium)
 
 </div>
+
+## Local verification after Actions retirement
+
+GitHub Actions is retired. `.local-jobs/jobs.json` defines explicit local checks with scheduling disabled. Select jobs and provision their dependencies before using a local runner; no scheduler, listener, signing, or publication job is activated by these definitions.
+
+Run `npm run verify:release` for deterministic release validation. `npm run proof:tg-live-readiness` produces separate local readiness evidence. `scripts/release.sh` pushes version source and a tag only; GitHub Release publication remains an explicit manual step.

@@ -22,6 +22,8 @@ export interface R2ObjectLike {
 }
 
 export interface R2BucketLike {
+  list?(options: { prefix: string; limit: number }): Promise<{ objects: Array<{ key: string }>; truncated: boolean }>;
+
   get(key: string): Promise<R2ObjectLike | null>;
   head?(key: string): Promise<R2ObjectLike | null>;
   put?(key: string, value: Uint8Array, options?: {

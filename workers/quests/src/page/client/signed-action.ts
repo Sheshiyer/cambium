@@ -543,19 +543,9 @@ function setGateSubmitState(button, state, text){
   }
 }
 function loadGate(){
-  const el = $('gate');
-  fetchQuestEnvelope().then(r => r.ok ? r.json() : {}).then(d => {
-    const items = gateItemsFromEnvelope(d || {});
-    GATE_ITEMS = items;
-    const source = '/internal/gate/' + TENANT;
-    renderGateHeroDecision(items, source);
-    el.innerHTML = renderGateQueue(items, source);
-    loadGateWire(el, source);
-  }).catch(() => {
-    const source = '/internal/gate/' + TENANT;
-    renderGateHeroDecision([], source);
-    el.innerHTML = renderGateError(source);
-  });
+  // All ledger-dependent panels share one accepted read. Failed reads remain
+  // held, never a successful empty queue.
+  return load();
 }
 function loadGateWire(el, source){
   el.querySelectorAll('[data-gate-filter]').forEach(node => node.onclick = () => {

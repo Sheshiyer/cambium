@@ -156,7 +156,9 @@ async function renderPageState({
     .filter((script) => script.trim() && !script.includes('telegram-web-app'));
   const bootScripts = scripts.filter((script) => script.includes('/v1/mission-fabric/'));
   assert.equal(bootScripts.length, 1);
-  const appScripts = scripts.filter((script) => !script.includes('/v1/mission-fabric/'));
+  // The additive 3D bundle has its own script. This harness owns the legacy
+  // quest reader; world lifecycle is checked by its tests and actual browser.
+  const appScripts = scripts.filter((script) => script.includes('/* ── data ── */'));
   assert.equal(appScripts.length, 1);
 
   const elements = new Map<string, ReturnType<typeof makeElement>>();
@@ -247,7 +249,9 @@ test('page data load · 200 without ledger stays honest empty', async () => {
   assert.equal(elements.get('fresh')!.textContent, 'empty');
   assert.equal(elements.get('fresh')!.dataset.interactionKind, 'sheet');
   assert.match(elements.get('stem')!.innerHTML, /no ledger yet/);
-  assert.match(elements.get('stem')!.innerHTML, /push --tenant cambium/);
+  assert.match(elements.get('stem')!.innerHTML, /data-ledger-retry/);
+  assert.match(elements.get('stem')!.innerHTML, /data-ledger-system/);
+  assert.doesNotMatch(elements.get('stem')!.innerHTML, /push --tenant/);
 });
 
 test('page data load · paints a matching served envelope before background refresh settles', async () => {
@@ -403,3 +407,95 @@ test('page data load · tenant isolation is preserved in fetch route', async () 
   const { requests } = await renderPageState({ tenant: 'acme-ops', search: '?tenant=acme-ops', fetchPlan: [{ status: 401, body: {} }] });
   assert.match(requests[0].url, /\/api\/quests\/acme-ops$/);
 });
+
+
+const PRIOR_READ = {
+  ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+  tenant: 'cambium',
+  derivedAt: '2026-10-07T10:00:00.000Z',
+  source: 'prior-verified-read',
+  ledger: { completed: 1, total: 1, current: null, rows: [{ id: 'prior-row', title: 'PRIOR_PRIVATE_FACT', status: 'complete', evidence: 'PRIOR_PRIVATE_FACT' }] },
+  beats: [{ text: 'PRIOR_PRIVATE_FACT', lane: 'quest', group: 'Mission wins', source: 'prior-verified-read' }],
+  commands: { source: 'PRIOR_PRIVATE_FACT', handoffs: [] },
+};
+
+for (const [label, response] of [
+  ['401', { status: 401, body: {} }],
+  ['403', { status: 403, body: {} }],
+  ['404', { status: 404, body: {} }],
+  ['503', { status: 503, body: {} }],
+  ['offline', new Error('synthetic network failure')],
+  ['malformed', { status: 200, body: {}, malformed: true }],
+  ['empty', { status: 200, body: { schema: 1, tenant: 'cambium' } }],
+] as const) {
+  test(`page data load · hydrated facts are invalidated on ${label}`, async () => {
+    const page = await renderPageState({ initialEnvelope: PRIOR_READ, fetchPlan: [response] });
+    assert.equal(renderedEnvelopeSource(page), null);
+    for (const id of ['stem', 'gate', 'cmds', 'beats', 'mapwrap', 'sheetBody']) {
+      assert.doesNotMatch(page.elements.get(id)!.innerHTML, /PRIOR_PRIVATE_FACT|prior-verified-read/, `${id} drops prior facts`);
+    }
+    for (const expression of ['LEDGER', 'CMDDATA', 'ECOSYSTEM_ENV']) {
+      assert.equal(vm.runInContext(expression, page.context), null, `${expression} is invalidated`);
+    }
+    assert.equal(vm.runInContext('GATE_ITEMS.length + STORY_BEATS.length', page.context), 0);
+    assert.match(page.elements.get('mapwrap')!.innerHTML, /Proof waits for a verified read/);
+    assert.match(page.elements.get('gauge')!.innerHTML, /0\/0/);
+    assert.equal(page.elements.get('fill')!.style.width, '0%', 'prior progress is invalidated with its ledger');
+    assert.equal(page.elements.get('sheet')!.classList.has('on'), false);
+    assert.equal(page.elements.get('veil')!.classList.has('on'), false);
+    assert.doesNotMatch(page.elements.get('gate')!.innerHTML, /Gate quiet|Queue clear/);
+    const heldTools = page.elements.get('cmds')!.innerHTML;
+    vm.runInContext('go(2); renderCommands()', page.context);
+    assert.equal(page.elements.get('cmds')!.innerHTML, heldTools, 'Tools navigation and contextual return retain the shared held state');
+    assert.match(heldTools, /data-ledger-retry/);
+  });
+}
+
+test('page data load · an older success cannot repaint after a newer denied refresh', async () => {
+  let finishOld!: (response: unknown) => void;
+  const oldRequest = new Promise(resolve => { finishOld = resolve; });
+  const page = await renderPageState({ holdDeadline: true, initialEnvelope: PRIOR_READ, fetchPlan: [() => oldRequest, { status: 401, body: {} }] });
+  await vm.runInContext('refresh()', page.context);
+  finishOld({ ok: true, status: 200, json: async () => PRIOR_READ });
+  await flushPage();
+  assert.equal(renderedEnvelopeSource(page), null);
+  assert.equal(page.elements.get('fresh')!.textContent, 'auth');
+  assert.doesNotMatch(page.elements.get('stem')!.innerHTML, /PRIOR_PRIVATE_FACT/);
+});
+
+test('page data load · an older failure cannot clear a newer accepted refresh', async () => {
+  let rejectOld!: (error: Error) => void;
+  const oldRequest = new Promise((_resolve, reject) => { rejectOld = reject; });
+  const page = await renderPageState({ holdDeadline: true, fetchPlan: [() => oldRequest, { status: 200, body: PRIOR_READ }] });
+  await vm.runInContext('refresh()', page.context);
+  rejectOld(new Error('late obsolete failure'));
+  await flushPage();
+  assert.equal(renderedEnvelopeSource(page), 'prior-verified-read');
+  assert.notEqual(page.elements.get('fresh')!.textContent, 'offline');
+});
+
+test('page data load · Gate retry uses the shared read and holds a denied queue', async () => {
+  const page = await renderPageState({ fetchPlan: [{ status: 200, body: PRIOR_READ }, { status: 403, body: {} }] });
+  await vm.runInContext('loadGate()', page.context);
+  assert.equal(page.requests.length, 2);
+  assert.ok(page.requests.every(request => request.url === '/api/quests/cambium' && !request.init.method));
+  assert.equal(renderedEnvelopeSource(page), null);
+  assert.match(page.elements.get('gate')!.innerHTML, /authenticated access needed/);
+  assert.match(page.elements.get('stem')!.innerHTML, /authenticated access needed/);
+});
+
+test('page data load · retry can restore a freshly accepted shared envelope', async () => {
+  const page = await renderPageState({ fetchPlan: [{ status: 401, body: {} }, { status: 200, body: PRIOR_READ }] });
+  await vm.runInContext('refresh()', page.context);
+  assert.equal(renderedEnvelopeSource(page), 'prior-verified-read');
+  assert.equal(vm.runInContext('LEDGER.total', page.context), 1);
+  assert.doesNotMatch(page.elements.get('stem')!.innerHTML, /authenticated access needed/);
+  assert.doesNotMatch(page.elements.get('mapwrap')!.innerHTML, /Proof waits for a verified read/);
+  vm.runInContext('go(2)', page.context);
+  assert.doesNotMatch(page.elements.get('cmds')!.innerHTML, /data-ledger-state/);
+  assert.match(page.elements.get('cmds')!.innerHTML, /data-tool-surface/);
+});
+
+async function flushPage() {
+  for (let i = 0; i < 5; i++) await new Promise(resolve => setTimeout(resolve, 0));
+}

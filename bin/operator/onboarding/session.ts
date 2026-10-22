@@ -8,6 +8,7 @@ import type { WorldState, GameEvent, Decision, WakeDeps, Drive, OnboardingStep }
 import { createWorld } from '../world.ts';
 import { wake } from '../operator.ts';
 import { ONBOARDING_SCRIPT } from './script.ts';
+import { createHash } from 'node:crypto';
 
 /** The onboarding session — folded over the wake loop, one interaction at a time. */
 export interface OnboardingState {
@@ -108,4 +109,43 @@ export function runOnboarding(
     if (r.decision) decisions.push(r.decision);
   }
   return { state, steps, decisions };
+}
+
+/** Compatibility binds persisted progress to the exact tutorial, not live admission. */
+export const CHECKPOINT_SCHEMA = 'cambium.onboarding.v1';
+export const SCRIPT_DIGEST = createHash('sha256').update(JSON.stringify(ONBOARDING_SCRIPT)).digest('hex');
+
+export function validateTenant(tenant: string): void {
+  if (typeof tenant !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/.test(tenant)) {
+    throw new Error('Invalid onboarding tenant: use a bounded filename-safe identifier.');
+  }
+}
+
+/** Accept the original raw shape as legacy; reject incompatible or inconsistent progress. */
+export function validateCheckpoint(value: unknown, tenant: string): OnboardingState {
+  const fail = (): never => { throw new Error('Invalid or incompatible onboarding checkpoint; original data preserved.'); };
+  const object = (v: unknown): v is Record<string, any> => !!v && typeof v === 'object' && !Array.isArray(v);
+  const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every(x => typeof x === 'string');
+  const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+  if (!object(value)) return fail();
+  if ('schema' in value || 'scriptDigest' in value) {
+    if (value.schema !== CHECKPOINT_SCHEMA || value.scriptDigest !== SCRIPT_DIGEST) return fail();
+  }
+  const { stepIndex: i, world: w, drivesActivated: drives, noesisMoments } = value;
+  if (!Number.isInteger(i) || i < 0 || i > ONBOARDING_SCRIPT.length || !object(w)) return fail();
+  if (w.tenant !== tenant) throw new Error('Onboarding checkpoint tenant mismatch; original data preserved.');
+  const played = ONBOARDING_SCRIPT.slice(0, i);
+  const expectedDrives = [...new Set(played.map(s => s.drive))];
+  if (!Array.isArray(drives) || JSON.stringify(drives) !== JSON.stringify(expectedDrives)
+    || noesisMoments !== played.filter(s => s.brain === 'mid').length
+    || w.version !== i || !strings(w.log) || w.log.length !== i
+    || !w.log.every((line: string, n: number) => line.startsWith(`#${n + 1} ${played[n].event.id} → `))) return fail();
+  if (typeof w.vision !== 'string' || typeof w.mission !== 'string' || !strings(w.goals)
+    || !object(w.artifacts) || !Object.values(w.artifacts).every(x => typeof x === 'string')
+    || !object(w.business) || !finite(w.business.runwayDays) || w.business.runwayDays < 0
+    || !object(w.brand) || typeof w.brand.label !== 'string'
+    || !Array.isArray(w.brand.setpoint) || !w.brand.setpoint.length || !w.brand.setpoint.every(finite)
+    || !finite(w.brand.trustRegion) || w.brand.trustRegion < 0
+    || !finite(w.brand.coherence) || w.brand.coherence < 0 || w.brand.coherence > 1) return fail();
+  return { stepIndex: i, world: w, drivesActivated: drives, noesisMoments };
 }
