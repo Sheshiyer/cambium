@@ -57,7 +57,7 @@ flow.
 
 ```json
 {
-  "kind": "approve | reroll | promote-skill | queue-side-quest | confirm-action-request | approve-marketing-render | approve-goal-graph",
+  "kind": "approve | reroll | promote-skill | queue-side-quest | confirm-action-request | approve-marketing-render | approve-goal-graph | reject-goal-graph",
   "subject": "<short text, ≤160 chars>",
   "initData": "<live Telegram.WebApp.initData string>",
   "idempotencyKey": "<opaque key, ≤240 chars; defaults to `${kind}:${subject}`>",
@@ -88,6 +88,13 @@ flow.
   returns `409 goal_graph_stale_head` with no write. The full contract is the
   [Telegram Goal Graph intake lifecycle](../../runbooks/goal-graph-telegram-lifecycle.md)
   runbook.
+- `reject-goal-graph` (Field Atlas founder Gate, 2026-10-22) is keyed the same
+  way. It never touches the D1 graph: a pending KV proposal becomes terminal
+  `rejected` and leaves every gate projection. Replay returns `200` with
+  `duplicate: true`; a moved head marks the proposal `stale` (`409`); a
+  founder-outcome candidate or a task with a recorded approval attempt is
+  refused (`409 not_rejectable`). Optional `nonce` / `expiresAt` must echo the
+  served descriptor exactly, as for approval.
 
 ### 2.2 Success response (`200`)
 
@@ -115,7 +122,7 @@ KV write.
 | `400` | bad tenant, non-JSON body, unsupported kind, missing subject/id |
 | `401` | missing, stale, malformed, or wrongly-signed `initData`; non-founder user (fail-closed, reason string redacted) |
 | `403` | kind tenant restriction (e.g. marketing renderer off-tenant) |
-| `404` | keyed record not found (`approve-marketing-render`, `approve-goal-graph`) |
+| `404` | keyed record not found (`approve-marketing-render`, `approve-goal-graph`, `reject-goal-graph`) |
 | `409` | keyed record conflict |
 | `503` | gate/auth/store not configured |
 

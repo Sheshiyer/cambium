@@ -3,10 +3,14 @@ import { DISTRICTS, WORLD_LANDMARKS, PATHS, keyboardAxis } from './world-model.t
 import { createNavigationChart, createInstrumentObserver } from './navigation-instrument.ts';
 import { TRAVELER_DESIGNS, type TravelerDesignId } from './character.ts';
 import { travelerPortrait } from './traveler-portrait.ts';
+import {
+  HELD_GATE, gateActionState, gateAdmissionSummary, gateCountLabel, gateInspectRows, normalizeGateSnapshot,
+  type GateBridge, type GateKind, type GateSnapshot,
+} from './gate-folio.ts';
 
 type Landmark = typeof WORLD_LANDMARKS[number];
 type District = typeof DISTRICTS[number];
-export interface CuriousWorldBridge {
+export interface CuriousWorldBridge extends GateBridge {
   openWorkbench: (target: 'mission' | 'gate' | 'inspect') => void;
   onExit: (error?: string) => void;
   getReadState: () => { state: string; label: string };
@@ -34,6 +38,14 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   let nearby: Landmark | null = null;
   let world: WorldAPI | null = null;
   let unsubscribe: (() => void) | null = null;
+  let gateUnsubscribe: (() => void) | null = null;
+  let gate: GateSnapshot = HELD_GATE;
+  // The Gate lives in the Gate landmark folio. Only one Gate view is mounted
+  // at a time; showPanel() clears it so stale callbacks never paint elsewhere.
+  let gateHost: HTMLElement | null = null;
+  let gateDigest: string | null = null;
+  let gateConfirm: GateKind | null = null;
+  let gateMessage: { text: string; tone: 'pending' | 'ok' | 'refused' } | null = null;
   let returnFocus: HTMLElement | null = null;
   let stickPointer: number | null = null;
   let touchAxis = { x: 0, z: 0 };
@@ -216,6 +228,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     if (!modal) returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     modal = true; clearInput(); world?.setBlocked(true); syncInstrument();
     dialog.dataset.panel = 'folio';
+    gateHost = null; gateDigest = null; gateConfirm = null; gateMessage = null;
     dialogTitle.textContent = title;
     dialogBody.replaceChildren();
     dialogBody.scrollTop = 0;
@@ -301,10 +314,150 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const source = element('p', 'cw-source-path', landmark.source);
     source.title = landmark.source;
     provenance.append(source); dialogBody.append(provenance);
+    if (landmark.id === 'gate') {
+      gateHost = element('section', 'cw-gate');
+      gateHost.setAttribute('aria-label', 'Founder Gate');
+      dialogBody.insertBefore(gateHost, dialogBody.children[1] ?? null);
+      renderGate();
+    }
     const actions = element('div', 'cw-workbench-actions');
     actions.append(actionButton('Source atlas ↗', 'workbench', 'inspect'), actionButton('Mission desk ↗', 'workbench', 'mission'));
-    if (landmark.id === 'gate') actions.append(actionButton('Open existing Gate ↗', 'workbench', 'gate'));
     dialogBody.append(actions);
+  }
+  function gateNode(tag: 'dl' | 'dt' | 'dd', className: string, value?: string): HTMLElement {
+    return element(tag, className, value);
+  }
+  function renderGateList(host: HTMLElement): void {
+    host.append(element('span', 'cw-kicker', 'FOUNDER GATE / GOAL PROPOSALS'));
+    const mode = element('p', 'cw-gate-mode', gate.label);
+    mode.dataset.signer = gate.signer;
+    mode.setAttribute('role', 'status');
+    host.append(mode);
+    if (gate.state !== 'read') {
+      host.append(element('p', 'cw-gate-empty', gate.state === 'checking' ? 'Checking the founder read…' : 'The Gate read is held. Nothing can be signed until a verified read returns.'));
+      return;
+    }
+    if (!gate.proposals.length) { host.append(element('p', 'cw-gate-empty', 'No goal proposals are waiting for a founder decision.')); return; }
+    const list = element('div', 'cw-gate-list');
+    for (const proposal of gate.proposals) {
+      const node = actionButton(proposal.title, 'gate-open', proposal.changeDigest);
+      node.classList.add('cw-gate-row');
+      node.append(element('small', 'cw-gate-digest', proposal.changeDigest),
+        element('small', '', `${proposal.expired ? 'Approval window expired' : `Approve by ${proposal.approvalExpiresAt}`} · Inspect ↗`));
+      list.append(node);
+    }
+    host.append(list);
+  }
+  function renderGateProposal(host: HTMLElement, digest: string): void {
+    const proposal = gate.proposals.find(item => item.changeDigest === digest);
+    host.append(element('span', 'cw-kicker', 'FOUNDER GATE / INSPECT'));
+    if (!proposal) {
+      host.append(element('p', 'cw-gate-empty', gate.state === 'read' ? 'This proposal is no longer pending.' : 'The Gate read is not verified right now.'));
+      if (gateMessage) host.append(gateStatus());
+      host.append(actionButton('All pending proposals ↗', 'inspect', 'gate'));
+      return;
+    }
+    host.append(element('h3', 'cw-gate-title', proposal.title));
+    if (proposal.summary) host.append(element('p', 'cw-gate-summary', proposal.summary));
+    const mode = element('p', 'cw-gate-mode', gate.label);
+    mode.dataset.signer = gate.signer;
+    host.append(mode);
+    const facts = gateNode('dl', 'cw-gate-inspect');
+    for (const row of gateInspectRows(proposal)) {
+      const term = gateNode('dt', '', row.label);
+      const value = gateNode('dd', row.label === 'Change digest' ? 'cw-gate-digest' : '', row.value);
+      facts.append(term, value);
+    }
+    facts.append(gateNode('dt', '', 'Admission'), gateNode('dd', '', gateAdmissionSummary(proposal.inspect)),
+      gateNode('dt', '', 'Approval window'), gateNode('dd', '', `${proposal.approvalExpiresAt}${proposal.expired ? ' · expired' : ''}`),
+      gateNode('dt', '', 'Source'), gateNode('dd', '', proposal.sourceRef || 'not served'));
+    host.append(facts);
+    if (proposal.inspect && proposal.inspect.issues.length) {
+      const warning = element('ul', 'cw-gate-warning');
+      proposal.inspect.issues.forEach(issue => warning.append(element('li', '', issue)));
+      host.append(warning);
+    }
+    host.append(element('p', 'cw-gate-consequence', proposal.consequence), element('p', 'cw-gate-reversibility', proposal.reversibility));
+    const actions = element('div', 'cw-gate-actions');
+    if (gateConfirm) {
+      const approving = gateConfirm === 'approve-goal-graph';
+      const state = gateActionState(gate, proposal, gateConfirm);
+      actions.append(element('p', 'cw-gate-confirm-line', approving
+        ? `Sign founder approval for change digest ${proposal.changeDigest}? The goal graph commits only after this signature.`
+        : `Sign founder rejection for change digest ${proposal.changeDigest}? The goal graph is not written.`));
+      const confirm = actionButton(approving ? 'Confirm approval' : 'Confirm rejection', 'gate-sign', gateConfirm);
+      confirm.classList.add(approving ? 'cw-gate-approve' : 'cw-gate-reject');
+      confirm.disabled = !state.enabled;
+      confirm.dataset.cwFocus = 'true';
+      actions.append(confirm, actionButton('Cancel', 'gate-cancel'));
+    } else {
+      for (const [kind, label] of [['approve-goal-graph', 'Approve'], ['reject-goal-graph', 'Reject']] as const) {
+        const state = gateActionState(gate, proposal, kind);
+        const node = actionButton(proposal.signing ? 'Signing…' : label, 'gate-confirm', kind);
+        node.classList.add(kind === 'approve-goal-graph' ? 'cw-gate-approve' : 'cw-gate-reject');
+        node.disabled = !state.enabled;
+        if (kind === 'approve-goal-graph') node.dataset.cwFocus = 'true';
+        actions.append(node);
+      }
+      const reason = gateActionState(gate, proposal, 'approve-goal-graph').reason;
+      if (reason) actions.append(element('p', 'cw-gate-blocked', reason));
+    }
+    host.append(actions);
+    if (gateMessage) host.append(gateStatus());
+    host.append(actionButton('All pending proposals ↗', 'inspect', 'gate'));
+  }
+  function gateStatus(): HTMLElement {
+    const status = element('p', 'cw-gate-status', gateMessage?.text ?? '');
+    status.dataset.tone = gateMessage?.tone ?? 'pending';
+    status.setAttribute('role', 'status');
+    return status;
+  }
+  function renderGate(): void {
+    const host = gateHost;
+    if (disposed || !host || !host.isConnected) return;
+    const hadFocus = host.contains(document.activeElement);
+    host.replaceChildren();
+    if (gateDigest) renderGateProposal(host, gateDigest);
+    else renderGateList(host);
+    if (hadFocus || !dialog.contains(document.activeElement)) {
+      (host.querySelector<HTMLElement>('[data-cw-focus="true"]:not([disabled])') ?? host.querySelector<HTMLElement>('button:not([disabled])') ?? closeButton).focus({ preventScroll: true });
+    }
+  }
+  function openGateProposal(digest: string): void {
+    if (!gate.proposals.some(item => item.changeDigest === digest)) return;
+    showPanel('Founder Gate'); dialog.dataset.panel = 'gate';
+    gateHost = element('section', 'cw-gate');
+    gateHost.setAttribute('aria-label', 'Founder Gate proposal inspector');
+    gateDigest = digest;
+    dialogBody.append(gateHost);
+    renderGate();
+  }
+  function signGate(kind: GateKind): void {
+    const digest = gateDigest;
+    const proposal = gate.proposals.find(item => item.changeDigest === digest);
+    gateConfirm = null;
+    if (!digest || !proposal || !gateActionState(gate, proposal, kind).enabled || typeof bridge.signGate !== 'function') {
+      gateMessage = { text: 'Signing is closed for this proposal · no write.', tone: 'refused' };
+      renderGate(); return;
+    }
+    gateMessage = { text: 'Signing with Telegram founder verification…', tone: 'pending' };
+    renderGate();
+    let pending: Promise<unknown>;
+    try { pending = Promise.resolve(bridge.signGate(kind, digest)); } catch { pending = Promise.reject(new Error('sign failed')); }
+    pending.then(result => {
+      const outcome = result && typeof result === 'object' ? result as { ok?: unknown; message?: unknown } : {};
+      return { ok: outcome.ok === true, text: typeof outcome.message === 'string' ? outcome.message.slice(0, 200) : 'Refused · no write.' };
+    }, () => ({ ok: false, text: 'Signing failed · no write.' })).then(({ ok, text }) => {
+      if (disposed || gateDigest !== digest) return;
+      gateMessage = { text, tone: ok ? 'ok' : 'refused' };
+      renderGate();
+    });
+  }
+  function onGate(snapshot: unknown): void {
+    if (disposed) return;
+    gate = normalizeGateSnapshot(snapshot);
+    if (nearby?.id === 'gate') nearVerb.textContent = `${nearby.verb} · ${gateCountLabel(gate)}`;
+    if (modal && gateHost?.isConnected) renderGate();
   }
   function inspectNearby(): void {
     if (disposed || !begun || modal) return;
@@ -364,7 +517,9 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       node.append(element('small', '', district.tagline));
       districtList.append(node);
     });
-    layout.append(map, districtList); dialogBody.append(layout, actionButton('Browse all 30 source landmarks ↗', 'directory'));
+    const gateShortcut = actionButton(`Founder Gate · ${gateCountLabel(gate)} ↗`, 'inspect', 'gate');
+    gateShortcut.append(element('small', '', 'The Gate landmark stands in the Purpose district.'));
+    layout.append(map, districtList); dialogBody.append(layout, gateShortcut, actionButton('Browse all 30 source landmarks ↗', 'directory'));
   }
   function openDirectory(): void {
     showPanel('The source directory'); dialog.dataset.panel = 'directory';
@@ -394,6 +549,11 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     } else if (target.dataset.cwAction === 'travel' && id && DISTRICTS.some(item => item.id === id)) {
       closePanel(); begun = true; root.dataset.walking = 'true'; intro.hidden = true; world?.setBlocked(false); world?.teleport(id); world?.start(); syncInstrument(); focus();
     } else if (target.dataset.cwAction === 'directory') openDirectory();
+    else if (target.dataset.cwAction === 'gate-open' && id) openGateProposal(id);
+    else if (target.dataset.cwAction === 'gate-confirm' && (id === 'approve-goal-graph' || id === 'reject-goal-graph')) {
+      gateConfirm = id; gateMessage = null; renderGate();
+    } else if (target.dataset.cwAction === 'gate-cancel') { gateConfirm = null; renderGate(); }
+    else if (target.dataset.cwAction === 'gate-sign' && (id === 'approve-goal-graph' || id === 'reject-goal-graph')) signGate(id);
     else if (target.dataset.cwAction === 'workbench' && (id === 'mission' || id === 'gate' || id === 'inspect')) {
       dispose(); bridge.openWorkbench(id);
     }
@@ -492,6 +652,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     if (dialog.open) dialog.close();
     listeners.splice(0).reverse().forEach(remove => remove());
     unsubscribe?.(); unsubscribe = null;
+    gateUnsubscribe?.(); gateUnsubscribe = null; gateHost = null;
     world?.dispose(); world = null;
     root.replaceChildren(); root.classList.remove('cw'); delete root.dataset.walking;
   }
@@ -501,7 +662,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
         nearby = target; inspect.disabled = !target;
         near.dataset.active = String(!!target);
         nearName.textContent = target?.name ?? 'Follow your curiosity';
-        nearVerb.textContent = target ? `${target.verb} · source` : 'Walk closer to inspect a source landmark';
+        nearVerb.textContent = !target ? 'Walk closer to inspect a source landmark'
+          : target.id === 'gate' ? `${target.verb} · ${gateCountLabel(gate)}` : `${target.verb} · source`;
       },
       onDistrict,
       onState: snapshot => {
@@ -521,6 +683,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     updateInstrument();
     renderRead(bridge.getReadState());
     unsubscribe = bridge.subscribeRead(renderRead);
+    if (typeof bridge.subscribeGate === 'function') gateUnsubscribe = bridge.subscribeGate(onGate);
+    else if (typeof bridge.getGateState === 'function') onGate(bridge.getGateState());
   } catch (error) {
     dispose();
     throw error instanceof Error ? error : new Error('Curious world could not start');

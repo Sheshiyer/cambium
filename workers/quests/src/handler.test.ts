@@ -15498,6 +15498,188 @@ test('goal graph gate envelope · legacy row with an unparseable timestamp is om
   assert.deepEqual(JSON.parse(listed.body).actions, []);
 });
 
+// ── Field Atlas founder Gate · founder-only Inspect + signed Reject ────────
+
+const RELOVO_ADMISSION_METADATA = {
+  executionAdmissionSchema: 'cambium.goal-graph.execution-admission.v1',
+  executionAdmissionMemberId: 'shesh',
+  executionAdmissionDirectiveId: 'directive:relovo-source-audit-001',
+  executionAdmissionIdempotencyKey: 'directive:relovo-source-audit-001',
+  executionAdmissionClusterId: 'cluster:relovo-source-verification',
+  executionAdmissionDispatchDigest: `sha256:${'7'.repeat(64)}`,
+};
+
+function admittedGoalGraphIntent() {
+  return goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '830', updateId: '90830' },
+    goal: {
+      desiredState: 'run the admitted Relovo source audit',
+      workObjectId: 'branch:relovo',
+      workObjectKind: 'branch',
+      pinnedLoadoutId: 'loadout:relovo-source-audit',
+      metadata: { priority: 'normal', ...RELOVO_ADMISSION_METADATA },
+    },
+  });
+}
+
+async function founderGateHarness() {
+  const founder = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const harness = goalGraphIntakeHarness({ gate: gateCfg(founder.pubKeyHex), pushToken: 't' });
+  const pushed = await handle(req('POST', '/internal/ledger/cambium', { headers: { authorization: 'Bearer t' }, body: ENVELOPE }), harness.deps);
+  assert.equal(pushed.status, 200);
+  const intake = await postGoalGraphIntake('bridge', admittedGoalGraphIntent(), harness.deps);
+  assert.equal(intake.status, 200);
+  assert.equal(body(intake).accepted, true);
+  return { ...harness, initData: founder.initData, changeDigest: String(body(intake).changeDigest) };
+}
+
+function postGate(deps: Parameters<typeof handle>[1], payload: Record<string, unknown>) {
+  return handle(req('POST', '/api/gate/cambium', { body: JSON.stringify(payload) }), deps);
+}
+
+test('founder gate inspect · Telegram founder envelope names the full digest, anchors and exactly the admission keys', async () => {
+  const { deps, initData, changeDigest } = await founderGateHarness();
+  const quests = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': initData } }), deps);
+  assert.equal(quests.status, 200);
+  const row = JSON.parse(quests.body).goalGraphIntake.rows[0];
+  assert.equal(row.changeDigest, changeDigest);
+  assert.match(changeDigest, /^[a-f0-9]{64}$/);
+  const inspect = row.founderInspect;
+  assert.equal(inspect.schema, 'cambium.goal-graph-founder-inspect.v1');
+  assert.equal(inspect.changeDigest, changeDigest);
+  assert.equal(inspect.nodeId, row.nodeId);
+  assert.equal(inspect.workObjectId, 'branch:relovo');
+  assert.equal(inspect.workObjectKind, 'branch');
+  assert.equal(inspect.pinnedLoadoutId, 'loadout:relovo-source-audit');
+  assert.deepEqual(inspect.executionAdmission, Object.entries(RELOVO_ADMISSION_METADATA)
+    .sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => ({ key, value })));
+  assert.equal(inspect.admissionState, 'exact');
+  assert.equal(inspect.consistent, true);
+  assert.deepEqual(inspect.issues, []);
+  assert.deepEqual(Object.keys(inspect).sort(), ['admissionState', 'changeDigest', 'consistent', 'executionAdmission', 'issues', 'nodeId', 'pinnedLoadoutId', 'schema', 'workObjectId', 'workObjectKind']);
+  // Only the admission keys: other metadata, the intent and the change set stay private.
+  assert.doesNotMatch(JSON.stringify(row), /priority|cambium\.telegram\.goal-graph-intent\.v1|nodesToCreate/);
+  assert.doesNotMatch(quests.body, new RegExp(TEST_FOUNDER_A));
+});
+
+test('founder gate inspect · public, non-founder and operator reads never carry the inspect projection', async () => {
+  const { deps } = await founderGateHarness();
+  const outsider = await makeSignedInitData({ botId: TEST_BOT_ID, userId: '300000009', authDate: NOW / 1000 - 10 });
+  const reads = [
+    await handle(req('GET', '/api/quests/cambium'), deps),
+    await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': outsider.initData } }), deps),
+    await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': 'query_id=forged&hash=00' } }), deps),
+    await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer t' } }), deps),
+  ];
+  for (const read of reads) {
+    assert.equal(read.status, 200);
+    assert.doesNotMatch(read.body, /founderInspect|executionAdmission|loadout:relovo-source-audit/);
+  }
+  assert.match(reads[0].body, /goal-graph-intake/, 'the bounded public row itself is unchanged');
+});
+
+test('founder gate inspect · a change set that disagrees with the stored node is served as inconsistent', async () => {
+  const { kv, deps, initData, changeDigest } = await founderGateHarness();
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  task.changeSet.nodesToCreate[0].pinnedLoadoutId = 'loadout:wtfmedia-source-audit';
+  task.changeSet.nodesToCreate[0].metadata.executionAdmissionClusterId = 'cluster:other';
+  task.changeSet.nodesToCreate[0].metadata.executionAdmissionExtra = 'smuggled';
+  kv.store.set(taskKey, JSON.stringify(task));
+  const quests = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': initData } }), deps);
+  const inspect = JSON.parse(quests.body).goalGraphIntake.rows[0].founderInspect;
+  assert.equal(inspect.consistent, false);
+  assert.equal(inspect.admissionState, 'invalid');
+  assert.equal(inspect.pinnedLoadoutId, 'loadout:wtfmedia-source-audit', 'inspect shows what would commit, not the stored copy');
+  assert.ok(inspect.executionAdmission.some((entry: { key: string }) => entry.key === 'executionAdmissionExtra'), 'every executionAdmission* key is shown');
+  assert.ok(inspect.issues.some((issue: string) => /pinnedLoadoutId differs/.test(issue)));
+  assert.ok(inspect.issues.some((issue: string) => /admission keys differ/.test(issue)));
+});
+
+test('founder gate reject · founder signature retires the proposal without any graph write; replay is a no-op', async () => {
+  const { kv, deps, initData, changeDigest } = await founderGateHarness();
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  const rejected = await postGate(deps, {
+    kind: 'reject-goal-graph', subject: changeDigest, initData, nonce: task.approvalNonce, expiresAt: task.approvalExpiresAt,
+  });
+  assert.equal(rejected.status, 200);
+  const decision = body(rejected);
+  assert.equal(decision.ok, true);
+  assert.equal(decision.rejected, true);
+  assert.equal(decision.committed, false);
+  assert.equal(decision.duplicate, false);
+  assert.equal(decision.changeDigest, changeDigest);
+  assert.doesNotMatch(rejected.body, new RegExp(TEST_FOUNDER_A));
+  assert.doesNotMatch(rejected.body, /initData|query_id|auth_date/);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'rejection never writes the D1 graph');
+
+  const stored = JSON.parse(kv.store.get(taskKey)!);
+  assert.equal(stored.status, 'rejected');
+  assert.equal(stored.rejection.decision, 'rejected');
+  assert.equal(stored.rejection.rejectorId, TEST_FOUNDER_A);
+  assert.deepEqual(stored.changeSet, task.changeSet);
+
+  const quests = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': initData } }), deps);
+  assert.equal(JSON.parse(quests.body).goalGraphIntake, undefined, 'a rejected proposal leaves the gate list');
+
+  const replay = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).duplicate, true);
+  assert.equal(body(replay).replayed, true);
+
+  const approveAfter = await postGate(deps, { kind: 'approve-goal-graph', subject: changeDigest, initData });
+  assert.equal(approveAfter.status, 409);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+});
+
+test('founder gate reject · fails closed on auth, subject, descriptor, status and moved heads with no write', async () => {
+  const { kv, deps, initData, changeDigest } = await founderGateHarness();
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const original = kv.store.get(taskKey)!;
+  const outsider = await makeSignedInitData({ botId: TEST_BOT_ID, userId: '300000009', authDate: NOW / 1000 - 10 });
+  const unsigned = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest });
+  assert.equal(unsigned.status, 401);
+  const notFounder = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData: outsider.initData });
+  assert.equal(notFounder.status, 401);
+  assert.equal((await postGate(deps, { kind: 'reject-goal-graph', initData })).status, 400);
+  assert.equal((await postGate(deps, { kind: 'reject-goal-graph', subject: 'not-a-digest', initData })).status, 400);
+  assert.equal((await postGate(deps, { kind: 'reject-goal-graph', subject: 'e'.repeat(64), initData })).status, 404);
+  const wrongNonce = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData, nonce: 'goal-graph-approval:cambium:forged' });
+  assert.equal(wrongNonce.status, 409);
+  assert.equal(body(wrongNonce).code, 'nonce_mismatch');
+  const wrongExpiry = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData, expiresAt: '2099-01-01T00:00:00.000Z' });
+  assert.equal(wrongExpiry.status, 409);
+  assert.equal(body(wrongExpiry).code, 'expiry_mismatch');
+  const otherTenant = await handle(req('POST', '/api/gate/other-tenant', {
+    body: JSON.stringify({ kind: 'reject-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.equal(otherTenant.status, 404);
+  assert.equal(kv.store.get(taskKey), original, 'no refused rejection wrote the task');
+
+  const inFlight = JSON.parse(original);
+  inFlight.approvalAttempt = { approverId: TEST_FOUNDER_A };
+  kv.store.set(taskKey, JSON.stringify(inFlight));
+  const attempted = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(attempted.status, 409);
+  assert.equal(body(attempted).code, 'not_rejectable');
+
+  kv.store.set(taskKey, JSON.stringify({ ...JSON.parse(original), status: 'committed' }));
+  assert.equal((await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData })).status, 409);
+
+  kv.store.set(taskKey, JSON.stringify({ ...JSON.parse(original), expectedHeadVersion: 3 }));
+  const moved = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(moved.status, 409);
+  assert.equal(body(moved).error, 'goal_graph_stale_head');
+  assert.equal(JSON.parse(kv.store.get(taskKey)!).status, 'stale', 'a moved head is marked stale, never rejected');
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+
+  kv.store.set(taskKey, original);
+  const noAuthority = await postGate({ ...deps, goalGraphStore: undefined }, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(noAuthority.status, 503);
+  assert.equal(kv.store.get(taskKey), original);
+});
+
 // ── Fitcheck founder outcome · authenticated pending candidate intake ───────
 
 const FOUNDER_OUTCOME_NOW = '2026-08-14T10:00:00.000Z';

@@ -53,7 +53,7 @@ const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 's
 // topology contract and renames two historical app-plane display labels. Those
 // exact substitutions reproduce these bytes from the reviewed 649c1c89 surface;
 // the legacy client, action owners, styles and markup are otherwise unchanged.
-const LEGACY_PAGE_DIGEST = '18bb8a427e1619ca67d01b11aeb0171af1a75b34635b77109fde5360b451e5d9';
+const LEGACY_PAGE_DIGEST = '2a0fae9e93c1bedacd80bd5533418834a9efa1179f12fb31f8126b7e3ae683b0';
 
 function extractScriptBodies(source: string): string[] {
   return [...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]

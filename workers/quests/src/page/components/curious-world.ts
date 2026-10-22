@@ -1,7 +1,8 @@
 import { CURIOUS_WORLD_JS, CURIOUS_WORLD_CSS } from './curious-world.generated.ts';
 
 // Additive world uses the same document and existing read/action owners.
-// No route, identity, authorization, or writer is introduced here.
+// No route, identity or authorization is introduced here; the founder Gate
+// signs only through the page's existing founder-verified /api/gate client.
 export const CURIOUS_WORLD_PAGE = `<style>${CURIOUS_WORLD_CSS}</style>
 <style>
 body.curious-world-active{overflow:hidden!important}
@@ -73,7 +74,14 @@ body.curious-world-active #curious-world-launch{display:none}
         openWorkbench,
         onExit:reason => { exit(); if (typeof reason === 'string' && reason) fallback.hidden = false; },
         getReadState:() => CuriousReadBridge.get(),
-        subscribeRead:fn => CuriousReadBridge.subscribe(fn)
+        subscribeRead:fn => CuriousReadBridge.subscribe(fn),
+        // Founder Gate: sanitized pending proposals plus the page's existing
+        // founder-verified /api/gate signer. Absent bridge leaves the Gate held.
+        ...(typeof CuriousGateBridge === 'object' && CuriousGateBridge ? {
+          getGateState:() => CuriousGateBridge.get(),
+          subscribeGate:fn => CuriousGateBridge.subscribe(fn),
+          signGate:(kind, changeDigest) => CuriousGateBridge.sign(kind, changeDigest)
+        } : {})
       });
       mounted.focus();
     } catch (_) { exit(); fallback.hidden = false; }

@@ -102,6 +102,7 @@ import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
 import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
+import { parseExecutionAdmission } from './terminal-admission.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 import { recordWorkflowLearningEvent, summarizeWorkflowLearningMonth } from './workflow-learning.ts';
 
@@ -570,7 +571,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph' | 'reject-goal-graph';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -3919,10 +3920,95 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
   };
 }
 
+// ── Founder-only Inspect projection of a pending Telegram proposal ──────────
+// Served only on rows of a Telegram-verified founder's quests envelope (never
+// /internal/gate, never the public envelope). It names exactly what the stored
+// change set would commit for the proposal's node: the three operational
+// anchors and every flat `executionAdmission*` metadata key and value. No other
+// metadata, the intent envelope, or the change set itself is served. Any
+// disagreement between the change set and the stored node, a missing node, or
+// an out-of-bounds value sets `consistent: false`, which the founder surface
+// treats as unsignable.
+
+const GOAL_GRAPH_FOUNDER_INSPECT_SCHEMA = 'cambium.goal-graph-founder-inspect.v1';
+const GOAL_GRAPH_INSPECT_ANCHORS = ['workObjectId', 'workObjectKind', 'pinnedLoadoutId'] as const;
+const GOAL_GRAPH_INSPECT_ADMISSION_PREFIX = 'executionAdmission';
+const GOAL_GRAPH_INSPECT_ADMISSION_LIMIT = 16;
+const GOAL_GRAPH_INSPECT_VALUE_LIMIT = 240;
+
+function goalGraphInspectScalar(value: unknown): string | null | undefined {
+  if (value === null) return null;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  if (typeof value === 'boolean') return String(value);
+  return undefined;
+}
+
+function goalGraphFounderInspect(task: Record<string, unknown>): Record<string, unknown> {
+  const changeDigest = String(task.changeDigest ?? '');
+  const nodeId = typeof task.nodeId === 'string' ? task.nodeId : '';
+  const changeSet = isRecord(task.changeSet) ? task.changeSet : null;
+  const stored = isRecord(task.node) ? task.node : null;
+  const issues: string[] = [];
+  if (!changeSet || changeSet.changeDigest !== changeDigest) issues.push('change set digest does not match the proposal');
+  const created = Array.isArray(changeSet?.nodesToCreate) ? changeSet.nodesToCreate : [];
+  const updated = Array.isArray(changeSet?.nodesToUpdate)
+    ? changeSet.nodesToUpdate.map((update) => (isRecord(update) ? update.after : null))
+    : [];
+  const matches = [...created, ...updated].filter((node): node is Record<string, unknown> => isRecord(node) && node.nodeId === nodeId);
+  if (!nodeId || matches.length !== 1) issues.push('change set does not carry exactly one node for this proposal');
+  const node = matches.length === 1 ? matches[0] : null;
+  if (!stored || stored.nodeId !== nodeId) issues.push('stored proposal node is missing');
+
+  const anchors: Record<string, string | null> = {};
+  for (const key of GOAL_GRAPH_INSPECT_ANCHORS) {
+    const value = goalGraphInspectScalar(node?.[key] ?? null);
+    const storedValue = goalGraphInspectScalar(stored?.[key] ?? null);
+    if (value === undefined || (value !== null && value.length > GOAL_GRAPH_INSPECT_VALUE_LIMIT)) {
+      issues.push(`${key} is not a bounded scalar`);
+      anchors[key] = null;
+      continue;
+    }
+    if (value !== storedValue) issues.push(`${key} differs between the change set and the stored node`);
+    anchors[key] = value;
+  }
+
+  const metadata = isRecord(node?.metadata) ? node.metadata : {};
+  const storedMetadata = isRecord(stored?.metadata) ? stored.metadata : {};
+  const admissionKeys = Object.keys(metadata).filter((key) => key.startsWith(GOAL_GRAPH_INSPECT_ADMISSION_PREFIX)).sort();
+  const storedAdmissionKeys = Object.keys(storedMetadata).filter((key) => key.startsWith(GOAL_GRAPH_INSPECT_ADMISSION_PREFIX)).sort();
+  if (admissionKeys.join('\n') !== storedAdmissionKeys.join('\n')) issues.push('admission keys differ between the change set and the stored node');
+  if (admissionKeys.length > GOAL_GRAPH_INSPECT_ADMISSION_LIMIT) issues.push('too many admission keys to inspect');
+  const executionAdmission: Array<{ key: string; value: string | null }> = [];
+  for (const key of admissionKeys.slice(0, GOAL_GRAPH_INSPECT_ADMISSION_LIMIT)) {
+    const value = goalGraphInspectScalar(metadata[key]);
+    if (key.length > 64 || value === undefined || (value !== null && value.length > GOAL_GRAPH_INSPECT_VALUE_LIMIT)) {
+      issues.push(`${key.slice(0, 64)} is not a bounded scalar`);
+      continue;
+    }
+    if (value !== goalGraphInspectScalar(storedMetadata[key])) issues.push(`${key} differs between the change set and the stored node`);
+    executionAdmission.push({ key, value });
+  }
+  const admissionState = admissionKeys.length === 0
+    ? 'absent'
+    : parseExecutionAdmission(metadata) ? 'exact' : 'invalid';
+
+  return {
+    schema: GOAL_GRAPH_FOUNDER_INSPECT_SCHEMA,
+    changeDigest,
+    nodeId,
+    ...anchors,
+    executionAdmission,
+    admissionState,
+    consistent: issues.length === 0,
+    issues: issues.slice(0, 8),
+  };
+}
+
 async function listGoalGraphIntakeGateRows(
   kv: KvLike,
   tenantId: string,
-  options: { includeFounderCandidates?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string> } = {},
+  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string> } = {},
 ): Promise<Array<Record<string, unknown>>> {
   const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
@@ -3939,6 +4025,7 @@ async function listGoalGraphIntakeGateRows(
       if (!descriptor || !Number.isFinite(nowMs) || Date.parse(descriptor.approvalExpiresAt) <= nowMs) continue;
     }
     const row = goalGraphIntakeGateRow(task);
+    if (row && options.includeFounderInspect === true && !candidate) row.founderInspect = goalGraphFounderInspect(task);
     if (row) rows.push(row);
   }
   rows.sort((a, b) => String(b.receivedAt).localeCompare(String(a.receivedAt)));
@@ -4053,6 +4140,7 @@ async function appendFounderOutcomeQuestProjection(
   const committedCandidateIds = d1?.committedCandidateIds ?? new Set<string>();
   const gateRows = await listGoalGraphIntakeGateRows(deps.kv, tenantId, {
     includeFounderCandidates: true,
+    includeFounderInspect: true,
     now,
     committedCandidateIds,
   });
@@ -4909,6 +4997,119 @@ async function approveGoalGraphIntakeRoute(
     return { status: 503, body: { ok: false, error: 'goal_graph_commit_unavailable', code: commit.code } };
   }
   return { status: 409, body: { ok: false, error: 'goal_graph_commit_rejected', code: commit.code, changeDigest } };
+}
+
+// Founder rejection of a pending Telegram proposal. It rides the same
+// founder-verified /api/gate route as approval and never touches the D1 graph:
+// the KV task leaves `pending` for the terminal `rejected` state, so it drops out
+// of every gate projection. Rejection is refused for founder-outcome candidates
+// and for any task with a recorded approval attempt (a commit may be in flight),
+// and it reads the D1 head first so a proposal whose pinned head has moved is
+// marked stale, exactly as approval would, instead of being rejected.
+async function rejectGoalGraphIntakeRoute(
+  deps: HandlerDeps,
+  tenant: string,
+  body: Record<string, unknown>,
+  founderId: string,
+): Promise<GoalGraphIntakeRouteResult> {
+  if (!deps.goalGraphStore) return { status: 503, body: { error: 'goal graph authority is not configured' } };
+  const changeDigest = shortText(body.changeDigest || body.subject, '', 160);
+  if (!/^(?:sha256:)?[a-f0-9]{64}$/.test(changeDigest)) {
+    return { status: 400, body: { error: 'reject-goal-graph needs a changeDigest subject' } };
+  }
+  const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
+  if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  const evidence = {
+    kind: 'reject-goal-graph',
+    subject: changeDigest,
+    tenantId: tenant,
+    changeDigest,
+    nodeId: task.nodeId,
+    sourceRef: task.sourceRef,
+  };
+  const rejection = isRecord(task.rejection) ? task.rejection : null;
+  if (task.status === 'rejected') {
+    return {
+      status: 200,
+      body: { ok: true, rejected: true, committed: false, duplicate: true, replayed: true, ...evidence, rejectedAt: rejection?.rejectedAt ?? null },
+    };
+  }
+  if (task.status !== 'pending') {
+    return {
+      status: 409,
+      body: { ok: false, error: `goal graph intake task status ${String(task.status)} cannot be rejected`, ...evidence },
+    };
+  }
+  if (storedFounderOutcomeCandidate(task) || task.approvalAttempt !== undefined) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_rejection_not_permitted', code: 'not_rejectable', ...evidence } };
+  }
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest);
+  if (!descriptor) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_descriptor_invalid', code: 'descriptor_invalid', ...evidence } };
+  }
+  if (body.nonce !== undefined && shortText(body.nonce, '', 240) !== descriptor.approvalNonce) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_nonce_mismatch', code: 'nonce_mismatch', ...evidence } };
+  }
+  if (body.expiresAt !== undefined && shortText(body.expiresAt, '', 64) !== descriptor.approvalExpiresAt) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_approval_expiry_mismatch', code: 'expiry_mismatch', ...evidence } };
+  }
+
+  const now = deps.now ? deps.now() : new Date().toISOString();
+  let currentHead: GoalGraphHead | null;
+  try {
+    currentHead = await deps.goalGraphStore.readHead(tenant);
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  }
+  if ((currentHead?.graphVersion ?? 0) !== descriptor.expectedHeadVersion) {
+    await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+      ...task,
+      status: 'stale',
+      observedHeadDigest: currentHead?.graphDigest ?? null,
+      updatedAt: now,
+    }));
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        error: 'goal_graph_stale_head',
+        status: 'stale',
+        changeDigest,
+        expectedHeadDigest: task.expectedHeadDigest ?? null,
+        actualHeadDigest: currentHead?.graphDigest ?? null,
+      },
+    };
+  }
+  // Re-read immediately before the write so a concurrent approval that has
+  // already settled the task is never overwritten.
+  const latest = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
+  if (!latest || latest.status !== 'pending' || latest.updatedAt !== task.updatedAt || latest.approvalAttempt !== undefined) {
+    return { status: 409, body: { ok: false, error: 'goal_graph_task_changed', code: 'task_changed', ...evidence } };
+  }
+  try {
+    await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
+      ...task,
+      status: 'rejected',
+      rejection: { decision: 'rejected', rejectorId: founderId, rejectedAt: now, approvalNonce: descriptor.approvalNonce },
+      updatedAt: now,
+    }));
+  } catch {
+    return { status: 503, body: { error: 'goal_graph_rejection_persistence_unavailable' } };
+  }
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      rejected: true,
+      committed: false,
+      duplicate: false,
+      replayed: false,
+      ...evidence,
+      rejectedAt: now,
+      consequence: `founder rejected telegram goal graph proposal ${changeDigest.slice(0, 16)}; the goal graph was not written`,
+      reversibility: 'a rejected proposal never mutates the goal graph; send a fresh Telegram proposal to reconsider',
+    },
+  };
 }
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
@@ -6454,7 +6655,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
+    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph', 'reject-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
       return json(400, { error: 'need a supported gate kind and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
@@ -6462,6 +6663,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const kind = body.kind as GateActionKind;
     if (kind === 'approve-goal-graph') {
       const result = await approveGoalGraphIntakeRoute(deps, tenant, body, verdict.userId);
+      return json(result.status, result.body);
+    }
+    if (kind === 'reject-goal-graph') {
+      const result = await rejectGoalGraphIntakeRoute(deps, tenant, body, verdict.userId);
       return json(result.status, result.body);
     }
     if (kind === 'approve-marketing-render') {

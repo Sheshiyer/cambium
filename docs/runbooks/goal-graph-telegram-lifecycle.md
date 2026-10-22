@@ -170,6 +170,24 @@ responsible for persistence and CAS.
    digest.
 5. **Commit** — the bridge commits the stored change-set through the D1 goal
    graph store as a CAS against the intake-pinned head.
+5a. **Field Atlas founder Gate** — the 2D desk Gate tab is retiring, so the
+   founder decides inside the 3D Field Atlas: walk to the **Gate** landmark
+   in the **Purpose** district (or open **Chart → Founder Gate**) and inspect
+   a proposal. Only a Telegram-verified founder's quests envelope carries the
+   `founderInspect` projection (`cambium.goal-graph-founder-inspect.v1`) on
+   each Telegram row: the full change digest, node id, `workObjectId`,
+   `workObjectKind`, `pinnedLoadoutId`, and every `executionAdmission*`
+   metadata key and value from the change set that would commit, plus an
+   `admissionState` (`exact` / `absent` / `invalid`) and a `consistent` flag
+   that is false whenever the change set and stored node disagree. No other
+   metadata, the intent, or the change set is served, and `/internal/gate`
+   never carries it. Approve and Reject sign the same `/api/gate/{tenant}`
+   route with the Mini App's live `initData` and echo the served
+   `nonce`/`expiresAt`. Signing is closed outside Telegram (read-only, "open in
+   Telegram to sign"), without a consistent founder Inspect, during a read,
+   and, for Approve only, once the approval window has expired.
+   `reject-goal-graph` writes only the KV task (`status: rejected`); it never
+   touches D1.
 6. **Readback** — `GET /v1/branch-map/{tenant}` with signed Telegram init
    data in `X-Telegram-Init-Data` returns the versioned projection, sheet,
    and proof (`cambium.telegram.branch-map-route.v1`). The tenant must be in
@@ -187,6 +205,8 @@ responsible for persistence and CAS.
 | Proposal no longer matches the head | 409 `goal_graph_stale_head` | No write; a stale approval also marks the KV task `stale` so a fresh message can pin the current head |
 | Replay of a committed approval | 200 `duplicate: true, replayed: true` | Original head, nonce, and approval digest returned; nothing written |
 | Unknown or non-pending task | 404 / 409 | Unknown change digest, or a task whose status cannot be approved |
+| Founder rejection | 200 `{ ok: true, rejected: true, committed: false }` | KV task becomes `rejected` and leaves the gate list; replay returns `duplicate: true`; D1 is never written |
+| Rejection refused | 409 `not_rejectable` / `goal_graph_stale_head` / `task_changed` | Founder-outcome candidate, an approval attempt on record, a moved head (marked `stale`), or a concurrent change; no rejection write |
 | Goal graph store absent or unreadable | 503 | Fail-closed; no proposal, no commit |
 
 Committed graph revisions are immutable; supersede with a new approved
