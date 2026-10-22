@@ -16,7 +16,9 @@
 // contract in a parallel fake path.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { webcrypto } from 'node:crypto';
+import { webcrypto, createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 
 import { handle, buildDataCheckString } from './handler.ts';
 import type { GateConfig, HandlerDeps, SimpleRequest } from './handler.ts';
@@ -508,4 +510,31 @@ test('mutating methods are rejected before any authority read', async () => {
   }
   assert.equal(spies.d1Reads, 0);
   assert.equal(spies.kvReads, 0);
+});
+
+test('WTFMedia finite source-audit policy preserves exact loadout through the actual Mission Fabric handler', async () => {
+  const auth = await signedInitData();
+  const { deps, spies } = fabricDeps({ ...auth, allowlist: [TENANT] });
+  const graph = goalGraphFixture();
+  const task = { ...graph.nodes[1], workObjectId: 'branch:wtfmedia', workObjectKind: 'branch', pinnedLoadoutId: 'loadout:wtfmedia-source-audit' };
+  deps.goalGraphStore!.readNodes = async () => [graph.nodes[0], task];
+  const response = await handle({ method: 'GET', path: `/v1/mission-fabric/${TENANT}`, headers: { 'x-telegram-init-data': auth.initData } }, deps);
+  assert.equal(response.status, 200);
+  const projection = JSON.parse(response.body).projection;
+  const projected = projection.nodes.find((node: any) => node.kind === 'task' && node.value.taskId === 'task-fabric-contract');
+  assert.equal(projected.value.pinnedLoadoutId, 'loadout:wtfmedia-source-audit');
+  assert.ok(projection.edges.some((edge: any) => edge.kind === 'pins-loadout' && edge.fromId === 'branch:wtfmedia' && edge.toId === 'loadout:wtfmedia-source-audit'));
+  assert.ok(!projection.gaps.some((gap: any) => gap.subjectId === 'task-fabric-contract' && /loadout.*(unproven|unregistered|unauthoriz)/i.test(gap.detail)));
+  assert.equal(spies.d1Writes, 0); assert.equal(spies.kvWrites, 0);
+});
+
+for (const [slug, workObjectId] of [['wtfmedia', 'branch:wtfmedia'], ['parkarea', 'branch:parkarea']] as const) test(`${slug} source-audit loadout policy hash is exact and grants no production admission`, () => {
+  const authority = GOAL_GRAPH_LOADOUT_AUTHORITY.resolve(`loadout:${slug}-source-audit`)!;
+  const bytes = readFileSync(new URL(`../../../docs/project-management/${slug}-source-audit-loadout.v1.json`, import.meta.url));
+  assert.equal(authority.authorityDigest, `sha256:${createHash('sha256').update(bytes).digest('hex')}`);
+  const policy = JSON.parse(bytes.toString());
+  assert.equal(policy.loadoutId, authority.loadoutId);
+  assert.deepEqual(policy.eligibleWorkObjectIds, [workObjectId]); assert.deepEqual([...authority.eligibleWorkObjectIds], [workObjectId]);
+  assert.deepEqual(policy.authorizedClusterIds, [`cluster:${slug}-source-verification`]); assert.deepEqual([...authority.authorizedClusterIds], policy.authorizedClusterIds);
+  assert.equal(policy.admissionIssued, false); assert.equal(policy.productionExecutionAuthorized, false); assert.equal(policy.wholeLifecycleAccepted, false);
 });

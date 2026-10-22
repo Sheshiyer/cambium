@@ -1,6 +1,22 @@
 import type { GoalGraphLoadoutAuthority, GoalGraphLoadoutAuthorityRecord } from './goal-graph/types.ts';
 
 const RECORDS: readonly GoalGraphLoadoutAuthorityRecord[] = Object.freeze([
+  // Finite source policy only: this registry entry does not issue admission or a Gate approval.
+  Object.freeze({
+    loadoutId: 'loadout:wtfmedia-source-audit',
+    eligibleWorkObjectIds: Object.freeze(['branch:wtfmedia']),
+    authorizedClusterIds: Object.freeze(['cluster:wtfmedia-source-verification']),
+    authorityDigest: 'sha256:86a41489579215fc1fa597c645b1c61d6a5cdbd2e0f28227a5d611c1a0e64064',
+    sourceRef: 'docs/project-management/wtfmedia-source-audit-loadout.v1.json',
+  }),
+  // Finite source policy only, same terms as WTFMedia: ParkArea de-holidays audit (parkarea-aleph).
+  Object.freeze({
+    loadoutId: 'loadout:parkarea-source-audit',
+    eligibleWorkObjectIds: Object.freeze(['branch:parkarea']),
+    authorizedClusterIds: Object.freeze(['cluster:parkarea-source-verification']),
+    authorityDigest: 'sha256:9e8b683b15bfb3de1485bca004bc79951bc0f783f525f956aa3a8d20d0b38d85',
+    sourceRef: 'docs/project-management/parkarea-source-audit-loadout.v1.json',
+  }),
   Object.freeze({
     loadoutId: 'loadout:fitcheck-launch',
     eligibleWorkObjectIds: Object.freeze(['sapling:fitcheck']),
