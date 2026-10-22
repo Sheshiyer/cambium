@@ -1,5 +1,20 @@
 # Project handoff
 
+### 2026-10-22 Relovo catalog v2 admission and versioned reviewed pins — PR #387 candidate
+
+- Branch `claude/relovo-loadout-20261022` ([PR #387](https://github.com/Sheshiyer/cambium/pull/387)) admits `branch:relovo` under the Founder Gate approved on 2026-10-22 for Temperance D17, recorded in [the admission evidence](../docs/evidence/2026-10-22-relovo-portfolio-admission.v1.json). It supersedes the 2026-09-08 checkpoint's statement that the 72-record catalog is the current action authority.
+- **Current pins.**
+  - Action catalog v2: 73 records, `sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c`.
+  - Display catalog: 76 records, `sha256:244df7a3e4197f4f252ed021cc9d3b9815a523395ab788bfd5673b4d5d9291e5`. Its vault source pin stays at revision `4ab8956`.
+  - Classification digest: `43630e6e…`, unchanged; it still lags the vault.
+  - Foundation pins, birth/closeout contracts and admin actions bind v2.
+- **v1 bindings preserved.** `PORTFOLIO_REVIEWED_CATALOG_VERSIONS` keeps v1 (`sha256:311ead84…`) only for already-issued receipts. The Worker rebuilds v1 as v2 minus Relovo and fails closed on any mismatch. A mapping receipt must name a reviewed version that contains its WorkObject. Batch 3 (`sha256:18068874…`, 39 receipts) and the Batch 1–6 queue stay on v1, and Batch 6 is not back-filled.
+- **Census and loadout.** Relovo is an explicit folderless gap. Its two repository refs are unverified and need their own reviewed disposition. Loadout `loadout:relovo-source-audit` grants no admission or production execution.
+- **Vault.** Commit `998c2c5e` changes only the registry file; it is local and not pushed.
+- **Verification.** `npm test` passed 2275/2275. Cartographer `pnpm test` passed 115 with 1 historical skip. The Workbench bundle rebuilds byte-identical, and the Batch 3 `--check` passes.
+- **Held.** No deploy, ledger push, D1/KV/R2 write, or Relovo run; those belong to the D17 controller session.
+- **Follow-ups.** Reconcile the vault registry with the committed catalog, resolve the Relovo repository IDs, then advance the classification digest.
+
 ### 2026-10-01 complete growth ecosystem deep review
 
 - Read/reviewed all 100 growth files, including ignored assets; added the
