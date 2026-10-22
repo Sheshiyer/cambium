@@ -65,3 +65,13 @@ test('fixture guard: the production Worker import graph reaches no fixture or te
   assert.ok(calls.length >= 1);
   for (const call of calls) assert.doesNotMatch(call, /acceptanceDomains/);
 });
+
+test('labs config: ACCEPTANCE_OWNER_PUBKEYS holds exactly one production owner key, and the activation secret is not a var', async () => {
+  const { parseJsonc } = await import('../../../scripts/quests-wrangler-profile.mjs');
+  const { parseAcceptanceOwnerPublicKeys, TEST_VECTOR_KEY_ID } = await import('./accepted-work-unit-attestation.ts');
+  const config = parseJsonc(readFileSync(join(HERE, '..', 'wrangler.labs.jsonc'), 'utf8'));
+  const keys = await parseAcceptanceOwnerPublicKeys(config.vars.ACCEPTANCE_OWNER_PUBKEYS);
+  assert.equal(keys.length, 1);
+  assert.notEqual(keys[0].keyId, TEST_VECTOR_KEY_ID);
+  assert.equal('WAVE0_ACTIVATION_KEY' in config.vars, false);
+});
