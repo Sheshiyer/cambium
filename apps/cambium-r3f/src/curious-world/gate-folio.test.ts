@@ -53,7 +53,7 @@ test('gate folio holds closed on malformed snapshots and foreign rows', () => {
   assert.equal(item.inspect?.executionAdmission.length, 6, 'only executionAdmission* keys are ever displayed');
 });
 
-test('signing needs a Telegram signer, a verified read, a consistent Inspect and an open window', () => {
+test('signing needs a Telegram or founder Access signer, a verified read, a consistent Inspect and an open window', () => {
   const ready = snapshot([proposal()]);
   assert.deepEqual(gateActionState(ready, ready.proposals[0], 'approve-goal-graph'), { enabled: true, reason: '' });
   assert.equal(gateActionState(ready, ready.proposals[0], 'reject-goal-graph').enabled, true);
@@ -62,8 +62,15 @@ test('signing needs a Telegram signer, a verified read, a consistent Inspect and
   for (const kind of ['approve-goal-graph', 'reject-goal-graph'] as const) {
     const state = gateActionState(browser, browser.proposals[0], kind);
     assert.equal(state.enabled, false);
-    assert.match(state.reason, /Open Curious inside Telegram to sign/);
+    assert.match(state.reason, /Sign in at \/founder, or open Curious inside Telegram, to sign/);
   }
+  const web = snapshot([proposal()], { signer: 'access' });
+  assert.equal(web.signer, 'access');
+  assert.deepEqual(gateActionState(web, web.proposals[0], 'approve-goal-graph'), { enabled: true, reason: '' });
+  assert.equal(gateActionState(web, web.proposals[0], 'reject-goal-graph').enabled, true);
+  const forged = snapshot([proposal()], { signer: 'cookie' });
+  assert.equal(forged.signer, 'none', 'an unknown signer holds the Gate read-only');
+  assert.equal(gateActionState(forged, forged.proposals[0], 'approve-goal-graph').enabled, false);
   for (const [label, candidate] of [
     ['checking', snapshot([proposal()], { state: 'checking' })],
     ['held', snapshot([proposal()], { state: 'unknown' })],

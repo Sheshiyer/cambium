@@ -19,7 +19,7 @@ export interface GateProposal {
   blockedReason: string; signing: boolean;
 }
 export interface GateSnapshot {
-  state: 'checking' | 'read' | 'held'; signer: 'telegram' | 'none'; label: string;
+  state: 'checking' | 'read' | 'held'; signer: 'telegram' | 'access' | 'none'; label: string;
   proposals: readonly GateProposal[];
 }
 export interface GateSignResult { ok: boolean; outcome: string; message: string }
@@ -57,13 +57,13 @@ function inspectOf(value: unknown, changeDigest: string): GateInspect | null {
 export function normalizeGateSnapshot(value: unknown): GateSnapshot {
   if (!record(value) || !Array.isArray(value.proposals)) return HELD_GATE;
   const state = value.state === 'read' || value.state === 'checking' ? value.state : 'held';
-  const signer = value.signer === 'telegram' ? 'telegram' : 'none';
+  const signer = value.signer === 'telegram' || value.signer === 'access' ? value.signer : 'none';
   const proposals = value.proposals.filter((item): item is Record<string, unknown> =>
     record(item) && typeof item.changeDigest === 'string' && DIGEST.test(item.changeDigest)).slice(0, 25)
     .map((item): GateProposal => {
       const changeDigest = String(item.changeDigest);
       const inspect = inspectOf(item.inspect, changeDigest);
-      const open = signer === 'telegram' && state === 'read' && item.signing !== true && !!inspect?.consistent;
+      const open = signer !== 'none' && state === 'read' && item.signing !== true && !!inspect?.consistent;
       return {
         changeDigest, nodeId: text(item.nodeId, 160), title: text(item.title, 160) || 'Goal proposal',
         summary: text(item.summary, 240), sourceRef: text(item.sourceRef, 160), receivedAt: text(item.receivedAt, 64),
@@ -106,7 +106,7 @@ export function gateAdmissionSummary(inspect: GateInspect | null): string {
 }
 
 export function gateActionState(snapshot: GateSnapshot, proposal: GateProposal, kind: GateKind): { enabled: boolean; reason: string } {
-  if (snapshot.signer !== 'telegram') return { enabled: false, reason: 'Read-only here. Open Curious inside Telegram to sign.' };
+  if (snapshot.signer === 'none') return { enabled: false, reason: 'Read-only here. Sign in at /founder, or open Curious inside Telegram, to sign.' };
   const enabled = kind === 'approve-goal-graph' ? proposal.canApprove : proposal.canReject;
   return { enabled, reason: enabled ? '' : proposal.blockedReason || 'Signing is closed for this proposal.' };
 }

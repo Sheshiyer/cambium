@@ -45,14 +45,16 @@ function envelope(rows: unknown[], list: Record<string, unknown> = {}) {
   };
 }
 
-function harness(options: { initData?: string; respond?: (body: Record<string, unknown>) => unknown } = {}) {
-  const requests: Array<{ url: string; init: { method?: string; body?: string } }> = [];
+function harness(options: { initData?: string; founderWeb?: boolean; respond?: (body: Record<string, unknown>) => unknown } = {}) {
+  const requests: Array<{ url: string; init: { method?: string; body?: string; credentials?: string; headers?: Record<string, string> } }> = [];
   let refreshes = 0;
   const context = vm.createContext({
     TENANT: 'cambium',
     initData: options.initData ?? INIT_DATA,
+    FOUNDER_WEB: options.founderWeb === true,
+    API_BASE: options.founderWeb === true ? '/founder' : '',
     refresh: () => { refreshes += 1; },
-    fetch: async (url: string, init: { method?: string; body?: string }) => {
+    fetch: async (url: string, init: { method?: string; body?: string; credentials?: string; headers?: Record<string, string> }) => {
       requests.push({ url, init });
       const reply = options.respond ? options.respond(JSON.parse(String(init.body))) : { status: 200, body: { ok: true, committed: true, duplicate: false } };
       if (reply instanceof Error) throw reply;
@@ -99,10 +101,10 @@ test('world gate · outside Telegram every proposal is read-only and sign never 
   h.quest(envelope([row()]));
   const snapshot = h.get();
   assert.equal(snapshot.signer, 'none');
-  assert.equal(snapshot.label, 'Read-only · open in Telegram to sign');
+  assert.equal(snapshot.label, 'Read-only · sign in at /founder to sign');
   assert.equal(snapshot.proposals[0].canApprove, false);
   assert.equal(snapshot.proposals[0].canReject, false);
-  assert.match(snapshot.proposals[0].blockedReason, /Open Curious inside Telegram to sign/);
+  assert.match(snapshot.proposals[0].blockedReason, /Sign in at \/founder, or open Curious inside Telegram, to sign/);
   for (const kind of ['approve-goal-graph', 'reject-goal-graph']) {
     const result = await h.sign(kind);
     assert.equal(result.ok, false);
@@ -257,4 +259,39 @@ test('world gate · the page owns the bridge and the world host passes only gate
   const host = CURIOUS_WORLD_PAGE.slice(CURIOUS_WORLD_PAGE.lastIndexOf('<script>'));
   assert.match(host, /CuriousGateBridge/);
   assert.doesNotMatch(host, /initData|fetch\(/, 'the world host never handles credentials or the network');
+});
+
+test('world gate · on /founder a verified Access founder signs the same contract without initData', async () => {
+  const h = harness({ initData: '', founderWeb: true });
+  const listed = row();
+  h.quest(envelope([listed]));
+  const snapshot = h.get();
+  assert.equal(snapshot.signer, 'access');
+  assert.equal(snapshot.label, 'Founder signing ready');
+  assert.equal(snapshot.proposals[0].canApprove, true);
+  const result = await h.sign('approve-goal-graph');
+  assert.deepEqual(result, { ok: true, outcome: 'committed', message: 'Approved · committed to the goal graph.' });
+  assert.equal(h.requests.length, 1);
+  assert.equal(h.requests[0].url, '/founder/api/gate/cambium');
+  assert.equal(h.requests[0].init.credentials, 'same-origin');
+  assert.equal(h.requests[0].init.headers?.['x-cambium-founder-web'], '1');
+  const payload = JSON.parse(String(h.requests[0].init.body));
+  assert.equal(payload.kind, 'approve-goal-graph');
+  assert.equal(payload.initData, '');
+  assert.equal(payload.nonce, listed.approvalNonce);
+  assert.equal(payload.idempotencyKey, `approve-goal-graph:cambium:${DIGEST}`);
+});
+
+test('world gate · /founder without the founder Inspect projection stays read-only; auth refusals name Access', async () => {
+  const notFounder = harness({ initData: '', founderWeb: true });
+  notFounder.quest(envelope([row({}, null)]));
+  assert.equal(notFounder.get().label, 'Read-only · this Access account is not a verified founder');
+  assert.equal((await notFounder.sign('approve-goal-graph')).outcome, 'blocked');
+  assert.equal(notFounder.requests.length, 0);
+
+  const refused = harness({ initData: '', founderWeb: true, respond: () => ({ status: 401, body: { error: 'founder access verification failed' } }) });
+  refused.quest(envelope([row()]));
+  const result = await refused.sign('approve-goal-graph');
+  assert.equal(result.outcome, 'auth');
+  assert.match(result.message, /Founder Access verification failed · no write/);
 });

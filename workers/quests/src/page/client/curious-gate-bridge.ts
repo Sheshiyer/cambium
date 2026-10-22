@@ -2,8 +2,9 @@
 // lexical scope beside CuriousReadBridge: the world receives sanitized pending
 // goal proposals and one sign() entry point, never initData, nonces or any
 // network owner. sign() posts the unchanged founder-verified /api/gate route
-// with the Mini App's Telegram initData; outside Telegram there is no signer and
-// every proposal is read-only. Signing fails closed unless the latest verified
+// with the Mini App's Telegram initData, or, on the /founder web surface, with
+// the Cloudflare Access session the Worker verifies as the founder. Anywhere
+// else there is no signer and every proposal is read-only. Signing fails closed unless the latest verified
 // read carried the founder-only Inspect projection and that projection is
 // consistent. The Worker remains the authority for every decision.
 export const CLIENT_CURIOUS_GATE_BRIDGE = String.raw`
@@ -18,7 +19,10 @@ const CuriousGateBridge = (() => {
   let revision = -1;
   let state = 'checking';
   let rows = [];
-  function signer() { return typeof initData === 'string' && initData.length > 0 ? 'telegram' : 'none'; }
+  function signer() {
+    if (typeof initData === 'string' && initData.length > 0) return 'telegram';
+    return FOUNDER_WEB ? 'access' : 'none';
+  }
   function text(value, max) { return typeof value === 'string' ? value.slice(0, max) : ''; }
   function scalar(value) {
     if (value === null || value === undefined) return null;
@@ -67,7 +71,7 @@ const CuriousGateBridge = (() => {
     return row;
   }
   function blockedReason(row, expired) {
-    if (signer() !== 'telegram') return 'Read-only here. Open Curious inside Telegram to sign.';
+    if (signer() === 'none') return 'Read-only here. Sign in at /founder, or open Curious inside Telegram, to sign.';
     if (state !== 'read') return 'Waiting for a verified read before signing.';
     if (!row.inspect) return 'Founder Inspect was not served to this session, so signing stays closed.';
     if (!row.inspect.consistent) return 'Inspect found an inconsistency, so signing stays closed.';
@@ -90,8 +94,8 @@ const CuriousGateBridge = (() => {
     const founderRead = proposals.some(proposal => proposal.inspect);
     const label = state === 'checking' ? 'Checking the founder read'
       : state !== 'read' ? 'Gate read held · nothing can be signed'
-        : signer() !== 'telegram' ? 'Read-only · open in Telegram to sign'
-          : proposals.length && !founderRead ? 'Read-only · this Telegram account is not a verified founder'
+        : signer() === 'none' ? 'Read-only · sign in at /founder to sign'
+          : proposals.length && !founderRead ? (signer() === 'access' ? 'Read-only · this Access account is not a verified founder' : 'Read-only · this Telegram account is not a verified founder')
             : 'Founder signing ready';
     return Object.freeze({ state, signer:signer(), label, proposals:Object.freeze(proposals) });
   }
@@ -133,8 +137,9 @@ const CuriousGateBridge = (() => {
       if (!row || !proposal) return Promise.resolve(result(false, 'blocked', 'This proposal is no longer pending.'));
       if (verb === 'approve' ? !proposal.canApprove : !proposal.canReject) return Promise.resolve(result(false, 'blocked', proposal.blockedReason || 'Signing is closed.'));
       inflight.add(changeDigest); notify();
+      const web = signer() === 'access';
       const payload = {
-        kind, subject:changeDigest, initData,
+        kind, subject:changeDigest, initData:web ? '' : initData,
         nonce:row.approvalNonce, expiresAt:row.approvalExpiresAt,
         idempotencyKey:kind + ':' + TENANT + ':' + changeDigest,
         evidence:'founder reviewed goal proposal ' + changeDigest + ' in the Field Atlas Gate',
@@ -143,7 +148,8 @@ const CuriousGateBridge = (() => {
       };
       let request;
       try {
-        request = fetch('/api/gate/' + TENANT, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(payload) });
+        const headers = web ? { 'content-type':'application/json', 'x-cambium-founder-web':'1' } : { 'content-type':'application/json' };
+        request = fetch(API_BASE + '/api/gate/' + TENANT, { method:'POST', credentials:'same-origin', headers, body:JSON.stringify(payload) });
       } catch (_) { request = Promise.reject(new Error('network')); }
       // Only an explicit receipt is success, and only a readable 4xx refusal
       // (or the auth gate) is a confirmed "no write". A 5xx, an unreadable
@@ -157,7 +163,7 @@ const CuriousGateBridge = (() => {
         const settled = readable && response && response.ok !== false && body.ok === true;
         if (settled && verb === 'approve' && body.committed === true) return result(true, body.duplicate ? 'duplicate' : 'committed', body.duplicate ? 'Already committed · the original approval was reused.' : 'Approved · committed to the goal graph.');
         if (settled && verb === 'reject' && body.rejected === true) return result(true, body.duplicate ? 'duplicate' : 'rejected', body.duplicate ? 'Already rejected · nothing changed.' : 'Rejected · the goal graph was not written.');
-        if (status === 401 || status === 403) return result(false, 'auth', 'Telegram founder verification failed · no write.');
+        if (status === 401 || status === 403) return result(false, 'auth', (web ? 'Founder Access verification failed' : 'Telegram founder verification failed') + ' · no write.');
         const reason = text(body.code || body.error, 80);
         if (readable && reason && (status === 400 || status === 404 || status === 409)) return result(false, 'refused', 'Refused · no write · ' + reason + '.');
         if (body.error === 'goal_graph_commit_reconciliation_required') return result(false, 'uncertain', 'The goal graph may already hold this approval; its receipt needs reconciliation. Re-reading the Gate.');
