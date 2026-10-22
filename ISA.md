@@ -205,6 +205,13 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Criteria
 
+### Standalone composition source slice (2026-10-05)
+
+- [x] ISC-COMPC-01: Repository-owned composition source validates boundaries and rejects unsafe inputs.
+- [x] ISC-COMPC-02: Focused tests and actual read-only CLI pass fresh verification.
+- [ ] ISC-COMPC-03: Installed adapters, live causal lifecycle and independent runtime acceptance are proved.
+
+
 ### Completed Phase 3 acceptance
 
 - [x] ISC-1273: ANCHOR-01 proves the singular near-invariant root Vision through the binary probe `scripts/infinite-game-anchors.test.mjs`.
@@ -3222,6 +3229,9 @@ This source integration is a bounded repository task within the active v0.5 mile
 
 The exact remaining gates and source ownership are recorded in `.planning/RECONCILIATION-2026-09-27.md`. No local test result mints send, spend, provider, migration, deployment, data-transfer, or retirement authority.
 
+### Composition source verification — 2026-10-05
+
+29 Node tests; actual fixed-path checker exit 0. Configuration-only output disables effects. These checks close only the two new source criteria; inherited criteria and runtime acceptance remain unchanged.
 - 2026-10-08 Curious release qualification: scoped source is approved for branch and draft PR publication. Fresh affected regressions752/752, R3F142/142 plus build, packaging5/5, mission/readiness38/38, Fitcheck13/13 and IAB receipt validation45/45 pass. Runtime22files match the accepted candidate. Release bundle SHA-256509e043659a813ddec29d44f0ca0c53fde5d29f89bcfd5e40f8ddbd4ab76e0b4 differs only through reviewed source pointers and retirement display alias. Atlas19checks and all36source selectors pass. Canonical viewport artifacts remain stale; trusted touch drag and strict320px Inspect geometry are held. Full core was contained after ten minutes; standalone smoke did not pass. No main merge, stable tag or deployment is accepted by this source proof.
 
 - 2026-10-08 publication readback: source commit60cc024137cfee039aa6d1989adedc63e26e8fe6 is pushed on codex/curious-release-0.4.0; draft PR384 is open against unchanged main026ebf6a0c87c0eb245ae1bcb05d4120e3f944e1, with102reviewed paths. GitHub release407038049 is a draft forv0.4.0 with published_at null. Remote v0.4.0 tag is absent. Current lane24/32 is accepted; stable main/tag/publication, drift/full core/standalone and mobile proof remain open. Intent readback10/10 and retired-owner provenance4/4 now pass; no canonical viewport artifact was relabeled.
