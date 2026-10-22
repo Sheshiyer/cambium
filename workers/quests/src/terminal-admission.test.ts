@@ -54,13 +54,21 @@ test('inactive, stopped, stale, rebound, unregistered, unauthorized, ambiguous a
     ['no admission', { head, nodes: [{ ...node, metadata: {} }] }, outcome],
     ['ambiguous', { head, nodes: [node, { ...node, nodeId: 'goal-wtfmedia-dup', externalId: 'task-dup' }] }, outcome],
     ['no head', { head: null, nodes: [node] }, outcome],
-    ['d1 error', { head, nodes: [node], fail: true }, outcome],
     ['retryable is not terminal', { head, nodes: [node] }, { ...outcome, status: 'retryable' as never }],
   ];
   for (const [label, state, candidate] of cases) {
     const owner = createGoalGraphTerminalAdmission({ tenantId: 'cambium', activationKey: KEY, goalGraphStore: store(state) });
     assert.equal(await owner.prepare(candidate), null, label);
   }
+});
+
+test('a D1 read failure is retryable, never a denial, and is not cached', async () => {
+  const state = { head, nodes: [node], fail: true };
+  const owner = createGoalGraphTerminalAdmission({ tenantId: 'cambium', activationKey: KEY, goalGraphStore: store(state), cacheGraphReads: true });
+  await assert.rejects(owner.prepare(outcome), (error: unknown) => (error as { retryable?: unknown }).retryable === true
+    && !/d1 down/.test(String((error as Error).message)));
+  state.fail = false;
+  assert.ok((await owner.prepare(outcome))?.activation, 'the same owner admits once D1 recovers');
 });
 
 test('activation verifier recomputes from current D1 and rejects caller-made or outdated activations', async () => {

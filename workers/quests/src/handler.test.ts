@@ -9996,6 +9996,53 @@ test('bridge execution · trusted terminal owner persists exact foldback once an
   assert.doesNotMatch(JSON.stringify(held), /private-owner-error/);
 });
 
+test('bridge execution · transient foldback storage or admission failure is retryable, and redelivery folds back once', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-15T10:10:00.000Z');
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps);
+  const claim = executionClaim();
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(claim) }), harness.deps);
+  const outcome = executionOutcome(claim, body(claimed));
+  const objects = new Map<string, string>();
+  let writes = 0;
+  let r2Down = true;
+  const verifier = { source: 'external-admission-readback' as const, verifyActivationAuthority: () => true };
+  const store = createHermesExecutionFoldbackStore({
+    async get(key) { const value = objects.get(key); return value === undefined ? null : { async text() { return value; } }; },
+    async put(key, bytes) { if (r2Down) throw new Error('private-r2-error'); writes++; objects.set(key, new TextDecoder().decode(bytes)); return { async text() { return objects.get(key)!; } }; },
+  }, verifier);
+  const admitted = async (terminal: any) => ({ schema: 'thoughtseed.hermes.execution-foldback.v1' as const, tenantId: 'cambium', graphVersion: 8,
+    goalGraph: { nodeId: 'goal-fitcheck', taskId: 'task-fitcheck', workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling' as const, pinnedLoadoutId: 'loadout:fitcheck' },
+    activation: { activationId: 'activation:synthetic', activationDigest: `sha256:${'3'.repeat(64)}`, mappingReceiptId: 'pmr_synthetic', mappingReceiptDigest: `sha256:${'4'.repeat(64)}`, issued: true, staleFence: false, workObjectId: 'sapling:fitcheck', taskId: 'task-fitcheck', pinnedLoadoutId: 'loadout:fitcheck', fencingToken: terminal.fencingToken },
+    execution: { memberId: terminal.memberId, directiveId: terminal.directiveId, idempotencyKey: terminal.idempotencyKey, executionId: terminal.executionId, claimId: terminal.claimId, fencingToken: terminal.fencingToken, attempt: terminal.attempt, status: terminal.status, attestationId: terminal.attestation.id, inputDigest: terminal.attestation.inputDigest, terminalProofDigest: terminal.attestation.outputDigest ?? terminal.attestationDigest, recordedAt: terminal.attestation.finishedAt } });
+  harness.deps.terminalFoldback = { store, activationVerifier: verifier, prepare: admitted as never };
+  const deliver = () => handle(req('POST', '/v1/bridge/executions/outcome', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(outcome) }), harness.deps);
+
+  // R2 down: the outcome is recorded, but the runner must not ACK a terminal whose receipt never persisted.
+  const first = await deliver();
+  assert.equal(first.status, 503);
+  assert.equal(body(first).recorded, true); assert.equal(body(first).retryable, true);
+  assert.equal(body(first).error, 'terminal-foldback-storage-unavailable');
+  assert.doesNotMatch(JSON.stringify(body(first)), /private-r2-error/);
+  assert.equal(writes, 0);
+
+  // Redelivery after R2 recovers folds back exactly once; a further replay is a duplicate.
+  r2Down = false;
+  const second = await deliver();
+  assert.equal(second.status, 200); assert.equal(body(second).foldback.status, 'prepared');
+  const third = body(await deliver());
+  assert.equal(third.foldback.duplicate, true); assert.equal(writes, 1);
+
+  // A transient admission lookup failure is retryable too; any other owner failure stays held.
+  harness.deps.terminalFoldback.prepare = async () => { throw Object.assign(new Error('private-d1-error'), { retryable: true }); };
+  const lookup = await deliver();
+  assert.equal(lookup.status, 503); assert.equal(body(lookup).error, 'terminal-admission-unavailable');
+  assert.doesNotMatch(JSON.stringify(body(lookup)), /private-d1-error/);
+  harness.deps.terminalFoldback.prepare = async () => { throw new Error('private-owner-error'); };
+  const held = await deliver();
+  assert.equal(held.status, 200); assert.equal(body(held).foldback.reason, 'terminal-foldback-owner-unavailable');
+});
+
 test('bridge execution · wave0 production owners: real D1 admission folds back through POST ingress; acceptance stays held for canary', async (t) => {
   const { createGoalGraphTerminalAdmission, EXECUTION_ADMISSION_SCHEMA, executionAdmissionMetadata, importActivationKey } = await import('./terminal-admission.ts');
   const { createAttestedAcceptanceStore } = await import('./accepted-work-unit-attestation.ts');

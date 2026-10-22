@@ -477,7 +477,10 @@ export interface HandlerDeps {
   terminalFoldback?: {
     store: HermesExecutionFoldbackStoreLike;
     activationVerifier: HermesExecutionFoldbackActivationVerifier;
-    /** Server-owned admission lookup, never populated from request fields. */
+    /**
+     * Server-owned admission lookup, never populated from request fields. Returns null when not
+     * admitted; throws an error with `retryable: true` when the lookup itself failed transiently.
+     */
     prepare(outcome: BridgeExecutionOutcomeInput): Promise<HermesExecutionFoldbackInput | null>;
     /** Route B: verify-then-store of the owner's Ed25519 accepted-work-unit attestation. */
     acceptanceStore?: AttestedAcceptanceStore;
@@ -6179,6 +6182,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       const envelope = isRecord(raw) ? raw.acceptedWorkUnitAttestation : undefined;
       let acceptance: unknown = ingressAcceptance
         ?? (envelope === undefined ? undefined : { status: 'held', reason: 'acceptance-store-unconfigured' });
+      // A transient failure on an admitted foldback must not reach the runner as a 200: it would
+      // ACK the directive and the receipt could never be persisted. Redelivery is safe because
+      // the outcome record is idempotent and a duplicate terminal re-runs the foldback below.
+      let foldbackRetryable: 'terminal-foldback-storage-unavailable' | 'terminal-admission-unavailable' | undefined;
       if (result.terminal && deps.terminalFoldback) {
         // Attestation's validated terminal timestamp is stable across duplicate delivery.
         const boundOutcome = { ...outcome, attestationDigest, recordedAt: outcome.attestation.finishedAt };
@@ -6196,6 +6203,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           && input.execution.recordedAt === outcome.attestation.finishedAt) {
           const folded = await foldbackExecution(input, { persist: true, store: deps.terminalFoldback.store, activationVerifier: deps.terminalFoldback.activationVerifier });
           foldback = folded.ok ? { status: 'prepared', receiptId: folded.projection.receipt.receiptId, duplicate: folded.duplicate } : { status: 'held', reason: folded.reason };
+          if (!folded.ok && folded.reason === 'storage') foldbackRetryable = 'terminal-foldback-storage-unavailable';
           if (ingressAcceptance === undefined && envelope !== undefined && folded.ok && deps.terminalFoldback.acceptanceStore) {
             const bound = isRecord(envelope) && isRecord(envelope.receipt) && isRecord(envelope.receipt.binding)
               && outcome.status === 'executed'
@@ -6211,14 +6219,19 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
             }
           } else if (ingressAcceptance === undefined && envelope !== undefined && !folded.ok) acceptance = { status: 'held', reason: 'acceptance-requires-foldback' };
         } else foldback = { status: 'held', reason: 'terminal-foldback-authority-missing-or-mismatched' };
-        } catch { foldback = { status: 'held', reason: 'terminal-foldback-owner-unavailable' }; }
+        } catch (error) {
+          foldback = { status: 'held', reason: 'terminal-foldback-owner-unavailable' };
+          // Only an owner that marks its failure transient (a D1 lookup) is retried; any other owner failure stays held.
+          if ((error as { retryable?: unknown } | null)?.retryable === true) foldbackRetryable = 'terminal-admission-unavailable';
+        }
         if (ingressAcceptance === undefined && envelope !== undefined && (foldback as { status?: string }).status !== 'prepared'
           && (acceptance as { reason?: string }).reason === 'acceptance-store-unconfigured' && deps.terminalFoldback.acceptanceStore) {
           acceptance = { status: 'held', reason: 'acceptance-requires-foldback' };
         }
       }
-      return json(200, {
+      return json(foldbackRetryable ? 503 : 200, {
         recorded: true,
+        ...(foldbackRetryable ? { error: foldbackRetryable, retryable: true } : {}),
         foldback,
         ...(acceptance !== undefined ? { acceptance } : {}),
         terminal: result.terminal,

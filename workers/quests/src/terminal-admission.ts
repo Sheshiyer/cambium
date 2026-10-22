@@ -151,6 +151,15 @@ async function activationFor(key: CryptoKey, tenantId: string, head: GoalGraphHe
   };
 }
 
+/** Transient admission lookup failure. Carries no D1 detail; `retryable` is what the outcome route checks. */
+export class TerminalAdmissionUnavailableError extends Error {
+  readonly retryable = true;
+  constructor() {
+    super('terminal admission lookup is unavailable');
+    this.name = 'TerminalAdmissionUnavailableError';
+  }
+}
+
 export interface GoalGraphTerminalAdmission {
   /** HandlerDeps.terminalFoldback.prepare: never populated from request fields. */
   prepare(outcome: BridgeExecutionOutcomeInput): Promise<HermesExecutionFoldbackInput | null>;
@@ -180,9 +189,12 @@ export function createGoalGraphTerminalAdmission(deps: {
   }
   return {
     async prepare(outcome) {
+      if (outcome.status !== 'executed' && outcome.status !== 'failed') return null;
+      let graph: Awaited<ReturnType<typeof readGraph>>;
+      // A failed D1 read is not a denial: answering "not admitted" would let the runner ACK a
+      // terminal whose foldback never ran. The outcome route turns this into a retryable 503.
+      try { graph = await readGraph(); } catch { throw new TerminalAdmissionUnavailableError(); }
       try {
-        if (outcome.status !== 'executed' && outcome.status !== 'failed') return null;
-        const graph = await readGraph();
         if (!graph) return null;
         const matches = graph.nodes
           .map((node) => admittedNode(node, graph.head, deps.tenantId, loadouts))
