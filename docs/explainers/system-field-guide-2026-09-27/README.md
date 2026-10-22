@@ -2,6 +2,15 @@
 
 [Illustrated guide](explainer.html) · [PDF](Cambium-System-Field-Guide.pdf) · [Markdown](Cambium-System-Field-Guide.md)
 
+[Current interactive atlas — 7 October 2026](../system-atlas-2026-10-07/index.html)
+connects the same eleven organ identities to the Mini App, system boundaries,
+growth desks and separate receipt strata using the established pocket palette.
+This September publication and its original assets remain a dated reading edition.
+Its `cambium-telegram-showcase` anchors refer to the separate historical showcase;
+they are not paths in this checkout. Current portable bindings are recorded in
+[the atlas projection](../../architecture/system-atlas.v1.json) and
+[the source contract](../../architecture/contracts/system-atlas-v1.md).
+
 Sixteen source-grounded chapters explain the six authority planes, infrastructure and surfaces, ethical Octalysis, visual lineage, one governed flow, and each of eleven organs. Fourteen existing visual references preserve organ identity. Source-backed implementation, historical evidence, held requirements and live acceptance remain distinct.
 
 The earlier Living Ledger branding run is an editorial layer; it does not replace the established Organ Console or R3F/Telegram visual system. Source anchors appear in each chapter. This publication is documentation, not operational activation or deployment evidence.

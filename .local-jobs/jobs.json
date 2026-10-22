@@ -1,0 +1,31 @@
+{
+  "schema": "thoughtseed.local-jobs.v1",
+  "jobs": [
+    {
+      "id": "verify",
+      "argv": [
+        "npm",
+        "run",
+        "verify:release"
+      ],
+      "timeout_seconds": 1800,
+      "enabled": false,
+      "daily": false,
+      "on_change": false
+    },
+    {
+      "id": "live-readiness",
+      "argv": [
+        "npm",
+        "run",
+        "proof:tg-live-readiness"
+      ],
+      "timeout_seconds": 300,
+      "enabled": false,
+      "daily": false,
+      "on_change": false,
+      "evidence_kind": "live-readiness-separate",
+      "output": ".artifacts/tg-miniapp-live-proof/readiness.json"
+    }
+  ]
+}

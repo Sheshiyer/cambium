@@ -10,7 +10,7 @@ import {
   REVIEWED_ROOT_MAP_DIGEST,
 } from './portfolio-foundation-pins.mjs'
 import { buildPortfolioMiniappLinkageReport } from './portfolio-miniapp-linkage.mjs'
-import { expectedDirectoryNames, observePortfolioFolders, snapshotDigest } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
+import { expectedDirectoryNames, observePortfolioFolders, snapshotDigest, validateSnapshot } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
 
 const PROPOSAL_ROOT_MAP_DIGEST = /PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
 const REVIEWED_ROOT_MAP_DIGEST_PATTERN = /REVIEWED_PORTFOLIO_ROOT_MAP_DIGEST = "([0-9a-f]{64})"/
@@ -77,6 +77,7 @@ if (appReviewedRootMapDigest !== REVIEWED_ROOT_MAP_DIGEST || workerReviewedRootM
 const liveInput = await jsonFile(optionValue('--live-snapshot'))
 const vaultRegistry = await jsonFile(optionValue('--vault-registry'))
 const rootMap = await jsonFile(fileURLToPath(new URL('../docs/project-management/portfolio-roots.v1.json', import.meta.url)))
+validateSnapshot(rootMap)
 if (!rootMap || snapshotDigest(rootMap) !== appProposalRootMapDigest || appProposalRootMapDigest !== workerProposalRootMapDigest) {
   throw new Error('portfolio_root_map_proposal_digest_drift')
 }

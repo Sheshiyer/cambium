@@ -26,4 +26,4 @@ git commit -m "release: ${TAG} · ${CODENAME}"
 git tag -a "$TAG" -m "${TAG} · ${CODENAME}"
 git push origin main
 git push origin "$TAG"
-echo "pushed $TAG; the Release workflow will re-run deterministic gates and publish separate live-readiness evidence"
+echo "pushed $TAG; GitHub Actions is retired; this pushed tags only. Run local readiness separately and explicitly publish the GitHub Release after reviewing its evidence."

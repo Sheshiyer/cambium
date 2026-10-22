@@ -1,8 +1,9 @@
 // cambium-quests · operating fabric page shell tests (node:test, like everything beside it).
 //
-// Pins the Task 6 rollback-safe contract: the legacy five-scene bundle is the
-// only visible/interactive document until an authenticated 200 mission-fabric
-// response carries delivery.operatingFabricEnabled === true. Every failure
+// Pins the Task 6 rollback-safe contract: the operational Fabric shell requires
+// an authenticated 200 mission-fabric response with the explicit enable flag.
+// The additive public-source world has its own contained interaction owner;
+// it cannot activate Fabric or authorize a signed action. Every failure
 // shape — absent allowlist response, 401, 403, network error, malformed JSON,
 // missing delivery, explicit false, or merely truthy flags — keeps the new
 // shell hidden and inert. Activation is never inferred from projection
@@ -35,7 +36,9 @@ import { CLIENT_SIGNED_ACTION, CONTEXTUAL_SHEET_RETURN_BROWSER_JS, OPERATING_FAB
 import { OPERATING_FABRIC_MARKUP, OPERATING_FABRIC_SCENES } from './page/operating-fabric/scaffold.ts';
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_STYLES } from './page/operating-fabric/styles.ts';
+import { FABRIC_SCENE_INTROS } from './page/operating-fabric/workbench.ts';
 import { LEGACY_PAGE, PAGE } from './page/index.ts';
+import { CURIOUS_WORLD_PAGE } from './page/components/curious-world.ts';
 import { permits } from './rbac.ts';
 import { ORGAN_UPDATE_PLAN } from './organ-update-delivery.ts';
 import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';
@@ -44,7 +47,13 @@ const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 's
 // This pin advances only through a reviewed legacy-surface evolution. It keeps
 // accidental shell drift release-blocking without pretending the pre-Task-6
 // bytes can never change under an explicit production repair.
-const LEGACY_PAGE_DIGEST = 'f7e328f5c3fb053ceaed5230e80c30b8ec3361d3cdaf60bfcb3d2472a55faf3b';
+// Reviewed pocket-world addition: a lexical display-only read summary and three
+// revision-fenced hooks. Authority, markup and signed action owners are unchanged.
+// Release qualification rebinds eight source references to the included public
+// topology contract and renames two historical app-plane display labels. Those
+// exact substitutions reproduce these bytes from the reviewed 649c1c89 surface;
+// the legacy client, action owners, styles and markup are otherwise unchanged.
+const LEGACY_PAGE_DIGEST = '18bb8a427e1619ca67d01b11aeb0171af1a75b34635b77109fde5360b451e5d9';
 
 function extractScriptBodies(source: string): string[] {
   return [...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
@@ -89,15 +98,15 @@ test('PAGE injects the contiguous fragment before </body> and stripping it resto
   assert.ok(OPERATING_FABRIC_PAGE.length > 0, 'fragment is a real bundle');
   assert.equal(
     PAGE,
-    LEGACY_PAGE.slice(0, index) + OPERATING_FABRIC_PAGE + LEGACY_PAGE.slice(index),
+    LEGACY_PAGE.slice(0, index) + OPERATING_FABRIC_PAGE + CURIOUS_WORLD_PAGE + LEGACY_PAGE.slice(index),
     'PAGE is LEGACY_PAGE with the fragment injected at the single </body> index',
   );
   assert.equal(
-    PAGE.replace(OPERATING_FABRIC_PAGE, ''),
+    PAGE.replace(OPERATING_FABRIC_PAGE, '').replace(CURIOUS_WORLD_PAGE, ''),
     LEGACY_PAGE,
     'removing the exact inserted fragment yields byte-identical LEGACY_PAGE',
   );
-  assert.equal(PAGE.indexOf('</body>'), index + OPERATING_FABRIC_PAGE.length, 'fragment lands before the body close');
+  assert.equal(PAGE.indexOf('</body>'), index + OPERATING_FABRIC_PAGE.length + CURIOUS_WORLD_PAGE.length, 'fragments land before the body close');
   assert.equal(PAGE.indexOf('</body>'), PAGE.lastIndexOf('</body>'), 'the served document keeps exactly one </body>');
 });
 
@@ -707,11 +716,25 @@ test('activation requests reuse the Telegram initData and tenant path without le
   assert.ok(!OPERATING_FABRIC_BOOT.includes('console.log'), 'client never logs payload material');
 });
 
-test('boot skips the probe entirely when no runtime initData is available', async () => {
-  const booted = bootOperatingFabricDocument(() => ({ kind: 'status', status: 200 }), { initData: '' });
+test('browser probe carries no invented Telegram identity and stays inert on denial', async () => {
+  const booted = bootOperatingFabricDocument(() => ({ kind: 'status', status: 401 }), { initData: '' });
   await flushBoot();
-  assert.equal(booted.fetches.length, 0, 'no initData means no probe');
-  assertStaysInert(booted, 'no initData');
+  assert.equal(booted.fetches.length, 1, 'the server verifies the browser Access principal');
+  assert.equal(booted.fetches[0].headers['x-telegram-init-data'], undefined, 'no Telegram identity is invented');
+  assertStaysInert(booted, 'denied browser');
+});
+
+test('browser probe activates only from a valid exact-enabled Access response', async () => {
+  const booted = bootOperatingFabricDocument(() => ({ kind: 'json', value: {
+    projection: { schema: 'cambium.mission-fabric-projection.v1', nodes: [], edges: [] },
+    delivery: { operatingFabricEnabled: true, servedAt: '2026-10-07T10:00:00.000Z', freshness: 'fresh' },
+  } }), { initData: '' });
+  await flushBoot();
+  assert.equal(booted.fetches.length, 1);
+  assert.equal(booted.fabricRoot.hidden, false);
+  assert.equal(booted.fabricRoot.inert, false);
+  assert.equal(booted.legacyShell.hidden, true);
+  assert.equal(booted.fetches[0].headers['x-telegram-init-data'], undefined);
 });
 
 test('activation requires exactly status 200, never res.ok', async () => {
@@ -5252,7 +5275,7 @@ test('real composed boot renders disjoint public identities for the collision pr
   assert.ok(bootGraphIds.some((id) => /^task:redacted:\d{3}$/.test(id)), 'real boot uses the reserved redacted namespace');
   assert.ok(!/token=COLLIDE/.test(flowHtml), 'real boot never leaks the collision secret');
   const nodeHtml = renderFlow(projection);
-  assert.equal(flowHtml, nodeHtml, 'real composed boot output matches the Node renderer byte-identically');
+  assert.equal(flowHtml, FABRIC_SCENE_INTROS.flow + nodeHtml, 'the scene frame preserves the canonical Node renderer byte-identically');
 });
 
 test('no benign raw ID can ever equal a generated redacted identity in either substrate', () => {

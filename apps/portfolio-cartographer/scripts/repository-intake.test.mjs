@@ -10,7 +10,9 @@ import { snapshotDigest } from './generate-portfolio-root-map.mjs'
 import { resolveRepositoryEvidence } from '../src/repository-evidence.ts'
 
 const script = fileURLToPath(new URL('./repository-intake.mjs', import.meta.url))
-const rootPath = fileURLToPath(new URL('../../../docs/project-management/portfolio-roots.v1.json', import.meta.url))
+// Dated intake is verified against its exact source snapshot; it must not adopt later census evidence.
+const rootPath = fileURLToPath(new URL('../../../docs/project-management/portfolio-roots.pre-2026-10-08-census.v1.json', import.meta.url))
+const currentRootPath = fileURLToPath(new URL('../../../docs/project-management/portfolio-roots.v1.json', import.meta.url))
 const currentSourcePath = fileURLToPath(new URL('../../../docs/project-management/repository-intake-source.v1.json', import.meta.url))
 const currentOutputPath = fileURLToPath(new URL('../../../docs/project-management/repository-intake.v1.json', import.meta.url))
 const roots = JSON.parse(await readFile(rootPath, 'utf8'))
@@ -341,7 +343,7 @@ test('CLI import/check never writes; explicit output write is bounded to the dec
   } finally { await rm(directory, { recursive: true, force: true }) }
 })
 
-test('committed intake snapshot renders exactly and preserves corrected portfolio semantics', async () => {
+test('historical committed intake renders exactly against its original root snapshot', async () => {
   const currentSource = JSON.parse(await readFile(currentSourcePath, 'utf8'))
   const currentOutput = await readFile(currentOutputPath, 'utf8')
   const compiled = compileRepositoryIntake(currentSource, roots)
@@ -377,6 +379,27 @@ test('committed intake snapshot renders exactly and preserves corrected portfoli
   }
   assert.deepEqual(currentSource.identityMappings, reviewedMappings)
   assert.equal(compiled.observations.filter((row) => row.proposal?.evidence?.kind === 'reviewed-repository-identity').length, 3)
+})
+
+test('historical intake cannot silently adopt the refreshed physical census', async () => {
+  const historicalSource = JSON.parse(await readFile(currentSourcePath, 'utf8'))
+  const currentRoots = JSON.parse(await readFile(currentRootPath, 'utf8'))
+  assert.equal(snapshotDigest(roots), historicalSource.rootMapDigest)
+  assert.notEqual(snapshotDigest(currentRoots), historicalSource.rootMapDigest)
+  assert.throws(() => compileRepositoryIntake(historicalSource, currentRoots), /Root-map digest drift/)
+  const currentObservation = source([{ repository: repository(), local: local('portfolio-root', 'cambium-showcase-ui-rebuild') }])
+  currentObservation.rootMapDigest = snapshotDigest(currentRoots)
+  currentObservation.observedAt = currentRoots.portfolios[0].censusObservedAt
+  const current = compileRepositoryIntake(currentObservation, currentRoots)
+  assert.equal(current.authority, 'observation-only')
+  assert.equal(current.observations[0].proposal.folder, 'cambium-showcase-ui-rebuild')
+  assert.deepEqual(current.observations[0].proposal.workIds, ['sapling:cambium'])
+  const staleObservation = structuredClone(currentObservation)
+  staleObservation.observations[0].local.folder = 'cambium-telegram-showcase'
+  const stale = compileRepositoryIntake(staleObservation, currentRoots).observations[0]
+  assert.equal(stale.classification, 'awaiting-ingestion')
+  assert.equal(stale.proposal, null)
+  assert.ok(stale.gaps.includes('root-map-proposal-unavailable'))
 })
 
 

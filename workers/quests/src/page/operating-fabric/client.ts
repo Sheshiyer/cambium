@@ -1,6 +1,7 @@
 // cambium-quests · operating fabric boot client (Task 6 + Task 8 + Task 11 additive bundle).
 // Starts inert: it probes the tenant mission-fabric route once with the
-// runtime Telegram initData, and activates the shell ONLY for an exact
+// verified server principal (carrying runtime Telegram initData when present),
+// and activates the shell ONLY for an exact
 // status 200 whose delivery.operatingFabricEnabled is exactly true.
 // Every other outcome — 401, 403, network failure, malformed JSON, absent
 // delivery, explicit false, or merely truthy flags — leaves the shell hidden
@@ -36,6 +37,7 @@ import { PORTFOLIO_BROWSER_JS } from './portfolio.ts';
 import { ORGAN_UPDATE_BROWSER_JS } from './organ-update.ts';
 import { MISSION_BROWSER_JS } from './mission.ts';
 import { FLOW_BROWSER_JS } from './flow.ts';
+import { FABRIC_SCENE_INTROS } from './workbench.ts';
 import { WORKFORCE_BROWSER_JS } from './workforce.ts';
 import { FORGE_BROWSER_JS } from './forge.ts';
 import { GATE_SHEET_BROWSER_JS, GATE_ENTRYPOINT_BROWSER_JS } from './gate-sheet.ts';
@@ -141,12 +143,13 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
   // The legacy shell is selected by its existing component marker, never by
   // modified legacy markup.
   var legacy = document.querySelector('[data-component="MissionControlShell"]');
-  // No runtime initData means no authenticated response is possible; the
-  // probe is skipped entirely and the shell stays hidden and inert.
+  // Browser reads use the existing verified Access/Plexus founder path.
+  // Telegram supplies signed runtime data. The server owns both principals;
+  // neither client path grants a role or enables the shell.
   var TG = (window.Telegram && window.Telegram.WebApp) || null;
   var initData = (TG && TG.initData) || '';
-  if (!initData) return;
   var tenant = (typeof TENANT === 'string' && TENANT) || 'cambium';
+  var ofSceneIntros = ${JSON.stringify(FABRIC_SCENE_INTROS)};
   var latestProjection = null;
   var latestDelivery = null;
   var latestPortfolioPayload = {};
@@ -240,12 +243,23 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     if (OF_SECRET_MARKER.test(value)) return false;
     return true;
   }
-  // appendInspectControls: appends exactly one accessible type=button inspect
-  // control per scene, wired to an opaque registry token. The target is
+  // appendInspectControls: preserves projection inspection controls and adds
+  // a source-atlas inspection entry to Canopy and Flow. Projection targets are
   // chosen directly from the projection (one node of the scene's own kind,
   // or the first edge for flow), never by matching a rendered public ID.
   function appendInspectControls(sceneId, sceneEl, projection) {
     if (!sceneEl || !ofValidProjection(projection)) return;
+    if (sceneId === 'canopy' || sceneId === 'flow') {
+      var atlasBtn = document.createElement('button');
+      atlasBtn.type = 'button';
+      atlasBtn.className = 'of-control of-inspect-btn';
+      atlasBtn.setAttribute('data-of-system-atlas', '1');
+      atlasBtn.setAttribute('data-read-only', '1');
+      atlasBtn.setAttribute('data-source', 'cambium.system-atlas.v1');
+      atlasBtn.setAttribute('aria-label', 'Inspect the Cambium system atlas');
+      atlasBtn.textContent = 'System atlas';
+      sceneEl.appendChild(atlasBtn);
+    }
     var kindBySceneId = { canopy: 'work', mission: 'mission', workforce: 'agent', forge: 'skill-cluster' };
     if (sceneId === 'flow') {
       var flowNode = ofFindNodeByKind(projection, 'task') || ofFindNodeByKind(projection, 'run') || ofFindNodeByKind(projection, 'receipt');
@@ -537,6 +551,31 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     }
     if (typeof buzz === 'function') buzz('medium');
   }
+  // The bundled source atlas shares the existing inspection sheet. It never
+  // reads tenant state, changes a role, or creates a pending Gate action.
+  function openSystemAtlas(triggerEl, originScene) {
+    if (root.hidden || root.inert || !ofValidProjection(latestProjection)) return;
+    if (['canopy','mission','flow','workforce','forge'].indexOf(originScene) < 0) return;
+    if (typeof CambiumSystemAtlas === 'undefined' || typeof CambiumSystemAtlas.mount !== 'function') return;
+    var sb = document.getElementById('sheetBody');
+    if (!sb || !veil || !sheet) return;
+    sb.innerHTML = '<div class="arc">inspect · source view</div><h2>System atlas</h2>' +
+      '<div class="gbtns"><button type="button" class="detail" data-of-inspect-back="1">Back</button><button type="button" class="reroll" data-of-inspect-close="1">Close</button></div>' +
+      '<div id="fabric-system-atlas" data-no-scene-drag="1"></div>';
+    CambiumSystemAtlas.mount(sb.querySelector('#fabric-system-atlas'));
+    if (sheet._ofSetReturnCallback) {
+      sheet._ofSetReturnCallback(function () {
+        navigate(originScene);
+        if (triggerEl && typeof triggerEl.focus === 'function') triggerEl.focus();
+      });
+    }
+    veil.classList.add('on');
+    sheet.classList.add('on');
+    if (typeof sheetState !== 'undefined' && sheetState) sheetState.open = true;
+    var focusTarget = sb.querySelector('[data-of-inspect-back], [data-of-inspect-close]');
+    if (focusTarget && typeof focusTarget.focus === 'function') focusTarget.focus();
+    if (typeof buzz === 'function') buzz('medium');
+  }
   function renderScenes(projection, delivery, portfolioPayload) {
     if (!ofValidProjection(projection)) return false;
     if (
@@ -591,11 +630,11 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
       typeof workforceHtml !== 'string' ||
       typeof forgeHtml !== 'string'
     ) return false;
-    canopyRoot.innerHTML = canopyHtml;
-    missionRoot.innerHTML = missionHtml;
-    flowRoot.innerHTML = flowHtml;
-    workforceRoot.innerHTML = workforceHtml;
-    forgeRoot.innerHTML = forgeHtml;
+    canopyRoot.innerHTML = ofSceneIntros.canopy + canopyHtml;
+    missionRoot.innerHTML = ofSceneIntros.mission + missionHtml;
+    flowRoot.innerHTML = ofSceneIntros.flow + flowHtml;
+    workforceRoot.innerHTML = ofSceneIntros.workforce + workforceHtml;
+    forgeRoot.innerHTML = ofSceneIntros.forge + forgeHtml;
     ofResetInspectTokens();
     appendInspectControls('canopy', canopyRoot, projection);
     appendInspectControls('mission', missionRoot, projection);
@@ -611,10 +650,15 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
     var tabs = root.querySelectorAll('[data-of-tab]');
     for (var index = 0; index < tabs.length; index += 1) {
       tabs[index].setAttribute('aria-selected', tabs[index].getAttribute('data-of-tab') === sceneId ? 'true' : 'false');
+      tabs[index].setAttribute('role', 'tab');
+      tabs[index].setAttribute('tabindex', tabs[index].getAttribute('data-of-tab') === sceneId ? '0' : '-1');
     }
     var panels = root.querySelectorAll('[data-of-scene]');
     for (var panelIndex = 0; panelIndex < panels.length; panelIndex += 1) {
       panels[panelIndex].hidden = panels[panelIndex].getAttribute('data-of-scene') !== sceneId;
+      panels[panelIndex].inert = panels[panelIndex].hidden;
+      panels[panelIndex].setAttribute('aria-hidden', panels[panelIndex].hidden ? 'true' : 'false');
+      panels[panelIndex].setAttribute('role', 'tabpanel');
     }
     var target = sceneRoot(sceneId);
     if (target && typeof target.focus === 'function') target.focus();
@@ -690,11 +734,11 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
       legacy.setAttribute('aria-hidden', 'true');
       legacy.classList.add('of-active');
     }
-    canopyRoot.innerHTML = canopyHtml;
-    missionRoot.innerHTML = missionHtml;
-    flowRoot.innerHTML = flowHtml;
-    workforceRoot.innerHTML = workforceHtml;
-    forgeRoot.innerHTML = forgeHtml;
+    canopyRoot.innerHTML = ofSceneIntros.canopy + canopyHtml;
+    missionRoot.innerHTML = ofSceneIntros.mission + missionHtml;
+    flowRoot.innerHTML = ofSceneIntros.flow + flowHtml;
+    workforceRoot.innerHTML = ofSceneIntros.workforce + workforceHtml;
+    forgeRoot.innerHTML = ofSceneIntros.forge + forgeHtml;
     // Append inspect controls to all five scenes after successful activation.
     ofResetInspectTokens();
     appendInspectControls('canopy', canopyRoot, projection);
@@ -710,9 +754,25 @@ ${OPERATING_FABRIC_GATE_ACTION_BRIDGE_JS}
 ${CONTEXTUAL_SHEET_RETURN_BROWSER_JS}
     } catch (_) { /* contextual sheet install is best-effort; sheet still works */ }
   }
+  root.addEventListener('keydown', function (event) {
+    var tab = event.target && typeof event.target.closest === 'function' ? event.target.closest('[data-of-tab]') : null;
+    if (!tab) return;
+    var ids = ['canopy','mission','flow','workforce','forge'];
+    var index = ids.indexOf(tab.getAttribute('data-of-tab'));
+    var next = event.key === 'ArrowRight' ? (index+1)%ids.length : event.key === 'ArrowLeft' ? (index+ids.length-1)%ids.length : event.key === 'Home' ? 0 : event.key === 'End' ? ids.length-1 : null;
+    if (next === null || index < 0) return;
+    event.preventDefault(); navigate(ids[next]);
+    var selected = root.querySelector('[data-of-tab="' + ids[next] + '"]');
+    if (selected && selected.focus) selected.focus();
+  });
   root.addEventListener('click', function (event) {
     var target = event.target;
     if (!target) return;
+    var atlasBtn = typeof target.closest === 'function' ? target.closest('[data-of-system-atlas]') : null;
+    if (atlasBtn) {
+      openSystemAtlas(atlasBtn, currentScene);
+      return;
+    }
     // Inspect token button: exact registry lookup only; opens shared veil/sheetBody.
     var inspectTokenBtn = typeof target.closest === 'function' ? target.closest('[data-of-inspect-token]') : null;
     if (inspectTokenBtn) {
@@ -784,7 +844,7 @@ ${CONTEXTUAL_SHEET_RETURN_BROWSER_JS}
     var tab = typeof target.closest === 'function' ? target.closest('[data-of-tab]') : null;
     if (tab) navigate(tab.getAttribute('data-of-tab'));
   });
-  fetch('/v1/mission-fabric/' + tenant, { headers: { 'x-telegram-init-data': initData } })
+  fetch('/v1/mission-fabric/' + tenant, { credentials: 'same-origin', headers: initData ? { 'x-telegram-init-data': initData } : {} })
     .then(function (res) {
       // Strict 200 only: a generic 2xx check would also activate on 201/202/206.
       if (res.status !== 200) return;

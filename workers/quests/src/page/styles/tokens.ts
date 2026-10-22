@@ -5,7 +5,7 @@ export const STYLE_TOKENS = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cambium · Mission Control</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -25,8 +25,10 @@ export const STYLE_TOKENS = `<!doctype html>
     --sat:env(safe-area-inset-top); --sab:env(safe-area-inset-bottom);
   }
   *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+  .app[hidden],#operating-fabric[hidden]{display:none!important}
   html,body{height:100%}
   body{
+    display:flow-root;
     background:var(--bg); color:var(--soft); overflow:hidden; overscroll-behavior:none;
     font:15px/1.5 -apple-system,'Satoshi','Euclid Circular A',system-ui,sans-serif;
     -webkit-font-smoothing:antialiased;
