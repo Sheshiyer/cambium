@@ -906,7 +906,7 @@
     },
     {
       "path": "workers/quests/src/handler.ts",
-      "sha256": "sha256:dfe7b272f36d1eb1e227e6a694d6d237c22c4da70fc0b977348ed78c30c0f7e1"
+      "sha256": "sha256:846d2f93bedaec09bae23334ec66fb358cf62d5583edced5fba7e46b37c9c1c8"
     },
     {
       "path": "workers/quests/src/lib/access-jwt.ts",
@@ -1098,7 +1098,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "if (resolved.principal.role !== 'founder') {",
-      "sourceSha256": "sha256:dfe7b272f36d1eb1e227e6a694d6d237c22c4da70fc0b977348ed78c30c0f7e1",
+      "sourceSha256": "sha256:846d2f93bedaec09bae23334ec66fb358cf62d5583edced5fba7e46b37c9c1c8",
       "basis": "implementation"
     },
     {
@@ -1107,7 +1107,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "isViewer = viewerIds.includes(auth.userId);",
-      "sourceSha256": "sha256:dfe7b272f36d1eb1e227e6a694d6d237c22c4da70fc0b977348ed78c30c0f7e1",
+      "sourceSha256": "sha256:846d2f93bedaec09bae23334ec66fb358cf62d5583edced5fba7e46b37c9c1c8",
       "basis": "implementation"
     },
     {

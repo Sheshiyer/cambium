@@ -5144,7 +5144,64 @@ async function rejectGoalGraphIntakeRoute(
   };
 }
 
+// Founder web Gate (browser, no Telegram). Cloudflare Access protects
+// /founder/* at the edge; the Worker still verifies the Access JWT itself and
+// requires the TeamForge founder role. Only three routes exist under the
+// prefix, each a rewrite of an existing route with founder-web authority:
+// the page, the quests read and the Gate POST.
+const FOUNDER_WEB_PREFIX = '/founder';
+
+function founderWebRoute(req: SimpleRequest): SimpleRequest | null | undefined {
+  const queryAt = req.path.indexOf('?');
+  const routePath = queryAt < 0 ? req.path : req.path.slice(0, queryAt);
+  const query = queryAt < 0 ? '' : req.path.slice(queryAt + 1);
+  if (routePath !== FOUNDER_WEB_PREFIX && !routePath.startsWith(`${FOUNDER_WEB_PREFIX}/`)) return undefined;
+  const inner = routePath.slice(FOUNDER_WEB_PREFIX.length) || '/';
+  const search = query ? `?${query}` : '';
+  if (req.method === 'GET' && (inner === '/' || inner === '/index.html')) return { ...req, path: `/${search}` };
+  if (req.method === 'GET' && inner.startsWith('/api/quests/')) return { ...req, path: `${inner}${search}` };
+  if (req.method === 'POST' && inner.startsWith('/api/gate/')) return { ...req, path: `${inner}${search}` };
+  return null;
+}
+
+function founderWebPrincipal(principal: Principal): boolean {
+  return principal.role === 'founder' && principal.createdBy === 'plexus';
+}
+
+async function resolveFounderWebSigner(
+  req: SimpleRequest,
+  deps: HandlerDeps,
+): Promise<{ kind: 'founder'; approverId: string } | { kind: 'forbidden' } | { kind: 'unauthorized' } | { kind: 'unconfigured' }> {
+  // Cookie-carried Access sessions need CSRF protection: a cross-site page
+  // cannot set this header without a CORS preflight the Worker never grants,
+  // and a present Origin/Sec-Fetch-Site must name this host.
+  if (req.headers['x-cambium-founder-web'] !== '1') return { kind: 'forbidden' };
+  const host = (req.headers['host'] ?? '').trim().toLowerCase();
+  const origin = (req.headers['origin'] ?? '').trim().toLowerCase();
+  if (origin && (!host || origin !== `https://${host}`)) return { kind: 'forbidden' };
+  const fetchSite = (req.headers['sec-fetch-site'] ?? '').trim().toLowerCase();
+  if (fetchSite && fetchSite !== 'same-origin') return { kind: 'forbidden' };
+  if (!deps.plexus) return { kind: 'unconfigured' };
+  const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
+  if (resolved.kind === 'unconfigured') return { kind: 'unconfigured' };
+  if (resolved.kind !== 'principal' || !founderWebPrincipal(resolved.principal)) return { kind: 'unauthorized' };
+  // The approver id lands in the D1 approval row; an email-derived id is
+  // stored only as its digest.
+  const id = resolved.principal.id;
+  const approverId = id.includes('@')
+    ? `access:sha256:${await sha256hex(id)}`
+    : `access:${id}`;
+  return { kind: 'founder', approverId };
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  const founderWeb = founderWebRoute(req);
+  if (founderWeb === null) return json(404, { error: 'no founder web route' });
+  if (founderWeb) return handleRoutes(founderWeb, deps, true);
+  return handleRoutes(req, deps, false);
+}
+
+async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: boolean): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
 
@@ -5427,6 +5484,9 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       }
       if (resolved.kind === 'principal') {
         principal = resolved.principal;
+        // The founder web Gate reads the founder-only projection with a
+        // verified Access founder, exactly as the Mini App does with initData.
+        if (founderWeb && founderWebPrincipal(principal)) founderOutcomeAuthorized = true;
       } else {
         // 'unconfigured': deps.plexus was provided but env is partial — fail closed,
         // never silently promote to the dev founder fallback.
@@ -6689,6 +6749,19 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
     if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph', 'reject-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
       return json(400, { error: 'need a supported gate kind and subject' });
+    }
+    // Founder web Gate: only through /founder, only for goal-graph decisions,
+    // and only when no Telegram initData is offered. Every other kind stays
+    // Telegram-signed.
+    if (founderWeb && !String(body.initData ?? '') && (body.kind === 'approve-goal-graph' || body.kind === 'reject-goal-graph')) {
+      const signer = await resolveFounderWebSigner(req, deps);
+      if (signer.kind === 'unconfigured') return json(503, { error: 'founder web gate is not configured' });
+      if (signer.kind === 'forbidden') return json(403, { error: 'founder web gate requires a same-origin request' });
+      if (signer.kind !== 'founder') return json(401, { error: 'founder access verification failed' });
+      const result = body.kind === 'approve-goal-graph'
+        ? await approveGoalGraphIntakeRoute(deps, tenant, body, signer.approverId)
+        : await rejectGoalGraphIntakeRoute(deps, tenant, body, signer.approverId);
+      return json(result.status, result.body);
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
     if (!verdict.ok) return json(401, { error: verdict.reason });

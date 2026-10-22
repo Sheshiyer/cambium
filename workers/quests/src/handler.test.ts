@@ -16491,3 +16491,146 @@ test('Goal Graph readback removes expired candidates from actionable Gate but pr
   assert.equal(publicEnvelope.founderOutcomeRecovery, undefined);
   assert.doesNotMatch(JSON.stringify(publicEnvelope), new RegExp(receipt.candidate.candidateId));
 });
+
+// ── Founder web Gate (/founder, Cloudflare Access) ─────────────────────────
+import { createSign, generateKeyPairSync } from 'node:crypto';
+
+const FOUNDER_WEB_TEAM = 'founder-web-test.cloudflareaccess.com';
+const FOUNDER_WEB_AUD = 'f'.repeat(64);
+const FOUNDER_WEB_KID = 'founder-web-test-kid';
+const FOUNDER_WEB_HOST = 'curious.example.test';
+const founderWebKeys = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const founderWebJwk = founderWebKeys.publicKey.export({ format: 'jwk' });
+
+function founderWebJwt(email = 'founder@thoughtseed.space'): string {
+  const part = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url');
+  const header = part({ alg: 'RS256', kid: FOUNDER_WEB_KID, typ: 'JWT' });
+  const payload = part({ iss: `https://${FOUNDER_WEB_TEAM}`, aud: FOUNDER_WEB_AUD, email, exp: Math.floor(Date.now() / 1000) + 600 });
+  const signature = createSign('RSA-SHA256').update(`${header}.${payload}`).sign(founderWebKeys.privateKey, 'base64url');
+  return `${header}.${payload}.${signature}`;
+}
+
+function founderWebWhoami(session: Record<string, unknown> | null): typeof fetch {
+  return (async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes('/cdn-cgi/access/certs')) {
+      return new Response(JSON.stringify({ keys: [{ ...founderWebJwk, kid: FOUNDER_WEB_KID }] }), { status: 200 });
+    }
+    if (url.includes('/v1/whoami')) {
+      return session ? new Response(JSON.stringify(session), { status: 200, headers: { 'content-type': 'application/json' } }) : new Response('{}', { status: 404 });
+    }
+    return new Response('not found', { status: 404 });
+  }) as typeof fetch;
+}
+
+const FOUNDER_SESSION = { email: 'founder@thoughtseed.space', role: 'admin', isActive: true, identityId: 'pid_founder_web' };
+
+async function founderWebHarness(session: Record<string, unknown> | null = FOUNDER_SESSION, plexus = true) {
+  const { pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const harness = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex) });
+  const deps = {
+    ...harness.deps,
+    ...(plexus ? { plexus: { teamDomain: FOUNDER_WEB_TEAM, aud: FOUNDER_WEB_AUD, whoamiUrl: 'https://plexus.example.test/v1/whoami' } } : {}),
+    plexusFetchImpl: founderWebWhoami(session),
+  };
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(intake.status, 200);
+  return { ...harness, deps, changeDigest: body(intake).changeDigest as string };
+}
+
+function founderWebHeaders(overrides: Record<string, string> = {}): Record<string, string> {
+  return {
+    host: FOUNDER_WEB_HOST,
+    origin: `https://${FOUNDER_WEB_HOST}`,
+    'sec-fetch-site': 'same-origin',
+    'content-type': 'application/json',
+    'x-cambium-founder-web': '1',
+    'cf-access-jwt-assertion': founderWebJwt(),
+    ...overrides,
+  };
+}
+
+function founderWebGatePost(path: string, payload: Record<string, unknown>, headers: Record<string, string>, deps: Parameters<typeof handle>[1]) {
+  return handle(req('POST', path, { headers, body: JSON.stringify(payload) }), deps);
+}
+
+test('founder web gate · a verified Access founder approves through /founder and the goal graph commits', async () => {
+  const { db, deps, changeDigest } = await founderWebHarness();
+  const approved = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: changeDigest }, founderWebHeaders(), deps);
+  assert.equal(approved.status, 200, approved.body);
+  const decision = body(approved);
+  assert.equal(decision.ok, true);
+  assert.equal(decision.committed, true);
+  assert.equal(decision.changeDigest, changeDigest);
+  assert.doesNotMatch(approved.body, /founder@thoughtseed\.space|pid_founder_web/, 'response never echoes the founder identity');
+  const head = await deps.goalGraphStore.readHead('cambium');
+  assert.equal(head?.graphDigest, decision.headDigest);
+  const approvers = db.prepare('SELECT approver_id FROM goal_graph_approvals').all() as Array<{ approver_id: string }>;
+  assert.deepEqual(approvers.map((row) => row.approver_id), ['access:pid_founder_web']);
+});
+
+test('founder web gate · an email-only Access founder is stored as a digest, never the email', async () => {
+  const { db, deps, changeDigest } = await founderWebHarness({ email: 'founder@thoughtseed.space', role: 'admin', isActive: true });
+  const approved = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'reject-goal-graph', subject: changeDigest }, founderWebHeaders(), deps);
+  assert.equal(approved.status, 200, approved.body);
+  assert.equal(body(approved).rejected, true);
+  const stored = JSON.stringify(db.prepare('SELECT * FROM goal_graph_approvals').all());
+  assert.doesNotMatch(stored, /founder@thoughtseed\.space/);
+  assert.match(stored, /access:sha256:[a-f0-9]{64}/);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'a rejection writes no graph');
+});
+
+test('founder web gate · Access never signs outside /founder, and /founder never signs other Gate kinds', async () => {
+  const { deps, changeDigest } = await founderWebHarness();
+  const unprefixed = await founderWebGatePost('/api/gate/cambium', { kind: 'approve-goal-graph', subject: changeDigest }, founderWebHeaders(), deps);
+  assert.equal(unprefixed.status, 401);
+  const otherKind = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve', subject: 'quest-1' }, founderWebHeaders(), deps);
+  assert.equal(otherKind.status, 401);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+});
+
+test('founder web gate · CSRF, identity and configuration failures write nothing', async () => {
+  const cases: Array<[string, Record<string, string>, number]> = [
+    ['missing csrf header', founderWebHeaders({ 'x-cambium-founder-web': '' }), 403],
+    ['cross-origin', founderWebHeaders({ origin: 'https://evil.example' }), 403],
+    ['cross-site fetch', founderWebHeaders({ 'sec-fetch-site': 'cross-site' }), 403],
+    ['no access jwt', founderWebHeaders({ 'cf-access-jwt-assertion': '' }), 401],
+    ['forged jwt', founderWebHeaders({ 'cf-access-jwt-assertion': `${founderWebJwt().slice(0, -4)}AAAA` }), 401],
+  ];
+  for (const [label, headers, status] of cases) {
+    const { deps, changeDigest } = await founderWebHarness();
+    const response = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: changeDigest }, headers, deps);
+    assert.equal(response.status, status, label);
+    assert.equal(await deps.goalGraphStore.readHead('cambium'), null, label);
+  }
+  const team = await founderWebHarness({ email: 'founder@thoughtseed.space', role: 'employee', isActive: true, identityId: 'pid_team' });
+  assert.equal((await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: team.changeDigest }, founderWebHeaders(), team.deps)).status, 401, 'a non-founder role cannot sign');
+  const unknown = await founderWebHarness(null);
+  assert.equal((await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: unknown.changeDigest }, founderWebHeaders(), unknown.deps)).status, 401, 'no TeamForge identity cannot sign');
+  const unconfigured = await founderWebHarness(FOUNDER_SESSION, false);
+  assert.equal((await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: unconfigured.changeDigest }, founderWebHeaders(), unconfigured.deps)).status, 503);
+});
+
+test('founder web gate · /founder reads carry founder Inspect; the public route does not; other paths 404', async () => {
+  const { kv, deps, changeDigest } = await founderWebHarness();
+  kv.store.set('ledger:cambium', ENVELOPE);
+  const headers = { host: FOUNDER_WEB_HOST, 'cf-access-jwt-assertion': founderWebJwt() };
+  const founderRead = await handle(req('GET', '/founder/api/quests/cambium', { headers }), deps);
+  assert.equal(founderRead.status, 200);
+  const rows = body(founderRead).goalGraphIntake?.rows ?? [];
+  const row = rows.find((item: { changeDigest: string }) => item.changeDigest === changeDigest);
+  assert.ok(row?.founderInspect, 'the founder web read serves the founder Inspect projection');
+  const publicRead = await handle(req('GET', '/api/quests/cambium', { headers }), deps);
+  assert.equal(publicRead.status, 200);
+  const publicRows = body(publicRead).goalGraphIntake?.rows ?? [];
+  assert.ok(publicRows.length >= 1, 'pending proposals stay publicly listed');
+  assert.ok(publicRows.every((item: Record<string, unknown>) => item.founderInspect === undefined), 'the same Access session outside /founder gets no founder Inspect');
+
+  const page = await handle(req('GET', '/founder', { headers }), deps);
+  assert.equal(page.status, 200);
+  assert.match(String(page.headers?.['content-type'] ?? ''), /text\/html/);
+  for (const [method, path] of [['GET', '/founder/admin/portfolio'], ['POST', '/founder/v1/bridge/goal-graph-intake'], ['GET', '/founder/api/gate/cambium'], ['GET', '/founderx']]) {
+    const response = await handle(req(method, path, { headers }), deps);
+    assert.notEqual(response.status, 200, `${method} ${path}`);
+  }
+});

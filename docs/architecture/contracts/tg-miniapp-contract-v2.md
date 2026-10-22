@@ -88,6 +88,13 @@ flow.
   returns `409 goal_graph_stale_head` with no write. The full contract is the
   [Telegram Goal Graph intake lifecycle](../../runbooks/goal-graph-telegram-lifecycle.md)
   runbook.
+- Founder web Gate (2026-10-22): on the Cloudflare Access protected
+  `/founder` surface, `approve-goal-graph` and `reject-goal-graph` may be posted
+  to `/founder/api/gate/{tenant}` with `initData: ""` and the header
+  `x-cambium-founder-web: 1`. The Worker verifies the Access JWT and the
+  TeamForge founder role instead of Telegram, requires a same-origin request,
+  and otherwise applies the identical approval contract. No other kind accepts
+  Access, and `/api/gate/{tenant}` itself stays Telegram-only.
 - `reject-goal-graph` (Field Atlas founder Gate, 2026-10-22) is keyed the same
   way. It never changes the graph: it records an immutable D1
   `goal_graph_approvals` row with `decision: rejected` under the approval's

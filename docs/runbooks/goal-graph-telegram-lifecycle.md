@@ -198,6 +198,30 @@ responsible for persistence and CAS.
    4xx refusal (or failed founder auth) as "no write"; a 5xx, an unreadable
    body or a dropped response is shown as unconfirmed, and every attempt is
    read back.
+5b. **Founder web Gate (`/founder`, 2026-10-22)** — the founder can also
+   decide in a plain browser. `https://<host>/founder` serves the same Field
+   Atlas; its quests read (`/founder/api/quests/{tenant}`) and Gate post
+   (`/founder/api/gate/{tenant}`) are the existing routes behind a Cloudflare
+   Access application on `/founder/*`. The Worker never trusts the edge: it
+   verifies the Access JWT (team domain + `TF_ACCESS_AUD`) and requires the
+   TeamForge founder role (`whoami` role `admin`, active, matching email).
+   Only then does the read carry `founderInspect`, and only `approve-goal-graph`
+   / `reject-goal-graph` may be signed this way; every other Gate kind stays
+   Telegram-signed, and an Access session never signs outside `/founder`.
+   Posts must be same-origin (`x-cambium-founder-web: 1`, matching `Origin`,
+   `Sec-Fetch-Site: same-origin`), so a cookie-carried session cannot be used
+   cross-site. The D1 approver id is `access:<TeamForge identity id>`, or
+   `access:sha256:<digest>` when TeamForge returns no identity id; an email
+   is never stored. The nonce, expiry, fence and head checks are unchanged.
+   Every other path under `/founder` returns 404.
+   **Access setup (operator, once):** in Cloudflare Zero Trust, open the
+   Access application whose audience tag is the Worker's `TF_ACCESS_AUD` and
+   add the public hostname `<host>` with path `founder` (this covers
+   `/founder` and `/founder/*`). Keep the policy limited to the founder's
+   identity. Reusing that application keeps the audience the Worker already
+   verifies; a new application would need its audience added to
+   `TF_ACCESS_AUD` (comma-separated) before it works. Then open
+   `https://<host>/founder`, sign in, walk to the Gate and sign.
 6. **Readback** — `GET /v1/branch-map/{tenant}` with signed Telegram init
    data in `X-Telegram-Init-Data` returns the versioned projection, sheet,
    and proof (`cambium.telegram.branch-map-route.v1`). The tenant must be in
