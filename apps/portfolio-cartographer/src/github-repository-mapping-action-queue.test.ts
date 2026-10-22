@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { PORTFOLIO_CATALOG, PORTFOLIO_CLASSIFICATION_DIGEST } from '../../../workers/quests/src/portfolio-catalog.ts';
+import {
+  PORTFOLIO_CATALOG,
+  PORTFOLIO_CLASSIFICATION_DIGEST,
+  PORTFOLIO_REVIEWED_CATALOGS,
+} from '../../../workers/quests/src/portfolio-catalog.ts';
 import { REPOSITORY_EVIDENCE } from './repository-evidence.generated.ts';
 import { REPOSITORY_INVENTORY } from './repository-inventory.generated.ts';
 import { PORTFOLIO_ROOT_MAP_DIGEST, PORTFOLIO_ROOTS } from './portfolio-root-map.generated.ts';
@@ -245,6 +249,18 @@ if (!batch6) throw new Error('Batch 6 foundation reconciliation queue is missing
 
 const repositoryName = (repositoryRef: string): string => repositoryRef.split('/').slice(0, 2).join('/');
 
+// The queue was reviewed against catalog version 1. Later admissions stay out
+// of these historical batches and need their own reviewed disposition.
+const queueCatalog = PORTFOLIO_REVIEWED_CATALOGS[0];
+const queueWorkIds = new Set(queueCatalog.workIds);
+const queueSourceRefs = new Set(PORTFOLIO_CATALOG.records
+  .filter((record) => queueWorkIds.has(record.workId))
+  .flatMap((record) => record.provenance));
+const laterAdmissionSourceRefs = new Set(PORTFOLIO_CATALOG.records
+  .filter((record) => !queueWorkIds.has(record.workId))
+  .flatMap((record) => record.provenance)
+  .filter((sourceRef) => !queueSourceRefs.has(sourceRef)));
+
 test('historical queue keeps its exact root authority while the proposal census advances', () => {
   const rootSnapshot = JSON.parse(readFileSync(
     new URL('../../../docs/project-management/portfolio-roots.v1.json', import.meta.url),
@@ -255,13 +271,15 @@ test('historical queue keeps its exact root authority while the proposal census 
   const historicalRootDigest = snapshotDigest(historicalRoot);
   assert.equal(historicalRootDigest, '47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430');
   assert.notEqual(PORTFOLIO_ROOT_MAP_DIGEST, historicalRootDigest);
+  assert.equal(queueCatalog.version, 1);
+  assert.notEqual(queueCatalog.catalogDigest, PORTFOLIO_CATALOG.catalogDigest);
   assert.deepEqual(queue.currentDigests, {
     rootMapDigest: historicalRootDigest,
-    catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
+    catalogDigest: queueCatalog.catalogDigest,
     classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
   });
   assert.equal(batch1.defaults?.rootMapDigest, historicalRootDigest);
-  assert.equal(batch1.defaults?.catalogDigest, PORTFOLIO_CATALOG.catalogDigest);
+  assert.equal(batch1.defaults?.catalogDigest, queueCatalog.catalogDigest);
   assert.equal(batch1.defaults?.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
   assert.equal(batch1.defaults?.founderDecisionStatus, 'founder-reviewed');
   assert.equal(queue.requiredPayloadFieldsBeforeMutation.includes('catalogDigest'), true);
@@ -339,12 +357,18 @@ test('Batch 6 covers every unresolved catalog repository without inference', () 
   const bySourceRef = new Map(rows.map((row) => [row.sourceRef, row]));
   const unresolved = REPOSITORY_EVIDENCE.filter((record) => record.status !== 'resolved');
   const inventory = new Set(REPOSITORY_INVENTORY.map((record) => record.fullName.toLowerCase()));
-  const workIds = new Set(PORTFOLIO_CATALOG.records.map((record) => record.workId));
+  const workIds = queueWorkIds;
 
   assert.equal(rows.length, batch6.summary.rowsReviewed);
-  for (const record of unresolved) {
+  for (const record of unresolved.filter(({ sourceRef }) => !laterAdmissionSourceRefs.has(sourceRef))) {
     assert.equal(bySourceRef.has(record.sourceRef), true, `${record.sourceRef} needs an explicit Batch 6 disposition`);
   }
+  // Later admissions arrive unresolved and are never back-filled into Batch 6.
+  assert.deepEqual(
+    unresolved.filter(({ sourceRef }) => laterAdmissionSourceRefs.has(sourceRef)).map(({ sourceRef }) => sourceRef),
+    ['repo:Sheshiyer/relovo', 'repo:Sheshiyer/saanmai-marketplace'],
+  );
+  for (const sourceRef of laterAdmissionSourceRefs) assert.equal(bySourceRef.has(sourceRef), false);
   for (const row of rows) {
     for (const id of row.workIds) assert.equal(workIds.has(id), true, `${id} must exist in the catalog`);
     for (const assignment of row.resolvedAssignments) {

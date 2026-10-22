@@ -9,12 +9,16 @@ import {
   PORTFOLIO_DISPLAY_CATALOG,
   PORTFOLIO_DISPLAY_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST,
+  PORTFOLIO_REVIEWED_CATALOGS,
   portfolioDisplayCatalogForViewer,
   portfolioCatalogForViewer,
   portfolioPairDigest,
   validatePortfolioDisplayCatalog,
   validatePortfolioCatalog,
+  reviewedPortfolioCatalogVersion,
+  verifyReviewedCatalogVersions,
 } from './portfolio-catalog.ts';
+import { PORTFOLIO_REVIEWED_CATALOG_VERSIONS } from '../../../shared/portfolio-catalog-authority.ts';
 
 function mutableCatalog(): Record<string, any> {
   return JSON.parse(JSON.stringify(PORTFOLIO_CATALOG)) as Record<string, any>;
@@ -33,27 +37,27 @@ test('static catalog has the pinned schema, provenance, authority, counts, and d
   });
   assert.equal(PORTFOLIO_CATALOG.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
   assert.equal(PORTFOLIO_CLASSIFICATION_DIGEST, '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309');
-  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca');
+  assert.equal(PORTFOLIO_CATALOG.catalogDigest, 'sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c');
   assert.deepEqual(PORTFOLIO_CATALOG.summary, {
-    total: 72,
+    total: 73,
     saplings: 17,
-    clientBranches: 40,
+    clientBranches: 41,
     internalPrograms: 15,
     classificationReview: 0,
     historicalProducts: 20,
-    operationalGaps: 48,
+    operationalGaps: 49,
   });
-  assert.equal(PORTFOLIO_CATALOG.records.length, 72);
+  assert.equal(PORTFOLIO_CATALOG.records.length, 73);
   assert.equal(PORTFOLIO_CATALOG.historicalProducts.length, 20);
   assert.equal(PORTFOLIO_CATALOG.classificationReview.length, 0);
-  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 48);
+  assert.equal(PORTFOLIO_CATALOG.operationalGaps.length, 49);
 });
 
 test('catalog identities are unique, canonical, type-correct, and enum bounded', () => {
   const ids = PORTFOLIO_CATALOG.records.map((record) => record.workId);
-  assert.equal(new Set(ids).size, 72);
+  assert.equal(new Set(ids).size, 73);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'sapling').length, 17);
-  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 40);
+  assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'client-branch').length, 41);
   assert.equal(PORTFOLIO_CATALOG.records.filter((record) => record.classification === 'internal-program').length, 15);
 
   for (const record of PORTFOLIO_CATALOG.records) {
@@ -95,6 +99,30 @@ test('validation fails closed on digest drift, duplicate identity, invalid enum,
   const operationalLeak = mutableCatalog();
   operationalLeak.records[0].currentState = 'active';
   assert.throws(() => validatePortfolioCatalog(operationalLeak), /live operational field/);
+});
+
+test('reviewed catalog versions rebuild exactly from the current catalog minus later admissions', () => {
+  assert.deepEqual(PORTFOLIO_REVIEWED_CATALOGS.map(({ version, catalogDigest, workIds }) => [version, catalogDigest, workIds.length]), [
+    [1, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca', 72],
+    [2, PORTFOLIO_CATALOG.catalogDigest, 73],
+  ]);
+  assert.equal(PORTFOLIO_REVIEWED_CATALOGS[0].workIds.includes('branch:relovo'), false);
+  assert.equal(PORTFOLIO_REVIEWED_CATALOGS[1].workIds.includes('branch:relovo'), true);
+  assert.equal(reviewedPortfolioCatalogVersion(PORTFOLIO_CATALOG.catalogDigest)?.version, 2);
+  assert.equal(reviewedPortfolioCatalogVersion(`sha256:${'0'.repeat(64)}`), null);
+  assert.equal(reviewedPortfolioCatalogVersion(undefined), null);
+  assert.equal(Object.isFrozen(PORTFOLIO_REVIEWED_CATALOGS[0].workIds), true);
+
+  const [baseline, relovo] = PORTFOLIO_REVIEWED_CATALOG_VERSIONS;
+  const verify = (versions: Array<{ version: number; catalogDigest: string; admittedWorkIds: readonly string[] }>) =>
+    verifyReviewedCatalogVersions(PORTFOLIO_CATALOG, versions);
+  assert.throws(() => verify([{ ...baseline, catalogDigest: `sha256:${'0'.repeat(64)}` }, relovo]), /version 1 is not reproducible/);
+  assert.throws(() => verify([baseline, { ...relovo, admittedWorkIds: ['branch:tirak'] }]), /version 1 is not reproducible/);
+  assert.throws(() => verify([baseline, { ...relovo, admittedWorkIds: ['branch:not-catalogued'] }]), /admission is invalid/);
+  assert.throws(() => verify([baseline, { ...relovo, admittedWorkIds: [] }]), /admits nothing/);
+  assert.throws(() => verify([baseline]), /current reviewed catalog version drifted/);
+  assert.throws(() => verify([{ ...baseline, admittedWorkIds: ['branch:relovo'] }, relovo]), /baseline reviewed catalog version cannot admit/);
+  assert.throws(() => verify([baseline, { ...relovo, version: 3 }]), /version 2 is invalid/);
 });
 
 test('catalog contains no absolute path and rejects path leakage', () => {
@@ -168,7 +196,7 @@ test('type-aware canonical joins reject legacy, bare, and type-mismatched wire f
     'sapling-fitcheck',
     'teamforge-control-plane',
   ]);
-  assert.equal(report.catalogOrphanCount, 71);
+  assert.equal(report.catalogOrphanCount, 72);
   assert.equal(report.runtimeIdentityCollisionCount, 0);
 });
 
@@ -212,7 +240,7 @@ test('legacy Mission Fabric fixture remains unmapped until its source emits cano
   assert.deepEqual(wrappers, values, 'join accepts both FabricNode wrappers and their value objects');
   assert.deepEqual(wrappers.matches, []);
   assert.equal(wrappers.matchedCount, 0);
-  assert.equal(wrappers.catalogOrphanCount, 72);
+  assert.equal(wrappers.catalogOrphanCount, 73);
   assert.deepEqual(wrappers.runtimeOrphans, ['cambium-operating-fabric', 'sapling-cambium']);
   assert.equal(wrappers.runtimeIdentityCollisionCount, 0);
 });
@@ -261,15 +289,15 @@ test('finite display catalog renders exactly three proposal records without wide
     catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
     admission: 'none',
   });
-  assert.equal(PORTFOLIO_DISPLAY_CATALOG.records.length, 75);
+  assert.equal(PORTFOLIO_DISPLAY_CATALOG.records.length, 76);
   assert.deepEqual(PORTFOLIO_DISPLAY_CATALOG.summary, {
-    total: 75,
+    total: 76,
     saplings: 17,
-    clientBranches: 42,
+    clientBranches: 43,
     internalPrograms: 16,
     classificationReview: 0,
     historicalProducts: 20,
-    operationalGaps: 48,
+    operationalGaps: 49,
   });
 
   const actionById = new Map(PORTFOLIO_CATALOG.records.map((record) => [record.workId, record]));
@@ -319,7 +347,7 @@ test('finite display catalog renders exactly three proposal records without wide
   const viewer = portfolioDisplayCatalogForViewer(PORTFOLIO_DISPLAY_CATALOG, 'viewer');
   assert.equal(founder.detail, PORTFOLIO_DISPLAY_CATALOG);
   assert.equal(viewer.detail, null);
-  assert.equal(viewer.summary.total, 75);
+  assert.equal(viewer.summary.total, 76);
 
   const driftedAuthority = structuredClone(PORTFOLIO_DISPLAY_CATALOG) as Record<string, any>;
   driftedAuthority.actionAuthority.catalogDigest = `sha256:${'0'.repeat(64)}`;

@@ -17,6 +17,14 @@ const RECORDS: readonly GoalGraphLoadoutAuthorityRecord[] = Object.freeze([
     authorityDigest: 'sha256:9e8b683b15bfb3de1485bca004bc79951bc0f783f525f956aa3a8d20d0b38d85',
     sourceRef: 'docs/project-management/parkarea-source-audit-loadout.v1.json',
   }),
+  // Finite source policy only, same terms as WTFMedia: Relovo api-client audit (Sheshiyer/relovo).
+  Object.freeze({
+    loadoutId: 'loadout:relovo-source-audit',
+    eligibleWorkObjectIds: Object.freeze(['branch:relovo']),
+    authorizedClusterIds: Object.freeze(['cluster:relovo-source-verification']),
+    authorityDigest: 'sha256:51d13e1e61510aeacfa430d104fea72e74759c4922f1e45b505c31d93bab7000',
+    sourceRef: 'docs/project-management/relovo-source-audit-loadout.v1.json',
+  }),
   Object.freeze({
     loadoutId: 'loadout:fitcheck-launch',
     eligibleWorkObjectIds: Object.freeze(['sapling:fitcheck']),

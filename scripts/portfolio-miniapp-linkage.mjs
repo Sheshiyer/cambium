@@ -9,7 +9,7 @@ import { validatePortfolioCensusEvidence } from '../apps/portfolio-cartographer/
 
 // Exact already-reviewed display source, deliberately independent of action pins.
 // No caller-supplied proposal IDs, schema or digest can extend this finite set.
-const REVIEWED_DISPLAY_SOURCE_SHA256 = '034de2a5cdd37fd028607a8966088f9b30655c0b01e59696899721799ca15f00'
+const REVIEWED_DISPLAY_SOURCE_SHA256 = 'b8ae97a3b8d4a2752a7c49c543d0dfc5b96554b5b333d88eb7a261d58fbc3541'
 
 function reviewedDisplayProposalWorkIds() {
   const digest = createHash('sha256').update(JSON.stringify({

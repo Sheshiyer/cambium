@@ -7,13 +7,16 @@ import {
   REVIEWED_ACTION_CATALOG_DIGEST,
   REVIEWED_ACTION_SOURCE_DIGEST,
   REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+  REVIEWED_PORTFOLIO_CATALOG_VERSION,
   REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST,
   REVIEWED_PORTFOLIO_WORK_IDS,
   REVIEWED_ROOT_MAP_DIGEST,
 } from './portfolio-foundation-pins.mjs'
 import {
+  PORTFOLIO_ACTION_CATALOG_VERSION,
   PORTFOLIO_CATALOG_DIGEST,
   PORTFOLIO_CLASSIFICATION_DIGEST,
+  PORTFOLIO_REVIEWED_CATALOG_VERSIONS,
 } from '../shared/portfolio-catalog-authority.ts'
 import {
   PORTFOLIO_DISPLAY_CATALOG_DIGEST,
@@ -24,6 +27,7 @@ import {
 import {
   PORTFOLIO_DISPLAY_CATALOG,
   PORTFOLIO_DISPLAY_CATALOG_DIGEST as WORKER_DISPLAY_CATALOG_DIGEST,
+  PORTFOLIO_REVIEWED_CATALOGS,
 } from '../workers/quests/src/portfolio-catalog.ts'
 import { snapshotDigest } from '../apps/portfolio-cartographer/scripts/generate-portfolio-root-map.mjs'
 
@@ -49,8 +53,27 @@ test('shared foundation pins keep proposal census and approved action roots dist
   assert.equal(REVIEWED_ACTION_SOURCE_DIGEST, REVIEWED_PORTFOLIO_CLASSIFICATION_DIGEST)
   assert.equal(REVIEWED_ACTION_CATALOG_DIGEST, REVIEWED_PORTFOLIO_CATALOG_DIGEST)
   assert.notEqual(REVIEWED_ACTION_CATALOG_DIGEST, REVIEWED_ACTION_SOURCE_DIGEST)
-  assert.equal(REVIEWED_PORTFOLIO_WORK_IDS.length, 72)
-  assert.equal(new Set(REVIEWED_PORTFOLIO_WORK_IDS).size, 72)
+  assert.equal(REVIEWED_PORTFOLIO_CATALOG_VERSION, PORTFOLIO_ACTION_CATALOG_VERSION)
+  assert.deepEqual(PORTFOLIO_REVIEWED_CATALOG_VERSIONS.at(-1), {
+    version: REVIEWED_PORTFOLIO_CATALOG_VERSION,
+    catalogDigest: REVIEWED_PORTFOLIO_CATALOG_DIGEST,
+    admittedWorkIds: ['branch:relovo'],
+    approvalEvidence: 'docs/evidence/2026-10-22-relovo-portfolio-admission.v1.json',
+  })
+  assert.deepEqual(PORTFOLIO_REVIEWED_CATALOGS.at(-1)?.workIds, REVIEWED_PORTFOLIO_WORK_IDS)
+  for (const { version, catalogDigest, admittedWorkIds, approvalEvidence } of PORTFOLIO_REVIEWED_CATALOG_VERSIONS) {
+    const evidenceText = await sourceText(`../${approvalEvidence}`)
+    assert.ok(evidenceText.includes(catalogDigest), `${approvalEvidence} must name ${catalogDigest}`)
+    if (version === 1) continue
+    // Every admission after the baseline needs a recorded Founder Gate approval.
+    const evidence = JSON.parse(evidenceText)
+    assert.equal(evidence.reviewedCatalogVersions.admitted.version, version)
+    assert.equal(evidence.reviewedCatalogVersions.admitted.catalogDigest, catalogDigest)
+    assert.deepEqual(evidence.reviewedCatalogVersions.admitted.admittedWorkIds, admittedWorkIds)
+    assert.equal(evidence.founderGate.decision, 'approved', `${approvalEvidence} lacks Founder Gate approval`)
+  }
+  assert.equal(REVIEWED_PORTFOLIO_WORK_IDS.length, 73)
+  assert.equal(new Set(REVIEWED_PORTFOLIO_WORK_IDS).size, 73)
   assert.ok(REVIEWED_PORTFOLIO_WORK_IDS.includes('sapling:fitcheck'))
   assert.deepEqual(PORTFOLIO_DISPLAY_PROPOSAL_WORK_IDS, [
     'branch:codigo-olimpo',
@@ -60,7 +83,7 @@ test('shared foundation pins keep proposal census and approved action roots dist
   assert.equal(PORTFOLIO_DISPLAY_SELECTION_DIGEST, 'sha256:ce7c129bd24fd173089c069956b9d5cc18f8d829239ce32cbd2a6798252473ca')
   assert.equal(PORTFOLIO_DISPLAY_PROPOSAL.admission, 'render-and-proposal-only')
   assert.equal(PORTFOLIO_DISPLAY_CATALOG_DIGEST, WORKER_DISPLAY_CATALOG_DIGEST)
-  assert.equal(PORTFOLIO_DISPLAY_CATALOG.records.length, 75)
+  assert.equal(PORTFOLIO_DISPLAY_CATALOG.records.length, 76)
   assert.deepEqual(PORTFOLIO_DISPLAY_CATALOG.actionAuthority, {
     schema: 'cambium.portfolio-action-authority.v1',
     classificationDigest: REVIEWED_ACTION_SOURCE_DIGEST,

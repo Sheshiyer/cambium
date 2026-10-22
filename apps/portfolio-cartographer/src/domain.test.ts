@@ -58,21 +58,21 @@ import {
 
 test('canonical portfolio coverage remains exact', () => {
   assert.deepEqual(CLASSIFICATION_COUNTS, {
-    total: 75,
+    total: 76,
     saplings: 17,
-    clientBranches: 42,
+    clientBranches: 43,
     internalPrograms: 16,
     review: 0,
     historical: 20,
   })
-  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 75)
+  assert.equal(new Set(WORK_OBJECTS.map((work) => work.workId)).size, 76)
   assert.equal(REVIEW_RECORDS.length, 0)
   assert.equal(HISTORICAL_RECORDS.length, 20)
 })
 
 test('finite source-backed display proposal preserves the reviewed action pins', () => {
   assert.equal(CLASSIFICATION_DIGEST, '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309')
-  assert.equal(PORTFOLIO_CATALOG_DIGEST, 'sha256:311ead84a1e533f86e34f15a9d783e0350ac327d51d2c51c10d236d107ab96ca')
+  assert.equal(PORTFOLIO_CATALOG_DIGEST, 'sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c')
   assert.equal(DISPLAY_CATALOG_SELECTION_DIGEST, 'sha256:ce7c129bd24fd173089c069956b9d5cc18f8d829239ce32cbd2a6798252473ca')
   assert.equal(DISPLAY_CATALOG_PROPOSAL.admission, 'render-and-proposal-only')
   assert.deepEqual(DISPLAY_PROPOSAL_WORK_IDS, [
@@ -185,7 +185,7 @@ test('current census references project held identity status without admitting n
     assert.deepEqual(mapping.workIds, [])
     assert.equal(groupWorkObjects().some((group) => portfolioFolderMappingsForGroup(group).some((row) => row.path === mapping.path)), false)
   }
-  assert.equal(WORK_OBJECTS.length, 75)
+  assert.equal(WORK_OBJECTS.length, 76)
 })
 
 test('Thoughtseed family headers resolve mapped folders while preserving explicit gaps', () => {
