@@ -1434,9 +1434,9 @@ function operatingFabricAllScenesAssertion(width) {
       && organPlan.textContent.includes('No recurring schedule');
     const portfolioOk = Boolean(portfolio)
       && portfolioZones.length === 4
-      && portfolioCards.length === 92
+      && portfolioCards.length === 93
       && portfolioCounts.saplings === '17'
-      && portfolioCounts.clients === '40'
+      && portfolioCounts.clients === '41'
       && portfolioCounts.programs === '15'
       && portfolioCounts.review === '0'
       && portfolioCounts.historical === '20'
