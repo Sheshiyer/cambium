@@ -44,6 +44,7 @@ function wireUnavailablePanel(container){
 }
 function clearQuestPresentation(title, detail, state){
   CuriousReadBridge.hold(state, QUEST_READ_REVISION);
+  CuriousGateBridge.hold(state, QUEST_READ_REVISION);
   QUEST_READ_HELD = true;
   ECOSYSTEM_ENV = null; LEDGER = null; CMDDATA = null; cmdsDrawn = false;
   $('fill').style.width = '0%';
@@ -93,6 +94,7 @@ function renderGauge(L){
 }
 function paint(env){
   CuriousReadBridge.quest(env, QUEST_READ_REVISION);
+  CuriousGateBridge.quest(env, QUEST_READ_REVISION);
   QUEST_READ_HELD = false;
   ECOSYSTEM_ENV = env;
   LEDGER = env.ledger;
@@ -153,6 +155,7 @@ function fetchQuestEnvelope(){
 function load(){
   const revision = ++QUEST_READ_REVISION;
   CuriousReadBridge.pending(revision);
+  CuriousGateBridge.pending(revision);
   return fetchQuestEnvelope().then((r) => {
     if (revision !== QUEST_READ_REVISION) return;
     const status = Number(r && r.status) || 0;

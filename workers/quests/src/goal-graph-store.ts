@@ -99,10 +99,32 @@ export type GoalGraphCommitResult =
       head?: GoalGraphHead | null;
     };
 
+export interface GoalGraphRejectionInput {
+  tenantId: string;
+  changeDigest: string;
+  intentVersion: number;
+  rejectorId: string;
+  expiresAt: string;
+  nonce: string;
+  now?: string;
+}
+
+export type GoalGraphRejectionResult =
+  | { status: 'rejected' | 'duplicate'; changeDigest: string; decidedAt: string }
+  | { status: 'conflict'; changeDigest: string; code: 'already_approved' }
+  | { status: 'invalid' | 'unavailable'; changeDigest: string | null; code: string };
+
 export interface GoalGraphStoreLike {
   readHead(tenantId: string): Promise<GoalGraphHead | null>;
   readNodes(tenantId: string): Promise<GoalGraphNode[]>;
   commit(input: GoalGraphCommitInput): Promise<GoalGraphCommitResult>;
+  /**
+   * Records the founder's rejection as the proposal's immutable decision row.
+   * Approval and rejection share one primary key per (tenant, change, nonce),
+   * so whichever decision lands first makes the other's D1 insert fail. This is
+   * the atomic fence between the two; no KV state participates in it.
+   */
+  reject?(input: GoalGraphRejectionInput): Promise<GoalGraphRejectionResult>;
 }
 
 interface HeadRow {
@@ -315,6 +337,10 @@ function expectedHeadDigest(changeSet: GoalChangeSet): string | null {
   return changeSet.expectedHeadDigest ?? null;
 }
 
+function decisionId(tenantId: string, changeDigest: string, nonce: string): string {
+  return `approval:${tenantId}:${changeDigest}:${nonce}`;
+}
+
 function resultRejected(code: string, changeDigest: string | null = null): GoalGraphCommitResult {
   return { status: 'rejected', replayed: false, changeDigest, code };
 }
@@ -367,6 +393,75 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
       FROM goal_graph_events
       WHERE tenant_id = ? AND change_digest = ?
     `).bind(tenantId, changeDigest).first<EventRow>();
+  }
+
+  async function readDecision(tenantId: string, changeDigest: string, nonce: string): Promise<{ decision: string; decided_at: string } | null> {
+    return db.prepare(`
+      SELECT decision, decided_at FROM goal_graph_approvals WHERE approval_id = ?
+    `).bind(decisionId(tenantId, changeDigest, nonce)).first<{ decision: string; decided_at: string }>();
+  }
+
+  async function reject(input: GoalGraphRejectionInput): Promise<GoalGraphRejectionResult> {
+    const changeDigest = typeof input?.changeDigest === 'string' ? input.changeDigest : null;
+    const now = input?.now ?? new Date().toISOString();
+    if (!changeDigest || !DIGEST_RE.test(changeDigest)) return { status: 'invalid', changeDigest, code: 'change_digest_invalid' };
+    if (typeof input.tenantId !== 'string' || !SAFE_ID_RE.test(input.tenantId)) return { status: 'invalid', changeDigest, code: 'tenant_invalid' };
+    if (!SAFE_ID_RE.test(String(input.rejectorId)) || !SAFE_ID_RE.test(String(input.nonce))) return { status: 'invalid', changeDigest, code: 'decision_identity_invalid' };
+    if (!Number.isInteger(input.intentVersion) || input.intentVersion < 1) return { status: 'invalid', changeDigest, code: 'intent_version_invalid' };
+    if (!ISO_TIMESTAMP_RE.test(now) || !ISO_TIMESTAMP_RE.test(String(input.expiresAt))) return { status: 'invalid', changeDigest, code: 'decision_time_invalid' };
+    const classify = async (): Promise<GoalGraphRejectionResult | null> => {
+      const prior = await readDecision(input.tenantId, changeDigest, input.nonce);
+      if (!prior) return null;
+      return prior.decision === 'rejected'
+        ? { status: 'duplicate', changeDigest, decidedAt: prior.decided_at }
+        : { status: 'conflict', changeDigest, code: 'already_approved' };
+    };
+    try {
+      const existing = await classify();
+      if (existing) return existing;
+      // A committed change set always carries its approval row, but check the
+      // event too so a hand-repaired graph can never be retroactively rejected.
+      if (await readEvent(input.tenantId, changeDigest)) return { status: 'conflict', changeDigest, code: 'already_approved' };
+    } catch {
+      return { status: 'unavailable', changeDigest, code: 'decision_read_failed' };
+    }
+    const core = {
+      tenantId: input.tenantId,
+      changeDigest,
+      intentVersion: input.intentVersion,
+      approverId: input.rejectorId,
+      expiresAt: input.expiresAt,
+      nonce: input.nonce,
+    };
+    const canonicalJson = stableJson({
+      canonical: canonicalizeGoalGraphApproval(core),
+      decision: 'rejected',
+      expiresAt: input.expiresAt,
+      intentVersion: input.intentVersion,
+      nonce: input.nonce,
+      approverId: input.rejectorId,
+      tenantId: input.tenantId,
+    });
+    try {
+      await db.prepare(`
+        INSERT INTO goal_graph_approvals (
+          approval_id, tenant_id, change_digest, intent_version, approver_id,
+          decision, expires_at, nonce, canonical_json, decided_at, recorded_at
+        ) VALUES (?, ?, ?, ?, ?, 'rejected', ?, ?, ?, ?, ?)
+      `).bind(
+        decisionId(input.tenantId, changeDigest, input.nonce),
+        input.tenantId, changeDigest, input.intentVersion, input.rejectorId,
+        input.expiresAt, input.nonce, canonicalJson, now, now,
+      ).run();
+    } catch {
+      // Most likely the other decision won the primary key; read it back.
+      try {
+        const settled = await classify();
+        if (settled) return settled;
+      } catch { /* fall through */ }
+      return { status: 'unavailable', changeDigest, code: 'decision_write_failed' };
+    }
+    return { status: 'rejected', changeDigest, decidedAt: now };
   }
 
   async function readHead(tenantId: string): Promise<GoalGraphHead | null> {
@@ -459,6 +554,12 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     if (typeof db.batch !== 'function') {
       return { status: 'unavailable', replayed: false, changeDigest, code: 'batch_required' };
     }
+
+    // A recorded rejection is final. A rejection that lands after this read
+    // still wins: the approval INSERT below shares its primary key, so the
+    // batch fails and D1 rolls every statement back.
+    const priorDecision = await readDecision(input.tenantId, changeDigest, approval.nonce);
+    if (priorDecision && priorDecision.decision !== 'approved') return resultRejected('decision_rejected', changeDigest);
 
     const approvalJson = stableJson({
       canonical: canonicalApproval,
@@ -664,7 +765,7 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     return resultRejected('commit_not_observed', changeDigest);
   }
 
-  return { readHead, readNodes, commit };
+  return { readHead, readNodes, commit, reject };
 }
 
 export const createGoalGraphStore = d1GoalGraphStore;

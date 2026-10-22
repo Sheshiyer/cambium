@@ -30,6 +30,7 @@ import { CLIENT_FRESHNESS } from './client/freshness.ts';
 import { CLIENT_DATA } from './client/data.ts';
 import { OPERATING_FABRIC_PAGE } from './operating-fabric/index.ts';
 import { CLIENT_CURIOUS_READ_BRIDGE } from './client/curious-read-bridge.ts';
+import { CLIENT_CURIOUS_GATE_BRIDGE } from './client/curious-gate-bridge.ts';
 import { CURIOUS_WORLD_PAGE } from './components/curious-world.ts';
 
 // LEGACY_PAGE retains the reviewed five-scene composition, with the additive
@@ -66,6 +67,7 @@ export const LEGACY_PAGE =
   SCENE_STORY +
   CLIENT_FRESHNESS +
   CLIENT_CURIOUS_READ_BRIDGE +
+  CLIENT_CURIOUS_GATE_BRIDGE +
   CLIENT_DATA;
 
 const bodyClose = '</body>';
