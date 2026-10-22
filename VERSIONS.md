@@ -11,9 +11,40 @@ alphabetical march, but a chosen patron for each chapter.
 
 ## Current
 
-### Unreleased on `main` after v0.3.0
+### v0.4.0 · **Terpsichore** — *walk the living system* (qualification draft)
 
-`v0.3.0 · Urania` remains the latest published release. Current `main` adds the fixed Public Agencies IVerif evidence contract, the final consolidation/documentation state, and a macOS-first Electron package for the R3F constellation renderer. The Electron shell is artifact-tested but signing, notarization, and automatic updates remain separately governed. The IVerif slice is an observe-only, redacted, GET-only contract with `sendEligible=false`; it is not a release or outreach-readiness claim.
+Curious becomes a walkable field atlas: eight districts, eleven source organs
+and thirty landmarks connect the existing system and its workbench. The update
+adds original expedition travelers while keeping graphics work bounded.
+
+- **Explore in 3D:** WASD/arrows, running, camera orbit/zoom, collision-safe paths,
+  a district chart, local passport and phone walking control. Source folios open
+  the existing inspection and workbench routes.
+- **Three field kits:** Courier, Cartographer and Gardener share a 3,076-triangle
+  articulated rig, two materials and stable geometry. Original vector portraits
+  introduce no additional renderer or asset service.
+- **Sleeping graphics:** one nominal 30fps scheduler renders deliberate input
+  and finite camera settling, then owns no idle RAF or recurring HUD clock.
+  Visibility handling retains page-local position and kit; graphics loss returns
+  to the existing 2D workbench. Desktop/phone buffers cap at 2M/1M pixels.
+- **Coherent reads and visual language:** existing legacy/Fabric scenes use the
+  shared ledger read state, concise field-kit styling and source-grounded atlas.
+  Failed reads invalidate stale facts without changing authentication or writes.
+- **Local evidence:** the reviewed character/performance slice passes394tests
+  in7suites with0skips, TypeScript and deterministic bundle parity. Actual IAB
+  desktop/320/390CSS views prove movement, cosmetics, source inspection, stable
+  resources and exit/re-entry. Hidden behavior uses a labeled handler fixture.
+- **Fresh release candidate checks:**752affected regressions,142R3F tests,
+  TypeScript/production build,5packaging checks and45capture-validation checks pass.
+  Canonical viewport/touch, drift, full core and standalone qualification remain held.
+- **Release boundary:** GitHub Actions stay retired and opt-in local jobs remain
+  disabled. This is a source candidate. Cloudflare deployment, physical Telegram
+  background/touch soak, device-wide RAM/VRAM and complete live integration are
+  separate acceptance lanes.
+
+### Historical unreleased work incorporated since v0.3.0
+
+The work after `v0.3.0 · Urania` added the fixed Public Agencies IVerif evidence contract, the final consolidation/documentation state, and a macOS-first Electron package for the R3F constellation renderer. The Electron shell is artifact-tested but signing, notarization, and automatic updates remain separately governed. The IVerif slice is an observe-only, redacted, GET-only contract with `sendEligible=false`; it is not a release or outreach-readiness claim.
 
 The unreleased governance wave also protects `main` with an active pull-request
 ruleset and reconciles portfolio-origin issue #290. The dated audit keeps the

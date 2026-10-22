@@ -1,5 +1,80 @@
 # Project handoff
 
+### 2026-10-01 complete growth ecosystem deep review
+
+- Read/reviewed all 100 growth files, including ignored assets; added the
+  full-folder coverage ledger and detailed growth ecosystem review.
+- Refined the Mac review/map/design/plan around one integrated Cambium,
+  Temperance and organ ecosystem: five operating organs, six cognitive
+  organs, six Will desks and typed work/evidence/learning connections.
+  Separate owners preserve integration. Snow Gloves stays outside the setup.
+- Current Cambium topic source has eight routes; Hermes owner contract has
+  nine including Adytum. Actual connection stays held pending bounded owner
+  source reconciliation. No topic, manifest or service was changed.
+- Found eleven unresolved local links, all 29 growth-cell files lacking the
+  four verb keys in frontmatter, stale full-PDF/HTML versions and nonportable
+  renderer/CDN assets. Repairs are proposals, not vault changes.
+- All 32 review criteria pass; 100 final growth hashes match. One concurrent
+  profile change was re-read; Snow Gloves' changed handoff is retained as a
+  historical cut. Saved goal and 49 unrelated baseline files remain unchanged.
+- Advisor returned an internal timeout, no verdict. Routed review claims
+  were independently checked; no independent audit approval is inferred.
+- Next source slice is proposed in the distribution plan: typed ecosystem
+  joins and read-only inspect/export/diff, followed by owned recovery/TUI and
+  both physical Mac proofs. No implementation, installation, runtime,
+  provider, publication or cloud action is authorized by this checkpoint.
+
+### 2026-10-01 modular Mac migration architecture review
+
+- Added a source-grounded review, hashed evidence map, proposed design and
+  finite implementation plan under `docs/architecture/` and
+  `docs/superpowers/`. The operator confirmed workstation replacement and
+  always-on node addition are equally important.
+- Operator requires Cambium, Temperance Engine and Snow Gloves OS to stay
+  separate products, runtimes, installers, state and authority. Both Mac
+  profiles work without Snow Gloves; its lifecycle and Cambium operational
+  mutations are outside this plan.
+- Reuse the existing distribution OpenTUI wizard/headless controller and
+  lifecycle journals. Personal OmniRoute and distribution 9router remain
+  distinct; unsupported joins hold rather than switching backend.
+- Focused existing reuse tests: 26 pass, three loader errors because
+  `@opentui/core/testing` and `ajv/dist/2020.js` are absent in the inspected
+  local dependency closure. This is not a green TUI readiness claim.
+- Root ISA review criteria ISC-2506..2532 pass 27/27 for documentation only;
+  source hash joins pass 51/51. Cato could not run on its unsupported fixed
+  model; the final Advisor attempt timed out. No independent approval is inferred.
+- Review criteria are separate from the preserved
+  OpenAI goal and its 11/42 progress. Physical migration, restore, boot,
+  sign-in, enrollment and remote handoff remain unperformed.
+- No host/service/provider configuration, credentials, native sessions,
+  Vault contents, cloud state, deployment or external delivery changed.
+  Use `.planning/HANDOFF.json` for this review's current pickup.
+
+### Curious Labs deployment qualification
+
+- The owner now authorizes Cloudflare rollout of the reviewed visual candidate. Existing qualification and rollback checks remain required; main merge and stableGitHub publication stay separate.
+- Fresh Labs readback identifies cambium-quests and Version57 as the single100percent production/rollback Version. Private deployment evidence retains its UUID and full37binding inventory.
+- A reviewed private overlay preserves8plainvars,23inheritedsecret names and6resources; it excludes source-only website settings/limiters and the extra dailycron, and omits nonversioned settings synchronization.
+- Worker dry-run and local native-browser world rendering pass. Canonical screenshot/touch freshness and strict portfolio census remain held; the bounded owner exception question remains unanswered.
+- Full-core test transport now uses bounded byte-identical Git blob batches and retains all inventory/safety assertions. Only the accepted three Actions deletions receive a source-backed retirement exception; unknown changes remain rejected.
+- Freeze a clean exact source candidate for fresh full regressions. No upload or traffic assignment has occurred from this continuation.
+
+### Curious source release0.4.0 preparation
+
+- Published review branch: `codex/curious-release-0.4.0`; [draft PR384](https://github.com/Sheshiyer/cambium/pull/384).
+- [Terpsichore release draft](https://github.com/Sheshiyer/cambium/releases/tag/untagged-d760d6e13797d5e258b1) remains unpublished; no stable tag exists.
+
+- Scoped source imports only the reviewed atlas/workbench/walkable-world packet.
+  Historical Mac migration planning and private controller state stay excluded.
+- Current main Actions retirement and disabled local jobs are preserved.
+- Version0.4.0/Terpsichore identifies this source candidate; Cloudflare deployment and
+  physical Telegram/RAM/VRAM proof remain separately governed.
+- Stable publication remains held: fresh canonical viewport/touch proof, strict320px
+  Inspect geometry, full core, drift and standalone smoke need qualification.
+- Fresh affected752, R3F142/build, packaging5 and receipt-validation45 checks pass.
+- Push only the reviewed branch, create a draft PR/release; no main merge or tag
+  until the canonical release contract and exact remote readbacks pass.
+
 ### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
 
 - The isolated branch `codex/continuous-learning-docs-20260911` adds a Cambium-side contract for immutable accepted work units, three-vector learning, D1/Hermes/Gate authority separation, read-only Vestibule/Adytum projections, organ lifecycle receipts, and a non-authoritative 900k-1M long-horizon message board.

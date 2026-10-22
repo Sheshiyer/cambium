@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { access, readFile } from 'node:fs/promises'
+import { access, readFile, readdir } from 'node:fs/promises'
 import { test } from 'node:test'
 
 const repositoryRoot = new URL('../', import.meta.url)
@@ -16,10 +16,98 @@ const serializedHandlerOrder = ['T-044', 'T-053', 'T-059', 'T-074']
 const remainingHandlerOrder = []
 const approvalGatedIds = ['T-020', 'T-038', 'T-078', 'T-079', 'T-080']
 const terminalStatuses = new Set(['implemented', 'superseded'])
+const retiredHistoricalOwner = '.github/workflows/ci.yml'
 
 async function readJson(relativePath) {
   return JSON.parse(await readFile(new URL(relativePath, repositoryRoot), 'utf8'))
 }
+
+function assertActionsRetirementContract({ readme, workflowPaths, registry }) {
+  assert.match(readme, /GitHub Actions is retired\./)
+  assert.match(readme, /\.local-jobs\/jobs\.json.*scheduling disabled/)
+  assert.deepEqual(workflowPaths.filter((path) => /\.ya?ml$/i.test(path)), [], 'retired GitHub Actions workflows stay absent')
+  assert.equal(registry.schema, 'thoughtseed.local-jobs.v1')
+  assert.deepEqual(registry.jobs.map(({ id }) => id), ['verify', 'live-readiness'])
+  assert.deepEqual(registry.jobs[0].argv, ['npm', 'run', 'verify:release'])
+  assert.deepEqual(registry.jobs[1].argv, ['npm', 'run', 'proof:tg-live-readiness'])
+  assert.ok(registry.jobs.every((job) => job.enabled === false && job.daily === false && job.on_change === false), 'local jobs remain opt-in and unscheduled')
+}
+
+async function readActionsRetirementContract() {
+  const [readme, registry, workflowPaths] = await Promise.all([
+    readFile(new URL('README.md', repositoryRoot), 'utf8'),
+    readJson('.local-jobs/jobs.json'),
+    readdir(new URL('.github/workflows/', repositoryRoot), { recursive: true }).catch((error) => {
+      if (error.code !== 'ENOENT') throw error
+      return []
+    }),
+  ])
+  assertActionsRetirementContract({ readme, registry, workflowPaths })
+}
+
+async function assertTaskOwner(task, {
+  accessOwner = (owner) => access(new URL(owner, repositoryRoot)),
+  assertRetirement = readActionsRetirementContract,
+} = {}) {
+  if (task.file_owner === retiredHistoricalOwner) {
+    // PR #383 retired this exact historical T-036 owner after its accepted
+    // implementation. Preserve the immutable task map and completion evidence;
+    // current retirement readback must pass instead of recreating a workflow.
+    assert.equal(task.id, 'T-036')
+    assert.equal(task.status, 'implemented')
+    assert.equal(task.executable, false)
+    assert.match(task.evidence, /^Issue #331 terminal validation: CI exposes an authoritative page-state matrix/)
+    await assertRetirement()
+    return 'reviewed-retired-owner'
+  }
+  await accessOwner(task.file_owner)
+  return 'present-owner'
+}
+
+test('historical owner reconciliation accepts only the exact completed retired task', async () => {
+  const historicalTask = {
+    id: 'T-036', status: 'implemented', executable: false, file_owner: retiredHistoricalOwner,
+    evidence: 'Issue #331 terminal validation: CI exposes an authoritative page-state matrix',
+  }
+  let retirementReads = 0
+  const options = {
+    accessOwner: async () => { throw Object.assign(new Error('missing owner'), { code: 'ENOENT' }) },
+    assertRetirement: async () => { retirementReads += 1 },
+  }
+  assert.equal(await assertTaskOwner(historicalTask, options), 'reviewed-retired-owner')
+  assert.equal(retirementReads, 1)
+  for (const change of [{ id: 'T-035' }, { status: 'residual' }, { executable: true }, { evidence: 'unreviewed completion' }]) {
+    await assert.rejects(assertTaskOwner({ ...historicalTask, ...change }, options))
+  }
+  await assert.rejects(assertTaskOwner({ ...historicalTask, file_owner: '.github/workflows/unknown.yml' }, options), { code: 'ENOENT' })
+  await assert.rejects(assertTaskOwner({ ...historicalTask, file_owner: 'workers/quests/src/unknown-owner.ts' }, options), { code: 'ENOENT' })
+  assert.equal(retirementReads, 1, 'unknown and nonterminal owners cannot borrow retirement authority')
+  await assert.rejects(assertTaskOwner(historicalTask, { ...options, assertRetirement: async () => { throw new Error('retirement drift') } }), /retirement drift/)
+})
+
+test('historical owner retirement requires absent workflows and disabled local jobs', () => {
+  const contract = {
+    readme: 'GitHub Actions is retired. .local-jobs/jobs.json defines explicit local checks with scheduling disabled.',
+    workflowPaths: [],
+    registry: { schema: 'thoughtseed.local-jobs.v1', jobs: [
+      { id: 'verify', argv: ['npm', 'run', 'verify:release'], enabled: false, daily: false, on_change: false },
+      { id: 'live-readiness', argv: ['npm', 'run', 'proof:tg-live-readiness'], enabled: false, daily: false, on_change: false },
+    ] },
+  }
+  assert.doesNotThrow(() => assertActionsRetirementContract(contract))
+  for (const path of ['ci.yml', 'release.yaml', 'nested/unknown.yml']) {
+    assert.throws(() => assertActionsRetirementContract({ ...contract, workflowPaths: [path] }))
+  }
+  for (const flag of ['enabled', 'daily', 'on_change']) {
+    for (const value of [true, undefined]) {
+      const drifted = structuredClone(contract)
+      drifted.registry.jobs[0][flag] = value
+      assert.throws(() => assertActionsRetirementContract(drifted))
+    }
+  }
+  assert.throws(() => assertActionsRetirementContract({ ...contract, readme: 'GitHub Actions is active.' }))
+  assert.throws(() => assertActionsRetirementContract({ ...contract, registry: { ...contract.registry, jobs: [] } }))
+})
 
 function deriveReadyTaskIds(taskMap) {
   const byId = new Map(taskMap.tasks.map((task) => [task.id, task]))
@@ -89,7 +177,7 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
     assert.ok(task.validation)
     assert.ok(task.file_owner)
     assert.equal(task.file_owner.startsWith('/'), false)
-    await access(new URL(task.file_owner, repositoryRoot))
+    await assertTaskOwner(task)
 
     if (task.status === 'implemented' || task.status === 'superseded') assert.ok(task.evidence)
     if (task.status === 'residual') {
@@ -201,6 +289,7 @@ test('GIP-003 preserves all task provenance and exposes only residuals', async (
   assert.equal('missingAcceptance' in byId.get('T-028'), false)
   assert.match(byId.get('T-028').evidence, /reproducible pre-activation 403\/ledger baseline/i)
   assert.equal(byId.get('T-036').status, 'implemented')
+  assert.equal(byId.get('T-036').file_owner, retiredHistoricalOwner)
   assert.equal(byId.get('T-036').executable, false)
   assert.equal('missingAcceptance' in byId.get('T-036'), false)
   assert.match(byId.get('T-036').evidence, /authoritative page-state matrix/i)

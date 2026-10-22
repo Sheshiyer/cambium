@@ -10,6 +10,57 @@ const defaultSnapshotPath = path.resolve(appRoot, '../../docs/project-management
 const defaultGeneratedPath = path.join(appRoot, 'src/portfolio-root-map.generated.ts')
 const defaultWorkerGeneratedPath = path.resolve(appRoot, '../../workers/quests/src/portfolio-root-map.generated.ts')
 const allowedKinds = new Set(['client-branch', 'sapling', 'internal-program', 'needs-review', 'project'])
+const safeFolder = (value) => typeof value === 'string' && value.length <= 128 && /^[A-Za-z0-9_.-]+$/.test(value) && value !== '.' && value !== '..'
+
+function validateSourceRefs(refs) {
+  if (!Array.isArray(refs) || refs.length === 0 || refs.length > 4 || new Set(refs).size !== refs.length || !refs.every((ref) => {
+    if (typeof ref !== 'string' || ref.length > 256 || !/^(repo|local|history|git):[A-Za-z0-9._/-]+(?:#[A-Za-z0-9._/-]+)?$/.test(ref)) return false
+    const relative = ref.slice(ref.indexOf(':') + 1).split('#')[0]
+    return !relative.startsWith('/') && relative.split('/').every((part) => part && part !== '.' && part !== '..')
+  })) throw new TypeError('invalid portable census source references')
+}
+
+// These optional rows describe physical provenance, never WorkObject admission.
+// A historical name cannot suppress a missing current folder or an extra folder.
+export function validatePortfolioCensusEvidence(portfolio) {
+  if (Object.hasOwn(portfolio, 'censusObservedAt') && (typeof portfolio.censusObservedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(portfolio.censusObservedAt) ||
+    !Number.isFinite(Date.parse(portfolio.censusObservedAt)) || new Date(portfolio.censusObservedAt).toISOString() !== portfolio.censusObservedAt.replace('Z', '.000Z'))) throw new TypeError('invalid portfolio census observation time')
+  const ordinary = new Set(portfolio.folders.map((entry) => entry.folder))
+  const infrastructure = new Set(portfolio.infrastructure)
+  if (Object.hasOwn(portfolio, 'infrastructureEvidence')) {
+    if (!Array.isArray(portfolio.infrastructureEvidence) || portfolio.infrastructureEvidence.length > 256) throw new TypeError('invalid infrastructure census evidence')
+    const seen = new Set()
+    for (const row of portfolio.infrastructureEvidence) {
+      if (!row || typeof row !== 'object' || Array.isArray(row) || Object.keys(row).some((key) => !['folder', 'kind', 'sourceRefs'].includes(key)) ||
+        !infrastructure.has(row.folder) || seen.has(row.folder) || !['linked-worktree', 'retained-artifact'].includes(row.kind)) throw new TypeError('invalid infrastructure census evidence row')
+      validateSourceRefs(row.sourceRefs)
+      seen.add(row.folder)
+    }
+  }
+  if (Object.hasOwn(portfolio, 'historicalFolders')) {
+    if (!Array.isArray(portfolio.historicalFolders) || portfolio.historicalFolders.length > 128) throw new TypeError('invalid historical census folders')
+    const seen = new Set()
+    for (const row of portfolio.historicalFolders) {
+      if (!row || typeof row !== 'object' || Array.isArray(row) || Object.keys(row).some((key) => !['folder', 'disposition', 'currentFolder', 'sourceRefs'].includes(key)) ||
+        !safeFolder(row.folder) || !safeFolder(row.currentFolder) || seen.has(row.folder) || ordinary.has(row.folder) || infrastructure.has(row.folder) || !ordinary.has(row.currentFolder) ||
+        !['replaced-checkout', 'retired-worktree'].includes(row.disposition)) throw new TypeError('invalid historical census folder disposition')
+      validateSourceRefs(row.sourceRefs)
+      seen.add(row.folder)
+    }
+  }
+  for (const entry of portfolio.folders) {
+    if (Object.hasOwn(entry, 'sourceRefs')) validateSourceRefs(entry.sourceRefs)
+    if (!Object.hasOwn(entry, 'referenceKind')) continue
+    if (entry.referenceKind === 'platform-companion') {
+      if (entry.proposedKind !== 'internal-program' || entry.status !== 'mapping-proposal' || entry.accountId !== null || !entry.workIds.length) throw new TypeError('invalid platform companion census row')
+    } else if (['external-adapter', 'identity-intake'].includes(entry.referenceKind)) {
+      const expectedStatus = entry.referenceKind === 'external-adapter' ? 'reference-unresolved' : 'identity-unresolved'
+      if (entry.proposedKind !== 'needs-review' || entry.status !== expectedStatus || entry.accountId !== null || entry.workIds.length !== 0 || Object.hasOwn(entry, 'identityStatus')) throw new TypeError('unresolved census reference cannot grant identity')
+    } else throw new TypeError('invalid census reference kind')
+    validateSourceRefs(entry.sourceRefs)
+  }
+  return portfolio
+}
 
 function isDisplayName(value) {
   return typeof value === 'string' && value.trim().length > 0 && value.length <= 128 && !/[\x00-\x1f\x7f|`<>]/.test(value)
@@ -98,6 +149,7 @@ export function validateSnapshot(snapshot) {
         }
       }
     }
+    validatePortfolioCensusEvidence(portfolio)
   }
   const noesis = snapshot.portfolios[1]
   if (JSON.stringify(noesis.infrastructure) !== JSON.stringify(['_portfolio-audit', 'antahkarana-recovery-20260831-pzm8eM'])) throw new TypeError('Tryambakam-Noesis infrastructure exclusions drifted')
@@ -221,6 +273,16 @@ export function renderPortfolioMarkdown(portfolio, digest) {
     for (const entry of ownedEntries) lines.push(`| \`${entry.folder}\` | ${entry.workIds.join(', ')} | ${entry.ownership} | ${entry.relationship} | ${entry.relatedWorkId ?? '—'} | ${entry.identityStatus ?? 'existing-mapping-reference'} |`)
     lines.push('')
   }
+  if (portfolio.infrastructureEvidence?.length) {
+    lines.push('## Physical infrastructure provenance', '', '| Folder | Physical role | Source references |', '|---|---|---|')
+    for (const row of portfolio.infrastructureEvidence) lines.push(`| \`${row.folder}\` | ${row.kind} | ${row.sourceRefs.join(', ')} |`)
+    lines.push('')
+  }
+  if (portfolio.historicalFolders?.length) {
+    lines.push('## Historical folder dispositions', '', 'Historical paths are retained evidence. Only the named current checkout is expected physically; a missing current checkout still blocks the census.', '', '| Historical folder | Disposition | Current folder | Source references |', '|---|---|---|---|')
+    for (const row of portfolio.historicalFolders) lines.push(`| \`${row.folder}\` | ${row.disposition} | \`${row.currentFolder}\` | ${row.sourceRefs.join(', ')} |`)
+    lines.push('')
+  }
   lines.push('No repository directory was moved or nested by this header.', '')
   return lines.join('\n')
 }
@@ -232,10 +294,13 @@ export function renderPortfolioJson(portfolio, digest) {
     authority: 'proposal-only',
     portfolioId: portfolio.portfolioId,
     itemLabel: portfolio.itemLabel,
+    ...(Object.hasOwn(portfolio, 'censusObservedAt') ? { censusObservedAt: portfolio.censusObservedAt } : {}),
     pathGrammar: `<projects-root>/${portfolio.portfolioId}/<repository>`,
     folders: portfolio.folders,
     infrastructure: portfolio.infrastructure ?? [],
     ...(Object.hasOwn(portfolio, 'infrastructureWorkMappings') ? { infrastructureWorkMappings: portfolio.infrastructureWorkMappings } : {}),
+    ...(Object.hasOwn(portfolio, 'infrastructureEvidence') ? { infrastructureEvidence: portfolio.infrastructureEvidence } : {}),
+    ...(Object.hasOwn(portfolio, 'historicalFolders') ? { historicalFolders: portfolio.historicalFolders } : {}),
     archiveContainer: portfolio.archiveContainer ?? null,
     archivedProjects: portfolio.archivedProjects ?? [],
     missingClientAccounts: portfolio.missingClientAccounts ?? [],

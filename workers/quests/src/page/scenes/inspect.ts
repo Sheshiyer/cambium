@@ -1883,6 +1883,20 @@ function selectInspectView(env, pane, focusSelected){
   if (focusSelected) focusRenderedTab('mapwrap', '[data-inspect-pane-select="' + INSPECT_PANE + '"]');
 }
 function renderInspect(env){
+  if (!env) {
+    const held = unavailablePanel('Proof waits for a verified read', 'Work, decisions and evidence are unavailable until the tenant connection is restored. The system diagram remains a source reference.', FRESHNESS_STATE.detail || 'held');
+    const system = '<section id="inspect-system-panel" data-inspect-pane="system" class="inspect-pane is-active" role="tabpanel" aria-labelledby="inspect-system-tab"><div id="inspect-system-atlas" data-inspect-system-atlas="1" data-no-scene-drag="1"></div></section>';
+    const proof = '<section id="inspect-proof-panel" data-inspect-pane="proof" class="inspect-pane is-active" role="tabpanel" aria-labelledby="inspect-proof-tab">' + held + '</section>';
+    $('mapwrap').innerHTML = '<div class="maphead"><div><h2>Inspect</h2><p>Evidence and system reference</p></div></div>' + renderInspectPaneSwitcher() + (INSPECT_PANE === 'system' ? system : proof);
+    if (INSPECT_PANE === 'system') CambiumSystemAtlas.mount($('mapwrap').querySelector('[data-inspect-system-atlas]'));
+    wireUnavailablePanel($('mapwrap'));
+    const tabs = [...$('mapwrap').querySelectorAll('[data-inspect-pane-select]')];
+    tabs.forEach((el, index) => {
+      el.onclick = () => selectInspectView(null, el.dataset.inspectPaneSelect, true);
+      el.onkeydown = event => { const next = tabKeyTargetIndex(event, index, tabs.length); if (next !== null) selectInspectView(null, tabs[next].dataset.inspectPaneSelect, true); };
+    });
+    return;
+  }
   const L = env.ledger || env;
   const activeStageId = stageForArc((L.current && L.current.arc) || 'XVII');
   const stageCards = STAGES.map((stage, i) => {
@@ -1913,6 +1927,7 @@ function renderInspect(env){
     '</section>';
   const systemPane =
     '<section id="inspect-system-panel" data-inspect-pane="system" class="inspect-pane is-active" role="tabpanel" aria-labelledby="inspect-system-tab">' +
+      '<div id="inspect-system-atlas" data-inspect-system-atlas="1" data-no-scene-drag="1"></div>' +
       '<div class="inspect-pane-section"><div class="inspect-pane-heading">System map</div>' + renderInspectGroups(inspectEnv, L, ['tools','rails']) + '</div>' +
       renderInspectPageReadiness(inspectEnv, L) +
       renderInspectSecondaryLinks(inspectEnv, L) +
@@ -1926,6 +1941,7 @@ function renderInspect(env){
     renderInspectProofSummary(inspectEnv, L) +
     renderInspectPaneSwitcher() + (INSPECT_PANE === 'system' ? systemPane : proofPane) +
     '<div class="mapnote">Inspect keeps the low-level proof rows out of Mission, Gate, Tools, and Story.</div>';
+  if (INSPECT_PANE === 'system') CambiumSystemAtlas.mount($('mapwrap').querySelector('[data-inspect-system-atlas]'));
   const inspectTabs = [...$('mapwrap').querySelectorAll('[data-inspect-pane-select]')];
   inspectTabs.forEach((el, index) => {
     el.onclick = () => selectInspectView(env, el.dataset.inspectPaneSelect, true);

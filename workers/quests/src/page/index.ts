@@ -9,12 +9,14 @@ import { STYLE_INSPECT } from './styles/inspect.ts';
 import { STYLE_STORY } from './styles/story.ts';
 import { STYLE_GATE } from './styles/gate.ts';
 import { STYLE_SHEET } from './styles/sheet.ts';
+import { STYLE_WORKBENCH } from './styles/workbench.ts';
 import { STYLE_STATES } from './styles/states.ts';
 import { SCAFFOLD } from './scaffold.ts';
 import { CLIENT_CORE } from './client/core.ts';
 import { GLYPHS } from './glyphs.ts';
 import { COMPONENT_MISSION_CONTROL } from './components/mission-control.ts';
 import { COMPONENT_GALLERY } from './components/gallery.ts';
+import { SYSTEM_ATLAS_CSS, SYSTEM_ATLAS_BROWSER } from './components/system-atlas.ts';
 import { CLIENT_BOOT } from './client/boot.ts';
 import { CLIENT_SCENE_ENGINE } from './client/scene-engine.ts';
 import { SCENE_TOOLS } from './scenes/tools.ts';
@@ -27,26 +29,32 @@ import { SCENE_STORY } from './scenes/story.ts';
 import { CLIENT_FRESHNESS } from './client/freshness.ts';
 import { CLIENT_DATA } from './client/data.ts';
 import { OPERATING_FABRIC_PAGE } from './operating-fabric/index.ts';
+import { CLIENT_CURIOUS_READ_BRIDGE } from './client/curious-read-bridge.ts';
+import { CURIOUS_WORLD_PAGE } from './components/curious-world.ts';
 
-// LEGACY_PAGE freezes the current concatenation verbatim — no chunk moves,
-// reorders, or rewrites. PAGE injects the inert operating fabric fragment at
-// the single legacy </body> index; removing the fragment restores LEGACY_PAGE
-// byte-for-byte. PAGE stays the handler's only document export.
+// LEGACY_PAGE retains the reviewed five-scene composition, with the additive
+// source atlas shared by Inspect/System and Fabric sheets. PAGE injects the
+// inert operating fabric fragment at the single legacy </body> index. Removing
+// the fragment restores LEGACY_PAGE byte-for-byte; PAGE remains the handler's
+// only document export.
 export const LEGACY_PAGE =
   STYLE_TOKENS +
   STYLE_TOOLS +
   STYLE_MISSION +
   STYLE_COMPONENTS +
   STYLE_INSPECT +
+  SYSTEM_ATLAS_CSS +
   STYLE_STORY +
   STYLE_GATE +
   STYLE_SHEET +
+  STYLE_WORKBENCH +
   STYLE_STATES +
   SCAFFOLD +
   CLIENT_CORE +
   GLYPHS +
   COMPONENT_MISSION_CONTROL +
   COMPONENT_GALLERY +
+  SYSTEM_ATLAS_BROWSER +
   CLIENT_BOOT +
   CLIENT_SCENE_ENGINE +
   SCENE_TOOLS +
@@ -57,6 +65,7 @@ export const LEGACY_PAGE =
   SCENE_INSPECT +
   SCENE_STORY +
   CLIENT_FRESHNESS +
+  CLIENT_CURIOUS_READ_BRIDGE +
   CLIENT_DATA;
 
 const bodyClose = '</body>';
@@ -68,4 +77,5 @@ if (bodyCloseIndex < 0 || bodyCloseIndex !== LEGACY_PAGE.lastIndexOf(bodyClose))
 export const PAGE =
   LEGACY_PAGE.slice(0, bodyCloseIndex) +
   OPERATING_FABRIC_PAGE +
+  CURIOUS_WORLD_PAGE +
   LEGACY_PAGE.slice(bodyCloseIndex);

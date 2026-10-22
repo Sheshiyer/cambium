@@ -245,18 +245,22 @@ if (!batch6) throw new Error('Batch 6 foundation reconciliation queue is missing
 
 const repositoryName = (repositoryRef: string): string => repositoryRef.split('/').slice(0, 2).join('/');
 
-test('current queue digests bind exact catalog and root authorities', () => {
+test('historical queue keeps its exact root authority while the proposal census advances', () => {
   const rootSnapshot = JSON.parse(readFileSync(
     new URL('../../../docs/project-management/portfolio-roots.v1.json', import.meta.url),
     'utf8',
   ));
   assert.equal(PORTFOLIO_ROOT_MAP_DIGEST, snapshotDigest(rootSnapshot));
+  const historicalRoot = JSON.parse(readFileSync(new URL('../../../docs/project-management/portfolio-roots.pre-2026-10-08-census.v1.json', import.meta.url), 'utf8'));
+  const historicalRootDigest = snapshotDigest(historicalRoot);
+  assert.equal(historicalRootDigest, '47fe986558965c313170b5e18368c9f49b72c23161af0c223490c07d69a2b430');
+  assert.notEqual(PORTFOLIO_ROOT_MAP_DIGEST, historicalRootDigest);
   assert.deepEqual(queue.currentDigests, {
-    rootMapDigest: PORTFOLIO_ROOT_MAP_DIGEST,
+    rootMapDigest: historicalRootDigest,
     catalogDigest: PORTFOLIO_CATALOG.catalogDigest,
     classificationDigest: PORTFOLIO_CLASSIFICATION_DIGEST,
   });
-  assert.equal(batch1.defaults?.rootMapDigest, PORTFOLIO_ROOT_MAP_DIGEST);
+  assert.equal(batch1.defaults?.rootMapDigest, historicalRootDigest);
   assert.equal(batch1.defaults?.catalogDigest, PORTFOLIO_CATALOG.catalogDigest);
   assert.equal(batch1.defaults?.classificationDigest, PORTFOLIO_CLASSIFICATION_DIGEST);
   assert.equal(batch1.defaults?.founderDecisionStatus, 'founder-reviewed');
