@@ -84,3 +84,18 @@ matching Hermes code and vault source pins, protected Clio relay, and enabled
 runner execution. Keep existing runtime settings unchanged until an owner
 approves the concrete activation and rollback plan. Never enable legacy ACK to
 work around missing execution proof.
+
+## Local Workers runtime verification
+
+Run `node scripts/employee-growth-workerd-smoke.mjs <receipt-path>` with Wrangler
+installed. The script uses the explicit `thoughtseed-labs` auth profile but all
+operations are `--local` against synthetic KV/D1 bindings in its own temporary
+storage. It loads no local credential file into the Worker, uses generated
+synthetic member/admin tokens, applies normal migrations, and removes its local
+fixtures after shutdown. It never invokes deploy, remote bindings, or a remote
+KV/D1 command.
+
+The recorded smoke on source `eb181c6` passes nine HTTP checks and confirms one
+D1 request despite idempotent replay. It verifies employee context, submission,
+private readback, denial cases, and the durable native directive. It does not
+verify live employee authentication, provider inference, or Hermes execution.

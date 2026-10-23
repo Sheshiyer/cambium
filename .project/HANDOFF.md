@@ -2629,3 +2629,9 @@ Workflow source is removed in this PR. Explicit local release verification and s
   storage, terminal foldback, duplicate business-outcome guard, and owner bindings;
   growth is an additional closed command. Existing retirement handoff was kept.
   Focused release-baseline handler/growth verification passes 430/430.
+- Local Workers runtime smoke on exact candidate eb181c6 passes nine HTTP checks
+  using Wrangler 4.124.0, compatibility date 2026-05-01 with nodejs_compat, actual
+  isolated local KV/D1, and synthetic identities. One persisted D1 request after
+  replay, private readback denial, and the native runner directive are verified.
+  Receipt: docs/evidence/2026-10-24-growth-workerd-local.json. No runtime fix was
+  needed; this adds test/evidence only and does not alter the staged Worker code.
