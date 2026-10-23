@@ -2,7 +2,7 @@
 // Regenerate only from reviewed committed sources; no runtime whole-vault ingestion.
 export const GROWTH_CONTEXT_PROJECTION = {
   "schema": "thoughtseed.growth.context_projection.v1",
-  "sourceCommit": "bc2b60cd89a27a16ca418b3c3cc479506d26d112",
+  "sourceCommit": "04df969bc93978d3820b36744fec15f76ac0fc11",
   "projectionDigest": "sha256:00532c8959cea9b1cf43d383641255d8d29ad6ddbdcb96a7c79cde1e498e3c90",
   "documents": [
     {
