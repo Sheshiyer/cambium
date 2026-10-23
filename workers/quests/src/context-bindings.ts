@@ -514,6 +514,9 @@ export function createProviderEmbedder({
     if (expectedDimensions !== undefined && embedding.length !== expectedDimensions) {
       throw new Error('embedding provider returned incompatible dimensions');
     }
+    if (expectedDimensions !== undefined && !embedding.every(value=>Number.isFinite(Math.fround(value)))) {
+      throw new Error('embedding provider returned float32 overflow');
+    }
     if (expectedDimensions !== undefined && !embedding.some(value=>Math.fround(value)!==0)) {
       throw new Error('embedding provider returned an invalid zero vector');
     }

@@ -395,7 +395,7 @@ export async function ingestCortexContent(
     if (stored.length !== vectors.length || new Set(stored.map(vector=>vector.id)).size !== vectors.length
       || !vectors.every(vector=>stored.some(actual=>actual.id===vector.id
         && (Array.isArray(actual.values) || actual.values instanceof Float32Array || actual.values instanceof Float64Array) && actual.values.length===deps.embeddingSpace!.dimensions
-        && actual.values.every(value=>typeof value==='number' && Number.isFinite(value))
+        && actual.values.every(value=>typeof value==='number' && Number.isFinite(value) && Number.isFinite(Math.fround(value)))
         && actual.values.some(value=>Math.fround(value)!==0)
         && actual.values.every((value,index)=>Math.fround(value)===Math.fround(vector.values[index]))
         && ['tenant','kind','source','path','contentDigest','embeddingSpace','embeddingProvider','embeddingModel','embeddingDimensions','embeddingIndex'].every(key=>actual.metadata?.[key]===vector.metadata?.[key])))) {
