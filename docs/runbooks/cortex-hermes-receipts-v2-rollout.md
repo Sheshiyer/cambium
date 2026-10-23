@@ -98,8 +98,9 @@ new-space semantic retrieval.
 ## Approved rollout sequence
 
 Proceed only after the owner approves this exact source/bundle/configuration
-packet. A version-specific production boundary still applies to the resulting
-uploaded version.
+packet. Approval applies only to the immutable uploaded version independently
+verified against these exact source, bundle and configuration pins. Stop on an
+unexplained mismatch before changing traffic.
 
 1. Refresh production traffic and bindings. Expect growth version `b33a1a6e` at
    100%, 43 bindings, and the existing legacy index at 1024/cosine. Stop on an
@@ -111,8 +112,9 @@ uploaded version.
    with a live-preserving overlay plus only the two approved additions. Record
    the resulting immutable version ID and independently compare all bindings,
    runtime settings, and exact bundle/source pins before any traffic change.
-4. Promote only the reviewed resulting version under the applicable production
-   approval. Read back 100% traffic and all preserved settings.
+4. Under the owner approval for this pinned packet, promote only the resulting
+   version whose immutable source, bundle and settings readback match step 3.
+   Read back 100% traffic and all preserved settings.
 5. Change only `HERMES_CORTEX_INGESTION_URL` to the new route. Keep global native
    execution disabled, growth-only execution enabled, and legacy ACK disabled.
    Keep current protected tokens and the immutable runner source.
