@@ -4,8 +4,9 @@ import { createNavigationChart, createInstrumentObserver } from './navigation-in
 import { TRAVELER_DESIGNS, type TravelerDesignId } from './character.ts';
 import { travelerPortrait } from './traveler-portrait.ts';
 import {
-  HELD_GATE, gateActionState, gateAdmissionSummary, gateCountLabel, gateInspectRows, normalizeGateSnapshot,
-  type GateBridge, type GateKind, type GateSnapshot,
+  HELD_GATE, GATE_PLACE_NAMES, gateActionState, gateAdmissionSummary, gateBeacons, gateCountLabel, gateGroups, gateInspectRows,
+  gateProposalsAt, gateTrail, normalizeGateSnapshot,
+  type GateBridge, type GateKind, type GateProposal, type GateSnapshot,
 } from './gate-folio.ts';
 
 type Landmark = typeof WORLD_LANDMARKS[number];
@@ -44,6 +45,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   // at a time; showPanel() clears it so stale callbacks never paint elsewhere.
   let gateHost: HTMLElement | null = null;
   let gateDigest: string | null = null;
+  // null = the Gate queue (every place); a landmark id = that subject landmark's decisions.
+  let gateScope: string | null = null;
   let gateConfirm: GateKind | null = null;
   let gateMessage: { text: string; tone: 'pending' | 'ok' | 'refused' } | null = null;
   let returnFocus: HTMLElement | null = null;
@@ -75,7 +78,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     if (action) listen(node, 'click', () => action());
     return node;
   }
-  function toolIcon(kind: 'map' | 'exit' | 'traveler'): SVGSVGElement {
+  function toolIcon(kind: 'map' | 'traveler'): SVGSVGElement {
     const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     node.setAttribute('viewBox', '0 0 24 24'); node.setAttribute('aria-hidden', 'true'); node.setAttribute('focusable', 'false');
     const path = document.createElementNS(node.namespaceURI, 'path');
@@ -97,14 +100,12 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   const mapButton = button('', 'cw-button cw-map-button', () => openMap());
   mapButton.append(toolIcon('map'), element('span', '', 'Chart'));
   mapButton.setAttribute('aria-label', 'Open district chart and local passport');
-  const exitButton = button('', 'cw-button cw-exit', () => exit());
-  exitButton.append(toolIcon('exit'), element('span', '', '2D desk'));
-  exitButton.setAttribute('aria-label', 'Return to the 2D desk');
   const travelerButton = button('', 'cw-button cw-traveler-button', () => openTravelers());
   const travelerLabel = element('span', '', 'Courier');
   travelerButton.append(toolIcon('traveler'), travelerLabel);
   travelerButton.setAttribute('aria-label', 'Choose your traveler');
-  topActions.append(travelerButton, mapButton, exitButton);
+  // The 3D world is the founder surface; there is no way back to the retired 2D desk.
+  topActions.append(travelerButton, mapButton);
   header.append(brand, topActions);
   const location = element('div', 'cw-location');
   const districtNumber = element('span', 'cw-location-index', '00 / THE THRESHOLD');
@@ -222,13 +223,12 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const axis = keyboardAxis(pressed);
     world?.setInput(normalizeJoystick(axis.x + touchAxis.x, axis.z + touchAxis.z, 1), pressed.has('ShiftLeft') || pressed.has('ShiftRight'));
   }
-  function exit(): void { dispose(); bridge.onExit(); }
   function showPanel(title: string): void {
     if (disposed) return;
     if (!modal) returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     modal = true; clearInput(); world?.setBlocked(true); syncInstrument();
     dialog.dataset.panel = 'folio';
-    gateHost = null; gateDigest = null; gateConfirm = null; gateMessage = null;
+    gateHost = null; gateDigest = null; gateScope = null; gateConfirm = null; gateMessage = null;
     dialogTitle.textContent = title;
     dialogBody.replaceChildren();
     dialogBody.scrollTop = 0;
@@ -314,21 +314,48 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const source = element('p', 'cw-source-path', landmark.source);
     source.title = landmark.source;
     provenance.append(source); dialogBody.append(provenance);
-    if (landmark.id === 'gate') {
+    if (landmark.id === 'gate' || gateProposalsAt(gate, landmark.id).length) {
       gateHost = element('section', 'cw-gate');
-      gateHost.setAttribute('aria-label', 'Founder Gate');
+      gateHost.setAttribute('aria-label', landmark.id === 'gate' ? 'Founder Gate' : `Founder decisions at ${landmark.name}`);
+      gateScope = landmark.id === 'gate' ? null : landmark.id;
       dialogBody.insertBefore(gateHost, dialogBody.children[1] ?? null);
       renderGate();
     }
-    const actions = element('div', 'cw-workbench-actions');
-    actions.append(actionButton('Source atlas ↗', 'workbench', 'inspect'), actionButton('Mission desk ↗', 'workbench', 'mission'));
-    dialogBody.append(actions);
   }
   function gateNode(tag: 'dl' | 'dt' | 'dd', className: string, value?: string): HTMLElement {
     return element(tag, className, value);
   }
+  function gateRow(proposal: GateProposal): HTMLButtonElement {
+    const node = actionButton(proposal.title, 'gate-open', proposal.changeDigest);
+    node.classList.add('cw-gate-row');
+    node.dataset.expired = String(proposal.expired);
+    node.append(element('small', 'cw-gate-digest', proposal.changeDigest),
+      element('small', '', `${proposal.expired ? 'Approval window expired' : `Approve by ${proposal.approvalExpiresAt}`} · Inspect ↗`));
+    return node;
+  }
+  function renderGatePath(host: HTMLElement): void {
+    const latest = gate.paths[0];
+    if (!latest) return;
+    const path = element('section', 'cw-gate-path');
+    path.setAttribute('aria-label', 'Latest founder decision path');
+    path.append(element('span', 'cw-kicker', 'LATEST DECISION / THE REAL PATH'), element('p', 'cw-gate-path-title', latest.title));
+    const stages = latest.decision === 'rejected'
+      ? [{ label: 'Rejected · the goal graph was not written', done: true }]
+      : [['committed', 'Committed to the goal graph'], ['directive-queued', 'Directive queued for Hermes'],
+        ['runner-claimed', 'Runner claimed the work'], ['receipt', 'Receipt landed']]
+        .map(([stage, label], index, all) => ({ label, done: latest.reached !== null && all.findIndex(item => item[0] === latest.reached) >= index }));
+    const list = element('ol', 'cw-gate-path-stages');
+    for (const stage of stages) {
+      const item = element('li', '', `${stage.done ? '● ' : '○ '}${stage.label}`);
+      item.dataset.done = String(stage.done);
+      list.append(item);
+    }
+    path.append(list, element('p', 'cw-gate-path-note', 'Each step lights only when live state proves it. The runner run keeps its own yes.'));
+    host.append(path);
+  }
   function renderGateList(host: HTMLElement): void {
-    host.append(element('span', 'cw-kicker', 'FOUNDER GATE / GOAL PROPOSALS'));
+    const scoped = gateScope;
+    host.append(element('span', 'cw-kicker', scoped ? 'FOUNDER DECISIONS / AT THIS PLACE' : 'FOUNDER GATE / EVERY PLACE'));
     const mode = element('p', 'cw-gate-mode', gate.label);
     mode.dataset.signer = gate.signer;
     mode.setAttribute('role', 'status');
@@ -337,16 +364,31 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       host.append(element('p', 'cw-gate-empty', gate.state === 'checking' ? 'Checking the founder read…' : 'The Gate read is held. Nothing can be signed until a verified read returns.'));
       return;
     }
-    if (!gate.proposals.length) { host.append(element('p', 'cw-gate-empty', 'No goal proposals are waiting for a founder decision.')); return; }
-    const list = element('div', 'cw-gate-list');
-    for (const proposal of gate.proposals) {
-      const node = actionButton(proposal.title, 'gate-open', proposal.changeDigest);
-      node.classList.add('cw-gate-row');
-      node.append(element('small', 'cw-gate-digest', proposal.changeDigest),
-        element('small', '', `${proposal.expired ? 'Approval window expired' : `Approve by ${proposal.approvalExpiresAt}`} · Inspect ↗`));
-      list.append(node);
+    if (!scoped) renderGatePath(host);
+    if (scoped) {
+      const here = gateProposalsAt(gate, scoped);
+      if (!here.length) { host.append(element('p', 'cw-gate-empty', 'No founder decisions are waiting here.')); return; }
+      const list = element('div', 'cw-gate-list');
+      here.forEach(proposal => list.append(gateRow(proposal)));
+      host.append(list, actionButton('The whole Gate queue ↗', 'inspect', 'gate'));
+      return;
     }
-    host.append(list);
+    const groups = gateGroups(gate);
+    if (!groups.length) { host.append(element('p', 'cw-gate-empty', 'No goal proposals are waiting for a founder decision.')); return; }
+    for (const group of groups) {
+      const section = element('section', 'cw-gate-group');
+      section.dataset.place = group.landmarkId;
+      section.append(element('span', 'cw-kicker', `${group.name.toUpperCase()} · ${group.proposals.length}`));
+      if (group.landmarkId !== 'gate') {
+        const goto = actionButton(`Walk to the ${group.name} beacon ↗`, 'gate-goto', group.landmarkId);
+        goto.classList.add('cw-gate-goto');
+        section.append(goto);
+      }
+      const list = element('div', 'cw-gate-list');
+      group.proposals.forEach(proposal => list.append(gateRow(proposal)));
+      section.append(list);
+      host.append(section);
+    }
   }
   function renderGateProposal(host: HTMLElement, digest: string): void {
     const proposal = gate.proposals.find(item => item.changeDigest === digest);
@@ -378,6 +420,13 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       host.append(warning);
     }
     host.append(element('p', 'cw-gate-consequence', proposal.consequence), element('p', 'cw-gate-reversibility', proposal.reversibility));
+    host.append(element('p', 'cw-gate-place', `Lives at ${GATE_PLACE_NAMES[proposal.placement.landmarkId]}`));
+    if (proposal.expired) {
+      const renew = element('section', 'cw-gate-renew');
+      renew.append(element('span', 'cw-kicker', 'REQUEST A FRESH PROPOSAL'),
+        element('p', '', 'This approval window has closed. Post a new message in the founder chat and submit it; each message makes one proposal, so resubmitting this one only returns the expired duplicate. Reject still works here.'));
+      host.append(renew);
+    }
     const actions = element('div', 'cw-gate-actions');
     if (gateConfirm) {
       const approving = gateConfirm === 'approve-goal-graph';
@@ -424,8 +473,10 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     }
   }
   function openGateProposal(digest: string): void {
-    if (!gate.proposals.some(item => item.changeDigest === digest)) return;
-    showPanel('Founder Gate'); dialog.dataset.panel = 'gate';
+    const proposal = gate.proposals.find(item => item.changeDigest === digest);
+    if (!proposal) return;
+    showPanel(proposal.placement.landmarkId === 'gate' ? 'Founder Gate' : GATE_PLACE_NAMES[proposal.placement.landmarkId]);
+    dialog.dataset.panel = 'gate';
     gateHost = element('section', 'cw-gate');
     gateHost.setAttribute('aria-label', 'Founder Gate proposal inspector');
     gateDigest = digest;
@@ -440,7 +491,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       gateMessage = { text: 'Signing is closed for this proposal · no write.', tone: 'refused' };
       renderGate(); return;
     }
-    gateMessage = { text: 'Signing with Telegram founder verification…', tone: 'pending' };
+    gateMessage = { text: gate.signer === 'access' ? 'Signing with founder Access verification…' : 'Signing with Telegram founder verification…', tone: 'pending' };
     renderGate();
     let pending: Promise<unknown>;
     try { pending = Promise.resolve(bridge.signGate(kind, digest)); } catch { pending = Promise.reject(new Error('sign failed')); }
@@ -459,8 +510,19 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   function onGate(snapshot: unknown): void {
     if (disposed) return;
     gate = normalizeGateSnapshot(snapshot);
-    if (nearby?.id === 'gate') nearVerb.textContent = `${nearby.verb} · ${gateCountLabel(gate)}`;
+    syncDecisions();
+    if (nearby) nearVerb.textContent = nearbyVerb(nearby);
     if (modal && gateHost?.isConnected) renderGate();
+  }
+  function nearbyVerb(target: Landmark): string {
+    if (target.id === 'gate') return `${target.verb} · ${gateCountLabel(gate)}`;
+    const here = gateProposalsAt(gate, target.id).length;
+    return here ? `${target.verb} · ${here} founder decision${here === 1 ? '' : 's'} waiting` : `${target.verb} · source`;
+  }
+  function syncDecisions(): void {
+    if (!world || disposed) return;
+    world.setBeacons(gateBeacons(gate, Date.now()));
+    world.setTrail(gateTrail(gate));
   }
   function inspectNearby(): void {
     if (disposed || !begun || modal) return;
@@ -553,13 +615,15 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       closePanel(); begun = true; root.dataset.walking = 'true'; intro.hidden = true; world?.setBlocked(false); world?.teleport(id); world?.start(); syncInstrument(); focus();
     } else if (target.dataset.cwAction === 'directory') openDirectory();
     else if (target.dataset.cwAction === 'gate-open' && id) openGateProposal(id);
+    else if (target.dataset.cwAction === 'gate-goto' && id) {
+      const district = gateGroups(gate).find(group => group.landmarkId === id)?.proposals[0]?.placement.districtId;
+      if (district) { closePanel(); begun = true; root.dataset.walking = 'true'; intro.hidden = true; world?.setBlocked(false); world?.teleport(district); world?.start(); syncInstrument(); focus(); }
+    }
     else if (target.dataset.cwAction === 'gate-confirm' && (id === 'approve-goal-graph' || id === 'reject-goal-graph')) {
       gateConfirm = id; gateMessage = null; renderGate();
     } else if (target.dataset.cwAction === 'gate-cancel') { gateConfirm = null; renderGate(); }
     else if (target.dataset.cwAction === 'gate-sign' && (id === 'approve-goal-graph' || id === 'reject-goal-graph')) signGate(id);
-    else if (target.dataset.cwAction === 'workbench' && (id === 'mission' || id === 'gate' || id === 'inspect')) {
-      dispose(); bridge.openWorkbench(id);
-    }
+
   });
   listen(dialog, 'cancel', event => { event.preventDefault(); closePanel(); });
   listen(dialog, 'keydown', event => {
@@ -576,7 +640,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const editable = key.target instanceof Element && !!key.target.closest('input,textarea,select,[contenteditable="true"]');
     if (!captureWorldKey(key.code, focused, editable)) return;
     key.preventDefault(); key.stopPropagation();
-    if (key.code === 'Escape') { if (modal) closePanel(); else exit(); return; }
+    // Escape closes a panel; with the 2D desk retired it never leaves the world.
+    if (key.code === 'Escape') { if (modal) closePanel(); return; }
     if (modal || !begun) { clearInput(); return; }
     if (key.code === 'KeyE') { if (!key.repeat) inspectNearby(); return; }
     pressed.add(key.code); updateInput();
@@ -665,8 +730,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
         nearby = target; inspect.disabled = !target;
         near.dataset.active = String(!!target);
         nearName.textContent = target?.name ?? 'Follow your curiosity';
-        nearVerb.textContent = !target ? 'Walk closer to inspect a source landmark'
-          : target.id === 'gate' ? `${target.verb} · ${gateCountLabel(gate)}` : `${target.verb} · source`;
+        nearVerb.textContent = !target ? 'Walk closer to inspect a source landmark' : nearbyVerb(target);
       },
       onDistrict,
       onState: snapshot => {
@@ -682,7 +746,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       onError,
     }, { reducedMotion: motion.matches });
     if (disposed) { world.dispose(); world = null; throw new Error('Curious renderer unavailable'); }
-    world.setBlocked(true); world.setCharacter(travelerId); world.start();
+    world.setBlocked(true); world.setCharacter(travelerId); world.start(); syncDecisions();
     updateInstrument();
     renderRead(bridge.getReadState());
     unsubscribe = bridge.subscribeRead(renderRead);

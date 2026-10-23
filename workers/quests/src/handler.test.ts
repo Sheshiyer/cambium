@@ -16634,3 +16634,79 @@ test('founder web gate · /founder reads carry founder Inspect; the public route
     assert.notEqual(response.status, 200, `${method} ${path}`);
   }
 });
+
+// ── In-world Gate · placement and the founder decision path ────────────────
+
+test('in-world gate · a pending row names its subject landmark from the reviewed loadout table', async () => {
+  const { kv, deps, changeDigest } = await founderGateHarness();
+  const read = await handle(req('GET', '/api/quests/cambium'), deps);
+  const row = JSON.parse(read.body).goalGraphIntake.rows.find((item: { changeDigest: string }) => item.changeDigest === changeDigest);
+  assert.deepEqual(row.placement, { schema: 'cambium.goal-graph-placement.v1', landmarkId: 'hands', districtId: 'plant', basis: 'loadout' });
+
+  // A cluster the loadout does not authorize keeps the decision at the Gate.
+  const taskKey = `goal-graph-intake-task:cambium:${changeDigest}`;
+  const task = JSON.parse(kv.store.get(taskKey)!);
+  task.node.metadata.executionAdmissionClusterId = 'cluster:other';
+  kv.store.set(taskKey, JSON.stringify(task));
+  const moved = JSON.parse((await handle(req('GET', '/api/quests/cambium'), deps)).body).goalGraphIntake.rows
+    .find((item: { changeDigest: string }) => item.changeDigest === changeDigest);
+  assert.equal(moved.placement.landmarkId, 'gate');
+  assert.equal(moved.placement.basis, 'fallback');
+});
+
+test('in-world gate · the founder read lights only the stages live state proves; the public read never sees paths', async () => {
+  const { kv, deps, initData, changeDigest } = await founderGateHarness();
+  const approved = await postGate(deps, { kind: 'approve-goal-graph', subject: changeDigest, initData });
+  assert.equal(approved.status, 200, approved.body);
+  assert.equal(JSON.parse(approved.body).committed, true);
+  const founderPath = async (overrides: Partial<Parameters<typeof handle>[1]> = {}) => {
+    const read = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': initData } }), { ...deps, ...overrides });
+    return JSON.parse(read.body).goalGraphDecisions;
+  };
+  let decisions = await founderPath();
+  assert.equal(decisions.schema, 'cambium.goal-graph-path.v1');
+  assert.deepEqual({ ...decisions.rows[0], decidedAt: undefined, title: undefined }, {
+    changeDigest, nodeId: decisions.rows[0].nodeId, decision: 'approved', reached: 'committed', decidedAt: undefined, title: undefined,
+    placement: { schema: 'cambium.goal-graph-placement.v1', landmarkId: 'hands', districtId: 'plant', basis: 'loadout' },
+  });
+  assert.doesNotMatch(JSON.stringify(decisions), /shesh|directive:relovo|runner/, 'no member, directive or runner identifiers');
+
+  kv.store.set('bridge:dir:shesh:directive:relovo-source-audit-001', JSON.stringify({ id: 'directive:relovo-source-audit-001' }));
+  assert.equal((await founderPath()).rows[0].reached, 'directive-queued');
+  const progress = (value: { claimed: boolean; terminal: boolean; outcome: 'executed' | 'failed' | 'retryable' | null }) => ({
+    executionStore: { readDirectiveProgress: async () => value } as unknown as NonNullable<Parameters<typeof handle>[1]['executionStore']>,
+  });
+  assert.equal((await founderPath(progress({ claimed: true, terminal: false, outcome: null }))).rows[0].reached, 'runner-claimed');
+  assert.equal((await founderPath(progress({ claimed: true, terminal: true, outcome: 'failed' }))).rows[0].reached, 'runner-claimed', 'a failed run is not a receipt');
+  assert.equal((await founderPath(progress({ claimed: true, terminal: true, outcome: 'executed' }))).rows[0].reached, 'receipt');
+
+  const publicRead = await handle(req('GET', '/api/quests/cambium'), deps);
+  assert.doesNotMatch(publicRead.body, /goalGraphDecisions|cambium\.goal-graph-path\.v1/);
+});
+
+test('in-world gate · a founder rejection is a path with nothing past the Gate', async () => {
+  const { deps, initData, changeDigest } = await founderGateHarness();
+  const rejected = await postGate(deps, { kind: 'reject-goal-graph', subject: changeDigest, initData });
+  assert.equal(rejected.status, 200, rejected.body);
+  const read = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': initData } }), deps);
+  const [row] = JSON.parse(read.body).goalGraphDecisions.rows;
+  assert.equal(row.changeDigest, changeDigest);
+  assert.equal(row.decision, 'rejected');
+  assert.equal(row.reached, null);
+});
+
+test('in-world gate · D1 directive progress reads claimed, terminal and outcome without exposing identities', async () => {
+  const db = new DatabaseSync(':memory:');
+  applyNormalMigrations(db);
+  const store = d1BridgeExecutionStore(new SqliteD1Database(db));
+  assert.equal(await store.readDirectiveProgress!('shesh', 'directive:none'), null);
+  const insert = db.prepare(`INSERT INTO bridge_executions (member_id, directive_id, idempotency_key, input_digest, execution_id,
+    claim_id, fencing_token, lease_expires_at, runner_id, host_identity, attempt, outcome_status, terminal, attestation_json,
+    attestation_id, attestation_digest, claimed_at, outcome_recorded_at)
+    VALUES (?, ?, 'k', 'i', ?, 'c', 'f', '2026-10-23T13:00:00Z', 'runner', 'host', 1, ?, ?, ?, ?, ?, '2026-10-23T12:00:00Z', ?)`);
+  insert.run('shesh', 'directive:claimed', 'exec-1', null, 0, null, null, null, null);
+  insert.run('shesh', 'directive:done', 'exec-2', 'executed', 1, '{}', 'att', 'sha256:x', '2026-10-23T12:05:00Z');
+  assert.deepEqual(await store.readDirectiveProgress!('shesh', 'directive:claimed'), { claimed: true, terminal: false, outcome: null });
+  assert.deepEqual(await store.readDirectiveProgress!('shesh', 'directive:done'), { claimed: true, terminal: true, outcome: 'executed' });
+  assert.equal(await store.readDirectiveProgress!('other', 'directive:done'), null, 'scoped to the member');
+});

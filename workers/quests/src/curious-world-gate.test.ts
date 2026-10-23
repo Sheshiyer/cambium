@@ -93,7 +93,7 @@ test('world gate · a Telegram founder read exposes the full digest, anchors and
   // The world never receives credentials or replay material.
   const serialized = JSON.stringify(snapshot);
   assert.doesNotMatch(serialized, /secret-signature|query_id|approvalNonce|goal-graph-approval:/);
-  assert.deepEqual(Object.keys(snapshot).sort(), ['label', 'proposals', 'signer', 'state']);
+  assert.deepEqual(Object.keys(snapshot).sort(), ['label', 'paths', 'proposals', 'signer', 'state']);
 });
 
 test('world gate · outside Telegram every proposal is read-only and sign never reaches the network', async () => {
@@ -294,4 +294,30 @@ test('world gate · /founder without the founder Inspect projection stays read-o
   const result = await refused.sign('approve-goal-graph');
   assert.equal(result.outcome, 'auth');
   assert.match(result.message, /Founder Access verification failed · no write/);
+});
+
+test('world gate · placement and decision paths pass through sanitized; unknown places and stages never reach the world', () => {
+  const h = harness();
+  const env = {
+    ...envelope([row({ placement: { landmarkId: 'hands', districtId: 'plant' } }), row({ changeDigest: 'b'.repeat(64), placement: { landmarkId: 'vault' } })]),
+    goalGraphDecisions: { schema: 'cambium.goal-graph-path.v1', ok: true, tenantId: 'cambium', rows: [
+      { changeDigest: 'c'.repeat(64), title: 'Goal proposal · Relovo', decision: 'approved', decidedAt: '2026-10-23T12:00:00Z', reached: 'directive-queued', placement: { landmarkId: 'hands' } },
+      { changeDigest: 'd'.repeat(64), title: 'x', decision: 'approved', reached: 'teleported' },
+      { changeDigest: 'e'.repeat(64), title: 'y', decision: 'maybe', reached: null },
+      { changeDigest: 'f'.repeat(64), title: 'z', decision: 'approved', reached: 'committed', memberId: 'shesh', directiveId: 'directive:x' },
+    ] },
+  };
+  h.quest(env);
+  const snapshot = h.get();
+  assert.deepEqual(snapshot.proposals.map((item: { placement: unknown }) => item.placement), [
+    { landmarkId: 'hands', districtId: 'plant' }, { landmarkId: 'gate', districtId: 'purpose' },
+  ]);
+  assert.deepEqual(snapshot.paths.map((item: { changeDigest: string; reached: string }) => [item.changeDigest[0], item.reached]), [['c', 'directive-queued'], ['f', 'committed']]);
+  assert.doesNotMatch(JSON.stringify(snapshot.paths), /shesh|directive:x/, 'only the sanitized path fields reach the world');
+
+  const wrongTenant = harness();
+  wrongTenant.quest({ ...env, goalGraphDecisions: { ...env.goalGraphDecisions, tenantId: 'other' } });
+  assert.deepEqual(wrongTenant.get().paths, []);
+  h.run('CuriousGateBridge.hold("auth", 2)');
+  assert.deepEqual(h.get().paths, [], 'a held read drops paths');
 });

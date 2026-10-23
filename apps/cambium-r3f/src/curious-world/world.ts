@@ -41,7 +41,14 @@ export interface WorldAPI {
   getState(): WorldState;
   setReducedMotion(reduced: boolean): void;
   setCharacter(id: string): void;
+  /** Display-only founder decision beacons on subject landmarks. */
+  setBeacons(beacons: readonly WorldBeacon[]): void;
+  /** Display-only lit path of the latest founder decision, as proven by live state. */
+  setTrail(segments: readonly WorldTrailSegment[]): void;
 }
+
+export type WorldBeacon = { landmarkId: string; state: 'signing' | 'expiring' | 'pending' | 'expired'; count: number };
+export type WorldTrailSegment = { stage: string; from: string; to: string };
 
 const C = { petrol: '#00272B', raised: '#012F34', acid: '#E0FF4F', mint: '#D6FFF6',
   peach: '#FFC7A1', copper: '#B88763', stone: '#536E68', light: '#AFBFB0', dark: '#254A47' };
@@ -64,7 +71,7 @@ export function createWorld(host: HTMLElement, callbacks: WorldCallbacks,
   const textures = new Set<THREE.Texture>(), removers: Array<() => void> = [];
   const environmentTargets = new Set<THREE.WebGLRenderTarget>();
   const materialCache = new Map<string, THREE.MeshStandardMaterial>();
-  const attributes = ['playerX', 'playerZ', 'cameraYaw', 'frameCount', 'drawCalls', 'triangles', 'district', 'nearby', 'worldReady',
+  const attributes = ['playerX', 'playerZ', 'cameraYaw', 'frameCount', 'drawCalls', 'triangles', 'district', 'nearby', 'worldReady', 'beacons', 'trail',
     'characterDesign', 'renderActive', 'rafPending', 'rafTicks', 'geometryCount', 'textureCount', 'programCount',
     'pixelRatio', 'backbufferPixels', 'shadowMaps', 'shadowMapSize'];
   const previousAttributes = new Map(attributes.map(key => [key, host.dataset[key]]));
@@ -176,6 +183,59 @@ export function createWorld(host: HTMLElement, callbacks: WorldCallbacks,
       dashSize: .36, gapSize: .48, depthWrite: false }); materials.add(m);
     const lines = new THREE.LineSegments(g, m); lines.computeLineDistances(); scene.add(lines);
   };
+  // Founder decisions are drawn on their own layer: beacons over subject
+  // landmarks and a lit trail along the atlas edges a decision has proven.
+  // Display only; the layer is rebuilt when the Gate snapshot changes.
+  const decisionLayer = new THREE.Group(); decisionLayer.name = 'founder-decisions'; scene.add(decisionLayer);
+  const beaconGeometry = { pillar: geo(new THREE.CylinderGeometry(.09, .09, 1, 8)), crown: geo(new THREE.TorusGeometry(.42, .07, 6, 24)),
+    ribbon: geo(new THREE.BoxGeometry(1, .05, .28)), halo: geo(new THREE.TorusGeometry(.95, .06, 6, 32)) };
+  const flatCache = new Map<string, THREE.MeshBasicMaterial>();
+  const flat = (color: string, opacity = 1) => {
+    const key = `${color}:${opacity}`;
+    if (!flatCache.has(key)) {
+      const material = new THREE.MeshBasicMaterial({ color, transparent: opacity < 1, opacity, depthWrite: opacity === 1 });
+      materials.add(material); flatCache.set(key, material);
+    }
+    return flatCache.get(key)!;
+  };
+  const BEACON_COLOR: Record<WorldBeacon['state'], string> = { signing: C.mint, expiring: C.peach, pending: C.acid, expired: C.stone };
+  const landmarkAt = (id: string) => WORLD_LANDMARKS.find(item => item.id === id);
+  let beaconLayer: THREE.Object3D[] = [], trailLayer: THREE.Object3D[] = [];
+  const clearLayer = (items: THREE.Object3D[]) => { items.forEach(item => decisionLayer.remove(item)); return [] as THREE.Object3D[]; };
+  const setBeacons = (beacons: readonly WorldBeacon[]) => {
+    if (disposed || failed) return;
+    beaconLayer = clearLayer(beaconLayer);
+    for (const beacon of beacons) {
+      const landmark = landmarkAt(beacon.landmarkId); if (!landmark) continue;
+      const height = beacon.state === 'expired' ? 1.6 : 3.4, material = flat(BEACON_COLOR[beacon.state], beacon.state === 'expired' ? .55 : 1);
+      const pillar = new THREE.Mesh(beaconGeometry.pillar, material); pillar.scale.set(1, height, 1);
+      pillar.position.set(landmark.x, height / 2 + .2, landmark.z);
+      const crown = new THREE.Mesh(beaconGeometry.crown, material); crown.rotation.x = Math.PI / 2;
+      crown.position.set(landmark.x, height + .35, landmark.z); crown.scale.setScalar(1 + Math.min(beacon.count - 1, 4) * .18);
+      pillar.userData.beacon = crown.userData.beacon = beacon.landmarkId;
+      decisionLayer.add(pillar, crown); beaconLayer.push(pillar, crown);
+    }
+    host.dataset.beacons = beacons.map(item => `${item.landmarkId}:${item.state}:${item.count}`).join(',');
+    invalidate();
+  };
+  const setTrail = (segments: readonly WorldTrailSegment[]) => {
+    if (disposed || failed) return;
+    trailLayer = clearLayer(trailLayer);
+    for (const segment of segments) {
+      const from = landmarkAt(segment.from), to = landmarkAt(segment.to); if (!from || !to) continue;
+      const material = flat(segment.stage === 'rejected' ? C.copper : C.acid, .92);
+      if (from.id === to.id) {
+        const halo = new THREE.Mesh(beaconGeometry.halo, material); halo.rotation.x = Math.PI / 2;
+        halo.position.set(from.x, .14, from.z); decisionLayer.add(halo); trailLayer.push(halo); continue;
+      }
+      const length = Math.hypot(to.x - from.x, to.z - from.z);
+      const ribbon = new THREE.Mesh(beaconGeometry.ribbon, material); ribbon.scale.set(length, 1, 1);
+      ribbon.position.set((from.x + to.x) / 2, .12, (from.z + to.z) / 2); ribbon.rotation.y = -Math.atan2(to.z - from.z, to.x - from.x);
+      decisionLayer.add(ribbon); trailLayer.push(ribbon);
+    }
+    host.dataset.trail = segments.map(item => `${item.stage}:${item.from}>${item.to}`).join(',');
+    invalidate();
+  };
   const traveler = createTraveler({ trackGeometry: g => geometries.add(g), trackMaterial: m => materials.add(m) });
   const courier = traveler.root; courier.rotation.y = Math.PI;
   const placeCamera = (dt: number, immediate = false) => {
@@ -257,6 +317,7 @@ export function createWorld(host: HTMLElement, callbacks: WorldCallbacks,
       if (!value) entered = true; schedule(); diagnostics();
     },
     setReducedMotion: value => { if (disposed || failed || value === reduced) return; reduced = value; invalidate(); },
+    setBeacons, setTrail,
     setCharacter: id => {
       if (disposed || failed || id === traveler.getDesign() || !TRAVELER_DESIGNS.some(design => design.id === id)) return;
       traveler.setDesign(id as TravelerDesignId); invalidate(); diagnostics();

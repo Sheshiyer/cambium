@@ -14,11 +14,15 @@ const CuriousGateBridge = (() => {
   const INSPECT_SCHEMA = 'cambium.goal-graph-founder-inspect.v1';
   const DIGEST = /^(?:sha256:)?[a-f0-9]{64}$/;
   const KINDS = { 'approve-goal-graph':'approve', 'reject-goal-graph':'reject' };
+  const PATH_SCHEMA = 'cambium.goal-graph-path.v1';
+  const PLACES = { gate:'purpose', hands:'plant', 'launch-lead':'growth' };
+  const STAGES = ['committed', 'directive-queued', 'runner-claimed', 'receipt', 'learning'];
   const listeners = new Set();
   const inflight = new Set();
   let revision = -1;
   let state = 'checking';
   let rows = [];
+  let paths = [];
   function signer() {
     if (typeof initData === 'string' && initData.length > 0) return 'telegram';
     return FOUNDER_WEB ? 'access' : 'none';
@@ -55,6 +59,21 @@ const CuriousGateBridge = (() => {
       issues:Object.freeze(issues),
     });
   }
+  // Display-only placement served by the Worker; anything unknown stays at the Gate.
+  function placementOf(raw) {
+    const id = raw && typeof raw.landmarkId === 'string' && Object.prototype.hasOwnProperty.call(PLACES, raw.landmarkId) ? raw.landmarkId : 'gate';
+    return Object.freeze({ landmarkId:id, districtId:PLACES[id] });
+  }
+  function pathOf(raw) {
+    if (!raw || typeof raw !== 'object' || typeof raw.changeDigest !== 'string' || !DIGEST.test(raw.changeDigest)) return null;
+    if (raw.decision !== 'approved' && raw.decision !== 'rejected') return null;
+    const reached = raw.reached === null ? null : STAGES.indexOf(raw.reached) >= 0 ? raw.reached : undefined;
+    if (reached === undefined) return null;
+    return Object.freeze({
+      changeDigest:raw.changeDigest, title:text(raw.title, 160) || 'Goal proposal', decision:raw.decision,
+      decidedAt:text(raw.decidedAt, 64), reached, placement:placementOf(raw.placement),
+    });
+  }
   function rowOf(raw) {
     if (!raw || typeof raw !== 'object' || raw.kind !== 'goal-graph-intake' || raw.source !== SOURCE) return null;
     if (raw.status !== 'pending' || raw.tenantId !== TENANT || typeof raw.changeDigest !== 'string' || !DIGEST.test(raw.changeDigest)) return null;
@@ -66,6 +85,7 @@ const CuriousGateBridge = (() => {
       sourceRef:text(raw.sourceRef, 160), receivedAt:text(raw.receivedAt, 64),
       approvalNonce:raw.approvalNonce, approvalExpiresAt:raw.approvalExpiresAt,
       consequence:text(raw.consequence, 300), reversibility:text(raw.reversibility, 300),
+      placement:placementOf(raw.placement),
     };
     row.inspect = inspectOf(raw.founderInspect, row);
     return row;
@@ -87,7 +107,7 @@ const CuriousGateBridge = (() => {
       return Object.freeze({
         changeDigest:row.changeDigest, nodeId:row.nodeId, title:row.title, summary:row.summary,
         sourceRef:row.sourceRef, receivedAt:row.receivedAt, approvalExpiresAt:row.approvalExpiresAt,
-        consequence:row.consequence, reversibility:row.reversibility, inspect:row.inspect, expired,
+        consequence:row.consequence, reversibility:row.reversibility, inspect:row.inspect, expired, placement:row.placement,
         canApprove:!reason, canReject:open, blockedReason:reason, signing:inflight.has(row.changeDigest),
       });
     });
@@ -97,7 +117,7 @@ const CuriousGateBridge = (() => {
         : signer() === 'none' ? 'Read-only · sign in at /founder to sign'
           : proposals.length && !founderRead ? (signer() === 'access' ? 'Read-only · this Access account is not a verified founder' : 'Read-only · this Telegram account is not a verified founder')
             : 'Founder signing ready';
-    return Object.freeze({ state, signer:signer(), label, proposals:Object.freeze(proposals) });
+    return Object.freeze({ state, signer:signer(), label, proposals:Object.freeze(proposals), paths:Object.freeze(state === 'read' ? paths : []) });
   }
   function notify() {
     const snapshot = build();
@@ -115,7 +135,10 @@ const CuriousGateBridge = (() => {
     quest(env, nextRevision) {
       if (!accept(nextRevision)) return;
       const list = env && env.goalGraphIntake;
-      if (!env || env.schema !== 1 || env.tenant !== TENANT) { state = 'held'; rows = []; }
+      const decisions = env && env.goalGraphDecisions;
+      paths = decisions && decisions.schema === PATH_SCHEMA && decisions.tenantId === TENANT && Array.isArray(decisions.rows)
+        ? decisions.rows.map(pathOf).filter(Boolean).slice(0, 8) : [];
+      if (!env || env.schema !== 1 || env.tenant !== TENANT) { state = 'held'; rows = []; paths = []; }
       else if (list === undefined) { state = 'read'; rows = []; }
       else if (!list || list.schema !== LIST_SCHEMA || list.tenantId !== TENANT || !Array.isArray(list.rows)) { state = 'held'; rows = []; }
       else { state = 'read'; rows = list.rows.map(rowOf).filter(Boolean).slice(0, 25); }
@@ -123,7 +146,7 @@ const CuriousGateBridge = (() => {
     },
     hold(_state, nextRevision) {
       if (!accept(nextRevision)) return;
-      state = 'held'; rows = []; notify();
+      state = 'held'; rows = []; paths = []; notify();
     },
     pending(nextRevision) {
       if (!accept(nextRevision)) return;
