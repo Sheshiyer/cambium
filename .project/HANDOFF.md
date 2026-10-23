@@ -2610,3 +2610,22 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 ### 2026-10-08 Actions retirement migration candidate
 
 Workflow source is removed in this PR. Explicit local release verification and separate readiness jobs are recorded in `.local-jobs/jobs.json`, with scheduling disabled. The 33 affected release/readiness tests pass against the local registry. Tag pushes no longer claim automatic publication. No service, deployment, signing, or release publication is activated. Original operator checkouts remain untouched.
+
+### 2026-10-23 employee growth workflow source candidate
+
+- Isolated branch adds active-member organizational growth context, confirmed
+  handoff admission, and private status/result routes. Only explicitly configured
+  organizations can submit bounded internal drafts; no client project identity
+  or publishing authority is inferred.
+- Existing BRIDGE_DB native directives, fenced claims, and terminal attestations
+  remain authoritative. Migration 0011 adds the scoped request projection; result
+  reads reconcile canonical terminal outcomes if the projection write failed.
+- Reviewed projection pins committed allowlisted vault excerpts. Runtime source
+  parity and exact organization/runner identity must be proved before activation.
+- No deployment, migration apply, provider/credential change, runner enablement,
+  queue activation, public message, or production mutation was performed.
+- Release reconciliation: rebased the feature onto exact deployed source 8835d6.
+  Conflicts retained deployed source-verification acceptance, signed envelope
+  storage, terminal foldback, duplicate business-outcome guard, and owner bindings;
+  growth is an additional closed command. Existing retirement handoff was kept.
+  Focused release-baseline handler/growth verification passes 430/430.
