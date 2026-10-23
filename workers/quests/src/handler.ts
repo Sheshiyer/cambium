@@ -102,6 +102,7 @@ import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
 import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
+import { GOAL_GRAPH_PATH_SCHEMA, resolveGoalGraphPlacement, type GoalGraphPathStage, type GoalGraphPlacement } from '../../../shared/goal-graph-placement.ts';
 import { parseExecutionAdmission } from './terminal-admission.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 import { recordWorkflowLearningEvent, summarizeWorkflowLearningMonth } from './workflow-learning.ts';
@@ -322,7 +323,15 @@ export interface BridgeExecutionContractIdentity {
   executionId: string;
 }
 
+export interface BridgeDirectiveProgress {
+  claimed: boolean;
+  terminal: boolean;
+  outcome: 'executed' | 'failed' | 'retryable' | null;
+}
+
 export interface BridgeExecutionStoreLike {
+  /** Read-only: the latest attempt for a directive, for the founder path projection. */
+  readDirectiveProgress?(memberId: string, directiveId: string): Promise<BridgeDirectiveProgress | null>;
   claimExecution(input: BridgeExecutionClaimInput): Promise<BridgeExecutionClaimResult>;
   recordExecutionOutcome(input: BridgeExecutionOutcomeInput): Promise<BridgeExecutionOutcomeResult>;
   hasTerminalExecution(memberId: string, directiveId: string, identity: BridgeExecutionContractIdentity): Promise<boolean>;
@@ -3902,6 +3911,7 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     status: 'pending',
     changeDigest,
     nodeId,
+    placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
     summary: shortText(`Telegram goal proposal awaiting founder signature: ${desiredState}`, 'Telegram goal proposal awaiting founder signature', 240),
     source: 'telegram-goal-graph-intake@v1',
@@ -3918,6 +3928,22 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     expectedHeadVersion: descriptor.expectedHeadVersion,
     fence: descriptor.fence,
   };
+}
+
+// Where this decision lives in the Field Atlas. The loadout must be registered
+// for the node's work object, and any execution-admission cluster must be one it
+// authorizes; otherwise the decision stays at the Gate. Display only.
+function goalGraphRowPlacement(task: Record<string, unknown>): GoalGraphPlacement {
+  const node = isRecord(task.node) ? task.node : {};
+  const metadata = isRecord(node.metadata) ? node.metadata : {};
+  const loadoutId = typeof node.pinnedLoadoutId === 'string' ? node.pinnedLoadoutId : null;
+  const workObjectId = typeof node.workObjectId === 'string' ? node.workObjectId : null;
+  const clusterId = metadata.executionAdmissionClusterId;
+  const loadout = loadoutId ? GOAL_GRAPH_LOADOUT_AUTHORITY.resolve(loadoutId) : null;
+  const authorized = !!loadout
+    && workObjectId !== null && loadout.eligibleWorkObjectIds.includes(workObjectId)
+    && (clusterId === undefined || (typeof clusterId === 'string' && loadout.authorizedClusterIds.includes(clusterId)));
+  return resolveGoalGraphPlacement(loadoutId, authorized);
 }
 
 // ── Founder-only Inspect projection of a pending Telegram proposal ──────────
@@ -4030,6 +4056,60 @@ async function listGoalGraphIntakeGateRows(
   }
   rows.sort((a, b) => String(b.receivedAt).localeCompare(String(a.receivedAt)));
   return rows.slice(0, GOAL_GRAPH_GATE_ROW_LIMIT);
+}
+
+// ── Founder-only decision paths ─────────────────────────────────────────────
+// For recent founder decisions on Telegram proposals, the furthest stage that
+// live state proves: committed (KV task) → directive queued (bridge directive)
+// → runner claimed (execution row) → receipt (terminal executed outcome). The
+// learning stage has no read binding yet and is never claimed. Read-only; it
+// serves no member, directive or runner identifiers.
+
+const GOAL_GRAPH_DECISION_PATH_LIMIT = 8;
+
+async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string): Promise<Array<Record<string, unknown>>> {
+  const keys = await deps.kv.list(`goal-graph-intake-task:${tenantId}:`);
+  const decided: Array<{ task: Record<string, unknown>; decidedAt: string; decision: 'approved' | 'rejected' }> = [];
+  for (const key of keys) {
+    const task = parseJsonObject(await deps.kv.get(key));
+    if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA || task.tenantId !== tenantId) continue;
+    if (storedFounderOutcomeCandidate(task)) continue;
+    if (task.status === 'committed') {
+      decided.push({ task, decision: 'approved', decidedAt: shortText(task.committedAt, shortText(task.updatedAt, '', 64), 64) });
+    } else if (task.status === 'rejected' && isRecord(task.rejection) && typeof task.rejection.rejectedAt === 'string') {
+      decided.push({ task, decision: 'rejected', decidedAt: shortText(task.rejection.rejectedAt, '', 64) });
+    }
+  }
+  decided.sort((a, b) => b.decidedAt.localeCompare(a.decidedAt));
+  const bridgeStore = deps.bridgeStore ?? kvBridgeStore(deps.kv);
+  const rows: Array<Record<string, unknown>> = [];
+  for (const { task, decision, decidedAt } of decided.slice(0, GOAL_GRAPH_DECISION_PATH_LIMIT)) {
+    const node = isRecord(task.node) ? task.node : {};
+    const metadata = isRecord(node.metadata) ? node.metadata : {};
+    let reached: GoalGraphPathStage | null = decision === 'approved' ? 'committed' : null;
+    const memberId = typeof metadata.executionAdmissionMemberId === 'string' ? metadata.executionAdmissionMemberId : '';
+    const directiveId = typeof metadata.executionAdmissionDirectiveId === 'string' ? metadata.executionAdmissionDirectiveId : '';
+    if (reached && memberId && directiveId) {
+      try {
+        if (await bridgeStore.getDirective(memberId, directiveId)) {
+          reached = 'directive-queued';
+          const progress = await deps.executionStore?.readDirectiveProgress?.(memberId, directiveId);
+          if (progress?.claimed) reached = 'runner-claimed';
+          if (progress?.terminal && progress.outcome === 'executed') reached = 'receipt';
+        }
+      } catch { /* an unavailable read proves nothing further; keep the last proven stage */ }
+    }
+    rows.push({
+      changeDigest: shortText(task.changeDigest, '', 160),
+      nodeId: shortText(task.nodeId, '', 160),
+      title: shortText(`Goal proposal · ${shortText(node.desiredState, 'Telegram goal proposal', 120)}`, 'Goal proposal', 160),
+      decision,
+      decidedAt,
+      reached,
+      placement: goalGraphRowPlacement(task),
+    });
+  }
+  return rows;
 }
 
 interface FounderOutcomeD1Projection {
@@ -4154,6 +4234,12 @@ async function appendFounderOutcomeQuestProjection(
     };
   } else {
     delete envelope.goalGraphIntake;
+  }
+  const decisionPaths = await listGoalGraphDecisionPaths(deps, tenantId);
+  if (decisionPaths.length) {
+    envelope.goalGraphDecisions = { schema: GOAL_GRAPH_PATH_SCHEMA, ok: true, tenantId, rows: decisionPaths };
+  } else {
+    delete envelope.goalGraphDecisions;
   }
   const recoveryRows = await listExpiredFounderOutcomeRecovery(deps.kv, tenantId, now, committedCandidateIds);
   if (recoveryRows.length) {

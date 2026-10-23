@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  HELD_GATE, gateActionState, gateAdmissionSummary, gateCountLabel, gateInspectRows, normalizeGateSnapshot,
+  HELD_GATE, GATE_EXPIRING_MS, gateActionState, gateAdmissionSummary, gateBeacons, gateCountLabel, gateGroups, gateInspectRows,
+  gateProposalsAt, gateTrail, normalizeGateSnapshot,
 } from './gate-folio.ts';
 
 const DIGEST = '2967cf5be0c5128b850e0fb69e402340589ee0ad4b61c0284acdb07d02d7e5cf';
@@ -96,4 +97,66 @@ test('gate counts describe the verified read only', () => {
   assert.equal(gateCountLabel(HELD_GATE), 'Gate read held');
   assert.equal(gateCountLabel(snapshot([], { state: 'checking' })), 'checking the Gate');
   assert.equal(gateAdmissionSummary(null), 'Founder Inspect not served. Signing stays closed.');
+});
+
+const D = (n: number) => String(n).repeat(64).slice(0, 64).replace(/[^0-9a-f]/g, 'a');
+
+test('placement is display-only and only the three reviewed landmarks are accepted; anything else stays at the Gate', () => {
+  const view = snapshot([
+    proposal({ changeDigest: D(1), placement: { landmarkId: 'hands' } }),
+    proposal({ changeDigest: D(2), placement: { landmarkId: 'launch-lead' } }),
+    proposal({ changeDigest: D(3), placement: { landmarkId: 'auspex' } }),
+    proposal({ changeDigest: D(4) }),
+  ]);
+  assert.deepEqual(view.proposals.map(item => item.placement), [
+    { landmarkId: 'hands', districtId: 'plant' },
+    { landmarkId: 'launch-lead', districtId: 'growth' },
+    { landmarkId: 'gate', districtId: 'purpose' },
+    { landmarkId: 'gate', districtId: 'purpose' },
+  ]);
+  assert.equal(gateProposalsAt(view, 'hands').length, 1);
+  assert.deepEqual(gateGroups(view).map(group => [group.landmarkId, group.proposals.length]), [['gate', 2], ['hands', 1], ['launch-lead', 1]]);
+  assert.deepEqual(gateProposalsAt(snapshot([proposal({ placement: { landmarkId: 'hands' } })], { state: 'held' }), 'hands'), []);
+});
+
+test('beacons show the most urgent state per landmark: signing > expiring > pending > expired', () => {
+  const now = Date.parse('2026-10-23T12:00:00.000Z');
+  const at = (ms: number) => new Date(now + ms).toISOString();
+  const view = snapshot([
+    proposal({ changeDigest: D(1), placement: { landmarkId: 'hands' }, approvalExpiresAt: at(10 * 60_000) }),
+    proposal({ changeDigest: D(2), placement: { landmarkId: 'hands' }, approvalExpiresAt: at(GATE_EXPIRING_MS - 1000) }),
+    proposal({ changeDigest: D(3), placement: { landmarkId: 'launch-lead' }, approvalExpiresAt: at(-1000), expired: true }),
+    proposal({ changeDigest: D(4), approvalExpiresAt: at(60 * 60_000), signing: true }),
+  ]);
+  assert.deepEqual(gateBeacons(view, now).sort((a, b) => a.landmarkId.localeCompare(b.landmarkId)), [
+    { landmarkId: 'gate', state: 'signing', count: 1 },
+    { landmarkId: 'hands', state: 'expiring', count: 2 },
+    { landmarkId: 'launch-lead', state: 'expired', count: 1 },
+  ]);
+  assert.deepEqual(gateBeacons(snapshot([proposal()], { state: 'checking' }), now), []);
+});
+
+test('the trail lights only proven stages of the latest decision; a rejection lights Gate to D1 only', () => {
+  const path = (reached: string | null, decision = 'approved') => ({ changeDigest: D(5), title: 'Goal proposal · Relovo', decision, decidedAt: '2026-10-23T12:00:00Z', reached, placement: { landmarkId: 'hands' } });
+  assert.deepEqual(gateTrail(snapshot([], { paths: [path('directive-queued')] })).map(item => `${item.stage}:${item.from}>${item.to}`),
+    ['committed:gate>d1', 'directive-queued:d1>hermes']);
+  assert.deepEqual(gateTrail(snapshot([], { paths: [path('receipt')] })).map(item => item.stage), ['committed', 'directive-queued', 'runner-claimed', 'receipt']);
+  assert.deepEqual(gateTrail(snapshot([], { paths: [path(null, 'rejected')] })).map(item => `${item.stage}:${item.from}>${item.to}`), ['rejected:gate>d1']);
+  assert.deepEqual(gateTrail(snapshot([], { paths: [path('teleported')] })), [], 'an unknown stage is dropped, never lit');
+  assert.deepEqual(gateTrail(snapshot([], { state: 'held', paths: [path('receipt')] })), [], 'a held read lights nothing');
+});
+
+test('an expired proposal can be rejected but explains how to get a fresh one instead of approving', () => {
+  const view = snapshot([proposal({ expired: true, canApprove: true })]);
+  const approve = gateActionState(view, view.proposals[0], 'approve-goal-graph');
+  assert.equal(approve.enabled, false);
+  assert.match(approve.reason, /post a new founder-chat message/);
+  assert.equal(gateActionState(view, view.proposals[0], 'reject-goal-graph').enabled, true);
+});
+
+test('the world source has no way back to the retired 2D desk', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const source = await readFile(new URL('./index.ts', import.meta.url), 'utf8');
+  assert.equal(source.match(/'2D desk'|'Mission desk|openWorkbench\(|'workbench'/)?.[0] ?? null, null, 'no 2D desk control or workbench link');
+  assert.equal(source.match(/else exit\(\)/)?.[0] ?? null, null, 'Escape never leaves the world');
 });

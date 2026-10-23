@@ -668,6 +668,19 @@ export function d1BridgeExecutionStore(db: D1DatabaseLike): BridgeExecutionStore
       return { status: 'recorded', terminal: terminal === 1, duplicate: false };
     },
 
+    async readDirectiveProgress(memberId, directiveId) {
+      const row = await db.prepare(`
+        SELECT terminal, outcome_status
+        FROM bridge_executions
+        WHERE member_id = ? AND directive_id = ?
+        ORDER BY attempt DESC
+        LIMIT 1
+      `).bind(memberId, directiveId).first<{ terminal: number; outcome_status: string | null }>();
+      if (!row) return null;
+      const outcome = row.outcome_status === 'executed' || row.outcome_status === 'failed' || row.outcome_status === 'retryable'
+        ? row.outcome_status : null;
+      return { claimed: true, terminal: row.terminal === 1, outcome };
+    },
     async hasTerminalExecution(memberId, directiveId, identity) {
       const row = await db.prepare(`
         SELECT terminal

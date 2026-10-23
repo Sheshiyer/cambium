@@ -165,6 +165,18 @@
 .cw .cw-gate-status { margin:0; padding:9px 12px; font:12px/1.5 var(--cw-mono); background:#d4e2d8; border-left:3px solid #99714c; }
 .cw .cw-gate-status[data-tone=ok] { border-left-color:#526944; }
 .cw .cw-gate-status[data-tone=refused] { border-left-color:#8a3b2a; color:#5a2414; }
+.cw .cw-gate-mode[data-signer=access] { border-left-color:#526944; }
+.cw .cw-gate-group { display:grid; gap:8px; padding-top:12px; border-top:1px solid #00272b1a; }
+.cw .cw-gate-goto { justify-self:start; }
+.cw .cw-gate-row[data-expired=true] { opacity:.62; }
+.cw .cw-gate-place { margin:0; font:12px/1.5 var(--cw-mono); color:#775c42; }
+.cw .cw-gate-renew { display:grid; gap:6px; padding:10px 12px; border-left:3px solid #b58b65; background:#e8dccb; }
+.cw .cw-gate-renew p { margin:0; font-size:13px; line-height:1.55; color:#4a3a2a; }
+.cw .cw-gate-path { display:grid; gap:6px; padding:12px; background:#d4e2d8; border-left:3px solid #526944; }
+.cw .cw-gate-path-title { margin:0; font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
+.cw .cw-gate-path-stages { margin:0; padding:0; list-style:none; display:grid; gap:3px; font:12px/1.5 var(--cw-mono); }
+.cw .cw-gate-path-stages li[data-done=false] { color:#6b7f78; }
+.cw .cw-gate-path-note { margin:0; font-size:12px; line-height:1.5; color:#34524b; }
 .cw .cw-passport-copy { font-size:15px; line-height:1.6; color:#34524b; margin:7px 0 22px; max-width:620px; }
 .cw .cw-passport-layout { display:grid; grid-template-columns:.95fr 1.05fr; gap:28px; align-items:start; margin-bottom:25px; }
 .cw .cw-map-ring { display:grid; gap:13px; place-items:center; padding:16px; background:#173e40; border:1px solid #99714c; border-radius:3px; }

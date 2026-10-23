@@ -88,6 +88,12 @@ flow.
   returns `409 goal_graph_stale_head` with no write. The full contract is the
   [Telegram Goal Graph intake lifecycle](../../runbooks/goal-graph-telegram-lifecycle.md)
   runbook.
+- In-world Gate (2026-10-23): every pending Telegram gate row adds a
+  display-only `placement` (`cambium.goal-graph-placement.v1`: `landmarkId`
+  `gate` | `hands` | `launch-lead`, `districtId`, `basis`). A founder-authorized
+  quests envelope adds `goalGraphDecisions` (`cambium.goal-graph-path.v1`) with
+  `changeDigest`, `nodeId`, `title`, `decision`, `decidedAt`, `reached` and
+  `placement` per recent decision. Neither changes the approval contract.
 - Founder web Gate (2026-10-22): on the Cloudflare Access protected
   `/founder` surface, `approve-goal-graph` and `reject-goal-graph` may be posted
   to `/founder/api/gate/{tenant}` with `initData: ""` and the header

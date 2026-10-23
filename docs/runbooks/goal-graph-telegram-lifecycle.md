@@ -222,6 +222,28 @@ responsible for persistence and CAS.
    verifies; a new application would need its audience added to
    `TF_ACCESS_AUD` (comma-separated) before it works. Then open
    `https://<host>/founder`, sign in, walk to the Gate and sign.
+5c. **In-world Gate (2026-10-23)** — decisions live where their work lives.
+   Each pending Telegram row carries a display-only `placement`
+   (`cambium.goal-graph-placement.v1`) from the reviewed loadout table in
+   `shared/goal-graph-placement.ts`: source-audit loadouts at **Plant / Hands**,
+   `loadout:fitcheck-launch` at **Growth / Launch Lead**, anything else (or a
+   loadout whose work object or execution-admission cluster it does not
+   authorize) at the **Gate**. A beacon over the subject landmark shows the most
+   urgent state (signing, expiring in the last five minutes, pending, expired);
+   its folio signs through the same `/api/gate` contract as the Gate, so
+   placement never changes authority. The Gate in Purpose is the queue: every
+   decision grouped by place, with a walk-to-beacon action.
+   A founder read also carries `goalGraphDecisions`
+   (`cambium.goal-graph-path.v1`): for recent decisions, the furthest stage live
+   state proves — `committed` (KV task) → `directive-queued` (bridge directive)
+   → `runner-claimed` (execution row) → `receipt` (terminal `executed`
+   outcome). A rejection reaches nothing past the Gate. The world lights only
+   those atlas edges (Gate→D1→Hermes→Proof); the runner run keeps its own yes.
+   No member, directive or runner identifier is served. Expired proposals stay
+   rejectable and explain that a fresh proposal needs a new founder-chat
+   message. The 2D desk is retired from the world (no toolbar exit, no
+   workbench links, Escape stays in the world); `?world=0` / `?scene=` deep
+   links remain only for engineering proofs.
 6. **Readback** — `GET /v1/branch-map/{tenant}` with signed Telegram init
    data in `X-Telegram-Init-Data` returns the versioned projection, sheet,
    and proof (`cambium.telegram.branch-map-route.v1`). The tenant must be in
