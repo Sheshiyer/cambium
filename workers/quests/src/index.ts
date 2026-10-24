@@ -1,4 +1,7 @@
+import { createHermesReceiptIngestion, createHermesReceiptAuthorizer, type HermesReceiptsAI } from './hermes-receipts-v2.ts';
 import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
+
+import { d1GrowthStore, parseGrowthPolicy, parseGrowthResult } from './growth-workflow.ts';
 // cambium-quests · Workers runtime glue. All logic lives in handler.ts (pure, node:test-covered).
 
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
@@ -54,6 +57,10 @@ export interface D1DatabaseLike {
 }
 
 interface Env {
+  GROWTH_WORKFLOW_TENANTS_JSON?: string;
+  GROWTH_WORKFLOW_RUNNER_MEMBER_ID?: string;
+  GROWTH_WORKFLOW_MAX_PENDING?: string;
+  GROWTH_WORKFLOW_MAX_DAILY?: string;
   /** App-state KV (quests, bridge idempotency, etc.) */
   QUESTS: {
     get(key: string): Promise<string | null>;
@@ -74,6 +81,9 @@ interface Env {
   /** Wave0 secret (>= 32 bytes) keying the activation digest so vault writers cannot forge admission. */
   WAVE0_ACTIVATION_KEY?: string;
   CAMBIUM_CORTEX?: VectorizeIndexLike;
+  CAMBIUM_HERMES_RECEIPTS_V2?: VectorizeIndexLike;
+  HERMES_RECEIPTS_V2_ENABLED?: string;
+  HERMES_RECEIPTS_AI?: HermesReceiptsAI;
   QUESTS_PUSH_TOKEN?: string;
   GATE_BOT_ID?: string;
   GATE_FOUNDER_IDS?: string;
@@ -425,7 +435,7 @@ function activeClaimBusy(row: BridgeExecutionRow, claimedAt: string): BridgeExec
 
 function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResult {
   const attestation = parseJsonRecord(row.attestation_json);
-  const command = attestation.command === 'canary.record' || attestation.command === 'service_agreement.draft.render'
+  const command = attestation.command === 'canary.record' || attestation.command === 'service_agreement.draft.render' || attestation.command === 'growth.request.draft'
     ? attestation.command
     : null;
   if ((row.outcome_status !== 'executed' && row.outcome_status !== 'failed')
@@ -466,6 +476,7 @@ function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResul
     ...(command === 'service_agreement.draft.render' && attestation.businessReceipt && typeof attestation.businessReceipt === 'object'
       ? { businessReceipt: attestation.businessReceipt as BridgeBusinessArtifactReceipt }
       : {}),
+    ...(command === 'growth.request.draft' && parseGrowthResult(attestation.growthResult) ? {growthResult:parseGrowthResult(attestation.growthResult)!} : {}),
     ...(typeof attestation.errorCode === 'string' ? { errorCode: attestation.errorCode } : {}),
     startedAt: attestation.startedAt,
     finishedAt: attestation.finishedAt,
@@ -1424,6 +1435,8 @@ export default {
           : undefined,
         cortexIngestionToken: env.CORTEX_INGESTION_TOKEN,
         cortexIngestionDeps,
+        hermesReceiptIngestionDeps: createHermesReceiptIngestion({enabled:env.HERMES_RECEIPTS_V2_ENABLED,ai:env.HERMES_RECEIPTS_AI,vectorIndex:env.CAMBIUM_HERMES_RECEIPTS_V2}),
+        authorizeHermesReceipt: env.HERMES_RECEIPTS_V2_ENABLED==='true' && env.BRIDGE_DB ? createHermesReceiptAuthorizer(env.BRIDGE_DB) : undefined,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
         routineContext: createPlexusRoutineContext({ url: env.PLEXUS_KNOWLEDGE_URL, token: env.PLEXUS_KNOWLEDGE_TOKEN, fetchImpl: workerFetch }),
         semanticRecall: embed && env.CAMBIUM_CORTEX
@@ -1449,6 +1462,8 @@ export default {
       roleTaskBindingsJson: env.HERMES_ROLE_TASK_BINDINGS_JSON,
       bridgeStore: env.BRIDGE_DB ? d1BridgeStore(env.BRIDGE_DB) : undefined,
       executionStore: env.BRIDGE_DB ? d1BridgeExecutionStore(env.BRIDGE_DB) : undefined,
+      growthStore: env.BRIDGE_DB ? d1GrowthStore(env.BRIDGE_DB) : undefined,
+      growthPolicy: parseGrowthPolicy(env.GROWTH_WORKFLOW_TENANTS_JSON, env.GROWTH_WORKFLOW_RUNNER_MEMBER_ID, env.GROWTH_WORKFLOW_MAX_PENDING, env.GROWTH_WORKFLOW_MAX_DAILY),
       businessStore: env.BRIDGE_DB && env.THOUGHTSEED_VAULT
         ? d1BridgeBusinessTaskStore(env.BRIDGE_DB, env.THOUGHTSEED_VAULT)
         : undefined,
