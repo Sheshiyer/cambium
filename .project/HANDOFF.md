@@ -2635,3 +2635,16 @@ Workflow source is removed in this PR. Explicit local release verification and s
   replay, private readback denial, and the native runner directive are verified.
   Receipt: docs/evidence/2026-10-24-growth-workerd-local.json. No runtime fix was
   needed; this adds test/evidence only and does not alter the staged Worker code.
+
+## 2026-10-24 native 768 receipt repair candidate
+
+- Live growth draft returned; original attempt 1 remains held at receipt ingestion
+  because legacy embedding returns HTTP 410. See live backend evidence; ordinary
+  employee/native UI acceptance is separate. Production remains b33a1a6e.
+- Approved 2048 repair stopped at Cloudflare code 3003 (maximum 1536 dimensions);
+  no index was created and no Worker or runner changed. Historical packet retained.
+- Replacement runtime 3851c65 uses dedicated Workers AI native BGE 768 binding
+  and a separate index; public-input compatibility probe passes. Boundary tests
+  526/526 and Wrangler dry-run pass. New pinned approval packet:
+  docs/runbooks/cortex-hermes-receipts-v2-768-rollout.md. No rollout authorized yet
+  for these changed model/bundle/resources; preserve all 43 existing bindings.

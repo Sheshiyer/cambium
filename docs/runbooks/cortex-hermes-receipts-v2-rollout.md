@@ -1,3 +1,5 @@
+> Superseded: this 2048-dimensional proposal was attempted only through index creation, which Cloudflare rejected with code 3003 (supported range 32–1536). No index was created, no Worker uploaded/promoted, and no runner URL changed. See [the native 768 replacement](cortex-hermes-receipts-v2-768-rollout.md); revised owner approval is required.
+
 # Hermes receipt v2: reviewed candidate and rollout boundary
 
 The real approved admin-self growth request returned a durable draft, but its
