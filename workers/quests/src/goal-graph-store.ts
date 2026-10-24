@@ -47,6 +47,7 @@ export interface GoalGraphApproval {
   /** Optional caller-supplied canonical bytes. They must match our bytes. */
   canonical?: string;
   decidedAt?: string;
+  channel?: 'plugin' | 'curious' | 'telegram';
   /** Compatibility aliases used by older adapter envelopes. */
   tenant_id?: string;
   change_digest?: string;
@@ -104,6 +105,7 @@ export interface GoalGraphRejectionInput {
   changeDigest: string;
   intentVersion: number;
   rejectorId: string;
+  channel?: 'plugin' | 'curious' | 'telegram';
   expiresAt: string;
   nonce: string;
   now?: string;
@@ -345,7 +347,15 @@ function resultRejected(code: string, changeDigest: string | null = null): GoalG
   return { status: 'rejected', replayed: false, changeDigest, code };
 }
 
-export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLike {
+export interface GoalGraphDecisionReceiptRow {
+  tenant_id: string; change_digest: string; intent_version: number; approver_id: string;
+  decision: 'approved' | 'rejected'; expires_at: string; nonce: string; canonical_json: string; decided_at: string;
+}
+export interface FounderDecisionStore extends GoalGraphStoreLike {
+  reject(input: GoalGraphRejectionInput): Promise<GoalGraphRejectionResult>;
+  readDecisionReceipt(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
+}
+export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionStore {
   async function readHeadRow(tenantId: string): Promise<HeadRow | null> {
     return db.prepare(`
       SELECT tenant_id, graph_version, graph_digest, source_ref, source_digest, committed_at
@@ -436,6 +446,7 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     const canonicalJson = stableJson({
       canonical: canonicalizeGoalGraphApproval(core),
       decision: 'rejected',
+      ...(input.channel ? { channel: input.channel } : {}),
       expiresAt: input.expiresAt,
       intentVersion: input.intentVersion,
       nonce: input.nonce,
@@ -564,6 +575,7 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     const approvalJson = stableJson({
       canonical: canonicalApproval,
       decision: approval.decision,
+      ...(input.approval.channel ? { channel: input.approval.channel } : {}),
       expiresAt: approval.expiresAt,
       intentVersion,
       nonce: approval.nonce,
@@ -765,7 +777,15 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     return resultRejected('commit_not_observed', changeDigest);
   }
 
-  return { readHead, readNodes, commit, reject };
+  async function readDecisionReceipt(tenantId: string, changeDigest: string, nonce: string) {
+    return db.prepare(`SELECT tenant_id, change_digest, intent_version, approver_id,
+      decision, expires_at, nonce, canonical_json, decided_at
+      FROM goal_graph_approvals WHERE approval_id = ? AND tenant_id = ? AND change_digest = ? AND nonce = ?`)
+      .bind(decisionId(tenantId, changeDigest, nonce), tenantId, changeDigest, nonce)
+      .first<{ tenant_id: string; change_digest: string; intent_version: number; approver_id: string;
+        decision: 'approved' | 'rejected'; expires_at: string; nonce: string; canonical_json: string; decided_at: string }>();
+  }
+  return { readHead, readNodes, commit, reject, readDecisionReceipt };
 }
 
 export const createGoalGraphStore = d1GoalGraphStore;
