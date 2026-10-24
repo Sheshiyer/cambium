@@ -50,8 +50,8 @@ Each stage lights up as soon as live state proves it, never earlier. The order f
 | Approved and committed | Gate receipt `committed: true`; branch map head | Purpose / gate → Identity / **d1** |
 | Directive queued | Bridge directive for the node's `executionAdmissionDirectiveId` | Identity / d1 → Plant / **hermes** |
 | Runner claimed | Directive status `claimed` (lease) | Plant / hermes (pulse) |
-| Receipt / accepted work unit | Execution receipt + accepted-work-unit foldback | Plant / hermes → Evidence / **proof** |
-| Learning | Not claimed yet: no read binding exists, so this stage is never lit | (Evidence / proof → Knowledge / cortex, later) |
+| Receipt | Terminal `executed` outcome for that directive in D1 `bridge_executions` | Plant / hermes → Evidence / **proof** |
+| Learning | The node's immutable foldback receipt reads back as an owner-attested accepted work unit (`temperance.accepted-work-unit.v1`), via the same read-only consumer as the mission fabric. Acceptance there requires the cortex projection, the exact goal/task/WorkObject binding and the admitted dispatch input digest. | Evidence / proof → Knowledge / **cortex** |
 
 - A Reject lights only Gate → d1, in the "rejected" colour. Nothing is written to the graph.
 - The path reads a new founder-only projection of this chain for the committed node. It reuses existing reads (branch map, bridge directive/execution status, foldback), adds no new writes, and offers no "run" button. The single runner execution still needs the operator's separate yes.

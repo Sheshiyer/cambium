@@ -141,6 +141,8 @@ test('the trail lights only proven stages of the latest decision; a rejection li
   assert.deepEqual(gateTrail(snapshot([], { paths: [path('directive-queued')] })).map(item => `${item.stage}:${item.from}>${item.to}`),
     ['committed:gate>d1', 'directive-queued:d1>hermes']);
   assert.deepEqual(gateTrail(snapshot([], { paths: [path('receipt')] })).map(item => item.stage), ['committed', 'directive-queued', 'runner-claimed', 'receipt']);
+  assert.deepEqual(gateTrail(snapshot([], { paths: [path('learning')] })).map(item => `${item.stage}:${item.from}>${item.to}`).slice(-2),
+    ['receipt:hermes>proof', 'learning:proof>cortex'], 'a read-back accepted work unit lights Proof→Cortex last');
   assert.deepEqual(gateTrail(snapshot([], { paths: [path(null, 'rejected')] })).map(item => `${item.stage}:${item.from}>${item.to}`), ['rejected:gate>d1']);
   assert.deepEqual(gateTrail(snapshot([], { paths: [path('teleported')] })), [], 'an unknown stage is dropped, never lit');
   assert.deepEqual(gateTrail(snapshot([], { state: 'held', paths: [path('receipt')] })), [], 'a held read lights nothing');
