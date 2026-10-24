@@ -1,13 +1,13 @@
-# Hermes receipt v2: native 768 replacement approval packet
+# Hermes receipt v2: native 768 rollout and rollback record
 
-The real approved admin-self growth request returned a durable draft, but its
-runner is correctly holding ACK at `outcome_posted`: legacy Cortex embedding
-returns provider HTTP 410. The configured `nvidia/nv-embedqa-e5-v5` hosted endpoint
+The real approved admin-self growth request returned a durable draft. Its former
+ACK hold at `outcome_posted` was repaired by the owner-approved native768 rollout.
+The unchanged legacy Cortex embedding endpoint still returns provider HTTP 410. The configured `nvidia/nv-embedqa-e5-v5` hosted endpoint
 is deprecated. This candidate gives **only the original runner's canonical
 terminal growth receipts** a separate embedding space. It does not replace or
 re-embed the existing Cortex index.
 
-The prior 2048-dimensional NVIDIA plan is infeasible: Cloudflare rejected index creation with code 3003, supported range 32–1536. Independent readback confirmed no index. No Worker or runner changed. This replacement requires fresh approval because model, bundle, dimensions and binding additions changed.
+The prior 2048-dimensional NVIDIA plan is infeasible: Cloudflare rejected index creation with code 3003, supported range 32–1536. Independent readback confirmed no index. No Worker or runner changed. The owner separately approved this replacement because model, bundle, dimensions and binding additions changed.
 
 ## Exact reviewed candidate
 
@@ -18,9 +18,19 @@ The prior 2048-dimensional NVIDIA plan is infeasible: Cloudflare rejected index 
   compilation passes. The preserved authorization, redaction and float32 readback boundaries were
   previously reviewed independently; the replacement binding adapter is covered
   by focused shape/value and invocation tests.
-- No new index, uploaded version, production promotion, or runner URL change has
-  been performed for this candidate. Production remains the approved growth
-  version `b33a1a6e-6edc-412d-b974-10e437379dc0`.
+- Completed under revised owner approval: version
+  `15622021-5fad-48e0-a0f2-4dc6ff9b6943` at100%, dedicated768/cosine index,
+  and only the approved runner receipt URL change. All43 original bindings and
+  runtime/global settings were independently preserved;46 total bindings.
+- Canonical `bridge_directives.delivered=1` at `2026-10-24T00:48:52.299Z`;
+  local phase `acked` at `00:48:52.589Z`. Original attempt1 and both draft and
+  attestation digests are unchanged. Independent vector readback passes.
+- Evidence: [production receipt](../evidence/2026-10-24-hermes-receipts-768-production.json).
+  Initial readback502 recovered through the normal timer without a code fix;
+  its precise transient mismatch cause was not established. No draft regeneration,
+  state reset, manual ACK, credential rotation or legacy migration occurred.
+- This proves the approved admin-self backend workflow. Ordinary employee and
+  native Plexus UI acceptance remain separate.
 
 ## Exact resource and configuration additions
 

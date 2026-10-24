@@ -2648,3 +2648,18 @@ Workflow source is removed in this PR. Explicit local release verification and s
   526/526 and Wrangler dry-run pass. New pinned approval packet:
   docs/runbooks/cortex-hermes-receipts-v2-768-rollout.md. No rollout authorized yet
   for these changed model/bundle/resources; preserve all 43 existing bindings.
+
+## 2026-10-24 approved native768 rollout completed
+
+- Separate owner approval activated exact runtime3851c65/bundle88c2788e in
+  immutable Worker15622021-5fad-48e0-a0f2-4dc6ff9b6943 at100%. Dedicated index
+ 768/cosine and AI binding preserve all43 prior bindings/runtime/settings;46total.
+- Only runner receipt URL changed. Normal timer recovered its transient vector
+  readback hold; original execution remains attempt1 and unchanged output digest.
+  Canonical delivered1 at00:48:52.299Z and local phase acked prove closure.
+- Same requesting member reads identical1211-character draft. Dedicated vector
+  getByIds passes; legacy1024/cosine corpus unchanged. No new-space query route.
+- Production receipt: docs/evidence/2026-10-24-hermes-receipts-768-production.json.
+  Rollback version b33a1a6e and previous ingestion URL are retained in runbook.
+  Ordinary employee/native UI acceptance remains separate. No further approval
+  is needed for this completed rollout; new source/resources remain owner-gated.
