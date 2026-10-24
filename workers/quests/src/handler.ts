@@ -13,6 +13,9 @@ import { readFoldbackMissionFacts, discoverMissionFoldbackReferences } from './f
 import type { HermesExecutionFoldbackInput, HermesExecutionFoldbackReaderLike, HermesExecutionFoldbackStoreLike, HermesExecutionFoldbackActivationVerifier } from './hermes-execution-foldback.ts';
 import { foldbackExecution } from './execution-foldback-client.ts';
 import type { AttestedAcceptanceStore } from './accepted-work-unit-attestation.ts';
+import { GROWTH_REFS, GROWTH_ROLES, parseGrowthInput, parseGrowthRequest, parseGrowthResult } from './growth-workflow.ts';
+import type { GrowthInput, GrowthResult, GrowthRecord, GrowthStore } from './growth-workflow.ts';
+import { GROWTH_CONTEXT_PROJECTION } from './growth-context-projection.ts';
 import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
@@ -221,12 +224,13 @@ export interface BridgeExecutionAttestation {
   idempotencyKey: string;
   runnerId: string;
   hostIdentity: string;
-  command: 'canary.record' | 'service_agreement.draft.render' | 'source_verification.accept';
+  command: 'canary.record' | 'service_agreement.draft.render' | 'source_verification.accept' | 'growth.request.draft';
   status: BridgeExecutionOutcomeStatus;
   exitCode: 0 | 1 | null;
   inputDigest: string;
   outputDigest?: string;
   businessReceipt?: BridgeBusinessArtifactReceipt;
+  growthResult?: GrowthResult;
   errorCode?: string;
   startedAt: string;
   finishedAt: string;
@@ -503,6 +507,8 @@ export interface HandlerDeps {
   assignmentToken?: string;    // Scoped Hermes token — may enqueue project_task_assignment only
   roleTaskBindingsJson?: string; // Server-owned Hermes role -> member/project/task binding registry
   bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
+  growthStore?: GrowthStore;
+  growthPolicy?: { tenantIds: string[]; runnerMemberId: string; maxPending?: number; maxDaily?: number };
   executionStore?: BridgeExecutionStoreLike; // D1-only claim/outcome authority; never falls back to KV
   businessStore?: BridgeBusinessTaskStoreLike; // D1 task metadata plus immutable R2 artifact bytes
   fabricLedger?: FabricLedgerStoreLike; // Cambium-owned interpreted Fabric task/event ledger
@@ -1192,6 +1198,7 @@ interface ServiceAgreementDraftInput {
 type NativeExecutionContract =
   | { command: 'canary.record'; idempotencyKey: string; input: { nonce: string } }
   | { command: 'service_agreement.draft.render'; idempotencyKey: string; input: ServiceAgreementDraftInput }
+  | { command: 'growth.request.draft'; idempotencyKey: string; input: GrowthInput }
   | { command: 'source_verification.accept'; idempotencyKey: string; input: SourceVerificationAcceptInput };
 
 /**
@@ -1562,7 +1569,7 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
     || attestationRunnerId !== runnerId
     || attestationHostIdentity !== hostIdentity
     || (rawAttestation.command !== 'canary.record' && rawAttestation.command !== 'service_agreement.draft.render'
-      && rawAttestation.command !== 'source_verification.accept')
+      && rawAttestation.command !== 'source_verification.accept' && rawAttestation.command !== 'growth.request.draft')
     || rawAttestation.status !== status) return null;
   const exitCode: 0 | 1 | null = status === 'executed' ? 0 : status === 'failed' ? 1 : null;
   if (rawAttestation.exitCode !== exitCode) return null;
@@ -1570,6 +1577,12 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
     ? undefined
     : parseBusinessArtifactReceipt(rawAttestation.businessReceipt);
   if (rawAttestation.businessReceipt !== undefined && !businessReceipt) return null;
+  const growthResult = rawAttestation.growthResult === undefined ? undefined : parseGrowthResult(rawAttestation.growthResult);
+  if (rawAttestation.growthResult !== undefined && !growthResult) return null;
+  if (rawAttestation.command === 'growth.request.draft') {
+    if (status === 'executed' && !growthResult) return null;
+    if (status !== 'executed' && growthResult !== undefined) return null;
+  } else if (growthResult !== undefined) return null;
   if (status === 'executed' && (!outputDigest || errorCode !== undefined)) return null;
   if ((status === 'failed' || status === 'retryable') && (outputDigest !== undefined || !errorCode || businessReceipt !== undefined)) return null;
   if (rawAttestation.command === 'service_agreement.draft.render') {
@@ -1600,6 +1613,7 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
       inputDigest,
       ...(outputDigest ? { outputDigest } : {}),
       ...(businessReceipt ? { businessReceipt } : {}),
+      ...(growthResult ? { growthResult } : {}),
       ...(errorCode ? { errorCode } : {}),
       startedAt: startedAt!,
       finishedAt: finishedAt!,
@@ -1629,6 +1643,10 @@ function nativeExecutionContract(
     && typeof input.nonce === 'string'
     && EXECUTION_NONCE.test(input.nonce)) {
     return { command: 'canary.record', idempotencyKey, input: { nonce: input.nonce } };
+  }
+  if (payload.command === 'growth.request.draft') {
+    const growthInput = parseGrowthInput(input);
+    if (growthInput) return { command: 'growth.request.draft', idempotencyKey, input: growthInput };
   }
   if (payload.command === 'service_agreement.draft.render') {
     const businessInput = parseServiceAgreementDraftInput(input);
@@ -1687,6 +1705,12 @@ async function validExecutionAttestation(
       // The output digest is bound to a signed envelope in the outcome route,
       // which needs the owner public keys; nothing else may ride along.
       if (outcome.attestation.businessReceipt !== undefined) return false;
+    } else if (contract.command === 'growth.request.draft') {
+      const result = outcome.attestation.growthResult;
+      if (!result || result.requestId !== contract.input.requestId || result.role !== contract.input.role
+        || result.sources.length !== contract.input.contextRefs.length
+        || !result.sources.every(source => contract.input.contextRefs.includes(source.path))
+        || outcome.attestation.outputDigest !== `sha256:${await sha256hex(canonicalJson(result))}`) return false;
     } else {
       const receipt = outcome.attestation.businessReceipt;
       const expectedArtifactId = `artifact_${(await sha256hex(`${contract.input.gsdTaskId}\u0000thoughtseed.hermes.native_execution.v1`)).slice(0, 32)}`;
@@ -5685,6 +5709,78 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     const nowIso = () => (deps.now ? deps.now() : new Date().toISOString());
     const bridgeStore = deps.bridgeStore ?? kvBridgeStore(deps.kv);
 
+    // Explicit, narrowly scoped policy admission: internal organization drafting only.
+    // Member/tenant are never accepted from the request body. No project/client access is inferred.
+    if (routePath.startsWith('/v1/bridge/growth/')) {
+      if (!principal.memberId || !principal.tenantId || principal.admin || principal.assignmentOnly) {
+        return json(403, { error: 'employee member credential required' });
+      }
+      if (!deps.growthPolicy || !deps.growthStore || !deps.executionStore || !deps.bridgeStore) {
+        return json(503, { error: 'growth workflow capability is not configured' });
+      }
+      if (!deps.growthPolicy.tenantIds.includes(principal.tenantId)) return json(403, { error: 'growth scope is not granted to this organization' });
+      const visible = (task: GrowthRecord) => ({
+        id: task.id, requestId: task.input.requestId, objective: task.input.objective, scope: task.input.scope, role: task.input.role,
+        status: task.status, createdAt: task.createdAt, updatedAt: task.updatedAt, result: task.result,
+        contextRefs: task.input.contextRefs, contextProjectionDigest: task.input.contextProjectionDigest,
+        contextSourceCommit: task.input.contextSourceCommit, externalAction: 'none',
+      });
+      if (method === 'GET' && routePath === '/v1/bridge/growth/context') {
+        return json(200, { ok: true, scope: 'org-growth', roles: GROWTH_ROLES, contextRefs: GROWTH_REFS,
+          ...GROWTH_CONTEXT_PROJECTION, externalAction: 'none' });
+      }
+      if (method === 'POST' && routePath === '/v1/bridge/growth/requests') {
+        if ((req.body?.length ?? 0) > 16000) return json(413,{error:'growth request is too large'});
+        let raw: unknown;
+        try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+        const request = parseGrowthRequest(raw);
+        if (!request) return json(400, { error: 'invalid organization growth draft request' });
+        const runnerRaw = await deps.kv.get(memberKey(deps.growthPolicy.runnerMemberId));
+        let runner: Record<string,unknown>|null = null;
+        try { runner = runnerRaw ? JSON.parse(runnerRaw) : null; } catch { /* fail closed below */ }
+        if (!runner || runner.status !== 'active' || runner.tenantId !== principal.tenantId) return json(503,{error:'growth runner organization binding is unavailable'});
+        const identity = `sha256:${await sha256hex(canonicalJson({tenantId:principal.tenantId,memberId:principal.memberId,requestId:request.requestId}))}`;
+        const id = `growth_${identity.slice(7,39)}`;
+        const existingTask = await deps.growthStore.get(id);
+        if (existingTask) {
+          const {schema:_schema,tenantId:_tenant,memberId:_member,contextProjectionDigest:_projection,contextSourceCommit:_source,externalAction:_action,...priorRequest} = existingTask.input;
+          if (canonicalJson(priorRequest) !== canonicalJson(request)) return json(409,{error:'growth request idempotency conflict'});
+        }
+        const createdAt = nowIso();
+        const input: GrowthInput = existingTask?.input ?? { schema:'thoughtseed.growth.request.v1', ...request,
+          tenantId: principal.tenantId, memberId: principal.memberId,
+          contextProjectionDigest: GROWTH_CONTEXT_PROJECTION.projectionDigest,
+          contextSourceCommit: GROWTH_CONTEXT_PROJECTION.sourceCommit, externalAction:'none' };
+        const contextSources = existingTask?.contextSources ?? request.contextRefs.map(path => {
+          const doc = GROWTH_CONTEXT_PROJECTION.documents.find(doc => doc.path === path)!;
+          return {path,digest:doc.sourceDigest};
+        });
+        const task: GrowthRecord = {id,input,contextSources,intentDigest:`sha256:${await sha256hex(canonicalJson(input))}`,
+          runnerMemberId:deps.growthPolicy.runnerMemberId,directiveId:`${id}-draft`,status:'queued',result:null,createdAt,updatedAt:createdAt};
+        const limits = {maxPending:deps.growthPolicy.maxPending ?? 10,maxDaily:deps.growthPolicy.maxDaily ?? 50};
+        const created = await deps.growthStore.create(task,limits);
+        if (created === 'busy') return json(429,{error:'growth request quota reached',...limits});
+        if (created === 'conflict') return json(409, {error:'growth request idempotency conflict'});
+        const persistedTask = await deps.growthStore.get(id);
+        if (!persistedTask || persistedTask.runnerMemberId !== task.runnerMemberId) return json(409,{error:'growth runner identity conflict'});
+        const directive = {id:task.directiveId,memberId:task.runnerMemberId,tenantId:input.tenantId,idempotencyKey:id,
+          direction:'downstream',delivered:false,enqueuedAt:persistedTask.createdAt,
+          payload:{type:'native_execution',schema:'thoughtseed.hermes.native_execution.v1',command:'growth.request.draft',target:{memberId:task.runnerMemberId},input}};
+        await bridgeStore.putDirectiveIfAbsent(task.runnerMemberId,task.directiveId,directive);
+        const stored = await bridgeStore.getDirective(task.runnerMemberId,task.directiveId);
+        const contract = nativeExecutionContract(stored,task.runnerMemberId,task.directiveId);
+        if (!contract || contract.command !== 'growth.request.draft' || contract.idempotencyKey!==id || canonicalJson(contract.input)!==canonicalJson(input)) return json(409,{error:'growth directive identity conflict'});
+        return json(200,{ok:true,request:visible(persistedTask),...(created==='duplicate'?{duplicate:true}:{})});
+      }
+      const read = routePath.match(/^\/v1\/bridge\/growth\/requests\/(growth_[a-f0-9]{32})$/);
+      if (method === 'GET' && read) {
+        const task = await deps.growthStore.get(read[1]);
+        if (!task || task.input.tenantId !== principal.tenantId || task.input.memberId !== principal.memberId) return json(404,{error:'growth request not found'});
+        return json(200,{ok:true,request:visible(task)});
+      }
+      return json(404,{error:'growth route not found'});
+    }
+
     if (method === 'POST' && routePath === '/v1/bridge/lead-runs/iverif/capture-enrich') {
       if (!principal.admin) return json(403, { error: 'lead runtime execution is cofounder-only' });
       if (!deps.iverifExplee || !deps.leadRuntimeStore) {
@@ -6469,6 +6565,10 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (claim.idempotencyKey !== contract.idempotencyKey) {
         return json(409, { error: 'directive idempotency key mismatch' });
       }
+      if (contract.command === 'growth.request.draft') {
+        const task = await deps.growthStore?.get(contract.idempotencyKey);
+        if (!task || task.runnerMemberId!==claim.memberId || task.directiveId!==claim.directiveId || canonicalJson(task.input)!==canonicalJson(contract.input)) return json(409,{error:'growth admission missing or mismatched'});
+      }
       const identity = await nativeExecutionIdentity(claim.memberId, claim.directiveId, contract);
 
       const claimedAt = nowIso();
@@ -6484,6 +6584,10 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       });
       if (result.status === 'busy') return json(409, result);
       if (result.status === 'conflict') return json(409, { error: result.reason });
+      if (result.status === 'claimed' && contract.command === 'growth.request.draft') {
+        if (!deps.growthStore) return json(503,{error:'durable growth store unavailable'});
+        await deps.growthStore.update(contract.idempotencyKey,'running',null,claimedAt);
+      }
       if (result.status === 'claimed' && contract.command === 'service_agreement.draft.render') {
         if (!deps.businessStore) return json(503, { error: 'durable business task store unavailable' });
         await deps.businessStore.markLeased(contract.input.gsdTaskId, identity.executionId, claimedAt);
@@ -6546,6 +6650,11 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
           return json(409, { error: 'business artifact receipt is not durably stored' });
         }
       }
+      if (contract.command === 'growth.request.draft') {
+        const task = await deps.growthStore?.get(contract.idempotencyKey);
+        if (!task || task.runnerMemberId!==outcome.memberId || task.directiveId!==outcome.directiveId || canonicalJson(task.input)!==canonicalJson(contract.input)) return json(409,{error:'growth admission missing or mismatched'});
+        if (outcome.status === 'executed' && (!outcome.attestation.growthResult || !task.contextSources || outcome.attestation.growthResult.sources.length !== task.contextSources.length || !outcome.attestation.growthResult.sources.every(source=>task.contextSources.some(expected=>expected.path===source.path && expected.digest===source.digest)))) return json(409,{error:'growth result does not match admitted context sources'});
+      }
       const attestationDigest = `sha256:${await sha256hex(canonicalJson(outcome.attestation))}`;
       const result = await deps.executionStore.recordExecutionOutcome({
         ...outcome,
@@ -6556,6 +6665,10 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         return result.reason === 'fencing_conflict'
           ? json(409, { error: result.reason, code: 'stale_fence' })
           : json(409, { error: result.reason });
+      }
+      if (contract.command === 'growth.request.draft') {
+        // A duplicate terminal outcome repairs any interrupted task projection write.
+        await deps.growthStore!.update(contract.idempotencyKey, outcome.status === 'executed' ? 'draft_ready' : outcome.status === 'failed' ? 'failed' : 'retrying', outcome.attestation.growthResult ?? null, nowIso());
       }
       if (!result.duplicate && contract.command === 'service_agreement.draft.render') {
         await deps.businessStore!.markOutcome(

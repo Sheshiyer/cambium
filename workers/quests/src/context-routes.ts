@@ -1,3 +1,4 @@
+import { HERMES_RECEIPTS_V2_ROUTE, isHermesTerminalReceipt } from './hermes-receipts-v2.ts';
 import {
   CONTEXT_PROJECTION_RECEIPT_SCHEMA,
   ContextProjectionGenerationError,
@@ -84,6 +85,8 @@ export interface ContextRouteDeps {
   projectionStore?: ContextProjectionStoreLike;
   cortexIngestionToken?: string;
   cortexIngestionDeps?: CortexIngestionDeps;
+  hermesReceiptIngestionDeps?: CortexIngestionDeps;
+  authorizeHermesReceipt?: (body:unknown)=>Promise<boolean>;
   semanticRecall?: SemanticRecallLike;
   routineContext?: RoutineContextLike;
   allowedTenants?: string[];
@@ -290,14 +293,16 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
     }
   }
 
-  if (req.method === 'POST' && url.pathname === '/v1/context/cortex-ingest') {
+  if (req.method === 'POST' && (url.pathname === '/v1/context/cortex-ingest' || url.pathname === HERMES_RECEIPTS_V2_ROUTE)) {
+    const hermesReceipt = url.pathname === HERMES_RECEIPTS_V2_ROUTE;
+    const ingestionDeps = hermesReceipt ? deps.hermesReceiptIngestionDeps : deps.cortexIngestionDeps;
     if (!deps.cortexIngestionToken) {
       return json(503, { error: 'cortex ingestion token not configured' });
     }
     if (!authorized(req, deps.cortexIngestionToken)) {
       return json(401, { error: 'bad or missing cortex ingestion credential' });
     }
-    if (!deps.cortexIngestionDeps?.embed || !deps.cortexIngestionDeps?.vectorIndex?.upsert) {
+    if (!ingestionDeps?.embed || !ingestionDeps?.vectorIndex?.upsert) {
       return json(503, { error: 'cortex ingestion dependencies not configured' });
     }
     const rawBody = req.body ?? '';
@@ -311,7 +316,12 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
       return json(400, { error: 'ingestion body is not JSON' });
     }
     try {
-      const receipt = await ingestCortexContent(body, deps.cortexIngestionDeps);
+      if (hermesReceipt) {
+        if (!isHermesTerminalReceipt(body)) return json(400,{error:'invalid Hermes terminal receipt scope'});
+        if (!deps.authorizeHermesReceipt) return json(503,{error:'Hermes receipt authority is not configured'});
+        if (!await deps.authorizeHermesReceipt(body)) return json(403,{error:'Hermes terminal execution receipt is not authorized'});
+      }
+      const receipt = await ingestCortexContent(body, ingestionDeps);
       return json(receipt.status === 'empty' ? 200 : 201, {
         schema: CORTEX_INGESTION_RECEIPT_SCHEMA,
         inputDigest: receipt.inputDigest,
@@ -324,6 +334,7 @@ export async function handleContextRoute(req: SimpleRequest, deps: ContextRouteD
         vectorIds: receipt.vectorIds,
         ingestedAt: receipt.ingestedAt,
         status: receipt.status,
+        ...(receipt.embeddingSpace ? {embeddingSpace:receipt.embeddingSpace} : {}),
       });
     } catch (error) {
       if (error instanceof CortexIngestionValidationError) {
