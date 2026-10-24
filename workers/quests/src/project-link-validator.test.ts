@@ -97,7 +97,7 @@ describe('thoughtseed.project-link.v1 validator', () => {
   });
 
   it('rejects Unix, Windows drive, and UNC absolute paths', () => {
-    for (const absolute of ['/Volumes/private/repo', 'C:\\private\\repo', '\\\\server\\share']) {
+    for (const absolute of ['/synthetic-link-fixture/repo', 'C:\\synthetic-link-fixture\\repo', '\\\\server\\share']) {
       const workspace = clone(VALID_LINK);
       workspace.mapping.workspace = absolute;
       assert.throws(() => validateProjectLink(workspace), /absolute path/, absolute);
