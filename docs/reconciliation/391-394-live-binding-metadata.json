@@ -1,0 +1,206 @@
+{
+  "version": "15622021-5fad-48e0-a0f2-4dc6ff9b6943",
+  "bindings": [
+    {
+      "name": "ACCEPTANCE_OWNER_PUBKEYS",
+      "type": "plain_text"
+    },
+    {
+      "name": "BRIDGE_DB",
+      "type": "d1",
+      "id": "c0aba88a-5c83-4481-b625-50356d8c98e8",
+      "database_id": "c0aba88a-5c83-4481-b625-50356d8c98e8"
+    },
+    {
+      "name": "BRIDGE_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "CAMBIUM_CORTEX",
+      "type": "vectorize",
+      "index_name": "cambium-cortex"
+    },
+    {
+      "name": "CAMBIUM_HERMES_RECEIPTS_V2",
+      "type": "vectorize",
+      "index_name": "cambium-hermes-receipts-v2"
+    },
+    {
+      "name": "COMMAND_CODE_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "COMMAND_CODE_BASE_URL",
+      "type": "plain_text"
+    },
+    {
+      "name": "COMMAND_CODE_EGRESS_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "CONTEXT_ALLOWED_TENANTS",
+      "type": "plain_text"
+    },
+    {
+      "name": "CONTEXT_EMBEDDING_MODEL",
+      "type": "plain_text"
+    },
+    {
+      "name": "CONTEXT_EMBEDDING_PROVIDER",
+      "type": "plain_text"
+    },
+    {
+      "name": "CONTEXT_PROJECTIONS",
+      "type": "r2_bucket",
+      "bucket_name": "thoughtseed-context-projections"
+    },
+    {
+      "name": "CONTEXT_PROJECTION_WRITE_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "CONTEXT_ROUTE_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "CORTEX_INGESTION_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "EXPLEE_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "GATE_BOT_ID",
+      "type": "secret_text"
+    },
+    {
+      "name": "GATE_FOUNDER_IDS",
+      "type": "secret_text"
+    },
+    {
+      "name": "GROWTH_WORKFLOW_MAX_DAILY",
+      "type": "plain_text"
+    },
+    {
+      "name": "GROWTH_WORKFLOW_MAX_PENDING",
+      "type": "plain_text"
+    },
+    {
+      "name": "GROWTH_WORKFLOW_RUNNER_MEMBER_ID",
+      "type": "plain_text"
+    },
+    {
+      "name": "GROWTH_WORKFLOW_TENANTS_JSON",
+      "type": "plain_text"
+    },
+    {
+      "name": "HANDOFF_SECRET",
+      "type": "secret_text"
+    },
+    {
+      "name": "HERMES_ASSIGNMENT_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "HERMES_RECEIPTS_AI",
+      "type": "ai"
+    },
+    {
+      "name": "HERMES_RECEIPTS_V2_ENABLED",
+      "type": "plain_text"
+    },
+    {
+      "name": "HERMES_ROLE_TASK_BINDINGS_JSON",
+      "type": "secret_text"
+    },
+    {
+      "name": "IVERIF_READ_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "KIMI_CODING_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "MARKETING_CREATE_ACTIVATION",
+      "type": "secret_text"
+    },
+    {
+      "name": "MISSION_FABRIC_TENANTS",
+      "type": "plain_text"
+    },
+    {
+      "name": "NEBIUS_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "NVIDIA_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "NVIDIA_MARKETING_CREATE_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "OLLAMA_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "OPENCODE_API_KEY",
+      "type": "secret_text"
+    },
+    {
+      "name": "PLEXUS_KNOWLEDGE_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "PLEXUS_WHOAMI_URL",
+      "type": "plain_text"
+    },
+    {
+      "name": "PROVIDER_BROKER_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "QUESTS",
+      "type": "kv_namespace",
+      "namespace_id": "439547e617d9455fb752bfd651da9765"
+    },
+    {
+      "name": "QUESTS_PUSH_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "SECRETS",
+      "type": "kv_namespace",
+      "namespace_id": "3ab0824953064453b8a1995a0b4da05e"
+    },
+    {
+      "name": "TF_ACCESS_AUD",
+      "type": "plain_text"
+    },
+    {
+      "name": "TF_ACCESS_TEAM_DOMAIN",
+      "type": "plain_text"
+    },
+    {
+      "name": "THOUGHTSEED_VAULT",
+      "type": "r2_bucket",
+      "bucket_name": "thoughtseed-vault"
+    },
+    {
+      "name": "WAVE0_ACTIVATION_KEY",
+      "type": "secret_text"
+    }
+  ],
+  "runtime": {
+    "compatibility_date": "2026-05-01",
+    "compatibility_flags": [
+      "nodejs_compat"
+    ],
+    "usage_model": "standard"
+  },
+  "global_settings": "not newly verified; must remain unchanged; versions-only rollout, no trigger/route operation",
+  "secret_values_read": false
+}

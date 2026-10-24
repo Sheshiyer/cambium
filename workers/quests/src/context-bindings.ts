@@ -59,6 +59,7 @@ export interface VectorizeUpsertResultLike {
 }
 
 export interface VectorizeIndexLike {
+  getByIds?(ids: string[]): Promise<Array<{id:string;values?:number[] | Float32Array | Float64Array;metadata?:Record<string,VectorizeMetadataValue>}>>;
   query(vector: number[] | Float32Array | Float64Array, options: {
     topK: number;
     returnMetadata: 'all' | 'indexed' | boolean;
@@ -106,6 +107,9 @@ export interface CreateProviderEmbedderArgs {
   provider?: EmbeddingProviderConfigLike;
   model?: string;
   fetchImpl?: typeof fetch;
+  inputType?: 'query' | 'passage';
+  expectedDimensions?: number;
+  requireModelMatch?: boolean;
 }
 
 const MAX_ROUTINE_ITEMS_PER_SECTION = 8;
@@ -476,6 +480,9 @@ export function createProviderEmbedder({
   provider,
   model,
   fetchImpl,
+  inputType = 'query',
+  expectedDimensions,
+  requireModelMatch = false,
 }: CreateProviderEmbedderArgs): EmbedQuery | undefined {
   const selectedModel = model || provider?.defaultModel;
   if (!provider?.apiKey || !provider.baseUrl || !selectedModel) return undefined;
@@ -491,15 +498,27 @@ export function createProviderEmbedder({
       body: JSON.stringify({
         model: selectedModel,
         input: [text],
-        input_type: 'query',
+        input_type: inputType,
         encoding_format: 'float',
       }),
     });
     if (!response.ok) throw new Error(`embedding provider returned ${response.status}`);
-    const body = await response.json() as { data?: Array<{ embedding?: unknown }> };
+    const body = await response.json() as { model?: unknown; data?: Array<{ embedding?: unknown }> };
+    if (requireModelMatch && body.model !== selectedModel) {
+      throw new Error('embedding provider returned an incompatible model');
+    }
     const embedding = body.data?.[0]?.embedding;
     if (!Array.isArray(embedding) || !embedding.every((value) => typeof value === 'number' && Number.isFinite(value))) {
       throw new Error('embedding provider returned no numeric embedding');
+    }
+    if (expectedDimensions !== undefined && embedding.length !== expectedDimensions) {
+      throw new Error('embedding provider returned incompatible dimensions');
+    }
+    if (expectedDimensions !== undefined && !embedding.every(value=>Number.isFinite(Math.fround(value)))) {
+      throw new Error('embedding provider returned float32 overflow');
+    }
+    if (expectedDimensions !== undefined && !embedding.some(value=>Math.fround(value)!==0)) {
+      throw new Error('embedding provider returned an invalid zero vector');
     }
     return embedding;
   };

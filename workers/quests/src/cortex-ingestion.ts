@@ -38,6 +38,10 @@ export interface CortexVectorMetadata {
   ingestedAt: string;
 }
 
+export interface CortexEmbeddingSpace {
+  id: string; provider: string; model: string; dimensions: number; index: string; metric: 'cosine';
+}
+
 export interface CortexIngestionReceipt {
   schema: typeof CORTEX_INGESTION_RECEIPT_SCHEMA;
   inputDigest: string;
@@ -50,6 +54,7 @@ export interface CortexIngestionReceipt {
   vectorIds: string[];
   ingestedAt: string;
   status: 'ingested' | 'empty';
+  embeddingSpace?: CortexEmbeddingSpace;
 }
 
 export class CortexIngestionValidationError extends Error {
@@ -265,6 +270,8 @@ export interface CortexIngestionDeps {
   embed: EmbedQuery;
   vectorIndex: VectorizeIndexLike;
   now?: () => string;
+  embeddingSpace?: CortexEmbeddingSpace;
+  verifyWrite?: boolean;
 }
 
 export async function ingestCortexContent(
@@ -306,6 +313,7 @@ export async function ingestCortexContent(
       vectorIds: [],
       ingestedAt: now,
       status: 'empty',
+      ...(deps.embeddingSpace ? {embeddingSpace:deps.embeddingSpace} : {}),
     };
   }
 
@@ -332,7 +340,10 @@ export async function ingestCortexContent(
       );
     }
 
-    const metadata: CortexVectorMetadata = {
+    if (deps.embeddingSpace && embedding.length !== deps.embeddingSpace.dimensions) {
+      throw new CortexIngestionProviderError('embedding space dimensions mismatch');
+    }
+    const metadata: CortexVectorMetadata & Record<string,unknown> = {
       tenant: input.tenant,
       kind: input.kind,
       source: input.source,
@@ -343,6 +354,7 @@ export async function ingestCortexContent(
       ...(input.commit ? { commit: input.commit } : {}),
       contentDigest,
       ingestedAt: now,
+      ...(deps.embeddingSpace ? {embeddingSpace:deps.embeddingSpace.id,embeddingProvider:deps.embeddingSpace.provider,embeddingModel:deps.embeddingSpace.model,embeddingDimensions:deps.embeddingSpace.dimensions,embeddingIndex:deps.embeddingSpace.index} : {}),
     };
 
     vectors.push({ id, values: embedding, metadata: metadata as unknown as Record<string, string | number | boolean | null | Record<string, unknown> | unknown[]> });
@@ -362,6 +374,7 @@ export async function ingestCortexContent(
       vectorIds: [],
       ingestedAt: now,
       status: 'empty',
+      ...(deps.embeddingSpace ? {embeddingSpace:deps.embeddingSpace} : {}),
     };
   }
 
@@ -372,6 +385,24 @@ export async function ingestCortexContent(
     throw new CortexIngestionProviderError(
       `Vectorize upsert failed: ${error instanceof Error ? error.message : String(error)}`,
     );
+  }
+
+  if (deps.verifyWrite) {
+    if (!deps.vectorIndex.getByIds || !deps.embeddingSpace) throw new CortexIngestionProviderError('Vectorize readback is not configured');
+    let stored;
+    try { stored = await deps.vectorIndex.getByIds(vectorIds); }
+    catch { throw new CortexIngestionProviderError('Vectorize readback unavailable'); }
+    if (stored.length !== vectors.length || new Set(stored.map(vector=>vector.id)).size !== vectors.length
+      || !vectors.every(vector=>stored.some(actual=>actual.id===vector.id
+        && (Array.isArray(actual.values) || actual.values instanceof Float32Array || actual.values instanceof Float64Array) && actual.values.length===deps.embeddingSpace!.dimensions
+        && actual.values.every(value=>typeof value==='number' && Number.isFinite(value) && Number.isFinite(Math.fround(value)))
+        && actual.values.some(value=>Math.fround(value)!==0)
+        && actual.values.every((value,index)=>Math.fround(value)===Math.fround(vector.values[index]))
+        && ['tenant','kind','source','path','contentDigest','embeddingSpace','embeddingProvider','embeddingModel','embeddingDimensions','embeddingIndex'].every(key=>actual.metadata?.[key]===vector.metadata?.[key])))) {
+      // Vectorize is eventually consistent. Preserve the runner hold until the exact
+      // stable content/space metadata can be read, without claiming indexing early.
+      throw new CortexIngestionProviderError('Vectorize receipt readback pending or mismatched');
+    }
   }
 
   return {
@@ -386,5 +417,6 @@ export async function ingestCortexContent(
     vectorIds,
     ingestedAt: now,
     status: 'ingested',
+    ...(deps.embeddingSpace ? {embeddingSpace:deps.embeddingSpace} : {}),
   };
 }
