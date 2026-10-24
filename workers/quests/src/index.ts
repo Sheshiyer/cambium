@@ -129,6 +129,7 @@ interface Env {
   GATE_BRANCH_MAP_TENANTS?: string;
   MISSION_FABRIC_TENANTS?: string;
   MISSION_FABRIC_VIEWER_IDS?: string;
+  FOUNDER_GATE_BINDINGS_JSON?: string; // reviewed [{founderId,tenantId}], absent disables canonical Access Gate
   TF_ACCESS_TEAM_DOMAIN?: string;
   TF_ACCESS_AUD?: string;
   PLEXUS_WHOAMI_URL?: string;
@@ -1476,6 +1477,7 @@ export default {
       iverifExplee,
       leadRuntimeStore: env.BRIDGE_DB ? d1LeadRuntimeStore(env.BRIDGE_DB) : undefined,
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
+      founderGateBindingsJson: env.FOUNDER_GATE_BINDINGS_JSON,
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       portfolioActionStore: env.THOUGHTSEED_VAULT?.put

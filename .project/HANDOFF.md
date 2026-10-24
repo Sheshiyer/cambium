@@ -2610,3 +2610,24 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 ### 2026-10-08 Actions retirement migration candidate
 
 Workflow source is removed in this PR. Explicit local release verification and separate readiness jobs are recorded in `.local-jobs/jobs.json`, with scheduling disabled. The 33 affected release/readiness tests pass against the local registry. Tag pushes no longer claim automatic publication. No service, deployment, signing, or release publication is activated. Original operator checkouts remain untouched.
+
+
+### 2026-10-24 Founder Gate simple CLI source checkpoint
+
+- Based on merged #395 (`22800c72`), preserving the reconciled growth runtime. Changes live on `codex/founder-gate-simple`; primary working edits remain untouched.
+- Existing CLI now reads the server-owned proposal, shows the complete change set, accepts one exact decision, and validates the sole D1 receipt. An uncertain response triggers one original-tuple status query with no resubmission. No second channel click is required.
+- The canonical host reuses Access/Plexus verification and stored Goal Graph intake; explicit `FOUNDER_GATE_BINDINGS_JSON` founder/tenant pairs prevent wildcard UI founder scope from granting tenant authority. No real binding is installed. Evidence candidates and existing growth/UI/Telegram paths retain their existing behavior.
+- Focused CLI/service/store/Access/growth tests pass 59/59; selected handler tests pass 22/22, including real verifier plus SQLite-backed D1, lost-response recovery, concurrency and full-delta review. These are local proofs. Full-suite stall and existing normalized TypeScript diagnostics from the owner handoff remain outside this patch's acceptance.
+- Independent source review found a hidden-delta review gap and an unrelated scheduled-options insertion; both were corrected before delivery.
+- Exact commands and remaining identity, tenant-binding, database, proposal and release prerequisites: `docs/architecture/contracts/founder-gate-cli-v1.md`. Live binding enrollment, release, plugin/voice enrollment and real business decisions remain separate approval gates. No deployment or live action occurred.
+
+- Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.
+
+
+### 2026-10-24 PR #396 draft review fixes
+
+- Review pinned the remote head `05e6dac039101170c97f1033aafbff05901c5be3`. Equivalent explicit review/prepare checks were used because this repository has no skill wrapper scripts; `.local/` receipts remain ignored and unpushed.
+- Fixed five verified issues: expiry crossing an awaited head read, stale pending/history projections despite a settled D1 decision, projected responses being relabeled canonical by the CLI, unbound/missing complete client review, and unreadable historical null channel attribution. Stored pending-envelope rows are cleared before current D1-backed projection is derived.
+- D1 remains the sole writer. Projection reads perform no KV repairs or business decisions; unavailable D1 cannot advertise an actionable pending row. Exact confirmation, identity/tenant, CSRF, atomic opposite-decision conflict and status-only recovery remain intact.
+- Focused source suites pass 68/68; selected founder/Goal Graph/in-world/growth handler tests pass 96/96; independent client/service/store rerun passes 40/40. Negative regressions failed before fixes. Local Wrangler bundle dry run and diff whitespace checks pass; the owner handoff's full-suite/typecheck and runtime acceptance caveats remain.
+- Keep PR #396 draft. No deploy, binding enrollment, credentials/policy change or live action is authorized or performed. Runtime prerequisites remain in `docs/architecture/contracts/founder-gate-cli-v1.md`.

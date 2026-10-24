@@ -1,3 +1,4 @@
+import { createFounderAccessHost } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
@@ -157,7 +158,7 @@ async function surfaceScopedQuestBody(
   principal: Principal,
   founderOutcomeAuthorized = false,
 ): Promise<string> {
-  const base = await publicQuestBody(deps.kv, tenantId, stored);
+  const base = await publicQuestBody(deps.kv, tenantId, stored, deps.goalGraphStore);
   try {
     const envelope = JSON.parse(base);
     envelope.surface = {
@@ -486,6 +487,7 @@ export interface FabricLedgerStoreLike {
 }
 
 export interface HandlerDeps {
+  founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
@@ -2811,7 +2813,7 @@ function sanitizeQuestEnvelope(envelope: any): any {
   });
 }
 
-async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Promise<string> {
+async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, decisionStore?: GoalGraphStoreLike): Promise<string> {
   let envelope: Record<string, unknown>;
   try {
     envelope = sanitizeQuestEnvelope(JSON.parse(stored));
@@ -2824,6 +2826,8 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
     });
   }
   const merged: Record<string, unknown> = { ...envelope };
+  // A previously uploaded projection cannot override current D1 evidence.
+  delete merged.goalGraphIntake;
   try {
     const actionRequests = await listActionRequestRecords(kv, { tenantId, limit: 50 });
     if (actionRequests.status === 200 && Number(actionRequests.body.count) >= 1) {
@@ -2831,7 +2835,7 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
     }
     // Pending Telegram goal-graph proposals are founder decisions too: project
     // them into the same envelope the gate scene renders (bounded rows only).
-    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false });
+    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false, decisionStore });
     if (goalGraphRows.length >= 1) {
       merged.goalGraphIntake = {
         schema: GOAL_GRAPH_GATE_ROW_LIST_SCHEMA,
@@ -4057,10 +4061,31 @@ function goalGraphFounderInspect(task: Record<string, unknown>): Record<string, 
   };
 }
 
+// null means no D1 decision; undefined means the read could not prove pending.
+// Never repair KV or let a stale pending projection invite another decision.
+async function projectedGoalGraphDecision(
+  store: GoalGraphStoreLike | undefined,
+  task: Record<string, unknown>,
+  tenantId: string,
+): Promise<{ decision: 'approved' | 'rejected'; decidedAt: string } | null | undefined> {
+  if (!store?.readDecisionReceipt) return null;
+  const digest = String(task.changeDigest ?? '');
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, digest);
+  if (!descriptor) return undefined;
+  try {
+    const row = await store.readDecisionReceipt(tenantId, digest, descriptor.approvalNonce);
+    if (!row) return null;
+    if (row.tenant_id !== tenantId || row.change_digest !== digest || row.nonce !== descriptor.approvalNonce
+        || row.intent_version !== (Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1) || row.expires_at !== descriptor.approvalExpiresAt
+        || !['approved', 'rejected'].includes(row.decision) || !Number.isFinite(Date.parse(row.decided_at))) return undefined;
+    return { decision: row.decision, decidedAt: row.decided_at };
+  } catch { return undefined; }
+}
+
 async function listGoalGraphIntakeGateRows(
   kv: KvLike,
   tenantId: string,
-  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string> } = {},
+  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike } = {},
 ): Promise<Array<Record<string, unknown>>> {
   const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
@@ -4069,6 +4094,7 @@ async function listGoalGraphIntakeGateRows(
     if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA) continue;
     if (task.tenantId !== tenantId || task.status !== 'pending') continue;
     const candidate = storedFounderOutcomeCandidate(task);
+    if (!candidate && await projectedGoalGraphDecision(options.decisionStore, task, tenantId) !== null) continue;
     if (candidate) {
       if (options.includeFounderCandidates !== true) continue;
       if (options.committedCandidateIds?.has(String(candidate.candidateId))) continue;
@@ -4086,7 +4112,7 @@ async function listGoalGraphIntakeGateRows(
 
 // ── Founder-only decision paths ─────────────────────────────────────────────
 // For recent founder decisions on Telegram proposals, the furthest stage that
-// live state proves: committed (KV task) → directive queued (bridge directive)
+// live state proves: committed (D1 decision; KV-only for legacy adapters) → directive queued (bridge directive)
 // → runner claimed (execution row) → receipt (terminal executed outcome). The
 // learning stage has no read binding yet and is never claimed. Read-only; it
 // serves no member, directive or runner identifiers.
@@ -4100,6 +4126,11 @@ async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string): 
     const task = parseJsonObject(await deps.kv.get(key));
     if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA || task.tenantId !== tenantId) continue;
     if (storedFounderOutcomeCandidate(task)) continue;
+    if (deps.goalGraphStore?.readDecisionReceipt) {
+      const receipt = await projectedGoalGraphDecision(deps.goalGraphStore, task, tenantId);
+      if (receipt) decided.push({ task, ...receipt });
+      continue;
+    }
     if (task.status === 'committed') {
       decided.push({ task, decision: 'approved', decidedAt: shortText(task.committedAt, shortText(task.updatedAt, '', 64), 64) });
     } else if (task.status === 'rejected' && isRecord(task.rejection) && typeof task.rejection.rejectedAt === 'string') {
@@ -4249,6 +4280,7 @@ async function appendFounderOutcomeQuestProjection(
     includeFounderInspect: true,
     now,
     committedCandidateIds,
+    decisionStore: deps.goalGraphStore,
   });
   if (gateRows.length) {
     envelope.goalGraphIntake = {
@@ -5308,10 +5340,23 @@ async function resolveFounderWebSigner(
 }
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
-  if (['/v1/founder/decision', '/v1/founder/status'].includes(req.path.split('?')[0])) {
+  if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status'].includes(req.path.split('?')[0])) {
+    const host = deps.founderDecisionHost ?? (deps.plexus ? createFounderAccessHost({
+      store: deps.goalGraphStore, bindingsJson: deps.founderGateBindingsJson,
+      verifyFounder: async () => {
+        const signer = await resolveFounderWebSigner(req, deps);
+        return signer.kind === 'founder' ? signer.approverId : null;
+      },
+      readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
+      reviewTask: task => {
+        const row = goalGraphIntakeGateRow(task);
+        return row ? { ...row, founderInspect: goalGraphFounderInspect(task) } : null;
+      },
+      now: deps.now ?? (() => new Date().toISOString()),
+    }) : undefined);
     const response = await founderDecisionHttp(new Request(`https://cambium.invalid${req.path}`, {
       method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),
-    }), deps.founderDecisionHost);
+    }), host);
     return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
   }
 
@@ -5615,7 +5660,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     }
     if (!principal) principal = resolveSurfacePrincipal(req);
     if (!principal) {
-      return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
+      return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored, deps.goalGraphStore) };
     }
     return {
       status: 200,
@@ -7112,6 +7157,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       includeFounderCandidates: true,
       now: deps.now ? deps.now() : new Date().toISOString(),
       committedCandidateIds: founderOutcomes?.committedCandidateIds,
+      decisionStore: deps.goalGraphStore,
     }));
     return json(200, { tenant, actions });
   }
@@ -7169,7 +7215,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       try {
         const storedEnvelope = await deps.kv.get(ledgerKey(requestedTenant));
         if (storedEnvelope) {
-          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope));
+          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope, deps.goalGraphStore));
           if (
             isRecord(initialEnvelope)
             && initialEnvelope.schema === 1

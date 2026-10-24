@@ -117,6 +117,8 @@ export type GoalGraphRejectionResult =
   | { status: 'invalid' | 'unavailable'; changeDigest: string | null; code: string };
 
 export interface GoalGraphStoreLike {
+  /** Optional for legacy adapters; D1-backed projections use this as decision authority. */
+  readDecisionReceipt?(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
   readHead(tenantId: string): Promise<GoalGraphHead | null>;
   readNodes(tenantId: string): Promise<GoalGraphNode[]>;
   commit(input: GoalGraphCommitInput): Promise<GoalGraphCommitResult>;
@@ -418,7 +420,8 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
     if (typeof input.tenantId !== 'string' || !SAFE_ID_RE.test(input.tenantId)) return { status: 'invalid', changeDigest, code: 'tenant_invalid' };
     if (!SAFE_ID_RE.test(String(input.rejectorId)) || !SAFE_ID_RE.test(String(input.nonce))) return { status: 'invalid', changeDigest, code: 'decision_identity_invalid' };
     if (!Number.isInteger(input.intentVersion) || input.intentVersion < 1) return { status: 'invalid', changeDigest, code: 'intent_version_invalid' };
-    if (!ISO_TIMESTAMP_RE.test(now) || !ISO_TIMESTAMP_RE.test(String(input.expiresAt))) return { status: 'invalid', changeDigest, code: 'decision_time_invalid' };
+    if (!ISO_TIMESTAMP_RE.test(now) || !ISO_TIMESTAMP_RE.test(String(input.expiresAt))
+        || !Number.isFinite(Date.parse(now)) || !Number.isFinite(Date.parse(input.expiresAt))) return { status: 'invalid', changeDigest, code: 'decision_time_invalid' };
     const classify = async (): Promise<GoalGraphRejectionResult | null> => {
       const prior = await readDecision(input.tenantId, changeDigest, input.nonce);
       if (!prior) return null;
@@ -435,6 +438,9 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
     } catch {
       return { status: 'unavailable', changeDigest, code: 'decision_read_failed' };
     }
+    // Existing decisions above remain readable/replayable after expiry, but
+    // the first immutable rejection must be decided inside its approval window.
+    if (Date.parse(input.expiresAt) <= Date.parse(now)) return { status: 'invalid', changeDigest, code: 'decision_expired' };
     const core = {
       tenantId: input.tenantId,
       changeDigest,
