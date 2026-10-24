@@ -1,4 +1,4 @@
-import { createHermesReceiptIngestion, createHermesReceiptAuthorizer } from './hermes-receipts-v2.ts';
+import { createHermesReceiptIngestion, createHermesReceiptAuthorizer, type HermesReceiptsAI } from './hermes-receipts-v2.ts';
 import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
 
 import { d1GrowthStore, parseGrowthPolicy, parseGrowthResult } from './growth-workflow.ts';
@@ -83,6 +83,7 @@ interface Env {
   CAMBIUM_CORTEX?: VectorizeIndexLike;
   CAMBIUM_HERMES_RECEIPTS_V2?: VectorizeIndexLike;
   HERMES_RECEIPTS_V2_ENABLED?: string;
+  HERMES_RECEIPTS_AI?: HermesReceiptsAI;
   QUESTS_PUSH_TOKEN?: string;
   GATE_BOT_ID?: string;
   GATE_FOUNDER_IDS?: string;
@@ -1434,7 +1435,7 @@ export default {
           : undefined,
         cortexIngestionToken: env.CORTEX_INGESTION_TOKEN,
         cortexIngestionDeps,
-        hermesReceiptIngestionDeps: createHermesReceiptIngestion({enabled:env.HERMES_RECEIPTS_V2_ENABLED,provider:providers.nvidia,vectorIndex:env.CAMBIUM_HERMES_RECEIPTS_V2,fetchImpl:workerFetch}),
+        hermesReceiptIngestionDeps: createHermesReceiptIngestion({enabled:env.HERMES_RECEIPTS_V2_ENABLED,ai:env.HERMES_RECEIPTS_AI,vectorIndex:env.CAMBIUM_HERMES_RECEIPTS_V2}),
         authorizeHermesReceipt: env.HERMES_RECEIPTS_V2_ENABLED==='true' && env.BRIDGE_DB ? createHermesReceiptAuthorizer(env.BRIDGE_DB) : undefined,
         allowedTenants: parseAllowedTenants(env.CONTEXT_ALLOWED_TENANTS),
         routineContext: createPlexusRoutineContext({ url: env.PLEXUS_KNOWLEDGE_URL, token: env.PLEXUS_KNOWLEDGE_TOKEN, fetchImpl: workerFetch }),

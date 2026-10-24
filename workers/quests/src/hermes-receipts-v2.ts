@@ -1,15 +1,14 @@
 /** A separate embedding space for redacted Hermes execution receipts. Never legacy fallback. */
-import { createProviderEmbedder } from './context-bindings.ts';
-import type { EmbeddingProviderConfigLike, VectorizeIndexLike } from './context-bindings.ts';
+import type { VectorizeIndexLike } from './context-bindings.ts';
 import type { CortexIngestionDeps } from './cortex-ingestion.ts';
 import type { D1DatabaseLike } from './index.ts';
 
 export const HERMES_RECEIPTS_V2_ROUTE = '/v1/context/hermes-receipts';
 export const HERMES_RECEIPTS_V2_SPACE = {
-  id: 'nvidia-nemotron-3-embed-1b-2048-hermes-receipts-v2',
-  provider: 'nvidia',
-  model: 'nvidia/nemotron-3-embed-1b',
-  dimensions: 2048,
+  id: 'cloudflare-bge-base-en-v1.5-768-hermes-receipts-v2',
+  provider: 'cloudflare-workers-ai',
+  model: '@cf/baai/bge-base-en-v1.5',
+  dimensions: 768,
   index: 'cambium-hermes-receipts-v2',
   metric: 'cosine',
 } as const;
@@ -25,14 +24,26 @@ export function isHermesTerminalReceipt(input: unknown): boolean {
   return body.idempotencyKey === `hermes:${body.path.slice('executions/'.length)}`;
 }
 
+export interface HermesReceiptsAI {
+  run(model: '@cf/baai/bge-base-en-v1.5', input: {text: string[]}): Promise<unknown>;
+}
+
 export function createHermesReceiptIngestion(args: {
-  enabled?: string; provider?: EmbeddingProviderConfigLike;
-  vectorIndex?: VectorizeIndexLike; fetchImpl?: typeof fetch;
+  enabled?: string; ai?: HermesReceiptsAI; vectorIndex?: VectorizeIndexLike;
 }): CortexIngestionDeps | undefined {
-  if (args.enabled !== 'true' || (!args.vectorIndex?.upsert || !args.vectorIndex?.getByIds)) return undefined;
-  const embed = createProviderEmbedder({provider:args.provider,model:HERMES_RECEIPTS_V2_SPACE.model,
-    inputType:'passage',requireModelMatch:true,expectedDimensions:HERMES_RECEIPTS_V2_SPACE.dimensions,fetchImpl:args.fetchImpl});
-  if (!embed) return undefined;
+  if (args.enabled !== 'true' || !args.ai?.run || !args.vectorIndex?.upsert || !args.vectorIndex?.getByIds) return undefined;
+  const embed = async(text:string):Promise<number[]> => {
+    // The binding invocation pins the model; Workers AI returns shape/data, not a model identity.
+    const result=await args.ai!.run(HERMES_RECEIPTS_V2_SPACE.model,{text:[text]}) as {shape?:unknown;data?:unknown;model?:unknown};
+    if (!result || (result.model!==undefined && result.model!==HERMES_RECEIPTS_V2_SPACE.model)
+      || !Array.isArray(result.shape) || result.shape.length!==2 || result.shape[0]!==1
+      || result.shape[1]!==HERMES_RECEIPTS_V2_SPACE.dimensions || !Array.isArray(result.data)
+      || result.data.length!==1 || !Array.isArray(result.data[0])) throw new Error('incompatible receipt embedding shape');
+    const values=result.data[0] as unknown[];
+    if (values.length!==HERMES_RECEIPTS_V2_SPACE.dimensions || values.some(v=>typeof v!=='number' || !Number.isFinite(v) || !Number.isFinite(Math.fround(v)))
+      || !values.some(v=>Math.fround(v as number)!==0)) throw new Error('incompatible receipt embedding values');
+    return values as number[];
+  };
   return {embed,vectorIndex:args.vectorIndex,embeddingSpace:HERMES_RECEIPTS_V2_SPACE,verifyWrite:true};
 }
 
