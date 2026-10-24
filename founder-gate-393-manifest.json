@@ -1,0 +1,143 @@
+{
+  "issue": "https://github.com/Sheshiyer/cambium/issues/393",
+  "main": "664b94b955e0490c378b95a1bd363140443d1e9a",
+  "files": [
+    {
+      "path": "workers/cortex-mcp/src/gate-action.ts",
+      "sha256": "572d7ebb984895fb89909eec3aa67fe77859668a7b85648fdfa23d435b4b8309",
+      "provenance": "primary checkout uncommitted source; byte-identical extraction",
+      "imports": "none",
+      "original_unchanged_after_tests": true,
+      "original_unchanged_after_implementation": true,
+      "original_unchanged_after_transport": true,
+      "original_unchanged_after_cli": true,
+      "original_unchanged_after_review": true,
+      "original_unchanged_final": true,
+      "original_unchanged_after_full_verification": true
+    },
+    {
+      "path": "workers/cortex-mcp/src/gate-action.test.ts",
+      "sha256": "25f360e12cded3e8fc114dae6df2f467917659a7636ba72bef27e6dc3dfbbe1f",
+      "provenance": "primary checkout uncommitted source; byte-identical extraction",
+      "imports": "node:test, node:assert/strict, adjacent extracted module",
+      "original_unchanged_after_tests": true,
+      "original_unchanged_after_implementation": true,
+      "original_unchanged_after_transport": true,
+      "original_unchanged_after_cli": true,
+      "original_unchanged_after_review": true,
+      "original_unchanged_final": true,
+      "original_unchanged_after_full_verification": true
+    },
+    {
+      "path": "workers/quests/src/mcp-gate-action.ts",
+      "sha256": "49579c62d1916365f0a2a60e56126db4b11b548820637ed2a471fdb0b01b7ede",
+      "provenance": "primary checkout uncommitted source; byte-identical extraction",
+      "imports": "none",
+      "original_unchanged_after_tests": true,
+      "original_unchanged_after_implementation": true,
+      "original_unchanged_after_transport": true,
+      "original_unchanged_after_cli": true,
+      "original_unchanged_after_review": true,
+      "original_unchanged_final": true,
+      "original_unchanged_after_full_verification": true
+    },
+    {
+      "path": "workers/quests/src/mcp-gate-action.test.ts",
+      "sha256": "07ef84ab266fa1956b8ebd962b1e38d29d00c5f843aee8352b08618f31e92116",
+      "provenance": "primary checkout uncommitted source; byte-identical extraction",
+      "imports": "node:test, node:assert/strict, adjacent extracted module",
+      "original_unchanged_after_tests": true,
+      "original_unchanged_after_implementation": true,
+      "original_unchanged_after_transport": true,
+      "original_unchanged_after_cli": true,
+      "original_unchanged_after_review": true,
+      "original_unchanged_final": true,
+      "original_unchanged_after_full_verification": true
+    }
+  ],
+  "runtime_activation": false,
+  "implementation_files": [
+    "workers/quests/src/goal-graph-store.ts",
+    "workers/quests/src/founder-decision.ts",
+    "workers/quests/src/founder-decision.test.ts",
+    "workers/quests/src/handler.ts",
+    "workers/quests/src/founder-decision-transport.ts",
+    "bin/founder-gate.mjs",
+    "bin/founder-gate.test.mjs",
+    "docs/architecture/system-atlas.v1.json"
+  ],
+  "extraction_imported_into_main": false,
+  "note": "Extracted KV writer retained only in separate provenance packet. Main adapter uses only existing D1 store and built-in graph types/digest helpers.",
+  "tests": {
+    "new_and_canonical": {
+      "passed": 43,
+      "failed": 0
+    },
+    "extracted_legacy": {
+      "passed": 15,
+      "failed": 0
+    },
+    "typecheck": "TS2307 node:crypto missing declarations reproduced on base 664b94b and candidate",
+    "full_suite": {
+      "setup": "all 1743 tracked base files present; untouched comparison checkout diff clean",
+      "command": "npm test; identical full selection rerun with controlled concurrency/deadlines",
+      "outcome": "candidate and untouched base both exceed 300-second wall deadline; not green",
+      "per_file_candidate": {
+        "files": 171,
+        "passed_initial": 164,
+        "timed_out": 5,
+        "assertion_failure": "atlas fingerprint corrected; standalone 13/13 rerun passes",
+        "sandbox_failure": "viewport listener; permitted rerun 16/16 passes"
+      },
+      "per_file_base": {
+        "files": 169,
+        "passed": 163,
+        "timed_out": 5,
+        "sandbox_failure": "same viewport listener EPERM"
+      },
+      "candidate_only_unresolved_assertion_failures": 0,
+      "matching_timeout_files": [
+        "scripts/check-deterministic-safety.test.mjs",
+        "scripts/deterministic-safety.test.mjs",
+        "scripts/generate-documentation-inventory.test.mjs",
+        "scripts/infinite-game-anchors.test.mjs",
+        "scripts/run-ralph-iteration.test.mjs"
+      ]
+    },
+    "existing_route_suites": {
+      "candidate": 456,
+      "base": 456,
+      "failed": 0
+    },
+    "final_focused_with_atlas": {
+      "passed": 56,
+      "failed": 0
+    }
+  },
+  "self_review": {
+    "session": "existing env JWT only; CF_Authorization cookie; no extraction/log/storage",
+    "csrf": "same-origin Origin plus founder-web header; destination Host from fetch; no redirects",
+    "status": "projection explicitly noncanonical; unknown response never retried",
+    "read": "GET only"
+  },
+  "runtime": "not deployed; existing-route CLI not live verified; new host binding/plugin registration pending",
+  "review_status": "local source candidate; full-suite completion blocked by matching base script stalls; not full green",
+  "review_fixes": {
+    "tests_passed": 514,
+    "tests_failed": 0,
+    "confirmation": "complete row canonical JSON sha256 including nonce/head/fence/inspect",
+    "reject_ack": "nonce required; server rejection evidence includes descriptor nonce"
+  },
+  "cached_current_main": "664b94b955e0490c378b95a1bd363140443d1e9a",
+  "implementation_sha256": {
+    "workers/quests/src/goal-graph-store.ts": "dcd87cc611e6a9a0c62b4136bdde709efca507ae03d3cdcee2b9bb235517ae19",
+    "workers/quests/src/founder-decision.ts": "9e06182cfeacceb34bda75cb5f09df3d28dc7c90815bd9c74f9d75adf63c617c",
+    "workers/quests/src/founder-decision.test.ts": "cf19783f28df751b31c07dfcf5fe590417c734fa68718fde6c65b0fcbd81e4f5",
+    "workers/quests/src/handler.ts": "1090487c00dcef0614d401ecd6b65e25cf4d6d97ce8dce914f1edf8ab047fad6",
+    "workers/quests/src/founder-decision-transport.ts": "29fe9eac4befab3379f18dc9f66d120beef52628f3735e7a60facf1007ab952d",
+    "bin/founder-gate.mjs": "a18735c030ae48941d47a43ceddfe5a280ce088803507f3b7ac998a49ef0041f",
+    "bin/founder-gate.test.mjs": "8644eb7106798809a14b6c60f67714212be16e8de3adcfb85a08398e294a7ddf",
+    "docs/architecture/system-atlas.v1.json": "8335307b682451a73f0307fdb495bb763c3d0864c9332f37a2054813105b9fe9",
+    "FOUNDER-GATE-CLI.md": "e64f1ac92f956d2bebba36ddecdfbd39a6a0c20f0941795fe9116630e8739068"
+  }
+}

@@ -1,3 +1,4 @@
+import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
 // other module in this repo. The thin fetch glue lives in index.ts.
@@ -481,6 +482,7 @@ export interface FabricLedgerStoreLike {
 }
 
 export interface HandlerDeps {
+  founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
   acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
@@ -5123,6 +5125,7 @@ async function rejectGoalGraphIntakeRoute(
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
   const evidence = {
+    approvalNonce: resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest)?.approvalNonce ?? null,
     kind: 'reject-goal-graph',
     subject: changeDigest,
     tenantId: tenant,
@@ -5281,6 +5284,13 @@ async function resolveFounderWebSigner(
 }
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  if (['/v1/founder/decision', '/v1/founder/status'].includes(req.path.split('?')[0])) {
+    const response = await founderDecisionHttp(new Request(`https://cambium.invalid${req.path}`, {
+      method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),
+    }), deps.founderDecisionHost);
+    return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
+  }
+
   const founderWeb = founderWebRoute(req);
   if (founderWeb === null) return json(404, { error: 'no founder web route' });
   if (founderWeb) return handleRoutes(founderWeb, deps, true);
