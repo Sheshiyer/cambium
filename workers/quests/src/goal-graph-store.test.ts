@@ -238,3 +238,25 @@ test('approval records are immutable at the database boundary', async () => {
   assert.throws(() => db.db.prepare('UPDATE goal_graph_approvals SET approver_id = ?').run('attacker'), /immutable/);
   assert.throws(() => db.db.prepare('DELETE FROM goal_graph_approvals').run(), /immutable/);
 });
+
+test('new rejection at or after its expiry cannot create a D1 decision', async () => {
+  for (const now of [EXPIRES, '2026-07-23T02:00:00.000Z']) {
+    const { db, store } = await harness();
+    const result = await store.reject({ tenantId: TENANT, changeDigest: 'a'.repeat(64),
+      intentVersion: 1, rejectorId: 'founder', nonce: 'nonce-expiry', expiresAt: EXPIRES, now });
+    assert.equal(result.status, 'invalid');
+    assert.equal(result.status === 'invalid' && result.code, 'decision_expired');
+    assert.equal(db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  }
+});
+
+test('existing immutable rejection remains readable and replayable after expiry', async () => {
+  const { db, store } = await harness();
+  const input = { tenantId: TENANT, changeDigest: 'a'.repeat(64), intentVersion: 1,
+    rejectorId: 'founder', nonce: 'nonce-expiry', expiresAt: EXPIRES, now: NOW };
+  assert.equal((await store.reject(input)).status, 'rejected');
+  const first = await store.readDecisionReceipt(TENANT, input.changeDigest, input.nonce);
+  assert.equal((await store.reject({ ...input, now: '2026-07-23T02:00:00.000Z' })).status, 'duplicate');
+  assert.deepEqual(await store.readDecisionReceipt(TENANT, input.changeDigest, input.nonce), first);
+  assert.equal(db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+});

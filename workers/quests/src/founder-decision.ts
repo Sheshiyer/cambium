@@ -55,15 +55,22 @@ export async function founderDecision(deps: FounderDecisionDeps, input: FounderD
     const settled = await readback();
     if (settled) return settled;
     if (statusOnly) return { status: 'pending', canonicalReadback: true, writerAuthority: false };
-    if (!Number.isFinite(Date.parse(p.expiresAt)) || !Number.isFinite(Date.parse(deps.now())) || Date.parse(p.expiresAt) <= Date.parse(deps.now())) return { status: 'expired' };
+    const expiresAtMs = Date.parse(p.expiresAt);
+    const beforeHeadMs = Date.parse(deps.now());
+    if (!Number.isFinite(expiresAtMs) || !Number.isFinite(beforeHeadMs) || expiresAtMs <= beforeHeadMs) return { status: 'expired' };
     const head = await deps.store.readHead(p.tenantId);
     if ((head?.graphDigest ?? null) !== p.changeSet.expectedHeadDigest) return { status: 'stale' };
+    // The authority read may cross the expiry boundary; neither writer may
+    // receive an already expired decision timestamp after that await.
+    const decidedAt = deps.now();
+    const decidedAtMs = Date.parse(decidedAt);
+    if (!Number.isFinite(decidedAtMs) || expiresAtMs <= decidedAtMs) return { status: 'expired' };
     const core = { tenantId: p.tenantId, changeDigest: input.changeDigest, intentVersion: p.version,
       approverId: p.founderId, nonce: p.nonce, expiresAt: p.expiresAt };
     try {
       if (input.decision === 'approved') await deps.store.commit({ tenantId: p.tenantId, changeSet: p.changeSet,
-        approval: { ...core, decision: 'approved', approvalDigest: goalGraphApprovalDigest(core), channel: context.channel }, now: deps.now() });
-      else await deps.store.reject({ ...core, rejectorId: p.founderId, channel: context.channel, now: deps.now() });
+        approval: { ...core, decision: 'approved', approvalDigest: goalGraphApprovalDigest(core), channel: context.channel }, now: decidedAt });
+      else await deps.store.reject({ ...core, rejectorId: p.founderId, channel: context.channel, now: decidedAt });
     } catch { /* A lost response is never grounds for a second write. */ }
     return await readback() ?? { status: 'unknown', retry: 'status_only' };
   } catch { return { status: 'unknown', retry: 'status_only' }; }

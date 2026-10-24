@@ -1,19 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createFounderClient} from './founder-gate.mjs';
+import {createFounderClient,reviewConfirmation} from './founder-gate.mjs';
 
-const confirmation=(row,decision)=>`${decision} reviewed ${JSON.stringify(row)}`;
 const digest='a'.repeat(64), expiry='2026-10-24T12:00:00.000Z';
 const row={changeDigest:digest,tenantId:'thoughtseed',status:'pending',source:'telegram-goal-graph-intake@v1',graphVersion:2,expectedHeadVersion:1,fence:2,approvalNonce:'nonce-proposal',approvalExpiresAt:expiry,summary:'Update root',consequence:'Commit reviewed graph',reversibility:'Supersede later',founderInspect:{consistent:true,changeDigest:digest}};
 function review(changes={}) {
  const current={...row,...changes};
- return {status:'review',writerAuthority:false,proposal:{proposalId:`thoughtseed:${digest}`,version:1,changeDigest:digest,nonce:current.approvalNonce,expiresAt:current.approvalExpiresAt,tenantId:'thoughtseed',summary:current.summary,review:current},approveConfirmation:confirmation(current,'approve'),rejectConfirmation:confirmation(current,'reject')};
+ const proposal={proposalId:`thoughtseed:${digest}`,version:1,changeDigest:digest,nonce:current.approvalNonce,expiresAt:current.approvalExpiresAt,tenantId:'thoughtseed',summary:`${current.summary} Consequence: ${current.consequence} Reversibility: ${current.reversibility}`,review:{...current,changeSet:{tenantId:'thoughtseed',changeDigest:digest,graphVersion:current.graphVersion,nodesToCreate:[],nodesToUpdate:[],nodesToRemove:[]}}};
+ return {status:'review',writerAuthority:false,proposal,approveConfirmation:reviewConfirmation(proposal,'approved'),rejectConfirmation:reviewConfirmation(proposal,'rejected')};
 }
 const envelope=review();
 const expected={version:1,expiry,confirmation:envelope.approveConfirmation};
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
 function receipt(input,decision=input.decision,changes={}) {
- return {status:decision,receiptDigest:'b'.repeat(64),writerAuthority:false,receipt:{proposalId:input.proposalId,version:input.version,changeDigest:input.changeDigest,tenantId:'thoughtseed',founderId:'access:founder-test',nonce:input.nonce,expiresAt:input.expiresAt,decision,decidedAt:'2026-10-24T11:00:00.000Z',channel:'curious',...changes}};
+ return {status:decision,receiptDigest:'b'.repeat(64),writerAuthority:false,canonicalReadback:true,receipt:{proposalId:input.proposalId,version:input.version,changeDigest:input.changeDigest,tenantId:'thoughtseed',founderId:'access:founder-test',nonce:input.nonce,expiresAt:input.expiresAt,decision,decidedAt:'2026-10-24T11:00:00.000Z',channel:'curious',...changes}};
 }
 function setup(handler) {
  const calls=[];
@@ -58,7 +58,7 @@ test('HTTP503 decision settles only through one status read',async()=>{
  assert.equal((await client.decide(digest,'approve',expected)).status,'approved');assert.equal(decisions().length,1);assert.equal(calls.filter(c=>c.path.endsWith('/status')).length,1);
 });
 test('pending, malformed or unavailable recovery remains unknown and never resubmits',async()=>{
- for(const result of [()=>json({status:'pending',writerAuthority:false}),()=>json({status:'approved',projection:{decision:'approved'},canonicalReadback:false}),()=>json({},503),()=>{throw Error('read unavailable');}]){
+ for(const result of [()=>json({status:'pending',writerAuthority:false,canonicalReadback:true}),()=>json({status:'approved',projection:{decision:'approved'},canonicalReadback:false}),()=>json({},503),()=>{throw Error('read unavailable');}]){
   const {client,decisions,calls}=setup((path,input)=>{if(path.endsWith('/decision'))throw Error('lost response');return result(input);});
   const outcome=await client.decide(digest,'approve',expected);assert.equal(outcome.status,'unknown');assert.equal(outcome.retry,'status_only');assert.equal(decisions().length,1);assert.equal(calls.length,3);
  }
@@ -92,4 +92,41 @@ test('CLI rejects invalid origin, missing session, invalid digest and tenant dri
 });
 test('read is authority-free and does not submit a business decision',async()=>{
  const {client,calls,decisions}=setup(()=>{throw Error('must not decide');});await client.proposal(digest);assert.equal(calls.length,1);assert.equal(decisions().length,0);
+});
+
+test('review fix · CLI rejects a displayed review not bound by its returned confirmation', async () => {
+ const handler=()=>{throw Error('must not decide');};
+ handler.review=()=>({...envelope,proposal:{...envelope.proposal,review:{...envelope.proposal.review,changeSet:{...envelope.proposal.review.changeSet,nodesToCreate:[{desiredState:'A different proposal was displayed'}]}}}});
+ const {client}=setup(handler);
+ await assert.rejects(client.proposal(digest));
+});
+test('review fix · CLI never upgrades a projected acknowledgement into canonical evidence', async () => {
+ const {client}=setup((path,input)=>json({...receipt(input),canonicalReadback:false}));
+ const result=await client.decide(digest,'approve',expected);
+ assert.equal(result.status,'unknown');
+});
+test('review fix · explicit historical null channel remains readable without invented attribution', async () => {
+ const {client}=setup((path,input)=>json(receipt(input,'approved',{channel:null})));
+ const result=await client.status(digest);
+ assert.equal(result.status,'approved'); assert.equal(result.receipt.channel,null);
+});
+
+
+test('review fix · missing complete delta or contradictory tuple never reaches a decision',async()=>{
+ for(const change of [{changeSet:undefined},{approvalNonce:'other'},{approvalExpiresAt:'other'},{fence:3},{expectedHeadVersion:3}]){
+  const handler=()=>{throw Error('must not decide');};
+  handler.review=()=>{
+   const proposal={...envelope.proposal,review:{...envelope.proposal.review,...change}};
+   return {...envelope,proposal,approveConfirmation:reviewConfirmation(proposal,'approved'),rejectConfirmation:reviewConfirmation(proposal,'rejected')};
+  };
+  const {client,decisions}=setup(handler);await assert.rejects(client.proposal(digest));assert.equal(decisions().length,0);
+ }
+});
+test('review fix · missing canonical marker cannot prove pending or a receipt',async()=>{
+ for(const value of [undefined,false]) {
+  const {client}=setup((path,input)=>json({...receipt(input),canonicalReadback:value}));
+  assert.equal((await client.decide(digest,'approve',expected)).status,'unknown');
+  const pending=setup(()=>json({status:'pending',writerAuthority:false,canonicalReadback:value}));
+  await assert.rejects(pending.client.status(digest));
+ }
 });

@@ -27,6 +27,14 @@ The three canonical routes use POST JSON: `/v1/founder/proposal` accepts exactly
 
 An uncertain decision response triggers one status read of the original tuple, with no new proposal fetch or decision submission. If that also fails, use status later. If the proposal tuple changed or disappeared, stop and reconcile the original `(tenant, changeDigest, nonce)` receipt in D1 through an authorized operator; do not resubmit. A conflict is final for that tuple. A rejected proposal needs a new reviewed proposal to reconsider.
 
+## Review and cross-channel consistency
+
+The CLI independently recomputes the exact confirmation from the complete displayed review and validates its descriptor tuple. A response must explicitly carry `canonicalReadback:true` before the CLI accepts either a settled receipt or authoritative pending result. Historical receipts with `channel:null` remain readable and explicitly unattributed; the client never invents a channel.
+
+The existing public pending list, founder decision history and internal Telegram Gate list now derive supported proposal decisions from D1 receipts, even when the KV task remains pending. Read paths do not repair KV or submit another decision. Stored ledger pending rows are discarded before deriving the fresh list; an unavailable or inconsistent D1 read cannot advertise an actionable pending proposal. Evidence candidates retain their existing projection rules.
+
+The service checks expiry again after reading the graph head and gives either writer one consistent decision timestamp. D1 rejects a first rejection at or beyond expiry. Existing immutable decisions remain readable after their approval window closes.
+
 ## Runtime prerequisites remaining
 
 1. Review and publish this candidate through a separately approved release. These source changes are not running on production. The handoff's observed deployed version is `d362a432-b650-451e-83e7-6bcc2121b288`; rollback target is `15622021-5fad-48e0-a0f2-4dc6ff9b6943`. Both must be refreshed before any future release operation.
@@ -41,6 +49,8 @@ An uncertain decision response triggers one status read of the original tuple, w
 
 `node --test bin/founder-gate.test.mjs workers/quests/src/founder-decision.test.ts workers/quests/src/goal-graph-store.test.ts workers/quests/src/growth-workflow.test.ts workers/quests/src/plexus-gate.test.ts`
 
-`node --test --test-name-pattern='canonical founder|founder web gate|goal graph intake|growth' workers/quests/src/handler.test.ts`
+`node --test --test-name-pattern='founder|goal graph|goal-graph|in-world gate|growth' workers/quests/src/handler.test.ts`
 
 The selected handler tests use synthetic RSA-signed Access JWTs, the actual verifier and decision service, and an in-memory SQLite D1 adapter. They cover CLI approval/rejection, lost-response recovery, concurrent opposite decisions, cross-transport receipt equality, identity/tenant/CSRF failures, review drift, expiry and stale heads. They are local evidence; production, device and ordinary-user acceptance remain unproven. The handoff reports a stalled full-suite baseline and 59 existing normalized TypeScript diagnostics; this patch does not claim a full release pass.
+
+PR #396 review follow-up adds negative regressions for expiry during an awaited head read, direct expired rejection, unbound/missing review data, projected readback flags, historical null attribution, and stale or unavailable D1/KV read projections. Test counts in the PR description refer to the final reviewed commit; the full-suite and production caveats above still apply.

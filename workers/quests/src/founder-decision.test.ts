@@ -216,3 +216,34 @@ test('HTTP and MCP fail closed without host or authenticated principal', async (
  assert.equal((await founderDecisionTool('decide_founder_proposal',input,request,{...deps,authenticateRequest:async()=>null})).status,401);
  assert.equal(db.db.prepare('SELECT count(*) AS n FROM goal_graph_approvals').get()?.n,0);
 });
+
+test('proposal expiry during authoritative head read refuses either new decision', async () => {
+  for (const decision of ['approved', 'rejected'] as const) {
+    const { db, deps, p, input, store } = await setup();
+    let now = NOW;
+    let writes = 0;
+    deps.now = () => now;
+    deps.store = { ...store,
+      readHead: async tenant => { const head = await store.readHead(tenant); now = EXPIRES; return head; },
+      commit: async args => { writes++; return store.commit(args); },
+      reject: async args => { writes++; return store.reject(args); },
+    };
+    const result = await founderDecision(deps, { ...input, decision, confirmation: founderConfirmation(p, decision) });
+    assert.equal(result.status, 'expired');
+    assert.equal(writes, 0, 'an expired request must not reach either decision writer');
+    assert.equal(db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  }
+});
+
+test('decision readback and exact replay remain authoritative after proposal expiry', async () => {
+  for (const decision of ['approved', 'rejected'] as const) {
+    const { db, deps, p, input } = await setup();
+    const exact = { ...input, decision, confirmation: founderConfirmation(p, decision) };
+    const first = await founderDecision(deps, exact);
+    assert.equal(first.status, decision);
+    deps.now = () => '2026-07-23T02:00:00.000Z';
+    assert.equal((await founderDecision(deps, exact, true)).receiptDigest, first.receiptDigest);
+    assert.equal((await founderDecision(deps, exact)).receiptDigest, first.receiptDigest);
+    assert.equal(db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  }
+});

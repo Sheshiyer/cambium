@@ -360,6 +360,11 @@ Implementation acceptance evidence:
   learned: Bind and display the complete authenticated change set; a digest alone cannot inform a founder decision.
   criterion now: ISC-3090 requires the full stored delta and a long-state/non-Inspect-field regression test.
 
+- 2026-10-24 | conjectured: A canonical CLI receipt implied the other existing read surfaces would show the same settled decision.
+  refuted by: Before-fix regression kept the KV task pending and observed a pending founder/Telegram row after a settled D1 write; a stored pending-envelope field also survived an authoritative empty list.
+  learned: Derive pending suppression and history from D1 and discard old stored projections before rebuilding current rows.
+  criterion now: ISC-3101 verifies settled, stale-KV/stored-envelope and unavailable-authority cases without extra decisions or KV writes.
+
 ## Verification, deployment, and release
 
 - [x] ISC-53: Focused Worker handler tests exit zero.
@@ -1773,6 +1778,14 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-3098: Anti: missing host/binding, wrong identity/tenant and CSRF requests fail closed.
 - [x] ISC-3099: Runtime prerequisites and exact existing CLI commands are documented without production claims.
 
+### PR #396 review regressions (2026-10-24)
+
+- [x] ISC-3100: A clock crossing proposal expiry during graph-head read cannot produce either first decision; historical D1 receipts remain readable.
+- [x] ISC-3101: Existing pending lists and founder history derive supported D1 outcomes even with stale KV or a stored pending-envelope field; unavailable D1 cannot advertise a decision.
+- [x] ISC-3102: The CLI requires the canonical service marker before recognizing authoritative pending or settled evidence.
+- [x] ISC-3103: The CLI independently binds the complete displayed review and its descriptor to the exact confirmation.
+- [x] ISC-3104: Explicit historical null channel attribution remains readable without inventing attribution.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -1967,6 +1980,8 @@ ISC-3040..3071 use staged-path/hash readback, canonical13release gates, affected
 | ISC-3085..3087 | scope/evidence | Resource/secret/trigger scope and GitHub state readback, retained rollback checkpoint | No additional mutation | Private receipt/Git |
 
 - ISC-3088..3099 | local service/client integration | `canonical founder` handler tests plus focused CLI/decision/store/Access/growth suites | all pass | node:test; prerequisite contract readback.
+
+- ISC-3100..3104 | adversarial source regressions | focused CLI/service/store/Access/growth and selected handler tests | all pass | node:test.
 
 ## Features
 
@@ -2395,6 +2410,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-10-08: strict census remains blocked by three display-only identities, two missing folders and28additional working folders. The reviewed execution root and72-record action catalog stay unchanged. Owner exception question covers only canonical visual-proof freshness/drift and this strict census; no answer or consent has been inferred. The separate advisor request is quota-rejected and provides no review pass.
 
 - 2026-10-24: refined: Founder Gate follow-up is source-only on merged #395 in an isolated checkout. Keep CLI as selected client; full stored delta must be visible as well as fingerprint-bound. New Access founder/tenant enrollment and live publication/decisions remain separately approved. Native server adapter remains bounded; delegated CLI and independent review avoid touching primary working edits.
+
+- 2026-10-24: refined: PR #396 review keeps draft/source scope; existing UI and Telegram projections must derive the canonical D1 outcome without relying on KV repair. CLI review binding and canonical evidence markers are verified independently; first expired rejections fail closed while historical readback remains available.
 
 ## Changelog
 
@@ -3286,3 +3303,5 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - ISC-3088..3099: local node:test — focused CLI/decision/store/Access/growth suites pass 59/59; selected handler integration/regression tests pass 22/22. Synthetic signed Access credentials and SQLite-backed D1 adapter prove source behavior only. `docs/architecture/contracts/founder-gate-cli-v1.md` records exact commands and remaining runtime prerequisites. No release, binding enrollment, live decision or production acceptance is claimed.
 
 - Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.
+
+- ISC-3100..3104: source regression proof — 68/68 focused CLI/service/store/Access/growth tests and 96/96 selected handler tests pass; independent CLI/service/store rerun 40/40 passes. Wrangler 4.124.0 local bundle dry run and `git diff --check` pass. Negative reproductions failed before their fixes. Full-suite/typecheck/live acceptance remain unclaimed.

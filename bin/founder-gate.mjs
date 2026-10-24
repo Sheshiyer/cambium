@@ -1,5 +1,18 @@
 #!/usr/bin/env node
 import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
+
+function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
+}
+/** Independently bind the exact review displayed by this client. */
+export function reviewConfirmation(p, decision) {
+  const fingerprint = createHash('sha256').update(canonical(p.review)).digest('hex');
+  return `${decision} proposal ${p.proposalId} version ${p.version} digest ${p.changeDigest} expires ${p.expiresAt}: ${p.summary} review sha256:${fingerprint}`;
+}
+
 export function createFounderClient({ origin, tenant, accessJwt, fetchImpl = fetch, now = Date.now }) {
   const base = new URL(origin);
   if (base.protocol !== 'https:' || base.username || base.password || base.pathname !== '/' || base.search || base.hash) throw Error('origin must be an HTTPS origin');
@@ -28,7 +41,17 @@ export function createFounderClient({ origin, tenant, accessJwt, fetchImpl = fet
         || p.review.founderInspect?.consistent !== true
         || p.review.founderInspect?.changeDigest !== digest
         || typeof data.approveConfirmation !== 'string' || !data.approveConfirmation
-        || typeof data.rejectConfirmation !== 'string' || !data.rejectConfirmation) {
+        || typeof data.rejectConfirmation !== 'string' || !data.rejectConfirmation
+        || p.review.approvalNonce !== p.nonce || p.review.approvalExpiresAt !== p.expiresAt
+        || typeof p.review.consequence !== 'string' || typeof p.review.reversibility !== 'string'
+        || p.summary !== `${p.review.summary} Consequence: ${p.review.consequence} Reversibility: ${p.review.reversibility}`
+        || !p.review.changeSet || p.review.changeSet.tenantId !== tenant || p.review.changeSet.changeDigest !== digest
+        || !['nodesToCreate','nodesToUpdate','nodesToRemove'].every(key => Array.isArray(p.review.changeSet[key]))
+        || !Number.isInteger(p.review.graphVersion) || p.review.graphVersion < 1
+        || p.review.fence !== p.review.graphVersion || p.review.expectedHeadVersion !== p.review.graphVersion - 1
+        || p.review.changeSet.graphVersion !== p.review.graphVersion
+        || data.approveConfirmation !== reviewConfirmation(p, 'approved')
+        || data.rejectConfirmation !== reviewConfirmation(p, 'rejected')) {
       throw Error('verified founder proposal unavailable');
     }
     return {...p, approveConfirmation:data.approveConfirmation, rejectConfirmation:data.rejectConfirmation};
@@ -38,7 +61,7 @@ export function createFounderClient({ origin, tenant, accessJwt, fetchImpl = fet
       nonce:p.nonce, expiresAt:p.expiresAt, decision, confirmation:text};
   }
   function validatedOutcome(data, input) {
-    if (!data || data.writerAuthority !== false) throw Error('invalid canonical readback');
+    if (!data || data.writerAuthority !== false || data.canonicalReadback !== true) throw Error('invalid canonical readback');
     if (data.status === 'pending' && !data.receipt && !data.receiptDigest) {
       return {...data, canonicalReadback:true};
     }
@@ -51,7 +74,7 @@ export function createFounderClient({ origin, tenant, accessJwt, fetchImpl = fet
         || typeof r.founderId !== 'string' || !r.founderId
         || !['approved','rejected'].includes(r.decision)
         || !Number.isFinite(Date.parse(r.decidedAt))
-        || !['curious','telegram','plugin'].includes(r.channel)
+        || (r.channel !== null && !['curious','telegram','plugin'].includes(r.channel))
         || (data.status !== 'conflict' && data.status !== r.decision)
         || (data.status === 'conflict' && r.decision === input.decision)) {
       throw Error('invalid canonical receipt');

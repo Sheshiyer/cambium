@@ -2622,3 +2622,12 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Exact commands and remaining identity, tenant-binding, database, proposal and release prerequisites: `docs/architecture/contracts/founder-gate-cli-v1.md`. Live binding enrollment, release, plugin/voice enrollment and real business decisions remain separate approval gates. No deployment or live action occurred.
 
 - Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.
+
+
+### 2026-10-24 PR #396 draft review fixes
+
+- Review pinned the remote head `05e6dac039101170c97f1033aafbff05901c5be3`. Equivalent explicit review/prepare checks were used because this repository has no skill wrapper scripts; `.local/` receipts remain ignored and unpushed.
+- Fixed five verified issues: expiry crossing an awaited head read, stale pending/history projections despite a settled D1 decision, projected responses being relabeled canonical by the CLI, unbound/missing complete client review, and unreadable historical null channel attribution. Stored pending-envelope rows are cleared before current D1-backed projection is derived.
+- D1 remains the sole writer. Projection reads perform no KV repairs or business decisions; unavailable D1 cannot advertise an actionable pending row. Exact confirmation, identity/tenant, CSRF, atomic opposite-decision conflict and status-only recovery remain intact.
+- Focused source suites pass 68/68; selected founder/Goal Graph/in-world/growth handler tests pass 96/96; independent client/service/store rerun passes 40/40. Negative regressions failed before fixes. Local Wrangler bundle dry run and diff whitespace checks pass; the owner handoff's full-suite/typecheck and runtime acceptance caveats remain.
+- Keep PR #396 draft. No deploy, binding enrollment, credentials/policy change or live action is authorized or performed. Runtime prerequisites remain in `docs/architecture/contracts/founder-gate-cli-v1.md`.

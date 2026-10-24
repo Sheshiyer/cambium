@@ -16889,3 +16889,69 @@ test('canonical founder · review shows full long desired state and fields outsi
   assert.equal(node.nextAction, 'Read the entire proposed delta');
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
 });
+
+test('canonical founder · review fix: D1 outcome removes stale KV pending rows across channels', async () => {
+  for (const decision of ['approved', 'rejected']) {
+    const h = await canonicalFounderHarness();
+    h.kv.store.set('ledger:cambium', ENVELOPE);
+    const input = canonicalDecision(body(h.read), decision);
+    assert.equal(body(await h.call('decision', input)).status, decision);
+    const taskKey = `goal-graph-intake-task:cambium:${h.changeDigest}`;
+    assert.equal(JSON.parse(h.kv.store.get(taskKey)!).status, 'pending', 'KV deliberately remains stale');
+    const beforeReads = new Map(h.kv.store);
+    const founder = await handle(req('GET', '/founder/api/quests/cambium', { headers: founderWebHeaders() }), h.deps);
+    assert.equal(founder.status, 200, founder.body);
+    assert.equal(body(founder).goalGraphIntake?.rows?.some((row: any) => row.changeDigest === h.changeDigest) ?? false, false);
+    const history = body(founder).goalGraphDecisions.rows.find((row: any) => row.changeDigest === h.changeDigest);
+    assert.equal(history.decision, decision);
+    h.deps.pushToken = 'synthetic-projection-reader';
+    const telegram = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer synthetic-projection-reader' } }), h.deps);
+    assert.equal(body(telegram).actions.some((row: any) => row.changeDigest === h.changeDigest), false);
+    assert.deepEqual(h.kv.store, beforeReads, 'projection reads do not repair KV or make decisions');
+    assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  }
+});
+
+test('canonical founder · review fix: unreadable D1 never advertises a pending decision', async () => {
+  const h = await canonicalFounderHarness();
+  h.kv.store.set('ledger:cambium', ENVELOPE);
+  const original = h.deps.goalGraphStore.readDecisionReceipt;
+  h.deps.goalGraphStore.readDecisionReceipt = async () => { throw Error('D1 unavailable'); };
+  const read = await handle(req('GET', '/founder/api/quests/cambium', { headers: founderWebHeaders() }), h.deps);
+  assert.equal(body(read).goalGraphIntake?.rows?.some((row: any) => row.changeDigest === h.changeDigest) ?? false, false);
+  assert.equal(body(read).goalGraphDecisions?.rows?.some((row: any) => row.changeDigest === h.changeDigest) ?? false, false);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  h.deps.goalGraphStore.readDecisionReceipt = original;
+  const recovered = await handle(req('GET', '/founder/api/quests/cambium', { headers: founderWebHeaders() }), h.deps);
+  assert.equal(body(recovered).goalGraphIntake.rows.some((row: any) => row.changeDigest === h.changeDigest), true);
+});
+
+test('canonical founder · review fix: legacy UI receipt is readable through the selected CLI', async () => {
+  const h = await canonicalFounderHarness();
+  const approved = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: h.changeDigest }, founderWebHeaders(), h.deps);
+  assert.equal(approved.status, 200, approved.body);
+  const client = createFounderClient({ origin: `https://${FOUNDER_WEB_HOST}`, tenant: 'cambium', accessJwt: founderWebJwt(),
+    fetchImpl: async (url: URL, init: RequestInit) => {
+      const result = await handle(req(init.method!, url.pathname, { headers: { ...init.headers as Record<string, string>, host: FOUNDER_WEB_HOST }, body: init.body as string }), h.deps);
+      return new Response(result.body, { status: result.status, headers: result.headers });
+    },
+  });
+  const result = await client.status(h.changeDigest);
+  assert.equal(result.status, 'approved');
+  assert.equal(result.canonicalReadback, true);
+  assert.equal(result.receipt.channel, null, 'historic attribution stays explicitly unknown');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+});
+
+test('canonical founder · review fix: stored pending projection cannot survive settled or unavailable D1', async () => {
+  for (const state of ['approved', 'unavailable']) {
+    const h = await canonicalFounderHarness();
+    const stale = { ...JSON.parse(ENVELOPE), goalGraphIntake: { rows: [{ changeDigest: h.changeDigest, status: 'pending', title: 'stale ledger row' }] } };
+    h.kv.store.set('ledger:cambium', JSON.stringify(stale));
+    if (state === 'approved') assert.equal(body(await h.call('decision', canonicalDecision(body(h.read)))).status, 'approved');
+    else h.deps.goalGraphStore.readDecisionReceipt = async () => { throw Error('D1 unavailable'); };
+    const read = await handle(req('GET', '/api/quests/cambium', { headers: founderWebHeaders() }), h.deps);
+    assert.equal(read.status, 200);
+    assert.equal(body(read).goalGraphIntake, undefined);
+  }
+});
