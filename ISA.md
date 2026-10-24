@@ -355,7 +355,12 @@ Implementation acceptance evidence:
 - [x] ISC-51: The cleanup pull request links the drift incident and verification evidence.
 - [x] ISC-52: GitHub reports zero open cleanup pull requests after merge.
 
-### Verification, deployment, and release
+#- 2026-10-24 | conjectured: The existing Inspect projection plus full-change-set hash was sufficient informed review.
+  refuted by: Independent source review found long desired state and non-anchor changes were hidden behind the hash.
+  learned: Bind and display the complete authenticated change set; a digest alone cannot inform a founder decision.
+  criterion now: ISC-3090 requires the full stored delta and a long-state/non-Inspect-field regression test.
+
+## Verification, deployment, and release
 
 - [x] ISC-53: Focused Worker handler tests exit zero.
 - [x] ISC-54: Full `npm test` exits zero.
@@ -1752,6 +1757,22 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-2563: Anti: review work replaces or completes no saved Cambium OpenAI goal.
 - [x] ISC-2564: Anti: this review activates no host service, provider, message delivery or cloud resource.
 
+
+### Founder Gate CLI vertical slice (2026-10-24, source acceptance)
+
+- [x] ISC-3088: Canonical proposal reads use the existing verified Access/Plexus founder session.
+- [x] ISC-3089: Canonical Access Gate requires explicit server-owned founder/tenant pairs.
+- [x] ISC-3090: Authenticated review exposes the complete stored change set, including fields outside bounded Inspect.
+- [x] ISC-3091: One exact confirmation binds version, digest, nonce, expiry and full review.
+- [x] ISC-3092: Changed head/fence/review and expired proposals cannot create a decision.
+- [x] ISC-3093: Concurrent opposing decisions leave one canonical D1 receipt.
+- [x] ISC-3094: Matching retries return the existing receipt without another graph event.
+- [x] ISC-3095: Uncertain CLI responses query the original D1 tuple without another submission.
+- [x] ISC-3096: Another verified transport reads the same founder/tenant receipt without another decision.
+- [x] ISC-3097: Anti: proposal/status reads cannot write decisions or dispatch execution.
+- [x] ISC-3098: Anti: missing host/binding, wrong identity/tenant and CSRF requests fail closed.
+- [x] ISC-3099: Runtime prerequisites and exact existing CLI commands are documented without production claims.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -1945,6 +1966,8 @@ ISC-3040..3071 use staged-path/hash readback, canonical13release gates, affected
 | ISC-3081..3084 | production | Inert Version readback, explicit UUID promotion, HTTP denial/health and native browser world | Exact version and expected authenticated boundary | Wrangler/HTTP/IAB |
 | ISC-3085..3087 | scope/evidence | Resource/secret/trigger scope and GitHub state readback, retained rollback checkpoint | No additional mutation | Private receipt/Git |
 
+- ISC-3088..3099 | local service/client integration | `canonical founder` handler tests plus focused CLI/decision/store/Access/growth suites | all pass | node:test; prerequisite contract readback.
+
 ## Features
 
 - `GrowthEcosystemReview` | Reconcile growth architecture with modular migration | satisfies ISC-2533..2564 | depends_on source inventory | parallelizable true
@@ -2076,6 +2099,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 **To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
 
 <!-- arch-assets:end -->
+
+- Founder Gate CLI vertical slice | Existing Access verifier, stored intake, explicit tenant bindings and canonical D1 receipts | satisfies: ISC-3088..3099 | depends_on: merged #395 | parallelizable: bounded CLI/test ownership only.
 
 ## Decisions
 
@@ -2368,6 +2393,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - 2026-10-08: full-core investigation reproduces repeated committed-corpus reads over980entries and502393018bytes. Bounded blob batching preserves exact bytes/object/framing/hash checks and independent safety enumeration. Anchor tests retain every semantic assertion and complete readback after everyCLI against one initial immutable baseline. The only new deletion exemption is the three Actions workflows explicitly retired by accepted main026ebf6; disabled job registry and negative cases remain required. No Worker runtime source changes accompany this test transport repair.
 - 2026-10-08: strict census remains blocked by three display-only identities, two missing folders and28additional working folders. The reviewed execution root and72-record action catalog stay unchanged. Owner exception question covers only canonical visual-proof freshness/drift and this strict census; no answer or consent has been inferred. The separate advisor request is quota-rejected and provides no review pass.
+
+- 2026-10-24: refined: Founder Gate follow-up is source-only on merged #395 in an isolated checkout. Keep CLI as selected client; full stored delta must be visible as well as fingerprint-bound. New Access founder/tenant enrollment and live publication/decisions remain separately approved. Native server adapter remains bounded; delegated CLI and independent review avoid touching primary working edits.
 
 ## Changelog
 
@@ -3255,3 +3282,7 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - Only the exact frozen display proposals and reviewed Session Atlas identity receive held proposal treatment. Unknown IDs and spoofed labels remain rejected. The72-record action catalog and approved execution digest are unchanged.
 - Fresh focused linkage/foundation16/16 and Cartographer115 pass,1 existing skip; strict TypeScript and Vite build pass. Independent read-only source review approves all14 changed paths. The pre-census root snapshot remains byte-identical to the prior committed blob and dated intake cannot adopt the new map.
 - The stale canonical screenshot/touch gate remains held. Fresh IAB alternatives produced zero trusted touch events, and the test server/tab cleanup is verified. The original scoped owner question remains unanswered; no Cloudflare upload or promotion has occurred. Prior suite and image/bundle counts above are historical to their exact candidate and do not mint a new full release pass.
+
+- ISC-3088..3099: local node:test — focused CLI/decision/store/Access/growth suites pass 59/59; selected handler integration/regression tests pass 22/22. Synthetic signed Access credentials and SQLite-backed D1 adapter prove source behavior only. `docs/architecture/contracts/founder-gate-cli-v1.md` records exact commands and remaining runtime prerequisites. No release, binding enrollment, live decision or production acceptance is claimed.
+
+- Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.

@@ -2610,3 +2610,15 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 ### 2026-10-08 Actions retirement migration candidate
 
 Workflow source is removed in this PR. Explicit local release verification and separate readiness jobs are recorded in `.local-jobs/jobs.json`, with scheduling disabled. The 33 affected release/readiness tests pass against the local registry. Tag pushes no longer claim automatic publication. No service, deployment, signing, or release publication is activated. Original operator checkouts remain untouched.
+
+
+### 2026-10-24 Founder Gate simple CLI source checkpoint
+
+- Based on merged #395 (`22800c72`), preserving the reconciled growth runtime. Changes live on `codex/founder-gate-simple`; primary working edits remain untouched.
+- Existing CLI now reads the server-owned proposal, shows the complete change set, accepts one exact decision, and validates the sole D1 receipt. An uncertain response triggers one original-tuple status query with no resubmission. No second channel click is required.
+- The canonical host reuses Access/Plexus verification and stored Goal Graph intake; explicit `FOUNDER_GATE_BINDINGS_JSON` founder/tenant pairs prevent wildcard UI founder scope from granting tenant authority. No real binding is installed. Evidence candidates and existing growth/UI/Telegram paths retain their existing behavior.
+- Focused CLI/service/store/Access/growth tests pass 59/59; selected handler tests pass 22/22, including real verifier plus SQLite-backed D1, lost-response recovery, concurrency and full-delta review. These are local proofs. Full-suite stall and existing normalized TypeScript diagnostics from the owner handoff remain outside this patch's acceptance.
+- Independent source review found a hidden-delta review gap and an unrelated scheduled-options insertion; both were corrected before delivery.
+- Exact commands and remaining identity, tenant-binding, database, proposal and release prerequisites: `docs/architecture/contracts/founder-gate-cli-v1.md`. Live binding enrollment, release, plugin/voice enrollment and real business decisions remain separate approval gates. No deployment or live action occurred.
+
+- Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.

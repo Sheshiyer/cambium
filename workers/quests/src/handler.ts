@@ -1,3 +1,4 @@
+import { createFounderAccessHost } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
@@ -486,6 +487,7 @@ export interface FabricLedgerStoreLike {
 }
 
 export interface HandlerDeps {
+  founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
@@ -5308,10 +5310,23 @@ async function resolveFounderWebSigner(
 }
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
-  if (['/v1/founder/decision', '/v1/founder/status'].includes(req.path.split('?')[0])) {
+  if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status'].includes(req.path.split('?')[0])) {
+    const host = deps.founderDecisionHost ?? (deps.plexus ? createFounderAccessHost({
+      store: deps.goalGraphStore, bindingsJson: deps.founderGateBindingsJson,
+      verifyFounder: async () => {
+        const signer = await resolveFounderWebSigner(req, deps);
+        return signer.kind === 'founder' ? signer.approverId : null;
+      },
+      readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
+      reviewTask: task => {
+        const row = goalGraphIntakeGateRow(task);
+        return row ? { ...row, founderInspect: goalGraphFounderInspect(task) } : null;
+      },
+      now: deps.now ?? (() => new Date().toISOString()),
+    }) : undefined);
     const response = await founderDecisionHttp(new Request(`https://cambium.invalid${req.path}`, {
       method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),
-    }), deps.founderDecisionHost);
+    }), host);
     return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
   }
 

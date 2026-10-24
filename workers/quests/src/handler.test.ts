@@ -16710,3 +16710,182 @@ test('in-world gate · D1 directive progress reads claimed, terminal and outcome
   assert.deepEqual(await store.readDirectiveProgress!('shesh', 'directive:done'), { claimed: true, terminal: true, outcome: 'executed' });
   assert.equal(await store.readDirectiveProgress!('other', 'directive:done'), null, 'scoped to the member');
 });
+
+// Canonical CLI slice: real Access signature verification and SQLite D1 adapter.
+async function canonicalFounderHarness(session: Record<string, unknown> | null = FOUNDER_SESSION) {
+  const h = await founderWebHarness(session);
+  const deps = { ...h.deps, founderGateBindingsJson: JSON.stringify([{ founderId: 'access:pid_founder_web', tenantId: 'cambium' }]) };
+  const proposalId = `cambium:${h.changeDigest}`;
+  const headers = founderWebHeaders();
+  const call = (path: string, input: unknown, extra: Record<string, string> = {}) =>
+    handle(req('POST', `/v1/founder/${path}`, { headers: { ...headers, ...extra }, body: JSON.stringify(input) }), deps);
+  const read = await call('proposal', { proposalId });
+  return { ...h, deps, proposalId, call, read };
+}
+function canonicalDecision(review: ReturnType<typeof body>, decision = 'approved') {
+  const p = review.proposal;
+  return { proposalId: p.proposalId, version: p.version, changeDigest: p.changeDigest,
+    nonce: p.nonce, expiresAt: p.expiresAt, decision,
+    confirmation: decision === 'approved' ? review.approveConfirmation : review.rejectConfirmation };
+}
+
+test('canonical founder · stored review and one Access decision return sole D1 receipt', async () => {
+  const h = await canonicalFounderHarness();
+  assert.equal(h.read.status, 200, h.read.body);
+  const review = body(h.read), input = canonicalDecision(review);
+  assert.equal(review.proposal.review.founderInspect.consistent, true);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  const decided = await h.call('decision', input);
+  assert.equal(decided.status, 200, decided.body);
+  assert.equal(body(decided).status, 'approved');
+  assert.equal(body(decided).receipt.channel, 'curious');
+  const status = await h.call('status', input);
+  const retry = await h.call('decision', input);
+  assert.equal(body(status).receiptDigest, body(decided).receiptDigest);
+  assert.equal(body(retry).receiptDigest, body(decided).receiptDigest);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 1);
+});
+
+test('canonical founder · status does not decide; rejection wins cross-channel without another click', async () => {
+  const h = await canonicalFounderHarness();
+  const input = canonicalDecision(body(h.read), 'rejected');
+  assert.equal(body(await h.call('status', input)).status, 'pending');
+  assert.equal(body(await h.call('decision', input)).status, 'rejected');
+  const conflicting = await h.call('decision', canonicalDecision(body(h.read)));
+  assert.equal(conflicting.status, 409);
+  assert.equal(body(conflicting).status, 'conflict');
+  // Another verified transport resolves the very same founder/tenant binding.
+  const { founderDecisionTool } = await import('./founder-decision-transport.ts');
+  const stored = JSON.parse(h.kv.store.get(`goal-graph-intake-task:cambium:${h.changeDigest}`)!);
+  const r = await founderDecisionTool('get_founder_proposal_decision', input, new Request('https://example.invalid/mcp'), {
+    store: h.deps.goalGraphStore, now: h.deps.now,
+    authenticateRequest: async () => ({ founderId: 'access:pid_founder_web', tenantId: 'cambium', channel: 'plugin' }),
+    readProposal: async () => ({ id: h.proposalId, tenantId: 'cambium', founderId: 'access:pid_founder_web',
+      version: stored.intentVersion, changeSet: stored.changeSet, nonce: input.nonce, expiresAt: input.expiresAt, summary: 'status only' }),
+  });
+  assert.equal((await r.json()).receiptDigest, body(await h.call('status', input)).receiptDigest);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n, 0);
+});
+
+test('canonical founder · all review tuple drift refuses old confirmation without writes', async () => {
+  for (const mutate of [
+    (t: any) => { t.approvalNonce += '-changed'; },
+    (t: any) => { t.approvalExpiresAt = '2026-08-15T00:00:00.000Z'; },
+    (t: any) => { t.intentVersion++; },
+    (t: any) => { t.fence++; },
+    (t: any) => { t.expectedHeadVersion++; },
+    (t: any) => { t.node.desiredState = 'different'; },
+    (t: any) => { t.changeSet.nodesToCreate[0].metadata.extra = 'different'; },
+  ]) {
+    const h = await canonicalFounderHarness();
+    const key = `goal-graph-intake-task:cambium:${h.changeDigest}`;
+    const task = JSON.parse(h.kv.store.get(key)!);
+    mutate(task); h.kv.store.set(key, JSON.stringify(task));
+    const result = await h.call('decision', canonicalDecision(body(h.read)));
+    assert.notEqual(result.status, 200, result.body);
+    assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  }
+});
+
+test('canonical founder · binding, tenant, role, CSRF and credentials fail closed', async () => {
+  for (const session of [null, { ...FOUNDER_SESSION, role: 'employee' }, { ...FOUNDER_SESSION, isActive: false }, { ...FOUNDER_SESSION, identityId: 'other-founder' }]) {
+    const h = await canonicalFounderHarness(session);
+    assert.equal(h.read.status, 401);
+    assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  }
+  const h = await canonicalFounderHarness();
+  for (const headers of [{ 'cf-access-jwt-assertion': '' }, { origin: 'https://other.invalid' }, { 'x-cambium-founder-web': '' }, { 'sec-fetch-site': 'cross-site' }]) {
+    assert.equal((await h.call('proposal', { proposalId: h.proposalId }, headers)).status, 401);
+  }
+  assert.equal((await h.call('proposal', { proposalId: `other:${h.changeDigest}` })).status, 401);
+  for (const raw of [undefined, '[]', 'not-json', '[{"founderId":"*","tenantId":"*"}]']) {
+    h.deps.founderGateBindingsJson = raw as any;
+    const result = await h.call('proposal', { proposalId: h.proposalId });
+    assert.equal(result.status, 503); assert.match(body(result).message, /bindings/);
+  }
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+});
+
+test('canonical founder · expiry and moved head refuse decisions but allow status', async () => {
+  const h = await canonicalFounderHarness();
+  const input = canonicalDecision(body(h.read));
+  const originalNow = h.deps.now;
+  h.deps.now = () => input.expiresAt;
+  assert.equal(body(await h.call('decision', input)).status, 'expired');
+  assert.equal(body(await h.call('status', input)).status, 'pending');
+  h.deps.now = originalNow;
+  const originalHead = h.deps.goalGraphStore.readHead;
+  h.deps.goalGraphStore.readHead = async () => ({ graphDigest: 'changed' } as any);
+  assert.equal(body(await h.call('decision', input)).status, 'stale');
+  h.deps.goalGraphStore.readHead = originalHead;
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+});
+
+import { createFounderClient } from '../../../bin/founder-gate.mjs';
+test('canonical founder · CLI review, explicit decision and independent status use real service', async () => {
+  for (const decision of ['approve', 'reject'] as const) {
+    const h = await canonicalFounderHarness();
+    let writes = 0;
+    const client = createFounderClient({ origin: `https://${FOUNDER_WEB_HOST}`, tenant: 'cambium',
+      accessJwt: founderWebJwt(), now: () => Date.parse(h.deps.now()),
+      fetchImpl: async (url: URL, init: RequestInit) => {
+        if (url.pathname.endsWith('/decision')) writes++;
+        const result = await handle(req(init.method!, url.pathname, { headers: { ...init.headers as Record<string, string>, host: FOUNDER_WEB_HOST }, body: init.body as string }), h.deps);
+        return new Response(result.body, { status: result.status, headers: result.headers });
+      },
+    });
+    const p = await client.proposal(h.changeDigest);
+    const result = await client.decide(h.changeDigest, decision, { version: p.version, expiry: p.expiresAt,
+      confirmation: decision === 'approve' ? p.approveConfirmation : p.rejectConfirmation });
+    assert.equal(result.status, decision === 'approve' ? 'approved' : 'rejected');
+    assert.equal(result.canonicalReadback, true);
+    assert.equal((await client.status(h.changeDigest)).receiptDigest, result.receiptDigest);
+    assert.equal(writes, 1);
+    assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  }
+});
+
+test('canonical founder · CLI lost response reads D1 without refetch or resubmit', async () => {
+  const h = await canonicalFounderHarness();
+  const paths: string[] = [];
+  const client = createFounderClient({ origin: `https://${FOUNDER_WEB_HOST}`, tenant: 'cambium',
+    accessJwt: founderWebJwt(), now: () => Date.parse(h.deps.now()),
+    fetchImpl: async (url: URL, init: RequestInit) => {
+      paths.push(url.pathname);
+      const result = await handle(req(init.method!, url.pathname, { headers: { ...init.headers as Record<string, string>, host: FOUNDER_WEB_HOST }, body: init.body as string }), h.deps);
+      if (url.pathname.endsWith('/decision')) throw Error('response dropped after D1 commit');
+      return new Response(result.body, { status: result.status, headers: result.headers });
+    },
+  });
+  const p = await client.proposal(h.changeDigest);
+  const result = await client.decide(h.changeDigest, 'approve', { version: p.version, expiry: p.expiresAt, confirmation: p.approveConfirmation });
+  assert.equal(result.status, 'approved');
+  assert.deepEqual(paths, ['/v1/founder/proposal', '/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status']);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+});
+
+test('canonical founder · concurrent opposing Access decisions keep one D1 outcome', async () => {
+  const h = await canonicalFounderHarness();
+  const results = await Promise.all([h.call('decision', canonicalDecision(body(h.read))), h.call('decision', canonicalDecision(body(h.read), 'rejected'))]);
+  assert.deepEqual(results.map(r => body(r).status).sort(), ['approved', 'conflict']);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+});
+
+test('canonical founder · review shows full long desired state and fields outside Inspect', async () => {
+  const h = await canonicalFounderHarness();
+  const desiredState = 'Review every word of this proposed state. '.repeat(6);
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent({
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4243', updateId: '90002' },
+    goal: { desiredState, currentState: 'Draft awaiting exact review', nextAction: 'Read the entire proposed delta' },
+  }), h.deps);
+  assert.equal(intake.status, 200, intake.body);
+  const review = await h.call('proposal', { proposalId: `cambium:${body(intake).changeDigest}` });
+  assert.equal(review.status, 200, review.body);
+  const node = body(review).proposal.review.changeSet.nodesToCreate[0];
+  assert.equal(node.desiredState, desiredState.trim());
+  assert.equal(node.currentState, 'Draft awaiting exact review');
+  assert.equal(node.nextAction, 'Read the entire proposed delta');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+});

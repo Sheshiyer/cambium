@@ -9,6 +9,8 @@ export interface FounderContext { founderId: string; tenantId: string; channel: 
 export interface FounderProposal {
   id: string; tenantId: string; founderId: string; version: number; changeSet: GoalChangeSet;
   nonce: string; expiresAt: string; summary: string;
+  /** Exact server-owned review, including Inspect, head and fence. */
+  review?: Record<string, unknown>;
 }
 export interface FounderDecision {
   proposalId: string; version: number; changeDigest: string; nonce: string; expiresAt: string;
@@ -23,7 +25,7 @@ export interface FounderDecisionDeps {
   now(): string;
 }
 export function founderConfirmation(p: FounderProposal, decision: 'approved' | 'rejected'): string {
-  return `${decision} proposal ${p.id} version ${p.version} digest ${p.changeSet.changeDigest} expires ${p.expiresAt}: ${p.summary}`;
+  return `${decision} proposal ${p.id} version ${p.version} digest ${p.changeSet.changeDigest} expires ${p.expiresAt}: ${p.summary}${p.review ? ` review sha256:${sha256(p.review)}` : ''}`;
 }
 
 /** No KV ledger and no execution dispatch. D1 is the sole decision authority. */
@@ -41,17 +43,18 @@ export async function founderDecision(deps: FounderDecisionDeps, input: FounderD
   const readback = async () => {
     const row = await deps.store.readDecisionReceipt(p.tenantId, input.changeDigest, p.nonce);
     if (!row) return null;
-    if (row.intent_version !== p.version || row.approver_id !== p.founderId || row.expires_at !== p.expiresAt) return { status: 'conflict' };
+    if (row.tenant_id !== p.tenantId || row.change_digest !== input.changeDigest || row.nonce !== p.nonce
+        || !['approved', 'rejected'].includes(row.decision) || row.intent_version !== p.version || row.approver_id !== p.founderId || row.expires_at !== p.expiresAt) return { status: 'conflict' };
     const metadata = JSON.parse(row.canonical_json);
     return { receiptDigest: sha256(JSON.stringify(row)), status: row.decision === input.decision || statusOnly ? row.decision : 'conflict',
       receipt: { proposalId: p.id, version: row.intent_version, changeDigest: row.change_digest,
         tenantId: row.tenant_id, founderId: row.approver_id, nonce: row.nonce, expiresAt: row.expires_at,
-        decision: row.decision, decidedAt: row.decided_at, channel: metadata.channel ?? null }, writerAuthority: false };
+        decision: row.decision, decidedAt: row.decided_at, channel: metadata.channel ?? null }, canonicalReadback: true, writerAuthority: false };
   };
   try {
     const settled = await readback();
     if (settled) return settled;
-    if (statusOnly) return { status: 'pending' };
+    if (statusOnly) return { status: 'pending', canonicalReadback: true, writerAuthority: false };
     if (!Number.isFinite(Date.parse(p.expiresAt)) || !Number.isFinite(Date.parse(deps.now())) || Date.parse(p.expiresAt) <= Date.parse(deps.now())) return { status: 'expired' };
     const head = await deps.store.readHead(p.tenantId);
     if ((head?.graphDigest ?? null) !== p.changeSet.expectedHeadDigest) return { status: 'stale' };
