@@ -4093,6 +4093,35 @@ async function listGoalGraphIntakeGateRows(
 
 const GOAL_GRAPH_DECISION_PATH_LIMIT = 8;
 
+/**
+ * Node ids whose terminal foldback reads back as an owner-attested accepted
+ * work unit: the same read-only R2 + verifier path the mission fabric uses.
+ * Acceptance there already requires the cortex projection, so this proves
+ * Proof→Cortex. Any missing seam or failed read proves nothing.
+ */
+async function acceptedFoldbackNodeIds(deps: HandlerDeps, tenantId: string, nodeIds: ReadonlySet<string>): Promise<Set<string>> {
+  const proven = new Set<string>();
+  const reader = deps.foldbackReader;
+  if (!nodeIds.size || !deps.goalGraphStore || !reader?.discover || deps.acceptedWorkUnitReadback?.source !== 'owner-readback') return proven;
+  try {
+    const head = await deps.goalGraphStore.readHead(tenantId);
+    if (!head) return proven;
+    const nodes = await deps.goalGraphStore.readNodes(tenantId);
+    const scoped = nodes.filter((node) => nodeIds.has(node.nodeId));
+    const { references } = await discoverMissionFoldbackReferences({ tenantId, graphVersion: head.graphVersion, nodes: scoped, reader });
+    for (const reference of references) {
+      const nodeId = reference.binding.goalGraph.nodeId;
+      if (proven.has(nodeId) || !nodeIds.has(nodeId)) continue;
+      try {
+        const facts = await readFoldbackMissionFacts({ tenantId, graphVersion: head.graphVersion, nodes, references: [reference], reader,
+          acceptedWorkUnitReadback: deps.acceptedWorkUnitReadback });
+        if (facts.nodes.some((node) => node.kind === 'receipt' && node.value.evidenceRefs.some((ref) => ref.startsWith('accepted-work-unit:')))) proven.add(nodeId);
+      } catch { /* one unreadable receipt proves nothing for its node */ }
+    }
+  } catch { /* an unavailable graph or discovery read keeps the last proven stage */ }
+  return proven;
+}
+
 async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string): Promise<Array<Record<string, unknown>>> {
   const keys = await deps.kv.list(`goal-graph-intake-task:${tenantId}:`);
   const decided: Array<{ task: Record<string, unknown>; decidedAt: string; decision: 'approved' | 'rejected' }> = [];
@@ -4135,6 +4164,9 @@ async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string): 
       placement: goalGraphRowPlacement(task),
     });
   }
+  const receiptNodeIds = new Set(rows.filter((row) => row.reached === 'receipt').map((row) => String(row.nodeId)));
+  const learned = await acceptedFoldbackNodeIds(deps, tenantId, receiptNodeIds);
+  for (const row of rows) if (row.reached === 'receipt' && learned.has(String(row.nodeId))) row.reached = 'learning';
   return rows;
 }
 
