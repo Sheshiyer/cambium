@@ -3362,3 +3362,11 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - Refined: IAB at existing110%zoom measured nominal44px controls43.991474px. Raised interactive declarations to45px without relaxing the actual>=44 assertions; independently reviewed source275/275 pass. Fresh IAB Inspect320/390 and operating-fabric320/390/430 assertions pass; proof/map actualheights45px.
 - Held: raw trusted-touch commands are unsupported by the selected IAB adapter. Native drag produced no trusted touchmoves; no synthetic dispatch or metadata substitution counts as trusted input. The prior canonical proof PNGs/manifest remain intact and stale. Partial new captures are diagnostic only.
 - Release gate: final frozen attempt stopped at drift:audit because PAGE-source digest changed. Complete canonical capture, trusted touch and resulting manifest remain prerequisites or require a specific owner rollout exception. No code promotion, migration, enrollment or live decision occurred.
+
+### 2026-10-25 owner-approved desktop rollout and live receipt
+
+- Owner explicitly approved the scoped desktop3D rollout exception; mobile viewport/trustedtouch proof remains held. Core2443/2444 pass0skips, sole waived viewport fingerprint. Other source/build/clean-copy steps pass; no full-green claim.
+- PR399 merged127e589; verified identical code/resource metadata, applied only0012, then enrolled exactly the verified founder and actualcambium tenant. Original46bindings/domain/globalsettings/cron preserved; newfounderbinding only.
+- Real IAB3D: two Relovo renewals returned already_applied. One eligible Fitcheck proposal renewed with original lineage, full current-head review and exactly1Confirm approval POST. Canonical receipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108; D1readback1row/1event/1family, graph3, nodeblocked and allprovider/customer gates stillclosed.
+- Live test exposed generic refusal copy and KVprojectionlag deleting a newly reviewed row. Follow-up retains only the just-renewed canonical row, still revalidates immediately before each decision, invalidates drift/settlement and never retries a decision. Parent337/337 focused tests and independent review pass.
+- This internal Gate test does not establish five-client admission or downstreamexecution; their precise future proposals remain separate.

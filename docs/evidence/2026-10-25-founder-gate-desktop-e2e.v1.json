@@ -1,0 +1,63 @@
+{
+  "schema": "cambium.founder-gate.desktop-e2e.v1",
+  "observedAt": "2026-10-25T10:52:40.743Z",
+  "sourceCommit": "127e589a1a3bfcf57bb4086f1f5f77abbae11f30",
+  "surface": "signed-in deployed Curious3D Founder Gate",
+  "scope": "one verified founder, admitted cambium tenant, one blocked Fitcheck tracking goal",
+  "identity": {
+    "accessAndFounderRoleVerified": true,
+    "explicitTenantPairs": 1,
+    "tenantId": "cambium",
+    "credentialsRecorded": false
+  },
+  "decision": {
+    "proposalId": "cambium:1d07a228066e7a637dee6cd5c8f0a9874b5ea9fcc1432589a6ce1d6ddb219226",
+    "version": 2,
+    "decision": "approved",
+    "channel": "curious",
+    "receiptDigest": "36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108",
+    "canonicalReadback": true,
+    "decisionPostCount": 1
+  },
+  "renewal": {
+    "originalChangeDigest": "7b897c36e61b6430bf27151e95a9de35293317d99e6330f7171b30657780958d",
+    "honestSourceLineage": true,
+    "originalRecordPreserved": true
+  },
+  "d1Readback": {
+    "matchingDecisionRows": 1,
+    "matchingGraphEvents": 1,
+    "familyDecisions": 1,
+    "graphVersion": 3,
+    "nodeStatus": "blocked",
+    "nodesCreated": 1,
+    "nodesUpdated": 0,
+    "nodesRemoved": 0
+  },
+  "release": {
+    "workerVersion": "c41efddd-c25f-4698-bde4-ea0065dc2fc4",
+    "priorBindingsPreserved": 46,
+    "newExplicitFounderBinding": 1,
+    "globalSettingsDomainsAndCronUnchanged": true,
+    "migration": "0012_goal_graph_renewal_fence.sql"
+  },
+  "qualification": {
+    "corePassed": 2443,
+    "coreFailed": 1,
+    "coreSkipped": 0,
+    "soleCoreFailure": "stale canonical viewport PAGE fingerprint",
+    "ownerApprovedDesktopException": true,
+    "mobileTrustedTouchProof": "held"
+  },
+  "safeRefusals": {
+    "relovoOriginalsChecked": 2,
+    "result": "already_applied",
+    "duplicateDecisionCreated": false
+  },
+  "limitations": [
+    "The five-client mapping cohort is not admitted or approved by this internal Fitcheck test",
+    "Shopify, payment, privacy, outreach, CRM and merchant proof remain gated",
+    "No provider inference, external delivery or downstream execution acceptance is claimed",
+    "Raw operator identity, session material and screenshots remain operator-held"
+  ]
+}
