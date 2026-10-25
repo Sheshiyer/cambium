@@ -74,6 +74,7 @@ function harness(options: { initData?: string; founderWeb?: boolean; session?: R
     quest: (env: unknown, revision = 1) => run(`CuriousGateBridge.quest(${JSON.stringify(env)}, ${revision})`),
     get: () => JSON.parse(run('JSON.stringify(CuriousGateBridge.get())')),
     review: async (digest = DIGEST) => JSON.parse(JSON.stringify(await run(`CuriousGateBridge.review(${JSON.stringify(digest)})`))),
+    readDecision: async (digest = DIGEST) => JSON.parse(JSON.stringify(await run(`CuriousGateBridge.readDecision(${JSON.stringify(digest)})`))),
     renew: async (digest = DIGEST) => JSON.parse(JSON.stringify(await run(`CuriousGateBridge.renew(${JSON.stringify(digest)})`))),
     sign: async (kind: string, digest = DIGEST) => JSON.parse(JSON.stringify(await run(`CuriousGateBridge.sign(${JSON.stringify(kind)}, ${JSON.stringify(digest)})`))),
   };
@@ -98,7 +99,7 @@ test('world gate · a Telegram founder read exposes the full digest, anchors and
   // The world never receives credentials or replay material.
   const serialized = JSON.stringify(snapshot);
   assert.doesNotMatch(serialized, /secret-signature|query_id|approvalNonce|goal-graph-approval:/);
-  assert.deepEqual(Object.keys(snapshot).sort(), ['label', 'paths', 'proposals', 'signer', 'state']);
+  assert.deepEqual(Object.keys(snapshot).sort(), ['decisions', 'label', 'paths', 'proposals', 'signer', 'state']);
 });
 
 test('world gate · outside Telegram every proposal is read-only and sign never reaches the network', async () => {
@@ -387,7 +388,7 @@ test('world gate · unreadable and 5xx decisions use one canonical status and ex
     const h=harness({initData:'',founderWeb:true,respond:(body,url)=>url.endsWith('/decision') ? failure : {status:200,body:url.endsWith('/proposal') ? full : settled(body,{duplicate:true})}});
     h.quest(envelope([listed])); await h.review();
     const outcome=await h.sign('approve-goal-graph'); assert.equal(outcome.ok,true);
-    assert.match(outcome.message,/founder:opaque/);
+    assert.equal(outcome.decision.receipt.founderId,'founder:opaque');
     assert.equal(h.requests.filter(item=>item.url.endsWith('/status')).length,1);
     assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,1);
   }
@@ -494,4 +495,38 @@ test('world gate · changed projected tuple invalidates the retained renewed rev
   assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,0);
   h.quest(envelope([old]),3);
   assert.ok(!h.get().proposals.some((item:{changeDigest:string})=>item.changeDigest===fresh.changeDigest),'invalidated canonical overlay is not restored later');
+});
+
+test('world gate · recorded context survives held queue and reopen reads original receipt tuple only',async()=>{
+ const listed=row({version:1}),full=canonicalFixture(listed);let drift=false;
+ const h=harness({initData:'',founderWeb:true,respond:(body,url)=>({status:200,body:url.endsWith('/proposal') ? (drift ? {...full,proposal:{...full.proposal,nonce:'changed'}} : full) : settled(body)})});
+ h.quest(envelope([listed]));await h.review();const outcome=await h.sign('approve-goal-graph');assert.ok(outcome.decision);
+ const original=h.requests.find(r=>r.url.endsWith('/decision'))!;
+ h.run('CuriousGateBridge.hold("unavailable",2)');assert.equal(h.get().state,'held');assert.equal(h.get().decisions.length,1);assert.equal(h.get().decisions[0].context.changeDigest,DIGEST);
+ drift=true;const before=h.requests.length;const reopened=await h.readDecision();assert.equal(reopened.decision.receipt.nonce,listed.approvalNonce);
+ const newRequests=h.requests.slice(before);assert.equal(newRequests.filter(r=>r.url.endsWith('/proposal')||r.url.endsWith('/decision')).length,0);
+ const status=JSON.parse(newRequests.find(r=>r.url.endsWith('/status'))!.init.body!);const old=JSON.parse(original.init.body!);assert.deepEqual(Object.keys(status).sort(),['changeDigest','confirmation','decision','expiresAt','nonce','proposalId','version']);for(const key of ['proposalId','version','changeDigest','nonce','expiresAt'])assert.equal(status[key],old[key]);
+});
+test('world gate · uncertain recovery retains original request despite missing or changed queue',async()=>{
+ const listed=row({version:1}),full=canonicalFixture(listed);let available=false;
+ const h=harness({initData:'',founderWeb:true,respond:(body,url)=>url.endsWith('/proposal') ? {status:200,body:full} : !available ? new Error('dropped') : {status:200,body:settled(body)}});
+ h.quest(envelope([listed]));await h.review();assert.equal((await h.sign('reject-goal-graph')).outcome,'uncertain');
+ const submitted=h.requests.find(r=>r.url.endsWith('/decision'))!.init.body;
+ h.quest(envelope([row({approvalNonce:'changed',version:2})]),2);available=true;const before=h.requests.length;const recovered=await h.readDecision();
+ assert.equal(recovered.decision.requestedDecision,'rejected');assert.equal(h.requests.slice(before).find(r=>r.url.endsWith('/status'))!.init.body,submitted);assert.equal(h.requests.filter(r=>r.url.endsWith('/decision')).length,1);
+});
+test('world gate · opposite decision is structured conflict; historical rejection has no fabricated request',async()=>{
+ const listed=row({version:1}),full=canonicalFixture(listed);
+ const respond=(body:Record<string,unknown>,url:string)=>({status:200,body:url.endsWith('/proposal') ? full : settled(body,{status:'conflict',receipt:{...(settled(body).receipt),decision:'rejected'}})});
+ const h=harness({initData:'',founderWeb:true,respond});h.quest(envelope([listed]));await h.review();const conflict=await h.sign('approve-goal-graph');assert.equal(conflict.decision.requestedDecision,'approved');assert.equal(conflict.decision.receipt.decision,'rejected');assert.equal(conflict.ok,false);
+ const historical=harness({initData:'',founderWeb:true,respond});const record=await historical.readDecision();assert.equal(record.decision.requestedDecision,null);assert.equal(record.decision.receipt.decision,'rejected');assert.equal(historical.requests.filter(r=>r.url.endsWith('/decision')).length,0);
+});
+test('world gate · success-looking text cannot record a canonical decision',async()=>{
+ const listed=row({version:1}),full=canonicalFixture(listed);const h=harness({initData:'',founderWeb:true,respond:(_body,url)=>({status:200,body:url.endsWith('/proposal')?full:{message:'Canonical receipt approved',writerAuthority:false,canonicalReadback:true}})});
+ h.quest(envelope([listed]));await h.review();assert.equal((await h.sign('approve-goal-graph')).outcome,'uncertain');assert.deepEqual(h.get().decisions,[]);
+});
+test('world gate · archived read requires enrolled current founder and tenant before any proposal or status',async()=>{
+ for(const session of [{founderId:'founder',enrolled:false,canonicalReady:true,tenantIds:['cambium'],writerAuthority:false},{founderId:'founder',enrolled:true,canonicalReady:true,tenantIds:['other'],writerAuthority:false}]){
+ const h=harness({initData:'',founderWeb:true,session});assert.equal((await h.readDecision()).outcome,'uncertain');assert.equal(h.requests.length,1);assert.ok(h.requests[0].url.endsWith('/session'));assert.deepEqual(h.get().decisions,[]);
+ }
 });

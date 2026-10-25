@@ -1,5 +1,12 @@
 # Project handoff
 
+### 2026-10-25 production Gate chamber — reviewed source, promotion pending
+
+- Owner authorized implementation, wiring and deployment of the approved chamber study. Typed host canonical receipts/context are now independent of pending projection state. Existing founder/tenant checks, fresh review/confirmation, immutable family fence and original-tuple status-only recovery remain required. Historical receipt reads use no fabricated requested action.
+- Existing PAGE wrapper wires readDecision; production world embeds two source-derived reference specimens totaling18242bytes. SourcePNGhashes unchanged. Generated world770891bytes, digest4d782748ae3827215a98d71b0223d0c6ad8666e5ec8ec8f9ca2d9a156a8fcda2. No new endpoint, service, binding or migration.
+- App183/183 and independent world/host112/112 pass, strictbuild/parity pass. ActualPAGE synthetic IAB historicalread and heldqueue preserve receipt/context and onlymatchingpath stages; requests remain0decision/0renewal. Desktop/actual320px,45pxcontrols, focus/disclosures/reducedmotion pass.
+- Fullcore rerun must be serialized after committing/freeze: first pass collided with concurrent gitindexrefresh and detected stale strictLEGACY_PAGEpin. Independent review proves replacing only the changedGatebridge restores oldpin; strict pin is updated without weakening assertion. Canonical mobileviewport/trustedtouch hold remains separate. No deployment or live decision occurred for this source checkpoint.
+
 ### 2026-10-25 Gate chamber — local design study only
 
 - Owner asked for game-design enhancement grounded in the46asset source library after showing a raw receipt alongside an unverified Gate read. Source review identifies flattened validated receipt text plus settled-row removal as a presentation-state collision. Receipt, current connection and observed execution need independent models.

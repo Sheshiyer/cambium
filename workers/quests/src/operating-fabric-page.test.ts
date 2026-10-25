@@ -53,7 +53,9 @@ const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 's
 // topology contract and renames two historical app-plane display labels. Those
 // exact substitutions reproduce these bytes from the reviewed 649c1c89 surface;
 // the legacy client, action owners, styles and markup are otherwise unchanged.
-const LEGACY_PAGE_DIGEST = 'cbd75907796598898aa55479b12cd2addac5aa44814aa53a2caf07080aa24866';
+// Reviewed typed Gate receipt bridge is part of LEGACY_PAGE's script assembly.
+// Replacing only that bridge with its prior version restores the previous pin.
+const LEGACY_PAGE_DIGEST = '92bf1de2c612466e05207f8a8796c8c576f60be6778f97cf3e1f0391a5aabd67';
 
 function extractScriptBodies(source: string): string[] {
   return [...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]

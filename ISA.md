@@ -3425,3 +3425,20 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 
 - ISC-3128/3131: `docs/plans/2026-10-25-gate-decision-chamber.md` maps actual source boards/specimens/motion grammar and documents independent receipt/connection/execution models, typed tuple-bound context and status-only recovery regressions. Independent source review confirms the current flattened-message/missing-pending-row collision.
 - ISC-3129/3130: Synthetic IAB prototype exercises all4states, trace/disclosure, return/reopen and focus. Uncertain receipt=null, all observed=false and all seal circles hidden. All3sourceimages load. Actual320x844 viewport has scrollWidth320 and every shown button/summary>=45px; reduced-motion animated element count0. Production source, source-library assets and live runtime untouched.
+
+### 2026-10-25 production Gate decision chamber
+
+- [x] ISC-3132: Canonical host returns typed tuple-bound decision/context and retains it across held/missing pending reads without parsing messages.
+- [x] ISC-3133: Historical receipt inspection and uncertain recovery perform read-only original-tuple status calls with no extra decision submission.
+- [x] ISC-3134: Chamber renders actual decision/conflict, independent connection status and only matching observed execution stages.
+- [x] ISC-3135: Source-derived compact artwork remains reference-only, source hashes unchanged and generated world self-contained within budget.
+- [x] ISC-3136: Actual wired PAGE passes focused browser checks at desktop/320px with keyboard, disclosures, reduced motion and no business action.
+- [ ] ISC-3137: Meaningful regression suites/build/bundle parity and independent review pass; known canonical mobile proof hold remains explicit.
+- [ ] ISC-3138: Reviewed exact source deploys with rollback, all runtime bindings/settings preserved and no migration/enrollment change.
+- [ ] ISC-3139: Live authenticated read-only receipt inspection opens the wired chamber; fresh D1 decision/event counts show no test-induced action.
+- 2026-10-25: Decision: implement typed host records and bounded source-derived embeddedWebP assets; the world has no network owner or action authority. Historical inspection has requestedDecision=null unless a real prior intent exists. An uncertain attempt keeps its original tuple and never retries a decision.
+
+- ISC-3132/3133/3134: Independent112/112 world/host tests pass. ActualPAGE localfixture /proposal→/status returns typedreceipt/context; returning through heldqueue retains confirmedrecord and only prior matchingobservations.0decision/0renewalposts.
+- ISC-3135: Source-bound cwebp assetpipeline --check passes;2derivatives18242bytes embedded; sourcePNGsunchanged; world770891bytes.
+- ISC-3136: IAB actual320x844 documentScrollWidth320, dialog282/282 and controls>=45px. Receipt/trace/fullreviewdisclosures, acidkeyboardfocus, return/journal and reducedmotion0animations pass.
+- 2026-10-25: Decision: strictly rebaseline LEGACY_PAGE digest after independent proof that only the reviewed Gate bridge changed those bytes. Freeze tracked checkout and Git index during core immutability probes; concurrent build/status work invalidated the first run, so it is not release evidence.

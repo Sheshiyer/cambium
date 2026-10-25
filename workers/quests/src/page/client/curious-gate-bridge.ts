@@ -21,6 +21,8 @@ const CuriousGateBridge = (() => {
   const inflight = new Set();
   const reviews = new Map();
   const uncertain = new Set();
+  const recovery = new Map();
+  const recorded = new Map();
   // Only canonical revisions fetched immediately after renewal survive a lagging KV list.
   const renewedRows = new Map();
   const settledRows = new Set();
@@ -133,7 +135,7 @@ const CuriousGateBridge = (() => {
           : signer() === 'access' && sessionLabel ? sessionLabel
           : proposals.length && !founderRead ? (signer() === 'access' ? 'Read-only · this Access account is not a verified founder' : 'Read-only · this Telegram account is not a verified founder')
             : sessionLabel || 'Founder signing ready';
-    return Object.freeze({ state, signer:signer(), label, proposals:Object.freeze(proposals), paths:Object.freeze(state === 'read' ? paths : []) });
+    return Object.freeze({ state, signer:signer(), label, proposals:Object.freeze(proposals), paths:Object.freeze(state === 'read' ? paths : []), decisions:Object.freeze(Array.from(recorded.values())) });
   }
   function notify() {
     const snapshot = build();
@@ -144,7 +146,15 @@ const CuriousGateBridge = (() => {
     revision = nextRevision;
     return true;
   }
-  function result(ok, outcome, message) { return Object.freeze({ ok, outcome, message }); }
+  function result(ok, outcome, message, decision) { return Object.freeze({ ok, outcome, message, ...(decision ? {decision} : {}) }); }
+  function deepFreeze(value) { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(deepFreeze); Object.freeze(value); } return value; }
+  function remember(map,key,value) { map.delete(key); map.set(key,value); while(map.size > 8) map.delete(map.keys().next().value); }
+  async function verifiedSession() {
+    const response = await fetch('/v1/founder/session',{method:'GET',credentials:'same-origin',redirect:'error',headers:{'x-cambium-founder-web':'1'}});
+    const session = await response.json();
+    if (!response.ok || session.writerAuthority !== false || typeof session.founderId !== 'string' || !session.founderId || session.enrolled !== true || session.canonicalReady !== true || !Array.isArray(session.tenantIds) || !session.tenantIds.includes(TENANT)) throw new Error('Founder session or tenant admission unavailable.');
+    return session;
+  }
   function canonical(value) {
     if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
     if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map(key => JSON.stringify(key) + ':' + canonical(value[key])).join(',') + '}';
@@ -175,7 +185,7 @@ const CuriousGateBridge = (() => {
     if (data.status !== 'review' || data.writerAuthority !== false || !p || !r
       || p.proposalId !== row.proposalId || p.tenantId !== TENANT || p.changeDigest !== row.changeDigest
       || !Number.isInteger(p.version) || p.version < 1 || (row.version !== undefined && p.version !== row.version)
-      || typeof p.nonce !== 'string' || !p.nonce || !Number.isFinite(Date.parse(p.expiresAt)) || (row.approvalNonce !== undefined && p.nonce !== row.approvalNonce) || p.expiresAt !== row.approvalExpiresAt
+      || typeof p.nonce !== 'string' || !p.nonce || !Number.isFinite(Date.parse(p.expiresAt)) || (row.approvalNonce !== undefined && p.nonce !== row.approvalNonce) || (row.approvalExpiresAt !== undefined && p.expiresAt !== row.approvalExpiresAt)
       || r.tenantId !== TENANT || r.changeDigest !== p.changeDigest || r.approvalNonce !== p.nonce || r.approvalExpiresAt !== p.expiresAt
       || !r.founderInspect || r.founderInspect.consistent !== true || r.founderInspect.changeDigest !== p.changeDigest
       || typeof r.consequence !== 'string' || typeof r.reversibility !== 'string'
@@ -186,20 +196,26 @@ const CuriousGateBridge = (() => {
       || r.changeSet.graphVersion !== r.graphVersion
       || (row.fence !== undefined && r.fence !== row.fence) || (row.expectedHeadVersion !== undefined && r.expectedHeadVersion !== row.expectedHeadVersion)
       || data.approveConfirmation !== await confirmation(p, 'approved') || data.rejectConfirmation !== await confirmation(p, 'rejected')) throw new Error('Canonical review changed or is incomplete. Refresh and review again.');
+    const canonicalInspect = inspectOf(r.founderInspect,r);
+    if (!canonicalInspect?.consistent || !rowOf(r) || (row.nodeId !== undefined && row.nodeId !== r.nodeId)
+      || (row.inspect && canonical(row.inspect) !== canonical(canonicalInspect))) throw new Error('Canonical Inspect unavailable.');
     return JSON.parse(JSON.stringify({...p,approveConfirmation:data.approveConfirmation,rejectConfirmation:data.rejectConfirmation}));
   }
-  function receipt(data, input) {
+  function receipt(data, input, context, requestedDecision = input.decision) {
     const r = data && data.receipt;
     if (!data || data.writerAuthority !== false || data.canonicalReadback !== true) throw new Error('Unverified canonical readback');
     if (data.status === 'pending' && !r && !data.receiptDigest) return result(false,'pending','Canonical status is pending. No decision was confirmed; review again before deciding.');
-    if (!r || !DIGEST.test(data.receiptDigest || '') || !['approved','rejected','conflict'].includes(data.status)
+    if (!r || typeof data.receiptDigest !== 'string' || !DIGEST.test(data.receiptDigest) || !['approved','rejected','conflict'].includes(data.status)
       || r.proposalId !== input.proposalId || r.tenantId !== TENANT || r.version !== input.version || r.changeDigest !== input.changeDigest
       || r.nonce !== input.nonce || r.expiresAt !== input.expiresAt || typeof r.founderId !== 'string' || !r.founderId
       || !['approved','rejected'].includes(r.decision) || !Number.isFinite(Date.parse(r.decidedAt))
       || (r.channel !== null && !['curious','telegram','plugin'].includes(r.channel))
       || (data.status !== 'conflict' && data.status !== r.decision) || (data.status === 'conflict' && r.decision === input.decision)) throw new Error('Receipt does not match the reviewed proposal');
-    return result(r.decision === input.decision, r.decision === input.decision ? r.decision : 'refused',
-      'Canonical receipt ' + data.receiptDigest + '\n' + JSON.stringify(r, null, 2));
+    if (context) context = {...context,canApprove:false,canReject:false,canRenew:false,signing:false};
+    const decision = deepFreeze({schema:'cambium.gate-recorded-decision.v1',canonicalReadback:true,receiptDigest:data.receiptDigest,requestedDecision,receipt:JSON.parse(JSON.stringify(r)),context:context || null});
+    remember(recorded,input.changeDigest,decision); recovery.delete(input.changeDigest); uncertain.delete(input.changeDigest);
+    return result(requestedDecision === null || r.decision === requestedDecision, requestedDecision === null || r.decision === requestedDecision ? r.decision : 'refused',
+      'Canonical decision read back.',decision);
   }
   function refreshProjection() { if (typeof refresh === 'function') Promise.resolve().then(() => refresh()).catch(() => {}); }
   async function webSign(kind, row) {
@@ -212,12 +228,14 @@ const CuriousGateBridge = (() => {
     const decision = kind === 'approve-goal-graph' ? 'approved' : 'rejected';
     const input = {proposalId:fresh.proposalId,version:fresh.version,changeDigest:fresh.changeDigest,nonce:fresh.nonce,expiresAt:fresh.expiresAt,
       decision,confirmation:decision === 'approved' ? fresh.approveConfirmation : fresh.rejectConfirmation};
+    const context = JSON.parse(JSON.stringify(build().proposals.find(item => item.changeDigest === row.changeDigest) || null));
+    remember(recovery,row.changeDigest,{input:JSON.parse(JSON.stringify(input)),context});
     let outcome;
-    try { outcome = receipt(await call('decision',input),input); }
+    try { outcome = receipt(await call('decision',input),input,context); }
     catch (error) {
       if (error.status === 401 || error.status === 403 || error.status === 400 || error.status === 404) return result(false,'auth',error.message);
       // One read of the ORIGINAL tuple. Never retry a business decision.
-      try { outcome = receipt(await call('status',input),input); }
+      try { outcome = receipt(await call('status',input),input,context); }
       catch (_) { uncertain.add(row.changeDigest); outcome = result(false,'uncertain','Outcome unconfirmed. Canonical receipt readback failed; do not resubmit this decision.'); }
     }
     if (['approved','rejected','refused'].includes(outcome.outcome)) {
@@ -228,6 +246,28 @@ const CuriousGateBridge = (() => {
     return outcome;
   }
   return {
+    async readDecision(changeDigest) {
+      if (signer() !== 'access' || !DIGEST.test(changeDigest)) return result(false,'blocked','Canonical read unavailable.');
+      try {
+        await verifiedSession();
+        let original = recovery.get(changeDigest);
+        const saved = recorded.get(changeDigest);
+        if (!original && saved) {
+          const r = saved.receipt;
+          original = {input:{proposalId:r.proposalId,version:r.version,changeDigest:r.changeDigest,nonce:r.nonce,expiresAt:r.expiresAt,decision:saved.requestedDecision || r.decision,confirmation:''},context:saved.context,requestedDecision:saved.requestedDecision};
+        }
+        if (!original) {
+          const p = await readProposal({proposalId:TENANT + ':' + changeDigest,changeDigest});
+          const row = rowOf(p.review);
+          reviews.set(changeDigest,p);
+          const context = {changeDigest,nodeId:row.nodeId,title:row.title,summary:row.summary,sourceRef:row.sourceRef,receivedAt:row.receivedAt,approvalExpiresAt:p.expiresAt,consequence:row.consequence,reversibility:row.reversibility,inspect:row.inspect,expired:Date.parse(p.expiresAt)<=Date.now(),canApprove:false,canReject:false,canRenew:false,blockedReason:'Recorded status read',signing:false,placement:row.placement,canonicalReview:JSON.stringify(p)};
+          original = {input:{proposalId:p.proposalId,version:p.version,changeDigest:p.changeDigest,nonce:p.nonce,expiresAt:p.expiresAt,decision:'approved',confirmation:p.approveConfirmation},context,requestedDecision:null};
+        }
+        const outcome = receipt(await call('status',original.input),original.input,original.context,original.requestedDecision === undefined ? original.input.decision : original.requestedDecision);
+        if (outcome.decision) { settledRows.add(changeDigest); rows=rows.filter(row=>row.changeDigest!==changeDigest); }
+        notify(); return outcome;
+      } catch(error) { notify(); return result(false,'uncertain',error.message || 'Canonical status unavailable.'); }
+    },
     async review(changeDigest) {
       const row = rows.find(item => item.changeDigest === changeDigest);
       if (signer() !== 'access' || state !== 'read' || !row || inflight.has(changeDigest)) return result(false,'blocked','Canonical review is unavailable.');

@@ -1,3 +1,4 @@
+import { normalizeGateDecision, type GateRecordedDecision } from './gate-decision.ts';
 // Founder Gate view model for the Field Atlas. Pure helpers over the sanitized
 // snapshot the host page supplies. The world never signs, sees credentials or
 // touches the network: it can only ask the host's existing founder-verified
@@ -31,19 +32,20 @@ export interface GateProposal {
 }
 export interface GateSnapshot {
   state: 'checking' | 'read' | 'held'; signer: 'telegram' | 'access' | 'none'; label: string;
-  proposals: readonly GateProposal[]; paths: readonly GatePath[];
+  proposals: readonly GateProposal[]; paths: readonly GatePath[]; decisions?: readonly GateRecordedDecision[];
 }
-export interface GateSignResult { ok: boolean; outcome: string; message: string }
+export interface GateSignResult { ok: boolean; outcome: string; message: string; decision?: GateRecordedDecision }
 export interface GateBridge {
   getGateState?: () => unknown;
   subscribeGate?: (listener: (snapshot: unknown) => void) => () => void;
+  readDecision?: (changeDigest: string) => Promise<GateSignResult>;
   reviewGate?: (changeDigest: string) => Promise<GateSignResult>;
   renewGate?: (changeDigest: string) => Promise<GateSignResult & { changeDigest?: string }>;
   signGate?: (kind: GateKind, changeDigest: string) => Promise<GateSignResult>;
 }
 
 export const HELD_GATE: GateSnapshot = Object.freeze({
-  state: 'held', signer: 'none', label: 'Gate read unavailable · nothing can be signed', proposals: Object.freeze([]), paths: Object.freeze([]),
+  state: 'held', signer: 'none', label: 'Gate read unavailable · nothing can be signed', proposals: Object.freeze([]), paths: Object.freeze([]), decisions: Object.freeze([]),
 });
 
 const PLACES: Readonly<Record<GateLandmarkId, GatePlacement['districtId']>> = Object.freeze({ gate: 'purpose', hands: 'plant', 'launch-lead': 'growth' });
@@ -117,7 +119,10 @@ export function normalizeGateSnapshot(value: unknown): GateSnapshot {
     });
   const paths = state === 'read' && Array.isArray(value.paths)
     ? value.paths.map(pathOf).filter((item): item is GatePath => !!item).slice(0, 8) : [];
-  return { state, signer, label: text(value.label, 120) || HELD_GATE.label, proposals, paths };
+  const decisions = Array.isArray(value.decisions) ? value.decisions.map(normalizeGateDecision).filter((v): v is GateRecordedDecision => v !== null).slice(-8) : [];
+  const recordedDigests = new Set(decisions.map(decision => decision.receipt.changeDigest));
+  const pending = proposals.filter(proposal => !recordedDigests.has(proposal.changeDigest));
+  return { state, signer, label: text(value.label, 120) || HELD_GATE.label, proposals: pending, paths, decisions };
 }
 
 /** Pending proposals whose subject landmark is `landmarkId`. */
