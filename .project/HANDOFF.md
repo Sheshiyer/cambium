@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-10-25 final Founder Gate desktop runtime receipt
+
+- PR399 and PR400 are merged. Current reviewed code is cf33d25; Worker version c3a13925-8721-4f56-af26-da713949de5a serves100percent. Immediate safe rollback is c41efddd-c25f-4698-bde4-ea0065dc2fc4. Only0012 was applied; all47bindings and existing domain/globalsettings/cron are verified intact.
+- The actual signed-in3D flow renewed and fully reviewed one blocked Fitcheck tracking goal, then submitted exactly one approval. Canonical receipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108 is independently backed by one D1decision, one graph event and one renewal-family outcome. Graph3 retains all provider/payment/outreach/CRM/merchant gates.
+- The live-discovered refusal-copy and projection-lag fixes are deployed; exact already_applied feedback was rechecked without another decision. Two original Relovo intents were already applied and were not reexecuted.
+- Final core2447/2448passes0skips; sole canonical viewport fingerprint/trustedtouch hold is the owner's explicit desktop exception. Focused337/337passes and independent source review remain separate from the live proof. Mobile/device proof and five-client portfolio admission remain unproved.
+- Detailed bounded evidence: `docs/evidence/2026-10-25-founder-gate-desktop-e2e.v1.json`. Future pickup must read current runtime before retrying any proposal; no new action or broad enrollment is authorized by this checkpoint. Primary working edits and vault remain preserved.
+
 ### 2026-10-25 Founder proposal renewal and canonical 3D Gate — deployed PR #399
 
 - Reviewed source adds exact-tuple renewal with honest original lineage, explicit founder/tenant admission and full canonical review/decision/status in the existing 3D Gate. Stale revisions remain renew-only; existing committed receipts remain immutable.
