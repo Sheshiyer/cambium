@@ -3398,5 +3398,7 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 ### 2026-10-25 Expedition Dossier draft publication
 
 - [x] ISC-3121: Review package includes desktop, actual320px and source-folio screenshots with implementation SHA, bounded test evidence and remaining canonical metadata gaps.
-- [ ] ISC-3122: Exact reviewed branch is pushed and one draft PR is verified with matching head, screenshot links and evidence.
+- [x] ISC-3122: Exact reviewed branch is pushed and one draft PR is verified with matching head, screenshot links and evidence.
 - ISC-3121: Evidence package links to implementation a2d58ab and preserves the synthetic/local-only limitation, unknown metadata behavior and held canonical mobile/trusted-touch release proof. Publication does not authorize deployment, enrollment or live decisions.
+
+- ISC-3122: GitHub readback verifies draft PR402 targeting main, with pushed branch head064c7b5, three immutable screenshot links, exact test evidence and metadata gaps. Final publication checkpoint changes docs only; remote head and draft state are rechecked after that push.
