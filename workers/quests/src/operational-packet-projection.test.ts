@@ -281,3 +281,9 @@ test('validator rejects malformed canonical identity and broken cross-references
     /readback flag must match/,
   );
 });
+
+test('an explicit unreviewed lifecycle cannot qualify an operational planning authority', () => {
+  const pending = validInput() as any;
+  pending.repositoryComponents.find((component: any) => component.planningAuthority).lifecycle = 'unreviewed';
+  assert.throws(() => compileOperationalPacketProjection(pending), /unapproved or historical/);
+});

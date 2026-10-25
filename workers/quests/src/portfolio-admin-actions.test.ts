@@ -561,3 +561,199 @@ test('a queue failure reports durable evidence so retry can finish the trigger',
   );
   assert.equal(fixture.r2.size, 1);
 });
+
+// A component-bearing request is planning evidence only, never execution admission.
+import { validatePortfolioAdminAction } from './portfolio-admin-actions.ts';
+import { repositoryComponentsForIntake, reviewedRepositoryComponentsFor } from '../../../shared/operational-packet-registry.ts';
+import { createPacket, parsePacket, defaultReconciliation, WORK_OBJECTS } from '../../../apps/portfolio-cartographer/src/domain.ts';
+
+for (const [workId, primary, count] of [
+  ['branch:tirak', 'Sheshiyer/tirak-mobile-app-v2', 10],
+  ['branch:parkarea', 'Sheshiyer/parkarea-aleph', 3],
+  ['branch:insight-realtors-legal-advisors', 'Sheshiyer/Insightreality', 1],
+  ['branch:co-property', 'Sheshiyer/coproperty-office-os', 10],
+  ['branch:klear-karma', 'Sheshiyer/kkv2-klear-karma-RN', 10],
+  ['branch:relovo', 'Sheshiyer/relovo', 1],
+] as const) {
+  test(`${workId}: full membership survives export/import, immutable evidence and pending-intake trigger`, async () => {
+    const work = WORK_OBJECTS.find((row) => row.workId === workId)!;
+    const components = repositoryComponentsForIntake(workId, `repo:${primary}`);
+    const authority = components.find((component) => component.planningAuthority)!;
+    const reconciliation = {
+      ...defaultReconciliation(workId), repositorySourceRef: `repo:${primary}`,
+      repositoryComponents: components, repositoryDisposition: 'resolved' as const,
+      origin: 'client' as const, clientFamilyId: work.accountId!,
+      planningAuthority: { kind: 'repository' as const, fullName: primary, repositoryId: authority.immutableRepositoryId! },
+      repositoryPlanningReviewed: true, githubIssuesReviewed: true, legacyEvidenceReviewed: true,
+    };
+    const packet = createPacket({ focusedId: workId, plans: {}, reconciliations: { [workId]: reconciliation } }, new Date('2026-10-25T18:00:00Z'));
+    const parsed = parsePacket(JSON.parse(JSON.stringify(packet)));
+    assert.deepEqual(parsed.reconciliations[workId].repositoryComponents, components);
+    const { workObjectId: _id, updatedAt: _time, ...proposal } = parsed.reconciliations[workId];
+    const action = thoughtseedInput({ idempotencyKey: `membership-${workId}`, subject: { id: workId, name: work.name }, proposal });
+    const fixture = fixtures();
+    const deps = { store: createPortfolioAdminActionStore(fixture.bucket), queue: createPortfolioAdminActionQueue(fixture.queueKv), actorId: 'founder', now: () => '2026-10-25T18:00:00Z' };
+    const receipt = await recordPortfolioAdminAction(action, deps);
+    const evidence = JSON.parse([...fixture.r2.values()][0]);
+    assert.equal(evidence.action.proposal.repositoryComponents.length, count);
+    assert.deepEqual(evidence.action.proposal.repositoryComponents, components);
+    assert.equal(receipt.nextFlow, 'repository-intake-review');
+    assert.equal(receipt.approvalStatus, null);
+    assert.equal(JSON.parse([...fixture.kv.values()][0]).status, 'pending-governed-intake');
+    assert.deepEqual(await recordPortfolioAdminAction(action, deps), { ...receipt, duplicate: true });
+    assert.equal(fixture.r2.size, 1);
+    assert.equal(fixture.kv.size, 1);
+    for (const mutate of [
+      (value: any) => value.proposal.repositoryComponents.pop(),
+      (value: any) => value.proposal.repositoryComponents.push(value.proposal.repositoryComponents[0]),
+      (value: any) => value.proposal.repositoryComponents[0].ownerWorkObjectId = 'branch:unrelated',
+      (value: any) => value.proposal.repositoryComponents[0].immutableRepositoryId = 'R_kgDOWrong',
+      (value: any) => value.proposal.repositoryComponents[0].lifecycle = 'historical',
+      (value: any) => value.proposal.repositoryComponents[0].roles = ['infra'],
+      (value: any) => value.proposal.repositoryComponents[0].projectAssociation = 'other-project',
+      (value: any) => value.proposal.repositoryComponents[0].planningAuthority = !value.proposal.repositoryComponents[0].planningAuthority,
+      (value: any) => value.proposal.clientFamilyId = 'another-client',
+      (value: any) => value.proposal.planningAuthority.fullName = 'Other/Repo',
+    ]) {
+      const changed = structuredClone(action); mutate(changed);
+      const empty = fixtures();
+      await assert.rejects(recordPortfolioAdminAction(changed, { ...deps, store: createPortfolioAdminActionStore(empty.bucket), queue: createPortfolioAdminActionQueue(empty.queueKv) }));
+      assert.equal(empty.events.length, 0);
+    }
+  });
+}
+
+test('historical components cannot become planning authority and Co.Property associations do not mint project IDs', () => {
+  const historical = 'repo:pineappleinnovationlabs/tirak-website-v1';
+  const components = repositoryComponentsForIntake('branch:tirak', historical);
+  const work = WORK_OBJECTS.find((row) => row.workId === 'branch:tirak')!;
+  assert.throws(() => validatePortfolioAdminAction(thoughtseedInput({ subject: { id: work.workId, name: work.name }, proposal: {
+    ...thoughtseedInput().proposal, repositorySourceRef: historical, repositoryComponents: components,
+    origin: 'client', clientFamilyId: 'tirak', planningAuthority: { kind: 'repository', fullName: 'pineappleinnovationlabs/tirak-website-v1', repositoryId: 'R_kgDOQDuQIw' },
+  } })), /approved current/);
+  const co = reviewedRepositoryComponentsFor('branch:co-property');
+  assert.deepEqual(co.filter((row) => row.lifecycle === 'current').map((row) => row.projectAssociation), ['office-os', 'website-2026', 'academy']);
+  assert.ok(co.every((row) => row.ownerWorkObjectId === 'branch:co-property'));
+  assert.equal(WORK_OBJECTS.some((row) => row.workId === 'branch:relovo'), true);
+  assert.equal(reviewedRepositoryComponentsFor('branch:relovo')[0].nameWithOwner, 'Sheshiyer/relovo');
+});
+
+test('legacy singular action validation preserves historic payload shape and digest input', () => {
+  const original = thoughtseedInput();
+  assert.deepEqual(validatePortfolioAdminAction(original), original);
+  assert.equal(Object.hasOwn(validatePortfolioAdminAction(original).proposal, 'repositoryComponents'), false);
+});
+
+test('incomplete multi-select drafts remain recoverable without authorizing an incomplete intake', () => {
+  const workId = 'branch:tirak';
+  const primary = 'repo:Sheshiyer/tirak-mobile-app-v2';
+  const components = repositoryComponentsForIntake(workId, primary).slice(0, 2);
+  const draft = { ...defaultReconciliation(workId), repositorySourceRef: primary,
+    repositoryComponents: components, repositoryDisposition: 'resolved' as const,
+    planningAuthority: { kind: 'repository' as const, fullName: 'Sheshiyer/tirak-mobile-app-v2', repositoryId: 'R_kgDOSkuDKw' },
+  };
+  const packet = createPacket({ focusedId: workId, plans: {}, reconciliations: { [workId]: draft } });
+  assert.deepEqual(parsePacket(JSON.parse(JSON.stringify(packet))).reconciliations[workId].repositoryComponents, components);
+});
+
+test('legacy ParkArea alias retains its selected repository identity when full membership is added', () => {
+  const id = 'branch:parkarea';
+  const reconciliation = {
+    ...defaultReconciliation(id), repositorySourceRef: 'repo:parkarea.parkarea-aleph', repositoryDisposition: 'resolved' as const,
+    planningAuthority: { kind: 'repository' as const, fullName: 'Sheshiyer/parkarea-aleph', repositoryId: 'R_kgDOSDqEkg' },
+    repositoryComponents: repositoryComponentsForIntake(id, 'repo:Sheshiyer/parkarea-aleph'),
+  };
+  const packet = createPacket({ focusedId: id, plans: {}, reconciliations: { [id]: reconciliation } });
+  const readback = parsePacket(JSON.parse(JSON.stringify(packet))).reconciliations[id];
+  assert.equal(readback.repositorySourceRef, 'repo:parkarea.parkarea-aleph');
+  assert.equal(readback.repositoryComponents?.find((component) => component.planningAuthority)?.nameWithOwner, 'Sheshiyer/parkarea-aleph');
+});
+
+import { intakeReadiness, toMarkdown } from '../../../apps/portfolio-cartographer/src/domain.ts';
+
+test('unreviewed Tirak backend stays membership evidence and cannot become approved planning authority', async () => {
+  const id = 'branch:tirak';
+  const name = 'Sheshiyer/tirak-backend-alpha01';
+  const work = WORK_OBJECTS.find((row) => row.workId === id)!;
+  const { repositoryComponents: _defaultComponents, ...legacyDraft } = defaultReconciliation(id);
+  const reconciliation = {
+    ...legacyDraft, repositorySourceRef: `repo:${name}`, repositoryDisposition: 'resolved' as const,
+    origin: 'client' as const, clientFamilyId: 'tirak',
+    planningAuthority: { kind: 'repository' as const, fullName: name, repositoryId: 'R_kgDOO5Ekzg' },
+    repositoryPlanningReviewed: true, githubIssuesReviewed: true, legacyEvidenceReviewed: true,
+  };
+  assert.equal(intakeReadiness(work, reconciliation).ready, false);
+  const components = repositoryComponentsForIntake(id, `repo:${name}`);
+  assert.equal(components.length, 10);
+  assert.equal(intakeReadiness(work, { ...reconciliation, repositoryComponents: components }).ready, false);
+  const { workObjectId: _id, updatedAt: _time, ...proposal } = reconciliation;
+  assert.throws(() => validatePortfolioAdminAction(thoughtseedInput({ subject: { id, name: work.name }, proposal })), /approved current/);
+  const fixture = fixtures();
+  await assert.rejects(recordPortfolioAdminAction(thoughtseedInput({ subject: { id, name: work.name }, proposal: { ...proposal, repositoryComponents: components } }), {
+    store: createPortfolioAdminActionStore(fixture.bucket), queue: createPortfolioAdminActionQueue(fixture.queueKv), actorId: 'founder', now: () => '2026-10-25T18:00:00Z',
+  }), /approved current/);
+  assert.equal(fixture.events.length, 0);
+  assert.equal(components.filter((component) => component.lifecycle === 'unreviewed').length, 4);
+});
+
+test('new JSON and Markdown exports enrich legacy drafts without changing original singular state', () => {
+  const id = 'branch:tirak';
+  const { repositoryComponents: _defaultComponents, ...legacyDraft } = defaultReconciliation(id);
+  const reconciliation = {
+    ...legacyDraft, repositorySourceRef: 'repo:Sheshiyer/tirak-mobile-app-v2', repositoryDisposition: 'resolved' as const,
+    planningAuthority: { kind: 'repository' as const, fullName: 'Sheshiyer/tirak-mobile-app-v2', repositoryId: 'R_kgDOSkuDKw' },
+  };
+  const before = JSON.stringify(reconciliation);
+  const packet = createPacket({ focusedId: id, plans: {}, reconciliations: { [id]: reconciliation } });
+  const exported = parsePacket(JSON.parse(JSON.stringify(packet))).reconciliations[id];
+  assert.equal(exported.repositoryComponents?.length, 10);
+  assert.equal(exported.repositorySourceRef, reconciliation.repositorySourceRef);
+  assert.equal(exported.repositoryComponents?.filter((component) => component.planningAuthority).length, 1);
+  assert.equal(JSON.stringify(reconciliation), before);
+  // Markdown may also be requested from an already-exported older packet.
+  delete packet.reconciliations[id].repositoryComponents;
+  const markdown = toMarkdown(packet);
+  for (const component of reviewedRepositoryComponentsFor(id)) assert.ok(markdown.includes(component.nameWithOwner));
+  assert.equal(Object.hasOwn(packet.reconciliations[id], 'repositoryComponents'), false);
+});
+
+test('singular planning identity is case-insensitive by name but bound to immutable ID and reference', () => {
+  const work = WORK_OBJECTS.find((row) => row.workId === 'branch:tirak')!;
+  const mobile = 'Sheshiyer/tirak-mobile-app-v2';
+  const backend = 'Sheshiyer/tirak-backend-alpha01';
+  function action(name: string, id: string, ref: string) {
+    return thoughtseedInput({ subject: { id: work.workId, name: work.name }, proposal: {
+      ...thoughtseedInput().proposal, origin: 'client', clientFamilyId: 'tirak', repositorySourceRef: ref,
+      planningAuthority: { kind: 'repository', fullName: name, repositoryId: id },
+    } });
+  }
+  for (const name of [backend, 'sheshiyer/tirak-backend-alpha01', 'Sheshiyer/TIRAK-BACKEND-ALPHA01']) {
+    for (const ref of [`repo:${backend}`, `repo:${backend.toUpperCase()}`]) {
+      assert.throws(() => validatePortfolioAdminAction(action(name, 'R_kgDOO5Ekzg', ref)), /approved current/);
+      const withComponents = action(name, 'R_kgDOO5Ekzg', ref);
+      Object.assign(withComponents.proposal, { repositoryComponents: repositoryComponentsForIntake(work.workId, `repo:${backend}`) });
+      assert.throws(() => validatePortfolioAdminAction(withComponents), /approved current/);
+    }
+  }
+  for (const name of [mobile, mobile.toLowerCase(), mobile.toUpperCase()]) {
+    for (const ref of [`repo:${mobile}`, `repo:${mobile.toUpperCase()}`]) {
+      const valid = action(name, 'R_kgDOSkuDKw', ref);
+      assert.deepEqual(validatePortfolioAdminAction(valid), valid); // retain exact legacy bytes/shape
+      for (const wrong of [
+        action(name, 'R_kgDOO5Ekzg', ref),
+        action(name, 'R_kgDOWrong', ref),
+        action(name, 'R_kgDOSkuDKw', `repo:${backend}`),
+        action(name, 'R_kgDOSkuDKw', 'repo:Other/Unknown'),
+        action(backend, 'R_kgDOSkuDKw', ref),
+      ]) assert.throws(() => validatePortfolioAdminAction(wrong), /ID, qualified name and source reference/);
+      Object.assign(valid.proposal, { repositoryComponents: repositoryComponentsForIntake(work.workId, `repo:${mobile}`) });
+      assert.doesNotThrow(() => validatePortfolioAdminAction(valid));
+    }
+  }
+  const park = WORK_OBJECTS.find((row) => row.workId === 'branch:parkarea')!;
+  const legacy = action('sheshiyer/PARKAREA-ALEPH', 'R_kgDOSDqEkg', 'repo:parkarea.parkarea-aleph');
+  legacy.subject = { id: park.workId, name: park.name }; legacy.proposal.clientFamilyId = 'parkarea';
+  assert.deepEqual(validatePortfolioAdminAction(legacy), legacy);
+  legacy.proposal.repositorySourceRef = 'repo:parkarea.wiki';
+  assert.throws(() => validatePortfolioAdminAction(legacy), /ID, qualified name and source reference/);
+});

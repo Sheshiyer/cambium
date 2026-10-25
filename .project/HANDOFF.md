@@ -2693,3 +2693,17 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Legacy retry may still return 409. Recovery preserves the original receipt and opposite-decision conflict, including after expiry, with zero new decision-writer calls or KV repairs. No new migration, binding or configuration is introduced; existing runtime prerequisites remain in the Founder Gate CLI contract.
 - Five regression tests cover actual retry + selected CLI recovery, approved/rejected receipt recovery after expiry, no-receipt refusal, mismatches/unavailability and another tenant-authorized founder. Focused source tests pass 68/68; selected handler tests pass 101/101; independent canonical/recovery tests pass 17/17. Local Worker bundle dry run and diff checks pass.
 - Publish for draft review only. No deployment, enrollment, credential/policy change or live business action occurred. Full-suite/typecheck and real runtime acceptance remain unclaimed.
+
+### 2026-10-25 reviewed portfolio membership — revised isolated candidate
+
+- Base `66a5b24c27f13a26b80e455fb219d7751b383771`, verified current main before replay; original `37309d4` candidate is preserved. Six-area audit: `docs/project-management/2026-10-25-reviewed-repository-membership-reconciliation.md`.
+- Reuses v2/73-record catalog, existing Relovo identity/admission, and v1 historical receipt validator unchanged. Full membership travels separately from one approved current planning repository; pending Tirak roles are not eligible.
+- Review fixes: UI/readiness/Worker reject unreviewed planning authorities; new JSON/Markdown exports enrich legacy drafts without mutating old receipt bytes or saved primary choice.
+- Local tests: 181 pass, one existing skip; app typecheck/build/static bundle audit pass. Worker typecheck has 68 diagnostics identical to exact-base disposable copy, no candidate-only diagnostics.
+- Independent re-review pending. No publication, runtime, Gate signature, dispatch, sync, credential or account change. Actual intake consumer/full-membership readback remains unverified. Original dirty Gate checkout untouched.
+
+### 2026-10-25 final repository identity review fix
+
+- Shared identity binding checks immutable ID plus normalized qualified name and source ref, including existing legacy aliases. Unreviewed casing variants cannot bypass planning eligibility; inconsistent identity/reference claims fail before writes. Valid singular text remains unchanged.
+- Regression suite: 182 pass, one existing skip (183 total). App typecheck passes. Two untracked `App 2.tsx` / `domain 2.ts` files match clean-base copies, remain untouched/excluded, and have no import/compiler effect. Creator unknown.
+- Revised manifest/patch prepared for final independent review; no runtime/publication changes.

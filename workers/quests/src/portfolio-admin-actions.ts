@@ -1,3 +1,5 @@
+import { validateIntakeRepositoryComponents, reviewedPlanningRepository } from '../../../shared/operational-packet-registry.ts';
+import type { OperationalRepositoryComponent } from '../../../shared/operational-packet-projection.ts';
 import type { R2BucketLike } from './context-bindings.ts';
 import {
   PORTFOLIO_CATALOG,
@@ -44,6 +46,7 @@ interface CambiumPlanningAuthority {
 
 interface WorkObjectProposal {
   repositorySourceRef: string | null;
+  repositoryComponents?: readonly OperationalRepositoryComponent[];
   repositoryDisposition: 'resolved' | 'no-repository' | 'unmatched' | 'ambiguous';
   origin: 'thoughtseed-venture' | 'thoughtseed-internal' | 'client' | 'unknown';
   clientFamilyId: string;
@@ -295,10 +298,11 @@ function planningAuthority(value: unknown): WorkObjectProposal['planningAuthorit
   throw new PortfolioAdminActionValidationError('proposal.planningAuthority.kind is invalid');
 }
 
-function workObjectProposal(value: unknown): WorkObjectProposal {
+function workObjectProposal(value: unknown, workId: string, clientFamily: string | undefined): WorkObjectProposal {
   if (!isRecord(value)) throw new PortfolioAdminActionValidationError('proposal must be an object');
   exactFields(value, [
     'repositorySourceRef',
+    ...(Object.hasOwn(value, 'repositoryComponents') ? ['repositoryComponents'] : []),
     'repositoryDisposition',
     'origin',
     'clientFamilyId',
@@ -327,8 +331,25 @@ function workObjectProposal(value: unknown): WorkObjectProposal {
   if (repositoryDisposition === 'no-repository' && authority?.kind !== 'cambium') {
     throw new PortfolioAdminActionValidationError('no-repository requires Cambium planning authority');
   }
+  let reviewedAuthority: OperationalRepositoryComponent | undefined;
+  try { reviewedAuthority = reviewedPlanningRepository(workId, repositorySourceRef, authority); }
+  catch (error) { throw new PortfolioAdminActionValidationError(error instanceof Error ? error.message : 'invalid repository planning identity'); }
+  let repositoryComponents: OperationalRepositoryComponent[] | undefined;
+  if (value.repositoryComponents !== undefined) {
+    try { repositoryComponents = validateIntakeRepositoryComponents(value.repositoryComponents, workId, reviewedAuthority ? `repo:${reviewedAuthority.nameWithOwner}` : repositorySourceRef); }
+    catch (error) { throw new PortfolioAdminActionValidationError(error instanceof Error ? error.message : 'invalid repositoryComponents'); }
+    const selected = repositoryComponents.find((component) => component.planningAuthority)!;
+    if (repositoryDisposition !== 'resolved' || authority?.kind !== 'repository' ||
+      authority.repositoryId !== selected.immutableRepositoryId || authority.fullName.toLowerCase() !== selected.nameWithOwner.toLowerCase()) {
+      throw new PortfolioAdminActionValidationError('planning authority must match the selected component');
+    }
+    if (origin !== 'client' || clientFamilyId !== clientFamily) {
+      throw new PortfolioAdminActionValidationError('component membership must retain the catalog client boundary');
+    }
+  }
   return {
     repositorySourceRef,
+    ...(repositoryComponents !== undefined ? { repositoryComponents } : {}),
     repositoryDisposition,
     origin,
     clientFamilyId,
@@ -487,7 +508,7 @@ export function validatePortfolioAdminAction(raw: unknown): PortfolioAdminAction
     if (!catalogRecord || catalogRecord.name !== subjectName) {
       throw new PortfolioAdminActionValidationError('subject does not match the shipped portfolio catalog');
     }
-    const proposal = kind === 'reconcile-work-object' ? workObjectProposal(raw.proposal) : closeoutProposal(raw.proposal);
+    const proposal = kind === 'reconcile-work-object' ? workObjectProposal(raw.proposal, subjectId, catalogRecord.accountId) : closeoutProposal(raw.proposal);
     if (kind === 'close-work-object') validateCloseoutIdentityBinding(proposal as ProjectCloseoutProposal, subjectId);
     return {
       schema: PORTFOLIO_ADMIN_ACTION_SCHEMA,
