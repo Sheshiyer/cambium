@@ -21,6 +21,9 @@ const CuriousGateBridge = (() => {
   const inflight = new Set();
   const reviews = new Map();
   const uncertain = new Set();
+  // Only canonical revisions fetched immediately after renewal survive a lagging KV list.
+  const renewedRows = new Map();
+  const settledRows = new Set();
   let revision = -1;
   let state = 'checking';
   let rows = [];
@@ -202,8 +205,9 @@ const CuriousGateBridge = (() => {
   async function webSign(kind, row) {
     const prior = reviews.get(row.changeDigest);
     if (!prior) return result(false,'blocked','Read the complete canonical proposal before deciding.');
-    const fresh = await readProposal(row);
-    if (!rows.includes(row) || canonical(prior) !== canonical(fresh)) { reviews.delete(row.changeDigest); return result(false,'blocked','Proposal changed. Read the complete fresh review before deciding.'); }
+    let fresh;
+    try { fresh = await readProposal(row); } catch (error) { renewedRows.delete(row.changeDigest); reviews.delete(row.changeDigest); throw error; }
+    if (!rows.includes(row) || canonical(prior) !== canonical(fresh)) { renewedRows.delete(row.changeDigest); reviews.delete(row.changeDigest); return result(false,'blocked','Proposal changed. Read the complete fresh review before deciding.'); }
     if (Date.parse(fresh.expiresAt) <= Date.now()) return result(false,'blocked','Proposal expired. Renew and review before deciding.');
     const decision = kind === 'approve-goal-graph' ? 'approved' : 'rejected';
     const input = {proposalId:fresh.proposalId,version:fresh.version,changeDigest:fresh.changeDigest,nonce:fresh.nonce,expiresAt:fresh.expiresAt,
@@ -215,6 +219,10 @@ const CuriousGateBridge = (() => {
       // One read of the ORIGINAL tuple. Never retry a business decision.
       try { outcome = receipt(await call('status',input),input); }
       catch (_) { uncertain.add(row.changeDigest); outcome = result(false,'uncertain','Outcome unconfirmed. Canonical receipt readback failed; do not resubmit this decision.'); }
+    }
+    if (['approved','rejected','refused'].includes(outcome.outcome)) {
+      settledRows.add(row.changeDigest); renewedRows.delete(row.changeDigest);
+      rows = rows.filter(item => item.changeDigest !== row.changeDigest);
     }
     reviews.delete(row.changeDigest);
     return outcome;
@@ -239,6 +247,14 @@ const CuriousGateBridge = (() => {
       try {
         const old = await readProposal(row);
         const data = await call('renew',{proposalId:old.proposalId,version:old.version,changeDigest:old.changeDigest,nonce:old.nonce,expiresAt:old.expiresAt});
+        const closedRenewal = {
+          already_applied:'Renewal refused (already_applied): the proposed change is already present in the goal graph. Refresh the Gate and inspect its existing state; no new decision or receipt was created by this request.',
+          already_decided:'Renewal refused (already_decided): the server reports an existing decision. Refresh the Gate and inspect its canonical receipt before continuing.',
+          not_renewable:'Renewal refused (not_renewable): this revision does not currently qualify for renewal. Refresh the Gate and review the current proposal.',
+          conflict:'Renewal refused (conflict): the proposal state conflicts with this request. Refresh the Gate and inspect the current revision before continuing.',
+          changed:'Renewal refused (changed): the proposal changed since this review. Refresh the Gate and read the complete current proposal before continuing.',
+        };
+        if (data.writerAuthority === false && Object.prototype.hasOwnProperty.call(closedRenewal, data.status)) throw new Error(closedRenewal[data.status]);
         if (!['renewed','duplicate'].includes(data.status) || data.writerAuthority !== false || !DIGEST.test(data.changeDigest || '')
           || data.proposalId !== TENANT + ':' + data.changeDigest || !Number.isInteger(data.version) || !Number.isFinite(Date.parse(data.expiresAt))) throw new Error('Renewal was not confirmed. Refresh before continuing.');
         // The new revision must be fetched and independently verified before any decision.
@@ -246,6 +262,8 @@ const CuriousGateBridge = (() => {
         const next = rowOf({...fresh.review,proposalId:fresh.proposalId,version:fresh.version,canRenew:false});
         if (!next || fresh.review.status !== 'pending' || next.renewOnly) throw new Error('Fresh proposal projection unavailable. Refresh the Gate.');
         rows = rows.filter(item => item.changeDigest !== changeDigest && item.changeDigest !== next.changeDigest).concat(next);
+        renewedRows.delete(changeDigest);
+        renewedRows.set(next.changeDigest,{row:next,previousDigest:changeDigest});
         reviews.set(next.changeDigest,fresh); notify();
         return {...result(true,'renewed','Review renewed. Read the complete new proposal before deciding.'),changeDigest:data.changeDigest};
       } catch (error) { return result(false,'blocked',error.message); }
@@ -263,6 +281,22 @@ const CuriousGateBridge = (() => {
       else if (list === undefined) { state = 'read'; rows = []; }
       else if (!list || list.schema !== LIST_SCHEMA || list.tenantId !== TENANT || !Array.isArray(list.rows)) { state = 'held'; rows = []; }
       else { state = 'read'; rows = list.rows.map(rowOf).filter(Boolean).slice(0, 25); }
+      if (state === 'read') {
+        for (const path of paths) settledRows.add(path.changeDigest);
+        rows = rows.filter(row => !settledRows.has(row.changeDigest));
+        for (const [digest, retained] of renewedRows) {
+          const listed = rows.find(row => row.changeDigest === digest);
+          const prior = retained.row;
+          if (settledRows.has(digest) || Date.parse(prior.approvalExpiresAt) <= Date.now()
+            || (listed && (listed.version !== prior.version || listed.approvalNonce !== prior.approvalNonce
+              || listed.approvalExpiresAt !== prior.approvalExpiresAt || listed.fence !== prior.fence
+              || listed.expectedHeadVersion !== prior.expectedHeadVersion || listed.renewOnly || listed.canRenew))) {
+            renewedRows.delete(digest); reviews.delete(digest); continue;
+          }
+          rows = rows.filter(row => row.changeDigest !== retained.previousDigest);
+          if (!listed && reviews.has(digest)) rows.push(prior);
+        }
+      }
       for (const [digest, review] of reviews) { const current = rows.find(row => row.changeDigest === digest); if (!current || current.version !== review.version || current.approvalNonce !== review.nonce || current.approvalExpiresAt !== review.expiresAt || (current.fence !== undefined && current.fence !== review.review.fence) || (current.expectedHeadVersion !== undefined && current.expectedHeadVersion !== review.review.expectedHeadVersion)) reviews.delete(digest); }
       notify();
     },

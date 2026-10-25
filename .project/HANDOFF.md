@@ -1,13 +1,14 @@
 # Project handoff
 
-### 2026-10-25 Founder proposal renewal and canonical 3D Gate — draft PR #399
+### 2026-10-25 Founder proposal renewal and canonical 3D Gate — deployed PR #399
 
 - Reviewed source adds exact-tuple renewal with honest original lineage, explicit founder/tenant admission and full canonical review/decision/status in the existing 3D Gate. Stale revisions remain renew-only; existing committed receipts remain immutable.
 - Additive D1 migration0012 uniquely fences original and renewed sibling/descendant outcomes inside the existing immutable approval ledger. Both decision arrival orders, final-writer races and missing-fence refusal have real SQLite regressions. Renewal itself writes no D1 decision.
 - Parent focused142/142, selected handler74/74, world/bridge73/73, growth local Workers9/9 and final target-size275/275 pass; independent source reviews report no blockers. The enlarged targets pass fresh strict IAB geometry assertions at320/390/430.
-- Runtime prerequisites and authoritative readback boundaries are recorded in `docs/architecture/contracts/founder-proposal-renewal-v1.md`. Production code, migration, explicit binding enrollment and the live3D journey are still pending.
-- Release qualification is held: PAGE changes require a fresh canonical viewport proof. The selected IAB adapter cannot produce the required trusted-touch drag; partial observed captures remain diagnostics and old canonical proof bytes remain untouched. No acceptance assertion has been weakened or fabricated.
-- Preserve unrelated primary checkout edits. The five-client mapping cohort does not imply five admitted tenants; existing stored proposals concern Fitcheck/Relovo under the actual Cambium tenant.
+- PR #399 merged at127e589. Migration0012 applied and exact unique index verified; only the verified founder/cambium pair was enrolled. Versionc41efddd served the real signed-in3D journey. One renewed blocked Fitcheck tracking node received one approved canonical receipt and one graph event; provider/customer gates remain closed. See `docs/evidence/2026-10-25-founder-gate-desktop-e2e.v1.json`.
+- Owner explicitly approved a scoped desktop3D rollout exception. Core2443/2444 passed with0skips; sole viewport fingerprint failure and trusted-touch proof remain held. Partial IAB captures are diagnostics; canonical proof bytes and assertions remain intact. No full-green or physical-device claim.
+- Live follow-up fixes: retain the just-renewed canonical review over an eventually-consistent missing KV list entry; display exact closed renewal reasons. These changes retain fresh canonical predecision validation and require no second live approval. Two Relovo originals correctly refused renewal as already_applied.
+- Preserve unrelated primary checkout edits. The five-client mapping cohort does not imply five admitted tenants; this internal Fitcheck E2E does not approve that cohort.
 
 ### 2026-10-22 Relovo catalog v2 admission and versioned reviewed pins — PR #387 candidate
 

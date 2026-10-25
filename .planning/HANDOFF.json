@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T10:31:37.546454+00:00",
+  "updated": "2026-10-25T10:56:34.878692+00:00",
   "status": "in_progress",
-  "active_task": "Authenticated founder proposal renewal, canonical 3D Gate and authorized runtime rollout",
+  "active_task": "Finish reviewed renewal UI feedback/projection-lag repair after successful authorized desktop3D E2E",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -183,18 +183,17 @@
     "Renewal3D client152/152 tests and production Vite/TypeScript build pass; generated world bundle rebuilt locally, runtime flow remains unproved",
     "Renewal backend + atomic family index reviewed with no remaining source blockers; parent142focused +74handler pass; stale3D path fixed,73world/bridge pass",
     "DraftPR399 published at9a8a5f7; independent final source review passed",
-    "Zoom-safe45px targets and exactLEGACY_PAGE pin reviewed275/275; realIAB geometry passes320/390/430, trustedtouch remains held"
+    "Zoom-safe45px targets and exactLEGACY_PAGE pin reviewed275/275; realIAB geometry passes320/390/430, trustedtouch remains held",
+    "PR399 merged127e589, migration0012verified and explicitactualfounder/cambium enrollment live;47bindings with original46/globalsettings intact",
+    "Actual3D one approved renewal receipt36d2...a12108, D1oneevent/onefamily graph3 blockedFitchecknode; Relovo2already_applied no duplicates",
+    "Followup UIrefusal/projectionlag source337/337 independentlyreviewed; no secondbusinessdecision needed"
   ],
   "remaining": [
-    "Exact committed final release gate and independent source review evidence in draft PR",
-    "Verified version stage/metadata inspection; apply reviewed additive0012 migration and verify exact unique-index SQL before traffic promotion",
-    "Resolve signed-in founderID, explicit actual tenant enrollment, then canonical3D renewal/decision with exact winning-tuple D1readback",
-    "Reconcile five-client cohort actual runtime admission; do not infer nonexistent per-client tenants from mapped names"
+    "Publish/review/merge tiny UI feedback and projection-lag followup; deploy identicalpreserved47bindings and recheck live refusal copy",
+    "Finalize live source/runtime/receipt checkpoint; preserve mobileproof exception and five-client nonclaims"
   ],
   "blockers": [
-    "Final release drift gate: canonical viewport PAGE digest stale after source change; original proof bytes preserved",
-    "Selected IAB adapter cannot provide trusted touchmoves; observed diagnostic captures cannot close that gate. Strict geometry failures repaired and fresh relevant assertions pass",
-    "Runtime migration0012/code/enrollment/live3D acceptance remain pending"
+    "Mobile canonical viewport/trustedtouch proof remains held under explicit owner-approved desktop exception"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",

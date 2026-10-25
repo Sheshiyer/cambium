@@ -419,3 +419,79 @@ test('world gate · only explicitly supported stale revisions can read and renew
     assert.equal(h.get().proposals.length,0);
   }
 });
+
+test('world gate · closed renewal reasons are actionable and never approve, invent a receipt, or retry', async () => {
+  const expected = {
+    already_applied:/already present in the goal graph/,
+    already_decided:/inspect its canonical receipt/,
+    not_renewable:/does not currently qualify for renewal/,
+    conflict:/proposal state conflicts/,
+    changed:/proposal changed since this review/,
+  };
+  for (const [status,message] of Object.entries(expected)) {
+    const old=row({version:1,canRenew:true,approvalExpiresAt:new Date(Date.now()-1000).toISOString()});
+    const h=harness({initData:'',founderWeb:true,respond:(_body,url)=>url.endsWith('/renew')
+      ? {status:409,body:{status,writerAuthority:false}} : {status:200,body:canonicalFixture(old)}});
+    h.quest(envelope([old]));
+    const outcome=await h.renew();
+    assert.equal(outcome.ok,false,status);
+    assert.equal(outcome.outcome,'blocked',status);
+    assert.match(outcome.message,new RegExp(status));
+    assert.match(outcome.message,message);
+    assert.equal(h.requests.filter(item=>item.url.endsWith('/renew')).length,1);
+    assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,0);
+    assert.equal(h.requests.filter(item=>item.url.endsWith('/status')).length,0);
+    assert.equal(h.get().proposals[0].canApprove,false);
+    assert.equal(h.get().proposals[0].canReject,false);
+    assert.equal(h.get().proposals[0].canonicalReview,null);
+    assert.equal('receipt' in outcome,false);
+  }
+});
+test('world gate · unknown renewal status stays held without claiming success', async () => {
+  const old=row({version:1,canRenew:true,approvalExpiresAt:new Date(Date.now()-1000).toISOString()});
+  const h=harness({initData:'',founderWeb:true,respond:(_body,url)=>url.endsWith('/renew')
+    ? {status:409,body:{status:'unexpected',writerAuthority:false}} : {status:200,body:canonicalFixture(old)}});
+  h.quest(envelope([old]));
+  const outcome=await h.renew(); assert.equal(outcome.ok,false); assert.equal(outcome.outcome,'blocked');
+  assert.match(outcome.message,/Renewal was not confirmed/);
+  assert.equal(h.requests.filter(item=>item.url.endsWith('/renew')).length,1);
+  assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,0);
+});
+
+test('world gate · a just-renewed canonical revision survives lagging lists but canonical settlement removes it', async () => {
+  const old=row({version:1,canRenew:true,approvalExpiresAt:new Date(Date.now()-1000).toISOString()});
+  const fresh=row({version:2,changeDigest:'d'.repeat(64),source:'founder-proposal-renewal@v1',approvalNonce:'lag-safe-nonce'});
+  fresh.founderInspect!.changeDigest=fresh.changeDigest;
+  const newer=canonicalFixture(fresh); newer.proposal.version=2;
+  newer.approveConfirmation=reviewConfirmation(newer.proposal,'approved'); newer.rejectConfirmation=reviewConfirmation(newer.proposal,'rejected');
+  const h=harness({initData:'',founderWeb:true,respond:(body,url)=>({status:200,body:url.endsWith('/renew')
+    ? {status:'renewed',writerAuthority:false,proposalId:newer.proposal.proposalId,changeDigest:fresh.changeDigest,version:2,expiresAt:fresh.approvalExpiresAt}
+    : url.endsWith('/proposal') ? body.proposalId===newer.proposal.proposalId ? newer : canonicalFixture(old) : settled(body)})});
+  h.quest(envelope([old])); assert.equal((await h.renew()).ok,true);
+  h.quest(envelope([old]),2);
+  assert.equal(h.get().proposals.length,1); assert.equal(h.get().proposals[0].changeDigest,fresh.changeDigest);
+  assert.ok(h.get().proposals[0].canonicalReview); assert.equal(h.get().proposals[0].canApprove,true);
+  assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,0);
+  assert.equal((await h.review(fresh.changeDigest)).ok,true);
+  assert.equal((await h.sign('approve-goal-graph',fresh.changeDigest)).ok,true);
+  assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,1);
+  assert.equal(h.get().proposals.length,0);
+  h.quest(envelope([fresh]),3);
+  assert.equal(h.get().proposals.length,0,'a lagging pending list cannot resurrect a canonical receipt settlement');
+});
+test('world gate · changed projected tuple invalidates the retained renewed review before any decision', async () => {
+  const old=row({version:1,canRenew:true,approvalExpiresAt:new Date(Date.now()-1000).toISOString()});
+  const fresh=row({version:1,changeDigest:'e'.repeat(64),source:'founder-proposal-renewal@v1',approvalNonce:'tuple-original'});
+  fresh.founderInspect!.changeDigest=fresh.changeDigest; const newer=canonicalFixture(fresh);
+  const h=harness({initData:'',founderWeb:true,respond:(body,url)=>({status:200,body:url.endsWith('/renew')
+    ? {status:'renewed',writerAuthority:false,proposalId:newer.proposal.proposalId,changeDigest:fresh.changeDigest,version:1,expiresAt:fresh.approvalExpiresAt}
+    : url.endsWith('/proposal') ? body.proposalId===newer.proposal.proposalId ? newer : canonicalFixture(old) : settled(body)})});
+  h.quest(envelope([old])); await h.renew();
+  h.quest(envelope([{...fresh,approvalNonce:'tuple-changed'}]),2);
+  assert.equal(h.get().proposals[0].canonicalReview,null);
+  assert.equal(h.get().proposals[0].canApprove,false);
+  assert.equal((await h.sign('approve-goal-graph',fresh.changeDigest)).outcome,'blocked');
+  assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,0);
+  h.quest(envelope([old]),3);
+  assert.ok(!h.get().proposals.some((item:{changeDigest:string})=>item.changeDigest===fresh.changeDigest),'invalidated canonical overlay is not restored later');
+});
