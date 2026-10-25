@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react'
-import { operationalPacketProjectionFor } from '../../../shared/operational-packet-registry.ts'
+import { operationalPacketProjectionFor, reviewedRepositoryComponentsFor, repositoryComponentsForIntake } from '../../../shared/operational-packet-registry.ts'
 import type { OperationalPacketProjection } from '../../../shared/operational-packet-projection.ts'
 import {
   AlertTriangle,
@@ -33,6 +33,7 @@ import {
 } from 'lucide-react'
 import {
   CARTOGRAPHER_SCHEMA,
+  INTAKE_REPOSITORY_EVIDENCE,
   BOARD_HORIZONS,
   CLASSIFICATION_COUNTS,
   CLASSIFICATION_DIGEST,
@@ -94,7 +95,6 @@ import {
   type WorkObjectGroup,
 } from './domain.ts'
 import {
-  REPOSITORY_EVIDENCE,
   REPOSITORY_EVIDENCE_DIGEST,
 } from './repository-evidence.generated.ts'
 import {
@@ -360,7 +360,7 @@ function writePlanned(
 
 function repositoryEvidenceForWork(work: WorkObject): RepositoryEvidence[] {
   const refs = new Set(work.provenance.filter((source) => source.startsWith('repo:')))
-  return REPOSITORY_EVIDENCE.filter((record) => refs.has(record.sourceRef)) as RepositoryEvidence[]
+  return INTAKE_REPOSITORY_EVIDENCE.filter((record) => refs.has(record.sourceRef)) as RepositoryEvidence[]
 }
 
 function WorkCard({
@@ -995,6 +995,7 @@ function PlanDrawer({
         ? 'ambiguous'
         : 'unmatched'
     onReconciliationChange({
+      ...(reviewedRepositoryComponentsFor(work.workId).length ? { repositoryComponents: repositoryComponentsForIntake(work.workId, `repo:${evidence.fullName}`) } : {}),
       repositorySourceRef: evidence.sourceRef,
       repositoryDisposition: disposition,
       planningAuthority: evidence.status === 'resolved' && evidence.repositoryId && evidence.fullName
@@ -1069,20 +1070,38 @@ function PlanDrawer({
               </div>
             </div>
             <label className="wide-field">
-              <span>Exact repository evidence</span>
+              <span>Primary planning repository</span>
               <select
                 value={reconciliation.repositoryDisposition === 'no-repository' ? '__none__' : reconciliation.repositorySourceRef ?? ''}
                 onChange={(event) => selectRepository(event.target.value)}
               >
                 <option value="">Choose an exact repository or preserve the gap</option>
                 {repositoryEvidence.map((evidence) => (
-                  <option key={evidence.sourceRef} value={evidence.sourceRef}>
-                    {evidence.fullName ?? evidence.sourceRef} · {evidence.status}{evidence.repositoryId ? ' · verified ID' : ' · metadata gap'}
+                  <option key={evidence.sourceRef} value={evidence.sourceRef} disabled={reviewedRepositoryComponentsFor(work.workId).some((component) => component.nameWithOwner === evidence.fullName && component.lifecycle !== 'current')}>
+                    {evidence.fullName ?? evidence.sourceRef} · {reviewedRepositoryComponentsFor(work.workId).find((component) => component.nameWithOwner === evidence.fullName)?.lifecycle ?? evidence.status}{evidence.repositoryId ? ' · verified ID' : ' · metadata gap'}
                   </option>
                 ))}
                 {repositoryEvidence.length === 0 && <option value="__none__">No project repository · coordinate in Cambium</option>}
               </select>
             </label>
+            {reviewedRepositoryComponentsFor(work.workId).length > 0 && (
+              <fieldset className="wide-field">
+                <legend>Repository components</legend>
+                <p>Keep full project membership, including history. Choose one planning repository above. Execution targets require separate admission.</p>
+                {reviewedRepositoryComponentsFor(work.workId).map((component) => {
+                  const components = reconciliation.repositoryComponents ?? repositoryComponentsForIntake(work.workId, reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef)
+                  const included = components.some((row) => row.componentId === component.componentId)
+                  return <label key={component.componentId}>
+                    <input type="checkbox" checked={included} onChange={(event) => onReconciliationChange({
+                      repositoryComponents: event.target.checked
+                        ? [...components, { ...component, planningAuthority: reconciliation.planningAuthority?.kind === 'repository' && component.nameWithOwner === reconciliation.planningAuthority.fullName }]
+                        : components.filter((row) => row.componentId !== component.componentId),
+                    })} />
+                    {component.nameWithOwner} · {component.lifecycle} · {component.projectAssociation} · {component.roles.join(', ')}
+                  </label>
+                })}
+              </fieldset>
+            )}
             {selectedRepository && (
               <div className={`repository-receipt repository-${selectedRepository.status}`}>
                 <div>
@@ -1719,7 +1738,11 @@ function App() {
   async function queueWorkObjectReconciliation(work: WorkObject, reconciliation: PortfolioReconciliation) {
     setAdminAction({ status: 'saving', receiptId: null })
     const proposal = {
-      repositorySourceRef: reconciliation.repositorySourceRef,
+      repositorySourceRef: reviewedRepositoryComponentsFor(work.workId).length && reconciliation.planningAuthority?.kind === 'repository'
+        ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef,
+      ...(reviewedRepositoryComponentsFor(work.workId).length ? {
+        repositoryComponents: reconciliation.repositoryComponents ?? repositoryComponentsForIntake(work.workId, reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef),
+      } : {}),
       repositoryDisposition: reconciliation.repositoryDisposition,
       origin: reconciliation.origin,
       clientFamilyId: reconciliation.clientFamilyId,
