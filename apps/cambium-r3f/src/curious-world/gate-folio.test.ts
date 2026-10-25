@@ -179,3 +179,9 @@ test('stale renew-only snapshots cannot sign even when host action flags are tru
   assert.equal(view.proposals[0].canReject,false);
   for (const kind of ['approve-goal-graph','reject-goal-graph'] as const) assert.match(gateActionState(view,view.proposals[0],kind).reason,/stale/);
 });
+test('typed historical decisions survive held queue independently; invalid records remain absent',()=>{
+ const record={schema:'cambium.gate-recorded-decision.v1',canonicalReadback:true,receiptDigest:'b'.repeat(64),requestedDecision:null,context:null,receipt:{proposalId:`cambium:${DIGEST}`,tenantId:'cambium',version:1,changeDigest:DIGEST,nonce:'nonce',expiresAt:'2026-10-26T00:00:00Z',founderId:'founder',decision:'rejected',decidedAt:'2026-10-25T00:00:00Z',channel:null}};
+ const held=normalizeGateSnapshot({state:'held',signer:'access',proposals:[],decisions:[record]});assert.equal(held.decisions?.length,1);assert.equal(held.proposals.length,0);
+ const pending=normalizeGateSnapshot({state:'read',signer:'access',proposals:[proposal({canonicalReview:'old review'})],decisions:[record]});assert.equal(pending.proposals.length,0);
+ const malformed=normalizeGateSnapshot({state:'held',proposals:[],decisions:['Canonical receipt approved',{...record,canonicalReadback:false}]});assert.deepEqual(malformed.decisions,[]);
+});

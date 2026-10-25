@@ -1,0 +1,77 @@
+{
+  "schema": "cambium.gate-chamber-source-evidence.v1",
+  "scope": "Actual assembled PAGE and host bridge against synthetic local endpoints; no live action.",
+  "appTests": {
+    "passed": 184,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independentWorldBridgeTests": {
+    "passed": 112,
+    "failed": 0
+  },
+  "build": "passed",
+  "bundle": {
+    "bytes": 771167,
+    "sha256": "551dd8c724036ced49138c5444778c10bfa7bcd6231e79c1000a715b29564810",
+    "parity": "passed"
+  },
+  "art": {
+    "sourceAuthority": "reference-only",
+    "sourceUnchanged": true,
+    "derivativeBytes": 18242
+  },
+  "browser": {
+    "historicalReceipt": "typed canonical context loaded through PAGE callback",
+    "heldQueue": "confirmed receipt/context/path retained with independent connection warning",
+    "pendingStatus": "verified connection, unconfirmed decision, no seal or observed stages",
+    "narrowViewport": {
+      "width": 320,
+      "height": 844,
+      "documentScrollWidth": 320,
+      "dialogClientWidth": 282,
+      "dialogScrollWidth": 282,
+      "minimumControlHeight": 45
+    },
+    "disclosures": "receipt, full review and trace available",
+    "focus": "visible acid outline",
+    "reducedMotionAnimatedElements": 0,
+    "returnAndJournal": "passed"
+  },
+  "localRequestCounts": {
+    "confirmedFixture": {
+      "decisionPosts": 0,
+      "renewalPosts": 0,
+      "statusReads": 1,
+      "proposalReads": 1,
+      "sessionReads": 1,
+      "held": false
+    },
+    "unconfirmedFixture": {
+      "decisionPosts": 0,
+      "renewalPosts": 0,
+      "statusReads": 2,
+      "proposalReads": 2,
+      "sessionReads": 2,
+      "held": false
+    }
+  },
+  "knownReleaseHold": "Canonical mobile viewport PAGE fingerprint/trusted-touch proof remains held; focused320px evidence is not replacement canonical proof.",
+  "artifacts": [
+    {
+      "path": "desktop.jpg",
+      "bytes": 62436,
+      "sha256": "9fc585365fcf1b8361ce56e6e30b11b3305f6884c2025b6a394d6fb86dc6a146"
+    },
+    {
+      "path": "mobile-320.jpg",
+      "bytes": 4677,
+      "sha256": "0980d0c30bb873d3e9867bcf1b9c908540fa83df7cac45bd119dc7767a640ff4"
+    },
+    {
+      "path": "unconfirmed.jpg",
+      "bytes": 58579,
+      "sha256": "4116f6965b9f2c632330cf6032fa73093f2e692492b3f270bbb8cbe65e0d3187"
+    }
+  ]
+}

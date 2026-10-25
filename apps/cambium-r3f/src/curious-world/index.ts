@@ -2,12 +2,14 @@ import { createWorld, type WorldAPI, type WorldState } from './world.ts';
 import { DISTRICTS, WORLD_LANDMARKS, PATHS, keyboardAxis } from './world-model.ts';
 import { createNavigationChart, createInstrumentObserver } from './navigation-instrument.ts';
 import { TRAVELER_DESIGNS, type TravelerDesignId } from './character.ts';
+import { renderDecisionChamber } from './gate-decision-chamber.ts';
+import { normalizeGateDecision, type GateRecordedDecision } from './gate-decision.ts';
 import { buildMissionDossier } from './mission-dossier.ts';
 import { travelerPortrait } from './traveler-portrait.ts';
 import {
   HELD_GATE, GATE_PLACE_NAMES, gateActionState, gateAdmissionSummary, gateBeacons, gateCountLabel, gateGroups, gateInspectRows,
   gateProposalsAt, gateTrail, normalizeGateSnapshot,
-  type GateBridge, type GateKind, type GateProposal, type GateSnapshot,
+  type GateBridge, type GateKind, type GateProposal, type GateSnapshot, type GatePath,
 } from './gate-folio.ts';
 
 type Landmark = typeof WORLD_LANDMARKS[number];
@@ -54,6 +56,12 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   let unsubscribe: (() => void) | null = null;
   let gateUnsubscribe: (() => void) | null = null;
   let gate: GateSnapshot = HELD_GATE;
+  const recordedDecisions=new Map<string,GateRecordedDecision>();
+  const recordedPaths=new Map<string,GatePath>();
+  const uncertainDecisions=new Set<string>();
+  const checkingDecisions=new Set<string>();
+  const decisionMessages=new Map<string,string>();
+  const failedDecisionReads=new Set<string>();
   // The Gate lives in the Gate landmark folio. Only one Gate view is mounted
   // at a time; showPanel() clears it so stale callbacks never paint elsewhere.
   let gateHost: HTMLElement | null = null;
@@ -438,6 +446,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       list.append(item);
     }
     path.append(list, element('p', 'cw-gate-path-note', 'Only stages supported by the served decision path are marked. Founder approval does not itself prove execution or delivery.'));
+    path.append(actionButton('Inspect recorded decision','gate-recorded',latest.changeDigest));
     host.append(path);
   }
   function renderGateList(host: HTMLElement): void {
@@ -446,6 +455,14 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const mode = element('p', 'cw-gate-mode', gate.label);
     mode.dataset.signer = gate.signer;
     mode.setAttribute('role', 'status');
+    if (!scoped && recordedDecisions.size) {
+      const archive=element('section','cw-gate-list'); archive.setAttribute('aria-label','Retained canonical decisions');
+      for(const [digest,decision] of Array.from(recordedDecisions).slice(-8).reverse()) {
+        const entry=actionButton('Inspect recorded '+decision.receipt.decision+' decision','gate-recorded',digest);
+        entry.append(element('small','cw-gate-digest',digest),element('small','',decision.receipt.decidedAt)); archive.append(entry);
+      }
+      host.append(archive);
+    }
     host.append(element('h3','cw-gate-title',scoped ? 'Decisions at this landmark' : 'The decision journal'),
       element('p','cw-gate-summary','Review the objective, inspect the exact change, then record one informed decision.'),mode);
     if (gate.state !== 'read') {
@@ -482,7 +499,44 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       host.append(section);
     }
   }
+  function rememberDecision(decision:GateRecordedDecision):void {
+    const digest=decision.receipt.changeDigest,prior=recordedDecisions.get(digest);
+    const keys=['proposalId','version','changeDigest','nonce','expiresAt','founderId','decision','decidedAt','channel'] as const;
+    const same=prior && prior.receiptDigest===decision.receiptDigest && keys.every(key=>prior.receipt[key]===decision.receipt[key]);
+    // A later projection may omit context; it cannot erase the same retained immutable review.
+    recordedDecisions.set(digest,same ? {...decision,context:decision.context ?? prior.context,
+      requestedDecision:decision.requestedDecision ?? prior.requestedDecision} : decision);
+    while(recordedDecisions.size>16)recordedDecisions.delete(recordedDecisions.keys().next().value!);
+  }
+  function renderRecordedGate(host:HTMLElement,digest:string):boolean {
+    if (!recordedDecisions.has(digest) && !uncertainDecisions.has(digest)) return false;
+    host.append(renderDecisionChamber(document,{changeDigest:digest,record:recordedDecisions.get(digest) ?? null,paths:Array.from(recordedPaths.values()),
+      connection:failedDecisionReads.has(digest) ? 'held' : gate.state,checking:checkingDecisions.has(digest),statusMessage:decisionMessages.get(digest)},
+      {checkStatus:()=>void readRecordedDecision(digest),returnWorld:()=>closePanel(),openJournal:()=>{ const landmark=WORLD_LANDMARKS.find(item=>item.id==='gate'); if(landmark)inspectLandmark(landmark); }}));
+    return true;
+  }
+  function openDecisionChamber(digest:string):void {
+    showPanel('The Gate chamber');dialog.dataset.panel='decision';
+    gateHost=element('section','cw-gate');gateHost.setAttribute('aria-label','Founder decision record');gateDigest=digest;
+    dialogBody.append(gateHost);renderGate();
+  }
+  async function readRecordedDecision(digest:string):Promise<void> {
+    if(checkingDecisions.has(digest))return;
+    if(typeof bridge.readDecision!=='function') { decisionMessages.set(digest,'Canonical status read is unavailable in this client. No decision will be resubmitted.');failedDecisionReads.add(digest);renderGate();return; }
+    checkingDecisions.add(digest);decisionMessages.set(digest,'Reading the original canonical decision status…');renderGate();
+    try {
+      const outcome=await bridge.readDecision(digest);
+      const decision=normalizeGateDecision(outcome.decision);
+      if(decision && decision.receipt.changeDigest===digest){rememberDecision(decision);uncertainDecisions.delete(digest);failedDecisionReads.delete(digest);decisionMessages.delete(digest);}
+      else if(outcome.outcome==='pending') {
+        failedDecisionReads.delete(digest);
+        decisionMessages.set(digest,'Canonical status read is pending. No recorded decision is available yet; keep checking the original status.');
+      } else {decisionMessages.set(digest,outcome.message || 'No canonical decision has been confirmed. Do not resubmit.');failedDecisionReads.add(digest);}
+    } catch {failedDecisionReads.add(digest);decisionMessages.set(digest,'Original status could not be read. No decision was resubmitted.');}
+    finally {checkingDecisions.delete(digest);if(!disposed && gateDigest===digest)renderGate();}
+  }
   function renderGateProposal(host: HTMLElement, digest: string): void {
+    if(renderRecordedGate(host,digest)) return;
     const proposal = gate.proposals.find(item => item.changeDigest === digest);
     host.append(element('span', 'cw-kicker', 'FOUNDER GATE / INSPECT'));
     if (!proposal) {
@@ -568,6 +622,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     return status;
   }
   function renderGate(): void {
+    if(gateDigest && (recordedDecisions.has(gateDigest) || uncertainDecisions.has(gateDigest)) && dialog.dataset.panel!=='decision'){openDecisionChamber(gateDigest);return;}
     const host = gateHost;
     if (disposed || !host || !host.isConnected) return;
     const hadFocus = host.contains(document.activeElement);
@@ -582,7 +637,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const priorSummary=nextDisclosures.find(node=>node.dataset.cwDisclosure===focusedDisclosure)?.querySelector('summary');
     if (hadFocus && priorSummary) { priorSummary.focus({preventScroll:true}); return; }
     if (hadFocus || !dialog.contains(document.activeElement)) {
-      (host.querySelector<HTMLElement>('[data-cw-focus="true"]:not([disabled])') ?? host.querySelector<HTMLElement>('button:not([disabled])') ?? closeButton).focus({ preventScroll: true });
+      (host.querySelector<HTMLElement>('[data-chamber-focus="true"]:not([disabled])') ?? host.querySelector<HTMLElement>('[data-cw-focus="true"]:not([disabled])') ?? host.querySelector<HTMLElement>('button:not([disabled])') ?? closeButton).focus({ preventScroll: true });
     }
   }
   function openGateProposal(digest: string): void {
@@ -621,20 +676,35 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     let pending: Promise<unknown>;
     try { pending = Promise.resolve(bridge.signGate(kind, digest)); } catch { pending = Promise.reject(new Error('sign failed')); }
     pending.then(result => {
-      const outcome = result && typeof result === 'object' ? result as { ok?: unknown; outcome?: unknown; message?: unknown } : {};
-      // Only the host's explicit outcome classes are trusted; anything else is unconfirmed.
-      const tone: 'ok' | 'pending' | 'refused' = outcome.ok === true ? 'ok'
-        : outcome.outcome === 'refused' || outcome.outcome === 'auth' || outcome.outcome === 'blocked' ? 'refused' : 'pending';
-      return { tone, text: typeof outcome.message === 'string' ? outcome.message : 'Outcome unconfirmed · re-reading the Gate.' };
-    }, () => ({ tone: 'pending' as const, text: 'Outcome unconfirmed · re-reading the Gate.' })).then(({ tone, text }) => {
-      if (disposed || gateDigest !== digest) return;
-      gateMessage = { text, tone };
-      renderGate();
+      if(disposed)return;
+      const outcome=result && typeof result==='object' ? result as {ok?:unknown;outcome?:unknown;message?:unknown;decision?:unknown} : {};
+      const decision=normalizeGateDecision(outcome.decision);
+      if(decision && decision.receipt.changeDigest===digest){
+        rememberDecision(decision);uncertainDecisions.delete(digest);failedDecisionReads.delete(digest);decisionMessages.delete(digest);
+        if(gateDigest===digest)openDecisionChamber(digest);return;
+      }
+      if(outcome.outcome==='uncertain' || outcome.outcome==='pending' || outcome.ok===true){
+        uncertainDecisions.add(digest);decisionMessages.set(digest,'No canonical receipt is confirmed in this client. Check the original status; do not submit again.');
+        if(gateDigest===digest)openDecisionChamber(digest);return;
+      }
+      if(gateDigest===digest){gateMessage={tone:'refused',text:typeof outcome.message==='string'?outcome.message:'Signing is held. No canonical decision was confirmed.'};renderGate();}
+    },()=>{
+      if(disposed)return;uncertainDecisions.add(digest);failedDecisionReads.add(digest);decisionMessages.set(digest,'Outcome unconfirmed. Check the original status; do not submit again.');
+      if(gateDigest===digest)openDecisionChamber(digest);
     });
   }
+
   function onGate(snapshot: unknown): void {
     if (disposed) return;
     gate = normalizeGateSnapshot(snapshot);
+    for(const path of gate.paths){
+      const key=path.changeDigest+':'+path.decision+':'+path.decidedAt;
+      const previous=recordedPaths.get(key);const order=['committed','directive-queued','runner-claimed','receipt','learning'];
+      if(!previous || order.indexOf(path.reached ?? '')>=order.indexOf(previous.reached ?? '')) recordedPaths.set(key,path);
+    }
+    while(recordedPaths.size>16)recordedPaths.delete(recordedPaths.keys().next().value!);
+    for(const item of gate.decisions ?? []) { const decision=normalizeGateDecision(item); if(decision){rememberDecision(decision);uncertainDecisions.delete(decision.receipt.changeDigest);} }
+    while(recordedDecisions.size>16)recordedDecisions.delete(recordedDecisions.keys().next().value!);
     syncDecisions();
     if (nearby) nearVerb.textContent = nearbyVerb(nearby);
     if (modal && gateHost?.isConnected) renderGate();
@@ -739,6 +809,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     } else if (target.dataset.cwAction === 'travel' && id && DISTRICTS.some(item => item.id === id)) {
       closePanel(); begun = true; root.dataset.walking = 'true'; intro.hidden = true; world?.setBlocked(false); world?.teleport(id); world?.start(); syncInstrument(); focus();
     } else if (target.dataset.cwAction === 'directory') openDirectory();
+    else if (target.dataset.cwAction === 'gate-recorded' && id) { uncertainDecisions.add(id);openDecisionChamber(id);void readRecordedDecision(id); }
     else if (target.dataset.cwAction === 'gate-open' && id) openGateProposal(id);
     else if (target.dataset.cwAction === 'gate-goto' && id) {
       const district = gateGroups(gate).find(group => group.landmarkId === id)?.proposals[0]?.placement.districtId;

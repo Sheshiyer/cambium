@@ -1,0 +1,80 @@
+{
+  "schema": "cambium.expedition-dossier-runtime-evidence.v1",
+  "date": "2026-10-25",
+  "pullRequest": 402,
+  "codeCommit": "0387a43af5e9e7f0cf947cd1043b17c3e33e907c",
+  "url": "https://curious.thoughtseed.space",
+  "workerVersion": "c373b54a-e7af-4368-a39e-b4051aeb792b",
+  "trafficPercent": 100,
+  "rollbackVersion": "c3a13925-8721-4f56-af26-da713949de5a",
+  "runtimePreservation": {
+    "bindingsBefore": 47,
+    "bindingsAfter": 47,
+    "changedBindings": [],
+    "versionRuntimeEqual": true,
+    "settingsDomainsCronEqual": true,
+    "migrationsApplied": false,
+    "enrollmentChanged": false
+  },
+  "tests": {
+    "app": {
+      "pass": 171,
+      "fail": 0,
+      "skip": 0
+    },
+    "core": {
+      "pass": 2447,
+      "fail": 1,
+      "skip": 0,
+      "failure": "viewport proof manifest PAGE digest is stale"
+    },
+    "build": "pass",
+    "dryRun": "pass",
+    "bundleParity": "pass",
+    "worldDigest": "ac57b79592d960f3232efc3135e5568c6be1f13906687a694d3223b7f9df5006",
+    "exactLiveJavaScript": true,
+    "exactLiveStyles": true
+  },
+  "browser": {
+    "surface": "authenticated live 3D UI in Codex IAB",
+    "canonicalScopeObserved": "meso",
+    "unservedContext": [
+      "branch",
+      "phase",
+      "organ"
+    ],
+    "completeReviewDisclosure": "pass",
+    "keyboardFocus": "visible petrol",
+    "reducedMotion": "zero animated dossier elements",
+    "narrowViewport": {
+      "width": 320,
+      "height": 844,
+      "documentScrollWidth": 320,
+      "dialogClientWidth": 282,
+      "dialogScrollWidth": 282,
+      "minimumObservedControlHeight": 45
+    },
+    "expiredApproveDisabled": true,
+    "expiredRejectDisabled": true,
+    "realPath": [
+      "graph committed"
+    ],
+    "laterPathStagesMarked": false,
+    "sourceLinkNavigation": "pass",
+    "applicationConsoleErrors": 0,
+    "telegramCompatibilityWarnings": 2
+  },
+  "actions": {
+    "renewalSubmitted": false,
+    "decisionSubmitted": false,
+    "approvalsBefore": 3,
+    "approvalsAfter": 3,
+    "graphEventsBefore": 3,
+    "graphEventsAfter": 3
+  },
+  "holds": [
+    "canonical mobile viewport/trusted-touch proof remains held",
+    "explicit canonical phase/branch/organ metadata still required; no inferred assignments",
+    "no downstream execution acceptance claimed"
+  ]
+}

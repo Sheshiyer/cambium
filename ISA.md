@@ -3402,3 +3402,45 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3121: Evidence package links to implementation a2d58ab and preserves the synthetic/local-only limitation, unknown metadata behavior and held canonical mobile/trusted-touch release proof. Publication does not authorize deployment, enrollment or live decisions.
 
 - ISC-3122: GitHub readback verifies draft PR402 targeting main, with pushed branch head064c7b5, three immutable screenshot links, exact test evidence and metadata gaps. Final publication checkpoint changes docs only; remote head and draft state are rechecked after that push.
+
+### 2026-10-25 merged PR402 deployment and live validation
+
+- [x] ISC-3123: Exact merged0387a43 serves at100percent with explicit previous-version rollback.
+- [x] ISC-3124: All47bindings and runtime/domain/cron/globalsettings remain equal across promotion; no migrations or enrollment changes.
+- [x] ISC-3125: Authenticated live IAB shows canonicalMeso, honest missing context, full review, keyboard focus, reduced motion and320px containment with45px controls.
+- [x] ISC-3126: Read-only UI test preserves3D1approvals and3graph events without renewal or decision submission.
+- [x] ISC-3127: Live publicPAGE contains exact generatedJS/CSS, health returns200 and unauthenticated founder-session read returns401.
+- ISC-3123/3124: Wrangler current deploymentc373b54a at100percent; rollbackc3a13925. Version raw-binding audit changedBindings=[] and global pre/post snapshot comparison matches.
+- ISC-3125/3126: Real expired proposal displaysMeso and unservedBranch/Phase/Organ; decisions disabled. Actual320px documentWidth320, dialog282/282, controls45px+. D1counts remain3/3.
+- ISC-3127: HTTPreadback matches worlddigestac57b795; app171/171 and full core2447/2448 pass0skips. The sole stale canonicalviewport fingerprint and trusted-touch proof remain explicit holds. No new business action is approved by this deployment.
+
+### 2026-10-25 Gate decision chamber design study
+
+- [x] ISC-3128: Design maps source-library glyphs, material tokens, motion and state grammar to distinct interaction meanings without speculative organ identities.
+- [x] ISC-3129: Local synthetic concept separates durable decision, current connection and observed execution across approved/rejected/uncertain/disconnected scenarios.
+- [x] ISC-3130: Local IAB verifies concept interactions, readable320pxreflow,45pxcontrols and reduced motion; production/auth/source assets remain untouched.
+- [x] ISC-3131: Future integration plan preserves typed canonical receipt validation, exact reviewed context and status-only recovery with explicit regressions.
+- 2026-10-25: Decision: choose Gate chamber / sealed artifact instead of another card layout. Source library remains reference evidence; the concept uses existing component specimens as visual studies and synthetic data only.
+- 2026-10-25: Routing note: noesis-build failed before tool effects because the installed Codex CLI rejected mcp_servers.context7 transport. No runtime config was edited; bounded in-session prototype worker used as fallback. No provider/model resolution is claimed for that failed attempt.
+
+- ISC-3128/3131: `docs/plans/2026-10-25-gate-decision-chamber.md` maps actual source boards/specimens/motion grammar and documents independent receipt/connection/execution models, typed tuple-bound context and status-only recovery regressions. Independent source review confirms the current flattened-message/missing-pending-row collision.
+- ISC-3129/3130: Synthetic IAB prototype exercises all4states, trace/disclosure, return/reopen and focus. Uncertain receipt=null, all observed=false and all seal circles hidden. All3sourceimages load. Actual320x844 viewport has scrollWidth320 and every shown button/summary>=45px; reduced-motion animated element count0. Production source, source-library assets and live runtime untouched.
+
+### 2026-10-25 production Gate decision chamber
+
+- [x] ISC-3132: Canonical host returns typed tuple-bound decision/context and retains it across held/missing pending reads without parsing messages.
+- [x] ISC-3133: Historical receipt inspection and uncertain recovery perform read-only original-tuple status calls with no extra decision submission.
+- [x] ISC-3134: Chamber renders actual decision/conflict, independent connection status and only matching observed execution stages.
+- [x] ISC-3135: Source-derived compact artwork remains reference-only, source hashes unchanged and generated world self-contained within budget.
+- [x] ISC-3136: Actual wired PAGE passes focused browser checks at desktop/320px with keyboard, disclosures, reduced motion and no business action.
+- [x] ISC-3137: Meaningful regression suites/build/bundle parity and independent review pass; known canonical mobile proof hold remains explicit.
+- [ ] ISC-3138: Reviewed exact source deploys with rollback, all runtime bindings/settings preserved and no migration/enrollment change.
+- [ ] ISC-3139: Live authenticated read-only receipt inspection opens the wired chamber; fresh D1 decision/event counts show no test-induced action.
+- 2026-10-25: Decision: implement typed host records and bounded source-derived embeddedWebP assets; the world has no network owner or action authority. Historical inspection has requestedDecision=null unless a real prior intent exists. An uncertain attempt keeps its original tuple and never retries a decision.
+
+- ISC-3132/3133/3134: Independent112/112 world/host tests pass. ActualPAGE localfixture /proposal→/status returns typedreceipt/context; returning through heldqueue retains confirmedrecord and only prior matchingobservations.0decision/0renewalposts.
+- ISC-3135: Source-bound cwebp assetpipeline --check passes;2derivatives18242bytes embedded; sourcePNGsunchanged; world770891bytes.
+- ISC-3136: IAB actual320x844 documentScrollWidth320, dialog282/282 and controls>=45px. Receipt/trace/fullreviewdisclosures, acidkeyboardfocus, return/journal and reducedmotion0animations pass.
+- 2026-10-25: Decision: strictly rebaseline LEGACY_PAGE digest after independent proof that only the reviewed Gate bridge changed those bytes. Freeze tracked checkout and Git index during core immutability probes; concurrent build/status work invalidated the first run, so it is not release evidence.
+
+- ISC-3137: App184/184, independent112/112, strictbuild/artcheck/bundle parity and source review pass. Frozen core2452/2453 passes0skips with only knownviewportfingerprint hold; final copy-only pending-status fix adds one meaningful regression and is followed by a final frozen-core rerun. Strictlegacy pin updated after independent byte-isolation proof. Evidence: `docs/evidence/2026-10-25-gate-chamber/`.

@@ -1,5 +1,25 @@
 # Project handoff
 
+### 2026-10-25 production Gate chamber — reviewed source, promotion pending
+
+- Owner authorized implementation, wiring and deployment of the approved chamber study. Typed host canonical receipts/context are now independent of pending projection state. Existing founder/tenant checks, fresh review/confirmation, immutable family fence and original-tuple status-only recovery remain required. Historical receipt reads use no fabricated requested action.
+- Existing PAGE wrapper wires readDecision; production world embeds two source-derived reference specimens totaling18242bytes. SourcePNGhashes unchanged. Generated world770891bytes, digest4d782748ae3827215a98d71b0223d0c6ad8666e5ec8ec8f9ca2d9a156a8fcda2. No new endpoint, service, binding or migration.
+- App183/183 and independent world/host112/112 pass, strictbuild/parity pass. ActualPAGE synthetic IAB historicalread and heldqueue preserve receipt/context and onlymatchingpath stages; requests remain0decision/0renewal. Desktop/actual320px,45pxcontrols, focus/disclosures/reducedmotion pass.
+- Fullcore rerun must be serialized after committing/freeze: first pass collided with concurrent gitindexrefresh and detected stale strictLEGACY_PAGEpin. Independent review proves replacing only the changedGatebridge restores oldpin; strict pin is updated without weakening assertion. Canonical mobileviewport/trustedtouch hold remains separate. No deployment or live decision occurred for this source checkpoint.
+
+### 2026-10-25 Gate chamber — local design study only
+
+- Owner asked for game-design enhancement grounded in the46asset source library after showing a raw receipt alongside an unverified Gate read. Source review identifies flattened validated receipt text plus settled-row removal as a presentation-state collision. Receipt, current connection and observed execution need independent models.
+- Local portable concept: `docs/design/gate-decision-chamber.html`; rationale and safe integration sequence: `docs/plans/2026-10-25-gate-decision-chamber.md`. Uses existing control-dial/signal-packet/lens specimens and four synthetic scenarios. No production source or source-library edits, live action, deployment or backend integration.
+- Focused IAB passes all4states, loadedassets, trace/disclosure, return/reopen, visiblefocus,320pxcontainment,45pxcontrols and reducedmotion. Unknown has no receipt/seal/provenstages. Future production work must preserve tuple validation, founder/tenant checks, confirmation, family fence and status-only recovery.
+
+### 2026-10-25 PR #402 deployed — live Expedition Dossier checks
+
+- Owner requested deployment after merging PR402. Exact merged code0387a43 serves100percent as Worker versionc373b54a-e7af-4368-a39e-b4051aeb792b. Immediate rollback is c3a13925-8721-4f56-af26-da713949de5a. All47bindings, runtime flags, domain, cron and globalsettings match the predeployment snapshot; no migrations or enrollment changes.
+- Fresh app171/171, build, dry-run, bundle parity and exact publicJS/CSS readback pass. Full core2447/2448passes0skips; sole failure remains the documented stale canonical viewport PAGE fingerprint. Canonical mobile/trusted-touch proof stays held; no assertion or capture was replaced.
+- Real authenticated IAB reviewed an expired Fitcheck proposal without renewing or deciding. CanonicalMeso scope, objective, current state, loadout and counts appear; branch/phase/organ remain unserved. Complete review, keyboard focus, reduced motion, linked source folio and actual320px containment pass; controls45px+. The real path marks Graph committed only.
+- D1readback before/after stays3approvals and3graph events; no live decision or renewal submitted. Evidence: `docs/evidence/2026-10-25-expedition-dossier-live.v1.json`. Live screenshots are private operator artifacts. This local documentation checkpoint does not change deployed code. Primary working edits remain preserved.
+
 ### 2026-10-25 Expedition Dossier — draft PR #402
 
 - Draft PR https://github.com/Sheshiyer/cambium/pull/402 targets main. Branch `codex/curious-mission-dossiers` adds a briefing-led mission journal, canonical goal-scale strip, independent branch/phase/organ context, objective/current/next/evidence sections, readable labels and full canonical disclosures. Pure presentation validates the available tuple, tenant and every delta node before showing derived context. Unknown remains unserved.
