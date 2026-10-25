@@ -3378,3 +3378,19 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3110: deployedUI verified the human founder, then only the existingcambium tenant pair was enrolled. Other client-specific tenant identities remain unproved and unenrolled.
 - ISC-3111 / ISC-3115: real3D singleconfirm produced canonicalapprovedreceipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108; finalD1has exactly3decisions (2prior+1new),1matchingevent,1familyoutcome,graph3 and blockedFitchecknode.
 - PR400 feedback/lagrepair deployed after337focusedpass and independentreview; actualnew3DUI shows explicitalready_applied onRelovo and no seconddecision was submitted. No downstream/provider/client-cohort execution acceptance is claimed.
+
+### 2026-10-25 Expedition Dossier slice
+
+- [x] ISC-3116: Proposal presentation derives scope and objective context only from matching canonical data; absent phase, branch and organ stay unknown.
+- [x] ISC-3117: Expedition folios separate source navigation, mission context, objective state and evidence without invented operational progress.
+- [x] ISC-3118: Full canonical review and existing review, renewal, confirm and signing safeguards remain available and covered by regression tests.
+- [x] ISC-3119: Desktop and 320px local browser checks demonstrate contained layout, readable hierarchy, keyboard focus and accessible controls.
+- [x] ISC-3120: Source tests, TypeScript build and generated bundle verification pass; working edits and live runtime remain untouched.
+
+- 2026-10-25: Decision: choose Expedition Dossier over constellation-first or loadout-first cards because the founder must understand the objective and consequence before inspecting tools or raw records. Apply Octalysis through meaning, truthful progress, ownership and discovery.
+
+- ISC-3116: Pure-model regression — 16/16 tests pass, including wrong tuple, unique subject, malformed ancillary delta and cross-tenant cases.
+- ISC-3117: Local IAB observation — only canonical micro is selected; branch/phase/organ independent; expired unreviewed row shows unserved context and disabled decisions; source discovery remains local.
+- ISC-3118: Host regression — 37/37 selected page, Gate, read and atlas integration tests pass. Local complete-review disclosure and approval-confirm/cancel path verified without signing.
+- ISC-3119: Local IAB geometry — actual320px viewport, document scrollWidth320, dialog clientWidth280 equals scrollWidth280, controls45px or taller; visible petrol keyboard outline and reduced-motion check pass. This is focused local evidence, not canonical mobile/trusted-touch release proof.
+- ISC-3120: Final app171/171, TypeScript/Vite build and generated727324-byte bundle parity pass; independent source review has no blockers. No deployment, binding enrollment or live decision performed.
