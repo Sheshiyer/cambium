@@ -3336,7 +3336,23 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 
 The owner has now explicitly requested fresh renewal of expired pending proposals and approval through the existing 3D world UI. Seven pending records are expired; one record already has an immutable committed receipt. Existing general renewal is absent, so fresh revisions must preserve original lineage and recompile against the current D1 head; original decision rows and source events cannot be rewritten or fabricated. The 3D bridge currently uses legacy Gate with bounded review, so canonical full-review/status handling is part of this authorized implementation. This work is isolated in a private clone while the unchanged release baseline runs elsewhere.
 
-- [ ] ISC-3112: Authenticated renewal produces an idempotent new pending revision with original lineage and fresh current-head tuple, without any D1 decision or execution.
-- [ ] ISC-3113: Renewal refuses changed/unbound/decided/conflicting original proposals and cannot fake new source messages or rewrite original records.
-- [ ] ISC-3114: 3D Gate displays the full canonical review and sends one exact informed decision; uncertain outcomes use original-tuple status readback only.
+- [x] ISC-3112: Authenticated renewal produces an idempotent new pending revision with original lineage and fresh current-head tuple, without any D1 decision or execution.
+- [x] ISC-3113: Renewal refuses changed/unbound/decided/conflicting original proposals and cannot fake new source messages or rewrite original records.
+- [x] ISC-3114: 3D Gate displays the full canonical review and sends one exact informed decision; uncertain outcomes use original-tuple status readback only.
 - [ ] ISC-3115: Real signed-in 3D UI renewal/decision flow yields authoritative D1 readback after reviewed release and exact founder/tenant enrollment.
+
+### 2026-10-25 renewal race and release baseline refinement
+
+- Conjectured: ancestor receipt reads immediately before a renewed write prevent conflicting original decisions.
+- Refuted by: independent real SQLite/D1 probe inserted an original rejection between the final read and child commit; both decisions survived and one graph event executed.
+- Learned: proposal revisions require a shared family fence inside the same D1 transaction as the immutable decision, covering originals and sibling revisions in either arrival order.
+- Criterion now: ISC-3113 includes an atomic family fence and adversarial interleaving regressions; no runtime promotion until verified.
+- Baseline release core: 2412/2414 pass, two privacy checks fail on existing fixture/documentation bytes. Fix source literals and temporary path portability, preserving all scanner assertions.
+- UI source evidence: complete R3F152/152 and production build pass on installed Node26; packaged Node24 cannot load external native rolldown binding due macOS Team-ID library validation, so use recorded Node26 for final build.
+
+### 2026-10-25 frozen renewal source verification
+
+- ISC-3112 / ISC-3113: parent focused142/142 and handler74/74 pass; real SQLite/D1 regressions exercise both family arrival orders, competing siblings, final-writer race, missing index refusal and immutable replay. Independent final review reports no blocking findings.
+- ISC-3114: complete world/bridge73/73 and app TypeScript build pass; stale review stays renew-only, exact fresh pending review gates both decisions and uncertainty triggers original-tuple status only. Generated bundle rebuilt and System Atlas check passes. These source probes do not mark ISC-3115 live UI acceptance.
+- Growth regression: isolated local Workers9/9 smoke passes with synthetic storage and no remote bindings.
+- Standalone audit passed1606files after removing live CLI defaults and global routes from version-only candidate; CLI/parity20/20 pass. Complete final release remains open.

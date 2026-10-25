@@ -11,12 +11,6 @@
   ],
   "keep_vars": true,
   "vars": {},
-  "routes": [
-    {
-      "pattern": "curious.thoughtseed.space",
-      "custom_domain": true
-    }
-  ],
   "kv_namespaces": [
     {
       "binding": "QUESTS",

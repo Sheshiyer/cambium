@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T10:03:16.915636+00:00",
+  "updated": "2026-10-25T10:19:23.125168+00:00",
   "status": "in_progress",
   "active_task": "Authenticated founder proposal renewal, canonical 3D Gate and authorized runtime rollout",
   "completed": [
@@ -179,20 +179,19 @@
     "PR398 verified ready and squash-merged at1513225f87cad5c32b0adc579ff4525fc7e0a97e",
     "46 live binding identities plus settings/domain/schedules privately inventoried; rollback pinned to current live version",
     "Generated Atlas3fingerprint correction verified19/19; focused169 and local workerd9 pass",
-    "User signed in; founder-only read verified. Screenshot identifies ParkArea, Insight, Co.Property three projects, Relovo and Klear Karma; Tirak is next review."
+    "User signed in; founder-only read verified. Screenshot identifies ParkArea, Insight, Co.Property three projects, Relovo and Klear Karma; Tirak is next review.",
+    "Renewal3D client152/152 tests and production Vite/TypeScript build pass; generated world bundle rebuilt locally, runtime flow remains unproved",
+    "Renewal backend + atomic family index reviewed with no remaining source blockers; parent142focused +74handler pass; stale3D path fixed,73world/bridge pass"
   ],
   "remaining": [
-    "Backend renewal/session source and negative tests: pr396_review owns server files",
-    "Canonical3D bridge/full-review/renewal controls and tests: renewal_ui owns bridge/world source",
-    "Parent integration: regenerate world/Atlas outputs, install pinned build dependencies if needed, full local/browser checks and independent review",
-    "Resolve verified self founder/session and existing cambium operating scope; no invented per-client tenant IDs",
-    "Reviewed version upload/inspect/deploy with exact rollback/settings readback; renew pending original intent revisions and review/accept through 3D UI; preserve original committed receipt"
+    "Exact committed final release gate and independent source review evidence in draft PR",
+    "Verified version stage/metadata inspection; apply reviewed additive0012 migration and verify exact unique-index SQL before traffic promotion",
+    "Resolve signed-in founderID, explicit actual tenant enrollment, then canonical3D renewal/decision with exact winning-tuple D1readback",
+    "Reconcile five-client cohort actual runtime admission; do not infer nonexistent per-client tenants from mapped names"
   ],
   "blockers": [
-    "No safe general renewal endpoint exists in current deployed/main source",
-    "Current3D approval uses legacy bridge with bounded review; must be connected to canonical full-review/decision/status",
-    "Full baseline serial gate still running in isolated parent checkout at211aa77; do not change that checkout files/refs until it finishes",
-    "All8 stored task approval windows expired, including one immutable committed receipt; no renewal or live approval yet"
+    "Runtime code and0012 index not yet promoted/applied; no binding enrollment or live decision yet",
+    "Full final release gate must be rerun on committed frozen source; prior baseline2412/2414privacy failures corrected at source"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",

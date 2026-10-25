@@ -24,6 +24,7 @@ export interface GateInspect {
 }
 export interface GateProposal {
   changeDigest: string; nodeId: string; title: string; summary: string; sourceRef: string;
+  canonicalReview?: string | null; canRenew?: boolean; renewOnly?: boolean;
   receivedAt: string; approvalExpiresAt: string; consequence: string; reversibility: string;
   inspect: GateInspect | null; expired: boolean; canApprove: boolean; canReject: boolean;
   blockedReason: string; signing: boolean; placement: GatePlacement;
@@ -36,6 +37,8 @@ export interface GateSignResult { ok: boolean; outcome: string; message: string 
 export interface GateBridge {
   getGateState?: () => unknown;
   subscribeGate?: (listener: (snapshot: unknown) => void) => () => void;
+  reviewGate?: (changeDigest: string) => Promise<GateSignResult>;
+  renewGate?: (changeDigest: string) => Promise<GateSignResult & { changeDigest?: string }>;
   signGate?: (kind: GateKind, changeDigest: string) => Promise<GateSignResult>;
 }
 
@@ -96,14 +99,18 @@ export function normalizeGateSnapshot(value: unknown): GateSnapshot {
     .map((item): GateProposal => {
       const changeDigest = String(item.changeDigest);
       const inspect = inspectOf(item.inspect, changeDigest);
-      const open = signer !== 'none' && state === 'read' && item.signing !== true && !!inspect?.consistent;
+      const open = signer !== 'none' && state === 'read' && item.signing !== true && item.renewOnly !== true && !!inspect?.consistent
+        && (signer !== 'access' || (typeof item.canonicalReview === 'string' && item.canonicalReview.length > 0));
       return {
         changeDigest, nodeId: text(item.nodeId, 160), title: text(item.title, 160) || 'Goal proposal',
         summary: text(item.summary, 240), sourceRef: text(item.sourceRef, 160), receivedAt: text(item.receivedAt, 64),
         approvalExpiresAt: text(item.approvalExpiresAt, 64), consequence: text(item.consequence, 300),
         reversibility: text(item.reversibility, 300), inspect, expired: item.expired === true,
         canApprove: open && item.canApprove === true && item.expired !== true,
-        canReject: open && item.canReject === true,
+        canReject: open && item.canReject === true && item.expired !== true,
+        canonicalReview: typeof item.canonicalReview === 'string' ? item.canonicalReview : null,
+        renewOnly: item.renewOnly === true,
+        canRenew: signer === 'access' && state === 'read' && item.canRenew === true && item.signing !== true,
         blockedReason: text(item.blockedReason, 200), signing: item.signing === true,
         placement: placementOf(item.placement),
       };
@@ -179,8 +186,9 @@ export function gateAdmissionSummary(inspect: GateInspect | null): string {
 
 export function gateActionState(snapshot: GateSnapshot, proposal: GateProposal, kind: GateKind): { enabled: boolean; reason: string } {
   if (snapshot.signer === 'none') return { enabled: false, reason: 'Read-only here. Sign in at /founder, or open Curious inside Telegram, to sign.' };
-  if (kind === 'approve-goal-graph' && proposal.expired) {
-    return { enabled: false, reason: 'The approval window has expired. Reject it, or post a new founder-chat message and submit it for a fresh proposal.' };
+  if (proposal.renewOnly) return { enabled:false, reason:'This revision is stale. Renew and review the fresh proposal before deciding.' };
+  if (proposal.expired) {
+    return { enabled: false, reason: 'The approval window has expired. Renew and review the fresh proposal before deciding.' };
   }
   const enabled = kind === 'approve-goal-graph' ? proposal.canApprove : proposal.canReject;
   return { enabled, reason: enabled ? '' : proposal.blockedReason || 'Signing is closed for this proposal.' };

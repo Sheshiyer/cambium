@@ -9,7 +9,7 @@ One existing Access session → one stored Telegram Goal Graph proposal → one 
 From the reviewed checkout, with `CAMBIUM_ACCESS_JWT` supplied privately from an existing founder Access session, set the non-secret origin and exact authorized tenant. Do not put session values in commands, logs or review artifacts.
 
 ```sh
-export CAMBIUM_ORIGIN=https://curious.thoughtseed.space
+export CAMBIUM_ORIGIN=https://your-cambium.example
 export CAMBIUM_TENANT=cambium
 node bin/founder-gate.mjs read "$DIGEST"
 ```

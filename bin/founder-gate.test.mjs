@@ -130,3 +130,10 @@ test('review fix · missing canonical marker cannot prove pending or a receipt',
   await assert.rejects(pending.client.status(digest));
  }
 });
+
+test('CLI requires an explicit reviewed origin and tenant before network access', async () => {
+  const { main } = await import('./founder-gate.mjs');
+  for (const env of [{}, { CAMBIUM_ORIGIN: 'https://cambium.example' }, { CAMBIUM_TENANT: 'cambium' }]) {
+    await assert.rejects(main(['read', 'a'.repeat(64)], env), /CAMBIUM_ORIGIN and CAMBIUM_TENANT/);
+  }
+});

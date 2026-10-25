@@ -14872,7 +14872,7 @@ test('goal graph gate envelope · pending intake task appears as a bounded gate 
   assert.equal(task.status, 'pending');
 });
 
-test('goal graph gate envelope · committed and stale tasks leave the gate list', async () => {
+test('goal graph gate envelope · committed tasks leave and stale tasks become renew-only', async () => {
   const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
   const { kv, deps } = goalGraphIntakeHarness({ gate: gateCfg(pubKeyHex), pushToken: 't' });
   const first = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
@@ -14899,7 +14899,11 @@ test('goal graph gate envelope · committed and stale tasks leave the gate list'
     body: JSON.stringify({ kind: 'approve-goal-graph', subject: firstDigest, initData }),
   }), deps);
   assert.equal(stale.status, 409);
-  assert.equal((await listRows()).length, 0, 'the stale proposal leaves the envelope');
+  const held = await listRows();
+  assert.equal(held.filter((row: any) => row.status === 'pending').length, 0, 'stale proposals cannot remain actionable pending rows');
+  assert.equal(held.length, 1, 'the supported stale proposal remains discoverable for renewal');
+  assert.equal(held[0].renewOnly, true);
+  assert.equal(held[0].status, 'stale');
   assert.equal(JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${firstDigest}`)!).status, 'stale');
 });
 
@@ -16869,8 +16873,11 @@ test('canonical founder · CLI lost response reads D1 without refetch or resubmi
 test('canonical founder · concurrent opposing Access decisions keep one D1 outcome', async () => {
   const h = await canonicalFounderHarness();
   const results = await Promise.all([h.call('decision', canonicalDecision(body(h.read))), h.call('decision', canonicalDecision(body(h.read), 'rejected'))]);
-  assert.deepEqual(results.map(r => body(r).status).sort(), ['approved', 'conflict']);
+  const winner = h.db.prepare('SELECT decision FROM goal_graph_approvals').get()?.decision;
+  assert.ok(winner === 'approved' || winner === 'rejected');
+  assert.deepEqual(results.map(r => body(r).status).sort(), [winner, 'conflict'].sort());
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(body(await h.call('status', canonicalDecision(body(h.read)))).status, winner);
 });
 
 test('canonical founder · review shows full long desired state and fields outside Inspect', async () => {
@@ -16904,8 +16911,8 @@ test('canonical founder · review fix: D1 outcome removes stale KV pending rows 
     assert.equal(body(founder).goalGraphIntake?.rows?.some((row: any) => row.changeDigest === h.changeDigest) ?? false, false);
     const history = body(founder).goalGraphDecisions.rows.find((row: any) => row.changeDigest === h.changeDigest);
     assert.equal(history.decision, decision);
-    h.deps.pushToken = 'synthetic-projection-reader';
-    const telegram = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer synthetic-projection-reader' } }), h.deps);
+    h.deps.pushToken = 'fixture';
+    const telegram = await handle(req('GET', '/internal/gate/cambium', { headers: { authorization: 'Bearer fixture' } }), h.deps);
     assert.equal(body(telegram).actions.some((row: any) => row.changeDigest === h.changeDigest), false);
     assert.deepEqual(h.kv.store, beforeReads, 'projection reads do not repair KV or make decisions');
     assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
@@ -17027,7 +17034,7 @@ test('canonical founder · legacy receipt recovery cannot authorize a stale task
   h.kv.store.set(key, JSON.stringify({ ...JSON.parse(h.kv.store.get(key)!), status: 'stale' }));
   for (const route of ['proposal', 'status', 'decision']) {
     const response = await h.call(route, route === 'proposal' ? { proposalId: h.proposalId } : canonicalDecision(body(h.read)));
-    assert.equal(response.status, 403, response.body);
+    assert.equal(response.status, route === 'proposal' ? 200 : 403, response.body);
   }
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 0);
@@ -17068,4 +17075,221 @@ test('canonical founder · legacy receipt recovery cannot transfer a receipt to 
   }
   assert.equal(h.writes(), 0);
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+});
+
+test('canonical renewal · verified session is readable before tenant enrollment', async () => {
+  const h = await canonicalFounderHarness();
+  h.deps.founderGateBindingsJson = undefined as any;
+  const response = await handle(req('GET', '/v1/founder/session', { headers: founderWebHeaders() }), h.deps);
+  assert.equal(response.status, 200, response.body);
+  assert.equal(body(response).founderId, 'access:pid_founder_web');
+  assert.equal(body(response).enrolled, false);
+  assert.deepEqual(body(response).tenantIds, []);
+});
+
+test('canonical renewal · expired proposal becomes a new reviewed pending revision, never a decision', async () => {
+  const h = await canonicalFounderHarness();
+  const p = body(h.read).proposal;
+  h.deps.now = () => p.expiresAt;
+  const response = await h.call('renew', { proposalId: p.proposalId, version: p.version, changeDigest: p.changeDigest, nonce: p.nonce, expiresAt: p.expiresAt });
+  assert.equal(response.status, 200, response.body);
+  assert.equal(body(response).status, 'renewed');
+  assert.notEqual(body(response).proposalId, p.proposalId);
+  assert.equal(body(response).version, p.version + 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+});
+
+function renewalTuple(review: any) {
+  const p = review.proposal;
+  return { proposalId: p.proposalId, version: p.version, changeDigest: p.changeDigest, nonce: p.nonce, expiresAt: p.expiresAt };
+}
+
+test('canonical renewal · closed tuple, identity, tenant and fresh-window guards write nothing', async () => {
+  const h = await canonicalFounderHarness();
+  const input = renewalTuple(body(h.read));
+  assert.equal(body(await h.call('renew', input)).status, 'not_renewable');
+  h.deps.now = () => input.expiresAt;
+  for (const change of [{ version: 99 }, { nonce: 'other' }, { expiresAt: '2027-01-01T00:00:00.000Z' }, { changeDigest: 'f'.repeat(64) }]) {
+    const response = await h.call('renew', { ...input, ...change });
+    assert.equal(response.status, 409, response.body);
+    assert.equal(body(response).status, 'changed');
+  }
+  assert.equal((await h.call('renew', { ...input, founderId: 'spoofed' })).status, 400);
+  assert.equal((await h.call('renew', { ...input, proposalId: `other:${h.changeDigest}` })).status, 401);
+  assert.equal((await h.call('renew', input, { 'cf-access-jwt-assertion': '' })).status, 401);
+  h.deps.founderGateBindingsJson = JSON.stringify([{ founderId: 'access:other-founder', tenantId: 'cambium' }]);
+  assert.equal((await h.call('renew', input)).status, 401);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  assert.equal([...h.kv.store.keys()].filter(key => key.startsWith('goal-graph-intake-task:')).length, 1);
+});
+
+test('canonical renewal · idempotent concurrent retries preserve original source and one new pending identity', async () => {
+  const h = await canonicalFounderHarness();
+  const input = renewalTuple(body(h.read)), originalKey = `goal-graph-intake-task:cambium:${h.changeDigest}`;
+  const original = h.kv.store.get(originalKey);
+  let sample = Date.parse(input.expiresAt);
+  h.deps.now = () => new Date(sample++).toISOString();
+  const responses = await Promise.all([h.call('renew', input), h.call('renew', input)]);
+  for (const response of responses) assert.equal(response.status, 200, response.body);
+  assert.equal(body(responses[0]).proposalId, body(responses[1]).proposalId);
+  const retry = await h.call('renew', input);
+  assert.equal(body(retry).status, 'duplicate');
+  assert.equal(body(retry).proposalId, body(responses[0]).proposalId);
+  assert.equal(h.kv.store.get(originalKey), original);
+  assert.equal([...h.kv.store.keys()].filter(key => key.startsWith('goal-graph-intake-task:')).length, 2);
+  const review = body(await h.call('proposal', { proposalId: body(retry).proposalId }));
+  assert.equal(review.proposal.review.source, 'founder-proposal-renewal@v1');
+  assert.match(review.proposal.review.sourceRef, /^founder-renewal:/);
+  assert.equal(review.proposal.review.renewal.proposalId, input.proposalId);
+  assert.match(review.proposal.review.renewal.sourceRef, /^telegram:/);
+  assert.equal(review.proposal.review.changeSet.nodesToCreate[0].nodeId, JSON.parse(original!).nodeId);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+});
+
+test('canonical renewal · canonical approval and lost-response readback settle fresh revision exactly once', async () => {
+  const h = await canonicalFounderHarness();
+  const input = renewalTuple(body(h.read)); h.deps.now = () => input.expiresAt;
+  const renewed = body(await h.call('renew', input));
+  const review = body(await h.call('proposal', { proposalId: renewed.proposalId }));
+  const decision = canonicalDecision(review);
+  const first = await h.call('decision', decision);
+  assert.equal(first.status, 200, first.body);
+  assert.equal(body(first).status, 'approved');
+  assert.equal(body(await h.call('status', decision)).receiptDigest, body(first).receiptDigest);
+  assert.equal(body(await h.call('decision', decision)).receiptDigest, body(first).receiptDigest);
+  assert.equal(body(await h.call('renew', decision)).status, 'invalid', 'decision envelope cannot be used as renewal input');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 1);
+});
+
+test('canonical renewal · settled original is never renewed and cannot rewrite its receipt', async () => {
+  for (const outcome of ['approved', 'rejected']) {
+    const h = await canonicalFounderHarness();
+    const decision = canonicalDecision(body(h.read), outcome);
+    const first = body(await h.call('decision', decision));
+    h.deps.now = () => decision.expiresAt;
+    const response = await h.call('renew', renewalTuple(body(h.read)));
+    assert.equal(response.status, 409, response.body);
+    assert.equal(body(response).status, 'already_decided');
+    assert.equal(body(await h.call('status', decision)).receiptDigest, first.receiptDigest);
+    assert.equal([...h.kv.store.keys()].filter(key => key.startsWith('goal-graph-intake-task:')).length, 1);
+  }
+});
+
+test('canonical renewal · original decision racing KV persistence holds fresh revision without a new write', async () => {
+  const h = await canonicalFounderHarness();
+  const input = renewalTuple(body(h.read));
+  h.deps.now = () => input.expiresAt;
+  const put = h.kv.put;
+  h.kv.put = async (key, value) => {
+    await put(key, value);
+    if (key.startsWith('goal-graph-intake-task:') && !key.endsWith(h.changeDigest)) {
+      const delayed = await h.deps.goalGraphStore.reject({ tenantId: 'cambium', changeDigest: h.changeDigest,
+        intentVersion: input.version, rejectorId: 'access:pid_founder_web', nonce: input.nonce,
+        expiresAt: input.expiresAt, now: GOAL_GRAPH_INTAKE_NOW });
+      assert.equal(delayed.status, 'rejected');
+    }
+  };
+  const response = await h.call('renew', input);
+  assert.equal(body(response).status, 'already_decided');
+  const childKey = [...h.kv.store.keys()].find(key => key.startsWith('goal-graph-intake-task:') && !key.endsWith(h.changeDigest));
+  assert.ok(childKey);
+  const child = JSON.parse(h.kv.store.get(childKey)!);
+  const read = await h.call('proposal', { proposalId: `cambium:${child.changeDigest}` });
+  assert.equal(read.status, 403, read.body);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 0);
+});
+
+test('canonical renewal · founder session refuses roles, CSRF and malformed enrollment without exposing identity inputs', async () => {
+  for (const session of [null, { ...FOUNDER_SESSION, role: 'employee' }, { ...FOUNDER_SESSION, isActive: false }]) {
+    const h = await canonicalFounderHarness(session);
+    const result = await handle(req('GET', '/v1/founder/session', { headers: founderWebHeaders() }), h.deps);
+    assert.equal(result.status, 401);
+  }
+  const h = await canonicalFounderHarness();
+  const session = await handle(req('GET', '/v1/founder/session', { headers: founderWebHeaders() }), h.deps);
+  assert.equal(body(session).canonicalReady, true);
+  assert.deepEqual(body(session).tenantIds, ['cambium']);
+  assert.doesNotMatch(session.body, /founder@|CF_Authorization|cf-access-jwt|synthetic/);
+  assert.equal((await handle(req('GET', '/v1/founder/session', { headers: founderWebHeaders({ origin: 'https://other.invalid' }) }), h.deps)).status, 403);
+  h.deps.founderGateBindingsJson = '[{"founderId":"*","tenantId":"*"}]';
+  const malformed = await handle(req('GET', '/v1/founder/session', { headers: founderWebHeaders() }), h.deps);
+  assert.equal(body(malformed).canonicalReady, false);
+  assert.deepEqual(body(malformed).tenantIds, []);
+});
+
+test('canonical renewal · parent decision after fresh admission blocks the child writer', async () => {
+  const h = await canonicalFounderHarness();
+  const input = renewalTuple(body(h.read)); h.deps.now = () => input.expiresAt;
+  const result = body(await h.call('renew', input));
+  const review = body(await h.call('proposal', { proposalId: result.proposalId }));
+  const readHead = h.deps.goalGraphStore.readHead;
+  h.deps.goalGraphStore.readHead = async tenant => {
+    const head = await readHead(tenant);
+    const delayed = await h.deps.goalGraphStore.reject({ tenantId: 'cambium', changeDigest: input.changeDigest,
+      intentVersion: input.version, rejectorId: 'access:pid_founder_web', nonce: input.nonce,
+      expiresAt: input.expiresAt, now: GOAL_GRAPH_INTAKE_NOW });
+    assert.equal(delayed.status, 'rejected');
+    return head;
+  };
+  const decision = await h.call('decision', canonicalDecision(review));
+  assert.equal(decision.status, 503, decision.body);
+  assert.equal(body(decision).status, 'unknown');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 0);
+});
+
+test('canonical renewal · an already settled child receipt stays visible if parent later settles', async () => {
+  const h = await canonicalFounderHarness();
+  const input = renewalTuple(body(h.read)); h.deps.now = () => input.expiresAt;
+  const result = body(await h.call('renew', input));
+  const review = body(await h.call('proposal', { proposalId: result.proposalId }));
+  const exact = canonicalDecision(review);
+  const child = body(await h.call('decision', exact));
+  assert.equal(child.status, 'approved');
+  const delayed = await h.deps.goalGraphStore.reject({ tenantId: 'cambium', changeDigest: input.changeDigest,
+    intentVersion: input.version, rejectorId: 'access:pid_founder_web', nonce: input.nonce,
+    expiresAt: input.expiresAt, now: GOAL_GRAPH_INTAKE_NOW });
+  assert.equal(delayed.status, 'unavailable', 'family index rejects a late ancestor decision after the child won');
+  assert.equal(body(await h.call('status', exact)).receiptDigest, child.receiptDigest);
+  assert.equal(body(await h.call('decision', exact)).receiptDigest, child.receiptDigest);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 1);
+});
+
+test('canonical renewal · D1 family index closes original rejection race inside the final child writer', async () => {
+  const h = await canonicalFounderHarness();
+  const input = renewalTuple(body(h.read)); h.deps.now = () => input.expiresAt;
+  const renewed = body(await h.call('renew', input));
+  const review = body(await h.call('proposal', { proposalId: renewed.proposalId }));
+  const commit = h.deps.goalGraphStore.commit;
+  h.deps.goalGraphStore.commit = async args => {
+    const original = await h.deps.goalGraphStore.reject({ tenantId: 'cambium', changeDigest: input.changeDigest,
+      intentVersion: input.version, rejectorId: 'access:pid_founder_web', nonce: input.nonce,
+      expiresAt: input.expiresAt, now: GOAL_GRAPH_INTAKE_NOW });
+    assert.equal(original.status, 'rejected');
+    return commit(args);
+  };
+  const result = await h.call('decision', canonicalDecision(review));
+  assert.equal(result.status, 503, result.body);
+  assert.equal(body(result).status, 'unknown');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 0);
+});
+
+test('canonical renewal · stale undecided task is surfaced renew-only and read before fresh renewal', async () => {
+  const h = await canonicalFounderHarness();
+  const key = `goal-graph-intake-task:cambium:${h.changeDigest}`;
+  h.kv.store.set(key, JSON.stringify({ ...JSON.parse(h.kv.store.get(key)!), status: 'stale' }));
+  h.kv.store.set('ledger:cambium', ENVELOPE);
+  const quests = await handle(req('GET', '/founder/api/quests/cambium', { headers: founderWebHeaders() }), h.deps);
+  const row = body(quests).goalGraphIntake.rows.find((row: any) => row.changeDigest === h.changeDigest);
+  assert.equal(row.status, 'stale'); assert.equal(row.canRenew, true); assert.equal(row.renewOnly, true);
+  const review = await h.call('proposal', { proposalId: row.proposalId });
+  assert.equal(review.status, 200, review.body);
+  assert.equal((await h.call('decision', canonicalDecision(body(review)))).status, 403);
+  const renewal = await h.call('renew', renewalTuple(body(review)));
+  assert.equal(renewal.status, 200, renewal.body);
+  assert.equal(body(renewal).status, 'renewed');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
 });

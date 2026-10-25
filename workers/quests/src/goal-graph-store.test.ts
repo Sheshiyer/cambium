@@ -260,3 +260,90 @@ test('existing immutable rejection remains readable and replayable after expiry'
   assert.deepEqual(await store.readDecisionReceipt(TENANT, input.changeDigest, input.nonce), first);
   assert.equal(db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
 });
+
+async function familyFixture(fenced = true) {
+  const h = await harness();
+  if (fenced) h.db.db.exec(await readFile(new URL('../migrations/0012_goal_graph_renewal_fence.sql', import.meta.url), 'utf8'));
+  const root = rootNode();
+  const compile = (sourceRef: string) => {
+    const result = compileGoalGraph({ tenantId: TENANT, expectedHeadDigest: null, actualHead: null,
+      currentNodes: [], proposedNodes: [root], graphVersion: 1, sourceRef, sourceDigest: root.sourceDigest, now: NOW });
+    assert.equal(result.status, 'compiled'); if (result.status !== 'compiled') throw Error('fixture');
+    return result.changeSet;
+  };
+  const original = compile('test:family-original');
+  const child = compile('founder-renewal:family-child');
+  const oldApproval = approval(original.changeDigest, { nonce: 'family-original' });
+  const childApproval = approval(child.changeDigest, { nonce: 'family-child', intentVersion: 2 });
+  const renewalRoot = { changeDigest: original.changeDigest, nonce: oldApproval.nonce };
+  return { ...h, original, child, oldApproval, childApproval, renewalRoot };
+}
+
+test('renewal family fence blocks child approval when delayed original rejection wins first', async () => {
+  const h = await familyFixture();
+  assert.equal((await h.store.reject({ tenantId: TENANT, changeDigest: h.original.changeDigest, intentVersion: 1,
+    rejectorId: 'founder', nonce: h.oldApproval.nonce, expiresAt: EXPIRES, now: NOW })).status, 'rejected');
+  const child = await h.store.commit({ tenantId: TENANT, changeSet: h.child, approval: h.childApproval, renewalRoot: h.renewalRoot, now: NOW });
+  assert.equal(child.status, 'rejected');
+  assert.equal(h.db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 0);
+  assert.equal(await h.store.readHead(TENANT), null);
+});
+
+test('renewal family fence blocks legacy original and sibling decisions after child approval', async () => {
+  const h = await familyFixture();
+  const input = { tenantId: TENANT, changeSet: h.child, approval: h.childApproval, renewalRoot: h.renewalRoot, now: NOW };
+  assert.equal((await h.store.commit(input)).status, 'committed');
+  const bytes = await h.store.readDecisionReceipt(TENANT, h.child.changeDigest, h.childApproval.nonce);
+  assert.equal(JSON.parse(bytes!.canonical_json).renewalRoot, `approval:${TENANT}:${h.original.changeDigest}:${h.oldApproval.nonce}`);
+  for (const sibling of [
+    { changeDigest: h.original.changeDigest, nonce: h.oldApproval.nonce, rejectorId: 'founder', renewalRoot: undefined },
+    { changeDigest: 'b'.repeat(64), nonce: 'other-head-sibling', rejectorId: 'other-founder', renewalRoot: h.renewalRoot },
+  ]) {
+    const result = await h.store.reject({ tenantId: TENANT, intentVersion: 2, expiresAt: EXPIRES, now: NOW, ...sibling });
+    assert.equal(result.status, 'unavailable');
+  }
+  assert.equal((await h.store.commit(input)).status, 'duplicate');
+  assert.deepEqual(await h.store.readDecisionReceipt(TENANT, h.child.changeDigest, h.childApproval.nonce), bytes);
+  assert.equal(h.db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 1);
+});
+
+test('renewal family fence excludes sibling outcomes whichever sibling decides first', async () => {
+  const h = await familyFixture();
+  assert.equal((await h.store.reject({ tenantId: TENANT, changeDigest: 'b'.repeat(64), nonce: 'other-head-sibling',
+    intentVersion: 3, rejectorId: 'other-founder', renewalRoot: h.renewalRoot, expiresAt: EXPIRES, now: NOW })).status, 'rejected');
+  const result = await h.store.commit({ tenantId: TENANT, changeSet: h.child, approval: h.childApproval, renewalRoot: h.renewalRoot, now: NOW });
+  assert.equal(result.status, 'rejected');
+  assert.equal(h.db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 0);
+});
+
+test('renewal writes fail closed before the additive family index is installed', async () => {
+  const h = await familyFixture(false);
+  assert.equal(await h.store.renewalFenceReady?.(), false);
+  const commit = await h.store.commit({ tenantId: TENANT, changeSet: h.child, approval: h.childApproval, renewalRoot: h.renewalRoot, now: NOW });
+  assert.equal(commit.status, 'unavailable');
+  assert.equal(commit.code, 'renewal_fence_required');
+  const reject = await h.store.reject({ tenantId: TENANT, changeDigest: h.child.changeDigest, nonce: h.childApproval.nonce,
+    intentVersion: 2, rejectorId: 'founder', renewalRoot: h.renewalRoot, expiresAt: EXPIRES, now: NOW });
+  assert.equal(reject.status, 'unavailable');
+  assert.equal(h.db.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+});
+
+test('renewal family migration refuses malformed roots and preexisting duplicate families without rewriting receipts', async () => {
+  const migration = await readFile(new URL('../migrations/0012_goal_graph_renewal_fence.sql', import.meta.url), 'utf8');
+  for (const malformed of [true, false]) {
+    const h = await familyFixture(false);
+    const rootId = `approval:${TENANT}:${h.original.changeDigest}:${h.oldApproval.nonce}`;
+    const insert = h.db.db.prepare(`INSERT INTO goal_graph_approvals
+      (approval_id,tenant_id,change_digest,intent_version,approver_id,decision,expires_at,nonce,canonical_json,decided_at,recorded_at)
+      VALUES (?,?,?,?,?,'rejected',?,?,?,?,?)`);
+    insert.run('fixture-root', TENANT, h.original.changeDigest, 1, 'founder', EXPIRES, 'root-nonce',
+      JSON.stringify({ renewalRoot: malformed ? 'not-a-canonical-root' : rootId }), NOW, NOW);
+    if (!malformed) insert.run('fixture-sibling', TENANT, h.child.changeDigest, 2, 'founder', EXPIRES, 'sibling-nonce', JSON.stringify({ renewalRoot: rootId }), NOW, NOW);
+    const before = h.db.db.prepare('SELECT * FROM goal_graph_approvals ORDER BY approval_id').all();
+    assert.throws(() => h.db.db.exec(migration), malformed ? /CHECK constraint/ : /UNIQUE constraint/);
+    assert.deepEqual(h.db.db.prepare('SELECT * FROM goal_graph_approvals ORDER BY approval_id').all(), before);
+  }
+});
