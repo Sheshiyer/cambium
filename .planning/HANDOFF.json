@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T10:19:23.125168+00:00",
+  "updated": "2026-10-25T10:31:37.546454+00:00",
   "status": "in_progress",
   "active_task": "Authenticated founder proposal renewal, canonical 3D Gate and authorized runtime rollout",
   "completed": [
@@ -181,7 +181,9 @@
     "Generated Atlas3fingerprint correction verified19/19; focused169 and local workerd9 pass",
     "User signed in; founder-only read verified. Screenshot identifies ParkArea, Insight, Co.Property three projects, Relovo and Klear Karma; Tirak is next review.",
     "Renewal3D client152/152 tests and production Vite/TypeScript build pass; generated world bundle rebuilt locally, runtime flow remains unproved",
-    "Renewal backend + atomic family index reviewed with no remaining source blockers; parent142focused +74handler pass; stale3D path fixed,73world/bridge pass"
+    "Renewal backend + atomic family index reviewed with no remaining source blockers; parent142focused +74handler pass; stale3D path fixed,73world/bridge pass",
+    "DraftPR399 published at9a8a5f7; independent final source review passed",
+    "Zoom-safe45px targets and exactLEGACY_PAGE pin reviewed275/275; realIAB geometry passes320/390/430, trustedtouch remains held"
   ],
   "remaining": [
     "Exact committed final release gate and independent source review evidence in draft PR",
@@ -190,8 +192,9 @@
     "Reconcile five-client cohort actual runtime admission; do not infer nonexistent per-client tenants from mapped names"
   ],
   "blockers": [
-    "Runtime code and0012 index not yet promoted/applied; no binding enrollment or live decision yet",
-    "Full final release gate must be rerun on committed frozen source; prior baseline2412/2414privacy failures corrected at source"
+    "Final release drift gate: canonical viewport PAGE digest stale after source change; original proof bytes preserved",
+    "Selected IAB adapter cannot provide trusted touchmoves; observed diagnostic captures cannot close that gate. Strict geometry failures repaired and fresh relevant assertions pass",
+    "Runtime migration0012/code/enrollment/live3D acceptance remain pending"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",

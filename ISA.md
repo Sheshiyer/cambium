@@ -3356,3 +3356,9 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3114: complete world/bridge73/73 and app TypeScript build pass; stale review stays renew-only, exact fresh pending review gates both decisions and uncertainty triggers original-tuple status only. Generated bundle rebuilt and System Atlas check passes. These source probes do not mark ISC-3115 live UI acceptance.
 - Growth regression: isolated local Workers9/9 smoke passes with synthetic storage and no remote bindings.
 - Standalone audit passed1606files after removing live CLI defaults and global routes from version-only candidate; CLI/parity20/20 pass. Complete final release remains open.
+
+### 2026-10-25 exact-viewport release qualification
+
+- Refined: IAB at existing110%zoom measured nominal44px controls43.991474px. Raised interactive declarations to45px without relaxing the actual>=44 assertions; independently reviewed source275/275 pass. Fresh IAB Inspect320/390 and operating-fabric320/390/430 assertions pass; proof/map actualheights45px.
+- Held: raw trusted-touch commands are unsupported by the selected IAB adapter. Native drag produced no trusted touchmoves; no synthetic dispatch or metadata substitution counts as trusted input. The prior canonical proof PNGs/manifest remain intact and stale. Partial new captures are diagnostic only.
+- Release gate: final frozen attempt stopped at drift:audit because PAGE-source digest changed. Complete canonical capture, trusted touch and resulting manifest remain prerequisites or require a specific owner rollout exception. No code promotion, migration, enrollment or live decision occurred.

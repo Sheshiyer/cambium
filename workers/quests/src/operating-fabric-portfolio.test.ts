@@ -685,7 +685,7 @@ test('portfolio density preserves safe areas, keyboard focus, touch size, contra
   assert.match(OPERATING_FABRIC_STYLES, /env\(safe-area-inset-top/);
   assert.match(OPERATING_FABRIC_STYLES, /env\(safe-area-inset-bottom/);
   assert.match(OPERATING_FABRIC_STYLES, /100dvh/);
-  assert.match(OPERATING_FABRIC_STYLES, /\.of-control\{[^}]*min-height:44px/);
+  assert.match(OPERATING_FABRIC_STYLES, /\.of-control\{[^}]*min-height:45px/);
   assert.match(
     renderCanopy(PROJECTION, { portfolioCatalog: CATALOG, portfolioCatalogSummary: SUMMARY }),
     /class="of-control of-portfolio-filter"/,
