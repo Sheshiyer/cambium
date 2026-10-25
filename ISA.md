@@ -3413,3 +3413,15 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3123/3124: Wrangler current deploymentc373b54a at100percent; rollbackc3a13925. Version raw-binding audit changedBindings=[] and global pre/post snapshot comparison matches.
 - ISC-3125/3126: Real expired proposal displaysMeso and unservedBranch/Phase/Organ; decisions disabled. Actual320px documentWidth320, dialog282/282, controls45px+. D1counts remain3/3.
 - ISC-3127: HTTPreadback matches worlddigestac57b795; app171/171 and full core2447/2448 pass0skips. The sole stale canonicalviewport fingerprint and trusted-touch proof remain explicit holds. No new business action is approved by this deployment.
+
+### 2026-10-25 Gate decision chamber design study
+
+- [x] ISC-3128: Design maps source-library glyphs, material tokens, motion and state grammar to distinct interaction meanings without speculative organ identities.
+- [x] ISC-3129: Local synthetic concept separates durable decision, current connection and observed execution across approved/rejected/uncertain/disconnected scenarios.
+- [x] ISC-3130: Local IAB verifies concept interactions, readable320pxreflow,45pxcontrols and reduced motion; production/auth/source assets remain untouched.
+- [x] ISC-3131: Future integration plan preserves typed canonical receipt validation, exact reviewed context and status-only recovery with explicit regressions.
+- 2026-10-25: Decision: choose Gate chamber / sealed artifact instead of another card layout. Source library remains reference evidence; the concept uses existing component specimens as visual studies and synthetic data only.
+- 2026-10-25: Routing note: noesis-build failed before tool effects because the installed Codex CLI rejected mcp_servers.context7 transport. No runtime config was edited; bounded in-session prototype worker used as fallback. No provider/model resolution is claimed for that failed attempt.
+
+- ISC-3128/3131: `docs/plans/2026-10-25-gate-decision-chamber.md` maps actual source boards/specimens/motion grammar and documents independent receipt/connection/execution models, typed tuple-bound context and status-only recovery regressions. Independent source review confirms the current flattened-message/missing-pending-row collision.
+- ISC-3129/3130: Synthetic IAB prototype exercises all4states, trace/disclosure, return/reopen and focus. Uncertain receipt=null, all observed=false and all seal circles hidden. All3sourceimages load. Actual320x844 viewport has scrollWidth320 and every shown button/summary>=45px; reduced-motion animated element count0. Production source, source-library assets and live runtime untouched.

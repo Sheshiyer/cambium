@@ -1,5 +1,11 @@
 # Project handoff
 
+### 2026-10-25 Gate chamber — local design study only
+
+- Owner asked for game-design enhancement grounded in the46asset source library after showing a raw receipt alongside an unverified Gate read. Source review identifies flattened validated receipt text plus settled-row removal as a presentation-state collision. Receipt, current connection and observed execution need independent models.
+- Local portable concept: `docs/design/gate-decision-chamber.html`; rationale and safe integration sequence: `docs/plans/2026-10-25-gate-decision-chamber.md`. Uses existing control-dial/signal-packet/lens specimens and four synthetic scenarios. No production source or source-library edits, live action, deployment or backend integration.
+- Focused IAB passes all4states, loadedassets, trace/disclosure, return/reopen, visiblefocus,320pxcontainment,45pxcontrols and reducedmotion. Unknown has no receipt/seal/provenstages. Future production work must preserve tuple validation, founder/tenant checks, confirmation, family fence and status-only recovery.
+
 ### 2026-10-25 PR #402 deployed — live Expedition Dossier checks
 
 - Owner requested deployment after merging PR402. Exact merged code0387a43 serves100percent as Worker versionc373b54a-e7af-4368-a39e-b4051aeb792b. Immediate rollback is c3a13925-8721-4f56-af26-da713949de5a. All47bindings, runtime flags, domain, cron and globalsettings match the predeployment snapshot; no migrations or enrollment changes.
