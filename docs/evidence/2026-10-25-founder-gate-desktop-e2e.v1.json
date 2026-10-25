@@ -39,7 +39,10 @@
     "priorBindingsPreserved": 46,
     "newExplicitFounderBinding": 1,
     "globalSettingsDomainsAndCronUnchanged": true,
-    "migration": "0012_goal_graph_renewal_fence.sql"
+    "migration": "0012_goal_graph_renewal_fence.sql",
+    "currentWorkerVersion": "c3a13925-8721-4f56-af26-da713949de5a",
+    "currentCodeCommit": "cf33d25a505671835eea52d8ec6be617b3078ce5",
+    "rollbackVersion": "c41efddd-c25f-4698-bde4-ea0065dc2fc4"
   },
   "qualification": {
     "corePassed": 2443,
@@ -47,7 +50,10 @@
     "coreSkipped": 0,
     "soleCoreFailure": "stale canonical viewport PAGE fingerprint",
     "ownerApprovedDesktopException": true,
-    "mobileTrustedTouchProof": "held"
+    "mobileTrustedTouchProof": "held",
+    "finalCorePassed": 2447,
+    "finalCoreFailed": 1,
+    "finalCoreSkipped": 0
   },
   "safeRefusals": {
     "relovoOriginalsChecked": 2,
@@ -59,5 +65,13 @@
     "Shopify, payment, privacy, outreach, CRM and merchant proof remain gated",
     "No provider inference, external delivery or downstream execution acceptance is claimed",
     "Raw operator identity, session material and screenshots remain operator-held"
-  ]
+  ],
+  "finalReadbackAt": "2026-10-25T11:10:34.548324+00:00",
+  "postRepair": {
+    "focusedTestsPassed": 337,
+    "independentReview": "no blocking findings",
+    "liveAlreadyAppliedMessageVerified": true,
+    "additionalDecisionSubmitted": false,
+    "totalD1Decisions": 3
+  }
 }

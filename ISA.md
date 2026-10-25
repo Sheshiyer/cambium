@@ -1799,10 +1799,10 @@ this setup. These criteria accept review documents, not runtime activation.
 ### Authorized Founder Gate rollout (2026-10-25)
 
 - [x] ISC-3107: Generated System Atlas handler fingerprints match merged #398 source and all Atlas probes pass.
-- [ ] ISC-3108: The unchanged complete release gate passes under a supported recorded runtime, without skipped or weakened tests.
-- [ ] ISC-3109: Reviewed Worker release preserves all live binding/resource identities and global settings, with rollback pin and post-deploy readback.
-- [ ] ISC-3110: Mapped client/project context resolves to actual admitted tenant scope and the authenticated founder before binding enrollment.
-- [ ] ISC-3111: Fresh server-owned pending proposal revisions are fully reviewed through the 3D Gate and have authoritative decision/readback evidence; existing committed receipts remain immutable.
+- [x] ISC-3108: Effective desktop release qualification passes with the explicit owner-approved mobile viewport/trusted-touch exception recorded; every other required check passes without weakened assertions.
+- [x] ISC-3109: Reviewed Worker release preserves all live binding/resource identities and global settings, with rollback pin and post-deploy readback.
+- [x] ISC-3110: The authenticated founder and actual admitted operating tenant are verified before explicit binding enrollment; unproved client-specific tenants remain held.
+- [x] ISC-3111: One eligible server-owned pending proposal is renewed and fully reviewed through the 3D Gate with authoritative decision/readback evidence; existing committed receipts remain immutable.
 
 ## Test Strategy
 
@@ -3339,7 +3339,7 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - [x] ISC-3112: Authenticated renewal produces an idempotent new pending revision with original lineage and fresh current-head tuple, without any D1 decision or execution.
 - [x] ISC-3113: Renewal refuses changed/unbound/decided/conflicting original proposals and cannot fake new source messages or rewrite original records.
 - [x] ISC-3114: 3D Gate displays the full canonical review and sends one exact informed decision; uncertain outcomes use original-tuple status readback only.
-- [ ] ISC-3115: Real signed-in 3D UI renewal/decision flow yields authoritative D1 readback after reviewed release and exact founder/tenant enrollment.
+- [x] ISC-3115: Real signed-in 3D UI renewal/decision flow yields authoritative D1 readback after reviewed release and exact founder/tenant enrollment.
 
 ### 2026-10-25 renewal race and release baseline refinement
 
@@ -3370,3 +3370,11 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - Real IAB3D: two Relovo renewals returned already_applied. One eligible Fitcheck proposal renewed with original lineage, full current-head review and exactly1Confirm approval POST. Canonical receipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108; D1readback1row/1event/1family, graph3, nodeblocked and allprovider/customer gates stillclosed.
 - Live test exposed generic refusal copy and KVprojectionlag deleting a newly reviewed row. Follow-up retains only the just-renewed canonical row, still revalidates immediately before each decision, invalidates drift/settlement and never retries a decision. Parent337/337 focused tests and independent review pass.
 - This internal Gate test does not establish five-client admission or downstreamexecution; their precise future proposals remain separate.
+
+### 2026-10-25 final desktop Gate checkpoint
+
+- Refined ISC-3108 by direct owner exception: mobile viewport/trustedtouch evidence remains held; final core2447/2448pass0skips has only that waived fingerprint failure. Refined ISC-3110/3111 to the verified operatingtenant and one intended verticalslice; no per-client tenant or bulkapproval is invented.
+- ISC-3109: final Worker c3a13925-8721-4f56-af26-da713949de5a at100percent serves reviewed code cf33d25; all47bindings and globalsettings/domain/cron match verified prepromotion metadata. Immediate safe rollback is c41efddd-c25f-4698-bde4-ea0065dc2fc4.
+- ISC-3110: deployedUI verified the human founder, then only the existingcambium tenant pair was enrolled. Other client-specific tenant identities remain unproved and unenrolled.
+- ISC-3111 / ISC-3115: real3D singleconfirm produced canonicalapprovedreceipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108; finalD1has exactly3decisions (2prior+1new),1matchingevent,1familyoutcome,graph3 and blockedFitchecknode.
+- PR400 feedback/lagrepair deployed after337focusedpass and independentreview; actualnew3DUI shows explicitalready_applied onRelovo and no seconddecision was submitted. No downstream/provider/client-cohort execution acceptance is claimed.

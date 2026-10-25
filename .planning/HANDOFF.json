@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T10:56:34.878692+00:00",
-  "status": "in_progress",
-  "active_task": "Finish reviewed renewal UI feedback/projection-lag repair after successful authorized desktop3D E2E",
+  "updated": "2026-10-25T11:10:34.548324+00:00",
+  "status": "completed",
+  "active_task": "Completed scoped Founder Gate desktop renewal/approval/receipt E2E",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -186,15 +186,12 @@
     "Zoom-safe45px targets and exactLEGACY_PAGE pin reviewed275/275; realIAB geometry passes320/390/430, trustedtouch remains held",
     "PR399 merged127e589, migration0012verified and explicitactualfounder/cambium enrollment live;47bindings with original46/globalsettings intact",
     "Actual3D one approved renewal receipt36d2...a12108, D1oneevent/onefamily graph3 blockedFitchecknode; Relovo2already_applied no duplicates",
-    "Followup UIrefusal/projectionlag source337/337 independentlyreviewed; no secondbusinessdecision needed"
+    "Followup UIrefusal/projectionlag source337/337 independentlyreviewed; no secondbusinessdecision needed",
+    "PR400 mergedcf33d25 and deployedc3a13925 at100percent; all47bindings/globalsettings unchanged",
+    "Actualrepaired3DUIshows exactalready_applied; finalD1still3decisions,1newmatchingevent,graph3; no seconddecision"
   ],
-  "remaining": [
-    "Publish/review/merge tiny UI feedback and projection-lag followup; deploy identicalpreserved47bindings and recheck live refusal copy",
-    "Finalize live source/runtime/receipt checkpoint; preserve mobileproof exception and five-client nonclaims"
-  ],
-  "blockers": [
-    "Mobile canonical viewport/trustedtouch proof remains held under explicit owner-approved desktop exception"
-  ],
+  "remaining": [],
+  "blockers": [],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
     "Cambium,Temperance and connected organs form one ecosystem with distinct existing owners; vault bodies remain referenced knowledge",
@@ -416,5 +413,20 @@
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
   "next_command": "Read .local/runtime/rollout-handoff.json and live worker messages; do not repeat completed merge or mutate the running baseline checkout.",
-  "extends": "gsd.pause-work.v1"
+  "extends": "gsd.pause-work.v1",
+  "accepted_limitations": [
+    "Canonical mobile viewport/trustedtouch proof remains held under explicit owner exception",
+    "No five-client portfolio admission or downstream/provider execution acceptance is established",
+    "Other client-specific tenant identities and future business proposals require their own verified scope"
+  ],
+  "runtime_checkpoint": {
+    "source": "cf33d25a505671835eea52d8ec6be617b3078ce5",
+    "workerVersion": "c3a13925-8721-4f56-af26-da713949de5a",
+    "rollbackVersion": "c41efddd-c25f-4698-bde4-ea0065dc2fc4",
+    "bindingCount": 47,
+    "receiptDigest": "36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108",
+    "decision": "approved",
+    "graphVersion": 3,
+    "nodeStatus": "blocked"
+  }
 }
