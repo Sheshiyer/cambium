@@ -1,6 +1,13 @@
 # Project handoff
 
-### 2026-10-25 production Gate chamber — reviewed source, promotion pending
+### 2026-10-25 Gate chamber deployed — PR #403 live readback
+
+- PR403 merged atf23b449; identical reviewed/tested headba23d70 is Worker4918ce0e-b8e5-4027-8c85-f49c83e1d587 at100percent. Rollback is c373b54a-e7af-4368-a39e-b4051aeb792b. All47bindings, runtime flags, globalsettings, domain and cron match before/after; no migration or enrollment change.
+- Fresh app184/184, strictbuild/artlineage/bundleparity pass. Final frozen core2452/2453 passes0skips; only documented stale canonicalviewport fingerprint remains. Strictlegacy pin and repository immutability probes pass; canonical mobile/trustedtouch proof remains held.
+- Real authenticated IAB inspected the existingreceipt6444a852dba729293e915a6bde6cc596d97860ace6d0b674412937e7ad67fe66 without a newdecision. Typed chamber shows actualMeso/objective, fullrecord/review, honestmissingcontext and onlyDecision+Graph observed. Journalreopen, keyboardfocus, reducedmotion and actual320px/45pxtargets pass.
+- D1before/after remains4approvals and4graph events; no renewal or approval submitted. LiveJS/CSS/hostbridge bytes match reviewedsource; health200 and anonymousfoundersession401. Evidence: `docs/evidence/2026-10-25-gate-chamber-live.v1.json`. Live screenshots remain private operator artifacts. This documentation checkpoint changes no deployed code.
+
+### 2026-10-25 production Gate chamber — reviewed source checkpoint (superseded by live readback)
 
 - Owner authorized implementation, wiring and deployment of the approved chamber study. Typed host canonical receipts/context are now independent of pending projection state. Existing founder/tenant checks, fresh review/confirmation, immutable family fence and original-tuple status-only recovery remain required. Historical receipt reads use no fabricated requested action.
 - Existing PAGE wrapper wires readDecision; production world embeds two source-derived reference specimens totaling18242bytes. SourcePNGhashes unchanged. Generated world770891bytes, digest4d782748ae3827215a98d71b0223d0c6ad8666e5ec8ec8f9ca2d9a156a8fcda2. No new endpoint, service, binding or migration.
