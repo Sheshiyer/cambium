@@ -3434,8 +3434,8 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - [x] ISC-3135: Source-derived compact artwork remains reference-only, source hashes unchanged and generated world self-contained within budget.
 - [x] ISC-3136: Actual wired PAGE passes focused browser checks at desktop/320px with keyboard, disclosures, reduced motion and no business action.
 - [x] ISC-3137: Meaningful regression suites/build/bundle parity and independent review pass; known canonical mobile proof hold remains explicit.
-- [ ] ISC-3138: Reviewed exact source deploys with rollback, all runtime bindings/settings preserved and no migration/enrollment change.
-- [ ] ISC-3139: Live authenticated read-only receipt inspection opens the wired chamber; fresh D1 decision/event counts show no test-induced action.
+- [x] ISC-3138: Reviewed exact source deploys with rollback, all runtime bindings/settings preserved and no migration/enrollment change.
+- [x] ISC-3139: Live authenticated read-only receipt inspection opens the wired chamber; fresh D1 decision/event counts show no test-induced action.
 - 2026-10-25: Decision: implement typed host records and bounded source-derived embeddedWebP assets; the world has no network owner or action authority. Historical inspection has requestedDecision=null unless a real prior intent exists. An uncertain attempt keeps its original tuple and never retries a decision.
 
 - ISC-3132/3133/3134: Independent112/112 world/host tests pass. ActualPAGE localfixture /proposal→/status returns typedreceipt/context; returning through heldqueue retains confirmedrecord and only prior matchingobservations.0decision/0renewalposts.
@@ -3444,3 +3444,7 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - 2026-10-25: Decision: strictly rebaseline LEGACY_PAGE digest after independent proof that only the reviewed Gate bridge changed those bytes. Freeze tracked checkout and Git index during core immutability probes; concurrent build/status work invalidated the first run, so it is not release evidence.
 
 - ISC-3137: App184/184, independent112/112, strictbuild/artcheck/bundle parity and source review pass. Frozen core2452/2453 passes0skips with only knownviewportfingerprint hold; final copy-only pending-status fix adds one meaningful regression and is followed by a final frozen-core rerun. Strictlegacy pin updated after independent byte-isolation proof. Evidence: `docs/evidence/2026-10-25-gate-chamber/`.
+
+- ISC-3137 final: Frozen ba23d70 core2452/2453 passes0skips, only knowncanonicalviewport hold. App184/184/build/art/parity pass; PR403 mergedf23b449 has an identical tree. No equality or privacy assertion weakened.
+- ISC-3138: Worker4918ce0e serves100percent with rollbackc373b54a; rawbindingaudit47/47changed[] and before/afterglobalsettings/domain/cron match. No migration/enrollmentchange.
+- ISC-3139: Authenticated live existingreceipt6444a852 canonicalReadbacktrue, historicalrequestedDecision=null; Meso and preservedobjective with no inventedcontext. OnlyDecision/Graph observed.320px containment,45pxcontrols,focus/disclosures/reducedmotion/journal pass. D1remains4approvals/4events; no newdecision or renewal. Runtimeevidence in `docs/evidence/2026-10-25-gate-chamber-live.v1.json`.

@@ -1,0 +1,94 @@
+{
+  "schema": "cambium.gate-chamber-runtime-evidence.v1",
+  "date": "2026-10-25",
+  "pullRequest": 403,
+  "codeCommit": "f23b449b3c482a0907a8e0d871356360569d2197",
+  "testedHead": "ba23d70fded7c5eb6aaaccd21113d0aafd1f9f64",
+  "url": "https://curious.thoughtseed.space",
+  "workerVersion": "4918ce0e-b8e5-4027-8c85-f49c83e1d587",
+  "trafficPercent": 100,
+  "rollbackVersion": "c373b54a-e7af-4368-a39e-b4051aeb792b",
+  "preservation": {
+    "bindingsBefore": 47,
+    "bindingsAfter": 47,
+    "changedBindings": [],
+    "runtimeFlagsEqual": true,
+    "globalSettingsDomainCronEqual": true,
+    "migrationApplied": false,
+    "enrollmentChanged": false
+  },
+  "tests": {
+    "app": {
+      "pass": 184,
+      "fail": 0,
+      "skip": 0
+    },
+    "core": {
+      "pass": 2452,
+      "fail": 1,
+      "skip": 0,
+      "failure": "viewport proof manifest PAGE digest is stale"
+    },
+    "typeScriptViteBuild": "pass",
+    "artLineage": "pass",
+    "bundleParity": "pass",
+    "exactLiveJavaScript": "pass",
+    "exactLiveStyles": "pass",
+    "exactLiveHostBridge": "pass",
+    "bundleBytes": 771167,
+    "bundleSha256": "551dd8c724036ced49138c5444778c10bfa7bcd6231e79c1000a715b29564810"
+  },
+  "liveBrowser": {
+    "surface": "authenticated Codex IAB, existing receipt inspection only",
+    "record": {
+      "canonicalReadback": true,
+      "changeDigest": "a8f8952c9d77b59e16a8a0446dfbe673a76a3f4b41bf586c0c43674f8e424b3d",
+      "decidedAt": "2026-10-25T11:57:06.879Z",
+      "decision": "approved",
+      "receiptDigest": "6444a852dba729293e915a6bde6cc596d97860ace6d0b674412937e7ad67fe66",
+      "requestedDecision": null
+    },
+    "canonicalScope": "meso",
+    "branchPhaseOrgan": "Not served",
+    "observedStages": [
+      "decision",
+      "graph"
+    ],
+    "executionEvidenceObserved": false,
+    "sourceImagesLoaded": 2,
+    "receiptFullReviewTraceDisclosures": "pass",
+    "keyboardFocus": "visible acid",
+    "reducedMotionAnimatedElements": 0,
+    "narrowViewport": {
+      "width": 320,
+      "height": 844,
+      "documentScrollWidth": 320,
+      "dialogClientWidth": 282,
+      "dialogScrollWidth": 282,
+      "minimumObservedControlHeight": 45
+    },
+    "journalReopenRetainsContext": true,
+    "settledActions": [
+      "Trace decision",
+      "Return to world",
+      "Decision journal"
+    ]
+  },
+  "actions": {
+    "decisionSubmitted": false,
+    "renewalSubmitted": false,
+    "approvalsBefore": 4,
+    "approvalsAfter": 4,
+    "graphEventsBefore": 4,
+    "graphEventsAfter": 4
+  },
+  "http": {
+    "health": 200,
+    "unauthenticatedFounderSession": 401
+  },
+  "holds": [
+    "Canonical mobile viewport/trusted-touch proof remains held; focused320px checks do not replace it.",
+    "Phase/branch/organ labels require explicit canonical metadata; none are invented.",
+    "No new decision or downstream execution acceptance is claimed."
+  ]
+}
