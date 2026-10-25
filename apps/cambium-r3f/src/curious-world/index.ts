@@ -2,6 +2,7 @@ import { createWorld, type WorldAPI, type WorldState } from './world.ts';
 import { DISTRICTS, WORLD_LANDMARKS, PATHS, keyboardAxis } from './world-model.ts';
 import { createNavigationChart, createInstrumentObserver } from './navigation-instrument.ts';
 import { TRAVELER_DESIGNS, type TravelerDesignId } from './character.ts';
+import { buildMissionDossier } from './mission-dossier.ts';
 import { travelerPortrait } from './traveler-portrait.ts';
 import {
   HELD_GATE, GATE_PLACE_NAMES, gateActionState, gateAdmissionSummary, gateBeacons, gateCountLabel, gateGroups, gateInspectRows,
@@ -28,6 +29,18 @@ export function normalizeJoystick(x: number, z: number, radius: number): { x: nu
 }
 export function captureWorldKey(code: string, focused: boolean, editable: boolean): boolean {
   return focused && !editable && (movementCodes.has(code) || code === 'KeyE' || code === 'Escape');
+}
+
+/** Discrete proven path only: a later served stage proves its preceding stages. */
+export function gateReceiptStages(decision: 'approved' | 'rejected', reached: string | null): Array<{label:string;done:boolean}> {
+  if (decision === 'rejected') return [{label:'Rejected · goal graph unchanged',done:true}];
+  const stages = [['committed','Graph committed'],['directive-queued','Directive queued'],['runner-claimed','Runner claimed'],['receipt','Receipt recorded'],['learning','Learning recorded']];
+  const reachedIndex = stages.findIndex(([id]) => id === reached);
+  return stages.map(([,label],index) => ({label,done:reachedIndex >= 0 && index <= reachedIndex}));
+}
+
+export function goalScaleItems(scope: string | null): Array<{label:string;current:boolean}> {
+  return ['macro','meso','micro','proof'].map(value=>({label:value,current:value===scope}));
 }
 
 export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge): { dispose: () => void; focus: () => void } {
@@ -250,8 +263,82 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     if (id) node.dataset.cwTarget = id;
     return node;
   }
+  function dossierBlock(label: string, value: string | null, purpose?: string): HTMLElement {
+    const block = element('section', 'cw-dossier-block');
+    if (purpose) block.dataset.purpose = purpose;
+    block.append(element('h4', '', label), element('p', '', value || 'Not served in this read.'));
+    return block;
+  }
+  function contextRail(entries: Array<{label:string;value:string|null}>): HTMLElement {
+    const rail = element('nav', 'cw-context-rail');
+    rail.setAttribute('aria-label', 'Expedition context');
+    entries.forEach(entry => {
+      const step=element('div','cw-context-step'); step.dataset.known=String(!!entry.value);
+      step.append(element('span','',entry.label),element('strong','',entry.value || 'Not served'));
+      rail.append(step);
+    });
+    return rail;
+  }
+  function dossierHeading(title: string, kind: string, mark: string): HTMLElement {
+    const heading=element('header','cw-dossier-heading');
+    const names=element('div',''); names.append(element('span','cw-kicker',kind),element('h3','',title));
+    heading.append(names,element('span','cw-dossier-mark',mark)); return heading;
+  }
+  function missionDossier(proposal: GateProposal): HTMLElement {
+    const model=buildMissionDossier(proposal);
+    const dossier=element('section','cw-dossier'); dossier.setAttribute('aria-label','Mission dossier');
+    dossier.append(dossierHeading(proposal.title,'Expedition dossier / founder decision',
+      model.verified ? (model.scope?.toUpperCase() || 'UNSERVED') + ' / ' + model.changeDigest.slice(0,8) : 'REVIEW REQUIRED'));
+    const scale=element('section','cw-goal-scale'); scale.setAttribute('aria-label','Goal scale');
+    scale.append(element('span','cw-kicker','Goal scale'));
+    const scales=element('ul','cw-goal-scale-items');
+    goalScaleItems(model.scope).forEach(item=>{
+      const label=element('li','',item.label); label.dataset.current=String(item.current);
+      if (item.current) label.setAttribute('aria-current','true');
+      scales.append(label);
+    });
+    scale.append(scales);
+    if (!model.scope) scale.append(element('p','cw-dossier-context-note','Scale not served'));
+    const workName=model.workObject.label || model.workObject.id;
+    scale.append(element('p','cw-mission-identity',workName
+      ? 'Work object · ' + (model.workObject.kind || 'Kind not served') + ' / ' + workName
+      : 'Work object not served'));
+    dossier.append(scale,contextRail([{label:'Branch',value:model.branch},{label:'Phase',value:model.phase},{label:'Organ',value:model.organ}]));
+    const grid=element('div','cw-dossier-grid');
+    grid.append(dossierBlock('Objective',model.desiredState,'objective'),
+      dossierBlock('Recorded current state',model.currentState),
+      dossierBlock('Next action',model.nextAction,'next'),
+      dossierBlock('Owner',model.owner));
+    if (model.waitCondition) grid.append(dossierBlock('Waiting on',model.waitCondition));
+    const evidence=dossierBlock('Evidence & scope',null);
+    evidence.lastElementChild?.remove();
+    const list=element('ul','cw-dossier-evidence');
+    [model.scope ? 'Scope: ' + model.scope : 'Scope: not served',
+      model.workObject.label || model.workObject.id ? 'Work object: ' + (model.workObject.label || model.workObject.id) : 'Work object: not served',
+      model.loadout.label || model.loadout.id ? 'Loadout: ' + (model.loadout.label || model.loadout.id) : 'Loadout: not served',
+      model.proofRequired === null ? 'Proof requirement: not served' : model.proofRequired ? 'Proof is required' : 'Proof not required by the reviewed node',
+      model.sourceRef ? 'Source: ' + model.sourceRef : 'Source: not served'].forEach(value=>list.append(element('li','',value)));
+    evidence.append(list); grid.append(evidence); dossier.append(grid);
+    if (model.diff) {
+      const diff=element('div','cw-dossier-diff'); diff.setAttribute('aria-label','Reviewed graph change counts');
+      [['Create',model.diff.created],['Update',model.diff.updated],['Remove',model.diff.removed]].forEach(([label,count])=>diff.append(element('span','',label + ' · ' + count)));
+      dossier.append(diff);
+    } else dossier.append(element('p','cw-dossier-context-note','Change summary becomes available with the complete canonical review.'));
+    dossier.append(element('p','cw-dossier-context-note',model.verified
+      ? 'Mission fields describe the reviewed change, not live execution. Unserved context stays unknown. Inspect the complete change and consequences before confirming.'
+      : 'This projection is an index. Read the complete canonical proposal to inspect its objective, context and exact change.'));
+    return dossier;
+  }
   function inspectLandmark(landmark: Landmark): void {
     showPanel(landmark.name);
+    const sourceDossier=element('section','cw-dossier');
+    const sourceDistrict=DISTRICTS.find(item=>item.id===landmark.districtId);
+    sourceDossier.append(dossierHeading(landmark.name,'Expedition dossier / source landmark','SOURCE ATLAS'),
+      contextRail([{label:'Atlas district',value:sourceDistrict?.name ?? null},{label:'Source kind',value:landmark.kind},{label:'Landmark',value:landmark.name}]));
+    const sourceBrief=element('div','cw-dossier-grid');
+    sourceBrief.append(dossierBlock('Current state','Source reference. No live mission state is served here.'),
+      dossierBlock('Next discovery',landmark.links.length ? 'Inspect the source relationships below to understand this landmark’s place in the system.' : 'Open the source reference to inspect this landmark’s contract.','next'));
+    dialogBody.append(sourceDossier);
     const folio = element('div', 'cw-folio');
     const specimen = element('figure', 'cw-specimen');
     specimen.style.setProperty('--cw-specimen', landmark.color);
@@ -272,7 +359,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const boundary = element('div', 'cw-boundary');
     boundary.append(element('span', 'cw-kicker', 'SOURCE BOUNDARY'), element('p', '', landmark.boundary));
     narrative.append(boundary);
-    folio.append(specimen, narrative); dialogBody.append(folio);
+    folio.append(specimen, narrative); sourceDossier.append(folio,sourceBrief);
     if (landmark.links.length) {
       const connections = element('section', 'cw-connections');
       connections.append(element('span', 'cw-kicker', 'THE CONNECTIONS'), element('p', 'cw-connections-caption', 'Source-defined relationships. Inspect a connected landmark.'));
@@ -326,11 +413,14 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     return element(tag, className, value);
   }
   function gateRow(proposal: GateProposal): HTMLButtonElement {
-    const node = actionButton(proposal.title, 'gate-open', proposal.changeDigest);
+    const node = actionButton('', 'gate-open', proposal.changeDigest);
+    const state=proposal.signing ? 'Signing in progress' : proposal.renewOnly || proposal.canRenew || proposal.expired ? 'Fresh review needed' : proposal.canApprove ? 'Reviewed · decision available' : 'Read complete proposal';
+    node.dataset.state=proposal.canApprove ? 'ready' : proposal.canRenew ? 'renew' : 'held';
+    node.append(element('span','cw-gate-row-state',state),element('strong','',proposal.title));
     node.classList.add('cw-gate-row');
     node.dataset.expired = String(proposal.expired);
-    node.append(element('small', 'cw-gate-digest', proposal.changeDigest),
-      element('small', '', `${proposal.expired ? 'Approval window expired' : `Approve by ${proposal.approvalExpiresAt}`} · Inspect ↗`));
+    node.append(element('small','',proposal.summary || 'Inspect this server-owned proposal.'),
+      element('small','cw-gate-digest',`Change ${proposal.changeDigest.slice(0,12)}… · Open dossier ↗`));
     return node;
   }
   function renderGatePath(host: HTMLElement): void {
@@ -338,19 +428,16 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     if (!latest) return;
     const path = element('section', 'cw-gate-path');
     path.setAttribute('aria-label', 'Latest founder decision path');
-    path.append(element('span', 'cw-kicker', 'LATEST DECISION / THE REAL PATH'), element('p', 'cw-gate-path-title', latest.title));
-    const stages = latest.decision === 'rejected'
-      ? [{ label: 'Rejected · the goal graph was not written', done: true }]
-      : [['committed', 'Committed to the goal graph'], ['directive-queued', 'Directive queued for Hermes'],
-        ['runner-claimed', 'Runner claimed the work'], ['receipt', 'Receipt landed']]
-        .map(([stage, label], index, all) => ({ label, done: latest.reached !== null && all.findIndex(item => item[0] === latest.reached) >= index }));
+    path.dataset.decision=latest.decision;
+    path.append(element('span', 'cw-kicker', 'DECISION RECORD / VERIFIED PATH'), element('p', 'cw-gate-path-title', latest.title));
+    const stages = gateReceiptStages(latest.decision, latest.reached);
     const list = element('ol', 'cw-gate-path-stages');
     for (const stage of stages) {
       const item = element('li', '', `${stage.done ? '● ' : '○ '}${stage.label}`);
       item.dataset.done = String(stage.done);
       list.append(item);
     }
-    path.append(list, element('p', 'cw-gate-path-note', 'Each step lights only when live state proves it. The runner run keeps its own yes.'));
+    path.append(list, element('p', 'cw-gate-path-note', 'Only stages supported by the served decision path are marked. Founder approval does not itself prove execution or delivery.'));
     host.append(path);
   }
   function renderGateList(host: HTMLElement): void {
@@ -359,11 +446,16 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const mode = element('p', 'cw-gate-mode', gate.label);
     mode.dataset.signer = gate.signer;
     mode.setAttribute('role', 'status');
-    host.append(mode);
+    host.append(element('h3','cw-gate-title',scoped ? 'Decisions at this landmark' : 'The decision journal'),
+      element('p','cw-gate-summary','Review the objective, inspect the exact change, then record one informed decision.'),mode);
     if (gate.state !== 'read') {
       host.append(element('p', 'cw-gate-empty', gate.state === 'checking' ? 'Checking the founder read…' : 'The Gate read is held. Nothing can be signed until a verified read returns.'));
       return;
     }
+    const queueRows=scoped ? gateProposalsAt(gate,scoped) : gate.proposals;
+    const ready=queueRows.filter(proposal=>proposal.canApprove).length;
+    const renew=queueRows.filter(proposal=>proposal.canRenew || proposal.expired || proposal.renewOnly).length;
+    host.append(element('p','cw-dossier-context-note',`${queueRows.length} ${queueRows.length === 1 ? 'proposal' : 'proposals'} · ${ready} ${ready === 1 ? 'decision' : 'decisions'} available · ${renew} need a fresh review`));
     if (!scoped) renderGatePath(host);
     if (scoped) {
       const here = gateProposalsAt(gate, scoped);
@@ -399,7 +491,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       host.append(actionButton('All pending proposals ↗', 'inspect', 'gate'));
       return;
     }
-    host.append(element('h3', 'cw-gate-title', proposal.title));
+    host.append(missionDossier(proposal));
     if (proposal.summary) host.append(element('p', 'cw-gate-summary', proposal.summary));
     const mode = element('p', 'cw-gate-mode', gate.label);
     mode.dataset.signer = gate.signer;
@@ -413,7 +505,9 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     facts.append(gateNode('dt', '', 'Admission'), gateNode('dd', '', gateAdmissionSummary(proposal.inspect)),
       gateNode('dt', '', 'Approval window'), gateNode('dd', '', `${proposal.approvalExpiresAt}${proposal.expired ? ' · expired' : ''}`),
       gateNode('dt', '', 'Source'), gateNode('dd', '', proposal.sourceRef || 'not served'));
-    host.append(facts);
+    const binding=element('details','cw-gate-review-disclosure');
+    binding.dataset.cwDisclosure='binding:' + digest;
+    binding.append(element('summary','','Review binding & execution admission'),facts); host.append(binding);
     if (proposal.inspect && proposal.inspect.issues.length) {
       const warning = element('ul', 'cw-gate-warning');
       proposal.inspect.issues.forEach(issue => warning.append(element('li', '', issue)));
@@ -423,10 +517,12 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     host.append(element('p', 'cw-gate-place', `Lives at ${GATE_PLACE_NAMES[proposal.placement.landmarkId]}`));
     if (gate.signer === 'access') {
       if (proposal.canonicalReview) {
-        host.append(element('h4', '', 'Complete canonical proposal and review'));
+        const disclosure=element('details','cw-gate-review-disclosure');
+        disclosure.dataset.cwDisclosure='canonical:' + digest;
+        disclosure.append(element('summary','','Complete canonical proposal · exact change, context and lineage'));
         const complete = element('pre', 'cw-gate-full-review', proposal.canonicalReview);
         complete.style.whiteSpace = 'pre-wrap'; complete.style.overflowWrap = 'anywhere';
-        host.append(complete);
+        disclosure.append(complete); host.append(disclosure);
       } else { host.append(actionButton('Read complete proposal', 'gate-review')); }
     }
     if (proposal.expired || proposal.canRenew) {
@@ -475,9 +571,16 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const host = gateHost;
     if (disposed || !host || !host.isConnected) return;
     const hadFocus = host.contains(document.activeElement);
+    const disclosures=Array.from(host.querySelectorAll<HTMLDetailsElement>('details[data-cw-disclosure]'));
+    const openDisclosures=new Set(disclosures.filter(node=>node.open).map(node=>node.dataset.cwDisclosure));
+    const focusedDisclosure=disclosures.find(node=>node.contains(document.activeElement))?.dataset.cwDisclosure;
     host.replaceChildren();
     if (gateDigest) renderGateProposal(host, gateDigest);
     else renderGateList(host);
+    const nextDisclosures=Array.from(host.querySelectorAll<HTMLDetailsElement>('details[data-cw-disclosure]'));
+    nextDisclosures.forEach(node=>{ node.open=openDisclosures.has(node.dataset.cwDisclosure); });
+    const priorSummary=nextDisclosures.find(node=>node.dataset.cwDisclosure===focusedDisclosure)?.querySelector('summary');
+    if (hadFocus && priorSummary) { priorSummary.focus({preventScroll:true}); return; }
     if (hadFocus || !dialog.contains(document.activeElement)) {
       (host.querySelector<HTMLElement>('[data-cw-focus="true"]:not([disabled])') ?? host.querySelector<HTMLElement>('button:not([disabled])') ?? closeButton).focus({ preventScroll: true });
     }
