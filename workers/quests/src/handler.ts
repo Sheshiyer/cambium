@@ -1,4 +1,4 @@
-import { createFounderAccessHost } from './founder-access-host.ts';
+import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
@@ -3938,18 +3938,22 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     kind: 'goal-graph-intake',
     id: `goal-graph-intake:${changeDigest}`,
     tenantId,
-    status: 'pending',
+    status: task.status === 'stale' ? 'stale' : 'pending',
+    renewOnly: task.status === 'stale',
     changeDigest,
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`Telegram goal proposal awaiting founder signature: ${desiredState}`, 'Telegram goal proposal awaiting founder signature', 240),
-    source: 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : 'telegram-goal-graph-intake@v1',
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
+    proposalId: `${tenantId}:${changeDigest}`,
+    version: Number.isInteger(task.intentVersion) ? task.intentVersion : 1,
+    canRenew: task.status === 'stale' || Date.parse(descriptor.approvalExpiresAt) <= Date.now(),
     graphVersion: Number.isInteger(task.graphVersion) ? task.graphVersion : null,
     receivedAt,
     updatedAt: receivedAt,
@@ -4092,8 +4096,9 @@ async function listGoalGraphIntakeGateRows(
   for (const key of keys) {
     const task = parseJsonObject(await kv.get(key));
     if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA) continue;
-    if (task.tenantId !== tenantId || task.status !== 'pending') continue;
+    if (task.tenantId !== tenantId || !['pending','stale'].includes(String(task.status))) continue;
     const candidate = storedFounderOutcomeCandidate(task);
+    if (candidate && task.status !== 'pending') continue;
     if (!candidate && await projectedGoalGraphDecision(options.decisionStore, task, tenantId) !== null) continue;
     if (candidate) {
       if (options.includeFounderCandidates !== true) continue;
@@ -4881,6 +4886,7 @@ async function approveGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   const evidence = {
     kind: 'approve-goal-graph',
     subject: changeDigest,
@@ -5180,6 +5186,7 @@ async function rejectGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   const evidence = {
     approvalNonce: resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest)?.approvalNonce ?? null,
     kind: 'reject-goal-graph',
@@ -5340,7 +5347,17 @@ async function resolveFounderWebSigner(
 }
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
-  if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status'].includes(req.path.split('?')[0])) {
+  if (req.path.split('?')[0] === '/v1/founder/session') {
+    if (req.method !== 'GET') return json(405, { error: 'get_required' });
+    const signer = await resolveFounderWebSigner(req, deps);
+    if (signer.kind === 'unconfigured') return json(503, { error: 'founder_host_unconfigured' });
+    if (signer.kind !== 'founder') return json(signer.kind === 'forbidden' ? 403 : 401, { error: 'founder_identity_required' });
+    const rows = founderBindings(deps.founderGateBindingsJson);
+    const tenantIds = [...new Set((rows ?? []).filter(row => row.founderId === signer.approverId).map(row => row.tenantId))].sort();
+    return json(200, { founderId: signer.approverId, enrolled: tenantIds.length > 0,
+      tenantIds, renewalReady: await deps.goalGraphStore?.renewalFenceReady?.() ?? false, canonicalReady: tenantIds.length > 0 && !!deps.goalGraphStore?.readDecisionReceipt && !!deps.goalGraphStore?.reject, writerAuthority: false });
+  }
+  if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew'].includes(req.path.split('?')[0])) {
     const host = deps.founderDecisionHost ?? (deps.plexus ? createFounderAccessHost({
       store: deps.goalGraphStore, bindingsJson: deps.founderGateBindingsJson,
       verifyFounder: async () => {
@@ -5353,6 +5370,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         return row ? { ...row, founderInspect: goalGraphFounderInspect(task) } : null;
       },
       now: deps.now ?? (() => new Date().toISOString()),
+      loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+      persistRenewal: input => reconcileGoalGraphIntakePersistence(deps.kv, {
+        ...input, idempotencyRecordKey: `goal-graph-intake-idem:${input.idempotencyKey}`,
+      }),
     }) : undefined);
     const response = await founderDecisionHttp(new Request(`https://cambium.invalid${req.path}`, {
       method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),

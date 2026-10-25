@@ -80,6 +80,8 @@ body.curious-world-active #curious-world-launch{display:none}
         ...(typeof CuriousGateBridge === 'object' && CuriousGateBridge ? {
           getGateState:() => CuriousGateBridge.get(),
           subscribeGate:fn => CuriousGateBridge.subscribe(fn),
+          reviewGate:changeDigest => CuriousGateBridge.review(changeDigest),
+          renewGate:changeDigest => CuriousGateBridge.renew(changeDigest),
           signGate:(kind, changeDigest) => CuriousGateBridge.sign(kind, changeDigest)
         } : {})
       });

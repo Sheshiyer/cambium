@@ -10,5 +10,5 @@ test('preservation candidate retains all 46 binding identities without capturing
  for(const b of expected){const c=resources.find(x=>x.name===b.name);assert.ok(c,b.name);assert.equal(c.type,b.type);if(b.type!=='ai')assert.equal(c.id,b.namespace_id??b.bucket_name??b.index_name??b.database_id??b.id);}
  assert.ok(snapshot.bindings.every(b=>!('text' in b)&&!('value' in b)));
  assert.equal(config.compatibility_date,snapshot.runtime.compatibility_date);assert.deepEqual(config.compatibility_flags,snapshot.runtime.compatibility_flags);
- assert.deepEqual(config.routes,[{pattern:'curious.thoughtseed.space',custom_domain:true}]);assert.equal(config.name,'cambium-quests');
+ assert.equal(config.routes,undefined,'version-only preservation must not apply global routes');assert.equal(config.name,'cambium-quests');
 });

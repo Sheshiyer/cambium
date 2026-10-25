@@ -119,7 +119,8 @@ export async function main(argv=process.argv.slice(2),env=process.env) {
   const [command,digest,...rest]=argv;
   if (!['read','approve','reject','status'].includes(command) || !/^(?:sha256:)?[a-f0-9]{64}$/.test(digest??'')) throw Error('invalid command or digest');
   const flags={};for(let i=0;i<rest.length;i+=2){if(!['--version','--expiry','--confirm'].includes(rest[i]) || rest[i+1]===undefined)throw Error('invalid option');flags[rest[i]]=rest[i+1];}
-  const client=createFounderClient({origin:env.CAMBIUM_ORIGIN??'https://curious.thoughtseed.space',tenant:env.CAMBIUM_TENANT??'thoughtseed',accessJwt:env.CAMBIUM_ACCESS_JWT});
+  if (!env.CAMBIUM_ORIGIN || !env.CAMBIUM_TENANT) throw Error('CAMBIUM_ORIGIN and CAMBIUM_TENANT must explicitly identify the reviewed deployment');
+  const client=createFounderClient({origin:env.CAMBIUM_ORIGIN,tenant:env.CAMBIUM_TENANT,accessJwt:env.CAMBIUM_ACCESS_JWT});
   let result;
   if(command==='read')result=await client.proposal(digest);
   else if(command==='status')result=await client.status(digest);

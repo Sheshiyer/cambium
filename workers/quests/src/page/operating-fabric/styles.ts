@@ -9,7 +9,7 @@ export const OPERATING_FABRIC_STYLES = `<style>
 #operating-fabric.of-on{display:block}
 #operating-fabric{position:relative;min-height:100dvh;color:var(--ink);padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);box-sizing:border-box}
 .of-nav{display:flex;gap:.5rem;overflow-x:auto;padding:.75rem max(1rem,env(safe-area-inset-right,0)) .75rem max(1rem,env(safe-area-inset-left,0))}
-.of-tab{flex:1;min-width:44px;min-height:44px;box-sizing:border-box;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-align:left;cursor:pointer}
+.of-tab{flex:1;min-width:45px;min-height:45px;box-sizing:border-box;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-align:left;cursor:pointer}
 .of-workbench-link{display:flex;flex:1;flex-direction:column;justify-content:center;min-width:54px;box-sizing:border-box;border:1px solid rgba(224,255,79,.36);background:rgba(224,255,79,.08);color:inherit;border-radius:.75rem;padding:.6rem .75rem;font:inherit;text-decoration:none}
 .of-workbench-link[hidden]{display:none}
 .of-workbench-link small{display:block;opacity:.72}
@@ -18,7 +18,7 @@ export const OPERATING_FABRIC_STYLES = `<style>
 .of-tab small{display:block;opacity:.72}
 .of-scene{padding:1rem;max-width:100%;overflow-x:hidden}
 .of-scene[hidden]{display:none}
-.of-control{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;box-sizing:border-box;padding:.5rem .75rem;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;font:inherit;cursor:pointer}
+.of-control{display:inline-flex;align-items:center;justify-content:center;min-height:45px;min-width:45px;box-sizing:border-box;padding:.5rem .75rem;border:1px solid rgba(214,255,246,.16);background:transparent;color:inherit;border-radius:.75rem;font:inherit;cursor:pointer}
 .of-flow{max-width:100%;overflow-x:auto}
 .of-flow-graph{border-collapse:collapse}
 .of-flow-list{display:flex;flex-direction:column;gap:.5rem;list-style:none;margin:0;padding:0}

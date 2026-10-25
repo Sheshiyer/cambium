@@ -421,10 +421,19 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     }
     host.append(element('p', 'cw-gate-consequence', proposal.consequence), element('p', 'cw-gate-reversibility', proposal.reversibility));
     host.append(element('p', 'cw-gate-place', `Lives at ${GATE_PLACE_NAMES[proposal.placement.landmarkId]}`));
-    if (proposal.expired) {
+    if (gate.signer === 'access') {
+      if (proposal.canonicalReview) {
+        host.append(element('h4', '', 'Complete canonical proposal and review'));
+        const complete = element('pre', 'cw-gate-full-review', proposal.canonicalReview);
+        complete.style.whiteSpace = 'pre-wrap'; complete.style.overflowWrap = 'anywhere';
+        host.append(complete);
+      } else { host.append(actionButton('Read complete proposal', 'gate-review')); }
+    }
+    if (proposal.expired || proposal.canRenew) {
       const renew = element('section', 'cw-gate-renew');
       renew.append(element('span', 'cw-kicker', 'REQUEST A FRESH PROPOSAL'),
-        element('p', '', 'This approval window has closed. Post a new message in the founder chat and submit it; each message makes one proposal, so resubmitting this one only returns the expired duplicate. Reject still works here.'));
+        element('p', '', 'This revision cannot be decided while expired. Renewal creates a fresh review with source lineage; read the entire new proposal before confirming a decision.'));
+      if (proposal.canRenew && typeof bridge.renewGate === 'function') renew.append(actionButton('Renew review', 'gate-renew'));
       host.append(renew);
     }
     const actions = element('div', 'cw-gate-actions');
@@ -459,6 +468,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const status = element('p', 'cw-gate-status', gateMessage?.text ?? '');
     status.dataset.tone = gateMessage?.tone ?? 'pending';
     status.setAttribute('role', 'status');
+    status.style.whiteSpace = 'pre-wrap'; status.style.overflowWrap = 'anywhere';
     return status;
   }
   function renderGate(): void {
@@ -482,6 +492,18 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     gateDigest = digest;
     dialogBody.append(gateHost);
     renderGate();
+    if (gate.signer === 'access' && typeof bridge.reviewGate === 'function') void reviewOrRenewGate(false);
+  }
+  function reviewOrRenewGate(renew: boolean): void {
+    const digest = gateDigest;
+    const action = renew ? bridge.renewGate : bridge.reviewGate;
+    if (!digest || typeof action !== 'function') return;
+    gateConfirm = null; gateMessage = {text:renew ? 'Renewing the server-owned review…' : 'Reading the complete canonical proposal…',tone:'pending'}; renderGate();
+    Promise.resolve(action(digest)).then(outcome => {
+      if (disposed || gateDigest !== digest) return;
+      if (renew && outcome.ok && 'changeDigest' in outcome && typeof outcome.changeDigest === 'string') gateDigest = outcome.changeDigest;
+      gateMessage = {text:outcome.message,tone:outcome.ok ? 'ok' : 'refused'}; renderGate();
+    }, () => { gateMessage = {text:'Review unavailable. Refresh the Gate before continuing.',tone:'refused'}; renderGate(); });
   }
   function signGate(kind: GateKind): void {
     const digest = gateDigest;
@@ -500,7 +522,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       // Only the host's explicit outcome classes are trusted; anything else is unconfirmed.
       const tone: 'ok' | 'pending' | 'refused' = outcome.ok === true ? 'ok'
         : outcome.outcome === 'refused' || outcome.outcome === 'auth' || outcome.outcome === 'blocked' ? 'refused' : 'pending';
-      return { tone, text: typeof outcome.message === 'string' ? outcome.message.slice(0, 200) : 'Outcome unconfirmed · re-reading the Gate.' };
+      return { tone, text: typeof outcome.message === 'string' ? outcome.message : 'Outcome unconfirmed · re-reading the Gate.' };
     }, () => ({ tone: 'pending' as const, text: 'Outcome unconfirmed · re-reading the Gate.' })).then(({ tone, text }) => {
       if (disposed || gateDigest !== digest) return;
       gateMessage = { text, tone };
@@ -619,6 +641,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       const district = gateGroups(gate).find(group => group.landmarkId === id)?.proposals[0]?.placement.districtId;
       if (district) { closePanel(); begun = true; root.dataset.walking = 'true'; intro.hidden = true; world?.setBlocked(false); world?.teleport(district); world?.start(); syncInstrument(); focus(); }
     }
+    else if (target.dataset.cwAction === 'gate-review') reviewOrRenewGate(false);
+    else if (target.dataset.cwAction === 'gate-renew') reviewOrRenewGate(true);
     else if (target.dataset.cwAction === 'gate-confirm' && (id === 'approve-goal-graph' || id === 'reject-goal-graph')) {
       gateConfirm = id; gateMessage = null; renderGate();
     } else if (target.dataset.cwAction === 'gate-cancel') { gateConfirm = null; renderGate(); }

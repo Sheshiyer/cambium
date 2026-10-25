@@ -1796,6 +1796,14 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-3105: An actual legacy retry that marks KV stale cannot hide the same founder's existing D1 receipt from canonical proposal, status, CLI or idempotent decision recovery, including after expiry.
 - [x] ISC-3106: Anti: stale receipt recovery cannot invoke a new decision writer or transfer authority through missing/mismatched receipts, another allowed founder, or unavailable D1.
 
+### Authorized Founder Gate rollout (2026-10-25)
+
+- [x] ISC-3107: Generated System Atlas handler fingerprints match merged #398 source and all Atlas probes pass.
+- [ ] ISC-3108: The unchanged complete release gate passes under a supported recorded runtime, without skipped or weakened tests.
+- [ ] ISC-3109: Reviewed Worker release preserves all live binding/resource identities and global settings, with rollback pin and post-deploy readback.
+- [ ] ISC-3110: Mapped client/project context resolves to actual admitted tenant scope and the authenticated founder before binding enrollment.
+- [ ] ISC-3111: Fresh server-owned pending proposal revisions are fully reviewed through the 3D Gate and have authoritative decision/readback evidence; existing committed receipts remain immutable.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -3321,3 +3329,36 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - ISC-3100..3104: source regression proof — 68/68 focused CLI/service/store/Access/growth tests and 96/96 selected handler tests pass; independent CLI/service/store rerun 40/40 passes. Wrangler 4.124.0 local bundle dry run and `git diff --check` pass. Negative reproductions failed before their fixes. Full-suite/typecheck/live acceptance remain unclaimed.
 
 - ISC-3105..3106: before/after Access/SQLite proof — recovery regressions fail against merged #396 and all five pass after the guard fix; broader focused suites pass 68/68 and selected handler tests pass 101/101. Independent canonical/recovery selection passes 17/17. Local Wrangler bundle dry run and `git diff --check` pass. No runtime or full-suite/typecheck acceptance is claimed.
+
+- 2026-10-25 rollout checkpoint: PR #398 merged as `1513225f87cad5c32b0adc579ff4525fc7e0a97e`. Atlas correction is three generated fingerprints only; Atlas tests pass 19/19 and generator check passes. The initial full-core run was interrupted after the time allowance, with one concrete Atlas failure and four cancellations; it is not a full release result. Focused169 and isolated workerd9 remain source/local evidence. No version upload, traffic change, binding enrollment or live decision has occurred in this rollout.
+
+### 2026-10-25 continuation: authenticated renewal and 3D E2E
+
+The owner has now explicitly requested fresh renewal of expired pending proposals and approval through the existing 3D world UI. Seven pending records are expired; one record already has an immutable committed receipt. Existing general renewal is absent, so fresh revisions must preserve original lineage and recompile against the current D1 head; original decision rows and source events cannot be rewritten or fabricated. The 3D bridge currently uses legacy Gate with bounded review, so canonical full-review/status handling is part of this authorized implementation. This work is isolated in a private clone while the unchanged release baseline runs elsewhere.
+
+- [x] ISC-3112: Authenticated renewal produces an idempotent new pending revision with original lineage and fresh current-head tuple, without any D1 decision or execution.
+- [x] ISC-3113: Renewal refuses changed/unbound/decided/conflicting original proposals and cannot fake new source messages or rewrite original records.
+- [x] ISC-3114: 3D Gate displays the full canonical review and sends one exact informed decision; uncertain outcomes use original-tuple status readback only.
+- [ ] ISC-3115: Real signed-in 3D UI renewal/decision flow yields authoritative D1 readback after reviewed release and exact founder/tenant enrollment.
+
+### 2026-10-25 renewal race and release baseline refinement
+
+- Conjectured: ancestor receipt reads immediately before a renewed write prevent conflicting original decisions.
+- Refuted by: independent real SQLite/D1 probe inserted an original rejection between the final read and child commit; both decisions survived and one graph event executed.
+- Learned: proposal revisions require a shared family fence inside the same D1 transaction as the immutable decision, covering originals and sibling revisions in either arrival order.
+- Criterion now: ISC-3113 includes an atomic family fence and adversarial interleaving regressions; no runtime promotion until verified.
+- Baseline release core: 2412/2414 pass, two privacy checks fail on existing fixture/documentation bytes. Fix source literals and temporary path portability, preserving all scanner assertions.
+- UI source evidence: complete R3F152/152 and production build pass on installed Node26; packaged Node24 cannot load external native rolldown binding due macOS Team-ID library validation, so use recorded Node26 for final build.
+
+### 2026-10-25 frozen renewal source verification
+
+- ISC-3112 / ISC-3113: parent focused142/142 and handler74/74 pass; real SQLite/D1 regressions exercise both family arrival orders, competing siblings, final-writer race, missing index refusal and immutable replay. Independent final review reports no blocking findings.
+- ISC-3114: complete world/bridge73/73 and app TypeScript build pass; stale review stays renew-only, exact fresh pending review gates both decisions and uncertainty triggers original-tuple status only. Generated bundle rebuilt and System Atlas check passes. These source probes do not mark ISC-3115 live UI acceptance.
+- Growth regression: isolated local Workers9/9 smoke passes with synthetic storage and no remote bindings.
+- Standalone audit passed1606files after removing live CLI defaults and global routes from version-only candidate; CLI/parity20/20 pass. Complete final release remains open.
+
+### 2026-10-25 exact-viewport release qualification
+
+- Refined: IAB at existing110%zoom measured nominal44px controls43.991474px. Raised interactive declarations to45px without relaxing the actual>=44 assertions; independently reviewed source275/275 pass. Fresh IAB Inspect320/390 and operating-fabric320/390/430 assertions pass; proof/map actualheights45px.
+- Held: raw trusted-touch commands are unsupported by the selected IAB adapter. Native drag produced no trusted touchmoves; no synthetic dispatch or metadata substitution counts as trusted input. The prior canonical proof PNGs/manifest remain intact and stale. Partial new captures are diagnostic only.
+- Release gate: final frozen attempt stopped at drift:audit because PAGE-source digest changed. Complete canonical capture, trusted touch and resulting manifest remain prerequisites or require a specific owner rollout exception. No code promotion, migration, enrollment or live decision occurred.

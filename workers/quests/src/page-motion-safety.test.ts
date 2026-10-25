@@ -207,7 +207,7 @@ test('T-12 · operating fabric reduced-motion gate strips shell transitions and 
 });
 
 test('T-12 · operating fabric controls carry a 44px minimum target and visible focus', () => {
-  assert.match(PAGE, /\.of-tab\{[^}]*min-height:44px/, '.of-tab declares the 44px minimum control height');
+  assert.match(PAGE, /\.of-tab\{[^}]*min-height:45px/, '.of-tab declares the 44px minimum control height');
   assert.match(
     PAGE,
     /\.of-tab:focus-visible,\.of-control:focus-visible\{outline:2px solid var\(--ink\);outline-offset:2px\}/,
@@ -338,4 +338,11 @@ test('T-12 · Gate entrypoint click handler disables the button before the in-fl
 test('T-12 · Inspect sheet exposes back/close controls with an <h2> heading', () => {
   assert.match(PAGE, /<button type="button" class="detail" data-of-inspect-back="1">Back<\/button>/, 'Inspect sheet has a back control');
   assert.match(PAGE, /<button type="button" class="reroll" data-of-inspect-close="1">Close<\/button>/, 'Inspect sheet has a close control');
+});
+
+test('interactive map, proof and fabric controls retain rounding room above the strict 44px browser floor', () => {
+  assert.match(PAGE,/\.mapbadge\{[^}]*min-height:45px/);
+  assert.match(PAGE,/\.sheet \.gbtns button[^}]*min-height:45px/);
+  assert.match(PAGE,/\.inspect-disclosure>summary\{[^}]*min-height:45px/);
+  assert.match(PAGE,/\.of-control\{[^}]*min-height:45px;min-width:45px/);
 });

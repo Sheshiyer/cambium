@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import { webcrypto } from 'node:crypto';
+import { reviewConfirmation } from '../../../bin/founder-gate.mjs';
 import { CLIENT_CURIOUS_GATE_BRIDGE } from './page/client/curious-gate-bridge.ts';
 import { PAGE } from './page/index.ts';
 import { CURIOUS_WORLD_PAGE } from './page/components/curious-world.ts';
@@ -45,10 +47,11 @@ function envelope(rows: unknown[], list: Record<string, unknown> = {}) {
   };
 }
 
-function harness(options: { initData?: string; founderWeb?: boolean; respond?: (body: Record<string, unknown>) => unknown } = {}) {
+function harness(options: { initData?: string; founderWeb?: boolean; session?: Record<string,unknown>; respond?: (body: Record<string, unknown>, url: string) => unknown } = {}) {
   const requests: Array<{ url: string; init: { method?: string; body?: string; credentials?: string; headers?: Record<string, string> } }> = [];
   let refreshes = 0;
   const context = vm.createContext({
+    crypto:webcrypto, TextEncoder, Uint8Array,
     TENANT: 'cambium',
     initData: options.initData ?? INIT_DATA,
     FOUNDER_WEB: options.founderWeb === true,
@@ -56,7 +59,7 @@ function harness(options: { initData?: string; founderWeb?: boolean; respond?: (
     refresh: () => { refreshes += 1; },
     fetch: async (url: string, init: { method?: string; body?: string; credentials?: string; headers?: Record<string, string> }) => {
       requests.push({ url, init });
-      const reply = options.respond ? options.respond(JSON.parse(String(init.body))) : { status: 200, body: { ok: true, committed: true, duplicate: false } };
+      const reply = url.endsWith('/session') ? {status:200,body:options.session ?? {founderId:'founder:opaque',enrolled:true,canonicalReady:true,tenantIds:['cambium'],writerAuthority:false}} : options.respond ? options.respond(JSON.parse(String(init.body)), url) : { status: 200, body: { ok: true, committed: true, duplicate: false } };
       if (reply instanceof Error) throw reply;
       const { status, body } = reply as { status: number; body: unknown };
       return { ok: status >= 200 && status < 300, status, json: async () => { if (body === UNREADABLE) throw new SyntaxError('unreadable'); return body; } };
@@ -70,6 +73,8 @@ function harness(options: { initData?: string; founderWeb?: boolean; respond?: (
     refreshes: () => refreshes,
     quest: (env: unknown, revision = 1) => run(`CuriousGateBridge.quest(${JSON.stringify(env)}, ${revision})`),
     get: () => JSON.parse(run('JSON.stringify(CuriousGateBridge.get())')),
+    review: async (digest = DIGEST) => JSON.parse(JSON.stringify(await run(`CuriousGateBridge.review(${JSON.stringify(digest)})`))),
+    renew: async (digest = DIGEST) => JSON.parse(JSON.stringify(await run(`CuriousGateBridge.renew(${JSON.stringify(digest)})`))),
     sign: async (kind: string, digest = DIGEST) => JSON.parse(JSON.stringify(await run(`CuriousGateBridge.sign(${JSON.stringify(kind)}, ${JSON.stringify(digest)})`))),
   };
 }
@@ -195,18 +200,15 @@ test('world gate · approve posts the existing /api/gate contract with Telegram 
   assert.equal(h.refreshes(), 1);
 });
 
-test('world gate · reject signs the same route and an expired window still allows only rejection', async () => {
-  const h = harness({ respond: (body) => ({ status: 200, body: { ok: true, rejected: body.kind === 'reject-goal-graph', committed: false, duplicate: false } }) });
+test('world gate · expiry disables both decisions without network writes', async () => {
+  const h = harness();
   h.quest(envelope([row({ approvalExpiresAt: new Date(Date.now() - 1000).toISOString() })]));
   const [proposal] = h.get().proposals;
   assert.equal(proposal.expired, true);
   assert.equal(proposal.canApprove, false);
-  assert.equal(proposal.canReject, true);
-  assert.equal((await h.sign('approve-goal-graph')).outcome, 'blocked');
-  assert.equal(h.requests.length, 0);
-  const rejected = await h.sign('reject-goal-graph');
-  assert.equal(rejected.outcome, 'rejected');
-  assert.equal(JSON.parse(String(h.requests[0].init.body)).kind, 'reject-goal-graph');
+  assert.equal(proposal.canReject, false);
+  for (const kind of ['approve-goal-graph','reject-goal-graph']) assert.equal((await h.sign(kind)).outcome,'blocked');
+  assert.equal(h.requests.length,0);
 });
 
 test('world gate · only readable refusals and the auth gate claim no write; everything else is unconfirmed and read back', async () => {
@@ -261,39 +263,84 @@ test('world gate · the page owns the bridge and the world host passes only gate
   assert.doesNotMatch(host, /initData|fetch\(/, 'the world host never handles credentials or the network');
 });
 
-test('world gate · on /founder a verified Access founder signs the same contract without initData', async () => {
-  const h = harness({ initData: '', founderWeb: true });
-  const listed = row();
+function canonicalFixture(listed = row()) {
+  const review = {...listed, graphVersion:5, fence:5, expectedHeadVersion:4,
+    changeSet:{tenantId:'cambium',changeDigest:listed.changeDigest,graphVersion:5,nodesToCreate:[{id:'goal',title:'Complete long title',description:'x'.repeat(1000)}],nodesToUpdate:[],nodesToRemove:[]}};
+  const p = {proposalId:`cambium:${listed.changeDigest}`,tenantId:'cambium',version:1,changeDigest:listed.changeDigest,
+    nonce:listed.approvalNonce,expiresAt:listed.approvalExpiresAt,
+    summary:`${listed.summary} Consequence: ${listed.consequence} Reversibility: ${listed.reversibility}`,review};
+  return {status:'review',writerAuthority:false,proposal:p,approveConfirmation:reviewConfirmation(p,'approved'),rejectConfirmation:reviewConfirmation(p,'rejected')};
+}
+function settled(input: Record<string,unknown>, overrides = {}) {
+  return {status:input.decision,canonicalReadback:true,writerAuthority:false,receiptDigest:'a'.repeat(64),
+    receipt:{...input,tenantId:'cambium',founderId:'founder:opaque',decidedAt:new Date().toISOString(),channel:'curious'},...overrides};
+}
+test('world gate · Access requires a complete independently bound review, then uses canonical seven-field tuple', async () => {
+  const listed = row({version:1}); const full = canonicalFixture(listed);
+  const h = harness({initData:'',founderWeb:true,respond:(body,url) => ({status:200,body:url.endsWith('/proposal') ? full : settled(body)})});
   h.quest(envelope([listed]));
-  const snapshot = h.get();
-  assert.equal(snapshot.signer, 'access');
-  assert.equal(snapshot.label, 'Founder signing ready');
-  assert.equal(snapshot.proposals[0].canApprove, true);
-  const result = await h.sign('approve-goal-graph');
-  assert.deepEqual(result, { ok: true, outcome: 'committed', message: 'Approved · committed to the goal graph.' });
-  assert.equal(h.requests.length, 1);
-  assert.equal(h.requests[0].url, '/founder/api/gate/cambium');
-  assert.equal(h.requests[0].init.credentials, 'same-origin');
-  assert.equal(h.requests[0].init.headers?.['x-cambium-founder-web'], '1');
-  const payload = JSON.parse(String(h.requests[0].init.body));
-  assert.equal(payload.kind, 'approve-goal-graph');
-  assert.equal(payload.initData, '');
-  assert.equal(payload.nonce, listed.approvalNonce);
-  assert.equal(payload.idempotencyKey, `approve-goal-graph:cambium:${DIGEST}`);
+  assert.equal((await h.sign('approve-goal-graph')).outcome,'blocked');
+  assert.equal(h.requests.length,0);
+  assert.equal((await h.review()).ok,true);
+  assert.ok(h.get().proposals[0].canonicalReview.includes('x'.repeat(1000)));
+  assert.equal(h.get().proposals[0].canApprove,true);
+  assert.equal((await h.sign('approve-goal-graph')).outcome,'approved');
+  const request = h.requests.find(item => item.url.endsWith('/decision'))!;
+  assert.equal(request.url,'/v1/founder/decision');
+  assert.deepEqual(Object.keys(JSON.parse(request.init.body!)).sort(),['changeDigest','confirmation','decision','expiresAt','nonce','proposalId','version']);
+  assert.equal(request.init.headers?.['x-cambium-founder-web'],'1');
 });
-
-test('world gate · /founder without the founder Inspect projection stays read-only; auth refusals name Access', async () => {
-  const notFounder = harness({ initData: '', founderWeb: true });
-  notFounder.quest(envelope([row({}, null)]));
-  assert.equal(notFounder.get().label, 'Read-only · this Access account is not a verified founder');
-  assert.equal((await notFounder.sign('approve-goal-graph')).outcome, 'blocked');
-  assert.equal(notFounder.requests.length, 0);
-
-  const refused = harness({ initData: '', founderWeb: true, respond: () => ({ status: 401, body: { error: 'founder access verification failed' } }) });
-  refused.quest(envelope([row()]));
-  const result = await refused.sign('approve-goal-graph');
-  assert.equal(result.outcome, 'auth');
-  assert.match(result.message, /Founder Access verification failed · no write/);
+test('world gate · tampered review or refreshed fence cannot authorize a decision', async () => {
+  const listed = row({version:1}); const full = canonicalFixture(listed);
+  const h = harness({initData:'',founderWeb:true,respond:() => ({status:200,body:full})});
+  h.quest(envelope([listed])); await h.review();
+  full.proposal.review.changeSet.nodesToCreate[0].description = 'changed';
+  assert.equal((await h.sign('approve-goal-graph')).outcome,'blocked');
+  assert.ok(!h.requests.some(item => item.url.endsWith('/decision')));
+});
+test('world gate · lost decision response performs one status read of the original tuple and never resubmits', async () => {
+  const listed=row({version:1}); const full=canonicalFixture(listed);
+  const h=harness({initData:'',founderWeb:true,respond:(body,url) => url.endsWith('/decision') ? new Error('dropped') : {status:200,body:url.endsWith('/proposal') ? full : settled(body)}});
+  h.quest(envelope([listed])); await h.review();
+  assert.equal((await h.sign('approve-goal-graph')).ok,true);
+  assert.equal(h.requests.filter(item => item.url.endsWith('/decision')).length,1);
+  assert.equal(h.requests.filter(item => item.url.endsWith('/status')).length,1);
+  assert.equal(h.requests.find(item=>item.url.endsWith('/decision'))!.init.body,h.requests.find(item=>item.url.endsWith('/status'))!.init.body);
+});
+test('world gate · receipt mismatch and failed status hold subsequent decisions', async () => {
+  const listed=row({version:1}); const full=canonicalFixture(listed);
+  const h=harness({initData:'',founderWeb:true,respond:(body,url)=>({status:200,body:url.endsWith('/proposal')?full:settled({...body,nonce:'wrong'})})});
+  h.quest(envelope([listed])); await h.review();
+  assert.equal((await h.sign('approve-goal-graph')).outcome,'uncertain');
+  await h.review();
+  assert.equal((await h.sign('approve-goal-graph')).outcome,'blocked');
+  assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,1);
+});
+test('world gate · expired renewal fetches the new complete review before enabling a fresh decision', async () => {
+  const old=row({version:1,canRenew:true,approvalExpiresAt:new Date(Date.now()-1000).toISOString()});
+  const fresh=row({version:1,changeDigest:'b'.repeat(64),source:'founder-proposal-renewal@v1',approvalNonce:'fresh-nonce'});
+  fresh.founderInspect!.changeDigest=fresh.changeDigest;
+  const newer=canonicalFixture(fresh);
+  const h=harness({initData:'',founderWeb:true,respond:(body,url)=>({status:200,body:url.endsWith('/renew')
+    ? {status:'renewed',writerAuthority:false,proposalId:newer.proposal.proposalId,changeDigest:fresh.changeDigest,version:1,expiresAt:fresh.approvalExpiresAt}
+    : url.endsWith('/proposal') ? body.proposalId===newer.proposal.proposalId ? newer : canonicalFixture(old) : settled(body)})});
+  h.quest(envelope([old]));
+  assert.equal(h.get().proposals[0].canRenew,true);
+  assert.equal(h.get().proposals[0].canReject,false);
+  const outcome=await h.renew(); assert.equal(outcome.ok,true);
+  assert.equal(h.get().proposals[0].changeDigest,fresh.changeDigest);
+  assert.ok(h.get().proposals[0].canonicalReview);
+  assert.equal((await h.sign('approve-goal-graph',fresh.changeDigest)).ok,true);
+  const renewal=JSON.parse(h.requests.find(item=>item.url.endsWith('/renew'))!.init.body!);
+  assert.deepEqual(Object.keys(renewal).sort(),['changeDigest','expiresAt','nonce','proposalId','version']);
+});
+test('world gate · enrollment failure is actionable and review never writes', async () => {
+  for (const status of [401,403,503]) {
+    const h=harness({initData:'',founderWeb:true,respond:()=>({status,body:{status:'unknown'}})});
+    h.quest(envelope([row()]));
+    const outcome=await h.review(); assert.equal(outcome.ok,false); assert.match(outcome.message,/founder|Founder/);
+    assert.ok(h.requests.every(item=>item.url.endsWith('/proposal') || item.url.endsWith('/session')));
+  }
 });
 
 test('world gate · placement and decision paths pass through sanitized; unknown places and stages never reach the world', () => {
@@ -320,4 +367,55 @@ test('world gate · placement and decision paths pass through sanitized; unknown
   assert.deepEqual(wrongTenant.get().paths, []);
   h.run('CuriousGateBridge.hold("auth", 2)');
   assert.deepEqual(h.get().paths, [], 'a held read drops paths');
+});
+
+test('world gate · session exposes the verified opaque identity without enrolling or admitting wildcard tenants', async () => {
+  for (const session of [
+    {founderId:'founder:target',enrolled:false,canonicalReady:false,tenantIds:[],writerAuthority:false},
+    {founderId:'founder:target',enrolled:true,canonicalReady:true,tenantIds:['*'],writerAuthority:false},
+  ]) {
+    const h=harness({initData:'',founderWeb:true,session}); h.quest(envelope([row()]));
+    assert.equal((await h.review()).ok,false);
+    assert.match(h.get().label,/founder:target/);
+    assert.equal(h.get().proposals[0].canApprove,false);
+    assert.ok(h.requests.every(item=>item.url.endsWith('/session')));
+  }
+});
+test('world gate · unreadable and 5xx decisions use one canonical status and explicit duplicate receipts', async () => {
+  for (const failure of [{status:200,body:UNREADABLE},{status:503,body:{status:'unknown'}}]) {
+    const listed=row({version:1}); const full=canonicalFixture(listed);
+    const h=harness({initData:'',founderWeb:true,respond:(body,url)=>url.endsWith('/decision') ? failure : {status:200,body:url.endsWith('/proposal') ? full : settled(body,{duplicate:true})}});
+    h.quest(envelope([listed])); await h.review();
+    const outcome=await h.sign('approve-goal-graph'); assert.equal(outcome.ok,true);
+    assert.match(outcome.message,/founder:opaque/);
+    assert.equal(h.requests.filter(item=>item.url.endsWith('/status')).length,1);
+    assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,1);
+  }
+});
+
+test('world gate · only explicitly supported stale revisions can read and renew; fresh pending review enables decisions', async () => {
+  const stale=row({status:'stale',version:1,renewOnly:true,canRenew:true});
+  const fresh=row({version:1,changeDigest:'c'.repeat(64),source:'founder-proposal-renewal@v1',approvalNonce:'renewed-stale-nonce'});
+  fresh.founderInspect!.changeDigest=fresh.changeDigest;
+  const newer=canonicalFixture(fresh);
+  const h=harness({initData:'',founderWeb:true,respond:(body,url)=>({status:200,body:url.endsWith('/renew')
+    ? {status:'renewed',writerAuthority:false,proposalId:newer.proposal.proposalId,changeDigest:fresh.changeDigest,version:1,expiresAt:fresh.approvalExpiresAt}
+    : url.endsWith('/proposal') ? body.proposalId===newer.proposal.proposalId ? newer : canonicalFixture(stale) : settled(body)})});
+  h.quest(envelope([stale]));
+  assert.equal(h.get().proposals.length,1);
+  assert.equal(h.get().proposals[0].expired,false);
+  assert.equal((await h.review()).ok,true);
+  assert.ok(h.get().proposals[0].canonicalReview);
+  assert.equal(h.get().proposals[0].renewOnly,true);
+  for (const kind of ['approve-goal-graph','reject-goal-graph']) assert.equal((await h.sign(kind)).outcome,'blocked');
+  assert.equal(h.get().proposals[0].canRenew,true);
+  assert.equal(h.requests.filter(item=>item.url.endsWith('/decision')).length,0);
+  const renewed=await h.renew(); assert.equal(renewed.ok,true);
+  assert.equal(h.get().proposals[0].renewOnly,false);
+  assert.equal(h.get().proposals[0].canApprove,true);
+  assert.equal((await h.sign('approve-goal-graph',fresh.changeDigest)).ok,true);
+  for (const malformed of [row({status:'stale'}),row({status:'stale',canRenew:true}),row({status:'stale',renewOnly:true}),row({status:'committed',canRenew:true,renewOnly:true})]) {
+    h.quest(envelope([malformed]),2);
+    assert.equal(h.get().proposals.length,0);
+  }
 });

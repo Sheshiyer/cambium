@@ -1,6 +1,7 @@
 // cambium-quests · miniapp page chunk — Inspect scene CSS (proof map, component board)
 // T-009 slice of the served PAGE string; P2-W3 (T-023/T-024) appends branch-map + evidence beat
 // styles (cards radius ≤ 8px per frozen/README). Assembly order: page/index.ts.
+// A 45px declared target retains at least 44 CSS pixels after browser zoom rounding.
 export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density ───── */
 	  @keyframes spin{to{transform:rotate(360deg)}}
 	  @keyframes halo{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.045);opacity:.45}}
@@ -9,7 +10,7 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
 	  .maphead{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;padding-bottom:4px}
 	  .maphead h2{font-size:18px;letter-spacing:0;color:var(--ink)}
   .maphead p{font-size:12px;opacity:.68;max-width:48ch;margin-top:3px}
-  .mapbadge{min-height:44px;display:inline-flex;align-items:center;font:11px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.28);
+  .mapbadge{min-height:45px;display:inline-flex;align-items:center;font:11px var(--mono);color:var(--ink);border:1px solid rgba(224,255,79,.28);
     border-radius:999px;padding:6px 10px;white-space:nowrap;appearance:none;background:transparent;cursor:pointer}
   .mapbadge:active{transform:scale(.96)}
   .wakegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
@@ -110,14 +111,14 @@ export const STYLE_INSPECT = `  /* ── inspect proof map — Telegram density
   .rail.hot{border-color:rgba(224,255,79,.34);background:rgba(224,255,79,.045)}
   .mapnote{font:11px/1.5 var(--mono);opacity:.58}
   .inspect-pane-switcher{display:grid;grid-template-columns:1fr 1fr;gap:4px;border:1px solid var(--line);border-radius:8px;padding:4px;background:rgba(1,47,52,.28)}
-  .inspect-pane-switcher button{appearance:none;min-width:0;min-height:44px;border:0;border-radius:6px;background:transparent;color:var(--soft);font:650 11px/1 var(--mono);cursor:pointer}
+  .inspect-pane-switcher button{appearance:none;min-width:0;min-height:45px;border:0;border-radius:6px;background:transparent;color:var(--soft);font:650 11px/1 var(--mono);cursor:pointer}
   .inspect-pane-switcher button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
   .inspect-pane{display:none;min-width:0;gap:12px}
   .inspect-pane.is-active{display:grid}
   .inspect-pane-section{display:grid;gap:8px;min-width:0}
   .inspect-pane-heading{font:11px/1.2 var(--mono);color:var(--ink);text-transform:uppercase}
   .inspect-disclosure{border-top:1px solid var(--line);padding-top:8px}
-  .inspect-disclosure>summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--soft);font:650 12px/1.3 var(--mono);cursor:pointer;list-style:none}
+  .inspect-disclosure>summary{min-height:45px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--soft);font:650 12px/1.3 var(--mono);cursor:pointer;list-style:none}
   .inspect-disclosure>summary::-webkit-details-marker{display:none}
   .inspect-disclosure>summary::after{content:"+";color:var(--ink);font:18px/1 var(--mono)}
   .inspect-disclosure[open]>summary::after{content:"−"}
