@@ -1,5 +1,12 @@
 # Project handoff
 
+### 2026-10-25 PR #402 deployed — live Expedition Dossier checks
+
+- Owner requested deployment after merging PR402. Exact merged code0387a43 serves100percent as Worker versionc373b54a-e7af-4368-a39e-b4051aeb792b. Immediate rollback is c3a13925-8721-4f56-af26-da713949de5a. All47bindings, runtime flags, domain, cron and globalsettings match the predeployment snapshot; no migrations or enrollment changes.
+- Fresh app171/171, build, dry-run, bundle parity and exact publicJS/CSS readback pass. Full core2447/2448passes0skips; sole failure remains the documented stale canonical viewport PAGE fingerprint. Canonical mobile/trusted-touch proof stays held; no assertion or capture was replaced.
+- Real authenticated IAB reviewed an expired Fitcheck proposal without renewing or deciding. CanonicalMeso scope, objective, current state, loadout and counts appear; branch/phase/organ remain unserved. Complete review, keyboard focus, reduced motion, linked source folio and actual320px containment pass; controls45px+. The real path marks Graph committed only.
+- D1readback before/after stays3approvals and3graph events; no live decision or renewal submitted. Evidence: `docs/evidence/2026-10-25-expedition-dossier-live.v1.json`. Live screenshots are private operator artifacts. This local documentation checkpoint does not change deployed code. Primary working edits remain preserved.
+
 ### 2026-10-25 Expedition Dossier — draft PR #402
 
 - Draft PR https://github.com/Sheshiyer/cambium/pull/402 targets main. Branch `codex/curious-mission-dossiers` adds a briefing-led mission journal, canonical goal-scale strip, independent branch/phase/organ context, objective/current/next/evidence sections, readable labels and full canonical disclosures. Pure presentation validates the available tuple, tenant and every delta node before showing derived context. Unknown remains unserved.
