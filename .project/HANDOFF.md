@@ -1,10 +1,11 @@
 # Project handoff
 
-### 2026-10-25 Expedition Dossier — local reviewed patch
+### 2026-10-25 Expedition Dossier — reviewed draft publication
 
 - Branch `codex/curious-mission-dossiers` adds a briefing-led mission journal, canonical goal-scale strip, independent branch/phase/organ context, objective/current/next/evidence sections, readable labels and full canonical disclosures. Pure presentation validates the available tuple, tenant and every delta node before showing derived context. Unknown remains unserved.
 - Existing host review/renew/confirm/signing semantics remain unchanged. Receipt stages include learning and advance only from supplied path evidence. Journal color tokens, visible keyboard focus, 45px controls and narrow reflow are included.
 - Validation: app171/171, host/page/atlas37/37, strict build and generated bundle parity pass; independent review has no blockers. Focused IAB synthetic fixture passed desktop, actual320px containment, disclosure, keyboard focus, reduced-motion and confirm/cancel checks without a live call.
+- Review screenshots, command results, artifact hashes and metadata gaps: `docs/evidence/2026-10-25-expedition-dossier/README.md`. Implementation commit `a2d58ab` is preserved; publication adds documentation and local synthetic screenshots.
 - Design rationale and references: `docs/plans/2026-10-25-expedition-dossier.md`. Richer production context requires explicit canonical metadata.phase/branch/organ; no inferred assignments are introduced. No new dependency, migration, binding or runtime prerequisite. Deployment remains separate; prior canonical mobile/trusted-touch proof hold is unchanged. Primary working edits preserved through isolated implementation.
 
 ### 2026-10-25 final Founder Gate desktop runtime receipt

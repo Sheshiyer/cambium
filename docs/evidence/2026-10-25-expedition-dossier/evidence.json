@@ -1,0 +1,48 @@
+{
+  "schema": "cambium.expedition-dossier-local-evidence.v1",
+  "implementationCommit": "a2d58ab32eabbf0d0d032febbb529bf133e51818",
+  "scope": "Synthetic local IAB fixture; no live endpoint or decision. Focused responsive checks do not replace canonical mobile/trusted-touch release proof.",
+  "tests": [
+    {
+      "command": "npm --prefix apps/cambium-r3f test",
+      "passed": 171,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "node --test workers/quests/src/curious-world-page.test.ts workers/quests/src/curious-world-gate.test.ts workers/quests/src/curious-world-read.test.ts workers/quests/src/system-atlas-integration.test.ts",
+      "passed": 37,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "build": "npm --prefix apps/cambium-r3f run build \u2014 passed",
+  "bundle": {
+    "command": "npm --prefix apps/cambium-r3f run curious:check",
+    "result": "passed",
+    "bytes": 727324,
+    "sha256": "ac57b79592d960f3232efc3135e5568c6be1f13906687a694d3223b7f9df5006"
+  },
+  "artifacts": [
+    {
+      "path": "browser-evidence.json",
+      "sha256": "ca12b8de45e14a849d5321a0bed63ef67f94752b99dff0b27c3f77162b9341c4",
+      "bytes": 1126
+    },
+    {
+      "path": "desktop.jpg",
+      "sha256": "47888a340b8cdfb1c242a510f32a3c6c85fb792fae3b7d54cb8f7c4a0a212860",
+      "bytes": 50332
+    },
+    {
+      "path": "mobile-320.jpg",
+      "sha256": "0f2ef2c10aa73f587b92ff5cfd05781f0ef5221c1a6e5a34f7152ee67e51f9f2",
+      "bytes": 34161
+    },
+    {
+      "path": "source-landmark.jpg",
+      "sha256": "18c7190d38437aaf69908fa68f6593a635c7a2c2bfec8961e6c342c87a1acb87",
+      "bytes": 48161
+    }
+  ]
+}

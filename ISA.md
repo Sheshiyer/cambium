@@ -3394,3 +3394,9 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3118: Host regression — 37/37 selected page, Gate, read and atlas integration tests pass. Local complete-review disclosure and approval-confirm/cancel path verified without signing.
 - ISC-3119: Local IAB geometry — actual320px viewport, document scrollWidth320, dialog clientWidth280 equals scrollWidth280, controls45px or taller; visible petrol keyboard outline and reduced-motion check pass. This is focused local evidence, not canonical mobile/trusted-touch release proof.
 - ISC-3120: Final app171/171, TypeScript/Vite build and generated727324-byte bundle parity pass; independent source review has no blockers. No deployment, binding enrollment or live decision performed.
+
+### 2026-10-25 Expedition Dossier draft publication
+
+- [x] ISC-3121: Review package includes desktop, actual320px and source-folio screenshots with implementation SHA, bounded test evidence and remaining canonical metadata gaps.
+- [ ] ISC-3122: Exact reviewed branch is pushed and one draft PR is verified with matching head, screenshot links and evidence.
+- ISC-3121: Evidence package links to implementation a2d58ab and preserves the synthetic/local-only limitation, unknown metadata behavior and held canonical mobile/trusted-touch release proof. Publication does not authorize deployment, enrollment or live decisions.
