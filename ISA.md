@@ -1796,6 +1796,14 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-3105: An actual legacy retry that marks KV stale cannot hide the same founder's existing D1 receipt from canonical proposal, status, CLI or idempotent decision recovery, including after expiry.
 - [x] ISC-3106: Anti: stale receipt recovery cannot invoke a new decision writer or transfer authority through missing/mismatched receipts, another allowed founder, or unavailable D1.
 
+### Authorized Founder Gate rollout (2026-10-25)
+
+- [x] ISC-3107: Generated System Atlas handler fingerprints match merged #398 source and all Atlas probes pass.
+- [ ] ISC-3108: The unchanged complete release gate passes under a supported recorded runtime, without skipped or weakened tests.
+- [ ] ISC-3109: Reviewed Worker release preserves all live binding/resource identities and global settings, with rollback pin and post-deploy readback.
+- [ ] ISC-3110: Mapped client/project context resolves to actual admitted tenant scope and the authenticated founder before binding enrollment.
+- [ ] ISC-3111: Fresh server-owned pending proposal revisions are fully reviewed through the 3D Gate and have authoritative decision/readback evidence; existing committed receipts remain immutable.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -3321,3 +3329,5 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - ISC-3100..3104: source regression proof — 68/68 focused CLI/service/store/Access/growth tests and 96/96 selected handler tests pass; independent CLI/service/store rerun 40/40 passes. Wrangler 4.124.0 local bundle dry run and `git diff --check` pass. Negative reproductions failed before their fixes. Full-suite/typecheck/live acceptance remain unclaimed.
 
 - ISC-3105..3106: before/after Access/SQLite proof — recovery regressions fail against merged #396 and all five pass after the guard fix; broader focused suites pass 68/68 and selected handler tests pass 101/101. Independent canonical/recovery selection passes 17/17. Local Wrangler bundle dry run and `git diff --check` pass. No runtime or full-suite/typecheck acceptance is claimed.
+
+- 2026-10-25 rollout checkpoint: PR #398 merged as `1513225f87cad5c32b0adc579ff4525fc7e0a97e`. Atlas correction is three generated fingerprints only; Atlas tests pass 19/19 and generator check passes. The initial full-core run was interrupted after the time allowance, with one concrete Atlas failure and four cancellations; it is not a full release result. Focused169 and isolated workerd9 remain source/local evidence. No version upload, traffic change, binding enrollment or live decision has occurred in this rollout.
