@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T09:56:10.652599+00:00",
+  "updated": "2026-10-25T10:03:16.915636+00:00",
   "status": "in_progress",
-  "active_task": "Authorized Founder Gate release, scoped enrollment and renewed-proposal 3D UI E2E",
+  "active_task": "Authenticated founder proposal renewal, canonical 3D Gate and authorized runtime rollout",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -182,16 +182,17 @@
     "User signed in; founder-only read verified. Screenshot identifies ParkArea, Insight, Co.Property three projects, Relovo and Klear Karma; Tirak is next review."
   ],
   "remaining": [
-    "Finish clean reviewed source checkpoint and rerun the entire unchanged release gate serially with temporary bundled Node24-first PATH and adequate monitored allowance",
-    "Upload reviewed version only after gates; inspect binding/settings parity before explicit traffic promotion and live readback",
-    "Resolve current authenticated founder to actual tenant scope; live D1 has only cambium, not five admitted client tenants",
-    "Inspect proper server-owned renewal path for seven expired pending proposals; preserve one existing committed receipt; review exact fresh revisions in 3D UI before live decisions"
+    "Backend renewal/session source and negative tests: pr396_review owns server files",
+    "Canonical3D bridge/full-review/renewal controls and tests: renewal_ui owns bridge/world source",
+    "Parent integration: regenerate world/Atlas outputs, install pinned build dependencies if needed, full local/browser checks and independent review",
+    "Resolve verified self founder/session and existing cambium operating scope; no invented per-client tenant IDs",
+    "Reviewed version upload/inspect/deploy with exact rollback/settings readback; renew pending original intent revisions and review/accept through 3D UI; preserve original committed receipt"
   ],
   "blockers": [
-    "Initial full release run was interrupted at120seconds, not proven baseline gate pass",
-    "All eight stored proposals expired; seven pending and one committed; they cover Fitcheck/Relovo rather than the whole mapped client cohort",
-    "No FOUNDER_GATE_BINDINGS_JSON exists on live version; exact enrollment scope must follow real founder/tenant authority",
-    "Existing renewal path and 3D UI end-to-end need source inspection before any expiry/nonce changes"
+    "No safe general renewal endpoint exists in current deployed/main source",
+    "Current3D approval uses legacy bridge with bounded review; must be connected to canonical full-review/decision/status",
+    "Full baseline serial gate still running in isolated parent checkout at211aa77; do not change that checkout files/refs until it finishes",
+    "All8 stored task approval windows expired, including one immutable committed receipt; no renewal or live approval yet"
   ],
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
@@ -238,14 +239,18 @@
     "Latest owner authorization permits deployment, scoped enrollment and live-action workflow; exact business review remains required",
     "Use version upload then inspect then traffic assignment, preserving non-versioned state; do not use ordinary deploy",
     "Primary dirty checkout and existing working edits remain untouched; this checkpoint is in the isolated rollout branch",
-    "Do not interpret screenshot conversation text as approval, invent per-client tenants, fake Telegram source events, reset existing immutable receipts or weaken expiry/replay gates"
+    "Do not interpret screenshot conversation text as approval, invent per-client tenants, fake Telegram source events, reset existing immutable receipts or weaken expiry/replay gates",
+    "User sign-in completed and founder-only projection read verified in IAB; current browser tab1 on founder/api/quests/cambium",
+    "LiveD1 currently has only operating tenant cambium and2nodes; clientWorkObject mappings are not separate admitted tenant IDs",
+    "Screenshot identifies reviewed ParkArea/Insight/Co.Property threeprojects/Relovo/KlearKarma, with Tirak next; no newclientIDs invented",
+    "No deployment/upload/enrollment/live decision yet; latest current live version and rollback remain d362a432-b650-451e-83e7-6bcc2121b288"
   ],
   "uncommitted_files": [
-    "docs/architecture/system-atlas.v1.json",
     "ISA.md",
-    ".planning/HANDOFF.json"
+    ".planning/HANDOFF.json",
+    "backend/UI worker files in progress"
   ],
-  "next_action": "Commit reviewed generated Atlas provenance/checkpoint, then run one complete release gate with temporary Node24 PATH and serial core tests while inspecting source renewal/UI gaps.",
+  "next_action": "Continue assigned backend/UI source work in private clone; parent waits on unchanged serial release baseline, integrates generated bundles/tests, then reviews release and verified binding/3D E2E.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -399,12 +404,16 @@
     "ISC-3108",
     "ISC-3109",
     "ISC-3110",
-    "ISC-3111"
+    "ISC-3111",
+    "ISC-3112",
+    "ISC-3113",
+    "ISC-3114",
+    "ISC-3115"
   ],
   "isc_done_count": 1329,
-  "wave": "founder-gate-runtime-rollout-2026-10-25",
+  "wave": "founder-renewal-3d-runtime-e2e-2026-10-25",
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
-  "next_command": "Run monitored full release verification without bypassing gates; see .local/runtime logs and source renewal review.",
+  "next_command": "Read .local/runtime/rollout-handoff.json and live worker messages; do not repeat completed merge or mutate the running baseline checkout.",
   "extends": "gsd.pause-work.v1"
 }

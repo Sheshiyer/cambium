@@ -3331,3 +3331,12 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - ISC-3105..3106: before/after Access/SQLite proof — recovery regressions fail against merged #396 and all five pass after the guard fix; broader focused suites pass 68/68 and selected handler tests pass 101/101. Independent canonical/recovery selection passes 17/17. Local Wrangler bundle dry run and `git diff --check` pass. No runtime or full-suite/typecheck acceptance is claimed.
 
 - 2026-10-25 rollout checkpoint: PR #398 merged as `1513225f87cad5c32b0adc579ff4525fc7e0a97e`. Atlas correction is three generated fingerprints only; Atlas tests pass 19/19 and generator check passes. The initial full-core run was interrupted after the time allowance, with one concrete Atlas failure and four cancellations; it is not a full release result. Focused169 and isolated workerd9 remain source/local evidence. No version upload, traffic change, binding enrollment or live decision has occurred in this rollout.
+
+### 2026-10-25 continuation: authenticated renewal and 3D E2E
+
+The owner has now explicitly requested fresh renewal of expired pending proposals and approval through the existing 3D world UI. Seven pending records are expired; one record already has an immutable committed receipt. Existing general renewal is absent, so fresh revisions must preserve original lineage and recompile against the current D1 head; original decision rows and source events cannot be rewritten or fabricated. The 3D bridge currently uses legacy Gate with bounded review, so canonical full-review/status handling is part of this authorized implementation. This work is isolated in a private clone while the unchanged release baseline runs elsewhere.
+
+- [ ] ISC-3112: Authenticated renewal produces an idempotent new pending revision with original lineage and fresh current-head tuple, without any D1 decision or execution.
+- [ ] ISC-3113: Renewal refuses changed/unbound/decided/conflicting original proposals and cannot fake new source messages or rewrite original records.
+- [ ] ISC-3114: 3D Gate displays the full canonical review and sends one exact informed decision; uncertain outcomes use original-tuple status readback only.
+- [ ] ISC-3115: Real signed-in 3D UI renewal/decision flow yields authoritative D1 readback after reviewed release and exact founder/tenant enrollment.
