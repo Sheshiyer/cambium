@@ -59,7 +59,7 @@ export function createFounderAccessHost(deps: {
       // Evidence candidates and other intake types keep their existing flow.
       if (!task || task.schema !== 'cambium.goal-graph-intake-task.v1' || task.candidate
           || task.tenantId !== key.tenantId || task.changeDigest !== key.changeDigest
-          || !['pending', 'committed', 'rejected'].includes(String(task.status))
+          || !['pending', 'committed', 'rejected', 'stale'].includes(String(task.status))
           || !Number.isInteger(task.intentVersion) || Number(task.intentVersion) < 1) return null;
       const review = deps.reviewTask(task);
       const inspect = review?.founderInspect as Record<string, unknown> | undefined;
@@ -71,6 +71,15 @@ export function createFounderAccessHost(deps: {
           || typeof review.approvalNonce !== 'string' || typeof review.approvalExpiresAt !== 'string') return null;
       const { changeDigest: _digest, isNoop: _noop, ...digestInput } = changeSet;
       if (sha256(digestInput) !== key.changeDigest.replace(/^sha256:/, '')) return null;
+      // A legacy retry may mark KV stale after the canonical D1 write won.
+      // Recover that immutable outcome only; stale KV never admits a new decision.
+      if (task.status === 'stale') {
+        const receipt = await store.readDecisionReceipt(key.tenantId, key.changeDigest, review.approvalNonce);
+        if (!receipt || receipt.tenant_id !== key.tenantId || receipt.change_digest !== key.changeDigest
+            || receipt.nonce !== review.approvalNonce || receipt.intent_version !== task.intentVersion
+            || receipt.approver_id !== context.founderId || receipt.expires_at !== review.approvalExpiresAt
+            || !['approved', 'rejected'].includes(receipt.decision)) return null;
+      }
       return {
         id, tenantId: key.tenantId, founderId: context.founderId, version: Number(task.intentVersion),
         changeSet, nonce: review.approvalNonce, expiresAt: review.approvalExpiresAt,

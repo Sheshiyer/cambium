@@ -33,6 +33,8 @@ The CLI independently recomputes the exact confirmation from the complete displa
 
 The existing public pending list, founder decision history and internal Telegram Gate list now derive supported proposal decisions from D1 receipts, even when the KV task remains pending. Read paths do not repair KV or submit another decision. Stored ledger pending rows are discarded before deriving the fresh list; an unavailable or inconsistent D1 read cannot advertise an actionable pending proposal. Evidence candidates retain their existing projection rules.
 
+A legacy approval retry can still return HTTP 409 and mark its KV task stale after a canonical decision has committed. Canonical proposal/status reads and idempotent decision recovery now remain available for that stale task only if D1 holds the exact existing receipt for the verified founder, tenant, digest, intent version, nonce and expiry. Full stored-review and change-set validation still applies. Missing or mismatched receipts remain forbidden; unavailable D1 remains unknown/503. Recovery returns the original receipt, including after expiry, without another decision write or KV repair. Stale tasks without a receipt cannot obtain new decision authority.
+
 The service checks expiry again after reading the graph head and gives either writer one consistent decision timestamp. D1 rejects a first rejection at or beyond expiry. Existing immutable decisions remain readable after their approval window closes.
 
 ## Runtime prerequisites remaining

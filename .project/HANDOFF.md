@@ -2631,3 +2631,12 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - D1 remains the sole writer. Projection reads perform no KV repairs or business decisions; unavailable D1 cannot advertise an actionable pending row. Exact confirmation, identity/tenant, CSRF, atomic opposite-decision conflict and status-only recovery remain intact.
 - Focused source suites pass 68/68; selected founder/Goal Graph/in-world/growth handler tests pass 96/96; independent client/service/store rerun passes 40/40. Negative regressions failed before fixes. Local Wrangler bundle dry run and diff whitespace checks pass; the owner handoff's full-suite/typecheck and runtime acceptance caveats remain.
 - Keep PR #396 draft. No deploy, binding enrollment, credentials/policy change or live action is authorized or performed. Runtime prerequisites remain in `docs/architecture/contracts/founder-gate-cli-v1.md`.
+
+
+### 2026-10-25 Legacy-retry receipt recovery follow-up
+
+- Fresh isolated branch `codex/founder-receipt-recovery` is based on current main `ddfbf87fcc4332f495d1120597a1175a5aa956eb` (merged #396). Primary working edits and prior worktrees remain untouched.
+- Reproduced canonical approval → legacy approval retry 409 / KV stale → canonical status 403 despite the original D1 receipt. The Access host now recovers stale tasks only after existing identity/tenant/review/change-set checks and exact immutable D1 receipt binding. Missing/mismatched receipts and another allowed founder remain forbidden; unavailable D1 fails closed.
+- Legacy retry may still return 409. Recovery preserves the original receipt and opposite-decision conflict, including after expiry, with zero new decision-writer calls or KV repairs. No new migration, binding or configuration is introduced; existing runtime prerequisites remain in the Founder Gate CLI contract.
+- Five regression tests cover actual retry + selected CLI recovery, approved/rejected receipt recovery after expiry, no-receipt refusal, mismatches/unavailability and another tenant-authorized founder. Focused source tests pass 68/68; selected handler tests pass 101/101; independent canonical/recovery tests pass 17/17. Local Worker bundle dry run and diff checks pass.
+- Publish for draft review only. No deployment, enrollment, credential/policy change or live business action occurred. Full-suite/typecheck and real runtime acceptance remain unclaimed.
