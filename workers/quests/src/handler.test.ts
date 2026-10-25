@@ -15509,7 +15509,7 @@ const RELOVO_ADMISSION_METADATA = {
   executionAdmissionDispatchDigest: `sha256:${'7'.repeat(64)}`,
 };
 
-function admittedGoalGraphIntent() {
+function admittedGoalGraphIntent(goal: Record<string, unknown> = {}) {
   return goalGraphIntakeIntent({
     source: { kind: 'telegram', chatId: '-100555000111', messageId: '830', updateId: '90830' },
     goal: {
@@ -15518,16 +15518,17 @@ function admittedGoalGraphIntent() {
       workObjectKind: 'branch',
       pinnedLoadoutId: 'loadout:relovo-source-audit',
       metadata: { priority: 'normal', ...RELOVO_ADMISSION_METADATA },
+      ...goal,
     },
   });
 }
 
-async function founderGateHarness() {
+async function founderGateHarness(goal: Record<string, unknown> = {}) {
   const founder = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
   const harness = goalGraphIntakeHarness({ gate: gateCfg(founder.pubKeyHex), pushToken: 't' });
   const pushed = await handle(req('POST', '/internal/ledger/cambium', { headers: { authorization: 'Bearer t' }, body: ENVELOPE }), harness.deps);
   assert.equal(pushed.status, 200);
-  const intake = await postGoalGraphIntake('bridge', admittedGoalGraphIntent(), harness.deps);
+  const intake = await postGoalGraphIntake('bridge', admittedGoalGraphIntent(goal), harness.deps);
   assert.equal(intake.status, 200);
   assert.equal(body(intake).accepted, true);
   return { ...harness, initData: founder.initData, changeDigest: String(body(intake).changeDigest) };
@@ -16682,6 +16683,62 @@ test('in-world gate · the founder read lights only the stages live state proves
 
   const publicRead = await handle(req('GET', '/api/quests/cambium'), deps);
   assert.doesNotMatch(publicRead.body, /goalGraphDecisions|cambium\.goal-graph-path\.v1/);
+});
+
+test('in-world gate · Proof→Cortex lights only when the foldback reads back an owner-attested accepted work unit', async () => {
+  const { acceptedReceiptDigest } = await import('./accepted-work-unit-attestation.ts');
+  // The live Relovo intent committed an active node; foldback only binds active nodes.
+  const { kv, deps, initData, changeDigest } = await founderGateHarness({ status: 'active' });
+  assert.equal((await postGate(deps, { kind: 'approve-goal-graph', subject: changeDigest, initData })).status, 200);
+  kv.store.set('bridge:dir:shesh:directive:relovo-source-audit-001', JSON.stringify({ id: 'directive:relovo-source-audit-001' }));
+  const node = (await deps.goalGraphStore!.readNodes('cambium'))[0];
+  const inputDigest = `sha256:${'3'.repeat(64)}`;
+  const unit = { schema: 'temperance.accepted-work-unit.v1', contractId: 'c'.repeat(64), domain: 'local-source-verification',
+    binding: { taskId: node.externalId ?? node.nodeId, goalId: node.nodeId, workObjectId: node.workObjectId, executionInputDigest: inputDigest },
+    taskAccepted: true, wholeLifecycleAccepted: false, productionCambiumAdmission: false } as const;
+  const terminalProofDigest = await acceptedReceiptDigest(unit);
+  const foldbackKey = `portfolio/thoughtseed/workobjects/${node.workObjectId}/foldback/exec-relovo-1.json`;
+  const reads: string[] = [];
+  const foldbackReader = (read: (key: string) => unknown = () => ({
+    receiptId: 'receipt-relovo-1', contentDigest: `sha256:${'4'.repeat(64)}`, edges: [], nextIntent: { proposal: true }, cortex: { projected: true },
+    node: { kind: 'receipt', id: 'receipt-relovo-1', value: { evidenceRefs: [] } },
+    receipt: { execution: { status: 'executed', inputDigest, terminalProofDigest } },
+  })) => ({
+    async discover(binding: { goalGraph: { workObjectId: string } }) { return binding.goalGraph.workObjectId === node.workObjectId ? [foldbackKey] : []; },
+    async read(key: string) { reads.push(key); return read(key); },
+  }) as unknown as NonNullable<Parameters<typeof handle>[1]['foldbackReader']>;
+  const readback = (receipt: unknown = unit) => ({ source: 'owner-readback' as const, async readAcceptedWorkUnit() { return receipt as never; } });
+  const executed = { readDirectiveProgress: async () => ({ claimed: true, terminal: true, outcome: 'executed' as const }) } as unknown as NonNullable<Parameters<typeof handle>[1]['executionStore']>;
+  const reached = async (overrides: Partial<Parameters<typeof handle>[1]>) => {
+    const read = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': initData } }), { ...deps, ...overrides });
+    return JSON.parse(read.body).goalGraphDecisions.rows[0].reached;
+  };
+
+  const learned = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-telegram-init-data': initData } }),
+    { ...deps, executionStore: executed, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback() });
+  const decisions = JSON.parse(learned.body).goalGraphDecisions;
+  assert.equal(decisions.rows[0].reached, 'learning');
+  assert.deepEqual(Object.keys(decisions.rows[0]).sort(), ['changeDigest', 'decidedAt', 'decision', 'nodeId', 'placement', 'reached', 'title']);
+  assert.doesNotMatch(JSON.stringify(decisions), /shesh|directive|runner|exec-relovo|att_|accepted-work-unit|sha256:3/, 'no member, directive, runner or proof identifiers');
+  assert.ok(reads.includes(foldbackKey), 'learning is read from the immutable foldback, not inferred');
+
+  // Every missing or unproven seam keeps the last proven stage.
+  assert.equal(await reached({ executionStore: executed, foldbackReader: foldbackReader() }), 'receipt', 'no owner readback');
+  assert.equal(await reached({ executionStore: executed, acceptedWorkUnitReadback: readback() }), 'receipt', 'no foldback reader');
+  assert.equal(await reached({ executionStore: executed, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback(null) }), 'receipt', 'no accepted work unit');
+  assert.equal(await reached({ executionStore: executed, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback({ ...unit, taskAccepted: false }) }), 'receipt', 'a rejected unit');
+  assert.equal(await reached({ executionStore: executed, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback({ ...unit, binding: { ...unit.binding, goalId: 'goal_other' } }) }), 'receipt', 'another goal');
+  assert.equal(await reached({ executionStore: executed, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback({ ...unit, binding: { ...unit.binding, executionInputDigest: `sha256:${'f'.repeat(64)}` } }) }), 'receipt', 'another dispatch input');
+  assert.equal(await reached({ executionStore: executed, foldbackReader: foldbackReader(() => { throw new Error('r2 down'); }), acceptedWorkUnitReadback: readback() }), 'receipt', 'an unreadable foldback');
+  assert.equal(await reached({ executionStore: executed, foldbackReader: foldbackReader(() => ({ receiptId: 'receipt-relovo-1', contentDigest: `sha256:${'4'.repeat(64)}`, edges: [], nextIntent: { proposal: true },
+    node: { kind: 'receipt', id: 'receipt-relovo-1', value: { evidenceRefs: [] } }, receipt: { execution: { status: 'executed', inputDigest, terminalProofDigest } } })), acceptedWorkUnitReadback: readback() }), 'receipt', 'no cortex projection');
+  assert.equal(await reached({ executionStore: executed, goalGraphStore: undefined, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback() }), 'receipt', 'no D1 graph');
+  // Acceptance never skips a stage: without an executed terminal receipt nothing past it lights.
+  const claimedOnly = { readDirectiveProgress: async () => ({ claimed: true, terminal: false, outcome: null }) } as unknown as NonNullable<Parameters<typeof handle>[1]['executionStore']>;
+  assert.equal(await reached({ executionStore: claimedOnly, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback() }), 'runner-claimed');
+
+  const publicRead = await handle(req('GET', '/api/quests/cambium'), { ...deps, executionStore: executed, foldbackReader: foldbackReader(), acceptedWorkUnitReadback: readback() });
+  assert.doesNotMatch(publicRead.body, /goalGraphDecisions|"learning"/);
 });
 
 test('in-world gate · a founder rejection is a path with nothing past the Gate', async () => {

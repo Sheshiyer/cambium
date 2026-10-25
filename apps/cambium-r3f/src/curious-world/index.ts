@@ -342,7 +342,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     const stages = latest.decision === 'rejected'
       ? [{ label: 'Rejected · the goal graph was not written', done: true }]
       : [['committed', 'Committed to the goal graph'], ['directive-queued', 'Directive queued for Hermes'],
-        ['runner-claimed', 'Runner claimed the work'], ['receipt', 'Receipt landed']]
+        ['runner-claimed', 'Runner claimed the work'], ['receipt', 'Receipt landed'], ['learning', 'Accepted work folded into the cortex']]
         .map(([stage, label], index, all) => ({ label, done: latest.reached !== null && all.findIndex(item => item[0] === latest.reached) >= index }));
     const list = element('ol', 'cw-gate-path-stages');
     for (const stage of stages) {
