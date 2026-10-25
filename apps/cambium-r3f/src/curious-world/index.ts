@@ -528,7 +528,10 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       const outcome=await bridge.readDecision(digest);
       const decision=normalizeGateDecision(outcome.decision);
       if(decision && decision.receipt.changeDigest===digest){rememberDecision(decision);uncertainDecisions.delete(digest);failedDecisionReads.delete(digest);decisionMessages.delete(digest);}
-      else {decisionMessages.set(digest,outcome.message || 'No canonical decision has been confirmed. Do not resubmit.');failedDecisionReads.add(digest);}
+      else if(outcome.outcome==='pending') {
+        failedDecisionReads.delete(digest);
+        decisionMessages.set(digest,'Canonical status read is pending. No recorded decision is available yet; keep checking the original status.');
+      } else {decisionMessages.set(digest,outcome.message || 'No canonical decision has been confirmed. Do not resubmit.');failedDecisionReads.add(digest);}
     } catch {failedDecisionReads.add(digest);decisionMessages.set(digest,'Original status could not be read. No decision was resubmitted.');}
     finally {checkingDecisions.delete(digest);if(!disposed && gateDigest===digest)renderGate();}
   }

@@ -58,3 +58,15 @@ test('unknown chamber has only an explicit original-status read and no retry or 
  const checking=renderDecisionChamber(document,{...state(null),checking:true},{checkStatus(){checked++;},returnWorld(){},openJournal(){}}) as unknown as Node;
  assert.equal(checking.all().find(node=>node.tag==='button')!.disabled,true);
 });
+
+test('successful pending status stays unconfirmed with a verified connection and status-only controls',()=>{
+ let checks=0;const root=renderDecisionChamber(document,{...state(null),connection:'read',statusMessage:'Canonical status read is pending. No recorded decision is available yet; keep checking the original status.'},{checkStatus(){checks++;},returnWorld(){},openJournal(){}}) as unknown as Node;
+ const nodes=root.all(),connection=nodes.find(node=>node.className==='cw-chamber-connection')!;
+ assert.equal(root.dataset.confirmed,'false');assert.equal(connection.dataset.connection,'read');
+ assert.match(connection.textContent,/projection verified.*decision remains unconfirmed/);
+ assert.ok(!nodes.some(node=>/connection unavailable|review again before deciding/i.test(node.textContent)));
+ assert.ok(nodes.some(node=>node.textContent.includes('Canonical status read is pending')));
+ const buttons=nodes.filter(node=>node.tag==='button');assert.equal(buttons[0].textContent,'Check original status');buttons[0].listeners.click();assert.equal(checks,1);
+ assert.ok(!buttons.some(node=>/approve|reject|renew|resubmit/i.test(node.textContent)));
+ assert.ok(nodes.filter(node=>node.tag==='li' && 'observed' in node.dataset).every(node=>node.dataset.observed==='false'));
+});
