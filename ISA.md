@@ -365,6 +365,11 @@ Implementation acceptance evidence:
   learned: Derive pending suppression and history from D1 and discard old stored projections before rebuilding current rows.
   criterion now: ISC-3101 verifies settled, stale-KV/stored-envelope and unavailable-authority cases without extra decisions or KV writes.
 
+- 2026-10-25 | conjectured: The completed D1 projection fixes in #396 also preserved canonical receipt recovery after a legacy retry.
+  refuted by: The Access/SQLite reproduction committed an approval, observed the legacy retry mark KV stale with 409, then received 403 from canonical status despite one approved D1 row.
+  learned: A projection status must not conceal an exact immutable receipt; stale recovery requires positive D1 proof rather than broad stale-task admission.
+  criterion now: ISC-3105 and ISC-3106 cover actual retry recovery and fail-closed negative cases without new writes.
+
 ## Verification, deployment, and release
 
 - [x] ISC-53: Focused Worker handler tests exit zero.
@@ -1786,6 +1791,11 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-3103: The CLI independently binds the complete displayed review and its descriptor to the exact confirmation.
 - [x] ISC-3104: Explicit historical null channel attribution remains readable without inventing attribution.
 
+### Legacy-retry receipt recovery follow-up (2026-10-25)
+
+- [x] ISC-3105: An actual legacy retry that marks KV stale cannot hide the same founder's existing D1 receipt from canonical proposal, status, CLI or idempotent decision recovery, including after expiry.
+- [x] ISC-3106: Anti: stale receipt recovery cannot invoke a new decision writer or transfer authority through missing/mismatched receipts, another allowed founder, or unavailable D1.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -1982,6 +1992,8 @@ ISC-3040..3071 use staged-path/hash readback, canonical13release gates, affected
 - ISC-3088..3099 | local service/client integration | `canonical founder` handler tests plus focused CLI/decision/store/Access/growth suites | all pass | node:test; prerequisite contract readback.
 
 - ISC-3100..3104 | adversarial source regressions | focused CLI/service/store/Access/growth and selected handler tests | all pass | node:test.
+
+- ISC-3105..3106 | Access/SQLite integration | `legacy receipt recovery` handler selection plus focused source regressions | all pass | node:test.
 
 ## Features
 
@@ -2412,6 +2424,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-10-24: refined: Founder Gate follow-up is source-only on merged #395 in an isolated checkout. Keep CLI as selected client; full stored delta must be visible as well as fingerprint-bound. New Access founder/tenant enrollment and live publication/decisions remain separately approved. Native server adapter remains bounded; delegated CLI and independent review avoid touching primary working edits.
 
 - 2026-10-24: refined: PR #396 review keeps draft/source scope; existing UI and Telegram projections must derive the canonical D1 outcome without relying on KV repair. CLI review binding and canonical evidence markers are verified independently; first expired rejections fail closed while historical readback remains available.
+
+- 2026-10-25: refined: KV stale status cannot veto an existing immutable D1 receipt. Permit recovery only after all existing identity, tenant, review and change-set checks plus exact receipt binding; keep stale tasks without matching receipts closed. The legacy endpoint can retain its 409 and KV projection; no writer/repair is added.
 
 ## Changelog
 
@@ -3305,3 +3319,5 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.
 
 - ISC-3100..3104: source regression proof — 68/68 focused CLI/service/store/Access/growth tests and 96/96 selected handler tests pass; independent CLI/service/store rerun 40/40 passes. Wrangler 4.124.0 local bundle dry run and `git diff --check` pass. Negative reproductions failed before their fixes. Full-suite/typecheck/live acceptance remain unclaimed.
+
+- ISC-3105..3106: before/after Access/SQLite proof — recovery regressions fail against merged #396 and all five pass after the guard fix; broader focused suites pass 68/68 and selected handler tests pass 101/101. Independent canonical/recovery selection passes 17/17. Local Wrangler bundle dry run and `git diff --check` pass. No runtime or full-suite/typecheck acceptance is claimed.

@@ -16955,3 +16955,117 @@ test('canonical founder · review fix: stored pending projection cannot survive 
     assert.equal(body(read).goalGraphIntake, undefined);
   }
 });
+
+async function legacyReceiptRecoveryHarness(decision = 'approved') {
+  const h = await canonicalFounderHarness();
+  const input = canonicalDecision(body(h.read), decision);
+  const settled = await h.call('decision', input);
+  assert.equal(body(settled).status, decision);
+  const key = `goal-graph-intake-task:cambium:${h.changeDigest}`;
+  if (decision === 'approved') {
+    const retry = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: h.changeDigest }, founderWebHeaders(), h.deps);
+    assert.equal(retry.status, 409, retry.body);
+    assert.equal(JSON.parse(h.kv.store.get(key)!).status, 'stale');
+  } else {
+    // An outdated projection must not conceal an immutable rejection either.
+    h.kv.store.set(key, JSON.stringify({ ...JSON.parse(h.kv.store.get(key)!), status: 'stale' }));
+  }
+  let writes = 0;
+  const commit = h.deps.goalGraphStore.commit, reject = h.deps.goalGraphStore.reject;
+  h.deps.goalGraphStore.commit = async (...args) => { writes++; return commit(...args); };
+  h.deps.goalGraphStore.reject = async (...args) => { writes++; return reject(...args); };
+  return { ...h, key, input, settled: body(settled), writes: () => writes };
+}
+
+test('canonical founder · legacy receipt recovery preserves original receipt after retry marks KV stale', async () => {
+  const h = await legacyReceiptRecoveryHarness();
+  const staleTask = h.kv.store.get(h.key);
+  for (const route of ['status', 'decision']) {
+    const response = await h.call(route, h.input);
+    assert.equal(response.status, 200, response.body);
+    assert.equal(body(response).status, 'approved');
+    assert.equal(body(response).receiptDigest, h.settled.receiptDigest);
+  }
+  const review = await h.call('proposal', { proposalId: h.proposalId });
+  assert.equal(review.status, 200, review.body);
+  assert.equal(body(review).approveConfirmation, h.input.confirmation);
+  // The selected CLI reaches the same receipt, without another decision call.
+  const client = createFounderClient({ origin: `https://${FOUNDER_WEB_HOST}`, tenant: 'cambium', accessJwt: founderWebJwt(),
+    fetchImpl: async (url: URL, init: RequestInit) => {
+      assert.notEqual(url.pathname, '/v1/founder/decision');
+      const result = await handle(req(init.method!, url.pathname, { headers: { ...init.headers as Record<string, string>, host: FOUNDER_WEB_HOST }, body: init.body as string }), h.deps);
+      return new Response(result.body, { status: result.status, headers: result.headers });
+    },
+  });
+  assert.equal((await client.status(h.changeDigest)).receiptDigest, h.settled.receiptDigest);
+  assert.equal(h.writes(), 0);
+  assert.equal(h.kv.store.get(h.key), staleTask, 'recovery never rewrites the task projection');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 1);
+});
+
+test('canonical founder · legacy receipt recovery preserves approved and rejected receipts after expiry', async () => {
+  for (const decision of ['approved', 'rejected']) {
+    const h = await legacyReceiptRecoveryHarness(decision);
+    h.deps.now = () => h.input.expiresAt;
+    const status = await h.call('status', h.input);
+    assert.equal(status.status, 200, status.body);
+    assert.equal(body(status).receiptDigest, h.settled.receiptDigest);
+    const opposite = canonicalDecision(body(h.read), decision === 'approved' ? 'rejected' : 'approved');
+    const conflict = await h.call('decision', opposite);
+    assert.equal(conflict.status, 409, conflict.body);
+    assert.equal(body(conflict).status, 'conflict');
+    assert.equal(body(conflict).receiptDigest, h.settled.receiptDigest);
+    assert.equal(h.writes(), 0);
+    assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  }
+});
+
+test('canonical founder · legacy receipt recovery cannot authorize a stale task without a decision', async () => {
+  const h = await canonicalFounderHarness();
+  const key = `goal-graph-intake-task:cambium:${h.changeDigest}`;
+  h.kv.store.set(key, JSON.stringify({ ...JSON.parse(h.kv.store.get(key)!), status: 'stale' }));
+  for (const route of ['proposal', 'status', 'decision']) {
+    const response = await h.call(route, route === 'proposal' ? { proposalId: h.proposalId } : canonicalDecision(body(h.read)));
+    assert.equal(response.status, 403, response.body);
+  }
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 0);
+});
+
+test('canonical founder · legacy receipt recovery refuses mismatched receipts and unavailable D1', async () => {
+  const h = await legacyReceiptRecoveryHarness();
+  const read = h.deps.goalGraphStore.readDecisionReceipt;
+  const original = await read('cambium', h.changeDigest, h.input.nonce);
+  assert.ok(original);
+  for (const change of [
+    { tenant_id: 'other' }, { change_digest: 'f'.repeat(64) }, { nonce: 'other' },
+    { intent_version: 99 }, { approver_id: 'other-founder' }, { expires_at: '2027-01-01T00:00:00.000Z' },
+    { decision: 'pending' },
+  ]) {
+    h.deps.goalGraphStore.readDecisionReceipt = async () => ({ ...original!, ...change } as any);
+    assert.equal((await h.call('status', h.input)).status, 403);
+    assert.equal((await h.call('decision', h.input)).status, 403);
+  }
+  h.deps.goalGraphStore.readDecisionReceipt = async () => { throw Error('D1 unavailable'); };
+  assert.equal((await h.call('status', h.input)).status, 503);
+  assert.equal((await h.call('decision', h.input)).status, 503);
+  h.deps.goalGraphStore.readDecisionReceipt = read;
+  assert.equal(h.writes(), 0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+});
+
+test('canonical founder · legacy receipt recovery cannot transfer a receipt to another allowed founder', async () => {
+  const h = await legacyReceiptRecoveryHarness();
+  // Resolve a different active admin through the real verifier, with an explicit
+  // binding to the same tenant. Tenant access still cannot claim this receipt.
+  for (const key of h.kv.store.keys()) if (key.startsWith('plexus:whoami:')) h.kv.store.delete(key);
+  h.deps.plexusFetchImpl = founderWebWhoami({ ...FOUNDER_SESSION, identityId: 'other-founder' });
+  h.deps.founderGateBindingsJson = JSON.stringify([{ founderId: 'access:other-founder', tenantId: 'cambium' }]);
+  for (const route of ['proposal', 'status', 'decision']) {
+    const result = await h.call(route, route === 'proposal' ? { proposalId: h.proposalId } : h.input);
+    assert.equal(result.status, 403, result.body);
+  }
+  assert.equal(h.writes(), 0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+});
