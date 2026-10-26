@@ -1,3 +1,7 @@
+## Local cited-text integration — 26 October 2026
+
+Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
+
 # Project handoff
 
 ### 2026-10-26 worktree and branch reconciliation — one working head
