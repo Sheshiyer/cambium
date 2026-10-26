@@ -1,0 +1,12 @@
+.onboarding-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 16px; background: rgba(3, 12, 17, .88); color: #eef5ef; }
+.onboarding-card { width: min(100%, 560px); box-sizing: border-box; max-height: calc(100dvh - 32px); overflow: auto; padding: clamp(20px, 4vw, 36px); border: 1px solid #76938b; border-radius: 18px; background: #10242a; box-shadow: 0 24px 80px #0008; font: 16px/1.6 system-ui, sans-serif; }
+.onboarding-preview, .onboarding-kicker { display: block; color: #bfeacb; font-size: 12px; letter-spacing: .08em; }
+.onboarding-context, .onboarding-progress, .onboarding-help { display: block; font-size: 13px; color: #c5d8d5; }
+.onboarding-step h1 { font-size: clamp(24px, 5vw, 32px); line-height: 1.2; margin: 12px 0; }
+.onboarding-boundary { border-left: 3px solid #bfeacb; padding-left: 12px; font-size: 14px; }
+.onboarding-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.onboarding-actions button { min-height: 44px; padding: 8px 14px; border: 1px solid #94b8ac; border-radius: 8px; background: #18363d; color: #eef5ef; font: inherit; cursor: pointer; }
+.onboarding-actions .onboarding-advance { background: #c6ebce; color: #10242a; }
+.onboarding-actions button:disabled { opacity: .5; cursor: default; }
+.onboarding-card:focus-visible, .onboarding-actions button:focus-visible { outline: 3px solid #f8d686; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .onboarding-backdrop, .onboarding-backdrop * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
