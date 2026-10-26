@@ -2567,3 +2567,10 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 - Preserved main privacy/authority corrections; curated transport evidence excludes raw logs/contact records and redacts personal reply addresses. Publish a fresh single-commit tree on main rather than the recovery checkpoint ancestry.
 - Restored the committed eight-topic Hermes pin; uncommitted Adytum topic remains an upstream hold. PAGE digest exactly matches the historical viewport receipt; no new visual capture or human acceptance claimed.
 - Targeted tests and privacy/drift/render/compose checks pass. Full-suite receipt belongs in the local review-ready handoff after the source commit. Phase 9 collector implementation and authenticated inventory remain incomplete under the existing executable plan; no Cloudflare/runtime/delivery/retirement action was performed.
+
+### 2026-10-25 reviewed portfolio membership — isolated local proposal
+
+- Base `37309d4c1a5690123680924e40c731e6a4b42c72`; six-area audit: `docs/project-management/2026-10-25-reviewed-repository-membership-reconciliation.md`.
+- Existing operational registry and Workbench intake preserve full membership separately from one planning authority; new action evidence carries the set. Legacy singular payloads and historic catalog/receipt bytes are unchanged.
+- Tirak pending roles remain unreviewed. Relovo evidence is retained but base action catalog has no entry; no identity/tenant invented.
+- Local tests/build only. Consumer readback, publication, admission, execution and independent acceptance remain unverified. User's dirty Gate checkout untouched.

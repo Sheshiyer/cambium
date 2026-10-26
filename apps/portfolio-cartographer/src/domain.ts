@@ -1,3 +1,5 @@
+import { reviewedRepositoryComponentsFor, repositoryComponentsForIntake, validateIntakeRepositoryComponents } from '../../../shared/operational-packet-registry.ts'
+import type { OperationalRepositoryComponent } from '../../../shared/operational-packet-projection.ts'
 import {
   RAW_CLASSIFICATION_REVIEW,
   RAW_HISTORICAL_PRODUCTS,
@@ -160,6 +162,7 @@ export interface WorkbenchInput {
 export interface PortfolioReconciliation {
   workObjectId: string
   repositorySourceRef: string | null
+  repositoryComponents?: readonly OperationalRepositoryComponent[]
   repositoryDisposition: RepositoryDisposition
   origin: PortfolioOrigin
   clientFamilyId: string
@@ -415,7 +418,7 @@ const programs: WorkObject[] = [...RAW_PROGRAMS, ...PORTFOLIO_DISPLAY_PROPOSAL_P
     tenantId,
     accountId: accountId ?? null,
     linkedWorkIds,
-    provenance,
+    provenance: [...new Set([...provenance, ...reviewedRepositoryComponentsFor(workId).map((component) => `repo:${component.nameWithOwner}`)])],
     overlay: overlay ?? null,
     commercialReuse: commercialReuse ?? null,
   }
@@ -463,9 +466,36 @@ export const ACTIVE_INDEX_DISPOSITIONS: readonly ActiveIndexDisposition[] = ['re
 
 const workById = new Map(WORK_OBJECTS.map((work) => [work.workId, work]))
 const reviewById = new Map(REVIEW_RECORDS.map((record) => [record.canonicalId, record]))
-const repositoryEvidenceBySourceRef = new Map<string, (typeof REPOSITORY_EVIDENCE)[number]>(
-  REPOSITORY_EVIDENCE.map((record) => [record.sourceRef, record]),
-)
+interface IntakeRepositoryEvidence {
+  sourceRef: string
+  status: 'resolved' | 'unverified' | 'ambiguous' | 'unmatched' | 'malformed' | 'unsafe'
+  matchMethod: 'relocation-registry' | 'qualified-name' | 'unique-name' | null
+  stableId: string | null
+  fullName: string | null
+  sourcePath: string | null
+  url: string | null
+  repositoryId: string | null
+  nodeId: string | null
+  visibility: 'PUBLIC' | 'PRIVATE' | 'INTERNAL' | null
+  defaultBranch: string | null
+  archived: boolean | null
+  pushedAt: string | null
+  updatedAt: string | null
+  gaps: readonly string[]
+}
+export const INTAKE_REPOSITORY_EVIDENCE: readonly IntakeRepositoryEvidence[] = [
+  ...REPOSITORY_EVIDENCE,
+  ...WORK_OBJECTS.flatMap((work) => reviewedRepositoryComponentsFor(work.workId)).filter((component) =>
+    !REPOSITORY_EVIDENCE.some((record) => record.sourceRef === `repo:${component.nameWithOwner}`),
+  ).map((component): IntakeRepositoryEvidence => ({
+    sourceRef: `repo:${component.nameWithOwner}`, status: 'resolved', matchMethod: 'qualified-name',
+    stableId: null, fullName: component.nameWithOwner, sourcePath: null,
+    url: `https://github.com/${component.nameWithOwner}`, repositoryId: component.immutableRepositoryId ?? null,
+    nodeId: component.immutableRepositoryId ?? null, visibility: null, defaultBranch: null,
+    archived: null, pushedAt: null, updatedAt: null, gaps: [],
+  })),
+]
+const repositoryEvidenceBySourceRef = new Map(INTAKE_REPOSITORY_EVIDENCE.map((record) => [record.sourceRef, record]))
 const workflowById = new Map(ORGAN_WORKFLOWS.map((workflow) => [workflow.id, workflow]))
 
 function displayAccountId(accountId: string): string {
@@ -583,6 +613,7 @@ export function defaultReconciliation(workObjectId: string): PortfolioReconcilia
   return {
     workObjectId,
     repositorySourceRef: null,
+    ...(reviewedRepositoryComponentsFor(workObjectId).length ? { repositoryComponents: repositoryComponentsForIntake(workObjectId, null) } : {}),
     repositoryDisposition: 'unmatched',
     origin: 'unknown',
     clientFamilyId: '',
@@ -691,6 +722,10 @@ export function intakeReadiness(
     blockers.push('Resolve the repository evidence attached to this WorkObject.')
   } else {
     blockers.push('Resolve an exact repository or record an explicit no-repository gap.')
+  }
+  if (reconciliation.repositoryComponents !== undefined) {
+    try { validateIntakeRepositoryComponents(reconciliation.repositoryComponents, work.workId, reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef) }
+    catch (error) { blockers.push(error instanceof Error ? error.message : 'Review full repository membership.') }
   }
   if (reconciliation.origin === 'unknown') blockers.push('Record the project origin before classification.')
   if (reconciliation.origin === 'client' && !reconciliation.clientFamilyId) {
@@ -1159,6 +1194,9 @@ function sanitizeReconciliation(value: unknown, id: string): PortfolioReconcilia
   return {
     workObjectId: id,
     repositorySourceRef,
+    ...(raw.repositoryComponents !== undefined
+      ? { repositoryComponents: validateIntakeRepositoryComponents(raw.repositoryComponents, id, planningAuthority?.kind === 'repository' ? `repo:${planningAuthority.fullName}` : repositorySourceRef, false) }
+      : {}),
     repositoryDisposition: raw.repositoryDisposition as RepositoryDisposition,
     origin,
     clientFamilyId: origin === 'client' ? normalizeClientFamilyId(String(raw.clientFamilyId ?? '')) : '',
@@ -1428,6 +1466,7 @@ export function toMarkdown(packet: ExportPacket): string {
       `### ${work.name}`,
       '',
       `- WorkObject: \`${id}\``,
+      ...(reconciliation.repositoryComponents ?? []).map((component) => `- Repository component: ${component.nameWithOwner} · ${component.lifecycle ?? "unreviewed"} · ${component.projectAssociation ?? ""} · ${component.planningAuthority ? "planning authority" : "member"}`),
       `- Repository: ${reconciliation.repositorySourceRef ? `\`${reconciliation.repositorySourceRef}\`` : '_no exact repository selected_'}`,
       `- Repository handling: **${reconciliation.repositoryDisposition}**`,
       `- Origin: **${reconciliation.origin}**`,
