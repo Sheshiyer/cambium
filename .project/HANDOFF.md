@@ -1,5 +1,13 @@
 # Project handoff
 
+### 2026-10-26 worktree and branch reconciliation — one working head
+
+- Collapsed 34 registered worktrees (22 GB) and 44 local branches to the primary checkout on `main == origin/main` (`3e334e8`), two open draft branches (#391, #397), and four local preservation branches. Local `main` had sat at `37309d4` since 2026-10-06; merge-tree against origin showed only journal lines left, so it was tagged `archive/2026-10-26/local-main` and reset. `origin/main` was not moved, no remote branch was deleted, no draft was merged.
+- Squash merges made ancestry useless, so each branch was judged by PR-head SHA equality, ancestry into a merged PR head, or blob equality of every non-journal file it changed. Eleven branches equal their merged PR head; thirty more carry `archive/2026-10-26/<name>` tags and are recorded with evidence in `docs/project-management/2026-10-26-worktree-branch-reconciliation.md`.
+- Uncommitted work was committed before any removal: the primary checkout's 123-file working tree (`wip/local-main-openai-mcp-20261017`), the curious onboarding-controller split (`wip/curious-onboarding-controller-20261013`), and the two Codex task-4 portfolio drafts (`codex/portfolio-draft-recovery-20261025`, `wip/portfolio-reconciliation-draft-20261024`). Codex-managed worktrees stayed registered.
+- Draft #391 was merged with `origin/main`; its runtime had landed via #395, leaving only evidence and runbook files. Draft #397 is untouched: one semantic conflict hunk in `curious-world/index.ts` (origin's `gateReceiptStages()`) awaits its author. `codex/iverif-fr-gtm-20260911` still holds CRM contact data on the remote and must not be merged.
+- On `main`: atlas `--check` and the privacy anchors test pass; `npm test` 2466/2467 with only the documented stale viewport fingerprint failing. No deployment, provider, credential, vault, or runtime change.
+
 ### 2026-10-25 Gate chamber deployed — PR #403 live readback
 
 - PR403 merged atf23b449; identical reviewed/tested headba23d70 is Worker4918ce0e-b8e5-4027-8c85-f49c83e1d587 at100percent. Rollback is c373b54a-e7af-4368-a39e-b4051aeb792b. All47bindings, runtime flags, globalsettings, domain and cron match before/after; no migration or enrollment change.
