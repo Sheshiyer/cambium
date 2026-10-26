@@ -5,6 +5,8 @@ import type { FounderTransportHost } from './founder-decision-transport.ts';
 import type { GoalGraphStoreLike, FounderDecisionStore } from './goal-graph-store.ts';
 import type { GoalChangeSet } from './goal-graph/types.ts';
 import { sha256 } from './goal-graph/identity.ts';
+import { growthApprovalProposalFromRecord } from './growth-approval-decision.ts';
+import type { GrowthApprovalProposal } from './growth-approval-decision.ts';
 
 const TENANT = /^[a-z][a-z0-9-]{1,63}$/;
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,239}$/;
@@ -38,6 +40,8 @@ export function createFounderAccessHost(deps: {
   now(): string;
   loadoutAuthority?: GoalGraphLoadoutAuthority;
   persistRenewal?: Parameters<typeof renewFounderProposal>[0]['persist'];
+  /** Growth approval card (B2): read the server-owned stored row proposal. Absent keeps the growth routes closed. */
+  readGrowthProposalRecord?(tenantId: string, changeDigest: string): Promise<Record<string, unknown> | null>;
 }): FounderTransportHost | undefined {
   const allowed = founderBindings(deps.bindingsJson);
   const store = deps.store as FounderDecisionStore | undefined;
@@ -138,6 +142,16 @@ export function createFounderAccessHost(deps: {
       };
     },
   };
+  if (deps.readGrowthProposalRecord) {
+    const readGrowthProposalRecord = deps.readGrowthProposalRecord;
+    host.readGrowthProposal = async (id): Promise<GrowthApprovalProposal | null> => {
+      const key = founderProposalKey(id);
+      // Same binding gate as the Goal Graph path: the request's verified founder and bound tenant only.
+      if (!context || !key || context.tenantId !== key.tenantId) return null;
+      const record = await readGrowthProposalRecord(key.tenantId, key.changeDigest);
+      return growthApprovalProposalFromRecord(record, key, context.founderId);
+    };
+  }
   host.renewProposal = async (input: FounderRenewalInput) => {
     if (!context || !deps.persistRenewal) return { status: 'unknown', writerAuthority: false };
     if (!await store.renewalFenceReady?.()) return { status: 'unknown', error: 'renewal_fence_required', writerAuthority: false };

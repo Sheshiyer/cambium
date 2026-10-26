@@ -362,7 +362,28 @@ export interface GoalGraphDecisionReceiptRow {
 export interface FounderDecisionStore extends GoalGraphStoreLike {
   reject(input: GoalGraphRejectionInput): Promise<GoalGraphRejectionResult>;
   readDecisionReceipt(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
+  /** Growth approval card receipt: one immutable row in the existing approvals table, no graph write. */
+  recordGrowthDecision?(input: GrowthDecisionReceiptInput): Promise<GrowthDecisionReceiptResult>;
 }
+/** Namespace marker inside canonical_json; a growth receipt is never a Goal Graph approval. */
+export const GROWTH_DECISION_RECEIPT_KIND = 'growth-approval';
+export interface GrowthDecisionReceiptInput {
+  tenantId: string;
+  /** sha256 of the growth row subject (cell path, calendar row id, body digest). */
+  changeDigest: string;
+  intentVersion: number;
+  approverId: string;
+  decision: 'approved' | 'rejected';
+  channel?: 'plugin' | 'curious' | 'telegram';
+  expiresAt: string;
+  nonce: string;
+  subject: { cellPath: string; calendarRowId: string; bodyDigest: string };
+  now?: string;
+}
+export type GrowthDecisionReceiptResult =
+  | { status: 'recorded' | 'duplicate'; changeDigest: string; decision: 'approved' | 'rejected'; decidedAt: string }
+  | { status: 'conflict'; changeDigest: string; code: 'already_decided' }
+  | { status: 'invalid' | 'unavailable'; changeDigest: string | null; code: string };
 export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionStore {
   async function renewalFenceReady(): Promise<boolean> {
     try { return !!await db.prepare("SELECT name FROM sqlite_master WHERE type = 'index' AND name = ?")
@@ -499,6 +520,74 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
       return { status: 'unavailable', changeDigest, code: 'decision_write_failed' };
     }
     return { status: 'rejected', changeDigest, decidedAt: now };
+  }
+
+  /**
+   * Growth approval card decision. Exactly one INSERT into goal_graph_approvals
+   * keyed by the growth row digest; it never touches heads, nodes or events,
+   * never uses a renewal root, and shares the immutable primary key so a
+   * replay or an opposite decision settles through the existing row.
+   */
+  async function recordGrowthDecision(input: GrowthDecisionReceiptInput): Promise<GrowthDecisionReceiptResult> {
+    const changeDigest = typeof input?.changeDigest === 'string' ? input.changeDigest : null;
+    const now = input?.now ?? new Date().toISOString();
+    if (!changeDigest || !DIGEST_RE.test(changeDigest)) return { status: 'invalid', changeDigest, code: 'change_digest_invalid' };
+    if (typeof input.tenantId !== 'string' || !SAFE_ID_RE.test(input.tenantId)) return { status: 'invalid', changeDigest, code: 'tenant_invalid' };
+    if (!SAFE_ID_RE.test(String(input.approverId)) || !SAFE_ID_RE.test(String(input.nonce))) return { status: 'invalid', changeDigest, code: 'decision_identity_invalid' };
+    if (!Number.isInteger(input.intentVersion) || input.intentVersion < 1) return { status: 'invalid', changeDigest, code: 'intent_version_invalid' };
+    if (input.decision !== 'approved' && input.decision !== 'rejected') return { status: 'invalid', changeDigest, code: 'decision_invalid' };
+    const subject = input.subject;
+    if (!subject || typeof subject !== 'object' || Object.keys(subject).sort().join(',') !== 'bodyDigest,calendarRowId,cellPath'
+        || [subject.cellPath, subject.calendarRowId, subject.bodyDigest].some((v) => typeof v !== 'string' || !v || v.length > 512)) return { status: 'invalid', changeDigest, code: 'subject_invalid' };
+    if (!ISO_TIMESTAMP_RE.test(now) || !ISO_TIMESTAMP_RE.test(String(input.expiresAt))
+        || !Number.isFinite(Date.parse(now)) || !Number.isFinite(Date.parse(input.expiresAt))) return { status: 'invalid', changeDigest, code: 'decision_time_invalid' };
+    const classify = async (): Promise<GrowthDecisionReceiptResult | null> => {
+      const prior = await readDecision(input.tenantId, changeDigest, input.nonce);
+      if (!prior) return null;
+      return prior.decision === input.decision
+        ? { status: 'duplicate', changeDigest, decision: input.decision, decidedAt: prior.decided_at }
+        : { status: 'conflict', changeDigest, code: 'already_decided' };
+    };
+    try {
+      const existing = await classify();
+      if (existing) return existing;
+    } catch {
+      return { status: 'unavailable', changeDigest, code: 'decision_read_failed' };
+    }
+    if (Date.parse(input.expiresAt) <= Date.parse(now)) return { status: 'invalid', changeDigest, code: 'decision_expired' };
+    const core = { tenantId: input.tenantId, changeDigest, intentVersion: input.intentVersion,
+      approverId: input.approverId, expiresAt: input.expiresAt, nonce: input.nonce };
+    const canonicalJson = stableJson({
+      canonical: canonicalizeGoalGraphApproval(core),
+      kind: GROWTH_DECISION_RECEIPT_KIND,
+      decision: input.decision,
+      subject: { cellPath: subject.cellPath, calendarRowId: subject.calendarRowId, bodyDigest: subject.bodyDigest },
+      ...(input.channel ? { channel: input.channel } : {}),
+      expiresAt: input.expiresAt,
+      intentVersion: input.intentVersion,
+      nonce: input.nonce,
+      approverId: input.approverId,
+      tenantId: input.tenantId,
+    });
+    try {
+      await db.prepare(`
+        INSERT INTO goal_graph_approvals (
+          approval_id, tenant_id, change_digest, intent_version, approver_id,
+          decision, expires_at, nonce, canonical_json, decided_at, recorded_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        decisionId(input.tenantId, changeDigest, input.nonce),
+        input.tenantId, changeDigest, input.intentVersion, input.approverId,
+        input.decision, input.expiresAt, input.nonce, canonicalJson, now, now,
+      ).run();
+    } catch {
+      try {
+        const settled = await classify();
+        if (settled) return settled;
+      } catch { /* fall through */ }
+      return { status: 'unavailable', changeDigest, code: 'decision_write_failed' };
+    }
+    return { status: 'recorded', changeDigest, decision: input.decision, decidedAt: now };
   }
 
   async function readHead(tenantId: string): Promise<GoalGraphHead | null> {
@@ -815,7 +904,7 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
       .first<{ tenant_id: string; change_digest: string; intent_version: number; approver_id: string;
         decision: 'approved' | 'rejected'; expires_at: string; nonce: string; canonical_json: string; decided_at: string }>();
   }
-  return { readHead, readNodes, commit, reject, readDecisionReceipt, renewalFenceReady };
+  return { readHead, readNodes, commit, reject, readDecisionReceipt, recordGrowthDecision, renewalFenceReady };
 }
 
 export const createGoalGraphStore = d1GoalGraphStore;
