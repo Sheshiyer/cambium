@@ -3,6 +3,17 @@
 Status: source review and proposed design, 2026-10-01. No installation,
 activation, publishing, paid generation, vault mutation or cloud change.
 
+> **Update, 2026-10-01 (later): implementation is now active.** This review
+> is a historical evidence cut; its "no implementation" statements describe
+> the review itself, not current scope. Full Tasks 1–8 *source* execution is
+> authorized and running in the Temperance distribution's isolated
+> `codex/modular-mac-lifecycle` worktree. Current pickup and per-task
+> acceptance state live in `.planning/HANDOFF.json` (status
+> `modular-mac-implementation-active`). Host, service, provider, cloud,
+> credential and native-store effects, and both physical Mac flows, remain
+> unauthorized until an exact owner scope is given. Findings below are
+> unchanged and still open unless the handoff records a repair.
+
 This extends the [Mac review](2026-10-01-modular-mac-system-review.md),
 [evidence map](2026-10-01-modular-mac-system-map.json),
 [TUI design](../superpowers/specs/2026-10-01-modular-mac-design.md) and

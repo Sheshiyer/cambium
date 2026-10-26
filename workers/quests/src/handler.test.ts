@@ -1,3 +1,4 @@
+import { createHermesExecutionFoldbackStore } from './hermes-execution-foldback.ts';
 // cambium-quests · pure handler tests (node:test, like everything beside it).
 
 import { test } from 'node:test';
@@ -5351,6 +5352,69 @@ test('page · goal-graph intake row renders, preflights, and submits a signed ap
   assert.match(resultSheet, /data-gate-result-refresh="1"/);
 });
 
+test('page · OpenAI action review submits only digests and keeps execution separate', async () => {
+  const actionDigest = `sha256:${'d'.repeat(64)}`;
+  const requestDigest = `sha256:${'e'.repeat(64)}`;
+  const envelope = {
+    ...NO_FAKE_PROGRESS_VISUAL_FIXTURE,
+    openItems: [],
+    mcpActionRequests: {
+      schema: 'cambium.mcp-action-review-row-list.v1',
+      ok: true,
+      tenantId: 'cambium',
+      count: 1,
+      rows: [{
+        schema: 'cambium.mcp-action-review-row.v1',
+        kind: 'mcp-action-review',
+        id: `mcp-action-review:${actionDigest}`,
+        tenantId: 'cambium',
+        status: 'pending',
+        requestDigest,
+        actionDigest,
+        actionKind: 'goal-graph.apply-approved-change',
+        graphVersion: 1,
+        requestedAt: '2026-07-24T00:00:00.000Z',
+        updatedAt: '2026-07-24T00:00:00.000Z',
+        title: 'OpenAI action awaiting founder approval',
+        evidence: 'Goal Graph change pinned to graph version 1.',
+        consequence: 'Founder approval authorizes one exact action tuple; execution remains a separate OpenAI request.',
+        reversibility: 'Reversible until execution: approval alone performs no Goal Graph write.',
+        idempotencyHint: actionDigest,
+      }],
+    },
+  };
+  const rendered = await renderPageFixtureContext(envelope, {
+    search: '?tenant=cambium&scene=gate',
+    telegramInitData: TEST_TELEGRAM_INIT_DATA,
+    fetchResponder: ({ init }) => init.method === 'POST'
+      ? { schema: 'cambium.gate.action_approval_response.v1', status: 'approved_not_executed', duplicate: false, action_digest: actionDigest, approval_digest: `sha256:${'f'.repeat(64)}` }
+      : envelope,
+  });
+  const gate = rendered.elements.get('gate')!.innerHTML;
+  assert.match(gate, /data-mcp-action-digest="sha256:d{64}"/);
+  assert.match(gate, /data-ecosystem-target="openai-mcp-action-review"/);
+  assert.match(gate, /data-kind="approve-mcp-action"/);
+  assert.doesNotMatch(gate, /data-kind="reroll"/);
+
+  (rendered.context.openGatePreflight as (kind: string, subject: string, node: unknown) => void)(
+    'approve-mcp-action', actionDigest, { dataset: { i: '0', id: `mcp-action-review:${actionDigest}` }, style: {} },
+  );
+  const preflight = rendered.elements.get('sheetBody')!.innerHTML;
+  assert.match(preflight, /<h2>Approve OpenAI action<\/h2>/);
+  assert.match(preflight, /execution remains a separate request/);
+  rendered.elements.get('sheetBody')!.querySelector('[data-gate-confirm]').click();
+  await flushPageAsync();
+
+  const posts = rendered.fetchRequests.filter((request) => request.method === 'POST');
+  assert.equal(posts.length, 1);
+  const payload = JSON.parse(String(posts[0].body));
+  assert.deepEqual(Object.keys(payload).sort(), ['initData', 'kind', 'requestDigest', 'subject'].sort());
+  assert.deepEqual(payload, { kind: 'approve-mcp-action', subject: actionDigest, requestDigest, initData: TEST_TELEGRAM_INIT_DATA });
+  assert.doesNotMatch(String(posts[0].body), /actor|arguments|plugin_identity|mcp_identity|issuer/);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /OpenAI action approved/);
+  assert.match(rendered.elements.get('sheetBody')!.innerHTML, /approved · execution remains separate/);
+});
+
 test('page · legacy goal-graph Gate row passes the exact served descriptor to governed preflight', async () => {
   const changeDigest = 'd'.repeat(64);
   const envelope = {
@@ -9880,9 +9944,9 @@ test('bridge execution · outcome replay is idempotent and persists only redacte
     body: JSON.stringify(outcome),
   }), harness.deps);
   assert.equal(first.status, 200);
-  assert.deepEqual(body(first), { recorded: true, terminal: true });
+  assert.deepEqual(body(first), { recorded: true, foldback: { status: 'held', reason: 'terminal-foldback-owner-unconfigured' }, terminal: true });
   assert.equal(replay.status, 200);
-  assert.deepEqual(body(replay), { recorded: true, terminal: true, duplicate: true });
+  assert.deepEqual(body(replay), { recorded: true, foldback: { status: 'held', reason: 'terminal-foldback-owner-unconfigured' }, terminal: true, duplicate: true });
   assert.equal((harness.db.prepare('SELECT COUNT(*) AS count FROM bridge_execution_events').get() as any).count, 1);
 
   const stored = harness.db.prepare(`
@@ -9932,6 +9996,37 @@ test('bridge execution · outcome replay is idempotent and persists only redacte
   }), harness.deps);
   assert.equal(recoveredAck.status, 200);
   assert.equal(body(recoveredAck).acked, 1);
+});
+
+test('bridge execution · trusted terminal owner persists exact foldback once and owner failure stays held', async (t) => {
+  const harness = nativeExecutionHarness(() => '2026-07-15T10:10:00.000Z');
+  t.after(() => harness.db.close());
+  await queueNativeDirective(harness.deps);
+  const claim = executionClaim();
+  const claimed = await handle(req('POST', '/v1/bridge/executions/claim', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(claim) }), harness.deps);
+  const outcome = executionOutcome(claim, body(claimed));
+  const objects = new Map<string, string>();
+  let writes = 0;
+  const verifier = { source: 'external-admission-readback' as const, verifyActivationAuthority: () => true };
+  const store = createHermesExecutionFoldbackStore({
+    async get(key) { const value = objects.get(key); return value === undefined ? null : { async text() { return value; } }; },
+    async put(key, bytes) { writes++; objects.set(key, new TextDecoder().decode(bytes)); return { async text() { return objects.get(key)!; } }; },
+  }, verifier);
+  harness.deps.terminalFoldback = { store, activationVerifier: verifier, async prepare(terminal) {
+    return { schema: 'thoughtseed.hermes.execution-foldback.v1', tenantId: 'cambium', graphVersion: 8,
+      goalGraph: { nodeId: 'goal-fitcheck', taskId: 'task-fitcheck', workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling', pinnedLoadoutId: 'loadout:fitcheck' },
+      activation: { activationId: 'activation:synthetic', activationDigest: `sha256:${'3'.repeat(64)}`, mappingReceiptId: 'pmr_synthetic', mappingReceiptDigest: `sha256:${'4'.repeat(64)}`, issued: true, staleFence: false, workObjectId: 'sapling:fitcheck', taskId: 'task-fitcheck', pinnedLoadoutId: 'loadout:fitcheck', fencingToken: terminal.fencingToken },
+      execution: { memberId: terminal.memberId, directiveId: terminal.directiveId, idempotencyKey: terminal.idempotencyKey, executionId: terminal.executionId, claimId: terminal.claimId, fencingToken: terminal.fencingToken, attempt: terminal.attempt, status: terminal.status as 'executed', attestationId: terminal.attestation.id, inputDigest: terminal.attestation.inputDigest, terminalProofDigest: terminal.attestation.outputDigest ?? terminal.attestationDigest, recordedAt: terminal.attestation.finishedAt } };
+  } };
+  const deliver = () => handle(req('POST', '/v1/bridge/executions/outcome', { headers: { authorization: 'Bearer bridge' }, body: JSON.stringify(outcome) }), harness.deps);
+  const first = body(await deliver());
+  const replay = body(await deliver());
+  assert.equal(first.recorded, true); assert.equal(first.foldback.status, 'prepared');
+  assert.equal(replay.foldback.receiptId, first.foldback.receiptId); assert.equal(replay.foldback.duplicate, true); assert.equal(writes, 1);
+  harness.deps.terminalFoldback.prepare = async () => { throw new Error('private-owner-error'); };
+  const held = body(await deliver());
+  assert.equal(held.recorded, true); assert.equal(held.foldback.reason, 'terminal-foldback-owner-unavailable');
+  assert.doesNotMatch(JSON.stringify(held), /private-owner-error/);
 });
 
 test('bridge execution · native directive identity is immutable and ACK binds the current contract', async (t) => {
@@ -14097,7 +14192,7 @@ function goalGraphIntakeIntent(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function goalGraphIntakeHarness(options: { gate?: GateConfig; pushToken?: string } = {}) {
+function goalGraphIntakeHarness(options: { gate?: GateConfig; pushToken?: string; mcpActionToken?: string } = {}) {
   const db = new DatabaseSync(':memory:');
   applyNormalMigrations(db);
   const d1 = new GoalGraphBatchSqliteD1(db);
@@ -14112,8 +14207,38 @@ function goalGraphIntakeHarness(options: { gate?: GateConfig; pushToken?: string
     uuid: () => 'goal-intake-uuid',
     ...(options.gate ? { gate: options.gate } : {}),
     ...(options.pushToken ? { pushToken: options.pushToken } : {}),
+    ...(options.mcpActionToken ? { mcpActionToken: options.mcpActionToken } : {}),
   };
   return { db, kv, deps };
+}
+
+function mcpActionIntentForTask(task: Record<string, unknown>, actor = 'founder-openai-subject') {
+  const arguments_ = { change_digest: `sha256:${String(task.changeDigest).replace(/^sha256:/, '')}` };
+  const tuple = {
+    schema: 'cambium.mcp.action_identity.v1',
+    tenant: task.tenantId,
+    actor,
+    plugin_identity: 'cambium-openai-plugin',
+    mcp_identity: 'https://cortex.thoughtseed.space',
+    issuer: 'https://auth.thoughtseed.space',
+    action_kind: 'goal-graph.apply-approved-change',
+    argument_digest: testDigestCanonical(arguments_),
+    graph_version: task.graphVersion,
+    nonce: task.approvalNonce,
+    expiry: task.approvalExpiresAt,
+    idempotency_key: task.idempotencyKey,
+  };
+  return {
+    arguments: arguments_,
+    intent: {
+      ...tuple,
+      schema: 'cambium.mcp.action_intent.v1',
+      action_digest: testDigestCanonical(tuple),
+      status: 'compiled_not_authorized',
+      writer_authority: false,
+      canonical_completion: false,
+    },
+  };
 }
 
 /** Deterministic re-parse matching the route's empty-store compile context. */
@@ -14401,6 +14526,105 @@ test('goal graph intake · intent projections reject before D1 reads or task per
     assert.doesNotMatch(stored, /raw-node-marker|raw-edge-marker|raw-payload-marker|sha256:[ab]{64}/);
     assert.doesNotMatch(response.body, /raw-node-marker|raw-edge-marker|raw-payload-marker|sha256:[ab]{64}/);
   }
+});
+
+test('OpenAI MCP Gate · signed approval stays non-writing until the authenticated adapter commits D1 once', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({
+    botId: TEST_BOT_ID,
+    userId: TEST_FOUNDER_A,
+    authDate: NOW / 1000 - 10,
+  });
+  const { kv, deps } = goalGraphIntakeHarness({
+    gate: gateCfg(pubKeyHex),
+    mcpActionToken: 'mcp-action-binding-token',
+    pushToken: 't',
+  });
+  const intake = await postGoalGraphIntake('bridge', goalGraphIntakeIntent(), deps);
+  assert.equal(intake.status, 200);
+  const changeDigest = String(body(intake).changeDigest);
+  const task = JSON.parse(kv.store.get(`goal-graph-intake-task:cambium:${changeDigest}`)!);
+  const compiled = mcpActionIntentForTask(task);
+
+  const reviewBody = JSON.stringify({ intent: compiled.intent, arguments: compiled.arguments });
+  const unauthenticatedReview = await handle(req('POST', '/mcp/actions/request-approval', { body: reviewBody }), deps);
+  assert.equal(unauthenticatedReview.status, 401);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+
+  const requested = await handle(req('POST', '/mcp/actions/request-approval', {
+    headers: { authorization: 'Bearer mcp-action-binding-token' },
+    body: reviewBody,
+  }), deps);
+  assert.equal(requested.status, 200);
+  assert.equal(body(requested).status, 'awaiting_founder_approval');
+  assert.match(body(requested).request_digest, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'review request cannot write D1');
+
+  const gate = await handle(req('GET', '/internal/gate/cambium', {
+    headers: { authorization: 'Bearer t' },
+  }), deps);
+  assert.equal(gate.status, 200);
+  const reviewRow = body(gate).actions.find((row: Record<string, unknown>) => row.kind === 'mcp-action-review');
+  assert.ok(reviewRow);
+  assert.equal(reviewRow.actionDigest, compiled.intent.action_digest);
+  assert.equal(reviewRow.requestDigest, body(requested).request_digest);
+  assert.doesNotMatch(JSON.stringify(reviewRow), /founder-openai-subject|cambium-openai-plugin|auth\.thoughtseed|change_digest/);
+
+  const approval = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({
+      kind: 'approve-mcp-action',
+      subject: compiled.intent.action_digest,
+      requestDigest: body(requested).request_digest,
+      initData,
+    }),
+  }), deps);
+  assert.equal(approval.status, 200);
+  assert.equal(body(approval).status, 'approved_not_executed');
+  assert.match(body(approval).approval_digest, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null, 'approval-only route cannot write D1');
+
+  const status = await handle(req('POST', '/mcp/actions/approval-status', {
+    headers: { authorization: 'Bearer mcp-action-binding-token' },
+    body: JSON.stringify({ intent: compiled.intent }),
+  }), deps);
+  assert.equal(status.status, 200);
+  assert.equal(body(status).status, 'approved');
+  assert.equal(body(status).approval_digest, body(approval).approval_digest);
+
+  const gateAfterApproval = await handle(req('GET', '/internal/gate/cambium', {
+    headers: { authorization: 'Bearer t' },
+  }), deps);
+  assert.equal(body(gateAfterApproval).actions.some((row: Record<string, unknown>) => row.kind === 'mcp-action-review'), false);
+
+  const requestBody = JSON.stringify({
+    schema: 'cambium.mcp.gate_action_request.v1',
+    intent: compiled.intent,
+    approval_digest: body(approval).approval_digest,
+  });
+  const unauthenticated = await handle(req('POST', '/mcp/actions/execute', { body: requestBody }), deps);
+  assert.equal(unauthenticated.status, 401);
+  assert.equal(await deps.goalGraphStore.readHead('cambium'), null);
+
+  const execute = () => handle(req('POST', '/mcp/actions/execute', {
+    headers: { authorization: 'Bearer mcp-action-binding-token' },
+    body: requestBody,
+  }), deps);
+  const committed = await execute();
+  assert.equal(committed.status, 200);
+  assert.equal(body(committed).schema, 'cambium.gate.action_response.v1');
+  assert.equal(body(committed).status, 'committed');
+  assert.equal(body(committed).receipt.approval_digest, body(approval).approval_digest);
+  assert.equal(body(committed).receipt.mutation_count, 1);
+  assert.equal(body(committed).receipt.action_digest, compiled.intent.action_digest);
+  assert.equal(body(committed).receipt.authoritative_readback.receipt_digest, body(committed).receipt.receipt_digest);
+  const head = await deps.goalGraphStore.readHead('cambium');
+  assert.ok(head);
+  assert.equal(head!.graphVersion, 1);
+
+  const replay = await execute();
+  assert.equal(replay.status, 200);
+  assert.equal(body(replay).status, 'duplicate');
+  assert.deepEqual(body(replay).receipt, body(committed).receipt);
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), head, 'identical replay never writes a second revision');
 });
 
 test('goal graph approval · founder signature commits the pending proposal; branch map reads it back', async () => {

@@ -396,7 +396,7 @@
       6
     ]
   },
-  "isa": "ISA.md",
+  "isa": "/Volumes/madara/2026/Projects/thoughtseed/cambium/ISA.md",
   "isc_open": [
     "ISC-415",
     "ISC-417",
@@ -502,12 +502,58 @@
   ],
   "isc_done_count": 1287,
   "wave": "Tasks 1\u20136 accepted; Task7 R5 provenance HOLD and R6 terminal-argv HOLD retained; R7 source PASS; parent protocol R4 source PASS; helper R3 immutable HOLD and new strict helper derivative required; Task8 physical acceptance pending",
-  "tier": "E5",
+  "tier": "E3",
   "session_budget": {
-    "window": 258400,
-    "rollover_at": 167960,
-    "used_at_handoff": 199858
+    "window": 475000,
+    "rollover_at": 332500,
+    "used_at_handoff": 332842
   },
   "next_command": "Read helper R3 source closure; build a new strict-receipt derivative with PINS null and focused synthetic cases; independently review before any materialization.",
-  "extends": "gsd.pause-work.v1"
+  "extends": "gsd.pause-work.v1",
+  "website_release": {
+    "schema": "temperance.handoff.v2",
+    "date": "2026-10-17",
+    "isa": "../cambium-showcase-ui-rebuild/ISA.md",
+    "completed_tasks": [
+      "v0.3.0 reviewed and validated:44 tests,build,matrix,vendor checks",
+      "release commit bc8acd962971bd58a90a874e9829cfce330d2986 pushed to origin",
+      "draft PR10 attached"
+    ],
+    "remaining_tasks": [
+      "Cloudflare owner private sign-in",
+      "record rollback version",
+      "deploy to cambium.thoughtseed.space",
+      "verify production version/routes/loading sequence"
+    ],
+    "blockers": [],
+    "decisions": [
+      "Owner explicitly authorized production update",
+      "Use existing configured domain-owner account and profile only",
+      "Preserve the independent root handoff and broader OpenAI goal"
+    ],
+    "uncommitted_files": [
+      "../cambium-showcase-ui-rebuild/ISA.md: pushed criterion checkpoint"
+    ],
+    "next_action": "No remaining website release work. PR10 merged; local main, origin/main and production match.",
+    "isc_open": [],
+    "isc_done_count": 1,
+    "wave": "v0.3.0 owner-authorized website publication",
+    "tier": "E3",
+    "session_budget": "Continue publication after private authentication; do not alter unrelated root task state",
+    "next_command": "In the showcase checkout: bunx wrangler@4.147.0 deployments list --env empty --profile cambium-domain, then bun run deploy:cloudflare after account/rollback verification.",
+    "status": "complete",
+    "remaining": [],
+    "production": {
+      "version": "0.3.2",
+      "commit": "a771283981482d19a75bd2b2fa22db205f4b20d9",
+      "cloudflare_version": "ac720bb0-866e-4ce6-8f9a-358ad6b38cc6",
+      "profile": "thoughtseed-labs"
+    },
+    "limitations": [
+      "Emulated mobile only",
+      "Audio engine verified; score not auditioned"
+    ],
+    "pr_state": "MERGED",
+    "main_commit": "a771283981482d19a75bd2b2fa22db205f4b20d9"
+  }
 }

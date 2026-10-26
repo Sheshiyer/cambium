@@ -1,6 +1,6 @@
 {
   "name": "cortex-mcp",
-  "version": "1.0.0",
+  "version": "1.9.0",
   "type": "module",
   "description": "Stateless Cortex & Taste Memory Organ MCP Server on Cloudflare Workers",
   "main": "src/index.ts",
@@ -11,6 +11,10 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
     "zod": "^3.23.8"
+  },
+  "overrides": {
+    "fast-uri": "3.1.8",
+    "ip-address": "10.7.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240903.0",

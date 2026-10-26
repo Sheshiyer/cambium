@@ -7,6 +7,10 @@
 // (no fake liveness). Tenant gate: cambium only until M3's isolation suite is
 // green (the quest log's own arc VII — the feature gates itself).
 
+import type { AcceptedWorkUnitReadback } from './foldback-mission-consumer.ts';
+import { readFoldbackMissionFacts, discoverMissionFoldbackReferences } from './foldback-mission-consumer.ts';
+import type { HermesExecutionFoldbackInput, HermesExecutionFoldbackReaderLike, HermesExecutionFoldbackStoreLike, HermesExecutionFoldbackActivationVerifier } from './hermes-execution-foldback.ts';
+import { foldbackExecution } from './execution-foldback-client.ts';
 import { PAGE } from './page.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
@@ -99,6 +103,15 @@ import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/t
 import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 import { recordWorkflowLearningEvent, summarizeWorkflowLearningMonth } from './workflow-learning.ts';
+import {
+  approveMcpGateAction,
+  approveMcpGateActionRequest,
+  executeMcpGateAction,
+  listPendingMcpGateActionRequests,
+  readMcpGateActionApprovalStatus,
+  requestMcpGateActionApproval,
+  type McpActionIntentV1,
+} from './mcp-gate-action.ts';
 
 const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
   id: 'anonymous-founder',
@@ -146,7 +159,7 @@ async function surfaceScopedQuestBody(
   principal: Principal,
   founderOutcomeAuthorized = false,
 ): Promise<string> {
-  const base = await publicQuestBody(deps.kv, tenantId, stored);
+  const base = await publicQuestBody(deps.kv, tenantId, stored, deps.now ? deps.now() : new Date().toISOString());
   try {
     const envelope = JSON.parse(base);
     envelope.surface = {
@@ -467,7 +480,16 @@ export interface FabricLedgerStoreLike {
 
 export interface HandlerDeps {
   kv: KvLike;
+  foldbackReader?: HermesExecutionFoldbackReaderLike;
+  acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
+  terminalFoldback?: {
+    store: HermesExecutionFoldbackStoreLike;
+    activationVerifier: HermesExecutionFoldbackActivationVerifier;
+    /** Server-owned admission lookup, never populated from request fields. */
+    prepare(outcome: BridgeExecutionOutcomeInput): Promise<HermesExecutionFoldbackInput | null>;
+  };
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
+  mcpActionToken?: string;     // Dedicated Cortex→Gate service-binding secret; never a read/admin token.
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
   bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
   assignmentToken?: string;    // Scoped Hermes token — may enqueue project_task_assignment only
@@ -552,7 +574,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph' | 'approve-mcp-action';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -2718,7 +2740,7 @@ function sanitizeQuestEnvelope(envelope: any): any {
   });
 }
 
-async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Promise<string> {
+async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, now = new Date().toISOString()): Promise<string> {
   let envelope: Record<string, unknown>;
   try {
     envelope = sanitizeQuestEnvelope(JSON.parse(stored));
@@ -2746,6 +2768,16 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
         tenantId,
         count: goalGraphRows.length,
         rows: goalGraphRows,
+      };
+    }
+    const mcpActionRequests = await listMcpActionReviewRows(kv, tenantId, now);
+    if (mcpActionRequests.length >= 1) {
+      merged.mcpActionRequests = {
+        schema: MCP_ACTION_REVIEW_ROW_LIST_SCHEMA,
+        ok: true,
+        tenantId,
+        count: mcpActionRequests.length,
+        rows: mcpActionRequests,
       };
     }
   } catch {}
@@ -3287,6 +3319,23 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       && !taskReconciliation.blockedTaskIds.has(edge.toId)
     ));
     const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
+
+    const foldbackReferences: any[] = isRecord(storedEnvelope) && Array.isArray(storedEnvelope.foldbackReceipts) ? storedEnvelope.foldbackReceipts : [];
+    if (!foldbackReferences.length && deps.foldbackReader?.discover) {
+      const discovered = await discoverMissionFoldbackReferences({ tenantId: tenant, graphVersion: head.graphVersion, nodes, reader: deps.foldbackReader });
+      foldbackReferences.push(...discovered.references);
+      mergedGaps.push(...discovered.gaps);
+    }
+    if (foldbackReferences.length && deps.foldbackReader) {
+      const foldbackFacts = await readFoldbackMissionFacts({ tenantId: tenant, graphVersion: head.graphVersion, nodes,
+        references: foldbackReferences as never[], reader: deps.foldbackReader, acceptedWorkUnitReadback: deps.acceptedWorkUnitReadback });
+      entries.push(...foldbackFacts.nodes);
+      mergedEdges.push(...foldbackFacts.edges);
+      mergedGaps.push(...foldbackFacts.gaps);
+    } else {
+      mergedGaps.push({ gapId: 'gap-foldback-reader', kind: 'accepted-result-unavailable', subjectId: null,
+        detail: 'Immutable foldback references and the trusted readback consumer are required; no semantic acceptance is inferred.', evidenceRef: null });
+    }
 
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
@@ -4837,9 +4886,148 @@ async function approveGoalGraphIntakeRoute(
   return { status: 409, body: { ok: false, error: 'goal_graph_commit_rejected', code: commit.code, changeDigest } };
 }
 
+const MCP_GOAL_GRAPH_ACTION_KIND = 'goal-graph.apply-approved-change';
+const MCP_ACTION_REVIEW_ROW_LIST_SCHEMA = 'cambium.mcp-action-review-row-list.v1';
+
+async function listMcpActionReviewRows(
+  kv: KvLike,
+  tenant: string,
+  now: string,
+): Promise<Record<string, unknown>[]> {
+  const requests = await listPendingMcpGateActionRequests(kv, tenant, now, 25);
+  return requests.map((request) => {
+    const changeDigest = typeof request.arguments.change_digest === 'string'
+      ? request.arguments.change_digest
+      : null;
+    return {
+      schema: 'cambium.mcp-action-review-row.v1',
+      kind: 'mcp-action-review',
+      id: `mcp-action-review:${request.intent.action_digest}`,
+      tenantId: tenant,
+      status: 'pending',
+      requestDigest: request.request_digest,
+      actionDigest: request.intent.action_digest,
+      actionKind: request.intent.action_kind,
+      graphVersion: request.intent.graph_version,
+      expiresAt: request.intent.expiry,
+      requestedAt: request.requested_at,
+      updatedAt: request.requested_at,
+      changeDigest,
+      title: 'OpenAI action awaiting founder approval',
+      summary: 'Apply the already-approved Goal Graph change through Cambium’s sole writer.',
+      evidence: changeDigest
+        ? `Goal Graph change ${changeDigest.slice('sha256:'.length, 'sha256:'.length + 12)} is pinned to graph version ${request.intent.graph_version}.`
+        : `Action ${request.intent.action_kind} is pinned to graph version ${request.intent.graph_version}.`,
+      consequence: 'Founder approval authorizes one exact action tuple; execution remains a separate OpenAI request.',
+      reversibility: 'Reversible until execution: approval alone performs no Goal Graph write.',
+      idempotencyHint: request.intent.action_digest,
+      priority: { source: 'openai-mcp-action-review@v1', risk: 'review', dependency: 'founder-signature', score: 10 },
+    };
+  });
+}
+
+async function validateMcpGoalGraphActionTarget(
+  deps: HandlerDeps,
+  intent: McpActionIntentV1,
+  args: Record<string, unknown>,
+  allowedStatuses: ReadonlySet<string>,
+): Promise<{ ok: true; task: Record<string, unknown>; changeDigest: string } | { ok: false; status: number; error: string }> {
+  if (intent.action_kind !== MCP_GOAL_GRAPH_ACTION_KIND
+      || Object.keys(args).length !== 1
+      || typeof args.change_digest !== 'string'
+      || !/^sha256:[a-f0-9]{64}$/.test(args.change_digest)) {
+    return { ok: false, status: 400, error: 'unsupported_mcp_action_target' };
+  }
+  const changeDigest = args.change_digest.slice('sha256:'.length);
+  const task = await readGoalGraphIntakeTask(deps.kv, intent.tenant, changeDigest);
+  if (!task) return { ok: false, status: 404, error: 'mcp_action_target_not_found' };
+  if (!allowedStatuses.has(String(task.status))) {
+    return { ok: false, status: 409, error: 'mcp_action_target_status_conflict' };
+  }
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, intent.tenant, changeDigest);
+  if (!descriptor
+      || Number(task.graphVersion) !== intent.graph_version
+      || task.idempotencyKey !== intent.idempotency_key
+      || descriptor.approvalNonce !== intent.nonce
+      || descriptor.approvalExpiresAt !== intent.expiry) {
+    return { ok: false, status: 409, error: 'mcp_action_target_tuple_mismatch' };
+  }
+  return { ok: true, task, changeDigest };
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
+
+  if (routePath === '/mcp/actions/request-approval' || routePath === '/mcp/actions/approval-status') {
+    if (method !== 'POST') return { ...json(405, { error: 'method_not_allowed' }), headers: { ...JSON_HEADERS, allow: 'POST' } };
+    if (!deps.mcpActionToken) return json(503, { error: 'mcp_action_binding_not_configured' });
+    if ((req.headers.authorization ?? '') !== `Bearer ${deps.mcpActionToken}`) {
+      return json(401, { error: 'mcp_action_binding_unauthorized' });
+    }
+    let body: unknown;
+    try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+    try {
+      const now = deps.now ? deps.now() : new Date().toISOString();
+      const result = routePath === '/mcp/actions/request-approval'
+        ? await requestMcpGateActionApproval(deps.kv, body, {
+          now,
+          validateTarget: async (intent, args) => {
+            const target = await validateMcpGoalGraphActionTarget(deps, intent, args, new Set(['pending']));
+            return 'error' in target
+              ? { ok: false as const, status: target.status, error: target.error }
+              : { ok: true as const };
+          },
+        })
+        : await readMcpGateActionApprovalStatus(deps.kv, body, now);
+      return json(result.status, result.body);
+    } catch {
+      return json(503, { error: 'mcp_action_review_adapter_unavailable' });
+    }
+  }
+
+  if (routePath === '/mcp/actions/execute') {
+    if (method !== 'POST') return { ...json(405, { error: 'method_not_allowed' }), headers: { ...JSON_HEADERS, allow: 'POST' } };
+    if (!deps.mcpActionToken) return json(503, { error: 'mcp_action_binding_not_configured' });
+    if ((req.headers.authorization ?? '') !== `Bearer ${deps.mcpActionToken}`) {
+      return json(401, { error: 'mcp_action_binding_unauthorized' });
+    }
+    let body: unknown;
+    try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+    try {
+      const result = await executeMcpGateAction(deps.kv, body, {
+        now: deps.now ? deps.now() : new Date().toISOString(),
+        executeTarget: async (intent, args, founderId) => {
+          const target = await validateMcpGoalGraphActionTarget(deps, intent, args, new Set(['pending', 'committed']));
+          if ('error' in target) return { ok: false as const, status: target.status, error: target.error };
+          const committed = await approveGoalGraphIntakeRoute(deps, intent.tenant, {
+            subject: target.changeDigest,
+            nonce: intent.nonce,
+            expiresAt: intent.expiry,
+          }, founderId);
+          if (committed.status !== 200) {
+            return {
+              ok: false as const,
+              status: committed.status,
+              error: typeof committed.body.error === 'string' ? committed.body.error : 'mcp_action_goal_graph_commit_failed',
+            };
+          }
+          const headDigest = typeof committed.body.headDigest === 'string' ? committed.body.headDigest : '';
+          if (committed.body.committed !== true || !/^[a-f0-9]{64}$/.test(headDigest)) {
+            return { ok: false as const, status: 503, error: 'mcp_action_authoritative_readback_invalid' };
+          }
+          return {
+            ok: true as const,
+            status: committed.body.duplicate === true ? 'duplicate' as const : 'committed' as const,
+            terminalOutcome: `goal_graph_committed:${headDigest}`,
+          };
+        },
+      });
+      return json(result.status, result.body);
+    } catch {
+      return json(503, { error: 'mcp_action_adapter_unavailable' });
+    }
+  }
 
   if (routePath === '/v1/admin/portfolio/actions') {
     return handlePortfolioAdminActionRoute(req, deps);
@@ -5128,7 +5316,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     }
     if (!principal) principal = resolveSurfacePrincipal(req);
     if (!principal) {
-      return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
+      return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored, deps.now ? deps.now() : new Date().toISOString()) };
     }
     return {
       status: 200,
@@ -6064,15 +6252,37 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           ? json(409, { error: result.reason, code: 'stale_fence' })
           : json(409, { error: result.reason });
       }
-      if (contract.command === 'service_agreement.draft.render') {
+      if (!result.duplicate && contract.command === 'service_agreement.draft.render') {
         await deps.businessStore!.markOutcome(
           contract.input.gsdTaskId,
           outcome.status === 'executed' ? 'awaiting_human_approval' : outcome.status === 'failed' ? 'failed' : 'retrying',
           nowIso(),
         );
       }
+      let foldback: unknown = { status: 'held', reason: 'terminal-foldback-owner-unconfigured' };
+      if (result.terminal && deps.terminalFoldback) {
+        // Attestation's validated terminal timestamp is stable across duplicate delivery.
+        const boundOutcome = { ...outcome, attestationDigest, recordedAt: outcome.attestation.finishedAt };
+        try {
+        const input = await deps.terminalFoldback.prepare(boundOutcome);
+        // An injected owner must bind every terminal identity; no request-supplied admission.
+        if (input && input.activation && input.execution.executionId === outcome.executionId
+          && input.execution.memberId === outcome.memberId && input.execution.directiveId === outcome.directiveId
+          && input.execution.idempotencyKey === outcome.idempotencyKey && input.execution.claimId === outcome.claimId
+          && input.execution.fencingToken === outcome.fencingToken && input.execution.attempt === outcome.attempt
+          && input.execution.status === outcome.status
+          && input.execution.attestationId === outcome.attestation.id
+          && input.execution.inputDigest === outcome.attestation.inputDigest
+          && input.execution.terminalProofDigest === (outcome.attestation.outputDigest ?? attestationDigest)
+          && input.execution.recordedAt === outcome.attestation.finishedAt) {
+          const folded = await foldbackExecution(input, { persist: true, store: deps.terminalFoldback.store, activationVerifier: deps.terminalFoldback.activationVerifier });
+          foldback = folded.ok ? { status: 'prepared', receiptId: folded.projection.receipt.receiptId, duplicate: folded.duplicate } : { status: 'held', reason: folded.reason };
+        } else foldback = { status: 'held', reason: 'terminal-foldback-authority-missing-or-mismatched' };
+        } catch { foldback = { status: 'held', reason: 'terminal-foldback-owner-unavailable' }; }
+      }
       return json(200, {
         recorded: true,
+        foldback,
         terminal: result.terminal,
         ...(result.duplicate ? { duplicate: true } : {}),
       });
@@ -6293,12 +6503,40 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
+    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph', 'approve-mcp-action'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
       return json(400, { error: 'need a supported gate kind and subject' });
     }
     const verdict = await validateInitData(String(body.initData ?? ''), deps.gate);
     if (!verdict.ok) return json(401, { error: verdict.reason });
     const kind = body.kind as GateActionKind;
+    if (kind === 'approve-mcp-action') {
+      const allowedFields = new Set(['kind', 'subject', 'requestDigest', 'initData']);
+      if (!isRecord(body)
+          || Object.keys(body).some((field) => !allowedFields.has(field))
+          || !/^sha256:[a-f0-9]{64}$/.test(String(body.subject))
+          || !/^sha256:[a-f0-9]{64}$/.test(String(body.requestDigest))) {
+        return json(400, { error: 'invalid_mcp_action_approval_input' });
+      }
+      try {
+        const result = await approveMcpGateActionRequest(deps.kv, {
+          action_digest: body.subject,
+          request_digest: body.requestDigest,
+        }, {
+          founderId: verdict.userId,
+          now: deps.now ? deps.now() : new Date().toISOString(),
+          validateTarget: async (intent, args) => {
+            if (intent.tenant !== tenant) return { ok: false as const, status: 403, error: 'mcp_action_tenant_mismatch' };
+            const target = await validateMcpGoalGraphActionTarget(deps, intent, args, new Set(['pending']));
+            return 'error' in target
+              ? { ok: false as const, status: target.status, error: target.error }
+              : { ok: true as const };
+          },
+        });
+        return json(result.status, result.body);
+      } catch {
+        return json(503, { error: 'mcp_action_approval_storage_unavailable' });
+      }
+    }
     if (kind === 'approve-goal-graph') {
       const result = await approveGoalGraphIntakeRoute(deps, tenant, body, verdict.userId);
       return json(result.status, result.body);
@@ -6433,6 +6671,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       now: deps.now ? deps.now() : new Date().toISOString(),
       committedCandidateIds: founderOutcomes?.committedCandidateIds,
     }));
+    actions.push(...await listMcpActionReviewRows(deps.kv, tenant, deps.now ? deps.now() : new Date().toISOString()));
     return json(200, { tenant, actions });
   }
 
@@ -6489,7 +6728,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       try {
         const storedEnvelope = await deps.kv.get(ledgerKey(requestedTenant));
         if (storedEnvelope) {
-          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope));
+          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope, deps.now ? deps.now() : new Date().toISOString()));
           if (
             isRecord(initialEnvelope)
             && initialEnvelope.schema === 1

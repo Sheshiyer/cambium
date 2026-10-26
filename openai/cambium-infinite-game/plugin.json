@@ -1,0 +1,38 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cambium-infinite-game",
+  "version": "1.9.0",
+  "description": "Tenant-scoped Cambium infinite-game reader and Gate action adapter. Returns digest-verified provenance, prepares deterministic Dot task state, and runs exact actions through founder review before separate receipt-backed execution.",
+  "author": {
+    "name": "Cambium",
+    "url": "https://github.com/thoughtseed"
+  },
+  "license": "Proprietary",
+  "keywords": [
+    "cambium",
+    "infinite-game",
+    "provenance",
+    "tenant-scoped",
+    "read-only"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Cambium Infinite Game",
+        "shortDescription": "Cambium Gate adapter",
+        "longDescription": "Private, tenant-scoped surface that exposes Cambium's infinite-game provenance (Vision, Mission, ISA, GSD, D1, Runs, Receipts, Cortex learning) to an approved workspace audience. Reads return bounded digest-verified envelopes. Action identity is derived from verified OAuth context; compilation is non-writing, a durable review request appears in the founder Gate, approval is non-executing, and execution accepts only that exact approved tuple with replay-safe authoritative readback. Cortex never receives direct D1 writer authority, and Hermes remains the delivery authority.",
+        "developerName": "Cambium",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "defaultPrompt": [
+          "Explain why an ISA criterion is currently blocked.",
+          "Trace a D1 task backward to Mission and Vision.",
+          "Request founder review for an exact compiled action."
+        ]
+      }
+    }
+  }
+}

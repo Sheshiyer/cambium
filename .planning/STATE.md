@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
-stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain
-last_updated: "2026-09-27T19:45:00.000Z"
-last_activity: 2026-09-27 — Local branch reconciliation and deterministic source verification; no live inventory
+stopped_at: Phase 9 Task 1 synthetic collector implemented; authenticated inventory approval remains
+last_updated: "2026-09-30T09:55:32.000Z"
+last_activity: 2026-09-30 — OpenAI plugin 1.9.0 separates nine infrastructure gates from one joined end-to-end behavioral canary; source passes while all ten live receipts remain held
 progress:
   total_phases: 3
   completed_phases: 1
@@ -14,10 +14,14 @@ progress:
   percent: 33
 ---
 
+> **Historical GSD ledger (2026-10-06).** The acceptance ledger for this repo is `ISA.md`: goals, criteria, decisions, and verification live there and nowhere else. Files under `.planning/` are GSD executor packets (phase PLAN files for in-flight waves) and history; do not read them as a second source of truth, and do not plan new work here — extend `ISA.md ## Features`. Receipt: `~/.temperance_engine/docs/architecture/2026-10-06-gsd-executor-isa-ledger.md`.
+
 # Project State
 
 > The root `ISA.md` remains the acceptance source of record. GSD tracks
 > finite execution state and does not become a third goal authority.
+
+> **Active completion condition (2026-09-30):** Cambium's complete infinite-game loop is to become operable through OpenAI's ecosystem through an imported instruction/skill layer, a private plugin and verified MCP boundary, dot coordination, and bounded Codex tasks. D1, ISA, GSD, Hermes, and Cloudflare retain their existing authority boundaries. `/gsd:progress` remains the sole finite-plan router and resumes the already planned Phase 9 repository work, stopping at its authenticated-read gate; Phase 10 remains separately approval-gated. In parallel, ISA now owns the goal-specific OpenAI acceptance contract and may admit reversible repository-local packaging, synthetic tests, and a fail-closed verifier. GSD may open the finite compatibility execution packet only after v0.5 reaches a reviewed terminal state. Dot entitlement, workspace-admin enablement, plugin save/share/connection, credentials, deployment, messaging, authenticated reads, and every external mutation remain separate owner-approved gates. This checkpoint marks no existing lane complete.
 
 ## Project Reference
 
@@ -31,9 +35,9 @@ preserving verified Thoughtseed Labs production authority.
 ## Current Position
 
 Phase: 9 of 10 (Source Inventory and Classification)
-Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed
+Plan: 09-01 Task 1 implemented and synthetically verified; Task 2 authenticated-read checkpoint not authorized
 Status: Active
-Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan retained with implementation and live evidence unclaimed
+Last activity: 2026-09-30 — Verified plugin 1.9.0 with a tenth, separately owner-approved end-to-end canary that canonically joins the nine infrastructure receipts before full compatibility can pass. Nine valid infrastructure receipts now report behavioral acceptance HELD; the current public edge remains behind the reviewed runtime, and deployment, connection, clean-session behavior, and every live receipt remain unclaimed
 
 ## Accumulated Context
 
@@ -54,8 +58,11 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 
 ### Pending Todos
 
-- Implement and synthetically verify Phase 9 Task 1, then obtain the exact authenticated source/target inventory authorization before live reads.
+- Review Phase 9 Task 1 residual runtime wiring, then obtain the exact authenticated source/target inventory authorization before any live read.
 - Keep Phase 10 copy and retirement work held behind separate approval.
+- Preserve the verified repository-local OpenAI import/plugin/marketplace and Dot-runtime source packet while keeping full compatibility fail-closed until all nine infrastructure receipts and the separately owner-approved joined end-to-end canary exist.
+- Preserve the verified SDK Streamable HTTP and Cortex OAuth seam as source-only. The portable `mcp.json` may declare the exact credential-free connection intent, but it is not deployment, authentication, discovery, installation, or connection proof; require the exact issuer, callable verifier binding, allowlisted browser origins, tenant-bearing claims, canonical resource endpoint, six-tool discovery, authoritative readback, and rollback receipts before claiming live MCP compatibility.
+- Preserve plugin `1.9.0`, the deployment-admission policy/checker, injected `MCP_TOKEN_VERIFIER`, `MCP_PROVENANCE_READER`, `MCP_GATE_ADAPTER`, dedicated `MCP_GATE_ADAPTER_TOKEN`, separately configured `MCP_PROFILE_ID_KEY`, and tenth-canary seam as source-only. Do not attach D1 to Cortex, produce or approve a live snapshot, configure any binding or secret, register OAuth identities, deploy the reviewed runtime, import/connect the plugin, or call the profile/read/action planes live until the exact tenant, founder, client, endpoint, deployment, credential, approval, readback, rollback, and end-to-end canary receipts are separately owner-approved.
 
 ### Blockers/Concerns
 
@@ -77,8 +84,8 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 
 ## Session Continuity
 
-Last session: 2026-09-27
-Stopped at: Phase 9 plan ready; collector implementation and authenticated inventory remain
+Last session: 2026-09-30
+Stopped at: Phase 9 Task 1 synthetic collector implemented; authenticated inventory approval remains
 Resume file: .planning/STATE.md
 
 ## 2026-09-08 Saanmai census and local headers
@@ -93,4 +100,4 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 
 ## Operator Next Step
 
-Review the local reconciliation and test evidence in `RECONCILIATION-2026-09-27.md`, then execute Task 1 in `09-01-PLAN.md` before the exact authenticated-read checkpoint. The plan now exists; do not restart phase planning or mark INV-01/CLASS-01 complete from synthetic tests. The collector/classifier has not been implemented by this reconciliation. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by reconciliation.
+Review the Task 1 source, 53/53 synthetic/adversarial evidence, and supplemental approval, then stop at Task 2's exact authenticated-read checkpoint. Separately, the OpenAI packet is source-verified at plugin `1.9.0` with one closed local marketplace entry, a portable root `mcp.json`, the deterministic Dot runtime, `get_connected_profile`, `read_infinite_game_node`, the four-tool action lifecycle, the deployment-admission policy/checker, and a tenth end-to-end canary receipt contract. The canary binds the exact nine canonical prerequisite receipts and requires a later clean Dot session to prove unchanged authority, the reviewed tool catalog, safe persistent context, local/cloud identity parity, held-surface zero effect, exactly one approved channel delivery with idempotent replay and no fallback, stop/late-result exclusion, rollback restoration, disconnect reconciliation without reissue, upgrade-required negotiation, sole D1 writer authority, and Vision-to-Learning lineage. Nine valid infrastructure receipts now produce `infrastructure compatibility gates: OK; behavioral acceptance: HELD`; only the joined tenth canary can support full compatibility. The combined OpenAI ecosystem suite passes 101/101, Cortex passes 76/76, focused deployable-source TypeScript compilation passes, the production dependency audit is clean, and the deterministic complete-packet digest is `sha256:17512f537d7371ae8d9070d5af68c12ef1cc824e5490ebeff7841621afb68050`. Full compatibility remains held on all ten owner-approved live receipts; ISA progress stays 11/42 and the ISA remains active, not complete. Mandatory Forge remains unavailable because fixed `gpt-5.4` is unsupported; supplemental Advisor identified and shaped the P1 overclaim repair, but is not Cato approval. The next OpenAI lane remains separately owner-approved redacted snapshot review, rollback-gated deployment/configuration, the nine infrastructure receipts, and then the clean-session behavioral canary. Do not mark INV-01/CLASS-01 or any OpenAI live criterion complete from source tests. No live snapshot, Wrangler service binding or secret, live inventory, provenance/Gate connection, marketplace import/sync, plugin installation, OAuth client or founder configuration, MCP connection, connected computer or app access, Codex task dispatch, channel send, source-object allowlist, transfer, deployment, messaging, or retirement was performed.

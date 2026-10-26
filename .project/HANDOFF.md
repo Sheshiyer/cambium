@@ -1,5 +1,69 @@
 # Project handoff
 
+### 2026-10-17 website merged and main deployed
+
+- PR #10 is MERGED at a771283981482d19a75bd2b2fa22db205f4b20d9. Website checkout main and origin/main match, tree clean. Production v0.3.2 reports that exact commit; rebuilt JS/CSS bytes match public assets. Cloudflare deployment ac720bb0-866e-4ce6-8f9a-358ad6b38cc6. No additional website work remains.
+
+
+### 2026-10-17 final live website QA
+
+- Website v0.3.2 deployed from a3238d8 using thoughtseed-labs; Cloudflare version daead655-4d0e-4e68-9846-165f08511b7b. Desktop and emulated429/320phone cinematic review completed;44tests/build pass. Fixed automatic story focus rectangle while preserving explicit skip focus. Audio engine toggles verified; listening and real-device testing remain unverified. Detailed evidence lives in the website ISA and docs/releases/v0.3.2.md.
+
+
+### 2026-10-17 website publication complete
+
+- Published 17 October 2026 using the existing thoughtseed-labs Wrangler profile. Production /version.json confirms v0.3.0 at aef479432a98294a964d0f68fed5a12e3c91d910. Cloudflare version: 34cc7735-61cb-4dc6-8862-078a4f751282. Rollback target: 3c95f39c-cdc4-4b22-96c6-53561b75ccf5. All16 direct entries resolve to HTTP200 HTML after canonical redirects; intro and four chapter films return HTTP200 video/mp4. Live IAB completed the opening, exposed the story, and changed to Flow using chapter navigation; captured warning/error logs are empty. Source is pushed on the release branch; draft PR10 remains open.
+
+
+### 2026-10-16 website cinematic design pass
+
+- The owner's website/showcase request resolves to the separate sibling
+  `cambium-showcase-ui-rebuild` checkout. Its source and acceptance live there;
+  this Cambium runtime checkout was not used as the website implementation.
+- Local website changes add 360vh chapter pacing, chapter holds, damped camera
+  travel, mouse/touch/keyboard scrubbing, Play/Pause and an original opt-in
+  ambient score. Responsive controls and hero bounds were corrected after IAB
+  review. The full fifteen-second opening and all organ routes remain.
+- IAB acceptance passes measured CSS widths320 and390, playback/scrubbing,
+  sound activation, reduced motion, ecosystem links, Genesis artwork and the
+  Proof source modal. No captured console warnings/errors. Listening quality
+  remains for owner review. Build emits sixteen internal entries;44 tests pass.
+- Authenticated React Bits Starter and Pro item requests returned200 using the
+  existing Claude environment key without exposing/copying it. Direct
+  MotionSites MCP initialization returned401; local reference lineage is
+  labeled, not claimed as fresh live MCP access.
+- Review/verification is in that checkout's ISA.md and
+  docs/design-review-2026-10-16.md. Local preview uses port5186. No commit,
+  deployment, provider configuration, credentials, vault or runtime change.
+- Follow-up atmospheric refinement extends autoplay to22seconds per transition,
+  adds25% holds and heavier settling, and blends two depth planes of chapter-
+  specific mist, currents, dust and light. Main IAB verifies all five layers,
+  normalized/reversible blending, paused inactive planes and static reduced-
+  motion. Desktop hidden chapter flex-width regression was corrected.
+- The next owner refinement makes the full15-second film a loading screen.
+  First-scene decoded-frame preloading runs during it; remaining films wait.
+  Opaque procedural clouds conceal the obsolete film outro, then a3.8second
+  dithered bioluminescent reveal opens onto Canopy. Header emblem and leaf
+  favicon are removed. The original film's Git object matches HEAD exactly.
+- Main IAB captures the real opaque/reveal/clear sequence, decoded first-frame
+  readiness during playback, and390px reduced-motion handoff. All44 tests
+  pass; source QA finds no blocker. No production publication occurred.
+
+### 2026-10-04 Cambium showreel (apps/cambium-showreel)
+
+- Added an isolated bun app that renders a deterministic 15 s, 1080p60
+  motion-graphics reel from the visual-flow assets, the canonical R3F
+  tokens and the Genesis image-to-3d GLB. No Remotion and no Playwright are
+  used. Picture comes from three.js in headless Brave, streamed as raw RGBA
+  into ffmpeg. Audio is synthesized in TypeScript from the shared cue list.
+- `bun run verify` passes on the master and the web copy:
+  - h264 High, 900 frames at 60/1, bt709 tags, faststart
+  - -14.4 LUFS; true peak -1.6 dBTP (master) and -1.1 dBTP (web copy)
+  - no strobe
+  - frame hashes identical across two fresh browsers and a shuffled-order run
+- Generated output lives in the app's gitignored `out/`. No other repo
+  surface, registry, provider, deployment or vault state changed.
+
 ### 2026-10-01 complete growth ecosystem deep review
 
 - Read/reviewed all 100 growth files, including ignored assets; added the
@@ -50,6 +114,158 @@
   Vault contents, cloud state, deployment or external delivery changed.
   Use `.planning/HANDOFF.json` for this review's current pickup.
 
+### 2026-09-30 OpenAI plugin 1.9.0 — joined behavioral-canary checkpoint
+
+- Repaired a P1 verifier overclaim: the prior nine infrastructure receipts
+  could produce `full compatibility check: OK` without evidence for a clean
+  Dot session or ISC-2478/2490..2505 behavior. Those nine receipts remain
+  independent and unchanged in authority, but now establish infrastructure
+  readiness only.
+- Added one separately owner-approved `end-to-end-canary.receipt.json`. It
+  canonically joins the exact complete bodies and filenames of all nine
+  prerequisites, must be verified after them, and binds the reviewed packet,
+  plugin version, MCP tool catalog, authoritative readback, and rollback
+  capture. Its closed digest-only evidence covers unchanged clean-session
+  authority, local/cloud task identity parity, safe persistence and stale-read
+  rejection, held-surface zero effect, one ChatGPT/Slack/Teams delivery with
+  original-receipt replay and no fallback, stop/late-result exclusion,
+  rollback restoration, disconnect reconciliation without reissue,
+  upgrade-required version negotiation, D1 sole-writer preservation, and full
+  Vision-to-Learning lineage.
+- Nine valid infrastructure receipts now exit 2 with
+  `infrastructure compatibility gates: OK; behavioral acceptance: HELD`.
+  Ten receipts pass only when workspace, tenant, version, packet, prerequisite
+  set, ordering, tool catalog, readback, rollback, identity, replay, authority,
+  and distinct-proof joins all agree.
+- Plugin/Cortex package versions are `1.9.0`. Evidence: combined OpenAI
+  compatibility, deployment-admission, and Dot-runtime tests pass 101/101;
+  Cortex passes 76/76; focused deployable-source TypeScript, JSON parsing,
+  source verification, production dependency audit, and diff whitespace pass.
+  Complete packet digest:
+  `sha256:17512f537d7371ae8d9070d5af68c12ef1cc824e5490ebeff7841621afb68050`.
+  The broad `scripts/*.test.mjs` run was interrupted after remaining silent and
+  is not claimed.
+- Mandatory Forge failed before production because fixed `gpt-5.4` is
+  unsupported on this ChatGPT-backed account. Supplemental Advisor review
+  found the infrastructure-versus-behavior P1 and supplied the repaired
+  additive evidence shape; this is not Cato approval.
+- No live receipt, Dot session, install, sync, connection, credential, OAuth
+  registration, Worker deployment, MCP call, channel delivery, connected-app
+  or computer use, Gate action, D1/KV/R2 write, rollback, or external mutation
+  occurred. All ten receipts remain absent; ISA progress stays 11/42 and the
+  goal remains active.
+
+### 2026-09-30 OpenAI plugin 1.8.0 — deployment-admission source checkpoint
+
+- Added a versioned deployment-admission policy and owner-runnable read-only
+  checker. One redacted snapshot must bind the exact Cortex script and MCP
+  endpoint, OAuth mode, read and action scopes, bounded issuer/client/founder/
+  origin configuration, exactly `MCP_TOKEN_VERIFIER`,
+  `MCP_PROVENANCE_READER`, and `MCP_GATE_ADAPTER`, exactly the dedicated
+  `MCP_GATE_ADAPTER_TOKEN` and `MCP_PROFILE_ID_KEY` secret references, and
+  pairwise-distinct binding, secret, deployed-version, and rollback digests.
+- The checker accepts no secret value or raw binding target. Unknown fields,
+  `CONTEXT_ROUTE_TOKEN`, missing/extra/duplicate/mistyped bindings, D1 binding,
+  widened scopes, unsafe origins, malformed identities, missing secret
+  configuration, reference reuse, and identical deployment/rollback references
+  fail closed. The deployed version must equal the digest recomputed from the
+  reviewed Worker runtime sources, while the entire canonical snapshot must
+  equal a separately owner-approved configuration digest; snapshot-only
+  admission remains held.
+  It reads no Wrangler or credential state, opens no network, writes nothing,
+  and emits only field labels and verdicts.
+- Plugin/Cortex package versions are `1.8.0`. The compatibility verifier now
+  executes the source-policy check and digest-binds both policy and checker.
+  Evidence: OpenAI ecosystem tests 104/104; Cortex 76/76; focused TypeScript,
+  source verifier, production dependency audit, and diff whitespace pass.
+  Complete packet digest:
+  `sha256:f93323a6acd6320f86e1fc419da1d60ec1b9cc340920cbe5006eef5eaf3dc0d8`.
+- ISC-2476.6..2476.10 are source-complete; active progress is 11/42. All nine
+  live receipts remain absent and full compatibility remains HELD. Mandatory
+  Forge and Cato both failed before work because fixed `gpt-5.4` is unsupported
+  on this ChatGPT-backed account; no mandatory review verdict is inferred.
+  Supplemental Advisor review initially found two P1 semantic-binding defects
+  and one P2 coverage gap; after repair, re-review reports no residual P0-P2 and
+  retains external owner-approval provenance as a P3 boundary only. This does
+  not substitute for Cato approval.
+- No redacted live snapshot, service binding, secret, OAuth identity, Worker
+  deployment, marketplace import, plugin connection, Dot/computer/app access,
+  authenticated MCP call, Gate action, D1/KV/R2 write, channel update, or
+  external state changed. The next lane is separately owner-approved snapshot
+  creation/review and rollback-gated activation with fresh receipts.
+
+### 2026-09-30 OpenAI plugin 1.6.0 — portable MCP activation candidate
+
+- Plugin `1.6.0` now includes the official Agent Plugins root `mcp.json` and declares exactly one credential-free `streamable-http` server at `https://cortex.thoughtseed.space/mcp`. The compatibility verifier digest-binds that descriptor and rejects schema drift, extra root/server fields, multiple or renamed servers, transport drift, endpoint substitution, HTTP downgrade, embedded credentials, query/fragment data, and injected headers.
+- The descriptor is connection intent, not a live-operability receipt. A new credential-free readiness probe performs only bounded public GET and MCP discovery requests; it sends no authorization, performs no `tools/call`, reflects no response body, and makes no external mutation. Its machine-readable result is `held`: health returns 200, while GET `/mcp` omits `Allow: POST`, protected-resource metadata returns 404, and public `initialize` plus `tools/list` return 401. The deployed edge therefore remains on the legacy bearer contract and does not match the reviewed OAuth/OpenAI runtime.
+- Evidence: OpenAI ecosystem tests pass 92/92, including ten adversarial portable-MCP mutants and five live-probe contract cases; Cortex passes 68/68; focused deployable-source TypeScript compilation and `git diff --check` pass; `npm audit --omit=dev` reports zero vulnerabilities. Source verification passes at complete-packet digest `sha256:1d69868129cdaa04d7e9a06747957d266be7a7d0d98c15e9bc26ceb1b3491c37`. The mandatory Cato rail failed before review because its fixed `gpt-5.4` model is unsupported on this account, so no independent approval is claimed.
+- Full compatibility remains deliberately HELD with exit 2 on the same nine absent live receipts. The next lane is a separately owner-approved rollback-gated deployment/configuration of the reviewed OAuth runtime, followed by fresh deployed-version, endpoint, readback, rollback, workspace-admin, marketplace-import, entitlement, credential, and plugin-connection receipts. No Worker, binding, secret, OAuth client, marketplace, plugin, Dot, connected computer, app, channel, D1, KV, or external state was changed; ISA remains active at 1/32.
+
+### 2026-09-30 OpenAI plugin 1.5.0 — durable founder review handoff
+
+- Plugin `1.5.0` closes the source gap between `compile_action_intent` and the existing non-writing Telegram approval route. Cortex now exposes `request_action_approval` and `get_action_approval_status`; Quests stores one immutable/idempotent review request, validates it against the server-owned pending Goal Graph descriptor, and projects a bounded founder Gate row.
+- The Mini App receives no OAuth actor, issuer, plugin identity, MCP identity, or raw arguments. Its signed `approve-mcp-action` request contains only `kind`, `subject` (the action digest), `requestDigest`, and Telegram `initData`. Quests resolves the sensitive tuple server-side, revalidates tenant/target/expiry, records one approval artifact, and performs zero D1 writes. Execution remains a separate token-authenticated adapter call into the existing Goal Graph CAS writer.
+- Evidence: combined Quests/Gate/UI tests pass 646/646; Cortex passes 68/68; the OpenAI ecosystem suite passes 86/86, including 51/51 adversarial compatibility checks; 43/43 affected context-adapter tests pass; focused deployable-source TypeScript checks and `git diff --check` pass; `npm audit --omit=dev` reports zero vulnerabilities. Source verification passes at complete-packet digest `sha256:a785cb6650f1722050ebf1114414fea1ceb8e4af4ab27ffe1b2d49e85064d836`.
+- Full compatibility remains deliberately HELD with exit 2 on the nine absent live receipts: Dot entitlement, workspace-admin enablement, plugin connection, service credentials, deployed version, MCP endpoint, authoritative readback, rollback, and marketplace import. ISA remains 1/32. No binding or secret was configured, no OAuth identity was registered, no plugin or marketplace was installed/synced, no worker was deployed, no Telegram action was sent, and no live D1/KV/OpenAI/Cloudflare state changed.
+
+### 2026-09-30 OpenAI plugin 1.4.0 — real Quests Gate and Goal Graph execution seam
+
+- Plugin `1.4.0` replaces the action plane's injected-interface-only gap with a repository-real execution path. `approve-mcp-action` is a Telegram founder-signed, approval-only route: it re-hashes the exact Cortex intent and closed `{change_digest}` arguments, joins graph version/nonce/expiry/idempotency to the server-owned pending Goal Graph task, writes one immutable KV approval artifact, and performs no D1 mutation.
+- Cortex now authenticates its injected `MCP_GATE_ADAPTER` hop with a dedicated `MCP_GATE_ADAPTER_TOKEN`. Quests exposes only `POST /mcp/actions/execute` for that secret, resolves the stored approval, rejects drift/conflict/expiry, and invokes the existing `approveGoalGraphIntakeRoute` D1 CAS writer with the recorded Telegram founder identity. Cortex still has no D1 binding.
+- Completion is one digest-bound `cambium.gate.action_receipt.v1` plus matching authoritative readback. The first valid call commits through the existing Goal Graph store; an identical replay returns the exact original receipt with `duplicate` and never invokes the writer again. A KV receipt-persistence failure remains recoverable because the existing Goal Graph route reconciles committed D1 evidence on retry.
+- The final invariant review also binds the Telegram Gate URL tenant to the signed MCP intent tenant. An adversarial integration case proves route/intent tenant drift returns 403 before either approval persistence or D1 access.
+- Evidence: Quests/Gate suites pass 403/403; Cortex passes 64/64; OpenAI/Dot compatibility passes 86/86; the new Gate core and Cortex runtime pass focused TypeScript compilation; `npm audit --omit=dev` reports zero vulnerabilities; `git diff --check` passes; and source verification yields complete-packet digest `sha256:a791d7a8f9f789012ddbd6506f7651621f36d34f3dbaa9cb24fc699edadbc5c1`.
+- Full compatibility still deliberately exits 2 and lists the same nine missing owner-approved live receipts. No Wrangler service binding, shared secret, OAuth identity, deployment, marketplace import, plugin connection, live approval, D1 mutation, channel delivery, or external state changed. `mcp.json` remains absent and ISA remains 1/32.
+
+### 2026-09-30 Cortex MCP Gate action plane — verified source candidate
+
+- The closed local OpenAI packet is now plugin `1.3.0`, with deterministic complete-packet digest `sha256:9cc867c38830800c624baf75e9371111329c6f1acdae5ecad7986dbbe4578381`. Its portable skill, reviewed import instructions, compatibility manifest, and new `mcp-action-contract.md` agree with the digest-bound runtime: `compile_action_intent` is non-writing, while `execute_approved_action` can submit only one separately approved exact tuple to an injected Cambium Gate adapter.
+- Cortex derives actor, plugin identity, MCP identity, issuer, canonical argument digest, and action digest from verified OAuth context plus closed caller arguments. Action discovery requires complete OAuth configuration, an explicit founder allowlist, the exact plugin client ID, and the full base-plus-action scope set. Legacy or read-only credentials, cross-tenant claims, non-founder subjects, mismatched clients or issuers, caller-supplied identity fields, stale or overlong approvals, sensitive content, and malformed inputs are denied before Gate dispatch.
+- The execute path has no D1 binding. It enforces a five-second Gate deadline, 32 KiB canonical arguments, 128 KiB incremental response bounds, exact HTTPS adapter routing, replay-safe idempotency, explicit conflict handling, one mutation, and an exact receipt/readback join across tenant, actor, plugin/MCP/issuer identities, action and argument digests, graph version, nonce, expiry, idempotency key, approval digest, terminal outcome, and receipt digest. Only matching authoritative readback yields `canonical_completion:true`; execution authority remains `cambium-gate` and `writer_authority` remains false.
+- Evidence: Cortex MCP tests pass 64/64; OpenAI packet and Dot-runtime tests pass 86/86; focused deployable-source TypeScript compilation passes; source verification passes at the digest above; `npm audit --omit=dev` reports zero vulnerabilities; and `git diff --check` passes. The self-audit caught and repaired action discovery that initially declared only the incremental action scope instead of the complete base-plus-action set. The mandatory Cato and supplemental fixed reviewer both failed before execution because their fixed `gpt-5.4` model is unsupported on this ChatGPT-backed account, so no independent approval is claimed.
+- The broad `scripts/infinite-game-anchors.test.mjs` process remained silent for 101 seconds and was interrupted; its OpenAI-specific assertions are already covered by the green 86-case packet suite, but no broad anchor-suite pass is claimed. Full compatibility deliberately remains HELD with exit 2 on all nine owner-approved live receipts. No Gate binding, D1 binding, OAuth issuer, verifier, client registration, founder identity, credential, endpoint, deployment, marketplace import, plugin connection, dot, authenticated OpenAI action, write, channel update, or external state changed. `mcp.json` remains absent and ISA remains 1/32.
+
+### 2026-09-30 Cortex MCP provenance read plane — verified source candidate
+
+- The closed local OpenAI packet is now plugin `1.2.0`. `read_infinite_game_node` is an SDK-advertised, read-only MCP tool with a closed input schema, structured output schema, mirrored OAuth security descriptors, and machine-readable Cambium capability metadata for resource, tenant binding, credential owner, approval, idempotency, terminal-receipt semantics, and `writer_authority:false`. The packet digest is `sha256:59142b5a25540390906123c1a6413351f983b212ccce4889e0f7501c2015f6db`.
+- `workers/cortex-mcp/src/provenance-read.ts` accepts only an injected `MCP_PROVENANCE_READER` binding. Centralized authorization checks every advertised tool before provider dispatch. The provenance reader verifies exact tenant/node identity, node-kind authority, canonical authority-specific references, source and requested graph versions, exact-calendar timestamps, maximum 24-hour observation age and validity duration, canonical content digest, and secret/path exclusion across the full emitted envelope. Its five-second deadline and incremental stream reader cancel above 128 KiB before unbounded buffering. It returns bounded `cambium.mcp.read_envelope.v1` evidence with neither writer authority nor canonical-completion semantics; the Worker receives no D1 binding.
+- Evidence: Cortex MCP tests pass 55/55, including mismatched and missing tenant claims for all eight tools, zero provider dispatch, embedded secret/path variants, impossible and overlong freshness, chunked early cancellation, timeout, and end-to-end non-reflection; focused deployable-source TypeScript compilation passes; OpenAI compatibility tests pass 86/86; source verification passes at the digest above; production `npm audit --omit=dev` reports zero vulnerabilities after compatible transitive overrides to `fast-uri` 3.1.8 and `ip-address` 10.7.2; `git diff --check` passes. The compatibility verifier now digest-binds both the MCP source and resolved package dependency graph.
+- Supplemental review first rejected three P1, three P2, and one P3 issue: fixed-tenant handler authorization, embedded sensitive content, unbounded freshness, buffered/untimed reads, dependency substitution, overstated evidence prose, and tenant-schema drift. Every reproduced path above now has a regression. This remains supplemental review, not Cato approval; the mandatory fixed-model reviewer is unavailable on this account.
+- Final supplemental re-review reports PASS with no remaining P0-P3 in the repaired slice after 26 credential and absolute-path probes rejected end-to-end. The post-deliverable Advisor remains unavailable because usage credits are required. Neither supplemental review nor unavailable rails establish Cato approval or live OpenAI operability.
+- Full compatibility deliberately remains HELD with exit 2 on all nine owner-approved live receipts. No provenance reader binding, OAuth issuer, verifier, origin, tenant claim source, Wrangler variable, credential, deployment, marketplace import, plugin connection, dot, authenticated OpenAI call, authoritative readback, D1 write, channel update, or external state changed. `mcp.json` remains absent and ISA remains 1/32.
+
+### 2026-09-30 Cortex MCP Streamable HTTP and OpenAI OAuth — verified source candidate
+
+- `workers/cortex-mcp/src/index.ts` now delegates initialization, ping, tool discovery, and tool calls to the official MCP SDK `WebStandardStreamableHTTPServerTransport` in fresh-server, stateless, JSON-response mode. The retired hand-written JSON-RPC dispatcher and private SDK handler access are gone; the legacy Hermes bearer path retains its missing-`Accept` compatibility normalization.
+- OAuth mode now exposes unauthenticated protocol initialization and read-only tool descriptors for OpenAI account linking while every tool call remains gated. Missing or invalid tokens and insufficient scopes return OpenAI-compatible tool errors with `_meta["mcp/www_authenticate"]`, `error`, and `error_description`; verifier rejection, insufficient scope, throttling, and outage remain distinct 401/403/429/503 decisions.
+- RFC 9728 discovery is derived from the exact configured resource path, OAuth aliases cannot contradict that resource, issuer/resource strings retain exact trailing-slash semantics, and query, fragment, embedded-credential, malformed-verifier, audience, lifetime, and scope variants fail closed. Browser requests require an exact `MCP_ALLOWED_ORIGINS` match; server-to-server requests without `Origin` remain accepted.
+- Verified tenant claims are carried into MCP `authInfo`, and `semantic_recall` rejects any tenant not present in `tenant`/`tenants` claims before Workers AI, Vectorize, or provider access. D1 remains untouched, Cortex remains read-only, and the existing environment tenant allowlist remains an additional downstream boundary.
+- Evidence: `npm test` in `workers/cortex-mcp` passes 39/39; focused deployable-source TypeScript compilation passes; `npm audit --omit=dev` reports zero production vulnerabilities; OpenAI packet tests pass 83/83; `--check-source --print-digest` passes at `sha256:2f0dd52ef920cba18212776c3d272e8e17215324a80110d25a28d5bd8df95b59`; `git diff --check` passes. Supplemental read-only review first found two P1, three P2, and one P3 issue, then passed after adversarial repairs with no remaining finding. This is not Cato approval: the mandatory Cato attempt failed because its fixed `gpt-5.4` model is unsupported on this ChatGPT-backed Codex account. The post-deliverable Advisor also remained unavailable because usage credits are required.
+- Full compatibility correctly remains HELD with exit 2 on all nine owner-approved live receipts. No OAuth issuer, verifier binding, allowed origin, tenant claim source, Wrangler variable, identity provider, credential, deployment, marketplace import, plugin connection, dot, authenticated MCP request, OpenAI readback, D1 write, channel update, or external state changed. `mcp.json` remains absent and ISA remains 1/32.
+
+### 2026-09-30 Cortex MCP OpenAI OAuth seam — verified source candidate
+
+- `workers/cortex-mcp/src/openai-auth.ts` adds an explicit, fail-closed resource-server boundary for a future private OpenAI MCP connection. OAuth mode requires the exact HTTPS resource, external authorization-server issuer, scopes, and a token-verifier service binding. Incomplete OAuth configuration cannot fall back to the legacy `CONTEXT_ROUTE_TOKEN`; Cortex does not publish or impersonate authorization-server metadata.
+- `workers/cortex-mcp/src/index.ts` now serves protected-resource metadata only in complete OAuth mode, emits a standards-shaped `WWW-Authenticate` challenge, delegates signature verification to the required service binding, rechecks issuer/audience/time/scope claims inside Cortex, and marks all seven current tools read-only with closed schemas and OAuth security descriptors. Unselected OAuth preserves the existing Hermes bearer contract.
+- Evidence: `npm test` in `workers/cortex-mcp` passes 19/19; focused `tsc --noEmit` passes; `npm audit --omit=dev` reports zero production vulnerabilities; `node scripts/verify-openai-ecosystem-compatibility.mjs --check-source` passes; `git diff --check` passes. The read-only noesis-verify fallback reported no P0/P1/P2 source finding, but its “fully compliant” wording is intentionally narrowed here: only the source seam is verified.
+- No identity provider, verifier binding, secret, Wrangler configuration, Worker deployment, OpenAI plugin connection, Dot entitlement, marketplace import, authenticated MCP read, D1 write, or other external state changed. `mcp.json` remains absent, all nine live receipts remain missing, and ISA remains 1/32.
+
+### 2026-09-30 OpenAI marketplace packet and Phase 9 Task 1 — verified local candidates
+
+- A portable source-only plugin packet lives under `openai/cambium-infinite-game/`, and the workspace discovery layer now lives at the official repository root path `.agents/plugins/marketplace.json`. Plugin version `1.0.1` has one closed local marketplace entry pointing at the owned packet, with the required `AVAILABLE` installation policy, `ON_INSTALL` authentication policy, and `Productivity` category. The compatibility manifest digest-binds the marketplace, reviewed instructions, reusable skill, plugin manifest, and live-gate index; marketplace import separately binds a runtime digest over every file in the complete plugin directory, including the compatibility manifest.
+- `node --test tests/openai-ecosystem/compatibility.test.mjs` passes 48/48. `node scripts/verify-openai-ecosystem-compatibility.mjs --check-source --print-digest` passes with packet digest `sha256:e3f2fe27d321c0d4c54d27ca8bcb6b23bee4a30dc01142111130fde587df58d1`. Full `--check` intentionally exits 2 until exactly nine independently valid receipts exist: the prior eight plus an admin-controlled marketplace-import receipt bound to the exact marketplace digest, complete plugin-directory digest, plugin identity/version, repeated no-change sync evidence, and the same workspace and tenant identities carried by every gate. Empty files, reduced or duplicate gate lists, remote-reference injection, secret-like values, raw external identifiers, arbitrary region content, physical symlink escapes, impossible dates, and one-field or binding mutants remain red.
+- The packet contains no `mcp.json` because `https://cortex.thoughtseed.space/mcp` remains source-declared but not independently verified for health, Access/authentication, or ChatGPT tool discovery. No marketplace was imported or synced; no plugin was saved, shared, installed, enabled, or connected; no dot, app, connected computer, Slack, Teams, ChatGPT workspace, or external account state changed.
+- Phase 9 Task 1 adds the bounded collector, two listing-bound loopback Worker implementations, exact canonical 256-bit bearer lifecycle, fresh/current-run/single-use closed authorization, exact encrypted-path binding, non-injectable canonical resource-map/profile authority resolution, read-only command planning, authoritative mapping/foldback/projection validation, and adversarial tests. Its focused suite passes 53/53; the combined Phase 9 plus OpenAI packet suite passes 101/101. Supplemental Phase 9 read-only review closed the token, replay, encrypted-path, authority-provenance, and shared-handler bypasses with no remaining scoped P1/P2 findings; this is not Cato approval. Final supplemental OpenAI review likewise closed complete-packet binding, receipt reduction, workspace/tenant binding, secret-like content, marketplace policy/category, date, symlink, endpoint, connection, and raw-region bypasses with no remaining P0/P1/P2 finding; this is also not Cato approval. `--run` without authorization exits 4 and a schema-valid current-run authorization using canonical authority still exits 3 before network work. No credential, authenticated R2 read, Cloudflare request, authorization artifact, inventory receipt, copy, deployment, or retirement occurred.
+- A broad `npm test` run reached 2,123 passing tests and exposed one stale Intent Graph readback caused by the active ISA task change; the run was interrupted after 441 seconds with that one failure and one cancelled umbrella file. `node scripts/generate-intent-graph.mjs --write` refreshed the two generated readbacks, `--check` now passes, and focused readback/goal-anchor regression tests pass 2/2. The entire broad suite was not rerun after this bounded generated-output repair, so no new full-suite-green claim is made.
+- Residual Phase 9 work is explicit: owner-approved Task 2 authorization and Task 3 authenticated execution/readback. INV-01, CLASS-01, Phase 9, Phase 10, and the overall OpenAI compatibility goal remain incomplete.
+- Mandatory Forge was attempted twice but its fixed `gpt-5.4` model is unsupported on this ChatGPT-backed Codex account; Anvil was unavailable because its Moonshot key/runtime was missing. The code was produced through the project `noesis-build` OmniRoute rail. The pre-build Advisor was also unavailable because usage credits are required. Superset Hands remained unavailable and exact project admission remained held, so neither service startup nor enrollment was inferred. These rail failures grant no approval and do not change any acceptance boundary.
+
+### 2026-09-30 OpenAI ecosystem compatibility goal — planning checkpoint
+
+- The active goal now defines OpenAI compatibility as a hybrid adapter: imported project instructions and reusable skills, a private plugin with a verified MCP boundary, dot coordination, connected-computer and app access, and bounded local/cloud Codex tasks.
+- Cambium authority is not relocated. The D1 Goal Graph remains the sole operational writer; ISA/GSD remain acceptance/planning authorities; Hermes remains transport authority; Cloudflare ownership, tenant isolation, provenance, receipts, approval, idempotency, stop, rollback, and privacy boundaries remain intact.
+- Existing Phase 9 source inventory and Phase 10 parity/retirement work remain prerequisite evidence and are not completed or abandoned. The next canonical step is `/gsd:progress` to stop at the authenticated-read gate after the now-implemented synthetic Task 1. Phase 10 remains separately approval-gated. ISA may accept reversible source packaging in parallel; GSD opens the finite compatibility execution packet only after v0.5 reaches a reviewed terminal state.
+- This checkpoint originally contained planning alignment only; the newer checkpoint above supersedes that source-only status without claiming any live activation. No dot or connected computer was configured, no MCP server was deployed, no external service, credential, provider, Cloudflare, D1, Hermes, Slack, Teams, or ChatGPT state was mutated.
 
 ### 2026-09-11 Temperance continuous-learning integration contract — documentation candidate
 
@@ -2567,3 +2783,71 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 - Preserved main privacy/authority corrections; curated transport evidence excludes raw logs/contact records and redacts personal reply addresses. Publish a fresh single-commit tree on main rather than the recovery checkpoint ancestry.
 - Restored the committed eight-topic Hermes pin; uncommitted Adytum topic remains an upstream hold. PAGE digest exactly matches the historical viewport receipt; no new visual capture or human acceptance claimed.
 - Targeted tests and privacy/drift/render/compose checks pass. Full-suite receipt belongs in the local review-ready handoff after the source commit. Phase 9 collector implementation and authenticated inventory remain incomplete under the existing executable plan; no Cloudflare/runtime/delivery/retirement action was performed.
+
+### 2026-09-30 OpenAI Dot runtime source checkpoint
+
+- The closed local Agent Plugins packet is now version `1.1.0`. It retains the
+  fixed portable skill discovery path and intentionally omits `mcp.json` because
+  endpoint discovery, OAuth, tool catalog, and live connection evidence remain
+  separately owner-approved gates.
+- Added `skills/cambium-infinite-game/scripts/dot-runtime.mjs`, a deterministic,
+  zero-network, zero-write Node ESM module and JSON-stdin CLI. It compiles
+  digest-only Dot memory checkpoints, local/cloud Codex task envelopes,
+  connected-surface holds, one-channel update envelopes, lifecycle receipts,
+  post-stop action admission, and in-doubt reconciliation. Telegram remains
+  Hermes-owned, D1 remains the sole operational writer, and compiled output is
+  never a send, authorization, receipt, or canonical completion.
+- Added the reviewed `references/dot-operating-contract.md`; updated the portable
+  skill, plugin interface, compatibility manifest, official Dot channels source,
+  payload coverage, strict input tests, and deterministic packet bindings.
+- Verification: OpenAI ecosystem tests 83/83; Phase 9 bounded inventory tests
+  53/53; repaired anchor and privacy tests 9/9; source-only compatibility check
+  passes at complete packet digest
+  `sha256:2f0dd52ef920cba18212776c3d272e8e17215324a80110d25a28d5bd8df95b59`.
+  The first wide anchor run exposed five stale/fixture failures (71/76); each
+  affected case passed in the bounded 9/9 rerun after current-state and exact
+  synthetic-fixture repairs.
+- The full compatibility check remains deliberately HELD with exit 2 on the
+  nine absent live receipts: dot entitlement, workspace-admin enablement,
+  plugin connection, service credentials, deployed version, MCP endpoint,
+  authoritative readback, rollback, and marketplace import/repeated sync.
+  ISA remains 1/32; source evidence does not close live acceptance.
+- No marketplace import or sync, plugin installation, OAuth/MCP configuration,
+  connected-computer or app access, local/cloud Codex dispatch, channel send,
+  Telegram action, Cloudflare read/write/deploy, credential use, or external
+  mutation occurred in this checkpoint.
+
+### 2026-09-30 OpenAI plugin 1.7.0 — connected-profile source checkpoint
+
+- Added exactly one OAuth-only `get_connected_profile` tool following OpenAI's
+  connected-account profile contract: empty closed input, standard optional
+  profile fields with required opaque `id`, explicit read-only annotations, and
+  `_meta["openai/profile"]: true`.
+- The ID is `prf_` plus HMAC-SHA-256 of the normalized verified issuer and
+  exact verified subject using a separate `MCP_PROFILE_ID_KEY`. Missing or
+  malformed key material withholds discovery; missing or malformed verified
+  identity fails closed. Only `id` is emitted. The tool cannot grant tenant,
+  founder, approval, execution, writer, or canonical-completion authority and
+  tests prove zero provider, provenance-reader, or Gate dispatch.
+- The portable skill, new connected-profile contract, compatibility manifest,
+  runtime-source bindings, official OpenAI authentication reference, readiness
+  probe, package, server, and plugin versions are bound at `1.7.0`.
+- Verification passes 76/76 Cortex tests, 93/93 OpenAI ecosystem tests,
+  focused TypeScript, JSON parsing, source verification, production dependency
+  audit, and `git diff --check`. Complete packet digest:
+  `sha256:0b28bd6375a2302a0d5acf39d3689b516e95f314c5c93e90f9f39e56d739b842`.
+  The full verifier and credential-free live probe both exit 2 as designed:
+  all nine live receipts remain absent and the deployed edge lacks reviewed
+  `Allow: POST`, protected-resource metadata, public initialize, and six-tool
+  discovery.
+- Mandatory Forge and Cato attempts failed before review because fixed
+  `gpt-5.4` is unsupported on this ChatGPT-backed account; no verdict is
+  inferred. The unrestricted development audit still reports six transitive
+  Wrangler 3 findings whose available fix is a breaking Wrangler 4 upgrade;
+  production dependencies report zero vulnerabilities, and no toolchain
+  migration is authorized by this checkpoint.
+- ISA source criteria ISC-2476.1..2476.5 are complete, moving the active slice
+  to 6/37. Parent readiness, deployment, connection, credential, import,
+  readback, rollback, and end-to-end criteria remain open. No secret, binding,
+  OAuth client, Worker deployment, marketplace sync, plugin connection, Dot,
+  connected surface, channel send, D1/KV/R2 write, or external state changed.

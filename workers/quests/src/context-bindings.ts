@@ -1,6 +1,7 @@
 import type {
   ContextProviderMetadata,
   RoutineContextLike,
+  RoutineContextItem,
   RoutineContextSection,
   SemanticRecallHit,
   SemanticRecallLike,
@@ -22,6 +23,8 @@ export interface R2ObjectLike {
 }
 
 export interface R2BucketLike {
+  list?(options: { prefix: string; limit: number }): Promise<{ objects: Array<{ key: string }>; truncated: boolean }>;
+
   get(key: string): Promise<R2ObjectLike | null>;
   head?(key: string): Promise<R2ObjectLike | null>;
   put?(key: string, value: Uint8Array, options?: {
@@ -292,7 +295,7 @@ export function createRoutineContext({
           continue;
         }
 
-        const items = [];
+        const items: RoutineContextItem[] = [];
         let staleKeyCount = 0;
         let missingKeyCount = 0;
         let invalidKeyCount = 0;

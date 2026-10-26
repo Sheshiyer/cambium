@@ -1,0 +1,20 @@
+# Wave 0 immutable terminal foldback and accepted-task consumer
+
+Source candidate only; no deployment or production activation. Hosted noesis-build generated independent immutable read and Mission Fabric consumer slices (actual claude-sonnet-5-5, 14958ms and 61228ms). Two earlier larger calls failed Cloudflare 524 with no source output. Native review corrected key grammar, numeric graph versions, exact nested bindings, gap schema, reader invocation, active-task authority and acceptance gates.
+
+- Immutable store now independently reads exact canonical bytes after writes. Independent read validates receipt derivation, tenant, graph, task/node, WorkObject and pinned loadout.
+- Read-only prefix discovery is limited to 100 direct receipt keys under one D1-anchored WorkObject, rejects truncation and nested projections. GET Mission Fabric uses discovery when no explicit references exist, then validates each candidate; no mutable KV converter is introduced.
+- Real terminal ingress can call an injected trusted admission owner, checks every terminal identity, attestation/input/proof digests and stable finishedAt, then uses the real immutable foldback store. Production index injects only read-only R2 capabilities; no admission/acceptance verifier or fixture is wired into production.
+- Semantic acceptance requires verified activation plus owner-readback of a task-scoped accepted-work-unit receipt, exact task/goal/WorkObject, preregistered executionInputDigest, and exact receipt-byte SHA256 bound to terminal proof. Whole lifecycle and production admission remain false. Missing authority stays a gap.
+- Duplicate terminal business outcomes skip markOutcome. Owner exceptions after D1 recording remain truthful recorded+held responses. Stale-fence/ACK legacy behavior retained. No new unchanged-fence expiry or stop/cancellation execution-store policy is claimed; consumer excludes nonactive/stopped task anchors.
+
+
+## Final integration checkpoint
+
+The source candidate is committed as `44a61d7`, corrected by `e504833` (executed-only semantic acceptance and bounded deduplicated discovery), `2f7f763` (finite WTFMedia loadout policy), and `f16c6e0` (exact policy-byte test). The canonical checkout now contains these exact Wave 0 changes. Pre-existing MCP Gate and other source edits were preserved; inversely removing only the Wave 0 hunks in memory reproduces all nine pre-integration source SHA256 hashes. Canonical changes remain unstaged and no unrelated edits were committed.
+
+Final canonical verification passes **43 focused tests plus eight selected terminal execution tests**. The actual Mission Fabric handler preserves `loadout:wtfmedia-source-audit` for `branch:wtfmedia`, emits its governed loadout edge, and performs zero D1/KV writes. The finite source policy hashes to `sha256:86a41489579215fc1fa597c645b1c61d6a5cdbd2e0f28227a5d611c1a0e64064`; it authorizes only the source-verification policy declaration, with no issued admission, production execution authorization or whole-lifecycle acceptance.
+
+The parent WTFMedia pilot three passes against canonical source: hosted `noesis-execute` returned HTTP 200 with actual `gemini-2.5-flash`; the scoped owner ran 21 real WTFMedia source tests; immutable receipt storage wrote once and replayed exactly; bounded R2 discovery listed once with six reads; the actual GET handler returned the same accepted receipt and pinned loadout with zero D1/KV writes. The pilot's terminal ingress remains `terminalIngressTested: false`; POST terminal ingress is covered separately by the eight synthetic terminal tests and is not represented as the same live pilot path.
+
+Production remains held on actual current admission, deployed Worker/owner configuration, exact task/loadout/graph lineage, and deployed immutable receipt readback. This source and local integration checkpoint grants no production acceptance and makes no claim that the complete production lifecycle has run. No services, deployment, production graph, provider configuration or protected EC2 verification process was changed.

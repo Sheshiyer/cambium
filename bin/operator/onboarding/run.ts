@@ -4,13 +4,14 @@
 // the session per step so it's resumable. UX only — the deterministic fold lives in
 // session.ts (A2). A4 (#12) elevates the mid-brain → noesis beats; A5 (#13) the full panel.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync, openSync, fsyncSync, closeSync, copyFileSync, constants } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface, type Interface } from 'node:readline';
 import type { Decision, WakeDeps, OnboardingStep } from '../types.ts';
 import { ONBOARDING_SCRIPT } from './script.ts';
-import { initOnboarding, advance } from './session.ts';
+import { initOnboarding, advance, validateCheckpoint, validateTenant, CHECKPOINT_SCHEMA, SCRIPT_DIGEST } from './session.ts';
 import type { OnboardingState, OnboardingInput, OnboardingSeed } from './session.ts';
 import { renderOctalysisPanel, DRIVE_NAMES } from './octalysis.ts';
 
@@ -38,23 +39,39 @@ const statePath = (dir: string, tenant: string): string => join(dir, `${tenant}.
 function loadState(dir: string, tenant: string, seed: OnboardingSeed): OnboardingState {
   const p = statePath(dir, tenant);
   if (existsSync(p)) {
-    try { return JSON.parse(readFileSync(p, 'utf8')) as OnboardingState; } catch { /* corrupt → fresh */ }
+    let value: unknown;
+    try { value = JSON.parse(readFileSync(p, 'utf8')); }
+    catch { throw new Error('Unreadable onboarding checkpoint; original data preserved.'); }
+    return validateCheckpoint(value, tenant);
   }
   return initOnboarding({ ...seed, tenant });
 }
 
 function saveState(dir: string, state: OnboardingState): void {
   mkdirSync(dir, { recursive: true });
-  writeFileSync(statePath(dir, state.world.tenant), JSON.stringify(state, null, 2));
+  const target = statePath(dir, state.world.tenant);
+  const temporary = `${target}.${randomUUID()}.tmp`;
+  try {
+    const fd = openSync(temporary, 'wx', 0o600);
+    try {
+      writeFileSync(fd, JSON.stringify({ ...state, schema: CHECKPOINT_SCHEMA, scriptDigest: SCRIPT_DIGEST }, null, 2));
+      fsyncSync(fd);
+    } finally { closeSync(fd); }
+    renameSync(temporary, target);
+  } finally {
+    if (existsSync(temporary)) unlinkSync(temporary);
+  }
 }
 
 function driveTag(step: OnboardingStep): string {
   return `drive ${step.drive} · ${DRIVE_NAMES[step.drive]}  [${step.hat} hat · ${step.brain}-brain${step.brain === 'mid' ? ' → noesis' : ''}]`;
 }
 
-function renderStep(step: OnboardingStep, out: (s: string) => void): void {
+function renderStep(step: typeof ONBOARDING_SCRIPT[number], out: (s: string) => void): void {
   out('');
   out(`  ── #${step.n}/20 · Phase ${step.phase} (${PHASE_NAMES[step.phase]}) · ${step.title}`);
+  out(`     evidence: ${step.evidenceState}`);
+  out('     Tutorial simulation — actions, margins and progress are local examples; live admission, pinning, execution and learning remain held.');
   out(`     ${driveTag(step)}`);
   out(`     "${step.narration}"`);
 }
@@ -124,6 +141,15 @@ export async function runOnboard(opts: RunnerOpts = {}): Promise<OnboardingState
   const dir = opts.stateDir ?? join(DEFAULT_ROOT, '.operator');
   const tenant = opts.tenant ?? opts.seed?.tenant ?? 'onboarding';
 
+  validateTenant(tenant);
+  if (opts.tenant && opts.seed?.tenant && opts.tenant !== opts.seed.tenant) {
+    throw new Error('Onboarding seed tenant mismatch.');
+  }
+  if (opts.restart && existsSync(statePath(dir, tenant))) {
+    copyFileSync(statePath(dir, tenant), `${statePath(dir, tenant)}.${randomUUID()}.backup`, constants.COPYFILE_EXCL);
+  }
+  out('Tutorial simulation · Doctrine = designed; Local = repository contract; Held = separate operational evidence required.');
+  out('Tutorial completion grants no live admission, pinning, execution or learning authority.');
   let state = opts.restart ? initOnboarding({ ...opts.seed, tenant }) : loadState(dir, tenant, opts.seed ?? {});
 
   out(state.stepIndex > 0
@@ -151,13 +177,13 @@ export async function runOnboard(opts: RunnerOpts = {}): Promise<OnboardingState
       const input = read && !isNoesis ? parseInput(step, await read(promptFor(step))) : {};
       const r = advance(state, input, opts.deps);
       state = r.state;
+      saveState(dir, state); // commit before presentation/pause so interruption resumes at the next step
       if (r.decision!.noesis) {
         renderNoesisFrame(step, state, r.decision!, out);
         if (read) await read('     » (take a breath — Enter to continue) ');   // hold the moment for the human
       } else {
         renderDecision(state, step, r.decision!, out);
       }
-      saveState(dir, state);
       if (opts.auto && opts.delayMs) await new Promise((res) => setTimeout(res, opts.delayMs));
     }
   } finally {

@@ -1,3 +1,5 @@
+> **Historical GSD ledger (2026-10-06).** The acceptance ledger for this repo is `ISA.md`: goals, criteria, decisions, and verification live there and nowhere else. Files under `.planning/` are GSD executor packets (phase PLAN files for in-flight waves) and history; do not read them as a second source of truth, and do not plan new work here — extend `ISA.md ## Features`. Receipt: `~/.temperance_engine/docs/architecture/2026-10-06-gsd-executor-isa-ledger.md`.
+
 # Requirements: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 
 ## Active requirements

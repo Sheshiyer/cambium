@@ -1,0 +1,32 @@
+{
+  "schema": "cambium.source-verification-loadout-policy.v1",
+  "loadoutId": "loadout:wtfmedia-source-audit",
+  "eligibleWorkObjectIds": [
+    "branch:wtfmedia"
+  ],
+  "authorizedClusterIds": [
+    "cluster:wtfmedia-source-verification"
+  ],
+  "scope": "finite-local-source-verification",
+  "allowedEffects": [
+    "read-repository-source",
+    "run-fixed-source-verification",
+    "write-local-evidence-receipt"
+  ],
+  "prohibitedEffects": [
+    "deployment",
+    "production-runtime-mutation",
+    "goal-graph-mutation",
+    "message-delivery",
+    "provider-policy-mutation"
+  ],
+  "admissionIssued": false,
+  "productionExecutionAuthorized": false,
+  "wholeLifecycleAccepted": false,
+  "requiredRuntimeAuthority": [
+    "current-exact-task-and-graph",
+    "independent-admission-readback",
+    "immutable-terminal-receipt",
+    "trusted-scoped-acceptance-readback"
+  ]
+}

@@ -2,8 +2,12 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox syntax for tracking. Respect Temperance's approved routing and owning repository before dispatching any worker.
 
-**Status:** proposed, 2026-10-01. Review and planning are delivered; implementation,
-installation and migration are not authorized by this artifact.
+**Status:** proposed, 2026-10-01. Review and planning are delivered.
+**Update: full Tasks 1–8 source execution is now authorized and active** in
+the Temperance distribution's isolated `codex/modular-mac-lifecycle`
+worktree; per-task acceptance is tracked in `.planning/HANDOFF.json`, not
+here. Installation, host effects and physical migration (Task 8) remain
+unauthorized until an exact owner scope and target are supplied.
 
 **Goal:** Extend the existing Temperance install surface into a modular,
 recoverable setup for a replacement workstation and an added always-on Mac,
@@ -343,6 +347,6 @@ the actual E receipts for both selected scenarios. F is a later optional
 capability set. A green test run, visible TUI, application presence or healthy
 port cannot collapse these definitions into a full-system migration claim.
 
-The next decision is whether to adopt this design and admit **Task 1–2 only**
-as a finite distribution-owned source slice. No execution method or host
-change is chosen by publishing this plan.
+*Superseded:* this section originally proposed admitting **Task 1–2 only**.
+The owner has since authorized full Tasks 1–8 source execution through
+Temperance Parallel Dispatch; no host change is chosen by this plan.

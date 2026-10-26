@@ -3,6 +3,8 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { ORGAN_ATLAS } from "./organ-atlas.ts";
 import { evaluateCapabilityHit } from "./capability-hits.ts";
 import {
@@ -13,11 +15,54 @@ import {
 } from "./taste-compose.ts";
 
 import { recallOperatorMemory } from "./semantic-recall.ts";
+import {
+  INFINITE_GAME_NODE_KINDS,
+  ProvenanceReadError,
+  readInfiniteGameNode,
+  type ProvenanceReaderBinding,
+} from "./provenance-read.ts";
+import {
+  GateActionError,
+  compileActionIntent,
+  executeApprovedAction,
+  readActionApprovalStatus,
+  requestActionApproval,
+  type GateActionBinding,
+  type GateActionIdentity,
+} from "./gate-action.ts";
+import {
+  authorizeMcpRequest,
+  oauthChallenge,
+  oauthSecuritySchemes,
+  oauthToolChallenge,
+  protectedResourceMetadata,
+  protectedResourceMetadataUrl,
+  resolveAuthConfig,
+  type TokenVerifierBinding,
+} from "./openai-auth.ts";
+import {
+  ConnectedProfileError,
+  deriveConnectedProfile,
+  resolveConnectedProfileConfig,
+} from "./connected-profile.ts";
 
 export interface Env {
   NVIDIA_API_KEY?: string;
   CORTEX_EMBED_MODEL?: string;
   CONTEXT_ROUTE_TOKEN?: string;
+  MCP_AUTH_MODE?: string;
+  MCP_RESOURCE_URL?: string;
+  MCP_AUTHORIZATION_SERVER?: string;
+  MCP_REQUIRED_SCOPES?: string;
+  MCP_ACTION_SCOPE?: string;
+  MCP_PLUGIN_CLIENT_ID?: string;
+  MCP_FOUNDER_SUBJECTS?: string;
+  MCP_ALLOWED_ORIGINS?: string;
+  MCP_TOKEN_VERIFIER?: TokenVerifierBinding;
+  MCP_PROVENANCE_READER?: ProvenanceReaderBinding;
+  MCP_GATE_ADAPTER?: GateActionBinding;
+  MCP_GATE_ADAPTER_TOKEN?: string;
+  MCP_PROFILE_ID_KEY?: string;
   ENVIRONMENT: string;
   CONTEXT_ALLOWED_TENANTS?: string;
   AI: {
@@ -69,28 +114,213 @@ export interface Env {
   };
 }
 
+interface ActionRuntimeConfig {
+  scope: string;
+  requiredScopes: readonly string[];
+  pluginIdentity: string;
+  founderSubjects: ReadonlySet<string>;
+  mcpIdentity: string;
+  issuer: string;
+  gateAuthorization: string | null;
+}
+
+function resolveActionRuntimeConfig(env: Env): ActionRuntimeConfig | null {
+  if (env.MCP_AUTH_MODE?.trim().toLowerCase() !== "oauth") return null;
+  let auth: ReturnType<typeof resolveAuthConfig>;
+  try {
+    auth = resolveAuthConfig(env);
+  } catch {
+    return null;
+  }
+  if (auth.mode !== "oauth") return null;
+  const scope = env.MCP_ACTION_SCOPE?.trim() || "";
+  const pluginIdentity = env.MCP_PLUGIN_CLIENT_ID?.trim() || "";
+  const founderSubjects = new Set((env.MCP_FOUNDER_SUBJECTS || "")
+    .split(",")
+    .map((subject) => subject.trim())
+    .filter(Boolean));
+  const gateAuthorizationValue = env.MCP_GATE_ADAPTER_TOKEN?.trim() || "";
+  const gateAuthorization = gateAuthorizationValue.length >= 32
+    && gateAuthorizationValue.length <= 512
+    && !/[\u0000-\u0020\u007f]/.test(gateAuthorizationValue)
+    ? gateAuthorizationValue
+    : null;
+  const canonicalId = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{1,255}$/;
+  if (!/^[A-Za-z0-9._:/-]+$/.test(scope)
+      || !canonicalId.test(pluginIdentity)
+      || founderSubjects.size === 0
+      || [...founderSubjects].some((subject) => !canonicalId.test(subject))) {
+    return null;
+  }
+  return {
+    scope,
+    requiredScopes: [...new Set([...auth.requiredScopes, scope])],
+    pluginIdentity,
+    founderSubjects,
+    mcpIdentity: auth.resource,
+    issuer: auth.authorizationServer,
+    gateAuthorization,
+  };
+}
+
 export function createCortexMcpServer(env: Env) {
+  const securitySchemes = oauthSecuritySchemes(env);
+  const actionConfig = resolveActionRuntimeConfig(env);
+  const profileConfig = env.MCP_AUTH_MODE?.trim().toLowerCase() === "oauth"
+    ? resolveConnectedProfileConfig(env.MCP_PROFILE_ID_KEY)
+    : null;
+  const actionSecuritySchemes = actionConfig
+    ? [{ type: "oauth2" as const, scopes: [...actionConfig.requiredScopes] }]
+    : undefined;
+  const readOnlyAnnotations = {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  };
+  let credentialOwner = "hermes-context-route";
+  try {
+    const config = resolveAuthConfig(env);
+    if (config.mode === "oauth") credentialOwner = config.authorizationServer;
+  } catch {
+    if (env.MCP_AUTH_MODE?.trim().toLowerCase() === "oauth") credentialOwner = "unconfigured-oauth";
+  }
+  const capabilityDescriptor = (
+    name: string,
+    resource: string,
+    tenant: Record<string, string>
+  ) => {
+    const capability = {
+      schema: "cambium.openai.tool_capability.v1",
+      name,
+      resource,
+      tenant,
+      classification: "read",
+      credential_owner: credentialOwner,
+      approval_requirement: "none",
+      idempotency: "safe-repeat",
+      terminal_receipt: "none:read-envelope-is-not-canonical-completion",
+      writer_authority: false,
+    };
+    return {
+      ...(securitySchemes ? { securitySchemes } : {}),
+      _meta: {
+        ...(securitySchemes ? { securitySchemes } : {}),
+        "cambium/capability": capability,
+      },
+    };
+  };
+  const actionCapabilityDescriptor = (
+    name: string,
+    approvalRequirement: string,
+    terminalReceipt: string,
+  ) => {
+    const capability = {
+      schema: "cambium.openai.tool_capability.v1",
+      name,
+      resource: "cambium://gate",
+      tenant: {
+        mode: "argument",
+        field: "tenant",
+        source: "verified-token-claim",
+      },
+      classification: "approval-gated-action",
+      credential_owner: credentialOwner,
+      approval_requirement: approvalRequirement,
+      idempotency: "exact-replay-original-receipt;conflict-fails-closed",
+      terminal_receipt: terminalReceipt,
+      writer_authority: false,
+    };
+    return {
+      ...(actionSecuritySchemes ? { securitySchemes: actionSecuritySchemes } : {}),
+      _meta: {
+        ...(actionSecuritySchemes ? { securitySchemes: actionSecuritySchemes } : {}),
+        "cambium/capability": capability,
+      },
+    };
+  };
+  const actionInputProperties = {
+    tenant: { type: "string" as const, pattern: "^[a-z][a-z0-9-]{1,63}$" },
+    action_kind: { type: "string" as const, pattern: "^[a-z][a-z0-9._:-]{1,127}$" },
+    arguments: { type: "object" as const, additionalProperties: true },
+    graph_version: { type: "integer" as const, minimum: 0 },
+    nonce: { type: "string" as const, minLength: 8, maxLength: 128 },
+    expiry: { type: "string" as const, format: "date-time" },
+    idempotency_key: { type: "string" as const, minLength: 3, maxLength: 128 },
+  };
+  const actionTupleOutputProperties = {
+    tenant: { type: "string" as const },
+    actor: { type: "string" as const },
+    plugin_identity: { type: "string" as const },
+    mcp_identity: { type: "string" as const },
+    issuer: { type: "string" as const },
+    action_kind: { type: "string" as const },
+    argument_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+    action_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+    graph_version: { type: "integer" as const, minimum: 0 },
+    nonce: { type: "string" as const },
+    expiry: { type: "string" as const },
+    idempotency_key: { type: "string" as const },
+  };
   const server = new Server(
     {
       name: "cortex-mcp",
-      version: "1.1.0",
+      version: "1.7.0",
     },
     {
       capabilities: {
         tools: {},
       },
+      instructions:
+        "Cortex MCP provides bounded read tools plus source-gated, Gate-backed actions. Cortex never receives direct D1 writer authority; action success requires exact founder OAuth identity, approval-bound Gate execution, and matching authoritative readback.",
     }
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
       tools: [
+        ...(profileConfig ? [{
+          name: "get_connected_profile",
+          title: "Get Connected Cambium Profile",
+          description:
+            "Return the stable opaque profile identifier for the already verified OAuth principal. The result exposes no raw subject, email, token, tenant, session, credential, or writer authority.",
+          inputSchema: {
+            type: "object" as const,
+            additionalProperties: false,
+            properties: {},
+          },
+          outputSchema: {
+            type: "object" as const,
+            additionalProperties: false,
+            properties: {
+              id: { type: "string" as const, pattern: "^prf_[a-f0-9]{64}$" },
+              name: { type: "string" as const },
+              email: { type: "string" as const },
+              nickname: { type: "string" as const },
+            },
+            required: ["id"],
+          },
+          annotations: readOnlyAnnotations,
+          ...(() => {
+            const descriptor = capabilityDescriptor(
+              "get_connected_profile",
+              "cambium://connected-profile",
+              { mode: "credential-derived", source: "verified-oauth-issuer-and-subject" },
+            );
+            return {
+              ...descriptor,
+              _meta: { ...descriptor._meta, "openai/profile": true },
+            };
+          })(),
+        }] : []),
         {
           name: "taste_cortex_query",
+          title: "Search Taste Cortex",
           description:
             "Query Taste Cortex (aesthetic prompts, techniques, and visual references) using semantic similarity (768-dim bge).",
           inputSchema: {
             type: "object",
+            additionalProperties: false,
             properties: {
               intent: {
                 type: "string",
@@ -109,13 +339,17 @@ export function createCortexMcpServer(env: Env) {
             },
             required: ["intent"],
           },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("taste_cortex_query", "cortex://taste", { mode: "fixed", value: "thoughtseed" }),
         },
         {
           name: "taste_cortex_compose",
+          title: "Compose a Taste Prompt Pack",
           description:
             "Compose a MotionSites-structured prompt pack: build brief, asset plan with real image/video URLs, extracted skill-cluster handles, and a paste-ready prompt. Uses ingested MotionSites corpus + Taste Cortex + design skills.",
           inputSchema: {
             type: "object",
+            additionalProperties: false,
             properties: {
               intent: {
                 type: "string",
@@ -135,12 +369,16 @@ export function createCortexMcpServer(env: Env) {
             },
             required: ["intent"],
           },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("taste_cortex_compose", "cortex://taste", { mode: "fixed", value: "thoughtseed" }),
         },
         {
           name: "taste_cortex_get_blob",
+          title: "Get a Taste Cortex Source",
           description: "Retrieve full markdown of a taste blob from R2. Pass metadata.slug from taste_cortex_query (preferred) or the vector id — both resolve.",
           inputSchema: {
             type: "object",
+            additionalProperties: false,
             properties: {
               id: { type: "string", description: "metadata.slug from taste_cortex_query, or the vector id" },
               category: {
@@ -151,12 +389,83 @@ export function createCortexMcpServer(env: Env) {
             },
             required: ["id"],
           },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("taste_cortex_get_blob", "cortex://taste", { mode: "fixed", value: "thoughtseed" }),
+        },
+        {
+          name: "read_infinite_game_node",
+          title: "Read an Infinite Game Node",
+          description:
+            "Read one canonical Cambium Vision, Mission, ISA, GSD, D1, run, receipt, or Cortex-learning node through the injected provenance service. Returns a bounded, tenant-authorized, digest-verified, fresh envelope. It never writes state or establishes canonical completion.",
+          inputSchema: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              tenant: { type: "string", pattern: "^[a-z][a-z0-9-]{1,63}$" },
+              node_kind: { type: "string", enum: [...INFINITE_GAME_NODE_KINDS] },
+              node_id: { type: "string", minLength: 1, maxLength: 256 },
+              graph_version: { type: "string", minLength: 1, maxLength: 128 },
+              max_bytes: { type: "integer", minimum: 1, maximum: 65536, default: 16384 },
+            },
+            required: ["tenant", "node_kind", "node_id"],
+          },
+          outputSchema: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              schema: { type: "string", const: "cambium.mcp.read_envelope.v1" },
+              tenant: { type: "string" },
+              node_kind: { type: "string", enum: [...INFINITE_GAME_NODE_KINDS] },
+              node_id: { type: "string" },
+              source_authority: { type: "string", enum: ["vision", "mission", "isa", "gsd", "d1", "hermes", "cambium_gate", "cortex"] },
+              source_reference: { type: "string" },
+              source_version: { type: "string" },
+              graph_version: { anyOf: [{ type: "string" }, { type: "null" }] },
+              content_digest: { type: "string", pattern: "^sha256:[a-f0-9]{64}$" },
+              freshness: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  observed_at: { type: "string" },
+                  stale_after: { type: "string" },
+                  status: { type: "string", const: "fresh" },
+                },
+                required: ["observed_at", "stale_after", "status"],
+              },
+              omissions: {
+                type: "array",
+                maxItems: 32,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: { field: { type: "string" }, reason: { type: "string" } },
+                  required: ["field", "reason"],
+                },
+              },
+              body: { type: "object" },
+              writer_authority: { type: "boolean", const: false },
+              canonical_completion: { type: "boolean", const: false },
+            },
+            required: [
+              "schema", "tenant", "node_kind", "node_id", "source_authority",
+              "source_reference", "source_version", "graph_version", "content_digest",
+              "freshness", "omissions", "body", "writer_authority", "canonical_completion",
+            ],
+          },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("read_infinite_game_node", "cambium://infinite-game", {
+            mode: "argument",
+            field: "tenant",
+            source: "verified-token-claim-or-legacy-allowlist",
+          }),
         },
         {
           name: "semantic_recall",
+          title: "Recall Cambium Memory",
           description: "Recall situational memory and decisions from Cambium Cortex with strict tenant isolation.",
           inputSchema: {
             type: "object",
+            additionalProperties: false,
             properties: {
               tenant: { type: "string", description: "Tenant slug (e.g. 'cambium', 'thoughtseed')" },
               query: { type: "string", description: "Search query for memory recall" },
@@ -169,12 +478,20 @@ export function createCortexMcpServer(env: Env) {
             },
             required: ["tenant", "query"],
           },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("semantic_recall", "cortex://operator-memory", {
+            mode: "argument",
+            field: "tenant",
+            source: "verified-token-claim-or-legacy-allowlist",
+          }),
         },
         {
           name: "organ_atlas_lookup",
+          title: "Look Up an Organ Contract",
           description: "Authoritative lookup of any of the 5 Cambium or 6 Temperance organs and their contracts.",
           inputSchema: {
             type: "object",
+            additionalProperties: false,
             properties: {
               organId: {
                 type: "string",
@@ -183,13 +500,17 @@ export function createCortexMcpServer(env: Env) {
             },
             required: ["organId"],
           },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("organ_atlas_lookup", "cambium://organ-atlas", { mode: "fixed", value: "cambium" }),
         },
         {
           name: "capability_hit_evaluate",
+          title: "Evaluate a Capability Candidate",
           description:
             "Evaluate whether a capability card should be proposed for a task based on the 2026-09-03 selection formula (relevance, freshness, readiness, ownerMatch, novelty, evidenceQuality). Silence returned if score < 0.68.",
           inputSchema: {
             type: "object",
+            additionalProperties: false,
             properties: {
               taskFingerprint: { type: "string", description: "Unique task identifier or hash" },
               taskSummary: { type: "string", description: "Short summary of active task" },
@@ -211,21 +532,381 @@ export function createCortexMcpServer(env: Env) {
             },
             required: ["taskFingerprint", "taskSummary", "topicKey", "candidateCapabilityId"],
           },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("capability_hit_evaluate", "cambium://capability-registry", { mode: "fixed", value: "cambium" }),
         },
         {
           name: "cortex_health",
+          title: "Check Cortex Health",
           description: "Health probe for Cortex MCP bindings (Vectorize, Workers AI, R2).",
           inputSchema: {
             type: "object",
+            additionalProperties: false,
             properties: {},
           },
+          annotations: readOnlyAnnotations,
+          ...capabilityDescriptor("cortex_health", "cortex://health", { mode: "fixed", value: "cambium" }),
         },
+        ...(actionConfig ? [
+          {
+            name: "compile_action_intent",
+            title: "Compile a Cambium Action Intent",
+            description:
+              "Compile an exact founder-bound Cambium action tuple without writing state. The server derives actor, plugin identity, MCP identity, and canonical argument digest from verified OAuth context and the supplied arguments. Use the returned action digest to obtain a separate Gate approval before execution.",
+            inputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: actionInputProperties,
+              required: ["tenant", "action_kind", "arguments", "graph_version", "nonce", "expiry", "idempotency_key"],
+            },
+            outputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: {
+                schema: { type: "string" as const, const: "cambium.mcp.action_intent.v1" },
+                ...actionTupleOutputProperties,
+                status: { type: "string" as const, const: "compiled_not_authorized" },
+                writer_authority: { type: "boolean" as const, const: false },
+                canonical_completion: { type: "boolean" as const, const: false },
+              },
+              required: [
+                "schema", ...Object.keys(actionTupleOutputProperties), "status",
+                "writer_authority", "canonical_completion",
+              ],
+            },
+            annotations: {
+              readOnlyHint: true,
+              destructiveHint: false,
+              idempotentHint: true,
+              openWorldHint: false,
+            },
+            ...actionCapabilityDescriptor(
+              "compile_action_intent",
+              "founder-oauth-action-scope;execution-separately-approved",
+              "none:compiled-intent-is-not-authorization-or-completion",
+            ),
+          },
+          {
+            name: "request_action_approval",
+            title: "Request Founder Approval for a Cambium Action",
+            description:
+              "Persist one exact compiled action for founder review in Cambium Gate. This performs no Goal Graph write. The request becomes visible in the Telegram founder decision queue; approval and execution remain separate steps.",
+            inputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: actionInputProperties,
+              required: ["tenant", "action_kind", "arguments", "graph_version", "nonce", "expiry", "idempotency_key"],
+            },
+            outputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: {
+                schema: { type: "string" as const, const: "cambium.mcp.action_review_request.v1" },
+                status: { type: "string" as const, enum: ["awaiting_founder_approval", "approved", "executed"] },
+                duplicate: { type: "boolean" as const },
+                tenant: { type: "string" as const },
+                action_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+                request_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+                approval_digest: { anyOf: [{ type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" }, { type: "null" as const }] },
+                expiry: { type: "string" as const, format: "date-time" },
+                writer_authority: { type: "boolean" as const, const: false },
+                canonical_completion: { type: "boolean" as const, const: false },
+              },
+              required: ["schema", "status", "duplicate", "tenant", "action_digest", "request_digest", "approval_digest", "expiry", "writer_authority", "canonical_completion"],
+            },
+            annotations: {
+              readOnlyHint: false,
+              destructiveHint: false,
+              idempotentHint: true,
+              openWorldHint: false,
+            },
+            ...actionCapabilityDescriptor(
+              "request_action_approval",
+              "creates-review-request;founder-signature-still-required",
+              "none:review-request-is-not-authorization-or-completion",
+            ),
+          },
+          {
+            name: "get_action_approval_status",
+            title: "Read Cambium Action Approval Status",
+            description:
+              "Read the exact founder-review state for a compiled Cambium action. This is non-writing and never treats approval as execution or canonical completion.",
+            inputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: actionInputProperties,
+              required: ["tenant", "action_kind", "arguments", "graph_version", "nonce", "expiry", "idempotency_key"],
+            },
+            outputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: {
+                schema: { type: "string" as const, const: "cambium.gate.action_review_status.v1" },
+                status: { type: "string" as const, enum: ["awaiting_founder_approval", "approved", "executed", "expired"] },
+                tenant: { type: "string" as const },
+                action_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+                request_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+                approval_digest: { anyOf: [{ type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" }, { type: "null" as const }] },
+                receipt_digest: { anyOf: [{ type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" }, { type: "null" as const }] },
+                expiry: { type: "string" as const, format: "date-time" },
+                writer_authority: { type: "boolean" as const, const: false },
+                canonical_completion: { type: "boolean" as const, const: false },
+              },
+              required: ["schema", "status", "tenant", "action_digest", "request_digest", "approval_digest", "receipt_digest", "expiry", "writer_authority", "canonical_completion"],
+            },
+            annotations: readOnlyAnnotations,
+            ...actionCapabilityDescriptor(
+              "get_action_approval_status",
+              "reads-founder-review-state-only",
+              "none:status-is-not-canonical-completion",
+            ),
+          },
+          {
+            name: "execute_approved_action",
+            title: "Execute a Founder-Approved Cambium Action",
+            description:
+              "Submit one exact approval-bound action tuple to the injected Cambium Gate. Requires verified founder OAuth identity, the dedicated action scope, matching plugin client identity, a Gate-issued approval digest, replay-safe idempotency, and authoritative terminal readback. Cortex never writes D1 directly.",
+            inputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: {
+                ...actionInputProperties,
+                approval_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+              },
+              required: [
+                "tenant", "action_kind", "arguments", "graph_version", "nonce",
+                "expiry", "idempotency_key", "approval_digest",
+              ],
+            },
+            outputSchema: {
+              type: "object" as const,
+              additionalProperties: false,
+              properties: {
+                schema: { type: "string" as const, const: "cambium.mcp.action_receipt.v1" },
+                status: { type: "string" as const, enum: ["committed", "duplicate"] },
+                ...actionTupleOutputProperties,
+                approval_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+                mutation_count: { type: "integer" as const, const: 1 },
+                terminal_outcome: { type: "string" as const },
+                receipt_digest: { type: "string" as const, pattern: "^sha256:[a-f0-9]{64}$" },
+                authoritative_readback: { type: "object" as const },
+                execution_authority: { type: "string" as const, const: "cambium-gate" },
+                writer_authority: { type: "boolean" as const, const: false },
+                canonical_completion: { type: "boolean" as const, const: true },
+              },
+              required: [
+                "schema", "status", ...Object.keys(actionTupleOutputProperties), "approval_digest",
+                "mutation_count", "terminal_outcome", "receipt_digest", "authoritative_readback",
+                "execution_authority", "writer_authority", "canonical_completion",
+              ],
+            },
+            annotations: {
+              readOnlyHint: false,
+              destructiveHint: true,
+              idempotentHint: true,
+              openWorldHint: false,
+            },
+            ...actionCapabilityDescriptor(
+              "execute_approved_action",
+              "exact-founder-gate-approval",
+              "required:matching-authoritative-readback",
+            ),
+          },
+        ] : []),
       ],
     };
   });
 
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  server.setRequestHandler(CallToolRequestSchema, async (request, context) => {
     const { name, arguments: args } = request.params;
+
+    if (name === "get_connected_profile") {
+      const profileError = () => ({
+        isError: true,
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ status: "unavailable", code: "verified_profile_identity_required" }),
+        }],
+      });
+      if (!profileConfig || env.MCP_AUTH_MODE?.trim().toLowerCase() !== "oauth" || !context.authInfo) {
+        return profileError();
+      }
+      const extra = context.authInfo.extra || {};
+      const issuer = typeof extra.issuer === "string" ? extra.issuer : "";
+      const subject = typeof extra.subject === "string" ? extra.subject : "";
+      try {
+        const profile = await deriveConnectedProfile(profileConfig.key, issuer, subject);
+        return {
+          structuredContent: profile,
+          content: [{ type: "text" as const, text: JSON.stringify(profile) }],
+        };
+      } catch (error) {
+        if (error instanceof ConnectedProfileError) return profileError();
+        return profileError();
+      }
+    }
+
+    const tenantAuthorized = (tenant: unknown) => {
+      if (typeof tenant !== "string") return false;
+      if (env.MCP_AUTH_MODE?.trim().toLowerCase() === "oauth") {
+        const authorizedTenants = context.authInfo?.extra?.authorizedTenants;
+        return Array.isArray(authorizedTenants) && authorizedTenants.includes(tenant);
+      }
+      const allowed = (env.CONTEXT_ALLOWED_TENANTS || "cambium")
+        .split(",")
+        .map((candidate) => candidate.trim())
+        .filter(Boolean);
+      return allowed.includes(tenant);
+    };
+
+    const fixedTenantByTool: Record<string, string> = {
+      taste_cortex_query: "thoughtseed",
+      taste_cortex_compose: "thoughtseed",
+      taste_cortex_get_blob: "thoughtseed",
+      organ_atlas_lookup: "cambium",
+      capability_hit_evaluate: "cambium",
+      cortex_health: "cambium",
+    };
+    const isActionTool = name === "compile_action_intent"
+      || name === "request_action_approval"
+      || name === "get_action_approval_status"
+      || name === "execute_approved_action";
+    const requiredTenant = name === "read_infinite_game_node" || name === "semantic_recall" || isActionTool
+      ? args?.tenant
+      : fixedTenantByTool[name];
+    if (requiredTenant !== undefined && !tenantAuthorized(requiredTenant)) {
+      return {
+        isError: true,
+        content: [{
+          type: "text",
+          text: JSON.stringify({ status: "unavailable", code: "unauthorized_tenant" }),
+        }],
+      };
+    }
+
+    if (isActionTool) {
+      const actionError = (code: string, challenge?: string) => ({
+        isError: true,
+        content: [{ type: "text" as const, text: JSON.stringify({ status: "unavailable", code }) }],
+        ...(challenge ? { _meta: { "mcp/www_authenticate": [challenge] } } : {}),
+      });
+      if (!actionConfig || env.MCP_AUTH_MODE?.trim().toLowerCase() !== "oauth" || !context.authInfo) {
+        return actionError("oauth_action_required");
+      }
+      const scopes = new Set(context.authInfo.scopes || []);
+      if (!scopes.has(actionConfig.scope)) {
+        const config = resolveAuthConfig(env);
+        const challenge = config.mode === "oauth"
+          ? `${oauthChallenge(config, config.resource, actionConfig.requiredScopes)}, error="insufficient_scope", error_description="Action scope required"`
+          : undefined;
+        return actionError("action_scope_required", challenge);
+      }
+      const extra = context.authInfo.extra || {};
+      const subject = typeof extra.subject === "string" ? extra.subject : "";
+      const clientIdentity = typeof extra.authorizedClientId === "string" ? extra.authorizedClientId : "";
+      const issuer = typeof extra.issuer === "string" ? extra.issuer : "";
+      if (!actionConfig.founderSubjects.has(subject)) return actionError("founder_required");
+      if (clientIdentity !== actionConfig.pluginIdentity) return actionError("plugin_identity_mismatch");
+      if (issuer !== actionConfig.issuer) return actionError("issuer_identity_mismatch");
+      const identity: GateActionIdentity = {
+        actor: subject,
+        plugin_identity: actionConfig.pluginIdentity,
+        mcp_identity: actionConfig.mcpIdentity,
+        issuer,
+      };
+      try {
+        if (name === "compile_action_intent") {
+          const result = await compileActionIntent(args as any, identity);
+          return {
+            structuredContent: result,
+            content: [{
+              type: "text" as const,
+              text: `Compiled action ${result.action_digest}; it is not authorized and no state was written.`,
+            }],
+          };
+        }
+        if (!env.MCP_GATE_ADAPTER || !actionConfig.gateAuthorization) {
+          return actionError("gate_unavailable");
+        }
+        if (name === "request_action_approval") {
+          const result = await requestActionApproval(
+            env.MCP_GATE_ADAPTER,
+            args as any,
+            identity,
+            Date.now(),
+            5_000,
+            actionConfig.gateAuthorization,
+          );
+          return {
+            structuredContent: result,
+            content: [{
+              type: "text" as const,
+              text: `Cambium Gate recorded review request ${result.request_digest}; founder approval and execution remain separate.`,
+            }],
+          };
+        }
+        if (name === "get_action_approval_status") {
+          const result = await readActionApprovalStatus(
+            env.MCP_GATE_ADAPTER,
+            args as any,
+            identity,
+            Date.now(),
+            5_000,
+            actionConfig.gateAuthorization,
+          );
+          return {
+            structuredContent: result,
+            content: [{
+              type: "text" as const,
+              text: `Cambium Gate reports ${result.status} for action ${result.action_digest}.`,
+            }],
+          };
+        }
+        const result = await executeApprovedAction(
+          env.MCP_GATE_ADAPTER!,
+          args as any,
+          identity,
+          Date.now(),
+          5_000,
+          actionConfig.gateAuthorization,
+        );
+        return {
+          structuredContent: result,
+          content: [{
+            type: "text" as const,
+            text: `Cambium Gate returned ${result.status} with authoritative receipt ${result.receipt_digest}.`,
+          }],
+        };
+      } catch (error) {
+        const code = error instanceof GateActionError ? error.code : "action_plane_error";
+        return actionError(code);
+      }
+    }
+
+    if (name === "read_infinite_game_node") {
+      if (!env.MCP_PROVENANCE_READER) {
+        return {
+          isError: true,
+          content: [{ type: "text", text: JSON.stringify({ status: "unavailable", code: "read_plane_unavailable" }) }],
+        };
+      }
+      try {
+        const envelope = await readInfiniteGameNode(env.MCP_PROVENANCE_READER, args as any);
+        return {
+          structuredContent: envelope,
+          content: [{
+            type: "text",
+            text: `Verified ${envelope.node_kind} ${envelope.node_id} from ${envelope.source_reference} at ${envelope.content_digest}. This read is evidence, not canonical completion.`,
+          }],
+        };
+      } catch (error) {
+        const code = error instanceof ProvenanceReadError ? error.code : "read_plane_error";
+        return {
+          isError: true,
+          content: [{ type: "text", text: JSON.stringify({ status: "unavailable", code }) }],
+        };
+      }
+    }
 
     if (name === "taste_cortex_compose") {
       const intent = String(args?.intent || args?.query || "").trim();
@@ -515,19 +1196,182 @@ export function createCortexMcpServer(env: Env) {
   return server;
 }
 
+function withCors(response: Response, request: Request): Response {
+  const headers = new Headers(response.headers);
+  const origin = request.headers.get("origin");
+  if (origin) {
+    headers.set("Access-Control-Allow-Origin", origin);
+    headers.append("Vary", "Origin");
+  }
+  headers.set("Access-Control-Expose-Headers", "MCP-Protocol-Version, MCP-Session-Id, WWW-Authenticate");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+function isAllowedRequestOrigin(request: Request, env: Env): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+  let parsed: URL;
+  try {
+    parsed = new URL(origin);
+  } catch {
+    return false;
+  }
+  if (parsed.origin !== origin || !["https:", "http:"].includes(parsed.protocol)) return false;
+  const allowed = (env.MCP_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((candidate) => candidate.trim())
+    .filter(Boolean);
+  return allowed.includes(origin);
+}
+
+function normalizeLegacyAccept(request: Request): Request {
+  const headers = new Headers(request.headers);
+  const accept = headers.get("accept") || "";
+  if (!accept.includes("application/json") || !accept.includes("text/event-stream")) {
+    headers.set("Accept", "application/json, text/event-stream");
+  }
+  return new Request(request, { headers });
+}
+
+type RpcEnvelope = {
+  id: unknown;
+  method?: string;
+  batch: boolean;
+};
+
+async function inspectRpcEnvelope(request: Request): Promise<RpcEnvelope> {
+  try {
+    const payload = await request.clone().json() as any;
+    if (Array.isArray(payload)) {
+      return { id: null, batch: true };
+    }
+    return {
+      id: payload && typeof payload === "object" ? payload.id ?? null : null,
+      method: payload && typeof payload === "object" && typeof payload.method === "string"
+        ? payload.method
+        : undefined,
+      batch: false,
+    };
+  } catch {
+    return { id: null, batch: false };
+  }
+}
+
+const OAUTH_PUBLIC_PROTOCOL_METHODS = new Set([
+  "initialize",
+  "notifications/initialized",
+  "ping",
+  "tools/list",
+]);
+
+function oauthAuthInfo(env: Env, claims: NonNullable<Extract<Awaited<ReturnType<typeof authorizeMcpRequest>>, { ok: true }>['claims']>): AuthInfo {
+  const config = resolveAuthConfig(env);
+  if (config.mode !== "oauth") throw new Error("OAuth auth info requires OAuth mode");
+  const scopes = new Set([
+    ...(typeof claims.scope === "string" ? claims.scope.split(/\s+/) : []),
+    ...(Array.isArray(claims.scopes) ? claims.scopes : []),
+  ].filter(Boolean));
+  return {
+    // Handlers need proof that middleware validated a token, never the raw bearer.
+    token: "[validated-redacted]",
+    clientId: claims.sub || claims.iss,
+    scopes: [...scopes],
+    expiresAt: claims.exp,
+    resource: new URL(config.resource),
+    extra: {
+      issuer: claims.iss,
+      subject: claims.sub || null,
+      authorizedClientId: claims.client_id || claims.azp || null,
+      authorizedTenants: [...new Set([
+        ...(typeof claims.tenant === "string" ? [claims.tenant] : []),
+        ...(Array.isArray(claims.tenants) ? claims.tenants : []),
+      ].filter((tenant) => typeof tenant === "string" && /^[a-z0-9][a-z0-9_-]{1,79}$/.test(tenant)))],
+    },
+  };
+}
+
+async function oauthToolChallengeResponse(
+  request: Request,
+  env: Env,
+  authorizationChallenge?: string
+): Promise<Response | null> {
+  let payload: any;
+  try {
+    payload = await request.clone().json();
+  } catch {
+    return null;
+  }
+  if (!payload || Array.isArray(payload) || payload.method !== "tools/call" || payload.id === undefined) {
+    return null;
+  }
+  const config = resolveAuthConfig(env);
+  if (config.mode !== "oauth") return null;
+  const challenge = authorizationChallenge?.includes('error="')
+    ? authorizationChallenge
+    : oauthToolChallenge(config, request.url);
+  return withCors(new Response(JSON.stringify({
+    jsonrpc: "2.0",
+    id: payload.id,
+    result: {
+      content: [{ type: "text", text: "Authentication required before this tool can run." }],
+      _meta: { "mcp/www_authenticate": [challenge] },
+      isError: true,
+    },
+  }), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "WWW-Authenticate": challenge,
+    },
+  }), request);
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
+    const url = new URL(request.url);
+    if (!isAllowedRequestOrigin(request, env)) {
+      return new Response(JSON.stringify({ error: "request origin is not allowed" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
       });
     }
 
-    const url = new URL(request.url);
+    if (request.method === "OPTIONS") {
+      return withCors(new Response(null, {
+        headers: {
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID",
+          "Access-Control-Expose-Headers": "MCP-Protocol-Version, MCP-Session-Id, WWW-Authenticate",
+        },
+      }), request);
+    }
+
+    if (url.pathname.startsWith("/.well-known/oauth-protected-resource")) {
+      try {
+        const config = resolveAuthConfig(env);
+        if (config.mode !== "oauth") {
+          return new Response("Not Found", { status: 404 });
+        }
+        const metadataPath = new URL(protectedResourceMetadataUrl(config.resource)).pathname;
+        if (url.pathname !== metadataPath || url.search) {
+          return new Response("Not Found", { status: 404 });
+        }
+        return withCors(new Response(JSON.stringify(protectedResourceMetadata(config)), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }), request);
+      } catch {
+        return withCors(new Response(JSON.stringify({ error: "MCP authentication is not configured" }), {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        }), request);
+      }
+    }
 
     if (url.pathname === "/health" || url.pathname === "/v1/health") {
       return new Response(JSON.stringify({ ok: true, service: "cortex-mcp" }), {
@@ -536,77 +1380,65 @@ export default {
     }
 
     if (url.pathname === "/mcp" || url.pathname === "/v1/mcp" || url.pathname === "/") {
+      // Stateless JSON response mode intentionally supports POST only.
       if (request.method !== "POST") {
-        return new Response("MCP endpoint requires POST", { status: 405 });
+        return withCors(new Response("MCP endpoint requires POST", {
+          status: 405,
+          headers: { Allow: "POST" },
+        }), request);
       }
-      const token = env.CONTEXT_ROUTE_TOKEN;
-      if (!token || request.headers.get("authorization") !== `Bearer ${token}`) {
-        return new Response(JSON.stringify({ error: "bad or missing context route credential" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
+      const envelope = await inspectRpcEnvelope(request);
+      let auth: Awaited<ReturnType<typeof authorizeMcpRequest>>;
+      if (env.MCP_AUTH_MODE?.trim().toLowerCase() === "oauth") {
+        try {
+          const config = resolveAuthConfig(env);
+          if (config.mode !== "oauth") throw new Error("OAuth mode required");
+          const requestedResource = `${url.origin}${url.pathname}${url.search}`;
+          if (requestedResource !== config.resource) {
+            return new Response("Not Found", { status: 404 });
+          }
+          const isPublicProtocolRequest = !envelope.batch
+            && envelope.method !== undefined
+            && OAUTH_PUBLIC_PROTOCOL_METHODS.has(envelope.method);
+          auth = isPublicProtocolRequest
+            ? { ok: true, mode: "oauth" }
+            : await authorizeMcpRequest(request, env);
+        } catch {
+          auth = { ok: false, status: 503, error: "MCP authentication is not configured" };
+        }
+      } else {
+        auth = await authorizeMcpRequest(request, env);
+      }
+      if (auth.ok === false) {
+        if ((auth.status === 401 || auth.status === 403) && env.MCP_AUTH_MODE?.trim().toLowerCase() === "oauth") {
+          const challengeResult = await oauthToolChallengeResponse(request, env, auth.challenge);
+          if (challengeResult) return challengeResult;
+        }
+        const headers = new Headers({ "Content-Type": "application/json" });
+        if (auth.challenge) headers.set("WWW-Authenticate", auth.challenge);
+        return withCors(new Response(JSON.stringify({ error: auth.error }), {
+          status: auth.status,
+          headers,
+        }), request);
       }
 
       try {
-        const body = await request.json();
+        const transport = new WebStandardStreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+          enableJsonResponse: true,
+        });
         const server = createCortexMcpServer(env);
-
-        const { id, method, params } = body as any;
-        const rpcHeaders = {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        };
-        const rpcOk = (result: unknown) =>
-          new Response(JSON.stringify({ jsonrpc: "2.0", id, result }), { headers: rpcHeaders });
-        const rpcErr = (code: number, message: string, status = 200) =>
-          new Response(JSON.stringify({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }), {
-            headers: rpcHeaders,
-            status,
-          });
-
-        // Hermes reports Method not found unless initialize is implemented.
-        if (method === "initialize") {
-          return rpcOk({
-            protocolVersion: "2025-06-18",
-            capabilities: { tools: { listChanged: false } },
-            serverInfo: { name: "cortex-mcp", version: "1.1.1" },
-            instructions:
-              "Read-only Cortex MCP. Tools: taste_cortex_query, taste_cortex_get_blob, taste_cortex_compose, semantic_recall, organ_atlas_lookup, capability_hit_evaluate, cortex_health.",
-          });
-        }
-
-        if (method === "notifications/initialized" || method === "initialized") {
-          return new Response(null, { status: 202, headers: { "Access-Control-Allow-Origin": "*" } });
-        }
-
-        if (method === "ping") {
-          return rpcOk({});
-        }
-
-        if (method === "server/discover") {
-          return rpcOk({
-            protocolVersion: "2025-06-18",
-            capabilities: { tools: { listChanged: false } },
-            serverInfo: { name: "cortex-mcp", version: "1.1.1" },
-          });
-        }
-
-        if (method === "tools/list") {
-          const res = await (server as any)._requestHandlers.get("tools/list")({ method, params });
-          return rpcOk(res);
-        }
-
-        if (method === "tools/call") {
-          const res = await (server as any)._requestHandlers.get("tools/call")({ method, params });
-          return rpcOk(res);
-        }
-
-        return rpcErr(-32601, `Method not found: ${method}`);
-      } catch (err: any) {
-        return new Response(
-          JSON.stringify({ jsonrpc: "2.0", error: { code: -32603, message: err.message || "Internal error" } }),
+        await server.connect(transport);
+        const transportRequest = auth.mode === "legacy" ? normalizeLegacyAccept(request) : request;
+        const authInfo = auth.mode === "oauth" && auth.claims
+          ? oauthAuthInfo(env, auth.claims)
+          : undefined;
+        return withCors(await transport.handleRequest(transportRequest, { authInfo }), request);
+      } catch {
+        return withCors(new Response(
+          JSON.stringify({ jsonrpc: "2.0", id: envelope.id ?? null, error: { code: -32603, message: "Internal error" } }),
           { headers: { "Content-Type": "application/json" }, status: 500 }
-        );
+        ), request);
       }
     }
 

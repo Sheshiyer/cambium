@@ -10,8 +10,6 @@
     "omniroute": "http://127.0.0.1:20128",
     "proxy": "http://127.0.0.1:20129"
   },
-  "active_planner": "gsd",
-  "planner_note": "GSD ROADMAP is the active planning spine; ISA remains the acceptance authority.",
   "ownership": {
     "models_routing": "host",
     "credentials": "host",
@@ -46,7 +44,7 @@
     "github_project": false
   },
   "hands_init": {
-    "display": "cambium \u00b7 fabric",
+    "display": "cambium · fabric",
     "cloudflare_profile": "thoughtseed-labs",
     "aws_profile": null
   }

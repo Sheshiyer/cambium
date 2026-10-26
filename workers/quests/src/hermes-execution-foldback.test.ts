@@ -238,3 +238,59 @@ test('foldback store rejects a tampered compiled receipt before writing', async 
   );
   assert.equal(writes, 0);
 });
+
+test('immutable readback validates exact tenant/task/graph/loadout and rejects corruption', async () => {
+  const base = input();
+  const verifier = activationVerifierFor(base);
+  const projection = await adaptVerified(base);
+  const data = new Map<string, string>();
+  let writes = 0;
+  const store = createHermesExecutionFoldbackStore({
+    async get(key) { const value = data.get(key); return value === undefined ? null : { async text() { return value; } }; },
+    async put(key, bytes) { writes++; data.set(key, new TextDecoder().decode(bytes)); return { async text() { return data.get(key)!; } }; },
+  }, verifier);
+  const binding = { tenantId: base.tenantId, graphVersion: base.graphVersion, goalGraph: base.goalGraph };
+  assert.deepEqual(await store.record(projection.receipt), { duplicate: false });
+  assert.deepEqual(await store.record(projection.receipt), { duplicate: true });
+  assert.equal(writes, 1);
+  assert.deepEqual(await store.read(projection.receipt.r2Key, binding), projection);
+  for (const changed of [
+    { ...binding, tenantId: 'another-tenant' },
+    { ...binding, graphVersion: 9 },
+    { ...binding, goalGraph: { ...binding.goalGraph, taskId: 'wrong-task' } },
+    { ...binding, goalGraph: { ...binding.goalGraph, pinnedLoadoutId: 'wrong-loadout' } },
+  ]) await assert.rejects(() => store.read(projection.receipt.r2Key, changed));
+  data.set(projection.receipt.r2Key, `${canonicalHermesFoldbackJson(projection.receipt)}\n`);
+  await assert.rejects(() => store.read(projection.receipt.r2Key, binding), /canonical/);
+  data.set(projection.receipt.r2Key, '{}');
+  await assert.rejects(() => store.read(projection.receipt.r2Key, binding));
+  await assert.rejects(() => store.read('../escape.json', binding));
+});
+
+test('immutable store does not report persistence before exact independent readback', async () => {
+  const base = input();
+  const projection = await adaptVerified(base);
+  const store = createHermesExecutionFoldbackStore({
+    async get() { return null; },
+    async put() { return { async text() { return 'ack-only'; } }; },
+  }, activationVerifierFor(base));
+  await assert.rejects(() => store.record(projection.receipt), /Readback object missing/);
+});
+
+test('discovery is WorkObject-prefix bounded, nonrecursive, and refuses truncated listings', async () => {
+  const base = input();
+  const binding = { tenantId: base.tenantId, graphVersion: base.graphVersion, goalGraph: base.goalGraph };
+  let seen: unknown;
+  const store = createHermesExecutionFoldbackStore({
+    async get() { return null; }, async put() { return null; },
+    async list(options) { seen = options; return { truncated: false, objects: [
+      { key: 'portfolio/thoughtseed/workobjects/sapling:fitcheck/foldback/exec_a.json' },
+      { key: 'portfolio/thoughtseed/workobjects/sapling:fitcheck/foldback/cortex/exec_a.json' },
+      { key: 'portfolio/thoughtseed/workobjects/branch:other/foldback/exec_a.json' },
+    ] }; },
+  });
+  assert.deepEqual(await store.discover!(binding), ['portfolio/thoughtseed/workobjects/sapling:fitcheck/foldback/exec_a.json']);
+  assert.deepEqual(seen, { prefix: 'portfolio/thoughtseed/workobjects/sapling:fitcheck/foldback/', limit: 100 });
+  const truncated = createHermesExecutionFoldbackStore({ async get() { return null; }, async put() { return null; }, async list() { return { truncated: true, objects: [] }; } });
+  await assert.rejects(() => truncated.discover!(binding), /bounded limit/);
+});

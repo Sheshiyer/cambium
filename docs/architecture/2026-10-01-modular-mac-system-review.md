@@ -1,7 +1,10 @@
 # Integrated system review: modular Mac setup
 
 Status: reviewed source inventory and proposed architecture, 2026-10-01.
-This review authorizes no installation or migration. The machine-readable
+This review itself authorizes no installation or migration. **Update:
+distribution-side source implementation is now active** (see
+`.planning/HANDOFF.json`); this document remains the historical evidence
+cut, and physical migration is still unauthorized. The machine-readable
 [evidence map](2026-10-01-modular-mac-system-map.json) records the inspected
 source bytes; [design](../superpowers/specs/2026-10-01-modular-mac-design.md)
 and [plan](../superpowers/plans/2026-10-01-modular-mac.md) are proposals.

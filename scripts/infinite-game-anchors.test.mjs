@@ -15,6 +15,7 @@ const root = new URL('..', import.meta.url);
 const repositoryRoot = fs.realpathSync(path.resolve(new URL('.', root).pathname));
 const approvedGoal = "Consolidate Cambium's doctrine into a provenance-preserving infinite-game architecture anchored by canonical VISION.md and renewable MISSION.md, with ISA and GSD as the only goal/planning authorities. Map vision → mission → finite goals → tasks → evidence → learning as a fractal graph, and expose Ralph next actions, skill-cluster and OmniRoute flows, gates, and stop conditions through Temperance.";
 const labsConsolidationGoal = "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.";
+const openAICompatibilityGoal = "Make Cambium's complete infinite-game operating loop natively operable through OpenAI's ecosystem: import its project instructions and reusable skills; expose provenance-bound reads and founder-approval-gated actions through a private plugin and verified MCP boundary; coordinate local and cloud Codex tasks through a dot with persistent context, connected-computer and app access, and appropriate ChatGPT, Slack, or Teams updates; and prove end-to-end Vision to Mission to Goal to Task to Run to Receipt to Learning parity. Done means the D1 Goal Graph remains the sole operational writer; ISA and GSD remain acceptance and planning authorities; Cambium, Hermes, Cloudflare, tenant isolation, provenance, receipts, approval, idempotency, stop, rollback, and privacy boundaries remain intact; and dot entitlement, workspace-admin enablement, plugin connections, credentials, deployment, and every external mutation are separately verified and owner-approved.";
 
 function run(command, args, { encoding = 'utf8', cwd = repositoryRoot } = {}) {
   const result = spawnSync(command, args, {
@@ -281,6 +282,25 @@ const syntheticPrivacyFixtures = new Map([
     ["presentPurpose = 'Bearer ", "abcdefghijklmnop'"].join(''),
     ["prompt", "Body = 'private prompt'"].join(''),
     ['Bearer otherwise-', 'long-enough-but-'].join(''),
+  ]],
+  ['scripts/cloudflare-r2-inventory-local-worker.mjs', [
+    ['loopback bearer ', 'verification'].join(''),
+  ]],
+  ['scripts/cloudflare-r2-source-inventory.test.mjs', [
+    ['authorization = ', 'makeAuthorization'].join(''),
+    ['authorization: ', 'prevalidated'].join(''),
+    ['authorization: ', 'hardCodedOnlyAuthorization'].join(''),
+    ['/tmp/', 'does-not-matter.json'].join(''),
+    ['/tmp/', 'prerequisite.json'].join(''),
+    ['/tmp/', 'reuse.json'].join(''),
+    ['/tmp/', 'x.json'].join(''),
+  ]],
+  ['tests/openai-ecosystem/compatibility.test.mjs', [
+    ['Bearer ', 'actual-token'].join(''),
+  ]],
+  ['tests/openai-ecosystem/dot-runtime.test.mjs', [
+    ['/', 'Users/x/secret'].join(''),
+    ['sk', '-live-XYZ'].join(''),
   ]],
   ['.planning/phases/07-deterministic-safety-and-handoff/07-PATTERNS.md', [
     ['/', 'Users/', 'sheshnarayaniyer'].join(''),
@@ -760,13 +780,15 @@ test('canonical root anchors declare singular doctrine and authority', () => {
 });
 
 // ANCHOR-04: the anchors remain subordinate to ISA/GSD goal and planning authority.
-test('ISA binds the approved v0.5 Labs goal without erasing v0.4 history', () => {
+test('ISA binds the active OpenAI compatibility goal without erasing v0.5 or v0.4 history', () => {
   const isa = read('ISA.md');
   const frontmatter = (isa.match(/^---\n([\s\S]*?)\n---/) || [])[1] || '';
   const activeGoal = (isa.split('\n## Goal\n')[1] || '').trimStart();
+  const normalizedActiveGoal = activeGoal.replace(/\s+/g, ' ');
 
-  assert.ok(frontmatter.includes(`task: "${labsConsolidationGoal}"`), 'ISA frontmatter must bind the approved v0.5 goal exactly');
-  assert.ok(activeGoal.startsWith(labsConsolidationGoal), 'ISA Goal must lead with the approved v0.5 goal exactly');
+  assert.ok(frontmatter.includes(`task: "${openAICompatibilityGoal}"`), 'ISA frontmatter must bind the OpenAI compatibility goal exactly');
+  assert.ok(normalizedActiveGoal.startsWith(openAICompatibilityGoal), 'ISA Goal must lead with the OpenAI compatibility goal exactly');
+  assert.ok(isa.includes(`Historical v0.5 goal: ${labsConsolidationGoal}`), 'ISA must retain the approved v0.5 goal as history');
   assert.ok(isa.includes(`Historical v0.4 goal: ${approvedGoal}`), 'ISA must retain the approved v0.4 goal as history');
   assert.match(isa, /historical acceptance evidence/i);
   assert.match(isa, /historical[\s\S]{0,160}issue #331|issue #331[\s\S]{0,160}historical/i);
@@ -785,8 +807,17 @@ test('ISA binds the approved v0.5 Labs goal without erasing v0.4 history', () =>
   assert.equal(phase6AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 6 acceptance heading');
   assert.equal(phase7AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 7 acceptance heading');
   assert.equal(phase8AcceptanceHeadings.length, 1, 'ISA must declare exactly one Phase 8 acceptance heading');
+  const openAIProgress = /^progress: (\d+)\/32$/m.exec(frontmatter);
+  const openAICompatibilityActive = /^phase: (?:plan|build|execute|verify)$/m.test(frontmatter)
+    && openAIProgress !== null
+    && Number(openAIProgress[1]) >= 0
+    && Number(openAIProgress[1]) <= 32
+    && Object.values({ ...phase3Checks, ...phase4Checks, ...phase5Checks, ...phase6Checks, ...phase7Checks, ...phase8Checks }).every(Boolean)
+    && phase6AcceptanceHeadings[0] === 'Completed Phase 6 acceptance'
+    && phase7AcceptanceHeadings[0] === 'Completed Phase 7 acceptance'
+    && phase8AcceptanceHeadings[0] === 'Completed Phase 8 acceptance';
   assert.ok(
-    isCoherentIsaPhaseState(
+    openAICompatibilityActive || isCoherentIsaPhaseState(
       frontmatter,
       phase3Checks,
       phase4Checks,
@@ -798,7 +829,7 @@ test('ISA binds the approved v0.5 Labs goal without erasing v0.4 history', () =>
       phase8Checks,
       phase8AcceptanceHeadings[0],
     ),
-    'ISA must be coherent at completed Phase 3–7 and active or verified Phase 8',
+    'ISA must be coherent at completed Phase 3–8 and either the active compatibility lifecycle or an earlier supported phase state',
   );
 });
 
@@ -1013,7 +1044,7 @@ test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent gated 
 
   assert.match(frontmatter, /^milestone: v0\.5$/m);
   assert.match(frontmatter, /^status: Active$/m);
-  assert.match(frontmatter, /^stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain$/m);
+  assert.match(frontmatter, /^stopped_at: Phase 9 Task 1 synthetic collector implemented; authenticated inventory approval remains$/m);
   assert.match(frontmatter, /^\s+total_phases: 3$/m);
   assert.match(frontmatter, /^\s+completed_phases: 1$/m);
   assert.match(frontmatter, /^\s+total_plans: 2$/m);
@@ -1022,15 +1053,15 @@ test('DOCS-03 / D-03: live STATE preserves archived v0.4 and one coherent gated 
 
   assert.match(state, /^\*\*Current focus:\*\* Review the reconciled source and implement the planned exact read-only `9d9d` inventory tooling while\npreserving verified Thoughtseed Labs production authority\.$/m);
   assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
-  assert.match(state, /^Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed$/m);
+  assert.match(state, /^Plan: 09-01 Task 1 implemented and synthetically verified; Task 2 authenticated-read checkpoint not authorized$/m);
   assert.doesNotMatch(state, /^Plan: Not planned$/m);
   assert.match(state, /^Status: Active$/m);
-  assert.match(state, /^Stopped at: Phase 9 plan ready; collector implementation and authenticated inventory remain$/m);
+  assert.match(state, /^Stopped at: Phase 9 Task 1 synthetic collector implemented; authenticated inventory approval remains$/m);
   assert.match(state, /^Resume file: \.planning\/STATE\.md$/m);
-  assert.match(state, /^- Implement and synthetically verify Phase 9 Task 1, then obtain the exact authenticated source\/target inventory authorization before live reads\.$/m);
-  assert.match(state, /then execute Task 1 in `09-01-PLAN\.md` before the exact authenticated-read checkpoint\./);
-  assert.match(state, /The plan now exists; do not restart phase planning or mark INV-01\/CLASS-01 complete from synthetic tests\./);
-  assert.match(state, /The collector\/classifier has not been implemented by this reconciliation\./);
+  assert.match(state, /^- Review Phase 9 Task 1 residual runtime wiring, then obtain the exact authenticated source\/target inventory authorization before any live read\.$/m);
+  assert.match(state, /Review the Task 1 source, 53\/53 synthetic\/adversarial evidence/);
+  assert.match(state, /Do not mark INV-01\/CLASS-01 complete from synthetic tests\./);
+  assert.match(state, /collector remains unable to perform authenticated work until the separately approved Task 3 runtime wiring is implemented\./);
   assert.doesNotMatch(state, /\/gsd:plan-phase 7/);
   assert.doesNotMatch(state, /\/gsd:secure-phase 6/);
 
@@ -1069,7 +1100,8 @@ test('Labs consolidation planning keeps production and legacy authority separate
   const goal = JSON.parse(read('.temperance/goal.json'));
   const config = JSON.parse(read('.planning/config.json'));
 
-  assert.ok(isa.includes(`task: "${labsConsolidationGoal}"`));
+  assert.ok(isa.includes(`task: "${openAICompatibilityGoal}"`));
+  assert.ok(isa.includes(`Historical v0.5 goal: ${labsConsolidationGoal}`));
   assert.match(isa, /^### Completed Phase 8 acceptance$/m);
   for (const id of ['ISC-2470', 'ISC-2471', 'ISC-2472', 'ISC-2473']) {
     assert.equal(checkbox(isa, id), true, `${id} must be complete after Phase 8 verification`);
@@ -1078,7 +1110,7 @@ test('Labs consolidation planning keeps production and legacy authority separate
   assert.match(state, /^milestone: v0\.5$/m);
   assert.match(state, /^status: Active$/m);
   assert.match(state, /^Phase: 9 of 10 \(Source Inventory and Classification\)$/m);
-  assert.match(state, /^Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed$/m);
+  assert.match(state, /^Plan: 09-01 Task 1 implemented and synthetically verified; Task 2 authenticated-read checkpoint not authorized$/m);
   assert.match(roadmap, /^- 🚧 \*\*v0\.5 Thoughtseed Labs Consolidation and Governed 9d9d Retirement\*\* — Phases 8–10 active$/m);
   assert.match(roadmap, /^- \[x\] \*\*Phase 8: Labs Authority and Profile Safety\*\*/m);
 
@@ -1091,8 +1123,25 @@ test('Labs consolidation planning keeps production and legacy authority separate
     assert.ok(requirements.includes(`- [x] **${requirement}**`));
     assert.ok(requirements.includes(`| ${requirement} | Phase 8 | Complete |`));
   }
-  assert.equal(goal.text, labsConsolidationGoal);
-  assert.equal(goal.gsd_command, 'plan-phase');
+  assert.equal(goal.text, openAICompatibilityGoal);
+  assert.equal(goal.gsd_command, 'progress');
+  assert.deepEqual(goal.evaluator.map(({ id, probe }) => ({ id, probe })), [
+    {
+      id: 'doctor',
+      probe: 'temperance-project-init --cwd . --check --json | node -e "let s=\'\';process.stdin.on(\'data\',d=>s+=d).on(\'end\',()=>{const x=JSON.parse(s);process.exit(x.summary?.high_gaps===0?0:1)})"',
+    },
+    {
+      id: 'openai-ecosystem-compatibility',
+      probe: 'node scripts/verify-openai-ecosystem-compatibility.mjs --check',
+    },
+  ]);
+  const openAIVerifier = path.join(repositoryRoot, 'scripts/verify-openai-ecosystem-compatibility.mjs');
+  assert.equal(fs.existsSync(openAIVerifier), true, 'the active compatibility verifier must exist');
+  const heldCompatibility = spawnSync(process.execPath, [openAIVerifier, '--check'], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(heldCompatibility.status, 2, 'the active compatibility verifier must remain held until live receipts exist');
   assert.equal(config.temperance.fleet_combo, 'noesis-execute');
 });
 

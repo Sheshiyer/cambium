@@ -1,5 +1,7 @@
 # Agent operating contract
 
+For cross-folder pickup, read [shared working context](CONTEXT.md) alongside the required local packet.
+
 This repository is `cambium`.
 
 1. Read `PROJECT.md` and `.project/HANDOFF.md` before starting work.
@@ -57,4 +59,3 @@ temperance-swarm-dispatch --request .planning/swarm-claim.json --dry-run
 
 Manifest: `.temperance/project.json` (schema temperance.project.v1)
 <!-- temperance:project-rail:end -->
-

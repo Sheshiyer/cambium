@@ -140,9 +140,42 @@ function goalGraphGateItems(env){
     };
   });
 }
+function mcpActionRequestRows(env){
+  const envelope = env && env.mcpActionRequests;
+  const rows = Array.isArray(envelope)
+    ? envelope
+    : envelope && Array.isArray(envelope.rows)
+      ? envelope.rows
+      : [];
+  return rows.filter(row => row && typeof row === 'object');
+}
+function isMcpActionGateItem(it){ return !!(it && (it.mcpActionRequest || it.sourcePath === 'openai-mcp-action-review@v1' || it.mcpActionDigest)); }
+function mcpActionGateItems(env){
+  return mcpActionRequestRows(env).filter(row => String(row.status || 'pending') === 'pending').map(row => ({
+    id:row.id || ('mcp-action-review:' + (row.actionDigest || 'unknown')),
+    mcpActionDigest:row.actionDigest,
+    mcpRequestDigest:row.requestDigest,
+    title:row.title || 'OpenAI action awaiting founder approval',
+    source:row.source || 'openai-mcp-action-review@v1',
+    sourcePath:'openai-mcp-action-review@v1',
+    status:'proposed',
+    owner:'founder',
+    branchId:'goal-graph',
+    branchLabel:'Goal Graph',
+    clientName:'Goal Graph',
+    missionId:'openai-action-review',
+    updatedAt:row.requestedAt || row.updatedAt || 'updatedAt not served',
+    evidence:row.evidence || 'OpenAI action proof missing from gate row',
+    consequence:row.consequence || 'Founder approval authorizes one exact action tuple; execution remains separate.',
+    reversibility:row.reversibility || 'Reversible until execution: approval alone performs no Goal Graph write.',
+    idempotencyHint:row.idempotencyHint || row.actionDigest || 'mcp-action-review',
+    priority:row.priority || { source:'openai-mcp-action-review@v1', risk:'review', dependency:'founder-signature', score:10 },
+    mcpActionRequest:row,
+  }));
+}
 function gateItemsFromEnvelope(env){
   const openItems = Array.isArray(env && env.openItems) ? env.openItems : [];
-  return openItems.concat(actionRequestGateItems(env || {})).concat(goalGraphGateItems(env || {}));
+  return openItems.concat(actionRequestGateItems(env || {})).concat(goalGraphGateItems(env || {})).concat(mcpActionGateItems(env || {}));
 }
 function gateSource(it){ return (it && (it.paperclipSource || it.source || it.sourcePath || it.origin || (it.priority && it.priority.source))) || 'Paperclip · /internal/gate/' + TENANT; }
 function gateOwner(it){ return (it && (it.owner || it.assignee || it.founder || it.operator)) || 'owner not served'; }
@@ -152,6 +185,7 @@ function isActionRequestGateItem(it){ return !!(it && (it.actionRequest || it.so
 function gateActionRequestOption(it){ return actionRequestSelectedOption((it && it.actionRequest) || it || {}); }
 function gateActionSubject(kind, it){
   if (kind === 'approve-goal-graph' && isGoalGraphGateItem(it)) return it.goalGraphChangeDigest || (it.goalGraphIntake && it.goalGraphIntake.changeDigest) || gateSubject(it);
+  if (kind === 'approve-mcp-action' && isMcpActionGateItem(it)) return it.mcpActionDigest || (it.mcpActionRequest && it.mcpActionRequest.actionDigest) || gateSubject(it);
   return kind === 'confirm-action-request' && isActionRequestGateItem(it) ? (it.actionRequestId || (it.actionRequest && it.actionRequest.id) || it.id || gateSubject(it)) : gateSubject(it);
 }
 function gateApprovalDescriptorSeed(kind, it){
@@ -200,6 +234,7 @@ function gateConsequence(kind, it){
   /* approve-goal-graph commits on signature (no operator consume lane), so the
      served consequence bypasses the queue-only wording guard. */
   if (kind === 'approve-goal-graph') return String((it && it.consequence) || 'founder signature commits this goal proposal to the goal graph; no graph write happens before approval');
+  if (kind === 'approve-mcp-action') return String((it && it.consequence) || 'Founder approval authorizes one exact action tuple; execution remains separate.');
   if (kind === 'approve') return gateQueueConsequence(it && (it.approveConsequence || it.consequence), kind, subject);
   if (kind === 'confirm-action-request') return gateQueueConsequence(it && (it.confirmConsequence || it.rerollConsequence || it.consequence), kind, subject);
   return gateQueueConsequence(it && (it.rerollConsequence || it.consequence), kind, subject);
@@ -351,7 +386,10 @@ function renderGateItem(it, i){
   const selectedOption = gateActionRequestOption(it);
   const selectedOptionId = selectedOption && selectedOption.id ? selectedOption.id : ((it && it.selectedOptionId) || '');
   const goalGraphItem = isGoalGraphGateItem(it);
-  const actionButtons = goalGraphItem
+  const mcpActionItem = isMcpActionGateItem(it);
+  const actionButtons = mcpActionItem
+    ? '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve-mcp-action" data-kind="approve-mcp-action" data-risk-state="' + esc(reversibilityState) + '">Approve</button><button type="button" class="detail" data-gate-detail="1">Inspect</button>'
+    : goalGraphItem
     ? '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="approve-goal-graph" data-kind="approve-goal-graph" data-risk-state="' + esc(reversibilityState) + '">Approve</button><button type="button" class="detail" data-gate-detail="1">Inspect</button>'
     : needsSignedActionRequest
     ? '<button type="button" class="approve" data-interaction-kind="signed-action" data-signed-action-entrypoint="confirm-action-request" data-kind="confirm-action-request" data-action-request-option-id="' + esc(selectedOptionId) + '" data-risk-state="' + esc(reversibilityState) + '">Confirm</button><button type="button" class="detail" data-gate-detail="1">Inspect</button>'
@@ -364,7 +402,10 @@ function renderGateItem(it, i){
   const goalGraphAttrs = it && it.goalGraphChangeDigest
     ? ' data-goal-graph-change-digest="' + esc(it.goalGraphChangeDigest) + '" data-ecosystem-target="goal-graph-intake"'
     : '';
-  return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '"' + actionRequestAttrs + goalGraphAttrs + '>' +
+  const mcpActionAttrs = it && it.mcpActionDigest
+    ? ' data-mcp-action-digest="' + esc(it.mcpActionDigest) + '" data-ecosystem-target="openai-mcp-action-review"'
+    : '';
+  return '<div class="' + mcClass('gitem', state) + '" data-component="GateActionCard" style="--i:' + i + '" data-i="' + i + '" data-id="' + esc(it.id) + '" data-source="' + esc(gateSource(it)) + '"' + actionRequestAttrs + goalGraphAttrs + mcpActionAttrs + '>' +
     '<div class="grow-head" data-component="GateStackRow">' +
       gateRowToken(state, subtitle) +
       '<div class="grow-copy"><div class="gtitle">' + esc(it.title) + '</div><div class="gsub-line">' + esc(subtitle) + '</div></div>' +
@@ -398,22 +439,25 @@ function gateWireSheetNav(item){
 function openGateResultSheet(kind, subject, res, fallback, item){
   const duplicate = !!(res && res.duplicate);
   const goalGraph = kind === 'approve-goal-graph';
+  const mcpAction = kind === 'approve-mcp-action';
   const title = duplicate
-    ? (goalGraph ? 'Original goal approval reused' : 'Original queued action reused')
+    ? (goalGraph ? 'Original goal approval reused' : mcpAction ? 'Original action approval reused' : 'Original queued action reused')
     : kind === 'confirm-action-request'
       ? 'ActionRequest confirmation queued'
       : goalGraph
         ? 'Goal proposal committed'
+        : mcpAction
+          ? 'OpenAI action approved'
         : 'Founder decision queued';
   const receiptLine = duplicate
-    ? (goalGraph ? 'already committed · original reused' : 'decision queued · original reused')
-    : (goalGraph ? 'goal graph committed · receipt in Inspect' : 'decision queued · receipt in Inspect');
+    ? (goalGraph ? 'already committed · original reused' : mcpAction ? 'action approval · original reused' : 'decision queued · original reused')
+    : (goalGraph ? 'goal graph committed · receipt in Inspect' : mcpAction ? 'approved · execution remains separate' : 'decision queued · receipt in Inspect');
   $('sheetBody').innerHTML = '<div class="arc">gate result</div><h2>' + esc(title) + '</h2>' +
     '<div class="gate-result-line" data-component="GateReceiptToken">' + mcStateToken('complete', 'receipt') + '<span>' + esc(receiptLine) + '</span></div>' +
     /* Small receipt kv (frozen/06 G19: receipt carries the mono idempotency key). The no-kv-wall rule
        governs the preflight; the result sheet is a receipt surface, Inspect-adjacent, so two rows live here. */
     '<div class="gatekv" data-component="GateReceiptDetails">' +
-      '<b>queued action</b><span>' + esc((res && (res.queued || res.id || res.nodeId)) || subject) + '</span>' +
+      '<b>' + esc(mcpAction ? 'approved action' : 'queued action') + '</b><span>' + esc((res && (res.queued || res.id || res.nodeId || res.action_digest)) || subject) + '</span>' +
       '<b>idempotency</b><span>' + esc((res && res.idempotencyKey) || (fallback && fallback.idempotencyKey) || 'receipt pending') + '</span>' +
     '</div>' +
     '<div class="gbtns gate-result-actions"><button type="button" class="approve" data-gate-result-refresh="1">Refresh</button><button type="button" class="detail" data-gate-result-nav="mission">Mission</button><button type="button" class="reroll" data-gate-result-nav="inspect">Inspect</button></div>';
@@ -490,7 +534,7 @@ function gateNodeForSubmit(context){
   return null;
 }
 /* frozen/06 §2.4 — the preflight sheet renders ONLY these lines (served consequence strings are payload, not copy). */
-const GATE_PREFLIGHT_TITLES = { approve:'Approve gate item', reroll:'Reroll gate item', 'promote-skill':'Promote skill', 'promote-portfolio':'Review Portfolio promotion', 'queue-side-quest':'Queue side quest', 'confirm-action-request':'Confirm action request', 'approve-goal-graph':'Approve goal proposal' };
+const GATE_PREFLIGHT_TITLES = { approve:'Approve gate item', reroll:'Reroll gate item', 'promote-skill':'Promote skill', 'promote-portfolio':'Review Portfolio promotion', 'queue-side-quest':'Queue side quest', 'confirm-action-request':'Confirm action request', 'approve-goal-graph':'Approve goal proposal', 'approve-mcp-action':'Approve OpenAI action' };
 function gatePreflightLine(kind, subject, item, option){
   if (kind === 'approve') return 'Queues founder approval for ' + subject + '; nothing mutates until an operator consumes the queue.';
   if (kind === 'reroll') return 'Queues a reroll request for ' + subject + '; current work stays unchanged until operator consumption.';
@@ -498,6 +542,7 @@ function gatePreflightLine(kind, subject, item, option){
   if (kind === 'promote-portfolio') return 'Queues Portfolio promotion review for ' + subject + '; lifecycle and catalog remain unchanged until operator consumption.';
   if (kind === 'queue-side-quest') return 'Queues side quest ' + subject + ' for operator follow-up; nothing completes from this device.';
   if (kind === 'approve-goal-graph') return 'Signs founder approval for ' + ((item && item.title) || 'this goal proposal') + '; the goal graph commits only after this signature.';
+  if (kind === 'approve-mcp-action') return 'Signs founder approval for this exact OpenAI action; execution remains a separate request.';
   const optionToken = (option && (option.id || option.label)) || (item && item.selectedOptionId) || subject;
   return 'Queues signed confirmation for ' + optionToken + '; execution waits for operator consumption of the queue.';
 }
@@ -609,7 +654,9 @@ function gateAct(submitButton){
   const consequence = context.consequence;
   const reversibility = context.reversibility;
   const idempotencyKey = context.idempotencyKey;
-  const payload = { kind, subject, initData, evidence, consequence, reversibility, idempotencyKey };
+  const payload = kind === 'approve-mcp-action'
+    ? { kind, subject, requestDigest:item.mcpRequestDigest || (item.mcpActionRequest && item.mcpActionRequest.requestDigest) || '', initData }
+    : { kind, subject, initData, evidence, consequence, reversibility, idempotencyKey };
   if (kind === 'confirm-action-request') {
     payload.actionRequestId = context.actionRequestId || subject;
     payload.optionId = context.optionId;
@@ -639,18 +686,23 @@ function gateAct(submitButton){
       if (node && node.style) node.style.opacity='1';
       /* approve-goal-graph commits on signature: the worker answers { ok, committed, ... }
          instead of a queued receipt, so success is res.committed for that kind. */
-      const succeeded = !!res.queued || (kind === 'approve-goal-graph' && res.committed === true);
+      const mcpApproved = kind === 'approve-mcp-action' && (res.status === 'approved_not_executed' || res.status === 'already_executed');
+      const succeeded = !!res.queued || (kind === 'approve-goal-graph' && res.committed === true) || mcpApproved;
       if (succeeded) {
-        if (kind === 'approve-goal-graph') {
+        if (kind === 'approve-mcp-action') {
+          gateReceiptNote(node, res.duplicate
+            ? 'action approval · original reused'
+            : 'approved · execution remains separate · ' + String(res.approval_digest || '').replace(/^sha256:/, '').slice(0, 12));
+        } else if (kind === 'approve-goal-graph') {
           gateReceiptNote(node, res.duplicate
             ? 'goal graph committed · original approval reused'
             : 'committed · approve-goal-graph · ' + String(res.headDigest || idempotencyKey || '').replace(/^sha256:/, '').slice(0, 12));
         } else {
           gateReceiptNote(node, res.duplicate ? 'decision queued · original reused · ' + (res.idempotencyKey || idempotencyKey) : 'queued · ' + kind + ' · ' + (res.idempotencyKey || idempotencyKey));
         }
-        setGateSubmitState(submitButton, 'queued', kind === 'approve-goal-graph' ? 'committed' : 'queued');
+        setGateSubmitState(submitButton, 'queued', kind === 'approve-goal-graph' ? 'committed' : kind === 'approve-mcp-action' ? 'approved' : 'queued');
         openGateResultSheet(kind, subject, res, { idempotencyKey, consequence, reversibility }, item);
-        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph') Promise.resolve(refresh()).then(loadGate);
+        if (kind === 'confirm-action-request' || kind === 'approve-goal-graph' || kind === 'approve-mcp-action') Promise.resolve(refresh()).then(loadGate);
       } else {
         setGateSubmitState(submitButton, 'refused', 'refused · no write');
         const error = res.error || 'unknown';

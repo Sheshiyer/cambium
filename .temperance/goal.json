@@ -1,24 +1,25 @@
 {
-  "schema": "temperance.goal.v1",
-  "text": "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.",
-  "planner": "isa",
-  "gsd_command": "plan-phase",
+  "schema": "temperance.goal.v2",
+  "text": "Make Cambium's complete infinite-game operating loop natively operable through OpenAI's ecosystem: import its project instructions and reusable skills; expose provenance-bound reads and founder-approval-gated actions through a private plugin and verified MCP boundary; coordinate local and cloud Codex tasks through a dot with persistent context, connected-computer and app access, and appropriate ChatGPT, Slack, or Teams updates; and prove end-to-end Vision to Mission to Goal to Task to Run to Receipt to Learning parity. Done means the D1 Goal Graph remains the sole operational writer; ISA and GSD remain acceptance and planning authorities; Cambium, Hermes, Cloudflare, tenant isolation, provenance, receipts, approval, idempotency, stop, rollback, and privacy boundaries remain intact; and dot entitlement, workspace-admin enablement, plugin connections, credentials, deployment, and every external mutation are separately verified and owner-approved.",
+  "ledger": "isa",
+  "isa_missing": false,
+  "gsd_command": "do",
   "evaluator": [
     {
       "id": "doctor",
-      "probe": "temperance-project-init --cwd . --check --json",
+      "probe": "temperance-project-init --cwd . --check --json | node -e \"let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const x=JSON.parse(s);process.exit(x.summary?.high_gaps===0?0:1)})\"",
       "pass": "high_gaps==0"
     },
     {
-      "id": "isa-goal",
-      "probe": "rg -n '^## Goal' ISA.md",
-      "pass": "section present"
+      "id": "openai-ecosystem-compatibility",
+      "probe": "node scripts/verify-openai-ecosystem-compatibility.mjs --check",
+      "pass": "goal-specific verifier proves the approved import, plugin, MCP, dot, Codex, authority, approval, rollback, privacy, and parity contract"
     }
   ],
   "status": "active",
   "native": {
-    "claude": "/goal Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.",
+    "claude": "/goal Make Cambium's complete infinite-game operating loop natively operable through OpenAI's ecosystem: import its project instructions and reusable skills; expose provenance-bound reads and founder-approval-gated actions through a private plugin and verified MCP boundary; coordinate local and cloud Codex tasks through a dot with persistent context, connected-computer and app access, and appropriate ChatGPT, Slack, or Teams updates; and prove end-to-end Vision to Mission to Goal to Task to Run to Receipt to Learning parity. Done means the D1 Goal Graph remains the sole operational writer; ISA and GSD remain acceptance and planning authorities; Cambium, Hermes, Cloudflare, tenant isolation, provenance, receipts, approval, idempotency, stop, rollback, and privacy boundaries remain intact; and dot entitlement, workspace-admin enablement, plugin connections, credentials, deployment, and every external mutation are separately verified and owner-approved.",
     "codex": "wrapper"
   },
-  "updated_at": "2026-08-31T18:31:00.000Z"
+  "updated_at": "2026-10-06T15:16:55.173Z"
 }

@@ -1,7 +1,9 @@
 # Modular Mac lifecycle and rich TUI design
 
-Status: proposed design, 2026-10-01. No implementation or host migration
-approved by this document. Acceptance belongs to the root Cambium ISA for
+Status: proposed design, 2026-10-01. **Update: source implementation of
+this design is now active** in the Temperance distribution
+(`codex/modular-mac-lifecycle`; see `.planning/HANDOFF.json`). This
+document itself approves no host migration; physical flows stay unauthorized. Acceptance belongs to the root Cambium ISA for
 this review; future implementation must enter each owning repository's ISA.
 
 ## Intent
