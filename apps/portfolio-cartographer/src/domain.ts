@@ -615,9 +615,42 @@ export function deriveClassificationFromOrigin(origin: PortfolioOrigin): Derived
 // this function, so singular historic action bytes/digests are unchanged.
 export function withRepositoryMembership(reconciliation: PortfolioReconciliation): PortfolioReconciliation {
   if (reconciliation.repositoryComponents !== undefined || !reviewedRepositoryComponentsFor(reconciliation.workObjectId).length) return reconciliation
-  const primary = reconciliation.planningAuthority?.kind === 'repository'
-    ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef
+  const primary = reconciliation.repositorySourceRef !== null && reconciliation.planningAuthority?.kind === 'repository'
+    ? `repo:${reconciliation.planningAuthority.fullName}` : null
   return { ...reconciliation, repositoryComponents: repositoryComponentsForIntake(reconciliation.workObjectId, primary) }
+}
+
+// Flags are draft-derived selection state, not independent approval claims.
+// Keep all other component fields intact so the existing validator still rejects
+// changed identity, ownership, roles and lifecycle. Never used by Worker receipts.
+function draftComponentSelection(value: unknown, primary: string | null): OperationalRepositoryComponent[] {
+  if (!Array.isArray(value)) throw new TypeError('Invalid draft repository components')
+  return value.map((component) => {
+    if (!component || typeof component !== 'object' || Array.isArray(component) || typeof component.planningAuthority !== 'boolean') {
+      throw new TypeError('Invalid draft component planning flag')
+    }
+    return { ...component, planningAuthority: primary !== null &&
+      typeof component.nameWithOwner === 'string' && `repo:${component.nameWithOwner}`.toLowerCase() === primary.toLowerCase() }
+  })
+}
+
+export function repositorySelectionPatch(reconciliation: PortfolioReconciliation, sourceRef: string): Partial<PortfolioReconciliation> {
+  const evidence = repositoryEvidenceBySourceRef.get(sourceRef)
+  const noRepository = sourceRef === '__none__'
+  const authority: PlanningAuthority | null = noRepository
+    ? { kind: 'cambium', reason: 'No exact project repository is available; Cambium coordinates this mapping gap.' }
+    : evidence?.status === 'resolved' && evidence.repositoryId && evidence.fullName
+      ? { kind: 'repository', repositoryId: evidence.repositoryId, fullName: evidence.fullName }
+      : null
+  const primary = authority?.kind === 'repository' ? `repo:${authority.fullName}` : null
+  const components = reconciliation.repositoryComponents ?? (reviewedRepositoryComponentsFor(reconciliation.workObjectId).length
+    ? repositoryComponentsForIntake(reconciliation.workObjectId, null) : undefined)
+  return {
+    repositorySourceRef: noRepository ? null : evidence?.sourceRef ?? null,
+    repositoryDisposition: noRepository ? 'no-repository' : evidence?.status === 'resolved' ? 'resolved' : evidence?.status === 'ambiguous' ? 'ambiguous' : 'unmatched',
+    planningAuthority: authority,
+    ...(components !== undefined ? { repositoryComponents: draftComponentSelection(components, primary) } : {}),
+  }
 }
 
 export function defaultReconciliation(workObjectId: string): PortfolioReconciliation {
@@ -737,7 +770,7 @@ export function intakeReadiness(
   try { reviewedPlanningRepository(work.workId, reconciliation.repositorySourceRef, reconciliation.planningAuthority) }
   catch (error) { blockers.push(error instanceof Error ? error.message : 'Review repository identity.') }
   if (reviewedRepositoryComponentsFor(work.workId).length > 0) {
-    try { validateIntakeRepositoryComponents(withRepositoryMembership(reconciliation).repositoryComponents, work.workId, reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef) }
+    try { validateIntakeRepositoryComponents(withRepositoryMembership(reconciliation).repositoryComponents, work.workId, reconciliation.repositorySourceRef !== null && reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : null) }
     catch (error) { blockers.push(error instanceof Error ? error.message : 'Review full repository membership.') }
   }
   if (reconciliation.origin === 'unknown') blockers.push('Record the project origin before classification.')
@@ -1166,6 +1199,7 @@ function sanitizeReconciliation(value: unknown, id: string): PortfolioReconcilia
   if (repositorySourceRef && (!work.provenance.includes(repositorySourceRef) || !repositoryEvidence)) {
     throw new TypeError(`Repository evidence is not attached to ${id}`)
   }
+  let repositoryDisposition = raw.repositoryDisposition as RepositoryDisposition
   if (repositoryEvidence) {
     const evidenceStatus: string = repositoryEvidence.status
     const expectedDisposition: RepositoryDisposition = evidenceStatus === 'resolved'
@@ -1173,8 +1207,13 @@ function sanitizeReconciliation(value: unknown, id: string): PortfolioReconcilia
       : evidenceStatus === 'ambiguous'
         ? 'ambiguous'
         : 'unmatched'
-    if (raw.repositoryDisposition !== expectedDisposition) {
-      throw new TypeError(`Repository disposition does not match generated evidence for ${id}`)
+    if (repositoryDisposition !== expectedDisposition) {
+      const previousEvidence = REPOSITORY_EVIDENCE.find((record) => record.sourceRef === repositorySourceRef)
+      const legitimateUpgrade = repositoryDisposition === 'unmatched' && expectedDisposition === 'resolved' &&
+        previousEvidence?.status === 'unverified' && previousEvidence.repositoryId === null &&
+        previousEvidence.fullName === repositoryEvidence.fullName && raw.planningAuthority === null
+      if (!legitimateUpgrade) throw new TypeError(`Repository disposition does not match generated evidence for ${id}`)
+      repositoryDisposition = 'resolved' // identity evidence improved; no authority/review approval is inferred
     }
   } else if (raw.repositoryDisposition === 'resolved' || raw.repositoryDisposition === 'ambiguous') {
     throw new TypeError(`Repository disposition lacks generated evidence for ${id}`)
@@ -1195,7 +1234,7 @@ function sanitizeReconciliation(value: unknown, id: string): PortfolioReconcilia
   const origin = raw.origin as PortfolioOrigin
   const planningAuthority = sanitizePlanningAuthority(raw.planningAuthority, id)
   if (
-    raw.repositoryDisposition === 'resolved' &&
+    repositoryDisposition === 'resolved' &&
     planningAuthority?.kind === 'repository' &&
     (
       planningAuthority.repositoryId !== repositoryEvidence?.repositoryId ||
@@ -1208,9 +1247,9 @@ function sanitizeReconciliation(value: unknown, id: string): PortfolioReconcilia
     workObjectId: id,
     repositorySourceRef,
     ...(raw.repositoryComponents !== undefined
-      ? { repositoryComponents: validateIntakeRepositoryComponents(raw.repositoryComponents, id, planningAuthority?.kind === 'repository' ? `repo:${planningAuthority.fullName}` : repositorySourceRef, false) }
+      ? { repositoryComponents: validateIntakeRepositoryComponents(draftComponentSelection(raw.repositoryComponents, repositorySourceRef !== null && planningAuthority?.kind === 'repository' ? `repo:${planningAuthority.fullName}` : null), id, repositorySourceRef !== null && planningAuthority?.kind === 'repository' ? `repo:${planningAuthority.fullName}` : null, false) }
       : {}),
-    repositoryDisposition: raw.repositoryDisposition as RepositoryDisposition,
+    repositoryDisposition,
     origin,
     clientFamilyId: origin === 'client' ? normalizeClientFamilyId(String(raw.clientFamilyId ?? '')) : '',
     planningAuthority,
@@ -1417,6 +1456,38 @@ export function parsePacket(value: unknown): WorkbenchState {
   if (packet.schema === V2_SCHEMA) return parseV2(packet)
   if (packet.schema === LEGACY_SCHEMA) return parseLegacy(packet)
   throw new TypeError('Packet schema is not supported')
+}
+
+function draftSnapshot(value: unknown): string {
+  return JSON.stringify(value, (_key, entry) => entry && typeof entry === 'object' && !Array.isArray(entry)
+    ? Object.fromEntries(Object.entries(entry).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0))
+    : entry)
+}
+
+// Preserve exact pre-normalization bytes before the existing autosave replaces
+// a valid older v4 draft. Recovery copies share the existing local draft namespace
+// and never overwrite a different backup or write the current-storage key here.
+export function restoreWorkbenchDraft(
+  raw: string, storage: Pick<Storage, 'getItem' | 'setItem'>,
+  backupId: () => string = () => crypto.randomUUID(),
+): { state: WorkbenchState; migrated: boolean; autosaveBlocked: boolean; backupKey?: string } {
+  const packet = JSON.parse(raw)
+  const state = parsePacket(packet)
+  const normalized = createPacket(state)
+  const migrated = packet.schema !== WORKBENCH_SCHEMA || packet.version !== 4 ||
+    draftSnapshot(packet.reconciliations ?? {}) !== draftSnapshot(normalized.reconciliations)
+  if (!migrated) return { state, migrated: false, autosaveBlocked: false }
+  try {
+    const backupKey = `${WORKBENCH_SCHEMA}.recovery.${backupId()}`
+    const existing = storage.getItem(backupKey)
+    if (existing !== null && existing !== raw) throw new Error('Recovery key already holds another draft')
+    if (existing === null) storage.setItem(backupKey, raw)
+    if (storage.getItem(backupKey) !== raw) throw new Error('Original draft backup did not read back')
+    return { state, migrated: true, autosaveBlocked: false, backupKey }
+  } catch {
+    // Keep restored plans visible even if quota/privacy settings prevent backup.
+    return { state, migrated: true, autosaveBlocked: true }
+  }
 }
 
 export function toMarkdown(packet: ExportPacket): string {

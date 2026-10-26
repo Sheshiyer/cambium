@@ -988,3 +988,159 @@ test('folder projections preserve product labels and nested Codigo evidence sepa
     ['thoughtseed-organ-console', 'internal-program', null, ['program:thoughtseed-organ-console']],
   ])
 })
+
+import { repositoryComponentsForIntake } from '../../../shared/operational-packet-registry.ts'
+
+function selectedParkAreaDraft() {
+  const id = 'branch:parkarea'
+  return {
+    ...defaultReconciliation(id), repositorySourceRef: 'repo:Sheshiyer/parkarea-aleph',
+    repositoryDisposition: 'resolved' as const, origin: 'client' as const, clientFamilyId: 'parkarea',
+    planningAuthority: { kind: 'repository' as const, fullName: 'Sheshiyer/parkarea-aleph', repositoryId: 'R_kgDOSDqEkg' },
+    repositoryComponents: repositoryComponentsForIntake(id, 'repo:Sheshiyer/parkarea-aleph'),
+    repositoryPlanningReviewed: true, githubIssuesReviewed: true, legacyEvidenceReviewed: true,
+  }
+}
+
+test('regression r4372134895: clearing a primary remains serializable with unrelated plans', () => {
+  const id = 'branch:parkarea'
+  const cleared = { ...selectedParkAreaDraft(), repositorySourceRef: null, repositoryDisposition: 'unmatched' as const, planningAuthority: null }
+  const packet = createPacket({ focusedId: id, plans: { 'sapling:cambium': { ...defaultPlan(), nextAction: 'Keep unrelated draft' } }, reconciliations: { [id]: cleared } })
+  assert.equal(packet.reconciliations[id].repositoryComponents?.filter((component) => component.planningAuthority).length, 0)
+  assert.equal(parsePacket(JSON.parse(JSON.stringify(packet))).plans['sapling:cambium'].nextAction, 'Keep unrelated draft')
+})
+
+function historicalUnmatchedRelovoPacket() {
+  const id = 'branch:relovo'
+  const { repositoryComponents: _components, ...draft } = defaultReconciliation(id)
+  const packet = createPacket({ focusedId: id, plans: { 'sapling:cambium': { ...defaultPlan(), nextAction: 'Preserve other work' } }, reconciliations: {
+    [id]: { ...draft, repositorySourceRef: 'repo:Sheshiyer/relovo', repositoryDisposition: 'resolved', origin: 'client', clientFamilyId: 'relovo' },
+  } })
+  packet.reconciliations[id].repositoryDisposition = 'unmatched'
+  delete packet.reconciliations[id].repositoryComponents
+  return packet
+}
+
+test('regression r4372134899: earlier unverified Relovo draft restores when evidence resolves', () => {
+  const packet = historicalUnmatchedRelovoPacket()
+  const bytes = JSON.stringify(packet)
+  const restored = parsePacket(JSON.parse(bytes))
+  assert.equal(restored.reconciliations['branch:relovo'].repositoryDisposition, 'resolved')
+  assert.equal(restored.reconciliations['branch:relovo'].planningAuthority, null)
+  assert.equal(restored.plans['sapling:cambium'].nextAction, 'Preserve other work')
+  assert.equal(JSON.stringify(packet), bytes)
+})
+
+import { repositorySelectionPatch, restoreWorkbenchDraft, WORKBENCH_SCHEMA } from './domain.ts'
+import { reviewedRepositoryComponentsFor } from '../../../shared/operational-packet-registry.ts'
+
+function draftStorage(initial: string) {
+  const values = new Map([[WORKBENCH_SCHEMA as string, initial]])
+  return { values, getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value) } }
+}
+
+for (const id of ['branch:tirak', 'branch:parkarea', 'branch:insight-realtors-legal-advisors', 'branch:co-property', 'branch:klear-karma', 'branch:relovo']) {
+  test(`${id}: select, clear, save, reload, reselect preserves membership and unrelated plans`, () => {
+    const primary = reviewedRepositoryComponentsFor(id).find((component) => component.lifecycle === 'current')!
+    let reconciliation = defaultReconciliation(id)
+    reconciliation = { ...reconciliation, ...repositorySelectionPatch(reconciliation, `repo:${primary.nameWithOwner}`) }
+    assert.equal(reconciliation.repositoryComponents?.filter((component) => component.planningAuthority).length, 1)
+    reconciliation = { ...reconciliation, ...repositorySelectionPatch(reconciliation, '') }
+    assert.equal(reconciliation.planningAuthority, null)
+    assert.equal(reconciliation.repositorySourceRef, null)
+    assert.equal(reconciliation.repositoryComponents?.filter((component) => component.planningAuthority).length, 0)
+    const packet = createPacket({ focusedId: id, plans: { 'sapling:cambium': { ...defaultPlan(), nextAction: 'Unrelated plan remains' } }, reconciliations: { [id]: reconciliation } })
+    const bytes = JSON.stringify(packet)
+    const storage = draftStorage(bytes)
+    const reload = restoreWorkbenchDraft(bytes, storage, () => 'clear-cycle')
+    assert.equal(reload.autosaveBlocked, false)
+    assert.equal(reload.state.plans['sapling:cambium'].nextAction, 'Unrelated plan remains')
+    let restored = reload.state.reconciliations[id]
+    assert.equal(restored.repositoryComponents?.length, reviewedRepositoryComponentsFor(id).length)
+    restored = { ...restored, ...repositorySelectionPatch(restored, `repo:${primary.nameWithOwner}`) }
+    const next = createPacket({ ...reload.state, reconciliations: { [id]: restored } })
+    const reloaded = parsePacket(JSON.parse(JSON.stringify(next)))
+    assert.equal(reloaded.reconciliations[id].repositoryComponents?.find((component) => component.planningAuthority)?.immutableRepositoryId, primary.immutableRepositoryId)
+    assert.equal(reloaded.plans['sapling:cambium'].nextAction, 'Unrelated plan remains')
+  })
+}
+
+test('Relovo recovery preserves exact original bytes before autosave and grants no authority or review', () => {
+  const packet = historicalUnmatchedRelovoPacket()
+  const bytes = JSON.stringify(packet, null, 2)
+  const storage = draftStorage(bytes)
+  const before = JSON.stringify(packet)
+  const restored = restoreWorkbenchDraft(bytes, storage, () => 'old-relovo')
+  assert.equal(restored.migrated, true)
+  assert.equal(restored.autosaveBlocked, false)
+  assert.equal(storage.getItem(restored.backupKey!), bytes)
+  assert.equal(storage.getItem(WORKBENCH_SCHEMA), bytes) // restore has not overwritten active source
+  const draft = restored.state.reconciliations['branch:relovo']
+  assert.equal(draft.repositoryDisposition, 'resolved')
+  assert.equal(draft.planningAuthority, null)
+  assert.equal(draft.repositoryPlanningReviewed, false)
+  assert.equal(draft.githubIssuesReviewed, false)
+  assert.equal(draft.legacyEvidenceReviewed, false)
+  assert.equal(intakeReadiness(WORK_OBJECTS.find((work) => work.workId === 'branch:relovo')!, draft).ready, false)
+  const next = createPacket(restored.state)
+  assert.equal(next.reconciliations['branch:relovo'].repositoryComponents?.filter((component) => component.planningAuthority).length, 0)
+  storage.setItem(WORKBENCH_SCHEMA, JSON.stringify(next)) // existing autosave path
+  const reload = restoreWorkbenchDraft(storage.getItem(WORKBENCH_SCHEMA)!, storage, () => 'normalized-relovo')
+  assert.equal(reload.autosaveBlocked, false)
+  assert.equal(reload.migrated, false)
+  assert.equal(storage.getItem(restored.backupKey!), bytes)
+  assert.equal(JSON.stringify(packet), before)
+})
+
+test('backup failure or collision keeps recovered plans visible and blocks original-byte overwrite', () => {
+  const bytes = JSON.stringify(historicalUnmatchedRelovoPacket())
+  const unavailable = { getItem: () => null, setItem: () => { throw new Error('quota') } }
+  const recovered = restoreWorkbenchDraft(bytes, unavailable, () => 'quota')
+  assert.equal(recovered.autosaveBlocked, true)
+  assert.equal(recovered.state.plans['sapling:cambium'].nextAction, 'Preserve other work')
+  const storage = draftStorage(bytes)
+  storage.setItem(`${WORKBENCH_SCHEMA}.recovery.collision`, 'another original')
+  const collision = restoreWorkbenchDraft(bytes, storage, () => 'collision')
+  assert.equal(collision.autosaveBlocked, true)
+  assert.equal(storage.getItem(WORKBENCH_SCHEMA), bytes)
+  assert.equal(storage.getItem(`${WORKBENCH_SCHEMA}.recovery.collision`), 'another original')
+  assert.throws(() => restoreWorkbenchDraft('{bad json', storage))
+  assert.equal(storage.getItem(WORKBENCH_SCHEMA), bytes)
+})
+
+test('recovery rejects unrelated evidence mismatches and changed component identity', () => {
+  const old = historicalUnmatchedRelovoPacket()
+  old.reconciliations['branch:relovo'].repositoryDisposition = 'ambiguous'
+  assert.throws(() => parsePacket(old), /disposition does not match/)
+  const id = 'branch:parkarea'
+  const draft = selectedParkAreaDraft()
+  draft.repositoryComponents[0].immutableRepositoryId = 'R_kgDOWrong'
+  assert.throws(() => createPacket({ focusedId: id, plans: {}, reconciliations: { [id]: draft } }), /identity, owner, role or lifecycle/)
+})
+
+test('stored stale clear flags recover without mutating original bytes or component metadata', () => {
+  const id = 'branch:parkarea'
+  const packet = createPacket({ focusedId: id, plans: {}, reconciliations: { [id]: selectedParkAreaDraft() } })
+  Object.assign(packet.reconciliations[id], { repositorySourceRef: null, repositoryDisposition: 'unmatched', planningAuthority: null })
+  const original = JSON.stringify(packet, null, 2)
+  const storage = draftStorage(original)
+  const restored = restoreWorkbenchDraft(original, storage, () => 'stale-clear')
+  assert.equal(restored.autosaveBlocked, false)
+  assert.equal(restored.migrated, true)
+  assert.equal(storage.getItem(restored.backupKey!), original)
+  const components = restored.state.reconciliations[id].repositoryComponents!
+  assert.equal(components.filter((component) => component.planningAuthority).length, 0)
+  assert.deepEqual(components.map(({ planningAuthority: _flag, ...metadata }) => metadata), packet.reconciliations[id].repositoryComponents!.map(({ planningAuthority: _flag, ...metadata }) => metadata))
+  assert.equal(JSON.stringify(packet, null, 2), original)
+  assert.equal(storage.getItem(WORKBENCH_SCHEMA), original)
+})
+
+test('selection normalization preserves incomplete membership and rejects non-boolean flags', () => {
+  let draft = selectedParkAreaDraft()
+  draft.repositoryComponents = draft.repositoryComponents.slice(0, 1)
+  const cleared = { ...draft, ...repositorySelectionPatch(draft, '') }
+  assert.equal(cleared.repositoryComponents?.length, 1)
+  assert.equal(cleared.repositoryComponents?.[0].planningAuthority, false)
+  ;(draft.repositoryComponents[0] as unknown as { planningAuthority: unknown }).planningAuthority = 'true'
+  assert.throws(() => createPacket({ focusedId: draft.workObjectId, plans: {}, reconciliations: { [draft.workObjectId]: draft } }), /Invalid draft component planning flag/)
+})

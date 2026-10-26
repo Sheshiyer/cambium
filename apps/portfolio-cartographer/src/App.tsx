@@ -55,6 +55,8 @@ import {
   boardHorizon,
   defaultCloseout,
   defaultReconciliation,
+  repositorySelectionPatch,
+  restoreWorkbenchDraft,
   defaultPlan,
   deriveClassificationFromOrigin,
   effectiveSignal,
@@ -192,7 +194,11 @@ function loadLocalState(): LocalLoad {
     const current = window.localStorage.getItem(STORAGE_KEY)
     if (current) {
       try {
-        return { ...parsePacket(JSON.parse(current)), notice: 'Restored local draft · save a record to create a durable action', autosaveBlocked: false }
+        const restored = restoreWorkbenchDraft(current, window.localStorage)
+        return { ...restored.state, autosaveBlocked: restored.autosaveBlocked,
+          notice: restored.autosaveBlocked ? 'Recovered local draft · autosave paused because the original backup could not be preserved'
+            : restored.migrated ? 'Recovered local draft · original backup preserved; review intake before saving an action'
+              : 'Restored local draft · save a record to create a durable action' }
       } catch {
         return {
           focusedId: null,
@@ -976,32 +982,7 @@ function PlanDrawer({
   }
 
   function selectRepository(value: string) {
-    if (value === '__none__') {
-      onReconciliationChange({
-        repositorySourceRef: null,
-        repositoryDisposition: 'no-repository',
-        planningAuthority: { kind: 'cambium', reason: 'No exact project repository is available; Cambium coordinates this mapping gap.' },
-      })
-      return
-    }
-    const evidence = repositoryEvidence.find((record) => record.sourceRef === value)
-    if (!evidence) {
-      onReconciliationChange({ repositorySourceRef: null, repositoryDisposition: 'unmatched', planningAuthority: null })
-      return
-    }
-    const disposition = evidence.status === 'resolved'
-      ? 'resolved'
-      : evidence.status === 'ambiguous'
-        ? 'ambiguous'
-        : 'unmatched'
-    onReconciliationChange({
-      ...(reviewedRepositoryComponentsFor(work.workId).length ? { repositoryComponents: repositoryComponentsForIntake(work.workId, `repo:${evidence.fullName}`) } : {}),
-      repositorySourceRef: evidence.sourceRef,
-      repositoryDisposition: disposition,
-      planningAuthority: evidence.status === 'resolved' && evidence.repositoryId && evidence.fullName
-        ? { kind: 'repository', repositoryId: evidence.repositoryId, fullName: evidence.fullName }
-        : null,
-    })
+    onReconciliationChange(repositorySelectionPatch(reconciliation, value))
   }
 
   function moveDrawerTab(event: ReactKeyboardEvent<HTMLButtonElement>, currentIndex: number) {
@@ -1089,7 +1070,7 @@ function PlanDrawer({
                 <legend>Repository components</legend>
                 <p>Keep full project membership, including history. Choose one planning repository above. Execution targets require separate admission.</p>
                 {reviewedRepositoryComponentsFor(work.workId).map((component) => {
-                  const components = reconciliation.repositoryComponents ?? repositoryComponentsForIntake(work.workId, reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef)
+                  const components = reconciliation.repositoryComponents ?? repositoryComponentsForIntake(work.workId, reconciliation.repositorySourceRef !== null && reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : null)
                   const included = components.some((row) => row.componentId === component.componentId)
                   return <label key={component.componentId}>
                     <input type="checkbox" checked={included} onChange={(event) => onReconciliationChange({
@@ -1741,7 +1722,7 @@ function App() {
       repositorySourceRef: reviewedRepositoryComponentsFor(work.workId).length && reconciliation.planningAuthority?.kind === 'repository'
         ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef,
       ...(reviewedRepositoryComponentsFor(work.workId).length ? {
-        repositoryComponents: reconciliation.repositoryComponents ?? repositoryComponentsForIntake(work.workId, reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : reconciliation.repositorySourceRef),
+        repositoryComponents: reconciliation.repositoryComponents ?? repositoryComponentsForIntake(work.workId, reconciliation.repositorySourceRef !== null && reconciliation.planningAuthority?.kind === 'repository' ? `repo:${reconciliation.planningAuthority.fullName}` : null),
       } : {}),
       repositoryDisposition: reconciliation.repositoryDisposition,
       origin: reconciliation.origin,

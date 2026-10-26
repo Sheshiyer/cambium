@@ -2707,3 +2707,10 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Shared identity binding checks immutable ID plus normalized qualified name and source ref, including existing legacy aliases. Unreviewed casing variants cannot bypass planning eligibility; inconsistent identity/reference claims fail before writes. Valid singular text remains unchanged.
 - Regression suite: 182 pass, one existing skip (183 total). App typecheck passes. Two untracked `App 2.tsx` / `domain 2.ts` files match clean-base copies, remain untouched/excluded, and have no import/compiler effect. Creator unknown.
 - Revised manifest/patch prepared for final independent review; no runtime/publication changes.
+
+### 2026-10-25 portfolio draft recovery — local post-merge follow-up
+
+- Base `3e334e85f511f8e6ce4d5828e3a3819b2923b1ee`; current-main review threads r4372134895/r4372134899 both reproduced before changes.
+- Draft-only fixes normalize component selection flags and migrate recognized old unmatched Relovo evidence without granting planning/review approval. Exact original stored text is backed up/read back before autosave; backup failure preserves recovered plans with autosave blocked.
+- All six select/clear/save/reload/reselect flows and existing receipt/authority contracts tested: 195 pass, one existing skip. App typecheck/build/static audit pass. See `docs/project-management/2026-10-25-portfolio-draft-recovery.md` for source and verification limits.
+- Independent review pending. No publication, deployment, live storage access, dispatch, registry or Gate changes. Space Blanket mapping untouched while BWSSB scope answer is pending.
