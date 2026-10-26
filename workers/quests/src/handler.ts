@@ -1,3 +1,5 @@
+import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
+import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
 // other module in this repo. The thin fetch glue lives in index.ts.
@@ -156,7 +158,7 @@ async function surfaceScopedQuestBody(
   principal: Principal,
   founderOutcomeAuthorized = false,
 ): Promise<string> {
-  const base = await publicQuestBody(deps.kv, tenantId, stored);
+  const base = await publicQuestBody(deps.kv, tenantId, stored, deps.goalGraphStore);
   try {
     const envelope = JSON.parse(base);
     envelope.surface = {
@@ -485,6 +487,8 @@ export interface FabricLedgerStoreLike {
 }
 
 export interface HandlerDeps {
+  founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
+  founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
   acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
@@ -2809,7 +2813,7 @@ function sanitizeQuestEnvelope(envelope: any): any {
   });
 }
 
-async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Promise<string> {
+async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, decisionStore?: GoalGraphStoreLike): Promise<string> {
   let envelope: Record<string, unknown>;
   try {
     envelope = sanitizeQuestEnvelope(JSON.parse(stored));
@@ -2822,6 +2826,8 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
     });
   }
   const merged: Record<string, unknown> = { ...envelope };
+  // A previously uploaded projection cannot override current D1 evidence.
+  delete merged.goalGraphIntake;
   try {
     const actionRequests = await listActionRequestRecords(kv, { tenantId, limit: 50 });
     if (actionRequests.status === 200 && Number(actionRequests.body.count) >= 1) {
@@ -2829,7 +2835,7 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string): Pr
     }
     // Pending Telegram goal-graph proposals are founder decisions too: project
     // them into the same envelope the gate scene renders (bounded rows only).
-    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false });
+    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false, decisionStore });
     if (goalGraphRows.length >= 1) {
       merged.goalGraphIntake = {
         schema: GOAL_GRAPH_GATE_ROW_LIST_SCHEMA,
@@ -3932,18 +3938,22 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     kind: 'goal-graph-intake',
     id: `goal-graph-intake:${changeDigest}`,
     tenantId,
-    status: 'pending',
+    status: task.status === 'stale' ? 'stale' : 'pending',
+    renewOnly: task.status === 'stale',
     changeDigest,
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`Telegram goal proposal awaiting founder signature: ${desiredState}`, 'Telegram goal proposal awaiting founder signature', 240),
-    source: 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : 'telegram-goal-graph-intake@v1',
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
+    proposalId: `${tenantId}:${changeDigest}`,
+    version: Number.isInteger(task.intentVersion) ? task.intentVersion : 1,
+    canRenew: task.status === 'stale' || Date.parse(descriptor.approvalExpiresAt) <= Date.now(),
     graphVersion: Number.isInteger(task.graphVersion) ? task.graphVersion : null,
     receivedAt,
     updatedAt: receivedAt,
@@ -4055,18 +4065,41 @@ function goalGraphFounderInspect(task: Record<string, unknown>): Record<string, 
   };
 }
 
+// null means no D1 decision; undefined means the read could not prove pending.
+// Never repair KV or let a stale pending projection invite another decision.
+async function projectedGoalGraphDecision(
+  store: GoalGraphStoreLike | undefined,
+  task: Record<string, unknown>,
+  tenantId: string,
+): Promise<{ decision: 'approved' | 'rejected'; decidedAt: string } | null | undefined> {
+  if (!store?.readDecisionReceipt) return null;
+  const digest = String(task.changeDigest ?? '');
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, digest);
+  if (!descriptor) return undefined;
+  try {
+    const row = await store.readDecisionReceipt(tenantId, digest, descriptor.approvalNonce);
+    if (!row) return null;
+    if (row.tenant_id !== tenantId || row.change_digest !== digest || row.nonce !== descriptor.approvalNonce
+        || row.intent_version !== (Number.isInteger(task.intentVersion) ? Number(task.intentVersion) : 1) || row.expires_at !== descriptor.approvalExpiresAt
+        || !['approved', 'rejected'].includes(row.decision) || !Number.isFinite(Date.parse(row.decided_at))) return undefined;
+    return { decision: row.decision, decidedAt: row.decided_at };
+  } catch { return undefined; }
+}
+
 async function listGoalGraphIntakeGateRows(
   kv: KvLike,
   tenantId: string,
-  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string> } = {},
+  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike } = {},
 ): Promise<Array<Record<string, unknown>>> {
   const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
   for (const key of keys) {
     const task = parseJsonObject(await kv.get(key));
     if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA) continue;
-    if (task.tenantId !== tenantId || task.status !== 'pending') continue;
+    if (task.tenantId !== tenantId || !['pending','stale'].includes(String(task.status))) continue;
     const candidate = storedFounderOutcomeCandidate(task);
+    if (candidate && task.status !== 'pending') continue;
+    if (!candidate && await projectedGoalGraphDecision(options.decisionStore, task, tenantId) !== null) continue;
     if (candidate) {
       if (options.includeFounderCandidates !== true) continue;
       if (options.committedCandidateIds?.has(String(candidate.candidateId))) continue;
@@ -4084,7 +4117,7 @@ async function listGoalGraphIntakeGateRows(
 
 // ── Founder-only decision paths ─────────────────────────────────────────────
 // For recent founder decisions on Telegram proposals, the furthest stage that
-// live state proves: committed (KV task) → directive queued (bridge directive)
+// live state proves: committed (D1 decision; KV-only for legacy adapters) → directive queued (bridge directive)
 // → runner claimed (execution row) → receipt (terminal executed outcome). The
 // learning stage has no read binding yet and is never claimed. Read-only; it
 // serves no member, directive or runner identifiers.
@@ -4098,6 +4131,11 @@ async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string): 
     const task = parseJsonObject(await deps.kv.get(key));
     if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA || task.tenantId !== tenantId) continue;
     if (storedFounderOutcomeCandidate(task)) continue;
+    if (deps.goalGraphStore?.readDecisionReceipt) {
+      const receipt = await projectedGoalGraphDecision(deps.goalGraphStore, task, tenantId);
+      if (receipt) decided.push({ task, ...receipt });
+      continue;
+    }
     if (task.status === 'committed') {
       decided.push({ task, decision: 'approved', decidedAt: shortText(task.committedAt, shortText(task.updatedAt, '', 64), 64) });
     } else if (task.status === 'rejected' && isRecord(task.rejection) && typeof task.rejection.rejectedAt === 'string') {
@@ -4247,6 +4285,7 @@ async function appendFounderOutcomeQuestProjection(
     includeFounderInspect: true,
     now,
     committedCandidateIds,
+    decisionStore: deps.goalGraphStore,
   });
   if (gateRows.length) {
     envelope.goalGraphIntake = {
@@ -4847,6 +4886,7 @@ async function approveGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   const evidence = {
     kind: 'approve-goal-graph',
     subject: changeDigest,
@@ -5146,7 +5186,9 @@ async function rejectGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   const evidence = {
+    approvalNonce: resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest)?.approvalNonce ?? null,
     kind: 'reject-goal-graph',
     subject: changeDigest,
     tenantId: tenant,
@@ -5305,6 +5347,40 @@ async function resolveFounderWebSigner(
 }
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  if (req.path.split('?')[0] === '/v1/founder/session') {
+    if (req.method !== 'GET') return json(405, { error: 'get_required' });
+    const signer = await resolveFounderWebSigner(req, deps);
+    if (signer.kind === 'unconfigured') return json(503, { error: 'founder_host_unconfigured' });
+    if (signer.kind !== 'founder') return json(signer.kind === 'forbidden' ? 403 : 401, { error: 'founder_identity_required' });
+    const rows = founderBindings(deps.founderGateBindingsJson);
+    const tenantIds = [...new Set((rows ?? []).filter(row => row.founderId === signer.approverId).map(row => row.tenantId))].sort();
+    return json(200, { founderId: signer.approverId, enrolled: tenantIds.length > 0,
+      tenantIds, renewalReady: await deps.goalGraphStore?.renewalFenceReady?.() ?? false, canonicalReady: tenantIds.length > 0 && !!deps.goalGraphStore?.readDecisionReceipt && !!deps.goalGraphStore?.reject, writerAuthority: false });
+  }
+  if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew'].includes(req.path.split('?')[0])) {
+    const host = deps.founderDecisionHost ?? (deps.plexus ? createFounderAccessHost({
+      store: deps.goalGraphStore, bindingsJson: deps.founderGateBindingsJson,
+      verifyFounder: async () => {
+        const signer = await resolveFounderWebSigner(req, deps);
+        return signer.kind === 'founder' ? signer.approverId : null;
+      },
+      readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
+      reviewTask: task => {
+        const row = goalGraphIntakeGateRow(task);
+        return row ? { ...row, founderInspect: goalGraphFounderInspect(task) } : null;
+      },
+      now: deps.now ?? (() => new Date().toISOString()),
+      loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+      persistRenewal: input => reconcileGoalGraphIntakePersistence(deps.kv, {
+        ...input, idempotencyRecordKey: `goal-graph-intake-idem:${input.idempotencyKey}`,
+      }),
+    }) : undefined);
+    const response = await founderDecisionHttp(new Request(`https://cambium.invalid${req.path}`, {
+      method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),
+    }), host);
+    return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
+  }
+
   const founderWeb = founderWebRoute(req);
   if (founderWeb === null) return json(404, { error: 'no founder web route' });
   if (founderWeb) return handleRoutes(founderWeb, deps, true);
@@ -5605,7 +5681,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     }
     if (!principal) principal = resolveSurfacePrincipal(req);
     if (!principal) {
-      return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored) };
+      return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored, deps.goalGraphStore) };
     }
     return {
       status: 200,
@@ -7102,6 +7178,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       includeFounderCandidates: true,
       now: deps.now ? deps.now() : new Date().toISOString(),
       committedCandidateIds: founderOutcomes?.committedCandidateIds,
+      decisionStore: deps.goalGraphStore,
     }));
     return json(200, { tenant, actions });
   }
@@ -7159,7 +7236,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       try {
         const storedEnvelope = await deps.kv.get(ledgerKey(requestedTenant));
         if (storedEnvelope) {
-          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope));
+          const initialEnvelope = JSON.parse(await publicQuestBody(deps.kv, requestedTenant, storedEnvelope, deps.goalGraphStore));
           if (
             isRecord(initialEnvelope)
             && initialEnvelope.schema === 1

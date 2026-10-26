@@ -65,7 +65,7 @@ test('signing needs a Telegram or founder Access signer, a verified read, a cons
     assert.equal(state.enabled, false);
     assert.match(state.reason, /Sign in at \/founder, or open Curious inside Telegram, to sign/);
   }
-  const web = snapshot([proposal()], { signer: 'access' });
+  const web = snapshot([proposal({canonicalReview:'complete canonical review'})], { signer: 'access' });
   assert.equal(web.signer, 'access');
   assert.deepEqual(gateActionState(web, web.proposals[0], 'approve-goal-graph'), { enabled: true, reason: '' });
   assert.equal(gateActionState(web, web.proposals[0], 'reject-goal-graph').enabled, true);
@@ -87,7 +87,7 @@ test('signing needs a Telegram or founder Access signer, a verified read, a cons
   }
   const expired = snapshot([proposal({ expired: true, canApprove: true })]);
   assert.equal(gateActionState(expired, expired.proposals[0], 'approve-goal-graph').enabled, false, 'an expired window never approves');
-  assert.equal(gateActionState(expired, expired.proposals[0], 'reject-goal-graph').enabled, true);
+  assert.equal(gateActionState(expired, expired.proposals[0], 'reject-goal-graph').enabled, false);
 });
 
 test('gate counts describe the verified read only', () => {
@@ -146,12 +146,12 @@ test('the trail lights only proven stages of the latest decision; a rejection li
   assert.deepEqual(gateTrail(snapshot([], { state: 'held', paths: [path('receipt')] })), [], 'a held read lights nothing');
 });
 
-test('an expired proposal can be rejected but explains how to get a fresh one instead of approving', () => {
+test('an expired proposal holds both decisions and explains renewal', () => {
   const view = snapshot([proposal({ expired: true, canApprove: true })]);
   const approve = gateActionState(view, view.proposals[0], 'approve-goal-graph');
   assert.equal(approve.enabled, false);
-  assert.match(approve.reason, /post a new founder-chat message/);
-  assert.equal(gateActionState(view, view.proposals[0], 'reject-goal-graph').enabled, true);
+  assert.match(approve.reason, /Renew and review/);
+  assert.equal(gateActionState(view, view.proposals[0], 'reject-goal-graph').enabled, false);
 });
 
 test('the world source has no way back to the retired 2D desk', async () => {
@@ -159,4 +159,29 @@ test('the world source has no way back to the retired 2D desk', async () => {
   const source = await readFile(new URL('./index.ts', import.meta.url), 'utf8');
   assert.equal(source.match(/'2D desk'|'Mission desk|openWorkbench\(|'workbench'/)?.[0] ?? null, null, 'no 2D desk control or workbench link');
   assert.equal(source.match(/else exit\(\)/)?.[0] ?? null, null, 'Escape never leaves the world');
+});
+
+ test('Access full review is never truncated and an absent review holds both decisions', () => {
+  const complete = JSON.stringify({lineage:{sourceRef:'original'},changeSet:{nodesToCreate:[{description:'x'.repeat(10000)}]}});
+  const view=snapshot([proposal({canonicalReview:complete,canRenew:true})],{signer:'access'});
+  assert.equal(view.proposals[0].canonicalReview,complete);
+  assert.equal(view.proposals[0].canRenew,true);
+  const absent=snapshot([proposal()],{signer:'access'});
+  assert.equal(absent.proposals[0].canApprove,false);
+  assert.equal(absent.proposals[0].canReject,false);
+  assert.equal(snapshot([proposal({canRenew:true})]).proposals[0].canRenew,false,'Telegram cannot renew through canonical Access route');
+});
+
+test('stale renew-only snapshots cannot sign even when host action flags are true', () => {
+  const view=snapshot([proposal({renewOnly:true,canRenew:true,canonicalReview:'full stale review'})],{signer:'access'});
+  assert.equal(view.proposals[0].canRenew,true);
+  assert.equal(view.proposals[0].canApprove,false);
+  assert.equal(view.proposals[0].canReject,false);
+  for (const kind of ['approve-goal-graph','reject-goal-graph'] as const) assert.match(gateActionState(view,view.proposals[0],kind).reason,/stale/);
+});
+test('typed historical decisions survive held queue independently; invalid records remain absent',()=>{
+ const record={schema:'cambium.gate-recorded-decision.v1',canonicalReadback:true,receiptDigest:'b'.repeat(64),requestedDecision:null,context:null,receipt:{proposalId:`cambium:${DIGEST}`,tenantId:'cambium',version:1,changeDigest:DIGEST,nonce:'nonce',expiresAt:'2026-10-26T00:00:00Z',founderId:'founder',decision:'rejected',decidedAt:'2026-10-25T00:00:00Z',channel:null}};
+ const held=normalizeGateSnapshot({state:'held',signer:'access',proposals:[],decisions:[record]});assert.equal(held.decisions?.length,1);assert.equal(held.proposals.length,0);
+ const pending=normalizeGateSnapshot({state:'read',signer:'access',proposals:[proposal({canonicalReview:'old review'})],decisions:[record]});assert.equal(pending.proposals.length,0);
+ const malformed=normalizeGateSnapshot({state:'held',proposals:[],decisions:['Canonical receipt approved',{...record,canonicalReadback:false}]});assert.deepEqual(malformed.decisions,[]);
 });

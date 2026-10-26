@@ -1,5 +1,58 @@
 # Project handoff
 
+### 2026-10-25 Gate chamber deployed — PR #403 live readback
+
+- PR403 merged atf23b449; identical reviewed/tested headba23d70 is Worker4918ce0e-b8e5-4027-8c85-f49c83e1d587 at100percent. Rollback is c373b54a-e7af-4368-a39e-b4051aeb792b. All47bindings, runtime flags, globalsettings, domain and cron match before/after; no migration or enrollment change.
+- Fresh app184/184, strictbuild/artlineage/bundleparity pass. Final frozen core2452/2453 passes0skips; only documented stale canonicalviewport fingerprint remains. Strictlegacy pin and repository immutability probes pass; canonical mobile/trustedtouch proof remains held.
+- Real authenticated IAB inspected the existingreceipt6444a852dba729293e915a6bde6cc596d97860ace6d0b674412937e7ad67fe66 without a newdecision. Typed chamber shows actualMeso/objective, fullrecord/review, honestmissingcontext and onlyDecision+Graph observed. Journalreopen, keyboardfocus, reducedmotion and actual320px/45pxtargets pass.
+- D1before/after remains4approvals and4graph events; no renewal or approval submitted. LiveJS/CSS/hostbridge bytes match reviewedsource; health200 and anonymousfoundersession401. Evidence: `docs/evidence/2026-10-25-gate-chamber-live.v1.json`. Live screenshots remain private operator artifacts. This documentation checkpoint changes no deployed code.
+
+### 2026-10-25 production Gate chamber — reviewed source checkpoint (superseded by live readback)
+
+- Owner authorized implementation, wiring and deployment of the approved chamber study. Typed host canonical receipts/context are now independent of pending projection state. Existing founder/tenant checks, fresh review/confirmation, immutable family fence and original-tuple status-only recovery remain required. Historical receipt reads use no fabricated requested action.
+- Existing PAGE wrapper wires readDecision; production world embeds two source-derived reference specimens totaling18242bytes. SourcePNGhashes unchanged. Generated world770891bytes, digest4d782748ae3827215a98d71b0223d0c6ad8666e5ec8ec8f9ca2d9a156a8fcda2. No new endpoint, service, binding or migration.
+- App183/183 and independent world/host112/112 pass, strictbuild/parity pass. ActualPAGE synthetic IAB historicalread and heldqueue preserve receipt/context and onlymatchingpath stages; requests remain0decision/0renewal. Desktop/actual320px,45pxcontrols, focus/disclosures/reducedmotion pass.
+- Fullcore rerun must be serialized after committing/freeze: first pass collided with concurrent gitindexrefresh and detected stale strictLEGACY_PAGEpin. Independent review proves replacing only the changedGatebridge restores oldpin; strict pin is updated without weakening assertion. Canonical mobileviewport/trustedtouch hold remains separate. No deployment or live decision occurred for this source checkpoint.
+
+### 2026-10-25 Gate chamber — local design study only
+
+- Owner asked for game-design enhancement grounded in the46asset source library after showing a raw receipt alongside an unverified Gate read. Source review identifies flattened validated receipt text plus settled-row removal as a presentation-state collision. Receipt, current connection and observed execution need independent models.
+- Local portable concept: `docs/design/gate-decision-chamber.html`; rationale and safe integration sequence: `docs/plans/2026-10-25-gate-decision-chamber.md`. Uses existing control-dial/signal-packet/lens specimens and four synthetic scenarios. No production source or source-library edits, live action, deployment or backend integration.
+- Focused IAB passes all4states, loadedassets, trace/disclosure, return/reopen, visiblefocus,320pxcontainment,45pxcontrols and reducedmotion. Unknown has no receipt/seal/provenstages. Future production work must preserve tuple validation, founder/tenant checks, confirmation, family fence and status-only recovery.
+
+### 2026-10-25 PR #402 deployed — live Expedition Dossier checks
+
+- Owner requested deployment after merging PR402. Exact merged code0387a43 serves100percent as Worker versionc373b54a-e7af-4368-a39e-b4051aeb792b. Immediate rollback is c3a13925-8721-4f56-af26-da713949de5a. All47bindings, runtime flags, domain, cron and globalsettings match the predeployment snapshot; no migrations or enrollment changes.
+- Fresh app171/171, build, dry-run, bundle parity and exact publicJS/CSS readback pass. Full core2447/2448passes0skips; sole failure remains the documented stale canonical viewport PAGE fingerprint. Canonical mobile/trusted-touch proof stays held; no assertion or capture was replaced.
+- Real authenticated IAB reviewed an expired Fitcheck proposal without renewing or deciding. CanonicalMeso scope, objective, current state, loadout and counts appear; branch/phase/organ remain unserved. Complete review, keyboard focus, reduced motion, linked source folio and actual320px containment pass; controls45px+. The real path marks Graph committed only.
+- D1readback before/after stays3approvals and3graph events; no live decision or renewal submitted. Evidence: `docs/evidence/2026-10-25-expedition-dossier-live.v1.json`. Live screenshots are private operator artifacts. This local documentation checkpoint does not change deployed code. Primary working edits remain preserved.
+
+### 2026-10-25 Expedition Dossier — draft PR #402
+
+- Draft PR https://github.com/Sheshiyer/cambium/pull/402 targets main. Branch `codex/curious-mission-dossiers` adds a briefing-led mission journal, canonical goal-scale strip, independent branch/phase/organ context, objective/current/next/evidence sections, readable labels and full canonical disclosures. Pure presentation validates the available tuple, tenant and every delta node before showing derived context. Unknown remains unserved.
+- Existing host review/renew/confirm/signing semantics remain unchanged. Receipt stages include learning and advance only from supplied path evidence. Journal color tokens, visible keyboard focus, 45px controls and narrow reflow are included.
+- Validation: app171/171, host/page/atlas37/37, strict build and generated bundle parity pass; independent review has no blockers. Focused IAB synthetic fixture passed desktop, actual320px containment, disclosure, keyboard focus, reduced-motion and confirm/cancel checks without a live call.
+- Review screenshots, command results, artifact hashes and metadata gaps: `docs/evidence/2026-10-25-expedition-dossier/README.md`. Implementation commit `a2d58ab` is preserved; publication adds documentation and local synthetic screenshots.
+- Design rationale and references: `docs/plans/2026-10-25-expedition-dossier.md`. Richer production context requires explicit canonical metadata.phase/branch/organ; no inferred assignments are introduced. No new dependency, migration, binding or runtime prerequisite. Deployment remains separate; prior canonical mobile/trusted-touch proof hold is unchanged. Primary working edits preserved through isolated implementation.
+
+### 2026-10-25 final Founder Gate desktop runtime receipt
+
+- PR399 and PR400 are merged. Current reviewed code is cf33d25; Worker version c3a13925-8721-4f56-af26-da713949de5a serves100percent. Immediate safe rollback is c41efddd-c25f-4698-bde4-ea0065dc2fc4. Only0012 was applied; all47bindings and existing domain/globalsettings/cron are verified intact.
+- The actual signed-in3D flow renewed and fully reviewed one blocked Fitcheck tracking goal, then submitted exactly one approval. Canonical receipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108 is independently backed by one D1decision, one graph event and one renewal-family outcome. Graph3 retains all provider/payment/outreach/CRM/merchant gates.
+- The live-discovered refusal-copy and projection-lag fixes are deployed; exact already_applied feedback was rechecked without another decision. Two original Relovo intents were already applied and were not reexecuted.
+- Final core2447/2448passes0skips; sole canonical viewport fingerprint/trustedtouch hold is the owner's explicit desktop exception. Focused337/337passes and independent source review remain separate from the live proof. Mobile/device proof and five-client portfolio admission remain unproved.
+- Detailed bounded evidence: `docs/evidence/2026-10-25-founder-gate-desktop-e2e.v1.json`. Future pickup must read current runtime before retrying any proposal; no new action or broad enrollment is authorized by this checkpoint. Primary working edits and vault remain preserved.
+
+### 2026-10-25 Founder proposal renewal and canonical 3D Gate — deployed PR #399
+
+- Reviewed source adds exact-tuple renewal with honest original lineage, explicit founder/tenant admission and full canonical review/decision/status in the existing 3D Gate. Stale revisions remain renew-only; existing committed receipts remain immutable.
+- Additive D1 migration0012 uniquely fences original and renewed sibling/descendant outcomes inside the existing immutable approval ledger. Both decision arrival orders, final-writer races and missing-fence refusal have real SQLite regressions. Renewal itself writes no D1 decision.
+- Parent focused142/142, selected handler74/74, world/bridge73/73, growth local Workers9/9 and final target-size275/275 pass; independent source reviews report no blockers. The enlarged targets pass fresh strict IAB geometry assertions at320/390/430.
+- PR #399 merged at127e589. Migration0012 applied and exact unique index verified; only the verified founder/cambium pair was enrolled. Versionc41efddd served the real signed-in3D journey. One renewed blocked Fitcheck tracking node received one approved canonical receipt and one graph event; provider/customer gates remain closed. See `docs/evidence/2026-10-25-founder-gate-desktop-e2e.v1.json`.
+- Owner explicitly approved a scoped desktop3D rollout exception. Core2443/2444 passed with0skips; sole viewport fingerprint failure and trusted-touch proof remain held. Partial IAB captures are diagnostics; canonical proof bytes and assertions remain intact. No full-green or physical-device claim.
+- Live follow-up fixes: retain the just-renewed canonical review over an eventually-consistent missing KV list entry; display exact closed renewal reasons. These changes retain fresh canonical predecision validation and require no second live approval. Two Relovo originals correctly refused renewal as already_applied.
+- Preserve unrelated primary checkout edits. The five-client mapping cohort does not imply five admitted tenants; this internal Fitcheck E2E does not approve that cohort.
+
 ### 2026-10-22 Relovo catalog v2 admission and versioned reviewed pins — PR #387 candidate
 
 - Branch `claude/relovo-loadout-20261022` ([PR #387](https://github.com/Sheshiyer/cambium/pull/387)) admits `branch:relovo` under the Founder Gate approved on 2026-10-22 for Temperance D17, recorded in [the admission evidence](../docs/evidence/2026-10-22-relovo-portfolio-admission.v1.json). It supersedes the 2026-09-08 checkpoint's statement that the 72-record catalog is the current action authority.
@@ -2663,3 +2716,46 @@ Workflow source is removed in this PR. Explicit local release verification and s
   Rollback version b33a1a6e and previous ingestion URL are retained in runbook.
   Ordinary employee/native UI acceptance remains separate. No further approval
   is needed for this completed rollout; new source/resources remain owner-gated.
+
+### 2026-10-24 Founder Gate simple CLI source checkpoint
+
+- Based on merged #395 (`22800c72`), preserving the reconciled growth runtime. Changes live on `codex/founder-gate-simple`; primary working edits remain untouched.
+- Existing CLI now reads the server-owned proposal, shows the complete change set, accepts one exact decision, and validates the sole D1 receipt. An uncertain response triggers one original-tuple status query with no resubmission. No second channel click is required.
+- The canonical host reuses Access/Plexus verification and stored Goal Graph intake; explicit `FOUNDER_GATE_BINDINGS_JSON` founder/tenant pairs prevent wildcard UI founder scope from granting tenant authority. No real binding is installed. Evidence candidates and existing growth/UI/Telegram paths retain their existing behavior.
+- Focused CLI/service/store/Access/growth tests pass 59/59; selected handler tests pass 22/22, including real verifier plus SQLite-backed D1, lost-response recovery, concurrency and full-delta review. These are local proofs. Full-suite stall and existing normalized TypeScript diagnostics from the owner handoff remain outside this patch's acceptance.
+- Independent source review found a hidden-delta review gap and an unrelated scheduled-options insertion; both were corrected before delivery.
+- Exact commands and remaining identity, tenant-binding, database, proposal and release prerequisites: `docs/architecture/contracts/founder-gate-cli-v1.md`. Live binding enrollment, release, plugin/voice enrollment and real business decisions remain separate approval gates. No deployment or live action occurred.
+
+- Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.
+
+
+### 2026-10-24 PR #396 draft review fixes
+
+- Review pinned the remote head `05e6dac039101170c97f1033aafbff05901c5be3`. Equivalent explicit review/prepare checks were used because this repository has no skill wrapper scripts; `.local/` receipts remain ignored and unpushed.
+- Fixed five verified issues: expiry crossing an awaited head read, stale pending/history projections despite a settled D1 decision, projected responses being relabeled canonical by the CLI, unbound/missing complete client review, and unreadable historical null channel attribution. Stored pending-envelope rows are cleared before current D1-backed projection is derived.
+- D1 remains the sole writer. Projection reads perform no KV repairs or business decisions; unavailable D1 cannot advertise an actionable pending row. Exact confirmation, identity/tenant, CSRF, atomic opposite-decision conflict and status-only recovery remain intact.
+- Focused source suites pass 68/68; selected founder/Goal Graph/in-world/growth handler tests pass 96/96; independent client/service/store rerun passes 40/40. Negative regressions failed before fixes. Local Wrangler bundle dry run and diff whitespace checks pass; the owner handoff's full-suite/typecheck and runtime acceptance caveats remain.
+- Keep PR #396 draft. No deploy, binding enrollment, credentials/policy change or live action is authorized or performed. Runtime prerequisites remain in `docs/architecture/contracts/founder-gate-cli-v1.md`.
+
+
+### 2026-10-25 Legacy-retry receipt recovery follow-up
+
+- Fresh isolated branch `codex/founder-receipt-recovery` is based on current main `ddfbf87fcc4332f495d1120597a1175a5aa956eb` (merged #396). Primary working edits and prior worktrees remain untouched.
+- Reproduced canonical approval → legacy approval retry 409 / KV stale → canonical status 403 despite the original D1 receipt. The Access host now recovers stale tasks only after existing identity/tenant/review/change-set checks and exact immutable D1 receipt binding. Missing/mismatched receipts and another allowed founder remain forbidden; unavailable D1 fails closed.
+- Legacy retry may still return 409. Recovery preserves the original receipt and opposite-decision conflict, including after expiry, with zero new decision-writer calls or KV repairs. No new migration, binding or configuration is introduced; existing runtime prerequisites remain in the Founder Gate CLI contract.
+- Five regression tests cover actual retry + selected CLI recovery, approved/rejected receipt recovery after expiry, no-receipt refusal, mismatches/unavailability and another tenant-authorized founder. Focused source tests pass 68/68; selected handler tests pass 101/101; independent canonical/recovery tests pass 17/17. Local Worker bundle dry run and diff checks pass.
+- Publish for draft review only. No deployment, enrollment, credential/policy change or live business action occurred. Full-suite/typecheck and real runtime acceptance remain unclaimed.
+
+### 2026-10-25 reviewed portfolio membership — revised isolated candidate
+
+- Base `66a5b24c27f13a26b80e455fb219d7751b383771`, verified current main before replay; original `37309d4` candidate is preserved. Six-area audit: `docs/project-management/2026-10-25-reviewed-repository-membership-reconciliation.md`.
+- Reuses v2/73-record catalog, existing Relovo identity/admission, and v1 historical receipt validator unchanged. Full membership travels separately from one approved current planning repository; pending Tirak roles are not eligible.
+- Review fixes: UI/readiness/Worker reject unreviewed planning authorities; new JSON/Markdown exports enrich legacy drafts without mutating old receipt bytes or saved primary choice.
+- Local tests: 181 pass, one existing skip; app typecheck/build/static bundle audit pass. Worker typecheck has 68 diagnostics identical to exact-base disposable copy, no candidate-only diagnostics.
+- Independent re-review pending. No publication, runtime, Gate signature, dispatch, sync, credential or account change. Actual intake consumer/full-membership readback remains unverified. Original dirty Gate checkout untouched.
+
+### 2026-10-25 final repository identity review fix
+
+- Shared identity binding checks immutable ID plus normalized qualified name and source ref, including existing legacy aliases. Unreviewed casing variants cannot bypass planning eligibility; inconsistent identity/reference claims fail before writes. Valid singular text remains unchanged.
+- Regression suite: 182 pass, one existing skip (183 total). App typecheck passes. Two untracked `App 2.tsx` / `domain 2.ts` files match clean-base copies, remain untouched/excluded, and have no import/compiler effect. Creator unknown.
+- Revised manifest/patch prepared for final independent review; no runtime/publication changes.

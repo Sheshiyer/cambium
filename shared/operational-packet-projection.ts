@@ -45,6 +45,8 @@ export interface OperationalPacketIdentity {
 }
 
 export interface OperationalRepositoryComponent {
+  readonly lifecycle?: 'current' | 'historical' | 'unreviewed';
+  readonly projectAssociation?: string;
   readonly componentId: string;
   readonly nameWithOwner: string;
   readonly immutableRepositoryId?: string;
@@ -334,6 +336,9 @@ export function validateOperationalPacketProjectionInput(raw: unknown): asserts 
     for (const role of roles) assertEnum(role, ['experience', 'frontend', 'backend', 'docs', 'infra'], `${prefix}.roles`);
     const owner = workObjectId(component.ownerWorkObjectId, `${prefix}.ownerWorkObjectId`);
     if (!allowedOwners.has(owner)) fail(`${prefix}.ownerWorkObjectId is not the subject or a declared dependency`);
+    if (component.lifecycle !== undefined) assertEnum(component.lifecycle, ['current', 'historical', 'unreviewed'], `${prefix}.lifecycle`);
+    if (component.projectAssociation !== undefined) text(component.projectAssociation, `${prefix}.projectAssociation`, 128);
+    if (component.lifecycle !== undefined && component.lifecycle !== 'current' && component.planningAuthority) fail(`${prefix} unapproved or historical repository cannot own planning`);
     if (typeof component.planningAuthority !== 'boolean') fail(`${prefix}.planningAuthority must be boolean`);
     if (component.planningAuthority) {
       planningAuthorities += 1;

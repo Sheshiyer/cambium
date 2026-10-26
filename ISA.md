@@ -355,7 +355,22 @@ Implementation acceptance evidence:
 - [x] ISC-51: The cleanup pull request links the drift incident and verification evidence.
 - [x] ISC-52: GitHub reports zero open cleanup pull requests after merge.
 
-### Verification, deployment, and release
+#- 2026-10-24 | conjectured: The existing Inspect projection plus full-change-set hash was sufficient informed review.
+  refuted by: Independent source review found long desired state and non-anchor changes were hidden behind the hash.
+  learned: Bind and display the complete authenticated change set; a digest alone cannot inform a founder decision.
+  criterion now: ISC-3090 requires the full stored delta and a long-state/non-Inspect-field regression test.
+
+- 2026-10-24 | conjectured: A canonical CLI receipt implied the other existing read surfaces would show the same settled decision.
+  refuted by: Before-fix regression kept the KV task pending and observed a pending founder/Telegram row after a settled D1 write; a stored pending-envelope field also survived an authoritative empty list.
+  learned: Derive pending suppression and history from D1 and discard old stored projections before rebuilding current rows.
+  criterion now: ISC-3101 verifies settled, stale-KV/stored-envelope and unavailable-authority cases without extra decisions or KV writes.
+
+- 2026-10-25 | conjectured: The completed D1 projection fixes in #396 also preserved canonical receipt recovery after a legacy retry.
+  refuted by: The Access/SQLite reproduction committed an approval, observed the legacy retry mark KV stale with 409, then received 403 from canonical status despite one approved D1 row.
+  learned: A projection status must not conceal an exact immutable receipt; stale recovery requires positive D1 proof rather than broad stale-task admission.
+  criterion now: ISC-3105 and ISC-3106 cover actual retry recovery and fail-closed negative cases without new writes.
+
+## Verification, deployment, and release
 
 - [x] ISC-53: Focused Worker handler tests exit zero.
 - [x] ISC-54: Full `npm test` exits zero.
@@ -1752,6 +1767,43 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-2563: Anti: review work replaces or completes no saved Cambium OpenAI goal.
 - [x] ISC-2564: Anti: this review activates no host service, provider, message delivery or cloud resource.
 
+
+### Founder Gate CLI vertical slice (2026-10-24, source acceptance)
+
+- [x] ISC-3088: Canonical proposal reads use the existing verified Access/Plexus founder session.
+- [x] ISC-3089: Canonical Access Gate requires explicit server-owned founder/tenant pairs.
+- [x] ISC-3090: Authenticated review exposes the complete stored change set, including fields outside bounded Inspect.
+- [x] ISC-3091: One exact confirmation binds version, digest, nonce, expiry and full review.
+- [x] ISC-3092: Changed head/fence/review and expired proposals cannot create a decision.
+- [x] ISC-3093: Concurrent opposing decisions leave one canonical D1 receipt.
+- [x] ISC-3094: Matching retries return the existing receipt without another graph event.
+- [x] ISC-3095: Uncertain CLI responses query the original D1 tuple without another submission.
+- [x] ISC-3096: Another verified transport reads the same founder/tenant receipt without another decision.
+- [x] ISC-3097: Anti: proposal/status reads cannot write decisions or dispatch execution.
+- [x] ISC-3098: Anti: missing host/binding, wrong identity/tenant and CSRF requests fail closed.
+- [x] ISC-3099: Runtime prerequisites and exact existing CLI commands are documented without production claims.
+
+### PR #396 review regressions (2026-10-24)
+
+- [x] ISC-3100: A clock crossing proposal expiry during graph-head read cannot produce either first decision; historical D1 receipts remain readable.
+- [x] ISC-3101: Existing pending lists and founder history derive supported D1 outcomes even with stale KV or a stored pending-envelope field; unavailable D1 cannot advertise a decision.
+- [x] ISC-3102: The CLI requires the canonical service marker before recognizing authoritative pending or settled evidence.
+- [x] ISC-3103: The CLI independently binds the complete displayed review and its descriptor to the exact confirmation.
+- [x] ISC-3104: Explicit historical null channel attribution remains readable without inventing attribution.
+
+### Legacy-retry receipt recovery follow-up (2026-10-25)
+
+- [x] ISC-3105: An actual legacy retry that marks KV stale cannot hide the same founder's existing D1 receipt from canonical proposal, status, CLI or idempotent decision recovery, including after expiry.
+- [x] ISC-3106: Anti: stale receipt recovery cannot invoke a new decision writer or transfer authority through missing/mismatched receipts, another allowed founder, or unavailable D1.
+
+### Authorized Founder Gate rollout (2026-10-25)
+
+- [x] ISC-3107: Generated System Atlas handler fingerprints match merged #398 source and all Atlas probes pass.
+- [x] ISC-3108: Effective desktop release qualification passes with the explicit owner-approved mobile viewport/trusted-touch exception recorded; every other required check passes without weakened assertions.
+- [x] ISC-3109: Reviewed Worker release preserves all live binding/resource identities and global settings, with rollback pin and post-deploy readback.
+- [x] ISC-3110: The authenticated founder and actual admitted operating tenant are verified before explicit binding enrollment; unproved client-specific tenants remain held.
+- [x] ISC-3111: One eligible server-owned pending proposal is renewed and fully reviewed through the 3D Gate with authoritative decision/readback evidence; existing committed receipts remain immutable.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -1945,6 +1997,12 @@ ISC-3040..3071 use staged-path/hash readback, canonical13release gates, affected
 | ISC-3081..3084 | production | Inert Version readback, explicit UUID promotion, HTTP denial/health and native browser world | Exact version and expected authenticated boundary | Wrangler/HTTP/IAB |
 | ISC-3085..3087 | scope/evidence | Resource/secret/trigger scope and GitHub state readback, retained rollback checkpoint | No additional mutation | Private receipt/Git |
 
+- ISC-3088..3099 | local service/client integration | `canonical founder` handler tests plus focused CLI/decision/store/Access/growth suites | all pass | node:test; prerequisite contract readback.
+
+- ISC-3100..3104 | adversarial source regressions | focused CLI/service/store/Access/growth and selected handler tests | all pass | node:test.
+
+- ISC-3105..3106 | Access/SQLite integration | `legacy receipt recovery` handler selection plus focused source regressions | all pass | node:test.
+
 ## Features
 
 - `GrowthEcosystemReview` | Reconcile growth architecture with modular migration | satisfies ISC-2533..2564 | depends_on source inventory | parallelizable true
@@ -2076,6 +2134,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 **To refresh LLM-generated assets:** invoke `/refresh-architecture` in any Claude Code session.
 
 <!-- arch-assets:end -->
+
+- Founder Gate CLI vertical slice | Existing Access verifier, stored intake, explicit tenant bindings and canonical D1 receipts | satisfies: ISC-3088..3099 | depends_on: merged #395 | parallelizable: bounded CLI/test ownership only.
 
 ## Decisions
 
@@ -2368,6 +2428,12 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 - 2026-10-08: full-core investigation reproduces repeated committed-corpus reads over980entries and502393018bytes. Bounded blob batching preserves exact bytes/object/framing/hash checks and independent safety enumeration. Anchor tests retain every semantic assertion and complete readback after everyCLI against one initial immutable baseline. The only new deletion exemption is the three Actions workflows explicitly retired by accepted main026ebf6; disabled job registry and negative cases remain required. No Worker runtime source changes accompany this test transport repair.
 - 2026-10-08: strict census remains blocked by three display-only identities, two missing folders and28additional working folders. The reviewed execution root and72-record action catalog stay unchanged. Owner exception question covers only canonical visual-proof freshness/drift and this strict census; no answer or consent has been inferred. The separate advisor request is quota-rejected and provides no review pass.
+
+- 2026-10-24: refined: Founder Gate follow-up is source-only on merged #395 in an isolated checkout. Keep CLI as selected client; full stored delta must be visible as well as fingerprint-bound. New Access founder/tenant enrollment and live publication/decisions remain separately approved. Native server adapter remains bounded; delegated CLI and independent review avoid touching primary working edits.
+
+- 2026-10-24: refined: PR #396 review keeps draft/source scope; existing UI and Telegram projections must derive the canonical D1 outcome without relying on KV repair. CLI review binding and canonical evidence markers are verified independently; first expired rejections fail closed while historical readback remains available.
+
+- 2026-10-25: refined: KV stale status cannot veto an existing immutable D1 receipt. Permit recovery only after all existing identity, tenant, review and change-set checks plus exact receipt binding; keep stale tasks without matching receipts closed. The legacy endpoint can retain its 409 and KV projection; no writer/repair is added.
 
 ## Changelog
 
@@ -3255,3 +3321,130 @@ The exact remaining gates and source ownership are recorded in `.planning/RECONC
 - Only the exact frozen display proposals and reviewed Session Atlas identity receive held proposal treatment. Unknown IDs and spoofed labels remain rejected. The72-record action catalog and approved execution digest are unchanged.
 - Fresh focused linkage/foundation16/16 and Cartographer115 pass,1 existing skip; strict TypeScript and Vite build pass. Independent read-only source review approves all14 changed paths. The pre-census root snapshot remains byte-identical to the prior committed blob and dated intake cannot adopt the new map.
 - The stale canonical screenshot/touch gate remains held. Fresh IAB alternatives produced zero trusted touch events, and the test server/tab cleanup is verified. The original scoped owner question remains unanswered; no Cloudflare upload or promotion has occurred. Prior suite and image/bundle counts above are historical to their exact candidate and do not mint a new full release pass.
+
+- ISC-3088..3099: local node:test — focused CLI/decision/store/Access/growth suites pass 59/59; selected handler integration/regression tests pass 22/22. Synthetic signed Access credentials and SQLite-backed D1 adapter prove source behavior only. `docs/architecture/contracts/founder-gate-cli-v1.md` records exact commands and remaining runtime prerequisites. No release, binding enrollment, live decision or production acceptance is claimed.
+
+- Founder Gate bundle verification: `wrangler deploy --dry-run --config workers/quests/wrangler.reconcile-393.jsonc --outdir <temporary-output>` exits 0 with Wrangler 4.124.0; local bundle only, no upload or deployment. `git diff --check` passes.
+
+- ISC-3100..3104: source regression proof — 68/68 focused CLI/service/store/Access/growth tests and 96/96 selected handler tests pass; independent CLI/service/store rerun 40/40 passes. Wrangler 4.124.0 local bundle dry run and `git diff --check` pass. Negative reproductions failed before their fixes. Full-suite/typecheck/live acceptance remain unclaimed.
+
+- ISC-3105..3106: before/after Access/SQLite proof — recovery regressions fail against merged #396 and all five pass after the guard fix; broader focused suites pass 68/68 and selected handler tests pass 101/101. Independent canonical/recovery selection passes 17/17. Local Wrangler bundle dry run and `git diff --check` pass. No runtime or full-suite/typecheck acceptance is claimed.
+
+- 2026-10-25 rollout checkpoint: PR #398 merged as `1513225f87cad5c32b0adc579ff4525fc7e0a97e`. Atlas correction is three generated fingerprints only; Atlas tests pass 19/19 and generator check passes. The initial full-core run was interrupted after the time allowance, with one concrete Atlas failure and four cancellations; it is not a full release result. Focused169 and isolated workerd9 remain source/local evidence. No version upload, traffic change, binding enrollment or live decision has occurred in this rollout.
+
+### 2026-10-25 continuation: authenticated renewal and 3D E2E
+
+The owner has now explicitly requested fresh renewal of expired pending proposals and approval through the existing 3D world UI. Seven pending records are expired; one record already has an immutable committed receipt. Existing general renewal is absent, so fresh revisions must preserve original lineage and recompile against the current D1 head; original decision rows and source events cannot be rewritten or fabricated. The 3D bridge currently uses legacy Gate with bounded review, so canonical full-review/status handling is part of this authorized implementation. This work is isolated in a private clone while the unchanged release baseline runs elsewhere.
+
+- [x] ISC-3112: Authenticated renewal produces an idempotent new pending revision with original lineage and fresh current-head tuple, without any D1 decision or execution.
+- [x] ISC-3113: Renewal refuses changed/unbound/decided/conflicting original proposals and cannot fake new source messages or rewrite original records.
+- [x] ISC-3114: 3D Gate displays the full canonical review and sends one exact informed decision; uncertain outcomes use original-tuple status readback only.
+- [x] ISC-3115: Real signed-in 3D UI renewal/decision flow yields authoritative D1 readback after reviewed release and exact founder/tenant enrollment.
+
+### 2026-10-25 renewal race and release baseline refinement
+
+- Conjectured: ancestor receipt reads immediately before a renewed write prevent conflicting original decisions.
+- Refuted by: independent real SQLite/D1 probe inserted an original rejection between the final read and child commit; both decisions survived and one graph event executed.
+- Learned: proposal revisions require a shared family fence inside the same D1 transaction as the immutable decision, covering originals and sibling revisions in either arrival order.
+- Criterion now: ISC-3113 includes an atomic family fence and adversarial interleaving regressions; no runtime promotion until verified.
+- Baseline release core: 2412/2414 pass, two privacy checks fail on existing fixture/documentation bytes. Fix source literals and temporary path portability, preserving all scanner assertions.
+- UI source evidence: complete R3F152/152 and production build pass on installed Node26; packaged Node24 cannot load external native rolldown binding due macOS Team-ID library validation, so use recorded Node26 for final build.
+
+### 2026-10-25 frozen renewal source verification
+
+- ISC-3112 / ISC-3113: parent focused142/142 and handler74/74 pass; real SQLite/D1 regressions exercise both family arrival orders, competing siblings, final-writer race, missing index refusal and immutable replay. Independent final review reports no blocking findings.
+- ISC-3114: complete world/bridge73/73 and app TypeScript build pass; stale review stays renew-only, exact fresh pending review gates both decisions and uncertainty triggers original-tuple status only. Generated bundle rebuilt and System Atlas check passes. These source probes do not mark ISC-3115 live UI acceptance.
+- Growth regression: isolated local Workers9/9 smoke passes with synthetic storage and no remote bindings.
+- Standalone audit passed1606files after removing live CLI defaults and global routes from version-only candidate; CLI/parity20/20 pass. Complete final release remains open.
+
+### 2026-10-25 exact-viewport release qualification
+
+- Refined: IAB at existing110%zoom measured nominal44px controls43.991474px. Raised interactive declarations to45px without relaxing the actual>=44 assertions; independently reviewed source275/275 pass. Fresh IAB Inspect320/390 and operating-fabric320/390/430 assertions pass; proof/map actualheights45px.
+- Held: raw trusted-touch commands are unsupported by the selected IAB adapter. Native drag produced no trusted touchmoves; no synthetic dispatch or metadata substitution counts as trusted input. The prior canonical proof PNGs/manifest remain intact and stale. Partial new captures are diagnostic only.
+- Release gate: final frozen attempt stopped at drift:audit because PAGE-source digest changed. Complete canonical capture, trusted touch and resulting manifest remain prerequisites or require a specific owner rollout exception. No code promotion, migration, enrollment or live decision occurred.
+
+### 2026-10-25 owner-approved desktop rollout and live receipt
+
+- Owner explicitly approved the scoped desktop3D rollout exception; mobile viewport/trustedtouch proof remains held. Core2443/2444 pass0skips, sole waived viewport fingerprint. Other source/build/clean-copy steps pass; no full-green claim.
+- PR399 merged127e589; verified identical code/resource metadata, applied only0012, then enrolled exactly the verified founder and actualcambium tenant. Original46bindings/domain/globalsettings/cron preserved; newfounderbinding only.
+- Real IAB3D: two Relovo renewals returned already_applied. One eligible Fitcheck proposal renewed with original lineage, full current-head review and exactly1Confirm approval POST. Canonical receipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108; D1readback1row/1event/1family, graph3, nodeblocked and allprovider/customer gates stillclosed.
+- Live test exposed generic refusal copy and KVprojectionlag deleting a newly reviewed row. Follow-up retains only the just-renewed canonical row, still revalidates immediately before each decision, invalidates drift/settlement and never retries a decision. Parent337/337 focused tests and independent review pass.
+- This internal Gate test does not establish five-client admission or downstreamexecution; their precise future proposals remain separate.
+
+### 2026-10-25 final desktop Gate checkpoint
+
+- Refined ISC-3108 by direct owner exception: mobile viewport/trustedtouch evidence remains held; final core2447/2448pass0skips has only that waived fingerprint failure. Refined ISC-3110/3111 to the verified operatingtenant and one intended verticalslice; no per-client tenant or bulkapproval is invented.
+- ISC-3109: final Worker c3a13925-8721-4f56-af26-da713949de5a at100percent serves reviewed code cf33d25; all47bindings and globalsettings/domain/cron match verified prepromotion metadata. Immediate safe rollback is c41efddd-c25f-4698-bde4-ea0065dc2fc4.
+- ISC-3110: deployedUI verified the human founder, then only the existingcambium tenant pair was enrolled. Other client-specific tenant identities remain unproved and unenrolled.
+- ISC-3111 / ISC-3115: real3D singleconfirm produced canonicalapprovedreceipt36d2eae051b613cf86db6a7fcf1f76325acace7d99f21e36ece99c8075a12108; finalD1has exactly3decisions (2prior+1new),1matchingevent,1familyoutcome,graph3 and blockedFitchecknode.
+- PR400 feedback/lagrepair deployed after337focusedpass and independentreview; actualnew3DUI shows explicitalready_applied onRelovo and no seconddecision was submitted. No downstream/provider/client-cohort execution acceptance is claimed.
+
+### 2026-10-25 Expedition Dossier slice
+
+- [x] ISC-3116: Proposal presentation derives scope and objective context only from matching canonical data; absent phase, branch and organ stay unknown.
+- [x] ISC-3117: Expedition folios separate source navigation, mission context, objective state and evidence without invented operational progress.
+- [x] ISC-3118: Full canonical review and existing review, renewal, confirm and signing safeguards remain available and covered by regression tests.
+- [x] ISC-3119: Desktop and 320px local browser checks demonstrate contained layout, readable hierarchy, keyboard focus and accessible controls.
+- [x] ISC-3120: Source tests, TypeScript build and generated bundle verification pass; working edits and live runtime remain untouched.
+
+- 2026-10-25: Decision: choose Expedition Dossier over constellation-first or loadout-first cards because the founder must understand the objective and consequence before inspecting tools or raw records. Apply Octalysis through meaning, truthful progress, ownership and discovery.
+
+- ISC-3116: Pure-model regression — 16/16 tests pass, including wrong tuple, unique subject, malformed ancillary delta and cross-tenant cases.
+- ISC-3117: Local IAB observation — only canonical micro is selected; branch/phase/organ independent; expired unreviewed row shows unserved context and disabled decisions; source discovery remains local.
+- ISC-3118: Host regression — 37/37 selected page, Gate, read and atlas integration tests pass. Local complete-review disclosure and approval-confirm/cancel path verified without signing.
+- ISC-3119: Local IAB geometry — actual320px viewport, document scrollWidth320, dialog clientWidth280 equals scrollWidth280, controls45px or taller; visible petrol keyboard outline and reduced-motion check pass. This is focused local evidence, not canonical mobile/trusted-touch release proof.
+- ISC-3120: Final app171/171, TypeScript/Vite build and generated727324-byte bundle parity pass; independent source review has no blockers. No deployment, binding enrollment or live decision performed.
+
+### 2026-10-25 Expedition Dossier draft publication
+
+- [x] ISC-3121: Review package includes desktop, actual320px and source-folio screenshots with implementation SHA, bounded test evidence and remaining canonical metadata gaps.
+- [x] ISC-3122: Exact reviewed branch is pushed and one draft PR is verified with matching head, screenshot links and evidence.
+- ISC-3121: Evidence package links to implementation a2d58ab and preserves the synthetic/local-only limitation, unknown metadata behavior and held canonical mobile/trusted-touch release proof. Publication does not authorize deployment, enrollment or live decisions.
+
+- ISC-3122: GitHub readback verifies draft PR402 targeting main, with pushed branch head064c7b5, three immutable screenshot links, exact test evidence and metadata gaps. Final publication checkpoint changes docs only; remote head and draft state are rechecked after that push.
+
+### 2026-10-25 merged PR402 deployment and live validation
+
+- [x] ISC-3123: Exact merged0387a43 serves at100percent with explicit previous-version rollback.
+- [x] ISC-3124: All47bindings and runtime/domain/cron/globalsettings remain equal across promotion; no migrations or enrollment changes.
+- [x] ISC-3125: Authenticated live IAB shows canonicalMeso, honest missing context, full review, keyboard focus, reduced motion and320px containment with45px controls.
+- [x] ISC-3126: Read-only UI test preserves3D1approvals and3graph events without renewal or decision submission.
+- [x] ISC-3127: Live publicPAGE contains exact generatedJS/CSS, health returns200 and unauthenticated founder-session read returns401.
+- ISC-3123/3124: Wrangler current deploymentc373b54a at100percent; rollbackc3a13925. Version raw-binding audit changedBindings=[] and global pre/post snapshot comparison matches.
+- ISC-3125/3126: Real expired proposal displaysMeso and unservedBranch/Phase/Organ; decisions disabled. Actual320px documentWidth320, dialog282/282, controls45px+. D1counts remain3/3.
+- ISC-3127: HTTPreadback matches worlddigestac57b795; app171/171 and full core2447/2448 pass0skips. The sole stale canonicalviewport fingerprint and trusted-touch proof remain explicit holds. No new business action is approved by this deployment.
+
+### 2026-10-25 Gate decision chamber design study
+
+- [x] ISC-3128: Design maps source-library glyphs, material tokens, motion and state grammar to distinct interaction meanings without speculative organ identities.
+- [x] ISC-3129: Local synthetic concept separates durable decision, current connection and observed execution across approved/rejected/uncertain/disconnected scenarios.
+- [x] ISC-3130: Local IAB verifies concept interactions, readable320pxreflow,45pxcontrols and reduced motion; production/auth/source assets remain untouched.
+- [x] ISC-3131: Future integration plan preserves typed canonical receipt validation, exact reviewed context and status-only recovery with explicit regressions.
+- 2026-10-25: Decision: choose Gate chamber / sealed artifact instead of another card layout. Source library remains reference evidence; the concept uses existing component specimens as visual studies and synthetic data only.
+- 2026-10-25: Routing note: noesis-build failed before tool effects because the installed Codex CLI rejected mcp_servers.context7 transport. No runtime config was edited; bounded in-session prototype worker used as fallback. No provider/model resolution is claimed for that failed attempt.
+
+- ISC-3128/3131: `docs/plans/2026-10-25-gate-decision-chamber.md` maps actual source boards/specimens/motion grammar and documents independent receipt/connection/execution models, typed tuple-bound context and status-only recovery regressions. Independent source review confirms the current flattened-message/missing-pending-row collision.
+- ISC-3129/3130: Synthetic IAB prototype exercises all4states, trace/disclosure, return/reopen and focus. Uncertain receipt=null, all observed=false and all seal circles hidden. All3sourceimages load. Actual320x844 viewport has scrollWidth320 and every shown button/summary>=45px; reduced-motion animated element count0. Production source, source-library assets and live runtime untouched.
+
+### 2026-10-25 production Gate decision chamber
+
+- [x] ISC-3132: Canonical host returns typed tuple-bound decision/context and retains it across held/missing pending reads without parsing messages.
+- [x] ISC-3133: Historical receipt inspection and uncertain recovery perform read-only original-tuple status calls with no extra decision submission.
+- [x] ISC-3134: Chamber renders actual decision/conflict, independent connection status and only matching observed execution stages.
+- [x] ISC-3135: Source-derived compact artwork remains reference-only, source hashes unchanged and generated world self-contained within budget.
+- [x] ISC-3136: Actual wired PAGE passes focused browser checks at desktop/320px with keyboard, disclosures, reduced motion and no business action.
+- [x] ISC-3137: Meaningful regression suites/build/bundle parity and independent review pass; known canonical mobile proof hold remains explicit.
+- [x] ISC-3138: Reviewed exact source deploys with rollback, all runtime bindings/settings preserved and no migration/enrollment change.
+- [x] ISC-3139: Live authenticated read-only receipt inspection opens the wired chamber; fresh D1 decision/event counts show no test-induced action.
+- 2026-10-25: Decision: implement typed host records and bounded source-derived embeddedWebP assets; the world has no network owner or action authority. Historical inspection has requestedDecision=null unless a real prior intent exists. An uncertain attempt keeps its original tuple and never retries a decision.
+
+- ISC-3132/3133/3134: Independent112/112 world/host tests pass. ActualPAGE localfixture /proposal→/status returns typedreceipt/context; returning through heldqueue retains confirmedrecord and only prior matchingobservations.0decision/0renewalposts.
+- ISC-3135: Source-bound cwebp assetpipeline --check passes;2derivatives18242bytes embedded; sourcePNGsunchanged; world770891bytes.
+- ISC-3136: IAB actual320x844 documentScrollWidth320, dialog282/282 and controls>=45px. Receipt/trace/fullreviewdisclosures, acidkeyboardfocus, return/journal and reducedmotion0animations pass.
+- 2026-10-25: Decision: strictly rebaseline LEGACY_PAGE digest after independent proof that only the reviewed Gate bridge changed those bytes. Freeze tracked checkout and Git index during core immutability probes; concurrent build/status work invalidated the first run, so it is not release evidence.
+
+- ISC-3137: App184/184, independent112/112, strictbuild/artcheck/bundle parity and source review pass. Frozen core2452/2453 passes0skips with only knownviewportfingerprint hold; final copy-only pending-status fix adds one meaningful regression and is followed by a final frozen-core rerun. Strictlegacy pin updated after independent byte-isolation proof. Evidence: `docs/evidence/2026-10-25-gate-chamber/`.
+
+- ISC-3137 final: Frozen ba23d70 core2452/2453 passes0skips, only knowncanonicalviewport hold. App184/184/build/art/parity pass; PR403 mergedf23b449 has an identical tree. No equality or privacy assertion weakened.
+- ISC-3138: Worker4918ce0e serves100percent with rollbackc373b54a; rawbindingaudit47/47changed[] and before/afterglobalsettings/domain/cron match. No migration/enrollmentchange.
+- ISC-3139: Authenticated live existingreceipt6444a852 canonicalReadbacktrue, historicalrequestedDecision=null; Meso and preservedobjective with no inventedcontext. OnlyDecision/Graph observed.320px containment,45pxcontrols,focus/disclosures/reducedmotion/journal pass. D1remains4approvals/4events; no newdecision or renewal. Runtimeevidence in `docs/evidence/2026-10-25-gate-chamber-live.v1.json`.

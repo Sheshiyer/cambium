@@ -1,0 +1,32 @@
+{
+  "schema": "cambium.gate-chamber-art.v1",
+  "authority": "reference-only",
+  "transformation": "fit square source; cwebp quality76 method6; no crop; source unchanged",
+  "bytes": 18242,
+  "specimens": [
+    {
+      "key": "controlDial",
+      "sourceId": "CVF-SRC-1089",
+      "semanticOwner": "component:control-dial",
+      "sourcePath": "docs/assets/visual-flow/source-library/r3f/components/control-dial/semantic-specimen-v1.png",
+      "sourceSha256": "31dfaa4dd436aea6dc5c87714e7d4af2776acaa8efd66f8806f4a116954a6dc6",
+      "derivativePath": "docs/assets/visual-flow/gate-chamber/control-dial-384.webp",
+      "sha256": "53b358917b6ffaa94e93a873e9d88e08819546562c21487cc412ff73c14e59ba",
+      "bytes": 17064,
+      "dimensions": "384x384",
+      "authority": "reference-only"
+    },
+    {
+      "key": "signalPacket",
+      "sourceId": "CVF-SRC-1096",
+      "semanticOwner": "component:signal-packet",
+      "sourcePath": "docs/assets/visual-flow/source-library/r3f/components/signal-packet/semantic-specimen-v1.png",
+      "sourceSha256": "0963dd08512ad52a3894399ffa9e1260d7cc3a5fef54c954962dc8aeff07cb76",
+      "derivativePath": "docs/assets/visual-flow/gate-chamber/signal-packet-128.webp",
+      "sha256": "1e5b5b067d5be1cd9c2624e0b3fe267d68c72fdc1d7bb46499b681b4b7cedc2b",
+      "bytes": 1178,
+      "dimensions": "128x128",
+      "authority": "reference-only"
+    }
+  ]
+}

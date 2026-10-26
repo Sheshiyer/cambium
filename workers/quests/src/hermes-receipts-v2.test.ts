@@ -50,7 +50,7 @@ test('Hermes v2 D1 authority pins original runner and exact redacted terminal gr
  assert.equal(await authorizer({...receipt,content:content+' private body'}),false);
  for(const [field,value] of [['member_id','other-member'],['runner_id','other-runner'],['terminal',0],['outcome_status','retryable']] as const){const previous=row[field];row[field]=value;assert.equal(await authorizer({...receipt,content}),false);row[field]=previous;}
  directive.payload.input.tenantId='other-org';row.directive_json=JSON.stringify(directive);assert.equal(await authorizer({...receipt,content}),false);
- const h=harness();const response=await handleContextRoute({method:'POST',path:HERMES_RECEIPTS_V2_ROUTE,headers:{authorization:'Bearer cortex-token'},body:JSON.stringify(receipt)},{cortexIngestionToken:'cortex-token',hermesReceiptIngestionDeps:h.deps,authorizeHermesReceipt:async()=>false});assert.equal(response!.status,403);assert.equal(h.requests.length,0);assert.equal(h.counts.writes,0);
+ const h=harness();const response=await handleContextRoute({method:'POST',path:HERMES_RECEIPTS_V2_ROUTE,headers:{authorization:'Bearer fixture'},body:JSON.stringify(receipt)},{cortexIngestionToken:'fixture',hermesReceiptIngestionDeps:h.deps,authorizeHermesReceipt:async()=>false});assert.equal(response!.status,403);assert.equal(h.requests.length,0);assert.equal(h.counts.writes,0);
 });
 
 test('Hermes v2 readback accepts Cloudflare Float32 vector values with matching float32 quantization',async()=>{

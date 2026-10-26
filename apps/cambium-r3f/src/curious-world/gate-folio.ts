@@ -1,3 +1,4 @@
+import { normalizeGateDecision, type GateRecordedDecision } from './gate-decision.ts';
 // Founder Gate view model for the Field Atlas. Pure helpers over the sanitized
 // snapshot the host page supplies. The world never signs, sees credentials or
 // touches the network: it can only ask the host's existing founder-verified
@@ -24,23 +25,27 @@ export interface GateInspect {
 }
 export interface GateProposal {
   changeDigest: string; nodeId: string; title: string; summary: string; sourceRef: string;
+  canonicalReview?: string | null; canRenew?: boolean; renewOnly?: boolean;
   receivedAt: string; approvalExpiresAt: string; consequence: string; reversibility: string;
   inspect: GateInspect | null; expired: boolean; canApprove: boolean; canReject: boolean;
   blockedReason: string; signing: boolean; placement: GatePlacement;
 }
 export interface GateSnapshot {
   state: 'checking' | 'read' | 'held'; signer: 'telegram' | 'access' | 'none'; label: string;
-  proposals: readonly GateProposal[]; paths: readonly GatePath[];
+  proposals: readonly GateProposal[]; paths: readonly GatePath[]; decisions?: readonly GateRecordedDecision[];
 }
-export interface GateSignResult { ok: boolean; outcome: string; message: string }
+export interface GateSignResult { ok: boolean; outcome: string; message: string; decision?: GateRecordedDecision }
 export interface GateBridge {
   getGateState?: () => unknown;
   subscribeGate?: (listener: (snapshot: unknown) => void) => () => void;
+  readDecision?: (changeDigest: string) => Promise<GateSignResult>;
+  reviewGate?: (changeDigest: string) => Promise<GateSignResult>;
+  renewGate?: (changeDigest: string) => Promise<GateSignResult & { changeDigest?: string }>;
   signGate?: (kind: GateKind, changeDigest: string) => Promise<GateSignResult>;
 }
 
 export const HELD_GATE: GateSnapshot = Object.freeze({
-  state: 'held', signer: 'none', label: 'Gate read unavailable · nothing can be signed', proposals: Object.freeze([]), paths: Object.freeze([]),
+  state: 'held', signer: 'none', label: 'Gate read unavailable · nothing can be signed', proposals: Object.freeze([]), paths: Object.freeze([]), decisions: Object.freeze([]),
 });
 
 const PLACES: Readonly<Record<GateLandmarkId, GatePlacement['districtId']>> = Object.freeze({ gate: 'purpose', hands: 'plant', 'launch-lead': 'growth' });
@@ -96,21 +101,28 @@ export function normalizeGateSnapshot(value: unknown): GateSnapshot {
     .map((item): GateProposal => {
       const changeDigest = String(item.changeDigest);
       const inspect = inspectOf(item.inspect, changeDigest);
-      const open = signer !== 'none' && state === 'read' && item.signing !== true && !!inspect?.consistent;
+      const open = signer !== 'none' && state === 'read' && item.signing !== true && item.renewOnly !== true && !!inspect?.consistent
+        && (signer !== 'access' || (typeof item.canonicalReview === 'string' && item.canonicalReview.length > 0));
       return {
         changeDigest, nodeId: text(item.nodeId, 160), title: text(item.title, 160) || 'Goal proposal',
         summary: text(item.summary, 240), sourceRef: text(item.sourceRef, 160), receivedAt: text(item.receivedAt, 64),
         approvalExpiresAt: text(item.approvalExpiresAt, 64), consequence: text(item.consequence, 300),
         reversibility: text(item.reversibility, 300), inspect, expired: item.expired === true,
         canApprove: open && item.canApprove === true && item.expired !== true,
-        canReject: open && item.canReject === true,
+        canReject: open && item.canReject === true && item.expired !== true,
+        canonicalReview: typeof item.canonicalReview === 'string' ? item.canonicalReview : null,
+        renewOnly: item.renewOnly === true,
+        canRenew: signer === 'access' && state === 'read' && item.canRenew === true && item.signing !== true,
         blockedReason: text(item.blockedReason, 200), signing: item.signing === true,
         placement: placementOf(item.placement),
       };
     });
   const paths = state === 'read' && Array.isArray(value.paths)
     ? value.paths.map(pathOf).filter((item): item is GatePath => !!item).slice(0, 8) : [];
-  return { state, signer, label: text(value.label, 120) || HELD_GATE.label, proposals, paths };
+  const decisions = Array.isArray(value.decisions) ? value.decisions.map(normalizeGateDecision).filter((v): v is GateRecordedDecision => v !== null).slice(-8) : [];
+  const recordedDigests = new Set(decisions.map(decision => decision.receipt.changeDigest));
+  const pending = proposals.filter(proposal => !recordedDigests.has(proposal.changeDigest));
+  return { state, signer, label: text(value.label, 120) || HELD_GATE.label, proposals: pending, paths, decisions };
 }
 
 /** Pending proposals whose subject landmark is `landmarkId`. */
@@ -179,8 +191,9 @@ export function gateAdmissionSummary(inspect: GateInspect | null): string {
 
 export function gateActionState(snapshot: GateSnapshot, proposal: GateProposal, kind: GateKind): { enabled: boolean; reason: string } {
   if (snapshot.signer === 'none') return { enabled: false, reason: 'Read-only here. Sign in at /founder, or open Curious inside Telegram, to sign.' };
-  if (kind === 'approve-goal-graph' && proposal.expired) {
-    return { enabled: false, reason: 'The approval window has expired. Reject it, or post a new founder-chat message and submit it for a fresh proposal.' };
+  if (proposal.renewOnly) return { enabled:false, reason:'This revision is stale. Renew and review the fresh proposal before deciding.' };
+  if (proposal.expired) {
+    return { enabled: false, reason: 'The approval window has expired. Renew and review the fresh proposal before deciding.' };
   }
   const enabled = kind === 'approve-goal-graph' ? proposal.canApprove : proposal.canReject;
   return { enabled, reason: enabled ? '' : proposal.blockedReason || 'Signing is closed for this proposal.' };

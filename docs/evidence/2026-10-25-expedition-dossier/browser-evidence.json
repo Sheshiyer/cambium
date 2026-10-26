@@ -1,0 +1,48 @@
+{
+  "fixture": "Synthetic local-only; no live endpoint",
+  "geometry": {
+    "controls": [
+      {
+        "height": 45,
+        "label": "Close ×"
+      },
+      {
+        "height": 61.9886360168457,
+        "label": "Review binding & execution admission"
+      },
+      {
+        "height": 61.9886360168457,
+        "label": "Complete canonical proposal · exact change, context and lineage"
+      },
+      {
+        "height": 47.99715805053711,
+        "label": "Approve"
+      },
+      {
+        "height": 47.99715805053711,
+        "label": "Reject"
+      },
+      {
+        "height": 47.99715805053711,
+        "label": "All pending proposals ↗"
+      }
+    ],
+    "dialog": [
+      {
+        "client": 280,
+        "scroll": 280
+      }
+    ],
+    "height": 844,
+    "pageScroll": 320,
+    "width": 320
+  },
+  "checks": [
+    "canonical scope only selected",
+    "full canonical disclosure opens",
+    "keyboard focus petrol visible",
+    "approve opens confirmation, cancel returns without signing",
+    "expired proposal unknown context and disabled decisions",
+    "reduced motion has no dossier animations"
+  ]
+}

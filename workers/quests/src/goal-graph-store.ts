@@ -47,6 +47,7 @@ export interface GoalGraphApproval {
   /** Optional caller-supplied canonical bytes. They must match our bytes. */
   canonical?: string;
   decidedAt?: string;
+  channel?: 'plugin' | 'curious' | 'telegram';
   /** Compatibility aliases used by older adapter envelopes. */
   tenant_id?: string;
   change_digest?: string;
@@ -58,7 +59,10 @@ export interface GoalGraphApproval {
   canonical_json?: string;
 }
 
+export interface GoalGraphRenewalRoot { changeDigest: string; nonce: string }
 export interface GoalGraphCommitInput {
+  /** Server-owned original proposal tuple; never accepted from decision input. */
+  renewalRoot?: GoalGraphRenewalRoot;
   tenantId: string;
   changeSet: GoalChangeSet;
   approval: GoalGraphApproval;
@@ -100,10 +104,12 @@ export type GoalGraphCommitResult =
     };
 
 export interface GoalGraphRejectionInput {
+  renewalRoot?: GoalGraphRenewalRoot;
   tenantId: string;
   changeDigest: string;
   intentVersion: number;
   rejectorId: string;
+  channel?: 'plugin' | 'curious' | 'telegram';
   expiresAt: string;
   nonce: string;
   now?: string;
@@ -115,6 +121,10 @@ export type GoalGraphRejectionResult =
   | { status: 'invalid' | 'unavailable'; changeDigest: string | null; code: string };
 
 export interface GoalGraphStoreLike {
+  /** New renewal writes fail closed unless the additive D1 family fence exists. */
+  renewalFenceReady?(): Promise<boolean>;
+  /** Optional for legacy adapters; D1-backed projections use this as decision authority. */
+  readDecisionReceipt?(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
   readHead(tenantId: string): Promise<GoalGraphHead | null>;
   readNodes(tenantId: string): Promise<GoalGraphNode[]>;
   commit(input: GoalGraphCommitInput): Promise<GoalGraphCommitResult>;
@@ -345,7 +355,25 @@ function resultRejected(code: string, changeDigest: string | null = null): GoalG
   return { status: 'rejected', replayed: false, changeDigest, code };
 }
 
-export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLike {
+export interface GoalGraphDecisionReceiptRow {
+  tenant_id: string; change_digest: string; intent_version: number; approver_id: string;
+  decision: 'approved' | 'rejected'; expires_at: string; nonce: string; canonical_json: string; decided_at: string;
+}
+export interface FounderDecisionStore extends GoalGraphStoreLike {
+  reject(input: GoalGraphRejectionInput): Promise<GoalGraphRejectionResult>;
+  readDecisionReceipt(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
+}
+export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionStore {
+  async function renewalFenceReady(): Promise<boolean> {
+    try { return !!await db.prepare("SELECT name FROM sqlite_master WHERE type = 'index' AND name = ?")
+      .bind('goal_graph_approval_family_unique').first(); } catch { return false; }
+  }
+  function renewalRootId(tenant: string, root?: GoalGraphRenewalRoot): string | null {
+    if (!root) return null;
+    return typeof root.changeDigest === 'string' && DIGEST_RE.test(root.changeDigest)
+      && typeof root.nonce === 'string' && SAFE_ID_RE.test(root.nonce)
+      ? decisionId(tenant, root.changeDigest, root.nonce) : null;
+  }
   async function readHeadRow(tenantId: string): Promise<HeadRow | null> {
     return db.prepare(`
       SELECT tenant_id, graph_version, graph_digest, source_ref, source_digest, committed_at
@@ -408,7 +436,10 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     if (typeof input.tenantId !== 'string' || !SAFE_ID_RE.test(input.tenantId)) return { status: 'invalid', changeDigest, code: 'tenant_invalid' };
     if (!SAFE_ID_RE.test(String(input.rejectorId)) || !SAFE_ID_RE.test(String(input.nonce))) return { status: 'invalid', changeDigest, code: 'decision_identity_invalid' };
     if (!Number.isInteger(input.intentVersion) || input.intentVersion < 1) return { status: 'invalid', changeDigest, code: 'intent_version_invalid' };
-    if (!ISO_TIMESTAMP_RE.test(now) || !ISO_TIMESTAMP_RE.test(String(input.expiresAt))) return { status: 'invalid', changeDigest, code: 'decision_time_invalid' };
+    const renewalRoot = renewalRootId(input.tenantId, input.renewalRoot);
+    if (input.renewalRoot && !renewalRoot) return { status: 'invalid', changeDigest, code: 'renewal_root_invalid' };
+    if (!ISO_TIMESTAMP_RE.test(now) || !ISO_TIMESTAMP_RE.test(String(input.expiresAt))
+        || !Number.isFinite(Date.parse(now)) || !Number.isFinite(Date.parse(input.expiresAt))) return { status: 'invalid', changeDigest, code: 'decision_time_invalid' };
     const classify = async (): Promise<GoalGraphRejectionResult | null> => {
       const prior = await readDecision(input.tenantId, changeDigest, input.nonce);
       if (!prior) return null;
@@ -425,6 +456,10 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     } catch {
       return { status: 'unavailable', changeDigest, code: 'decision_read_failed' };
     }
+    // Existing decisions above remain readable/replayable after expiry, but
+    // the first immutable rejection must be decided inside its approval window.
+    if (Date.parse(input.expiresAt) <= Date.parse(now)) return { status: 'invalid', changeDigest, code: 'decision_expired' };
+    if (renewalRoot && !await renewalFenceReady()) return { status: 'unavailable', changeDigest, code: 'renewal_fence_required' };
     const core = {
       tenantId: input.tenantId,
       changeDigest,
@@ -436,6 +471,8 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     const canonicalJson = stableJson({
       canonical: canonicalizeGoalGraphApproval(core),
       decision: 'rejected',
+      ...(renewalRoot ? { renewalRoot } : {}),
+      ...(input.channel ? { channel: input.channel } : {}),
       expiresAt: input.expiresAt,
       intentVersion: input.intentVersion,
       nonce: input.nonce,
@@ -483,6 +520,9 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     const changeSet = input?.changeSet;
     const changeDigest = typeof changeSet?.changeDigest === 'string' ? changeSet.changeDigest : null;
     if (!changeSet || !changeDigest) return resultRejected('change_set_invalid', changeDigest);
+    const renewalRoot = renewalRootId(input.tenantId, input.renewalRoot);
+    if ((input.renewalRoot && !renewalRoot) || (changeSet.sourceRef?.startsWith('founder-renewal:') && !renewalRoot)) return resultRejected('renewal_root_required', changeDigest);
+    if (renewalRoot && !await renewalFenceReady()) return { status: 'unavailable', replayed: false, changeDigest, code: 'renewal_fence_required' };
     if (typeof input.tenantId !== 'string' || input.tenantId.length === 0 || changeSet.tenantId !== input.tenantId) {
       return resultRejected('tenant_mismatch', changeDigest);
     }
@@ -564,6 +604,8 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     const approvalJson = stableJson({
       canonical: canonicalApproval,
       decision: approval.decision,
+      ...(renewalRoot ? { renewalRoot } : {}),
+      ...(input.approval.channel ? { channel: input.approval.channel } : {}),
       expiresAt: approval.expiresAt,
       intentVersion,
       nonce: approval.nonce,
@@ -765,7 +807,15 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): GoalGraphStoreLik
     return resultRejected('commit_not_observed', changeDigest);
   }
 
-  return { readHead, readNodes, commit, reject };
+  async function readDecisionReceipt(tenantId: string, changeDigest: string, nonce: string) {
+    return db.prepare(`SELECT tenant_id, change_digest, intent_version, approver_id,
+      decision, expires_at, nonce, canonical_json, decided_at
+      FROM goal_graph_approvals WHERE approval_id = ? AND tenant_id = ? AND change_digest = ? AND nonce = ?`)
+      .bind(decisionId(tenantId, changeDigest, nonce), tenantId, changeDigest, nonce)
+      .first<{ tenant_id: string; change_digest: string; intent_version: number; approver_id: string;
+        decision: 'approved' | 'rejected'; expires_at: string; nonce: string; canonical_json: string; decided_at: string }>();
+  }
+  return { readHead, readNodes, commit, reject, readDecisionReceipt, renewalFenceReady };
 }
 
 export const createGoalGraphStore = d1GoalGraphStore;

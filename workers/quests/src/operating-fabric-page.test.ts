@@ -53,7 +53,9 @@ const LEGACY_SCENES: readonly MiniAppSceneId[] = ['mission', 'gate', 'tools', 's
 // topology contract and renames two historical app-plane display labels. Those
 // exact substitutions reproduce these bytes from the reviewed 649c1c89 surface;
 // the legacy client, action owners, styles and markup are otherwise unchanged.
-const LEGACY_PAGE_DIGEST = '3222aa810dcf3c884f6a8d7eb6e1d4665ef8eaec265d5825e3016d66af2f60d2';
+// Reviewed typed Gate receipt bridge is part of LEGACY_PAGE's script assembly.
+// Replacing only that bridge with its prior version restores the previous pin.
+const LEGACY_PAGE_DIGEST = '92bf1de2c612466e05207f8a8796c8c576f60be6778f97cf3e1f0391a5aabd67';
 
 function extractScriptBodies(source: string): string[] {
   return [...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
@@ -990,7 +992,7 @@ test('fabric styles extend tokens and keep motion, focus, and target-size contra
   assert.match(OPERATING_FABRIC_STYLES, /var\(--ink\)/, 'styles reuse shared tokens');
   assert.match(OPERATING_FABRIC_STYLES, /prefers-reduced-motion/, 'reduced motion stays honored');
   assert.match(OPERATING_FABRIC_STYLES, /of-badge|of-card|of-chip/, 'fabric component styles exist');
-  assert.match(OPERATING_FABRIC_STYLES, /min-height:44px|min-height: 44px/, 'interactive targets stay at least 44px');
+  assert.match(OPERATING_FABRIC_STYLES, /min-height:45px|min-height: 45px/, 'interactive targets stay at least 44px');
   assert.match(OPERATING_FABRIC_STYLES, /:focus-visible/, 'focus stays visible');
   assert.ok(!/animation:[^;]*left|animation:[^;]*top|animation:[^;]*width/.test(OPERATING_FABRIC_STYLES), 'motion stays transform/opacity-only');
 });
@@ -1181,10 +1183,10 @@ test('agent card visibly reports capability overflow as +N more', () => {
 
 test('44px targets and focus rules apply to actual controls, not passive spans', () => {
   const passiveRules = OPERATING_FABRIC_STYLES.split('\n').filter(
-    (line) => line.includes('min-height:44px') && !line.includes('.of-tab') && !line.includes('.of-control'),
+    (line) => line.includes('min-height:45px') && !line.includes('.of-tab') && !line.includes('.of-control'),
   );
   assert.deepEqual(passiveRules, [], 'passive badges/chips/edges do not carry 44px control sizing');
-  assert.match(OPERATING_FABRIC_STYLES, /\.of-tab\{[^}]*min-height:44px/, 'the semantic tab control keeps its 44px target');
+  assert.match(OPERATING_FABRIC_STYLES, /\.of-tab\{[^}]*min-height:45px/, 'the semantic tab control keeps its 44px target');
   const focusRule = OPERATING_FABRIC_STYLES.split('\n').find((line) => line.includes(':focus-visible'));
   assert.ok(focusRule, 'a focus-visible rule exists');
   assert.match(focusRule!, /\.of-tab:focus-visible/, 'tab focus stays visible');
@@ -2113,10 +2115,10 @@ test('program blocked is status-only and independent of lifecycle active', () =>
 test('of-control carries its own 44px hit target; of-tab additionally sizes to 44px', () => {
   const controlRule = OPERATING_FABRIC_STYLES.match(/\.of-control\{[^}]*\}/);
   assert.ok(controlRule, 'a standalone .of-control rule exists');
-  assert.match(controlRule![0], /min-height:44px/, '.of-control alone guarantees a 44px minimum height');
-  assert.match(controlRule![0], /min-width:44px/, '.of-control alone guarantees a 44px minimum width');
-  const sizedRule = OPERATING_FABRIC_STYLES.match(/\.of-tab\{[^}]*min-height:44px[^}]*\}/);
-  assert.ok(sizedRule, 'the concrete .of-tab rule carries min-height:44px');
+  assert.match(controlRule![0], /min-height:45px/, '.of-control alone guarantees a 44px minimum height');
+  assert.match(controlRule![0], /min-width:45px/, '.of-control alone guarantees a 44px minimum width');
+  const sizedRule = OPERATING_FABRIC_STYLES.match(/\.of-tab\{[^}]*min-height:45px[^}]*\}/);
+  assert.ok(sizedRule, 'the concrete .of-tab rule carries min-height:45px');
   const focusRule = OPERATING_FABRIC_STYLES.match(/\.of-tab:focus-visible,\.of-control:focus-visible\{[^}]*outline:2px/);
   assert.ok(focusRule, 'the concrete focus-visible rule covers of-tab and of-control');
   for (const [label, html] of [
@@ -2134,8 +2136,8 @@ test('of-control carries its own 44px hit target; of-tab additionally sizes to 4
 test('of-inspect-btn and of-gate-entrypoint-btn controls inherit a 44px hit target from .of-control', () => {
   const controlRule = OPERATING_FABRIC_STYLES.match(/\.of-control\{[^}]*\}/);
   assert.ok(controlRule, 'a standalone .of-control rule exists');
-  assert.match(controlRule![0], /min-height:44px/, '.of-control guarantees a 44px minimum height');
-  assert.match(controlRule![0], /min-width:44px/, '.of-control guarantees a 44px minimum width');
+  assert.match(controlRule![0], /min-height:45px/, '.of-control guarantees a 44px minimum height');
+  assert.match(controlRule![0], /min-width:45px/, '.of-control guarantees a 44px minimum width');
   assert.match(controlRule![0], /box-sizing:border-box/, '.of-control keeps declared padding inside its box so the min size is honored');
   assert.doesNotMatch(OPERATING_FABRIC_STYLES, /\.of-inspect-btn\{[^}]*min-height/, 'of-inspect-btn relies on the shared .of-control rule, not a bespoke one');
 });

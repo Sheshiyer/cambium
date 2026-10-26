@@ -1,0 +1,162 @@
+{
+  "branch": "codex/reconcile-391-394",
+  "baseline": {
+    "verified_github_main": "5dd3ab56e75db91a3b694de43e9e5ec39166529e",
+    "verified_main_tree": "0abc54afeb8c62e807709dcc748257aa4a5e7d74",
+    "local_snapshot_commit": "bf9345b744f73b99b4cef207fe32d5e1b5ce8bbd",
+    "note": "local snapshot commit has identical verified source tree; not the remote merge commit identity"
+  },
+  "live_source": "3851c65dfaeecf3ab73756fe635f5af6dd4e7e14",
+  "pr391_tip": "a8ecb1832f5bf097c276c690eb3f779d4436c171",
+  "live_worker_and_rollback": "15622021-5fad-48e0-a0f2-4dc6ff9b6943",
+  "live_bundle_sha256": "88c2788e875a5fc49bd4c2ce6e265cb847ab0d924e4268b1556a32e160ad4131",
+  "local_dry_run_bundle_sha256": "b23638cc96547ca27c6c31ca55c4a2b6d6db42abd2484e317041ae5432e22e36",
+  "local_dry_run_bundle_bytes": 3010708,
+  "files": [
+    {
+      "path": "workers/quests/src/context-bindings.ts",
+      "sha256": "9a00bfff809ba7c28505ed54492f75f7821053b71981eccd94962eb9158ae184",
+      "live_source_sha256": "9a00bfff809ba7c28505ed54492f75f7821053b71981eccd94962eb9158ae184",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/context-routes.ts",
+      "sha256": "6042138d370102ecae29b2d7f1c5aecd05353b9b737f91b4bed9a75755519597",
+      "live_source_sha256": "6042138d370102ecae29b2d7f1c5aecd05353b9b737f91b4bed9a75755519597",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/cortex-ingestion.ts",
+      "sha256": "f80f1aad0cf1692eaf06f714e045e3535f2a45c13655bf4fa529c6467d9f9dc2",
+      "live_source_sha256": "f80f1aad0cf1692eaf06f714e045e3535f2a45c13655bf4fa529c6467d9f9dc2",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/growth-context-projection.ts",
+      "sha256": "45fd474d28f0036927c5e002c83742c8c0a322c8517fdb111426bbf3d1b9372c",
+      "live_source_sha256": "45fd474d28f0036927c5e002c83742c8c0a322c8517fdb111426bbf3d1b9372c",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/growth-workflow.ts",
+      "sha256": "5d6f803988bf85dbbf73b02ef1279513996d0b1ddd0aba346618e61a20f9d27a",
+      "live_source_sha256": "5d6f803988bf85dbbf73b02ef1279513996d0b1ddd0aba346618e61a20f9d27a",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/handler.ts",
+      "sha256": "cc9ed348e89990a3e762b6242683e86f5b0b195194542c8aa74ecbac17da17b8",
+      "live_source_sha256": "e69ede79a6d6022140a6befac97f24f40fb2588ce6f6df7a8701827fa6281cb3",
+      "identical_to_live_source": false
+    },
+    {
+      "path": "workers/quests/src/hermes-receipts-v2.ts",
+      "sha256": "33a144c7afbc3c78c3c91596b7e20c756a2c314b4d8b31ad64ced98c6731624d",
+      "live_source_sha256": "33a144c7afbc3c78c3c91596b7e20c756a2c314b4d8b31ad64ced98c6731624d",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/index.ts",
+      "sha256": "92ae8475b97926d14afff9fd72cfaa01eee7bcd377e71730e0d4eba061f5087b",
+      "live_source_sha256": "92ae8475b97926d14afff9fd72cfaa01eee7bcd377e71730e0d4eba061f5087b",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/growth-workflow.test.ts",
+      "sha256": "9ddc62642ff60921ef2cb0f7ffbc84a8177d08f47cda0c9a59a9eda0cae6e4d1",
+      "live_source_sha256": "9ddc62642ff60921ef2cb0f7ffbc84a8177d08f47cda0c9a59a9eda0cae6e4d1",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/src/hermes-receipts-v2.test.ts",
+      "sha256": "8a1c025492c79ab7336bc7cbc0aa6857c86cd0608b3bd52d52a79fca2a733ce7",
+      "live_source_sha256": "8a1c025492c79ab7336bc7cbc0aa6857c86cd0608b3bd52d52a79fca2a733ce7",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "workers/quests/migrations/0011_growth_workflow.sql",
+      "sha256": "430245a31dd89189a14ba500d5e50304e16c09d2710647d982f12d856681ddbd",
+      "live_source_sha256": "430245a31dd89189a14ba500d5e50304e16c09d2710647d982f12d856681ddbd",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "scripts/employee-growth-workerd-smoke.mjs",
+      "sha256": "c3af44ce406522c0cb1b9cbe883bf90091940b5dc7b044aa26002a1b800471f9",
+      "live_source_sha256": "c3af44ce406522c0cb1b9cbe883bf90091940b5dc7b044aa26002a1b800471f9",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "docs/architecture/contracts/employee-growth-workflow-v1.md",
+      "sha256": "53ab88727d57178b6bd14129e8e0b108a9c233a4085a245c5add55d1671c1606",
+      "live_source_sha256": "53ab88727d57178b6bd14129e8e0b108a9c233a4085a245c5add55d1671c1606",
+      "identical_to_live_source": true
+    },
+    {
+      "path": "docs/architecture/system-atlas.v1.json",
+      "sha256": "43f53c71e3ec4e90afacdce41c437defd106b711027da54fc2af484da34805c0"
+    },
+    {
+      "path": "workers/quests/wrangler.reconcile-393.jsonc",
+      "sha256": "97f91a64d0e1d96be273ce8889ef93fdeaab859c96d43faf521b97220aacfa39"
+    },
+    {
+      "path": "scripts/reconciliation-binding-parity.test.mjs",
+      "sha256": "4a70d745b76b64e8a79bd2be13bd1a9943cd23dd4116309527b46270f4af7edc"
+    },
+    {
+      "path": "docs/reconciliation/391-394-live-binding-metadata.json",
+      "sha256": "90e82c352c01e7d798156681d6b34ec33f94811f5ba0392e969599418d25ab54"
+    },
+    {
+      "path": "docs/reconciliation/391-394-reconciliation.md",
+      "sha256": "9548788f944d4dddae0ec483fbce5cff991a57d9c67f4316b89eca436d21a6bd"
+    }
+  ],
+  "source_patch_conflicts": 0,
+  "founder394_unchanged_files": {
+    "workers/quests/src/goal-graph-store.ts": true,
+    "workers/quests/src/founder-decision.ts": true,
+    "workers/quests/src/founder-decision.test.ts": true,
+    "workers/quests/src/founder-decision-transport.ts": true,
+    "bin/founder-gate.mjs": true,
+    "bin/founder-gate.test.mjs": true,
+    "FOUNDER-GATE-CLI.md": true
+  },
+  "bindings": {
+    "metadata_count": 46,
+    "explicit_resources": 8,
+    "retained_variable_and_secret_names": 38,
+    "value_capture": false,
+    "value_equality_proven": false,
+    "global_settings_parity_newly_proven": false
+  },
+  "verification": {
+    "combined_tests_passed": 598,
+    "binding_tests_passed": 1,
+    "workerd_local_checks": 9,
+    "per_file_candidate": {
+      "files": 174,
+      "passed": 168,
+      "matching_script_timeouts": 5,
+      "sandbox_blocked_file": 1
+    },
+    "per_file_main": {
+      "files": 171,
+      "passed": 165,
+      "matching_script_timeouts": 5,
+      "sandbox_blocked_file": 1
+    },
+    "static_typecheck": "59 normalized diagnostics on both candidate and main; not green",
+    "dry_run": "passed; no version upload"
+  },
+  "publication_or_runtime_mutation": false,
+  "review_required": true,
+  "blocked_operation": {
+    "action": "read and persist every live plain-text binding value",
+    "target": "cambium-quests version15622021",
+    "status": "denied before execution by automatic approval review",
+    "reason": "plain-text bindings may contain sensitive configuration or credentials",
+    "retried": false,
+    "safe_alternative": "metadata-only retention candidate; no values captured"
+  }
+}

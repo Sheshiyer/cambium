@@ -21,7 +21,7 @@ export const STYLE_WORKBENCH = `
   .app .brand{font-size:24px;font-weight:680;letter-spacing:-.035em;line-height:1.12}
   .app .brand small{font-size:12px;line-height:1.3;opacity:.75;letter-spacing:0;margin-top:4px}
   .app .root-chip-stack{gap:8px}
-  .app .chip{min-height:44px;padding:9px 13px;font-size:11px;border-radius:8px}
+  .app .chip{min-height:45px;padding:9px 13px;font-size:11px;border-radius:8px}
   .app .scene-chip{border-color:var(--line2);background:rgba(214,255,246,.035);color:var(--soft)}
   .app .root-nav{
     margin:0 28px 0;padding:8px 0 12px;gap:8px;border-bottom:1px solid var(--line2);
@@ -78,7 +78,7 @@ export const STYLE_WORKBENCH = `
   .app .mc-mission-card p{font-size:14px;line-height:1.5;opacity:.85}
   .app .mc-meta-grid{gap:10px;font-size:12px}
   .app .mc-info{font-size:12px;line-height:1.5}
-  .app .mc-info summary{min-height:44px;display:flex;align-items:center;gap:7px}
+  .app .mc-info summary{min-height:45px;display:flex;align-items:center;gap:7px}
   .app .mc-eyebrow{font-size:11px;letter-spacing:.08em}
   .app .mc-section-title{margin:8px 0 3px;font-size:11px;line-height:1.4;letter-spacing:.04em}
   .app .mc-state-row{min-height:64px;padding:12px}
@@ -92,7 +92,8 @@ export const STYLE_WORKBENCH = `
   .app .mission-tool-link b,.app .tool-recommend b,.app .story-hero b,.app .inspect-proof-summary b{font-size:15px;font-weight:600}
   .app .mission-tool-link small,.app .tool-recommend small,.app .story-hero small,.app .inspect-proof-summary small{font-size:12px;line-height:1.5;opacity:.78}
   .app .mc-action-row button,.app .mission-tool-link button{font-size:13px;min-height:48px}
-  .app .mc-founder-outcome button,.app .mc-founder-outcome-actions button{min-height:44px}
+  .app .mc-founder-outcome button,.app .mc-founder-outcome-actions button{min-height:45px}
+  .app .inspect-proof-summary .gbtns button{min-height:45px}
   .app .bar{height:4px;margin:20px 0 10px}
   .app .meta{font-size:11px;line-height:1.5;opacity:.8}
 
@@ -109,12 +110,12 @@ export const STYLE_WORKBENCH = `
   .app .gate-state-strip small{font-size:11px;line-height:1.5;opacity:.78}
   .app .grow-copy .gtitle{font-family:inherit;font-size:14px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
   .app .grow-copy .gsub-line{font-size:12px;line-height:1.5;opacity:.72}
-  .app .grow-chev{min-width:44px;min-height:44px}
+  .app .grow-chev{min-width:45px;min-height:45px}
   .app .gate-empty,.app .gate-error{padding:16px;border-radius:8px;font-size:13px}
 
   .app .tool-context-strip,.app .tool-recent-strip,.app .story-filter-strip,.app .gate-filter-strip{padding:8px;gap:8px;background:rgba(1,47,52,.4)}
-  .app .tool-context-strip button,.app .tool-recent-strip button,.app .story-filter-strip button,.app .gate-filter-strip button{min-height:44px;padding:8px 12px;font-size:11px}
-  .app .tool-recommend button{min-height:44px;padding:8px 14px;font-size:12px}
+  .app .tool-context-strip button,.app .tool-recent-strip button,.app .story-filter-strip button,.app .gate-filter-strip button{min-height:45px;padding:8px 12px;font-size:11px}
+  .app .tool-recommend button{min-height:45px;padding:8px 14px;font-size:12px}
   .app .cmd{min-height:96px;padding:16px;margin:0;gap:12px;background:rgba(1,47,52,.58)}
   .app .cmd .mc-glyph{width:40px;height:40px}
   .app .cmd .cname{font-family:inherit;font-size:16px;font-weight:600;line-height:1.25;letter-spacing:-.02em}
@@ -165,7 +166,7 @@ export const STYLE_WORKBENCH = `
   .app .state code{display:inline-block;max-width:100%;font-size:12px;line-height:1.5;overflow-wrap:anywhere;white-space:normal;padding:6px 10px}
   .app .state-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;max-width:100%}
   .app .state-actions button,.app .state-actions a{
-    appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;
+    appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:45px;
     border:1px solid var(--line2);border-radius:8px;padding:10px 16px;max-width:100%;
     background:rgba(1,47,52,.6);color:var(--soft);font-family:inherit;font-size:13px;font-weight:600;line-height:1.35;text-decoration:none;cursor:pointer;
   }
@@ -177,7 +178,7 @@ export const STYLE_WORKBENCH = `
     outline:2px solid var(--ink);outline-offset:3px;
   }
   .sheet{width:min(720px,100%);max-width:100%;margin-inline:auto;background:rgba(1,47,52,.97);padding:16px 24px calc(var(--sab) + 24px);border-radius:20px 20px 0 0}
-  .sheet .gbtns button,.sheet .gate-inspect-link,.sheet .founder-outcome-field input,.sheet .founder-outcome-field select{min-height:44px}
+  .sheet .gbtns button,.sheet .gate-inspect-link,.sheet .founder-outcome-field input,.sheet .founder-outcome-field select{min-height:45px}
   .sheet .grab{width:44px}
   .sheet #sheetBody{padding-inline:2px;scrollbar-width:thin;scrollbar-color:rgba(214,255,246,.2) transparent}
   .sheet h2{font-size:24px;font-weight:620;line-height:1.15;letter-spacing:-.025em}
