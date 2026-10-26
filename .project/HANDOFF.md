@@ -2664,6 +2664,58 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 
 Workflow source is removed in this PR. Explicit local release verification and separate readiness jobs are recorded in `.local-jobs/jobs.json`, with scheduling disabled. The 33 affected release/readiness tests pass against the local registry. Tag pushes no longer claim automatic publication. No service, deployment, signing, or release publication is activated. Original operator checkouts remain untouched.
 
+### 2026-10-23 employee growth workflow source candidate
+
+- Isolated branch adds active-member organizational growth context, confirmed
+  handoff admission, and private status/result routes. Only explicitly configured
+  organizations can submit bounded internal drafts; no client project identity
+  or publishing authority is inferred.
+- Existing BRIDGE_DB native directives, fenced claims, and terminal attestations
+  remain authoritative. Migration 0011 adds the scoped request projection; result
+  reads reconcile canonical terminal outcomes if the projection write failed.
+- Reviewed projection pins committed allowlisted vault excerpts. Runtime source
+  parity and exact organization/runner identity must be proved before activation.
+- No deployment, migration apply, provider/credential change, runner enablement,
+  queue activation, public message, or production mutation was performed.
+- Release reconciliation: rebased the feature onto exact deployed source 8835d6.
+  Conflicts retained deployed source-verification acceptance, signed envelope
+  storage, terminal foldback, duplicate business-outcome guard, and owner bindings;
+  growth is an additional closed command. Existing retirement handoff was kept.
+  Focused release-baseline handler/growth verification passes 430/430.
+- Local Workers runtime smoke on exact candidate eb181c6 passes nine HTTP checks
+  using Wrangler 4.124.0, compatibility date 2026-05-01 with nodejs_compat, actual
+  isolated local KV/D1, and synthetic identities. One persisted D1 request after
+  replay, private readback denial, and the native runner directive are verified.
+  Receipt: docs/evidence/2026-10-24-growth-workerd-local.json. No runtime fix was
+  needed; this adds test/evidence only and does not alter the staged Worker code.
+
+## 2026-10-24 native 768 receipt repair candidate
+
+- Live growth draft returned; original attempt 1 remains held at receipt ingestion
+  because legacy embedding returns HTTP 410. See live backend evidence; ordinary
+  employee/native UI acceptance is separate. Production remains b33a1a6e.
+- Approved 2048 repair stopped at Cloudflare code 3003 (maximum 1536 dimensions);
+  no index was created and no Worker or runner changed. Historical packet retained.
+- Replacement runtime 3851c65 uses dedicated Workers AI native BGE 768 binding
+  and a separate index; public-input compatibility probe passes. Boundary tests
+  526/526 and Wrangler dry-run pass. New pinned approval packet:
+  docs/runbooks/cortex-hermes-receipts-v2-768-rollout.md. No rollout authorized yet
+  for these changed model/bundle/resources; preserve all 43 existing bindings.
+
+## 2026-10-24 approved native768 rollout completed
+
+- Separate owner approval activated exact runtime3851c65/bundle88c2788e in
+  immutable Worker15622021-5fad-48e0-a0f2-4dc6ff9b6943 at100%. Dedicated index
+ 768/cosine and AI binding preserve all43 prior bindings/runtime/settings;46total.
+- Only runner receipt URL changed. Normal timer recovered its transient vector
+  readback hold; original execution remains attempt1 and unchanged output digest.
+  Canonical delivered1 at00:48:52.299Z and local phase acked prove closure.
+- Same requesting member reads identical1211-character draft. Dedicated vector
+  getByIds passes; legacy1024/cosine corpus unchanged. No new-space query route.
+- Production receipt: docs/evidence/2026-10-24-hermes-receipts-768-production.json.
+  Rollback version b33a1a6e and previous ingestion URL are retained in runbook.
+  Ordinary employee/native UI acceptance remains separate. No further approval
+  is needed for this completed rollout; new source/resources remain owner-gated.
 
 ### 2026-10-24 Founder Gate simple CLI source checkpoint
 

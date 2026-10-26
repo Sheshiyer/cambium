@@ -1,0 +1,88 @@
+{
+  "schema": "thoughtseed.growth.workerd_local_smoke.v1",
+  "observedAt": "2026-10-23T18:40:22.559Z",
+  "sourceCommit": "eb181c6c81b4cc48c0b25409e8563e0ebfad5cb2",
+  "runtime": {
+    "wrangler": "4.124.0",
+    "compatibilityDate": "2026-05-01",
+    "compatibilityFlags": [
+      "nodejs_compat"
+    ],
+    "mode": "local",
+    "authProfile": "thoughtseed-labs",
+    "isolatedPersistence": true,
+    "remoteBindings": false
+  },
+  "context": {
+    "sourceCommit": "04df969bc93978d3820b36744fec15f76ac0fc11",
+    "projectionDigest": "sha256:00532c8959cea9b1cf43d383641255d8d29ad6ddbdcb96a7c79cde1e498e3c90",
+    "documents": [
+      {
+        "path": "20-operations/growth/README.md",
+        "sourceDigest": "sha256:e4e06687e166980b47da2de025f1d7268321375ef7643d8568fc00fff76268b7",
+        "excerptDigest": "sha256:70694c18e556d65e8dbe2a3915b9bd9c5209ea8316af68f7cd2b459217ffb727"
+      },
+      {
+        "path": "20-operations/growth/department/execution-map.md",
+        "sourceDigest": "sha256:a81ca9c584af020178168316f53d0d68890a183efc33b5e572b9a7d51baec1a3",
+        "excerptDigest": "sha256:771efbe9bd8df60546a536c034a89bf3b89fa15025be5e3c90dd3d497ad29fc2"
+      },
+      {
+        "path": "20-operations/growth/department/organ-map.md",
+        "sourceDigest": "sha256:39ed458be1a82880c15b19ae88e9671fc62295da7efeee6befdd778488372136",
+        "excerptDigest": "sha256:aa5d90a060a4186d861b0e2464a5f4a96a0a9751933d20c0b393f97d4b6b59a6"
+      },
+      {
+        "path": "20-operations/growth/department/workflows.md",
+        "sourceDigest": "sha256:cf7a06e5ab6906fb92f916f1dc8ab5e5a036145427b21368f1dae30528225b2c",
+        "excerptDigest": "sha256:0370a3a1a6bc69c90ad96b88c0ba260da6abbd5af120366aeee4fa73dcfeea7d"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "unauthenticated context denied",
+      "status": 401
+    },
+    {
+      "name": "admin cannot impersonate employee",
+      "status": 403
+    },
+    {
+      "name": "employee reads reviewed context",
+      "status": 200
+    },
+    {
+      "name": "scoped handoff admitted",
+      "status": 200
+    },
+    {
+      "name": "exact idempotent replay",
+      "status": 200
+    },
+    {
+      "name": "changed intent conflicts",
+      "status": 409
+    },
+    {
+      "name": "private request denied to other member",
+      "status": 404
+    },
+    {
+      "name": "requesting member reads queued state",
+      "status": 200
+    },
+    {
+      "name": "canonical runner directive is durable",
+      "status": 200
+    }
+  ],
+  "d1RequestCount": 1,
+  "synthetic": true,
+  "externalAction": "none",
+  "limitations": [
+    "No remote KV or D1 mutation",
+    "No deployment or production traffic change",
+    "No provider inference, Hermes execution or live employee acceptance in this smoke"
+  ]
+}
