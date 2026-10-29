@@ -1804,6 +1804,14 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-3110: The authenticated founder and actual admitted operating tenant are verified before explicit binding enrollment; unproved client-specific tenants remain held.
 - [x] ISC-3111: One eligible server-owned pending proposal is renewed and fully reviewed through the 3D Gate with authoritative decision/readback evidence; existing committed receipts remain immutable.
 
+### Growth Will fan-out ledger (2026-10-27)
+
+- [x] ISC-3140: The growth gap analysis and fan-out plan exists in the vault at `20-operations/growth/2026-10-27-growth-gap-fanout.md` and names lanes A..F with per-item done-when and must-not columns.
+- [x] ISC-3141: Every wave receipt for the plan lands under `20-operations/agent-outputs/` or the plan's own Receipt section, dated, without posting anywhere.
+- [ ] ISC-3142: No growth calendar row or cell reaches `approved` without a signed founder decision receipt through the existing Founder Gate path; agents never set the status.
+- [x] ISC-3143: The one-screen approval card contract exists as `department/approval-card-v1.md` reusing the seven-field founder decision envelope, spec only, sending nothing.
+- [x] ISC-3144: The Cortex text seam growth recall probe passes in `bin/operator/cortex-text.test.ts`, proving a cited `labs-context` card stays `projection` with `effectsAuthorized:false`.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -2116,6 +2124,8 @@ ReleaseScope | reviewed91-path source patch plus portable ledger/notes | satisfi
 - `PlexusWhoamiEnvelopeRepair` | Normalize the canonical success envelope at the Cambium adapter boundary, bind the returned session email and cache payload to the verified Access identity, preserve flat compatibility, and separate deterministic promotion proof from the final founder-browser observation | satisfies ISC-746..764 | depends_on PortfolioBrowserFounderRoute | parallelizable false
 
 | Curious Cloudflare rollout | Qualify exact source, preserve live bindings and stage/promote one reviewed UUID | ISC-3072..3087 | Reviewed Curious source | read-only audits parallel; mutations serial |
+
+- `growth-will-fanout` | Ledger the 2026-10-27 growth gap fan-out (lanes A1..A5, B1..B5, C1..C12, D1..D7, E1..E5, F1..F8) against the vault plan without duplicating it | satisfies ISC-3140..3144 | depends_on Authorized Founder Gate rollout (ISC-3107..3111), ProjectCreationIntent | parallelizable false
 
 ## Architecture
 
@@ -2434,6 +2444,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-10-24: refined: PR #396 review keeps draft/source scope; existing UI and Telegram projections must derive the canonical D1 outcome without relying on KV repair. CLI review binding and canonical evidence markers are verified independently; first expired rejections fail closed while historical readback remains available.
 
 - 2026-10-25: refined: KV stale status cannot veto an existing immutable D1 receipt. Permit recovery only after all existing identity, tenant, review and change-set checks plus exact receipt binding; keep stale tasks without matching receipts closed. The legacy endpoint can retain its 409 and KV projection; no writer/repair is added.
+
+- 2026-10-27: growth Will fan-out acceptance is ledgered by the `growth-will-fanout` feature against the vault plan `thoughtseed-labs/20-operations/growth/2026-10-27-growth-gap-fanout.md`; the plan stays the source of lanes and receipts, the ISA holds only the acceptance slice. Approval remains a signed founder decision; the Cortex text seam (5d6f67b) ships via PR with a growth recall probe and no deployment.
 
 ## Changelog
 
