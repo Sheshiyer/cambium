@@ -43,7 +43,8 @@
     { "binding": "CONTEXT_PROJECTIONS", "bucket_name": "thoughtseed-context-projections" }
   ],
   "vectorize": [
-    { "binding": "CAMBIUM_CORTEX", "index_name": "cambium-cortex" }
+    { "binding": "CAMBIUM_CORTEX", "index_name": "cambium-cortex" },
+    { "binding": "CAMBIUM_HERMES_RECEIPTS_V2", "index_name": "cambium-hermes-receipts-v2" }
   ],
   "d1_databases": [
     {
