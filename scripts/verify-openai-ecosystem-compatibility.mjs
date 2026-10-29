@@ -73,6 +73,7 @@ const runtimeSourcePaths = [
   'scripts/probe-openai-mcp-readiness.mjs',
   'scripts/check-openai-mcp-deployment-admission.mjs',
   'workers/cortex-mcp/src/index.ts',
+  'workers/cortex-mcp/src/mcp-http.ts',
   'workers/cortex-mcp/src/openai-auth.ts',
   'workers/cortex-mcp/src/connected-profile.ts',
   'workers/cortex-mcp/src/provenance-read.ts',

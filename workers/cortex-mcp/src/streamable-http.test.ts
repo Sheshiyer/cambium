@@ -154,6 +154,23 @@ test("legacy bearer requests gain only the missing transport Accept header", asy
   const payload = await response.json() as any;
   assert.equal(payload.result.tools.length, 8);
   assert.equal(response.headers.get("access-control-allow-origin"), null);
+  const names = payload.result.tools.map((tool: { name: string }) => tool.name);
+  for (const name of [
+    "taste_cortex_query",
+    "taste_cortex_compose",
+    "taste_cortex_get_blob",
+    "semantic_recall",
+    "organ_atlas_lookup",
+    "capability_hit_evaluate",
+    "cortex_health",
+  ]) {
+    assert.ok(names.includes(name), name);
+  }
+  const metadata = await worker.fetch(
+    new Request("https://cortex.example.com/.well-known/oauth-protected-resource/mcp"),
+    baseEnv() as any,
+  );
+  assert.equal(metadata.status, 404);
 });
 
 test("OAuth requests must satisfy the Streamable HTTP Accept contract", async () => {

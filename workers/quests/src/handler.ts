@@ -3325,12 +3325,16 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     return json(503, { error: 'mission fabric authority is not configured' });
   }
 
+  let authorityStage: 'store_read' | 'ledger' | 'projection' | 'foldback' = 'store_read';
   try {
     const head = await deps.goalGraphStore.readHead(tenant);
     if (!head) return json(404, { error: 'mission fabric graph not found' });
     const nodes = await deps.goalGraphStore.readNodes(tenant);
+    authorityStage = 'ledger';
     const storedEnvelope = parseStoredEnvelope(await deps.kv.get(ledgerKey(tenant))) as Record<string, unknown> | null;
+    authorityStage = 'store_read';
     const receipts = await deps.branchMapReceiptStore.listReceipts(tenant, undefined, BRANCH_MAP_RECEIPT_READ_LIMIT);
+    authorityStage = 'projection';
 
     const servedAt = deps.now ? deps.now() : new Date().toISOString();
     if (fabricTimestampMs(servedAt) === null) return json(503, { error: 'mission_fabric_clock_invalid' });
@@ -3385,6 +3389,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     ));
     const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
 
+    authorityStage = 'foldback';
     const foldbackReferences: any[] = isRecord(storedEnvelope) && Array.isArray(storedEnvelope.foldbackReceipts) ? storedEnvelope.foldbackReceipts : [];
     if (!foldbackReferences.length && deps.foldbackReader?.discover) {
       const discovered = await discoverMissionFoldbackReferences({ tenantId: tenant, graphVersion: head.graphVersion, nodes, reader: deps.foldbackReader });
@@ -3401,6 +3406,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       mergedGaps.push({ gapId: 'gap-foldback-reader', kind: 'accepted-result-unavailable', subjectId: null,
         detail: 'Immutable foldback references and the trusted readback consumer are required; no semantic acceptance is inferred.', evidenceRef: null });
     }
+    authorityStage = 'projection';
 
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
@@ -3581,7 +3587,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       body: JSON.stringify(body),
     };
   } catch {
-    return json(503, { error: 'mission_fabric_authority_unavailable' });
+    return json(503, { error: 'mission_fabric_authority_unavailable', reason: authorityStage });
   }
 }
 
