@@ -108,7 +108,7 @@
     {
       "path": "workers/cortex-mcp/src/mcp-http.ts",
       "role": "mcp-streamable-http-transport",
-      "digest": "sha256:1d1276794c91e3098269bb8cdc3fee122c2782b09b672794bde9f5de54d01231"
+      "digest": "sha256:ed4f2414b4b39984834f57ba919860fa4f104f43f6c741720a65e685cde47db9"
     },
     {
       "path": "workers/cortex-mcp/src/openai-auth.ts",
@@ -128,7 +128,7 @@
     {
       "path": "workers/cortex-mcp/src/gate-action.ts",
       "role": "mcp-gate-action-adapter",
-      "digest": "sha256:984f41992cc50758885b79f0fe6f75e6b57d8d38980096bb6341bb2983360349"
+      "digest": "sha256:dea6d0ff662c3b2b1b0f6f0a851d6d2d482b99b6c7f4e3cd517e61e82588addb"
     },
     {
       "path": "workers/cortex-mcp/package.json",
@@ -153,7 +153,7 @@
     {
       "path": "workers/quests/src/mcp-gate-action.ts",
       "role": "immutable-mcp-approval-and-receipt-core",
-      "digest": "sha256:49579c62d1916365f0a2a60e56126db4b11b548820637ed2a471fdb0b01b7ede"
+      "digest": "sha256:7db5c8ecd5bafcdc4dce97096ce8f625639b7e686c1aa24371375d4ea865c4da"
     }
   ],
   "payload_digest": {

@@ -298,6 +298,21 @@ test("Gate unavailability, oversized responses, and deadlines fail without refle
   );
 });
 
+test("compile accepts the Goal Graph intake idempotency key", async () => {
+  const contentDigest = `sha256:${"c".repeat(64)}`;
+  const idempotencyKey = `telegram:goal-graph-intent:v1:cambium:-1001234567890:1234567:${contentDigest}`;
+  assert.equal(idempotencyKey.length, 132);
+  const compiled = await compileActionIntent({ ...input, idempotency_key: idempotencyKey }, identity, NOW);
+  assert.equal(compiled.idempotency_key, idempotencyKey);
+  const longest = `telegram:goal-graph-intent:v1:${"a".repeat(64)}:${"b".repeat(256)}:${"d".repeat(256)}:${contentDigest}`;
+  assert.equal(longest.length, 680);
+  assert.equal((await compileActionIntent({ ...input, idempotency_key: longest }, identity, NOW)).idempotency_key, longest);
+  await assert.rejects(
+    compileActionIntent({ ...input, idempotency_key: `${longest}e` }, identity, NOW),
+    (error: any) => error instanceof GateActionError && error.code === "bad_idempotency_key",
+  );
+});
+
 test("expired execute still reaches Gate and accepts the stored duplicate receipt", async () => {
   const expiredInput = { ...input, expiry: "2026-09-30T03:59:59.999Z" };
   const compiled = await compileActionIntent(expiredInput, identity, NOW, { allowExpired: true });

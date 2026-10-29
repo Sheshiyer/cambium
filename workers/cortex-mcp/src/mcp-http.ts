@@ -237,7 +237,7 @@ const ACTION_INPUT = {
     graph_version: { type: "integer", minimum: 0 },
     nonce: { type: "string", minLength: 8, maxLength: 128 },
     expiry: { type: "string", format: "date-time" },
-    idempotency_key: { type: "string", minLength: 3, maxLength: 128 },
+    idempotency_key: { type: "string", minLength: 3, maxLength: 680 },
   },
 };
 
