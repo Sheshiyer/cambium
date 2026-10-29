@@ -89,6 +89,7 @@ interface Env {
   GATE_FOUNDER_IDS?: string;
   GATE_TG_PUBKEY?: string;
   BRIDGE_TOKEN?: string;
+  MCP_GATE_ADAPTER_TOKEN?: string;
   HERMES_ASSIGNMENT_TOKEN?: string;
   IVERIF_READ_TOKEN?: string;
   EXPLEE_API_KEY?: string;
@@ -1459,6 +1460,7 @@ export default {
       pushToken: env.QUESTS_PUSH_TOKEN,
       gate,
       bridgeToken: env.BRIDGE_TOKEN,
+      mcpGateAdapterToken: env.MCP_GATE_ADAPTER_TOKEN,
       assignmentToken: env.HERMES_ASSIGNMENT_TOKEN,
       roleTaskBindingsJson: env.HERMES_ROLE_TASK_BINDINGS_JSON,
       bridgeStore: env.BRIDGE_DB ? d1BridgeStore(env.BRIDGE_DB) : undefined,

@@ -497,3 +497,90 @@ test('non-finite authoritative fences fail closed', async () => {
   const survivingRuns = unverifiable.json.projection.nodes.filter((node: { kind: string }) => node.kind === 'run');
   assert.deepEqual(survivingRuns, []);
 });
+
+async function authorityFailure(mutate: (deps: HandlerDeps) => void): Promise<{ status: number; json: any; raw: string }> {
+  const auth = await signedInitData();
+  const { deps } = fabricDeps({
+    initData: auth.initData,
+    pubKeyHex: auth.pubKeyHex,
+    allowlist: [TENANT],
+  });
+  mutate(deps);
+  const response = await handle({
+    method: 'GET',
+    path: `/v1/mission-fabric/${TENANT}`,
+    headers: { 'x-telegram-init-data': auth.initData },
+  }, deps);
+  const raw = typeof response.body === 'string' ? response.body : '';
+  return { status: response.status, json: raw.startsWith('{') ? JSON.parse(raw) : null, raw };
+}
+
+function assertAuthorityReason(result: { status: number; json: any; raw: string }, reason: string, leaked: string) {
+  assert.equal(result.status, 503);
+  assert.deepEqual(result.json, { error: 'mission_fabric_authority_unavailable', reason });
+  assert.equal(result.raw.includes(leaked), false);
+}
+
+test('mission fabric authority failures name the stage and omit the exception', async () => {
+  const head = await authorityFailure((deps) => {
+    deps.goalGraphStore!.readHead = async () => { throw new Error('head-read-secret'); };
+  });
+  assertAuthorityReason(head, 'store_read', 'head-read-secret');
+
+  const nodes = await authorityFailure((deps) => {
+    deps.goalGraphStore!.readNodes = async () => { throw new Error('node-read-secret'); };
+  });
+  assertAuthorityReason(nodes, 'store_read', 'node-read-secret');
+
+  const receipts = await authorityFailure((deps) => {
+    deps.branchMapReceiptStore!.listReceipts = async () => { throw new Error('receipt-list-secret'); };
+  });
+  assertAuthorityReason(receipts, 'store_read', 'receipt-list-secret');
+
+  const ledger = await authorityFailure((deps) => {
+    deps.kv.get = async () => { throw new Error('ledger-get-secret'); };
+  });
+  assertAuthorityReason(ledger, 'ledger', 'ledger-get-secret');
+
+  const projection = await authorityFailure((deps) => {
+    deps.now = () => { throw new Error('projection-clock-secret'); };
+  });
+  assertAuthorityReason(projection, 'projection', 'projection-clock-secret');
+
+  const foldback = await authorityFailure((deps) => {
+    const readEnvelope = deps.kv.get.bind(deps.kv);
+    deps.kv.get = async (key) => {
+      const raw = await readEnvelope(key);
+      if (typeof raw !== 'string') return raw;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      parsed.foldbackReceipts = [{ r2Key: 'r2://bad', binding: {} }];
+      return JSON.stringify(parsed);
+    };
+    deps.foldbackReader = {
+      async read() { return null; },
+      async discover() { return []; },
+    };
+  });
+  assertAuthorityReason(foldback, 'foldback', 'invalid foldback reference');
+
+  const discovered = await authorityFailure((deps) => {
+    const readNodes = deps.goalGraphStore!.readNodes.bind(deps.goalGraphStore);
+    deps.goalGraphStore!.readNodes = async (tenantId) => {
+      const rows = await readNodes(tenantId);
+      return rows.map((node, index) => index === 0 ? {
+        ...node,
+        workObjectId: 'work-fabric',
+        workObjectKind: 'sapling' as const,
+        pinnedLoadoutId: 'loadout-a1',
+      } : node);
+    };
+    deps.foldbackReader = {
+      async discover() { throw new Error('discover-secret'); },
+      async read() { return null; },
+    };
+  });
+  assert.equal(discovered.status, 200);
+  assert.equal(discovered.raw.includes('discover-secret'), false);
+  const gapKinds = discovered.json.projection.gaps.map((gap: { kind: string }) => gap.kind);
+  assert.ok(gapKinds.includes('foldback-discovery-held'));
+});
