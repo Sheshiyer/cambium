@@ -4,6 +4,11 @@ Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsy
 
 # Project handoff
 
+### 2026-10-27 growth approval decision — B2 draft, source only
+
+- Growth fan-out B2: the founder approval card now has a signed Curious Gate path. `POST /v1/founder/growth/{proposal,decision,status}` reuse the seven-field envelope, bindings, identity host and D1 store; the subject is the growth row digest (cell path, calendar row id, body digest). A signed approve writes one `goal_graph_approvals` row with `kind: growth-approval` and nothing else; tests count Goal Graph commit/reject, task reads, KV writes and `fetch` at zero. No migration, no proposal creation, no Telegram render, no vault write. Contract: `docs/architecture/contracts/growth-approval-decision-v1.md`. Draft PR only; no deployment.
+
+
 ### 2026-10-26 worktree and branch reconciliation — one working head
 
 - Collapsed 34 registered worktrees (22 GB) and 44 local branches to the primary checkout on `main == origin/main` (`3e334e8`), two open draft branches (#391, #397), and four local preservation branches. Local `main` had sat at `37309d4` since 2026-10-06; merge-tree against origin showed only journal lines left, so it was tagged `archive/2026-10-26/local-main` and reset. `origin/main` was not moved, no remote branch was deleted, no draft was merged.
