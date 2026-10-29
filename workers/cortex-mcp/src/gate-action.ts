@@ -245,11 +245,14 @@ export async function compileActionIntent(
   rawInput: GateActionCompileInput,
   identity: GateActionIdentity,
   nowEpochMs = Date.now(),
+  options?: { allowExpired?: boolean },
 ) {
   validateIdentity(identity);
   const input = validateCompileInput(rawInput);
   const expiryEpochMs = exactTimestamp(input.expiry, "expiry");
-  if (expiryEpochMs <= nowEpochMs) fail("approval_expired", "approval tuple has expired");
+  if (expiryEpochMs <= nowEpochMs && options?.allowExpired !== true) {
+    fail("approval_expired", "approval tuple has expired");
+  }
   if (expiryEpochMs - nowEpochMs > MAX_APPROVAL_WINDOW_MS) {
     fail("approval_window_too_long", "approval tuple exceeds the maximum validity window");
   }
@@ -463,7 +466,7 @@ export async function executeApprovedAction(
     nonce: input.nonce,
     expiry: input.expiry,
     idempotency_key: input.idempotency_key,
-  }, identity, nowEpochMs);
+  }, identity, nowEpochMs, { allowExpired: true });
   const requestBody = {
     schema: "cambium.mcp.gate_action_request.v1",
     intent,

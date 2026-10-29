@@ -297,3 +297,51 @@ test("Gate unavailability, oversized responses, and deadlines fail without refle
     (error: any) => error?.code === "malformed_receipt",
   );
 });
+
+test("expired execute still reaches Gate and accepts the stored duplicate receipt", async () => {
+  const expiredInput = { ...input, expiry: "2026-09-30T03:59:59.999Z" };
+  const compiled = await compileActionIntent(expiredInput, identity, NOW, { allowExpired: true });
+  const payload = {
+    schema: "cambium.gate.action_response.v1",
+    status: "duplicate",
+    receipt: {
+      schema: "cambium.gate.action_receipt.v1",
+      tenant: compiled.tenant,
+      actor: compiled.actor,
+      plugin_identity: compiled.plugin_identity,
+      mcp_identity: compiled.mcp_identity,
+      issuer: compiled.issuer,
+      action_kind: compiled.action_kind,
+      argument_digest: compiled.argument_digest,
+      action_digest: compiled.action_digest,
+      graph_version: compiled.graph_version,
+      nonce: compiled.nonce,
+      expiry: compiled.expiry,
+      idempotency_key: compiled.idempotency_key,
+      approval_digest: APPROVAL,
+      mutation_count: 1,
+      terminal_outcome: "accepted",
+      receipt_digest: RECEIPT,
+      authoritative_readback: {
+        schema: "cambium.gate.authoritative_readback.v1",
+        tenant: compiled.tenant,
+        actor: compiled.actor,
+        action_digest: compiled.action_digest,
+        graph_version: compiled.graph_version,
+        terminal_outcome: "accepted",
+        receipt_digest: RECEIPT,
+      },
+    },
+  };
+  let fetched = false;
+  const result = await executeApprovedAction(
+    bindingFor(payload, 200, () => { fetched = true; }),
+    { ...expiredInput, approval_digest: APPROVAL },
+    identity,
+    NOW,
+  );
+  assert.equal(fetched, true);
+  assert.equal(result.status, "duplicate");
+  assert.equal(result.expiry, expiredInput.expiry);
+  assert.equal(result.receipt_digest, RECEIPT);
+});

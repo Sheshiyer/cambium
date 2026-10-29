@@ -108,7 +108,7 @@
     {
       "path": "workers/cortex-mcp/src/mcp-http.ts",
       "role": "mcp-streamable-http-transport",
-      "digest": "sha256:d8b4df8de5a869bcfaff79bb78dadef01607928b14c6046618c57e9917fa4279"
+      "digest": "sha256:1d1276794c91e3098269bb8cdc3fee122c2782b09b672794bde9f5de54d01231"
     },
     {
       "path": "workers/cortex-mcp/src/openai-auth.ts",
@@ -128,7 +128,7 @@
     {
       "path": "workers/cortex-mcp/src/gate-action.ts",
       "role": "mcp-gate-action-adapter",
-      "digest": "sha256:572d7ebb984895fb89909eec3aa67fe77859668a7b85648fdfa23d435b4b8309"
+      "digest": "sha256:984f41992cc50758885b79f0fe6f75e6b57d8d38980096bb6341bb2983360349"
     },
     {
       "path": "workers/cortex-mcp/package.json",
@@ -143,12 +143,12 @@
     {
       "path": "workers/quests/src/index.ts",
       "role": "gate-service-binding-runtime-glue",
-      "digest": "sha256:37044af4f5ae6d908327bc28af31d9e4e78dfb07243fac0881d0590b9c03bdb2"
+      "digest": "sha256:5ed07ec33431f5d3e1e9a934a94612658dc8185a35f32827e8457b1eed5f1e70"
     },
     {
       "path": "workers/quests/src/handler.ts",
       "role": "founder-approval-and-goal-graph-execution-routes",
-      "digest": "sha256:85ba5d7bb062808d4a33574f49bfae15d11ac3e1e8bcafe31a037ccbcbcc6856"
+      "digest": "sha256:8be86bbb4e3042034e906bdc5ab81ba114d4440523828d390b4e41af60454e74"
     },
     {
       "path": "workers/quests/src/mcp-gate-action.ts",

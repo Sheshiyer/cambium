@@ -308,4 +308,9 @@ test("OAuth tools advertise read-only annotations and matching security schemes"
   const infiniteGameRead = payload.result.tools.find((tool: any) => tool.name === "read_infinite_game_node");
   assert.ok(infiniteGameRead.outputSchema);
   assert.equal(infiniteGameRead.outputSchema.additionalProperties, false);
+  for (const field of ["node_kind", "node_id", "source_authority", "source_reference", "source_version", "graph_version", "content_digest", "freshness", "omissions", "body"]) {
+    assert.ok(infiniteGameRead.outputSchema.properties[field], field);
+  }
+  assert.equal(infiniteGameRead.outputSchema.properties.freshness.additionalProperties, false);
+  assert.equal(infiniteGameRead.outputSchema.properties.omissions.maxItems, 32);
 });
