@@ -1,0 +1,484 @@
+{
+  "schema": "cambium.openai-compatibility.v1",
+  "import_version": "v1",
+  "packet_root": "openai/cambium-infinite-game",
+  "plugin_manifest": {
+    "path": "openai/cambium-infinite-game/plugin.json",
+    "plugin_schema_url": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+    "name": "cambium-infinite-game",
+    "version": "1.9.0"
+  },
+  "portable_skill": {
+    "path": "openai/cambium-infinite-game/skills/cambium-infinite-game/SKILL.md",
+    "discovery": "skills/<skill-name>/SKILL.md",
+    "note": "Portable Agent Plugins 1.0 clients discover skills only at the fixed skills/<skill-name>/SKILL.md path relative to the packet root."
+  },
+  "distribution": {
+    "channel": "closed",
+    "marketplace": {
+      "path": ".agents/plugins/marketplace.json",
+      "digest": "sha256:7d03756133809654936b5ff678d49f704b3d6e06df585bbfc2e4f64bc4d154bd",
+      "marketplace_name": "thoughtseed-cambium",
+      "plugin_name": "cambium-infinite-game",
+      "source_kind": "local",
+      "local_path": "./openai/cambium-infinite-game"
+    },
+    "sync": "admin-controlled",
+    "status": "source-only-unverified",
+    "notes": "The Agent Plugins marketplace file lives at the exact repository-relative path above and is treated as read-only input by this packet. Distribution is a closed channel: one entry with required AVAILABLE/ON_INSTALL policy metadata and Productivity category, workspace-admin-controlled sync into the exact approved workspace, no public listing, no pluginId/url/ref/branch. Source-only unverified means the marketplace file, plugin.json, and portable skill are reviewed in source; workspace enablement, admin-controlled sync, and downstream installation remain separately owner-approved through live-gate receipts (dot-entitlement, workspace-admin-enablement, plugin-connection, marketplace-import)."
+  },
+  "sources": [
+    {
+      "path": "openai/cambium-infinite-game/plugin.json",
+      "role": "agent-plugins-1.0-manifest",
+      "digest": "sha256:7a869f2748b56e5d7b74819e40bcdca4be6f02b461a96b5e36f7b2e2faa8be36"
+    },
+    {
+      "path": "openai/cambium-infinite-game/mcp.json",
+      "role": "portable-mcp-streamable-http-descriptor",
+      "digest": "sha256:9a0111f1e1da675b588c77cc686f4fc07c56171af9ecb5418ac32cad2b0ef30a"
+    },
+    {
+      "path": "openai/cambium-infinite-game/import/v1/instructions/cambium-infinite-game.md",
+      "role": "reviewed-project-instructions",
+      "digest": "sha256:e16c431cc6163fd5df97ce0a00147225ea21eda66b54f13ee3390ae77a9877c1"
+    },
+    {
+      "path": "openai/cambium-infinite-game/skills/cambium-infinite-game/SKILL.md",
+      "role": "portable-reusable-skill",
+      "digest": "sha256:76249d7cfc1907503b0fabe7aa62e1342338ce37a4728c21722f7ed9a8b0f56a"
+    },
+    {
+      "path": "openai/cambium-infinite-game/skills/cambium-infinite-game/scripts/dot-runtime.mjs",
+      "role": "portable-dot-runtime-compiler",
+      "digest": "sha256:119fa994b0d6bf3210708d92e94d37c605e0530c4d599562b042bab9821b0d08"
+    },
+    {
+      "path": "openai/cambium-infinite-game/skills/cambium-infinite-game/references/dot-operating-contract.md",
+      "role": "dot-runtime-operating-contract",
+      "digest": "sha256:356afe813f23a7439c49b7b69497680a68262f7387321b3fb4de050518139111"
+    },
+    {
+      "path": "openai/cambium-infinite-game/skills/cambium-infinite-game/references/mcp-read-contract.md",
+      "role": "mcp-provenance-read-contract",
+      "digest": "sha256:eee4f76bad3cc8ae4cbfa52ea58950dbb11dde3728cf4a4897f93eeb93063341"
+    },
+    {
+      "path": "openai/cambium-infinite-game/skills/cambium-infinite-game/references/mcp-action-contract.md",
+      "role": "mcp-gate-action-contract",
+      "digest": "sha256:38bdd777d37a91dc48c8ff3d0fc331acea3e4a570a162da1f1119834ec44f80f"
+    },
+    {
+      "path": "openai/cambium-infinite-game/skills/cambium-infinite-game/references/connected-profile-contract.md",
+      "role": "oauth-connected-profile-contract",
+      "digest": "sha256:f4e06cd2336d4063570c8f4a99f5225de51462f0f7b79ab06f9b563e435c33e5"
+    },
+    {
+      "path": "openai/cambium-infinite-game/deployment-admission.policy.json",
+      "role": "redacted-openai-mcp-deployment-admission-policy",
+      "digest": "sha256:bf96988e3f88af798347871aa7563bb514f859a3eb81aee6b187666a3dca39c5"
+    },
+    {
+      "path": "openai/cambium-infinite-game/live-gates/README.md",
+      "role": "live-gate-evidence-index",
+      "digest": "sha256:99f8ccdde49d58befea1ccebc7e57a859a58c54b925ea2cd615d0bfd04cb5ed3"
+    },
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "role": "agent-plugins-marketplace-index",
+      "digest": "sha256:7d03756133809654936b5ff678d49f704b3d6e06df585bbfc2e4f64bc4d154bd"
+    }
+  ],
+  "runtime_sources": [
+    {
+      "path": "scripts/probe-openai-mcp-readiness.mjs",
+      "role": "credential-free-live-mcp-readiness-probe",
+      "digest": "sha256:d4f81f016116ee70337f73c7ffb215b3f75615bf824e23b261d9221732ca65a0"
+    },
+    {
+      "path": "scripts/check-openai-mcp-deployment-admission.mjs",
+      "role": "redacted-deployment-snapshot-admission-checker",
+      "digest": "sha256:67fd2252a6638794623ea3ff5dc0186208d7e6f901047f725ecd935f0f3aa0ae"
+    },
+    {
+      "path": "workers/cortex-mcp/src/index.ts",
+      "role": "mcp-streamable-http-server",
+      "digest": "sha256:3d20935227f08133dbfc94e744250f76e911a1f9efef153ecd01236e38ad79c1"
+    },
+    {
+      "path": "workers/cortex-mcp/src/mcp-http.ts",
+      "role": "mcp-streamable-http-transport",
+      "digest": "sha256:ed4f2414b4b39984834f57ba919860fa4f104f43f6c741720a65e685cde47db9"
+    },
+    {
+      "path": "workers/cortex-mcp/src/openai-auth.ts",
+      "role": "mcp-oauth-resource-server",
+      "digest": "sha256:befcc4f9448d9a6244b12155c0854e240c3380d40c3e6ae3235e0c98938b068f"
+    },
+    {
+      "path": "workers/cortex-mcp/src/connected-profile.ts",
+      "role": "oauth-connected-profile-identity-deriver",
+      "digest": "sha256:320a2955dcaaa56c8f386c2cb748d8a833f0cfe79937f8208868cf19e27b325c"
+    },
+    {
+      "path": "workers/cortex-mcp/src/provenance-read.ts",
+      "role": "mcp-provenance-envelope-validator",
+      "digest": "sha256:06f81db0ce74b97251dd5c48f7d23fc710bd2ad3e53b5a6f4e42fa18b135a2b4"
+    },
+    {
+      "path": "workers/cortex-mcp/src/gate-action.ts",
+      "role": "mcp-gate-action-adapter",
+      "digest": "sha256:dea6d0ff662c3b2b1b0f6f0a851d6d2d482b99b6c7f4e3cd517e61e82588addb"
+    },
+    {
+      "path": "workers/cortex-mcp/package.json",
+      "role": "mcp-production-dependency-policy",
+      "digest": "sha256:606168fe57256e06415759f09ff467421a123f6bf42934a840acf7992125fa78"
+    },
+    {
+      "path": "workers/cortex-mcp/package-lock.json",
+      "role": "mcp-resolved-dependency-graph",
+      "digest": "sha256:c3638b6927f44ee94784df8a57c0f2c18a5b24a7302cf71d8b6a4f9bf6863340"
+    },
+    {
+      "path": "workers/quests/src/index.ts",
+      "role": "gate-service-binding-runtime-glue",
+      "digest": "sha256:5ed07ec33431f5d3e1e9a934a94612658dc8185a35f32827e8457b1eed5f1e70"
+    },
+    {
+      "path": "workers/quests/src/handler.ts",
+      "role": "founder-approval-and-goal-graph-execution-routes",
+      "digest": "sha256:8be86bbb4e3042034e906bdc5ab81ba114d4440523828d390b4e41af60454e74"
+    },
+    {
+      "path": "workers/quests/src/mcp-gate-action.ts",
+      "role": "immutable-mcp-approval-and-receipt-core",
+      "digest": "sha256:7db5c8ecd5bafcdc4dce97096ce8f625639b7e686c1aa24371375d4ea865c4da"
+    }
+  ],
+  "payload_digest": {
+    "algorithm": "sha256-sorted-path-digest-v1",
+    "digest": "sha256:d0921cf75ccde8da5ca688e8eef8352d0bae58bed9f1e0a6e56652a8012f669f",
+    "covers": [
+      "openai/cambium-infinite-game/plugin.json",
+      "openai/cambium-infinite-game/mcp.json",
+      "openai/cambium-infinite-game/import/v1/instructions/cambium-infinite-game.md",
+      "openai/cambium-infinite-game/skills/cambium-infinite-game/SKILL.md",
+      "openai/cambium-infinite-game/skills/cambium-infinite-game/scripts/dot-runtime.mjs",
+      "openai/cambium-infinite-game/skills/cambium-infinite-game/references/dot-operating-contract.md",
+      "openai/cambium-infinite-game/skills/cambium-infinite-game/references/mcp-read-contract.md",
+      "openai/cambium-infinite-game/skills/cambium-infinite-game/references/mcp-action-contract.md",
+      "openai/cambium-infinite-game/skills/cambium-infinite-game/references/connected-profile-contract.md",
+      "openai/cambium-infinite-game/deployment-admission.policy.json",
+      "openai/cambium-infinite-game/live-gates/README.md",
+      ".agents/plugins/marketplace.json"
+    ],
+    "notes": "Deterministic, non-self-referential core payload digest for source drift checks. Computed by sorting the covered (path, digest) pairs by path (byte-lexicographic) and hashing each entry as path||0x00||digest||0x00 into a single sha256. It is not the marketplace-import identity. The import receipt instead binds the verifier's runtime-computed packet digest over every file in the complete plugin directory, including this compatibility manifest."
+  },
+  "capabilities": {
+    "note": "Compatibility-only capability declarations. These do not appear in the portable plugin.json (Agent Plugins 1.0 forbids custom tools/mcp metadata at manifest root). They describe the read and Gate-backed action boundary implemented by the digest-bound Cortex runtime.",
+    "read": [
+      {
+        "name": "get_connected_profile",
+        "classification": "read",
+        "writer_authority": false,
+        "resource": "cambium://connected-profile",
+        "tenant_binding": "none:identity-is-derived-from-verified-oauth-issuer-and-subject",
+        "credential_owner": "runtime-selected-oauth-issuer",
+        "approval_requirement": "none",
+        "idempotency": "safe-repeat:stable-while-profile-key-is-unchanged",
+        "terminal_receipt": "none:profile-recognition-grants-no-authority",
+        "description": "Return only one stable opaque ID for the already verified OAuth principal. The tool accepts empty input, discloses no raw identity or credential material, and grants no tenant, founder, approval, execution, writer, or canonical-completion authority.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^prf_[a-f0-9]{64}$" },
+            "name": { "type": "string" },
+            "email": { "type": "string" },
+            "nickname": { "type": "string" }
+          }
+        },
+        "openai_profile": true
+      },
+      {
+        "name": "read_infinite_game_node",
+        "classification": "read",
+        "writer_authority": false,
+        "resource": "cambium://infinite-game",
+        "tenant_binding": "verified-token-claim-or-legacy-allowlist",
+        "credential_owner": "runtime-selected-oauth-issuer-or-hermes-route",
+        "approval_requirement": "none",
+        "idempotency": "safe-repeat",
+        "terminal_receipt": "none:read-envelope-is-not-canonical-completion",
+        "description": "Return a bounded tenant-scoped envelope for one canonical infinite-game node (Vision, Mission, ISA criterion, GSD task, D1 task, run, receipt, or Cortex learning reference) with source authority, source reference, content digest, graph or version reference when applicable, freshness, and omission or redaction metadata.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tenant", "node_kind", "node_id"],
+          "properties": {
+            "tenant": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$", "minLength": 2, "maxLength": 64 },
+            "node_kind": {
+              "type": "string",
+              "enum": ["vision", "mission", "isa_criterion", "gsd_task", "d1_task", "run", "receipt", "cortex_learning"]
+            },
+            "node_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+            "graph_version": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "max_bytes": { "type": "integer", "minimum": 1, "maximum": 65536 }
+          }
+        }
+      }
+    ],
+    "approval_gated_actions": [
+      {
+        "name": "compile_action_intent",
+        "classification": "approval-gated-action",
+        "writer_authority": false,
+        "approval_requirement": "founder-oauth-action-scope;execution-separately-approved",
+        "idempotency": "safe-repeat;canonical-arguments-produce-stable-digest",
+        "terminal_receipt": "none:compiled-intent-is-not-authorization-or-completion",
+        "description": "Compile, but do not execute, an exact founder-bound action intent. Cortex derives actor, plugin identity, MCP identity, issuer, and canonical argument digest from verified OAuth context. No operational write occurs; a separate Gate-issued approval is required before execution.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenant",
+            "action_kind",
+            "arguments",
+            "graph_version",
+            "nonce",
+            "expiry",
+            "idempotency_key"
+          ],
+          "properties": {
+            "tenant": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$" },
+            "action_kind": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "arguments": { "type": "object" },
+            "graph_version": { "type": "integer", "minimum": 0 },
+            "nonce": { "type": "string", "minLength": 8, "maxLength": 128 },
+            "expiry": { "type": "string", "format": "date-time" },
+            "idempotency_key": { "type": "string", "minLength": 3, "maxLength": 128 }
+          }
+        }
+      },
+      {
+        "name": "request_action_approval",
+        "classification": "approval-gated-action",
+        "writer_authority": false,
+        "approval_requirement": "creates-review-request;founder-signature-still-required",
+        "idempotency": "safe-repeat;exact-replay-returns-original-request;changed-replay-conflicts",
+        "terminal_receipt": "none:review-request-is-not-authorization-or-completion",
+        "description": "Persist one exact compiled action for founder review through the token-authenticated Gate adapter. Quests validates the server-owned target and projects a redacted Telegram Gate row. No D1 write occurs.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tenant", "action_kind", "arguments", "graph_version", "nonce", "expiry", "idempotency_key"],
+          "properties": {
+            "tenant": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$" },
+            "action_kind": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "arguments": { "type": "object" },
+            "graph_version": { "type": "integer", "minimum": 0 },
+            "nonce": { "type": "string", "minLength": 8, "maxLength": 128 },
+            "expiry": { "type": "string", "format": "date-time" },
+            "idempotency_key": { "type": "string", "minLength": 3, "maxLength": 128 }
+          }
+        }
+      },
+      {
+        "name": "get_action_approval_status",
+        "classification": "approval-gated-action",
+        "writer_authority": false,
+        "approval_requirement": "reads-founder-review-state-only",
+        "idempotency": "safe-repeat",
+        "terminal_receipt": "none:status-is-not-canonical-completion",
+        "description": "Read awaiting, approved, executed, or expired state for the exact compiled tuple. This tool performs no review, approval, or operational write.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tenant", "action_kind", "arguments", "graph_version", "nonce", "expiry", "idempotency_key"],
+          "properties": {
+            "tenant": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$" },
+            "action_kind": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "arguments": { "type": "object" },
+            "graph_version": { "type": "integer", "minimum": 0 },
+            "nonce": { "type": "string", "minLength": 8, "maxLength": 128 },
+            "expiry": { "type": "string", "format": "date-time" },
+            "idempotency_key": { "type": "string", "minLength": 3, "maxLength": 128 }
+          }
+        }
+      },
+      {
+        "name": "execute_approved_action",
+        "classification": "approval-gated-action",
+        "writer_authority": false,
+        "approval_requirement": "exact-founder-gate-approval",
+        "idempotency": "replay-safe;identical-replay-returns-original-receipt;changed-replay-conflicts",
+        "terminal_receipt": "required:matching-authoritative-readback",
+        "description": "Recompile the exact verified founder identity and arguments, bind one Telegram founder-signed Gate approval digest, and submit the tuple only through the token-authenticated MCP_GATE_ADAPTER service binding. Quests invokes the existing Goal Graph CAS writer. Success requires exactly one mutation and matching authoritative readback; Cortex has no D1 binding.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenant",
+            "action_kind",
+            "arguments",
+            "graph_version",
+            "nonce",
+            "expiry",
+            "idempotency_key",
+            "approval_digest"
+          ],
+          "properties": {
+            "tenant": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$" },
+            "action_kind": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "arguments": { "type": "object" },
+            "graph_version": { "type": "integer", "minimum": 0 },
+            "nonce": { "type": "string", "minLength": 8, "maxLength": 128 },
+            "expiry": { "type": "string", "format": "date-time" },
+            "idempotency_key": { "type": "string", "minLength": 3, "maxLength": 128 },
+            "approval_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+          }
+        }
+      }
+    ],
+    "authority_preservation": "The D1 Goal Graph remains the sole canonical operational writer. ISA remains the acceptance authority. GSD remains the planning authority. Hermes remains the delivery authority. Cortex reads, compiles non-writing intents, requests and reads founder review state, and submits only separately approved exact tuples to Cambium Gate; it has no D1 binding.",
+    "mcp": {
+      "boundary": "stateless-read-plus-gate-adapter",
+      "endpoint_status": "declared-source-live-oauth-held",
+      "root_mcp_json_present": true,
+      "notes": "The portable mcp.json declares the exact credential-free Streamable HTTP connection intent. It is not live-operability proof. The public edge currently answers health but does not yet expose the reviewed OAuth protected-resource metadata, Allow: POST contract, public MCP initialize, or six-tool discovery contract; owner-approved deployment, authentication, connection, readback, and rollback receipts remain required (ISC-2476, ISC-2480, ISC-2482). The six required tools are the connected-profile identity read, infinite-game provenance read, and four Gate action lifecycle tools. The digest-bound source runtime implements bounded reads plus the Gate-backed action lifecycle. Cortex never writes D1 directly."
+    },
+    "auth": {
+      "type": "oauth-resource-server-seams-in-source",
+      "notes": "The source runtime validates issuer, audience, expiry, scopes, subject, plugin client identity, and tenant claims through an injected verifier. Action tools require a dedicated action scope and founder allowlist. Live issuer, verifier, client registration, secrets, and endpoint configuration remain separate owner-approved steps."
+    }
+  },
+  "official_openai_docs": [
+    {
+      "url": "https://learn.chatgpt.com/docs/dots",
+      "covers": "Dots — the persistent workspace surface that hosts this plugin's context. Establishes the surface identity and its persistence boundary."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/dots/channels",
+      "covers": "Dot channels. Establishes that ChatGPT, Slack, and Teams are distinct visible destinations and that connecting a channel does not authorize cross-channel fallback or monitoring."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/dots/tasks-and-memory",
+      "covers": "How dots handle tasks and memory. Anchors the boundary between compiled action intents and persistent memory, and forbids raw prompt/response persistence (ISC-2491)."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/dots/computers-and-apps",
+      "covers": "How dots relate to computers and apps. Referenced only to place this plugin's private, workspace-scoped surface; this packet does not declare an app manifest."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/dots/controls",
+      "covers": "Workspace controls governing dot availability, private plugin visibility, and admin enablement. Backs the workspace-admin-enablement live gate (ISC-2476)."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/skills-and-plugins",
+      "covers": "Skills and plugins — canonical shape for the portable Agent Plugins 1.0 manifest and the fixed skills/<skill-name>/SKILL.md discovery path used by this packet."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/import",
+      "covers": "Import versioning boundary used by this packet's import_version=v1 contract for reviewed project instructions."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/extend/mcp",
+      "covers": "Extending with MCP. Backs the portable root mcp.json Streamable HTTP descriptor while endpoint authentication, discovery, deployment parity, and connection remain separately evidenced by owner-approved live-gate receipts."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/plugins",
+      "covers": "Plugins overview. Anchors that this packet ships as an Agent Plugins 1.0 plugin and consumes the marketplace file under closed distribution, not as a public listing."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/build-plugins",
+      "covers": "Building plugins. Backs the portable plugin.json shape, extensions[\"com.openai\"].interface fields, and the fixed skills/<skill-name>/SKILL.md discovery path used by this packet."
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/enterprise/plugin-management",
+      "covers": "Enterprise plugin management. Backs the admin-controlled marketplace sync, workspace-admin-enablement gate, and closed distribution channel declared by this packet."
+    },
+    {
+      "url": "https://developers.openai.com/plugins/build/auth",
+      "covers": "Authentication and multiple accounts. Defines the single read-only profile tool, empty input, standard output shape, stable opaque ID, and openai/profile metadata used by this packet."
+    }
+  ],
+  "isc_bindings": [
+    "ISC-2474",
+    "ISC-2475",
+    "ISC-2476",
+    "ISC-2477",
+    "ISC-2478",
+    "ISC-2479",
+    "ISC-2480",
+    "ISC-2481",
+    "ISC-2482",
+    "ISC-2483",
+    "ISC-2484",
+    "ISC-2485",
+    "ISC-2486",
+    "ISC-2487",
+    "ISC-2488",
+    "ISC-2489",
+    "ISC-2490",
+    "ISC-2491",
+    "ISC-2492",
+    "ISC-2493",
+    "ISC-2494",
+    "ISC-2495",
+    "ISC-2496",
+    "ISC-2497",
+    "ISC-2498",
+    "ISC-2499",
+    "ISC-2500",
+    "ISC-2501",
+    "ISC-2502",
+    "ISC-2503",
+    "ISC-2504",
+    "ISC-2505"
+  ],
+  "live_gate_receipts_required": [
+    "openai/cambium-infinite-game/live-gates/dot-entitlement.receipt.json",
+    "openai/cambium-infinite-game/live-gates/workspace-admin-enablement.receipt.json",
+    "openai/cambium-infinite-game/live-gates/plugin-connection.receipt.json",
+    "openai/cambium-infinite-game/live-gates/service-credentials.receipt.json",
+    "openai/cambium-infinite-game/live-gates/deployed-version.receipt.json",
+    "openai/cambium-infinite-game/live-gates/mcp-endpoint.receipt.json",
+    "openai/cambium-infinite-game/live-gates/readback.receipt.json",
+    "openai/cambium-infinite-game/live-gates/rollback.receipt.json",
+    "openai/cambium-infinite-game/live-gates/marketplace-import.receipt.json",
+    "openai/cambium-infinite-game/live-gates/end-to-end-canary.receipt.json"
+  ],
+  "forbidden_plugin_json_fields": {
+    "note": "Fields the verifier and tests must forbid from ever appearing in openai/cambium-infinite-game/plugin.json. These belong either in this compatibility manifest or in separate owner-approved artifacts.",
+    "top_level": [
+      "skills",
+      "mcpServers",
+      "apps",
+      "hooks",
+      "interface",
+      "name_for_model",
+      "name_for_human",
+      "description_for_model",
+      "description_for_human",
+      "audience",
+      "mcp",
+      "auth",
+      "tools",
+      "isc_bindings",
+      "notes",
+      "schema_version"
+    ]
+  },
+  "notes": {
+    "privacy": "This packet is reviewed-held. It contains no secrets, no absolute machine paths, no native session identifiers, and no raw prompt or response bodies.",
+    "authority": "The D1 Goal Graph remains the sole operational writer. ISA remains the acceptance authority. GSD remains the planning authority. Hermes remains the delivery authority. This packet neither claims nor delegates any of those authorities.",
+    "mcp_json_declared_held": "mcp.json declares only the exact portable Streamable HTTP connection intent. It carries no credentials and does not prove the public endpoint, OAuth metadata, tool discovery, installation, or connection; those remain separately owner-approved through live-gate receipts."
+  }
+}

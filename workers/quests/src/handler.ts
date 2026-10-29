@@ -22,6 +22,15 @@ import { injectInitialQuestHydration } from './page/client/data.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord, resolveActionRequestReplyRecord } from './action-requests.ts';
+import {
+  approveMcpGateActionRequest,
+  executeMcpGateAction,
+  readMcpGateActionApprovalStatus,
+  requestMcpGateActionApproval,
+  type McpActionIntentV1,
+  type McpGateTargetExecution,
+  type McpGateTargetValidation,
+} from './mcp-gate-action.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
@@ -506,6 +515,7 @@ export interface HandlerDeps {
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
   bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
+  mcpGateAdapterToken?: string; // Worker secret MCP_GATE_ADAPTER_TOKEN — Cortex Gate adapter only; unset → 503
   assignmentToken?: string;    // Scoped Hermes token — may enqueue project_task_assignment only
   roleTaskBindingsJson?: string; // Server-owned Hermes role -> member/project/task binding registry
   bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
@@ -590,7 +600,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph' | 'reject-goal-graph';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph' | 'reject-goal-graph' | 'approve-mcp-action';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -3325,12 +3335,16 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     return json(503, { error: 'mission fabric authority is not configured' });
   }
 
+  let authorityStage: 'store_read' | 'ledger' | 'projection' | 'foldback' = 'store_read';
   try {
     const head = await deps.goalGraphStore.readHead(tenant);
     if (!head) return json(404, { error: 'mission fabric graph not found' });
     const nodes = await deps.goalGraphStore.readNodes(tenant);
+    authorityStage = 'ledger';
     const storedEnvelope = parseStoredEnvelope(await deps.kv.get(ledgerKey(tenant))) as Record<string, unknown> | null;
+    authorityStage = 'store_read';
     const receipts = await deps.branchMapReceiptStore.listReceipts(tenant, undefined, BRANCH_MAP_RECEIPT_READ_LIMIT);
+    authorityStage = 'projection';
 
     const servedAt = deps.now ? deps.now() : new Date().toISOString();
     if (fabricTimestampMs(servedAt) === null) return json(503, { error: 'mission_fabric_clock_invalid' });
@@ -3385,6 +3399,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     ));
     const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
 
+    authorityStage = 'foldback';
     const foldbackReferences: any[] = isRecord(storedEnvelope) && Array.isArray(storedEnvelope.foldbackReceipts) ? storedEnvelope.foldbackReceipts : [];
     if (!foldbackReferences.length && deps.foldbackReader?.discover) {
       const discovered = await discoverMissionFoldbackReferences({ tenantId: tenant, graphVersion: head.graphVersion, nodes, reader: deps.foldbackReader });
@@ -3401,6 +3416,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       mergedGaps.push({ gapId: 'gap-foldback-reader', kind: 'accepted-result-unavailable', subjectId: null,
         detail: 'Immutable foldback references and the trusted readback consumer are required; no semantic acceptance is inferred.', evidenceRef: null });
     }
+    authorityStage = 'projection';
 
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
@@ -3581,7 +3597,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       body: JSON.stringify(body),
     };
   } catch {
-    return json(503, { error: 'mission_fabric_authority_unavailable' });
+    return json(503, { error: 'mission_fabric_authority_unavailable', reason: authorityStage });
   }
 }
 
@@ -5346,6 +5362,106 @@ async function resolveFounderWebSigner(
   return { kind: 'founder', approverId };
 }
 
+const MCP_GATE_PATHS = new Set([
+  '/mcp/actions/request-approval',
+  '/mcp/actions/approval-status',
+  '/mcp/actions/execute',
+]);
+const MCP_GOAL_GRAPH_ACTION = 'goal-graph.apply-approved-change';
+const MCP_CHANGE_DIGEST_RE = /^sha256:[a-f0-9]{64}$/;
+
+function mcpGoalGraphChangeDigest(intent: McpActionIntentV1, args: Record<string, unknown>): string | null {
+  if (intent.action_kind !== MCP_GOAL_GRAPH_ACTION) return null;
+  const keys = Object.keys(args);
+  if (keys.length !== 1 || keys[0] !== 'change_digest' || typeof args.change_digest !== 'string') return null;
+  return MCP_CHANGE_DIGEST_RE.test(args.change_digest) ? args.change_digest : null;
+}
+
+async function validateMcpGoalGraphTarget(
+  deps: HandlerDeps,
+  intent: McpActionIntentV1,
+  args: Record<string, unknown>,
+): Promise<McpGateTargetValidation> {
+  const digest = mcpGoalGraphChangeDigest(intent, args);
+  if (!digest) return { ok: false, status: 400, error: 'mcp_action_target_rejected' };
+  const task = await readGoalGraphIntakeTask(deps.kv, intent.tenant, digest);
+  if (!task || task.status !== 'pending') {
+    return { ok: false, status: 404, error: 'mcp_action_target_not_found' };
+  }
+  if (task.renewal) return { ok: false, status: 409, error: 'renewed_proposal_requires_canonical_gate' };
+  const descriptor = resolveGoalGraphApprovalDescriptor(task, intent.tenant, digest);
+  const graphVersion = task.graphVersion;
+  if (!descriptor
+      || intent.nonce !== descriptor.approvalNonce
+      || intent.expiry !== descriptor.approvalExpiresAt
+      || !Number.isInteger(graphVersion)
+      || intent.graph_version !== Number(graphVersion)
+      || intent.idempotency_key !== String(task.idempotencyKey ?? '')) {
+    return { ok: false, status: 409, error: 'mcp_action_target_mismatch' };
+  }
+  return { ok: true };
+}
+
+async function executeMcpGoalGraphTarget(
+  deps: HandlerDeps,
+  intent: McpActionIntentV1,
+  args: Record<string, unknown>,
+  founderId: string,
+): Promise<McpGateTargetExecution> {
+  const digest = mcpGoalGraphChangeDigest(intent, args);
+  if (!digest) return { ok: false, status: 400, error: 'mcp_action_target_rejected' };
+  const result = await approveGoalGraphIntakeRoute(deps, intent.tenant, { changeDigest: digest, subject: digest }, founderId);
+  if (result.status >= 400) {
+    return {
+      ok: false,
+      status: result.status,
+      error: typeof result.body.error === 'string' ? result.body.error : 'mcp_action_target_rejected',
+    };
+  }
+  return {
+    ok: true,
+    status: result.body.duplicate === true ? 'duplicate' : 'committed',
+    terminalOutcome: MCP_GOAL_GRAPH_ACTION,
+  };
+}
+
+function mcpGateAdapterDenial(req: SimpleRequest, deps: HandlerDeps): SimpleResponse | null {
+  if (!deps.mcpGateAdapterToken) return json(503, { error: 'mcp_gate_adapter_unconfigured' });
+  if (req.headers.authorization !== `Bearer ${deps.mcpGateAdapterToken}`) {
+    return json(401, { error: 'mcp_gate_adapter_unauthorized' });
+  }
+  return null;
+}
+
+async function handleMcpGateAdapterRoute(req: SimpleRequest, deps: HandlerDeps, routePath: string): Promise<SimpleResponse> {
+  if (req.method !== 'POST') return json(405, { error: 'post_required' });
+  const denied = mcpGateAdapterDenial(req, deps);
+  if (denied) return denied;
+  let body: unknown;
+  try {
+    body = JSON.parse(req.body ?? '');
+  } catch {
+    return json(400, { error: 'body is not JSON' });
+  }
+  const now = deps.now ? deps.now() : new Date().toISOString();
+  if (routePath === '/mcp/actions/request-approval') {
+    const result = await requestMcpGateActionApproval(deps.kv, body, {
+      now,
+      validateTarget: (intent, args) => validateMcpGoalGraphTarget(deps, intent, args),
+    });
+    return json(result.status, result.body);
+  }
+  if (routePath === '/mcp/actions/approval-status') {
+    const result = await readMcpGateActionApprovalStatus(deps.kv, body, now);
+    return json(result.status, result.body);
+  }
+  const result = await executeMcpGateAction(deps.kv, body, {
+    now,
+    executeTarget: (intent, args, founderId) => executeMcpGoalGraphTarget(deps, intent, args, founderId),
+  });
+  return json(result.status, result.body);
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   if (req.path.split('?')[0] === '/v1/founder/session') {
     if (req.method !== 'GET') return json(405, { error: 'get_required' });
@@ -5390,6 +5506,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: boolean): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
+  if (MCP_GATE_PATHS.has(routePath)) return handleMcpGateAdapterRoute(req, deps, routePath);
 
   if (routePath === '/v1/admin/portfolio/actions') {
     return handlePortfolioAdminActionRoute(req, deps);
@@ -7022,7 +7139,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph', 'reject-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
+    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph', 'reject-goal-graph', 'approve-mcp-action'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId || body.action_digest)) {
       return json(400, { error: 'need a supported gate kind and subject' });
     }
     // Founder web Gate: only through /founder, only for goal-graph decisions,
@@ -7047,6 +7164,17 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     }
     if (kind === 'reject-goal-graph') {
       const result = await rejectGoalGraphIntakeRoute(deps, tenant, body, verdict.userId);
+      return json(result.status, result.body);
+    }
+    if (kind === 'approve-mcp-action') {
+      const result = await approveMcpGateActionRequest(deps.kv, {
+        action_digest: body.action_digest,
+        request_digest: body.request_digest,
+      }, {
+        founderId: verdict.userId,
+        now: deps.now ? deps.now() : new Date().toISOString(),
+        validateTarget: (intent, args) => validateMcpGoalGraphTarget(deps, intent, args),
+      });
       return json(result.status, result.body);
     }
     if (kind === 'approve-marketing-render') {

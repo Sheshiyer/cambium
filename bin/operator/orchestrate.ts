@@ -10,6 +10,7 @@ import { realFounder } from './npc.ts';
 import { makeEmbedder, type Embedder } from './embed.ts';
 import { resolveIcp, ensureSetpoint } from './resonance.ts';
 import { situationText, buildRecall, rememberWake } from './memory.ts';
+import { recallCortexText, type CortexTextStore, type CortexTextScope, type CortexTextResult } from './cortex-text.ts';
 
 export interface OrchestrateOpts {
   record: (line: string) => void;
@@ -21,6 +22,8 @@ export interface OrchestrateOpts {
   recallK?: number;                                 // how many past situations to recall (default 5)
   now?: () => number;                               // injected clock for the memory ts (default Date.now)
   rememberMemory?: boolean;                         // set false to recall without writing (dry)
+  textStore?: CortexTextStore;                      // optional scoped advisory text; independent of vector/cosine recall
+  textScope?: CortexTextScope;                      // trusted composition binding, never inferred from event text
 }
 
 /**
@@ -33,10 +36,16 @@ export interface OrchestrateOpts {
  */
 export async function wakeAsync(
   world: WorldState, event: GameEvent, opts: OrchestrateOpts,
-): Promise<{ world: WorldState; decision: Decision; icp?: IcpReading; founder?: FounderReading; recall?: Recall; memory?: MemoryRecord }> {
+): Promise<{ world: WorldState; decision: Decision; icp?: IcpReading; founder?: FounderReading; recall?: Recall; memory?: MemoryRecord; textContext?: CortexTextResult }> {
   const e = opts.embedder ?? makeEmbedder();
   const w0 = await ensureSetpoint(world, e);
   const lane = route(event).lane;
+  // Text retrieval is returned as cited advisory data. It never becomes a cosine
+  // match, changes the pure wake input, or grants execution/acceptance authority.
+  let textContext: CortexTextResult | undefined;
+  if (opts.textStore && opts.textScope && (lane === 'meso' || lane === 'macro')) {
+    textContext = await recallCortexText(opts.textStore, opts.textScope, w0.tenant, situationText(event, w0));
+  }
 
   // B5 · RECALL — for meso/macro, search the cortex for similar PAST situations (before this one is written)
   let recall: Recall | undefined;
@@ -70,5 +79,5 @@ export async function wakeAsync(
     catch { /* memory write is best-effort — never fail the wake because the cortex hiccuped */ }
   }
 
-  return { world: next, decision, icp, founder, recall, memory };
+  return { world: next, decision, icp, founder, recall, memory, ...(textContext ? { textContext } : {}) };
 }
