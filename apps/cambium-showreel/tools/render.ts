@@ -197,7 +197,12 @@ clearInterval(stall);
 browser.kill();
 if (ff) {
   await (ff.stdin as any).end();
-  await ff.exited;
+  const encoderExit = await ff.exited;
+  if (encoderExit !== 0) {
+    console.error(`render failed: encoder exited ${encoderExit}`);
+    server.stop(true);
+    process.exit(encoderExit || 1);
+  }
 }
 if (hashTag) {
   // --merge accumulates segment manifests into one file
