@@ -35,8 +35,13 @@ export function DescriptiveMappingView({rows}:{rows:readonly DescriptionRow[]}) 
  ...rows.map(r=>h('article',{key:r.id},h('h3',null,r.name),h('p',null,r.id),h('p',null,r.description),h('p',null,'Lifecycle: '+r.lifecycle+' · observed '+r.date),
  h('p',null,'Evidence qualification: '+r.confidence),h('p',null,r.relationships.length?r.relationships.join('; '):'Relationship not specified; no membership inferred.'),h('details',null,h('summary',null,'Source provenance'),...r.sources.map(s=>h('p',{key:s},s))))))
 }
+function telegramInitHeaders(): Record<string, string> {
+ const telegram = (window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram
+ const initData = telegram?.WebApp?.initData?.trim()
+ return initData ? { 'x-telegram-init-data': initData } : {}
+}
 export function DescriptiveMappings(){
  const [rows,setRows]=useState<readonly DescriptionRow[]|null>(null)
- useEffect(()=>{const controller=new AbortController();fetch('/v1/admin/portfolio/descriptions',{credentials:'same-origin',cache:'no-store',signal:controller.signal}).then(async response=>{if(response.status!==200)return null;return descriptionRows(await response.json())}).then(value=>{if(!controller.signal.aborted)setRows(value)}).catch(()=>{});return()=>controller.abort()},[])
+ useEffect(()=>{const controller=new AbortController();fetch('/v1/admin/portfolio/descriptions',{credentials:'same-origin',cache:'no-store',headers:telegramInitHeaders(),signal:controller.signal}).then(async response=>{if(response.status!==200)return null;return descriptionRows(await response.json())}).then(value=>{if(!controller.signal.aborted)setRows(value)}).catch(()=>{});return()=>controller.abort()},[])
  return rows?h(DescriptiveMappingView,{rows}):h('section',{'aria-label':'Descriptive repository reference status'},h('p',null,'Descriptive mapping evidence unavailable or access not verified. Existing actions and records are unchanged.'))
 }

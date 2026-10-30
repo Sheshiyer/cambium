@@ -21,8 +21,13 @@ export function MappingAnnotationView({note}:{note:Note|null}){
  if(!note)return null;
  return h('section',{className:'drawer-section','aria-label':'Descriptive mapping annotation'},h('h3',null,note.label),h('p',null,note.description),h('p',null,note.caveat),h('p',null,'Related records: '+note.relatedWorkIds.join(', ')),h('p',null,'Repository identities: '+note.repositoryIds.join(', ')));
 }
+function telegramInitHeaders(): Record<string, string> {
+ const telegram = (window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram
+ const initData = telegram?.WebApp?.initData?.trim()
+ return initData ? { 'x-telegram-init-data': initData } : {}
+}
 export function MappingAnnotation({workId}:{workId:string}){
  const [notes,setNotes]=useState<readonly Note[]|null>(null);
- useEffect(()=>{const controller=new AbortController();fetch('/v1/admin/portfolio/annotations',{credentials:'same-origin',cache:'no-store',signal:controller.signal}).then(async r=>r.status===200?annotationDTOs(await r.json()):null).then(v=>{if(!controller.signal.aborted)setNotes(v)}).catch(()=>{});return()=>controller.abort();},[]);
+ useEffect(()=>{const controller=new AbortController();fetch('/v1/admin/portfolio/annotations',{credentials:'same-origin',cache:'no-store',headers:telegramInitHeaders(),signal:controller.signal}).then(async r=>r.status===200?annotationDTOs(await r.json()):null).then(v=>{if(!controller.signal.aborted)setNotes(v)}).catch(()=>{});return()=>controller.abort();},[]);
  return h(MappingAnnotationView,{note:notes?.find(n=>n.workId===workId)??null});
 }
