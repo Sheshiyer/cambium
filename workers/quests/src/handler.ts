@@ -1,3 +1,7 @@
+import { MAPPING_ANNOTATIONS } from './portfolio-four-annotations.data.ts';
+import { parseAnnotations } from './portfolio-four-annotations.ts';
+import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
+import { descriptionResponse } from './portfolio-descriptions.ts';
 import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
@@ -5508,6 +5512,15 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
   const routePath = fabricRoutePath(path);
   if (MCP_GATE_PATHS.has(routePath)) return handleMcpGateAdapterRoute(req, deps, routePath);
 
+  if (routePath === '/v1/admin/portfolio/descriptions' || routePath === '/v1/admin/portfolio/annotations') {
+    const headers = { ...JSON_HEADERS, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff', vary: 'Cookie, CF-Access-Jwt-Assertion, X-Telegram-Init-Data' };
+    if (req.method !== 'GET') return { ...json(405, { error: 'descriptions are GET-only' }), headers: { ...headers, allow: 'GET' } };
+    const principal = await resolvePortfolioFounder(req, { ...deps, kv: { ...deps.kv, get: deps.kv.get.bind(deps.kv), put: async () => {} } });
+    if (principal.kind !== 'founder') return { ...json(principal.kind === 'unconfigured' ? 503 : 401, { error: 'founder access required' }), headers };
+    const notes = routePath.endsWith('/annotations') ? parseAnnotations(MAPPING_ANNOTATIONS) : null;
+    const body = notes ? (notes.length === 4 ? JSON.stringify({ schema: 'cambium.mapping-annotation-dtos.v1', notes }) : null) : descriptionResponse(DESCRIPTION_DATA);
+    return body === null ? { ...json(503, { error: 'descriptions unavailable' }), headers } : { status: 200, headers, body };
+  }
   if (routePath === '/v1/admin/portfolio/actions') {
     return handlePortfolioAdminActionRoute(req, deps);
   }
