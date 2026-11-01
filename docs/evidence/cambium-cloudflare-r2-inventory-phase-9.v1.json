@@ -1,16 +1,17 @@
 {
   "schema": "cambium.cloudflare-r2-inventory-receipt.v1",
   "version": 1,
-  "status": "phase-9-task-1-placeholder",
-  "message": "Collector and classifier library implemented with synthetic tests. Authenticated inventory pending Task 2 approval.",
+  "status": "phase-9-preflight-ready",
+  "message": "Collector library and resource-map preflight are ready. Authenticated inventory remains held until Task 2 approve-scoped-read authorization.",
   "approvedPrefixes": 2,
+  "preflight": "docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json",
   "requirements": {
     "INV-01": "held",
     "CLASS-01": "held"
   },
   "testResult": {
-    "collectorTests": 32,
-    "pass": 32,
+    "collectorTests": 36,
+    "pass": 36,
     "fail": 0
   }
 }

@@ -9,10 +9,14 @@ import test from 'node:test';
 import {
   APPROVED_PREFIXES,
   CLASSIFICATIONS,
+  INVENTORY_OPERATIONS,
   sha256Stream,
   collectPrefixInventory,
   classifyInventory,
   writeRedactedReceipt,
+  loadResourceMap,
+  buildInventoryPreflight,
+  writeInventoryPreflight,
 } from './cloudflare-r2-source-inventory.mjs';
 
 import {
@@ -658,4 +662,86 @@ test('local worker storeClient adapter does not expose write methods', () => {
   assert.equal(typeof client.list, 'function');
   assert.equal(typeof client.head, 'function');
   assert.equal(typeof client.get, 'function');
+});
+
+// ---------------------------------------------------------------------------
+// Inventory preflight from resource map + profile resolver
+// ---------------------------------------------------------------------------
+
+test('loadResourceMap accepts the checked-in Cloudflare contract', () => {
+  const map = loadResourceMap();
+  assert.equal(map.schema, 'cambium.cloudflare-resource-map.v1');
+  assert.deepEqual(map.reconciliation.approved_prefixes, [
+    VAULT_PREFIX,
+    CONTEXT_PREFIX,
+  ]);
+});
+
+test('buildInventoryPreflight materializes four scoped reads from infra mapping', () => {
+  const preparedAt = '2026-11-01T08:00:00.000Z';
+  const preflight = buildInventoryPreflight({ preparedAt });
+
+  assert.equal(preflight.schema, 'cambium.cloudflare-r2-inventory-preflight.v1');
+  assert.equal(preflight.status, 'preflight-ready-awaiting-owner-read-authorization');
+  assert.equal(preflight.preparedAt, preparedAt);
+  assert.equal(preflight.scopes.length, 4);
+  assert.deepEqual(preflight.inventoryOperations, [...INVENTORY_OPERATIONS]);
+  assert.equal(preflight.requirements['INV-01'], 'held');
+  assert.equal(preflight.requirements['CLASS-01'], 'held');
+
+  assert.equal(preflight.profiles['legacy-source'].wranglerProfile, '9d9d');
+  assert.equal(preflight.profiles['legacy-source'].accountId, '9d9d23b27f32e70ae3afb6a1aa2c0f10');
+  assert.deepEqual(preflight.profiles['legacy-source'].allowedOperations, ['read']);
+  assert.equal(preflight.profiles['labs-production'].wranglerProfile, 'thoughtseed-labs');
+  assert.equal(preflight.profiles['labs-production'].accountId, '9d7cec1b5a32b2df8c6cdc1321ccd00b');
+  assert.equal(preflight.profiles['labs-production'].route, 'curious.thoughtseed.space');
+
+  const roles = preflight.scopes.map((scope) => `${scope.role}:${scope.binding}`);
+  assert.deepEqual(roles, [
+    'legacy-source:THOUGHTSEED_VAULT',
+    'labs-production:THOUGHTSEED_VAULT',
+    'legacy-source:CONTEXT_PROJECTIONS',
+    'labs-production:CONTEXT_PROJECTIONS',
+  ]);
+
+  for (const scope of preflight.scopes) {
+    assert.deepEqual(scope.permittedOperations, ['list', 'head', 'get']);
+    assert.ok(APPROVED_PREFIXES.some((p) => p.binding === scope.binding && p.prefix === scope.prefix));
+  }
+});
+
+test('buildInventoryPreflight fails closed on account mismatch', () => {
+  assert.throws(
+    () =>
+      buildInventoryPreflight({
+        resolveProfile: ({ profile }) => ({
+          profile,
+          wranglerProfile: profile === 'legacy-source' ? '9d9d' : 'thoughtseed-labs',
+          config: 'workers/quests/wrangler.jsonc',
+          accountId: 'wrong-account',
+          workerName: 'cambium-quests',
+          route: null,
+          accessTeamDomain: 'example.cloudflareaccess.com',
+          sourceMode: 'read-only-rollback',
+          allowedOperations: ['read'],
+        }),
+      }),
+    /legacy_account_mismatch|labs_account_mismatch/,
+  );
+});
+
+test('writeInventoryPreflight writes aggregate-only durable JSON', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cambium-phase9-preflight-'));
+  const outputPath = join(dir, 'preflight.json');
+  const written = writeInventoryPreflight({
+    preflight: buildInventoryPreflight({ preparedAt: '2026-11-01T08:00:00.000Z' }),
+    outputPath,
+  });
+  const parsed = JSON.parse(readFileSync(outputPath, 'utf8'));
+  assert.equal(parsed.schema, written.schema);
+  assert.equal(parsed.scopes.length, 4);
+  const serialized = JSON.stringify(parsed);
+  assert.equal(serialized.includes('secret'), false);
+  assert.equal(serialized.includes('Authorization'), false);
+  assert.equal(serialized.includes('/home/'), false);
 });

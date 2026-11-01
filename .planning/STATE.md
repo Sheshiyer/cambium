@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
-stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain
-last_updated: "2026-09-27T19:45:00.000Z"
-last_activity: 2026-09-27 — Local branch reconciliation and deterministic source verification; no live inventory
+stopped_at: Phase 9 inventory preflight ready; authenticated read still needs owner authorize-scoped-read
+last_updated: "2026-11-01T07:48:00.000Z"
+last_activity: 2026-11-01 — Resource-map inventory preflight materialized; no live R2 inventory
 progress:
   total_phases: 3
   completed_phases: 1
@@ -25,15 +25,14 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** An operator action counts only when its durable task, lease,
 artifact, outcome, and readback agree.
-**Current focus:** Review the reconciled source and implement the planned exact read-only `9d9d` inventory tooling while
-preserving verified Thoughtseed Labs production authority.
+**Current focus:** Obtain Task 2 `approve-scoped-read` for the four preflighted R2 scopes, then run authenticated inventory while preserving verified Thoughtseed Labs production authority.
 
 ## Current Position
 
 Phase: 9 of 10 (Source Inventory and Classification)
-Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed
+Plan: 09-01 Task 1 collector + resource-map preflight ready; authenticated read checkpoint awaiting owner authorization
 Status: Active
-Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan retained with implementation and live evidence unclaimed
+Last activity: 2026-11-01 — Inventory preflight written from Cloudflare resource map and profile resolver; INV-01/CLASS-01 still held
 
 ## Accumulated Context
 
@@ -54,12 +53,13 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 
 ### Pending Todos
 
-- Implement and synthetically verify Phase 9 Task 1, then obtain the exact authenticated source/target inventory authorization before live reads.
-- Keep Phase 10 copy and retirement work held behind separate approval.
+- Review `docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json` and record Task 2 `approve-scoped-read` (or decline) before any authenticated inventory.
+- Keep Phase 10 copy and retirement work held behind separate approval and a Phase 9 success receipt.
 
 ### Blockers/Concerns
 
 - Exact source-only R2 keys and digests are not yet available.
+- Owner read authorization for the four preflight scopes is not yet recorded.
 - Current bucket totals are observations, not a transfer manifest.
 - Cloudflare writes, deploys, DNS, Access, tunnels, traffic, copy, deletion,
   retirement, and merge remain separately gated.
@@ -77,8 +77,8 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 
 ## Session Continuity
 
-Last session: 2026-09-27
-Stopped at: Phase 9 plan ready; collector implementation and authenticated inventory remain
+Last session: 2026-11-01
+Stopped at: Phase 9 inventory preflight ready; authenticated read still needs owner authorize-scoped-read
 Resume file: .planning/STATE.md
 
 ## 2026-09-08 Saanmai census and local headers
@@ -93,4 +93,4 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 
 ## Operator Next Step
 
-Review the local reconciliation and test evidence in `RECONCILIATION-2026-09-27.md`, then execute Task 1 in `09-01-PLAN.md` before the exact authenticated-read checkpoint. The plan now exists; do not restart phase planning or mark INV-01/CLASS-01 complete from synthetic tests. The collector/classifier has not been implemented by this reconciliation. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by reconciliation.
+Review the four scopes in `docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json` (derived from the Phase 8 resource map and profile resolver). If the scopes are correct, record Task 2 `approve-scoped-read` in `09-01-OWNER-AUTHORIZATION.json` and only then run authenticated inventory. Do not mark INV-01/CLASS-01 complete from preflight or synthetic tests. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by this preflight.

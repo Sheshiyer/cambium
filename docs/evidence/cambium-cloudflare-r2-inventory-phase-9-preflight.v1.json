@@ -1,0 +1,142 @@
+{
+  "schema": "cambium.cloudflare-r2-inventory-preflight.v1",
+  "version": 1,
+  "status": "preflight-ready-awaiting-owner-read-authorization",
+  "preparedAt": "2026-11-01T07:47:58.550Z",
+  "resourceMap": {
+    "path": "docs/architecture/contracts/cambium-cloudflare-resource-map.v1.json",
+    "schema": "cambium.cloudflare-resource-map.v1",
+    "tenant": "cambium"
+  },
+  "reconciliation": {
+    "approvedPrefixes": [
+      "portfolio/thoughtseed/workobjects/",
+      "context/v1/daily-standup-digest/standups/"
+    ],
+    "matched": "no-copy",
+    "targetNewer": "preserve-target",
+    "sourceOnly": "require-founder-per-key-allowlist",
+    "digestConflict": "stop-for-review",
+    "bulkCopy": "forbidden"
+  },
+  "profiles": {
+    "legacy-source": {
+      "profile": "legacy-source",
+      "wranglerProfile": "9d9d",
+      "config": "workers/quests/wrangler.jsonc",
+      "accountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+      "workerName": "cambium-quests",
+      "route": null,
+      "accessTeamDomain": "red-queen-4dfa.cloudflareaccess.com",
+      "sourceMode": "read-only-rollback",
+      "allowedOperations": [
+        "read"
+      ]
+    },
+    "labs-production": {
+      "profile": "labs-production",
+      "wranglerProfile": "thoughtseed-labs",
+      "config": "workers/quests/wrangler.labs.jsonc",
+      "accountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+      "workerName": "cambium-quests",
+      "route": "curious.thoughtseed.space",
+      "accessTeamDomain": "thoughtseedlabs.cloudflareaccess.com",
+      "sourceMode": "production-authority",
+      "allowedOperations": [
+        "read",
+        "write",
+        "deploy"
+      ]
+    }
+  },
+  "inventoryOperations": [
+    "list",
+    "head",
+    "get"
+  ],
+  "scopes": [
+    {
+      "role": "legacy-source",
+      "profileAlias": "legacy-source",
+      "wranglerProfile": "9d9d",
+      "accountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+      "config": "workers/quests/wrangler.jsonc",
+      "binding": "THOUGHTSEED_VAULT",
+      "bucket": "thoughtseed-vault",
+      "prefix": "portfolio/thoughtseed/workobjects/",
+      "r2Strategy": "approved-prefix-inventory-only",
+      "permittedOperations": [
+        "list",
+        "head",
+        "get"
+      ]
+    },
+    {
+      "role": "labs-production",
+      "profileAlias": "labs-production",
+      "wranglerProfile": "thoughtseed-labs",
+      "accountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+      "config": "workers/quests/wrangler.labs.jsonc",
+      "binding": "THOUGHTSEED_VAULT",
+      "bucket": "thoughtseed-vault",
+      "prefix": "portfolio/thoughtseed/workobjects/",
+      "r2Strategy": "per-key-reconcile",
+      "permittedOperations": [
+        "list",
+        "head",
+        "get"
+      ]
+    },
+    {
+      "role": "legacy-source",
+      "profileAlias": "legacy-source",
+      "wranglerProfile": "9d9d",
+      "accountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+      "config": "workers/quests/wrangler.jsonc",
+      "binding": "CONTEXT_PROJECTIONS",
+      "bucket": "thoughtseed-context-projections",
+      "prefix": "context/v1/daily-standup-digest/standups/",
+      "r2Strategy": "approved-prefix-inventory-only",
+      "permittedOperations": [
+        "list",
+        "head",
+        "get"
+      ]
+    },
+    {
+      "role": "labs-production",
+      "profileAlias": "labs-production",
+      "wranglerProfile": "thoughtseed-labs",
+      "accountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+      "config": "workers/quests/wrangler.labs.jsonc",
+      "binding": "CONTEXT_PROJECTIONS",
+      "bucket": "thoughtseed-context-projections",
+      "prefix": "context/v1/daily-standup-digest/standups/",
+      "r2Strategy": "per-key-reconcile",
+      "permittedOperations": [
+        "list",
+        "head",
+        "get"
+      ]
+    }
+  ],
+  "requirements": {
+    "INV-01": "held",
+    "CLASS-01": "held"
+  },
+  "authorization": {
+    "requiredDecision": "approve-scoped-read",
+    "artifactSchema": "cambium.phase9.owner-read-authorization.v1",
+    "artifactPath": ".planning/phases/09-source-inventory-and-classification/09-01-OWNER-AUTHORIZATION.json",
+    "note": "This preflight is not inventory authorization and performs no authenticated R2 reads."
+  },
+  "exclusions": [
+    "no-object-copy",
+    "no-object-delete",
+    "no-worker-deploy",
+    "no-dns-access-tunnel-mutation",
+    "no-d1-kv-vectorize-mutation",
+    "no-bucket-root-listing",
+    "no-unapproved-prefix"
+  ]
+}

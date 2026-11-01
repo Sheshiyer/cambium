@@ -1,8 +1,18 @@
+## Phase 9 inventory preflight — 1 November 2026
+
+Materialized the four authenticated-read scopes from the Phase 8 Cloudflare resource map and profile resolver into `docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json`. Inventory CLI gained `--preflight`; `--run` still blocks without owner authorization. Collector tests 36/36. INV-01/CLASS-01 remain held. No R2 list/head/get, copy, deploy, vault, registry, session, provider, or production mutation.
+
+# Project handoff
+
+### 2026-11-01 Phase 9 inventory preflight from infra map
+
+- Branch `cursor/phase-9-inventory-preflight-5b84` prepares Task 2 decision input: exact account IDs, profile aliases, buckets, approved prefixes, and `list`/`head`/`get` only.
+- Scopes: `thoughtseed-vault` / `portfolio/thoughtseed/workobjects/` and `thoughtseed-context-projections` / `context/v1/daily-standup-digest/standups/` on both `9d9d` (legacy-source) and `thoughtseed-labs` (labs-production).
+- Regenerable with `node scripts/cloudflare-r2-source-inventory.mjs --preflight`. Authenticated inventory still requires `approve-scoped-read` in `09-01-OWNER-AUTHORIZATION.json`.
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
-
-# Project handoff
 
 ### 2026-10-26 worktree and branch reconciliation — one working head
 
