@@ -37,6 +37,16 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 
 **Requirements:** INV-01, CLASS-01
 
+### Phase 10: Allowlisted Reconciliation and Retirement
+
+**Goal:** Copy only founder-approved source-only keys from Phase 9 success evidence, prove Labs parity with zero source writers and zero source traffic, then retire legacy resources only after a separate rollback window and destructive gate.
+
+**Depends on:** Phase 9
+
+**Requirements:** COPY-01, PARITY-01, RETIRE-01
+
+**Plans:** `10-01` copy allowlist, `10-02` parity observation, `10-03` dual-gate retirement — all held; no Cloudflare mutation is authorized by planning alone.
+
 </details>
 
 <details>
@@ -76,11 +86,13 @@ Cambium's v0.4 milestone established canonical doctrine anchors, deterministic r
 | 7. Deterministic Safety and Handoff | v0.4 | 3/3 | Verified | 2026-08-22 |
 | 8. Labs Authority and Profile Safety | v0.5 | 1/1 | Verified | 2026-08-31 |
 | 9. Source Inventory and Classification | v0.5 | 0/1 | Planned; authenticated inventory held | — |
-| 10. Allowlisted Reconciliation and Retirement | v0.5 | 0/0 | Held | — |
+| 10. Allowlisted Reconciliation and Retirement | v0.5 | 0/3 | Planned; held pending Phase 9 success | — |
 
 ## Next
 
-The Phase 9 plan is present at `phases/09-source-inventory-and-classification/09-01-PLAN.md`. Implement Task 1 and complete its synthetic verification, review the reconciliation record, then stop at the authenticated-read checkpoint. Source integration does not satisfy INV-01/CLASS-01. Cloudflare mutation, source-object transfer, parity, retirement, and release remain distinct later operations.
+The Phase 9 plan is present at `phases/09-source-inventory-and-classification/09-01-PLAN.md`. Implement Task 1 and complete its synthetic verification, review the reconciliation record, then stop at the authenticated-read checkpoint. Source integration does not satisfy INV-01/CLASS-01.
+
+Phase 10 plans are present at `phases/10-allowlisted-reconciliation-and-retirement/` (`10-01` COPY-01, `10-02` PARITY-01, `10-03` RETIRE-01). They refuse key allowlists and Cloudflare mutation until a Phase 9 success receipt exists. Do not execute Phase 10 copy, parity, or retirement from this planning packet. Cloudflare mutation, source-object transfer, parity, retirement, and release remain distinct later operations.
 
 ## 2026-09-27 source convergence
 
