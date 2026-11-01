@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
-stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain
-last_updated: "2026-09-27T19:45:00.000Z"
-last_activity: 2026-09-27 — Local branch reconciliation and deterministic source verification; no live inventory
+stopped_at: Phase 10 plans written and held; Phase 9 Task 1 and authenticated inventory remain the operator next step
+last_updated: "2026-11-01T07:42:00.000Z"
+last_activity: 2026-11-01 — Phase 10 COPY/PARITY/RETIRE plans authored; no Cloudflare mutation
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 2
+  total_plans: 5
   completed_plans: 1
-  percent: 33
+  percent: 20
 ---
 
 # Project State
@@ -25,15 +25,16 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** An operator action counts only when its durable task, lease,
 artifact, outcome, and readback agree.
-**Current focus:** Review the reconciled source and implement the planned exact read-only `9d9d` inventory tooling while
-preserving verified Thoughtseed Labs production authority.
+**Current focus:** Implement Phase 9 Task 1 inventory tooling and keep Phase 10
+held until a Phase 9 success receipt exists, while preserving verified
+Thoughtseed Labs production authority.
 
 ## Current Position
 
 Phase: 9 of 10 (Source Inventory and Classification)
 Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed
 Status: Active
-Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan retained with implementation and live evidence unclaimed
+Last activity: 2026-11-01 — Phase 10 plans 10-01/10-02/10-03 written and held; INV-01/CLASS-01/COPY-01/PARITY-01/RETIRE-01 remain incomplete
 
 ## Accumulated Context
 
@@ -46,6 +47,8 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 - Exact key and digest evidence must precede any source-object allowlist.
 - Matching objects are skipped, target-newer objects are preserved, digest
   conflicts stop, and derived projections are rebuilt from provenance.
+- Phase 10 copy approval cannot authorize retirement; RETIRE-01 requires a
+  separate rollback window and destructive founder gate.
 - The Telegram promotion branch remains an independent PR candidate.
 - The admission branch stays held until the project manifest and enrollment
   identity are regenerated together.
@@ -55,11 +58,12 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 ### Pending Todos
 
 - Implement and synthetically verify Phase 9 Task 1, then obtain the exact authenticated source/target inventory authorization before live reads.
-- Keep Phase 10 copy and retirement work held behind separate approval.
+- Keep Phase 10 copy, parity, and retirement execution held until Phase 9 succeeds and each plan's founder gate is claimed.
 
 ### Blockers/Concerns
 
 - Exact source-only R2 keys and digests are not yet available.
+- Current Phase 9 repository receipt is a Task-1 placeholder; it cannot seed a Phase 10 allowlist.
 - Current bucket totals are observations, not a transfer manifest.
 - Cloudflare writes, deploys, DNS, Access, tunnels, traffic, copy, deletion,
   retirement, and merge remain separately gated.
@@ -77,8 +81,8 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 
 ## Session Continuity
 
-Last session: 2026-09-27
-Stopped at: Phase 9 plan ready; collector implementation and authenticated inventory remain
+Last session: 2026-11-01
+Stopped at: Phase 10 plans written and held; Phase 9 Task 1 and authenticated inventory remain
 Resume file: .planning/STATE.md
 
 ## 2026-09-08 Saanmai census and local headers
@@ -93,4 +97,4 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 
 ## Operator Next Step
 
-Review the local reconciliation and test evidence in `RECONCILIATION-2026-09-27.md`, then execute Task 1 in `09-01-PLAN.md` before the exact authenticated-read checkpoint. The plan now exists; do not restart phase planning or mark INV-01/CLASS-01 complete from synthetic tests. The collector/classifier has not been implemented by this reconciliation. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by reconciliation.
+Review the local reconciliation and test evidence in `RECONCILIATION-2026-09-27.md`, then execute Task 1 in `09-01-PLAN.md` before the exact authenticated-read checkpoint. Phase 10 plans exist under `phases/10-allowlisted-reconciliation-and-retirement/` and remain held; do not restart Phase 9 planning, do not mark INV-01/CLASS-01/COPY-01/PARITY-01/RETIRE-01 complete from planning or synthetic tests alone, and do not run copy, parity, or retirement until a Phase 9 success receipt and the matching founder gates exist. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by this planning update.
