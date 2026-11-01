@@ -58,3 +58,21 @@ temperance-swarm-dispatch --request .planning/swarm-claim.json --dry-run
 Manifest: `.temperance/project.json` (schema temperance.project.v1)
 <!-- temperance:project-rail:end -->
 
+## Cursor Cloud
+
+Cloud Agent images ship Node 22. This repository runs its operator and `npm test` entrypoints as native TypeScript on Node 26. The environment install puts Node 26.13.0, pnpm 10.15.1, and Bun 1.4.4 first on the login `PATH`.
+
+Root `npm install` has no packages. App dependencies come from each lockfile: `apps/cambium-r3f` (npm), `apps/portfolio-cartographer` (pnpm), `workers/cortex-mcp` (npm), and `apps/cambium-showreel` (Bun). Showreel mattes are gitignored and regenerated with `bun run prep`.
+
+On boot, three local servers start from synthetic data, with no provider credentials:
+
+| App | URL |
+|---|---|
+| Constellation visual engine | http://127.0.0.1:5173 |
+| Portfolio workbench | http://127.0.0.1:5174 |
+| Showreel scrubber | http://127.0.0.1:4789/?dev |
+
+The showreel display face is DIN Condensed Bold on macOS. Linux sets `REEL_DISPLAY_FONT` to Bebas Neue. The scrubber stays hidden for several seconds while WebGL boots. The Electron shell is macOS-only and is not started here.
+
+`node bin/operator/cli.ts demo` runs the operator offline with stub embeddings. Do not deploy Workers or read vault, Paseo, or provider state from this environment.
+
