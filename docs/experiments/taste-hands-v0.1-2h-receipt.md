@@ -10,13 +10,14 @@ Status: local experiment. Draft visibility only. Do not merge.
 | Palette `source_sha` | `8261d4840988e2e1c6fa6c2eb85cee96d4344b58` |
 | Research `source_sha` | `1a97cd396709357cffaf45f417dde40c84a50b9a` |
 | Implementation commit | `3a5d16a9365989c664640c752d034a6cedc9adbb` |
+| Stamp commit | `c62e560466aaf77c46b1526601a7af6d58a12a1e` |
 | Contract | `docs/experiments/taste-hands-v0.1/cambium.taste-hands.v0.1.md` |
 | Example | `docs/experiments/taste-hands-v0.1/DESIGN.md` |
 | Checker | `docs/experiments/taste-hands-v0.1/check.mjs` |
 | Report | `docs/experiments/taste-hands-v0.1/ab-report.json` |
 | Surface | `curious-world.location-readout` |
 
-`main` at the start of this experiment is the palette `source_sha` above. This branch does not move `main`.
+`main` at the start of this experiment is the palette `source_sha` above. This branch does not move `main`. The implementation commit holds the packet. The stamp commit writes that sha into the table.
 
 The 2026-10-28 proposal named `1a97cd396709357cffaf45f417dde40c84a50b9a` as main. That commit is still in history and is an ancestor of the palette sha. Main has moved forward. The proposal's commit message in this clone is `docs: record 2026-10-26 worktree and branch reconciliation (#406)`.
 
