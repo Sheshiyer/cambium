@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 import { resolveQuestsWranglerProfile } from './quests-wrangler-profile.mjs';
 
@@ -233,6 +234,188 @@ export function writeInventoryPreflight({
   if (!outputPath) throw new Error('missing_output_path');
   writeFileSync(outputPath, `${JSON.stringify(preflight, null, 2)}\n`, 'utf8');
   return preflight;
+}
+
+function scopeKey(scope) {
+  return [
+    scope.role,
+    scope.profileAlias,
+    scope.wranglerProfile,
+    scope.accountId,
+    scope.binding,
+    scope.bucket,
+    scope.prefix,
+  ].join('|');
+}
+
+/**
+ * Validate a one-run owner authorization artifact against the current
+ * resource-map/profile preflight. Affirmative decisions only.
+ *
+ * @param {object} options
+ * @param {string|object} options.authorization
+ * @param {object} [options.preflight]
+ * @returns {object} normalized authorization
+ */
+export function validateOwnerAuthorization({
+  authorization,
+  preflight = buildInventoryPreflight(),
+}) {
+  const auth =
+    typeof authorization === 'string'
+      ? JSON.parse(readFileSync(authorization, 'utf8'))
+      : authorization;
+
+  if (!auth || typeof auth !== 'object') throw new Error('authorization_missing');
+  if (auth.schema !== 'cambium.phase9.owner-read-authorization.v1') {
+    throw new Error('authorization_schema_mismatch');
+  }
+  if (auth.decision !== 'approve-scoped-read') {
+    throw new Error('authorization_not_affirmative');
+  }
+  if (auth.scope !== 'one-run') throw new Error('authorization_scope_mismatch');
+  if (!Array.isArray(auth.inventoryOperations) || auth.inventoryOperations.length !== 3) {
+    throw new Error('authorization_operations_mismatch');
+  }
+  for (const operation of INVENTORY_OPERATIONS) {
+    if (!auth.inventoryOperations.includes(operation)) {
+      throw new Error('authorization_operations_mismatch');
+    }
+  }
+  if (!Array.isArray(auth.scopes) || auth.scopes.length !== 4) {
+    throw new Error('authorization_scope_count_mismatch');
+  }
+
+  const expected = new Map(preflight.scopes.map((scope) => [scopeKey(scope), scope]));
+  for (const scope of auth.scopes) {
+    const key = scopeKey(scope);
+    if (!expected.has(key)) throw new Error('authorization_scope_mismatch');
+    expected.delete(key);
+  }
+  if (expected.size !== 0) throw new Error('authorization_scope_incomplete');
+
+  return auth;
+}
+
+/**
+ * Probe whether local tooling can attempt authenticated R2 reads.
+ * Never prints secrets or redacted rclone config bodies.
+ *
+ * @param {object} [options]
+ * @param {(command: string) => boolean} [options.hasCommand]
+ * @returns {{ ready: boolean, blocker?: string, tools: object }}
+ */
+export function probeRuntimeAuthAvailability({
+  hasCommand = (command) => {
+    const result = spawnSync('bash', ['-lc', `command -v ${command}`], {
+      encoding: 'utf8',
+    });
+    return result.status === 0 && Boolean(result.stdout?.trim());
+  },
+} = {}) {
+  const tools = {
+    rclone: hasCommand('rclone'),
+    r2Crypt: hasCommand('r2-crypt'),
+    wrangler: hasCommand('wrangler'),
+  };
+
+  if (!tools.rclone && !tools.r2Crypt && !tools.wrangler) {
+    return {
+      ready: false,
+      blocker: 'runtime_auth_unavailable',
+      tools,
+    };
+  }
+
+  // Presence of a CLI binary is not runtime auth proof; a later successful
+  // exact-prefix read is required. This probe only clears the hard-missing
+  // tooling case so --run can fail closed before constructing remote calls.
+  return {
+    ready: true,
+    tools,
+  };
+}
+
+/**
+ * Execute the authorized inventory run gate. Validates owner authorization,
+ * refuses repository-path private dirs, and fails closed when runtime auth
+ * tooling is unavailable. Does not invent a success receipt from a blocker.
+ *
+ * @param {object} options
+ * @param {string} options.ownerAuthorizationPath
+ * @param {string} options.privateDir
+ * @param {string} [options.summaryPath]
+ * @param {object} [options.preflight]
+ * @param {typeof probeRuntimeAuthAvailability} [options.probeRuntime]
+ * @returns {object}
+ */
+export function executeAuthorizedInventoryRun({
+  ownerAuthorizationPath,
+  privateDir,
+  summaryPath,
+  preflight = buildInventoryPreflight(),
+  probeRuntime = probeRuntimeAuthAvailability,
+}) {
+  if (!ownerAuthorizationPath) throw new Error('owner_authorization_required');
+  if (!privateDir) throw new Error('private_dir_required');
+
+  const resolvedPrivate = resolve(privateDir);
+  const resolvedRepo = resolve(REPOSITORY_ROOT);
+  if (
+    resolvedPrivate === resolvedRepo
+    || resolvedPrivate.startsWith(`${resolvedRepo}/`)
+  ) {
+    throw new Error('private_dir_inside_repository');
+  }
+
+  const authorization = validateOwnerAuthorization({
+    authorization: ownerAuthorizationPath,
+    preflight,
+  });
+
+  const runtime = probeRuntime();
+  const runStart = new Date().toISOString();
+
+  if (!runtime.ready) {
+    const held = {
+      schema: 'cambium.cloudflare-r2-inventory-receipt.v1',
+      version: 1,
+      status: 'held',
+      blocker: runtime.blocker || 'runtime_auth_unavailable',
+      runStart,
+      runEnd: new Date().toISOString(),
+      authorizedScopes: authorization.scopes.length,
+      inventoryOperations: [...authorization.inventoryOperations],
+      requirements: {
+        'INV-01': 'held',
+        'CLASS-01': 'held',
+      },
+      message:
+        'Owner authorization accepted. Authenticated inventory blocked because local runtime auth tooling is unavailable.',
+      toolsPresent: runtime.tools,
+    };
+    if (summaryPath) {
+      writeFileSync(summaryPath, `${JSON.stringify(held, null, 2)}\n`, 'utf8');
+    }
+    return held;
+  }
+
+  return {
+    schema: 'cambium.cloudflare-r2-inventory-receipt.v1',
+    version: 1,
+    status: 'blocked',
+    blocker: 'live_transport_not_wired',
+    runStart,
+    runEnd: new Date().toISOString(),
+    authorizedScopes: authorization.scopes.length,
+    requirements: {
+      'INV-01': 'held',
+      'CLASS-01': 'held',
+    },
+    message:
+      'Owner authorization and runtime tooling probe passed, but live rclone/Worker transport is not wired in this checkout yet.',
+    toolsPresent: runtime.tools,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -504,6 +687,9 @@ function parseCliArgs(argv) {
     preflight: false,
     run: false,
     output: null,
+    ownerAuthorization: null,
+    privateDir: null,
+    summary: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
@@ -520,6 +706,21 @@ function parseCliArgs(argv) {
       index += 1;
       continue;
     }
+    if (flag === '--owner-authorization' && index + 1 < argv.length) {
+      values.ownerAuthorization = argv[index + 1];
+      index += 1;
+      continue;
+    }
+    if (flag === '--private-dir' && index + 1 < argv.length) {
+      values.privateDir = argv[index + 1];
+      index += 1;
+      continue;
+    }
+    if (flag === '--summary' && index + 1 < argv.length) {
+      values.summary = argv[index + 1];
+      index += 1;
+      continue;
+    }
     throw new Error(`unknown_flag:${flag}`);
   }
   return values;
@@ -533,15 +734,32 @@ if (isMain) {
   try {
     const args = parseCliArgs(process.argv.slice(2));
     if (args.run) {
-      console.log(
-        JSON.stringify({
-          status: 'blocked',
-          reason: 'owner_read_authorization_required',
-          message:
-            'Authenticated --run remains held until Task 2 approve-scoped-read is recorded. Use --preflight first.',
-        }),
-      );
-      process.exitCode = 2;
+      if (!args.ownerAuthorization) {
+        console.log(
+          JSON.stringify({
+            status: 'blocked',
+            reason: 'owner_read_authorization_required',
+            message:
+              'Authenticated --run requires --owner-authorization with approve-scoped-read.',
+          }),
+        );
+        process.exitCode = 2;
+      } else {
+        const result = executeAuthorizedInventoryRun({
+          ownerAuthorizationPath: resolve(args.ownerAuthorization),
+          privateDir: args.privateDir || '',
+          summaryPath: args.summary ? resolve(args.summary) : undefined,
+        });
+        console.log(
+          JSON.stringify({
+            status: result.status,
+            blocker: result.blocker || null,
+            authorizedScopes: result.authorizedScopes,
+            requirements: result.requirements,
+          }),
+        );
+        if (result.status !== 'success') process.exitCode = 2;
+      }
     } else if (args.preflight) {
       const outputPath =
         args.output ||
@@ -564,7 +782,7 @@ if (isMain) {
         JSON.stringify({
           status: 'phase-9-collector-ready',
           message:
-            'Collector library ready. Run --preflight to materialize infra scopes; --run stays held without owner authorization.',
+            'Collector library ready. Run --preflight to materialize infra scopes; --run requires owner authorization.',
           approvedPrefixes: APPROVED_PREFIXES.length,
         }),
       );

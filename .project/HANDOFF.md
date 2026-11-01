@@ -1,14 +1,15 @@
-## Phase 9 inventory preflight — 1 November 2026
+## Phase 9 owner authorize-scoped-read recorded — 1 November 2026
 
-Materialized the four authenticated-read scopes from the Phase 8 Cloudflare resource map and profile resolver into `docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json`. Inventory CLI gained `--preflight`; `--run` still blocks without owner authorization. Collector tests 36/36. INV-01/CLASS-01 remain held. No R2 list/head/get, copy, deploy, vault, registry, session, provider, or production mutation.
+Owner approved the four preflight scopes. Authorization is at `.planning/phases/09-source-inventory-and-classification/09-01-OWNER-AUTHORIZATION.json`. `--run` accepted it and stopped on sanitized blocker `runtime_auth_unavailable` (no rclone/r2-crypt/wrangler auth in this cloud checkout). INV-01/CLASS-01 remain held. No R2 object reads, copy, deploy, vault, registry, session, provider, or production mutation.
 
 # Project handoff
 
-### 2026-11-01 Phase 9 inventory preflight from infra map
+### 2026-11-01 Phase 9 authorize-scoped-read then held inventory
 
-- Branch `cursor/phase-9-inventory-preflight-5b84` prepares Task 2 decision input: exact account IDs, profile aliases, buckets, approved prefixes, and `list`/`head`/`get` only.
-- Scopes: `thoughtseed-vault` / `portfolio/thoughtseed/workobjects/` and `thoughtseed-context-projections` / `context/v1/daily-standup-digest/standups/` on both `9d9d` (legacy-source) and `thoughtseed-labs` (labs-production).
-- Regenerable with `node scripts/cloudflare-r2-source-inventory.mjs --preflight`. Authenticated inventory still requires `approve-scoped-read` in `09-01-OWNER-AUTHORIZATION.json`.
+- Preflight scopes from the Phase 8 resource map remain the authorization boundary.
+- Held receipt: `docs/evidence/cambium-cloudflare-r2-inventory-phase-9.v1.json` (`runtime_auth_unavailable`).
+- Summary/verification: `09-01-SUMMARY.md`, `09-VERIFICATION.md`. Collector tests 41/41.
+- Next: re-run `--run` on an operator host with mapped read credentials; do not treat this held receipt as Phase 9 success.
 
 ## Local cited-text integration — 26 October 2026
 

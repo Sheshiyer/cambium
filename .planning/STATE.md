@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
-stopped_at: Phase 9 inventory preflight ready; authenticated read still needs owner authorize-scoped-read
-last_updated: "2026-11-01T07:48:00.000Z"
-last_activity: 2026-11-01 — Resource-map inventory preflight materialized; no live R2 inventory
+stopped_at: Phase 9 owner authorize-scoped-read recorded; inventory held on runtime_auth_unavailable
+last_updated: "2026-11-01T07:50:30.000Z"
+last_activity: 2026-11-01 — Owner read authorization accepted; live inventory blocked without rclone/wrangler auth
 progress:
   total_phases: 3
   completed_phases: 1
@@ -25,14 +25,14 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** An operator action counts only when its durable task, lease,
 artifact, outcome, and readback agree.
-**Current focus:** Obtain Task 2 `approve-scoped-read` for the four preflighted R2 scopes, then run authenticated inventory while preserving verified Thoughtseed Labs production authority.
+**Current focus:** Re-run authenticated Phase 9 inventory from an operator host with mapped R2 read tooling after the recorded `approve-scoped-read` authorization, while preserving verified Thoughtseed Labs production authority.
 
 ## Current Position
 
 Phase: 9 of 10 (Source Inventory and Classification)
-Plan: 09-01 Task 1 collector + resource-map preflight ready; authenticated read checkpoint awaiting owner authorization
+Plan: 09-01 owner authorization recorded; live inventory held on `runtime_auth_unavailable`
 Status: Active
-Last activity: 2026-11-01 — Inventory preflight written from Cloudflare resource map and profile resolver; INV-01/CLASS-01 still held
+Last activity: 2026-11-01 — approve-scoped-read accepted for four scopes; INV-01/CLASS-01 still held
 
 ## Accumulated Context
 
@@ -53,13 +53,13 @@ Last activity: 2026-11-01 — Inventory preflight written from Cloudflare resour
 
 ### Pending Todos
 
-- Review `docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json` and record Task 2 `approve-scoped-read` (or decline) before any authenticated inventory.
+- Re-run Phase 9 `--run` on a host with rclone/r2-crypt/wrangler mapped read credentials using a valid one-run owner authorization.
 - Keep Phase 10 copy and retirement work held behind separate approval and a Phase 9 success receipt.
 
 ### Blockers/Concerns
 
 - Exact source-only R2 keys and digests are not yet available.
-- Owner read authorization for the four preflight scopes is not yet recorded.
+- Cloud agent environment lacks rclone/r2-crypt/wrangler runtime auth (`runtime_auth_unavailable`).
 - Current bucket totals are observations, not a transfer manifest.
 - Cloudflare writes, deploys, DNS, Access, tunnels, traffic, copy, deletion,
   retirement, and merge remain separately gated.
@@ -78,7 +78,7 @@ Last activity: 2026-11-01 — Inventory preflight written from Cloudflare resour
 ## Session Continuity
 
 Last session: 2026-11-01
-Stopped at: Phase 9 inventory preflight ready; authenticated read still needs owner authorize-scoped-read
+Stopped at: Phase 9 owner authorize-scoped-read recorded; inventory held on runtime_auth_unavailable
 Resume file: .planning/STATE.md
 
 ## 2026-09-08 Saanmai census and local headers
@@ -93,4 +93,4 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 
 ## Operator Next Step
 
-Review the four scopes in `docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json` (derived from the Phase 8 resource map and profile resolver). If the scopes are correct, record Task 2 `approve-scoped-read` in `09-01-OWNER-AUTHORIZATION.json` and only then run authenticated inventory. Do not mark INV-01/CLASS-01 complete from preflight or synthetic tests. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by this preflight.
+Owner authorization is recorded. Re-run authenticated inventory from an operator environment that has the mapped R2 read tooling, pointing `--owner-authorization` at a current one-run approve-scoped-read artifact and a private directory outside the repository. Do not mark INV-01/CLASS-01 complete from the held `runtime_auth_unavailable` receipt. No live inventory, source-object allowlist, transfer, deployment, or retirement succeeded in this cloud session.

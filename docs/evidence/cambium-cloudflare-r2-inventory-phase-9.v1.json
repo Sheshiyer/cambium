@@ -1,17 +1,24 @@
 {
   "schema": "cambium.cloudflare-r2-inventory-receipt.v1",
   "version": 1,
-  "status": "phase-9-preflight-ready",
-  "message": "Collector library and resource-map preflight are ready. Authenticated inventory remains held until Task 2 approve-scoped-read authorization.",
-  "approvedPrefixes": 2,
-  "preflight": "docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json",
+  "status": "held",
+  "blocker": "runtime_auth_unavailable",
+  "runStart": "2026-11-01T07:50:19.878Z",
+  "runEnd": "2026-11-01T07:50:19.878Z",
+  "authorizedScopes": 4,
+  "inventoryOperations": [
+    "list",
+    "head",
+    "get"
+  ],
   "requirements": {
     "INV-01": "held",
     "CLASS-01": "held"
   },
-  "testResult": {
-    "collectorTests": 36,
-    "pass": 36,
-    "fail": 0
+  "message": "Owner authorization accepted. Authenticated inventory blocked because local runtime auth tooling is unavailable.",
+  "toolsPresent": {
+    "rclone": false,
+    "r2Crypt": false,
+    "wrangler": false
   }
 }

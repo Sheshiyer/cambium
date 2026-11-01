@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
@@ -17,6 +17,9 @@ import {
   loadResourceMap,
   buildInventoryPreflight,
   writeInventoryPreflight,
+  validateOwnerAuthorization,
+  probeRuntimeAuthAvailability,
+  executeAuthorizedInventoryRun,
 } from './cloudflare-r2-source-inventory.mjs';
 
 import {
@@ -744,4 +747,107 @@ test('writeInventoryPreflight writes aggregate-only durable JSON', () => {
   assert.equal(serialized.includes('secret'), false);
   assert.equal(serialized.includes('Authorization'), false);
   assert.equal(serialized.includes('/home/'), false);
+});
+
+function sampleAuthorization(preflight = buildInventoryPreflight({ preparedAt: '2026-11-01T08:00:00.000Z' })) {
+  return {
+    schema: 'cambium.phase9.owner-read-authorization.v1',
+    version: 1,
+    decision: 'approve-scoped-read',
+    approvedAt: '2026-11-01T07:48:30.000Z',
+    scope: 'one-run',
+    inventoryOperations: [...INVENTORY_OPERATIONS],
+    scopes: preflight.scopes.map((scope) => ({
+      role: scope.role,
+      profileAlias: scope.profileAlias,
+      wranglerProfile: scope.wranglerProfile,
+      accountId: scope.accountId,
+      config: scope.config,
+      binding: scope.binding,
+      bucket: scope.bucket,
+      prefix: scope.prefix,
+    })),
+  };
+}
+
+test('validateOwnerAuthorization accepts matching approve-scoped-read artifact', () => {
+  const preflight = buildInventoryPreflight({ preparedAt: '2026-11-01T08:00:00.000Z' });
+  const auth = validateOwnerAuthorization({
+    authorization: sampleAuthorization(preflight),
+    preflight,
+  });
+  assert.equal(auth.decision, 'approve-scoped-read');
+  assert.equal(auth.scopes.length, 4);
+});
+
+test('validateOwnerAuthorization rejects decline and mismatched scopes', () => {
+  const preflight = buildInventoryPreflight({ preparedAt: '2026-11-01T08:00:00.000Z' });
+  assert.throws(
+    () =>
+      validateOwnerAuthorization({
+        authorization: { ...sampleAuthorization(preflight), decision: 'decline-scoped-read' },
+        preflight,
+      }),
+    /authorization_not_affirmative/,
+  );
+
+  const mismatched = sampleAuthorization(preflight);
+  mismatched.scopes[0] = { ...mismatched.scopes[0], prefix: 'other/' };
+  assert.throws(
+    () => validateOwnerAuthorization({ authorization: mismatched, preflight }),
+    /authorization_scope_mismatch/,
+  );
+});
+
+test('probeRuntimeAuthAvailability reports sanitized missing-tool blocker', () => {
+  const result = probeRuntimeAuthAvailability({
+    hasCommand: () => false,
+  });
+  assert.equal(result.ready, false);
+  assert.equal(result.blocker, 'runtime_auth_unavailable');
+  assert.equal(result.tools.rclone, false);
+});
+
+test('executeAuthorizedInventoryRun holds on missing runtime auth after valid authorization', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cambium-phase9-auth-'));
+  const authPath = join(dir, 'auth.json');
+  const summaryPath = join(dir, 'summary.json');
+  const privateDir = mkdtempSync(join(tmpdir(), 'cambium-phase9-private-'));
+  const preflight = buildInventoryPreflight({ preparedAt: '2026-11-01T08:00:00.000Z' });
+  writeFileSync(authPath, `${JSON.stringify(sampleAuthorization(preflight), null, 2)}\n`);
+
+  const result = executeAuthorizedInventoryRun({
+    ownerAuthorizationPath: authPath,
+    privateDir,
+    summaryPath,
+    preflight,
+    probeRuntime: () => ({
+      ready: false,
+      blocker: 'runtime_auth_unavailable',
+      tools: { rclone: false, r2Crypt: false, wrangler: false },
+    }),
+  });
+
+  assert.equal(result.status, 'held');
+  assert.equal(result.blocker, 'runtime_auth_unavailable');
+  assert.equal(result.requirements['INV-01'], 'held');
+  const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+  assert.equal(summary.blocker, 'runtime_auth_unavailable');
+  assert.equal(JSON.stringify(summary).includes(privateDir), false);
+});
+
+test('executeAuthorizedInventoryRun rejects private dirs inside the repository', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'cambium-phase9-auth-'));
+  const authPath = join(dir, 'auth.json');
+  const preflight = buildInventoryPreflight({ preparedAt: '2026-11-01T08:00:00.000Z' });
+  writeFileSync(authPath, `${JSON.stringify(sampleAuthorization(preflight), null, 2)}\n`);
+  assert.throws(
+    () =>
+      executeAuthorizedInventoryRun({
+        ownerAuthorizationPath: authPath,
+        privateDir: process.cwd(),
+        preflight,
+      }),
+    /private_dir_inside_repository/,
+  );
 });
