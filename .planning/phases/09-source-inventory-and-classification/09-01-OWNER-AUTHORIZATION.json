@@ -1,0 +1,65 @@
+{
+  "schema": "cambium.phase9.owner-read-authorization.v1",
+  "version": 1,
+  "decision": "approve-scoped-read",
+  "approvedAt": "2026-11-01T07:48:30.000Z",
+  "scope": "one-run",
+  "preflight": "docs/evidence/cambium-cloudflare-r2-inventory-phase-9-preflight.v1.json",
+  "inventoryOperations": [
+    "list",
+    "head",
+    "get"
+  ],
+  "scopes": [
+    {
+      "role": "legacy-source",
+      "profileAlias": "legacy-source",
+      "wranglerProfile": "9d9d",
+      "accountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+      "config": "workers/quests/wrangler.jsonc",
+      "binding": "THOUGHTSEED_VAULT",
+      "bucket": "thoughtseed-vault",
+      "prefix": "portfolio/thoughtseed/workobjects/"
+    },
+    {
+      "role": "labs-production",
+      "profileAlias": "labs-production",
+      "wranglerProfile": "thoughtseed-labs",
+      "accountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+      "config": "workers/quests/wrangler.labs.jsonc",
+      "binding": "THOUGHTSEED_VAULT",
+      "bucket": "thoughtseed-vault",
+      "prefix": "portfolio/thoughtseed/workobjects/"
+    },
+    {
+      "role": "legacy-source",
+      "profileAlias": "legacy-source",
+      "wranglerProfile": "9d9d",
+      "accountId": "9d9d23b27f32e70ae3afb6a1aa2c0f10",
+      "config": "workers/quests/wrangler.jsonc",
+      "binding": "CONTEXT_PROJECTIONS",
+      "bucket": "thoughtseed-context-projections",
+      "prefix": "context/v1/daily-standup-digest/standups/"
+    },
+    {
+      "role": "labs-production",
+      "profileAlias": "labs-production",
+      "wranglerProfile": "thoughtseed-labs",
+      "accountId": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+      "config": "workers/quests/wrangler.labs.jsonc",
+      "binding": "CONTEXT_PROJECTIONS",
+      "bucket": "thoughtseed-context-projections",
+      "prefix": "context/v1/daily-standup-digest/standups/"
+    }
+  ],
+  "exclusions": [
+    "no-object-copy",
+    "no-object-delete",
+    "no-worker-deploy",
+    "no-dns-access-tunnel-mutation",
+    "no-d1-kv-vectorize-mutation",
+    "no-bucket-root-listing",
+    "no-unapproved-prefix"
+  ],
+  "note": "Owner selected approve-scoped-read after reviewing the resource-map inventory preflight. This authorizes one authenticated list/head/get run for the four scopes only."
+}

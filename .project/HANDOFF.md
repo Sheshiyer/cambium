@@ -1,8 +1,19 @@
+## Phase 9 owner authorize-scoped-read recorded — 1 November 2026
+
+Owner approved the four preflight scopes. Authorization is at `.planning/phases/09-source-inventory-and-classification/09-01-OWNER-AUTHORIZATION.json`. `--run` accepted it and stopped on sanitized blocker `runtime_auth_unavailable` (no rclone/r2-crypt/wrangler auth in this cloud checkout). INV-01/CLASS-01 remain held. No R2 object reads, copy, deploy, vault, registry, session, provider, or production mutation.
+
+# Project handoff
+
+### 2026-11-01 Phase 9 authorize-scoped-read then held inventory
+
+- Preflight scopes from the Phase 8 resource map remain the authorization boundary.
+- Held receipt: `docs/evidence/cambium-cloudflare-r2-inventory-phase-9.v1.json` (`runtime_auth_unavailable`).
+- Summary/verification: `09-01-SUMMARY.md`, `09-VERIFICATION.md`. Collector tests 41/41.
+- Next: re-run `--run` on an operator host with mapped read credentials; do not treat this held receipt as Phase 9 success.
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
-
-# Project handoff
 
 ### 2026-10-26 worktree and branch reconciliation — one working head
 

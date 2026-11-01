@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: Thoughtseed Labs Consolidation and Governed 9d9d Retirement
 status: Active
-stopped_at: Phase 9 plan ready; collector implementation and authenticated inventory remain
-last_updated: "2026-09-27T19:45:00.000Z"
-last_activity: 2026-09-27 — Local branch reconciliation and deterministic source verification; no live inventory
+stopped_at: Phase 9 owner authorize-scoped-read recorded; inventory held on runtime_auth_unavailable
+last_updated: "2026-11-01T07:50:30.000Z"
+last_activity: 2026-11-01 — Owner read authorization accepted; live inventory blocked without rclone/wrangler auth
 progress:
   total_phases: 3
   completed_phases: 1
@@ -25,15 +25,14 @@ See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** An operator action counts only when its durable task, lease,
 artifact, outcome, and readback agree.
-**Current focus:** Review the reconciled source and implement the planned exact read-only `9d9d` inventory tooling while
-preserving verified Thoughtseed Labs production authority.
+**Current focus:** Re-run authenticated Phase 9 inventory from an operator host with mapped R2 read tooling after the recorded `approve-scoped-read` authorization, while preserving verified Thoughtseed Labs production authority.
 
 ## Current Position
 
 Phase: 9 of 10 (Source Inventory and Classification)
-Plan: 09-01 executable plan present; Task 1 implementation and authenticated read checkpoint not executed
+Plan: 09-01 owner authorization recorded; live inventory held on `runtime_auth_unavailable`
 Status: Active
-Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan retained with implementation and live evidence unclaimed
+Last activity: 2026-11-01 — approve-scoped-read accepted for four scopes; INV-01/CLASS-01 still held
 
 ## Accumulated Context
 
@@ -54,12 +53,13 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 
 ### Pending Todos
 
-- Implement and synthetically verify Phase 9 Task 1, then obtain the exact authenticated source/target inventory authorization before live reads.
-- Keep Phase 10 copy and retirement work held behind separate approval.
+- Re-run Phase 9 `--run` on a host with rclone/r2-crypt/wrangler mapped read credentials using a valid one-run owner authorization.
+- Keep Phase 10 copy and retirement work held behind separate approval and a Phase 9 success receipt.
 
 ### Blockers/Concerns
 
 - Exact source-only R2 keys and digests are not yet available.
+- Cloud agent environment lacks rclone/r2-crypt/wrangler runtime auth (`runtime_auth_unavailable`).
 - Current bucket totals are observations, not a transfer manifest.
 - Cloudflare writes, deploys, DNS, Access, tunnels, traffic, copy, deletion,
   retirement, and merge remain separately gated.
@@ -77,8 +77,8 @@ Last activity: 2026-09-27 — Reconciled local source candidates; Phase 9 plan r
 
 ## Session Continuity
 
-Last session: 2026-09-27
-Stopped at: Phase 9 plan ready; collector implementation and authenticated inventory remain
+Last session: 2026-11-01
+Stopped at: Phase 9 owner authorize-scoped-read recorded; inventory held on runtime_auth_unavailable
 Resume file: .planning/STATE.md
 
 ## 2026-09-08 Saanmai census and local headers
@@ -93,4 +93,4 @@ GSD quick260908-lme completed source3fb58d3 and reviewed publication. Current ce
 
 ## Operator Next Step
 
-Review the local reconciliation and test evidence in `RECONCILIATION-2026-09-27.md`, then execute Task 1 in `09-01-PLAN.md` before the exact authenticated-read checkpoint. The plan now exists; do not restart phase planning or mark INV-01/CLASS-01 complete from synthetic tests. The collector/classifier has not been implemented by this reconciliation. No live inventory, source-object allowlist, transfer, deployment, or retirement was performed by reconciliation.
+Owner authorization is recorded. Re-run authenticated inventory from an operator environment that has the mapped R2 read tooling, pointing `--owner-authorization` at a current one-run approve-scoped-read artifact and a private directory outside the repository. Do not mark INV-01/CLASS-01 complete from the held `runtime_auth_unavailable` receipt. No live inventory, source-object allowlist, transfer, deployment, or retirement succeeded in this cloud session.
