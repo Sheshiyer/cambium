@@ -9,7 +9,7 @@ Status: local experiment. Draft visibility only. Do not merge.
 | Branch | `cursor/experiment-taste-hands-v0.1-2h-e7e3` |
 | Palette `source_sha` | `8261d4840988e2e1c6fa6c2eb85cee96d4344b58` |
 | Research `source_sha` | `1a97cd396709357cffaf45f417dde40c84a50b9a` |
-| Implementation commit | filled in the stamp commit after the first commit on this branch |
+| Implementation commit | `3a5d16a9365989c664640c752d034a6cedc9adbb` |
 | Contract | `docs/experiments/taste-hands-v0.1/cambium.taste-hands.v0.1.md` |
 | Example | `docs/experiments/taste-hands-v0.1/DESIGN.md` |
 | Checker | `docs/experiments/taste-hands-v0.1/check.mjs` |
