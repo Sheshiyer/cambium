@@ -20,6 +20,10 @@ test('glyph metadata keeps every organ as an abstract object, not a building', (
   }
 });
 
+test('body face uses the condensed sans stack at text size', () => {
+  assert.equal(visualTokens.typography.body, visualTokens.typography.display);
+});
+
 test('fog and material tokens are present for a game-engine scene pass', () => {
   assert.equal(visualTokens.materials.fog.color, visualTokens.colors.ink);
   assert.ok(visualTokens.materials.fog.far > visualTokens.materials.fog.near);

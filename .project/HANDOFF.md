@@ -1,3 +1,7 @@
+## Taste→Hands v0.1 adoption review — 1 November 2026
+
+Review copy is `docs/architecture/contracts/taste-hands-v0.1/`. `visual-tokens.ts` gains a body face on the existing condensed sans stack. The design-system plate was opened first. Its accent `#E0FFAF`, paper, and warning swatches stay off the canonical palette. Signal remains `#E0FF4F`. The location stylesheet is a separate change. Draft experiment PR #414 stays unmerged. Gates and viewport proof stay held. An independent blind model scored the binding 5 and the production paints 1. The owner score is blank.
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
