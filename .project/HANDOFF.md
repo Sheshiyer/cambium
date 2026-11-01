@@ -1,3 +1,7 @@
+## Distillation proposal — 1 November 2026
+
+Proposal only, awaiting the Cambium owner: `docs/project-management/2026-11-01-distillation-proposal.md`.
+
 ## Worktree, branch, and PR reconciliation — 1 November 2026
 
 This cloud checkout is `Sheshiyer/cambium` only. `main` is `8261d4840988e2e1c6fa6c2eb85cee96d4344b58`. Noesis Cambium (`github.com/Sheshiyer/noesis-cambium`) is the personal Temperance plant in the integration contract and was not readable from this credential, so it was not synced and was not added as a remote. One worktree, 41 topic branches, and 11 open pull requests are classified in `docs/project-management/2026-11-01-worktree-branch-pr-reconciliation.md`. Nothing was merged or deleted. #415 is stacked on the taste-hands experiment branch, not on `main`. `codex/iverif-fr-gtm-20260911` stays do-not-merge. Distillation is a later learning proposal, not this ledger.
