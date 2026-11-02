@@ -1,12 +1,13 @@
 # Native identity contract (cambium.native-session.v1)
 
-Status: server source and local tests exist. Handler wiring, the 0100
-migration apply, client registration and any live browser grant have not been
+Status: server source and local tests exist. Handler wiring, the 0100 and 0101
+migration applies, client registration and any live browser grant have not been
 done. Reviewed contract: `.planning/native-mac/NATIVE-SESSION-CONTRACT.md`.
 
 Source: `workers/quests/src/native-session.ts` (routes, resolver, factory),
 `workers/quests/src/native-session-d1.ts` (D1 store),
-`workers/quests/migrations/0100_native_sessions.sql`.
+`workers/quests/migrations/0100_native_sessions.sql`, and
+`workers/quests/migrations/0101_native_consent.sql`.
 
 The Mac app gets a short delegated founder session through an external browser
 and PKCE S256 (RFC 8252, RFC 7636). It is not an identity authority. Access or
@@ -48,7 +49,8 @@ fails unless it is the registered one.
 Generated wire vector: `workers/quests/src/fixtures/native-session-wire.v1.json`.
 The test `native identity wire fixture equals real handler output` drives
 authorize, exchange, read and logout through the real handlers with fixed
-synthetic randomness (code bytes all `0x00`, token bytes all `0x01`) and a
+synthetic randomness (consent draws precede code bytes `0x02` and token bytes
+`0x03`) and a
 clock with fractional milliseconds, then compares the result to the file. The
 values are synthetic and are not credentials. The file holds no
 `Authorization` header. The client builds `Bearer <token>` itself. Regenerate

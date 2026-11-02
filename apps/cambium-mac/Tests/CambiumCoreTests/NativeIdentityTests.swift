@@ -893,7 +893,7 @@ final class NativeIdentityTests: XCTestCase {
         static let fixtureName = "native-session-wire.v1"
         static let lineageName = "native-session-wire-source"
         /// SHA-256 of the byte-exact fixture copy. Asserted in-test; no machine path is tracked.
-        static let sha256 = "d4d050c4e114547c5cabf410ceba5b9c3ce29fbdce04cef17514fd7ef3bb3b50"
+        static let sha256 = "62bae3ed2a5cb64493165db5763371559ae416990708385b61de0aebce9ebade"
         /// Source `FIXTURE_NOW`. The owner issued the session at this instant, so expiry is exactly
         /// the 15 minute cap away. A clock that drops the milliseconds would see 900.123 s and refuse.
         static let issuedAt = NativeIdentityController.parseExpiry("2026-11-02T00:30:00.123Z")
@@ -909,7 +909,7 @@ final class NativeIdentityTests: XCTestCase {
             XCTAssertEqual(lineage["sha256"] as? String, sha256)
             XCTAssertEqual(lineage["fixture"] as? String, "\(fixtureName).json")
             XCTAssertEqual(lineage["sourcePath"] as? String, "workers/quests/src/fixtures/native-session-wire.v1.json")
-            XCTAssertEqual(lineage["sourceCommit"] as? String, "419142cf69036c5b407afc711203508cd47c5282")
+            XCTAssertEqual(lineage["sourceCommit"] as? String, "3e37271ba3f290104c213462ae8d075339e76bfa")
             return NativeSessionWireFixture(raw: raw, object: object, lineage: lineage)
         }
 

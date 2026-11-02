@@ -29,10 +29,17 @@ One enrolled tenant can be selected automatically; multiple without a choice
 return409 `tenant_selection_required` with that authenticated founder's allowed
 tenants. Foreign/unknown tenant returns the same403 refusal.
 
-Successful authorization returns302 to the exact registered callback with
-`code` and `state`. Code has at least256 random bits; only its SHA256 digest is
-stored in D1. Code TTL is60seconds, measured after browser founder verification.
-All responses use no-store and no-referrer. No code/token is logged.
+The GET returns a bounded HTML consent form and a short-lived, one-time D1
+intent bound to the verified founder and all authorization inputs. It issues no
+code. A Secure, HttpOnly, SameSite=Strict cookie and hidden CSRF value bind the
+same-browser POST. The form action carries the validated GET query on the same
+origin; intent and CSRF stay out of the URL. The POST verifies the founder again,
+validates query, form, cookie and intent, consumes the intent atomically, then
+rechecks current founder role and enrollment. Successful consent returns302 to
+the exact registered callback with `code` and `state`. Code has at least256
+random bits; only its SHA256 digest is stored in D1. Code TTL is60seconds from
+the final current-role check. Replay, cross-founder POST or changed binding
+issues no code. Responses use no-store and no-referrer. No code/token is logged.
 
 ## Code exchange and session
 
@@ -68,7 +75,7 @@ Errors contain contractVersion and a bounded categorical error, never raw
 credentials, callback URL, headers, store errors, or request bodies. Invalid
 request/client/grant400; unauthorized401; forbidden403; tenant selection409;
 unconfigured503. Client registry, browser verifier, current-role lookup,
-enrollment lookup, clock/randomness and store are mandatory owner bindings.
+enrollment lookup, clock/randomness, consent store and session store are mandatory owner bindings.
 Missing any makes the factory return undefined and routes503.
 
 ## Authority-preserving resolution
