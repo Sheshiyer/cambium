@@ -30,21 +30,23 @@ claim the older fixture is the current production catalog.
 
 ## Local verification
 
-- `swift test --package-path apps/cambium-mac`: all native and Core tests passed,
-  including 14 new decoder and two new app integration tests.
+- `swift test --package-path apps/cambium-mac`: all native and Core tests passed.
+  The later focused decoder rerun passed 15 tests after final source-field
+  validation; two new app integration tests passed.
 - `node --test workers/quests/src/native-session-routes.test.ts`: 24 passed.
   The new assertion proves a scoped local founder session receives detailed
   records and a separate join report.
 - `./apps/cambium-mac/build.sh`: release app bundle built and ad hoc signed.
-  Embedded build proof reports revision `15ff5de` with clean app inputs and
-  aggregate `f12bc1aa27dd51570c3515cb065ceafb3ca317682bf4d085fe296f97b9eb6641`.
+  Embedded build proof reports revision `334c9a6` with clean app inputs and
+  aggregate `ec1e363fd8da45d6d495ca9d196a1c7f5efca39b2b6f9fd5e99d28510e15cace`.
   `codesign --verify --strict` and build-proof recheck passed.
 
 These are local source, fixture, route-harness and bundle proofs. The Mac was
 locked during the first visual inspection attempt; visual QA is pending an
 unlocked session. An unauthenticated 2026-11-02 read-only probe saw health
 `200` and Mission Fabric `401` on the direct Worker origin, and `401` on the
-custom domain. That proves no founder catalog content. The deployed runtime
+custom domain. The native session path returned `404` on the direct origin.
+That proves no founder catalog content or usable native sign-in route. The deployed runtime
 has not been proven to register the native client, compose a native session
 host, enroll the founder, or serve this catalog to the Mac app. Production
 configuration, migration, deployment and a real founder walkthrough retain
@@ -52,6 +54,7 @@ their separate owner gates.
 
 ## Reversal
 
-Revert the three scoped commits `a62955b`, `d0defc5`, `15ff5de` to remove this
+Revert the scoped implementation commits `a62955b`, `d0defc5`, `15ff5de`, and
+`334c9a6` to remove this
 native project presentation and its test without touching catalog sources,
 runtime configuration, deployment state or the other work in the shared tree.
