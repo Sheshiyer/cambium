@@ -356,6 +356,15 @@ test('native session approves one exact founder proposal with channel native, th
   assert.equal(mf.status, 200, mf.body);
   const projection = JSON.parse(mf.body as string);
   assert.equal(projection.projection?.readOnly ?? projection.readOnly, true);
+  assert.equal(projection.portfolioCatalogSummary?.status, 'render-and-proposal-only');
+  assert.equal(projection.portfolioCatalogSummary?.readOnly, true);
+  assert.equal(projection.portfolioCatalogSummary?.actionAdmission, 'none');
+  assert.equal(projection.portfolioCatalog?.records?.length, projection.portfolioCatalogSummary?.total,
+    'the native founder receives the mapped projects, not only aggregate counts');
+  assert.ok(projection.portfolioJoinReport, 'runtime joins remain a separate owner sidecar');
+  assert.notEqual(projection.portfolioCatalogSummary?.catalogDigest,
+    projection.portfolioCatalogSummary?.actionCatalogDigest,
+    'display catalog and action authority retain distinct pins');
   assert.equal((db.prepare('SELECT count(*) n FROM goal_graph_approvals').get() as any).n, 1, 'reads never write');
 });
 
