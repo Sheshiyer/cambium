@@ -205,6 +205,58 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Criteria
 
+### 2026-11-02 native implementation through hosted Phloem
+
+Local source, synthetic-owner, signed-bundle and actual macOS window evidence proves these criteria. Live owner enrollment, real admitted execution, notarization and production acceptance remain separate.
+
+- [x] ISC-3400: Hosted Phloem workers return substantive tool-verified implementation receipts.
+- [x] ISC-3401: The native Swift package builds on the installed supported Mac toolchain.
+- [x] ISC-3402: The native shell opens with the whole-system Canopy.
+- [x] ISC-3403: The app provides a focused WorkObject dossier.
+- [x] ISC-3404: Source artwork is bundled with canonical derivative lineage.
+- [x] ISC-3405: The visual theme preserves the reviewed Cambium source language.
+- [x] ISC-3406: Keyboard navigation reaches overview, dossier, review and run views.
+- [x] ISC-3407: The app exposes an accessible linear equivalent to the visual graph.
+- [x] ISC-3408: Strict domain decoding preserves tenant and exact subject boundaries.
+- [x] ISC-3409: Read clients preserve graph and portfolio sidecars separately.
+- [x] ISC-3410: Canonical digest vectors agree between Swift and the existing contract.
+- [x] ISC-3411: Native decision review displays the complete server-owned change set.
+- [x] ISC-3412: Decision confirmation binds the original version, nonce, expiry and digest.
+- [x] ISC-3413: Uncertain decision recovery performs status only without resubmission.
+- [x] ISC-3414: Native launch validates a current owner-issued capability.
+- [x] ISC-3415: Launch request identity persists before transmission.
+- [x] ISC-3416: Uncertain launch recovery queries the original request without duplicate dispatch.
+- [x] ISC-3417: Run observation separates transport, execution and semantic acceptance.
+- [x] ISC-3418: Reader changes invalidate incompatible cached context.
+- [x] ISC-3419: Fixture mode is visibly labelled and isolated from live adapters.
+- [x] ISC-3420: Live native identity prerequisites are explicit and never replaced by runner credentials.
+- [x] ISC-3421: Unsupported launch classes remain explicit without fabricated eligibility.
+- [x] ISC-3422: The app includes source-specific Field Theory and Field Report adapter boundaries.
+- [x] ISC-3423: The app preserves scoped cited-knowledge references.
+- [x] ISC-3424: Native preferences and scene restoration avoid operational authority.
+- [x] ISC-3425: The local app bundle uses a non-conflicting development identity.
+- [x] ISC-3426: Native tests cover malformed, stale and cross-scope source records.
+- [x] ISC-3427: Native tests cover lost responses and restart recovery.
+- [x] ISC-3428: Light and dark native screenshots expose actual rendered surfaces.
+- [x] ISC-3429: Reduced-motion behavior preserves complete static information.
+- [x] ISC-3430: Anti: this build changes no provider credentials or hosted router configuration.
+- [x] ISC-3431: Anti: this build performs no live business decision, admitted customer work or production deployment.
+
+### Native founder identity source continuation
+
+- [x] ISC-3440: Native sign-in uses an external browser with S256, exact callback and state binding.
+- [x] ISC-3441: Native identity factory closes without explicit client registry and verified owner dependencies.
+- [x] ISC-3442: D1 exchange admits at most one session per code without plaintext code or token at rest.
+- [x] ISC-3443: Native sessions bind client, founder and tenant with current role, enrollment, expiry and revocation checks.
+- [x] ISC-3444: Browser CSRF rules remain intact and invalid native credentials never fall back to browser identity.
+- [x] ISC-3445: Native bearer material stays in memory and is sent only to the configured owner origin.
+- [x] ISC-3446: Canceled callbacks, logout and identity changes cannot restore an obsolete native session.
+- [x] ISC-3447: Gate, Mission Fabric and launch consume one verified native owner scope without body-asserted authority.
+- [x] ISC-3448: Development callback identity is distinct and registered in the native bundle source.
+- [x] ISC-3449: Identity tests falsify replay, parallel exchange, cross-scope inputs, expiry and role drift.
+- [x] ISC-3450: Anti: local identity verification creates no live grant, enrollment or production configuration change.
+- [x] ISC-3451: The native interface composes a real injectable sign-in implementation and states live prerequisites honestly.
+
 ### Standalone composition source slice (2026-10-05)
 
 - [x] ISC-COMPC-01: Repository-owned composition source validates boundaries and rejects unsafe inputs.
