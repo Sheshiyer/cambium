@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "status": "wave1-hosted-implementation-and-core-correction-running",
+  "status": "native-running-first-visual-pass-and-safety-fanout",
   "task": "Build native Cambium via hosted Phloem fan-out",
   "completed": [
     "Reviewed parallel-dispatch protocol and existing native architecture",
@@ -13,18 +13,25 @@
     "Wave1 foreground batch started with worktree isolation",
     "Recovered foundation/interface pre-tool folder failures with stable isolated worker checkouts",
     "Captured first core source packet; independent harness ran 5 tests with 2 failures",
-    "Reviewed first core packet and dispatched corrective hosted work for canonical fixtures, principal scope and durable original launch identity"
+    "Reviewed first core packet and dispatched corrective hosted work for canonical fixtures, principal scope and durable original launch identity",
+    "Built a real ad-hoc signed development app bundle and passed bundle verification",
+    "Captured and reviewed actual light/dark windows at default and minimum sizes",
+    "Verified all eleven portrait resources byte-for-byte against source assets",
+    "Integrated native-launch routes and passed 497 focused backend tests",
+    "Synchronized canonical launch schema and passed seven migration/parity checks",
+    "Native UI check verified dossier, trace graph and equivalent list, synthetic confirmation gating and demo exit clearing state",
+    "Found keyboard command-registration gap; hosted correction is active",
+    "Fixed a dead lost-response preview control in source; rebuilt-app retest remains open"
   ],
   "remaining": [
-    "Finish existing hosted foundation, interface, owner-contract and core-correction workers",
-    "Review exact source and actual test evidence before integrating",
-    "Compile and test native app; connect UI to corrected owner coordinators",
-    "Build local bundle and verify rendered light/dark surfaces, navigation and recovery"
+    "Finish current disjoint hosted Gate, launch, fabric-decoder, navigation and read-client packets",
+    "Bind native UI to tested Gate/Launch coordinators, retaining visible isolated demo mode",
+    "Rebuild and verify keyboard flow, real owner-wire fixture parity, restart recovery and per-page native captures",
+    "Review exact source, integrate task-owned changes into primary checkout without disturbing other work, and record acceptance limits"
   ],
   "blockers": [
-    "Codex wire rejected config before inference; hosted native Grok client is producing tools and code instead",
-    "Batch wrapper malformed summary after preserving core diff; stable isolated workers avoid that wrapper",
-    "Live native identity exchange and execution-owner bindings still require runtime proof"
+    "Native owner identity exchange, admission issuer and concrete execution plant bindings remain unproved; production state has not changed",
+    "The broad core packet hit its bound with one fixture-clock failure; focused safety packets own the remaining corrections"
   ],
   "decisions": [
     "Use only hosted Phloem for requested worker inference",
@@ -33,10 +40,10 @@
     "Real identity/launch-owner integration gaps stay explicit; build functional adapters and local verification without fake live proof"
   ],
   "uncommitted_files": [
-    "ISA.md (new native implementation criteria; shared)",
-    "native build handoff files only"
+    "Shared primary ISA/handoff continuation updates",
+    "Active hosted worker edits on isolated native build branch"
   ],
-  "next_action": "Continue existing hosted workers using the operator-private runtime checkpoint. Do not restart live work. Integrate only reviewed terminal packets; first core packet is not accepted.",
+  "next_action": "Continue existing hosted workers from the operator-private runtime checkpoint; do not duplicate running packets. Preserve the active build branch and unrelated primary work. The app renders locally, but its current preview actions are not final coordinator integration.",
   "isa": "ISA.md",
   "isc_open": [
     "ISC-3400",
@@ -79,5 +86,5 @@
     "token_budget": 50000000,
     "goal_status": "active"
   },
-  "next_command": "Inspect existing worker logs and terminal handles from private runtime checkpoint"
+  "next_command": "Inspect operator-private runtime checkpoint and existing worker results; no new full-wave dispatch"
 }
