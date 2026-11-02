@@ -402,15 +402,21 @@ export async function nativeSessionExchangeHttp(request: Request, host?: NativeS
   if (!now || !token) return unavailable();
   let fresh: Awaited<ReturnType<NativeSessionStore['peekCode']>>;
   try { fresh = await host.deps.store.peekCode({ ...match, now }); } catch { return unavailable(); }
-  if (!fresh || !isoOk(fresh.expiresAt) || !(fresh.expiresAt > now)
+  // The peek awaited, so take a fresh instant for the code-expiry check, the
+  // grant timestamp (the store compares code expiry with input.now) and the
+  // session lifetime.
+  const granting = clock(host);
+  if (!granting) return unavailable();
+  if (!fresh || !isoOk(fresh.expiresAt) || !(fresh.expiresAt > granting)
       || fresh.founderId !== pending.founderId || fresh.tenantId !== pending.tenantId
       || !actorOk(fresh.founderId, fresh.tenantId)) return fail(400, 'invalid_grant');
-  const expiresAt = plusMs(now, NATIVE_SESSION_TTL_MS);
+  const expiresAt = plusMs(granting, NATIVE_SESSION_TTL_MS);
   if (!expiresAt) return unavailable();
   let granted: boolean;
   try {
     granted = await host.deps.store.grant({
-      ...match, now, founderId: pending.founderId, tenantId: pending.tenantId, tokenDigest: sha256Hex(token), expiresAt,
+      ...match, now: granting, founderId: pending.founderId, tenantId: pending.tenantId,
+      tokenDigest: sha256Hex(token), expiresAt,
     });
   } catch {
     // The grant may or may not have landed. The code is single-use either way,
@@ -418,6 +424,10 @@ export async function nativeSessionExchangeHttp(request: Request, host?: NativeS
     return fail(503, 'native_session_unavailable', { retry: 'restart_authorization' });
   }
   if (!granted) return fail(400, 'invalid_grant');
+  // The grant awaited. If the clock is bad or the new session already lapsed,
+  // the code is spent: never hand out the token or mint a second session.
+  const done = clock(host);
+  if (!done || !(expiresAt > done)) return fail(503, 'native_session_unavailable', { retry: 'restart_authorization' });
   return reply(200, {
     token, tokenType: 'Bearer', expiresAt, founderId: pending.founderId, tenantId: pending.tenantId,
     clientId: registered.clientId, role: 'founder', enrolled: true,
@@ -459,7 +469,10 @@ export async function resolveNativeSession(request: Request, host?: NativeSessio
   if (!now) return { kind: 'refused', response: unavailable() };
   let fresh: NativeSessionScope | null;
   try { fresh = await host.deps.store.readSession(tokenDigest, now); } catch { return { kind: 'refused', response: unavailable() }; }
-  if (!fresh || !isoOk(fresh.expiresAt) || !(fresh.expiresAt > now)
+  // The final read awaited, so judge expiry against a fresh instant.
+  const end = clock(host);
+  if (!end) return { kind: 'refused', response: unavailable() };
+  if (!fresh || !isoOk(fresh.expiresAt) || !(fresh.expiresAt > end)
       || fresh.founderId !== row.founderId || fresh.tenantId !== row.tenantId
       || fresh.clientId !== row.clientId || !actorOk(fresh.founderId, fresh.tenantId, fresh.clientId)) {
     return { kind: 'refused', response: fail(401, 'unauthorized') };
