@@ -61,7 +61,10 @@ current production catalog.
   `sapling:cambium`, `program:cambium-operating-fabric`, and `branch:relovo`,
   including their provenance, tenant/classification fields, and the single
   explicit `sapling:cambium` runtime join. Aggregate counts alone are not
-  accepted as proof of project identity wiring.
+  accepted as proof of project identity wiring. The probe additionally pins
+  exact names and provenance for the mapped `branch:heyzack`,
+  `branch:parkarea`, `branch:tirak`, `sapling:dlock`, and `sapling:lumen-bar`
+  records, while requiring all five to remain unjoined.
 - The 2026-11-02 navigation follow-up at clean app-input revision `85068da`
   makes alias search find the mapped `DLOCK` source record through its distinct
   `Lockwell` alias, keeps filtered results and dossier aligned, and reveals
