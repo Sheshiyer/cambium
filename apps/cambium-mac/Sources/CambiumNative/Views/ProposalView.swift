@@ -7,7 +7,24 @@ struct ProposalView: View {
         @Bindable var model = model
         PageScaffold(eyebrow: "Proposal review", title: "Founder proposal review",
                      subtitle: "Review the signed change set, inspect consequence and reversibility, and type the exact source confirmation. Submissions go through the FounderGateCoordinator.") {
-            if model.isDemo { SyntheticNotice(message: "Demo mode uses the in-process demo owner and source wire fixtures. Decisions are durable and survive restart.") }
+            if model.isDemo {
+                SyntheticNotice(message: "The founder proposal fixture is dated 2026-07-28. It has no WorkObject join and is shown as a separate labelled demo example. Approving it does not admit any work.")
+            }
+            if let julyId = model.julyProposalExampleId, model.proposalBinding == nil && model.proposalRefDraft.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("July Proposal Example (Unjoined Demo)").font(CambiumFont.label).foregroundStyle(Palette.rail)
+                    Text("This demo proposal fixture is available for manual review: \(julyId)")
+                        .font(.callout).foregroundStyle(Palette.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button("Open July example proposal") {
+                        model.proposalRefDraft = julyId
+                        model.loadSelectedReview()
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .cambiumPanel()
+            }
+            BindingPanel()
 
             if let review = model.review {
                 VStack(alignment: .leading, spacing: 12) {
@@ -126,7 +143,7 @@ struct ProposalView: View {
                                     Text("State: \(record.state) · Updated \(model.time(record.updatedAt))").font(.caption).foregroundStyle(Palette.inkMuted)
                                 }
                                 Spacer()
-                                Button("Check status") { model.recoverReview() }
+                                Button("Check status") { model.recoverReview(nonce: record.nonce) }
                                     .controlSize(.small)
                             }
                             .cambiumPanel(padding: 10)
@@ -136,9 +153,45 @@ struct ProposalView: View {
                 }
             } else {
                 EmptyStateView(symbol: "signature", title: "No proposal loaded",
-                               message: "Sign in or open the demo to load a reviewed founder proposal.")
+                               message: "Bind the selected work to a canonical proposal reference, then load the review. A missing binding is not an admission.")
                     .cambiumPanel()
             }
         }
+    }
+}
+
+private struct BindingPanel: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var model = model
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Selected work")
+            if let work = model.selectedWork {
+                FactRow(label: "Work", value: "\(work.name) · \(work.id)", mono: true)
+            } else {
+                Text("Select a work item from the system view before reviewing a proposal.")
+                    .font(.callout).foregroundStyle(Palette.inkMuted)
+            }
+            if let binding = model.proposalBinding {
+                FactRow(label: "Proposal reference", value: binding.proposalId, mono: true)
+                FactRow(label: "Source", value: binding.source == .ownerProjection
+                        ? "Named by the loaded projection for this work"
+                        : "Typed canonical reference for this session")
+            } else {
+                Text("This work has no proposal join. Type the canonical reference. The app will not invent one.")
+                    .font(.callout).foregroundStyle(Palette.inkMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                TextField("tenant:sha256:…", text: $model.proposalRefDraft)
+                    .textFieldStyle(.roundedBorder)
+                    .font(CambiumFont.mono)
+                    .accessibilityLabel("Canonical proposal reference")
+                Button("Bind typed reference") { model.bindTypedProposal() }
+                    .disabled(model.selectedWork == nil)
+            }
+            Button("Load review") { model.loadSelectedReview() }
+                .disabled(model.proposalBinding == nil && model.proposalRefDraft.isEmpty || model.loading)
+        }
+        .cambiumPanel()
     }
 }

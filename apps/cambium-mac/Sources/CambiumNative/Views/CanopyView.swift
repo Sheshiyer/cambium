@@ -23,7 +23,7 @@ struct CanopyView: View {
                                    message: "No owner is configured, so no work has been read.")
                         .cambiumPanel()
                 } else {
-                    Text("Observed records are not admitted. Admission needs a capability that this build cannot obtain.")
+                    Text("Observed records are not admitted. Choose one work item, then review a bound proposal or list already-admitted rows. Approval does not create an admission.")
                         .font(.callout)
                         .foregroundStyle(Palette.inkMuted)
                         .fixedSize(horizontal: false, vertical: true)

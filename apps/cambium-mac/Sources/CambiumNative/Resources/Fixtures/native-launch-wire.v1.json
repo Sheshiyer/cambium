@@ -1,7 +1,128 @@
 {
   "contractVersion": "cambium.native-launch.v1",
   "synthetic": true,
+  "note": "Byte-compatible launch samples plus a dated demo admission listing. Proposal review uses founder fixtures dated 2026-07-28. This launch listing is dated 2026-11-02 and is a separate example. Approval does not create these admissions.",
   "samples": [
+    {
+      "name": "admissions_current",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium",
+          "readOnly": true,
+          "admissions": [
+            {
+              "admissionRef": "adm-123",
+              "tuple": {
+                "workId": "sapling:cambium",
+                "admissionRef": "adm-123",
+                "graphVersion": 1,
+                "loadoutId": "loadout-alpha",
+                "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "executionPlant": "temperance-hands",
+                "supportedAction": "launch",
+                "expiresAt": "2026-11-02T01:00:00.000Z"
+              },
+              "availability": "supported",
+              "reason": "current"
+            },
+            {
+              "admissionRef": "adm-older",
+              "tuple": {
+                "workId": "sapling:cambium",
+                "admissionRef": "adm-older",
+                "graphVersion": 1,
+                "loadoutId": "loadout-alpha",
+                "inputDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                "executionPlant": "temperance-hands",
+                "supportedAction": "launch",
+                "expiresAt": "2026-11-02T01:00:00.000Z"
+              },
+              "availability": "unavailable",
+              "reason": "admission_expired"
+            },
+            {
+              "admissionRef": "adm-hands-gap",
+              "tuple": {
+                "workId": "sapling:cambium",
+                "admissionRef": "adm-hands-gap",
+                "graphVersion": 1,
+                "loadoutId": "loadout-alpha",
+                "inputDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                "executionPlant": "temperance-hands",
+                "supportedAction": "launch",
+                "expiresAt": "2026-11-02T01:00:00.000Z"
+              },
+              "availability": "unsupported",
+              "reason": "owner_does_not_support"
+            }
+          ],
+          "truncated": false
+        }
+      },
+      "note": "Demo listing extends the source admissions_current sample with two sibling refs for the same work. Availability reasons are the contract vocabulary. This file is a dated synthetic example, not a live owner reply."
+    },
+    {
+      "name": "admissions_other_work_empty",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:other"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:other",
+          "readOnly": true,
+          "admissions": [],
+          "truncated": false
+        }
+      }
+    },
+    {
+      "name": "admissions_listing_unconfigured",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 503,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "error": "native_launch_listing_unconfigured",
+          "message": "Native launch admission discovery requires a store that can list the verified scope."
+        }
+      }
+    },
     {
       "name": "capability_supported",
       "input": {

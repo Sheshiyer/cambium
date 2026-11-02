@@ -47,14 +47,10 @@ struct OwnerConfiguration: Equatable, Sendable {
     var origin: HTTPOriginPolicy? { try? HTTPOriginPolicy(url: ownerURL) }
 }
 
-/// UI seam for the typed admission-discovery client that is not in this tree yet.
-///
-/// The default lists nothing. A caller must never construct an admission reference
-/// itself; only an owner-issued reference may be inspected.
-protocol AdmissionListing: Sendable {
-    func admissionRefs(workId: String) async throws -> [String]
-}
-
-struct UnavailableAdmissionListing: AdmissionListing {
-    func admissionRefs(workId: String) async throws -> [String] { [] }
+/// Already-admitted work is listed by `HTTPAdmissionDiscovery`. This type only
+/// names that client. It never constructs an admission reference.
+enum AdmissionListing {
+    static func discovery(baseURL: URL, transport: any HTTPTransport, authorizer: any RequestAuthorizer) -> any AdmissionDiscovering {
+        HTTPAdmissionDiscovery(baseURL: baseURL, transport: transport, authorizer: authorizer)
+    }
 }

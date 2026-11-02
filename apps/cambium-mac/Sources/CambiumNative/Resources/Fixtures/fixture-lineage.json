@@ -44,11 +44,13 @@
     },
     {
       "name": "native-launch-wire.v1.json",
-      "bytes": 9697,
-      "sha256": "07b820593e5d98f0413c9e6986c6cfb3fcbe7f8a3e3222e7c28d4c05d3822e4a",
-      "copiedFrom": "workers/quests/src/fixtures/native-launch-wire.v1.json",
-      "generator": "workers/quests/src/fixtures/native-launch-wire.v1.json",
-      "source": "workers/quests/src/native-launch.ts"
+      "bytes": 14131,
+      "sha256": "f18fc98a21721a925c58bdb9eab8161bfe184c1c2119d05a93e5ee50adebe148",
+      "copiedFrom": null,
+      "generator": null,
+      "source": "dated demo listing derived from workers/quests/src/fixtures/native-launch-wire.v1.json admissions_current; launch samples retained",
+      "synthetic": true,
+      "note": "Separate from the 2026-07-28 founder proposal fixture. Lists already-admitted refs for sapling:cambium only."
     },
     {
       "name": "knowledge-field-theory-demo.json",

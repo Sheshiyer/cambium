@@ -191,6 +191,8 @@ actor DemoOwnerSimulator: HTTPTransport {
             return try decide(body)
         case "/v1/founder/status":
             return try decisionStatus(body)
+        case "/v1/native/launch/admissions":
+            return try admissions(body)
         case "/v1/native/launch/capability":
             return try capability(body)
         case "/v1/native/launch":
@@ -237,8 +239,27 @@ actor DemoOwnerSimulator: HTTPTransport {
 
     // MARK: Launch
 
+    /// Replays the dated admission listing for the requested work. The body is the
+    /// source sample's own body with `workId` set to the request, so an empty
+    /// other-work sample stays empty and a cambium sample keeps its own refs.
+    private func admissions(_ body: [String: Any]) throws -> HTTPResponse {
+        let workId = body["workId"] as? String ?? ""
+        let name = workId == "sapling:cambium" ? "admissions_current" : "admissions_other_work_empty"
+        guard let sample = launchSamples[name],
+              var object = try JSONSerialization.jsonObject(with: sample.body) as? [String: Any] else {
+            throw TransportFailure.ownerUnconfigured
+        }
+        object["workId"] = workId
+        return HTTPResponse(status: sample.status, body: try JSONSerialization.data(withJSONObject: object))
+    }
+
+    /// Resolves only the supported ref from the dated listing. A different ref,
+    /// including one the listing marked unsupported or unavailable, is the
+    /// source unavailable sample. The app does not rewrite that sample.
     private func capability(_ body: [String: Any]) throws -> HTTPResponse {
-        let name = body["workId"] as? String == "sapling:cambium" && body["admissionRef"] as? String == "adm-123"
+        let workId = body["workId"] as? String
+        let admission = body["admissionRef"] as? String
+        let name = workId == "sapling:cambium" && admission == "adm-123"
             ? "capability_supported" : "capability_unavailable"
         guard let sample = launchSamples[name] else { throw TransportFailure.ownerUnconfigured }
         return HTTPResponse(status: sample.status, body: sample.body)

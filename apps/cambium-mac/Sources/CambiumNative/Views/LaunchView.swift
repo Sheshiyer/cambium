@@ -7,7 +7,7 @@ struct LaunchView: View {
         PageScaffold(eyebrow: "Launch", title: "Admitted launch and recovery",
                      subtitle: "Inspect the owner capability, launch through the LaunchCoordinator, and recover a lost reply by status only.") {
             if model.isDemo {
-                SyntheticNotice(message: "The demo owner replays the source launch fixture. It starts no job and runs no command. Approval is not admission.")
+                SyntheticNotice(message: "The launch listing is a dated example from 2026-11-02 for sapling:cambium. It is separate from the 2026-07-28 founder proposal. The demo starts no job and runs no command. Approval is not admission.")
             }
 
             if model.session == nil {
@@ -15,12 +15,73 @@ struct LaunchView: View {
                                message: model.isDemo ? "The demo session could not start." : "Sign in with a configured owner to inspect a launch capability.")
                     .cambiumPanel()
             } else {
+                AdmissionListPanel()
                 CapabilityPanel()
                 AttemptPanel()
                 if !model.pendingLaunch.isEmpty { PendingPanel() }
                 if model.isDemo { DemoPanel() }
             }
         }
+    }
+}
+
+private struct AdmissionListPanel: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Already admitted", detail: model.selectedWork.map { $0.id } ?? "no work selected")
+            Text("This list is a read-only observation of admissions the owner already holds for the selected work. It does not admit anything, and an approved proposal does not add a row.")
+                .font(.callout).foregroundStyle(Palette.inkMuted)
+                .fixedSize(horizontal: false, vertical: true)
+            if model.admissions.isEmpty {
+                Text(model.admissionIssue.map { "\($0.title): \($0.message)" } ?? "No listing yet. List admissions for the selected work.")
+                    .font(.callout).foregroundStyle(model.admissionIssue == nil ? Palette.inkMuted : Palette.hold)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            ForEach(model.admissions) { row in
+                Button {
+                    model.selectAdmission(row.admissionRef)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) {
+                            Text(row.admissionRef).font(CambiumFont.monoSmall).foregroundStyle(Palette.ink)
+                            StatusChip(text: row.availability, tone: Tone.forStatus(row.availability))
+                            StatusChip(text: row.reason, tone: .muted)
+                            Spacer()
+                            if model.selectedAdmissionRef == row.admissionRef {
+                                Image(systemName: "checkmark.circle.fill").foregroundStyle(Palette.evidence)
+                                    .accessibilityLabel("Selected")
+                            }
+                        }
+                        Text("\(row.workId) · \(row.plant) · \(row.action) · expires \(model.time(row.expiresAt))")
+                            .font(.caption).foregroundStyle(Palette.inkMuted)
+                        if let existing = row.existingRequestId {
+                            Text("Consumed by request \(existing)").font(.caption).foregroundStyle(Palette.hold)
+                        }
+                        if !row.selectable {
+                            Text("Not selectable. Only a supported existing reference can be resolved.")
+                                .font(.caption).foregroundStyle(Palette.hold)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .cambiumPanel(padding: 10)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Admission \(row.admissionRef), \(row.availability), \(row.reason)")
+                .accessibilityHint(row.selectable ? "Selects this supported admission" : "This admission cannot be resolved")
+                .accessibilityAddTraits(model.selectedAdmissionRef == row.admissionRef ? .isSelected : [])
+            }
+            HStack(spacing: 10) {
+                Button("List admissions", action: model.listAdmissions)
+                    .disabled(model.loading || model.selectedWork == nil)
+                Button("Resolve selected capability", action: model.resolveSelectedCapability)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(model.loading || model.selectedAdmissionRef == nil || model.launch != nil)
+                Spacer()
+            }
+        }
+        .cambiumPanel(highlighted: !model.admissions.isEmpty)
     }
 }
 
@@ -52,8 +113,6 @@ private struct CapabilityPanel: View {
                 }
             }
             HStack(spacing: 10) {
-                Button("Inspect owner capability", action: model.inspectCapability)
-                    .disabled(model.loading || model.launch != nil)
                 Button("Launch", action: model.requestLaunch)
                     .buttonStyle(.borderedProminent)
                     .disabled(model.capability == nil || model.launch != nil || model.loading)
@@ -109,16 +168,18 @@ private struct PendingPanel: View {
         VStack(alignment: .leading, spacing: 10) {
             SectionHeader(title: "Unresolved on opening", detail: "\(model.pendingLaunch.count)")
             ForEach(model.pendingLaunch) { record in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(record.requestId).font(CambiumFont.monoSmall).foregroundStyle(Palette.ink)
-                    Text("\(record.workId) · \(record.plantName) · \(record.state)")
-                        .font(.caption).foregroundStyle(Palette.inkMuted)
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(record.requestId).font(CambiumFont.monoSmall).foregroundStyle(Palette.ink)
+                        Text("\(record.workId) · \(record.admissionRef) · \(record.plantName) · \(record.state)")
+                            .font(.caption).foregroundStyle(Palette.inkMuted)
+                    }
+                    Spacer()
+                    Button("Check status") { model.recoverLaunch(nonce: record.nonce) }
+                        .disabled(model.loading)
+                        .accessibilityLabel("Check status for \(record.requestId)")
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .cambiumPanel(padding: 10)
-            }
-            if model.launch == nil {
-                Button("Check status", action: model.recoverLaunch).disabled(model.loading)
             }
         }
         .cambiumPanel(highlighted: true)
