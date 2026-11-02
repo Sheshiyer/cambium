@@ -63,8 +63,10 @@ current production catalog.
   explicit `sapling:cambium` runtime join. Aggregate counts alone are not
   accepted as proof of project identity wiring. The probe additionally pins
   exact names and provenance for the mapped `branch:heyzack`,
-  `branch:parkarea`, `branch:tirak`, `sapling:dlock`, and `sapling:lumen-bar`
-  records, while requiring all five to remain unjoined.
+  `branch:parkarea`, `branch:tirak`, and `sapling:dlock` records, while
+  requiring all four to remain unjoined. The concurrent working catalog also
+  contains `sapling:lumen-bar`; that dirty source lane is intentionally not
+  promoted or treated as committed live proof here.
 - The 2026-11-02 navigation follow-up at clean app-input revision `85068da`
   makes alias search find the mapped `DLOCK` source record through its distinct
   `Lockwell` alias, keeps filtered results and dossier aligned, and reveals

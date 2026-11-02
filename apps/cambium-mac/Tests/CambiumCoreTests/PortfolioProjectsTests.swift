@@ -150,7 +150,6 @@ final class PortfolioProjectsTests: XCTestCase {
             ("branch:parkarea", "ParkArea Client Delivery", "repo:parkarea.parkarea-aleph"),
             ("branch:tirak", "Tirak Client Partnership", "repo:Sheshiyer/tirak-mobile-app-v2"),
             ("sapling:dlock", "DLOCK", "repo:thoughtseed-labs/lockwell-portal"),
-            ("sapling:lumen-bar", "LumenBar", "repo:Sheshiyer/lumen-bar"),
         ]
         for anchor in mappedProjectAnchors {
             let project = try XCTUnwrap(mapped.project(workId: anchor.id), anchor.id)
