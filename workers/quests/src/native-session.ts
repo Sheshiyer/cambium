@@ -8,10 +8,18 @@
 // carry founder, principal or tenant authority.
 //
 // Routes (handler composition is a later packet):
-//   GET  /v1/native/session/authorize  browser navigation, query only, 302 to callback
+//   GET  /v1/native/session/authorize  browser navigation, query only, HTML consent form
+//   POST /v1/native/session/authorize  same-origin consent; mints the code and 302s
 //   POST /v1/native/session/exchange   cookie-free JSON, PKCE proves possession
 //   GET  /v1/native/session            native bearer, returns scope
 //   POST /v1/native/session/logout     native bearer, body exactly {}
+//
+// GET authorize never mints an authorization code. It validates the registered
+// client, redirect, S256 challenge, state and tenant, then the current founder
+// role and enrollment, and stores only a short-lived one-time consent intent.
+// The browser must POST that intent with the same Access founder, a CSRF token
+// held in a Secure SameSite=Strict HttpOnly cookie and a matching hidden form
+// field. The intent is consumed once, atomically, before any code is written.
 //
 // Credentials: code `cnc1_` + 43 base64url chars and token `cns1_` + 43
 // base64url chars (256 random bits each). Only SHA-256 hex digests reach the
@@ -32,8 +40,10 @@ export const NATIVE_CODE_PREFIX = 'cnc1_' as const;
 export const NATIVE_TOKEN_PREFIX = 'cns1_' as const;
 export const NATIVE_CODE_TTL_MS = 60_000;
 export const NATIVE_SESSION_TTL_MS = 15 * 60_000;
+export const NATIVE_CONSENT_TTL_MS = 60_000;
 export const NATIVE_SESSION_MAX_BODY_BYTES = 2048;
 export const NATIVE_SESSION_MAX_URL_BYTES = 2048;
+export const NATIVE_CONSENT_COOKIE = 'cambium_native_consent' as const;
 const RANDOM_BYTES = 32;
 
 const TENANT = /^[a-z][a-z0-9-]{1,63}$/;
@@ -44,6 +54,8 @@ const VERIFIER = /^[A-Za-z0-9._~-]{43,128}$/;
 const STATE = /^[A-Za-z0-9_-]{22,128}$/;
 const CODE = /^cnc1_[A-Za-z0-9_-]{43}$/;
 const TOKEN = /^cns1_[A-Za-z0-9_-]{43}$/;
+const INTENT = /^cni1_[A-Za-z0-9_-]{43}$/;
+const CSRF = /^cnk1_[A-Za-z0-9_-]{43}$/;
 const BEARER = /^Bearer (cns1_[A-Za-z0-9_-]{43})$/;
 const NATIVE_REALM = /\b(?:cns1|cnc1)_/;
 const ISO = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/;
@@ -88,6 +100,49 @@ export interface NativeSessionGrant extends NativeCodeMatch {
   expiresAt: string;
 }
 
+/** Exact authorize inputs bound into one consent intent. */
+export interface NativeConsentBinding {
+  clientId: string;
+  redirectUri: string;
+  codeChallenge: string;
+  state: string;
+  tenantId: string;
+}
+
+export interface NativeConsentIntentRecord extends NativeConsentBinding {
+  intentDigest: string;
+  csrfDigest: string;
+  /** SHA-256 of the canonical binding. Recomputed by the consumer, never trusted from storage alone. */
+  requestDigest: string;
+  founderId: string;
+  issuedAt: string;
+  expiresAt: string;
+}
+
+/**
+ * One-time consume of a consent intent. True only when this call is the single
+ * winner: same intent digest, CSRF digest, founder, and request digest, still
+ * unconsumed and unexpired. Any mismatch consumes nothing.
+ */
+export interface NativeConsentConsume {
+  intentDigest: string;
+  csrfDigest: string;
+  requestDigest: string;
+  founderId: string;
+  now: string;
+}
+
+/**
+ * Consent-intent authority. `consume` MUST be one conditional UPDATE that
+ * changes a row only while consumed_at IS NULL AND expires_at > now AND the
+ * intent, CSRF, founder and request digests match (see native-session-d1.ts).
+ * Absent this binding, the host stays unconfigured and routes return 503.
+ */
+export interface NativeConsentIntentStore {
+  save(record: NativeConsentIntentRecord): Promise<void>;
+  consume(input: NativeConsentConsume): Promise<boolean>;
+}
+
 /**
  * Sole session authority. `grant` MUST be one conditional statement keyed by
  * the code digest with a unique code→session reference (see
@@ -113,6 +168,8 @@ export interface NativeSessionDeps {
   enrolledTenants(founderId: string): Promise<readonly string[] | null>;
   clients: readonly NativeSessionClient[];
   store: NativeSessionStore;
+  /** Required. Without it the factory stays unbound and every route returns 503. */
+  consent: NativeConsentIntentStore;
   now(): string;
   randomBytes(length: number): Uint8Array;
   /** Exact https origin this owner serves. */
@@ -186,18 +243,19 @@ function validOrigin(origin: unknown): origin is string {
   if (typeof origin !== 'string') return false;
   try {
     const url = new URL(origin);
-    return url.protocol === 'https:' && !url.username && !url.password && url.origin === origin;
+    return url.protocol === 'https:' && !url.username && !url.password && url.search === '' && url.hash === '';
   } catch { return false; }
 }
 
 /** Returns a host only when every owner binding is present and valid; otherwise routes stay 503. */
 export function createNativeSessionHost(deps: Partial<NativeSessionDeps> | undefined): NativeSessionHost | undefined {
   if (!deps) return undefined;
-  const { store, clients } = deps;
+  const { store, clients, consent } = deps;
   if (!isFn(deps.verifyBrowserFounder) || !isFn(deps.currentRole) || !isFn(deps.enrolledTenants)
       || !isFn(deps.now) || !isFn(deps.randomBytes) || !validOrigin(deps.ownerOrigin)) return undefined;
   if (!store || !isFn(store.saveCode) || !isFn(store.peekCode) || !isFn(store.grant)
       || !isFn(store.readSession) || !isFn(store.revoke)) return undefined;
+  if (!consent || !isFn(consent.save) || !isFn(consent.consume)) return undefined;
   if (!Array.isArray(clients) || !clients.length || clients.length > 16) return undefined;
   const registry = new Map<string, NativeSessionClient>();
   for (const entry of clients) {
@@ -215,13 +273,21 @@ export function createNativeSessionHost(deps: Partial<NativeSessionDeps> | undef
 type ErrorCode =
   | 'invalid_request' | 'invalid_client' | 'invalid_grant' | 'unauthorized' | 'forbidden'
   | 'tenant_selection_required' | 'method_not_allowed' | 'json_required' | 'input_too_large'
-  | 'not_found' | 'native_session_unconfigured' | 'native_session_unavailable' | 'mixed_credentials';
+  | 'not_found' | 'native_session_unconfigured' | 'native_session_unavailable' | 'mixed_credentials'
+  | 'consent_required';
 
 const SECURITY_HEADERS = {
   'cache-control': 'no-store',
   pragma: 'no-cache',
   'referrer-policy': 'no-referrer',
   'x-content-type-options': 'nosniff',
+};
+
+const PAGE_HEADERS = {
+  ...SECURITY_HEADERS,
+  'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+  'content-type': 'text/html; charset=utf-8',
+  'x-frame-options': 'DENY',
 };
 
 function reply(status: number, body: Record<string, unknown>, extra: Record<string, string> = {}): Response {
@@ -236,7 +302,14 @@ const unavailable = () => fail(503, 'native_session_unavailable');
 // ── Shared helpers ──────────────────────────────────────────────────────────
 
 function sameOrigin(request: Request, host: NativeSessionHost): boolean {
-  try { return new URL(request.url).origin === host.deps.ownerOrigin; } catch { return false; }
+  try {
+    const reqUrl = new URL(request.url);
+    const owner = new URL(host.deps.ownerOrigin);
+    if (reqUrl.origin !== owner.origin) return false;
+    const ownerPath = owner.pathname.replace(/\/$/, '');
+    if (!ownerPath) return true;
+    return reqUrl.pathname === ownerPath || reqUrl.pathname.startsWith(ownerPath + '/');
+  } catch { return false; }
 }
 
 /** Reads the clock and refuses non-canonical ISO output. */
@@ -291,14 +364,53 @@ async function readJson(request: Request): Promise<Record<string, unknown> | Res
   } catch { return fail(400, 'invalid_request'); }
 }
 
-// ── Authorize (browser GET) ─────────────────────────────────────────────────
+// ── Authorize (browser GET form, then explicit POST) ────────────────────────
 
 const AUTHORIZE_REQUIRED = ['client_id', 'code_challenge', 'code_challenge_method', 'redirect_uri', 'state'];
 
-export async function nativeSessionAuthorizeHttp(request: Request, host?: NativeSessionHost): Promise<Response> {
-  if (!host) return unconfigured();
-  if (request.method !== 'GET') return fail(405, 'method_not_allowed', {});
-  // The browser leg never carries Authorization; refuse it before the browser verifier runs.
+interface PreparedAuthorize {
+  clientId: string;
+  redirectUri: string;
+  challenge: string;
+  state: string;
+  tenantId: string;
+  founderId: string;
+}
+
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!
+));
+
+/** Canonical binding of the authorize inputs. Order is fixed so the digest is stable. */
+export function nativeConsentRequestDigest(binding: NativeConsentBinding): string {
+  return sha256Hex([binding.clientId, binding.redirectUri, binding.codeChallenge, binding.state, binding.tenantId].join('\n'));
+}
+
+function readCookie(header: string | null, name: string): string | null {
+  if (!header) return null;
+  for (const part of header.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq < 0) continue;
+    if (part.slice(0, eq).trim() === name) return part.slice(eq + 1).trim();
+  }
+  return null;
+}
+
+interface AuthorizeFields {
+  clientId: string;
+  redirectUri: string;
+  challenge: string;
+  state: string;
+  tenant: string | null;
+}
+
+/**
+ * Shared GET/POST checks: same-origin, exact binding, registered client,
+ * current founder, current role and enrollment. Writes nothing.
+ * GET reads the query. POST reads the rendered hidden fields and, when the
+ * form action preserved the GET query, requires that query to match the body.
+ */
+async function prepareAuthorize(request: Request, host: NativeSessionHost, form?: Record<string, string>): Promise<PreparedAuthorize | Response> {
   if (request.headers.has('authorization')) return fail(400, 'mixed_credentials');
   if (!sameOrigin(request, host) || request.url.length > NATIVE_SESSION_MAX_URL_BYTES) return fail(400, 'invalid_request');
   const url = new URL(request.url);
@@ -306,18 +418,40 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
   const params = url.searchParams;
   const keys = [...params.keys()];
   const allowed = new Set([...AUTHORIZE_REQUIRED, 'tenant']);
-  if (keys.some(key => !allowed.has(key)) || new Set(keys).size !== keys.length
-      || AUTHORIZE_REQUIRED.some(key => !params.has(key))) return fail(400, 'invalid_request');
-  const clientId = params.get('client_id')!;
-  const redirectUri = params.get('redirect_uri')!;
+  const queryPresent = keys.length > 0;
+  if (queryPresent && (keys.some(key => !allowed.has(key)) || new Set(keys).size !== keys.length
+      || AUTHORIZE_REQUIRED.some(key => !params.has(key)))) return fail(400, 'invalid_request');
+  if (!form && !queryPresent) return fail(400, 'invalid_request');
+
+  let fields: AuthorizeFields;
+  if (form) {
+    fields = {
+      clientId: form.client_id, redirectUri: form.redirect_uri, challenge: form.code_challenge,
+      state: form.state, tenant: form.tenant,
+    };
+    if (queryPresent) {
+      const same = fields.clientId === params.get('client_id')
+        && fields.redirectUri === params.get('redirect_uri')
+        && fields.challenge === params.get('code_challenge')
+        && params.get('code_challenge_method') === 'S256'
+        && fields.state === params.get('state')
+        && fields.tenant === params.get('tenant');
+      if (!same) return fail(400, 'consent_required');
+    }
+  } else {
+    fields = {
+      clientId: params.get('client_id')!, redirectUri: params.get('redirect_uri')!,
+      challenge: params.get('code_challenge')!, state: params.get('state')!, tenant: params.get('tenant'),
+    };
+    if (params.get('code_challenge_method') !== 'S256') return fail(400, 'invalid_request');
+  }
+  const { clientId, redirectUri, challenge, state } = fields;
+  const tenant = fields.tenant;
   const registered = CLIENT_ID.test(clientId) ? host.client(clientId) : undefined;
   // Never redirect to an unverified callback.
-  if (!registered || registered.redirectUri !== redirectUri) return fail(400, 'invalid_client');
-  const challenge = params.get('code_challenge')!;
-  const state = params.get('state')!;
-  const tenant = params.get('tenant');
-  if (params.get('code_challenge_method') !== 'S256' || !CHALLENGE.test(challenge) || !STATE.test(state)
-      || (tenant !== null && !TENANT.test(tenant))) return fail(400, 'invalid_request');
+  if (!registered || registered.redirectUri !== redirectUri) return form ? fail(400, 'consent_required') : fail(400, 'invalid_client');
+  if (!CHALLENGE.test(challenge) || !STATE.test(state)
+      || (tenant !== null && !TENANT.test(tenant))) return form ? fail(400, 'consent_required') : fail(400, 'invalid_request');
 
   let founderId: string | null;
   try { founderId = await host.deps.verifyBrowserFounder(request); } catch { return unavailable(); }
@@ -341,8 +475,157 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
   } else {
     return fail(403, 'forbidden');
   }
+  return { clientId, redirectUri, challenge, state, tenantId, founderId };
+}
 
-  // TTL is measured after browser verification and the lookups above.
+/**
+ * Same-origin form action carrying the exact GET binding query. Absolute only
+ * when ownerOrigin has a path prefix, and only when that prefix is this
+ * request's path base. Never substitutes a different origin. Secret intent and
+ * CSRF stay in the body and cookie, never in this URL.
+ */
+function consentAction(request: Request, host: NativeSessionHost, prepared: PreparedAuthorize): string | null {
+  let url: URL;
+  try { url = new URL(request.url); } catch { return null; }
+  const owner = new URL(host.deps.ownerOrigin);
+  if (url.origin !== owner.origin) return null;
+  const base = owner.pathname.replace(/\/$/, '');
+  const path = `${base}${NATIVE_SESSION_PATHS.authorize}`;
+  if (url.pathname !== path) return null;
+  const query = new URLSearchParams({
+    client_id: prepared.clientId,
+    redirect_uri: prepared.redirectUri,
+    code_challenge: prepared.challenge,
+    code_challenge_method: 'S256',
+    state: prepared.state,
+    tenant: prepared.tenantId,
+  });
+  // Path-only when the owner is an origin, so the browser posts same-origin.
+  // A path prefix cannot be expressed by a path-only action, so include the
+  // already-checked owner origin explicitly.
+  return base ? `${owner.origin}${path}?${query}` : `${path}?${query}`;
+}
+
+function consentPage(request: Request, host: NativeSessionHost, prepared: PreparedAuthorize, intent: string, csrf: string): Response | null {
+  const action = consentAction(request, host, prepared);
+  if (!action) return null;
+  const hidden = (name: string, value: string) =>
+    `<input type="hidden" name="${name}" value="${escapeHtml(value)}">`;
+  const row = (label: string, value: string) =>
+    `<p><span>${escapeHtml(label)}</span> <code>${escapeHtml(value)}</code></p>`;
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Cambium native consent</title></head>
+<body>
+<h1>Allow this app to open a Cambium session?</h1>
+${row('App', prepared.clientId)}
+${row('Returns to', prepared.redirectUri)}
+${row('Tenant', prepared.tenantId)}
+<form method="POST" action="${escapeHtml(action)}">
+${hidden('intent', intent)}
+${hidden('csrf', csrf)}
+${hidden('client_id', prepared.clientId)}
+${hidden('redirect_uri', prepared.redirectUri)}
+${hidden('code_challenge', prepared.challenge)}
+${hidden('state', prepared.state)}
+${hidden('tenant', prepared.tenantId)}
+<button type="submit" name="decision" value="allow">Allow</button>
+</form>
+</body></html>`;
+  const cookie = [
+    `${NATIVE_CONSENT_COOKIE}=${csrf}`,
+    'HttpOnly', 'Secure', 'SameSite=Strict', 'Path=/v1/native/session/authorize', 'Max-Age=60',
+  ].join('; ');
+  return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'set-cookie': cookie } });
+}
+
+const CONSENT_FIELDS = ['client_id', 'code_challenge', 'csrf', 'decision', 'intent', 'redirect_uri', 'state', 'tenant'];
+
+async function readConsentForm(request: Request): Promise<Record<string, string> | Response> {
+  const type = request.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
+  if (type !== 'application/x-www-form-urlencoded') return fail(415, 'json_required');
+  const declared = request.headers.get('content-length');
+  if (declared !== null && !(Number(declared) <= NATIVE_SESSION_MAX_BODY_BYTES)) return fail(413, 'input_too_large');
+  let bytes: Uint8Array;
+  try {
+    const reader = request.body?.getReader();
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    while (reader) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.length;
+      if (size > NATIVE_SESSION_MAX_BODY_BYTES) { await reader.cancel().catch(() => {}); return fail(413, 'input_too_large'); }
+      chunks.push(value);
+    }
+    bytes = Buffer.concat(chunks);
+  } catch { return fail(400, 'invalid_request'); }
+  let text: string;
+  try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch { return fail(400, 'invalid_request'); }
+  const params = new URLSearchParams(text);
+  const keys = [...params.keys()];
+  if (keys.some(key => !CONSENT_FIELDS.includes(key)) || new Set(keys).size !== keys.length
+      || CONSENT_FIELDS.some(key => !params.has(key))) return fail(400, 'consent_required');
+  if (params.get('decision') !== 'allow') return fail(400, 'consent_required');
+  return Object.fromEntries(CONSENT_FIELDS.map(key => [key, params.get(key)!]));
+}
+
+export async function nativeSessionAuthorizeHttp(request: Request, host?: NativeSessionHost): Promise<Response> {
+  if (!host) return unconfigured();
+  if (request.method !== 'GET' && request.method !== 'POST') return fail(405, 'method_not_allowed');
+
+  if (request.method === 'GET') {
+    const prepared = await prepareAuthorize(request, host);
+    if (prepared instanceof Response) return prepared;
+    // TTL is measured after browser verification and the lookups above.
+    const issuedAt = clock(host);
+    const intent = mint(host, 'cni1_');
+    const csrf = mint(host, 'cnk1_');
+    if (!issuedAt || !intent || !csrf) return unavailable();
+    const expiresAt = plusMs(issuedAt, NATIVE_CONSENT_TTL_MS);
+    if (!expiresAt) return unavailable();
+    const binding: NativeConsentBinding = {
+      clientId: prepared.clientId, redirectUri: prepared.redirectUri, codeChallenge: prepared.challenge,
+      state: prepared.state, tenantId: prepared.tenantId,
+    };
+    try {
+      await host.deps.consent.save({
+        ...binding, intentDigest: sha256Hex(intent), csrfDigest: sha256Hex(csrf),
+        requestDigest: nativeConsentRequestDigest(binding), founderId: prepared.founderId, issuedAt, expiresAt,
+      });
+    } catch { return unavailable(); }
+    const page = consentPage(request, host, prepared, intent, csrf);
+    if (!page) return unavailable();
+    return page;
+  }
+
+  // POST never creates an intent. It consumes the exact one GET stored,
+  // re-checking the current founder, role and enrollment against the fields
+  // the browser actually submitted.
+  const origin = request.headers.get('origin');
+  if (origin !== null && origin !== host.deps.ownerOrigin) return fail(400, 'consent_required');
+  const form = await readConsentForm(request);
+  if (form instanceof Response) return form;
+  const prepared = await prepareAuthorize(request, host, form);
+  if (prepared instanceof Response) return prepared;
+  const cookie = readCookie(request.headers.get('cookie'), NATIVE_CONSENT_COOKIE);
+  if (!cookie || cookie !== form.csrf || !CSRF.test(form.csrf) || !INTENT.test(form.intent)) return fail(400, 'consent_required');
+
+  const binding: NativeConsentBinding = {
+    clientId: prepared.clientId, redirectUri: prepared.redirectUri, codeChallenge: prepared.challenge,
+    state: prepared.state, tenantId: prepared.tenantId,
+  };
+  const now = clock(host);
+  if (!now) return unavailable();
+  let consumed: boolean;
+  try {
+    consumed = await host.deps.consent.consume({
+      intentDigest: sha256Hex(form.intent), csrfDigest: sha256Hex(form.csrf),
+      requestDigest: nativeConsentRequestDigest(binding), founderId: prepared.founderId, now,
+    });
+  } catch { return unavailable(); }
+  if (!consumed) return fail(400, 'consent_required');
+
+  // The intent is spent. A later failure cannot mint a second code for it.
   const issuedAt = clock(host);
   const code = mint(host, NATIVE_CODE_PREFIX);
   if (!issuedAt || !code) return unavailable();
@@ -350,11 +633,12 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
   if (!codeExpiresAt) return unavailable();
   try {
     await host.deps.store.saveCode({
-      codeDigest: sha256Hex(code), clientId, redirectUri, codeChallenge: challenge,
-      founderId, tenantId, issuedAt, expiresAt: codeExpiresAt,
+      codeDigest: sha256Hex(code), clientId: prepared.clientId, redirectUri: prepared.redirectUri,
+      codeChallenge: prepared.challenge, founderId: prepared.founderId, tenantId: prepared.tenantId,
+      issuedAt, expiresAt: codeExpiresAt,
     });
   } catch { return unavailable(); }
-  const location = `${redirectUri}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+  const location = `${prepared.redirectUri}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(prepared.state)}`;
   return new Response(null, { status: 302, headers: { location, ...SECURITY_HEADERS } });
 }
 
@@ -531,9 +815,18 @@ export async function nativeSessionLogoutHttp(request: Request, host?: NativeSes
 
 /** Path dispatcher for the four session routes. Returns null for other paths. */
 export async function nativeSessionHttp(request: Request, host?: NativeSessionHost): Promise<Response | null> {
-  let path: string;
-  try { path = new URL(request.url).pathname; } catch { return null; }
-  switch (path) {
+  let url: URL;
+  try { url = new URL(request.url); } catch { return null; }
+  let pathname = url.pathname;
+  if (host) {
+    try {
+      const ownerPath = new URL(host.deps.ownerOrigin).pathname.replace(/\/$/, '');
+      if (ownerPath && pathname.startsWith(ownerPath)) {
+        pathname = pathname.slice(ownerPath.length) || '/';
+      }
+    } catch {}
+  }
+  switch (pathname) {
     case NATIVE_SESSION_PATHS.authorize: return nativeSessionAuthorizeHttp(request, host);
     case NATIVE_SESSION_PATHS.exchange: return nativeSessionExchangeHttp(request, host);
     case NATIVE_SESSION_PATHS.session: return nativeSessionReadHttp(request, host);

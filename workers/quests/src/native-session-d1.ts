@@ -16,6 +16,8 @@
 import type { GoalGraphD1DatabaseLike } from './goal-graph-store.ts';
 import type {
   NativeAuthorizationCodeRecord,
+  NativeConsentIntentRecord,
+  NativeConsentIntentStore,
   NativeSessionScope,
   NativeSessionStore,
 } from './native-session.ts';
@@ -24,6 +26,37 @@ type Row = Record<string, unknown>;
 
 const isUniqueViolation = (error: unknown) =>
   /UNIQUE constraint failed|SQLITE_CONSTRAINT|PRIMARY KEY/i.test(String((error as Error)?.message ?? error));
+
+/**
+ * Consent authority on its own table. `consume` is one conditional UPDATE:
+ * the row changes only while it is unconsumed, unexpired, and bound to the
+ * same intent digest, CSRF digest, founder and request digest. changes = 1 is
+ * the only success. A replay or any mismatch writes nothing.
+ */
+export function d1NativeConsentIntentStore(db: GoalGraphD1DatabaseLike): NativeConsentIntentStore {
+  return {
+    async save(record: NativeConsentIntentRecord) {
+      await db.prepare(`
+        INSERT INTO native_consent_intents
+          (intent_digest, csrf_digest, request_digest, founder_id, client_id, redirect_uri,
+           code_challenge, state, tenant_id, issued_at, expires_at, consumed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+      `).bind(record.intentDigest, record.csrfDigest, record.requestDigest, record.founderId,
+        record.clientId, record.redirectUri, record.codeChallenge, record.state, record.tenantId,
+        record.issuedAt, record.expiresAt).run();
+    },
+
+    async consume(input) {
+      const result = await db.prepare(`
+        UPDATE native_consent_intents
+        SET consumed_at = ?
+        WHERE intent_digest = ? AND csrf_digest = ? AND request_digest = ? AND founder_id = ?
+          AND consumed_at IS NULL AND expires_at > ?
+      `).bind(input.now, input.intentDigest, input.csrfDigest, input.requestDigest, input.founderId, input.now).run();
+      return Number(result.meta?.changes ?? 0) === 1;
+    },
+  };
+}
 
 export function d1NativeSessionStore(db: GoalGraphD1DatabaseLike): NativeSessionStore {
   return {

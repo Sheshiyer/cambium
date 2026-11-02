@@ -8,8 +8,9 @@ import test from 'node:test';
 
 import { handle, type HandlerDeps, type SimpleRequest } from './handler.ts';
 import { composeNativeLaunchHost } from './native-session-composition.ts';
-import { d1NativeSessionStore } from './native-session-d1.ts';
+import { d1NativeConsentIntentStore, d1NativeSessionStore } from './native-session-d1.ts';
 import {
+  NATIVE_CONSENT_COOKIE,
   NATIVE_SESSION_CONTRACT,
   NATIVE_SESSION_PATHS,
   createNativeSessionHost,
@@ -77,12 +78,14 @@ async function nativeSessionHarness() {
   const db = migratedDb();
   const d1 = new GoalGraphBatchSqliteD1(db);
   const sessionStore = d1NativeSessionStore(d1);
+  const consentStore = d1NativeConsentIntentStore(d1);
   const sessionDeps: NativeSessionDeps = {
     verifyBrowserFounder: async () => 'founder-1',
     currentRole: async () => 'founder',
     enrolledTenants: async () => ['cambium'],
     clients: [{ clientId: CLIENT_ID, redirectUri: REDIRECT }],
     store: sessionStore,
+    consent: consentStore,
     now: () => NOW,
     randomBytes: len => crypto.getRandomValues(new Uint8Array(len)),
     ownerOrigin: ORIGIN,
@@ -127,7 +130,7 @@ async function nativeSessionHarness() {
 test('complete signin exchange -> scope -> Mission Fabric / Founder Gate / logout', async () => {
   const { deps } = await nativeSessionHarness();
 
-  // 1. Authorize GET -> 302 with code
+  // 1. Authorize GET -> 200 HTML consent form, then POST consent -> 302 with code
   const authRes = await handle(req('GET', `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`), {
     ...deps,
     nativeSessionHost: createNativeSessionHost({
@@ -135,8 +138,10 @@ test('complete signin exchange -> scope -> Mission Fabric / Founder Gate / logou
       verifyBrowserFounder: async () => 'founder-1',
     }),
   });
-  assert.equal(authRes.status, 302);
-  const loc = authRes.headers.location;
+  assert.equal(authRes.status, 200);
+  const grantedRes = await handle(consentPost(authRes), deps);
+  assert.equal(grantedRes.status, 302);
+  const loc = grantedRes.headers.location;
   assert.ok(loc);
   const code = new URL(loc, ORIGIN).searchParams.get('code');
   assert.ok(code);
@@ -200,22 +205,53 @@ test('unsupported routes with native token early-refuse without global auth elev
   assert.equal(JSON.parse(res.body as string).error, 'native_route_unsupported');
 });
 
+function consentPost(auth: { status: number; headers: Record<string, string>; body?: string }) {
+  const html = String(auth.body ?? '');
+  const field = (name: string) => {
+    const match = new RegExp(`name="${name}" value="([^"]*)"`).exec(html);
+    if (!match) throw new Error(`missing consent field ${name}`);
+    return match[1];
+  };
+  const cookie = new RegExp(`${NATIVE_CONSENT_COOKIE}=([^;]+)`).exec(auth.headers['set-cookie'] ?? '');
+  if (!cookie) throw new Error('missing consent cookie');
+  const body = new URLSearchParams({
+    intent: field('intent'), csrf: field('csrf'), client_id: field('client_id'), redirect_uri: field('redirect_uri'),
+    code_challenge: field('code_challenge'), state: field('state'), tenant: field('tenant'), decision: 'allow',
+  });
+  const query = new URLSearchParams({
+    client_id: field('client_id'), redirect_uri: field('redirect_uri'), code_challenge: field('code_challenge'),
+    code_challenge_method: 'S256', state: field('state'), tenant: field('tenant'),
+  });
+  return req('POST', `${NATIVE_SESSION_PATHS.authorize}?${query}`, {
+    'content-type': 'application/x-www-form-urlencoded',
+    cookie: `${NATIVE_CONSENT_COOKIE}=${cookie[1]}`,
+  }, body.toString());
+}
+
 async function nativeToken(deps: HandlerDeps): Promise<string> {
   const auth = await handle(req('GET', `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`), deps);
-  const code = new URL(auth.headers.location, ORIGIN).searchParams.get('code')!;
+  assert.equal(auth.status, 200, auth.body);
+  const granted = await handle(consentPost(auth), deps);
+  assert.equal(granted.status, 302, granted.body);
+  const code = new URL(granted.headers.location, ORIGIN).searchParams.get('code')!;
   const ex = await handle(req('POST', NATIVE_SESSION_PATHS.exchange, { 'content-type': 'application/json', origin: ORIGIN },
     JSON.stringify({ contractVersion: NATIVE_SESSION_CONTRACT, clientId: CLIENT_ID, code, codeVerifier: VERIFIER, redirectUri: REDIRECT })), deps);
   assert.equal(ex.status, 200, ex.body);
   return JSON.parse(ex.body as string).token;
 }
 
-test('authorize 302 carries no-store and no-referrer headers and an exact Location', async () => {
+test('authorize GET renders consent form with no-store headers and POST returns 302 with exact location', async () => {
   const { deps } = await nativeSessionHarness();
-  const res = await handle(req('GET', `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`), deps);
-  assert.equal(res.status, 302);
-  assert.equal(res.headers['cache-control'], 'no-store');
-  assert.equal(res.headers['referrer-policy'], 'no-referrer');
-  assert.match(res.headers.location, /^space\.thoughtseed\.cambium\.native\.dev:\/\/oauth\/callback\?code=cnc1_/);
+  const getRes = await handle(req('GET', `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`), deps);
+  assert.equal(getRes.status, 200);
+  assert.equal(getRes.headers['cache-control'], 'no-store');
+  assert.equal(getRes.headers['referrer-policy'], 'no-referrer');
+  assert.ok(getRes.headers['set-cookie']?.includes(NATIVE_CONSENT_COOKIE));
+  const postRes = await handle(consentPost(getRes), deps);
+  assert.equal(postRes.status, 302);
+  assert.equal(postRes.headers['cache-control'], 'no-store');
+  assert.equal(postRes.headers['referrer-policy'], 'no-referrer');
+  assert.match(postRes.headers.location, /^space\.thoughtseed\.cambium\.native\.dev:\/\/oauth\/callback\?code=cnc1_/);
 });
 
 test('a host that is not the reviewed owner origin is refused before any session lookup', async () => {
@@ -519,6 +555,7 @@ test('authorize refuses any Authorization header, valid browser identity or not,
   const { deps, db } = await nativeSessionHarness();
   const url = `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`;
   const codes = () => Number((db.prepare('SELECT count(*) n FROM native_authorization_codes').get() as any).n);
+  const intents = () => Number((db.prepare('SELECT count(*) n FROM native_consent_intents').get() as any).n);
   for (const authorization of ['Bearer cns1_notarealtoken', 'Bearer ordinary', 'Basic Zm9vOmJhcg==']) {
     const res = await handle(req('GET', url, { authorization }), deps);
     assert.equal(res.status, 400, authorization);
@@ -527,8 +564,12 @@ test('authorize refuses any Authorization header, valid browser identity or not,
   }
   assert.equal(codes(), 0);
   const ordinary = await handle(req('GET', url), deps);
-  assert.equal(ordinary.status, 302, 'an ordinary authorize GET is unchanged');
-  assert.equal(codes(), 1);
+  assert.equal(ordinary.status, 200, 'authorize GET renders consent form');
+  assert.equal(intents(), 1);
+  assert.equal(codes(), 0, 'GET authorize issues no authorization code');
+  const granted = await handle(consentPost(ordinary), deps);
+  assert.equal(granted.status, 302);
+  assert.equal(codes(), 1, 'consent POST issues code');
 });
 
 test('both Telegram aliases are refused on session read, logout and every composed route', async () => {
