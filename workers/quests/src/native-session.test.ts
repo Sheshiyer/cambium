@@ -6,12 +6,15 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
-import { d1NativeSessionStore } from './native-session-d1.ts';
+import { d1NativeConsentIntentStore, d1NativeSessionStore } from './native-session-d1.ts';
 import {
   NATIVE_CODE_PREFIX,
   NATIVE_CODE_TTL_MS,
+  NATIVE_CONSENT_COOKIE,
+  NATIVE_CONSENT_TTL_MS,
   NATIVE_SESSION_CONTRACT,
   NATIVE_SESSION_MAX_BODY_BYTES,
+  NATIVE_SESSION_PATHS,
   NATIVE_SESSION_TTL_MS,
   NATIVE_TOKEN_PREFIX,
   createNativeSessionHost,
@@ -52,6 +55,7 @@ class SqliteD1 implements GoalGraphD1DatabaseLike {
 async function harness(overrides: Partial<NativeSessionDeps> = {}) {
   const db = new SqliteD1();
   db.db.exec(await readFile(new URL('../migrations/0100_native_sessions.sql', import.meta.url), 'utf8'));
+  db.db.exec(await readFile(new URL('../migrations/0101_native_consent.sql', import.meta.url), 'utf8'));
   const clock = { now: NOW };
   const who = { founder: 'founder-1' as string | null, role: 'founder' as string | null, tenants: ['tenant-alpha'] as string[] | null,
     onEnrollment: undefined as (() => unknown) | undefined, browserCalls: 0 };
@@ -61,6 +65,7 @@ async function harness(overrides: Partial<NativeSessionDeps> = {}) {
     enrolledTenants: async () => { await who.onEnrollment?.(); return who.tenants; },
     clients: [{ clientId: CLIENT_ID, redirectUri: REDIRECT }],
     store: d1NativeSessionStore(db),
+    consent: d1NativeConsentIntentStore(db),
     now: () => clock.now,
     randomBytes: standardNativeRandom,
     ownerOrigin: ORIGIN,
@@ -86,6 +91,48 @@ function authorizeUrl(extra: Record<string, string | undefined> = {}) {
 const authorize = (host: NativeSessionHost | undefined, extra?: Record<string, string | undefined>) =>
   nativeSessionHttp(new Request(authorizeUrl(extra)), host);
 
+const unescapeHtml = (value: string) => value
+  .replaceAll('&amp;', '&').replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&quot;', '"').replaceAll('&#39;', "'");
+
+/** Literal form action, hidden fields and CSRF cookie from a consent form. */
+function consentParts(html: string, setCookie: string | null) {
+  const action = /<form method="POST" action="([^"]*)">/.exec(html);
+  assert.ok(action, 'form action');
+  const field = (name: string) => {
+    const match = new RegExp(`name="${name}" value="([^"]*)"`).exec(html);
+    assert.ok(match, name);
+    return unescapeHtml(match[1]);
+  };
+  const cookie = new RegExp(`${NATIVE_CONSENT_COOKIE}=([^;]+)`).exec(setCookie ?? '');
+  assert.ok(cookie);
+  return {
+    action: unescapeHtml(action[1]),
+    intent: field('intent'), csrf: field('csrf'), client_id: field('client_id'), redirect_uri: field('redirect_uri'),
+    code_challenge: field('code_challenge'), state: field('state'), tenant: field('tenant'), cookie: cookie[1],
+  };
+}
+
+/**
+ * Browser submit: POST exactly the action attribute the GET HTML rendered,
+ * with the rendered hidden fields and the consent cookie. Nothing here
+ * rebuilds the authorize query.
+ */
+async function consent(host: NativeSessionHost | undefined, form: Response, mutate: (body: URLSearchParams, headers: Record<string, string>, action: { url: string }) => void = () => {}) {
+  const html = await form.clone().text();
+  const parts = consentParts(html, form.headers.get('set-cookie'));
+  const body = new URLSearchParams({
+    intent: parts.intent, csrf: parts.csrf, client_id: parts.client_id, redirect_uri: parts.redirect_uri,
+    code_challenge: parts.code_challenge, state: parts.state, tenant: parts.tenant, decision: 'allow',
+  });
+  const headers: Record<string, string> = {
+    'content-type': 'application/x-www-form-urlencoded',
+    cookie: `${NATIVE_CONSENT_COOKIE}=${parts.cookie}`,
+  };
+  const target = { url: new URL(parts.action, ORIGIN).toString() };
+  mutate(body, headers, target);
+  return nativeSessionHttp(new Request(target.url, { method: 'POST', headers, body: body.toString() }), host);
+}
+
 const exchangeBody = (code: string, extra: Record<string, unknown> = {}) => ({
   contractVersion: NATIVE_SESSION_CONTRACT, clientId: CLIENT_ID, code, codeVerifier: VERIFIER, redirectUri: REDIRECT, ...extra,
 });
@@ -107,14 +154,19 @@ const logout = (host: NativeSessionHost | undefined, token: string, body: unknow
   method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify(body),
 }), host);
 
-async function codeOf(response: Response | null) {
-  assert.ok(response);
-  assert.equal(response.status, 302);
-  return new URL(response.headers.get('location')!).searchParams.get('code')!;
+/** GET consent form, then the explicit POST that mints the one code. */
+async function codeFromHost(host: NativeSessionHost | undefined) {
+  const form = await authorize(host);
+  assert.ok(form);
+  assert.equal(form.status, 200);
+  assert.equal(form.headers.get('location'), null);
+  const granted = await consent(host, form.clone());
+  assert.equal(granted!.status, 302, await granted!.clone().text());
+  return new URL(granted!.headers.get('location')!).searchParams.get('code')!;
 }
 
 async function sessionFor(h: Harness) {
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const response = await exchange(h.host, exchangeBody(code));
   assert.equal(response!.status, 200);
   return (await response!.json()) as { token: string; expiresAt: string; founderId: string; tenantId: string };
@@ -198,31 +250,135 @@ test('missing dependencies perform no database writes', async () => {
   assert.equal(dump(h.db), '[[],[]]');
 });
 
-// ── Authorize ───────────────────────────────────────────────────────────────
+// ── Authorize (browser GET consent form, explicit POST consent) ─────────────
 
-test('authorize returns 302 with exact callback code and state, no-store headers, and a hashed code', async () => {
+test('authorize GET returns 200 HTML consent form with no-store headers and sets consent cookie', async () => {
   const h = await harness();
   const response = await authorize(h.host);
-  assert.equal(response!.status, 302);
+  assert.equal(response!.status, 200);
   assert.equal(response!.headers.get('cache-control'), 'no-store');
   assert.equal(response!.headers.get('referrer-policy'), 'no-referrer');
-  const location = new URL(response!.headers.get('location')!);
+  assert.equal(response!.headers.get('content-type')?.includes('text/html'), true);
+  assert.ok(response!.headers.get('set-cookie')?.includes(NATIVE_CONSENT_COOKIE));
+  const html = await response!.text();
+  assert.equal(html.includes(CLIENT_ID), true);
+  assert.equal(html.includes(REDIRECT), true);
+  // GET writes no authorization code to the store.
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 0);
+});
+
+test('browser posts the literal form action once and a replay of that same action is refused', async () => {
+  const h = await harness();
+  const form = await authorize(h.host);
+  const html = await form!.clone().text();
+  const action = unescapeHtml(/<form method="POST" action="([^"]*)">/.exec(html)![1]);
+  const actionUrl = new URL(action, ORIGIN);
+  assert.equal(actionUrl.origin, ORIGIN);
+  assert.equal(actionUrl.pathname, NATIVE_SESSION_PATHS.authorize);
+  assert.equal(actionUrl.searchParams.get('client_id'), CLIENT_ID);
+  assert.equal(actionUrl.searchParams.get('redirect_uri'), REDIRECT);
+  assert.equal(actionUrl.searchParams.get('code_challenge'), CHALLENGE);
+  assert.equal(actionUrl.searchParams.get('code_challenge_method'), 'S256');
+  assert.equal(actionUrl.searchParams.get('state'), STATE);
+  assert.equal(actionUrl.searchParams.get('tenant'), 'tenant-alpha');
+  assert.equal(actionUrl.searchParams.has('intent'), false);
+  assert.equal(actionUrl.searchParams.has('csrf'), false);
+  assert.equal(html.includes('intent='), false);
+  assert.equal(html.includes('csrf='), false);
+
+  const granted = await consent(h.host, form!);
+  assert.equal(granted!.status, 302);
+  const location = new URL(granted!.headers.get('location')!);
   assert.equal(`${location.protocol}//${location.host}${location.pathname}`, REDIRECT);
   assert.equal(location.searchParams.get('state'), STATE);
   const code = location.searchParams.get('code')!;
   assert.match(code, /^cnc1_[A-Za-z0-9_-]{43}$/);
-  assert.equal(dump(h.db).includes(code), false);
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 1);
+
+  const replay = await consent(h.host, form!);
+  assert.equal((await errorOf(replay)).body.error, 'consent_required');
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 1);
+});
+
+test('consent POST refuses a form action whose query no longer matches the hidden fields', async () => {
+  const h = await harness();
+  const form = await authorize(h.host);
+  const tampered = await consent(h.host, form!, (_body, _headers, action) => {
+    const url = new URL(action.url);
+    url.searchParams.set('code_challenge', 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cX');
+    action.url = url.toString();
+  });
+  assert.equal((await errorOf(tampered)).body.error, 'consent_required');
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 0);
+
+  const swapped = await consent(h.host, form!, (_body, _headers, action) => {
+    action.url = `${ORIGIN}${NATIVE_SESSION_PATHS.authorize}`;
+  });
+  assert.equal(swapped!.status, 302, 'a path-only action still binds through the rendered hidden fields');
+});
+
+test('a path-prefixed owner origin keeps that path in the form action and refuses a different origin', async () => {
+  const h = await harness({ ownerOrigin: 'https://cambium.test/edge' });
+  const form = await nativeSessionHttp(new Request(`https://cambium.test/edge${NATIVE_SESSION_PATHS.authorize}?${new URLSearchParams({
+    client_id: CLIENT_ID, redirect_uri: REDIRECT, code_challenge: CHALLENGE,
+    code_challenge_method: 'S256', state: STATE,
+  })}`), h.host);
+  assert.equal(form!.status, 200);
+  const action = unescapeHtml(/<form method="POST" action="([^"]*)">/.exec(await form!.clone().text())![1]);
+  const actionUrl = new URL(action);
+  assert.equal(actionUrl.origin, ORIGIN);
+  assert.equal(actionUrl.pathname, `/edge${NATIVE_SESSION_PATHS.authorize}`);
+  const granted = await consent(h.host, form!);
+  assert.equal(granted!.status, 302);
+
+  const foreign = await consent(h.host, form!, (_body, _headers, target) => {
+    const url = new URL(target.url);
+    url.hostname = 'attacker.invalid';
+    target.url = url.toString();
+  });
+  assert.equal((await errorOf(foreign)).status, 400);
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 1);
+});
+
+test('authorize consent POST refuses missing cookie, bad CSRF, expired intent and cross-founder attempts', async () => {
+  const h = await harness();
+  const form = await authorize(h.host);
+  const html = await form!.text();
+  const parts = consentParts(html, form!.headers.get('set-cookie'));
+  const makePost = (bodyMutate: (b: URLSearchParams) => void = () => {}, headerMutate: (h: Record<string, string>) => void = () => {}) => {
+    const body = new URLSearchParams({
+      intent: parts.intent, csrf: parts.csrf, client_id: parts.client_id, redirect_uri: parts.redirect_uri,
+      code_challenge: parts.code_challenge, state: parts.state, tenant: parts.tenant, decision: 'allow',
+    });
+    bodyMutate(body);
+    const headers: Record<string, string> = {
+      'content-type': 'application/x-www-form-urlencoded',
+      cookie: `${NATIVE_CONSENT_COOKIE}=${parts.cookie}`,
+    };
+    headerMutate(headers);
+    return nativeSessionHttp(new Request(new URL(parts.action, ORIGIN), { method: 'POST', headers, body: body.toString() }), h.host);
+  };
+
+  // Missing cookie
+  assert.equal((await errorOf(await makePost(() => {}, h => { delete h.cookie; }))).body.error, 'consent_required');
+  // Mismatched CSRF cookie
+  assert.equal((await errorOf(await makePost(() => {}, h => { h.cookie = `${NATIVE_CONSENT_COOKIE}=cnk1_${'b'.repeat(43)}`; }))).body.error, 'consent_required');
+  // Changed challenge
+  assert.equal((await errorOf(await makePost(b => b.set('code_challenge', 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cX')))).body.error, 'consent_required');
+  // Expired intent
+  h.clock.now = new Date(Date.parse(NOW) + NATIVE_CONSENT_TTL_MS + 1000).toISOString();
+  assert.equal((await errorOf(await makePost())).body.error, 'consent_required');
 });
 
 test('authorize accepts a single tenant automatically and rejects foreign and ambiguous selections', async () => {
   const h = await harness();
-  assert.equal((await authorize(h.host, { tenant: 'tenant-alpha' }))!.status, 302);
+  assert.equal((await authorize(h.host, { tenant: 'tenant-alpha' }))!.status, 200);
   assert.equal((await errorOf(await authorize(h.host, { tenant: 'tenant-zeta' }))).status, 403);
   h.who.tenants = ['tenant-alpha', 'tenant-beta'];
   const ambiguous = await errorOf(await authorize(h.host));
   assert.equal(ambiguous.status, 409);
   assert.equal(ambiguous.body.error, 'tenant_selection_required');
-  assert.equal((await authorize(h.host, { tenant: 'tenant-beta' }))!.status, 302);
+  assert.equal((await authorize(h.host, { tenant: 'tenant-beta' }))!.status, 200);
 });
 
 test('authorize returns 403 for unknown tenants, empty enrollment and non-founder roles', async () => {
@@ -269,11 +425,11 @@ test('authorize refuses an Authorization header before the browser verifier and 
   assert.equal(dump(h.db), '[[],[]]');
 });
 
-test('authorize refuses duplicate parameters, userinfo callbacks and the wrong method', async () => {
+test('authorize refuses duplicate parameters, userinfo callbacks and unsupported methods', async () => {
   const h = await harness();
   assert.equal((await errorOf(await nativeSessionHttp(new Request(`${authorizeUrl()}&state=${STATE}`), h.host))).status, 400);
   assert.equal((await errorOf(await nativeSessionHttp(new Request(`${authorizeUrl()}#frag`), h.host))).status, 400);
-  assert.equal((await errorOf(await nativeSessionHttp(new Request(authorizeUrl(), { method: 'POST' }), h.host))).status, 405);
+  assert.equal((await errorOf(await nativeSessionHttp(new Request(authorizeUrl(), { method: 'PUT' }), h.host))).status, 405);
   assert.equal(validNativeRedirect('space.thoughtseed.cambium.native.dev://user@oauth/callback'), false);
   assert.equal(dump(h.db), '[[],[]]');
 });
@@ -326,7 +482,7 @@ test('session read and logout refuse the telegram-init-data alias without a look
 
 test('exchange with the wrong verifier, client, redirect, or shape issues nothing', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const wrongVerifier = 'x'.repeat(43);
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { codeVerifier: wrongVerifier })))).body.error, 'invalid_grant');
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { clientId: 'space.thoughtseed.other.app' })))).body.error, 'invalid_client');
@@ -342,7 +498,7 @@ test('exchange with the wrong verifier, client, redirect, or shape issues nothin
 
 test('expiry is re-checked after awaits; the code expires at its exact TTL', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   // Advance the clock during the enrollment lookup, after the first peek.
   h.who.onEnrollment = () => { h.clock.now = new Date(Date.parse(NOW) + NATIVE_CODE_TTL_MS).toISOString(); };
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code)))).body.error, 'invalid_grant');
@@ -351,8 +507,8 @@ test('expiry is re-checked after awaits; the code expires at its exact TTL', asy
 
 test('a code one millisecond before its TTL still exchanges; at the TTL it does not', async () => {
   const h = await harness();
-  const early = await codeOf(await authorize(h.host));
-  const late = await codeOf(await authorize(h.host));
+  const early = await codeFromHost(h.host);
+  const late = await codeFromHost(h.host);
   h.clock.now = new Date(Date.parse(NOW) + NATIVE_CODE_TTL_MS - 1).toISOString();
   assert.equal((await exchange(h.host, exchangeBody(early)))!.status, 200);
   h.clock.now = new Date(Date.parse(NOW) + NATIVE_CODE_TTL_MS).toISOString();
@@ -361,7 +517,7 @@ test('a code one millisecond before its TTL still exchanges; at the TTL it does 
 
 test('exchange rechecks the current founder role and enrollment rather than the stored code alone', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   h.who.role = 'member';
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code)))).status, 403);
   h.who.role = 'founder';
@@ -383,7 +539,7 @@ test('exchange rejects GET, wrong content type, oversized and malformed bodies',
 
 test('exchange answers store failure with a bounded 503 and never grants a second session', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const failing: NativeSessionDeps = { ...h.deps, store: {
     ...h.deps.store,
     async grant() { throw new Error('D1_ERROR: simulated outage with cns1_secret'); },
@@ -401,7 +557,7 @@ test('exchange answers store failure with a bounded 503 and never grants a secon
 
 test('a grant that lands before its response is lost cannot be repeated by resending the exchange', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const real = h.deps.store;
   const host = createNativeSessionHost({ ...h.deps, store: {
     ...real,
@@ -412,9 +568,13 @@ test('a grant that lands before its response is lost cannot be repeated by resen
   assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_sessions').get() as { n: number }).n, 1);
 });
 
-test('saveCode failure during authorize fails bounded and leaves no code behind', async () => {
-  const h = await harness({ store: { ...d1NativeSessionStore(new SqliteD1()), async saveCode() { throw new Error('boom cnc1_leak'); } } as NativeSessionDeps['store'] });
-  const body = await errorOf(await authorize(h.host));
+test('consent save failure during authorize fails bounded and leaves no code behind', async () => {
+  const h = await harness({ consent: { ...d1NativeConsentIntentStore(new SqliteD1()), async save() { throw new Error('boom cni1_leak'); } } });
+  const response = await authorize(h.host);
+  assert.equal(response!.status, 503);
+  const text = await response!.text();
+  assert.equal(text.includes('<!DOCTYPE'), false);
+  const body = { status: response!.status, body: JSON.parse(text) as { error: string } };
   assert.equal(body.status, 503);
   assert.equal(dump(h.db), '[[],[]]');
 });
@@ -511,7 +671,7 @@ test('a session that expires during the awaited lookup is refused', async () => 
 
 test('a code consumed by another exchange during the awaited lookup grants nothing', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   // Another exchange wins while this one awaits enrollment.
   h.who.onEnrollment = async () => {
     h.who.onEnrollment = undefined;
@@ -538,7 +698,7 @@ test('impossible but shape-valid dates refuse categorically and never throw', as
   } })!;
   assert.equal((await errorOf(await sessionRead(corruptRow, session.token))).status, 401);
 
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const corruptPending = createNativeSessionHost({ ...h.deps, store: {
     ...h.deps.store,
     async peekCode() { return { founderId: 'founder-1', tenantId: 'tenant-alpha', expiresAt: '2026-13-01T00:00:00.000Z' }; },
@@ -565,7 +725,7 @@ test('malformed founder, tenant or client shapes in stored rows are refused befo
     } })!;
     assert.equal((await errorOf(await sessionRead(host, session.token))).status, 401, JSON.stringify(row));
   }
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   for (const pending of [{ founderId: 'founder 1', tenantId: 'tenant-alpha' }, { founderId: 'founder-1', tenantId: 'x' }]) {
     const host = createNativeSessionHost({ ...counting, store: {
       ...h.deps.store,
@@ -578,7 +738,7 @@ test('malformed founder, tenant or client shapes in stored rows are refused befo
 
 test('exchange refuses browser credentials and Authorization without calling the browser verifier', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const before = h.who.browserCalls;
   const bearer = ['Bearer', `${NATIVE_TOKEN_PREFIX}${'A'.repeat(43)}`].join(' ');
   for (const headers of [
@@ -606,17 +766,19 @@ test('exchange refuses browser credentials and Authorization without calling the
 const FIXTURE_URL = new URL('./fixtures/native-session-wire.v1.json', import.meta.url);
 const FIXTURE_NOW = '2026-11-02T00:30:00.123Z';
 
-/** Drives authorize → exchange → read → logout with deterministic synthetic randomness. */
+/** Drives authorize consent → exchange → read → logout with deterministic synthetic randomness. */
 async function generateWire() {
   let draws = 0;
-  // Synthetic only: first draw (code) is all 0x00, second (token) all 0x01.
+  // Synthetic only: consent intent, CSRF, code, then token. Code is the third draw.
   const h = await harness({ randomBytes: (length: number) => new Uint8Array(length).fill(draws++) });
   h.clock.now = FIXTURE_NOW;
   h.who.founder = 'founder-synth-1';
   const query = Object.fromEntries(new URL(authorizeUrl()).searchParams);
-  const authorized = await authorize(h.host);
-  assert.equal(authorized!.status, 302);
-  const location = authorized!.headers.get('location')!;
+  const form = await authorize(h.host);
+  assert.equal(form!.status, 200);
+  const granted = await consent(h.host, form!.clone());
+  assert.equal(granted!.status, 302);
+  const location = granted!.headers.get('location')!;
   const code = new URL(location).searchParams.get('code')!;
   const exchangeRequest = exchangeBody(code);
   const exchanged = await exchange(h.host, exchangeRequest);
@@ -714,7 +876,7 @@ test('bad clock after the final session read refuses categorically', async () =>
 
 test('code that expires while the second peek awaits is not granted', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const real = h.deps.store;
   let peeks = 0;
   let grants = 0;
@@ -734,7 +896,7 @@ test('code that expires while the second peek awaits is not granted', async () =
 
 test('grant timestamp and session lifetime use the clock read after the second peek', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const real = h.deps.store;
   const later = at(NOW, 5_000);
   let seen: { now: string; expiresAt: string } | undefined;
@@ -755,7 +917,7 @@ test('grant timestamp and session lifetime use the clock read after the second p
 
 test('session that lapses while grant awaits returns categorical restart and no token', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const real = h.deps.store;
   let grants = 0;
   const host = createNativeSessionHost({ ...h.deps, store: {
@@ -780,7 +942,7 @@ test('session that lapses while grant awaits returns categorical restart and no 
 
 test('invalid clock after the grant await returns categorical unavailable and no token', async () => {
   const h = await harness();
-  const code = await codeOf(await authorize(h.host));
+  const code = await codeFromHost(h.host);
   const real = h.deps.store;
   const host = createNativeSessionHost({ ...h.deps, store: {
     ...real,

@@ -10,17 +10,17 @@
     "code_challenge_method": "S256",
     "state": "abcdefghijklmnopqrstuvwx"
   },
-  "authorizeResponseLocation": "space.thoughtseed.cambium.native.dev://oauth/callback?code=cnc1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&state=abcdefghijklmnopqrstuvwx",
+  "authorizeResponseLocation": "space.thoughtseed.cambium.native.dev://oauth/callback?code=cnc1_AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI&state=abcdefghijklmnopqrstuvwx",
   "exchangeRequest": {
     "contractVersion": "cambium.native-session.v1",
     "clientId": "space.thoughtseed.cambium.native.dev",
-    "code": "cnc1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "code": "cnc1_AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI",
     "codeVerifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
     "redirectUri": "space.thoughtseed.cambium.native.dev://oauth/callback"
   },
   "exchangeResponse": {
     "contractVersion": "cambium.native-session.v1",
-    "token": "cns1_AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE",
+    "token": "cns1_AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM",
     "tokenType": "Bearer",
     "expiresAt": "2026-11-02T00:45:00.123Z",
     "founderId": "founder-synth-1",

@@ -54,10 +54,13 @@ values are synthetic and are not credentials. The file holds no
 `Authorization` header. The client builds `Bearer <token>` itself. Regenerate
 with `NATIVE_SESSION_WRITE_FIXTURE=1 node --test workers/quests/src/native-session.test.ts`.
 
-### 1. Authorize: `GET /v1/native/session/authorize`
+### 1. Authorize: `GET /v1/native/session/authorize` and `POST /v1/native/session/authorize`
 
-Opened in `ASWebAuthenticationSession`. The query takes exactly these
-parameters, each once:
+Opened in `ASWebAuthenticationSession`.
+- `GET /v1/native/session/authorize`: validates existing verified founder, client, redirect, challenge, state and tenant, then stores a short-lived one-time consent intent and returns `200` with an HTML consent form and a Secure SameSite=Strict HttpOnly cookie (`cambium_native_consent`). It writes no authorization code.
+- `POST /v1/native/session/authorize`: requires the same Access founder and current role/enrollment, exact intent bound to all GET inputs, CSRF token matching the secure cookie plus hidden form field. Atomically consumes the intent in D1 once, then mints an authorization code and returns `302` with `Location: <redirect_uri>?code=cnc1_…&state=<state>`. Any replay, cross-founder, changed challenge, client, tenant, redirect or state, expired intent, missing cookie/CSRF, or direct POST returns categorical refusal (`400` `consent_required`) and zero code writes.
+
+The query takes exactly these parameters, each once:
 
 | Parameter | Rule |
 | --- | --- |

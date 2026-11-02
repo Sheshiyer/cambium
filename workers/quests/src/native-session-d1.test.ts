@@ -6,10 +6,12 @@ import { readFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
-import { cleanupExpiredNativeSessions, d1NativeSessionStore } from './native-session-d1.ts';
+import { cleanupExpiredNativeSessions, d1NativeConsentIntentStore, d1NativeSessionStore } from './native-session-d1.ts';
 import {
   NATIVE_CODE_TTL_MS,
+  NATIVE_CONSENT_COOKIE,
   NATIVE_SESSION_CONTRACT,
+  NATIVE_SESSION_PATHS,
   createNativeSessionHost,
   nativeSessionHttp,
   nativeCredentialDigest,
@@ -45,6 +47,7 @@ class SqliteD1 implements GoalGraphD1DatabaseLike {
 async function harness(overrides: Partial<NativeSessionDeps> = {}) {
   const db = new SqliteD1();
   db.db.exec(await readFile(new URL('../migrations/0100_native_sessions.sql', import.meta.url), 'utf8'));
+  db.db.exec(await readFile(new URL('../migrations/0101_native_consent.sql', import.meta.url), 'utf8'));
   const clock = { now: NOW };
   const who = { founder: 'founder-1' as string | null, role: 'founder' as string | null, tenants: ['tenant-alpha'] as string[] | null };
   const deps: NativeSessionDeps = {
@@ -53,6 +56,7 @@ async function harness(overrides: Partial<NativeSessionDeps> = {}) {
     enrolledTenants: async () => who.tenants,
     clients: [{ clientId: CLIENT_ID, redirectUri: REDIRECT }],
     store: d1NativeSessionStore(db),
+    consent: d1NativeConsentIntentStore(db),
     now: () => clock.now,
     randomBytes: standardNativeRandom,
     ownerOrigin: ORIGIN,
@@ -92,15 +96,32 @@ const exchangeBody = (code: string, extra: Record<string, unknown> = {}) => ({
   contractVersion: NATIVE_SESSION_CONTRACT, clientId: CLIENT_ID, code, codeVerifier: VERIFIER, redirectUri: REDIRECT, ...extra,
 });
 
-async function codeFrom(response: Response) {
-  assert.equal(response.status, 302);
-  const location = response.headers.get('location');
+async function codeFrom(form: Response, host: ReturnType<typeof createNativeSessionHost>) {
+  assert.equal(form.status, 200);
+  const html = await form.clone().text();
+  const field = (name: string) => {
+    const match = new RegExp(`name="${name}" value="([^"]*)"`).exec(html);
+    assert.ok(match, name);
+    return match[1];
+  };
+  const cookie = new RegExp(`${NATIVE_CONSENT_COOKIE}=([^;]+)`).exec(form.headers.get('set-cookie') ?? '');
+  assert.ok(cookie);
+  const body = new URLSearchParams({
+    intent: field('intent'), csrf: field('csrf'), client_id: field('client_id'), redirect_uri: field('redirect_uri'),
+    code_challenge: field('code_challenge'), state: field('state'), tenant: field('tenant'), decision: 'allow',
+  });
+  const res = await nativeSessionHttp(new Request(`${ORIGIN}${NATIVE_SESSION_PATHS.authorize}?${new URLSearchParams({
+    client_id: field('client_id'), redirect_uri: field('redirect_uri'), code_challenge: field('code_challenge'),
+    code_challenge_method: 'S256', state: field('state'), tenant: field('tenant'),
+  })}`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', cookie: `${NATIVE_CONSENT_COOKIE}=${cookie[1]}` }, body: body.toString() }), host);
+  assert.equal(res!.status, 302);
+  const location = res!.headers.get('location');
   assert.ok(location);
   return new URL(location).searchParams.get('code')!;
 }
 
 async function issueCode(h: Awaited<ReturnType<typeof harness>>) {
-  return codeFrom((await authorize(h.host))!);
+  return codeFrom((await authorize(h.host))!, h.host);
 }
 
 const bearer = (token: string) => new Request(`${ORIGIN}/v1/native/session`, { headers: { authorization: `Bearer ${token}` } });
