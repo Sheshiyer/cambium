@@ -145,6 +145,7 @@ private struct FoundationSettings: View {
 
 /// Snapshot mode: real window captures for review, adapted from Bama's Snapshot.swift.
 enum SnapshotRun {
+    static let appearanceDidChange = Notification.Name("cambium.snapshot.appearanceDidChange")
     private(set) static var exitCode: Int32?
 
     /// Page requested with CAMBIUM_NATIVE_SCREEN. Honored in demo mode only; an
@@ -244,6 +245,7 @@ enum SnapshotRun {
         for appearance in ["light", "dark"] {
             let requestedAppearance = NSAppearance(named: appearance == "light" ? .aqua : .darkAqua)
             NSApp.appearance = requestedAppearance
+            NotificationCenter.default.post(name: appearanceDidChange, object: appearance)
             for (label, size) in sizes {
                 guard let window = mainWindow() else {
                     failures.append("\(appearance)-\(label): no main window")

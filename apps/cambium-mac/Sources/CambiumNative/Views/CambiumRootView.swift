@@ -35,6 +35,11 @@ struct CambiumRootView: View {
         // The title of the window hosting this view follows its actual data mode.
         .background(WindowTitleSetter(title: model.mode.windowTitle))
         .onAppear { applyRequestedScreen() }
+        .onReceive(NotificationCenter.default.publisher(for: SnapshotRun.appearanceDidChange)) { note in
+            guard model.isDemo, let raw = note.object as? String,
+                  let choice = AppearanceChoice(rawValue: raw) else { return }
+            model.appearance = choice
+        }
         .environment(model)
         .environment(\.cambiumReduceMotion, systemReduceMotion || model.reduceMotion)
         .preferredColorScheme(model.appearance.colorScheme)
