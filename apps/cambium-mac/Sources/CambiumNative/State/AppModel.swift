@@ -5,6 +5,7 @@ import SwiftUI
 import struct CambiumCore.SystemSnapshot
 import struct CambiumCore.WorkObject
 import struct CambiumCore.MappedProject
+import struct CambiumCore.MappedHistoricalProject
 import struct CambiumCore.EvidenceItem
 import struct CambiumCore.ConnectionObservation
 import enum CambiumCore.DemoData
@@ -47,6 +48,7 @@ final class AppModel {
 
     var selectedWorkID: String?
     var selectedProjectID: String?
+    var selectedHistoricalID: String?
     var selectedEvidenceID: String?
     var selectedConnectionID: String?
     var selectedStepID: String?
@@ -109,6 +111,9 @@ final class AppModel {
     var allEvidence: [EvidenceItem] { snapshot.work.flatMap(\.evidence) + unattachedEvidence }
     var selectedWork: WorkObject? { snapshot.work.first { $0.id == selectedWorkID } }
     var selectedProject: MappedProject? { fabric?.portfolio?.projects.first { $0.id == selectedProjectID } }
+    var selectedHistoricalProduct: MappedHistoricalProject? {
+        fabric?.portfolio?.historicalProducts.first { $0.id == selectedHistoricalID }
+    }
 
     /// The Work node named by the served join for this canonical project.
     /// Raw catalog identifiers, aliases, and tenant strings are not joins.
@@ -174,6 +179,17 @@ final class AppModel {
             return
         }
         selectedProjectID = id
+        selectedHistoricalID = nil
+        open(.projects)
+    }
+
+    func selectHistoricalProduct(_ id: String) {
+        guard fabric?.portfolio?.historicalProducts.contains(where: { $0.id == id }) == true else {
+            feedback = "That historical product is not in the current display catalog."
+            return
+        }
+        selectedHistoricalID = id
+        selectedProjectID = nil
         open(.projects)
     }
 
@@ -278,6 +294,7 @@ final class AppModel {
         selectedOrgan = nil
         selectedWorkID = nil
         selectedProjectID = nil
+        selectedHistoricalID = nil
         selectedEvidenceID = nil
         selectedConnectionID = nil
         selectedTraceID = nil
@@ -319,6 +336,7 @@ final class AppModel {
             // A failed read leaves no catalog from an earlier read in view.
             fabric = nil
             selectedProjectID = nil
+            selectedHistoricalID = nil
             snapshot = mode == .demo ? DemoData.snapshot : Self.emptySnapshot
         default:
             return
@@ -345,8 +363,17 @@ final class AppModel {
         if selectedWorkID == nil || !snapshot.work.contains(where: { $0.id == selectedWorkID }) {
             selectedWorkID = snapshot.work.first?.id
         }
-        if selectedProjectID == nil || fabric?.portfolio?.projects.contains(where: { $0.id == selectedProjectID }) != true {
+        if fabric?.portfolio?.historicalProducts.contains(where: { $0.id == selectedHistoricalID }) != true {
+            selectedHistoricalID = nil
+        }
+        if fabric?.portfolio?.projects.contains(where: { $0.id == selectedProjectID }) != true {
+            selectedProjectID = nil
+        }
+        if selectedProjectID == nil && selectedHistoricalID == nil {
             selectedProjectID = fabric?.portfolio?.projects.first?.id
+            if selectedProjectID == nil {
+                selectedHistoricalID = fabric?.portfolio?.historicalProducts.first?.id
+            }
         }
         if let selectedWorkID {
             proposalBinding = services.proposalBinding(workId: selectedWorkID)
@@ -412,6 +439,7 @@ final class AppModel {
         selectedAdmissionRef = nil
         fabric = nil
         selectedProjectID = nil
+        selectedHistoricalID = nil
         knowledge = []
         pendingGate = []
         pendingLaunch = []
@@ -722,6 +750,12 @@ final class AppModel {
             hits.append(SearchHit(id: "project-\(project.id)", title: project.name,
                                   detail: "Display catalog · \(project.canonicalId)", section: .projects) { [weak self] in
                 self?.selectProject(project.id)
+            })
+        }
+        for product in fabric?.portfolio?.historicalProducts ?? [] where matches(product.name, product.canonicalId) {
+            hits.append(SearchHit(id: "historical-\(product.id)", title: product.name,
+                                  detail: "Historical product · \(product.canonicalId)", section: .projects) { [weak self] in
+                self?.selectHistoricalProduct(product.id)
             })
         }
         for item in allEvidence where matches(item.title, item.sourceRef) {

@@ -49,4 +49,28 @@ final class ProjectIntegrationTests: XCTestCase {
         XCTAssertEqual(model.section, .work)
         XCTAssertEqual(model.selectedWorkID, "sapling:cambium")
     }
+
+    func testHistoricalSourceIsSearchableAndCannotOpenWork() async throws {
+        let model = try await loadedDemo()
+        let portfolio = try XCTUnwrap(model.fabric?.portfolio)
+        XCTAssertEqual(portfolio.historicalProducts.count, portfolio.summary.historicalProducts)
+
+        model.query = "Axtech Product View"
+        let hit = try XCTUnwrap(model.searchHits.first { $0.id == "historical-historical-product:axtech" })
+        XCTAssertEqual(hit.section, .projects)
+        hit.apply()
+        XCTAssertEqual(model.selectedHistoricalProduct?.canonicalId, "historical-product:axtech")
+        XCTAssertEqual(model.selectedHistoricalProduct?.linkedCanonicalId, "branch:axtech")
+        XCTAssertNil(model.selectedProject)
+
+        let before = model.selectedWorkID
+        model.openOperationalWork(for: "historical-product:axtech")
+        XCTAssertEqual(model.selectedWorkID, before)
+        XCTAssertEqual(model.section, .projects)
+
+        model.selectProject("branch:axtech")
+        XCTAssertEqual(model.selectedProject?.canonicalId, "branch:axtech")
+        XCTAssertNil(model.selectedHistoricalProduct)
+        XCTAssertEqual(model.selectedWorkID, before)
+    }
 }

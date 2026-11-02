@@ -1,6 +1,26 @@
 import SwiftUI
 import struct CambiumCore.MappedPortfolio
 import struct CambiumCore.MappedProject
+import struct CambiumCore.MappedHistoricalProject
+
+private enum ProjectListEntry: Identifiable {
+    case active(MappedProject)
+    case historical(MappedHistoricalProject)
+
+    var id: String {
+        switch self {
+        case .active(let project): project.id
+        case .historical(let product): "historical-\(product.id)"
+        }
+    }
+
+    var name: String {
+        switch self {
+        case .active(let project): project.name
+        case .historical(let product): product.name
+        }
+    }
+}
 
 /// Source-classified portfolio records served by the same scoped Mission Fabric
 /// read as Canopy. This page never turns catalog membership into admission.
@@ -25,11 +45,17 @@ struct ProjectsView: View {
                         if let selected = model.selectedProject {
                             dossier(selected)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                        } else if let selected = model.selectedHistoricalProduct {
+                            historicalDossier(selected)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         } else {
                             EmptyStateView(symbol: "square.grid.2x2", title: "Choose a project",
                                            message: "Select a mapped project to inspect its source and gaps.")
                                 .cambiumPanel()
                         }
+                    }
+                    if !portfolio.classificationReviews.isEmpty {
+                        classificationReviews(portfolio)
                     }
                 } else {
                     EmptyStateView(symbol: "lock", title: "Summary only",
@@ -52,11 +78,17 @@ struct ProjectsView: View {
 
     private func summary(_ portfolio: MappedPortfolio) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionHeader(title: "Source classification", detail: "\(portfolio.summary.total) records")
+            SectionHeader(title: "Source classification", detail: "\(portfolio.summary.total) current records")
             HStack(spacing: 8) {
                 StatusChip(text: "\(portfolio.summary.saplings) saplings", tone: .evidence)
                 StatusChip(text: "\(portfolio.summary.clientBranches) client branches", tone: .rail)
                 StatusChip(text: "\(portfolio.summary.internalPrograms) internal programs", tone: .signal)
+            }
+            HStack(spacing: 8) {
+                StatusChip(text: "\(portfolio.summary.historicalProducts) historical products", tone: .muted)
+                if portfolio.summary.classificationReview > 0 {
+                    StatusChip(text: "\(portfolio.summary.classificationReview) classification reviews", tone: .hold)
+                }
             }
             Text("Read only · \(portfolio.summary.status) · action admission: \(portfolio.summary.actionAdmission). Classification and tenant labels are source observations.")
                 .font(.callout)
@@ -86,19 +118,26 @@ struct ProjectsView: View {
                 Text("Saplings").tag("sapling")
                 Text("Client branches").tag("client-branch")
                 Text("Internal programs").tag("internal-program")
+                Text("Historical products").tag("historical")
             }
             .frame(width: 190)
             .accessibilityIdentifier("projects.category")
         }
     }
 
-    private func visible(_ portfolio: MappedPortfolio) -> [MappedProject] {
+    private func visible(_ portfolio: MappedPortfolio) -> [ProjectListEntry] {
         let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        return portfolio.projects.filter { project in
+        let active = portfolio.projects.filter { project in
             (category == "all" || project.classification == category) &&
             (normalized.isEmpty || [project.name, project.canonicalId, project.workId]
                 .contains { $0.localizedCaseInsensitiveContains(normalized) })
-        }
+        }.map(ProjectListEntry.active)
+        let history = portfolio.historicalProducts.filter { product in
+            (category == "all" || category == "historical") &&
+            (normalized.isEmpty || [product.name, product.canonicalId]
+                .contains { $0.localizedCaseInsensitiveContains(normalized) })
+        }.map(ProjectListEntry.historical)
+        return active + history
     }
 
     private func projectList(_ portfolio: MappedPortfolio) -> some View {
@@ -112,35 +151,56 @@ struct ProjectsView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 7) {
-                        ForEach(rows) { project in
-                            Button { model.selectProject(project.id) } label: {
+                        ForEach(rows) { entry in
+                            Button { select(entry) } label: {
                                 HStack(spacing: 8) {
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text(project.name)
+                                        Text(entry.name)
                                             .font(CambiumFont.heading)
                                             .foregroundStyle(Palette.ink)
-                                        Text(project.classification)
+                                        Text(entrySubtitle(entry))
                                             .font(CambiumFont.label)
                                             .foregroundStyle(Palette.inkMuted)
                                     }
                                     Spacer(minLength: 3)
-                                    if project.runtimeWorkId != nil {
+                                    if case .active(let project) = entry, project.runtimeWorkId != nil {
                                         Image(systemName: "link")
                                             .foregroundStyle(Palette.evidence)
                                             .accessibilityLabel("Explicit runtime join")
                                     }
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .cambiumPanel(padding: 10, highlighted: project.id == model.selectedProjectID)
+                                .cambiumPanel(padding: 10, highlighted: isSelected(entry))
                             }
                             .buttonStyle(.plain)
-                            .accessibilityIdentifier("projects.row.\(project.id)")
+                            .accessibilityIdentifier("projects.row.\(entry.id)")
                             .accessibilityHint("Opens the source catalog record")
                         }
                     }
                 }
                 .frame(height: 560)
             }
+        }
+    }
+
+    private func select(_ entry: ProjectListEntry) {
+        switch entry {
+        case .active(let project): model.selectProject(project.id)
+        case .historical(let product): model.selectHistoricalProduct(product.id)
+        }
+    }
+
+    private func isSelected(_ entry: ProjectListEntry) -> Bool {
+        switch entry {
+        case .active(let project): project.id == model.selectedProjectID
+        case .historical(let product): product.id == model.selectedHistoricalID
+        }
+    }
+
+    private func entrySubtitle(_ entry: ProjectListEntry) -> String {
+        switch entry {
+        case .active(let project): project.classification
+        case .historical(let product): "Historical · \(product.status)"
         }
     }
 
@@ -179,7 +239,7 @@ struct ProjectsView: View {
                             .textSelection(.enabled)
                     }
                 }
-                FactRow(label: "Linked records", value: project.linkedCanonicalIds.isEmpty ? nil : project.linkedCanonicalIds.joined(separator: ", "), mono: true)
+                linkedRows(project.linkedCanonicalIds)
             }
             .cambiumPanel()
 
@@ -206,5 +266,87 @@ struct ProjectsView: View {
             .cambiumPanel()
         }
         .accessibilityIdentifier("projects.dossier.\(project.id)")
+    }
+
+    private func historicalDossier(_ product: MappedHistoricalProject) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 8) {
+                SectionHeader(title: "Historical source")
+                Text(product.name)
+                    .font(CambiumFont.display)
+                    .foregroundStyle(Palette.ink)
+                StatusChip(text: product.status, tone: .muted)
+                Text("Historical classification only. This record has no runtime Work or action admission.")
+                    .font(.callout)
+                    .foregroundStyle(Palette.inkMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                FactRow(label: "Canonical ID", value: product.canonicalId, mono: true)
+                if let target = product.linkedCanonicalId {
+                    linkedRows([target])
+                } else {
+                    FactRow(label: "Linked current record", value: nil)
+                }
+            }
+            .cambiumPanel(highlighted: true)
+
+            VStack(alignment: .leading, spacing: 8) {
+                SectionHeader(title: "Provenance")
+                if product.provenance.isEmpty {
+                    Text("No provenance listed.")
+                        .font(.callout).foregroundStyle(Palette.hold)
+                } else {
+                    ForEach(product.provenance, id: \.self) { source in
+                        Text(source).font(CambiumFont.monoSmall).foregroundStyle(Palette.ink)
+                            .textSelection(.enabled)
+                    }
+                }
+            }
+            .cambiumPanel()
+        }
+        .accessibilityIdentifier("projects.historical.\(product.id)")
+    }
+
+    private func linkedRows(_ canonicalIds: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            SectionHeader(title: "Linked source records")
+            if canonicalIds.isEmpty {
+                Text("No source links listed.")
+                    .font(.callout).foregroundStyle(Palette.inkMuted)
+            }
+            ForEach(canonicalIds, id: \.self) { id in
+                if let project = model.fabric?.portfolio?.projects.first(where: { $0.canonicalId == id }) {
+                    Button { model.selectProject(project.id) } label: {
+                        Label(project.name, systemImage: "arrow.turn.down.right")
+                    }
+                    .accessibilityHint("Opens a linked source classification record, not operational Work")
+                } else if let product = model.fabric?.portfolio?.historicalProducts.first(where: { $0.canonicalId == id }) {
+                    Button { model.selectHistoricalProduct(product.id) } label: {
+                        Label(product.name, systemImage: "arrow.turn.down.right")
+                    }
+                    .accessibilityHint("Opens a linked historical source record")
+                } else {
+                    Text("\(id) · not in this served catalog")
+                        .font(CambiumFont.monoSmall)
+                        .foregroundStyle(Palette.hold)
+                }
+            }
+        }
+    }
+
+    private func classificationReviews(_ portfolio: MappedPortfolio) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Classification review", detail: "\(portfolio.classificationReviews.count) source questions")
+            Text("These are source questions awaiting classification. They do not create Work or grant tenant access.")
+                .font(.callout).foregroundStyle(Palette.inkMuted)
+            ForEach(portfolio.classificationReviews) { review in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(review.canonicalId).font(CambiumFont.monoSmall).foregroundStyle(Palette.ink)
+                    Text(review.needed).font(.callout).foregroundStyle(Palette.hold)
+                    Text(review.source).font(CambiumFont.monoSmall).foregroundStyle(Palette.inkMuted)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cambiumPanel(padding: 10)
+            }
+        }
     }
 }
