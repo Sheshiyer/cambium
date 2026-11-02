@@ -138,9 +138,13 @@ final class CambiumCoreTests: XCTestCase {
             approveConfirmation: approve, rejectConfirmation: reject
         )
 
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let fixtureDate = try XCTUnwrap(formatter.date(from: "2026-07-28T09:05:00.000Z"))
+
         let client = MockGateClient(tuple: tuple)
-        let session = StaticSessionProvider(session: .verified(founderId: "founder-1", tenantId: "cambium", expiresAt: Date().addingTimeInterval(3600)))
-        let clock = TestClock(date: Date())
+        let session = StaticSessionProvider(session: .verified(founderId: "founder-1", tenantId: "cambium", expiresAt: fixtureDate.addingTimeInterval(3600)))
+        let clock = TestClock(date: fixtureDate)
         let store = InMemoryRecoveryStore()
 
         let coordinator = FounderGateCoordinator(client: client, session: session, clock: clock, store: store)
@@ -202,7 +206,7 @@ final class MockGateClient: FounderGateClient, @unchecked Sendable {
         let receipt = GateReceipt(
             proposalId: tuple.proposalId, version: tuple.version, changeDigest: tuple.changeDigest,
             tenantId: tuple.tenantId, founderId: "founder-1", nonce: tuple.nonce,
-            expiresAt: tuple.expiresAt, decision: decision, decidedAt: "2026-11-02T00:00:00.000Z",
+            expiresAt: tuple.expiresAt, decision: decision, decidedAt: "2026-07-28T09:05:00.000Z",
             channel: "curious"
         )
         return GateDecisionWire(
