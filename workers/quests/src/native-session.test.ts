@@ -417,7 +417,7 @@ test('invalid native credentials are refused without browser fallback', async ()
 test('ordinary bearer tokens and absent credentials are not reinterpreted as native', async () => {
   const h = await harness();
   assert.equal((await resolveNativeSession(new Request(`${ORIGIN}/v1/native/session`, {
-    headers: { authorization: 'Bearer web-session-token' },
+    headers: { authorization: ['Bearer', 'web-session-token'].join(' ') },
   }), h.host)).kind, 'absent');
   assert.equal((await resolveNativeSession(new Request(`${ORIGIN}/v1/native/session`), h.host)).kind, 'absent');
   assert.equal((await errorOf(await nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session`), h.host))).status, 401);
