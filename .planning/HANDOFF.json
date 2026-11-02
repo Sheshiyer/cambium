@@ -57,7 +57,9 @@
       "isc": "ISC-3600..3619",
       "evidence": "docs/evidence/2026-11-02-temperance-positioning.v1.json",
       "next_action": "Owner reviews preview; production website remains unchanged. No scheduling or runtime hold release.",
-      "rollback": "Retain production; reverse only preview branch/scoped proof changes and isolated staged README if rejected."
+      "rollback": "Retain production; reverse only preview branch/scoped proof changes and isolated staged README if rejected.",
+      "website_pr": "https://github.com/Sheshiyer/temperance_engine_landing_page/pull/1",
+      "adapter_check": "33ownedwrappersrefreshed,34artifactsretained,0drift/0conflicts"
     }
   }
 }

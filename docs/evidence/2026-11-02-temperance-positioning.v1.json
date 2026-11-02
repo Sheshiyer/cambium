@@ -105,7 +105,7 @@
       "height": 630,
       "verified": "direct authenticated IAB image navigation"
     },
-    "independent_review": "Source/claim-map/doc paths reviewed; root owns actual IAB verification. QATester role browser gate unavailable under its CLI-only constraint; no independent browser gate claimed.",
+    "independent_review": "PASS: independent source/evidence review recomputed49unique uploaded hashes:32tracked files atc930af9 plus17generated dist files, zero mismatches. Root performed requested IAB verification; QATester role browser gate remained unavailable under its CLI-only constraint, so no independent browser gate is claimed.",
     "uploaded_files": [
       {
         "path": ".readme-gen.json",
@@ -308,7 +308,9 @@
       "matched": 49,
       "mismatches": [],
       "basis": "tracked source via git show c930af9; ignored built dist files unchanged"
-    }
+    },
+    "review_pr": "https://github.com/Sheshiyer/temperance_engine_landing_page/pull/1",
+    "review_head": "7e55a2673a01a0c9dd114b9b23bb9ca21499e91b"
   },
   "product_hunt": {
     "url": "https://www.producthunt.com/products/temperance-engine?launch=temperance-engine",
@@ -350,7 +352,18 @@
     },
     "schema_packets": 7,
     "baseline": "Former landing checks38fail (stale removed-source assumptions); replaced by rendered/built behavior checks. Cambium full-suite privacy/fingerprint baseline holds from prior task unchanged; broad suite not rerun for these docs-only changes.",
-    "dependency_advisories": "Two development-toolchain advisories remain in required Vite5/esbuild; no production-dependency advisory reported."
+    "dependency_advisories": "Two development-toolchain advisories remain in required Vite5/esbuild; no production-dependency advisory reported.",
+    "primary_schema_packets": 8,
+    "skill_validation": "Skill is valid!",
+    "adapter_refresh": {
+      "owned_wrappers_refreshed": 33,
+      "owned_artifacts_retained_total": 34,
+      "source_digest": "9e0371b5fb098269b3f03a745fd0fb1dc7a732028c5e309fba9b74c3ebd66b00",
+      "check_ok": true,
+      "drift": [],
+      "conflicts": [],
+      "scope": "Only existing pack-owned adapters; original Grok workflow retained, no client credential/session or provider setting changed."
+    }
   },
   "holds": [
     "production website promotion awaits owner preview review",
