@@ -39,15 +39,20 @@ struct ProjectsView: View {
                 summary(portfolio)
                 if portfolio.detailAvailable {
                     controls
+                    let rows = visible(portfolio)
+                    let selected = rows.first(where: isSelected) ?? rows.first
                     HStack(alignment: .top, spacing: 18) {
-                        projectList(portfolio)
+                        projectList(rows, selectedID: selected?.id)
                             .frame(width: 300)
-                        if let selected = model.selectedProject {
-                            dossier(selected)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        } else if let selected = model.selectedHistoricalProduct {
-                            historicalDossier(selected)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                        if let selected {
+                            switch selected {
+                            case .active(let project):
+                                dossier(project)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            case .historical(let product):
+                                historicalDossier(product)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                         } else {
                             EmptyStateView(symbol: "square.grid.2x2", title: "Choose a project",
                                            message: "Select a mapped project to inspect its source and gaps.")
@@ -72,6 +77,13 @@ struct ProjectsView: View {
                         Button("Open demo") { model.enterDemo() }
                     }
                 }
+            }
+        }
+        .onChange(of: model.projectNavigationVersion) { _, _ in
+            guard let portfolio = model.fabric?.portfolio, portfolio.detailAvailable else { return }
+            if !visible(portfolio).contains(where: isSelected) {
+                query = ""
+                category = "all"
             }
         }
     }
@@ -140,19 +152,18 @@ struct ProjectsView: View {
         let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines)
         let active = portfolio.projects.filter { project in
             (category == "all" || project.classification == category) &&
-            (normalized.isEmpty || [project.name, project.canonicalId, project.workId]
+            (normalized.isEmpty || ([project.name, project.canonicalId, project.workId] + project.aliases)
                 .contains { $0.localizedCaseInsensitiveContains(normalized) })
         }.map(ProjectListEntry.active)
         let history = portfolio.historicalProducts.filter { product in
             (category == "all" || category == "historical") &&
-            (normalized.isEmpty || [product.name, product.canonicalId]
+            (normalized.isEmpty || [product.name, product.canonicalId, product.linkedCanonicalId ?? ""]
                 .contains { $0.localizedCaseInsensitiveContains(normalized) })
         }.map(ProjectListEntry.historical)
         return active + history
     }
 
-    private func projectList(_ portfolio: MappedPortfolio) -> some View {
-        let rows = visible(portfolio)
+    private func projectList(_ rows: [ProjectListEntry], selectedID: String?) -> some View {
         return VStack(alignment: .leading, spacing: 9) {
             SectionHeader(title: "Projects", detail: "\(rows.count) shown")
             if rows.isEmpty {
@@ -181,7 +192,7 @@ struct ProjectsView: View {
                                     }
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .cambiumPanel(padding: 10, highlighted: isSelected(entry))
+                                .cambiumPanel(padding: 10, highlighted: entry.id == selectedID)
                             }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier("projects.row.\(entry.id)")
@@ -326,12 +337,20 @@ struct ProjectsView: View {
             }
             ForEach(canonicalIds, id: \.self) { id in
                 if let project = model.fabric?.portfolio?.projects.first(where: { $0.canonicalId == id }) {
-                    Button { model.selectProject(project.id) } label: {
+                    Button {
+                        category = "all"
+                        query = ""
+                        model.selectProject(project.id)
+                    } label: {
                         Label(project.name, systemImage: "arrow.turn.down.right")
                     }
                     .accessibilityHint("Opens a linked source classification record, not operational Work")
                 } else if let product = model.fabric?.portfolio?.historicalProducts.first(where: { $0.canonicalId == id }) {
-                    Button { model.selectHistoricalProduct(product.id) } label: {
+                    Button {
+                        category = "all"
+                        query = ""
+                        model.selectHistoricalProduct(product.id)
+                    } label: {
                         Label(product.name, systemImage: "arrow.turn.down.right")
                     }
                     .accessibilityHint("Opens a linked historical source record")

@@ -49,6 +49,7 @@ final class AppModel {
     var selectedWorkID: String?
     var selectedProjectID: String?
     var selectedHistoricalID: String?
+    private(set) var projectNavigationVersion: UInt64 = 0
     var selectedEvidenceID: String?
     var selectedConnectionID: String?
     var selectedStepID: String?
@@ -180,6 +181,7 @@ final class AppModel {
         }
         selectedProjectID = id
         selectedHistoricalID = nil
+        projectNavigationVersion &+= 1
         open(.projects)
     }
 
@@ -190,6 +192,7 @@ final class AppModel {
         }
         selectedHistoricalID = id
         selectedProjectID = nil
+        projectNavigationVersion &+= 1
         open(.projects)
     }
 
@@ -739,20 +742,22 @@ final class AppModel {
     var searchHits: [SearchHit] {
         let needle = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !needle.isEmpty else { return [] }
-        func matches(_ fields: String...) -> Bool { fields.contains { $0.lowercased().contains(needle) } }
+        func matches(_ fields: [String]) -> Bool { fields.contains { $0.lowercased().contains(needle) } }
+        func matches(_ fields: String...) -> Bool { matches(fields) }
         var hits: [SearchHit] = []
         for work in snapshot.work where matches(work.name, work.summary, work.id) {
             hits.append(SearchHit(id: "work-\(work.id)", title: work.name, detail: work.summary, section: .work) { [weak self] in
                 self?.selectWork(work.id)
             })
         }
-        for project in fabric?.portfolio?.projects ?? [] where matches(project.name, project.canonicalId, project.workId, project.runtimeWorkId ?? "") {
+        for project in fabric?.portfolio?.projects ?? []
+        where matches([project.name, project.canonicalId, project.workId, project.runtimeWorkId ?? ""] + project.aliases) {
             hits.append(SearchHit(id: "project-\(project.id)", title: project.name,
                                   detail: "Display catalog · \(project.canonicalId)", section: .projects) { [weak self] in
                 self?.selectProject(project.id)
             })
         }
-        for product in fabric?.portfolio?.historicalProducts ?? [] where matches(product.name, product.canonicalId) {
+        for product in fabric?.portfolio?.historicalProducts ?? [] where matches(product.name, product.canonicalId, product.linkedCanonicalId ?? "") {
             hits.append(SearchHit(id: "historical-\(product.id)", title: product.name,
                                   detail: "Historical product · \(product.canonicalId)", section: .projects) { [weak self] in
                 self?.selectHistoricalProduct(product.id)

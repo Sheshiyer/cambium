@@ -34,6 +34,15 @@ final class ProjectIntegrationTests: XCTestCase {
         XCTAssertNil(model.selectedProjectWork)
     }
 
+    func testCatalogAliasFindsItsMappedProject() async throws {
+        let model = try await loadedDemo()
+        model.query = "Lockwell"
+        let hit = try XCTUnwrap(model.searchHits.first { $0.id == "project-sapling:dlock" })
+        hit.apply()
+        XCTAssertEqual(model.selectedProject?.name, "DLOCK")
+        XCTAssertNil(model.selectedProjectWork)
+    }
+
     func testOnlyServedJoinCanOpenOperationalWork() async throws {
         let model = try await loadedDemo()
         let before = model.selectedWorkID
