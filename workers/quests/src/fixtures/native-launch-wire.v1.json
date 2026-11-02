@@ -3,6 +3,95 @@
   "synthetic": true,
   "samples": [
     {
+      "name": "admissions_current",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium",
+          "readOnly": true,
+          "admissions": [
+            {
+              "admissionRef": "adm-123",
+              "tuple": {
+                "workId": "sapling:cambium",
+                "admissionRef": "adm-123",
+                "graphVersion": 1,
+                "loadoutId": "loadout-alpha",
+                "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "executionPlant": "temperance-hands",
+                "supportedAction": "launch",
+                "expiresAt": "2026-11-02T01:00:00.000Z"
+              },
+              "availability": "supported",
+              "reason": "current"
+            }
+          ],
+          "truncated": false
+        }
+      }
+    },
+    {
+      "name": "admissions_other_work_empty",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:other"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:other",
+          "readOnly": true,
+          "admissions": [],
+          "truncated": false
+        }
+      }
+    },
+    {
+      "name": "admissions_listing_unconfigured",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 503,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "error": "native_launch_listing_unconfigured",
+          "message": "Native launch admission discovery requires a store that can list the verified scope."
+        }
+      }
+    },
+    {
       "name": "capability_supported",
       "input": {
         "method": "POST",
@@ -154,6 +243,51 @@
           },
           "retry": "status_only",
           "status": "recorded"
+        }
+      }
+    },
+    {
+      "name": "admissions_consumed",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium",
+          "readOnly": true,
+          "admissions": [
+            {
+              "admissionRef": "adm-123",
+              "tuple": {
+                "workId": "sapling:cambium",
+                "admissionRef": "adm-123",
+                "graphVersion": 1,
+                "loadoutId": "loadout-alpha",
+                "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "executionPlant": "temperance-hands",
+                "supportedAction": "launch",
+                "expiresAt": "2026-11-02T01:00:00.000Z"
+              },
+              "availability": "unavailable",
+              "reason": "admission_consumed",
+              "existingRequest": {
+                "requestId": "client-request-0001",
+                "attemptId": "client-attempt-0001"
+              }
+            }
+          ],
+          "truncated": false
         }
       }
     },

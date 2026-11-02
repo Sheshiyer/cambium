@@ -97,6 +97,102 @@ const launch = (requestId = 'client-request-0001', attemptId = 'client-attempt-0
   contractVersion: NATIVE_LAUNCH_CONTRACT, requestId, attemptId, idempotencyNonce: nonce, capability: CAPABILITY, ...extra,
 });
 
+function insertAdmission(db: SqliteD1, ref: string, workId = CAPABILITY.workId, extra: {
+  principalId?: string; tenantId?: string; expiresAt?: string; status?: string; plant?: string; graph?: number; recordedAt?: string;
+} = {}) {
+  db.db.prepare(`INSERT INTO native_launch_admissions (tenant_id, admission_ref, principal_id, work_id, graph_version,
+    loadout_id, input_digest, execution_plant, supported_action, expires_at, status, recorded_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+    extra.tenantId ?? SCOPE.tenantId, ref, extra.principalId ?? SCOPE.principalId, workId,
+    extra.graph ?? CAPABILITY.graphVersion, CAPABILITY.loadoutId, CAPABILITY.inputDigest,
+    extra.plant ?? CAPABILITY.executionPlant, CAPABILITY.supportedAction,
+    extra.expiresAt ?? CAPABILITY.expiresAt, extra.status ?? 'active', extra.recordedAt ?? NOW,
+  );
+}
+
+test('D1 lists only the verified scope and work, with current hold and no writes', async () => {
+  const db = await harness();
+  insertAdmission(db, 'adm-consumed');
+  insertAdmission(db, 'adm-expired', CAPABILITY.workId, { expiresAt: '2026-11-02T00:00:00.000Z' });
+  insertAdmission(db, 'adm-revoked', CAPABILITY.workId, { status: 'revoked' });
+  insertAdmission(db, 'adm-hermes', CAPABILITY.workId, { plant: 'hermes-remote' });
+  insertAdmission(db, 'adm-other-work', 'sapling:other');
+  insertAdmission(db, 'adm-foreign', CAPABILITY.workId, { principalId: 'founder-2', tenantId: 'tenant-beta' });
+  db.db.prepare(`INSERT INTO goal_graph_heads (tenant_id, graph_version, graph_digest, committed_at, updated_at)
+    VALUES ('tenant-beta', 1, ?, ?, ?)`).run(`sha256:${'1'.repeat(64)}`, NOW, NOW);
+  insertAdmission(db, 'adm-stale', CAPABILITY.workId, { graph: 4 });
+  const owner = new CountingOwner();
+  const host = hostFor(db, owner);
+  const before = db.db.prepare('SELECT COUNT(*) AS n FROM native_launch_requests').get() as { n: number };
+  const admissionsBefore = db.db.prepare('SELECT COUNT(*) AS n FROM native_launch_admissions').get() as { n: number };
+  const headsBefore = db.db.prepare('SELECT graph_version FROM goal_graph_heads WHERE tenant_id = ?').get(SCOPE.tenantId) as { graph_version: number };
+
+  const listed = await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId,
+  }), host);
+  const body = await listed.json() as { readOnly: boolean; truncated: boolean; workId: string; admissions: Array<{ admissionRef: string; availability: string; reason: string; existingRequest?: { requestId: string } }> };
+  assert.equal(listed.status, 200);
+  assert.equal(body.readOnly, true);
+  assert.equal(body.truncated, false);
+  assert.equal(body.workId, CAPABILITY.workId);
+  assert.deepEqual(body.admissions.map(row => [row.admissionRef, row.availability, row.reason]), [
+    ['adm-consumed', 'supported', 'current'],
+    ['adm-d1-1', 'supported', 'current'],
+    ['adm-expired', 'unavailable', 'admission_expired'],
+    ['adm-hermes', 'unsupported', 'owner_does_not_support'],
+    ['adm-revoked', 'unavailable', 'admission_revoked'],
+    ['adm-stale', 'unavailable', 'graph_changed'],
+  ]);
+  assert.equal(owner.submits.length, 0);
+  assert.equal(owner.reads, 0);
+  assert.equal((db.db.prepare('SELECT COUNT(*) AS n FROM native_launch_requests').get() as { n: number }).n, before.n);
+  assert.equal((db.db.prepare('SELECT COUNT(*) AS n FROM native_launch_admissions').get() as { n: number }).n, admissionsBefore.n);
+  assert.equal((db.db.prepare('SELECT graph_version FROM goal_graph_heads WHERE tenant_id = ?').get(SCOPE.tenantId) as { graph_version: number }).graph_version, headsBefore.graph_version);
+
+  await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.launch, launch('client-request-0009', 'client-attempt-0009', 'nonce_consumedconsumedconsumed')), host);
+  const after = await (await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId,
+  }), host)).json() as { admissions: Array<{ admissionRef: string; availability: string; reason: string; existingRequest?: { requestId: string; attemptId: string } }> };
+  const consumed = after.admissions.find(row => row.admissionRef === 'adm-d1-1');
+  assert.deepEqual(consumed && { availability: consumed.availability, reason: consumed.reason, existingRequest: consumed.existingRequest }, {
+    availability: 'unavailable', reason: 'admission_consumed',
+    existingRequest: { requestId: 'client-request-0009', attemptId: 'client-attempt-0009' },
+  });
+
+  const foreign = await (await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: 'sapling:missing',
+  }), host)).text();
+  const absent = await (await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: 'sapling:missing',
+  }), host)).text();
+  const otherWork = await (await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: 'sapling:other',
+  }), hostFor(db, owner, { tenantId: 'tenant-beta', principalId: 'founder-2' }))).text();
+  assert.equal(foreign, absent.replace('sapling:absent', 'sapling:missing'));
+  assert.match(otherWork, /"admissions":\[\]/);
+  assert.equal(JSON.parse(otherWork).admissions.length, 0);
+});
+
+test('D1 admission listing is deterministic, bounded at 32 and marks truncation', async () => {
+  const db = await harness();
+  for (let index = 0; index < 40; index += 1) insertAdmission(db, `adm-${String(index).padStart(2, '0')}`);
+  const owner = new CountingOwner();
+  const listed = await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId,
+  }), hostFor(db, owner));
+  const body = await listed.json() as { truncated: boolean; admissions: Array<{ admissionRef: string }> };
+  assert.equal(body.admissions.length, 32);
+  assert.equal(body.truncated, true);
+  assert.deepEqual(body.admissions.map(row => row.admissionRef), body.admissions.map(row => row.admissionRef).slice().sort());
+  assert.equal(body.admissions[0].admissionRef, 'adm-00');
+  assert.equal(body.admissions.at(-1)?.admissionRef, 'adm-31');
+  assert.equal(owner.submits.length, 0);
+  const again = await (await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId,
+  }), hostFor(db, owner))).json() as { admissions: Array<{ admissionRef: string }> };
+  assert.deepEqual(again.admissions.map(row => row.admissionRef), body.admissions.map(row => row.admissionRef));
+});
+
 test('D1 reservation is one row per admission and returns the same row on canonical replay', async () => {
   const db = await harness();
   const owner = new CountingOwner();

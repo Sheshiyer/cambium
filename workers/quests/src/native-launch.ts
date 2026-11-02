@@ -23,6 +23,7 @@ import { sha256 } from './goal-graph/identity.ts';
 
 export const NATIVE_LAUNCH_CONTRACT = 'cambium.native-launch.v1' as const;
 export const NATIVE_LAUNCH_PATHS = {
+  admissions: '/v1/native/launch/admissions',
   capability: '/v1/native/launch/capability',
   launch: '/v1/native/launch',
   status: '/v1/native/launch/status',
@@ -30,6 +31,8 @@ export const NATIVE_LAUNCH_PATHS = {
 export const NATIVE_LAUNCH_PLANTS = ['temperance-hands', 'hermes-remote'] as const;
 export const NATIVE_LAUNCH_ACTIONS = ['launch'] as const;
 export const NATIVE_LAUNCH_MAX_BODY_BYTES = 4096;
+/** Hard cap on one discovery page. One extra row is read only to set `truncated`. */
+export const NATIVE_LAUNCH_ADMISSION_LIST_LIMIT = 32;
 
 export type NativeLaunchPlant = typeof NATIVE_LAUNCH_PLANTS[number];
 export type NativeLaunchAction = typeof NATIVE_LAUNCH_ACTIONS[number];
@@ -67,6 +70,16 @@ export interface NativeLaunchAdmissionRead {
   hold: NativeLaunchAdmissionHold | null;
   /** Original IDs of the request that already consumed this admission. */
   consumedBy: { requestId: string; attemptId: string } | null;
+}
+
+/**
+ * One page of already-admitted units for one verified scope and work.
+ * `rows` is at most `limit` (the contract cap is 32). `truncated` is true when
+ * another matching row exists past that page. Ordering is admissionRef ascending.
+ */
+export interface NativeLaunchAdmissionList {
+  rows: NativeLaunchAdmissionRead[];
+  truncated: boolean;
 }
 
 export interface NativeLaunchRequestRow extends NativeLaunchScope, NativeLaunchCapabilityTuple {
@@ -111,6 +124,12 @@ export interface NativeLaunchObservation {
  */
 export interface NativeLaunchStore {
   readAdmission(scope: NativeLaunchScope, admissionRef: string, now: string): Promise<NativeLaunchAdmissionRead | null>;
+  /**
+   * Optional. Lists already-admitted units for one verified scope and work.
+   * Read only: no insert, renewal, graph write, submit or claim. A store that
+   * omits this method cannot serve discovery; the route returns 503.
+   */
+  listAdmissions?(scope: NativeLaunchScope, workId: string, now: string, limit: number): Promise<NativeLaunchAdmissionList>;
   reserve(input: NativeLaunchReservation): Promise<NativeLaunchReserveResult>;
   readRequest(scope: NativeLaunchScope, requestId: string): Promise<NativeLaunchRequestRow | null>;
   /** Terminal execution states are sticky; returns the row after the write. */
@@ -160,8 +179,11 @@ const OWNER_STATES = new Set(['accepted', 'queued', 'running', 'succeeded', 'fai
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const keysAre = (value: Record<string, unknown>, keys: string) => Object.keys(value).sort().join(',') === keys;
-const isoOk = (value: unknown): value is string =>
-  typeof value === 'string' && ISO.test(value) && new Date(value).toISOString() === value;
+const isoOk = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !ISO.test(value)) return false;
+  const time = Date.parse(value);
+  return Number.isFinite(time) && new Date(time).toISOString() === value;
+};
 
 export function validScope(value: unknown): value is NativeLaunchScope {
   return isRecord(value) && keysAre(value, 'principalId,tenantId')
@@ -259,6 +281,75 @@ async function admit(request: Request, host: NativeLaunchHost | undefined, path:
 
 const unknownReply = () => reply(503, { ...base, status: 'unknown', retry: 'status_only' });
 
+export type NativeLaunchAdmissionAvailability = 'supported' | 'unsupported' | 'unavailable';
+
+/**
+ * Current categorical availability of one admission read. Same rules as the
+ * capability route: owner support, then the store hold. No work-status or
+ * transport inference. `owner_does_not_support` wins over a hold.
+ */
+export function admissionAvailability(
+  found: NativeLaunchAdmissionRead,
+  owner: NativeLaunchExecutionOwner,
+): { availability: NativeLaunchAdmissionAvailability; reason: string } {
+  const tuple = tupleOf(found.admission);
+  if (!knownPlant(tuple.executionPlant) || !knownAction(tuple.supportedAction)
+      || !owner.supports(tuple.executionPlant, tuple.supportedAction)) {
+    return { availability: 'unsupported', reason: 'owner_does_not_support' };
+  }
+  if (found.hold) return { availability: 'unavailable', reason: found.hold };
+  return { availability: 'supported', reason: 'current' };
+}
+
+/**
+ * POST /v1/native/launch/admissions {contractVersion, workId} — read only.
+ * Lists already-admitted units for the verified scope. Never creates or renews
+ * an admission, changes the graph, submits, or claims an owner job.
+ */
+export async function nativeLaunchAdmissionsHttp(request: Request, host?: NativeLaunchHost): Promise<Response> {
+  try {
+    const parsed = await admit(request, host, NATIVE_LAUNCH_PATHS.admissions);
+    if (parsed instanceof Response) return parsed;
+    const { scope, input } = parsed;
+    if (!keysAre(input, 'contractVersion,workId') || typeof input.workId !== 'string' || !WORK_ID.test(input.workId)) {
+      return reply(400, { ...base, status: 'invalid' });
+    }
+    const listAdmissions = host!.store.listAdmissions;
+    // A store without a listing method must not look like an empty work.
+    if (typeof listAdmissions !== 'function') {
+      return reply(503, { ...base, error: 'native_launch_listing_unconfigured',
+        message: 'Native launch admission discovery requires a store that can list the verified scope.' });
+    }
+    const page = await listAdmissions.call(host!.store, scope, input.workId, host!.now(), NATIVE_LAUNCH_ADMISSION_LIST_LIMIT);
+    // A listing that does not return a row array and a boolean truncation is unavailable, never an empty work.
+    if (!Array.isArray(page?.rows) || typeof page.truncated !== 'boolean') {
+      return reply(503, { ...base, error: 'native_launch_listing_unavailable',
+        message: 'Native launch admission discovery could not read a complete page.' });
+    }
+    const rows = page.rows;
+    if (rows.length > NATIVE_LAUNCH_ADMISSION_LIST_LIMIT) return unknownReply();
+    const admissions = [];
+    const seen = new Set<string>();
+    for (const found of rows) {
+      if (!found?.admission || found.admission.workId !== input.workId
+          || found.admission.tenantId !== scope.tenantId || found.admission.principalId !== scope.principalId) continue;
+      if (seen.has(found.admission.admissionRef)) continue;
+      seen.add(found.admission.admissionRef);
+      const availability = admissionAvailability(found, host!.owner);
+      admissions.push({
+        admissionRef: found.admission.admissionRef,
+        tuple: tupleOf(found.admission),
+        availability: availability.availability,
+        reason: availability.reason,
+        ...(found.consumedBy ? { existingRequest: found.consumedBy } : {}),
+      });
+    }
+    return reply(200, {
+      ...base, workId: input.workId, readOnly: true, admissions, truncated: page.truncated === true,
+    });
+  } catch { return unknownReply(); }
+}
+
 /** POST /v1/native/launch/capability {contractVersion, admissionRef, workId} — read only. */
 export async function nativeLaunchCapabilityHttp(request: Request, host?: NativeLaunchHost): Promise<Response> {
   try {
@@ -272,12 +363,14 @@ export async function nativeLaunchCapabilityHttp(request: Request, host?: Native
     if (!found || found.admission.workId !== input.workId || found.admission.tenantId !== scope.tenantId
         || found.admission.principalId !== scope.principalId) return reply(200, { ...base, capability: 'unavailable', reason: 'no_admission' });
     const tuple = tupleOf(found.admission);
-    if (!knownPlant(tuple.executionPlant) || !knownAction(tuple.supportedAction)
-        || !host!.owner.supports(tuple.executionPlant, tuple.supportedAction)) {
-      return reply(200, { ...base, capability: 'unsupported', reason: 'owner_does_not_support', tuple });
+    const availability = admissionAvailability(found, host!.owner);
+    if (availability.availability === 'unsupported') {
+      return reply(200, { ...base, capability: 'unsupported', reason: availability.reason, tuple });
     }
-    if (found.hold) return reply(200, { ...base, capability: 'unavailable', reason: found.hold,
-      ...(found.consumedBy ? { existingRequest: found.consumedBy } : {}) });
+    if (availability.availability === 'unavailable') {
+      return reply(200, { ...base, capability: 'unavailable', reason: availability.reason,
+        ...(found.consumedBy ? { existingRequest: found.consumedBy } : {}) });
+    }
     return reply(200, { ...base, capability: 'supported', tuple, acceptance: notEvaluated });
   } catch { return unknownReply(); }
 }
@@ -364,9 +457,10 @@ export async function nativeLaunchStatusHttp(request: Request, host?: NativeLaun
   } catch { return unknownReply(); }
 }
 
-/** Router for the three proposed paths; any other path is not this owner's. */
+/** Router for the native launch paths; any other path is not this owner's. */
 export async function nativeLaunchHttp(request: Request, host?: NativeLaunchHost): Promise<Response> {
   const path = new URL(request.url).pathname;
+  if (path === NATIVE_LAUNCH_PATHS.admissions) return nativeLaunchAdmissionsHttp(request, host);
   if (path === NATIVE_LAUNCH_PATHS.capability) return nativeLaunchCapabilityHttp(request, host);
   if (path === NATIVE_LAUNCH_PATHS.launch) return nativeLaunchRequestHttp(request, host);
   if (path === NATIVE_LAUNCH_PATHS.status) return nativeLaunchStatusHttp(request, host);
