@@ -172,3 +172,12 @@ These steps remain unproven: the Access-protected origin, the registered
 callback, the owner's role lookup, the migration apply, and handler
 composition, where the router calls `resolveNativeSession` before any browser
 auth.
+
+## Handler Composition
+
+- **Exact Routing**: Native session routes (`NATIVE_SESSION_PATHS`), native launch routes (`NATIVE_LAUNCH_PATHS`), canonical founder gate (`/v1/founder/{proposal,decision,status,renew}`), and exact-tenant Mission Fabric (`/v1/mission-fabric/{tenant}`) dispatch before generic routes.
+- **Host Binding**: The incoming request Host header must exactly match the host of the configured `ownerOrigin`. Mismatched or missing hosts are refused with `400` (`invalid_request`).
+- **Unbound State**: Without an explicit `nativeSessionHost` binding, all session routes return `503` (`native_session_unconfigured`) before any lookup.
+- **Founder Scoping**: Native founder gate requests construct a scoped access host locked to the exact resolved founder ID and tenant ID, bypassing body tenants and browser fallback, with a pre-write re-verification guard.
+- **Route Fencing**: Native bearer tokens accessing unsupported routes are early-refused with `403` (`native_route_unsupported`), preventing global auth elevation.
+

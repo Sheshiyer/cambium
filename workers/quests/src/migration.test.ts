@@ -34,6 +34,28 @@ test('native launch migration and canonical schema create identical recovery aut
   }
 });
 
+test('native session migration and canonical schema create identical credential-digest tables', async () => {
+  const [schema, session] = await Promise.all([
+    readFile(schemaUrl, 'utf8'),
+    readFile(new URL('../migrations/0100_native_sessions.sql', import.meta.url), 'utf8'),
+  ]);
+  const canonical = new DatabaseSync(':memory:');
+  const migrated = new DatabaseSync(':memory:');
+  try {
+    canonical.exec(schema);
+    migrated.exec(session);
+    const definitions = (db: DatabaseSync) => db.prepare(
+      "SELECT type, name, sql FROM sqlite_master WHERE name LIKE 'native_authorization_codes%' OR name LIKE 'native_sessions%' ORDER BY type, name",
+    ).all().map(row => ({ ...row, sql: String(row.sql).replace(/\s+/g, ' ').trim() }));
+    assert.deepEqual(definitions(canonical), definitions(migrated));
+    assert.equal(definitions(canonical).filter(row => row.type === 'table').length, 2);
+    assert.equal(definitions(canonical).filter(row => row.type === 'index' && row.name === 'native_sessions_founder_idx').length, 1);
+  } finally {
+    canonical.close();
+    migrated.close();
+  }
+});
+
 function triggerDefinitions(sql: string): Record<string, string> {
   const definitions: Record<string, string> = {};
   const pattern = /CREATE TRIGGER IF NOT EXISTS ([A-Za-z0-9_]+)[\s\S]*?\nEND;/g;

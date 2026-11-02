@@ -3,7 +3,7 @@ import { goalGraphApprovalDigest } from './goal-graph-store.ts';
 import type { d1GoalGraphStore } from './goal-graph-store.ts';
 import type { GoalChangeSet } from './goal-graph/types.ts';
 
-export type FounderChannel = 'plugin' | 'curious' | 'telegram';
+export type FounderChannel = 'plugin' | 'curious' | 'telegram' | 'native';
 /** Host-authenticated context, never accepted from a tool's argument object. */
 export interface FounderContext { founderId: string; tenantId: string; channel: FounderChannel }
 export interface FounderProposal {
@@ -34,7 +34,7 @@ export async function founderDecision(deps: FounderDecisionDeps, input: FounderD
   if (!input || typeof input !== 'object' || Object.keys(input).length !== keys.length
       || Object.keys(input).some(key => !keys.includes(key))) return { status: 'invalid' };
   const context = await deps.authenticate();
-  if (!context || !['plugin', 'curious', 'telegram'].includes(context.channel)) return { status: 'unauthorized' };
+  if (!context || !['plugin', 'curious', 'telegram', 'native'].includes(context.channel)) return { status: 'unauthorized' };
   const p = await deps.readProposal(input.proposalId);
   if (!p || p.tenantId !== context.tenantId || p.founderId !== context.founderId) return { status: 'forbidden' };
   if (p.id !== input.proposalId || p.version !== input.version || p.changeSet.changeDigest !== input.changeDigest

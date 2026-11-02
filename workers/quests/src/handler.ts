@@ -5,6 +5,18 @@ import { descriptionResponse } from './portfolio-descriptions.ts';
 import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 import { nativeLaunchHttp, NATIVE_LAUNCH_PATHS, type NativeLaunchHost } from './native-launch.ts';
+import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
+import {
+  composeNativeLaunchHost,
+  nativeComposedPath,
+  nativeFounderBinding,
+  nativeHttpResponse,
+  nativeRealmPresented,
+  nativeRequestUrl,
+  nativeWebRequest,
+  NATIVE_SESSION_ROUTES,
+  resolveComposedNativeSession,
+} from './native-session-composition.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
 // other module in this repo. The thin fetch glue lives in index.ts.
@@ -504,6 +516,7 @@ export interface HandlerDeps {
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
+  nativeSessionHost?: NativeSessionHost; // absent until Access exchange, client registry, enrollment and D1 are reviewed; routes then 503
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
   acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
@@ -3311,7 +3324,16 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
   const viewerIds = deps.missionFabricViewerIds ?? [];
   let isFounder = false;
   let isViewer = false;
-  if (initData) {
+  if (nativeRealmPresented(req.headers)) {
+    // A native claim is resolved or refused here; it never falls back to Telegram or Plexus.
+    const resolved = await resolveComposedNativeSession(req, deps.nativeSessionHost);
+    if (resolved.kind === 'refused') {
+      return 'status' in resolved ? json(resolved.status, { error: resolved.error }) : nativeHttpResponse(resolved.response);
+    }
+    if (resolved.kind !== 'native') return json(401, { error: 'native_session_required' });
+    if (resolved.scope.tenantId !== tenant) return json(403, { error: 'native session tenant mismatch' });
+    isFounder = true;
+  } else if (initData) {
     if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
     const auth = await authenticateInitData(initData, deps.gate);
     if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
@@ -5470,11 +5492,80 @@ async function handleMcpGateAdapterRoute(req: SimpleRequest, deps: HandlerDeps, 
 
 const NATIVE_LAUNCH_ROUTES: ReadonlySet<string> = new Set(Object.values(NATIVE_LAUNCH_PATHS));
 
+function nativeRefusal(status: number, error: string): SimpleResponse {
+  return {
+    status,
+    headers: { ...JSON_HEADERS, pragma: 'no-cache', 'referrer-policy': 'no-referrer', 'x-content-type-options': 'nosniff' },
+    body: JSON.stringify({ contractVersion: 'cambium.native-session.v1', error }),
+  };
+}
+
+/**
+ * Founder Gate for a native bearer. The binding is exactly the resolved
+ * founder/tenant; an injected founderDecisionHost and body tenant are never
+ * consulted. The access host re-resolves the session before every D1 write.
+ */
+async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  const first = await resolveComposedNativeSession(req, deps.nativeSessionHost);
+  if (first.kind === 'refused') {
+    return 'status' in first ? nativeRefusal(first.status, first.error) : nativeHttpResponse(first.response);
+  }
+  if (first.kind !== 'native') return nativeRefusal(401, 'unauthorized');
+  const scope = first.scope;
+  const built = nativeRequestUrl(req, deps.nativeSessionHost?.deps.ownerOrigin);
+  if ('error' in built) return nativeRefusal(400, built.error);
+  const host = createFounderAccessHost({
+    store: deps.goalGraphStore,
+    bindingsJson: nativeFounderBinding(scope),
+    channel: 'native',
+    verifyFounder: async () => {
+      const again = await resolveComposedNativeSession(req, deps.nativeSessionHost);
+      return again.kind === 'native' && again.scope.founderId === scope.founderId
+        && again.scope.tenantId === scope.tenantId && again.scope.clientId === scope.clientId
+        && again.tokenDigest === first.tokenDigest ? scope.founderId : null;
+    },
+    readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
+    reviewTask: task => {
+      const row = goalGraphIntakeGateRow(task);
+      return row ? { ...row, founderInspect: goalGraphFounderInspect(task) } : null;
+    },
+    now: deps.now ?? (() => new Date().toISOString()),
+    loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+    persistRenewal: input => reconcileGoalGraphIntakePersistence(deps.kv, {
+      ...input, idempotencyRecordKey: `goal-graph-intake-idem:${input.idempotencyKey}`,
+    }),
+  });
+  const response = await founderDecisionHttp(nativeWebRequest(req, built.url), host);
+  return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
-  if (NATIVE_LAUNCH_ROUTES.has(req.path.split('?')[0])) {
-    const response = await nativeLaunchHttp(new Request(`https://cambium.invalid${req.path}`, {
+  const nativePath = req.path.split('?')[0];
+  if (NATIVE_SESSION_ROUTES.has(nativePath)) {
+    // Unbound: 503 before any lookup. Bound: the request keeps the reviewed owner origin only when Host matches it.
+    if (!deps.nativeSessionHost) return nativeRefusal(503, 'native_session_unconfigured');
+    const built = nativeRequestUrl(req, deps.nativeSessionHost.deps.ownerOrigin);
+    if ('error' in built) return nativeRefusal(400, built.error);
+    const response = await nativeSessionHttp(nativeWebRequest(req, built.url), deps.nativeSessionHost);
+    return response ? nativeHttpResponse(response) : json(404, { error: 'not_found' });
+  }
+  // A native credential is accepted only on composed routes. Every other route refuses it before browser or Telegram auth.
+  if (nativeRealmPresented(req.headers) && !nativeComposedPath(req.path)) {
+    return nativeRefusal(403, 'native_route_unsupported');
+  }
+  if (NATIVE_LAUNCH_ROUTES.has(nativePath)) {
+    const native = nativeRealmPresented(req.headers);
+    if (native && !deps.nativeSessionHost) return nativeRefusal(503, 'native_session_unconfigured');
+    let url = `https://cambium.invalid${req.path}`;
+    if (native && deps.nativeSessionHost && deps.nativeLaunchHost) {
+      const built = nativeRequestUrl(req, deps.nativeSessionHost.deps.ownerOrigin);
+      if ('error' in built) return nativeRefusal(400, built.error);
+      url = built.url;
+    }
+    const host = native ? composeNativeLaunchHost(deps.nativeLaunchHost, deps.nativeSessionHost) : deps.nativeLaunchHost;
+    const response = await nativeLaunchHttp(new Request(url, {
       method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),
-    }), deps.nativeLaunchHost);
+    }), host);
     return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
   }
   if (req.path.split('?')[0] === '/v1/founder/session') {
@@ -5488,6 +5579,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       tenantIds, renewalReady: await deps.goalGraphStore?.renewalFenceReady?.() ?? false, canonicalReady: tenantIds.length > 0 && !!deps.goalGraphStore?.readDecisionReceipt && !!deps.goalGraphStore?.reject, writerAuthority: false });
   }
   if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew'].includes(req.path.split('?')[0])) {
+    if (nativeRealmPresented(req.headers)) return nativeFounderGate(req, deps);
     const host = deps.founderDecisionHost ?? (deps.plexus ? createFounderAccessHost({
       store: deps.goalGraphStore, bindingsJson: deps.founderGateBindingsJson,
       verifyFounder: async () => {
