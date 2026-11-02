@@ -25,6 +25,20 @@ final class PortfolioProjectsTests: XCTestCase {
         try XCTUnwrap(try MappedPortfolioDecoder.decode(try founder()))
     }
 
+    private func stringField(_ key: String) -> (JSONValue) -> String? {
+        { value in
+            guard case .object(let object) = value, case .string(let text)? = object[key] else { return nil }
+            return text
+        }
+    }
+
+    private func stringArrayField(_ key: String) -> (JSONValue) -> [String]? {
+        { value in
+            guard case .object(let object) = value, case .array(let rows)? = object[key] else { return nil }
+            return rows.compactMap { if case .string(let text) = $0 { return text }; return nil }
+        }
+    }
+
     /// Edits the served catalog object after envelope validation, so only the mapper's own checks can refuse it.
     private func mutatingCatalog(_ edit: (inout [String: JSONValue]) -> Void) throws -> MissionFabricEnvelope {
         var env = try founder()
@@ -56,6 +70,8 @@ final class PortfolioProjectsTests: XCTestCase {
         XCTAssertEqual(mapped.internalPrograms.count, summary.internalPrograms)
         XCTAssertEqual(Set(mapped.projects.map(\.workId)).count, mapped.projects.count)
         XCTAssertEqual(mapped.projects.filter { !$0.operationalGapMissingFields.isEmpty }.count, summary.operationalGaps)
+        XCTAssertEqual(mapped.historicalProducts.count, summary.historicalProducts)
+        XCTAssertEqual(mapped.classificationReviews.count, summary.classificationReview)
         XCTAssertEqual(mapped.summary, summary)
         XCTAssertEqual(mapped.summary.catalogDigest, summary.catalogDigest)
         XCTAssertEqual(mapped.summary.actionCatalogDigest, summary.actionCatalogDigest)
@@ -127,6 +143,63 @@ final class PortfolioProjectsTests: XCTestCase {
             XCTAssertNil(project.runtimeWorkId)
         }
         XCTAssertEqual(mapped.projectsByLifecycle()["proposed"]?.count, proposed.count)
+    }
+
+    func testFounderMapsHistoricalAndReviewRowsFromTheServedCatalog() throws {
+        let env = try founder()
+        let mapped = try mappedFounder()
+        guard case .object(let catalog)? = env.portfolioCatalog,
+              case .array(let historical)? = catalog["historicalProducts"],
+              case .array(let reviews)? = catalog["classificationReview"] else {
+            return XCTFail("founder fixture lacks historical or review detail")
+        }
+
+        XCTAssertEqual(mapped.historicalProducts.count, historical.count)
+        XCTAssertEqual(mapped.classificationReviews.count, reviews.count)
+        XCTAssertEqual(mapped.historicalProducts.map(\.canonicalId), historical.compactMap(stringField("canonicalId")))
+        XCTAssertEqual(mapped.classificationReviews.map(\.canonicalId), reviews.compactMap(stringField("canonicalId")))
+        XCTAssertEqual(mapped.historicalProducts.map(\.id), mapped.historicalProducts.map(\.canonicalId))
+
+        let linked = try XCTUnwrap(mapped.historicalProducts.first { $0.linkedCanonicalId != nil })
+        let source = try XCTUnwrap(historical.first { stringField("canonicalId")($0) == linked.canonicalId })
+        XCTAssertEqual(linked.name, stringField("name")(source))
+        XCTAssertEqual(linked.status, stringField("status")(source))
+        XCTAssertEqual(linked.linkedCanonicalId, stringField("linkedCanonicalId")(source))
+        XCTAssertEqual(linked.provenance, stringArrayField("provenance")(source))
+        XCTAssertNil(mapped.project(workId: linked.canonicalId))
+        XCTAssertNil(mapped.runtimeLinkedProjects.first { $0.canonicalId == linked.canonicalId })
+        if let target = linked.linkedCanonicalId {
+            XCTAssertNil(mapped.project(workId: target)?.runtimeWorkId)
+        }
+
+        for product in mapped.historicalProducts {
+            XCTAssertNil(mapped.project(workId: product.canonicalId))
+            XCTAssertFalse(mapped.runtimeLinkedProjects.contains { $0.canonicalId == product.canonicalId || $0.workId == product.canonicalId })
+            if let target = product.linkedCanonicalId {
+                XCTAssertNotEqual(mapped.project(workId: target)?.runtimeWorkId, product.canonicalId)
+            }
+        }
+    }
+
+    func testHistoricalLinkDoesNotCreateARuntimeJoin() throws {
+        var env = try founder()
+        let mapped = try XCTUnwrap(try MappedPortfolioDecoder.decode(env))
+        let linked = try XCTUnwrap(mapped.historicalProducts.first { $0.linkedCanonicalId != nil })
+        let target = try XCTUnwrap(linked.linkedCanonicalId)
+        XCTAssertNotNil(mapped.project(workId: target))
+
+        // The report joins the historical id itself to a real Work node. The linked
+        // active record must not inherit that join through `linkedCanonicalId`.
+        env.portfolioJoinReport = PortfolioJoinReport(
+            matchedCount: 1, catalogOrphanCount: 0, runtimeOrphanCount: 0, runtimeIdentityCollisionCount: 0,
+            matches: [PortfolioJoinMatch(canonicalId: linked.canonicalId, runtimeWorkId: "sapling:cambium")],
+            catalogOrphans: [], runtimeOrphans: []
+        )
+        let remapped = try XCTUnwrap(try MappedPortfolioDecoder.decode(env))
+        XCTAssertNil(remapped.project(workId: target)?.runtimeWorkId)
+        XCTAssertNil(remapped.project(workId: "sapling:cambium")?.runtimeWorkId)
+        XCTAssertTrue(remapped.runtimeLinkedProjects.isEmpty)
+        XCTAssertEqual(remapped.historicalProducts.first { $0.id == linked.id }?.linkedCanonicalId, target)
     }
 
     // MARK: - Joins
@@ -215,6 +288,9 @@ final class PortfolioProjectsTests: XCTestCase {
         let mapped = try XCTUnwrap(try MappedPortfolioDecoder.decode(env))
         XCTAssertFalse(mapped.detailAvailable)
         XCTAssertTrue(mapped.projects.isEmpty)
+        XCTAssertTrue(mapped.historicalProducts.isEmpty)
+        XCTAssertTrue(mapped.classificationReviews.isEmpty)
+        XCTAssertGreaterThan(mapped.summary.historicalProducts, mapped.historicalProducts.count)
         XCTAssertNil(mapped.sourceGeneratedAt)
         XCTAssertNil(mapped.joinReport)
         XCTAssertEqual(mapped.summary, env.portfolioCatalogSummary)
@@ -276,6 +352,58 @@ final class PortfolioProjectsTests: XCTestCase {
             catalog["records"] = .array(rows)
         }
         XCTAssertThrowsError(try MappedPortfolioDecoder.decode(notAnObject))
+    }
+
+    func testMalformedHistoricalAndReviewRowsAreRefused() throws {
+        let historicalCases: [(String, (inout [String: JSONValue]) -> Void)] = [
+            ("missing name", { $0["name"] = nil }),
+            ("unknown status", { $0["status"] = .string("admitted") }),
+            ("bad canonical id", { $0["canonicalId"] = .string("branch:historical") }),
+            ("missing provenance", { $0["provenance"] = .array([]) }),
+            ("non-string link", { $0["linkedCanonicalId"] = .number(1) }),
+        ]
+        for (label, edit) in historicalCases {
+            let env = try mutatingCatalog { catalog in
+                guard case .array(var rows)? = catalog["historicalProducts"], case .object(var row) = rows[0] else { return }
+                edit(&row)
+                rows[0] = .object(row)
+                catalog["historicalProducts"] = .array(rows)
+            }
+            XCTAssertThrowsError(try MappedPortfolioDecoder.decode(env), "historical \(label)")
+        }
+
+        let countDrift = try mutatingCatalog { catalog in
+            guard case .array(var rows)? = catalog["historicalProducts"] else { return }
+            rows.removeLast()
+            catalog["historicalProducts"] = .array(rows)
+        }
+        XCTAssertThrowsError(try MappedPortfolioDecoder.decode(countDrift))
+
+        let review = try mutatingCatalog { catalog in
+            catalog["classificationReview"] = .array([
+                .object([
+                    "canonicalId": .string("review:unclassified"),
+                    "source": .string("Needs classification"),
+                    "needed": .string("canonical product or client note"),
+                ]),
+            ])
+        }
+        XCTAssertThrowsError(try MappedPortfolioDecoder.decode(review), "review count must match the served summary")
+
+        var accepted = review
+        accepted.portfolioCatalogSummary?.classificationReview = 1
+        let mapped = try XCTUnwrap(try MappedPortfolioDecoder.decode(accepted))
+        XCTAssertEqual(mapped.classificationReviews.map(\.id), ["review:unclassified"])
+        XCTAssertEqual(mapped.classificationReviews.first?.source, "Needs classification")
+        XCTAssertEqual(mapped.classificationReviews.first?.needed, "canonical product or client note")
+        XCTAssertNil(mapped.project(workId: "review:unclassified"))
+
+        let malformedReview = try mutatingCatalog { catalog in
+            catalog["classificationReview"] = .array([.object(["canonicalId": .string("review:unclassified")])])
+        }
+        var drifted = malformedReview
+        drifted.portfolioCatalogSummary?.classificationReview = 1
+        XCTAssertThrowsError(try MappedPortfolioDecoder.decode(drifted), "review missing source and needed")
     }
 
     func testCatalogWithoutNoneAdmissionIsRefused() throws {
