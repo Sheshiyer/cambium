@@ -9,6 +9,9 @@ import Foundation
 /// One catalog record prepared for display. `runtimeWorkId` is non-nil only when
 /// the served `portfolioJoinReport.matches` lists this record's `canonicalId`
 /// and the target Work node exists in the served projection.
+
+/// A historical product surface. Its optional link names another catalog identity
+/// for display. It is not a tenant binding, a Work node, or a runtime join.
 public struct MappedProject: Identifiable, Equatable, Sendable {
     public let workId: String
     public let canonicalId: String
@@ -67,9 +70,53 @@ public struct MappedProject: Identifiable, Equatable, Sendable {
     }
 }
 
+public struct MappedHistoricalProject: Identifiable, Equatable, Sendable {
+    public let canonicalId: String
+    public let name: String
+    public let status: String
+    public let linkedCanonicalId: String?
+    public let provenance: [String]
+
+    public var id: String { canonicalId }
+
+    public init(
+        canonicalId: String,
+        name: String,
+        status: String,
+        linkedCanonicalId: String? = nil,
+        provenance: [String] = []
+    ) {
+        self.canonicalId = canonicalId
+        self.name = name
+        self.status = status
+        self.linkedCanonicalId = linkedCanonicalId
+        self.provenance = provenance
+    }
+}
+
+/// An unresolved classification observation. `needed` describes missing evidence;
+/// it grants no classification, tenant, or Work authority.
+public struct MappedClassificationReview: Identifiable, Equatable, Sendable {
+    public let canonicalId: String
+    public let source: String
+    public let needed: String
+
+    public var id: String { canonicalId }
+
+    public init(canonicalId: String, source: String, needed: String) {
+        self.canonicalId = canonicalId
+        self.source = source
+        self.needed = needed
+    }
+}
+
 public struct MappedPortfolio: Equatable, Sendable {
     public let summary: PortfolioCatalogSummary
     public let projects: [MappedProject]
+    /// Historical surfaces from founder detail. Empty for a viewer.
+    public let historicalProducts: [MappedHistoricalProject]
+    /// Classification observations from founder detail. Empty for a viewer.
+    public let classificationReviews: [MappedClassificationReview]
     /// False for a viewer: the server serves the summary without records.
     public let detailAvailable: Bool
     public let sourceGeneratedAt: String?
@@ -80,6 +127,8 @@ public struct MappedPortfolio: Equatable, Sendable {
     public init(
         summary: PortfolioCatalogSummary,
         projects: [MappedProject],
+        historicalProducts: [MappedHistoricalProject] = [],
+        classificationReviews: [MappedClassificationReview] = [],
         detailAvailable: Bool,
         sourceGeneratedAt: String?,
         asOf: String,
@@ -88,6 +137,8 @@ public struct MappedPortfolio: Equatable, Sendable {
     ) {
         self.summary = summary
         self.projects = projects
+        self.historicalProducts = historicalProducts
+        self.classificationReviews = classificationReviews
         self.detailAvailable = detailAvailable
         self.sourceGeneratedAt = sourceGeneratedAt
         self.asOf = asOf
@@ -126,6 +177,7 @@ public enum MappedPortfolioDecoder {
     private static let promotionStates: Set<String> = ["proof-only", "supervised-branch"]
     private static let programKinds: Set<String> = ["client", "company", "capability", "operations"]
     private static let lifecycles: Set<String> = ["proposed", "approved", "executing", "verifying", "complete", "retired"]
+    private static let historicalStatuses: Set<String> = ["archived", "completed", "paused", "white-labelable"]
     private static let maxFieldChars = 2048
 
     /// Returns nil only when the envelope carries no catalog summary.
@@ -141,7 +193,8 @@ public enum MappedPortfolioDecoder {
 
         guard let detail = envelope.portfolioCatalog else {
             return MappedPortfolio(
-                summary: summary, projects: [], detailAvailable: false, sourceGeneratedAt: nil,
+                summary: summary, projects: [], historicalProducts: [], classificationReviews: [],
+                detailAvailable: false, sourceGeneratedAt: nil,
                 asOf: asOf, servedAt: servedAt, joinReport: envelope.portfolioJoinReport
             )
         }
@@ -167,7 +220,9 @@ public enum MappedPortfolioDecoder {
         }
 
         let gaps = try decodeGaps(catalog["operationalGaps"], expectedCount: summary.operationalGaps)
-        let known = try knownCanonicalIds(rows: rows, historical: catalog["historicalProducts"])
+        let historicalProducts = try decodeHistorical(catalog["historicalProducts"], expectedCount: summary.historicalProducts)
+        let classificationReviews = try decodeReviews(catalog["classificationReview"], expectedCount: summary.classificationReview)
+        let known = try knownCanonicalIds(rows: rows, historical: historicalProducts)
         let joins = try exactJoins(envelope: envelope, known: known)
 
         var seenWork = Set<String>()
@@ -194,7 +249,8 @@ public enum MappedPortfolioDecoder {
         }
 
         return MappedPortfolio(
-            summary: summary, projects: projects, detailAvailable: true, sourceGeneratedAt: sourceGeneratedAt,
+            summary: summary, projects: projects, historicalProducts: historicalProducts,
+            classificationReviews: classificationReviews, detailAvailable: true, sourceGeneratedAt: sourceGeneratedAt,
             asOf: asOf, servedAt: servedAt, joinReport: envelope.portfolioJoinReport
         )
     }
@@ -221,18 +277,72 @@ public enum MappedPortfolioDecoder {
         return joins
     }
 
-    private static func knownCanonicalIds(rows: [JSONValue], historical: JSONValue?) throws -> Set<String> {
+    private static func knownCanonicalIds(rows: [JSONValue], historical: [MappedHistoricalProject]) throws -> Set<String> {
         var ids = Set<String>()
         for row in rows {
             guard case .object(let object) = row else { throw FabricDecodeError.malformed("portfolioCatalog.records") }
             ids.insert(try string(object, "canonicalId"))
         }
-        if case .array(let items)? = historical {
-            for item in items {
-                if case .object(let object) = item, case .string(let id)? = object["canonicalId"] { ids.insert(id) }
-            }
-        }
+        for product in historical { ids.insert(product.canonicalId) }
         return ids
+    }
+
+    // MARK: - Historical and review
+
+    /// Display rows only. A linked canonical id is retained as text and is not resolved.
+    private static func decodeHistorical(_ value: JSONValue?, expectedCount: Int) throws -> [MappedHistoricalProject] {
+        guard case .array(let rows)? = value, rows.count == expectedCount, rows.count <= MissionFabricCaps.maxCollectionItems else {
+            throw FabricDecodeError.malformed("portfolioCatalog.historicalProducts")
+        }
+        var seen = Set<String>()
+        var products: [MappedHistoricalProject] = []
+        products.reserveCapacity(rows.count)
+        for row in rows {
+            guard case .object(let object) = row else { throw FabricDecodeError.malformed("portfolioCatalog.historicalProducts") }
+            let canonicalId = try string(object, "canonicalId")
+            guard canonicalId.range(of: #"^historical-product:[a-z0-9]+(?:-[a-z0-9]+)*$"#, options: .regularExpression) != nil else {
+                throw FabricDecodeError.schema("portfolioCatalog.historicalProducts.canonicalId")
+            }
+            guard seen.insert(canonicalId).inserted else { throw FabricDecodeError.malformed("portfolioCatalog duplicate historical canonicalId") }
+            let name = try string(object, "name")
+            guard name.count <= MissionFabricCaps.maxDisplayChars else { throw FabricDecodeError.capExceeded("display") }
+            let status = try string(object, "status")
+            guard historicalStatuses.contains(status) else { throw FabricDecodeError.schema("portfolioCatalog.historicalProducts.status") }
+            let provenance = try stringArray(object, "provenance")
+            guard provenance.count == 1 else { throw FabricDecodeError.malformed("portfolioCatalog.historicalProducts.provenance") }
+            products.append(MappedHistoricalProject(
+                canonicalId: canonicalId,
+                name: name,
+                status: status,
+                linkedCanonicalId: try optionalString(object, "linkedCanonicalId"),
+                provenance: provenance
+            ))
+        }
+        return products
+    }
+
+    private static func decodeReviews(_ value: JSONValue?, expectedCount: Int) throws -> [MappedClassificationReview] {
+        guard case .array(let rows)? = value, rows.count == expectedCount, rows.count <= MissionFabricCaps.maxCollectionItems else {
+            throw FabricDecodeError.malformed("portfolioCatalog.classificationReview")
+        }
+        var seen = Set<String>()
+        var reviews: [MappedClassificationReview] = []
+        reviews.reserveCapacity(rows.count)
+        for row in rows {
+            guard case .object(let object) = row else { throw FabricDecodeError.malformed("portfolioCatalog.classificationReview") }
+            let canonicalId = try string(object, "canonicalId")
+            guard canonicalId.range(of: #"^review:[a-z0-9]+(?:-[a-z0-9]+)*$"#, options: .regularExpression) != nil else {
+                throw FabricDecodeError.schema("portfolioCatalog.classificationReview.canonicalId")
+            }
+            guard seen.insert(canonicalId).inserted else { throw FabricDecodeError.malformed("portfolioCatalog duplicate review canonicalId") }
+            let source = try string(object, "source")
+            let needed = try string(object, "needed")
+            guard source.count <= MissionFabricCaps.maxDisplayChars, needed.count <= MissionFabricCaps.maxDisplayChars else {
+                throw FabricDecodeError.capExceeded("display")
+            }
+            reviews.append(MappedClassificationReview(canonicalId: canonicalId, source: source, needed: needed))
+        }
+        return reviews
     }
 
     // MARK: - Gaps
