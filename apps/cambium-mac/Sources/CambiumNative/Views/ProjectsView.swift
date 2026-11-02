@@ -244,6 +244,7 @@ struct ProjectsView: View {
                 FactRow(label: "Tenant status", value: project.tenantStatus)
                 FactRow(label: "Tenant label", value: project.tenantId)
                 FactRow(label: "Parent tenant", value: project.parentTenant)
+                FactRow(label: "Source account", value: project.accountId)
                 FactRow(label: "Lifecycle", value: project.lifecycle)
                 FactRow(label: "Promotion", value: project.promotionState)
                 FactRow(label: "Program kind", value: project.programKind)

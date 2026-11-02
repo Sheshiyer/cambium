@@ -17,7 +17,8 @@ hardcoded into the standard app. The catalog remains `readOnly` with
    and classification review row. It preserves display and action digests
    separately and fails the read on malformed detail.
 4. Canopy and Projects show source classifications, provenance, tenant labels,
-   lifecycle, promotion state, source links and mission-data gaps. Historical
+   source account/family labels when supplied, lifecycle, promotion state,
+   source links and mission-data gaps. Historical
    products remain separate display records. Global search can select current
    and historical records, including catalog aliases and historical source
    links. Filtering keeps the visible dossier aligned with the results; opening

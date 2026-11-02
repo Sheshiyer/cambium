@@ -145,16 +145,17 @@ final class PortfolioProjectsTests: XCTestCase {
         XCTAssertEqual(relovo.classification, "client-branch")
         XCTAssertNil(relovo.runtimeWorkId)
 
-        let mappedProjectAnchors: [(id: String, name: String, provenance: String)] = [
-            ("branch:heyzack", "HeyZack", "repo:Sheshiyer/heyzack-dashboard"),
-            ("branch:parkarea", "ParkArea Client Delivery", "repo:parkarea.parkarea-aleph"),
-            ("branch:tirak", "Tirak Client Partnership", "repo:Sheshiyer/tirak-mobile-app-v2"),
-            ("sapling:dlock", "DLOCK", "repo:thoughtseed-labs/lockwell-portal"),
+        let mappedProjectAnchors: [(id: String, name: String, provenance: String, accountId: String?)] = [
+            ("branch:heyzack", "HeyZack", "repo:Sheshiyer/heyzack-dashboard", "heyzack"),
+            ("branch:parkarea", "ParkArea Client Delivery", "repo:parkarea.parkarea-aleph", "parkarea"),
+            ("branch:tirak", "Tirak Client Partnership", "repo:Sheshiyer/tirak-mobile-app-v2", "tirak"),
+            ("sapling:dlock", "DLOCK", "repo:thoughtseed-labs/lockwell-portal", nil),
         ]
         for anchor in mappedProjectAnchors {
             let project = try XCTUnwrap(mapped.project(workId: anchor.id), anchor.id)
             XCTAssertEqual(project.name, anchor.name)
             XCTAssertTrue(project.provenance.contains(anchor.provenance), anchor.id)
+            XCTAssertEqual(project.accountId, anchor.accountId, anchor.id)
             XCTAssertNil(project.runtimeWorkId, anchor.id)
         }
 

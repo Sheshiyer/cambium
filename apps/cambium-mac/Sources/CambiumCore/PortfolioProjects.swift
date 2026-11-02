@@ -21,6 +21,8 @@ public struct MappedProject: Identifiable, Equatable, Sendable {
     public let tenantStatus: String
     public let tenantId: String?
     public let parentTenant: String?
+    /// Source catalog account/family label. It is display metadata, never tenant authority.
+    public let accountId: String?
     public let lifecycle: String?
     public let promotionState: String?
     public let programKind: String?
@@ -42,6 +44,7 @@ public struct MappedProject: Identifiable, Equatable, Sendable {
         tenantStatus: String,
         tenantId: String? = nil,
         parentTenant: String? = nil,
+        accountId: String? = nil,
         lifecycle: String? = nil,
         promotionState: String? = nil,
         programKind: String? = nil,
@@ -59,6 +62,7 @@ public struct MappedProject: Identifiable, Equatable, Sendable {
         self.tenantStatus = tenantStatus
         self.tenantId = tenantId
         self.parentTenant = parentTenant
+        self.accountId = accountId
         self.lifecycle = lifecycle
         self.promotionState = promotionState
         self.programKind = programKind
@@ -406,7 +410,7 @@ public enum MappedPortfolioDecoder {
         if let programKind, !programKinds.contains(programKind) {
             throw FabricDecodeError.schema("portfolioCatalog.records.programKind")
         }
-        _ = try optionalString(row, "accountId")
+        let accountId = try optionalString(row, "accountId")
 
         return MappedProject(
             workId: workId,
@@ -417,6 +421,7 @@ public enum MappedPortfolioDecoder {
             tenantStatus: tenantStatus,
             tenantId: try optionalString(identity, "tenantId"),
             parentTenant: try optionalString(row, "parentTenant"),
+            accountId: accountId,
             lifecycle: lifecycle,
             promotionState: promotionState,
             programKind: programKind,
