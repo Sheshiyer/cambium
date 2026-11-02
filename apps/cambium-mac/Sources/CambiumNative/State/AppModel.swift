@@ -199,7 +199,7 @@ final class AppModel {
             configuration = value
             configurationProblem = nil
             load(.standard)
-            feedback = "Owner configuration saved on this Mac. Sign in when you are ready. Nothing was contacted."
+            feedback = "Owner configuration applied for this session. Sign in when you are ready. Nothing was contacted."
         case .failure(let problem):
             configuration = nil
             configurationProblem = problem.rawValue

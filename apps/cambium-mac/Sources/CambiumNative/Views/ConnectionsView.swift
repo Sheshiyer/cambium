@@ -71,7 +71,7 @@ private struct OwnerPanel: View {
         @Bindable var model = model
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(title: "Owner configuration")
-            Text("Enter the reviewed owner identity. These fields hold no password, token or secret. Saving contacts nothing.")
+            Text("Enter the reviewed owner identity. These fields hold no password, token or secret. Applying contacts nothing and lasts for this session.")
                 .font(.callout).foregroundStyle(Palette.inkMuted)
                 .fixedSize(horizontal: false, vertical: true)
             TextField("Owner URL (https)", text: $model.ownerURLDraft).textFieldStyle(.roundedBorder).font(CambiumFont.mono)
@@ -82,7 +82,7 @@ private struct OwnerPanel: View {
                 Label(problem, systemImage: "exclamationmark.triangle").font(.callout).foregroundStyle(Palette.hold)
             }
             HStack(spacing: 10) {
-                Button("Save configuration", action: model.applyConfiguration)
+                Button("Use for this session", action: model.applyConfiguration)
                 if model.configuration != nil {
                     Button("Sign in", action: model.signIn).buttonStyle(.borderedProminent).disabled(model.loading)
                     Button("Clear", action: model.clearConfiguration)
@@ -90,7 +90,7 @@ private struct OwnerPanel: View {
                 Spacer()
             }
             if model.configuration == nil {
-                Text("Standard mode is unconfigured. Sign-in, reads and actions stay off until a valid configuration is saved.")
+                Text("Standard mode is unconfigured. Sign-in, reads and actions stay off until a valid configuration is applied.")
                     .font(.callout).foregroundStyle(Palette.hold)
             }
         }

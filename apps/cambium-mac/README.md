@@ -5,9 +5,10 @@ and the pinned [Bama template](source-provenance/BAMA.md). The opening job is to
 see the whole system, inspect one work object, and choose the next meaningful
 action. Tenant and role boundaries continue to belong to the operational owners.
 
-This is a development build. The core owner adapters and local verification are
-implemented; native screen integration is in progress. A local fixture result
-does not establish a live founder decision, admitted execution, or release acceptance.
+This is a development build. The native screens, owner adapters, browser sign-in
+seam, admission discovery, and decision/launch recovery are implemented in source
+and exercised with synthetic owner fixtures. A local fixture result does not
+establish a live founder decision, admitted execution, or release acceptance.
 
 ## Build and run
 
@@ -34,6 +35,10 @@ separate acceptance work.
 Launch the executable with `--demo` or `CAMBIUM_NATIVE_DEMO=1` for visibly
 synthetic fixture replay. Standard mode starts without identity or owner data.
 Demo data is separate from standard-mode adapters and supplies no live authority.
+In standard mode, Connections accepts an explicit HTTPS owner origin, tenant
+candidate, reviewed client ID and the app's exact callback for this session.
+It contacts nothing until Sign in is chosen. The owner configuration is held in
+app memory; it must be entered again after quitting. No token is persisted.
 
 ## Source and owner boundaries
 

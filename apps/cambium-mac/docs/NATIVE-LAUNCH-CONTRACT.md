@@ -115,7 +115,10 @@ Server order:
 
 Body: `{ contractVersion, requestId, attemptId }`. Never dispatches.
 
-- Unknown or foreign request: `404 not_found` (identical replies).
+- Unknown or foreign request: `404 not_found` (identical replies). The native
+  client may deliberately resend only its persisted original request after this
+  exact status response, with the same capability, nonce, request and attempt IDs,
+  and only while that original capability remains current. Status itself never sends.
 - Wrong `attemptId`: `409 attempt_mismatch`.
 - Terminal row (`succeeded`, `failed`, `refused`, `busy`): returned without an owner read; `retry: none`.
 - Otherwise `owner.read(requestKey)`. A known state is persisted. `not_found`
@@ -146,7 +149,7 @@ External dispatch never runs inside a D1 statement or batch.
 | Window | Durable state | Recovery |
 | --- | --- | --- |
 | Reserve insert committed, response lost | `reserved` row | Resend with the same IDs → `duplicate`; or status. |
-| After reserve, before `submit` | `reserved`, owner never called | Status reads `not_found` and stays unknown. Re-dispatch needs a separate owner-reviewed rule; none exists. |
+| After reserve, before `submit` | `reserved`, owner never called | Status returns `owner_not_found` on the existing row and stays unknown. This is not the `404 not_found` proof; the client cannot resend from it. Re-dispatch needs a separate owner-reviewed rule; none exists. |
 | `submit` reached owner, reply lost | `reserved` or `owner_unknown` | Status reads the owner by `requestKey`. |
 | Observation write failed | `reserved` | Status reconciles through the owner. |
 
@@ -164,13 +167,19 @@ can hold tokens or URIs.
 A result never grants a `LaunchCapability`: the client must call
 `HTTPLaunchClient.resolveCapability` for the selected `admissionRef`.
 
-## Swift integration (future)
+## Swift integration
 
-`LaunchClient` should model `NativeLaunchCapabilityTuple`, persist
-`{requestId, attemptId, idempotencyNonce, tuple}` in `LocalState` before
-sending, map `unknown`/timeout to status recovery, and offer another launch only
-after a terminal readback. `RunClient` uses `/status` with the original IDs.
-Neither ever sends tenant or principal in a body.
+`HTTPAdmissionDiscovery` lists existing admissions read only. The selected
+supported reference is resolved by `HTTPLaunchClient` to a fresh owner capability.
+`LaunchCoordinator` persists the original capability, request ID, attempt ID and
+nonce in `FileRecoveryStore` before transmission. Unknown replies use status only
+with the original IDs. A status `404 not_found` proves the owner has no request row
+for those IDs and permits an explicit resend of the saved original while its
+capability is valid. A row with `owner_not_found`, an unreadable owner, a timeout,
+or changed pins does not grant that resend. The native interface exposes the
+original retry only from the proved-absent saved record, including after restart.
+Neither read nor launch sends tenant or principal as body authority. Transport,
+execution and semantic acceptance remain separate in the result.
 
 ## Integration status
 
@@ -181,16 +190,15 @@ constructs no store and no execution owner.
 Still unbound:
 
 1. **Migration.** Confirm `0099` does not collide with a later number, then apply through the reviewed migration path. It depends on `goal_graph_heads` (0007).
-2. **Handler deps.** Add an optional `nativeLaunchHost?: NativeLaunchHost` to `HandlerDeps` in `workers/quests/src/handler.ts`.
-3. **Route.** In `handle()`, beside the `/v1/founder/*` branch, match the three paths in `NATIVE_LAUNCH_PATHS`, build a `Request` exactly as that branch does, call `nativeLaunchHttp(request, host)` and map its status, headers and text.
-4. **Host.** Build the host with `createNativeLaunchHost({ verify, store: d1NativeLaunchStore(env.BRIDGE_DB), owner, now })`. `verify` must resolve the founder through `resolveFounderWebSigner` and map it to one tenant using an explicit reviewed binding, as `founderBindings` does. Because launch bodies carry no tenant, the binding must name exactly one tenant per principal, or a header-free tenant selector must be designed and reviewed. If any dependency is missing, pass `undefined`; the routes then return 503.
-5. **Owner.** Implement one `NativeLaunchExecutionOwner` per plant. It must treat `idempotencyToken` as an idempotency key and support `read` by `requestKey`. No arbitrary shell command, shared runner token or self-claimed Hermes lease.
-6. **Admission writer.** A separate owner-reviewed path writes `native_launch_admissions`. Until one exists, every capability is `unavailable`.
+2. **Host.** Bind `createNativeLaunchHost({ verify, store: d1NativeLaunchStore(env.BRIDGE_DB), owner, now })` in the deployed owner runtime. `verify` must resolve the founder through the reviewed native session into an explicit tenant. Bodies carry no tenant authority. Missing dependencies keep the host undefined and routes return 503.
+3. **Owner.** Implement one `NativeLaunchExecutionOwner` per plant. It must treat `idempotencyToken` as an idempotency key and support `read` by `requestKey`. No arbitrary shell command, shared runner token or self-claimed Hermes lease.
+4. **Admission writer.** A separate owner-reviewed path writes `native_launch_admissions`. Until one exists, every capability is `unavailable`.
 
 ## Unproved runtime bindings
 
 Native authentication and credential exchange; principal→tenant binding for this
 route; Cloudflare D1 behaviour of the single-statement CAS and unique-violation
 errors (tested only on local SQLite); any idempotent execution owner for either
-plant; the admission writer; migration application; Swift client; real admitted
-launch and result.
+plant; the admission writer; migration application; real admitted
+launch and result. The Swift client and its local restart/lost-response checks
+are implemented, but those checks do not prove a deployed owner or real job.
