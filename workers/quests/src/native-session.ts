@@ -47,9 +47,10 @@ const TOKEN = /^cns1_[A-Za-z0-9_-]{43}$/;
 const BEARER = /^Bearer (cns1_[A-Za-z0-9_-]{43})$/;
 const NATIVE_REALM = /\b(?:cns1|cnc1)_/;
 const ISO = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/;
-// Private-use reversed-domain scheme under a Thoughtseed domain, single-slash
-// path form (RFC 8252 §7.1). No authority, userinfo, query or fragment.
-const DEV_REDIRECT = /^(space\.thoughtseed(?:\.[a-z0-9-]+)+):\/([A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~-]+)*)$/;
+// Exact registered reversed-domain private scheme with host and path
+// (space.thoughtseed.cambium.native.dev://oauth/callback). No userinfo, port,
+// query, fragment, percent-encoding, or dot segments.
+const DEV_REDIRECT = /^(space\.thoughtseed(?:\.[a-z0-9-]+)+):\/\/([a-z0-9-]+(?:\.[a-z0-9-]+)*)((?:\/[A-Za-z0-9._~-]+)+)$/;
 
 export interface NativeSessionClient { clientId: string; redirectUri: string }
 
@@ -134,9 +135,36 @@ export type NativeSessionResolution =
 export const standardNativeRandom = (length: number) => crypto.getRandomValues(new Uint8Array(length));
 
 const isFn = (value: unknown) => typeof value === 'function';
-const isoOk = (value: unknown): value is string =>
-  typeof value === 'string' && ISO.test(value) && new Date(value).toISOString() === value;
-const plusMs = (iso: string, ms: number) => new Date(Date.parse(iso) + ms).toISOString();
+
+/** True only for a real UTC instant in canonical millisecond ISO. Never throws. */
+const isoOk = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !ISO.test(value)) return false;
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed)) return false;
+  try {
+    return new Date(parsed).toISOString() === value;
+  } catch {
+    return false;
+  }
+};
+
+const plusMs = (iso: string, ms: number): string | null => {
+  const parsed = Date.parse(iso);
+  if (!Number.isFinite(parsed)) return null;
+  const next = parsed + ms;
+  if (!Number.isFinite(next)) return null;
+  try {
+    const out = new Date(next).toISOString();
+    return isoOk(out) ? out : null;
+  } catch {
+    return null;
+  }
+};
+
+const actorOk = (founderId: unknown, tenantId: unknown, clientId?: unknown): boolean =>
+  typeof founderId === 'string' && FOUNDER.test(founderId)
+  && typeof tenantId === 'string' && TENANT.test(tenantId)
+  && (clientId === undefined || (typeof clientId === 'string' && CLIENT_ID.test(clientId)));
 const sha256Hex = (value: string) => createHash('sha256').update(value, 'ascii').digest('hex');
 export const nativeCredentialDigest = sha256Hex;
 
@@ -146,8 +174,12 @@ export function s256Challenge(verifier: string): string {
 }
 
 export function validNativeRedirect(uri: unknown): uri is string {
-  return typeof uri === 'string' && uri.length <= 256 && DEV_REDIRECT.test(uri)
-    && !uri.split(':/')[1].split('/').some(segment => segment === '.' || segment === '..');
+  if (typeof uri !== 'string' || uri.length > 256) return false;
+  const match = DEV_REDIRECT.exec(uri);
+  if (!match) return false;
+  // The character classes already exclude userinfo, port, query, fragment and
+  // percent-encoding; only dot segments need an explicit check.
+  return !match[3].split('/').some(segment => segment === '.' || segment === '..');
 }
 
 function validOrigin(origin: unknown): origin is string {
@@ -311,10 +343,12 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
   const issuedAt = clock(host);
   const code = mint(host, NATIVE_CODE_PREFIX);
   if (!issuedAt || !code) return unavailable();
+  const codeExpiresAt = plusMs(issuedAt, NATIVE_CODE_TTL_MS);
+  if (!codeExpiresAt) return unavailable();
   try {
     await host.deps.store.saveCode({
       codeDigest: sha256Hex(code), clientId, redirectUri, codeChallenge: challenge,
-      founderId, tenantId, issuedAt, expiresAt: plusMs(issuedAt, NATIVE_CODE_TTL_MS),
+      founderId, tenantId, issuedAt, expiresAt: codeExpiresAt,
     });
   } catch { return unavailable(); }
   const location = `${redirectUri}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
@@ -328,6 +362,9 @@ const EXCHANGE_KEYS = 'clientId,code,codeVerifier,contractVersion,redirectUri';
 export async function nativeSessionExchangeHttp(request: Request, host?: NativeSessionHost): Promise<Response> {
   if (!host) return unconfigured();
   if (request.method !== 'POST') return fail(405, 'method_not_allowed');
+  // Cookie-free: browser credentials and any Authorization header are refused
+  // before the browser verifier or the store is consulted.
+  if (browserCredential(request) || request.headers.has('authorization')) return fail(400, 'mixed_credentials');
   const origin = request.headers.get('origin');
   if (!sameOrigin(request, host) || (origin !== null && origin !== host.deps.ownerOrigin)) return fail(400, 'invalid_request');
   const input = await readJson(request);
@@ -350,18 +387,26 @@ export async function nativeSessionExchangeHttp(request: Request, host?: NativeS
   if (!first) return unavailable();
   let pending: Awaited<ReturnType<NativeSessionStore['peekCode']>>;
   try { pending = await host.deps.store.peekCode({ ...match, now: first }); } catch { return unavailable(); }
-  if (!pending || !isoOk(pending.expiresAt)) return fail(400, 'invalid_grant');
+  if (!pending || !isoOk(pending.expiresAt) || !actorOk(pending.founderId, pending.tenantId)) {
+    return fail(400, 'invalid_grant');
+  }
 
   const enrolled = await currentlyEnrolled(host, pending.founderId, pending.tenantId);
   if (enrolled === null) return unavailable();
   if (!enrolled) return fail(403, 'forbidden');
 
-  // Re-read the clock after every await; the grant statement re-checks expiry too.
+  // Re-read the clock and the unused code after the role/enrollment await so a
+  // revocation or expiry during that lookup cannot still grant.
   const now = clock(host);
   const token = mint(host, NATIVE_TOKEN_PREFIX);
   if (!now || !token) return unavailable();
-  if (!(pending.expiresAt > now)) return fail(400, 'invalid_grant');
+  let fresh: Awaited<ReturnType<NativeSessionStore['peekCode']>>;
+  try { fresh = await host.deps.store.peekCode({ ...match, now }); } catch { return unavailable(); }
+  if (!fresh || !isoOk(fresh.expiresAt) || !(fresh.expiresAt > now)
+      || fresh.founderId !== pending.founderId || fresh.tenantId !== pending.tenantId
+      || !actorOk(fresh.founderId, fresh.tenantId)) return fail(400, 'invalid_grant');
   const expiresAt = plusMs(now, NATIVE_SESSION_TTL_MS);
+  if (!expiresAt) return unavailable();
   let granted: boolean;
   try {
     granted = await host.deps.store.grant({
@@ -399,18 +444,29 @@ export async function resolveNativeSession(request: Request, host?: NativeSessio
   if (!first) return { kind: 'refused', response: unavailable() };
   let row: NativeSessionScope | null;
   try { row = await host.deps.store.readSession(tokenDigest, first); } catch { return { kind: 'refused', response: unavailable() }; }
-  if (!row || !isoOk(row.expiresAt) || !(row.expiresAt > first)) return { kind: 'refused', response: fail(401, 'unauthorized') };
+  if (!row || !isoOk(row.expiresAt) || !(row.expiresAt > first)
+      || !actorOk(row.founderId, row.tenantId, row.clientId)) {
+    return { kind: 'refused', response: fail(401, 'unauthorized') };
+  }
   const registered = host.client(row.clientId);
   if (!registered) return { kind: 'refused', response: fail(401, 'unauthorized') };
   const enrolled = await currentlyEnrolled(host, row.founderId, row.tenantId);
   if (enrolled === null) return { kind: 'refused', response: unavailable() };
   if (!enrolled) return { kind: 'refused', response: fail(403, 'forbidden') };
+  // Re-read the stored session after the awaited lookups so revocation or
+  // expiry during that wait cannot still be accepted.
   const now = clock(host);
   if (!now) return { kind: 'refused', response: unavailable() };
-  if (!(row.expiresAt > now)) return { kind: 'refused', response: fail(401, 'unauthorized') };
+  let fresh: NativeSessionScope | null;
+  try { fresh = await host.deps.store.readSession(tokenDigest, now); } catch { return { kind: 'refused', response: unavailable() }; }
+  if (!fresh || !isoOk(fresh.expiresAt) || !(fresh.expiresAt > now)
+      || fresh.founderId !== row.founderId || fresh.tenantId !== row.tenantId
+      || fresh.clientId !== row.clientId || !actorOk(fresh.founderId, fresh.tenantId, fresh.clientId)) {
+    return { kind: 'refused', response: fail(401, 'unauthorized') };
+  }
   return {
     kind: 'native', tokenDigest,
-    scope: { founderId: row.founderId, tenantId: row.tenantId, clientId: row.clientId, expiresAt: row.expiresAt },
+    scope: { founderId: fresh.founderId, tenantId: fresh.tenantId, clientId: fresh.clientId, expiresAt: fresh.expiresAt },
   };
 }
 

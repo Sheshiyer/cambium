@@ -20,7 +20,7 @@ import type { GoalGraphD1DatabaseLike, GoalGraphD1StatementLike } from './goal-g
 
 const ORIGIN = 'https://cambium.test';
 const CLIENT_ID = 'space.thoughtseed.cambium.native.dev';
-const REDIRECT = 'space.thoughtseed.cambium.native.dev:/native-session/callback';
+const REDIRECT = 'space.thoughtseed.cambium.native.dev://oauth/callback';
 const STATE = 'abcdefghijklmnopqrstuvwx';
 const NOW = '2026-11-02T00:30:00.000Z';
 // RFC 7636 Appendix B vector.
@@ -181,6 +181,10 @@ test('D1 cleanup removes only expired hashed metadata and validates its cutoff',
   const later = await cleanupExpiredNativeSessions(h.db, '2026-11-02T02:00:00.000Z');
   assert.deepEqual(later, { sessions: 1, codes: 1 });
   await assert.rejects(cleanupExpiredNativeSessions(h.db, 'not-a-date'), /cutoff_invalid/);
+  // Shape-valid but impossible instants refuse with the categorical error, never a RangeError.
+  for (const bad of ['2026-13-01T00:00:00.000Z', '2026-11-02T25:00:00.000Z', '2026-02-30T00:00:00.000Z']) {
+    await assert.rejects(cleanupExpiredNativeSessions(h.db, bad), /cutoff_invalid/, bad);
+  }
 });
 
 test('D1 revoke returns true once for one token and leaves other sessions valid', async () => {

@@ -2,7 +2,7 @@
 // callbacks and local node:sqlite only. No live browser grant, no real D1.
 
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
@@ -15,6 +15,7 @@ import {
   NATIVE_SESSION_TTL_MS,
   NATIVE_TOKEN_PREFIX,
   createNativeSessionHost,
+  nativeCredentialDigest,
   nativeSessionHttp,
   resolveNativeSession,
   s256Challenge,
@@ -27,7 +28,7 @@ import type { GoalGraphD1DatabaseLike, GoalGraphD1StatementLike } from './goal-g
 
 const ORIGIN = 'https://cambium.test';
 const CLIENT_ID = 'space.thoughtseed.cambium.native.dev';
-const REDIRECT = 'space.thoughtseed.cambium.native.dev:/native-session/callback';
+const REDIRECT = 'space.thoughtseed.cambium.native.dev://oauth/callback';
 const STATE = 'abcdefghijklmnopqrstuvwx';
 const NOW = '2026-11-02T00:30:00.000Z';
 const VERIFIER = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk';
@@ -53,11 +54,11 @@ async function harness(overrides: Partial<NativeSessionDeps> = {}) {
   db.db.exec(await readFile(new URL('../migrations/0100_native_sessions.sql', import.meta.url), 'utf8'));
   const clock = { now: NOW };
   const who = { founder: 'founder-1' as string | null, role: 'founder' as string | null, tenants: ['tenant-alpha'] as string[] | null,
-    onEnrollment: undefined as (() => void) | undefined };
+    onEnrollment: undefined as (() => unknown) | undefined, browserCalls: 0 };
   const deps: NativeSessionDeps = {
-    verifyBrowserFounder: async () => who.founder,
+    verifyBrowserFounder: async () => { who.browserCalls += 1; return who.founder; },
     currentRole: async () => who.role,
-    enrolledTenants: async () => { who.onEnrollment?.(); return who.tenants; },
+    enrolledTenants: async () => { await who.onEnrollment?.(); return who.tenants; },
     clients: [{ clientId: CLIENT_ID, redirectUri: REDIRECT }],
     store: d1NativeSessionStore(db),
     now: () => clock.now,
@@ -89,10 +90,11 @@ const exchangeBody = (code: string, extra: Record<string, unknown> = {}) => ({
   contractVersion: NATIVE_SESSION_CONTRACT, clientId: CLIENT_ID, code, codeVerifier: VERIFIER, redirectUri: REDIRECT, ...extra,
 });
 
-function exchange(host: NativeSessionHost | undefined, body: unknown, init: { method?: string; contentType?: string; raw?: string } = {}) {
+function exchange(host: NativeSessionHost | undefined, body: unknown,
+  init: { method?: string; contentType?: string; raw?: string; headers?: Record<string, string> } = {}) {
   return nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session/exchange`, {
     method: init.method ?? 'POST',
-    headers: { 'content-type': init.contentType ?? 'application/json' },
+    headers: { 'content-type': init.contentType ?? 'application/json', ...init.headers },
     body: init.method === 'GET' ? undefined : (init.raw ?? JSON.stringify(body)),
   }), host);
 }
@@ -135,13 +137,30 @@ test('S256 challenge matches the RFC 7636 Appendix B vector', () => {
   assert.equal(s256Challenge(VERIFIER).length, 43);
 });
 
-test('dev redirect accepts only the reversed-domain single-slash form', () => {
+test('dev redirect accepts only the exact reversed-domain host/path form', () => {
   assert.equal(validNativeRedirect(REDIRECT), true);
+  assert.equal(validNativeRedirect('space.thoughtseed.cambium.native.dev://oauth/callback'), true);
   for (const bad of [
-    'https://cambium.test/cb', 'space.thoughtseed.cambium:/cb?x=1', 'space.thoughtseed.cambium:/cb#frag',
-    'space.thoughtseed.cambium://cb', 'user@space.thoughtseed.cambium:/cb', 'space.thoughtseed:/cb',
-    'com.example.app:/cb', 'space.thoughtseed.cambium:/../cb', `space.thoughtseed.cambium:/${'a'.repeat(300)}`,
+    'https://cambium.test/cb',
+    'space.thoughtseed.cambium.native.dev:/oauth/callback',
+    'space.thoughtseed.cambium.native.dev:///oauth/callback',
+    'space.thoughtseed.cambium.native.dev://oauth/callback?x=1',
+    'space.thoughtseed.cambium.native.dev://oauth/callback#frag',
+    'space.thoughtseed.cambium.native.dev://user@oauth/callback',
+    'space.thoughtseed.cambium.native.dev://user:pw@oauth/callback',
+    'space.thoughtseed.cambium.native.dev://oauth:8080/callback',
+    'space.thoughtseed.cambium.native.dev://oauth/%63allback',
+    'space.thoughtseed.cambium.native.dev://oauth/../callback',
+    'space.thoughtseed.cambium.native.dev://oauth/./callback',
+    'space.thoughtseed.cambium.native.dev://oauth',
+    'space.thoughtseed.cambium.native.dev://oauth/',
+    'space.thoughtseed.cambium.native.dev://oauth//callback',
+    'space.thoughtseed:' + '//oauth/callback',
+    'com.example.app://oauth/callback',
+    'javascript://oauth/callback',
+    `space.thoughtseed.cambium.native.dev://oauth/${'a'.repeat(300)}`,
   ]) assert.equal(validNativeRedirect(bad), false, bad);
+  assert.equal(validNativeRedirect(undefined), false);
 });
 
 // ── Missing dependencies ────────────────────────────────────────────────────
@@ -188,7 +207,7 @@ test('authorize returns 302 with exact callback code and state, no-store headers
   assert.equal(response!.headers.get('cache-control'), 'no-store');
   assert.equal(response!.headers.get('referrer-policy'), 'no-referrer');
   const location = new URL(response!.headers.get('location')!);
-  assert.equal(`${location.protocol}${location.pathname}`, 'space.thoughtseed.cambium.native.dev:/native-session/callback');
+  assert.equal(`${location.protocol}//${location.host}${location.pathname}`, REDIRECT);
   assert.equal(location.searchParams.get('state'), STATE);
   const code = location.searchParams.get('code')!;
   assert.match(code, /^cnc1_[A-Za-z0-9_-]{43}$/);
@@ -223,7 +242,8 @@ test('authorize rejects bad shapes, unregistered callbacks and unverified browse
     [{ state: 'short' }, 400, 'invalid_request'],
     [{ state: 'bad state with spaces!!' }, 400, 'invalid_request'],
     [{ tenant: 'Tenant_Alpha' }, 400, 'invalid_request'],
-    [{ redirect_uri: 'space.thoughtseed.cambium.native.dev:/other' }, 400, 'invalid_client'],
+    [{ redirect_uri: 'space.thoughtseed.cambium.native.dev://oauth/other' }, 400, 'invalid_client'],
+    [{ redirect_uri: 'space.thoughtseed.cambium.native.dev:/oauth/callback' }, 400, 'invalid_client'],
     [{ redirect_uri: `${REDIRECT}?x=1` }, 400, 'invalid_client'],
     [{ client_id: 'space.thoughtseed.unknown.client' }, 400, 'invalid_client'],
     [{ extra: 'value' }, 400, 'invalid_request'],
@@ -244,7 +264,7 @@ test('authorize refuses duplicate parameters, userinfo callbacks and the wrong m
   assert.equal((await errorOf(await nativeSessionHttp(new Request(`${authorizeUrl()}&state=${STATE}`), h.host))).status, 400);
   assert.equal((await errorOf(await nativeSessionHttp(new Request(`${authorizeUrl()}#frag`), h.host))).status, 400);
   assert.equal((await errorOf(await nativeSessionHttp(new Request(authorizeUrl(), { method: 'POST' }), h.host))).status, 405);
-  assert.equal(validNativeRedirect('space.thoughtseed.cambium.native.dev://user@x:/cb'), false);
+  assert.equal(validNativeRedirect('space.thoughtseed.cambium.native.dev://user@oauth/callback'), false);
   assert.equal(dump(h.db), '[[],[]]');
 });
 
@@ -280,7 +300,7 @@ test('exchange with the wrong verifier, client, redirect, or shape issues nothin
   const wrongVerifier = 'x'.repeat(43);
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { codeVerifier: wrongVerifier })))).body.error, 'invalid_grant');
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { clientId: 'space.thoughtseed.other.app' })))).body.error, 'invalid_client');
-  assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { redirectUri: 'space.thoughtseed.cambium.native.dev:/x' })))).body.error, 'invalid_client');
+  assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { redirectUri: 'space.thoughtseed.cambium.native.dev://oauth/x' })))).body.error, 'invalid_client');
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { codeVerifier: 'short' })))).body.error, 'invalid_request');
   assert.equal((await errorOf(await exchange(h.host, exchangeBody('cnc1_bad')))).body.error, 'invalid_grant');
   assert.equal((await errorOf(await exchange(h.host, exchangeBody(code, { extra: 1 })))).body.error, 'invalid_request');
@@ -439,6 +459,171 @@ test('logout revokes only the exact token and rejects bodies other than an empty
   assert.equal((await logout(h.host, first.token))!.status, 200);
   assert.equal((await errorOf(await logout(h.host, first.token))).status, 401);
   assert.equal((await sessionRead(h.host, second.token))!.status, 200);
+});
+
+// ── Review corrections: barriers, shapes, impossible dates, exchange credentials ─
+
+const sessionCount = (h: Harness) => (h.db.db.prepare('SELECT COUNT(*) AS n FROM native_sessions').get() as { n: number }).n;
+
+test('a session revoked during the awaited role/enrollment lookup is refused', async () => {
+  const h = await harness();
+  const session = await sessionFor(h);
+  h.who.onEnrollment = async () => { await h.deps.store.revoke(nativeCredentialDigest(session.token), h.clock.now); };
+  assert.equal((await errorOf(await sessionRead(h.host, session.token))).status, 401);
+});
+
+test('a session that expires during the awaited lookup is refused', async () => {
+  const h = await harness();
+  const session = await sessionFor(h);
+  h.who.onEnrollment = () => { h.clock.now = session.expiresAt; };
+  assert.equal((await errorOf(await sessionRead(h.host, session.token))).status, 401);
+});
+
+test('a code consumed by another exchange during the awaited lookup grants nothing', async () => {
+  const h = await harness();
+  const code = await codeOf(await authorize(h.host));
+  // Another exchange wins while this one awaits enrollment.
+  h.who.onEnrollment = async () => {
+    h.who.onEnrollment = undefined;
+    assert.equal((await exchange(h.host, exchangeBody(code)))!.status, 200);
+  };
+  assert.equal((await errorOf(await exchange(h.host, exchangeBody(code)))).body.error, 'invalid_grant');
+  assert.equal(sessionCount(h), 1);
+});
+
+test('impossible but shape-valid dates refuse categorically and never throw', async () => {
+  const h = await harness();
+  for (const bad of ['2026-13-01T00:00:00.000Z', '2026-11-02T25:00:00.000Z', '2026-02-30T00:00:00.000Z', '2026-11-02T24:00:00.000Z']) {
+    const host = createNativeSessionHost({ ...h.deps, now: () => bad })!;
+    assert.equal((await errorOf(await authorize(host))).status, 503, bad);
+    assert.equal((await errorOf(await exchange(host, exchangeBody(`cnc1_${'A'.repeat(43)}`)))).status, 503, bad);
+    assert.equal((await errorOf(await sessionRead(host, `cns1_${'A'.repeat(43)}`))).status, 503, bad);
+  }
+  assert.equal(dump(h.db), '[[],[]]');
+
+  const session = await sessionFor(h);
+  const corruptRow = createNativeSessionHost({ ...h.deps, store: {
+    ...h.deps.store,
+    async readSession() { return { founderId: 'founder-1', tenantId: 'tenant-alpha', clientId: CLIENT_ID, expiresAt: '2026-11-02T25:00:00.000Z' }; },
+  } })!;
+  assert.equal((await errorOf(await sessionRead(corruptRow, session.token))).status, 401);
+
+  const code = await codeOf(await authorize(h.host));
+  const corruptPending = createNativeSessionHost({ ...h.deps, store: {
+    ...h.deps.store,
+    async peekCode() { return { founderId: 'founder-1', tenantId: 'tenant-alpha', expiresAt: '2026-13-01T00:00:00.000Z' }; },
+  } })!;
+  assert.equal((await errorOf(await exchange(corruptPending, exchangeBody(code)))).body.error, 'invalid_grant');
+});
+
+test('malformed founder, tenant or client shapes in stored rows are refused before use', async () => {
+  const h = await harness();
+  const session = await sessionFor(h);
+  let roleLookups = 0;
+  const counting = { ...h.deps, currentRole: async (id: string) => { roleLookups += 1; return h.deps.currentRole(id); } };
+  const rows = [
+    { founderId: '', tenantId: 'tenant-alpha', clientId: CLIENT_ID },
+    { founderId: 'founder 1', tenantId: 'tenant-alpha', clientId: CLIENT_ID },
+    { founderId: 'founder-1', tenantId: 'Tenant_Alpha', clientId: CLIENT_ID },
+    { founderId: 'founder-1', tenantId: 'tenant-alpha', clientId: 'bad id' },
+    { founderId: 42, tenantId: 'tenant-alpha', clientId: CLIENT_ID },
+  ];
+  for (const row of rows) {
+    const host = createNativeSessionHost({ ...counting, store: {
+      ...h.deps.store,
+      async readSession() { return { ...row, expiresAt: session.expiresAt } as never; },
+    } })!;
+    assert.equal((await errorOf(await sessionRead(host, session.token))).status, 401, JSON.stringify(row));
+  }
+  const code = await codeOf(await authorize(h.host));
+  for (const pending of [{ founderId: 'founder 1', tenantId: 'tenant-alpha' }, { founderId: 'founder-1', tenantId: 'x' }]) {
+    const host = createNativeSessionHost({ ...counting, store: {
+      ...h.deps.store,
+      async peekCode() { return { ...pending, expiresAt: '2026-11-02T00:31:00.000Z' }; },
+    } })!;
+    assert.equal((await errorOf(await exchange(host, exchangeBody(code)))).body.error, 'invalid_grant', JSON.stringify(pending));
+  }
+  assert.equal(roleLookups, 0);
+});
+
+test('exchange refuses browser credentials and Authorization without calling the browser verifier', async () => {
+  const h = await harness();
+  const code = await codeOf(await authorize(h.host));
+  const before = h.who.browserCalls;
+  const bearer = ['Bearer', `${NATIVE_TOKEN_PREFIX}${'A'.repeat(43)}`].join(' ');
+  for (const headers of [
+    { cookie: 'CF_Authorization=synthetic' },
+    { cookie: 'other=1; CF_Authorization=synthetic' },
+    { 'cf-access-jwt-assertion': 'synthetic.jwt.value' },
+    { 'x-telegram-init-data': 'synthetic' },
+    { authorization: bearer },
+    { authorization: ['Bearer', 'web-session-token'].join(' ') },
+    { authorization: 'Basic c3ludGhldGlj' },
+  ]) {
+    const body = await errorOf(await exchange(h.host, exchangeBody(code), { headers }));
+    assert.equal(body.status, 400, JSON.stringify(headers));
+    assert.equal(body.body.error, 'mixed_credentials', JSON.stringify(headers));
+  }
+  assert.equal(h.who.browserCalls, before);
+  assert.equal(sessionCount(h), 0);
+  // A plain unauthenticated exchange still works with the same unused code.
+  assert.equal((await exchange(h.host, exchangeBody(code)))!.status, 200);
+  assert.equal(h.who.browserCalls, before);
+});
+
+// ── Wire fixture (generated from the real handlers) ─────────────────────────
+
+const FIXTURE_URL = new URL('./fixtures/native-session-wire.v1.json', import.meta.url);
+const FIXTURE_NOW = '2026-11-02T00:30:00.123Z';
+
+/** Drives authorize → exchange → read → logout with deterministic synthetic randomness. */
+async function generateWire() {
+  let draws = 0;
+  // Synthetic only: first draw (code) is all 0x00, second (token) all 0x01.
+  const h = await harness({ randomBytes: (length: number) => new Uint8Array(length).fill(draws++) });
+  h.clock.now = FIXTURE_NOW;
+  h.who.founder = 'founder-synth-1';
+  const query = Object.fromEntries(new URL(authorizeUrl()).searchParams);
+  const authorized = await authorize(h.host);
+  assert.equal(authorized!.status, 302);
+  const location = authorized!.headers.get('location')!;
+  const code = new URL(location).searchParams.get('code')!;
+  const exchangeRequest = exchangeBody(code);
+  const exchanged = await exchange(h.host, exchangeRequest);
+  assert.equal(exchanged!.status, 200);
+  const exchangeResponse = (await exchanged!.json()) as Record<string, unknown>;
+  const read = await sessionRead(h.host, String(exchangeResponse.token));
+  assert.equal(read!.status, 200);
+  const out = await logout(h.host, String(exchangeResponse.token));
+  assert.equal(out!.status, 200);
+  return {
+    contractVersion: NATIVE_SESSION_CONTRACT,
+    synthetic: 'Deterministic synthetic values for wire tests. Not real credentials.',
+    clientId: CLIENT_ID,
+    redirectUri: REDIRECT,
+    authorizeQuery: query,
+    authorizeResponseLocation: location,
+    exchangeRequest,
+    exchangeResponse,
+    sessionReadResponse: await read!.json(),
+    logoutResponse: await out!.json(),
+  };
+}
+
+test('native identity wire fixture equals real handler output', async () => {
+  const generated = await generateWire();
+  if (process.env.NATIVE_SESSION_WRITE_FIXTURE === '1') {
+    await writeFile(FIXTURE_URL, `${JSON.stringify(generated, null, 2)}\n`);
+  }
+  const fixture = JSON.parse(await readFile(FIXTURE_URL, 'utf8'));
+  assert.deepEqual(fixture, generated);
+  // Representative properties the Swift client relies on.
+  assert.equal(fixture.redirectUri, 'space.thoughtseed.cambium.native.dev://oauth/callback');
+  assert.equal(String(fixture.authorizeResponseLocation).startsWith(`${REDIRECT}?code=cnc1_`), true);
+  assert.equal(fixture.exchangeResponse.expiresAt, '2026-11-02T00:45:00.123Z');
+  assert.match(fixture.exchangeResponse.token, /^cns1_[A-Za-z0-9_-]{43}$/);
+  const raw = await readFile(FIXTURE_URL, 'utf8');
+  assert.equal(/authorization|Bearer cns1_/i.test(raw), false, 'fixture must not carry an Authorization header value');
 });
 
 test('non-canonical contract values and wrong methods on session routes return bounded errors', async () => {

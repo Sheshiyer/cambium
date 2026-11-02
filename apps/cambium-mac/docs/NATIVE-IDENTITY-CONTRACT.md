@@ -34,11 +34,25 @@ identity for it.
 Dev client registration (one exact callback per client):
 
 - `client_id`: `space.thoughtseed.cambium.native.dev`
-- `redirect_uri`: `space.thoughtseed.cambium.native.dev:/native-session/callback`
+- `redirect_uri`: `space.thoughtseed.cambium.native.dev://oauth/callback`
 
-A callback must use a reversed Thoughtseed-domain private scheme with the
-single-slash path form. It may not contain an authority, userinfo, query,
-fragment, or dot segments. Matching is exact.
+This is the callback the normative `.planning/native-mac/NATIVE-SESSION-CONTRACT.md`
+and the Swift client register: scheme `space.thoughtseed.cambium.native.dev`,
+host `oauth`, path `/callback`. A callback must use a reversed
+Thoughtseed-domain private scheme followed by `//`, a lowercase host, and one
+or more non-empty path segments. It may not contain userinfo, a port, a query,
+a fragment, percent-encoding, or `.`/`..` segments. Other schemes are refused.
+The registry match is exact string equality, so a shape-valid callback still
+fails unless it is the registered one.
+
+Generated wire vector: `workers/quests/src/fixtures/native-session-wire.v1.json`.
+The test `native identity wire fixture equals real handler output` drives
+authorize, exchange, read and logout through the real handlers with fixed
+synthetic randomness (code bytes all `0x00`, token bytes all `0x01`) and a
+clock with fractional milliseconds, then compares the result to the file. The
+values are synthetic and are not credentials. The file holds no
+`Authorization` header. The client builds `Bearer <token>` itself. Regenerate
+with `NATIVE_SESSION_WRITE_FIXTURE=1 node --test workers/quests/src/native-session.test.ts`.
 
 ### 1. Authorize: `GET /v1/native/session/authorize`
 
@@ -63,8 +77,12 @@ The client then restarts with `tenant` set.
 
 ### 2. Exchange: `POST /v1/native/session/exchange`
 
-No cookie and no Access header. `Content-Type: application/json`, body of at
-most 2048 bytes, with exactly these keys:
+No cookie, no Access header, and no `Authorization` header. A request that
+carries a `CF_Authorization` cookie, `cf-access-jwt-assertion`,
+`x-telegram-init-data`, or any `Authorization` value is refused with `400`
+`mixed_credentials` before the browser verifier or the store runs.
+`Content-Type: application/json`, body of at most 2048 bytes, with exactly
+these keys:
 
 ```json
 {
@@ -72,7 +90,7 @@ most 2048 bytes, with exactly these keys:
   "clientId": "space.thoughtseed.cambium.native.dev",
   "code": "cnc1_…",
   "codeVerifier": "<43-128 RFC 7636 unreserved chars>",
-  "redirectUri": "space.thoughtseed.cambium.native.dev:/native-session/callback"
+  "redirectUri": "space.thoughtseed.cambium.native.dev://oauth/callback"
 }
 ```
 
@@ -121,6 +139,14 @@ responses send `Cache-Control: no-store` and `Referrer-Policy: no-referrer`.
 
 A replayed, expired, or lost code, or a wrong verifier, all return the same
 `invalid_grant`.
+
+Stored rows are untrusted. An impossible timestamp (for example month 13 or
+hour 25) or a malformed founder, tenant, or client value refuses with
+`invalid_grant` (exchange) or `401` (read). A clock that returns such a value
+yields `503`. Nothing throws a 500. After the awaited role and enrollment
+lookups, the server re-reads the unused code (exchange) or the live session
+(read) at a fresh clock. A code consumed, or a session revoked or expired,
+during that wait is refused.
 
 ## Client rules
 
