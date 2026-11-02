@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  NATIVE_LAUNCH_ADMISSION_LIST_LIMIT,
   NATIVE_LAUNCH_CONTRACT,
   NATIVE_LAUNCH_MAX_BODY_BYTES,
   NATIVE_LAUNCH_PATHS,
@@ -11,6 +12,8 @@ import {
   nativeLaunchHttp,
   nativeLaunchRequestKey,
   nativeLaunchRequestDigest,
+  validCapabilityTuple,
+  type NativeLaunchAdmissionList,
   type NativeLaunchAdmissionRead,
   type NativeLaunchCapabilityTuple,
   type NativeLaunchExecutionOwner,
@@ -191,6 +194,75 @@ test('transport rejects wrong method, media type, extra keys and oversized bodie
   assert.equal(store.rows.size, 0);
 });
 
+test('admission discovery lists the verified work and refuses a store that cannot list', async () => {
+  const store = new FakeStore();
+  store.seedAdmission();
+  store.seedAdmission({ ...CAPABILITY, admissionRef: 'adm-old', expiresAt: '2026-11-01T00:00:00.000Z' });
+  store.seedAdmission({ ...CAPABILITY, admissionRef: 'adm-hermes', executionPlant: 'hermes-remote' });
+  const owner = new FakeOwner();
+  const host = hostOf(store, owner);
+  const listed = await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId,
+  }), host);
+  assert.equal(listed.status, 503);
+  assert.equal((await listed.json() as { error: string }).error, 'native_launch_listing_unconfigured');
+  assert.equal(store.rows.size, 0);
+  assert.equal(owner.submits.length, 0);
+
+  store.listAdmissions = async (scope, workId, now, limit): Promise<NativeLaunchAdmissionList> => {
+    assert.equal(limit, NATIVE_LAUNCH_ADMISSION_LIST_LIMIT);
+    const rows = [];
+    for (const [key, admission] of [...store.admissions.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+      if (admission.tenantId !== scope.tenantId || admission.principalId !== scope.principalId || admission.tuple.workId !== workId) continue;
+      const found = await store.readAdmission(scope, admission.tuple.admissionRef, now);
+      if (found) rows.push(found);
+      void key;
+    }
+    return { rows: rows.slice(0, limit), truncated: rows.length > limit };
+  };
+  const body = await (await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId,
+  }), host)).json() as { readOnly: boolean; admissions: Array<{ admissionRef: string; availability: string; reason: string }> };
+  assert.equal(body.readOnly, true);
+  assert.deepEqual(body.admissions.map(row => [row.admissionRef, row.availability, row.reason]), [
+    ['adm-123', 'supported', 'current'],
+    ['adm-hermes', 'unsupported', 'owner_does_not_support'],
+    ['adm-old', 'unavailable', 'admission_expired'],
+  ]);
+  const malformed = await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId, principalId: SCOPE.principalId,
+  }), host);
+  assert.equal(malformed.status, 400);
+  assert.equal((await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, {
+    contractVersion: NATIVE_LAUNCH_CONTRACT, workId: 'not a work',
+  }), host)).status, 400);
+  assert.equal((await nativeLaunchHttp(new Request(`http://worker.test${NATIVE_LAUNCH_PATHS.admissions}`, {
+    method: 'GET', headers: { authorization: 'Bearer founder-token' },
+  }), host)).status, 405);
+  assert.equal(owner.submits.length, 0);
+  assert.equal(store.rows.size, 0);
+});
+
+test('admission listing with a missing row array or non-boolean truncation is 503, never an empty work', async () => {
+  const store = new FakeStore();
+  store.seedAdmission();
+  const owner = new FakeOwner();
+  const host = hostOf(store, owner);
+  const bodyFor = { contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId };
+  const broken: Array<() => Promise<NativeLaunchAdmissionList>> = [
+    async () => ({ truncated: false } as unknown as NativeLaunchAdmissionList),
+    async () => ({ rows: undefined, truncated: false } as unknown as NativeLaunchAdmissionList),
+    async () => ({ rows: [], truncated: undefined } as unknown as NativeLaunchAdmissionList),
+    async () => undefined as unknown as NativeLaunchAdmissionList,
+  ];
+  for (const list of broken) {
+    store.listAdmissions = async () => list();
+    const response = await nativeLaunchHttp(post(NATIVE_LAUNCH_PATHS.admissions, bodyFor), host);
+    assert.equal(response.status, 503);
+    assert.equal((await response.json() as { error: string }).error, 'native_launch_listing_unavailable');
+  }
+});
+
 test('capability reports supported for the exact server-owned admission', async () => {
   const store = new FakeStore();
   store.seedAdmission();
@@ -369,6 +441,14 @@ test('terminal execution is final and status does not re-read the owner', async 
   const json = await status.json() as { execution: { state: string; terminal: boolean }; retry: string };
   assert.deepEqual([json.execution.state, json.execution.terminal, json.retry], ['succeeded', true, 'none']);
   assert.equal(owner.reads, 0);
+});
+
+test('validCapabilityTuple rejects an impossible expiry without throwing', () => {
+  const impossible = ['2026-02-31T00:00:00.000Z', '2026-13-01T00:00:00.000Z', '2026-11-02T25:00:00.000Z'];
+  for (const expiresAt of impossible) {
+    assert.doesNotThrow(() => assert.equal(validCapabilityTuple({ ...CAPABILITY, expiresAt }), false));
+  }
+  assert.equal(validCapabilityTuple(CAPABILITY), true);
 });
 
 test('nativeLaunchRequestDigest changes with every client-chosen field', () => {
