@@ -45,6 +45,8 @@ done
 
 [[ -n "$identity" ]] || { echo "build: empty signing identity" >&2; exit 2; }
 
+# Input digest before compile; the stamp must describe the bytes that were compiled.
+pre_digest=$(python3 "$here/tools/build-proof.py" inputs-digest)
 echo "build: swift build -c $config"
 swift build -c "$config" --package-path "$here" --scratch-path "$scratch" --product "$product"
 bin_dir=$(swift build -c "$config" --package-path "$here" --scratch-path "$scratch" --show-bin-path)
@@ -65,6 +67,19 @@ plutil -lint -s "$app/Contents/Info.plist"
 for res in "$bin_dir"/*.bundle(N); do
   cp -R "$res" "$app/Contents/Resources/"
 done
+
+# Build proof (tools/build-proof.py): source revision, dirty state and input hashes,
+# written before codesign so the signature covers it. It never holds the signed
+# executable's own hash; snapshots record that outside the bundle.
+[[ "$identity" == "-" ]] && identity_kind=adhoc || identity_kind=named-identity
+python3 "$here/tools/build-proof.py" generate --config "$config" --identity-kind "$identity_kind" \
+  --out "$app/Contents/Resources/build-proof.json"
+post_digest=$(python3 "$here/tools/build-proof.py" check "$app/Contents/Resources/build-proof.json" | awk -F'aggregate=' '{print $2}')
+if [[ "$post_digest" != "$pre_digest" ]]; then
+  rm -rf "$app"
+  echo "build failed: build inputs changed during compile; bundle removed, rebuild" >&2
+  exit 1
+fi
 # Optional icon, produced by tools/make_icon.sh when an Icon/ source exists.
 for icon in "$here/Resources/AppIcon.icns" "$here/Resources/Assets.car"; do
   [[ -f "$icon" ]] && cp -X "$icon" "$app/Contents/Resources/"

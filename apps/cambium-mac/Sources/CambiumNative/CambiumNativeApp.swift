@@ -1,4 +1,5 @@
 import AppKit
+import CryptoKit
 import IOKit.pwr_mgt
 import SwiftUI
 
@@ -17,7 +18,13 @@ import SwiftUI
 //                                    proposal, launch, knowledge, connections, preferences) at launch.
 //                                    With a snapshot, files are named main-<section>-<size>-<appearance>.png
 //                                    and the manifest records the page. Unset keeps the Canopy capture.
-//   CAMBIUM_NATIVE_REVISION=<rev>    source revision recorded in the snapshot manifest
+//   CAMBIUM_NATIVE_EXPECTED_REVISION=<rev>
+//                                    snapshot only: refuse to run unless the embedded build stamp's
+//                                    source revision starts with <rev> (7+ hex). It is a check and
+//                                    never changes the revision the manifest reports.
+//
+// The reported source revision comes only from Contents/Resources/build-proof.json, written by
+// build.sh before codesign. A snapshot refuses a missing or malformed stamp.
 
 @main
 struct CambiumNativeApp: App {
@@ -165,14 +172,16 @@ enum SnapshotRun {
     }
 
     private struct Manifest: Codable {
-        var schema = "cambium.native.snapshot.v1"
+        var schema = "cambium.native.snapshot.v2"
         var bundleIdentifier: String
         var dataMode: String
         var synthetic: Bool
         var statement: String
         var requestedPage: String?
         var page: String
-        var revision: String
+        var build: BuildStamp
+        var executableSha256: String
+        var provenanceNote: String
         var capturedAt: String
         var shots: [Shot]
         var failures: [String]
@@ -190,11 +199,24 @@ enum SnapshotRun {
             finish(code: 2, message: "SNAPSHOT refused: unknown CAMBIUM_NATIVE_SCREEN '\(raw)'. Use one of: \(known)")
             return
         }
-        let revision = env["CAMBIUM_NATIVE_REVISION"].flatMap { $0.isEmpty ? nil : $0 } ?? "unrecorded"
-        Task { await run(into: URL(fileURLWithPath: dir, isDirectory: true), revision: revision) }
+        let stamp: BuildStamp
+        do { stamp = try BuildStamp.loadEmbedded() } catch {
+            finish(code: 2, message: "SNAPSHOT refused: \(error)")
+            return
+        }
+        if let expected = env["CAMBIUM_NATIVE_EXPECTED_REVISION"], !expected.isEmpty,
+           !stamp.matchesExpected(expected) {
+            finish(code: 2, message: "SNAPSHOT refused: expected revision \(expected) but this bundle was built from \(stamp.sourceRevision)")
+            return
+        }
+        guard let executableSha256 = BuildStamp.executableSha256() else {
+            finish(code: 2, message: "SNAPSHOT refused: cannot hash the running executable")
+            return
+        }
+        Task { await run(into: URL(fileURLWithPath: dir, isDirectory: true), stamp: stamp, executableSha256: executableSha256) }
     }
 
-    private static func run(into dir: URL, revision: String) async {
+    private static func run(into dir: URL, stamp: BuildStamp, executableSha256: String) async {
         // A sleeping display gives screencapture nothing. These assertions end with the process.
         var activity: IOPMAssertionID = 0
         IOPMAssertionDeclareUserActivity("Cambium snapshots" as CFString, kIOPMUserActiveLocal, &activity)
@@ -250,7 +272,11 @@ enum SnapshotRun {
             statement: "Demo mode: every record shown is synthetic. Nothing is live.",
             requestedPage: requested?.rawValue,
             page: page.rawValue,
-            revision: revision,
+            build: stamp,
+            executableSha256: executableSha256,
+            provenanceNote: "build holds the source revision and input digests embedded at build time. "
+                + "executableSha256 is the hash of the running executable, computed at capture; it is a hash, "
+                + "not a signature, and the code signature is verified separately by codesign.",
             capturedAt: ISO8601DateFormatter().string(from: Date()),
             shots: shots,
             failures: failures)
@@ -303,5 +329,84 @@ enum SnapshotRun {
         // An open sheet refuses terminate, and the run would wait forever.
         for window in NSApp.windows { if let sheet = window.attachedSheet { window.endSheet(sheet) } }
         NSApp.terminate(nil)
+    }
+}
+
+/// The build stamp embedded by build.sh (Contents/Resources/build-proof.json). It is the only
+/// source of the reported source revision: nothing at runtime reads git or the environment
+/// to relabel the bundle.
+struct BuildStamp: Codable, Sendable {
+    var schema: String
+    var sourceRevision: String
+    var inputsDirty: Bool
+    var inputsAggregateSha256: String
+    var inputCount: Int
+    var configuration: String
+    var swiftToolchain: String
+    var generatedAt: String
+    var proofSha256: String
+
+    struct Failure: Error, CustomStringConvertible { var description: String }
+
+    private struct Input: Decodable { var path: String; var sha256: String }
+    private struct Toolchain: Decodable { var swift: String }
+    private struct Proof: Decodable {
+        var schema: String
+        var sourceRevision: String
+        var inputsDirty: Bool
+        var inputsAggregateSha256: String
+        var inputs: [Input]
+        var configuration: String
+        var toolchain: Toolchain
+        var generatedAt: String
+    }
+
+    static let maxProofBytes = 2 * 1024 * 1024
+
+    static func loadEmbedded() throws -> BuildStamp {
+        guard let url = Bundle.main.url(forResource: "build-proof", withExtension: "json") else {
+            throw Failure(description: "missing build stamp (build-proof.json); rebuild with build.sh")
+        }
+        guard let data = try? Data(contentsOf: url), !data.isEmpty, data.count <= maxProofBytes else {
+            throw Failure(description: "unreadable or oversized build stamp")
+        }
+        guard let proof = try? JSONDecoder().decode(Proof.self, from: data) else {
+            throw Failure(description: "malformed build stamp")
+        }
+        guard proof.schema == "cambium.native.build-proof.v1",
+              isHex(proof.sourceRevision, 40), isHex(proof.inputsAggregateSha256, 64),
+              !proof.inputs.isEmpty,
+              proof.inputs.allSatisfy({ isHex($0.sha256, 64) && !$0.path.hasPrefix("/")
+                  && !$0.path.split(separator: "/").contains("..") }) else {
+            throw Failure(description: "malformed build stamp fields")
+        }
+        let lines = proof.inputs.sorted { $0.path < $1.path }.map { "\($0.sha256)  \($0.path)\n" }.joined()
+        guard sha256Hex(Data(lines.utf8)) == proof.inputsAggregateSha256 else {
+            throw Failure(description: "build stamp aggregate digest does not match its inputs")
+        }
+        return BuildStamp(schema: proof.schema, sourceRevision: proof.sourceRevision,
+                          inputsDirty: proof.inputsDirty, inputsAggregateSha256: proof.inputsAggregateSha256,
+                          inputCount: proof.inputs.count, configuration: proof.configuration,
+                          swiftToolchain: proof.toolchain.swift, generatedAt: proof.generatedAt,
+                          proofSha256: sha256Hex(data))
+    }
+
+    func matchesExpected(_ expected: String) -> Bool {
+        let e = expected.lowercased()
+        return e.count >= 7 && Self.isHex(e, nil) && sourceRevision.hasPrefix(e)
+    }
+
+    static func executableSha256() -> String? {
+        guard let url = Bundle.main.executableURL, let data = try? Data(contentsOf: url) else { return nil }
+        return sha256Hex(data)
+    }
+
+    private static func isHex(_ value: String, _ length: Int?) -> Bool {
+        (length == nil || value.count == length) && !value.isEmpty
+            && value.allSatisfy { $0.isASCII && ($0.isNumber || ("a"..."f").contains($0)) }
+    }
+
+    private static func sha256Hex(_ data: Data) -> String {
+        SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
 }

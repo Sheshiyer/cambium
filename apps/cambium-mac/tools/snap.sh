@@ -25,11 +25,16 @@ fi
 
 mkdir -p "$shots_dir"
 
+# The revision reported in the snapshot comes from the build stamp embedded in
+# the bundle, never from the current checkout. A different expected revision is
+# a check: the app refuses the capture instead of relabelling the binary.
+env_args=(CAMBIUM_NATIVE_DEMO=1 CAMBIUM_NATIVE_SNAPSHOT="$shots_dir")
+[[ -n "$page" ]] && env_args+=(CAMBIUM_NATIVE_SCREEN="$page")
+if [[ -n "${CAMBIUM_NATIVE_EXPECTED_REVISION:-}" ]]; then
+  env_args+=(CAMBIUM_NATIVE_EXPECTED_REVISION="$CAMBIUM_NATIVE_EXPECTED_REVISION")
+fi
+
 echo "snap: capturing ${page:-default page} (demo, synthetic data) into $shots_dir..."
-CAMBIUM_NATIVE_DEMO=1 \
-CAMBIUM_NATIVE_SNAPSHOT="$shots_dir" \
-CAMBIUM_NATIVE_SCREEN="$page" \
-CAMBIUM_NATIVE_REVISION="$(git -C "$here" rev-parse --short HEAD 2>/dev/null || echo local)" \
-  "$app_bin"
+env "${env_args[@]}" "$app_bin"
 echo "snap: done"
 find "$shots_dir" -maxdepth 2 -ls
