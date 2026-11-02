@@ -44,6 +44,36 @@ else
   wrangler_tail='set CAMBIUM_RUN_WRANGLER_DRY_RUN=1 to collect candidate binding proof'
 fi
 
+binding_status=not_run
+deployment_json='{}'
+remote_migration_names='[]'
+remote_secret_count=0
+native_identity_secret_present=false
+if [ "${CAMBIUM_RUN_LIVE_BINDING_READBACK:-0}" = "1" ]; then
+  if npx --no-install wrangler deployments status --name cambium-quests --json \
+      --profile thoughtseed-labs --config workers/quests/wrangler.labs.jsonc \
+      > "$tmp_dir/deployment.json" 2>/dev/null \
+      && jq -e 'type == "object" and (.versions|type == "array")' "$tmp_dir/deployment.json" >/dev/null; then
+    deployment_json=$(cat "$tmp_dir/deployment.json")
+  fi
+
+  if npx --no-install wrangler d1 migrations list cambium-bridge --remote \
+      --profile thoughtseed-labs --config workers/quests/wrangler.labs.jsonc \
+      > "$tmp_dir/migrations.log" 2>/dev/null; then
+    remote_migration_names=$(grep -Eo '[0-9]{4}_[a-z0-9_]+\.sql' "$tmp_dir/migrations.log" \
+      | sort -u | jq -Rsc 'split("\n") | map(select(length > 0))')
+  fi
+
+  if npx --no-install wrangler secret list --name cambium-quests --format json \
+      --profile thoughtseed-labs --config workers/quests/wrangler.labs.jsonc \
+      > "$tmp_dir/secrets.json" 2>/dev/null \
+      && jq -e 'type == "array"' "$tmp_dir/secrets.json" >/dev/null; then
+    remote_secret_count=$(jq 'length' "$tmp_dir/secrets.json")
+    native_identity_secret_present=$(jq 'any(.[]; .name == "PLEXUS_NATIVE_IDENTITY_TOKEN")' "$tmp_dir/secrets.json")
+  fi
+  binding_status=read
+fi
+
 if command -v gh >/dev/null 2>&1 && gh pr view 105 --repo Sheshiyer/team-forge-ts \
     --json state,isDraft,mergeable,reviewDecision,updatedAt,url,headRefName,baseRefName \
     > "$tmp_dir/pr.json" 2>/dev/null; then
@@ -61,6 +91,11 @@ jq -n \
   --arg migration0101 "$migration_0101" \
   --arg wranglerStatus "$wrangler_status" \
   --arg wranglerTail "$wrangler_tail" \
+  --arg bindingStatus "$binding_status" \
+  --arg remoteSecretCount "$remote_secret_count" \
+  --argjson nativeIdentitySecretPresent "$native_identity_secret_present" \
+  --argjson remoteMigrationNames "$remote_migration_names" \
+  --argjson deployment "$deployment_json" \
   --arg prStatus "$pr_status" \
   --slurpfile live "$tmp_dir/live.json" \
   --argjson portfolio "$portfolio_json" \
@@ -83,6 +118,13 @@ jq -n \
         status: $wranglerStatus,
         summary: $wranglerTail
       }
+    },
+    runtimeReadback: {
+      status: $bindingStatus,
+      deployment: $deployment,
+      unappliedMigrations: $remoteMigrationNames,
+      remoteSecretCount: ($remoteSecretCount|tonumber),
+      dedicatedNativeIdentitySecretPresent: $nativeIdentitySecretPresent
     },
     teamforgePullRequest: {
       readback: $prStatus,
