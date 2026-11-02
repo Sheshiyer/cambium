@@ -169,6 +169,8 @@ public actor FileRecoveryStore: RecoveryStore {
 
 #if DEBUG
     nonisolated(unsafe) static var mockSyncParentDirectory: (() -> Bool)? = nil
+    nonisolated(unsafe) static var mockFailAfterBackup: (() -> Bool)? = nil
+    nonisolated(unsafe) static var mockFailBeforePublish: (() -> Bool)? = nil
 #endif
 
     private let directory: URL
@@ -340,15 +342,33 @@ public actor FileRecoveryStore: RecoveryStore {
         let backup: URL? = hasExisting ? directory.appendingPathComponent(".bak-" + UUID().uuidString, isDirectory: false) : nil
 
         if let backup = backup {
-            guard rename(target.path, backup.path) == 0 else {
+            guard link(target.path, backup.path) == 0 else {
+                unlink(temp.path)
+                throw RecoveryStoreError.ioFailure
+            }
+            guard Self.syncParentDirectory(directory) else {
+                unlink(backup.path)
                 unlink(temp.path)
                 throw RecoveryStoreError.ioFailure
             }
         }
 
+#if DEBUG
+        if let failAfterBackup = Self.mockFailAfterBackup, failAfterBackup() {
+            if let backup = backup { unlink(backup.path) }
+            unlink(temp.path)
+            throw RecoveryStoreError.ioFailure
+        }
+        if let failBeforePublish = Self.mockFailBeforePublish, failBeforePublish() {
+            if let backup = backup { unlink(backup.path) }
+            unlink(temp.path)
+            throw RecoveryStoreError.ioFailure
+        }
+#endif
+
         guard rename(temp.path, target.path) == 0 else {
             if let backup = backup {
-                _ = rename(backup.path, target.path)
+                unlink(backup.path)
             }
             unlink(temp.path)
             throw RecoveryStoreError.ioFailure
@@ -356,7 +376,9 @@ public actor FileRecoveryStore: RecoveryStore {
 
         guard Self.syncParentDirectory(directory) else {
             if let backup = backup {
-                _ = rename(backup.path, target.path)
+                if rename(backup.path, target.path) == 0 {
+                    _ = Self.syncParentDirectory(directory)
+                }
             } else {
                 unlink(target.path)
             }
