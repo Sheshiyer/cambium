@@ -66,6 +66,17 @@ host, enroll the founder, or serve this catalog to the Mac app. Production
 configuration, migration, deployment and a real founder walkthrough retain
 their separate owner gates.
 
+The present Cambium Plexus adapter (`workers/quests/src/lib/plexus-principal.ts`)
+resolves a role only from a verified browser Access JWT forwarded to `/v1/whoami`;
+its principal has wildcard tenant scope. It cannot supply the native host's
+fresh `currentRole(founderId)` and `enrolledTenants(founderId)` callbacks during
+cookie-free code exchange or later bearer reads. The inspected TeamForge Worker
+source also describes `/v1/whoami` as Access-JWT-only; that checkout is dated
+and is not evidence of today's deployment. Activation needs an owner-approved,
+current identity-by-ID and exact-enrollment authority, plus the reviewed
+client, consent/session D1 bindings and same-origin browser verifier. A static
+founder list or the display catalog must not stand in for these checks.
+
 ## Reversal
 
 Revert the scoped implementation commits `a62955b`, `d0defc5`, `15ff5de`,
