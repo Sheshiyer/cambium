@@ -94,7 +94,9 @@ These are local source, fixture, route-harness, synthetic window and bundle
 proofs. An unlocked interactive walkthrough on the rebuilt bundle then
 verified Connections prefill, `Cambium` search, the exact Work join, bounded
 Work navigation, and return to unconfigured standard mode; no session was
-applied. An unauthenticated
+applied. A second spot-check searched `HeyZack`, showed 11 matching mapped
+client-branch records, and opened its provenance-bearing dossier with no
+served runtime join. An unauthenticated
 2026-11-02 read-only probe saw health
 `200` and Mission Fabric `401` on the direct Worker origin, and `401` on the
 custom domain. The native session path returned `404` on the direct origin.
