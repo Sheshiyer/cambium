@@ -348,6 +348,11 @@ final class LaunchHTTPContractTests: XCTestCase {
         XCTAssertNil(result.verdict)
         XCTAssertNil(result.runId)
         XCTAssertEqual(result.ownerRef, "synthetic-owner-1")
+        XCTAssertEqual(result.capability, LaunchCapabilityTuple(
+            workId: "sapling:cambium", admissionRef: "adm-123", graphVersion: 1, loadoutId: "loadout-alpha",
+            inputDigest: "sha256:" + String(repeating: "a", count: 64), executionPlant: "temperance-hands",
+            supportedAction: "launch", expiresAt: "2026-11-02T01:00:00.000Z"
+        ), "the adapter always carries the parsed tuple")
     }
 
     func testStatusNotFoundOwnerNotFoundMismatchAndReadbackUnavailable() async throws {
@@ -539,5 +544,46 @@ final class LaunchHTTPContractTests: XCTestCase {
         catch { XCTAssertEqual(error as? LaunchError, .refused("admission_consumed")) }
         let sent = await recorder.requests.count
         XCTAssertEqual(sent, 1)
+    }
+
+    // MARK: Status readback bound to the original capability, over HTTP
+
+    func testCoordinatorOverHTTPKeepsStatusWithCorrectIdsButWrongCapabilityUnknown() async throws {
+        let samples = try WireFixture.load()
+        let nonce = "nonce_abcdefghijklmnopqrstuv"
+        let hostile: [(String, [String], Any)] = [
+            ("other work", ["request", "capability", "workId"], "sapling:attacker"),
+            ("other admission", ["request", "capability", "admissionRef"], "adm-other"),
+            ("other input", ["request", "capability", "inputDigest"], "sha256:" + String(repeating: "b", count: 64)),
+            ("other loadout", ["request", "capability", "loadoutId"], "loadout-other"),
+            ("other plant", ["request", "capability", "executionPlant"], "hermes-remote"),
+            ("other expiry", ["request", "capability", "expiresAt"], "2031-01-01T00:00:00.000Z"),
+        ]
+        for (name, path, value) in hostile {
+            let status = try XCTUnwrap(samples["status_recovered_succeeded"])
+            var mutated = samples
+            mutated["hostile"] = WireSample(
+                name: "hostile", path: status.path, inputBody: status.inputBody, status: status.status,
+                output: WireFixture.mutate(status.output, path, to: value)
+            )
+            let recorder = RequestRecorder()
+            let client = HTTPLaunchClient(
+                baseURL: base,
+                transport: echoTransport(mutated, recorder: recorder, launch: "launch_unknown_lost_owner_response", status: "hostile"),
+                authorizer: NoAuthorizer()
+            )
+            let launcher = LaunchCoordinator(client: client, session: MutableSession(LaunchFixtures.session()), clock: TestClock(date: LaunchFixtures.now), store: InMemoryRecoveryStore())
+            let first = try await launcher.launch(capability: try fixtureCapability(samples), idempotencyNonce: nonce)
+            XCTAssertEqual(first.state, .outcomeUnknown, name)
+            let recovered = try await launcher.recover(workId: "sapling:cambium", idempotencyNonce: nonce)
+            XCTAssertEqual(recovered.state, .outcomeUnknown, "\(name): execution success from the wrong work is not applied")
+            XCTAssertEqual(recovered.record.detail, "mismatched_status_capability", name)
+            XCTAssertNotEqual(recovered.record.executionState, "succeeded", name)
+            XCTAssertEqual(recovered.record.requestId, first.record.requestId, name)
+            let paths = await recorder.requests.map { $0.url.path }
+            XCTAssertEqual(paths, ["/v1/native/launch", "/v1/native/launch/status"], "never re-dispatched: \(name)")
+            do { _ = try await launcher.launch(capability: try fixtureCapability(samples), idempotencyNonce: "nonce_zzzzzzzzzzzzzzzzzzzzzz"); XCTFail(name) }
+            catch { XCTAssertEqual(error as? LaunchError, .unresolvedAttempt, name) }
+        }
     }
 }
