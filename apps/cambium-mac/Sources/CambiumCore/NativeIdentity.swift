@@ -201,8 +201,15 @@ struct NativeHeldSession: Sendable, Equatable, CustomStringConvertible, CustomDe
     var debugDescription: String { description }
 }
 
-/// The owner contract caps a native session at 15 minutes.
+/// The owner contract caps a native session at 15 minutes, measured from grant.
 let nativeSessionMaxLifetime: TimeInterval = 15 * 60
+
+/// How far a client clock may sit behind the owner before a still-valid
+/// 15 minute token is refused. A reply that arrives late, read on a clock
+/// even a fraction of a second behind grant time, otherwise looks longer
+/// than the contract lifetime. 120 seconds is the bound used by the fabric
+/// and knowledge readers. Anything past it is treated as a bad lifetime.
+let nativeSessionClockSkew: TimeInterval = 120
 
 struct NativeTransaction: Sendable, Equatable {
     let generation: UInt64
@@ -271,7 +278,20 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
     }
 
     public func headers() async throws -> [String: String] {
-        guard let held else { return [:] }
+        try await authorizationHeaders(admitted: true)
+    }
+
+    /// Bearer for one request. The token is returned only when `url` is on the
+    /// configured owner origin, including its path prefix. Any other destination
+    /// throws before a header map exists, so the bearer cannot be attached.
+    public func headers(for url: URL) async throws -> [String: String] {
+        guard let configuration else { return [:] }
+        guard configuration.origin.admits(url) else { throw NativeIdentityError.exchangeRefused }
+        return try await authorizationHeaders(admitted: true)
+    }
+
+    private func authorizationHeaders(admitted: Bool) -> [String: String] {
+        guard admitted, let held else { return [:] }
         guard held.expiresAt > clock.now() else {
             self.held = nil
             return [:]
@@ -286,23 +306,33 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         guard outstanding == nil else { throw NativeIdentityError.signInInProgress }
 
         let transaction = try beginTransaction(configuration)
+        let inspected: NativeHeldSession
         do {
-            let inspected = try await complete(
+            inspected = try await complete(
                 transaction,
                 configuration: configuration,
                 transport: transport,
                 browser: browser
             )
-            try ensureCurrent(transaction)
-            guard inspected.expiresAt > clock.now() else { throw NativeIdentityError.expired }
-            // No await between the checks above and this publish.
-            clearIfCurrent(transaction)
-            held = inspected
-            return .verified(founderId: inspected.founderId, tenantId: inspected.tenantId, expiresAt: inspected.expiresAt)
         } catch {
             clearIfCurrent(transaction)
             throw error
         }
+        do {
+            try ensureCurrent(transaction)
+            guard inspected.expiresAt > clock.now() else { throw NativeIdentityError.expired }
+        } catch {
+            // The exchange already consumed the code. Drop this transaction
+            // before the logout await so a newer sign-in is not cleared, then
+            // revoke the token that will not be published.
+            clearIfCurrent(transaction)
+            await Self.logout(token: inspected.token, configuration: configuration, transport: transport)
+            throw error
+        }
+        // No await between the checks above and this publish.
+        clearIfCurrent(transaction)
+        held = inspected
+        return .verified(founderId: inspected.founderId, tenantId: inspected.tenantId, expiresAt: inspected.expiresAt)
     }
 
     /// Stops the browser and drops the outstanding transaction without starting
@@ -357,20 +387,28 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
             transport: transport,
             clock: clock
         )
-        try ensureCurrent(transaction)
-        try Self.requireTenantCandidate(candidate.tenantId, configuration: configuration)
+        do {
+            try ensureCurrent(transaction)
+            try Self.requireTenantCandidate(candidate.tenantId, configuration: configuration)
 
-        let inspected = try await Self.inspect(
-            candidate: candidate,
-            configuration: configuration,
-            transport: transport,
-            clock: clock
-        )
-        try ensureCurrent(transaction)
-        try Self.requireTenantCandidate(inspected.tenantId, configuration: configuration)
-        // Expiry is checked against the clock after every await, not the clock read before them.
-        guard inspected.expiresAt > clock.now() else { throw NativeIdentityError.expired }
-        return inspected
+            let inspected = try await Self.inspect(
+                candidate: candidate,
+                configuration: configuration,
+                transport: transport,
+                clock: clock
+            )
+            try ensureCurrent(transaction)
+            try Self.requireTenantCandidate(inspected.tenantId, configuration: configuration)
+            // Expiry is checked against the clock after every await, not the clock read before them.
+            guard inspected.expiresAt > clock.now() else { throw NativeIdentityError.expired }
+            return inspected
+        } catch {
+            // Inspection or a post-await check refused a token the owner already
+            // issued. Revoke that exact token. Logout does not touch transaction
+            // state, and a logout failure must not hide the original refusal.
+            await Self.logout(token: candidate.token, configuration: configuration, transport: transport)
+            throw error
+        }
     }
 
     private func beginTransaction(_ configuration: NativeIdentityConfiguration) throws -> NativeTransaction {
@@ -567,8 +605,10 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
     }
 
     /// Strict parse of the owner body. Exchange carries `token`; inspection must not.
-    /// `now` is read after the response arrives. Expiry must be in the future and
-    /// no more than the 15 minute contract lifetime away.
+    /// `now` is read after the response arrives. Expiry must still be in the future.
+    /// The owner lifetime is 15 minutes from grant; a client clock behind the owner,
+    /// or a reply that arrives late, may observe up to `nativeSessionClockSkew`
+    /// beyond that. A larger gap is a malformed lifetime, not a usable session.
     static func parseSession(
         _ data: Data,
         configuration: NativeIdentityConfiguration,
@@ -592,7 +632,7 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
             throw NativeIdentityError.malformedResponse
         }
         guard expiresAt > now else { throw NativeIdentityError.expired }
-        guard expiresAt.timeIntervalSince(now) <= nativeSessionMaxLifetime else {
+        guard expiresAt.timeIntervalSince(now) <= nativeSessionMaxLifetime + nativeSessionClockSkew else {
             throw NativeIdentityError.malformedResponse
         }
         let token: String

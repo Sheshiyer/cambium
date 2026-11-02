@@ -531,7 +531,7 @@ final class NativeIdentityTests: XCTestCase {
         box.controller = controller
 
         await XCTAssertThrowsErrorAsync(try await controller.signIn()) { XCTAssertEqual($0 as? NativeIdentityError, .transactionSuperseded) }
-        XCTAssertEqual(transport.requests.map(\.url.path), ["/v1/native/session/exchange"])
+        XCTAssertEqual(transport.requests.map(\.url.path), ["/v1/native/session/exchange", "/v1/native/session/logout"])
         let session = await controller.currentSession()
         XCTAssertEqual(session, .unconfigured)
         let headers = try await controller.headers()
@@ -668,7 +668,8 @@ final class NativeIdentityTests: XCTestCase {
         let browser = NativeTestBrowser { .callback(NativeTestFixture.callback(for: $0)) }
         let controller = NativeIdentityController(configuration: try NativeTestFixture.configuration(tenant: "cambium"), transport: transport, browser: browser, clock: NativeTestClock(NativeTestFixture.now), randomness: NativeTestFixture.randomness())
         await XCTAssertThrowsErrorAsync(try await controller.signIn()) { XCTAssertEqual($0 as? NativeIdentityError, .scopeMismatch) }
-        XCTAssertEqual(transport.requests.map(\.method), ["POST"])
+        XCTAssertEqual(transport.requests.map(\.method), ["POST", "POST"])
+        XCTAssertEqual(transport.requests.map(\.url.path), ["/v1/native/session/exchange", "/v1/native/session/logout"])
         let session = await controller.currentSession()
         XCTAssertEqual(session, .unconfigured)
         let headers = try await controller.headers()
@@ -792,7 +793,7 @@ final class NativeIdentityTests: XCTestCase {
         box.controller = controller
 
         await XCTAssertThrowsErrorAsync(try await controller.signIn()) { XCTAssertEqual($0 as? NativeIdentityError, .transactionSuperseded) }
-        XCTAssertEqual(transport.requests.map(\.url.path), ["/v1/native/session/exchange"])
+        XCTAssertEqual(transport.requests.map(\.url.path), ["/v1/native/session/exchange", "/v1/native/session/logout"])
         let headers = try await controller.headers()
         XCTAssertEqual(headers, [:])
     }
@@ -1056,6 +1057,54 @@ final class NativeIdentityTests: XCTestCase {
         let headers = try await controller.headers()
         XCTAssertEqual(headers, [:])
         await XCTAssertThrowsErrorAsync(try await controller.signIn()) { XCTAssertEqual($0 as? NativeIdentityError, .unconfigured) }
+    }
+
+    // MARK: - Clock skew and origin-bound authorizer
+
+    @MainActor
+    func testClockSkewToleranceWithin120SecondsSucceeds() throws {
+        let configuration = try NativeTestFixture.configuration()
+        let issuedAt = NativeTestFixture.now
+        // Token expires exactly 900 seconds after issuedAt.
+        let expiresAt = issuedAt.addingTimeInterval(900)
+        let expiresString = CanonicalTimestamp.string(from: expiresAt)
+        var body = NativeTestFixture.sessionBody(expires: expiresString)
+        body["token"] = NativeTestFixture.token
+        let data = try JSONSerialization.data(withJSONObject: body)
+
+        // Client clock behind by 250ms (so expiresAt - now = 900.250 <= 900 + 120).
+        let clientClockBehind250ms = issuedAt.addingTimeInterval(-0.250)
+        let parsed = try NativeIdentityController.parseSession(data, configuration: configuration, requireToken: true, now: clientClockBehind250ms)
+        XCTAssertEqual(parsed.expiresAt, expiresAt)
+
+        // Client clock behind by 121 seconds (so expiresAt - now = 1021 > 1020).
+        let clientClockBehind121s = issuedAt.addingTimeInterval(-121)
+        XCTAssertThrowsError(try NativeIdentityController.parseSession(data, configuration: configuration, requireToken: true, now: clientClockBehind121s)) {
+            XCTAssertEqual($0 as? NativeIdentityError, .malformedResponse)
+        }
+    }
+
+    @MainActor
+    func testOriginBoundAuthorizerRefusesCrossOriginDestinations() async throws {
+        let transport = NativeTestFixture.healthyOwner()
+        let browser = NativeTestBrowser { .callback(NativeTestFixture.callback(for: $0)) }
+        let configuration = try NativeTestFixture.configuration()
+        let controller = NativeIdentityController(configuration: configuration, transport: transport, browser: browser, clock: NativeTestClock(NativeTestFixture.now), randomness: NativeTestFixture.randomness())
+        _ = try await controller.signIn()
+
+        let ownerURL = configuration.sessionURL
+        let admittedHeaders = try await controller.headers(for: ownerURL)
+        XCTAssertEqual(admittedHeaders["authorization"], "Bearer \(NativeTestFixture.token)")
+
+        let maliciousURL = URL(string: "https://evil.example.test/v1/native/session")!
+        await XCTAssertThrowsErrorAsync(try await controller.headers(for: maliciousURL)) {
+            XCTAssertEqual($0 as? NativeIdentityError, .exchangeRefused)
+        }
+
+        let insecureURL = URL(string: "http://owner.example.test/v1/native/session")!
+        await XCTAssertThrowsErrorAsync(try await controller.headers(for: insecureURL)) {
+            XCTAssertEqual($0 as? NativeIdentityError, .exchangeRefused)
+        }
     }
 }
 

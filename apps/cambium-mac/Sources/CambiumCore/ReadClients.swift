@@ -155,7 +155,7 @@ public struct MissionFabricHTTPClient: MissionFabricReading {
 
         var headers: [String: String]
         do {
-            headers = try await authorizer.headers()
+            headers = try await authorizer.headers(for: url)
         } catch {
             throw MissionFabricReadError.authorizationUnavailable
         }
