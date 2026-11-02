@@ -322,4 +322,159 @@ final class FabricContractTests: XCTestCase {
             XCTFail("Failed to decode shadow envelope with sidecars: \(err)")
         }
     }
+
+    func testJSONUnicodeEscapesRejectSignWhitespaceAndLoneSurrogates() throws {
+        func parsed(_ json: String) throws -> JSONValue { try JSONValue.parse(Data(json.utf8)) }
+        XCTAssertEqual(try parsed(#""\u0001""#), .string("\u{0001}"))
+        XCTAssertEqual(try parsed(#""\uD83D\uDE00""#), .string("😀"))
+        for bad in [#""\u+001""#, #""\u-001""#, #""\u 001""#, #""\u001 ""#, #""\uD83D""#, #""\uDE00""#, #""\uD83D\uD83D""#] {
+            XCTAssertThrowsError(try parsed(bad), "expected \(bad) to fail")
+        }
+        XCTAssertThrowsError(try JSONValue.parse(Data([0x22, 0x80, 0x22])), "invalid UTF-8 inside a string must fail")
+    }
+
+    func testUnsupportedRoleRejected() throws {
+        let body = try load("fabric-route-acme-viewer")
+        guard case .scope(let reason)? = failure(try decode(body, tenant: "acme", role: "operator")) else { return XCTFail() }
+        XCTAssertTrue(reason.contains("unsupported role"), reason)
+    }
+
+    func testReportedProjectionTruncationKeepsUnresolvedEdges() throws {
+        let expected = try XCTUnwrap(try load("fabric-expectations")["capTruncation"] as? [String: Any])
+        let capBody = try load("fabric-route-cap-truncation")
+        guard case .success(let envelope) = try decode(capBody, tenant: "acme") else { return XCTFail() }
+        XCTAssertEqual(envelope.projection.graphDigest, expected["graphDigest"] as? String)
+        XCTAssertEqual(envelope.projection.nodes.count, MissionFabricCaps.maxNodes)
+        XCTAssertEqual(envelope.projection.nodes.count, expected["nodeCount"] as? Int)
+        XCTAssertEqual(Set(envelope.truncated), Set(try XCTUnwrap(expected["truncationGapIds"] as? [String])))
+        let subjects = Set(envelope.projection.nodes.map(\.subjectId))
+        let unresolved = envelope.projection.edges.filter { !subjects.contains($0.fromId) || ($0.kind != "pins-loadout" && !subjects.contains($0.toId)) }
+        XCTAssertFalse(unresolved.isEmpty, "source cap must retain at least one edge with an omitted endpoint")
+        XCTAssertFalse(subjects.contains("task-fabric-contract"), "omitted endpoint must stay absent")
+        XCTAssertEqual(envelope.projection.edges.count, (try XCTUnwrap((capBody["projection"] as? [String: Any])?["edges"] as? [Any])).count)
+
+        // Same source projection without its truncation gaps, resealed: dangling edges are refused.
+        var stripped = capBody
+        var strippedProjection = try XCTUnwrap(stripped["projection"] as? [String: Any])
+        let gaps = try XCTUnwrap(strippedProjection["gaps"] as? [[String: Any]])
+        strippedProjection["gaps"] = gaps.filter { $0["kind"] as? String != "projection-truncated" }
+        stripped["projection"] = strippedProjection
+        try reseal(&stripped)
+        guard case .malformed(let strippedReason)? = failure(try decode(stripped, tenant: "acme")) else { return XCTFail() }
+        XCTAssertTrue(strippedReason.contains("unresolved"), strippedReason)
+
+        var unreported = try load("fabric-route-acme-founder")
+        var projection = try XCTUnwrap(unreported["projection"] as? [String: Any])
+        var edges = try XCTUnwrap(projection["edges"] as? [Any])
+        edges.append(["kind": "executes", "fromId": "agent-cambium", "toId": "run-ghost"])
+        projection["edges"] = edges
+        unreported["projection"] = projection
+        try reseal(&unreported)
+        guard case .malformed(let reason)? = failure(try decode(unreported, tenant: "acme")) else { return XCTFail() }
+        XCTAssertTrue(reason.contains("unresolved"), reason)
+    }
+
+    /// Content hash of a catalog with `catalogDigest` excluded, matching the decoder.
+    private func resealCatalog(_ body: inout [String: Any]) throws {
+        var catalog = try XCTUnwrap(body["portfolioCatalog"] as? [String: Any])
+        catalog.removeValue(forKey: "catalogDigest")
+        let parsed = try JSONValue.parse(JSONSerialization.data(withJSONObject: catalog))
+        catalog["catalogDigest"] = MissionFabricDecoder.sha256Digest(parsed)
+        body["portfolioCatalog"] = catalog
+        var summary = try XCTUnwrap(body["portfolioCatalogSummary"] as? [String: Any])
+        summary["catalogDigest"] = catalog["catalogDigest"]
+        body["portfolioCatalogSummary"] = summary
+    }
+
+    /// Content hash of an organ plan with `planDigest` excluded, matching the decoder.
+    private func resealPlan(_ body: inout [String: Any]) throws {
+        var plan = try XCTUnwrap(body["organUpdateDelivery"] as? [String: Any])
+        plan.removeValue(forKey: "planDigest")
+        let parsed = try JSONValue.parse(JSONSerialization.data(withJSONObject: plan))
+        plan["planDigest"] = MissionFabricDecoder.sha256Digest(parsed)
+        body["organUpdateDelivery"] = plan
+    }
+
+    func testResealedSidecarFieldMutationsRejected() throws {
+        func rejecting(_ mutate: (inout [String: Any]) throws -> Void, reseal: ((inout [String: Any]) throws -> Void)? = nil) throws -> FabricDecodeError? {
+            var body = try load("fabric-route-cambium-founder-shadow")
+            try mutate(&body)
+            if let reseal { try reseal(&body) }
+            return failure(try decode(body, tenant: "cambium"))
+        }
+        guard case .malformed? = try rejecting({ body in
+            var catalog = body["portfolioCatalog"] as! [String: Any]
+            var records = catalog["records"] as! [[String: Any]]
+            records[0]["canonicalId"] = "not an id"
+            catalog["records"] = records
+            body["portfolioCatalog"] = catalog
+        }, reseal: resealCatalog) else { return XCTFail("invalid catalog id") }
+        guard case .schema? = try rejecting({ body in
+            var catalog = body["portfolioCatalog"] as! [String: Any]
+            var records = catalog["records"] as! [[String: Any]]
+            records[0]["classification"] = "secret"
+            catalog["records"] = records
+            body["portfolioCatalog"] = catalog
+        }, reseal: resealCatalog) else { return XCTFail("invalid classification") }
+        guard case .schema? = try rejecting({ body in
+            var catalog = body["portfolioCatalog"] as! [String: Any]
+            var records = catalog["records"] as! [[String: Any]]
+            records[0]["kind"] = "mystery"
+            catalog["records"] = records
+            body["portfolioCatalog"] = catalog
+        }, reseal: resealCatalog) else { return XCTFail("invalid kind") }
+        guard case .malformed? = try rejecting({ body in
+            var catalog = body["portfolioCatalog"] as! [String: Any]
+            var records = catalog["records"] as! [[String: Any]]
+            records[0]["provenance"] = [1]
+            catalog["records"] = records
+            body["portfolioCatalog"] = catalog
+        }, reseal: resealCatalog) else { return XCTFail("invalid field type") }
+        guard case .schema? = try rejecting({ body in
+            var plan = body["organUpdateDelivery"] as! [String: Any]
+            var workflows = plan["workflows"] as! [[String: Any]]
+            var topic = workflows[0]["defaultTopic"] as! [String: Any]
+            topic["topicKey"] = "not-a-topic"
+            workflows[0]["defaultTopic"] = topic
+            plan["workflows"] = workflows
+            body["organUpdateDelivery"] = plan
+        }, reseal: resealPlan) else { return XCTFail("malformed topic") }
+        guard case .malformed? = try rejecting({ body in
+            var plan = body["organUpdateDelivery"] as! [String: Any]
+            var workflows = plan["workflows"] as! [[String: Any]]
+            workflows[0]["triggers"] = "brand-intake"
+            plan["workflows"] = workflows
+            body["organUpdateDelivery"] = plan
+        }, reseal: resealPlan) else { return XCTFail("malformed trigger binding") }
+        guard case .malformed? = try rejecting({ body in
+            let viewer = try self.load("mission-fabric-envelope-viewer")
+            body["organUpdateDelivery"] = nil
+            body["portfolioCatalog"] = nil
+            body["portfolioJoinReport"] = nil
+            var planSummary = viewer["organUpdateDeliverySummary"] as! [String: Any]
+            planSummary["workflowCount"] = "five"
+            body["organUpdateDeliverySummary"] = planSummary
+        }) else { return XCTFail("malformed count") }
+        guard case .malformed(let countReason)? = try rejecting({ body in
+            let viewer = try self.load("mission-fabric-envelope-viewer")
+            body["organUpdateDelivery"] = nil
+            body["portfolioCatalog"] = nil
+            body["portfolioJoinReport"] = nil
+            var planSummary = viewer["organUpdateDeliverySummary"] as! [String: Any]
+            planSummary["workflowCount"] = 4
+            body["organUpdateDeliverySummary"] = planSummary
+        }) else { return XCTFail("count binding") }
+        XCTAssertTrue(countReason.contains("workflowCount"), countReason)
+        guard case .malformed? = try rejecting({ body in
+            var join = body["portfolioJoinReport"] as! [String: Any]
+            join["matches"] = [["canonicalId": "sapling:not-in-catalog", "runtimeWorkId": "sapling:cambium"]]
+            join["matchedCount"] = 1
+            body["portfolioJoinReport"] = join
+        }) else { return XCTFail("mismatched join canonical id") }
+
+        guard case .success(let envelope) = try decode(try load("fabric-route-cambium-founder-shadow"), tenant: "cambium"),
+              case .object(let catalog)? = envelope.portfolioCatalog,
+              case .array(let records)? = catalog["records"] else { return XCTFail("full catalog must be retained") }
+        XCTAssertEqual(records.count, 76)
+    }
 }

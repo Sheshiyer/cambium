@@ -12,5 +12,13 @@
     "founderGraphDigest": "sha256:caf610fbe5e925c1a82c52ae27874f0b604809823175156c27b5307ad32042d9",
     "viewerGraphDigest": "sha256:da5059a71468cd01cc93a1a78211ded4dc6baa712e1023184e4b922b6bd60f27",
     "founderRedactedForViewer": "sha256:da5059a71468cd01cc93a1a78211ded4dc6baa712e1023184e4b922b6bd60f27"
+  },
+  "capTruncation": {
+    "graphDigest": "sha256:bac74317e02ba17dd34f14ea33a0153165b22084af17cd13bf78160291cad8db",
+    "nodeCount": 512,
+    "truncationGapIds": [
+      "gap-projection-truncated-composition",
+      "gap-projection-truncated-nodes"
+    ]
   }
 }

@@ -26,6 +26,9 @@ public struct FabricDecodeContext: Sendable, Equatable {
 
 public enum MissionFabricDecoder {
     public static func decode(json: Data, context: FabricDecodeContext) -> Result<MissionFabricEnvelope, FabricDecodeError> {
+        guard ReaderScope.supportedRoles.contains(context.requested.role) else {
+            return .failure(.scope("unsupported role"))
+        }
         guard json.count <= 8_000_000 else { return .failure(.capExceeded("body")) }
         let root: JSONValue
         do {
@@ -195,9 +198,20 @@ public enum MissionFabricDecoder {
             guard case .array(let records)? = catalog["records"], records.count == summary.total,
                   records.count <= MissionFabricCaps.maxCollectionItems else { throw FabricDecodeError.malformed("portfolioCatalog.records") }
             var recordIds = Set<String>()
+            var canonicalIds = Set<String>()
             for record in records {
-                guard case .object(let row) = record, recordIds.insert(try string(row, "workId")).inserted else {
-                    throw FabricDecodeError.malformed("portfolioCatalog duplicate workId")
+                try validateCatalogRecord(record, recordIds: &recordIds, canonicalIds: &canonicalIds)
+            }
+            try validateHistoricalProducts(catalog["historicalProducts"], expectedCount: summary.historicalProducts)
+            try validateClassificationReview(catalog["classificationReview"], expectedCount: summary.classificationReview)
+            try validateOperationalGaps(catalog["operationalGaps"], expectedCount: summary.operationalGaps)
+            if let joinReport {
+                let known = canonicalIds.union(historicalCanonicalIds(catalog["historicalProducts"]))
+                for match in joinReport.matches where !known.contains(match.canonicalId) {
+                    throw FabricDecodeError.malformed("join match canonicalId \(match.canonicalId) is not in the catalog")
+                }
+                for orphan in joinReport.catalogOrphans where !known.contains(orphan) {
+                    throw FabricDecodeError.malformed("catalog orphan \(orphan) is not in the catalog")
                 }
             }
             guard case .object(let actionAuthority)? = catalog["actionAuthority"],
@@ -231,13 +245,7 @@ public enum MissionFabricDecoder {
             guard case .object(var plan)? = body["organUpdateDelivery"] else { throw FabricDecodeError.malformed("organUpdateDelivery") }
             guard case .string(let planDigest)? = plan.removeValue(forKey: "planDigest"),
                   sha256Digest(.object(plan)) == planDigest else { throw FabricDecodeError.digest("organUpdateDelivery.planDigest") }
-            guard case .string("cambium.organ-update-plan.v1")? = plan["schema"],
-                  case .bool(true)? = plan["readOnly"], case .bool(true)? = plan["eventDriven"],
-                  case .bool(false)? = plan["scheduleArmed"],
-                  case .array(let active)? = plan["activeDeliveries"], active.count <= 20,
-                  case .array(let workflows)? = plan["workflows"], workflows.count <= MissionFabricCaps.maxCollectionItems else {
-                throw FabricDecodeError.schema("organUpdateDelivery")
-            }
+            try validateOrganPlan(plan)
         }
         if hasPlanSummary {
             guard case .object(let planSummary)? = body["organUpdateDeliverySummary"],
@@ -247,16 +255,244 @@ public enum MissionFabricDecoder {
                 throw FabricDecodeError.schema("organUpdateDeliverySummary")
             }
             _ = try digest(planSummary, "planDigest")
-            for key in ["workflowCount", "defaultTopicCount", "escalationTopicCount", "approvalRequiredWorkflowCount"] {
-                _ = try int(planSummary, key)
+            guard case .number(1)? = planSummary["version"] else { throw FabricDecodeError.schema("organUpdateDeliverySummary.version") }
+            // Literal counts from `OrganUpdateSummary` in organ-update-delivery.ts.
+            for (key, expected) in [("workflowCount", 5), ("defaultTopicCount", 5), ("escalationTopicCount", 1), ("approvalRequiredWorkflowCount", 1)] {
+                guard try int(planSummary, key) == expected else { throw FabricDecodeError.malformed("organUpdateDeliverySummary.\(key)") }
             }
         }
+    }
+
+    /// v1 catalog record from `PortfolioCatalogRecord`. Historical and reference-only
+    /// values stay; only the owning interface's enums, identifiers and field types are checked.
+    private static func validateCatalogRecord(_ value: JSONValue, recordIds: inout Set<String>, canonicalIds: inout Set<String>) throws {
+        guard case .object(let row) = value else { throw FabricDecodeError.malformed("portfolioCatalog.records") }
+        let workId = try catalogId(row, "workId", pattern: catalogWorkId)
+        let canonicalId = try catalogId(row, "canonicalId", pattern: catalogCanonicalId)
+        guard recordIds.insert(workId).inserted else { throw FabricDecodeError.malformed("portfolioCatalog duplicate workId") }
+        guard canonicalIds.insert(canonicalId).inserted else { throw FabricDecodeError.malformed("portfolioCatalog duplicate canonicalId") }
+        _ = try bounded(try string(row, "name"))
+        let kind = try string(row, "kind")
+        guard ["sapling", "program"].contains(kind) else { throw FabricDecodeError.schema("portfolioCatalog.records.kind") }
+        let classification = try string(row, "classification")
+        guard ["sapling", "client-branch", "internal-program"].contains(classification) else {
+            throw FabricDecodeError.schema("portfolioCatalog.records.classification")
+        }
+        guard case .object(let identity)? = row["tenantIdentity"] else { throw FabricDecodeError.malformed("portfolioCatalog.records.tenantIdentity") }
+        let tenantStatus = try string(identity, "status")
+        guard ["canonical", "canonical-parent", "documented-not-runtime-verified", "not-applicable", "unresolved"].contains(tenantStatus) else {
+            throw FabricDecodeError.schema("portfolioCatalog.records.tenantIdentity.status")
+        }
+        if let tenant = identity["tenantId"], case .null = tenant {} else { _ = try optionalString(identity, "tenantId") }
+        _ = try boundedStringArray(row, "provenance")
+        _ = try boundedStringArray(row, "linkedCanonicalIds")
+        guard case .array(let aliases)? = row["aliases"], aliases.count <= MissionFabricCaps.maxCollectionItems else {
+            throw FabricDecodeError.malformed("portfolioCatalog.records.aliases")
+        }
+        for alias in aliases {
+            guard case .object(let item) = alias, case .bool(false)? = item["tenantAuthority"] else {
+                throw FabricDecodeError.malformed("portfolioCatalog.records.aliases")
+            }
+            _ = try string(item, "value")
+            _ = try string(item, "namespace")
+        }
+        if row["portfolioStatus"] != nil {
+            guard case .string("active")? = row["portfolioStatus"] else { throw FabricDecodeError.schema("portfolioCatalog.records.portfolioStatus") }
+        }
+        if row["promotionState"] != nil {
+            guard case .string(let state)? = row["promotionState"], ["proof-only", "supervised-branch"].contains(state) else {
+                throw FabricDecodeError.schema("portfolioCatalog.records.promotionState")
+            }
+        }
+        if row["programKind"] != nil {
+            guard case .string(let programKind)? = row["programKind"], ["client", "company", "capability", "operations"].contains(programKind) else {
+                throw FabricDecodeError.schema("portfolioCatalog.records.programKind")
+            }
+        }
+        if row["lifecycle"] != nil {
+            guard case .string(let lifecycle)? = row["lifecycle"],
+                  ["proposed", "approved", "executing", "verifying", "complete", "retired"].contains(lifecycle) else {
+                throw FabricDecodeError.schema("portfolioCatalog.records.lifecycle")
+            }
+        }
+        if row["operationalOverlay"] != nil {
+            guard case .string("paused")? = row["operationalOverlay"] else { throw FabricDecodeError.schema("portfolioCatalog.records.operationalOverlay") }
+        }
+        if row["commercialReuse"] != nil {
+            guard case .string("white-labelable")? = row["commercialReuse"] else { throw FabricDecodeError.schema("portfolioCatalog.records.commercialReuse") }
+        }
+        if row["accountId"] != nil { _ = try optionalString(row, "accountId") }
+        if row["parentTenant"] != nil { _ = try optionalString(row, "parentTenant") }
+    }
+
+    private static let catalogCanonicalId = try! NSRegularExpression(pattern: "^(?:sapling|branch|program|historical-product|review):[a-z0-9]+(?:-[a-z0-9]+)*$")
+    private static let catalogWorkId = try! NSRegularExpression(pattern: "^(?:sapling|branch|program):[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+    private static func catalogId(_ object: [String: JSONValue], _ key: String, pattern: NSRegularExpression) throws -> String {
+        let value = try string(object, key)
+        let range = NSRange(value.startIndex..., in: value)
+        guard pattern.firstMatch(in: value, range: range) != nil else { throw FabricDecodeError.malformed("portfolioCatalog.records.\(key)") }
+        return value
+    }
+
+    private static func validateHistoricalProducts(_ value: JSONValue?, expectedCount: Int) throws {
+        guard case .array(let rows)? = value, rows.count == expectedCount, rows.count <= 32 else {
+            throw FabricDecodeError.malformed("portfolioCatalog.historicalProducts")
+        }
+        var seen = Set<String>()
+        for row in rows {
+            guard case .object(let item) = row else { throw FabricDecodeError.malformed("portfolioCatalog.historicalProducts") }
+            let canonical = try catalogId(item, "canonicalId", pattern: catalogCanonicalId)
+            guard seen.insert(canonical).inserted else { throw FabricDecodeError.malformed("portfolioCatalog duplicate historical canonicalId") }
+            _ = try bounded(try string(item, "name"))
+            guard case .string(let status)? = item["status"], ["archived", "completed", "paused", "white-labelable"].contains(status) else {
+                throw FabricDecodeError.schema("portfolioCatalog.historicalProducts.status")
+            }
+            if let linked = item["linkedCanonicalId"], case .null = linked {} else {
+                _ = try catalogId(item, "linkedCanonicalId", pattern: catalogCanonicalId)
+            }
+            _ = try boundedStringArray(item, "provenance")
+        }
+    }
+
+    private static func validateClassificationReview(_ value: JSONValue?, expectedCount: Int) throws {
+        guard case .array(let rows)? = value, rows.count == expectedCount, rows.count <= 32 else {
+            throw FabricDecodeError.malformed("portfolioCatalog.classificationReview")
+        }
+        for row in rows {
+            guard case .object(let item) = row else { throw FabricDecodeError.malformed("portfolioCatalog.classificationReview") }
+            _ = try catalogId(item, "canonicalId", pattern: catalogCanonicalId)
+            _ = try string(item, "source")
+            _ = try string(item, "needed")
+        }
+    }
+
+    private static func validateOperationalGaps(_ value: JSONValue?, expectedCount: Int) throws {
+        guard case .array(let rows)? = value, rows.count == expectedCount, rows.count <= 64 else {
+            throw FabricDecodeError.malformed("portfolioCatalog.operationalGaps")
+        }
+        for row in rows {
+            guard case .object(let item) = row else { throw FabricDecodeError.malformed("portfolioCatalog.operationalGaps") }
+            _ = try catalogId(item, "workId", pattern: catalogWorkId)
+            guard case .string("mission-data-needed")? = item["gapKind"] else { throw FabricDecodeError.schema("portfolioCatalog.operationalGaps.gapKind") }
+            _ = try boundedStringArray(item, "missingFields")
+        }
+    }
+
+    private static func historicalCanonicalIds(_ value: JSONValue?) -> Set<String> {
+        guard case .array(let rows)? = value else { return [] }
+        return Set(rows.compactMap { row -> String? in
+            guard case .object(let item) = row, case .string(let id)? = item["canonicalId"] else { return nil }
+            return id
+        })
+    }
+
+    private static func boundedStringArray(_ object: [String: JSONValue], _ key: String) throws -> [String] {
+        guard case .array(let values)? = object[key], values.count <= MissionFabricCaps.maxCollectionItems else {
+            throw FabricDecodeError.malformed(key)
+        }
+        return try values.map { value in
+            guard case .string(let text) = value, text.count <= 2048 else { throw FabricDecodeError.malformed(key) }
+            return text
+        }
+    }
+
+    /// `OrganUpdatePlan` workflows and the count bindings carried by a delivery summary.
+    private static func validateOrganPlan(_ plan: [String: JSONValue]) throws {
+        // `planDigest` is removed and checked against this object before validation.
+        guard case .string("cambium.organ-update-plan.v1")? = plan["schema"],
+              case .number(let version)? = plan["version"], version == 1,
+              case .bool(true)? = plan["readOnly"], case .bool(true)? = plan["eventDriven"],
+              case .bool(false)? = plan["scheduleArmed"] else {
+            throw FabricDecodeError.schema("organUpdateDelivery")
+        }
+        _ = try digest(plan, "topicMapDigest")
+        guard case .array(let workflows)? = plan["workflows"],
+              workflows.count <= MissionFabricCaps.maxCollectionItems,
+              case .array(let active)? = plan["activeDeliveries"], active.count <= 20 else {
+            throw FabricDecodeError.schema("organUpdateDelivery")
+        }
+        for workflow in workflows { try validateOrganWorkflow(workflow) }
+        for delivery in active { try validateOrganDelivery(delivery) }
+    }
+
+    private static let organIds = ["genesis", "taste", "hands", "will", "cortex"]
+    private static let organNames = ["Genesis", "Taste", "Hands", "Will", "Cortex"]
+    private static let organTriggers = ["brand-intake", "brand-proof", "brief", "qa", "reroll", "build", "verification", "ship", "approved-business", "client-delivery", "evidence", "learning", "drift"]
+    private static let organTopicKeys = ["hermes", "digests", "dev", "inbox", "calendar", "agent_ops", "alerts", "clients"]
+    private static let thoughtseedChatId = "-1003942929819"
+
+    private static func validateOrganWorkflow(_ value: JSONValue) throws {
+        guard case .object(let workflow) = value else { throw FabricDecodeError.malformed("organUpdateDelivery.workflows") }
+        let organ = try string(workflow, "organ")
+        let name = try string(workflow, "name")
+        guard organIds.contains(organ), organNames.contains(name) else { throw FabricDecodeError.schema("organUpdateDelivery.workflows.organ") }
+        let triggers = try boundedStringArray(workflow, "triggers")
+        guard triggers.allSatisfy(organTriggers.contains) else { throw FabricDecodeError.schema("organUpdateDelivery.workflows.triggers") }
+        _ = try boundedStringArray(workflow, "stages")
+        _ = try boundedStringArray(workflow, "skillHints")
+        try validateOrganTopic(workflow["defaultTopic"])
+        try validateOrganTopic(workflow["escalationTopic"])
+        guard case .object(let approval)? = workflow["approval"],
+              case .string(let required)? = approval["requiredFor"], ["client-audience", "none"].contains(required),
+              case .string(let authority)? = approval["authority"], ["mini-app-gate", "not-required"].contains(authority) else {
+            throw FabricDecodeError.schema("organUpdateDelivery.workflows.approval")
+        }
+        _ = try digest(workflow, "workflowDigest")
+    }
+
+    private static func validateOrganTopic(_ value: JSONValue?) throws {
+        guard case .object(let topic)? = value else { throw FabricDecodeError.malformed("organUpdateDelivery.topic") }
+        guard case .string(thoughtseedChatId)? = topic["chatId"] else { throw FabricDecodeError.schema("organUpdateDelivery.topic.chatId") }
+        let key = try string(topic, "topicKey")
+        guard organTopicKeys.contains(key) else { throw FabricDecodeError.schema("organUpdateDelivery.topic.topicKey") }
+        _ = try string(topic, "topicName")
+        _ = try int(topic, "threadId")
+    }
+
+    private static func validateOrganDelivery(_ value: JSONValue) throws {
+        guard case .object(let delivery) = value else { throw FabricDecodeError.malformed("organUpdateDelivery.activeDeliveries") }
+        guard case .string("cambium.organ-update-delivery.v1")? = delivery["schema"],
+              case .number(let version)? = delivery["version"], version == 1,
+              case .bool(true)? = delivery["eventDriven"], case .bool(false)? = delivery["scheduleArmed"] else {
+            throw FabricDecodeError.schema("organUpdateDelivery.activeDeliveries")
+        }
+        _ = try string(delivery, "deliveryId")
+        _ = try digest(delivery, "deliveryDigest")
+        _ = try string(delivery, "tenantId")
+        _ = try string(delivery, "workObjectId")
+        guard case .string(let organ)? = delivery["organ"], organIds.contains(organ),
+              case .string(let name)? = delivery["organName"], organNames.contains(name) else {
+            throw FabricDecodeError.schema("organUpdateDelivery.activeDeliveries.organ")
+        }
+        guard case .string(let trigger)? = delivery["trigger"], organTriggers.contains(trigger),
+              case .string(let status)? = delivery["status"], ["ready", "complete", "blocked", "failed", "drifted"].contains(status),
+              case .string(let audience)? = delivery["audience"], ["internal", "client"].contains(audience) else {
+            throw FabricDecodeError.schema("organUpdateDelivery.activeDeliveries")
+        }
+        _ = try timestamp(delivery, "observedAt")
+        guard case .object(let proof)? = delivery["proof"] else { throw FabricDecodeError.malformed("organUpdateDelivery.activeDeliveries.proof") }
+        _ = try string(proof, "ref")
+        _ = try digest(proof, "digest")
+        if let approval = delivery["approvalRef"], case .null = approval {} else { _ = try optionalString(delivery, "approvalRef") }
+        _ = try bool(delivery, "requiresApproval")
+        _ = try digest(delivery, "workflowDigest")
+        _ = try digest(delivery, "topicMapDigest")
+        try validateOrganTopic(delivery["route"])
+        guard case .object(let message)? = delivery["message"], case .string("plain-text")? = message["format"] else {
+            throw FabricDecodeError.schema("organUpdateDelivery.activeDeliveries.message")
+        }
+        _ = try string(message, "text")
+        _ = try int(message, "byteLength")
     }
 
     /// Subject identity is `kind:id`, matching `fabricIdentityOf` in handler.ts.
     /// Edge endpoints must resolve to a served node, except `pins-loadout`, whose
     /// target is a loadout identity that the projection does not carry as a node.
-    private static func validateGraphIdentity(nodes: [FabricNode], edges: [FabricEdge]) throws {
+    /// A source-reported `projection-truncated` gap is the only authority for an
+    /// edge whose endpoint was omitted by the deterministic node/edge cap.
+    /// Missing endpoints are not invented as nodes.
+    private static func validateGraphIdentity(nodes: [FabricNode], edges: [FabricEdge], gaps: [FabricGap]) throws {
         var identities = Set<String>()
         var subjects = Set<String>()
         for node in nodes {
@@ -265,10 +501,14 @@ public enum MissionFabricDecoder {
             }
             subjects.insert(node.subjectId)
         }
+        let truncationReported = gaps.contains { $0.kind == "projection-truncated" }
         for edge in edges {
-            guard subjects.contains(edge.fromId) else { throw FabricDecodeError.malformed("edge \(edge.kind) fromId \(edge.fromId) unresolved") }
-            if edge.kind != "pins-loadout", !subjects.contains(edge.toId) {
-                throw FabricDecodeError.malformed("edge \(edge.kind) toId \(edge.toId) unresolved")
+            let fromResolved = subjects.contains(edge.fromId)
+            let toResolved = edge.kind == "pins-loadout" || subjects.contains(edge.toId)
+            if fromResolved && toResolved { continue }
+            guard truncationReported else {
+                let end = fromResolved ? "toId \(edge.toId)" : "fromId \(edge.fromId)"
+                throw FabricDecodeError.malformed("edge \(edge.kind) \(end) unresolved")
             }
         }
     }
@@ -389,7 +629,7 @@ public enum MissionFabricDecoder {
         let nodes = try nodeValues.map { try decodeNode($0, expectedTenant: expectedTenant) }
         let edges = try edgeValues.map(decodeEdge)
         let gaps = try gapValues.map(decodeGap)
-        try validateGraphIdentity(nodes: nodes, edges: edges)
+        try validateGraphIdentity(nodes: nodes, edges: edges, gaps: gaps)
         let projection = MissionFabricProjection(
             schema: schema,
             projectionVersion: version,
@@ -729,8 +969,19 @@ struct StrictJSONParser {
     }
 
     private mutating func parseHex4() throws -> UInt16 {
-        guard index + 4 <= bytes.count, let text = String(bytes: bytes[index..<index + 4], encoding: .ascii),
-              let value = UInt16(text, radix: 16) else { throw FabricDecodeError.malformed("json escape") }
+        guard index + 4 <= bytes.count else { throw FabricDecodeError.malformed("json escape") }
+        var value: UInt16 = 0
+        for offset in 0..<4 {
+            let byte = bytes[index + offset]
+            let digit: UInt16
+            switch byte {
+            case UInt8(ascii: "0")...UInt8(ascii: "9"): digit = UInt16(byte - UInt8(ascii: "0"))
+            case UInt8(ascii: "a")...UInt8(ascii: "f"): digit = UInt16(byte - UInt8(ascii: "a")) + 10
+            case UInt8(ascii: "A")...UInt8(ascii: "F"): digit = UInt16(byte - UInt8(ascii: "A")) + 10
+            default: throw FabricDecodeError.malformed("json escape")
+            }
+            value = value << 4 | digit
+        }
         index += 4
         return value
     }
