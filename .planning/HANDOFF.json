@@ -44,5 +44,20 @@
   },
   "next_command": "/sapling-review temperance",
   "primary_integration": "Task-owned files are reconciled as working edits; native-app and pre-existing portfolio changes are preserved.",
-  "evidence": "docs/evidence/2026-11-02-sapling-lifecycle.v1.json"
+  "evidence": "docs/evidence/2026-11-02-sapling-lifecycle.v1.json",
+  "continuations": {
+    "temperance_positioning": {
+      "status": "completed-review-only",
+      "updated": "2026-11-02T04:39:04.935907+00:00",
+      "preview": "https://temperance-engine-landing-page-mitxrimmj-sheshiyers-projects.vercel.app/",
+      "website_code_commit": "c930af92d3176e0b0a2a9ad1b382c9c6273744d9",
+      "website_documentation_commit": "7e55a26",
+      "product_hunt": "saved unscheduled existing draft; corrected copy persisted",
+      "application_readme": "staged only on codex/operator-positioning-review from42b391b",
+      "isc": "ISC-3600..3619",
+      "evidence": "docs/evidence/2026-11-02-temperance-positioning.v1.json",
+      "next_action": "Owner reviews preview; production website remains unchanged. No scheduling or runtime hold release.",
+      "rollback": "Retain production; reverse only preview branch/scoped proof changes and isolated staged README if rejected."
+    }
+  }
 }

@@ -205,6 +205,30 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Criteria
 
+### Temperance operator-system preview — 2026-11-02
+
+- [x] ISC-3600: Website restoration is isolated from the dirty primary landing checkout.
+- [x] ISC-3601: Active JSX design is recovered from pinned historical source 736fd13.
+- [x] ISC-3602: Website headline matches the approved operator-system message.
+- [x] ISC-3603: Capability claims have a pinned source and optional-dependency map.
+- [x] ISC-3604: Website navigation resolves to real sections or documents.
+- [x] ISC-3605: Canonical, social metadata, robots and sitemap use the product domain.
+- [x] ISC-3606: Website production build succeeds.
+- [x] ISC-3607: Repaired website verification checks pass.
+- [x] ISC-3608: Desktop preview navigation and rendered content are verified in IAB.
+- [x] ISC-3609: Mobile preview contains content without horizontal overflow.
+- [x] ISC-3610: Reduced-motion preview preserves readable content and pauses ambient motion.
+- [x] ISC-3611: Preview browser verification observes no application console errors.
+- [x] ISC-3612: Vercel preview reaches READY and is attributable to reviewed source.
+- [x] ISC-3613: Anti: existing production deployment remains unchanged.
+- [x] ISC-3614: Existing Product Hunt draft persists the approved tagline and description.
+- [x] ISC-3615: Anti: Product Hunt remains explicitly unscheduled without a second listing.
+- [x] ISC-3616: Application README alignment is staged on a clean current-main checkout.
+- [x] ISC-3617: Cambium proof references supersede old positioning without erasing observations.
+- [x] ISC-3618: Affected Sapling and packet validators pass.
+- [x] ISC-3619: Anti: v1.1, authentication, graph acceptance and LumenBar remain unchanged.
+
+
 ### Sapling lifecycle pack — 2026-11-02
 
 - [x] ISC-3200: The repository owns one discoverable sapling-lifecycle skill entrypoint.
@@ -2170,6 +2194,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-11-02: refined: Founder supersedes installer-led Temperance positioning with AI operator system; restores historical cinematic design in preview only. ISC-3600..3619 is reserved for this correction, independent of concurrent native-app criteria and acceptance frontmatter. Public website replacement remains owner-review gated.
+
 - 2026-11-02: Pre-integration collision reconciliation: another active native-app discovery session claimed criterion numbers 3140–3171 in the primary checkout. The isolated sapling draft had provisionally used 3140–3159; its unmerged task criteria are now reserved at ISC-3200..3219 before canonical adoption. Existing primary criterion identities, checkboxes, frontmatter and native-app work are preserved.
 
 - 2026-11-02: Sapling lifecycle implementation uses a preserved isolated branch. Cambium owns the pack; vault workflows remain referenced knowledge. Shared client adapters review current evidence before one selected step. Product Hunt authorization covers the six supplied fields and unscheduled draft creation; missing media requirements remain distinct. Existing product/runtime approvals are not inherited.
@@ -2471,6 +2497,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-10-25: refined: KV stale status cannot veto an existing immutable D1 receipt. Permit recovery only after all existing identity, tenant, review and change-set checks plus exact receipt binding; keep stale tasks without matching receipts closed. The legacy endpoint can retain its 409 and KV projection; no writer/repair is added.
 
 ## Changelog
+
+- 2026-11-02 | conjectured: Installer release notes were adequate customer positioning for the Temperance launch.
+  refuted by: Founder rejection of tagline/site positioning and recovery of the broader cinematic website/source story.
+  learned: Separate the customer promise from distribution mechanics while retaining claim-level release evidence and runtime holds.
+  criterion now: ISC-3600..3619 verify the restored review preview and coherent existing-draft correction without production promotion.
 
 - 2026-11-02 sapling pack: conjectured that containment and node uniqueness were sufficient for safe report/graph preparation; refuted by independent hardlink, same-repository symlink and invented traced-node probes; learned to reject linked outputs, replace reports atomically and bind supplied trace identities/evidence/status; criterion-now ISC-3207..3208 and ISC-3212 retain meaningful adversarial regressions.
 
@@ -3487,3 +3518,26 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3137 final: Frozen ba23d70 core2452/2453 passes0skips, only knowncanonicalviewport hold. App184/184/build/art/parity pass; PR403 mergedf23b449 has an identical tree. No equality or privacy assertion weakened.
 - ISC-3138: Worker4918ce0e serves100percent with rollbackc373b54a; rawbindingaudit47/47changed[] and before/afterglobalsettings/domain/cron match. No migration/enrollmentchange.
 - ISC-3139: Authenticated live existingreceipt6444a852 canonicalReadbacktrue, historicalrequestedDecision=null; Meso and preservedobjective with no inventedcontext. OnlyDecision/Graph observed.320px containment,45pxcontrols,focus/disclosures/reducedmotion/journal pass. D1remains4approvals/4events; no newdecision or renewal. Runtimeevidence in `docs/evidence/2026-10-25-gate-chamber-live.v1.json`.
+
+### Temperance positioning verification — 2026-11-02
+
+- ISC-3600: Landing source restored on isolated codex/operator-system-preview; original dirty checkout preserved.
+- ISC-3601: Recovery source736fd13 active main.jsx/App.jsx; unused geological TSX excluded.
+- ISC-3602: Authenticated remote IAB h1 matches “Give your AI tools a shared way to work.”
+- ISC-3603: Website docs/positioning.md maps capability claims to pinned42b391b release sources and opt-in dependencies.
+- ISC-3604: Rendered anchor test and actual workflow/get-started IAB navigation pass.
+- ISC-3605: Built tests and remote DOM metadata agree on product-domain canonical, social/schema; robots/sitemap verified.
+- ISC-3606: Vite5.4.21 production build passes.
+- ISC-3607: Website npm test passes7/7 with reduced-motion regression.
+- ISC-3608: Authenticated remote IAB1440×900 rendering inspected; source/metadata match.
+- ISC-3609: Remote375×812 and320×812 have scrollWidth equal clientWidth; no overflowing text blocks.
+- ISC-3610: Remote prefers-reduced-motion pauses video, retains readable poster and omits unavailable playback button.
+- ISC-3611: Fresh authenticated preview tab reports no warn/error logs; earlier Vercel login logs remain separate.
+- ISC-3612: Preview deployment dpl_A57LdT4sTenjcaU2JcavVLhRytMP READY; all49uploaded digests match pinned c930af9 source/build.
+- ISC-3613: Production dpl_And7oPASgXBUTCp4asMvMdqPWc3M retains source5c58383 and existing domain aliases.
+- ISC-3614: Existing Product Hunt listing and editor reload persist approved49-character tagline and303-character description.
+- ISC-3615: Reopened listing banner and editor report draft/not scheduled; existing slug retained and no schedule action.
+- ISC-3616: Application isolated branch starts42b391b; only README staged, expected SHA256 verified and no new app push.
+- ISC-3617: Pack reference and proof packet explicitly supersede old positioning; dated old copy and rejected graph remain.
+- ISC-3618: Helpers17/17, packet tests12/12, GTM/branch9/9pass; seven isolated packet records validate.
+- ISC-3619: LumenBar never opened/changed in this correction; v1.1, auth, long-context, recovery and graph holds preserved.

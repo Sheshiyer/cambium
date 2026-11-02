@@ -5,7 +5,7 @@ canonical_work_id: sapling:temperance
 identity_scope: canonical-work-object
 branch_kind: product
 name: Temperance Engine
-role: Public local operator-runtime installer, proof-only inside Cambium
+role: AI operator system for AI coding tools, proof-only inside Cambium
 promotion_state: proof-only
 current_gate: Keep the Product Hunt draft unscheduled; v1.1 clean-host and hosted-router authentication remain held
 packet_owner: cambium
@@ -13,7 +13,7 @@ packet_owner: cambium
 
 # Temperance Engine Branch Packet
 
-Temperance Engine is recorded here as a proof-only product sapling. Its public installer source is version 0.8.0; the Product Hunt listing is a saved draft, not a scheduled or published launch. The draft was created through the logged-in Codex in-app browser on 2026-11-02 and explicitly states: “This product is a draft and is not scheduled for a launch yet.”
+Temperance Engine is recorded here as a proof-only product sapling. Its released public source is version 0.8.0; the Product Hunt listing is a saved draft, not a scheduled or published launch. The draft was created through the logged-in Codex in-app browser on 2026-11-02 and explicitly states: “This product is a draft and is not scheduled for a launch yet.”
 
 This packet records the founder-requested `sapling:temperance` product identity. It does not change the existing `program:temperance-hermes` operational identity, collapse that program into a product, modify the portfolio runtime catalog, admit a tenant, or issue a Goal Graph/loadout receipt.
 
@@ -25,18 +25,18 @@ Earlier rejected product graphs remain rejected and have no accepted receipt. Th
 | --- | --- |
 | product_id | `temperance` |
 | branch_kind | `product` |
-| one_sentence_seed | A public installer for a local OpenCode operator runtime with an organ registry and OmniRoute as the default router. |
-| founder_intent | Finish the Temperance Product Hunt draft without scheduling it, link the genuine listing widget from a clean source checkout, and retain a proof-only Cambium record. |
-| target_customer | An OpenCode user or local AI operator who wants an installable operator runtime. |
-| pain_or_desire | Runtime, organ and routing setup needs an explicit installer and attributable source rather than unsupported milestone claims. |
-| offer | Temperance Engine 0.8.0 installer source, its product website, and an unscheduled Product Hunt draft. |
+| one_sentence_seed | An AI operator system that connects project context, reusable skills, structured workflows, model routing and verification across AI coding tools. |
+| founder_intent | Restore the earlier cinematic website in a review preview, align the existing unscheduled Product Hunt draft with the operator-system positioning, and retain a proof-only Cambium record. |
+| target_customer | Developers and small teams working across AI coding clients. |
+| pain_or_desire | Project context, skills, workflows, routing and verification are fragmented across AI tools and need a configurable shared operating layer. |
+| offer | Temperance Engine 0.8.0 public operator-runtime components, a website review preview, and an unscheduled Product Hunt draft. |
 | survival_metric | The saved Product Hunt draft persists the approved product identity, description, website, source link and maker role without a launch schedule. |
 | better_than_survival_metric | The official widget for the real listing is present in the reviewed README-only source commit and independently read back from the remote. |
 | GTM_channel | Product website, public GitHub source, and a Product Hunt draft only; no new distribution campaign is authorized. |
 | constraints | Do not claim a finished v1.1 clean-host milestone, qualified 1M sessions, live hosted-router authentication, a scheduled launch, or graph acceptance without direct proof. |
 | third_party_apps | Product Hunt, GitHub, the existing website host, OpenCode and OmniRoute as named product dependencies. |
 | autonomy_boundary | Proof-only record and one manual evidence review; no tenant admission, operational dispatch, publication, schedule, spend, provider or credential change. |
-| approvals | The founder approved draft creation, the existing site logo and gallery art, the official widget README change, and this proof-only packet. Later launch scheduling or publication requires a separate request. |
+| approvals | The founder approved draft creation, existing logo/gallery art and tags, the original widget commit, and the operator-system correction: restored website preview, existing-draft copy edit, staged README alignment and this proof-only record. Production website replacement and launch scheduling/publication require later owner review. |
 
 ## Organ Routing
 
@@ -57,9 +57,9 @@ Earlier rejected product graphs remain rejected and have no accepted receipt. Th
 | `brand_system` | Existing Temperance website mark | reused with founder approval for the draft |
 | `copy_system` | Exact approved Product Hunt name, tagline and description | saved and reopened in the draft |
 | `visual_system` | Existing website Open Graph art | reused as draft gallery evidence, not new product proof |
-| `section_plan` | Existing public website and Product Hunt draft form | existing surfaces retained |
+| `section_plan` | Restored cinematic five-section website preview and existing Product Hunt draft | preview verified; production unchanged |
 | `interaction_plan` | Website and source links from the saved draft | no scheduling or launch flow exercised |
-| `acceptance_checks` | Draft readback, official embed source and clean README-only commit | draft and exact remote README verified |
+| `acceptance_checks` | Reopened draft, preview browser checks, deployment source parity and staged README diff | review-only proof; no runtime acceptance |
 
 ## Adapter / Service Map
 
@@ -69,8 +69,8 @@ All work-object names below are packet-local identity references. They do not gr
 | --- | --- | --- | --- | --- | --- |
 | Product Hunt draft | Approved copy, website, source, maker role, existing art and tags | Saved unscheduled Temperance Engine listing | Filled fields mistaken for formal creation; draft mistaken for scheduled launch | none | No credentials, composer tokens or native session data in packet |
 | GitHub app repository | Clean pinned `Sheshiyer/temperance_engine` source | README official widget commit | Dirty behind checkout, fabricated slug or unrelated changes included | `sapling:temperance` product reference only | Public source metadata only |
-| Product website | `https://temperance.thoughtseed.space/` | Existing home and approved asset sources | Company website substituted for product home; artwork mistaken for runtime acceptance | none | No host secrets or deployment changes |
-| Product-loop read route | Product roots and claim-note references, record false and approved false | Pending scratch graph and terminal fence result | Rejected or incomplete graph promoted to an accepted receipt | none | No raw scratch output, private absolute paths or vault corpus copied here |
+| Product website | `https://temperance.thoughtseed.space/` | Existing production home, approved artwork and reviewed restoration preview | Company website substituted for product home; artwork mistaken for runtime acceptance | none | No host secrets or production deployment changes |
+| Product-loop read route | Product roots and claim-note references, record false and approved false | Completed rejected scratch graph and terminal fence result | Rejected or incomplete graph promoted to an accepted receipt | none | No raw scratch output, private absolute paths or vault corpus copied here |
 | OmniRoute/OpenCode runtime | Installer source references | Product dependency context | Source availability mistaken for clean-host or authenticated hosted operation | existing owning program remains separate | No provider credentials, account details or live configuration |
 
 ## Evidence Ledger
@@ -78,8 +78,8 @@ All work-object names below are packet-local identity references. They do not gr
 | Status | Evidence |
 | --- | --- |
 | verified | Formal Product Hunt draft `https://www.producthunt.com/products/temperance-engine?launch=temperance-engine` was reopened in Codex IAB on 2026-11-02 and explicitly reports that it is a draft and is not scheduled for launch yet. |
-| verified | Saved name: Temperance Engine. Saved tagline: Local installer for an OpenCode operator runtime. |
-| verified | Saved description: Temperance Engine 0.8.0 is a public installer for a local operator runtime. It adds an organ registry and makes OmniRoute the default router. It does not claim a finished v1.1 clean-host milestone or live hosted-router authentication. |
+| verified | Superseded creation observation: saved name Temperance Engine; original tagline: Local installer for an OpenCode operator runtime. |
+| verified | Superseded creation observation: original description: Temperance Engine 0.8.0 is a public installer for a local operator runtime. It adds an organ registry and makes OmniRoute the default router. It does not claim a finished v1.1 clean-host milestone or live hosted-router authentication. |
 | verified | Saved primary website is `https://temperance.thoughtseed.space/`, source is `https://github.com/Sheshiyer/temperance_engine`, and maker role is I made this. |
 | verified | Founder-approved existing site mark and Open Graph art were used to meet draft requirements. Selected tags were Open Source and Developer Tools; Product Hunt also displays its GitHub topic. |
 | verified | The official Product Hunt Embed surface for `/posts/temperance-engine/embed` supplied the genuine listing badge with post identifier `1301098`; no composer identifier was converted into a slug. |
@@ -88,7 +88,7 @@ All work-object names below are packet-local identity references. They do not gr
 | blocked | The read-only product graph completed with confirmed=false; stale site and Product Hunt evidence failed its fence. Import refused a dangling edge. No vault receipt exists. |
 | blocked | Earlier rejected product graphs remain rejected and have no accepted receipt; a later draft or README change does not retroactively accept them. |
 | blocked | No v1.1 clean-host milestone completion proof or live hosted-router authentication proof is established by this packet. |
-| no-signal | No tenant admission, Goal Graph commit, loadout pin, operational dispatch, provider change, or new deployment is issued by this packet. |
+| no-signal | No tenant admission, Goal Graph commit, loadout pin, operational dispatch, provider change, or new production deployment is issued by this packet. The separately approved website preview is review-only. |
 
 ## Gate Ledger
 
@@ -101,15 +101,15 @@ All work-object names below are packet-local identity references. They do not gr
 | Hosted-router authentication | blocked | Separately attributable authenticated live runtime evidence. |
 | Launch schedule/publication | blocked | A new specific founder request; draft creation is insufficient. |
 | Tenant admission and promotion | blocked | Existing canonical identity, mapping, admission and approval gates; this packet supplies none of those receipts. |
-| Credentials/provider/deployment | blocked | Separate owning authorization and evidence; no change follows from this record. |
+| Credentials/provider/production deployment | blocked | Separate owning authorization and evidence; the approved website preview does not grant production promotion. |
 
 ## Quest Queue
 
 | quest_id | title | status |
 | --- | --- | --- |
 | temperance-draft-proof | Retain the formal Product Hunt draft with approved fields and no schedule | complete |
-| temperance-widget-proof | Verify the official widget in the remote README-only commit | queued |
-| temperance-read-graph | Await the terminal read-only product graph result without writing a vault receipt | queued |
+| temperance-widget-proof | Verify the official widget in the remote README-only commit | complete |
+| temperance-read-graph | Terminal read-only product graph rejected; repair requires a separately selected step | blocked |
 | temperance-milestone-hold | Keep v1.1 clean-host and hosted-router authentication held | blocked |
 
 Current frontier: verify one remaining proof item, then stop. No new launch is authorized. Garden cadence is manual only. A future graph result must be recorded at its actual evidence level and cannot manufacture a missing historical receipt.
@@ -125,10 +125,10 @@ Current frontier: verify one remaining proof item, then stop. No new launch is a
 | Control | Value |
 | --- | --- |
 | arc_title | `Saved Draft, Held Launch` |
-| vision | Temperance has a truthful public installer description and an unscheduled launch draft, with each runtime milestone supported only by its own proof. |
-| icp | OpenCode users and local AI operators evaluating an installable operator runtime. |
-| current_frontier | Review the rejected graph source evidence only when a new step is selected; keep the draft unscheduled and runtime milestones held. |
-| narrative_voice | Concrete installer language, attributable source and explicit held milestones. |
+| vision | Temperance has a coherent AI operator-system story, a restored website review preview and an unscheduled launch draft, with runtime milestones supported only by their own proof. |
+| icp | Developers and small teams working across AI coding clients. |
+| current_frontier | Owner review of the restored website preview; production remains unchanged. Graph repair requires a separately selected step; the draft and runtime holds remain unchanged. |
+| narrative_voice | Concrete operator-system benefits, attributable capability sources, optional dependencies and explicit held milestones. |
 | anti_claims | No finished v1.1 clean-host milestone, qualified 1M sessions, authenticated hosted-router operation, scheduled launch, accepted rejected graph, tenant admission or program identity collapse. |
 
 ## Mission Control Inputs
@@ -178,3 +178,13 @@ Current frontier: verify one remaining proof item, then stop. No new launch is a
 Temperance remains `proof-only`. The ladder is `proof-only -> supervised branch -> autonomous branch`.
 
 A saved draft, official badge, README commit or accepted source graph does not grant a tenant, operational admission, supervised promotion, launch schedule, publication, hosted authentication or clean-host milestone. Keep `program:temperance-hermes` separate. Do not modify runtime catalogs from this packet. No later launch or recurring loop is authorized.
+
+## 2026-11-02 positioning correction
+
+The founder rejected the installer-led positioning and selected an AI operator system: a shared operating layer for AI coding tools. The approved website headline is “Give your AI tools a shared way to work.” The prior cinematic design at landing commit `736fd13` is the recovery reference; `64f530f` replaced it, while `5c58383` only fixed repository links. The application release source is pinned to `42b391b44b7655972d9322d87aa3865956a5165e`. Release 0.8.0 and its compatibility record own current capability boundaries; older README routing claims are stale.
+
+Current approved tagline: “A shared operating layer for your AI coding tools”. Current approved description: “Temperance Engine brings a shared operating layer to your AI coding tools. Connect project context, reusable skills, structured workflows, model routing, and verification in one configurable local runtime. Start with guided onboarding, inspect what is enabled, and keep control of approvals and changes.”
+
+Delivery verification: preview `https://temperance-engine-landing-page-mitxrimmj-sheshiyers-projects.vercel.app/` is READY from reviewed site source `c930af92d3176e0b0a2a9ad1b382c9c6273744d9`. All 49 uploaded source/build files match the local checkout. Authenticated Codex IAB verified desktop 1440×900, mobile 375×812 and 320×812, navigation, visible keyboard focus, reduced motion, loaded artwork, social image 1200×630, metadata and a clean preview console. Existing Vercel sign-in protection remains enabled. The existing Product Hunt draft was saved and reopened with the approved operator-system copy, preserved name/links/maker, and explicit unscheduled state. The application README change remains staged and unpushed on current main `42b391b`; its SHA-256 is `0d021793ed1027d774a5ac899a4fa91393353793ffee9eb80dbd6f3ebed4e8d1`. Website authority is limited to a review preview, existing Product Hunt draft correction, and staged README alignment; no production replacement, launch schedule, graph acceptance or runtime milestone follows from this correction. Historical creation observations above are retained as dated evidence rather than rewritten as current copy.
+
+The public site remains on production deployment `dpl_And7oPASgXBUTCp4asMvMdqPWc3M`, source `5c5838331b5b8d9207d0c26aeb67dce17e6fe411`; its domain aliases were read back unchanged after preview deployment. Website tests pass 7/7; affected Cambium helper/packet/GTM/branch tests pass 38/38 and seven isolated packets validate. These are website-review and packet proofs, not production workflow or runtime qualification. Evidence: `docs/evidence/2026-11-02-temperance-positioning.v1.json`.
