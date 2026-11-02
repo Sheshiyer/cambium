@@ -54,10 +54,22 @@ current production catalog.
   display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`.
   This probes the current **working source**, including uncommitted catalog
   edits from another lane. It does not prove that source was deployed.
+- The signed synthetic demo bundle was rebuilt at clean app-input revision
+  `55ca159` (aggregate `e59dfd948bc58eef4b866c7a81c3cecd982a7ffcc2d38c5636d48e247a6ea642`).
+  Its own snapshot mode captured the Projects page at 1280×820 and 880×612 in
+  distinct light and dark appearances with no manifest failures. Direct image
+  inspection confirmed that the source date renders, a project row and dossier
+  are visible at minimum size, and the demo label remains prominent. The first
+  captures exposed an unreadable whole-second source date and a below-fold list;
+  both were fixed in `41eb7a8`/`0020e3a`. Snapshot color labels were initially
+  false because the SwiftUI model overrode AppKit appearance; `55ca159` now
+  drives both together. Four focused Projects tests and the full Swift suite
+  pass (the opt-in current-source probe is skipped in the default suite).
 
-These are local source, fixture, route-harness and bundle proofs. The Mac was
-locked during the first visual inspection attempt; visual QA is pending an
-unlocked session. An unauthenticated 2026-11-02 read-only probe saw health
+These are local source, fixture, route-harness, synthetic window and bundle
+proofs. Filtering, selection and exact Work navigation still need an unlocked
+interactive walkthrough; a snapshot is not that interaction. An unauthenticated
+2026-11-02 read-only probe saw health
 `200` and Mission Fabric `401` on the direct Worker origin, and `401` on the
 custom domain. The native session path returned `404` on the direct origin.
 That proves no founder catalog content or usable native sign-in route. The deployed runtime

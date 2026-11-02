@@ -271,6 +271,8 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
 - [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.
 - [x] ISC-3471: A fresh local handler envelope from the current portfolio source decodes in Swift without replacing the dated replay fixture.
+- [x] ISC-3472: The signed synthetic Projects window shows a project row, dossier and readable source time at 880×612.
+- [x] ISC-3473: Projects snapshots at both supported sizes render distinct light and dark appearances with clean bundle provenance.
 
 ### Standalone composition source slice (2026-10-05)
 
@@ -2708,6 +2710,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 ## Verification
 
 - ISC-3471: local cross-language probe — `./apps/cambium-mac/tools/probe-current-portfolio.sh` passed one focused Swift decode of the TypeScript handler envelope: 77 current, 20 historical, 0 review, 50 gaps, 1 exact Work join, display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`; dated replay fixture was untouched. Current source includes uncommitted concurrent catalog edits; this is not live delivery.
+- ISC-3472: signed-window screenshot inspection — `main-projects-minimum-light.png` and `main-projects-minimum-dark.png` show the first source project row and dossier at 880×612, with source time `29 Jul 2026, 12:16` instead of “Unreadable time”; the synthetic label is visible. `SourceTime` focused test passed, including invalid date refusal.
+- ISC-3473: signed-window manifest and image inspection — `snapshot-manifest.json` reports four successful 1280×820/880×612 captures from clean revision `55ca159`, no failures, separate light/dark image hashes; strict codesign, bundle verifier and embedded proof recheck passed. This is synthetic visual proof, not ISC-3466 interactive acceptance or ISC-3467 live founder delivery.
 
 ### 2026-10-01 growth ecosystem deep review — documentation verification
 
