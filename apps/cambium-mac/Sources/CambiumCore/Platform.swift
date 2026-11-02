@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 // Injected seams. Nothing here performs a live call by itself.
@@ -126,30 +127,117 @@ public actor InMemoryRecoveryStore: RecoveryStore {
     }
 }
 
-/// One JSON file per key under a caller-chosen directory.
-/// Uses percent-encoding for collision-safe and reversible key mapping.
+public enum RecoveryStoreError: Error, Equatable, Sendable {
+    case invalidKey
+    case tooLarge
+    case corruptEnvelope
+    case ioFailure
+}
+
+struct RecoveryEnvelope: Codable, Equatable {
+    var v: Int
+    var key: String
+    var payload: Data
+}
+
+/// One bounded, private file per key under a caller-chosen directory.
+///
+/// The filename is `rs1-<sha256(key)>.json`, so any key length maps to a short,
+/// collision-safe name. The file holds an envelope with the exact opaque key and
+/// payload, which makes enumeration exact and lets `load` reject a file whose
+/// stored key does not hash to its name. The directory is `0700`, files are
+/// `0600` from creation, and writes go through a temp file, `fsync` and rename.
+/// A corrupt envelope throws; it is never reported as absent.
 public actor FileRecoveryStore: RecoveryStore {
+    public static let maxKeyBytes = 2048
+    public static let maxPayloadBytes = 1_048_576
+    static let maxEnvelopeBytes = 2_097_152
+
     private let directory: URL
 
     public init(directory: URL) {
         self.directory = directory
     }
 
+    static func fileName(for key: String) -> String {
+        let digest = SHA256.hash(data: Data(key.utf8))
+        return "rs1-" + digest.map { String(format: "%02x", $0) }.joined() + ".json"
+    }
+
+    private static func isStoreFile(_ name: String) -> Bool {
+        name.range(of: #"^rs1-[0-9a-f]{64}\.json\z"#, options: .regularExpression) != nil
+    }
+
+    private func checkKey(_ key: String) throws {
+        guard !key.isEmpty, key.utf8.count <= Self.maxKeyBytes else { throw RecoveryStoreError.invalidKey }
+    }
+
     private func url(for key: String) throws -> URL {
-        guard !key.isEmpty else { throw TransportFailure.malformedResponse }
-        let safeName = key.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "._-"))) ?? key
-        return directory.appendingPathComponent(safeName + ".json")
+        try checkKey(key)
+        return directory.appendingPathComponent(Self.fileName(for: key), isDirectory: false)
+    }
+
+    private func readEnvelope(at target: URL, expectedName: String? = nil) throws -> RecoveryEnvelope {
+        let attributes = try? FileManager.default.attributesOfItem(atPath: target.path)
+        guard let size = (attributes?[.size] as? NSNumber)?.intValue, size <= Self.maxEnvelopeBytes else {
+            throw RecoveryStoreError.corruptEnvelope
+        }
+        guard let data = try? Data(contentsOf: target),
+              let envelope = try? JSONDecoder().decode(RecoveryEnvelope.self, from: data),
+              envelope.v == 1,
+              !envelope.key.isEmpty, envelope.key.utf8.count <= Self.maxKeyBytes,
+              envelope.payload.count <= Self.maxPayloadBytes,
+              Self.fileName(for: envelope.key) == (expectedName ?? target.lastPathComponent) else {
+            throw RecoveryStoreError.corruptEnvelope
+        }
+        return envelope
+    }
+
+    private func prepareDirectory() throws {
+        let manager = FileManager.default
+        try manager.createDirectory(at: directory, withIntermediateDirectories: true,
+                                    attributes: [.posixPermissions: 0o700])
+        try manager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path)
+    }
+
+    private func writeAtomically(_ data: Data, to target: URL) throws {
+        let temp = directory.appendingPathComponent(".tmp-" + UUID().uuidString, isDirectory: false)
+        let descriptor = open(temp.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, 0o600)
+        guard descriptor >= 0 else { throw RecoveryStoreError.ioFailure }
+        var ok = fchmod(descriptor, 0o600) == 0
+        if ok {
+            data.withUnsafeBytes { buffer in
+                var offset = 0
+                while offset < buffer.count {
+                    let written = write(descriptor, buffer.baseAddress! + offset, buffer.count - offset)
+                    if written <= 0 { ok = false; return }
+                    offset += written
+                }
+            }
+        }
+        if ok { ok = fsync(descriptor) == 0 }
+        close(descriptor)
+        guard ok, rename(temp.path, target.path) == 0 else {
+            unlink(temp.path)
+            throw RecoveryStoreError.ioFailure
+        }
     }
 
     public func save(_ data: Data, key: String) async throws {
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        try data.write(to: url(for: key), options: .atomic)
+        let target = try url(for: key)
+        guard data.count <= Self.maxPayloadBytes else { throw RecoveryStoreError.tooLarge }
+        let encoded = try JSONEncoder().encode(RecoveryEnvelope(v: 1, key: key, payload: data))
+        guard encoded.count <= Self.maxEnvelopeBytes else { throw RecoveryStoreError.tooLarge }
+        try prepareDirectory()
+        try writeAtomically(encoded, to: target)
     }
 
     public func load(key: String) async throws -> Data? {
         let target = try url(for: key)
         guard FileManager.default.fileExists(atPath: target.path) else { return nil }
-        return try Data(contentsOf: target)
+        let envelope = try readEnvelope(at: target)
+        guard envelope.key == key else { throw RecoveryStoreError.corruptEnvelope }
+        return envelope.payload
     }
 
     public func remove(key: String) async throws {
@@ -159,17 +247,17 @@ public actor FileRecoveryStore: RecoveryStore {
         }
     }
 
+    /// Exact enumeration from envelope keys. Any unreadable store file throws,
+    /// because its key (and so whether it matches the prefix) cannot be known.
     public func keys(prefix: String) async throws -> [String] {
         guard FileManager.default.fileExists(atPath: directory.path) else { return [] }
         let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
-        let safePrefix = prefix.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "._-"))) ?? prefix
-        return names
-            .filter { $0.hasSuffix(".json") && $0.hasPrefix(safePrefix) }
-            .map { filename -> String in
-                let base = String(filename.dropLast(5))
-                return base.removingPercentEncoding ?? base
-            }
-            .sorted()
+        var out: [String] = []
+        for name in names where Self.isStoreFile(name) {
+            let envelope = try readEnvelope(at: directory.appendingPathComponent(name), expectedName: name)
+            if envelope.key.hasPrefix(prefix) { out.append(envelope.key) }
+        }
+        return out.sorted()
     }
 }
 
@@ -178,15 +266,29 @@ enum HTTPJSON {
         transport: any HTTPTransport,
         authorizer: any RequestAuthorizer,
         url: URL,
-        body: [String: Any]
+        body: [String: Any],
+        maxRequestBytes: Int = HTTPLimits.maxRequestBytes
     ) async throws -> (status: Int, object: [String: Any]) {
+        let (status, data) = try await postData(transport: transport, authorizer: authorizer, url: url, body: body, maxRequestBytes: maxRequestBytes)
+        return try parse(HTTPResponse(status: status, body: data))
+    }
+
+    /// Same bounds as `post`, but returns the raw body for typed decoding.
+    static func postData(
+        transport: any HTTPTransport,
+        authorizer: any RequestAuthorizer,
+        url: URL,
+        body: [String: Any],
+        maxRequestBytes: Int = HTTPLimits.maxRequestBytes
+    ) async throws -> (status: Int, body: Data) {
         let data = try JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
-        guard data.count <= HTTPLimits.maxRequestBytes else { throw TransportFailure.malformedResponse }
+        guard data.count <= maxRequestBytes else { throw TransportFailure.malformedResponse }
         var headers = try await authorizer.headers()
         headers["content-type"] = "application/json"
         headers["accept"] = "application/json"
         let response = try await transport.send(HTTPRequest(method: "POST", url: url, headers: headers, body: data))
-        return try parse(response)
+        guard response.body.count <= HTTPLimits.maxResponseBytes else { throw TransportFailure.responseTooLarge }
+        return (response.status, response.body)
     }
 
     static func get(
