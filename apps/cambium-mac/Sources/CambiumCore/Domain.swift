@@ -179,6 +179,9 @@ public enum DemoData {
 
 /// Reader scope the app requested. The server resolves the authorized scope.
 public struct ReaderScope: Codable, Sendable, Equatable {
+    /// Decoder roles. Session verification stays with the caller.
+    public static let supportedRoles: Set<String> = ["founder", "viewer"]
+
     public var tenantId: String
     public var role: String
     /// Authenticated principal from the caller's verified session. Never read from a served document.

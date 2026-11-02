@@ -60,7 +60,7 @@ async function signedInitData(userId: string) {
   return { initData: fields.toString(), pubKeyHex };
 }
 
-function routeInputs(tenant: string) {
+function routeInputs(tenant: string, extraTasks = 0) {
   const goalNode = (nodeId: string, externalId: string, parentNodeId: string | null) => ({
     nodeId, tenantId: tenant, namespace: 'fabric', externalId, parentNodeId, scope: parentNodeId ? 'meso' : 'macro',
     desiredState: `state:${externalId}`, currentState: 'active', owner: 'founder', nextAction: null, waitCondition: null,
@@ -79,7 +79,10 @@ function routeInputs(tenant: string) {
     companyPrograms: [],
     fabricFacts: {
       sourceKind: 'quest-execution-facts.v1', tenantId: tenant,
-      tasks: [{ taskId: 'task-fabric-contract', missionId: 'mission-fabric-foundation', fence: 7 }],
+      tasks: [
+        { taskId: 'task-fabric-contract', missionId: 'mission-fabric-foundation', fence: 7 },
+        ...Array.from({ length: extraTasks }, (_, i) => ({ taskId: `task-cap-${String(i).padStart(3, '0')}`, missionId: 'mission-fabric-foundation', fence: 7 })),
+      ],
       fences: [{ taskId: 'task-fabric-contract', currentFence: 7 }],
       runs: [
         { runId: 'run-fabric-current', taskId: 'task-fabric-contract', executorAgentId: 'agent-cambium', loadoutId: 'loadout-a1', state: 'succeeded', fence: 7, nonce: 'nonce-current', nonceExpiresAt: '2026-07-29T00:00:00.000Z', receiptId: 'receipt-fabric-contract', startedAt: NOW_ISO, terminalAt: '2026-07-28T09:05:00.000Z' },
@@ -97,9 +100,9 @@ function routeInputs(tenant: string) {
   return { nodes, head, envelope, receipts };
 }
 
-async function route(tenant: string, userId: string, query = '') {
+async function route(tenant: string, userId: string, query = '', extraTasks = 0) {
   const auth = await signedInitData(userId);
-  const { nodes, head, envelope, receipts } = routeInputs(tenant);
+  const { nodes, head, envelope, receipts } = routeInputs(tenant, extraTasks);
   const kv = new Map([[`ledger:${tenant}`, JSON.stringify(envelope)]]);
   const deps = {
     kv: { async get(key: string) { return kv.get(key) ?? null; }, async put() { throw new Error('read-only'); }, async list() { return []; } },
@@ -119,6 +122,10 @@ const acmeFounder = await route('acme', FOUNDER_ID);
 const acmeViewer = await route('acme', VIEWER_ID);
 write('fabric-route-acme-founder.json', acmeFounder.body);
 write('fabric-route-acme-viewer.json', acmeViewer.body);
+// Over-cap composition: the handler slices sorted nodes and edges independently
+// and reports `projection-truncated`, so some retained edges name omitted nodes.
+const capTruncation = await route('acme', FOUNDER_ID, '', 600);
+write('fabric-route-cap-truncation.json', capTruncation.body);
 
 // ── 3. Server-computed expectations for the Swift tests ──────────────────────
 const redactedShadow = redactMissionFabricProjection(shadow.body.projection, { role: 'viewer', tenantId: 'cambium' });
@@ -136,6 +143,11 @@ write('fabric-expectations.json', {
     founderGraphDigest: acmeFounder.body.projection.graphDigest,
     viewerGraphDigest: acmeViewer.body.projection.graphDigest,
     founderRedactedForViewer: redactMissionFabricProjection(acmeFounder.body.projection, { role: 'viewer', tenantId: 'acme' }).graphDigest,
+  },
+  capTruncation: {
+    graphDigest: capTruncation.body.projection.graphDigest,
+    nodeCount: capTruncation.body.projection.nodes.length,
+    truncationGapIds: capTruncation.body.projection.gaps.filter((gap: { kind: string }) => gap.kind === 'projection-truncated').map((gap: { gapId: string }) => gap.gapId),
   },
 });
 console.log('fabric fixtures written', { vectors: vectors.length, shadow: shadow.etag, acme: acmeFounder.etag });
