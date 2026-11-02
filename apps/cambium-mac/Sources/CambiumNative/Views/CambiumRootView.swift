@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Root of the main window: sidebar navigation, search, and the selected page.
@@ -24,17 +25,59 @@ struct CambiumRootView: View {
         .searchFocused($searchFocused)
         .toolbar {
             ToolbarItem(placement: .navigation) {
-                GoMenu(focusSearch: { searchFocused = true })
+                GoMenu(focusSearch: focusSearch)
             }
         }
+        // Scene-scoped so the Go menu in App.commands targets this window's model,
+        // whichever control inside the window has keyboard focus.
+        .focusedSceneValue(\.cambiumModel, model)
+        .focusedSceneValue(\.cambiumFocusSearch, SearchFocusAction(focusSearch))
+        // The title of the window hosting this view follows its actual data mode.
+        .background(WindowTitleSetter(title: model.mode.windowTitle))
+        .onAppear { applyRequestedScreen() }
         .environment(model)
         .environment(\.cambiumReduceMotion, systemReduceMotion || model.reduceMotion)
         .preferredColorScheme(model.appearance.colorScheme)
         .tint(Palette.signal)
     }
+
+    private func focusSearch() {
+        columns = .all
+        searchFocused = true
+    }
+
+    /// Snapshot support: CAMBIUM_NATIVE_SCREEN=<AppSection.rawValue> picks the page, in demo
+    /// mode only. Only a recognized section is opened; no action is invoked.
+    private func applyRequestedScreen() {
+        guard model.isDemo, let section = SnapshotRun.requestedSection else { return }
+        model.open(section)
+        SnapshotRun.appliedSection = section
+    }
 }
 
-/// Keyboard routes to every page, plus Find. Each item navigates.
+/// Sets the title of the window that hosts this view. The WindowGroup title is static
+/// (LaunchMode.current), so it cannot follow a per-window Open demo or Leave demo.
+private struct WindowTitleSetter: NSViewRepresentable {
+    let title: String
+
+    func makeNSView(context: Context) -> TitleView { TitleView() }
+
+    func updateNSView(_ view: TitleView, context: Context) {
+        view.title = title
+        view.window?.title = title
+    }
+
+    final class TitleView: NSView {
+        var title = ""
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            if !title.isEmpty { window?.title = title }
+        }
+    }
+}
+
+/// Toolbar entry point for the same pages. Keyboard shortcuts live in the app's Go menu
+/// (CambiumNavigationCommands); registering them here too would duplicate them.
 private struct GoMenu: View {
     @Environment(AppModel.self) private var model
     let focusSearch: () -> Void
@@ -47,11 +90,9 @@ private struct GoMenu: View {
                 } label: {
                     Label(section.title, systemImage: section.symbol)
                 }
-                .keyboardShortcut(section.shortcut, modifiers: .command)
             }
             Divider()
             Button("Find", action: focusSearch)
-                .keyboardShortcut("f", modifiers: .command)
         } label: {
             Label("Go to", systemImage: "list.bullet")
         }
