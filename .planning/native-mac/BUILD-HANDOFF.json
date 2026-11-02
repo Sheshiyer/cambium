@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "status": "isolated-safety-fanout-running",
+  "status": "owner-flow-integration-running",
   "task": "Build native Cambium via hosted Phloem fan-out",
   "completed": [
     "Reviewed parallel-dispatch protocol and existing native architecture",
@@ -23,17 +23,19 @@
     "Found keyboard command-registration gap; hosted correction is active",
     "Fixed a dead lost-response preview control in source; rebuilt-app retest remains open",
     "Stopped shared-checkout workers after a worker admitted reverting parallel files; preserved complete source snapshots and a recovery stash",
-    "Restarted five bounded packets in physically separate Git worktrees with exact owned-file integration"
+    "Restarted five bounded packets in physically separate Git worktrees with exact owned-file integration",
+    "Integrated hardened Gate, Launch, read/knowledge and ephemeral origin-bound transport source; combined132 Swift tests pass",
+    "Integrated embedded build-source proof; final screenshots must use embedded stamp rather than checkout HEAD",
+    "Verified nine native keyboard routes on real compiled app; window title follows demo exit"
   ],
   "remaining": [
-    "Finish current disjoint hosted Gate, launch, fabric-decoder, navigation and read-client packets",
-    "Bind native UI to tested Gate/Launch coordinators, retaining visible isolated demo mode",
-    "Rebuild and verify keyboard flow, real owner-wire fixture parity, restart recovery and per-page native captures",
-    "Review exact source, integrate task-owned changes into primary checkout without disturbing other work, and record acceptance limits"
+    "Finish isolated Fabric/admission/identity hardening and owner-route composition",
+    "Connect native screens to tested core coordinators, real injectable browser identity and source-produced fixture replay",
+    "Build exact stamped final app and perform native full-flow recovery/keyboard/light-dark verification",
+    "Review exact scoped source and integrate task-owned work without disturbing parallel edits; record local versus live acceptance"
   ],
   "blockers": [
-    "Native owner identity exchange, admission issuer and concrete execution plant bindings remain unproved; production state has not changed",
-    "The broad core packet hit its bound with one fixture-clock failure; focused safety packets own the remaining corrections"
+    "Live client registry, current enrollment/role callbacks, Access reachability, D1 migration and concrete execution owner remain owner-activation prerequisites; source implementation and local verification continue"
   ],
   "decisions": [
     "Use only hosted Phloem for requested worker inference",
@@ -45,7 +47,7 @@
     "Shared primary ISA/handoff continuation updates",
     "Active hosted worker edits on isolated native build branch"
   ],
-  "next_action": "Continue only the new isolated workers from the private runtime checkpoint. Old shared-checkout workers are terminal and quarantined. Review exact owner diffs before applying to the clean native integration branch; reverify affected source and tests.",
+  "next_action": "Continue existing hosted isolated packets, review exact owned diffs, then exercise native coordinator-backed full flow. No replay of old shared workers or production mutation.",
   "isa": "ISA.md",
   "isc_open": [
     "ISC-3400",
@@ -79,7 +81,19 @@
     "ISC-3428",
     "ISC-3429",
     "ISC-3430",
-    "ISC-3431"
+    "ISC-3431",
+    "ISC-3440",
+    "ISC-3441",
+    "ISC-3442",
+    "ISC-3443",
+    "ISC-3444",
+    "ISC-3445",
+    "ISC-3446",
+    "ISC-3447",
+    "ISC-3448",
+    "ISC-3449",
+    "ISC-3450",
+    "ISC-3451"
   ],
   "isc_done_count": 0,
   "wave": "native-mac-build",
@@ -88,5 +102,5 @@
     "token_budget": 50000000,
     "goal_status": "active"
   },
-  "next_command": "Inspect operator-private runtime checkpoint and existing worker results; no new full-wave dispatch"
+  "next_command": "Use operator-private runtime checkpoint for active handles; final native UI wiring and verification remain required."
 }
