@@ -2,7 +2,7 @@
 
 2 November 2026. Source contract for the `NativeLaunchCapability` owner seam named
 in [ARCHITECTURE.md](ARCHITECTURE.md). The Worker source exists and has local
-tests. The three routes are wired in the Worker handler. No migration is applied,
+tests. The four routes (admissions, capability, launch, status) are wired in the Worker handler. No migration is applied,
 no execution owner, admission issuer or native identity is bound, and nothing
 is deployed. Nothing here launches real work yet.
 
@@ -39,6 +39,40 @@ All routes are `POST`, `Content-Type: application/json`, body ≤ 4096 bytes,
 exact keys, and `contractVersion: "cambium.native-launch.v1"`. Errors carry
 no stack, store text or credential. Without a configured verifier, D1 store
 and execution owner every route returns `503 native_launch_unconfigured`.
+
+### `POST /v1/native/launch/admissions`
+
+Body: exactly `{ contractVersion, workId }`. Read only discovery of the already-admitted
+units for one work. It uses the same verified `NativeLaunchHost` scope and the same
+`native_launch_admissions` rows as the other routes. It never creates or renews an
+admission, never changes the Goal Graph, and never calls `owner.submit` or claims an owner job.
+Tenant and principal come only from the verifier.
+
+Reply: `{ contractVersion, workId, readOnly: true, admissions, truncated }`.
+
+- `admissions` holds at most 32 records, ordered by `admissionRef` ascending (deterministic).
+  The D1 query is `WHERE tenant_id = ? AND principal_id = ? AND work_id = ? ORDER BY admission_ref LIMIT 33`;
+  the 33rd row is read only to set `truncated: true` and is never returned.
+- Each record is `{ admissionRef, tuple, availability, reason, existingRequest? }`. `tuple` is the exact
+  eight-key capability tuple. Availability is derived from `store.readAdmission` plus `owner.supports`, the
+  same rules as the capability route, with no inference from work status or transport health:
+
+| `availability` | `reason` |
+| --- | --- |
+| `supported` | `current` |
+| `unsupported` | `owner_does_not_support` |
+| `unavailable` | `admission_expired`, `admission_revoked`, `graph_changed`, `admission_consumed` (with `existingRequest` of the consuming original IDs) |
+
+- Foreign and absent work are indistinguishable: both return `200` with an empty `admissions` list.
+- A store without the optional `listAdmissions` method returns `503 native_launch_listing_unconfigured`.
+  It is never reported as an empty successful list.
+- A store whose page lacks a `rows` array or a boolean `truncated` returns `503 native_launch_listing_unavailable`.
+  A missing page is never reported as an empty work. Rows outside the verified scope or work stay omitted.
+- Malformed JSON, extra keys (including any `principalId`/`tenantId`), a malformed `workId`, a wrong method,
+  a wrong media type and bodies over 4096 bytes use the same refusals as the other routes.
+
+A listing is an observation. The client must still call the capability route for the selected
+`admissionRef`, and launch still revalidates atomically at reserve time.
 
 ### `POST /v1/native/launch/capability`
 
@@ -116,6 +150,20 @@ External dispatch never runs inside a D1 statement or batch.
 | `submit` reached owner, reply lost | `reserved` or `owner_unknown` | Status reads the owner by `requestKey`. |
 | Observation write failed | `reserved` | Status reconciles through the owner. |
 
+## Swift admission discovery
+
+`apps/cambium-mac/Sources/CambiumCore/AdmissionDiscovery.swift` provides `HTTPAdmissionDiscovery`
+(`AdmissionDiscovering`). It posts the exact two-key body, pins the verified session across the
+awaited request (a switched principal or tenant, an expired session or an unconfigured session is
+`notAdmitted`), and strictly validates the reply: exact root and record keys, matching `workId`, the
+tuple's work and `admissionRef` equal to the record's, at most 32 records, no duplicate refs, and a
+`reason` consistent with `availability`. Server states map to explicit errors (`unauthorized`,
+`forbidden`, `unavailable`, `unconfigured`, `responseTooLarge`, `malformedResponse`, `transport`).
+`transport` always carries the fixed category `"transport"`; the underlying error text is never kept, because it
+can hold tokens or URIs.
+A result never grants a `LaunchCapability`: the client must call
+`HTTPLaunchClient.resolveCapability` for the selected `admissionRef`.
+
 ## Swift integration (future)
 
 `LaunchClient` should model `NativeLaunchCapabilityTuple`, persist
@@ -126,7 +174,7 @@ Neither ever sends tenant or principal in a body.
 
 ## Integration status
 
-The handler routes the three exact paths through `nativeLaunchHttp` using the
+The handler routes the exact paths in `NATIVE_LAUNCH_PATHS` through `nativeLaunchHttp` using the
 injected optional `nativeLaunchHost`. An absent host returns 503. The handler
 constructs no store and no execution owner.
 

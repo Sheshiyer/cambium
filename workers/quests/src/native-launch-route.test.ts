@@ -10,6 +10,7 @@ import {
   NATIVE_LAUNCH_PATHS,
   createNativeLaunchHost,
   nativeLaunchHttp,
+  type NativeLaunchAdmissionList,
   type NativeLaunchAdmissionRead,
   type NativeLaunchCapabilityTuple,
   type NativeLaunchExecutionOwner,
@@ -42,6 +43,12 @@ class FakeStore implements NativeLaunchStore {
     const consumed = [...this.rows.values()].find(row => row.admissionRef === admissionRef && row.principalId === scope.principalId);
     return { admission: { ...CAPABILITY, ...scope, status: 'active' }, hold: consumed ? 'admission_consumed' : null,
       consumedBy: consumed ? { requestId: consumed.requestId, attemptId: consumed.attemptId } : null };
+  }
+
+  async listAdmissions(scope: NativeLaunchScope, workId: string, now: string, limit: number): Promise<NativeLaunchAdmissionList> {
+    if (workId !== CAPABILITY.workId) return { rows: [], truncated: false };
+    const found = await this.readAdmission(scope, CAPABILITY.admissionRef, now);
+    return { rows: found ? [found].slice(0, limit) : [], truncated: false };
   }
 
   async reserve(input: NativeLaunchReservation): Promise<NativeLaunchReserveResult> {
@@ -98,7 +105,7 @@ function req(method: string, path: string, body?: unknown, headers: Record<strin
 const launchBody = () => ({ contractVersion: NATIVE_LAUNCH_CONTRACT, requestId: 'client-request-0001',
   attemptId: 'client-attempt-0001', idempotencyNonce: NONCE, capability: CAPABILITY });
 
-test('the three native launch routes return 503 when no host is bound', async () => {
+test('all four native launch routes return 503 when no host is bound', async () => {
   for (const path of Object.values(NATIVE_LAUNCH_PATHS)) {
     const response = await handle(req('POST', path, { contractVersion: NATIVE_LAUNCH_CONTRACT }), deps());
     assert.equal(response.status, 503, path);
@@ -178,12 +185,20 @@ async function buildWireFixture() {
   lostOwner.submitFails = true;
   const lostHost = hostOf(new FakeStore(), lostOwner);
   const capabilityBody = { contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId, admissionRef: CAPABILITY.admissionRef };
+  const admissionsBody = { contractVersion: NATIVE_LAUNCH_CONTRACT, workId: CAPABILITY.workId };
+  const noListStore = new FakeStore();
+  (noListStore as { listAdmissions?: unknown }).listAdmissions = undefined;
+  const noListHost = hostOf(noListStore, new FakeOwner());
   const statusBody = { contractVersion: NATIVE_LAUNCH_CONTRACT, requestId: 'client-request-0001', attemptId: 'client-attempt-0001' };
   const steps: Array<{ name: string; path: string; body: unknown; host: NativeLaunchHost; before?: () => void }> = [
+    { name: 'admissions_current', path: NATIVE_LAUNCH_PATHS.admissions, body: admissionsBody, host },
+    { name: 'admissions_other_work_empty', path: NATIVE_LAUNCH_PATHS.admissions, body: { ...admissionsBody, workId: 'sapling:other' }, host },
+    { name: 'admissions_listing_unconfigured', path: NATIVE_LAUNCH_PATHS.admissions, body: admissionsBody, host: noListHost },
     { name: 'capability_supported', path: NATIVE_LAUNCH_PATHS.capability, body: capabilityBody, host },
     { name: 'capability_unavailable', path: NATIVE_LAUNCH_PATHS.capability, body: { ...capabilityBody, workId: 'sapling:other' }, host },
     { name: 'capability_unsupported', path: NATIVE_LAUNCH_PATHS.capability, body: capabilityBody, host: unsupportedHost },
     { name: 'launch_accepted_queued', path: NATIVE_LAUNCH_PATHS.launch, body: launchBody(), host },
+    { name: 'admissions_consumed', path: NATIVE_LAUNCH_PATHS.admissions, body: admissionsBody, host },
     { name: 'launch_unknown_lost_owner_response', path: NATIVE_LAUNCH_PATHS.launch, body: launchBody(), host: lostHost },
     { name: 'status_unknown_request', path: NATIVE_LAUNCH_PATHS.status, body: { ...statusBody, requestId: 'client-request-9999', attemptId: 'client-attempt-9999' }, host },
     { name: 'status_recovered_succeeded', path: NATIVE_LAUNCH_PATHS.status, body: statusBody, host, before: () => { owner.state = 'succeeded'; } },

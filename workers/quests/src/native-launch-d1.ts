@@ -15,17 +15,19 @@
 // row that status reconciles through owner readback; neither re-dispatches.
 
 import type { GoalGraphD1DatabaseLike } from './goal-graph-store.ts';
-import type {
-  NativeLaunchAdmission,
-  NativeLaunchAdmissionHold,
-  NativeLaunchAdmissionRead,
-  NativeLaunchCapabilityTuple,
-  NativeLaunchObservation,
-  NativeLaunchRequestRow,
-  NativeLaunchReservation,
-  NativeLaunchReserveResult,
-  NativeLaunchScope,
-  NativeLaunchStore,
+import {
+  NATIVE_LAUNCH_ADMISSION_LIST_LIMIT,
+  type NativeLaunchAdmission,
+  type NativeLaunchAdmissionHold,
+  type NativeLaunchAdmissionList,
+  type NativeLaunchAdmissionRead,
+  type NativeLaunchCapabilityTuple,
+  type NativeLaunchObservation,
+  type NativeLaunchRequestRow,
+  type NativeLaunchReservation,
+  type NativeLaunchReserveResult,
+  type NativeLaunchScope,
+  type NativeLaunchStore,
 } from './native-launch.ts';
 
 type Row = Record<string, unknown>;
@@ -90,6 +92,29 @@ export function d1NativeLaunchStore(db: GoalGraphD1DatabaseLike): NativeLaunchSt
     return { admission, hold, consumedBy: consumed ? { requestId: consumed.requestId, attemptId: consumed.attemptId } : null };
   }
 
+  async function listAdmissions(scope: NativeLaunchScope, workId: string, now: string, limit: number): Promise<NativeLaunchAdmissionList> {
+    const cap = Math.min(Math.max(1, Math.floor(limit)), NATIVE_LAUNCH_ADMISSION_LIST_LIMIT);
+    // One extra row decides truncation. Ordering is the admission ref, which is unique per tenant.
+    const listed = await db.prepare(`
+      SELECT admission_ref FROM native_launch_admissions
+      WHERE tenant_id = ? AND principal_id = ? AND work_id = ?
+      ORDER BY admission_ref ASC
+      LIMIT ?
+    `).bind(scope.tenantId, scope.principalId, workId, cap + 1).all<Row>();
+    const refs = (listed.results ?? []).map(row => String(row.admission_ref));
+    const page = refs.slice(0, cap);
+    const rows: NativeLaunchAdmissionRead[] = [];
+    for (const admissionRef of page) {
+      const found = await readAdmission(scope, admissionRef, now);
+      // A row that vanished, or that no longer matches this scope and work, is omitted.
+      if (found && found.admission.workId === workId
+          && found.admission.tenantId === scope.tenantId && found.admission.principalId === scope.principalId) {
+        rows.push(found);
+      }
+    }
+    return { rows, truncated: refs.length > cap };
+  }
+
   async function classify(input: NativeLaunchReservation): Promise<NativeLaunchReserveResult> {
     const same = await readScoped(input, 'request_id = ?', input.requestId);
     if (same) {
@@ -110,6 +135,7 @@ export function d1NativeLaunchStore(db: GoalGraphD1DatabaseLike): NativeLaunchSt
 
   return {
     readAdmission,
+    listAdmissions,
 
     async reserve(input) {
       const c = input.capability;
