@@ -467,22 +467,28 @@ test('full authorize, exchange, session read, and logout with the exact contract
   assert.equal((await errorOf(await sessionRead(h.host, session.token))).status, 401);
 });
 
-test('session read and logout refuse the telegram-init-data alias without a lookup', async () => {
+test('session read and logout refuse every browser credential alias without a lookup', async () => {
   const h = await harness();
   const session = await sessionFor(h);
   let reads = 0;
   const original = h.deps.store.readSession.bind(h.deps.store);
   h.deps.store.readSession = async (...args) => { reads += 1; return original(...args); };
-  const read = await nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session`, {
-    headers: { authorization: `Bearer ${session.token}`, 'telegram-init-data': 'query_id=alias' },
-  }), h.host);
-  assert.equal((await errorOf(read)).body.error, 'mixed_credentials');
-  const out = await nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session/logout`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${session.token}`, 'telegram-init-data': 'query_id=alias' },
-    body: '{}',
-  }), h.host);
-  assert.equal((await errorOf(out)).status, 400);
+  for (const alias of [
+    { 'telegram-init-data': 'query_id=alias' },
+    { 'x-principal': '{"id":"founder-1"}' },
+    { 'x-cambium-founder-web': '1' },
+  ]) {
+    const read = await nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session`, {
+      headers: { authorization: `Bearer ${session.token}`, ...alias },
+    }), h.host);
+    assert.equal((await errorOf(read)).body.error, 'mixed_credentials', JSON.stringify(alias));
+    const out = await nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session/logout`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${session.token}`, ...alias },
+      body: '{}',
+    }), h.host);
+    assert.equal((await errorOf(out)).status, 400, JSON.stringify(alias));
+  }
   assert.equal(reads, 0);
   assert.equal((await sessionRead(h.host, session.token))!.status, 200);
 });
@@ -780,6 +786,8 @@ test('exchange refuses browser credentials and Authorization without calling the
     { cookie: 'other=1; CF_Authorization=synthetic' },
     { 'cf-access-jwt-assertion': 'synthetic.jwt.value' },
     { 'x-telegram-init-data': 'synthetic' },
+    { 'x-principal': '{"id":"founder-1"}' },
+    { 'x-cambium-founder-web': '1' },
     { authorization: bearer },
     { authorization: ['Bearer', 'web-session-token'].join(' ') },
     { authorization: 'Basic c3ludGhldGlj' },

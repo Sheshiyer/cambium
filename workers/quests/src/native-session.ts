@@ -359,6 +359,8 @@ const browserCredential = (request: Request) =>
   Boolean(request.headers.get('cf-access-jwt-assertion')?.trim())
   || Boolean(request.headers.get('x-telegram-init-data')?.trim())
   || Boolean(request.headers.get('telegram-init-data')?.trim())
+  || Boolean(request.headers.get('x-principal')?.trim())
+  || request.headers.get('x-cambium-founder-web') === '1'
   || /(?:^|;\s*)CF_Authorization=/.test(request.headers.get('cookie') ?? '');
 
 async function readJson(request: Request): Promise<Record<string, unknown> | Response> {
