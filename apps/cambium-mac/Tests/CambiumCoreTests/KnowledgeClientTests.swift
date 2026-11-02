@@ -9,7 +9,7 @@ final class KnowledgeClientTests: XCTestCase {
     )
 
     private func row(
-        id: String = "r-1", source: String = "field-theory", schema: String = "cambium.field-theory.v1",
+        id: String = "r-1", source: String = "field-theory", schema: String = "cambium.native-field-theory-reference.v1",
         subject: String = "sapling:cambium", tenant: String = "cambium", principal: String = "founder-1",
         ref: String = "https://example.invalid/ref", observedAt: String = "2026-11-02T00:00:00.000Z",
         freshness: String = "fresh", meaning: String = "observation", extra: String = ""
@@ -24,7 +24,7 @@ final class KnowledgeClientTests: XCTestCase {
     private func export(_ rows: String...) -> Data { Data(#"{"records":[\#(rows.joined(separator: ","))]}"#.utf8) }
 
     private func reportRow(id: String = "r-1", ref: String = "https://example.invalid/ref") -> String {
-        row(id: id, source: "field-report", schema: "cambium.field-report.v1", ref: ref)
+        row(id: id, source: "field-report", schema: "cambium.native-field-report-reference.v1", ref: ref)
     }
 
     private func theoryError(_ data: Data, options: KnowledgeReadOptions = KnowledgeReadOptions()) -> KnowledgeError? {
@@ -38,7 +38,7 @@ final class KnowledgeClientTests: XCTestCase {
         let theory = try KnowledgeDecoder.decodeFieldTheory(exportJSON: export(row(meaning: "proposal")), context: context, now: now)
         XCTAssertEqual(theory.count, 1)
         XCTAssertEqual(theory[0].source, .fieldTheory)
-        XCTAssertEqual(theory[0].schema, "cambium.field-theory.v1")
+        XCTAssertEqual(theory[0].schema, "cambium.native-field-theory-reference.v1")
         XCTAssertEqual(theory[0].meaning, .proposal)
         XCTAssertEqual(theory[0].tenantId, "cambium")
         XCTAssertEqual(theory[0].principal, "founder-1")
@@ -49,27 +49,25 @@ final class KnowledgeClientTests: XCTestCase {
 
         let report = try KnowledgeDecoder.decodeFieldReport(exportJSON: export(reportRow()), context: context, now: now)
         XCTAssertEqual(report[0].source, .fieldReport)
-        XCTAssertEqual(report[0].schema, "cambium.field-report.v1")
+        XCTAssertEqual(report[0].schema, "cambium.native-field-report-reference.v1")
         XCTAssertEqual(report[0].meaning, .observation)
     }
 
     func testFieldReportAcceptsOnlyItsOwnSchemas() throws {
         XCTAssertThrowsError(try KnowledgeDecoder.decodeFieldReport(
-            exportJSON: export(row(source: "field-report", schema: "cambium.field-theory.v1")), context: context, now: now
-        )) { XCTAssertEqual($0 as? KnowledgeError, .schemaMismatch("cambium.field-theory.v1")) }
+            exportJSON: export(row(source: "field-report", schema: "cambium.native-field-theory-reference.v1")), context: context, now: now
+        )) { XCTAssertEqual($0 as? KnowledgeError, .schemaMismatch) }
     }
 
     // MARK: Source and schema separation
 
     func testFieldTheoryIsNotFieldReport() throws {
-        // A Field Report export fed to the Field Theory decoder, and the reverse.
-        XCTAssertEqual(theoryError(export(reportRow())), .sourceMismatch("field-report"))
+        XCTAssertEqual(theoryError(export(reportRow())), .sourceMismatch)
         XCTAssertThrowsError(try KnowledgeDecoder.decodeFieldReport(exportJSON: export(row()), context: context, now: now)) {
-            XCTAssertEqual($0 as? KnowledgeError, .sourceMismatch("field-theory"))
+            XCTAssertEqual($0 as? KnowledgeError, .sourceMismatch)
         }
-        // Right source label, wrong schema.
-        XCTAssertEqual(theoryError(export(row(schema: "cambium.field-report.v1"))), .schemaMismatch("cambium.field-report.v1"))
-        XCTAssertEqual(theoryError(export(row(source: "wrong-source"))), .sourceMismatch("wrong-source"))
+        XCTAssertEqual(theoryError(export(row(schema: "cambium.native-field-report-reference.v1"))), .schemaMismatch)
+        XCTAssertEqual(theoryError(export(row(source: "wrong-source"))), .sourceMismatch)
     }
 
     // MARK: Scope
@@ -99,7 +97,7 @@ final class KnowledgeClientTests: XCTestCase {
     // MARK: Identity, references, shape
 
     func testDuplicateIdsAreRejected() {
-        XCTAssertEqual(theoryError(export(row(id: "dup"), row(id: "dup", subject: "sapling:b"))), .duplicateId("dup"))
+        XCTAssertEqual(theoryError(export(row(id: "dup"), row(id: "dup", subject: "sapling:b"))), .duplicateRecord)
     }
 
     func testUnsafeReferenceSchemesAreRejected() {
@@ -109,7 +107,14 @@ final class KnowledgeClientTests: XCTestCase {
             "thoughtseed://x", "vault://x"
         ]
         for ref in bad {
-            XCTAssertEqual(theoryError(export(row(ref: ref))), .unsafeReferenceScheme(ref), ref)
+            guard let error = theoryError(export(row(ref: ref))) else {
+                XCTFail("ref \(ref) was accepted")
+                continue
+            }
+            guard case .unsafeReference = error else {
+                XCTFail("ref \(ref) threw unexpected error \(error)")
+                continue
+            }
         }
         for ref in ["https://example.invalid/a", "http://example.invalid/a", "thoughtseed:sapling:cambium", "vault:notes/a.md", "git:repo@abc123"] {
             XCTAssertNil(theoryError(export(row(ref: ref))), ref)
@@ -128,7 +133,7 @@ final class KnowledgeClientTests: XCTestCase {
         XCTAssertEqual(theoryError(export(row(freshness: "recent"))), .malformed("freshness"))
         XCTAssertEqual(theoryError(export(row(meaning: "decision"))), .malformed("meaning"))
         XCTAssertEqual(theoryError(Data(#"{"records":[{"id":"a"}]}"#.utf8)), .malformed("source"))
-        let badGaps = Data(#"{"records":[{"id":"a","source":"field-theory","schema":"cambium.field-theory.v1","subjectId":"s","tenantId":"cambium","principal":"founder-1","sourceRef":"https://example.invalid/x","observedAt":"2026-11-02T00:00:00.000Z","freshness":"fresh","gaps":"x","meaning":"observation"}]}"#.utf8)
+        let badGaps = Data(#"{"records":[{"id":"a","source":"field-theory","schema":"cambium.native-field-theory-reference.v1","subjectId":"s","tenantId":"cambium","principal":"founder-1","sourceRef":"https://example.invalid/x","observedAt":"2026-11-02T00:00:00.000Z","freshness":"fresh","gaps":"x","meaning":"observation"}]}"#.utf8)
         XCTAssertEqual(theoryError(badGaps), .malformed("gaps"))
     }
 
@@ -187,6 +192,50 @@ final class KnowledgeClientTests: XCTestCase {
         let purgedReport = await store.fieldReportRecords(for: current)
         XCTAssertNil(purgedTheory)
         XCTAssertNil(purgedReport)
+    }
+
+    func testPublicDecoderRejectsExpiredContext() {
+        let expired = AuthenticatedReaderContext(principal: "founder-1", tenantId: "cambium", role: "founder",
+                                                 expiresAt: now.addingTimeInterval(-1))
+        XCTAssertThrowsError(try KnowledgeDecoder.decodeFieldTheory(exportJSON: export(row()), context: expired, now: now)) {
+            XCTAssertEqual($0 as? KnowledgeError, .expiredContext)
+        }
+        XCTAssertThrowsError(try KnowledgeDecoder.decodeFieldReport(exportJSON: export(reportRow()), context: expired, now: now)) {
+            XCTAssertEqual($0 as? KnowledgeError, .expiredContext)
+        }
+    }
+
+    func testReferenceErrorsDoNotEchoSecrets() {
+        let error = theoryError(export(row(ref: "https://user:hunter2@example.invalid/x")))
+        XCTAssertEqual(error, .unsafeReference("credentials"))
+        XCTAssertFalse(String(describing: error).contains("hunter2"))
+    }
+
+    func testStoreCacheExpiresAfterTTLAndOriginalContextExpiry() async throws {
+        let one = ReaderFixtures.session("founder-1", ttl: 120, from: now)
+        let clock = ReaderClock(now)
+        let session = ReaderSession(one)
+        let store = KnowledgeSnapshotStore(sessionProvider: session, clock: clock, cacheTTL: 300)
+        _ = try await store.loadFieldTheory(exportJSON: export(row()), tenantId: "cambium", reader: SuppliedFieldTheoryReader())
+
+        // A renewed same-principal session does not extend the context minted at +120s.
+        let renewed = ReaderFixtures.session("founder-1", ttl: 3600, from: now.addingTimeInterval(100))
+        session.set(renewed)
+        clock.set(now.addingTimeInterval(121))
+        let held = await store.fieldTheoryRecords(for: renewed)
+        XCTAssertNil(held)
+    }
+
+    func testStoreCacheMissesAfterDefaultSixtySecondTTL() async throws {
+        let one = ReaderFixtures.session("founder-1", ttl: 3600, from: now)
+        let clock = ReaderClock(now)
+        let store = KnowledgeSnapshotStore(sessionProvider: ReaderSession(one), clock: clock)
+        _ = try await store.loadFieldReport(exportJSON: export(reportRow()), tenantId: "cambium", reader: SuppliedFieldReportReader())
+        let warm = await store.fieldReportRecords(for: one)
+        XCTAssertNotNil(warm)
+        clock.set(now.addingTimeInterval(61))
+        let cold = await store.fieldReportRecords(for: one)
+        XCTAssertNil(cold)
     }
 
     func testStoreRefusesWithoutVerifiedSession() async {

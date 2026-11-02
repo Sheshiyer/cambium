@@ -1,8 +1,10 @@
 import Foundation
 
 // Read-only Field Theory and Field Report seams. They decode explicitly supplied
-// synthetic/export JSON only. No filesystem or vault reads, no CLI, no scripts,
-// no memory writes, and nothing here promotes a note or proposal into admission.
+// export JSON only. No filesystem or vault reads, no CLI, no scripts, no memory
+// writes, and nothing here promotes a note or proposal into admission.
+// The schemas below are Cambium's own native transfer format. They are not an
+// external Field Theory or Field Report wire schema. See KNOWLEDGE-ADAPTER-CONTRACT.md.
 // Field Theory and Field Report are different sources and never share a label.
 
 public enum KnowledgeSource: String, Codable, Sendable, Equatable {
@@ -11,8 +13,8 @@ public enum KnowledgeSource: String, Codable, Sendable, Equatable {
 
     public var schema: String {
         switch self {
-        case .fieldTheory: return "cambium.field-theory.v1"
-        case .fieldReport: return "cambium.field-report.v1"
+        case .fieldTheory: return "cambium.native-field-theory-reference.v1"
+        case .fieldReport: return "cambium.native-field-report-reference.v1"
         }
     }
 }
@@ -88,16 +90,19 @@ public struct FieldReportRecord: Codable, Sendable, Equatable, Identifiable {
     }
 }
 
+/// Payloads are fixed categories. They never echo export text, so a bad
+/// `sourceRef` or header-like value cannot leak into errors or logs.
 public enum KnowledgeError: Error, Equatable, Sendable {
     case bridgeUnconfigured
     case capExceeded(String)
     case malformed(String)
-    case schemaMismatch(String)
-    case sourceMismatch(String)
+    case schemaMismatch
+    case sourceMismatch
     case scopeMismatch(String)
-    case unsafeReferenceScheme(String)
+    case unsafeReference(String)
     case staleTime(String)
-    case duplicateId(String)
+    case duplicateRecord
+    case expiredContext
     case principalSwitched
 }
 
@@ -168,7 +173,8 @@ public enum KnowledgeDecoder {
 
     public static func decodeFieldTheory(exportJSON: Data, context: AuthenticatedReaderContext, now: Date,
                                          options: KnowledgeReadOptions = KnowledgeReadOptions()) throws -> [FieldTheoryRecord] {
-        try decode(.fieldTheory, exportJSON, context, now, options).map {
+        try requireUnexpired(context, now)
+        return try decode(.fieldTheory, exportJSON, context, now, options).map {
             FieldTheoryRecord(id: $0.id, subjectId: $0.subjectId, tenantId: $0.tenantId, principal: $0.principal,
                               sourceRef: $0.sourceRef, observedAt: $0.observedAt, freshness: $0.freshness,
                               gaps: $0.gaps, meaning: $0.meaning)
@@ -177,11 +183,16 @@ public enum KnowledgeDecoder {
 
     public static func decodeFieldReport(exportJSON: Data, context: AuthenticatedReaderContext, now: Date,
                                          options: KnowledgeReadOptions = KnowledgeReadOptions()) throws -> [FieldReportRecord] {
-        try decode(.fieldReport, exportJSON, context, now, options).map {
+        try requireUnexpired(context, now)
+        return try decode(.fieldReport, exportJSON, context, now, options).map {
             FieldReportRecord(id: $0.id, subjectId: $0.subjectId, tenantId: $0.tenantId, principal: $0.principal,
                               sourceRef: $0.sourceRef, observedAt: $0.observedAt, freshness: $0.freshness,
                               gaps: $0.gaps, meaning: $0.meaning)
         }
+    }
+
+    private static func requireUnexpired(_ context: AuthenticatedReaderContext, _ now: Date) throws {
+        guard context.expiresAt > now else { throw KnowledgeError.expiredContext }
     }
 
     private struct Row {
@@ -208,12 +219,12 @@ public enum KnowledgeDecoder {
             guard Set(r.keys).isSubset(of: recordKeys) else { throw KnowledgeError.malformed("unknown record field") }
 
             let id = try string(r, "id")
-            guard seen.insert(id).inserted else { throw KnowledgeError.duplicateId(id) }
+            guard seen.insert(id).inserted else { throw KnowledgeError.duplicateRecord }
 
             let source = try string(r, "source")
-            guard source == expected.rawValue else { throw KnowledgeError.sourceMismatch(source) }
+            guard source == expected.rawValue else { throw KnowledgeError.sourceMismatch }
             let schema = try string(r, "schema")
-            guard schema == expected.schema else { throw KnowledgeError.schemaMismatch(schema) }
+            guard schema == expected.schema else { throw KnowledgeError.schemaMismatch }
 
             let tenantId = try string(r, "tenantId")
             guard tenantId == context.tenantId else { throw KnowledgeError.scopeMismatch("tenant") }
@@ -259,21 +270,26 @@ public enum KnowledgeDecoder {
     }
 
     /// http(s) without embedded credentials, or an approved reference scheme.
+    /// The source reference is metadata only: it is never fetched, executed or
+    /// treated as authority. Errors carry a fixed category, never the reference.
     private static func validateReference(_ ref: String) throws {
-        guard let colon = ref.firstIndex(of: ":") else { throw KnowledgeError.unsafeReferenceScheme(ref) }
+        guard let colon = ref.firstIndex(of: ":") else { throw KnowledgeError.unsafeReference("no-scheme") }
         let scheme = ref[..<colon].lowercased()
         switch scheme {
         case "http", "https":
-            guard let url = URL(string: ref), let host = url.host, !host.isEmpty, url.user == nil, url.password == nil else {
-                throw KnowledgeError.unsafeReferenceScheme(ref)
+            guard let url = URL(string: ref), let host = url.host, !host.isEmpty else {
+                throw KnowledgeError.unsafeReference("host")
+            }
+            guard url.user == nil, url.password == nil else {
+                throw KnowledgeError.unsafeReference("credentials")
             }
         case "thoughtseed", "vault", "git":
             let rest = ref[ref.index(after: colon)...]
-            guard !rest.isEmpty, !rest.hasPrefix("//") || scheme == "git", !rest.contains("..") else {
-                throw KnowledgeError.unsafeReferenceScheme(ref)
-            }
+            guard !rest.isEmpty else { throw KnowledgeError.unsafeReference("empty") }
+            guard !rest.hasPrefix("//") || scheme == "git" else { throw KnowledgeError.unsafeReference("authority") }
+            guard !rest.contains("..") else { throw KnowledgeError.unsafeReference("traversal") }
         default:
-            throw KnowledgeError.unsafeReferenceScheme(ref)
+            throw KnowledgeError.unsafeReference("scheme")
         }
     }
 
@@ -289,15 +305,20 @@ public enum KnowledgeDecoder {
 /// `invalidate()` on context switch or sign-out drops both and defeats any
 /// load that is still pending.
 public actor KnowledgeSnapshotStore {
+    public static let defaultCacheTTL: TimeInterval = 60
+
     private let sessionProvider: any SessionProvider
     private let clock: any CoreClock
+    private let cacheTTL: TimeInterval
     private var generation: UInt64 = 0
-    private var fieldTheory: (context: AuthenticatedReaderContext, records: [FieldTheoryRecord])?
-    private var fieldReport: (context: AuthenticatedReaderContext, records: [FieldReportRecord])?
+    private var fieldTheory: (context: AuthenticatedReaderContext, records: [FieldTheoryRecord], receivedAt: Date)?
+    private var fieldReport: (context: AuthenticatedReaderContext, records: [FieldReportRecord], receivedAt: Date)?
 
-    public init(sessionProvider: any SessionProvider, clock: any CoreClock = SystemCoreClock()) {
+    public init(sessionProvider: any SessionProvider, clock: any CoreClock = SystemCoreClock(),
+                cacheTTL: TimeInterval = defaultCacheTTL) {
         self.sessionProvider = sessionProvider
         self.clock = clock
+        self.cacheTTL = cacheTTL
     }
 
     public func loadFieldTheory(exportJSON: Data, tenantId: String, reader: any FieldTheoryReading,
@@ -306,7 +327,7 @@ public actor KnowledgeSnapshotStore {
         let context = try await verifiedContext(tenantId: tenantId)
         let records = try reader.readFieldTheory(exportJSON: exportJSON, context: context, now: clock.now(), options: options)
         try await confirm(context, token: token)
-        fieldTheory = (context, records)
+        fieldTheory = (context, records, clock.now())
         return records
     }
 
@@ -316,21 +337,33 @@ public actor KnowledgeSnapshotStore {
         let context = try await verifiedContext(tenantId: tenantId)
         let records = try reader.readFieldReport(exportJSON: exportJSON, context: context, now: clock.now(), options: options)
         try await confirm(context, token: token)
-        fieldReport = (context, records)
+        fieldReport = (context, records, clock.now())
         return records
     }
 
     public func fieldTheoryRecords(for session: NativeSession) -> [FieldTheoryRecord]? {
-        guard let held = fieldTheory, (try? held.context.check(against: session, at: clock.now())) != nil else {
-            if fieldTheory != nil { invalidate() }
+        guard let held = fieldTheory else { return nil }
+        let now = clock.now()
+        guard now.timeIntervalSince(held.receivedAt) <= cacheTTL else {
+            fieldTheory = nil
+            return nil
+        }
+        guard (try? held.context.check(against: session, at: now)) != nil else {
+            invalidate()
             return nil
         }
         return held.records
     }
 
     public func fieldReportRecords(for session: NativeSession) -> [FieldReportRecord]? {
-        guard let held = fieldReport, (try? held.context.check(against: session, at: clock.now())) != nil else {
-            if fieldReport != nil { invalidate() }
+        guard let held = fieldReport else { return nil }
+        let now = clock.now()
+        guard now.timeIntervalSince(held.receivedAt) <= cacheTTL else {
+            fieldReport = nil
+            return nil
+        }
+        guard (try? held.context.check(against: session, at: now)) != nil else {
+            invalidate()
             return nil
         }
         return held.records

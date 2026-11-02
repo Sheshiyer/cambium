@@ -32,11 +32,14 @@ public struct AuthenticatedReaderContext: Sendable, Equatable, Hashable {
         return AuthenticatedReaderContext(principal: founderId, tenantId: tenantId, role: "founder", expiresAt: expiresAt)
     }
 
-    /// The same principal and tenant still hold an unexpired session.
+    /// The same principal and tenant still hold an unexpired session, and this
+    /// context's own expiry (captured at derivation) has not passed. A renewed
+    /// session does not extend a context that was already minted.
     func check(against session: NativeSession, at now: Date) throws {
         guard session.founderId == principal, session.tenantId == tenantId else {
             throw MissionFabricReadError.principalSwitched
         }
+        guard expiresAt > now else { throw MissionFabricReadError.expiredIdentity }
         guard session.admits(tenantId: tenantId, at: now) else { throw MissionFabricReadError.expiredIdentity }
     }
 }
@@ -204,17 +207,24 @@ public struct MissionFabricHTTPClient: MissionFabricReading {
 
 /// Memory-only latest read. Invalidation bumps a generation so a read that was
 /// pending across the switch cannot publish the previous principal's data.
+/// `cacheTTL` bounds how long a successful read may be served from memory;
+/// source timestamps inside the envelope stay the server's own freshness.
 public actor MissionFabricSnapshotStore {
+    public static let defaultCacheTTL: TimeInterval = 60
+
     private let reader: any MissionFabricReading
     private let sessionProvider: any SessionProvider
     private let clock: any CoreClock
+    private let cacheTTL: TimeInterval
     private var current: MissionFabricRead?
     private var generation: UInt64 = 0
 
-    public init(reader: any MissionFabricReading, sessionProvider: any SessionProvider, clock: any CoreClock = SystemCoreClock()) {
+    public init(reader: any MissionFabricReading, sessionProvider: any SessionProvider,
+                clock: any CoreClock = SystemCoreClock(), cacheTTL: TimeInterval = defaultCacheTTL) {
         self.reader = reader
         self.sessionProvider = sessionProvider
         self.clock = clock
+        self.cacheTTL = cacheTTL
     }
 
     public func refresh(tenantId: String) async throws -> MissionFabricRead {
@@ -243,11 +253,18 @@ public actor MissionFabricSnapshotStore {
         return read
     }
 
-    /// Returns the cached read only for the same unexpired principal and tenant.
+    /// Returns the cached read only while it is inside `cacheTTL`, the original
+    /// context is unexpired, and the session still matches. A miss is nil and
+    /// requires a fresh `refresh`.
     public func snapshot(for session: NativeSession) -> MissionFabricRead? {
         guard let current else { return nil }
+        let now = clock.now()
+        guard now.timeIntervalSince(current.receivedAt) <= cacheTTL else {
+            self.current = nil
+            return nil
+        }
         do {
-            try current.context.check(against: session, at: clock.now())
+            try current.context.check(against: session, at: now)
             return current
         } catch {
             invalidate()
