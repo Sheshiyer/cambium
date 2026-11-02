@@ -96,7 +96,7 @@ private struct GoMenu: View {
         } label: {
             Label("Go to", systemImage: "list.bullet")
         }
-        .help("Go to a page (Command-1 to Command-9) or search (Command-F)")
+        .help("Go to a page (Command-1 to Command-9, Command-0 for Projects) or search (Command-F)")
         .accessibilityLabel("Go to page")
     }
 }
@@ -105,7 +105,7 @@ private struct SidebarView: View {
     @Environment(AppModel.self) private var model
 
     private let groups: [(String, [AppSection])] = [
-        ("Overview", [.canopy, .work, .trace, .evidence]),
+        ("Overview", [.canopy, .projects, .work, .trace, .evidence]),
         ("Decide and run", [.proposal, .launch]),
         ("Sources", [.knowledge, .connections]),
         ("App", [.preferences])
@@ -230,6 +230,7 @@ private struct DetailAreaView: View {
             } else {
                 switch model.section {
                 case .canopy: CanopyView()
+                case .projects: ProjectsView()
                 case .work: WorkDossierView()
                 case .trace: TraceView()
                 case .evidence: EvidenceView()
@@ -255,7 +256,7 @@ private struct SearchResultsView: View {
             if hits.isEmpty {
                 EmptyStateView(symbol: "magnifyingglass", title: "No matches",
                                message: model.isDemo
-                                   ? "Try a work name, an evidence title or a page name."
+                                   ? "Try a work name, a mapped project, an evidence title or a page name."
                                    : "Only page names are searchable until you open the demo or sign-in exists.")
             } else {
                 VStack(spacing: 8) {

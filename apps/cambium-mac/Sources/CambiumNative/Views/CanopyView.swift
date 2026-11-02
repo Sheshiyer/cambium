@@ -16,6 +16,8 @@ struct CanopyView: View {
                 UnconfiguredPanel()
             }
 
+            MappedProjectsPanel()
+
             VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(title: "Observed work", detail: model.isDemo ? "\(model.snapshot.work.count) synthetic records" : "none")
                 if model.snapshot.work.isEmpty {
@@ -60,6 +62,44 @@ enum GapText {
         case "native-identity-unconfigured": "Owner sign-in is not configured for this session, so nothing live can be read."
         case "launch-owner-unconfigured": "No launch owner is set up, so nothing can be launched."
         default: gap
+        }
+    }
+}
+
+/// Mapped-project totals from the display catalog. They are source classification
+/// records and stay separate from the observed operational work listed below.
+private struct MappedProjectsPanel: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeader(title: "Mapped projects",
+                          detail: model.fabric?.portfolio.map { "\($0.summary.total) in display catalog" } ?? "none")
+            HStack(alignment: .top, spacing: 14) {
+                VStack(alignment: .leading, spacing: 6) {
+                    if let portfolio = model.fabric?.portfolio {
+                        Text("\(portfolio.summary.total) mapped projects: \(portfolio.summary.saplings) saplings, \(portfolio.summary.clientBranches) client branches, \(portfolio.summary.internalPrograms) internal programs.")
+                            .font(.callout)
+                            .foregroundStyle(Palette.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text("Source classification, \(portfolio.summary.status). Separate from the \(model.snapshot.work.count) observed operational work records below. Catalog membership is not admission.")
+                            .font(.callout)
+                            .foregroundStyle(Palette.inkMuted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text(model.session == nil
+                             ? "No mapped-project catalog is read. Sign-in and owner setup are required."
+                             : "The loaded read carries no mapped-project catalog.")
+                            .font(.callout)
+                            .foregroundStyle(Palette.inkMuted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                Spacer(minLength: 8)
+                Button("Open Projects") { model.open(.projects) }
+                    .accessibilityHint("Opens the mapped-projects page")
+            }
+            .cambiumPanel(padding: 12)
         }
     }
 }

@@ -14,7 +14,7 @@ extension FocusedValues {
     @Entry var cambiumFocusSearch: SearchFocusAction?
 }
 
-/// The Go menu: Command-1 to Command-9 open pages, Command-F focuses search.
+/// The Go menu: Command-1 to Command-9 and Command-0 (Projects) open pages, Command-F focuses search.
 struct CambiumNavigationCommands: Commands {
     @FocusedValue(\.cambiumModel) private var model
     @FocusedValue(\.cambiumFocusSearch) private var focusSearch

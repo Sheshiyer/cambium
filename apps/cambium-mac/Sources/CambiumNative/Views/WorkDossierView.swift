@@ -1,5 +1,6 @@
 import SwiftUI
 import struct CambiumCore.WorkObject
+import struct CambiumCore.MappedProject
 
 struct WorkDossierView: View {
     @Environment(AppModel.self) private var model
@@ -67,6 +68,11 @@ private struct Dossier: View {
             FactRow(label: "Current state", value: work.currentState)
             FactRow(label: "Next step", value: work.nextStep)
             FactRow(label: "Snapshot time", value: model.time(model.snapshot.asOf))
+            if let project = joinedProject {
+                FactRow(label: "Source classification", value: "\(project.classification) · \(project.canonicalId) (explicit served join)")
+                Button("Open mapped project") { model.selectProject(project.id) }
+                    .accessibilityHint("Opens the display catalog record joined to this work")
+            }
         }
         .cambiumPanel()
 
@@ -148,6 +154,13 @@ private struct Dossier: View {
             }
             Spacer()
         }
+    }
+
+    /// The catalog record the served join report maps to this exact Work node.
+    private var joinedProject: MappedProject? {
+        guard let portfolio = model.fabric?.portfolio,
+              let match = portfolio.joinReport?.matches.first(where: { $0.runtimeWorkId == work.id }) else { return nil }
+        return portfolio.projects.first { $0.canonicalId == match.canonicalId }
     }
 
     private var bindingCopy: String {

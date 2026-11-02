@@ -2,19 +2,21 @@ import Foundation
 import SwiftUI
 import struct CambiumCore.SystemSnapshot
 import struct CambiumCore.EvidenceItem
+import struct CambiumCore.MappedPortfolio
 
 // App-local display values. This file never imports all of CambiumCore, so the
 // observable model can use these types without Core's `Observation` shadowing
 // the Observation module.
 
 enum AppSection: String, CaseIterable, Identifiable, Hashable {
-    case canopy, work, trace, evidence, proposal, launch, knowledge, connections, preferences
+    case canopy, work, trace, evidence, proposal, launch, knowledge, connections, preferences, projects
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .canopy: "Canopy"
+        case .projects: "Projects"
         case .work: "Work"
         case .trace: "Trace"
         case .evidence: "Evidence"
@@ -29,6 +31,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     var symbol: String {
         switch self {
         case .canopy: "map"
+        case .projects: "square.grid.2x2"
         case .work: "doc.text"
         case .trace: "point.3.connected.trianglepath.dotted"
         case .evidence: "doc.badge.clock"
@@ -41,8 +44,12 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     }
 
     /// Command-number shortcut shown in the Go menu.
+    ///
+    /// Projects is the tenth section and uses Command-0. The first nine
+    /// sections keep Command-1 through Command-9 in declaration order.
     var shortcut: KeyEquivalent {
-        KeyEquivalent(Character(String((AppSection.allCases.firstIndex(of: self) ?? 0) + 1)))
+        let index = AppSection.allCases.firstIndex(of: self) ?? 0
+        return KeyEquivalent(Character(String((index + 1) % 10)))
     }
 }
 
@@ -315,6 +322,11 @@ struct FabricDisplay: Equatable {
     var trace: FabricTrace
     var gaps: [FabricGapDisplay]
     var sidecars: PortfolioSidecarDisplay
+    /// Display catalog decoded from the served portfolio sidecar.
+    ///
+    /// Nil means the served envelope has no catalog detail. A decode failure
+    /// fails the whole fabric read and never produces a partial catalog here.
+    var portfolio: MappedPortfolio?
     var tenantId: String
     var graphVersion: Int
     var graphDigest: String

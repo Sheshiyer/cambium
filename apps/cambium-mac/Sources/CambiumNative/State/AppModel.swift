@@ -4,12 +4,13 @@ import AppKit
 import SwiftUI
 import struct CambiumCore.SystemSnapshot
 import struct CambiumCore.WorkObject
+import struct CambiumCore.MappedProject
 import struct CambiumCore.EvidenceItem
 import struct CambiumCore.ConnectionObservation
 import enum CambiumCore.DemoData
 import protocol CambiumCore.NativeBrowserPresenting
 
-/// Application state for the nine screens.
+/// Application state for the ten screens.
 ///
 /// Demo mode composes the tested Core coordinators over an in-process owner and
 /// source wire fixtures. Standard mode stays unconfigured until an owner
@@ -45,6 +46,7 @@ final class AppModel {
     private(set) var loading = false
 
     var selectedWorkID: String?
+    var selectedProjectID: String?
     var selectedEvidenceID: String?
     var selectedConnectionID: String?
     var selectedStepID: String?
@@ -106,6 +108,20 @@ final class AppModel {
 
     var allEvidence: [EvidenceItem] { snapshot.work.flatMap(\.evidence) + unattachedEvidence }
     var selectedWork: WorkObject? { snapshot.work.first { $0.id == selectedWorkID } }
+    var selectedProject: MappedProject? { fabric?.portfolio?.projects.first { $0.id == selectedProjectID } }
+
+    /// The Work node named by the served join for this canonical project.
+    /// Raw catalog identifiers, aliases, and tenant strings are not joins.
+    func joinedWork(for project: MappedProject) -> WorkObject? {
+        guard let match = fabric?.portfolio?.joinReport?.matches.first(where: { $0.canonicalId == project.canonicalId }),
+              let work = snapshot.work.first(where: { $0.id == match.runtimeWorkId }) else { return nil }
+        return work
+    }
+
+    var selectedProjectWork: WorkObject? {
+        guard let selectedProject else { return nil }
+        return joinedWork(for: selectedProject)
+    }
     var selectedEvidence: EvidenceItem? { allEvidence.first { $0.id == selectedEvidenceID } }
     var selectedConnection: ConnectionObservation? { snapshot.connections.first { $0.id == selectedConnectionID } }
     var selectedTourStep: TraceStep? { tourSteps.first { $0.id == selectedStepID } }
@@ -150,6 +166,29 @@ final class AppModel {
             capability = nil
         }
         open(.work)
+    }
+
+    func selectProject(_ id: String) {
+        guard fabric?.portfolio?.projects.contains(where: { $0.id == id }) == true else {
+            feedback = "That project is not in the current display catalog."
+            return
+        }
+        selectedProjectID = id
+        open(.projects)
+    }
+
+    /// Opens the operational Work node named by an explicit served join.
+    /// Catalog membership creates no launch or admission capability.
+    func openOperationalWork(for projectID: String) {
+        guard let project = fabric?.portfolio?.projects.first(where: { $0.id == projectID }) else {
+            feedback = "That project is not in the current display catalog."
+            return
+        }
+        guard let work = joinedWork(for: project) else {
+            feedback = "No served join maps \(project.canonicalId) to an operational Work node."
+            return
+        }
+        selectWork(work.id)
     }
 
     /// Binds the typed canonical proposal reference to the selected projected work.
@@ -238,6 +277,7 @@ final class AppModel {
         reviewTyped = ""
         selectedOrgan = nil
         selectedWorkID = nil
+        selectedProjectID = nil
         selectedEvidenceID = nil
         selectedConnectionID = nil
         selectedTraceID = nil
@@ -276,6 +316,9 @@ final class AppModel {
             unattachedEvidence = display.unattachedEvidence
         case .failure(let failure) where token == generation:
             issue = failure
+            // A failed read leaves no catalog from an earlier read in view.
+            fabric = nil
+            selectedProjectID = nil
             snapshot = mode == .demo ? DemoData.snapshot : Self.emptySnapshot
         default:
             return
@@ -301,6 +344,9 @@ final class AppModel {
         }
         if selectedWorkID == nil || !snapshot.work.contains(where: { $0.id == selectedWorkID }) {
             selectedWorkID = snapshot.work.first?.id
+        }
+        if selectedProjectID == nil || fabric?.portfolio?.projects.contains(where: { $0.id == selectedProjectID }) != true {
+            selectedProjectID = fabric?.portfolio?.projects.first?.id
         }
         if let selectedWorkID {
             proposalBinding = services.proposalBinding(workId: selectedWorkID)
@@ -365,6 +411,7 @@ final class AppModel {
         admissions = []
         selectedAdmissionRef = nil
         fabric = nil
+        selectedProjectID = nil
         knowledge = []
         pendingGate = []
         pendingLaunch = []
@@ -669,6 +716,12 @@ final class AppModel {
         for work in snapshot.work where matches(work.name, work.summary, work.id) {
             hits.append(SearchHit(id: "work-\(work.id)", title: work.name, detail: work.summary, section: .work) { [weak self] in
                 self?.selectWork(work.id)
+            })
+        }
+        for project in fabric?.portfolio?.projects ?? [] where matches(project.name, project.canonicalId, project.workId, project.runtimeWorkId ?? "") {
+            hits.append(SearchHit(id: "project-\(project.id)", title: project.name,
+                                  detail: "Display catalog · \(project.canonicalId)", section: .projects) { [weak self] in
+                self?.selectProject(project.id)
             })
         }
         for item in allEvidence where matches(item.title, item.sourceRef) {

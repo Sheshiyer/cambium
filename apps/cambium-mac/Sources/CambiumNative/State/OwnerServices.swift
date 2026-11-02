@@ -211,7 +211,18 @@ final class CambiumOwnerServices: OwnerServices {
                 if case .work(let value) = node { return value.workId }
                 return nil
             }
-            return .success(Self.fabric(read.envelope))
+            let portfolio: MappedPortfolio?
+            do {
+                portfolio = try MappedPortfolioDecoder.decode(read.envelope)
+            } catch {
+                // The served sidecar is unusable. Do not publish operational
+                // work beside a guessed or partial display catalog.
+                return .failure(.init(kind: .invalid, message: "The portfolio sidecar could not be mapped."))
+            }
+            guard stillCurrent(token), await session()?.founderId == current.founderId else {
+                return .failure(.init(kind: .unavailable, message: "The session changed before this read finished."))
+            }
+            return .success(Self.fabric(read.envelope, portfolio: portfolio))
         } catch let error as MissionFabricReadError {
             return .failure(Self.issue(error))
         } catch {
@@ -597,7 +608,7 @@ final class CambiumOwnerServices: OwnerServices {
         )
     }
 
-    private static func fabric(_ envelope: MissionFabricEnvelope) -> FabricDisplay {
+    private static func fabric(_ envelope: MissionFabricEnvelope, portfolio: MappedPortfolio?) -> FabricDisplay {
         var evidence: [EvidenceItem] = []
         for node in envelope.projection.nodes {
             if case .receipt(let value) = node {
@@ -642,6 +653,7 @@ final class CambiumOwnerServices: OwnerServices {
                 joinMatched: join?.matchedCount, joinCatalogOrphans: join?.catalogOrphanCount,
                 joinRuntimeOrphans: join?.runtimeOrphanCount, portfolioPairDigest: envelope.delivery.portfolioPairDigest,
                 organDeliveryPresent: envelope.organDeliveryPresent, organDeliveryIsSummary: envelope.organDeliveryIsSummary),
+            portfolio: portfolio,
             tenantId: envelope.projection.tenantId, graphVersion: envelope.projection.graphVersion,
             graphDigest: envelope.projection.graphDigest, asOf: envelope.projection.asOf,
             generatedAt: envelope.projection.generatedAt, servedAt: envelope.delivery.servedAt,
