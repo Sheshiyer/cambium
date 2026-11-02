@@ -1459,9 +1459,10 @@ export default {
             ? resolved.principal.id
             : null;
         },
+        // Bind the production host to one atomic TeamForge role/enrollment
+        // snapshot. Legacy split callbacks remain test-owner compatibility
+        // seams and are intentionally not composed into the live path.
         resolveFounderAccess: nativeIdentityAuthority.resolveFounderAccess,
-        currentRole: nativeIdentityAuthority.currentRole,
-        enrolledTenants: nativeIdentityAuthority.enrolledTenants,
         clients: nativeSessionClients,
         store: d1NativeSessionStore(env.BRIDGE_DB),
         consent: d1NativeConsentIntentStore(env.BRIDGE_DB),
