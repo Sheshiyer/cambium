@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "status": "wave1-dispatch-running",
+  "status": "wave1-hosted-implementation-and-core-correction-running",
   "task": "Build native Cambium via hosted Phloem fan-out",
   "completed": [
     "Reviewed parallel-dispatch protocol and existing native architecture",
@@ -10,16 +10,21 @@
     "Codex-wire probe terminated before inference with invalid context7 transport; no worker edits",
     "Hosted Grok noesis-execute read/tool probe returned actual HEAD and five source-backed responsibilities",
     "Three disjoint worker packets passed batch dry-run routing",
-    "Wave1 foreground batch started with worktree isolation"
+    "Wave1 foreground batch started with worktree isolation",
+    "Recovered foundation/interface pre-tool folder failures with stable isolated worker checkouts",
+    "Captured first core source packet; independent harness ran 5 tests with 2 failures",
+    "Reviewed first core packet and dispatched corrective hosted work for canonical fixtures, principal scope and durable original launch identity"
   ],
   "remaining": [
-    "Poll existing batch process83060 and require index/SUMMARY before acceptance",
-    "Inspect all worker diffs and provider evidence; integrate clean isolated build branch",
-    "Compile/test native code and dispatch hosted integration/fix packets",
-    "Build real local app bundle, native snapshots, interaction/QA and meaningful action/recovery tests"
+    "Finish existing hosted foundation, interface, owner-contract and core-correction workers",
+    "Review exact source and actual test evidence before integrating",
+    "Compile and test native app; connect UI to corrected owner coordinators",
+    "Build local bundle and verify rendered light/dark surfaces, navigation and recovery"
   ],
   "blockers": [
-    "Local rank-paid-fleet refresh requires absent local SQLite; no local fallback used"
+    "Codex wire rejected config before inference; hosted native Grok client is producing tools and code instead",
+    "Batch wrapper malformed summary after preserving core diff; stable isolated workers avoid that wrapper",
+    "Live native identity exchange and execution-owner bindings still require runtime proof"
   ],
   "decisions": [
     "Use only hosted Phloem for requested worker inference",
@@ -31,7 +36,7 @@
     "ISA.md (new native implementation criteria; shared)",
     "native build handoff files only"
   ],
-  "next_action": "Continue the existing hosted wave1 batch from the operator-private handoff. Require terminal index and substantive source diffs, then integrate on codex/cambium-native-build. Do not restart live workers.",
+  "next_action": "Continue existing hosted workers using the operator-private runtime checkpoint. Do not restart live work. Integrate only reviewed terminal packets; first core packet is not accepted.",
   "isa": "ISA.md",
   "isc_open": [
     "ISC-3400",
@@ -74,5 +79,5 @@
     "token_budget": 50000000,
     "goal_status": "active"
   },
-  "next_command": "Inspect the running batch receipt from the private handoff"
+  "next_command": "Inspect existing worker logs and terminal handles from private runtime checkpoint"
 }
