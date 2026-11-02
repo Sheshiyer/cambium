@@ -1,0 +1,367 @@
+import Foundation
+import SwiftUI
+import struct CambiumCore.SystemSnapshot
+import struct CambiumCore.EvidenceItem
+
+// App-local display values. This file never imports all of CambiumCore, so the
+// observable model can use these types without Core's `Observation` shadowing
+// the Observation module.
+
+enum AppSection: String, CaseIterable, Identifiable, Hashable {
+    case canopy, work, trace, evidence, proposal, launch, knowledge, connections, preferences
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .canopy: "Canopy"
+        case .work: "Work"
+        case .trace: "Trace"
+        case .evidence: "Evidence"
+        case .proposal: "Proposal review"
+        case .launch: "Launch"
+        case .knowledge: "Knowledge"
+        case .connections: "Connections"
+        case .preferences: "Preferences"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .canopy: "map"
+        case .work: "doc.text"
+        case .trace: "point.3.connected.trianglepath.dotted"
+        case .evidence: "doc.badge.clock"
+        case .proposal: "signature"
+        case .launch: "play.rectangle"
+        case .knowledge: "books.vertical"
+        case .connections: "link"
+        case .preferences: "slider.horizontal.3"
+        }
+    }
+
+    /// Command-number shortcut shown in the Go menu.
+    var shortcut: KeyEquivalent {
+        KeyEquivalent(Character(String((AppSection.allCases.firstIndex(of: self) ?? 0) + 1)))
+    }
+}
+
+/// Which knowledge source a row belongs to. The two stay separate.
+enum KnowledgeSource: String, CaseIterable, Identifiable, Hashable {
+    case fieldTheory = "Field Theory"
+    case fieldReport = "Field Report"
+
+    var id: String { rawValue }
+
+    var explanation: String {
+        switch self {
+        case .fieldTheory:
+            "Bookmarks, Library notes and directions. A direction proposes work; it is not a task."
+        case .fieldReport:
+            "Versioned observations of a place. Field Report has its own schema and is not a Field Theory note."
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .fieldTheory: "text.book.closed"
+        case .fieldReport: "map"
+        }
+    }
+}
+
+struct KnowledgeItem: Identifiable, Hashable {
+    var id: String
+    var source: KnowledgeSource
+    var title: String
+    var detail: String
+    var sourceRef: String
+    var observedAt: String
+    var meaning: String = ""
+    var freshness: String = ""
+    var subjectId: String = ""
+    var gaps: [String] = []
+}
+
+struct TraceStep: Identifiable, Hashable {
+    var id: String
+    var order: Int
+    var title: String
+    var detail: String
+    var state: String
+    var dependsOn: [String]
+    var position: CGPoint
+}
+
+/// Link from a work item to a reviewable proposal. The source review does not
+/// name a work item, so the demo leaves this nil rather than inventing one.
+struct ProposalLink: Equatable {
+    var workID: String
+}
+
+enum ReviewChoice: String, CaseIterable, Identifiable, Sendable {
+    case approve, reject
+    var id: String { rawValue }
+    var title: String { rawValue.capitalized }
+}
+
+enum AppearanceChoice: String, CaseIterable, Identifiable {
+    case system, light, dark
+    var id: String { rawValue }
+    var title: String { rawValue.capitalized }
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+}
+
+struct SearchHit: Identifiable {
+    var id: String
+    var title: String
+    var detail: String
+    var section: AppSection
+    var apply: () -> Void
+}
+
+// MARK: - Owner results
+
+/// Why an action or read has no result. Kinds stay distinct so the UI never
+/// shows an unknown or refused outcome as a success.
+struct ServiceIssue: Equatable, Error {
+    enum Kind: String, Equatable {
+        case unconfigured, unavailable, unsupported, expired, refused, unknown, invalid
+    }
+    var kind: Kind
+    var message: String
+
+    var title: String {
+        switch kind {
+        case .unconfigured: "Not configured"
+        case .unavailable: "Unavailable"
+        case .unsupported: "Unsupported"
+        case .expired: "Expired"
+        case .refused: "Refused"
+        case .unknown: "Unknown"
+        case .invalid: "Invalid"
+        }
+    }
+}
+
+struct ChangeLine: Identifiable, Hashable {
+    var id: String
+    var field: String
+    var before: String
+    var after: String
+}
+
+/// Full owner review as decoded by the Core gate client.
+struct ReviewDisplay: Equatable {
+    var proposalId: String
+    var tenantId: String
+    var version: Int
+    var changeDigest: String
+    var nonce: String
+    var expiresAt: String
+    var summary: String
+    var consequence: String
+    var reversibility: String
+    var graphVersion: Int?
+    var expectedHeadDigest: String?
+    var sourceRef: String?
+    var sourceDigest: String?
+    var changes: [ChangeLine]
+    var changeSetJSON: String
+    var approveConfirmation: String
+    var rejectConfirmation: String
+    var principal: String
+}
+
+/// One founder decision attempt, from the persisted Core record.
+struct GateDisplay: Equatable, Identifiable {
+    var id: String { "\(proposalId)#\(version)#\(nonce)" }
+    var proposalId: String
+    var version: Int
+    var nonce: String
+    var choice: String
+    var state: String
+    var label: String
+    var decidedAt: String?
+    var receiptDigest: String?
+    var updatedAt: String
+    /// The owner may already hold this decision. Only a status read is allowed.
+    var needsStatusCheck: Bool
+    var recorded: Bool
+}
+
+/// Exact capability tuple the owner returned for one work and admission.
+struct LaunchCapabilityDisplay: Equatable {
+    var workId: String
+    var admissionRef: String
+    var graphVersion: Int
+    var loadoutId: String
+    var inputDigest: String
+    var plant: String
+    var plantName: String
+    var action: String
+    var expiresAt: String
+}
+
+/// One launch attempt, from the persisted Core record. Transport, execution and
+/// semantic acceptance are separate fields.
+struct LaunchDisplay: Equatable, Identifiable {
+    var id: String { requestId }
+    var workId: String
+    var admissionRef: String
+    var plantName: String
+    var requestId: String
+    var attemptId: String
+    var nonce: String
+    var state: String
+    var transport: String
+    var execution: String
+    var acceptance: String
+    var ownerRef: String?
+    var requestKey: String?
+    var updatedAt: String
+    var needsStatusCheck: Bool
+}
+
+struct FabricTraceNode: Identifiable, Equatable {
+    var id: String
+    var kind: String
+    var title: String
+    var detail: String
+    var position: CGPoint
+}
+
+struct FabricTraceEdge: Identifiable, Equatable {
+    var id: String
+    var from: String
+    var to: String
+    var kind: String
+}
+
+/// Producer work graph from one decoded Mission Fabric projection.
+struct FabricTrace: Equatable {
+    var nodes: [FabricTraceNode]
+    var edges: [FabricTraceEdge]
+
+    func node(_ id: String) -> FabricTraceNode? { nodes.first { $0.id == id } }
+}
+
+struct FabricGapDisplay: Identifiable, Equatable {
+    var id: String
+    var kind: String
+    var subjectId: String?
+    var detail: String
+}
+
+/// Independent portfolio sidecars. They are display and proposal data, never admission.
+struct PortfolioSidecarDisplay: Equatable {
+    var catalogTotal: Int?
+    var saplings: Int?
+    var clientBranches: Int?
+    var internalPrograms: Int?
+    var operationalGaps: Int?
+    var catalogDigest: String?
+    var actionAdmission: String?
+    var joinMatched: Int?
+    var joinCatalogOrphans: Int?
+    var joinRuntimeOrphans: Int?
+    var portfolioPairDigest: String?
+    var organDeliveryPresent: Bool
+    var organDeliveryIsSummary: Bool
+}
+
+struct FabricDisplay: Equatable {
+    var snapshot: SystemSnapshot
+    var unattachedEvidence: [EvidenceItem]
+    var trace: FabricTrace
+    var gaps: [FabricGapDisplay]
+    var sidecars: PortfolioSidecarDisplay
+    var tenantId: String
+    var graphVersion: Int
+    var graphDigest: String
+    var asOf: String
+    var generatedAt: String
+    var servedAt: String
+    var freshness: String
+}
+
+struct KnowledgeDisplay: Equatable {
+    var fieldTheory: Result<[KnowledgeItem], ServiceIssue>
+    var fieldReport: Result<[KnowledgeItem], ServiceIssue>
+}
+
+struct SessionDisplay: Equatable {
+    var founderId: String
+    var tenantId: String
+    var expiresAt: String
+    var synthetic: Bool
+}
+
+struct FixtureLineageDisplay: Identifiable, Equatable {
+    var id: String { name }
+    var name: String
+    var sha256: String
+    var source: String
+    var verified: Bool
+    var synthetic: Bool
+}
+
+/// The surface each mode supplies. Demo and standard implementations compose
+/// Core coordinators and clients; this protocol carries only app display types.
+@MainActor
+protocol OwnerServices: AnyObject {
+    var isDemo: Bool { get }
+    /// Fixed source replay time, when one applies. Never current live freshness.
+    var replayClock: String? { get }
+    var supportsReject: Bool { get }
+    var ownerDescription: String { get }
+
+    func session() async -> SessionDisplay?
+    func signIn() async -> Result<SessionDisplay, ServiceIssue>
+    func signOut() async
+
+    func readFabric() async -> Result<FabricDisplay, ServiceIssue>
+    func loadKnowledge() async -> KnowledgeDisplay
+
+    func loadReview() async -> Result<ReviewDisplay, ServiceIssue>
+    func submitReview(_ choice: ReviewChoice, typed: String) async -> Result<GateDisplay, ServiceIssue>
+    func recoverReview() async -> Result<GateDisplay, ServiceIssue>
+    func pendingGate() async -> [GateDisplay]
+    /// The persisted outcome for the loaded review, if one exists. It may send a
+    /// status-only read and never a decision.
+    func storedReview() async -> GateDisplay?
+
+    func inspectCapability() async -> Result<LaunchCapabilityDisplay, ServiceIssue>
+    func launch() async -> Result<LaunchDisplay, ServiceIssue>
+    func recoverLaunch() async -> Result<LaunchDisplay, ServiceIssue>
+    func pendingLaunch() async -> [LaunchDisplay]
+
+    func armResponseLoss() async
+    func responseLossArmed() async -> Bool
+    func resetDemo() async
+    func lineage() -> [FixtureLineageDisplay]
+    /// Stops this scope: sessions are dropped so late completions are refused.
+    func invalidate() async
+}
+
+/// The Five-step product tour. It is a walkthrough, not the work graph.
+enum Walkthrough {
+    static let steps: [TraceStep] = [
+        TraceStep(id: "tour-observe", order: 1, title: "Observe", detail: "Read the labelled snapshot and its gaps.",
+                  state: "walkthrough", dependsOn: [], position: CGPoint(x: 0.10, y: 0.35)),
+        TraceStep(id: "tour-select", order: 2, title: "Select", detail: "Choose one work item to inspect.",
+                  state: "walkthrough", dependsOn: ["tour-observe"], position: CGPoint(x: 0.30, y: 0.68)),
+        TraceStep(id: "tour-review", order: 3, title: "Review", detail: "Read the source change set and type the exact confirmation.",
+                  state: "walkthrough", dependsOn: ["tour-select"], position: CGPoint(x: 0.50, y: 0.32)),
+        TraceStep(id: "tour-launch", order: 4, title: "Launch", detail: "Inspect the owner capability, then launch through the coordinator.",
+                  state: "walkthrough", dependsOn: ["tour-review"], position: CGPoint(x: 0.70, y: 0.68)),
+        TraceStep(id: "tour-recover", order: 5, title: "Recover", detail: "A lost reply is recovered by status. Nothing is sent twice.",
+                  state: "walkthrough", dependsOn: ["tour-launch"], position: CGPoint(x: 0.90, y: 0.35))
+    ]
+}

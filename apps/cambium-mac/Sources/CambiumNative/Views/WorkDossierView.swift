@@ -121,7 +121,7 @@ private struct Dossier: View {
         HStack {
             Button("See the trace") { model.open(.trace) }
             Button("Review proposal") { model.open(.proposal) }
-                .disabled(model.proposal?.workID != work.id)
+                .disabled(model.review == nil)
             Spacer()
         }
     }

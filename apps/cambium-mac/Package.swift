@@ -17,6 +17,7 @@ let package = Package(
             resources: [.process("Resources")],
             swiftSettings: [.defaultIsolation(MainActor.self)]
         ),
-        .testTarget(name: "CambiumCoreTests", dependencies: ["CambiumCore"], resources: [.copy("Fixtures")])
+        .testTarget(name: "CambiumCoreTests", dependencies: ["CambiumCore"], resources: [.copy("Fixtures")]),
+        .testTarget(name: "CambiumNativeTests", dependencies: ["CambiumCore", "CambiumNative"])
     ]
 )
