@@ -54,13 +54,16 @@ visual documents; it is not permission to delete services or canonical data.
   HTTP failures, hydration, cancellation, no SDK on web/founder, optional Telegram adapter failure, old query flags, synchronous/throwing
   renderer failure, retry and cached-page restoration.
 - Root IAB observed one canvas, Field Atlas title, Enter world, eight-district
-  chart, founder Gate folio and empty synthetic decision journal. Old query flags
-  still showed the world with no retired tabs or desk text. This is local browser
-  evidence with synthetic data and no writes, not authenticated production proof.
+  chart, founder Gate folio and empty synthetic decision journal. Fresh final
+  founder web had zero Telegram SDK script tags and empty warning/error logs.
+  Actual CSS viewport/client/scroll widths were320/320/320. Old query flags still
+  showed the world with no retired tabs or desk text. DOM/script and log evidence
+  is not a browser network-event trace. This is local browser evidence with
+  synthetic data and no writes, not authenticated production proof.
 - Full suite first pass: 2,509/2,536 passed. Historical serving-page assertions
   exposed by retirement were moved to explicit retired fixtures; their 68-test
   focused rerun passes. The source-atlas fingerprint was regenerated with the
-  canonical generator and its check passes. Six repository/Git-ref snapshot tests
+  canonical generator and its check passes. Five repository/Git-ref snapshot tests
   encountered concurrent Codex turn-diff ref movement. The canonical viewport
   fingerprint remains stale and is not repinned or represented as new proof.
 
@@ -79,6 +82,29 @@ node scripts/generate-system-atlas.mjs --check
 Some `scenes/story.ts` and `scenes/tools.ts` pure parsers remain Worker inputs
 because server projections use them. Their client UI strings and renderers are
 absent from the emitted bundle; removing those parsers would change API behavior.
+
+## Frozen source and targeted isolation follow-up
+
+Source commit `8710fdd9cf4a3c412845acdd3ac4a6be281cfbb0` is published in
+[draft PR425](https://github.com/Sheshiyer/cambium/pull/425). The final focused
+run passes896/896 tests with zero skips. The built Worker and PAGE sizes/digests
+above bind this source; this follow-up changes documentation only.
+
+A standalone local clone first encountered the existing promisor-object fetch
+failure, without repair. A normal HTTPS shallow clone of the exact published
+branch then supplied an independent `.git` directory and clean working tree.
+The targeted privacy/safety run completed11 tests:9 passed and2 failed. All
+three SAFE-01/02/03 mutation/immutability checks passed in isolation. The two
+phase privacy checks could not resolve their historical06-01/07-01
+`phase_base_sha` from shallow history, even after the tests' own fetch attempts;
+no merge base existed. These are remaining history-resolution limits, not a
+passing privacy clearance. The clone remained clean. No historical pins, test
+assertions or fetch behavior were weakened.
+
+The original full result remains2,509/2,536; a second full run was not claimed.
+The21 retirement-sensitive assertions/source fingerprints were addressed and
+covered by the final896-test run. Five shared-ref race observations were
+rechecked as described above. The canonical viewport audit is still stale.
 
 ## Remaining gates and rollback
 
