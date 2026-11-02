@@ -28,10 +28,10 @@ import type { D1DatabaseLike, D1StatementLike } from './index.ts';
 import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
-import { PAGE } from './page.ts';
-import { LEGACY_PAGE } from './page/index.ts';
+// Legacy UI regressions use an explicit retired fixture, never the serving PAGE.
+import { RETIRED_PAGE as PAGE, LEGACY_PAGE } from './page/retired.ts';
 import { OPERATING_FABRIC_PAGE } from './page/operating-fabric/index.ts';
-import { CURIOUS_WORLD_PAGE } from './page/components/curious-world.ts';
+import { CURIOUS_WORLD_PAGE } from './page/components/retired-curious-world.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { parseToolsCommandProjection } from './page/scenes/tools.ts';
 import {

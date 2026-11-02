@@ -22,7 +22,7 @@ import { GROWTH_REFS, GROWTH_ROLES, parseGrowthInput, parseGrowthRequest, parseG
 import type { GrowthInput, GrowthResult, GrowthRecord, GrowthStore } from './growth-workflow.ts';
 import { GROWTH_CONTEXT_PROJECTION } from './growth-context-projection.ts';
 import { PAGE } from './page.ts';
-import { injectInitialQuestHydration } from './page/client/data.ts';
+import { injectInitialQuestHydration } from './page/initial-hydration.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord, resolveActionRequestReplyRecord } from './action-requests.ts';

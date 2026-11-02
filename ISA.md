@@ -1804,6 +1804,26 @@ this setup. These criteria accept review documents, not runtime activation.
 - [x] ISC-3110: The authenticated founder and actual admitted operating tenant are verified before explicit binding enrollment; unproved client-specific tenants remain held.
 - [x] ISC-3111: One eligible server-owned pending proposal is renewed and fully reviewed through the 3D Gate with authoritative decision/readback evidence; existing committed receipts remain immutable.
 
+
+### Field Atlas-only browser retirement — 2026-11-02
+
+The founder authorized removal of the retired 2D desk from the serving build.
+This bounded source iteration retains all existing API, identity, Gate and
+canonical data owners. Production deployment remains separately reviewed.
+
+- [x] ISC-3220: Serving PAGE contains Field Atlas and no Mission Control/Fabric desk markup.
+- [x] ISC-3221: Historical world/scene flags cannot opt out of mounting the maintained 3D surface.
+- [x] ISC-3222: Actual Worker build metadata and emitted bytes exclude retired UI modules and markers.
+- [x] ISC-3223: Page-owned reads retain selected tenant, founder prefix, same-origin credentials and runtime Telegram header.
+- [x] ISC-3224: Existing Gate/read bridges and in-world payload remain byte-identical to the base.
+- [x] ISC-3225: Initial hydration uses the same validated host paint path without replaying a write.
+- [x] ISC-3226: Malformed, cross-tenant, stale, future and failed reads keep both bridges held.
+- [x] ISC-3227: Throwing or synchronous renderer failure offers retry without reopening a retired desk.
+- [x] ISC-3228: Existing Gate folio and mission dossier source tests pass.
+- [x] ISC-3229: Pagehide aborts reads and cached-page restoration refreshes/remounts the world.
+- [x] ISC-3230: Actual local browser opens the world/chart/Gate and rejects retired query-flag navigation.
+- [ ] ISC-3231: Canonical fresh viewport and separately approved production rollout evidence exist for this source.
+
 ## Test Strategy
 
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
@@ -3448,3 +3468,14 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3137 final: Frozen ba23d70 core2452/2453 passes0skips, only knowncanonicalviewport hold. App184/184/build/art/parity pass; PR403 mergedf23b449 has an identical tree. No equality or privacy assertion weakened.
 - ISC-3138: Worker4918ce0e serves100percent with rollbackc373b54a; rawbindingaudit47/47changed[] and before/afterglobalsettings/domain/cron match. No migration/enrollmentchange.
 - ISC-3139: Authenticated live existingreceipt6444a852 canonicalReadbacktrue, historicalrequestedDecision=null; Meso and preservedobjective with no inventedcontext. OnlyDecision/Graph observed.320px containment,45pxcontrols,focus/disclosures/reducedmotion/journal pass. D1remains4approvals/4events; no newdecision or renewal. Runtimeevidence in `docs/evidence/2026-10-25-gate-chamber-live.v1.json`.
+
+### Field Atlas-only source verification — 2026-11-02
+
+- ISC-3220..3223, ISC-3225..3227, ISC-3229: field-atlas-host and current world/Gate suites exercise actual serving strings and host callbacks, including renderer retry and cached-page restoration. Host suite13/13 passes.
+- ISC-3222: Wrangler dry-run plus scripts/check-field-atlas-build.mjs reports zero retired UI inputs/markers, both original bridges and the maintained world; emitted Worker2,438,529bytes.
+- ISC-3224: git diff against8261d48 is empty for both bridge modules, generated world and in-world index. Existing Gate28tests pass. No API/auth/decision implementation was removed.
+- ISC-3228: existing Gate folio, decision chamber, decision and mission dossier suites40/40 pass.
+- ISC-3230: root IAB local synthetic read-only review observed Field Atlas title/canvas, entry, eight-district chart, founder Gate and empty decision journal. ?world=0&scene=gate retained the world; retired tab count0 and retired desk text absent. Review screenshots are cambium-3d-only-default.png and cambium-3d-only-chart.png. This is not production or real decision acceptance.
+- ISC-3231 remains open: canonical viewport source fingerprint is stale and unchanged; root review, fresh deployment/identity readback and any production promotion remain separate. No deployment or real Gate decision occurred in this source iteration.
+
+- 2026-11-02 root browser follow-up found unconditional Telegram SDK theme warnings on ordinary founder web. The host now loads no SDK or theme calls there; two new behavior tests prove Access-only founder behavior and optional Telegram-context adapter loading/failure. Both original bridges remain unchanged.

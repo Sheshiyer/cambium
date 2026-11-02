@@ -1,0 +1,84 @@
+// Historical five-scene test document. Never import from a serving entrypoint.
+// cambium-quests · miniapp page assembler (T-009 pure refactor).
+// Concatenates the page/* chunks in served order. The byte-identical era ended at P2-W1:
+// frozen-spec visual changes land here now; keep assembly order explicit and stable.
+import { STYLE_TOKENS } from './styles/tokens.ts';
+import { STYLE_TOOLS } from './styles/tools.ts';
+import { STYLE_MISSION } from './styles/mission.ts';
+import { STYLE_COMPONENTS } from './styles/components.ts';
+import { STYLE_INSPECT } from './styles/inspect.ts';
+import { STYLE_STORY } from './styles/story.ts';
+import { STYLE_GATE } from './styles/gate.ts';
+import { STYLE_SHEET } from './styles/sheet.ts';
+import { STYLE_WORKBENCH } from './styles/workbench.ts';
+import { STYLE_STATES } from './styles/states.ts';
+import { SCAFFOLD } from './scaffold.ts';
+import { CLIENT_CORE } from './client/core.ts';
+import { GLYPHS } from './glyphs.ts';
+import { COMPONENT_MISSION_CONTROL } from './components/mission-control.ts';
+import { COMPONENT_GALLERY } from './components/gallery.ts';
+import { SYSTEM_ATLAS_CSS, SYSTEM_ATLAS_BROWSER } from './components/system-atlas.ts';
+import { CLIENT_BOOT } from './client/boot.ts';
+import { CLIENT_SCENE_ENGINE } from './client/scene-engine.ts';
+import { SCENE_TOOLS } from './scenes/tools.ts';
+import { CLIENT_GESTURES } from './client/gestures.ts';
+import { CLIENT_SHEET } from './client/sheet.ts';
+import { CLIENT_SIGNED_ACTION } from './client/signed-action.ts';
+import { SCENE_MISSION } from './scenes/mission.ts';
+import { SCENE_INSPECT } from './scenes/inspect.ts';
+import { SCENE_STORY } from './scenes/story.ts';
+import { CLIENT_FRESHNESS } from './client/freshness.ts';
+import { CLIENT_DATA } from './client/data.ts';
+import { OPERATING_FABRIC_PAGE } from './operating-fabric/index.ts';
+import { CLIENT_CURIOUS_READ_BRIDGE } from './client/curious-read-bridge.ts';
+import { CLIENT_CURIOUS_GATE_BRIDGE } from './client/curious-gate-bridge.ts';
+import { CURIOUS_WORLD_PAGE } from './components/retired-curious-world.ts';
+
+// LEGACY_PAGE retains the reviewed five-scene composition, with the additive
+// source atlas shared by Inspect/System and Fabric sheets. PAGE injects the
+// inert operating fabric fragment at the single legacy </body> index. Removing
+// the fragment restores LEGACY_PAGE byte-for-byte; PAGE remains the handler's
+// only document export.
+export const LEGACY_PAGE =
+  STYLE_TOKENS +
+  STYLE_TOOLS +
+  STYLE_MISSION +
+  STYLE_COMPONENTS +
+  STYLE_INSPECT +
+  SYSTEM_ATLAS_CSS +
+  STYLE_STORY +
+  STYLE_GATE +
+  STYLE_SHEET +
+  STYLE_WORKBENCH +
+  STYLE_STATES +
+  SCAFFOLD +
+  CLIENT_CORE +
+  GLYPHS +
+  COMPONENT_MISSION_CONTROL +
+  COMPONENT_GALLERY +
+  SYSTEM_ATLAS_BROWSER +
+  CLIENT_BOOT +
+  CLIENT_SCENE_ENGINE +
+  SCENE_TOOLS +
+  CLIENT_GESTURES +
+  CLIENT_SHEET +
+  CLIENT_SIGNED_ACTION +
+  SCENE_MISSION +
+  SCENE_INSPECT +
+  SCENE_STORY +
+  CLIENT_FRESHNESS +
+  CLIENT_CURIOUS_READ_BRIDGE +
+  CLIENT_CURIOUS_GATE_BRIDGE +
+  CLIENT_DATA;
+
+const bodyClose = '</body>';
+const bodyCloseIndex = LEGACY_PAGE.indexOf(bodyClose);
+if (bodyCloseIndex < 0 || bodyCloseIndex !== LEGACY_PAGE.lastIndexOf(bodyClose)) {
+  throw new Error('legacy page must contain exactly one closing body tag');
+}
+
+export const RETIRED_PAGE =
+  LEGACY_PAGE.slice(0, bodyCloseIndex) +
+  OPERATING_FABRIC_PAGE +
+  CURIOUS_WORLD_PAGE +
+  LEGACY_PAGE.slice(bodyCloseIndex);
