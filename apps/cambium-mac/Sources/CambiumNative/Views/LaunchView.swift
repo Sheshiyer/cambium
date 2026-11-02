@@ -27,11 +27,16 @@ struct LaunchView: View {
                         Button("Finish run") { model.finishRun() }
                             .buttonStyle(.borderedProminent)
                     case .finished:
-                        Button("Simulate uncertain reply") { model.loseReply() }
-                            .buttonStyle(.bordered)
+                        Label("Preview finished", systemImage: "checkmark")
+                            .foregroundStyle(Palette.evidence)
                     case .uncertain:
                         Button("Check status (status-only)") { model.checkStatus() }
                             .buttonStyle(.borderedProminent)
+                    }
+
+                    if model.launch.phase == .requested || model.launch.phase == .running {
+                        Button("Simulate uncertain reply") { model.loseReply() }
+                            .buttonStyle(.bordered)
                     }
 
                     if model.launch.phase != .idle {
