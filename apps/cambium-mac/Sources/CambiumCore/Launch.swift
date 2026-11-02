@@ -110,6 +110,9 @@ public struct AttemptStatusResult: Sendable, Equatable {
     public var retry: String? = nil
     /// The owner's echo of the pinned tuple. Nil only from injected clients that do not report it.
     public var capability: LaunchCapabilityTuple? = nil
+    /// True only for the owner's identical `404 not_found`: no row exists for these IDs.
+    /// A missing owner job on an existing row (`owner_not_found`) stays false.
+    public var ownerAbsent: Bool = false
 }
 
 public enum SemanticVerdict: String, Codable, Sendable, Equatable {
@@ -380,7 +383,8 @@ enum OwnerWire {
         case 404 where string(o, "status") == "not_found":
             return AttemptStatusResult(
                 requestId: requestId, attemptId: attemptId, status: .unknown,
-                runId: nil, artifactRef: nil, receiptRef: nil, verdict: nil, detail: "not_found"
+                runId: nil, artifactRef: nil, receiptRef: nil, verdict: nil, detail: "not_found",
+                ownerAbsent: true
             )
         case 409 where string(o, "code") == "attempt_mismatch":
             throw LaunchError.refused("attempt_mismatch")
@@ -555,6 +559,9 @@ public struct LaunchAttemptRecord: Codable, Sendable, Equatable {
     public var ownerRef: String? = nil
     public var acceptance: String? = nil
     public var detail: String? = nil
+    /// Set only after a status read of these exact IDs returned `404 not_found`.
+    /// That proof is the sole permission to resend the persisted original request.
+    public var ownerAbsent: Bool? = nil
 }
 
 public struct LaunchOutcome: Sendable, Equatable {
@@ -664,7 +671,15 @@ public actor LaunchCoordinator {
             guard existing.capability == capability, existing.idempotencyNonce == idempotencyNonce else {
                 throw LaunchError.refused("nonce_reused_with_different_capability")
             }
-            return LaunchOutcome(state: existing.state, record: existing)
+            // A proved-absent original may be sent again. Every other stored attempt
+            // returns as-is: same nonce never invents a second request.
+            guard existing.ownerAbsent == true else {
+                return LaunchOutcome(state: existing.state, record: existing)
+            }
+            return try await resendOriginal(
+                record: existing, capability: capability, key: key,
+                tenantId: capability.tenantId, principal: capability.principal
+            )
         }
 
         try Self.validate(capability, now: clock.now())
@@ -735,6 +750,88 @@ public actor LaunchCoordinator {
         return LaunchOutcome(state: record.state, record: record)
     }
 
+    /// Resends the exact persisted request after status proved the owner has no row.
+    /// IDs, nonce and tuple are the stored ones. A second distinct attempt is never created.
+    private func resendOriginal(
+        record persisted: LaunchAttemptRecord, capability: LaunchCapability, key: String,
+        tenantId: String, principal: String
+    ) async throws -> LaunchOutcome {
+        guard persisted.ownerAbsent == true,
+              persisted.capability == capability,
+              persisted.idempotencyNonce.count > 0 else {
+            throw LaunchError.refused("original_resend_refused")
+        }
+        try Self.validate(capability, now: clock.now())
+        try await requireScope(tenantId: tenantId, principal: principal)
+
+        var record = persisted
+        record.state = .transmitting
+        record.updatedAt = Self.stamp(clock.now())
+        // The absence proof stays durable across the send. A crash here still permits
+        // only this same original, never a fresh nonce.
+        do { try await store.save(try encoder(record), key: key) } catch { throw LaunchError.persistenceFailed }
+
+        let stillCurrent = await scopeHolds(tenantId: tenantId, principal: principal)
+        let unexpired = CanonicalTimestamp.parse(capability.expiresAt).map { $0 > clock.now() } ?? false
+        guard stillCurrent, unexpired else {
+            record.state = .outcomeUnknown
+            record.ownerAbsent = true
+            record.detail = stillCurrent ? "expired_before_original_resend" : "session_changed_before_original_resend"
+            record.updatedAt = Self.stamp(clock.now())
+            try? await store.save(try encoder(record), key: key)
+            throw stillCurrent ? LaunchError.expired : LaunchError.notAdmitted
+        }
+
+        let requestId = record.requestId
+        let attemptId = record.attemptId
+        let nonce = record.idempotencyNonce
+        var wire: LaunchRequestWire? = nil
+        var sendError = false
+        do {
+            wire = try await client.requestLaunch(
+                capability: capability, requestId: requestId, attemptId: attemptId, idempotencyNonce: nonce
+            )
+        } catch {
+            sendError = true
+        }
+
+        let held = await scopeHolds(tenantId: tenantId, principal: principal)
+        record.updatedAt = Self.stamp(clock.now())
+        record.ownerAbsent = nil
+        if !held {
+            record.state = .outcomeUnknown
+            record.detail = "session_changed_after_send"
+        } else if let wire, !sendError {
+            if wire.requestId != requestId || wire.attemptId != attemptId {
+                record.state = .outcomeUnknown
+                record.detail = "mismatched_response_ids"
+            } else {
+                record.state = Self.state(for: wire.status)
+                record.assignedRunId = wire.assignedRunId
+                record.requestKey = wire.requestKey
+                record.dispatch = wire.dispatch
+                record.executionState = wire.executionState
+                record.ownerRef = wire.ownerRef
+                record.acceptance = wire.acceptance
+                record.detail = wire.detail
+            }
+        } else {
+            // The resend itself may have reserved. Status must be read before any further send.
+            record.state = .transmissionFailed
+            record.detail = "original_resend_unanswered"
+        }
+
+        do {
+            try await store.save(try encoder(record), key: key)
+        } catch {
+            record.state = .outcomeUnknown
+            record.ownerAbsent = nil
+            try? await store.save(try encoder(record), key: key)
+        }
+        try await requireScope(tenantId: tenantId, principal: principal)
+        return LaunchOutcome(state: record.state, record: record)
+    }
+
     public func recover(workId: String, idempotencyNonce: String) async throws -> LaunchOutcome {
         let first = await session.currentSession()
         guard case .verified(let founderId, let sessionTenant, _) = first,
@@ -761,13 +858,30 @@ public actor LaunchCoordinator {
             try await requireScope(tenantId: sessionTenant, principal: founderId)
             if status.requestId != record.requestId || status.attemptId != record.attemptId {
                 record.state = .outcomeUnknown
+                record.ownerAbsent = nil
                 record.detail = "mismatched_status_ids"
             } else if let echoed = status.capability, echoed != Self.pinned(record.capability) {
                 // Same IDs with a different work, admission, input or plant: keep the attempt unknown and apply nothing.
                 record.state = .outcomeUnknown
+                record.ownerAbsent = nil
                 record.detail = "mismatched_status_capability"
+            } else if status.ownerAbsent, status.detail == "not_found" {
+                // The owner has no row for these exact IDs. The original may be resent
+                // later, and only while the same capability is still unexpired.
+                record.state = .transmissionFailed
+                record.ownerAbsent = true
+                record.detail = "not_found"
+                record.assignedRunId = nil
+                record.artifactRef = nil
+                record.receiptRef = nil
+                record.verdict = nil
+                record.requestKey = nil
+                record.dispatch = nil
+                record.executionState = nil
+                record.ownerRef = nil
             } else {
                 record.state = Self.state(for: status.status)
+                record.ownerAbsent = nil
                 record.assignedRunId = status.runId ?? record.assignedRunId
                 record.artifactRef = status.artifactRef
                 record.receiptRef = status.receiptRef
@@ -783,8 +897,12 @@ public actor LaunchCoordinator {
         } catch LaunchError.notAdmitted {
             throw LaunchError.notAdmitted
         } catch {
-            if [.transmitting, .transmissionFailed, .persistenceFailed].contains(record.state) {
+            // A failed status read proves nothing. Keep any prior absence proof,
+            // and hold an unanswered send as unknown so it cannot be resent.
+            if record.ownerAbsent != true,
+               [.transmitting, .transmissionFailed, .persistenceFailed].contains(record.state) {
                 record.state = .outcomeUnknown
+                record.ownerAbsent = nil
                 changed = true
             }
         }
