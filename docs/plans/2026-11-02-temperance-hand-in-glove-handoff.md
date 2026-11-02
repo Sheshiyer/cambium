@@ -21,6 +21,8 @@ Existing work to preserve:
 
 ## Ownership and language
 
+Terminology: the existing V4 contract calls the portable Temperance product the **glove** and the selected profile the **hand**. The founder-selected “optional personal/company glove” option refers to that optional profile/overlay; preserve existing technical contract names rather than renaming or reversing their semantics.
+
 The public product owns the generic kernel, modules, installers and adapters. Noesis Cambium owns the optional personal profile and host/company bindings. Cambium owns company WorkObjects, Gate, tenant admission and result lineage. Hermes remains a separate execution plant; OmniRoute owns provider credentials, models, combos and fallback. PAI and GSD retain their real names and upstream ownership. Manifest/Speculum is a projection, not another planner or launch authority.
 
 Do not conflate three uses of “organ”: **advisory organs** such as Vestibule; **onboarding infrastructure modules** such as router/memory/tunnels; and **Cambium company operating organs** such as Genesis, Taste, Hands, Will, Cortex and Garden. They can be related through explicit adapters without becoming the same module or ownership authority.
