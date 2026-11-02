@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-02T03:25:21.904427+00:00",
-  "status": "in-progress",
+  "updated": "2026-11-02T03:35:18.039367+00:00",
+  "status": "completed-with-limits",
   "active_task": "Temperance unscheduled Product Hunt draft and Cambium-owned sapling lifecycle pack",
   "previous_handoff": {
     "updated": "2026-10-25T11:10:34.548324+00:00",
@@ -15,16 +15,15 @@
     "Pushed README-only official badge commit 42b391b from clean Temperance main and verified remote main",
     "Implemented 21-component workflow catalog, eight command intents and 34 ownership-managed installed artifacts",
     "Passed 17 helper behavior tests, 28 existing packet/GTM tests, skill validation and adapter drift check; native Grok and Codex discovery verified",
-    "Created formal unscheduled draft; exact remote README bytes verified; proof-only Temperance packet validates with all seven packet records."
+    "Created formal unscheduled draft; exact remote README bytes verified; proof-only Temperance packet validates with all seven packet records.",
+    "Original read-only Rhai graph completed with confirmed=false; no vault receipt; deterministic import refused the rejected graph and dangling edge.",
+    "Frozen full-history audit rerun passed16/18; two unchanged privacy gates remain. Task evidence and rollback are recorded."
   ],
-  "remaining": [
-    "Finish or bound the original read-only Rhai graph and verify no vault receipt",
-    "Recheck frozen-source stability tests in independent clone",
-    "Append final evidence and handoff; reconcile only scoped changes into primary without replacing concurrent native-app work"
-  ],
+  "remaining": [],
   "blockers": [
-    "OpenCode executable unavailable for a native discovery smoke; adapters installed",
-    "Standalone audit reports two unchanged fixture findings; viewport and system-atlas fingerprints require baseline attribution"
+    "Full-repository green remains held on existing privacy/fingerprint findings.",
+    "Native OpenCode acceptance unavailable; Claude continuation hit prompt context limit.",
+    "Product graph acceptance remains rejected, independently of the completed draft."
   ],
   "decisions": [
     "Cambium owns the canonical pack; private vault sources stay referenced",
@@ -34,16 +33,16 @@
     "Reserve ISC-3200..3219 to avoid concurrently claimed native-app criteria; preserve native-app frontmatter and source work."
   ],
   "uncommitted_files": [],
-  "next_action": "Finish the bounded original Rhai outcome, then run frozen-source verification and integrate the task-only packet and documentation additions.",
+  "next_action": "Use the installed sapling-lifecycle review/status command for a selected product. Resolve stale graph evidence only as a separately selected step; keep Temperance unscheduled and all runtime holds. Preserve the concurrent native-app discovery work.",
   "isa": "ISA.md",
-  "isc_open": [
-    "ISC-3216"
-  ],
-  "isc_done_count": 19,
+  "isc_open": [],
+  "isc_done_count": 20,
   "wave": "sapling-lifecycle",
   "tier": "E2",
   "session_budget": {
     "kind": "not-set"
   },
-  "next_command": "npm run sapling:test"
+  "next_command": "/sapling-review temperance",
+  "primary_integration": "Task-owned files are reconciled as working edits; native-app and pre-existing portfolio changes are preserved.",
+  "evidence": "docs/evidence/2026-11-02-sapling-lifecycle.v1.json"
 }

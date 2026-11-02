@@ -223,7 +223,7 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 - [x] ISC-3213: Reopened Product Hunt state preserves the six authorized Temperance field values.
 - [x] ISC-3214: Product Hunt formally creates an unscheduled Temperance draft, or the remaining service requirements are explicitly held.
 - [x] ISC-3215: Anti: this task changes no LumenBar field or schedule.
-- [ ] ISC-3216: The read-only Temperance Rhai run reaches a terminal outcome or explicit bounded timeout without writing a vault receipt.
+- [x] ISC-3216: The read-only Temperance Rhai run reaches a terminal outcome or explicit bounded timeout without writing a vault receipt.
 - [x] ISC-3217: The README widget is written only after a genuine stable listing slug and official widget exist.
 - [x] ISC-3218: The conditional Temperance packet remains proof-only with v1.1 and hosted-authentication holds.
 - [x] ISC-3219: Anti: pack installation creates no scheduler, tenant admission, operational graph write, provider change, or deployment.
@@ -2472,6 +2472,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-11-02 sapling pack: conjectured that containment and node uniqueness were sufficient for safe report/graph preparation; refuted by independent hardlink, same-repository symlink and invented traced-node probes; learned to reject linked outputs, replace reports atomically and bind supplied trace identities/evidence/status; criterion-now ISC-3207..3208 and ISC-3212 retain meaningful adversarial regressions.
+
 - 2026-10-01 | conjectured: separate product ownership could be adequately represented by an installation inventory
   refuted by: growth's five operating and six cognitive organs require typed input, task, plant, artifact, consumer and verification relationships
   learned: portability must reconstruct the integrated work loop while preserving writer, memory and external-effect boundaries
@@ -2675,7 +2677,7 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Verification
 
-- 2026-11-02 sapling checkpoint: skill validation, 17 helper tests and 28 existing packet/GTM/branch tests pass. Installed 34 owned artifacts with zero digest drift; Grok discovers eight commands and Codex skills/list discovers repo and user skill adapters. OpenCode binary is unavailable. Product Hunt IAB confirms the formal Temperance draft is not scheduled; all six fields persist, with the approved existing logo/art and matching tags. README-only commit `42b391b` is verified on Temperance remote main. Current Rhai read run and proof-only packet remain pending at this checkpoint. Full-suite results and baseline/stability reconciliation remain pending; no full-green claim.
+- 2026-11-02 sapling checkpoint: skill validation, 17 helper tests and 28 existing packet/GTM/branch tests pass. Installed 34 owned artifacts with zero digest drift; Grok discovers eight commands and Codex skills/list discovers repo and user skill adapters. OpenCode binary is unavailable. Product Hunt IAB confirms the formal Temperance draft is not scheduled; all six fields persist, with the approved existing logo/art and matching tags. README-only commit `42b391b` is verified on Temperance remote main. Rhai completed with confirmed=false and wrote no vault receipt; the proof-only Temperance packet validates, preserving all milestone and admission holds. The initial full suite was 2516/2526 during concurrent changes; stable full-history audit rerun is 16/18 with two unchanged privacy gates. Viewport and system-atlas fingerprints remain unchanged holds. No full-green claim. Bounded proof is recorded in docs/evidence/2026-11-02-sapling-lifecycle.v1.json.
 
 ### 2026-10-01 growth ecosystem deep review — documentation verification
 

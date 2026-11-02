@@ -17,7 +17,7 @@ Temperance Engine is recorded here as a proof-only product sapling. Its public i
 
 This packet records the founder-requested `sapling:temperance` product identity. It does not change the existing `program:temperance-hermes` operational identity, collapse that program into a product, modify the portfolio runtime catalog, admit a tenant, or issue a Goal Graph/loadout receipt.
 
-Earlier rejected product graphs remain rejected and have no accepted receipt. A new read-only product-graph run is in progress at this checkpoint; its terminal fence result is pending. No graph acceptance is claimed by this packet. The v1.1 clean-host milestone and live hosted-router authentication remain held.
+Earlier rejected product graphs remain rejected and have no accepted receipt. The new read-only run completed with confirmed=false. Its fence rejected stale website evidence and unsupported Product Hunt evidence; deterministic import also found a dangling edge. No vault receipt was written. The independently reopened Product Hunt draft and remote README readback remain separate evidence; this packet claims no accepted graph. The v1.1 clean-host milestone and live hosted-router authentication remain held.
 
 ## Product Seed
 
@@ -85,7 +85,7 @@ All work-object names below are packet-local identity references. They do not gr
 | verified | The official Product Hunt Embed surface for `/posts/temperance-engine/embed` supplied the genuine listing badge with post identifier `1301098`; no composer identifier was converted into a slug. |
 | verified | A clean checkout of origin/main `b6d5e25`, with version 0.8.0, produced README-only commit `42b391b`; the push completed. The original dirty checkout was preserved. |
 | verified | Remote main is `42b391b44b7655972d9322d87aa3865956a5165e`; the GitHub connector returned README bytes identical to the reviewed clean checkout, including the official badge and draft label. |
-| pending | The current read-only product-graph run has not yet returned its terminal fence result. No accepted graph receipt is claimed. |
+| blocked | The read-only product graph completed with confirmed=false; stale site and Product Hunt evidence failed its fence. Import refused a dangling edge. No vault receipt exists. |
 | blocked | Earlier rejected product graphs remain rejected and have no accepted receipt; a later draft or README change does not retroactively accept them. |
 | blocked | No v1.1 clean-host milestone completion proof or live hosted-router authentication proof is established by this packet. |
 | no-signal | No tenant admission, Goal Graph commit, loadout pin, operational dispatch, provider change, or new deployment is issued by this packet. |
@@ -96,7 +96,7 @@ All work-object names below are packet-local identity references. They do not gr
 | --- | --- | --- |
 | Draft creation | verified | Reopened formal listing with all approved fields and explicit unscheduled state. |
 | README widget | complete | Remote main and exact README bytes match the reviewed README-only badge commit. |
-| Product graph | pending | Terminal read-only fence result; rejection or timeout remains without an accepted receipt. |
+| Product graph | blocked | A later selected read must resolve stale source evidence and dangling edges; this completed rejection writes no accepted receipt. |
 | v1.1 clean-host | blocked | Separately reviewed milestone evidence from the owning runtime source and clean-host acceptance. |
 | Hosted-router authentication | blocked | Separately attributable authenticated live runtime evidence. |
 | Launch schedule/publication | blocked | A new specific founder request; draft creation is insufficient. |
@@ -127,7 +127,7 @@ Current frontier: verify one remaining proof item, then stop. No new launch is a
 | arc_title | `Saved Draft, Held Launch` |
 | vision | Temperance has a truthful public installer description and an unscheduled launch draft, with each runtime milestone supported only by its own proof. |
 | icp | OpenCode users and local AI operators evaluating an installable operator runtime. |
-| current_frontier | Read the terminal read-only graph result without changing the unscheduled draft or held runtime milestones. |
+| current_frontier | Review the rejected graph source evidence only when a new step is selected; keep the draft unscheduled and runtime milestones held. |
 | narrative_voice | Concrete installer language, attributable source and explicit held milestones. |
 | anti_claims | No finished v1.1 clean-host milestone, qualified 1M sessions, authenticated hosted-router operation, scheduled launch, accepted rejected graph, tenant admission or program identity collapse. |
 
@@ -171,7 +171,7 @@ Current frontier: verify one remaining proof item, then stop. No new launch is a
 | temperance-ph-draft | https://www.producthunt.com/products/temperance-engine?launch=temperance-engine | Formal saved draft, exact product identity and unscheduled state | Retains proof-only; no launch or admission |
 | temperance-ph-embed | https://www.producthunt.com/posts/temperance-engine/embed | Official badge source for the genuine listing | README review only |
 | temperance-widget-source | https://github.com/Sheshiyer/temperance_engine/commit/42b391b | README-only source change; remote commit and exact README bytes verified | No runtime milestone or launch promotion |
-| temperance-graph-result | pending terminal result of the original read-only run | Future fence outcome at its actual evidence level | No retroactive acceptance of rejected graphs |
+| temperance-graph-result | Local ignored read-run report; source workflow digest recorded in the task evidence | Terminal confirmed=false and no vault receipt | No retroactive acceptance of rejected graphs |
 
 ## Promotion Rule
 
