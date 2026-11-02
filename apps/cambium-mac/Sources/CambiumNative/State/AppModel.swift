@@ -1,195 +1,20 @@
 import Foundation
 import Observation
+import AppKit
 import SwiftUI
-// Scoped imports: CambiumCore exports a type named `Observation`, which would
-// shadow the Observation module that the @Observable macro expands into.
 import struct CambiumCore.SystemSnapshot
 import struct CambiumCore.WorkObject
 import struct CambiumCore.EvidenceItem
 import struct CambiumCore.ConnectionObservation
 import enum CambiumCore.DemoData
+import protocol CambiumCore.NativeBrowserPresenting
 
-// Local application state for the native surface.
-//
-// Demo data comes from CambiumCore.DemoData and is synthetic. Standard mode
-// starts with an empty snapshot and states that sign-in and the owner are not
-// configured. Every action here changes local state only: nothing is sent,
-// and no local result is a live receipt, decision, admission or run.
-
-enum AppSection: String, CaseIterable, Identifiable, Hashable {
-    case canopy, work, trace, evidence, proposal, launch, knowledge, connections, preferences
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .canopy: "Canopy"
-        case .work: "Work"
-        case .trace: "Trace"
-        case .evidence: "Evidence"
-        case .proposal: "Proposal review"
-        case .launch: "Launch"
-        case .knowledge: "Knowledge"
-        case .connections: "Connections"
-        case .preferences: "Preferences"
-        }
-    }
-
-    var symbol: String {
-        switch self {
-        case .canopy: "map"
-        case .work: "doc.text"
-        case .trace: "point.3.connected.trianglepath.dotted"
-        case .evidence: "doc.badge.clock"
-        case .proposal: "signature"
-        case .launch: "play.rectangle"
-        case .knowledge: "books.vertical"
-        case .connections: "link"
-        case .preferences: "slider.horizontal.3"
-        }
-    }
-
-    /// Command-number shortcut shown in the Go menu.
-    var shortcut: KeyEquivalent {
-        KeyEquivalent(Character(String((AppSection.allCases.firstIndex(of: self) ?? 0) + 1)))
-    }
-}
-
-/// Which knowledge source a row belongs to. The two stay separate.
-enum KnowledgeSource: String, CaseIterable, Identifiable, Hashable {
-    case fieldTheory = "Field Theory"
-    case fieldReport = "Field Report"
-
-    var id: String { rawValue }
-
-    var explanation: String {
-        switch self {
-        case .fieldTheory:
-            "Your bookmarks, Library notes and directions. A direction proposes work; it is not a task."
-        case .fieldReport:
-            "Versioned observations of a place. Field Report has its own schema and is not a Field Theory note."
-        }
-    }
-
-    var symbol: String {
-        switch self {
-        case .fieldTheory: "text.book.closed"
-        case .fieldReport: "map"
-        }
-    }
-}
-
-struct KnowledgeItem: Identifiable, Hashable {
-    var id: String
-    var source: KnowledgeSource
-    var title: String
-    var detail: String
-    var sourceRef: String
-    var observedAt: String
-}
-
-struct TraceStep: Identifiable, Hashable {
-    var id: String
-    var order: Int
-    var title: String
-    var detail: String
-    var state: String
-    var dependsOn: [String]
-    var position: CGPoint
-}
-
-/// One field in the synthetic change-set, with its value before and after.
-struct ChangeLine: Identifiable, Hashable {
-    var id: String
-    var field: String
-    var before: String
-    var after: String
-}
-
-struct SyntheticProposal: Equatable {
-    var id: String
-    var version: Int
-    var workID: String
-    var summary: String
-    var expiresAt: String
-    var changes: [ChangeLine]
-
-    /// Local digest of the change-set, shown so the typed phrase binds to it.
-    var digest: String {
-        StableHash.shortHex(([id, String(version), workID] + changes.map { "\($0.field)=\($0.before)>\($0.after)" })
-            .joined(separator: "|"))
-    }
-}
-
-enum ReviewChoice: String, CaseIterable, Identifiable {
-    case approve, reject
-    var id: String { rawValue }
-    var title: String { rawValue.capitalized }
-}
-
-struct SyntheticReview: Equatable {
-    enum Outcome: String { case pending, approved, rejected, held }
-    var outcome: Outcome = .pending
-    var choice: ReviewChoice = .approve
-    var typed = ""
-    var decidedAt: Date?
-}
-
-/// Local launch preview. Transport, execution and semantic acceptance are
-/// tracked separately so one is never read as another.
-struct SyntheticLaunch: Equatable {
-    enum Phase: String { case idle, requested, running, finished, uncertain }
-    var phase: Phase = .idle
-    var requestedAt: Date?
-    var statusChecks = 0
-    var lastCheckedAt: Date?
-
-    var transport: String {
-        switch phase {
-        case .idle: "Not sent"
-        case .requested, .running, .finished: "Synthetic request accepted locally"
-        case .uncertain: "Unknown: the preview lost the reply"
-        }
-    }
-
-    var execution: String {
-        switch phase {
-        case .idle, .requested: "Not started"
-        case .running: "Synthetic run in progress"
-        case .finished: "Synthetic run finished"
-        case .uncertain: "Unknown: check status only, do not relaunch"
-        }
-    }
-
-    var acceptance: String {
-        switch phase {
-        case .finished: "Not accepted: no acceptance check exists for a preview"
-        default: "Not evaluated"
-        }
-    }
-}
-
-enum AppearanceChoice: String, CaseIterable, Identifiable {
-    case system, light, dark
-    var id: String { rawValue }
-    var title: String { rawValue.capitalized }
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .system: nil
-        case .light: .light
-        case .dark: .dark
-        }
-    }
-}
-
-struct SearchHit: Identifiable {
-    var id: String
-    var title: String
-    var detail: String
-    var section: AppSection
-    var apply: () -> Void
-}
-
+/// Application state for the nine screens.
+///
+/// Demo mode composes the tested Core coordinators over an in-process owner and
+/// source wire fixtures. Standard mode stays unconfigured until an owner
+/// configuration is supplied and sign-in succeeds. A mode or session change
+/// drops the generation, so a completion from the old scope cannot publish.
 @MainActor
 @Observable
 final class AppModel {
@@ -198,83 +23,91 @@ final class AppModel {
     var query = ""
 
     private(set) var snapshot: SystemSnapshot
+    private(set) var unattachedEvidence: [EvidenceItem] = []
     private(set) var knowledge: [KnowledgeItem] = []
-    private(set) var steps: [TraceStep] = []
-    private(set) var proposal: SyntheticProposal?
+    private(set) var knowledgeIssue: String?
+    private(set) var fabric: FabricDisplay?
+    private(set) var review: ReviewDisplay?
+    private(set) var gate: GateDisplay?
+    private(set) var pendingGate: [GateDisplay] = []
+    private(set) var capability: LaunchCapabilityDisplay?
+    private(set) var launch: LaunchDisplay?
+    private(set) var pendingLaunch: [LaunchDisplay] = []
+    private(set) var session: SessionDisplay?
+    private(set) var issue: ServiceIssue?
+    private(set) var lineage: [FixtureLineageDisplay] = []
+    private(set) var ownerDescription = ""
+    private(set) var faultArmed = false
+    private(set) var loading = false
 
     var selectedWorkID: String?
     var selectedEvidenceID: String?
     var selectedConnectionID: String?
     var selectedStepID: String?
+    var selectedTraceID: String?
     var selectedKnowledgeID: String?
     var selectedOrgan: Organ?
+    var tourSteps = Walkthrough.steps
 
     var appearance: AppearanceChoice = .system
     var reduceMotion = false
     var utcTimes = false
 
-    var review = SyntheticReview()
-    var launch = SyntheticLaunch()
-    /// Short confirmation of the last local action, shown in the status line.
-    private(set) var feedback: String?
+    var reviewChoice: ReviewChoice = .approve
+    var reviewTyped = ""
 
-    /// Demo mode starts from CAMBIUM_NATIVE_DEMO=1 or the --demo argument.
+    var ownerURLDraft = ""
+    var tenantDraft = ""
+    var clientIDDraft = ""
+    var redirectDraft = OwnerConfiguration.reviewedRedirect
+    private(set) var configuration: OwnerConfiguration?
+    private(set) var configurationProblem: String?
+
+    var feedback: String?
+
+    private var services: (any OwnerServices)?
+    private var generation: UInt64 = 0
+    private var browser: (any NativeBrowserPresenting)?
+
     static var launchMode: LaunchMode {
-        if LaunchMode.current == .demo || CommandLine.arguments.contains("--demo") { return .demo }
-        return .standard
+        LaunchMode.current == .demo || CommandLine.arguments.contains("--demo") ? .demo : .standard
     }
 
-    init(mode: LaunchMode = AppModel.launchMode) {
+    /// `services` is for tests. The app passes nothing and gets the system
+    /// browser adapter, which is used only after an owner is configured and the
+    /// person chooses Sign in.
+    init(mode: LaunchMode = AppModel.launchMode, services: (any OwnerServices)? = nil, browser: (any NativeBrowserPresenting)? = nil) {
         self.mode = mode
+        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: { NSApp.keyWindow }) : nil)
         snapshot = Self.emptySnapshot
-        load(mode)
+        if let services {
+            self.services = services
+            adopt(services)
+            let token = generation
+            Task { await refresh(token) }
+        } else {
+            load(mode)
+        }
     }
 
     var isDemo: Bool { mode == .demo }
+    var supportsReject: Bool { services?.supportsReject ?? false }
+    var replayClock: String? { services?.replayClock }
 
-    // MARK: Mode
-
-    func enterDemo() {
-        load(.demo)
-        feedback = "Opened the synthetic demo. Nothing here is live."
-    }
-
-    func leaveDemo() {
-        load(.standard)
-        feedback = "Left the demo. Live data needs sign-in, which this build does not have."
-    }
-
-    private func load(_ mode: LaunchMode) {
-        self.mode = mode
-        review = SyntheticReview()
-        launch = SyntheticLaunch()
-        selectedOrgan = nil
-        if mode == .demo {
-            snapshot = DemoData.snapshot
-            knowledge = Self.demoKnowledge
-            steps = Self.demoSteps
-            proposal = Self.demoProposal
-        } else {
-            snapshot = Self.emptySnapshot
-            knowledge = []
-            steps = []
-            proposal = nil
-        }
-        selectedWorkID = snapshot.work.first?.id
-        selectedEvidenceID = snapshot.work.flatMap(\.evidence).first?.id
-        selectedConnectionID = snapshot.connections.first?.id
-        selectedStepID = steps.first?.id
-        selectedKnowledgeID = knowledge.first?.id
-    }
-
-    // MARK: Lookups
-
+    var allEvidence: [EvidenceItem] { snapshot.work.flatMap(\.evidence) + unattachedEvidence }
     var selectedWork: WorkObject? { snapshot.work.first { $0.id == selectedWorkID } }
-    var allEvidence: [EvidenceItem] { snapshot.work.flatMap(\.evidence) }
     var selectedEvidence: EvidenceItem? { allEvidence.first { $0.id == selectedEvidenceID } }
     var selectedConnection: ConnectionObservation? { snapshot.connections.first { $0.id == selectedConnectionID } }
-    var selectedStep: TraceStep? { steps.first { $0.id == selectedStepID } }
+    var selectedTourStep: TraceStep? { tourSteps.first { $0.id == selectedStepID } }
+    var selectedTraceNode: FabricTraceNode? { fabric?.trace.nodes.first { $0.id == selectedTraceID } }
     var selectedKnowledge: KnowledgeItem? { knowledge.first { $0.id == selectedKnowledgeID } }
+
+    var requiredPhrase: String {
+        guard let review else { return "" }
+        return reviewChoice == .approve ? review.approveConfirmation : review.rejectConfirmation
+    }
+
+    var typedMatches: Bool { review != nil && !reviewTyped.isEmpty && reviewTyped == requiredPhrase }
 
     func work(owning evidenceID: String) -> WorkObject? {
         snapshot.work.first { $0.evidence.contains { $0.id == evidenceID } }
@@ -283,22 +116,309 @@ final class AppModel {
     func time(_ iso: String?) -> String { SourceTime.display(iso, utc: utcTimes) }
     func time(_ date: Date) -> String { SourceTime.display(date, utc: utcTimes) }
 
-    // MARK: Navigation
+    func open(_ section: AppSection) { self.section = section; query = "" }
+    func selectWork(_ id: String) { selectedWorkID = id; open(.work) }
+    func selectEvidence(_ id: String) { selectedEvidenceID = id; open(.evidence) }
+    func clearFeedback() { feedback = nil }
 
-    func open(_ section: AppSection) {
-        self.section = section
-        query = ""
+    // MARK: Mode
+
+    func enterDemo() { load(.demo); feedback = "Opened the demo. It replays source fixtures through the real coordinators." }
+    func leaveDemo() { load(.standard); feedback = "Left the demo. Standard mode stays unconfigured until an owner is supplied." }
+
+    func applyConfiguration() {
+        switch OwnerConfiguration.validate(ownerURL: ownerURLDraft, tenant: tenantDraft, clientId: clientIDDraft, redirect: redirectDraft) {
+        case .success(let value):
+            configuration = value
+            configurationProblem = nil
+            load(.standard)
+            feedback = "Owner configuration saved on this Mac. Sign in when you are ready. Nothing was contacted."
+        case .failure(let problem):
+            configuration = nil
+            configurationProblem = problem.rawValue
+        }
     }
 
-    func selectWork(_ id: String) {
-        selectedWorkID = id
-        open(.work)
+    func clearConfiguration() {
+        configuration = nil
+        configurationProblem = nil
+        load(.standard)
+        feedback = "Owner configuration cleared."
     }
 
-    func selectEvidence(_ id: String) {
-        selectedEvidenceID = id
-        open(.evidence)
+    private func load(_ mode: LaunchMode) {
+        generation &+= 1
+        let previous = services
+        self.mode = mode
+        review = nil
+        gate = nil
+        capability = nil
+        launch = nil
+        pendingGate = []
+        pendingLaunch = []
+        fabric = nil
+        knowledge = []
+        knowledgeIssue = nil
+        session = nil
+        issue = nil
+        faultArmed = false
+        loading = false
+        reviewTyped = ""
+        selectedOrgan = nil
+        selectedWorkID = nil
+        selectedEvidenceID = nil
+        selectedConnectionID = nil
+        selectedTraceID = nil
+        selectedKnowledgeID = nil
+        if mode == .demo {
+            services = CambiumOwnerServices.demo(directory: DemoPaths.defaultDirectory)
+        } else {
+            services = CambiumOwnerServices.standard(configuration: configuration, browser: browser)
+        }
+        adopt(services)
+        Task { await previous?.invalidate() }
+        let token = generation
+        Task { await refresh(token) }
     }
+
+    private func adopt(_ services: (any OwnerServices)?) {
+        ownerDescription = services?.ownerDescription ?? "No owner is configured."
+        lineage = services?.lineage() ?? []
+        if services == nil {
+            snapshot = Self.emptySnapshot
+            unattachedEvidence = []
+        }
+    }
+
+    private func refresh(_ token: UInt64) async {
+        guard let services, token == generation else { return }
+        session = await services.session()
+        guard session != nil else {
+            snapshot = mode == .demo ? DemoData.snapshot : Self.emptySnapshot
+            return
+        }
+        switch await services.readFabric() {
+        case .success(let display) where token == generation:
+            fabric = display
+            snapshot = display.snapshot
+            unattachedEvidence = display.unattachedEvidence
+        case .failure(let failure) where token == generation:
+            issue = failure
+            snapshot = mode == .demo ? DemoData.snapshot : Self.emptySnapshot
+        default:
+            return
+        }
+        let knowledge = await services.loadKnowledge()
+        guard token == generation else { return }
+        publishKnowledge(knowledge)
+        if case .success(let loaded) = await services.loadReview(), token == generation {
+            review = loaded
+        }
+        let gates = await services.pendingGate()
+        let launches = await services.pendingLaunch()
+        let stored = gates.isEmpty ? await services.storedReview() : nil
+        guard token == generation else { return }
+        pendingGate = gates
+        pendingLaunch = launches
+        if let stored { gate = stored }
+        selectedWorkID = selectedWorkID ?? snapshot.work.first?.id
+        selectedEvidenceID = selectedEvidenceID ?? allEvidence.first?.id
+        selectedConnectionID = selectedConnectionID ?? snapshot.connections.first?.id
+        selectedStepID = selectedStepID ?? tourSteps.first?.id
+        selectedTraceID = selectedTraceID ?? fabric?.trace.nodes.first?.id
+        selectedKnowledgeID = selectedKnowledgeID ?? self.knowledge.first?.id
+    }
+
+    private func publishKnowledge(_ display: KnowledgeDisplay) {
+        var rows: [KnowledgeItem] = []
+        var problems: [String] = []
+        for result in [display.fieldTheory, display.fieldReport] {
+            switch result {
+            case .success(let items): rows.append(contentsOf: items)
+            case .failure(let failure): problems.append(failure.message)
+            }
+        }
+        knowledge = rows
+        knowledgeIssue = problems.isEmpty ? nil : problems.joined(separator: " ")
+    }
+
+    // MARK: Actions
+
+    func signIn() {
+        run("Sign-in") { services, token in
+            let result = await services.signIn()
+            guard token == self.generation else { return }
+            switch result {
+            case .success(let signed):
+                self.session = signed
+                self.feedback = "Signed in as \(signed.founderId) for \(signed.tenantId)."
+                await self.refresh(self.generation)
+            case .failure(let failure):
+                self.issue = failure
+                self.feedback = failure.message
+            }
+        }
+    }
+
+    func signOut() {
+        let token = generation
+        generation &+= 1
+        session = nil
+        review = nil
+        gate = nil
+        capability = nil
+        launch = nil
+        fabric = nil
+        knowledge = []
+        pendingGate = []
+        pendingLaunch = []
+        loading = false
+        snapshot = isDemo ? DemoData.snapshot : Self.emptySnapshot
+        feedback = "Signed out. Pending results from the previous session will not be shown."
+        _ = token
+        Task { await services?.signOut() }
+    }
+
+    func confirmReview() {
+        guard typedMatches else { return }
+        let choice = reviewChoice
+        let typed = reviewTyped
+        run("Decision") { services, token in
+            let result = await services.submitReview(choice, typed: typed)
+            let pending = await services.pendingGate()
+            self.faultArmed = await services.responseLossArmed()
+            guard token == self.generation else { return }
+            self.pendingGate = pending
+            switch result {
+            case .success(let display):
+                self.gate = display
+                self.reviewTyped = ""
+                self.feedback = display.needsStatusCheck
+                    ? "The reply was lost after the owner may have recorded it. Check status. Do not decide again."
+                    : "Owner state: \(display.label)."
+            case .failure(let failure):
+                self.issue = failure
+                self.feedback = failure.message
+            }
+        }
+    }
+
+    func recoverReview() {
+        run("Status") { services, token in
+            let result = await services.recoverReview()
+            let pending = await services.pendingGate()
+            guard token == self.generation else { return }
+            self.pendingGate = pending
+            switch result {
+            case .success(let display):
+                self.gate = display
+                self.feedback = "Status only. Owner state: \(display.label)."
+            case .failure(let failure):
+                self.issue = failure
+                self.feedback = failure.message
+            }
+        }
+    }
+
+    func inspectCapability() {
+        run("Capability") { services, token in
+            let result = await services.inspectCapability()
+            guard token == self.generation else { return }
+            switch result {
+            case .success(let display):
+                self.capability = display
+                self.feedback = "Owner capability: \(display.action) on \(display.plantName)."
+            case .failure(let failure):
+                self.capability = nil
+                self.issue = failure
+                self.feedback = failure.message
+            }
+        }
+    }
+
+    func requestLaunch() {
+        guard capability != nil, launch == nil else { return }
+        run("Launch") { services, token in
+            let result = await services.launch()
+            let pending = await services.pendingLaunch()
+            self.faultArmed = await services.responseLossArmed()
+            guard token == self.generation else { return }
+            self.pendingLaunch = pending
+            switch result {
+            case .success(let display):
+                self.launch = display
+                self.feedback = display.needsStatusCheck
+                    ? "No owner answer. The original request is saved. Check status. Do not launch again."
+                    : "Owner execution: \(display.execution). Acceptance: \(display.acceptance)."
+            case .failure(let failure):
+                self.issue = failure
+                if let first = pending.first { self.launch = first }
+                self.feedback = failure.message
+            }
+        }
+    }
+
+    func recoverLaunch() {
+        run("Status") { services, token in
+            let result = await services.recoverLaunch()
+            let pending = await services.pendingLaunch()
+            guard token == self.generation else { return }
+            self.pendingLaunch = pending
+            switch result {
+            case .success(let display):
+                self.launch = display
+                self.feedback = "Status only. Execution \(display.execution). Acceptance \(display.acceptance)."
+            case .failure(let failure):
+                self.issue = failure
+                self.feedback = failure.message
+            }
+        }
+    }
+
+    func armFault() {
+        guard isDemo else { return }
+        let token = generation
+        Task {
+            await services?.armResponseLoss()
+            let armed = await services?.responseLossArmed() ?? false
+            guard token == generation else { return }
+            faultArmed = armed
+            feedback = "Demo fault armed. The next decision or launch is recorded, then its reply is dropped."
+        }
+    }
+
+    func resetDemo() {
+        guard isDemo, gate?.needsStatusCheck != true, launch?.needsStatusCheck != true else {
+            feedback = "Reset is blocked while an attempt is unknown. Check status first."
+            return
+        }
+        run("Reset") { services, token in
+            await services.resetDemo()
+            guard token == self.generation else { return }
+            self.review = nil
+            self.gate = nil
+            self.capability = nil
+            self.launch = nil
+            self.faultArmed = false
+            self.reviewTyped = ""
+            self.feedback = "Demo owner and recovery were cleared. Standard mode was not touched."
+            await self.refresh(token)
+        }
+    }
+
+    /// Runs one action for the current scope. A completion from an older scope,
+    /// or from after sign-out, is dropped.
+    private func run(_ name: String, _ body: @escaping @MainActor (any OwnerServices, UInt64) async -> Void) {
+        guard let services else { feedback = "\(name) is unavailable. No owner is configured."; return }
+        let token = generation
+        loading = true
+        Task {
+            await body(services, token)
+            if token == self.generation { self.loading = false }
+        }
+    }
+
+    // MARK: Search
 
     var searchHits: [SearchHit] {
         let needle = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -321,9 +441,9 @@ final class AppModel {
                 self?.open(.connections)
             })
         }
-        for step in steps where matches(step.title, step.detail) {
-            hits.append(SearchHit(id: "step-\(step.id)", title: step.title, detail: step.detail, section: .trace) { [weak self] in
-                self?.selectedStepID = step.id
+        for node in fabric?.trace.nodes ?? [] where matches(node.title, node.detail, node.kind) {
+            hits.append(SearchHit(id: "trace-\(node.id)", title: node.title, detail: node.kind, section: .trace) { [weak self] in
+                self?.selectedTraceID = node.id
                 self?.open(.trace)
             })
         }
@@ -341,149 +461,8 @@ final class AppModel {
         return hits
     }
 
-    // MARK: Synthetic review
-
-    var requiredPhrase: String {
-        guard let proposal else { return "" }
-        return "\(review.choice.rawValue.uppercased()) \(proposal.digest)"
-    }
-
-    /// The typed phrase must match exactly, including case and spacing.
-    var typedMatches: Bool {
-        proposal != nil && review.typed == requiredPhrase
-    }
-
-    func confirmReview() {
-        guard isDemo, review.outcome == .pending, typedMatches else { return }
-        review.outcome = review.choice == .approve ? .approved : .rejected
-        review.decidedAt = Date()
-        feedback = "Synthetic \(review.choice.rawValue) kept on this Mac only. No decision was recorded."
-    }
-
-    func holdReview() {
-        guard isDemo, review.outcome == .pending else { return }
-        review.outcome = .held
-        review.decidedAt = Date()
-        feedback = "Proposal held locally. You can review it again."
-    }
-
-    func resetReview() {
-        review = SyntheticReview()
-        feedback = "Review reset."
-    }
-
-    // MARK: Synthetic launch
-
-    func requestLaunch() {
-        guard isDemo, launch.phase == .idle else { return }
-        launch.phase = .requested
-        launch.requestedAt = Date()
-        feedback = "Synthetic launch request made locally. Nothing was sent."
-    }
-
-    func startRun() {
-        guard isDemo, launch.phase == .requested else { return }
-        launch.phase = .running
-        feedback = "Synthetic run started locally."
-    }
-
-    func finishRun() {
-        guard isDemo, launch.phase == .running else { return }
-        launch.phase = .finished
-        feedback = "Synthetic run finished. No receipt exists for a preview."
-    }
-
-    func loseReply() {
-        guard isDemo, launch.phase == .requested || launch.phase == .running else { return }
-        launch.phase = .uncertain
-        feedback = "Synthetic reply lost. Recovery is status only."
-    }
-
-    /// Status-only recovery: records a local check and never relaunches.
-    func checkStatus() {
-        guard isDemo, launch.phase == .uncertain else { return }
-        launch.statusChecks += 1
-        launch.lastCheckedAt = Date()
-        feedback = "Status checked locally (\(launch.statusChecks)). Still unknown; no relaunch was sent."
-    }
-
-    func resetLaunch() {
-        launch = SyntheticLaunch()
-        feedback = "Launch preview reset."
-    }
-
-    func clearFeedback() { feedback = nil }
-
-    // MARK: Fixed content
-
     private static let emptySnapshot = SystemSnapshot(
-        work: [],
-        connections: [],
-        asOf: "",
-        sourceKind: "none",
-        gaps: [
-            "Sign-in is not available in this build.",
-            "No owner is configured, so no live data is read."
-        ]
-    )
-
-    private static let demoKnowledge: [KnowledgeItem] = [
-        KnowledgeItem(
-            id: "demo-knowledge-ft-direction",
-            source: .fieldTheory,
-            title: "Direction: a native home for Cambium",
-            detail: "Synthetic Field Theory note. It suggests a direction and does not create a task.",
-            sourceRef: "synthetic://field-theory/direction/native-home",
-            observedAt: "2026-11-01T18:00:00.000Z"
-        ),
-        KnowledgeItem(
-            id: "demo-knowledge-ft-bookmark",
-            source: .fieldTheory,
-            title: "Bookmark: calm native dashboards",
-            detail: "Synthetic Field Theory bookmark kept as a reference.",
-            sourceRef: "synthetic://field-theory/bookmark/calm-dashboards",
-            observedAt: "2026-10-30T12:15:00.000Z"
-        ),
-        KnowledgeItem(
-            id: "demo-knowledge-fr-observation",
-            source: .fieldReport,
-            title: "Observation: studio desk, north window",
-            detail: "Synthetic Field Report observation of a place, version 3.",
-            sourceRef: "synthetic://field-report/observation/studio-desk/v3",
-            observedAt: "2026-11-01T09:30:00.000Z"
-        )
-    ]
-
-    private static let demoSteps: [TraceStep] = [
-        TraceStep(id: "step-observe", order: 1, title: "Observe", detail: "Read the labelled snapshot and its gaps.",
-                  state: "shown", dependsOn: [], position: CGPoint(x: 0.10, y: 0.35)),
-        TraceStep(id: "step-select", order: 2, title: "Select", detail: "Choose one work item to inspect.",
-                  state: "shown", dependsOn: ["step-observe"], position: CGPoint(x: 0.30, y: 0.68)),
-        TraceStep(id: "step-review", order: 3, title: "Review", detail: "Read the change-set and type the exact phrase.",
-                  state: "review", dependsOn: ["step-select"], position: CGPoint(x: 0.50, y: 0.32)),
-        TraceStep(id: "step-preview", order: 4, title: "Preview launch", detail: "Walk the local launch preview. Nothing is sent.",
-                  state: "review", dependsOn: ["step-review"], position: CGPoint(x: 0.70, y: 0.68)),
-        TraceStep(id: "step-record", order: 5, title: "Record result", detail: "Held. This build cannot record a result.",
-                  state: "held", dependsOn: ["step-preview", "step-review"], position: CGPoint(x: 0.90, y: 0.35))
-    ]
-
-    private static let demoProposal = SyntheticProposal(
-        id: "demo-proposal-cambium-next-step",
-        version: 2,
-        workID: "sapling:cambium",
-        summary: "Change the Cambium next step and attention after the dossier review.",
-        expiresAt: "2026-11-09T00:00:00.000Z",
-        changes: [
-            ChangeLine(id: "c1", field: "nextStep",
-                       before: "Open the dossier and inspect labelled gaps.",
-                       after: "Review the launch preview and its held result."),
-            ChangeLine(id: "c2", field: "attention", before: "review", after: "decide"),
-            ChangeLine(id: "c3", field: "dependencies",
-                       before: "program:thoughtseed-organ-console",
-                       after: "program:thoughtseed-organ-console (unchanged)"),
-            ChangeLine(id: "c4", field: "evidence",
-                       before: "1 reference",
-                       after: "1 reference (unchanged)")
-        ]
+        work: [], connections: [], asOf: "", sourceKind: "none",
+        gaps: ["Sign-in is not configured.", "No owner is configured, so no live data is read."]
     )
 }

@@ -1,0 +1,21 @@
+{
+  "status": 200,
+  "body": {
+    "receiptDigest": "6f1c00125723d0181b158ed056199c045dff0dda986d2061f6912c6c5c5c0aeb",
+    "status": "approved",
+    "receipt": {
+      "proposalId": "cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847",
+      "version": 1,
+      "changeDigest": "sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847",
+      "tenantId": "cambium",
+      "founderId": "founder-1",
+      "nonce": "nonce-1",
+      "expiresAt": "2026-07-28T10:00:00.000Z",
+      "decision": "approved",
+      "decidedAt": "2026-07-28T09:30:00.000Z",
+      "channel": "curious"
+    },
+    "canonicalReadback": true,
+    "writerAuthority": false
+  }
+}

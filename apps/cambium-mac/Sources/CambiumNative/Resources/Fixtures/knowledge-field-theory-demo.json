@@ -1,0 +1,34 @@
+{
+  "records": [
+    {
+      "id": "ft-direction-native-home",
+      "source": "field-theory",
+      "schema": "cambium.native-field-theory-reference.v1",
+      "subjectId": "sapling:cambium",
+      "tenantId": "cambium",
+      "principal": "founder-1",
+      "sourceRef": "thoughtseed:field-theory/direction/native-home",
+      "observedAt": "2026-07-27T18:00:00.000Z",
+      "freshness": "fresh",
+      "gaps": [
+        "no-live-bridge"
+      ],
+      "meaning": "proposal"
+    },
+    {
+      "id": "ft-bookmark-calm-dashboards",
+      "source": "field-theory",
+      "schema": "cambium.native-field-theory-reference.v1",
+      "subjectId": "sapling:cambium",
+      "tenantId": "cambium",
+      "principal": "founder-1",
+      "sourceRef": "thoughtseed:field-theory/bookmark/calm-dashboards",
+      "observedAt": "2026-07-26T12:15:00.000Z",
+      "freshness": "fresh",
+      "gaps": [
+        "no-live-bridge"
+      ],
+      "meaning": "observation"
+    }
+  ]
+}
