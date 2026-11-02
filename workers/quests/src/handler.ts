@@ -4,6 +4,7 @@ import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
 import { descriptionResponse } from './portfolio-descriptions.ts';
 import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
+import { nativeLaunchHttp, NATIVE_LAUNCH_PATHS, type NativeLaunchHost } from './native-launch.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
 // other module in this repo. The thin fetch glue lives in index.ts.
@@ -502,6 +503,7 @@ export interface FabricLedgerStoreLike {
 export interface HandlerDeps {
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
+  nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
   acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
@@ -5466,7 +5468,15 @@ async function handleMcpGateAdapterRoute(req: SimpleRequest, deps: HandlerDeps, 
   return json(result.status, result.body);
 }
 
+const NATIVE_LAUNCH_ROUTES: ReadonlySet<string> = new Set(Object.values(NATIVE_LAUNCH_PATHS));
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  if (NATIVE_LAUNCH_ROUTES.has(req.path.split('?')[0])) {
+    const response = await nativeLaunchHttp(new Request(`https://cambium.invalid${req.path}`, {
+      method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),
+    }), deps.nativeLaunchHost);
+    return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
+  }
   if (req.path.split('?')[0] === '/v1/founder/session') {
     if (req.method !== 'GET') return json(405, { error: 'get_required' });
     const signer = await resolveFounderWebSigner(req, deps);

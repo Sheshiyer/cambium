@@ -2,9 +2,9 @@
 
 2 November 2026. Source contract for the `NativeLaunchCapability` owner seam named
 in [ARCHITECTURE.md](ARCHITECTURE.md). The Worker source exists and has local
-tests. It is **not wired** into the Worker handler, has no applied migration,
-no bound execution owner and no admission writer. Nothing here launches real
-work yet.
+tests. The three routes are wired in the Worker handler. No migration is applied,
+no execution owner, admission issuer or native identity is bound, and nothing
+is deployed. Nothing here launches real work yet.
 
 Source:
 
@@ -124,7 +124,13 @@ sending, map `unknown`/timeout to status recovery, and offer another launch only
 after a terminal readback. `RunClient` uses `/status` with the original IDs.
 Neither ever sends tenant or principal in a body.
 
-## Integration instructions (not yet done)
+## Integration status
+
+The handler routes the three exact paths through `nativeLaunchHttp` using the
+injected optional `nativeLaunchHost`. An absent host returns 503. The handler
+constructs no store and no execution owner.
+
+Still unbound:
 
 1. **Migration.** Confirm `0099` does not collide with a later number, then apply through the reviewed migration path. It depends on `goal_graph_heads` (0007).
 2. **Handler deps.** Add an optional `nativeLaunchHost?: NativeLaunchHost` to `HandlerDeps` in `workers/quests/src/handler.ts`.
