@@ -60,6 +60,20 @@
       "rollback": "Retain production; reverse only preview branch/scoped proof changes and isolated staged README if rejected.",
       "website_pr": "https://github.com/Sheshiyer/temperance_engine_landing_page/pull/1",
       "adapter_check": "33ownedwrappersrefreshed,34artifactsretained,0drift/0conflicts"
+    },
+    "temperance_architecture": {
+      "status": "handed-off-active",
+      "updated": "2026-11-02T06:44:41.921596+00:00",
+      "target": "portable core plus optional personal/company glove",
+      "handoff": "docs/plans/2026-11-02-temperance-hand-in-glove-handoff.md",
+      "source_baseline": "public42b391b; private5e764db; websitePR1at7e55a26",
+      "launch_schedule": "preserve November6,2026,12:01AMPST (founder confirmed)",
+      "public_fixture_tests": "85pass0fail across6files",
+      "copy_limits": "PHdescription500characters; websiteeditorialceiling5000words; makerlimitunverified",
+      "next_action": "Dedicated new chat: reconcile portable kernel/public composition, prove one advisory organ, expand interactive website and truthful launch copy; preserve existing schedule and review-only website rollout.",
+      "new_chat": "Temperance portable core, organs and interactive architecture (created and active; native identifiers intentionally omitted)",
+      "adapter_source_digest": "173aabad8c0340255803031dd56b37ba0b743fa4d45b37f3e38136350e03bc6f",
+      "isc": "ISC-3640..3659 verified"
     }
   }
 }

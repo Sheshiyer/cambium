@@ -1,6 +1,6 @@
-# Temperance Product Hunt draft boundary
+# Temperance Product Hunt launch boundary
 
-Use only when the current request names Temperance. These are product-specific values, not generic launch defaults. The founder-approved 2026-11-02 operator-system correction supersedes the installer-led copy in the earlier vault handoff `20-operations/agent-outputs/2026-11-02-temperance-codex-handoff.md`. The current user request governs action authorization.
+Use only when the current request names Temperance. These are product-specific values, not generic launch defaults. The founder-approved 2026-11-02 operator-system correction supersedes the installer-led copy in the earlier vault handoff `20-operations/agent-outputs/2026-11-02-temperance-codex-handoff.md`. The current user request governs action authorization. Later founder confirmation preserves the existing November 6, 2026, 12:01 AM PST schedule; this supersedes the earlier unscheduled constraint.
 
 | Field | Approved value |
 | --- | --- |
@@ -10,10 +10,13 @@ Use only when the current request names Temperance. These are product-specific v
 | Website | https://temperance.thoughtseed.space/ |
 | Source | https://github.com/Sheshiyer/temperance_engine |
 | Role | I made this |
+| Current launch state | Scheduled November 6, 2026, 12:01 AM PST; preserve this date |
 
-Use Codex's logged-in in-app browser to edit the existing formal draft at `https://www.producthunt.com/posts/temperance-engine/edit`. The listing is `https://www.producthunt.com/products/temperance-engine?launch=temperance-engine`. Do not create another listing, press Schedule or Finish setup. Reopen the saved draft and verify copy, links, maker role and explicit unscheduled state. Retain one useful proof screenshot. Existing logo/gallery art and Open Source / Developer Tools tags were approved and saved during draft creation.
+Use Codex's logged-in in-app browser to edit the existing formal draft at `https://www.producthunt.com/posts/temperance-engine/edit`. The listing is `https://www.producthunt.com/products/temperance-engine?launch=temperance-engine`. Do not create another listing, reschedule, unschedule or advance publication controls. Reopen the same launch and verify copy, links, maker role and the unchanged November 6 schedule. Retain one useful proof screenshot. Existing logo/gallery art and Open Source / Developer Tools tags were approved and saved during draft creation.
 
-The official widget for post `1301098` is already present in README-only application commit `42b391b`. The correction prepares a README introduction and badge-alt-text change on a clean current-main checkout for review, without pushing it. The verified website restoration is preview-only at `https://temperance-engine-landing-page-mitxrimmj-sheshiyers-projects.vercel.app/`; the public site remains unchanged until owner review. The corrected draft copy was saved and reopened with its explicit unscheduled state.
+The official widget for post `1301098` is already present in README-only application commit `42b391b`. The correction prepares a README introduction and badge-alt-text change on a clean current-main checkout for review, without pushing it. The verified website restoration is preview-only at `https://temperance-engine-landing-page-mitxrimmj-sheshiyers-projects.vercel.app/`; the public site remains unchanged until owner review. The corrected copy was saved and reopened while unscheduled at the earlier checkpoint. A later read observed the November 6 schedule, which the founder explicitly chose to preserve; no schedule action was performed by the agent.
+
+The short Description editor is confirmed at 500 characters. The founder requested a larger interactive website within a 5,000-word editorial ceiling; that is not a Product Hunt field limit. See the repo handoff `docs/plans/2026-11-02-temperance-hand-in-glove-handoff.md` for the organ/Kosha porting matrix and next-chat sequence.
 
 ## Superseded copy
 

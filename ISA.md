@@ -205,6 +205,30 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Criteria
 
+### Temperance organs/Kosha integration handoff — 2026-11-02
+
+- [x] ISC-3640: Founder-selected target is portable core plus optional personal/company glove.
+- [x] ISC-3641: Public and private source revisions are pinned in the integration handoff.
+- [x] ISC-3642: Dirty private organ scripts and preserved primary work are identified.
+- [x] ISC-3643: Five Koshas and seven phases are described without access-control claims.
+- [x] ISC-3644: Six advisory organs distinguish public lifecycle contracts from private implementations.
+- [x] ISC-3645: Infrastructure modules are inventoried with ownership and optional bindings.
+- [x] ISC-3646: Organ containment historical promotion and current private delta are distinguished.
+- [x] ISC-3647: Kernel reconciliation reuses public composition and acceptance authorities.
+- [x] ISC-3648: Anti: retired Superset and Constellation are excluded from integration targets.
+- [x] ISC-3649: Current public phase/composition baseline passes85tests across6files.
+- [x] ISC-3650: Product Hunt short-description limit is verified as500characters.
+- [x] ISC-3651: Founder-confirmed November6at12:01AMPST schedule is recorded for preservation.
+- [x] ISC-3652: Historical unscheduled observations are preserved while current references supersede them.
+- [x] ISC-3653: Expanded website brief defines15sections and accessible read-only interactions under5000words.
+- [x] ISC-3654: Clean staged README prepares the approved schedule label without commit or push.
+- [x] ISC-3655: Next-chat brief sequences kernel reconciliation before one advisory organ and website claims.
+- [x] ISC-3656: Dedicated integration chat receives the current handoff and exact ownership boundaries.
+- [x] ISC-3657: Anti: discovery changes no runtime, provider, private memory, production website or PH copy.
+- [x] ISC-3658: Scoped handoff, packet and installed-adapter validation pass.
+- [x] ISC-3659: Bounded handoff is committed in isolation and reconciled without unrelated work loss.
+
+
 ### Temperance operator-system preview — 2026-11-02
 
 - [x] ISC-3600: Website restoration is isolated from the dirty primary landing checkout.
@@ -2194,6 +2218,9 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Decisions
 
+- 2026-11-02: refined: Founder selected portable Temperance core plus optional personal/company glove. This task produces the source-gap and interactive-story handoff; a separate requested chat owns integration implementation.
+- 2026-11-02: refined: Live Product Hunt reviews/editor now show November6,2026,12:01AMPST. Founder confirmed preserve; this supersedes earlier unscheduled constraints while retaining ISC-3600..3619 as dated prior verification. No schedule action was performed by this task.
+
 - 2026-11-02: refined: Founder supersedes installer-led Temperance positioning with AI operator system; restores historical cinematic design in preview only. ISC-3600..3619 is reserved for this correction, independent of concurrent native-app criteria and acceptance frontmatter. Public website replacement remains owner-review gated.
 
 - 2026-11-02: Pre-integration collision reconciliation: another active native-app discovery session claimed criterion numbers 3140–3171 in the primary checkout. The isolated sapling draft had provisionally used 3140–3159; its unmerged task criteria are now reserved at ISC-3200..3219 before canonical adoption. Existing primary criterion identities, checkboxes, frontmatter and native-app work are preserved.
@@ -2497,6 +2524,11 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - 2026-10-25: refined: KV stale status cannot veto an existing immutable D1 receipt. Permit recovery only after all existing identity, tenant, review and change-set checks plus exact receipt binding; keep stale tasks without matching receipts closed. The legacy endpoint can retain its 409 and KV projection; no writer/repair is added.
 
 ## Changelog
+
+- 2026-11-02 | conjectured: Existing website/operator copy sufficiently described the architecture already present in public Temperance.
+  refuted by: Founder request for organs/Koshas and comparison showing public lifecycle contracts versus private implementations and broader phase kernel.
+  learned: Reconcile portable kernel and adapters before presenting source presence as fully integrated infrastructure; separate architectural roles, onboarding modules and company organs.
+  criterion now: ISC-3640..3659 verify evidence-backed integration handoff, current schedule preservation and a new scoped chat.
 
 - 2026-11-02 | conjectured: Installer release notes were adequate customer positioning for the Temperance launch.
   refuted by: Founder rejection of tagline/site positioning and recovery of the broader cinematic website/source story.
@@ -3541,3 +3573,26 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3617: Pack reference and proof packet explicitly supersede old positioning; dated old copy and rejected graph remain.
 - ISC-3618: Helpers17/17, packet tests12/12, GTM/branch9/9pass; seven isolated packet records validate.
 - ISC-3619: LumenBar never opened/changed in this correction; v1.1, auth, long-context, recovery and graph holds preserved.
+
+### Temperance organs/Kosha handoff verification — 2026-11-02
+
+- ISC-3640: Founder answer explicitly selects portable core plus optional personal/company glove.
+- ISC-3641: Handoff pins public42b391b, private5e764db and website7e55a26/c930af9 sources.
+- ISC-3642: Read-only source inventory records private Vestibule/Adytum dirty state and primary checkout preservation.
+- ISC-3643: Handoff maps all5Koshas to7phases and states metadata is not access control.
+- ISC-3644: Independent audit distinguishes6public organ IDs/lifecycle contracts from private concrete scripts.
+- ISC-3645: Handoff inventories router, memory, knowledge storage/tunnels, HermesA2A, Obsidian and Mail modules.
+- ISC-3646: Independent provenance check confirms guard historical source match and later private delta.
+- ISC-3647: Integration sequence reuses public composition and ISA/GSD/provider authority boundaries.
+- ISC-3648: Retired Superset/Constellation explicitly excluded; stale prose is identified as debt.
+- ISC-3649: Bun fixtures report85pass0fail415expect calls across6files from clean application review source.
+- ISC-3650: Authenticated PHeditor focus reports303/500characters without changing content.
+- ISC-3651: Live reviews/editor showNovember6,2026,12:01AMPST; founder explicitly choosespreserve.
+- ISC-3652: Current packet/index/pack reference supersede unscheduled constraints and retain dated creation proof.
+- ISC-3653: Handoff defines15interactive sections, keyboard/reduced-motion/text equivalents and5000-word ceiling.
+- ISC-3654: Isolated README-only staged diff includesapprovedschedule; SHA256c8f928...a2330; uncommitted/unpushed.
+- ISC-3655: Handoff sequencesminimalportablekernel thenreadonlyVestibuleadapter beforeexpandedwebsite/launchclaims.
+- ISC-3656: Dedicated requested integration chatcreated; compactappstatus confirmsactive/inProgress withscopedhandoff.
+- ISC-3657: Thistaskchangedonlyownedhandoff/reference/preparedREADMEsource; no runtime/provider/memory/production/PHcopy action.
+- ISC-3658: Packetvalidator7isolated/8primary, skillvalidatorvalid and33ownedadapterrefreshcheck0drift0conflicts.
+- ISC-3659: Owned discovery files/sections reconciled into canonical workspace; isolatedreviewcommit prepared.
