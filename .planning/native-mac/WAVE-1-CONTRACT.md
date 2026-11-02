@@ -38,7 +38,7 @@ preview actions must be labelled synthetic and cannot imply live acceptance.
 
 ## Ownership
 
-- foundation: Package.swift, Info.plist.in, build.sh, tools/, provenance/license,
+- foundation: Package.swift, Info.plist.in, build.sh, .gitignore, tools/, provenance/license,
   Sources/CambiumNative/CambiumNativeApp.swift ONLY; no Core, UI views or resources.
 - core: Sources/CambiumCore/** and Tests/CambiumCoreTests/** ONLY.
 - interface: Sources/CambiumNative/Views/**, Design/**, State/**, Resources/** ONLY.
