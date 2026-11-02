@@ -177,6 +177,23 @@ final class PortfolioProjectsTests: XCTestCase {
         )
     }
 
+    func testMappedSourceReferencesOpenOnlyExplicitSafeSurfaces() {
+        let site = MappedSourceReference.parse("site:https://dlock-lp.vercel.app/")
+        XCTAssertEqual(site.kind, .site)
+        XCTAssertEqual(site.url?.absoluteString, "https://dlock-lp.vercel.app/")
+
+        let repository = MappedSourceReference.parse("repo:Sheshiyer/tirak-mobile-app-v2")
+        XCTAssertEqual(repository.kind, .repository)
+        XCTAssertEqual(repository.url?.absoluteString, "https://github.com/Sheshiyer/tirak-mobile-app-v2")
+
+        XCTAssertNil(MappedSourceReference.parse("repo:parkarea.parkarea-aleph").url)
+        XCTAssertNil(MappedSourceReference.parse("vault:60-client-ecosystem/parkarea/project-brief.md").url)
+        XCTAssertNil(MappedSourceReference.parse("cambium:docs/plans/product-branches/fitcheck.md").url)
+        XCTAssertNil(MappedSourceReference.parse("site:http://insecure.example").url)
+        XCTAssertNil(MappedSourceReference.parse("site:https://user:secret@example.test").url)
+        XCTAssertNil(MappedSourceReference.parse("repo:../outside").url)
+    }
+
     /// Opt-in cross-language probe: the TypeScript generator can write today's
     /// handler response to a temporary directory without replacing the dated
     /// replay fixture committed for deterministic tests.

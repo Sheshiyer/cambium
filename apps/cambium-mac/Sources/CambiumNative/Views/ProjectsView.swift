@@ -2,6 +2,7 @@ import SwiftUI
 import struct CambiumCore.MappedPortfolio
 import struct CambiumCore.MappedProject
 import struct CambiumCore.MappedHistoricalProject
+import struct CambiumCore.MappedSourceReference
 
 private enum ProjectListEntry: Identifiable {
     case active(MappedProject)
@@ -260,9 +261,8 @@ struct ProjectsView: View {
                 if project.provenance.isEmpty {
                     Text("No provenance listed.").foregroundStyle(Palette.hold)
                 } else {
-                    ForEach(project.provenance, id: \.self) { source in
-                        Text(source).font(CambiumFont.monoSmall).foregroundStyle(Palette.ink)
-                            .textSelection(.enabled)
+                    ForEach(project.sourceReferences) { reference in
+                        sourceReferenceRow(reference)
                     }
                 }
                 linkedRows(project.linkedCanonicalIds)
@@ -321,15 +321,39 @@ struct ProjectsView: View {
                     Text("No provenance listed.")
                         .font(.callout).foregroundStyle(Palette.hold)
                 } else {
-                    ForEach(product.provenance, id: \.self) { source in
-                        Text(source).font(CambiumFont.monoSmall).foregroundStyle(Palette.ink)
-                            .textSelection(.enabled)
+                    ForEach(product.provenance.map(MappedSourceReference.parse)) { reference in
+                        sourceReferenceRow(reference)
                     }
                 }
             }
             .cambiumPanel()
         }
         .accessibilityIdentifier("projects.historical.\(product.id)")
+    }
+
+    @ViewBuilder
+    private func sourceReferenceRow(_ reference: MappedSourceReference) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: reference.url == nil ? "doc.text" : "arrow.up.right.square")
+                .foregroundStyle(reference.url == nil ? Palette.inkMuted : Palette.signal)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(reference.raw)
+                    .font(CambiumFont.monoSmall)
+                    .foregroundStyle(Palette.ink)
+                    .textSelection(.enabled)
+                Text(reference.kind.label)
+                    .font(.caption2)
+                    .foregroundStyle(Palette.inkMuted)
+            }
+            Spacer(minLength: 8)
+            if let url = reference.url {
+                Link("Open", destination: url)
+                    .font(.caption)
+                    .accessibilityHint("Opens the declared source in the external browser")
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 
     private func linkedRows(_ canonicalIds: [String]) -> some View {
