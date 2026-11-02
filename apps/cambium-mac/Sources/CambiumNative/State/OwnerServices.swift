@@ -429,6 +429,28 @@ final class CambiumOwnerServices: OwnerServices {
         } catch { return .failure(Self.issue(error)) }
     }
 
+    func retryOriginalLaunch(nonce: String) async -> Result<LaunchDisplay, ServiceIssue> {
+        let token = current()
+        // The saved row is the authority. A freshly resolved listing capability is not required.
+        let records = (try? await launchCoordinator.pendingRecoveries()) ?? []
+        guard let saved = records.first(where: { $0.idempotencyNonce == nonce }) else {
+            return .failure(.init(kind: .unavailable, message: "No saved launch matches that nonce."))
+        }
+        guard saved.ownerAbsent == true else {
+            return .failure(.init(kind: .refused, message: "The owner refused: original_resend_refused."))
+        }
+        let now = clock.now()
+        if CanonicalTimestamp.parse(saved.capability.expiresAt).map({ $0 > now }) != true {
+            return .failure(.init(kind: .expired, message: "The original capability expired at \(saved.capability.expiresAt). It cannot be sent again."))
+        }
+        launchNonce = nonce
+        do {
+            let outcome = try await launchCoordinator.launch(capability: saved.capability, idempotencyNonce: nonce)
+            guard stillCurrent(token) else { return .failure(.init(kind: .unavailable, message: "The session changed. The attempt stays recoverable.")) }
+            return .success(Self.launchDisplay(outcome.record))
+        } catch { return .failure(Self.issue(error)) }
+    }
+
     func recoverLaunch() async -> Result<LaunchDisplay, ServiceIssue> {
         guard let nonce = launchNonce else { return .failure(.init(kind: .unavailable, message: "No launch attempt exists.")) }
         return await recoverLaunch(nonce: nonce)
@@ -569,7 +591,9 @@ final class CambiumOwnerServices: OwnerServices {
             execution: record.executionState ?? "not reported",
             acceptance: record.acceptance ?? "not_evaluated",
             ownerRef: record.ownerRef, requestKey: record.requestKey, updatedAt: record.updatedAt,
-            needsStatusCheck: pending.contains(record.state)
+            needsStatusCheck: pending.contains(record.state),
+            ownerAbsent: record.ownerAbsent == true,
+            capabilityExpiresAt: record.capability.expiresAt
         )
     }
 

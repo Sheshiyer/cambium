@@ -524,6 +524,27 @@ final class AppModel {
         recoverLaunch(nonce: nonce)
     }
 
+    /// Deliberate resend of one proved-absent original. Status reads never call this.
+    func retryOriginalLaunch(nonce: String) {
+        run("Retry") { services, token in
+            let result = await services.retryOriginalLaunch(nonce: nonce)
+            let pending = await services.pendingLaunch()
+            guard token == self.generation else { return }
+            self.pendingLaunch = pending
+            switch result {
+            case .success(let display):
+                self.launch = display
+                self.feedback = display.needsStatusCheck
+                    ? "Original request used the same IDs. Check status before another send."
+                    : "Original request resolved. Request \(display.requestId). Execution: \(display.execution)."
+            case .failure(let failure):
+                self.issue = failure
+                if let saved = pending.first(where: { $0.nonce == nonce }) { self.launch = saved }
+                self.feedback = failure.message
+            }
+        }
+    }
+
     func recoverLaunch(nonce: String) {
         run("Status") { services, token in
             let result = await services.recoverLaunch(nonce: nonce)
@@ -551,6 +572,15 @@ final class AppModel {
             faultArmed = armed
             feedback = "Demo fault armed. The next decision or launch is recorded, then its reply is dropped."
         }
+    }
+
+    /// Visual disabled state for demo reset. Current attempt flags and the pending
+    /// arrays loaded on opening all count. The durable store remains the action gate.
+    var resetVisuallyBlocked: Bool {
+        gate?.needsStatusCheck == true
+            || launch?.needsStatusCheck == true
+            || pendingGate.contains { $0.needsStatusCheck }
+            || pendingLaunch.contains { $0.needsStatusCheck }
     }
 
     /// Test seam. Drops the visible attempt so reset can be shown to consult the

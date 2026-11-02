@@ -255,6 +255,11 @@ struct LaunchDisplay: Equatable, Identifiable {
     var requestKey: String?
     var updatedAt: String
     var needsStatusCheck: Bool
+    /// True only when a status read of these exact IDs returned `404 not_found`.
+    /// That saved proof is the only reason the original request may be sent again.
+    var ownerAbsent: Bool
+    /// Owner expiry of the capability that was saved with this attempt.
+    var capabilityExpiresAt: String
 }
 
 struct FabricTraceNode: Identifiable, Equatable {
@@ -384,6 +389,9 @@ protocol OwnerServices: AnyObject {
     /// Resolves the exact capability for a supported admission the listing returned.
     func resolveSelectedAdmission(workId: String, admissionRef: String) async -> Result<LaunchCapabilityDisplay, ServiceIssue>
     func launch() async -> Result<LaunchDisplay, ServiceIssue>
+    /// Resends the exact saved request for a proved-absent nonce. Same capability,
+    /// same nonce, no new request or attempt id. Never a status read.
+    func retryOriginalLaunch(nonce: String) async -> Result<LaunchDisplay, ServiceIssue>
     func recoverLaunch() async -> Result<LaunchDisplay, ServiceIssue>
     /// Status-only recovery of one persisted launch, by its original nonce.
     func recoverLaunch(nonce: String) async -> Result<LaunchDisplay, ServiceIssue>
