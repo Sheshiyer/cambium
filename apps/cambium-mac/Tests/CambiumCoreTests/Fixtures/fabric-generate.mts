@@ -4,11 +4,17 @@
 // Every expected value comes from server code (handler route, compiler,
 // redactor, canonicalizer, portfolio pair digest). Swift never supplies one.
 import { webcrypto } from 'node:crypto';
-import { writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
+// Keep checked-in replay fixtures stable while probing the current source:
+// CAMBIUM_FABRIC_FIXTURE_DIR=/tmp/cambium-fabric-current node .../fabric-generate.mts
+const outputDir = process.env.CAMBIUM_FABRIC_FIXTURE_DIR
+  ? resolve(process.env.CAMBIUM_FABRIC_FIXTURE_DIR)
+  : here;
+mkdirSync(outputDir, { recursive: true });
 const src = join(here, '../../../../../workers/quests/src');
 const load = (name: string) => import(join(src, name));
 
@@ -16,7 +22,7 @@ const { canonicalizeGraphContent, projectionDigest, redactMissionFabricProjectio
 const { handle, buildDataCheckString } = await load('handler.ts');
 const { portfolioPairDigest } = await load('portfolio-catalog.ts');
 
-const write = (name: string, value: unknown) => writeFileSync(join(here, name), JSON.stringify(value, null, 2) + '\n');
+const write = (name: string, value: unknown) => writeFileSync(join(outputDir, name), JSON.stringify(value, null, 2) + '\n');
 const subtle = (globalThis.crypto ?? webcrypto).subtle;
 
 // ── 1. Canonical JSON edge vectors through canonicalizeGraphContent ───────

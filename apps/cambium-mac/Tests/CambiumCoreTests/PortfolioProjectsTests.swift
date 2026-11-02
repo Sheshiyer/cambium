@@ -94,6 +94,39 @@ final class PortfolioProjectsTests: XCTestCase {
         XCTAssertEqual(mapped.runtimeLinkedProjects.map(\.workId), ["sapling:cambium"])
     }
 
+    /// Opt-in cross-language probe: the TypeScript generator can write today's
+    /// handler response to a temporary directory without replacing the dated
+    /// replay fixture committed for deterministic tests.
+    func testCurrentSourceGeneratedFounderEnvelopeWhenProvided() throws {
+        guard let directory = ProcessInfo.processInfo.environment["CAMBIUM_FABRIC_FIXTURE_DIR"],
+              !directory.isEmpty else { throw XCTSkip("set CAMBIUM_FABRIC_FIXTURE_DIR to probe current source") }
+        let file = URL(fileURLWithPath: directory, isDirectory: true)
+            .appendingPathComponent("fabric-route-cambium-founder-shadow.json")
+        let data = try Data(contentsOf: file)
+        let context = FabricDecodeContext(
+            requested: ReaderScope(tenantId: "cambium", role: "founder", principal: "founder-1"),
+            now: Self.now
+        )
+        let env: MissionFabricEnvelope
+        switch MissionFabricDecoder.decode(json: data, context: context) {
+        case .success(let value): env = value
+        case .failure(let error): return XCTFail("current TypeScript handler envelope failed: \(error)")
+        }
+        let mapped = try XCTUnwrap(try MappedPortfolioDecoder.decode(env))
+        let summary = try XCTUnwrap(env.portfolioCatalogSummary)
+        XCTAssertEqual(mapped.projects.count, summary.total)
+        XCTAssertEqual(mapped.historicalProducts.count, summary.historicalProducts)
+        XCTAssertEqual(mapped.classificationReviews.count, summary.classificationReview)
+        XCTAssertEqual(mapped.projects.filter { !$0.operationalGapMissingFields.isEmpty }.count, summary.operationalGaps)
+        XCTAssertEqual(mapped.runtimeLinkedProjects.map(\.canonicalId).sorted(),
+                       env.portfolioJoinReport?.matches.map(\.canonicalId).sorted())
+        XCTAssertTrue(mapped.historicalProducts.allSatisfy { historical in
+            mapped.project(workId: historical.canonicalId) == nil
+        })
+        XCTAssertEqual(summary.actionAdmission, "none")
+        XCTAssertTrue(summary.readOnly)
+    }
+
     func testRepresentativeFitcheckRelovoAndProposedFields() throws {
         let mapped = try mappedFounder()
 

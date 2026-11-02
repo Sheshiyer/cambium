@@ -46,6 +46,14 @@ current production catalog.
   Embedded build proof reports revision `7ff409f` with clean app inputs and
   aggregate `8b2e8bd9ade7be974711963d6eec71e456512ce695d1cbba38dd069d2dd2f3c8`.
   `codesign --verify --strict` and build-proof recheck passed.
+- `./apps/cambium-mac/tools/probe-current-portfolio.sh`: generates a fresh
+  Mission Fabric founder response through the TypeScript handler in a temporary
+  directory, decodes it with the Swift Core mapper, then removes the temporary
+  files. On 2026-11-02 it passed with 77 current records, 20 historical, zero
+  classification reviews, 50 reported gaps and one explicit runtime join;
+  display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`.
+  This probes the current **working source**, including uncommitted catalog
+  edits from another lane. It does not prove that source was deployed.
 
 These are local source, fixture, route-harness and bundle proofs. The Mac was
 locked during the first visual inspection attempt; visual QA is pending an
