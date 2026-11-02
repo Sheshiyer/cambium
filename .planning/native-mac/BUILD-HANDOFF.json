@@ -1,0 +1,74 @@
+{
+  "schema": "temperance.handoff.v2",
+  "status": "native-build-preflight",
+  "task": "Build native Cambium via hosted Phloem fan-out",
+  "completed": [
+    "Reviewed parallel-dispatch protocol and existing native architecture",
+    "Resolved hosted Phloem metadata",
+    "Created clean isolated build worktree from reviewed commit1dd2c1f",
+    "Cloned Bama and checked out exact639893c397278256f1ae204dd8f837eb82bd6527"
+  ],
+  "remaining": [
+    "Poll hosted tool-loop compatibility probe",
+    "Split bounded implementation tasks with disjoint file ownership",
+    "Dispatch noesis-execute workers through hosted batch in worktrees",
+    "Integrate, build, native test, snapshot and independently review full action/recovery flow"
+  ],
+  "blockers": [
+    "Local rank-paid-fleet refresh requires absent local SQLite; no local fallback used"
+  ],
+  "decisions": [
+    "Use only hosted Phloem for requested worker inference",
+    "Preserve original primary worktree and separate native build branch",
+    "Do not run Bama new-app.sh unmodified: it git-initializes nested app and installs/opens by default",
+    "Real identity/launch-owner integration gaps stay explicit; build functional adapters and local verification without fake live proof"
+  ],
+  "uncommitted_files": [
+    "ISA.md (new native implementation criteria; shared)",
+    "native build handoff files only"
+  ],
+  "next_action": "Continue native build on codex/cambium-native-build; operator-private runtime handles are in the private handoff. Poll the already-started hosted probe before dispatching a bounded worktree fleet.",
+  "isa": "ISA.md",
+  "isc_open": [
+    "ISC-3400",
+    "ISC-3401",
+    "ISC-3402",
+    "ISC-3403",
+    "ISC-3404",
+    "ISC-3405",
+    "ISC-3406",
+    "ISC-3407",
+    "ISC-3408",
+    "ISC-3409",
+    "ISC-3410",
+    "ISC-3411",
+    "ISC-3412",
+    "ISC-3413",
+    "ISC-3414",
+    "ISC-3415",
+    "ISC-3416",
+    "ISC-3417",
+    "ISC-3418",
+    "ISC-3419",
+    "ISC-3420",
+    "ISC-3421",
+    "ISC-3422",
+    "ISC-3423",
+    "ISC-3424",
+    "ISC-3425",
+    "ISC-3426",
+    "ISC-3427",
+    "ISC-3428",
+    "ISC-3429",
+    "ISC-3430",
+    "ISC-3431"
+  ],
+  "isc_done_count": 0,
+  "wave": "native-mac-build",
+  "tier": "E5",
+  "session_budget": {
+    "token_budget": 50000000,
+    "goal_status": "active"
+  },
+  "next_command": "Read hosted probe log; do not restart live probe"
+}
