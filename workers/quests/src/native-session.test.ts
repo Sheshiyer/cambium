@@ -317,7 +317,8 @@ test('consent POST refuses a form action whose query no longer matches the hidde
   const swapped = await consent(h.host, form!, (_body, _headers, action) => {
     action.url = `${ORIGIN}${NATIVE_SESSION_PATHS.authorize}`;
   });
-  assert.equal(swapped!.status, 302, 'a path-only action still binds through the rendered hidden fields');
+  assert.equal((await errorOf(swapped)).body.error, 'consent_required', 'a queryless URL / path-only action is refused');
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 0);
 });
 
 test('a path-bearing owner origin keeps the factory unconfigured', async () => {
