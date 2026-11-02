@@ -245,6 +245,80 @@ final class LaunchSafetyTests: XCTestCase {
         catch { XCTAssertEqual(error as? RecoveryStoreError, .corruptEnvelope) }
     }
 
+    func testFileStoreSymlinkFileRefusal() async throws {
+        let dir = LaunchFixtures.tempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = FileRecoveryStore(directory: dir)
+        try await store.save(Data("payload".utf8), key: "k")
+        let name = try XCTUnwrap(try FileManager.default.contentsOfDirectory(atPath: dir.path).first)
+        let targetFile = dir.appendingPathComponent(name)
+        
+        let outsider = LaunchFixtures.tempDir()
+        try FileManager.default.createDirectory(at: outsider, withIntermediateDirectories: true)
+        let outsiderFile = outsider.appendingPathComponent("outside.json")
+        try Data("outside".utf8).write(to: outsiderFile)
+        defer {
+            try? FileManager.default.removeItem(at: targetFile)
+            try? FileManager.default.removeItem(at: outsider)
+        }
+
+        // Replace store file with a symlink to outsiderFile
+        try FileManager.default.removeItem(at: targetFile)
+        try FileManager.default.createSymbolicLink(at: targetFile, withDestinationURL: outsiderFile)
+
+        do {
+            _ = try await store.load(key: "k")
+            XCTFail("expected corruptEnvelope for symlink file")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .corruptEnvelope)
+        }
+
+        do {
+            _ = try await store.keys(prefix: "k")
+            XCTFail("expected corruptEnvelope for symlink file in keys")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .corruptEnvelope)
+        }
+    }
+
+    func testFileStoreSymlinkDirectoryRefusal() async throws {
+        let parentDir = LaunchFixtures.tempDir()
+        defer { try? FileManager.default.removeItem(at: parentDir) }
+        let realDir = parentDir.appendingPathComponent("real")
+        try FileManager.default.createDirectory(at: realDir, withIntermediateDirectories: true)
+        
+        let linkDir = parentDir.appendingPathComponent("link")
+        try FileManager.default.createSymbolicLink(at: linkDir, withDestinationURL: realDir)
+
+        let store = FileRecoveryStore(directory: linkDir)
+        do {
+            try await store.save(Data("payload".utf8), key: "k")
+            XCTFail("expected ioFailure for symlink directory")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .ioFailure)
+        }
+    }
+
+    func testFileStoreOversizeTarget() async throws {
+        let dir = LaunchFixtures.tempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = FileRecoveryStore(directory: dir)
+        try await store.save(Data("ok".utf8), key: "k")
+        let name = try XCTUnwrap(try FileManager.default.contentsOfDirectory(atPath: dir.path).first)
+        let file = dir.appendingPathComponent(name)
+
+        // Write junk exceeding maxEnvelopeBytes
+        let oversizeData = Data(count: FileRecoveryStore.maxEnvelopeBytes + 10)
+        try oversizeData.write(to: file)
+
+        do {
+            _ = try await store.load(key: "k")
+            XCTFail("expected corruptEnvelope for oversize target")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .corruptEnvelope)
+        }
+    }
+
     // MARK: Coordinator keys
 
     func testCoordinatorKeysDoNotAliasAcrossWorkAndNonce() {
