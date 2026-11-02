@@ -133,28 +133,37 @@ struct ProposalView: View {
                 }
                 .cambiumPanel()
 
-                if !model.pendingGate.isEmpty {
-                    VStack(alignment: .leading, spacing: 10) {
-                        SectionHeader(title: "Pending recoveries on opening (\(model.pendingGate.count))")
-                        ForEach(model.pendingGate) { record in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Proposal: \(record.proposalId)").font(CambiumFont.monoSmall)
-                                    Text("State: \(record.state) · Updated \(model.time(record.updatedAt))").font(.caption).foregroundStyle(Palette.inkMuted)
-                                }
-                                Spacer()
-                                Button("Check status") { model.recoverReview(nonce: record.nonce) }
-                                    .controlSize(.small)
-                            }
-                            .cambiumPanel(padding: 10)
-                        }
-                    }
-                    .cambiumPanel()
-                }
             } else {
                 EmptyStateView(symbol: "signature", title: "No proposal loaded",
                                message: "Bind the selected work to a canonical proposal reference, then load the review. A missing binding is not an admission.")
                     .cambiumPanel()
+            }
+            if !model.pendingGate.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    SectionHeader(title: "Pending recoveries on opening (\(model.pendingGate.count))")
+                    ForEach(model.pendingGate) { record in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Proposal: \(record.proposalId)").font(CambiumFont.monoSmall)
+                                Text("State: \(record.state) · Updated \(model.time(record.updatedAt))").font(.caption).foregroundStyle(Palette.inkMuted)
+                            }
+                            Spacer()
+                            Button("Check status") { model.recoverReview(nonce: record.nonce) }
+                                .controlSize(.small)
+                        }
+                        .cambiumPanel(padding: 10)
+                    }
+                }
+                .cambiumPanel()
+            }
+            if model.review == nil, let gate = model.gate {
+                VStack(alignment: .leading, spacing: 8) {
+                    SectionHeader(title: "Decision status")
+                    Text("Proposal: \(gate.proposalId)").font(CambiumFont.monoSmall)
+                    Text("Outcome: \(gate.label). Updated: \(model.time(gate.updatedAt)).")
+                        .font(.callout).foregroundStyle(Palette.ink)
+                }
+                .cambiumPanel()
             }
         }
     }

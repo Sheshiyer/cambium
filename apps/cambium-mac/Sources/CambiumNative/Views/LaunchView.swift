@@ -7,7 +7,7 @@ struct LaunchView: View {
         PageScaffold(eyebrow: "Launch", title: "Admitted launch and recovery",
                      subtitle: "Inspect the owner capability, launch through the LaunchCoordinator, and recover a lost reply by status only.") {
             if model.isDemo {
-                SyntheticNotice(message: "The launch listing is a dated example from 2026-11-02 for sapling:cambium. It is separate from the 2026-07-28 founder proposal. The demo starts no job and runs no command. Approval is not admission.")
+                SyntheticNotice(message: "The launch listing is a dated example from 2026-11-02 for sapling:cambium. It is separate from the 2026-07-28 founder proposal. A fixed 2026-07-28 replay clock exercises both examples and does not establish current eligibility. The demo starts no job and runs no command. Approval is not admission.")
             }
 
             if model.session == nil {

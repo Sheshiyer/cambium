@@ -387,7 +387,11 @@ final class AppModel {
             switch result {
             case .success(let loaded):
                 self.review = loaded
-                self.gate = await services.storedReview()
+                let stored = await services.storedReview()
+                let pending = await services.pendingGate()
+                guard token == self.generation else { return }
+                self.gate = stored
+                self.pendingGate = pending
                 self.feedback = "Loaded review \(loaded.proposalId). Approval does not admit this work."
             case .failure(let failure):
                 self.review = nil

@@ -57,7 +57,7 @@ struct CanopyView: View {
 enum GapText {
     static func readable(_ gap: String) -> String {
         switch gap {
-        case "native-identity-unconfigured": "Sign-in is not set up, so nothing live can be read."
+        case "native-identity-unconfigured": "Owner sign-in is not configured for this session, so nothing live can be read."
         case "launch-owner-unconfigured": "No launch owner is set up, so nothing can be launched."
         default: gap
         }
@@ -71,10 +71,10 @@ private struct UnconfiguredPanel: View {
         HStack(alignment: .top, spacing: 14) {
             OrganImage(organ: .vestibule, size: 56)
             VStack(alignment: .leading, spacing: 6) {
-                Text("Sign-in is not set up")
+                Text("Owner not configured")
                     .font(CambiumFont.heading)
                     .foregroundStyle(Palette.ink)
-                Text("This build has no sign-in and no owner, so it reads no live data and cannot decide or launch anything. You can explore a labelled synthetic demo instead.")
+                Text("Configure an owner in Connections, then sign in. Until then this session reads no live data and cannot decide or launch anything. You can explore a labelled synthetic demo instead.")
                     .font(.callout)
                     .foregroundStyle(Palette.inkMuted)
                     .fixedSize(horizontal: false, vertical: true)
