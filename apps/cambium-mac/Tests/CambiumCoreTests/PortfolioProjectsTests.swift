@@ -243,6 +243,8 @@ final class PortfolioProjectsTests: XCTestCase {
             ("missing tenantIdentity", { $0["tenantIdentity"] = nil }),
             ("bad tenant status", { $0["tenantIdentity"] = .object(["status": .string("verified")]) }),
             ("non-string lifecycle", { $0["lifecycle"] = .number(3) }),
+            ("unknown lifecycle", { $0["lifecycle"] = .string("admitted") }),
+            ("unknown promotionState", { $0["promotionState"] = .string("runtime-bound") }),
             ("provenance not array", { $0["provenance"] = .string("repo:x") }),
             ("alias with tenant authority", { $0["aliases"] = .array([.object(["value": .string("x"), "namespace": .string("n"), "tenantAuthority": .bool(true)])]) }),
             ("oversize name", { $0["name"] = .string(String(repeating: "x", count: MissionFabricCaps.maxDisplayChars + 1)) }),
@@ -281,6 +283,13 @@ final class PortfolioProjectsTests: XCTestCase {
             catalog["actionAuthority"] = .object(["admission": .string("granted")])
         }
         XCTAssertThrowsError(try MappedPortfolioDecoder.decode(env))
+    }
+
+    func testMalformedSourceGeneratedAtIsRefused() throws {
+        let malformed = try mutatingCatalog { $0["sourceGeneratedAt"] = .string("not-a-source-date") }
+        XCTAssertThrowsError(try MappedPortfolioDecoder.decode(malformed))
+        let oversized = try mutatingCatalog { $0["sourceGeneratedAt"] = .string("2026-07-29T06:46:00Z" + String(repeating: "x", count: 65)) }
+        XCTAssertThrowsError(try MappedPortfolioDecoder.decode(oversized))
     }
 
     func testMalformedErrorDoesNotEchoSourceContents() throws {

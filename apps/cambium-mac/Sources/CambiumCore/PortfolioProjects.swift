@@ -123,6 +123,9 @@ public enum MappedPortfolioDecoder {
     private static let tenantStatuses: Set<String> = [
         "canonical", "canonical-parent", "documented-not-runtime-verified", "not-applicable", "unresolved",
     ]
+    private static let promotionStates: Set<String> = ["proof-only", "supervised-branch"]
+    private static let programKinds: Set<String> = ["client", "company", "capability", "operations"]
+    private static let lifecycles: Set<String> = ["proposed", "approved", "executing", "verifying", "complete", "retired"]
     private static let maxFieldChars = 2048
 
     /// Returns nil only when the envelope carries no catalog summary.
@@ -150,6 +153,12 @@ public enum MappedPortfolioDecoder {
             throw FabricDecodeError.schema("portfolioCatalog.actionAuthority")
         }
         let sourceGeneratedAt = try optionalString(catalog, "sourceGeneratedAt")
+        if let sourceGeneratedAt {
+            guard sourceGeneratedAt.count <= 64,
+                  sourceGeneratedAt.range(of: CanonicalTimestamp.pattern, options: .regularExpression) != nil else {
+                throw FabricDecodeError.malformed("portfolioCatalog.sourceGeneratedAt")
+            }
+        }
 
         guard case .array(let rows)? = catalog["records"],
               rows.count == summary.total,
@@ -236,6 +245,9 @@ public enum MappedPortfolioDecoder {
         for row in rows {
             guard case .object(let object) = row else { throw FabricDecodeError.malformed("portfolioCatalog.operationalGaps") }
             let workId = try string(object, "workId")
+            guard case .string("mission-data-needed")? = object["gapKind"] else {
+                throw FabricDecodeError.schema("portfolioCatalog.operationalGaps.gapKind")
+            }
             let fields = try stringArray(object, "missingFields")
             guard gaps.updateValue(fields, forKey: workId) == nil else { throw FabricDecodeError.malformed("operationalGaps duplicate workId") }
         }
@@ -267,7 +279,24 @@ public enum MappedPortfolioDecoder {
                 throw FabricDecodeError.malformed("portfolioCatalog.records.aliases")
             }
             aliases.append(try string(item, "value"))
+            _ = try string(item, "namespace")
         }
+        if let portfolioStatus = try optionalString(row, "portfolioStatus"), portfolioStatus != "active" {
+            throw FabricDecodeError.schema("portfolioCatalog.records.portfolioStatus")
+        }
+        let lifecycle = try optionalString(row, "lifecycle")
+        if let lifecycle, !lifecycles.contains(lifecycle) {
+            throw FabricDecodeError.schema("portfolioCatalog.records.lifecycle")
+        }
+        let promotionState = try optionalString(row, "promotionState")
+        if let promotionState, !promotionStates.contains(promotionState) {
+            throw FabricDecodeError.schema("portfolioCatalog.records.promotionState")
+        }
+        let programKind = try optionalString(row, "programKind")
+        if let programKind, !programKinds.contains(programKind) {
+            throw FabricDecodeError.schema("portfolioCatalog.records.programKind")
+        }
+        _ = try optionalString(row, "accountId")
 
         return MappedProject(
             workId: workId,
@@ -278,9 +307,9 @@ public enum MappedPortfolioDecoder {
             tenantStatus: tenantStatus,
             tenantId: try optionalString(identity, "tenantId"),
             parentTenant: try optionalString(row, "parentTenant"),
-            lifecycle: try optionalString(row, "lifecycle"),
-            promotionState: try optionalString(row, "promotionState"),
-            programKind: try optionalString(row, "programKind"),
+            lifecycle: lifecycle,
+            promotionState: promotionState,
+            programKind: programKind,
             provenance: try stringArray(row, "provenance"),
             linkedCanonicalIds: try stringArray(row, "linkedCanonicalIds"),
             aliases: aliases,
