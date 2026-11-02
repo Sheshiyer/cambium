@@ -361,6 +361,10 @@ test('native session approves one exact founder proposal with channel native, th
   assert.equal(projection.portfolioCatalogSummary?.actionAdmission, 'none');
   assert.equal(projection.portfolioCatalog?.records?.length, projection.portfolioCatalogSummary?.total,
     'the native founder receives the mapped projects, not only aggregate counts');
+  assert.equal(projection.portfolioCatalog?.historicalProducts?.length, projection.portfolioCatalogSummary?.historicalProducts,
+    'the native founder receives the source history alongside active records');
+  assert.equal(projection.portfolioCatalog?.classificationReview?.length, projection.portfolioCatalogSummary?.classificationReview,
+    'source classification questions remain visible without admission');
   assert.ok(projection.portfolioJoinReport, 'runtime joins remain a separate owner sidecar');
   assert.notEqual(projection.portfolioCatalogSummary?.catalogDigest,
     projection.portfolioCatalogSummary?.actionCatalogDigest,
