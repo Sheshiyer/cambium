@@ -167,6 +167,10 @@ public actor FileRecoveryStore: RecoveryStore {
     public static let maxPayloadBytes = 1_048_576
     static let maxEnvelopeBytes = 2_097_152
 
+#if DEBUG
+    nonisolated(unsafe) static var mockSyncParentDirectory: (() -> Bool)? = nil
+#endif
+
     private let directory: URL
 
     public init(directory: URL) {
@@ -283,6 +287,11 @@ public actor FileRecoveryStore: RecoveryStore {
     /// Persist the directory entry created or replaced by `rename`. A missing
     /// parent sync means the record is not yet durable across power loss.
     private static func syncParentDirectory(_ directory: URL) -> Bool {
+#if DEBUG
+        if let mock = mockSyncParentDirectory {
+            return mock()
+        }
+#endif
         let descriptor = openNoFollow(directory.path, flags: O_RDONLY | O_DIRECTORY)
         guard descriptor >= 0 else { return false }
         defer { close(descriptor) }
@@ -310,16 +319,53 @@ public actor FileRecoveryStore: RecoveryStore {
         }
         if ok { ok = Self.durableFlush(descriptor: descriptor) }
         close(descriptor)
-        guard ok, rename(temp.path, target.path) == 0 else {
+        guard ok else {
             unlink(temp.path)
             throw RecoveryStoreError.ioFailure
         }
-        // Rename already published the name. If the parent cannot be synced,
-        // remove that name and fail closed so the caller does not treat the
-        // record as saved before the wire.
-        guard Self.syncParentDirectory(directory) else {
-            unlink(target.path)
+
+        var targetInfo = stat()
+        let hasExisting = (lstat(target.path, &targetInfo) == 0)
+        if hasExisting {
+            guard (targetInfo.st_mode & S_IFMT) != S_IFLNK else {
+                unlink(temp.path)
+                throw RecoveryStoreError.ioFailure
+            }
+            guard (targetInfo.st_mode & S_IFMT) == S_IFREG else {
+                unlink(temp.path)
+                throw RecoveryStoreError.ioFailure
+            }
+        }
+
+        let backup: URL? = hasExisting ? directory.appendingPathComponent(".bak-" + UUID().uuidString, isDirectory: false) : nil
+
+        if let backup = backup {
+            guard rename(target.path, backup.path) == 0 else {
+                unlink(temp.path)
+                throw RecoveryStoreError.ioFailure
+            }
+        }
+
+        guard rename(temp.path, target.path) == 0 else {
+            if let backup = backup {
+                _ = rename(backup.path, target.path)
+            }
+            unlink(temp.path)
             throw RecoveryStoreError.ioFailure
+        }
+
+        guard Self.syncParentDirectory(directory) else {
+            if let backup = backup {
+                _ = rename(backup.path, target.path)
+            } else {
+                unlink(target.path)
+            }
+            unlink(temp.path)
+            throw RecoveryStoreError.ioFailure
+        }
+
+        if let backup = backup {
+            unlink(backup.path)
         }
     }
 
@@ -334,7 +380,11 @@ public actor FileRecoveryStore: RecoveryStore {
 
     public func load(key: String) async throws -> Data? {
         let target = try url(for: key)
-        guard FileManager.default.fileExists(atPath: target.path) else { return nil }
+        var info = stat()
+        if lstat(target.path, &info) != 0 {
+            if errno == ENOENT { return nil }
+            throw RecoveryStoreError.corruptEnvelope
+        }
         let envelope = try readEnvelope(at: target)
         guard envelope.key == key else { throw RecoveryStoreError.corruptEnvelope }
         return envelope.payload
@@ -342,16 +392,34 @@ public actor FileRecoveryStore: RecoveryStore {
 
     public func remove(key: String) async throws {
         let target = try url(for: key)
-        if FileManager.default.fileExists(atPath: target.path) {
+        var info = stat()
+        if lstat(target.path, &info) == 0 {
             try FileManager.default.removeItem(at: target)
+        } else if errno != ENOENT {
+            throw RecoveryStoreError.ioFailure
         }
     }
 
     /// Exact enumeration from envelope keys. Any unreadable store file throws,
     /// because its key (and so whether it matches the prefix) cannot be known.
     public func keys(prefix: String) async throws -> [String] {
-        guard FileManager.default.fileExists(atPath: directory.path) else { return [] }
-        let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        let path = directory.path
+        var info = stat()
+        if lstat(path, &info) != 0 {
+            if errno == ENOENT { return [] }
+            throw RecoveryStoreError.ioFailure
+        }
+        guard (info.st_mode & S_IFMT) != S_IFLNK else { throw RecoveryStoreError.ioFailure }
+        guard (info.st_mode & S_IFMT) == S_IFDIR else { throw RecoveryStoreError.ioFailure }
+        let descriptor = Self.openNoFollow(path, flags: O_RDONLY | O_DIRECTORY)
+        guard descriptor >= 0 else { throw RecoveryStoreError.ioFailure }
+        defer { close(descriptor) }
+        var opened = stat()
+        guard fstat(descriptor, &opened) == 0, (opened.st_mode & S_IFMT) == S_IFDIR else {
+            throw RecoveryStoreError.ioFailure
+        }
+
+        let names = try FileManager.default.contentsOfDirectory(atPath: path)
         var out: [String] = []
         for name in names where Self.isStoreFile(name) {
             let envelope = try readEnvelope(at: directory.appendingPathComponent(name), expectedName: name)
