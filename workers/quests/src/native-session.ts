@@ -243,7 +243,11 @@ function validOrigin(origin: unknown): origin is string {
   if (typeof origin !== 'string') return false;
   try {
     const url = new URL(origin);
-    return url.protocol === 'https:' && !url.username && !url.password && url.search === '' && url.hash === '';
+    // Exact HTTPS origin: the URL origin must equal the configured value.
+    // A path, userinfo, query or fragment is not an origin the handler routes,
+    // and the browser Origin header never carries a path.
+    return url.protocol === 'https:' && url.origin === origin
+      && !url.username && !url.password && url.search === '' && url.hash === '';
   } catch { return false; }
 }
 
@@ -303,12 +307,7 @@ const unavailable = () => fail(503, 'native_session_unavailable');
 
 function sameOrigin(request: Request, host: NativeSessionHost): boolean {
   try {
-    const reqUrl = new URL(request.url);
-    const owner = new URL(host.deps.ownerOrigin);
-    if (reqUrl.origin !== owner.origin) return false;
-    const ownerPath = owner.pathname.replace(/\/$/, '');
-    if (!ownerPath) return true;
-    return reqUrl.pathname === ownerPath || reqUrl.pathname.startsWith(ownerPath + '/');
+    return new URL(request.url).origin === new URL(host.deps.ownerOrigin).origin;
   } catch { return false; }
 }
 
@@ -479,31 +478,20 @@ async function prepareAuthorize(request: Request, host: NativeSessionHost, form?
 }
 
 /**
- * Same-origin form action carrying the exact GET binding query. Absolute only
- * when ownerOrigin has a path prefix, and only when that prefix is this
- * request's path base. Never substitutes a different origin. Secret intent and
+ * Same-origin form action carrying only the original GET authorize query.
+ * Path-only, so the browser posts to this exact origin. Secret intent and
  * CSRF stay in the body and cookie, never in this URL.
  */
 function consentAction(request: Request, host: NativeSessionHost, prepared: PreparedAuthorize): string | null {
   let url: URL;
   try { url = new URL(request.url); } catch { return null; }
   const owner = new URL(host.deps.ownerOrigin);
-  if (url.origin !== owner.origin) return null;
-  const base = owner.pathname.replace(/\/$/, '');
-  const path = `${base}${NATIVE_SESSION_PATHS.authorize}`;
-  if (url.pathname !== path) return null;
-  const query = new URLSearchParams({
-    client_id: prepared.clientId,
-    redirect_uri: prepared.redirectUri,
-    code_challenge: prepared.challenge,
-    code_challenge_method: 'S256',
-    state: prepared.state,
-    tenant: prepared.tenantId,
-  });
-  // Path-only when the owner is an origin, so the browser posts same-origin.
-  // A path prefix cannot be expressed by a path-only action, so include the
-  // already-checked owner origin explicitly.
-  return base ? `${owner.origin}${path}?${query}` : `${path}?${query}`;
+  if (url.origin !== owner.origin || url.pathname !== NATIVE_SESSION_PATHS.authorize) return null;
+  const params = new URLSearchParams(url.search);
+  if (!params.has('code_challenge_method')) params.set('code_challenge_method', 'S256');
+  if (!params.has('tenant') && prepared.tenantId) params.set('tenant', prepared.tenantId);
+  const search = params.toString();
+  return `${NATIVE_SESSION_PATHS.authorize}${search ? `?${search}` : ''}`;
 }
 
 function consentPage(request: Request, host: NativeSessionHost, prepared: PreparedAuthorize, intent: string, csrf: string): Response | null {
@@ -625,17 +613,24 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
   } catch { return unavailable(); }
   if (!consumed) return fail(400, 'consent_required');
 
-  // The intent is spent. A later failure cannot mint a second code for it.
+  // The intent is spent, including on refusal. Re-check the current founder
+  // role, enrollment and a fresh clock after consume returns, so a revocation
+  // or expiry during that await cannot still mint a code.
   const issuedAt = clock(host);
+  if (!issuedAt) return unavailable();
+  const stillEnrolled = await currentlyEnrolled(host, prepared.founderId, prepared.tenantId);
+  if (stillEnrolled === null) return unavailable();
+  if (!stillEnrolled) return fail(403, 'forbidden');
+  const confirmedAt = clock(host);
   const code = mint(host, NATIVE_CODE_PREFIX);
-  if (!issuedAt || !code) return unavailable();
-  const codeExpiresAt = plusMs(issuedAt, NATIVE_CODE_TTL_MS);
+  if (!confirmedAt || !code) return unavailable();
+  const codeExpiresAt = plusMs(confirmedAt, NATIVE_CODE_TTL_MS);
   if (!codeExpiresAt) return unavailable();
   try {
     await host.deps.store.saveCode({
       codeDigest: sha256Hex(code), clientId: prepared.clientId, redirectUri: prepared.redirectUri,
       codeChallenge: prepared.challenge, founderId: prepared.founderId, tenantId: prepared.tenantId,
-      issuedAt, expiresAt: codeExpiresAt,
+      issuedAt: confirmedAt, expiresAt: codeExpiresAt,
     });
   } catch { return unavailable(); }
   const location = `${prepared.redirectUri}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(prepared.state)}`;
@@ -817,15 +812,7 @@ export async function nativeSessionLogoutHttp(request: Request, host?: NativeSes
 export async function nativeSessionHttp(request: Request, host?: NativeSessionHost): Promise<Response | null> {
   let url: URL;
   try { url = new URL(request.url); } catch { return null; }
-  let pathname = url.pathname;
-  if (host) {
-    try {
-      const ownerPath = new URL(host.deps.ownerOrigin).pathname.replace(/\/$/, '');
-      if (ownerPath && pathname.startsWith(ownerPath)) {
-        pathname = pathname.slice(ownerPath.length) || '/';
-      }
-    } catch {}
-  }
+  const pathname = url.pathname;
   switch (pathname) {
     case NATIVE_SESSION_PATHS.authorize: return nativeSessionAuthorizeHttp(request, host);
     case NATIVE_SESSION_PATHS.exchange: return nativeSessionExchangeHttp(request, host);

@@ -231,6 +231,9 @@ test('missing or invalid owner bindings make the factory undefined and every rou
     { clients: [{ clientId: CLIENT_ID, redirectUri: 'https://cambium.test/cb' }] },
     { ownerOrigin: 'http://cambium.test' },
     { ownerOrigin: 'https://user:pw@cambium.test' },
+    { ownerOrigin: 'https://cambium.test/edge' },
+    { ownerOrigin: 'https://cambium.test?x=1' },
+    { ownerOrigin: 'https://cambium.test#frag' },
   ];
   for (const change of broken) {
     assert.equal(createNativeSessionHost({ ...good, ...change }), undefined);
@@ -317,27 +320,13 @@ test('consent POST refuses a form action whose query no longer matches the hidde
   assert.equal(swapped!.status, 302, 'a path-only action still binds through the rendered hidden fields');
 });
 
-test('a path-prefixed owner origin keeps that path in the form action and refuses a different origin', async () => {
-  const h = await harness({ ownerOrigin: 'https://cambium.test/edge' });
-  const form = await nativeSessionHttp(new Request(`https://cambium.test/edge${NATIVE_SESSION_PATHS.authorize}?${new URLSearchParams({
-    client_id: CLIENT_ID, redirect_uri: REDIRECT, code_challenge: CHALLENGE,
-    code_challenge_method: 'S256', state: STATE,
-  })}`), h.host);
-  assert.equal(form!.status, 200);
-  const action = unescapeHtml(/<form method="POST" action="([^"]*)">/.exec(await form!.clone().text())![1]);
-  const actionUrl = new URL(action);
-  assert.equal(actionUrl.origin, ORIGIN);
-  assert.equal(actionUrl.pathname, `/edge${NATIVE_SESSION_PATHS.authorize}`);
-  const granted = await consent(h.host, form!);
-  assert.equal(granted!.status, 302);
-
-  const foreign = await consent(h.host, form!, (_body, _headers, target) => {
-    const url = new URL(target.url);
-    url.hostname = 'attacker.invalid';
-    target.url = url.toString();
-  });
-  assert.equal((await errorOf(foreign)).status, 400);
-  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 1);
+test('a path-bearing owner origin keeps the factory unconfigured', async () => {
+  const h = await harness();
+  assert.equal(createNativeSessionHost({ ...h.deps, ownerOrigin: 'https://cambium.test/edge' }), undefined);
+  const unbound = createNativeSessionHost({ ...h.deps, ownerOrigin: 'https://cambium.test/edge' });
+  assert.equal((await errorOf(await authorize(unbound))).status, 503);
+  assert.equal((await errorOf(await authorize(unbound))).body.error, 'native_session_unconfigured');
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 0);
 });
 
 test('authorize consent POST refuses missing cookie, bad CSRF, expired intent and cross-founder attempts', async () => {
@@ -654,6 +643,33 @@ test('logout revokes only the exact token and rejects bodies other than an empty
 // ── Review corrections: barriers, shapes, impossible dates, exchange credentials ─
 
 const sessionCount = (h: Harness) => (h.db.db.prepare('SELECT COUNT(*) AS n FROM native_sessions').get() as { n: number }).n;
+
+test('founder role revoked during consent consume mints no authorization code', async () => {
+  const h = await harness();
+  const form = await authorize(h.host);
+  let consumed = false;
+  const real = h.deps.consent;
+  const host = createNativeSessionHost({ ...h.deps, consent: {
+    ...real,
+    async consume(input) {
+      const ok = await real.consume(input);
+      consumed = true;
+      h.who.role = 'member';
+      return ok;
+    },
+  } })!;
+  const denied = await consent(host, form!);
+  assert.equal(consumed, true);
+  const err = await errorOf(denied);
+  assert.equal(err.status, 403);
+  assert.equal(err.body.error, 'forbidden');
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 0);
+  // The consumed intent cannot be replayed into a code after the role returns.
+  h.who.role = 'founder';
+  const replay = await consent(host, form!);
+  assert.equal((await errorOf(replay)).body.error, 'consent_required');
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_authorization_codes').get() as { n: number }).n, 0);
+});
 
 test('a session revoked during the awaited role/enrollment lookup is refused', async () => {
   const h = await harness();
