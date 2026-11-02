@@ -267,6 +267,9 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3465: Local Swift and native route tests, signed bundle and clean-input build proof pass.
 - [ ] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
 - [ ] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority.
+- [x] ISC-3468: Founder detail maps every served historical product and classification review row; viewer detail stays empty.
+- [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
+- [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.
 
 ### Standalone composition source slice (2026-10-05)
 
