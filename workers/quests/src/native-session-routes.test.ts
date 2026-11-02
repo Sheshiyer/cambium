@@ -7,6 +7,7 @@ import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
 import { handle, type HandlerDeps, type SimpleRequest } from './handler.ts';
+import { composeNativeLaunchHost } from './native-session-composition.ts';
 import { d1NativeSessionStore } from './native-session-d1.ts';
 import {
   NATIVE_SESSION_CONTRACT,
@@ -363,4 +364,202 @@ test('web CSRF and Telegram paths are unchanged when no native credential is pre
   const ordinaryBearer = await handle(req('GET', '/v1/mission-fabric/cambium', { authorization: 'Bearer ordinary' }), deps);
   assert.equal(ordinaryBearer.status, 503, 'non-native bearer still takes the existing Telegram path');
   assert.equal(JSON.parse(ordinaryBearer.body as string).error, 'telegram auth is not configured');
+});
+
+// ── Review corrections: write barriers, direct launch host, credential aliases ─
+
+const T0 = '2026-07-24T00:00:00.000Z';
+const minutes = (iso: string, n: number) => new Date(Date.parse(iso) + n * 60_000).toISOString();
+
+/**
+ * Renewal fixture with separately controlled clocks and hooks. The handler
+ * clock and the session clock are independent so a proposal can lapse while the
+ * native session stays valid.
+ */
+async function barrierHarness() {
+  const base = await nativeSessionHarness();
+  const state = {
+    now: T0, sessionNow: minutes(T0, 16), role: 'founder',
+    commits: 0, rejects: 0, kvPuts: 0, parentReads: 0, originalDigest: '',
+    onParentRead: null as null | (() => void), onNodesRead: null as null | (() => void), onRole: null as null | (() => void),
+  };
+  const real = base.deps.goalGraphStore as any;
+  const goalGraphStore = {
+    ...real,
+    commit: async (a: unknown) => { state.commits++; return real.commit(a); },
+    reject: async (a: unknown) => { state.rejects++; return real.reject(a); },
+    readNodes: async (tenant: string) => { state.onNodesRead?.(); return real.readNodes(tenant); },
+    readDecisionReceipt: async (tenant: string, digest: string, nonce: string) => {
+      if (digest === state.originalDigest) { state.parentReads++; state.onParentRead?.(); }
+      return real.readDecisionReceipt(tenant, digest, nonce);
+    },
+  };
+  const kv = { ...base.deps.kv, put: async (key: string, value: string) => { state.kvPuts++; return base.deps.kv.put(key, value); } };
+  const sessionHost = createNativeSessionHost({
+    ...base.sessionDeps,
+    currentRole: async () => { state.onRole?.(); return state.role; },
+    now: () => state.sessionNow,
+  })!;
+  const deps: HandlerDeps = { ...base.deps, goalGraphStore, kv, now: () => state.now, nativeSessionHost: sessionHost };
+
+  const intake = await handle(req('POST', '/v1/bridge/goal-graph-intake', { authorization: 'Bearer bridge' }, JSON.stringify({
+    schema: 'cambium.telegram.goal-graph-intent.v1', version: 1, tenantId: 'cambium',
+    source: { kind: 'telegram', chatId: '-100555000111', messageId: '4242', updateId: '90001' },
+    goal: { desiredState: 'publish the approved launch note' },
+  })), deps);
+  assert.equal(intake.status, 200, intake.body);
+  state.originalDigest = JSON.parse(intake.body as string).changeDigest;
+  const token = await nativeToken(deps);
+  state.now = minutes(T0, 20);
+  const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json' };
+  const post = (path: string, body: unknown) => handle(req('POST', path, headers, JSON.stringify(body)), deps);
+  const original = JSON.parse((await post('/v1/founder/proposal', { proposalId: `cambium:${state.originalDigest}` })).body as string).proposal;
+  const renewInput = { proposalId: original.proposalId, version: original.version, changeDigest: original.changeDigest,
+    nonce: original.nonce, expiresAt: original.expiresAt };
+  /** Renews, then returns the renewed proposal ready for a decision. */
+  const renew = async () => {
+    const renewed = await post('/v1/founder/renew', renewInput);
+    assert.equal(renewed.status, 200, renewed.body);
+    const id = JSON.parse(renewed.body as string).proposalId as string;
+    const review = JSON.parse((await post('/v1/founder/proposal', { proposalId: id })).body as string);
+    const p = review.proposal;
+    return { review, input: (decision: 'approved' | 'rejected') => ({ proposalId: id, version: p.version, changeDigest: p.changeDigest,
+      nonce: p.nonce, expiresAt: p.expiresAt, decision,
+      confirmation: decision === 'approved' ? review.approveConfirmation : review.rejectConfirmation }) };
+  };
+  const approvals = () => Number((base.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get() as any).n);
+  return { state, deps, post, renew, renewInput, approvals, token };
+}
+
+test('renewal control: a live native session renews and decides through the parent-receipt guard', async () => {
+  const h = await barrierHarness();
+  const renewed = await h.renew();
+  const decided = await h.post('/v1/founder/decision', renewed.input('approved'));
+  assert.equal(decided.status, 200, decided.body);
+  assert.equal(JSON.parse(decided.body as string).receipt.channel, 'native');
+  assert.equal(h.state.commits, 1);
+  assert.equal(h.approvals(), 1);
+});
+
+for (const decision of ['approved', 'rejected'] as const) {
+  test(`native ${decision} decision makes zero writes when the session is revoked during the parent-receipt guard`, async () => {
+    const h = await barrierHarness();
+    const renewed = await h.renew();
+    h.state.parentReads = 0;
+    // Read 1 is readProposal; read 2 is the renewal beforeWrite guard.
+    h.state.onParentRead = () => { if (h.state.parentReads === 2) h.state.role = 'member'; };
+    const result = await h.post('/v1/founder/decision', renewed.input(decision));
+    assert.equal(h.state.parentReads, 2, 'the barrier ran inside the guard');
+    assert.equal(h.state.role, 'member');
+    assert.notEqual(result.status, 200, result.body);
+    assert.equal(h.state.commits, 0);
+    assert.equal(h.state.rejects, 0);
+    assert.equal(h.approvals(), 0);
+  });
+
+  test(`native ${decision} decision makes zero writes when the renewed proposal expires during the final auth await`, async () => {
+    const h = await barrierHarness();
+    const renewed = await h.renew();
+    const expiresAt = renewed.input(decision).expiresAt;
+    h.state.parentReads = 0;
+    // The guard passes at the current clock; the session lookup that follows moves time to the expiry.
+    h.state.onParentRead = () => { if (h.state.parentReads === 2) h.state.onRole = () => { h.state.now = expiresAt; }; };
+    const result = await h.post('/v1/founder/decision', renewed.input(decision));
+    assert.equal(h.state.parentReads, 2);
+    assert.equal(h.state.now, expiresAt, 'the clock moved during the final session await');
+    assert.equal(h.state.role, 'founder', 'the session itself stayed valid');
+    assert.notEqual(result.status, 200, result.body);
+    assert.equal(h.state.commits, 0);
+    assert.equal(h.state.rejects, 0);
+    assert.equal(h.approvals(), 0);
+  });
+}
+
+test('native renewal writes no pending intake when the session is revoked during the renewal reads', async () => {
+  const h = await barrierHarness();
+  const before = h.state.kvPuts;
+  h.state.onNodesRead = () => { h.state.role = 'member'; };
+  const result = await h.post('/v1/founder/renew', h.renewInput);
+  assert.equal(h.state.role, 'member', 'the barrier ran during the renewal reads');
+  assert.equal(result.status, 403, result.body);
+  assert.equal(JSON.parse(result.body as string).status, 'forbidden');
+  assert.equal(h.state.kvPuts, before, 'no pending-intake or idempotency write');
+});
+
+test('native renewal still writes the pending intake once when the session stays valid', async () => {
+  const h = await barrierHarness();
+  const before = h.state.kvPuts;
+  const result = await h.post('/v1/founder/renew', h.renewInput);
+  assert.equal(result.status, 200, result.body);
+  assert.equal(JSON.parse(result.body as string).status, 'renewed');
+  assert.ok(h.state.kvPuts > before);
+});
+
+test('direct composeNativeLaunchHost refuses a foreign request URL origin before any session lookup', async () => {
+  const { deps, sessionDeps } = await nativeSessionHarness();
+  const token = await nativeToken(deps);
+  let reads = 0;
+  const readSession = sessionDeps.store.readSession.bind(sessionDeps.store);
+  const store = { ...sessionDeps.store, readSession: async (...args: Parameters<typeof readSession>) => { reads++; return readSession(...args); } };
+  const session = createNativeSessionHost({ ...sessionDeps, store })!;
+  const launch = composeNativeLaunchHost({
+    verify: async () => null, now: () => NOW,
+    store: {} as any, owner: {} as any,
+  }, session)!;
+  const headers = { authorization: `Bearer ${token}` };
+  assert.equal(await launch.verify(new Request('https://attacker.invalid/v1/native/launch/capability', { method: 'POST', headers })), null);
+  assert.equal(await launch.verify(new Request('http://cambium.test/v1/native/launch/capability', { method: 'POST', headers })), null, 'scheme is part of the origin');
+  assert.equal(reads, 0, 'a foreign origin never reaches the session store');
+  assert.deepEqual(await launch.verify(new Request(`${ORIGIN}/v1/native/launch/capability`, { method: 'POST', headers })),
+    { tenantId: 'cambium', principalId: 'founder-1' });
+  assert.ok(reads > 0);
+});
+
+test('authorize refuses any Authorization header, valid browser identity or not, and issues no code', async () => {
+  const { deps, db } = await nativeSessionHarness();
+  const url = `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`;
+  const codes = () => Number((db.prepare('SELECT count(*) n FROM native_authorization_codes').get() as any).n);
+  for (const authorization of ['Bearer cns1_notarealtoken', 'Bearer ordinary', 'Basic Zm9vOmJhcg==']) {
+    const res = await handle(req('GET', url, { authorization }), deps);
+    assert.equal(res.status, 400, authorization);
+    assert.equal(JSON.parse(res.body as string).error, 'mixed_credentials');
+    assert.equal(res.headers.location, undefined);
+  }
+  assert.equal(codes(), 0);
+  const ordinary = await handle(req('GET', url), deps);
+  assert.equal(ordinary.status, 302, 'an ordinary authorize GET is unchanged');
+  assert.equal(codes(), 1);
+});
+
+test('both Telegram aliases are refused on session read, logout and every composed route', async () => {
+  const { deps } = await nativeSessionHarness();
+  const token = await nativeToken(deps);
+  for (const alias of ['x-telegram-init-data', 'telegram-init-data']) {
+    const headers = { authorization: `Bearer ${token}`, 'content-type': 'application/json', origin: ORIGIN, [alias]: 'query_id=AAalias' };
+    const calls: Array<[string, string, string?]> = [
+      ['GET', NATIVE_SESSION_PATHS.session], ['POST', NATIVE_SESSION_PATHS.logout, '{}'],
+      ['GET', '/v1/mission-fabric/cambium'], ['POST', '/v1/founder/status', '{}'], ['POST', '/v1/founder/proposal', '{}'],
+    ];
+    for (const [method, path, body] of calls) {
+      const res = await handle(req(method, path, headers, body), deps);
+      assert.equal(res.status, 400, `${alias} ${path}`);
+      assert.equal(JSON.parse(res.body as string).error, 'mixed_credentials', `${alias} ${path}`);
+    }
+  }
+  // Launch has its own response shape: the composed verifier yields no scope, so it is 401 and never reads the admission store.
+  let admissionReads = 0;
+  const launchDeps = { ...deps, nativeLaunchHost: {
+    verify: async () => null, now: () => NOW,
+    store: { readAdmission: async () => { admissionReads++; return null; }, reserve: async () => { throw new Error('not reached'); },
+      readRequest: async () => null, recordObservation: async () => null },
+    owner: { supports: () => true, submit: async () => { throw new Error('not reached'); }, read: async () => ({ state: 'not_found' as const }) },
+  } as any };
+  const body = JSON.stringify({ contractVersion: 'cambium.native-launch.v1', workId: 'sapling:cambium', admissionRef: 'adm-1' });
+  for (const alias of ['x-telegram-init-data', 'telegram-init-data']) {
+    const res = await handle(req('POST', '/v1/native/launch/capability', { authorization: `Bearer ${token}`, 'content-type': 'application/json', [alias]: 'query_id=AAalias' }, body), launchDeps);
+    assert.equal(res.status, 401, alias);
+  }
+  assert.equal(admissionReads, 0);
+  const ok = await handle(req('GET', NATIVE_SESSION_PATHS.session, { authorization: `Bearer ${token}` }), deps);
+  assert.equal(ok.status, 200, 'the session survived every refused mixed request');
 });
