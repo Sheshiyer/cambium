@@ -9,36 +9,42 @@ hardcoded into the standard app. The catalog remains `readOnly` with
 
 ## Read and navigation path
 
-1. The native session resolves a founder and exact `cambium` tenant at the owner.
+1. When activated, the native session resolves a founder and exact `cambium`
+   tenant at the owner.
 2. The Mission Fabric decoder checks tenant, role, counts, digests, caps and
    catalog authority fields before returning the envelope.
-3. `MappedPortfolioDecoder` maps every served record, preserves the display and
-   action digests separately, and fails the read on malformed detail.
+3. `MappedPortfolioDecoder` maps every served active record, historical product,
+   and classification review row. It preserves display and action digests
+   separately and fails the read on malformed detail.
 4. Canopy and Projects show source classifications, provenance, tenant labels,
-   lifecycle, promotion state, links and mission-data gaps. Global search can
-   select any mapped record. Viewer scope receives totals only.
+   lifecycle, promotion state, source links and mission-data gaps. Historical
+   products remain separate display records. Global search can select current
+   and historical records. Viewer scope receives totals only.
 5. A project opens operational Work only if an explicit `portfolioJoinReport`
    pair names its canonical ID and an existing Work node in the served graph.
    Names, aliases, equal IDs and catalog membership never create that link.
    Work review and launch retain their own existing admission checks.
 
 The bundled demo is a **dated synthetic-owner replay**. Its fixture has 76
-catalog records, 73 action records and one explicit Cambium runtime join. The
-working catalog source in the checkout had 77 display and 74 action records at
-this checkpoint. Counts are read from each served envelope; the app does not
-claim the older fixture is the current production catalog.
+current records, 20 historical products, 73 action records and one explicit
+Cambium runtime join. The uncommitted working catalog source in the checkout
+had 77 current records, 20 historical products, zero classification reviews,
+50 mission-data gaps and 74 action records at this checkpoint. Counts are read
+from each served envelope; the app does not claim the older fixture is the
+current production catalog.
 
 ## Local verification
 
-- `swift test --package-path apps/cambium-mac`: all native and Core tests passed.
-  The later focused decoder rerun passed 15 tests after final source-field
-  validation; two new app integration tests passed.
+- `swift test --package-path apps/cambium-mac`: 31 native and 246 Core tests
+  passed. Focused historical mapping passed 18 tests; three app integration
+  tests passed.
 - `node --test workers/quests/src/native-session-routes.test.ts`: 24 passed.
   The new assertion proves a scoped local founder session receives detailed
-  records and a separate join report.
+  current and historical records, classification questions, and a separate
+  join report.
 - `./apps/cambium-mac/build.sh`: release app bundle built and ad hoc signed.
-  Embedded build proof reports revision `334c9a6` with clean app inputs and
-  aggregate `ec1e363fd8da45d6d495ca9d196a1c7f5efca39b2b6f9fd5e99d28510e15cace`.
+  Embedded build proof reports revision `7ff409f` with clean app inputs and
+  aggregate `8b2e8bd9ade7be974711963d6eec71e456512ce695d1cbba38dd069d2dd2f3c8`.
   `codesign --verify --strict` and build-proof recheck passed.
 
 These are local source, fixture, route-harness and bundle proofs. The Mac was
@@ -54,7 +60,7 @@ their separate owner gates.
 
 ## Reversal
 
-Revert the scoped implementation commits `a62955b`, `d0defc5`, `15ff5de`, and
-`334c9a6` to remove this
-native project presentation and its test without touching catalog sources,
-runtime configuration, deployment state or the other work in the shared tree.
+Revert the scoped implementation commits `a62955b`, `d0defc5`, `15ff5de`,
+`334c9a6`, `8a24b94`, `e5fe1f1` and `7ff409f` to remove the native project
+presentation and tests without touching catalog sources, runtime
+configuration, deployment state or the other work in the shared tree.
