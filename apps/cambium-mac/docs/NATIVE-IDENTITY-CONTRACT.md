@@ -1,11 +1,14 @@
 # Native identity contract (cambium.native-session.v1)
 
-Status: server source and local tests exist. Handler wiring, the 0100 and 0101
-migration applies, client registration and any live browser grant have not been
-done. Reviewed contract: `.planning/native-mac/NATIVE-SESSION-CONTRACT.md`.
+Status: server source, conditional entry-point wiring and local tests exist.
+The 0100 and 0101 migration applies, client registration and any live browser
+grant have not been done. The TeamForge identity-by-ID seam is draft-only in
+PR #105 and is not a live authority. Reviewed contract:
+`.planning/native-mac/NATIVE-SESSION-CONTRACT.md`.
 
 Source: `workers/quests/src/native-session.ts` (routes, resolver, factory),
 `workers/quests/src/native-session-d1.ts` (D1 store),
+`workers/quests/src/plexus-native-identity.ts` (scoped TeamForge adapter),
 `workers/quests/migrations/0100_native_sessions.sql`, and
 `workers/quests/migrations/0101_native_consent.sql`.
 

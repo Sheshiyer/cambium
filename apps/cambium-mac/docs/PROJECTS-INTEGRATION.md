@@ -94,20 +94,21 @@ host, enroll the founder, or serve this catalog to the Mac app. Production
 configuration, migration, deployment and a real founder walkthrough retain
 their separate owner gates.
 
-The present Cambium Plexus adapter (`workers/quests/src/lib/plexus-principal.ts`)
-resolves a role only from a verified browser Access JWT forwarded to `/v1/whoami`;
-its principal has wildcard tenant scope. It cannot supply the native host's
-fresh `currentRole(founderId)` and `enrolledTenants(founderId)` callbacks during
-cookie-free code exchange or later bearer reads. The inspected TeamForge Worker
-source also describes `/v1/whoami` as Access-JWT-only; that checkout is dated
-and is not evidence of today's deployment. Activation needs an owner-approved,
-current identity-by-ID and exact-enrollment authority, plus the reviewed
-client, consent/session D1 bindings and same-origin browser verifier. A static
+The ordinary Cambium Plexus adapter (`workers/quests/src/lib/plexus-principal.ts`)
+still resolves a role only from a verified browser Access JWT forwarded to
+`/v1/whoami`; its principal has wildcard tenant scope and is not used for
+cookie-free native exchange or later bearer reads. The new
+`workers/quests/src/plexus-native-identity.ts` adapter consumes the separately
+scoped `plexus.native-identity.v1` contract from draft TeamForge PR #105,
+mapping only active `admin` identities to native `founder` and rechecking the
+exact `cambium` enrollment on every callback. This is source wiring, not live
+authority: the PR, endpoint, dedicated token, tenant/workspace map, client,
+origin, Access verifier and D1 bindings still need owner readback. A static
 founder list or the display catalog must not stand in for these checks.
 
 ## Reversal
 
 Revert the scoped implementation commits `a62955b`, `d0defc5`, `15ff5de`,
-`334c9a6`, `8a24b94`, `e5fe1f1` and `7ff409f` to remove the native project
+`334c9a6`, `8a24b94`, `e5fe1f1`, `7ff409f` and `af5c636` to remove the native project
 presentation and tests without touching catalog sources, runtime
 configuration, deployment state or the other work in the shared tree.
