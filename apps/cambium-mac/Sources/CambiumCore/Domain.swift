@@ -181,10 +181,18 @@ public enum DemoData {
 public struct ReaderScope: Codable, Sendable, Equatable {
     public var tenantId: String
     public var role: String
+    /// Authenticated principal from the caller's verified session. Never read from a served document.
+    public var principal: String?
 
-    public init(tenantId: String, role: String) {
+    public init(tenantId: String, role: String, principal: String? = nil) {
         self.tenantId = tenantId
         self.role = role
+        self.principal = principal
+    }
+
+    /// Cache partition for a read. A different principal, tenant or role never shares an entry.
+    public var cachePartitionKey: String {
+        "\(principal ?? "")|\(tenantId)|\(role)"
     }
 }
 
@@ -306,6 +314,12 @@ public struct PortfolioJoinMatch: Codable, Sendable, Equatable {
     public init(canonicalId: String, runtimeWorkId: String) { self.canonicalId = canonicalId; self.runtimeWorkId = runtimeWorkId }
 }
 
+public struct PortfolioRuntimeIdentityCollision: Codable, Sendable, Equatable {
+    public var workId: String
+    public var occurrences: Int
+    public init(workId: String, occurrences: Int) { self.workId = workId; self.occurrences = occurrences }
+}
+
 public struct PortfolioJoinReport: Codable, Sendable, Equatable {
     public var matchedCount: Int
     public var catalogOrphanCount: Int
@@ -314,8 +328,9 @@ public struct PortfolioJoinReport: Codable, Sendable, Equatable {
     public var matches: [PortfolioJoinMatch]
     public var catalogOrphans: [String]
     public var runtimeOrphans: [String]
-    public init(matchedCount: Int, catalogOrphanCount: Int, runtimeOrphanCount: Int, runtimeIdentityCollisionCount: Int, matches: [PortfolioJoinMatch], catalogOrphans: [String], runtimeOrphans: [String]) {
-        self.matchedCount = matchedCount; self.catalogOrphanCount = catalogOrphanCount; self.runtimeOrphanCount = runtimeOrphanCount; self.runtimeIdentityCollisionCount = runtimeIdentityCollisionCount; self.matches = matches; self.catalogOrphans = catalogOrphans; self.runtimeOrphans = runtimeOrphans
+    public var runtimeIdentityCollisions: [PortfolioRuntimeIdentityCollision]
+    public init(matchedCount: Int, catalogOrphanCount: Int, runtimeOrphanCount: Int, runtimeIdentityCollisionCount: Int, matches: [PortfolioJoinMatch], catalogOrphans: [String], runtimeOrphans: [String], runtimeIdentityCollisions: [PortfolioRuntimeIdentityCollision] = []) {
+        self.matchedCount = matchedCount; self.catalogOrphanCount = catalogOrphanCount; self.runtimeOrphanCount = runtimeOrphanCount; self.runtimeIdentityCollisionCount = runtimeIdentityCollisionCount; self.matches = matches; self.catalogOrphans = catalogOrphans; self.runtimeOrphans = runtimeOrphans; self.runtimeIdentityCollisions = runtimeIdentityCollisions
     }
 }
 
@@ -326,7 +341,10 @@ public struct MissionFabricEnvelope: Codable, Sendable, Equatable {
     public var projection: MissionFabricProjection
     public var delivery: DeliveryFreshness
     public var portfolioCatalogSummary: PortfolioCatalogSummary?
+    public var portfolioCatalog: JSONValue?
     public var portfolioJoinReport: PortfolioJoinReport?
+    public var organUpdateDelivery: JSONValue?
+    public var organUpdateDeliverySummary: JSONValue?
     public var organDeliveryPresent: Bool
     public var organDeliveryIsSummary: Bool
     public var truncated: [String]
@@ -335,7 +353,10 @@ public struct MissionFabricEnvelope: Codable, Sendable, Equatable {
         projection: MissionFabricProjection,
         delivery: DeliveryFreshness,
         portfolioCatalogSummary: PortfolioCatalogSummary? = nil,
+        portfolioCatalog: JSONValue? = nil,
         portfolioJoinReport: PortfolioJoinReport? = nil,
+        organUpdateDelivery: JSONValue? = nil,
+        organUpdateDeliverySummary: JSONValue? = nil,
         organDeliveryPresent: Bool,
         organDeliveryIsSummary: Bool,
         truncated: [String] = []
@@ -343,7 +364,10 @@ public struct MissionFabricEnvelope: Codable, Sendable, Equatable {
         self.projection = projection
         self.delivery = delivery
         self.portfolioCatalogSummary = portfolioCatalogSummary
+        self.portfolioCatalog = portfolioCatalog
         self.portfolioJoinReport = portfolioJoinReport
+        self.organUpdateDelivery = organUpdateDelivery
+        self.organUpdateDeliverySummary = organUpdateDeliverySummary
         self.organDeliveryPresent = organDeliveryPresent
         self.organDeliveryIsSummary = organDeliveryIsSummary
         self.truncated = truncated
@@ -564,11 +588,25 @@ public enum FabricNode: Codable, Sendable, Equatable {
         case .agent(let value), .skillCluster(let value), .run(let value): return value.subjectId
         }
     }
+
+    /// Wire `kind` from mission-fabric.ts.
+    public var kindName: String {
+        switch self {
+        case .work: return "work"
+        case .mission: return "mission"
+        case .task: return "task"
+        case .receipt: return "receipt"
+        case .agent: return "agent"
+        case .skillCluster: return "skill-cluster"
+        case .run: return "run"
+        }
+    }
 }
 
 public enum FabricDecodeError: Error, Equatable, Sendable {
     case malformed(String)
     case schema(String)
+    case scope(String)
     case tenantMismatch(expected: String, actual: String)
     case capExceeded(String)
     case stale(String)

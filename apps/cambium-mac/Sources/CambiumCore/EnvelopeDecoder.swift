@@ -69,15 +69,43 @@ public enum MissionFabricDecoder {
             }
         }
 
+        var catalog: JSONValue?
+        if let catalogValue = body["portfolioCatalog"] {
+            guard context.requested.tenantId == "cambium", context.requested.role == "founder" else {
+                return .failure(.scope("portfolioCatalog requires founder role on cambium tenant"))
+            }
+            catalog = catalogValue
+        }
+
         var joinReport: PortfolioJoinReport?
-        if let join = body["portfolioJoinReport"] {
-            do { joinReport = try decodeJoin(join) } catch let error as FabricDecodeError { return .failure(error) } catch { return .failure(.malformed("portfolioJoinReport")) }
+        if let joinValue = body["portfolioJoinReport"] {
+            do {
+                joinReport = try decodeJoin(joinValue)
+            } catch let error as FabricDecodeError {
+                return .failure(error)
+            } catch {
+                return .failure(.malformed("portfolioJoinReport"))
+            }
         }
 
         let fullPlan = body["organUpdateDelivery"] != nil
         let summaryPlan = body["organUpdateDeliverySummary"] != nil
         if fullPlan && summaryPlan {
             return .failure(.malformed("organ delivery is both plan and summary"))
+        }
+        if fullPlan, context.requested.role != "founder" {
+            return .failure(.scope("organUpdateDelivery requires founder role"))
+        }
+
+        do {
+            try validateSidecars(
+                body: body, projection: projection, delivery: delivery, summary: summary,
+                joinReport: joinReport, requested: context.requested
+            )
+        } catch let error as FabricDecodeError {
+            return .failure(error)
+        } catch {
+            return .failure(.malformed("sidecars"))
         }
 
         var truncated: [String] = []
@@ -89,7 +117,10 @@ public enum MissionFabricDecoder {
             projection: projection,
             delivery: delivery,
             portfolioCatalogSummary: summary,
+            portfolioCatalog: catalog,
             portfolioJoinReport: joinReport,
+            organUpdateDelivery: body["organUpdateDelivery"],
+            organUpdateDeliverySummary: body["organUpdateDeliverySummary"],
             organDeliveryPresent: fullPlan || summaryPlan,
             organDeliveryIsSummary: summaryPlan,
             truncated: truncated
@@ -101,6 +132,145 @@ public enum MissionFabricDecoder {
             throw FabricDecodeError.malformed("projection")
         }
         return try rawContentDigest(object)
+    }
+
+    static func sha256Digest(_ value: JSONValue) -> String {
+        let digest = SHA256.hash(data: Data(value.canonical().utf8))
+        return "sha256:" + digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    /// Server shape (handler.ts): Portfolio sidecars exist only for `cambium`.
+    /// Founder detail = catalog + join + full organ plan; otherwise summary-only.
+    /// Digest checks prove content integrity only. They do not prove freshness or signature.
+    private static func validateSidecars(
+        body: [String: JSONValue],
+        projection: MissionFabricProjection,
+        delivery: DeliveryFreshness,
+        summary: PortfolioCatalogSummary?,
+        joinReport: PortfolioJoinReport?,
+        requested: ReaderScope
+    ) throws {
+        let hasDetail = body["portfolioCatalog"] != nil
+        let hasJoin = body["portfolioJoinReport"] != nil
+        let hasPlan = body["organUpdateDelivery"] != nil
+        let hasPlanSummary = body["organUpdateDeliverySummary"] != nil
+
+        guard let summary else {
+            guard !hasDetail, !hasJoin, !hasPlan, !hasPlanSummary, delivery.portfolioPairDigest == nil else {
+                throw FabricDecodeError.malformed("portfolio sidecars require portfolioCatalogSummary")
+            }
+            return
+        }
+        guard projection.tenantId == "cambium" else { throw FabricDecodeError.scope("portfolio sidecars are cambium-only") }
+        guard hasDetail == hasJoin, hasDetail == hasPlan, hasDetail != hasPlanSummary else {
+            throw FabricDecodeError.malformed("inconsistent founder detail versus summary sidecars")
+        }
+
+        guard let pair = delivery.portfolioPairDigest else { throw FabricDecodeError.digest("portfolioPairDigest missing") }
+        let expectedPair = sha256Digest(.object([
+            "graphDigest": .string(projection.graphDigest),
+            "catalogDigest": .string(summary.actionCatalogDigest),
+        ]))
+        guard pair == expectedPair else { throw FabricDecodeError.digest("portfolioPairDigest") }
+
+        if hasDetail, case .object(var catalog)? = body["portfolioCatalog"] {
+            guard case .string(let served)? = catalog.removeValue(forKey: "catalogDigest"),
+                  served == summary.catalogDigest,
+                  sha256Digest(.object(catalog)) == served else { throw FabricDecodeError.digest("portfolioCatalog") }
+            guard case .string(summary.schema)? = catalog["schema"],
+                  case .string(summary.status)? = catalog["status"],
+                  case .bool(true)? = catalog["readOnly"],
+                  case .string(summary.classificationDigest)? = catalog["classificationDigest"] else {
+                throw FabricDecodeError.schema("portfolioCatalog")
+            }
+            guard case .object(let detailSummary)? = catalog["summary"] else { throw FabricDecodeError.malformed("portfolioCatalog.summary") }
+            let counts: [(String, Int)] = [
+                ("total", summary.total), ("saplings", summary.saplings), ("clientBranches", summary.clientBranches),
+                ("internalPrograms", summary.internalPrograms), ("classificationReview", summary.classificationReview),
+                ("historicalProducts", summary.historicalProducts), ("operationalGaps", summary.operationalGaps),
+            ]
+            for (key, expected) in counts {
+                guard try int(detailSummary, key) == expected else { throw FabricDecodeError.malformed("portfolioCatalog.summary.\(key)") }
+            }
+            guard case .array(let records)? = catalog["records"], records.count == summary.total,
+                  records.count <= MissionFabricCaps.maxCollectionItems else { throw FabricDecodeError.malformed("portfolioCatalog.records") }
+            var recordIds = Set<String>()
+            for record in records {
+                guard case .object(let row) = record, recordIds.insert(try string(row, "workId")).inserted else {
+                    throw FabricDecodeError.malformed("portfolioCatalog duplicate workId")
+                }
+            }
+            guard case .object(let actionAuthority)? = catalog["actionAuthority"],
+                  case .string(summary.actionCatalogDigest)? = actionAuthority["catalogDigest"],
+                  case .string("none")? = actionAuthority["admission"] else {
+                throw FabricDecodeError.schema("portfolioCatalog.actionAuthority")
+            }
+        } else if hasDetail {
+            throw FabricDecodeError.malformed("portfolioCatalog")
+        }
+
+        if let joinReport {
+            let workIds = Set(projection.nodes.compactMap { node -> String? in
+                if case .work(let value) = node { return value.workId }
+                return nil
+            })
+            for match in joinReport.matches where !workIds.contains(match.runtimeWorkId) {
+                throw FabricDecodeError.malformed("join match \(match.runtimeWorkId) has no work node")
+            }
+            for orphan in joinReport.runtimeOrphans where !workIds.contains(orphan) {
+                throw FabricDecodeError.malformed("runtime orphan \(orphan) has no work node")
+            }
+            let matched = Set(joinReport.matches.map(\.canonicalId))
+            guard matched.count == joinReport.matches.count,
+                  matched.isDisjoint(with: joinReport.catalogOrphans) else {
+                throw FabricDecodeError.malformed("join match identity")
+            }
+        }
+
+        if hasPlan {
+            guard case .object(var plan)? = body["organUpdateDelivery"] else { throw FabricDecodeError.malformed("organUpdateDelivery") }
+            guard case .string(let planDigest)? = plan.removeValue(forKey: "planDigest"),
+                  sha256Digest(.object(plan)) == planDigest else { throw FabricDecodeError.digest("organUpdateDelivery.planDigest") }
+            guard case .string("cambium.organ-update-plan.v1")? = plan["schema"],
+                  case .bool(true)? = plan["readOnly"], case .bool(true)? = plan["eventDriven"],
+                  case .bool(false)? = plan["scheduleArmed"],
+                  case .array(let active)? = plan["activeDeliveries"], active.count <= 20,
+                  case .array(let workflows)? = plan["workflows"], workflows.count <= MissionFabricCaps.maxCollectionItems else {
+                throw FabricDecodeError.schema("organUpdateDelivery")
+            }
+        }
+        if hasPlanSummary {
+            guard case .object(let planSummary)? = body["organUpdateDeliverySummary"],
+                  case .string("cambium.organ-update-delivery-summary.v1")? = planSummary["schema"],
+                  case .bool(true)? = planSummary["readOnly"], case .bool(true)? = planSummary["eventDriven"],
+                  case .bool(false)? = planSummary["scheduleArmed"] else {
+                throw FabricDecodeError.schema("organUpdateDeliverySummary")
+            }
+            _ = try digest(planSummary, "planDigest")
+            for key in ["workflowCount", "defaultTopicCount", "escalationTopicCount", "approvalRequiredWorkflowCount"] {
+                _ = try int(planSummary, key)
+            }
+        }
+    }
+
+    /// Subject identity is `kind:id`, matching `fabricIdentityOf` in handler.ts.
+    /// Edge endpoints must resolve to a served node, except `pins-loadout`, whose
+    /// target is a loadout identity that the projection does not carry as a node.
+    private static func validateGraphIdentity(nodes: [FabricNode], edges: [FabricEdge]) throws {
+        var identities = Set<String>()
+        var subjects = Set<String>()
+        for node in nodes {
+            guard identities.insert("\(node.kindName):\(node.subjectId)").inserted else {
+                throw FabricDecodeError.malformed("duplicate node subject \(node.kindName):\(node.subjectId)")
+            }
+            subjects.insert(node.subjectId)
+        }
+        for edge in edges {
+            guard subjects.contains(edge.fromId) else { throw FabricDecodeError.malformed("edge \(edge.kind) fromId \(edge.fromId) unresolved") }
+            if edge.kind != "pins-loadout", !subjects.contains(edge.toId) {
+                throw FabricDecodeError.malformed("edge \(edge.kind) toId \(edge.toId) unresolved")
+            }
+        }
     }
 
     static func rawContentDigest(_ object: [String: JSONValue]) throws -> String {
@@ -219,6 +389,7 @@ public enum MissionFabricDecoder {
         let nodes = try nodeValues.map { try decodeNode($0, expectedTenant: expectedTenant) }
         let edges = try edgeValues.map(decodeEdge)
         let gaps = try gapValues.map(decodeGap)
+        try validateGraphIdentity(nodes: nodes, edges: edges)
         let projection = MissionFabricProjection(
             schema: schema,
             projectionVersion: version,
@@ -399,8 +570,28 @@ public enum MissionFabricDecoder {
         }
         let orphans = try stringArray(object, "catalogOrphans")
         let runtime = try stringArray(object, "runtimeOrphans")
+        let collisions = try objectArray(object, "runtimeIdentityCollisions").map { row -> PortfolioRuntimeIdentityCollision in
+            guard case .object(let item) = row else { throw FabricDecodeError.malformed("runtimeIdentityCollisions") }
+            return PortfolioRuntimeIdentityCollision(workId: try string(item, "workId"), occurrences: try int(item, "occurrences"))
+        }
         guard matches.count <= MissionFabricCaps.maxCollectionItems, orphans.count <= MissionFabricCaps.maxCollectionItems else { throw FabricDecodeError.capExceeded("portfolioJoinReport") }
-        return PortfolioJoinReport(matchedCount: try int(object, "matchedCount"), catalogOrphanCount: try int(object, "catalogOrphanCount"), runtimeOrphanCount: try int(object, "runtimeOrphanCount"), runtimeIdentityCollisionCount: try int(object, "runtimeIdentityCollisionCount"), matches: matches, catalogOrphans: orphans, runtimeOrphans: runtime)
+        let matchedCount = try int(object, "matchedCount")
+        let catalogOrphanCount = try int(object, "catalogOrphanCount")
+        let runtimeOrphanCount = try int(object, "runtimeOrphanCount")
+        let runtimeIdentityCollisionCount = try int(object, "runtimeIdentityCollisionCount")
+        guard matchedCount == matches.count, catalogOrphanCount == orphans.count, runtimeOrphanCount == runtime.count, runtimeIdentityCollisionCount == collisions.count else {
+            throw FabricDecodeError.malformed("portfolioJoinReport counts do not match collection lengths")
+        }
+        return PortfolioJoinReport(
+            matchedCount: matchedCount,
+            catalogOrphanCount: catalogOrphanCount,
+            runtimeOrphanCount: runtimeOrphanCount,
+            runtimeIdentityCollisionCount: runtimeIdentityCollisionCount,
+            matches: matches,
+            catalogOrphans: orphans,
+            runtimeOrphans: runtime,
+            runtimeIdentityCollisions: collisions
+        )
     }
 
     private static func objectArray(_ object: [String: JSONValue], _ key: String) throws -> [JSONValue] {
@@ -458,7 +649,169 @@ public enum MissionFabricDecoder {
     }
 }
 
-enum JSONValue: Equatable {
+struct StrictJSONParser {
+    static let maxDepth = 64
+    let bytes: [UInt8]
+    var index = 0
+
+    init(bytes: [UInt8]) { self.bytes = bytes }
+
+    mutating func parseDocument() throws -> JSONValue {
+        skipWhitespace()
+        let value = try parseValue(depth: 0)
+        skipWhitespace()
+        guard index == bytes.count else { throw FabricDecodeError.malformed("json") }
+        return value
+    }
+
+    private mutating func skipWhitespace() {
+        while index < bytes.count, [0x20, 0x09, 0x0A, 0x0D].contains(bytes[index]) { index += 1 }
+    }
+
+    private mutating func expect(_ literal: String) throws {
+        for byte in literal.utf8 {
+            guard index < bytes.count, bytes[index] == byte else { throw FabricDecodeError.malformed("json") }
+            index += 1
+        }
+    }
+
+    private mutating func parseValue(depth: Int) throws -> JSONValue {
+        guard depth <= Self.maxDepth else { throw FabricDecodeError.capExceeded("json depth") }
+        guard index < bytes.count else { throw FabricDecodeError.malformed("json") }
+        switch bytes[index] {
+        case UInt8(ascii: "{"): return try parseObject(depth: depth)
+        case UInt8(ascii: "["): return try parseArray(depth: depth)
+        case UInt8(ascii: "\""): return .string(try parseString())
+        case UInt8(ascii: "t"): try expect("true"); return .bool(true)
+        case UInt8(ascii: "f"): try expect("false"); return .bool(false)
+        case UInt8(ascii: "n"): try expect("null"); return .null
+        default: return .number(try parseNumber())
+        }
+    }
+
+    private mutating func parseObject(depth: Int) throws -> JSONValue {
+        index += 1
+        var object: [String: JSONValue] = [:]
+        skipWhitespace()
+        if index < bytes.count, bytes[index] == UInt8(ascii: "}") { index += 1; return .object(object) }
+        while true {
+            skipWhitespace()
+            guard index < bytes.count, bytes[index] == UInt8(ascii: "\"") else { throw FabricDecodeError.malformed("json key") }
+            let key = try parseString()
+            skipWhitespace()
+            try expect(":")
+            skipWhitespace()
+            let value = try parseValue(depth: depth + 1)
+            guard object[key] == nil else { throw FabricDecodeError.malformed("duplicate or canonically equivalent key") }
+            object[key] = value
+            skipWhitespace()
+            guard index < bytes.count else { throw FabricDecodeError.malformed("json") }
+            if bytes[index] == UInt8(ascii: ",") { index += 1; continue }
+            if bytes[index] == UInt8(ascii: "}") { index += 1; return .object(object) }
+            throw FabricDecodeError.malformed("json")
+        }
+    }
+
+    private mutating func parseArray(depth: Int) throws -> JSONValue {
+        index += 1
+        var values: [JSONValue] = []
+        skipWhitespace()
+        if index < bytes.count, bytes[index] == UInt8(ascii: "]") { index += 1; return .array(values) }
+        while true {
+            skipWhitespace()
+            values.append(try parseValue(depth: depth + 1))
+            skipWhitespace()
+            guard index < bytes.count else { throw FabricDecodeError.malformed("json") }
+            if bytes[index] == UInt8(ascii: ",") { index += 1; continue }
+            if bytes[index] == UInt8(ascii: "]") { index += 1; return .array(values) }
+            throw FabricDecodeError.malformed("json")
+        }
+    }
+
+    private mutating func parseHex4() throws -> UInt16 {
+        guard index + 4 <= bytes.count, let text = String(bytes: bytes[index..<index + 4], encoding: .ascii),
+              let value = UInt16(text, radix: 16) else { throw FabricDecodeError.malformed("json escape") }
+        index += 4
+        return value
+    }
+
+    private mutating func parseString() throws -> String {
+        index += 1
+        var units: [UInt16] = []
+        var raw: [UInt8] = []
+        func flushRaw() throws {
+            guard !raw.isEmpty else { return }
+            guard let text = String(bytes: raw, encoding: .utf8) else { throw FabricDecodeError.malformed("json utf8") }
+            units.append(contentsOf: text.utf16)
+            raw.removeAll()
+        }
+        while true {
+            guard index < bytes.count else { throw FabricDecodeError.malformed("json string") }
+            let byte = bytes[index]
+            if byte == UInt8(ascii: "\"") {
+                index += 1
+                try flushRaw()
+                // Lone surrogates are not representable in a Swift String; fail closed.
+                guard let text = String(utf16CodeUnits: units, count: units.count) as String?,
+                      Array(text.utf16) == units else { throw FabricDecodeError.malformed("json surrogate") }
+                return text
+            }
+            guard byte >= 0x20 else { throw FabricDecodeError.malformed("json control") }
+            if byte == UInt8(ascii: "\\") {
+                try flushRaw()
+                index += 1
+                guard index < bytes.count else { throw FabricDecodeError.malformed("json escape") }
+                let escape = bytes[index]
+                index += 1
+                switch escape {
+                case UInt8(ascii: "\""): units.append(0x22)
+                case UInt8(ascii: "\\"): units.append(0x5C)
+                case UInt8(ascii: "/"): units.append(0x2F)
+                case UInt8(ascii: "b"): units.append(0x08)
+                case UInt8(ascii: "f"): units.append(0x0C)
+                case UInt8(ascii: "n"): units.append(0x0A)
+                case UInt8(ascii: "r"): units.append(0x0D)
+                case UInt8(ascii: "t"): units.append(0x09)
+                case UInt8(ascii: "u"): units.append(try parseHex4())
+                default: throw FabricDecodeError.malformed("json escape")
+                }
+                continue
+            }
+            raw.append(byte)
+            index += 1
+        }
+    }
+
+    private mutating func parseNumber() throws -> Double {
+        let start = index
+        func digits() -> Int {
+            let begin = index
+            while index < bytes.count, (0x30...0x39).contains(bytes[index]) { index += 1 }
+            return index - begin
+        }
+        if index < bytes.count, bytes[index] == UInt8(ascii: "-") { index += 1 }
+        guard index < bytes.count else { throw FabricDecodeError.malformed("json number") }
+        if bytes[index] == UInt8(ascii: "0") {
+            index += 1
+        } else {
+            guard digits() > 0 else { throw FabricDecodeError.malformed("json number") }
+        }
+        if index < bytes.count, bytes[index] == UInt8(ascii: ".") {
+            index += 1
+            guard digits() > 0 else { throw FabricDecodeError.malformed("json number") }
+        }
+        if index < bytes.count, bytes[index] == UInt8(ascii: "e") || bytes[index] == UInt8(ascii: "E") {
+            index += 1
+            if index < bytes.count, bytes[index] == UInt8(ascii: "+") || bytes[index] == UInt8(ascii: "-") { index += 1 }
+            guard digits() > 0 else { throw FabricDecodeError.malformed("json number") }
+        }
+        guard let text = String(bytes: bytes[start..<index], encoding: .ascii),
+              let value = Double(text), value.isFinite else { throw FabricDecodeError.malformed("json number") }
+        return value
+    }
+}
+
+public enum JSONValue: Codable, Sendable, Equatable {
     case null
     case bool(Bool)
     case number(Double)
@@ -466,12 +819,47 @@ enum JSONValue: Equatable {
     case array([JSONValue])
     case object([String: JSONValue])
 
-    static func parse(_ data: Data) throws -> JSONValue {
-        let raw = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-        return try convert(raw)
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if container.decodeNil() {
+            self = .null
+        } else if let b = try? container.decode(Bool.self) {
+            self = .bool(b)
+        } else if let n = try? container.decode(Double.self) {
+            self = .number(n)
+        } else if let s = try? container.decode(String.self) {
+            self = .string(s)
+        } else if let a = try? container.decode([JSONValue].self) {
+            self = .array(a)
+        } else if let o = try? container.decode([String: JSONValue].self) {
+            self = .object(o)
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid JSONValue")
+        }
     }
 
-    static func from(foundation raw: Any) throws -> JSONValue {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .null: try container.encodeNil()
+        case .bool(let b): try container.encode(b)
+        case .number(let n): try container.encode(n)
+        case .string(let s): try container.encode(s)
+        case .array(let a): try container.encode(a)
+        case .object(let o): try container.encode(o)
+        }
+    }
+
+    /// Strict RFC 8259 parse. Numbers become IEEE doubles from their exact text,
+    /// matching `JSON.parse`. Foundation would route large integers through
+    /// NSDecimalNumber and round them differently. Keys that Swift `String`
+    /// treats as equal (canonical equivalence) fail closed instead of collapsing.
+    public static func parse(_ data: Data) throws -> JSONValue {
+        var parser = StrictJSONParser(bytes: [UInt8](data))
+        return try parser.parseDocument()
+    }
+
+    public static func from(foundation raw: Any) throws -> JSONValue {
         try convert(raw)
     }
 
@@ -503,27 +891,73 @@ enum JSONValue: Equatable {
         }
     }
 
-    func canonical() -> String {
+    public func canonical() -> String {
         switch self {
         case .null:
             return "null"
         case .bool(let value):
             return value ? "true" : "false"
         case .number(let value):
-            if value.rounded() == value, value.magnitude < 1_000_000_000_000 {
-                return String(Int(value))
-            }
-            return String(value)
+            return JSONValue.ecmaNumber(value)
         case .string(let value):
             return JSONValue.escaped(value)
         case .array(let values):
             return "[" + values.map { $0.canonical() }.joined(separator: ",") + "]"
         case .object(let values):
-            let pairs = values.keys.sorted().map { key in
+            let sortedKeys = values.keys.sorted { lhs, rhs in
+                let lutf16 = Array(lhs.utf16)
+                let rutf16 = Array(rhs.utf16)
+                for i in 0..<min(lutf16.count, rutf16.count) {
+                    if lutf16[i] != rutf16[i] { return lutf16[i] < rutf16[i] }
+                }
+                return lutf16.count < rutf16.count
+            }
+            let pairs = sortedKeys.map { key in
                 JSONValue.escaped(key) + ":" + (values[key]?.canonical() ?? "null")
             }
             return "{" + pairs.joined(separator: ",") + "}"
         }
+    }
+
+    /// ECMAScript `Number.prototype.toString`: shortest round-trip digits, with
+    /// plain notation for decimal exponents in [-7, 21) and `e±` otherwise.
+    static func ecmaNumber(_ value: Double) -> String {
+        if value == 0 { return "0" }
+        let sign = value < 0 ? "-" : ""
+        // Swift's description is shortest round-trip; reduce it to digits and exponent.
+        let text = String(value.magnitude)
+        var mantissa = text
+        var exponent = 0
+        if let eIndex = text.firstIndex(where: { $0 == "e" || $0 == "E" }) {
+            mantissa = String(text[..<eIndex])
+            exponent = Int(text[text.index(after: eIndex)...]) ?? 0
+        }
+        var digits = mantissa.replacingOccurrences(of: ".", with: "")
+        let dot = mantissa.firstIndex(of: ".").map { mantissa.distance(from: mantissa.startIndex, to: $0) } ?? mantissa.count
+        var pointPos = dot + exponent
+        while digits.hasPrefix("0") && digits.count > 1 {
+            digits.removeFirst()
+            pointPos -= 1
+        }
+        while digits.hasSuffix("0") && digits.count > 1 {
+            digits.removeLast()
+        }
+        let k = digits.count
+        let n = pointPos
+        if k <= n && n <= 21 {
+            return sign + digits + String(repeating: "0", count: n - k)
+        }
+        if 0 < n && n <= 21 {
+            let i = digits.index(digits.startIndex, offsetBy: n)
+            return sign + digits[..<i] + "." + digits[i...]
+        }
+        if -6 < n && n <= 0 {
+            return sign + "0." + String(repeating: "0", count: -n) + digits
+        }
+        let e = n - 1
+        let eSign = e >= 0 ? "+" : "-"
+        let head = k == 1 ? digits : String(digits.prefix(1)) + "." + String(digits.dropFirst())
+        return sign + head + "e" + eSign + String(abs(e))
     }
 
     private static func escaped(_ value: String) -> String {

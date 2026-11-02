@@ -1,0 +1,16 @@
+{
+  "note": "etag/graph digests from handle(); redaction from redactMissionFabricProjection(); pair from portfolioPairDigest().",
+  "cambiumShadow": {
+    "etag": "sha256:57d386a9556423ac2ab6c5aabe6a2eb1b667953b9bb5f943658643d439683b13",
+    "graphDigest": "sha256:cac5ce33ad253284a2d9e6c32b093a0a6e66606890d3e425d0d88b2bfcd1eb42",
+    "viewerRedactedGraphDigest": "sha256:248cf054b5bccb0eb63af2d47e692372ad4659b4e187b191877f3c34bf8e6dc5",
+    "pairDigest": "sha256:57d386a9556423ac2ab6c5aabe6a2eb1b667953b9bb5f943658643d439683b13"
+  },
+  "acme": {
+    "founderEtag": "sha256:caf610fbe5e925c1a82c52ae27874f0b604809823175156c27b5307ad32042d9",
+    "viewerEtag": "sha256:da5059a71468cd01cc93a1a78211ded4dc6baa712e1023184e4b922b6bd60f27",
+    "founderGraphDigest": "sha256:caf610fbe5e925c1a82c52ae27874f0b604809823175156c27b5307ad32042d9",
+    "viewerGraphDigest": "sha256:da5059a71468cd01cc93a1a78211ded4dc6baa712e1023184e4b922b6bd60f27",
+    "founderRedactedForViewer": "sha256:da5059a71468cd01cc93a1a78211ded4dc6baa712e1023184e4b922b6bd60f27"
+  }
+}
