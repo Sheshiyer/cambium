@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "status": "native-running-first-visual-pass-and-safety-fanout",
+  "status": "isolated-safety-fanout-running",
   "task": "Build native Cambium via hosted Phloem fan-out",
   "completed": [
     "Reviewed parallel-dispatch protocol and existing native architecture",
@@ -21,7 +21,9 @@
     "Synchronized canonical launch schema and passed seven migration/parity checks",
     "Native UI check verified dossier, trace graph and equivalent list, synthetic confirmation gating and demo exit clearing state",
     "Found keyboard command-registration gap; hosted correction is active",
-    "Fixed a dead lost-response preview control in source; rebuilt-app retest remains open"
+    "Fixed a dead lost-response preview control in source; rebuilt-app retest remains open",
+    "Stopped shared-checkout workers after a worker admitted reverting parallel files; preserved complete source snapshots and a recovery stash",
+    "Restarted five bounded packets in physically separate Git worktrees with exact owned-file integration"
   ],
   "remaining": [
     "Finish current disjoint hosted Gate, launch, fabric-decoder, navigation and read-client packets",
@@ -43,7 +45,7 @@
     "Shared primary ISA/handoff continuation updates",
     "Active hosted worker edits on isolated native build branch"
   ],
-  "next_action": "Continue existing hosted workers from the operator-private runtime checkpoint; do not duplicate running packets. Preserve the active build branch and unrelated primary work. The app renders locally, but its current preview actions are not final coordinator integration.",
+  "next_action": "Continue only the new isolated workers from the private runtime checkpoint. Old shared-checkout workers are terminal and quarantined. Review exact owner diffs before applying to the clean native integration branch; reverify affected source and tests.",
   "isa": "ISA.md",
   "isc_open": [
     "ISC-3400",
