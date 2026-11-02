@@ -438,7 +438,7 @@
         "root": "cambium",
         "path": "docs/plans/product-branches/loop-library.md"
       },
-      "digest": "sha256:ebaa786e8631663cd15c8f56e6565eeb2aa4c36ea6d7de02c09a6258073128c8",
+      "digest": "sha256:3fae87b0715593ed751193a6c439d234d98234543095475e8581dbf7dd7859ba",
       "inputs": [
         "packet objective",
         "metric",
