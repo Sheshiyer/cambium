@@ -1,5 +1,9 @@
 import SwiftUI
 import struct CambiumCore.WorkObject
+import struct CambiumCore.MappedPortfolio
+import enum CambiumCore.NextMeaningfulAction
+import enum CambiumCore.NextMeaningfulActionReason
+import enum CambiumCore.NextMeaningfulActionSelector
 
 /// Default page: the system at a glance, attention first.
 struct CanopyView: View {
@@ -86,6 +90,7 @@ private struct MappedProjectsPanel: View {
                             .font(.callout)
                             .foregroundStyle(Palette.inkMuted)
                             .fixedSize(horizontal: false, vertical: true)
+                        nextAction(portfolio)
                     } else {
                         Text(model.session == nil
                              ? "No mapped-project catalog is read. Sign-in and owner setup are required."
@@ -100,6 +105,49 @@ private struct MappedProjectsPanel: View {
                     .accessibilityHint("Opens the mapped-projects page")
             }
             .cambiumPanel(padding: 12)
+        }
+    }
+
+    @ViewBuilder
+    private func nextAction(_ portfolio: MappedPortfolio) -> some View {
+        let action = NextMeaningfulActionSelector.select(
+            portfolio: portfolio,
+            work: model.snapshot.work,
+            maxAge: model.isDemo ? nil : 24 * 60 * 60
+        )
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Next meaningful action")
+                .font(CambiumFont.label)
+                .foregroundStyle(Palette.inkMuted)
+            switch action {
+            case .inspectWork(let projectID, let workID):
+                Text("Review the explicitly joined Work node \(workID) from the mapped catalog. This is read-only; it does not admit or launch work.")
+                    .font(.callout)
+                    .foregroundStyle(Palette.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("Review joined Work") { model.openOperationalWork(for: projectID) }
+                    .accessibilityIdentifier("canopy.nextAction.openWork")
+            case .inspectProjects(let reason):
+                Text(reasonMessage(reason))
+                    .font(.callout)
+                    .foregroundStyle(Palette.inkMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("Review mapped Projects") { model.open(.projects) }
+                    .accessibilityIdentifier("canopy.nextAction.openProjects")
+            }
+        }
+        .padding(.top, 4)
+    }
+
+    private func reasonMessage(_ reason: NextMeaningfulActionReason) -> String {
+        switch reason {
+        case .catalogUnavailable: "No project detail is available yet. Inspect Projects after owner setup."
+        case .summaryOnly: "The owner served totals only. Inspect Projects when a founder detail session is available."
+        case .staleCatalog: "The mapped source is stale or future-dated, so Cambium will not choose Work from it."
+        case .noExplicitJoin: "No served catalog-to-Work join exists. Inspect Projects; catalog membership is not operational authority."
+        case .ambiguousJoin: "More than one possible Work join exists. Inspect Projects instead of guessing."
+        case .projectMissing: "The served join names no unique catalog record. Inspect Projects instead of guessing."
+        case .workMissing: "The served join names no unique loaded Work node. Inspect Projects instead of guessing."
         }
     }
 }

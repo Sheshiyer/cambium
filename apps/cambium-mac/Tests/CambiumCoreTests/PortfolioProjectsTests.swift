@@ -25,6 +25,29 @@ final class PortfolioProjectsTests: XCTestCase {
         try XCTUnwrap(try MappedPortfolioDecoder.decode(try founder()))
     }
 
+    private let selectorNow = CanonicalTimestamp.parse("2026-07-28T09:05:00.000Z")!
+
+    private func copyPortfolio(
+        _ portfolio: MappedPortfolio,
+        asOf: String? = nil,
+        servedAt: String? = nil,
+        sourceGeneratedAt: String? = nil,
+        detailAvailable: Bool? = nil,
+        joinReport: PortfolioJoinReport? = nil
+    ) -> MappedPortfolio {
+        MappedPortfolio(
+            summary: portfolio.summary,
+            projects: portfolio.projects,
+            historicalProducts: portfolio.historicalProducts,
+            classificationReviews: portfolio.classificationReviews,
+            detailAvailable: detailAvailable ?? portfolio.detailAvailable,
+            sourceGeneratedAt: sourceGeneratedAt ?? portfolio.sourceGeneratedAt,
+            asOf: asOf ?? portfolio.asOf,
+            servedAt: servedAt ?? portfolio.servedAt,
+            joinReport: joinReport ?? portfolio.joinReport
+        )
+    }
+
     private func stringField(_ key: String) -> (JSONValue) -> String? {
         { value in
             guard case .object(let object) = value, case .string(let text)? = object[key] else { return nil }
@@ -92,6 +115,66 @@ final class PortfolioProjectsTests: XCTestCase {
         let report = try XCTUnwrap(env.portfolioJoinReport)
         XCTAssertEqual(mapped.runtimeLinkedProjects.map(\.canonicalId).sorted(), report.matches.map(\.canonicalId).sorted())
         XCTAssertEqual(mapped.runtimeLinkedProjects.map(\.workId), ["sapling:cambium"])
+    }
+
+    func testNextMeaningfulActionOpensOnlyTheSingleFreshExplicitJoin() throws {
+        let portfolio = try mappedFounder()
+        let work = WorkObject(id: "sapling:cambium", name: "Cambium", kind: "sapling",
+                              summary: "Mapped Cambium", objective: "Review", currentState: "ready", nextStep: "inspect")
+        let action = NextMeaningfulActionSelector.select(
+            portfolio: portfolio,
+            work: [work],
+            now: selectorNow,
+            maxAge: 60 * 60
+        )
+        XCTAssertEqual(action, .inspectWork(projectId: "sapling:cambium", workId: "sapling:cambium"))
+    }
+
+    func testNextMeaningfulActionFallsBackForUnavailableAndSummaryOnlyCatalogs() throws {
+        XCTAssertEqual(
+            NextMeaningfulActionSelector.select(portfolio: nil, work: [], now: selectorNow),
+            .inspectProjects(reason: .catalogUnavailable)
+        )
+        let summaryOnly = copyPortfolio(try mappedFounder(), detailAvailable: false)
+        XCTAssertEqual(
+            NextMeaningfulActionSelector.select(portfolio: summaryOnly, work: [], now: selectorNow),
+            .inspectProjects(reason: .summaryOnly)
+        )
+    }
+
+    func testNextMeaningfulActionRejectsStaleFutureAmbiguousMissingAndUnjoinedData() throws {
+        let portfolio = try mappedFounder()
+        let stale = copyPortfolio(portfolio, servedAt: "2026-07-28T07:00:00.000Z")
+        XCTAssertEqual(
+            NextMeaningfulActionSelector.select(portfolio: stale, work: [], now: selectorNow, maxAge: 60 * 60),
+            .inspectProjects(reason: .staleCatalog)
+        )
+        let future = copyPortfolio(portfolio, servedAt: "2026-07-28T10:00:00.000Z")
+        XCTAssertEqual(
+            NextMeaningfulActionSelector.select(portfolio: future, work: [], now: selectorNow),
+            .inspectProjects(reason: .staleCatalog)
+        )
+        let emptyJoin = PortfolioJoinReport(matchedCount: 0, catalogOrphanCount: 1, runtimeOrphanCount: 0,
+                                            runtimeIdentityCollisionCount: 0, matches: [], catalogOrphans: ["sapling:cambium"], runtimeOrphans: [])
+        XCTAssertEqual(
+            NextMeaningfulActionSelector.select(portfolio: copyPortfolio(portfolio, joinReport: emptyJoin), work: []),
+            .inspectProjects(reason: .noExplicitJoin)
+        )
+        let ambiguousJoin = PortfolioJoinReport(matchedCount: 2, catalogOrphanCount: 0, runtimeOrphanCount: 0,
+                                                runtimeIdentityCollisionCount: 0,
+                                                matches: [
+                                                    PortfolioJoinMatch(canonicalId: "sapling:cambium", runtimeWorkId: "sapling:cambium"),
+                                                    PortfolioJoinMatch(canonicalId: "program:cambium-operating-fabric", runtimeWorkId: "program:cambium-operating-fabric")
+                                                ], catalogOrphans: [], runtimeOrphans: [])
+        XCTAssertEqual(
+            NextMeaningfulActionSelector.select(portfolio: copyPortfolio(portfolio, joinReport: ambiguousJoin), work: []),
+            .inspectProjects(reason: .ambiguousJoin)
+        )
+        let missingWork = try mappedFounder()
+        XCTAssertEqual(
+            NextMeaningfulActionSelector.select(portfolio: missingWork, work: []),
+            .inspectProjects(reason: .workMissing)
+        )
     }
 
     /// Opt-in cross-language probe: the TypeScript generator can write today's

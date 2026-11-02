@@ -29,6 +29,11 @@ hardcoded into the standard app. The catalog remains `readOnly` with
    pair names its canonical ID and an existing Work node in the served graph.
    Names, aliases, equal IDs and catalog membership never create that link.
    Work review and launch retain their own existing admission checks.
+6. Canopy derives one read-only “next meaningful action” from this same
+   projection. It opens Work only for one fresh, unambiguous served join to
+   one loaded Work node; missing, summary-only, stale, future-dated or
+   ambiguous data falls back to Projects. The affordance never writes,
+   approves, admits or launches anything.
 
 The bundled demo is a **dated synthetic-owner replay**. Its fixture has 76
 current records, 20 historical products, 73 action records and one explicit
