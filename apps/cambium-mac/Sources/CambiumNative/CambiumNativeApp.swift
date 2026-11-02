@@ -66,8 +66,8 @@ enum WindowMetrics {
     static let standard = CGSize(width: 1280, height: 820)
 }
 
-/// Whether this process shows synthetic demo data. Real reads stay unavailable until
-/// native identity exists; demo mode only labels that state honestly.
+/// Whether this process starts with synthetic demo data. The standard session
+/// requires explicit owner configuration and sign-in before live reads.
 enum LaunchMode: String, Sendable {
     case standard
     case demo
@@ -82,7 +82,7 @@ enum LaunchMode: String, Sendable {
     var summary: String {
         switch self {
         case .demo: "Demo mode: synthetic, labelled records. No provider credentials or live reads."
-        case .standard: "Live owner reads require native sign-in, which is not available in this build."
+        case .standard: "Live owner reads require owner configuration and native sign-in for this session."
         }
     }
 }
