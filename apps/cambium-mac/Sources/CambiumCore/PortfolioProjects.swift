@@ -172,6 +172,74 @@ public struct MappedPortfolio: Equatable, Sendable {
     }
 }
 
+/// The one read-only orientation action Cambium may suggest from a mapped
+/// portfolio. A suggestion never grants approval, admission, or a launch
+/// capability; it only chooses an existing screen to open.
+public enum NextMeaningfulActionReason: String, Equatable, Sendable {
+    case catalogUnavailable
+    case summaryOnly
+    case staleCatalog
+    case noExplicitJoin
+    case ambiguousJoin
+    case projectMissing
+    case workMissing
+}
+
+public enum NextMeaningfulAction: Equatable, Sendable {
+    case inspectProjects(reason: NextMeaningfulActionReason)
+    case inspectWork(projectId: String, workId: String)
+}
+
+public enum NextMeaningfulActionSelector {
+    /// Select an existing read-only destination from the served catalog.
+    ///
+    /// Only one fresh portfolio record with one explicit served join to one
+    /// loaded Work node can open Work. Every other state falls back to the
+    /// Projects page, preserving the catalog's non-authoritative boundary.
+    /// `maxAge` is optional so labelled synthetic replays can remain
+    /// inspectable while live callers can fail closed on stale source data.
+    public static func select(
+        portfolio: MappedPortfolio?,
+        work: [WorkObject],
+        now: Date = Date(),
+        maxAge: TimeInterval? = nil
+    ) -> NextMeaningfulAction {
+        guard let portfolio else { return .inspectProjects(reason: .catalogUnavailable) }
+        guard portfolio.detailAvailable else { return .inspectProjects(reason: .summaryOnly) }
+        guard isFresh(portfolio, now: now, maxAge: maxAge) else {
+            return .inspectProjects(reason: .staleCatalog)
+        }
+        guard let report = portfolio.joinReport else {
+            return .inspectProjects(reason: .noExplicitJoin)
+        }
+        guard report.runtimeIdentityCollisionCount == 0 else {
+            return .inspectProjects(reason: .ambiguousJoin)
+        }
+        guard report.matches.count == 1 else {
+            return .inspectProjects(reason: report.matches.isEmpty ? .noExplicitJoin : .ambiguousJoin)
+        }
+        let match = report.matches[0]
+        guard portfolio.projects.filter({ $0.canonicalId == match.canonicalId }).count == 1 else {
+            return .inspectProjects(reason: .projectMissing)
+        }
+        guard work.filter({ $0.id == match.runtimeWorkId }).count == 1 else {
+            return .inspectProjects(reason: .workMissing)
+        }
+        return .inspectWork(projectId: match.canonicalId, workId: match.runtimeWorkId)
+    }
+
+    private static func isFresh(_ portfolio: MappedPortfolio, now: Date, maxAge: TimeInterval?) -> Bool {
+        // `sourceGeneratedAt` describes the catalog producer and may
+        // legitimately be later than the graph's `asOf` in a replay. The
+        // served graph timestamps are the freshness boundary for navigation.
+        let raw = [portfolio.asOf, portfolio.servedAt]
+        let timestamps = raw.compactMap(CanonicalTimestamp.parse)
+        guard timestamps.count == raw.count, timestamps.allSatisfy({ $0 <= now }) else { return false }
+        guard let maxAge else { return true }
+        return timestamps.allSatisfy { now.timeIntervalSince($0) <= maxAge }
+    }
+}
+
 public enum MappedPortfolioDecoder {
     private static let kinds: Set<String> = ["sapling", "program"]
     private static let classifications: Set<String> = ["sapling", "client-branch", "internal-program"]
