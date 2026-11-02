@@ -319,6 +319,79 @@ final class LaunchSafetyTests: XCTestCase {
         }
     }
 
+    func testFileStoreDanglingSymlinkLoadAndRemove() async throws {
+        let dir = LaunchFixtures.tempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = FileRecoveryStore(directory: dir)
+        try await store.save(Data("v1".utf8), key: "k")
+        let name = try XCTUnwrap(try FileManager.default.contentsOfDirectory(atPath: dir.path).first)
+        let targetFile = dir.appendingPathComponent(name)
+
+        // Replace store file with a dangling symlink
+        try FileManager.default.removeItem(at: targetFile)
+        let danglingTarget = dir.appendingPathComponent("nonexistent-target.json")
+        try FileManager.default.createSymbolicLink(at: targetFile, withDestinationURL: danglingTarget)
+
+        // load(key:) must distinguish dangling symlink from true ENOENT and throw corruptEnvelope
+        do {
+            _ = try await store.load(key: "k")
+            XCTFail("expected corruptEnvelope for dangling symlink")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .corruptEnvelope)
+        }
+
+        // remove(key:) must not treat dangling symlink as absent; it should remove it
+        try await store.remove(key: "k")
+        let loadedAfterRemove = try await store.load(key: "k")
+        XCTAssertNil(loadedAfterRemove)
+    }
+
+    func testFileStoreDanglingSymlinkDirectoryRefusal() async throws {
+        let parentDir = LaunchFixtures.tempDir()
+        try FileManager.default.createDirectory(at: parentDir, withIntermediateDirectories: true)
+        let linkDir = parentDir.appendingPathComponent("dangling-link")
+        defer {
+            unlink(linkDir.path)
+            try? FileManager.default.removeItem(at: parentDir)
+        }
+        let nonExistentRealDir = parentDir.appendingPathComponent("non-existent-dir")
+        try FileManager.default.createSymbolicLink(at: linkDir, withDestinationURL: nonExistentRealDir)
+
+        let store = FileRecoveryStore(directory: linkDir)
+        do {
+            _ = try await store.keys(prefix: "k")
+            XCTFail("expected ioFailure for dangling symlink directory")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .ioFailure)
+        }
+    }
+
+    func testFileStoreOverwriteParentSyncFailurePreservesPreviousRecord() async throws {
+        let dir = LaunchFixtures.tempDir()
+        defer {
+            FileRecoveryStore.mockSyncParentDirectory = nil
+            try? FileManager.default.removeItem(at: dir)
+        }
+        let store = FileRecoveryStore(directory: dir)
+        try await store.save(Data("original-payload".utf8), key: "k")
+
+        // Force parent sync failure on overwrite
+        FileRecoveryStore.mockSyncParentDirectory = { false }
+
+        do {
+            try await store.save(Data("new-payload".utf8), key: "k")
+            XCTFail("expected ioFailure on sync failure")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .ioFailure)
+        }
+
+        FileRecoveryStore.mockSyncParentDirectory = nil
+
+        // Verify previous record is preserved and not destroyed
+        let loaded = try await store.load(key: "k")
+        XCTAssertEqual(loaded, Data("original-payload".utf8))
+    }
+
     // MARK: Coordinator keys
 
     func testCoordinatorKeysDoNotAliasAcrossWorkAndNonce() {
