@@ -2744,3 +2744,9 @@ Workflow source is removed in this PR. Explicit local release verification and s
 
 - GitHub TeamForge `main` at `80714a5` confirms `/v1/whoami` is Access-JWT-only; no current service-authenticated by-ID route was found in the inspected source. Its internal ID query is not a native Worker API. The exact evidence, required role/enrollment contract, denial cases and activation sequence are in `.planning/native-mac/PLEXUS-CURRENT-IDENTITY-LOOKUP.md`.
 - Cambium's existing native session host requires fresh role and exact enrollment checks on exchange and bearer reads. Production entry point remains unbound; local source review neither deployed a route nor changed Plexus, client registration, D1 or live founder authority. ISC-3467 remains open until a real owner readback.
+
+
+### 2026-11-02 mapped-project navigation follow-up
+
+- Commit `85068da` keeps the Projects dossier within filtered results, reveals a linked source after filtered navigation, and searches catalog aliases plus historical source links. The distinct `Lockwell` alias now finds `DLOCK` through global search. Five focused native Projects tests pass.
+- Rebuilt signed bundle inputs are clean at `85068da`, aggregate `f069378b`; bundle verifier, strict signature and proof check pass. Four synthetic Projects snapshots at 1280×820 and 880×612 have no manifest failures, with minimum light/dark images inspected. Current-source TypeScript-to-Swift probe still passes at 77 current, 20 historical and one exact runtime join. Interactive filtering/Work navigation and real founder delivery remain ISC-3466/3467 open.

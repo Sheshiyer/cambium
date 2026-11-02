@@ -19,7 +19,10 @@ hardcoded into the standard app. The catalog remains `readOnly` with
 4. Canopy and Projects show source classifications, provenance, tenant labels,
    lifecycle, promotion state, source links and mission-data gaps. Historical
    products remain separate display records. Global search can select current
-   and historical records. Viewer scope receives totals only.
+   and historical records, including catalog aliases and historical source
+   links. Filtering keeps the visible dossier aligned with the results; opening
+   a linked source record reveals it even when a prior filter hid it. Viewer
+   scope receives totals only.
 5. A project opens operational Work only if an explicit `portfolioJoinReport`
    pair names its canonical ID and an existing Work node in the served graph.
    Names, aliases, equal IDs and catalog membership never create that link.
@@ -54,6 +57,19 @@ current production catalog.
   display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`.
   This probes the current **working source**, including uncommitted catalog
   edits from another lane. It does not prove that source was deployed.
+- The 2026-11-02 navigation follow-up at clean app-input revision `85068da`
+  makes alias search find the mapped `DLOCK` source record through its distinct
+  `Lockwell` alias, keeps filtered results and dossier aligned, and reveals
+  linked records after navigation. Five focused native Projects tests pass;
+  the current-source TypeScript-to-Swift probe still passes at 77 current,
+  20 historical, zero review, 50 gap and one explicit join. This is local
+  navigation and compatibility evidence, not an interactive walkthrough.
+- `tools/snap.sh` now accepts `projects` directly. The rebuilt ad hoc signed
+  bundle passes strict signature, bundle verifier and embedded clean-input
+  proof (`f069378b`). Its four synthetic Projects captures at 1280×820 and
+  880×612 in light and dark report no failures; minimum-size images were
+  inspected after this change. The signed window cannot prove search typing,
+  link activation or Work navigation without the unlocked interactive pass.
 - The signed synthetic demo bundle was rebuilt at clean app-input revision
   `55ca159` (aggregate `e59dfd948bc58eef4b866c7a81c3cecd982a7ffcc2d38c5636d48e247a6ea642`).
   Its own snapshot mode captured the Projects page at 1280×820 and 880×612 in
