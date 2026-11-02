@@ -13,6 +13,10 @@ import SwiftUI
 //   CAMBIUM_NATIVE_SNAPSHOT=<dir>    capture the main window, light and dark, default and minimum
 //                                    size, write PNGs plus snapshot-manifest.json, then quit.
 //                                    Requires CAMBIUM_NATIVE_DEMO=1.
+//   CAMBIUM_NATIVE_SCREEN=<section>  demo mode only: open one AppSection (canopy, work, trace, evidence,
+//                                    proposal, launch, knowledge, connections, preferences) at launch.
+//                                    With a snapshot, files are named main-<section>-<size>-<appearance>.png
+//                                    and the manifest records the page. Unset keeps the Canopy capture.
 //   CAMBIUM_NATIVE_REVISION=<rev>    source revision recorded in the snapshot manifest
 
 @main
@@ -31,6 +35,7 @@ struct CambiumNativeApp: App {
             CommandGroup(replacing: .appInfo) {
                 Button("About Cambium Native") { AboutPanel.show() }
             }
+            CambiumNavigationCommands()
             SidebarCommands()
             ToolbarCommands()
             InspectorCommands()
@@ -134,8 +139,24 @@ private struct FoundationSettings: View {
 enum SnapshotRun {
     private(set) static var exitCode: Int32?
 
+    /// Page requested with CAMBIUM_NATIVE_SCREEN. Honored in demo mode only; an
+    /// unrecognized or empty value is nil.
+    static let requestedSection: AppSection? = {
+        guard LaunchMode.current == .demo else { return nil }
+        return rawScreenRequest.flatMap(AppSection.init(rawValue:))
+    }()
+
+    private static var rawScreenRequest: String? {
+        ProcessInfo.processInfo.environment["CAMBIUM_NATIVE_SCREEN"].flatMap { $0.isEmpty ? nil : $0 }
+    }
+
+    /// Set by the root view once it has opened the requested page, so the manifest
+    /// reports the page that was actually shown.
+    static var appliedSection: AppSection?
+
     private struct Shot: Codable {
         var file: String
+        var page: String
         var appearance: String
         var size: String
         var width: Double
@@ -148,6 +169,9 @@ enum SnapshotRun {
         var bundleIdentifier: String
         var dataMode: String
         var synthetic: Bool
+        var statement: String
+        var requestedPage: String?
+        var page: String
         var revision: String
         var capturedAt: String
         var shots: [Shot]
@@ -159,6 +183,11 @@ enum SnapshotRun {
         guard let dir = env["CAMBIUM_NATIVE_SNAPSHOT"], !dir.isEmpty else { return }
         guard LaunchMode.current == .demo else {
             finish(code: 2, message: "SNAPSHOT refused: set CAMBIUM_NATIVE_DEMO=1 so captures show labelled synthetic data")
+            return
+        }
+        if let raw = rawScreenRequest, AppSection(rawValue: raw) == nil {
+            let known = AppSection.allCases.map(\.rawValue).joined(separator: ", ")
+            finish(code: 2, message: "SNAPSHOT refused: unknown CAMBIUM_NATIVE_SCREEN '\(raw)'. Use one of: \(known)")
             return
         }
         let revision = env["CAMBIUM_NATIVE_REVISION"].flatMap { $0.isEmpty ? nil : $0 } ?? "unrecorded"
@@ -182,6 +211,12 @@ enum SnapshotRun {
 
         var shots: [Shot] = []
         var failures: [String] = []
+        let requested = requestedSection
+        // Default captures keep the Canopy page and the original file names.
+        let page = requested ?? .canopy
+        if let requested, appliedSection != requested {
+            failures.append("page \(requested.rawValue): root view did not open it")
+        }
         let sizes: [(String, CGSize)] = [("default", WindowMetrics.standard), ("minimum", WindowMetrics.minimum)]
         for appearance in ["light", "dark"] {
             NSApp.appearance = NSAppearance(named: appearance == "light" ? .aqua : .darkAqua)
@@ -193,11 +228,13 @@ enum SnapshotRun {
                 window.setContentSize(size)
                 window.center()
                 try? await Task.sleep(for: .seconds(0.8))
-                let name = "main-\(label)-\(appearance).png"
+                let name = requested == nil
+                    ? "main-\(label)-\(appearance).png"
+                    : "main-\(page.rawValue)-\(label)-\(appearance).png"
                 let target = dir.appending(path: name)
                 if let method = capture(window, to: target) {
                     let content = window.contentView?.bounds.size ?? size
-                    shots.append(Shot(file: name, appearance: appearance, size: label,
+                    shots.append(Shot(file: name, page: page.rawValue, appearance: appearance, size: label,
                                       width: content.width, height: content.height, method: method))
                     log("SNAPSHOT \(target.path) (\(method))")
                 } else {
@@ -210,6 +247,9 @@ enum SnapshotRun {
             bundleIdentifier: Bundle.main.bundleIdentifier ?? "unbundled",
             dataMode: LaunchMode.current.rawValue,
             synthetic: true,
+            statement: "Demo mode: every record shown is synthetic. Nothing is live.",
+            requestedPage: requested?.rawValue,
+            page: page.rawValue,
             revision: revision,
             capturedAt: ISO8601DateFormatter().string(from: Date()),
             shots: shots,
