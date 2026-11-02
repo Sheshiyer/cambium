@@ -225,7 +225,7 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 - [x] ISC-3215: Anti: this task changes no LumenBar field or schedule.
 - [ ] ISC-3216: The read-only Temperance Rhai run reaches a terminal outcome or explicit bounded timeout without writing a vault receipt.
 - [x] ISC-3217: The README widget is written only after a genuine stable listing slug and official widget exist.
-- [ ] ISC-3218: The conditional Temperance packet remains proof-only with v1.1 and hosted-authentication holds.
+- [x] ISC-3218: The conditional Temperance packet remains proof-only with v1.1 and hosted-authentication holds.
 - [x] ISC-3219: Anti: pack installation creates no scheduler, tenant admission, operational graph write, provider change, or deployment.
 
 

@@ -1,6 +1,6 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-02T03:20:04.839469+00:00",
+  "updated": "2026-11-02T03:25:21.904427+00:00",
   "status": "in-progress",
   "active_task": "Temperance unscheduled Product Hunt draft and Cambium-owned sapling lifecycle pack",
   "previous_handoff": {
@@ -14,13 +14,13 @@
     "Created and reopened the formal unscheduled Product Hunt draft with exact six fields and owner-approved existing media/tags",
     "Pushed README-only official badge commit 42b391b from clean Temperance main and verified remote main",
     "Implemented 21-component workflow catalog, eight command intents and 34 ownership-managed installed artifacts",
-    "Passed 17 helper behavior tests, 28 existing packet/GTM tests, skill validation and adapter drift check; native Grok and Codex discovery verified"
+    "Passed 17 helper behavior tests, 28 existing packet/GTM tests, skill validation and adapter drift check; native Grok and Codex discovery verified",
+    "Created formal unscheduled draft; exact remote README bytes verified; proof-only Temperance packet validates with all seven packet records."
   ],
   "remaining": [
-    "Finish or bound the running read-only Rhai graph and verify no vault receipt",
-    "Add and validate proof-only Temperance packet while preserving primary LumenBar edits",
-    "Rerun stability-sensitive tests after source freeze and distinguish unchanged baseline failures",
-    "Commit exact task files and reconcile only these changes to the preserved primary checkout"
+    "Finish or bound the original read-only Rhai graph and verify no vault receipt",
+    "Recheck frozen-source stability tests in independent clone",
+    "Append final evidence and handoff; reconcile only scoped changes into primary without replacing concurrent native-app work"
   ],
   "blockers": [
     "OpenCode executable unavailable for a native discovery smoke; adapters installed",
@@ -33,20 +33,13 @@
     "Owner approved existing website logo, OG artwork and matching tags",
     "Reserve ISC-3200..3219 to avoid concurrently claimed native-app criteria; preserve native-app frontmatter and source work."
   ],
-  "uncommitted_files": [
-    ".agents/skills/sapling-lifecycle/",
-    "ISA.md",
-    "PROJECT.md",
-    "package.json",
-    ".planning/HANDOFF.json"
-  ],
-  "next_action": "Finish read-only Rhai outcome, validate Temperance proof packet and frozen-source checks, then commit scoped implementation and handoff.",
+  "uncommitted_files": [],
+  "next_action": "Finish the bounded original Rhai outcome, then run frozen-source verification and integrate the task-only packet and documentation additions.",
   "isa": "ISA.md",
   "isc_open": [
-    "ISC-3216",
-    "ISC-3218"
+    "ISC-3216"
   ],
-  "isc_done_count": 18,
+  "isc_done_count": 19,
   "wave": "sapling-lifecycle",
   "tier": "E2",
   "session_budget": {

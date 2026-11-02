@@ -63,7 +63,9 @@ function replaceFitcheck(packetFile, from, to) {
 test('current branch packets validate cleanly', () => {
   const result = runValidator(PACKET_DIR);
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stdout, /validated 6 branch packet\(s\)/);
+  const indexedCount = (readFileSync(join(PACKET_DIR, 'index.md'), 'utf8').match(/\| [a-z0-9-]+\.md \|$/gm) || []).length;
+  assert.ok(indexedCount >= 6);
+  assert.match(result.stdout, new RegExp(`validated ${indexedCount} branch packet\\(s\\)`));
 });
 
 test('canonical WorkObject identities and the client template are explicit', () => {
@@ -73,6 +75,7 @@ test('canonical WorkObject identities and the client template are explicit', () 
     ['snow-gloves-os.md', 'program:snow-gloves-os'],
     ['iverif.md', 'sapling:iverif'],
     ['dlock.md', 'sapling:dlock'],
+    ['temperance.md', 'sapling:temperance'],
   ]);
 
   for (const [packet, canonicalWorkId] of expected) {
