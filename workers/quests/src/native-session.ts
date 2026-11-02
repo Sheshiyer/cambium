@@ -173,9 +173,9 @@ export interface NativeSessionDeps {
     enrolledTenants: readonly string[] | null;
   }>;
   /** Current server-owned role for a founder ID (must equal 'founder'). */
-  currentRole(founderId: string): Promise<string | null>;
+  currentRole?(founderId: string): Promise<string | null>;
   /** Current explicit tenant enrollment for a founder ID. */
-  enrolledTenants(founderId: string): Promise<readonly string[] | null>;
+  enrolledTenants?(founderId: string): Promise<readonly string[] | null>;
   clients: readonly NativeSessionClient[];
   store: NativeSessionStore;
   /** Required. Without it the factory stays unbound and every route returns 503. */
@@ -265,9 +265,14 @@ function validOrigin(origin: unknown): origin is string {
 export function createNativeSessionHost(deps: Partial<NativeSessionDeps> | undefined): NativeSessionHost | undefined {
   if (!deps) return undefined;
   const { store, clients, consent } = deps;
-  if (!isFn(deps.verifyBrowserFounder) || !isFn(deps.currentRole) || !isFn(deps.enrolledTenants)
+  if (!isFn(deps.verifyBrowserFounder)
       || !isFn(deps.now) || !isFn(deps.randomBytes) || !validOrigin(deps.ownerOrigin)) return undefined;
   if (deps.resolveFounderAccess !== undefined && !isFn(deps.resolveFounderAccess)) return undefined;
+  // A production owner supplies one atomic snapshot. Legacy split callbacks
+  // remain supported for bounded test owners and older integrations, but they
+  // are required when no snapshot callback exists.
+  if (!isFn(deps.resolveFounderAccess)
+      && (!isFn(deps.currentRole) || !isFn(deps.enrolledTenants))) return undefined;
   if (!store || !isFn(store.saveCode) || !isFn(store.peekCode) || !isFn(store.grant)
       || !isFn(store.readSession) || !isFn(store.revoke)) return undefined;
   if (!consent || !isFn(consent.save) || !isFn(consent.consume)) return undefined;
@@ -340,6 +345,7 @@ type FounderAccessSnapshot = { role: string | null; enrolledTenants: readonly st
 
 async function founderAccess(host: NativeSessionHost, founderId: string): Promise<FounderAccessSnapshot> {
   if (host.deps.resolveFounderAccess) return host.deps.resolveFounderAccess(founderId);
+  if (!host.deps.currentRole || !host.deps.enrolledTenants) throw new Error('founder_access_unconfigured');
   return {
     role: await host.deps.currentRole(founderId),
     enrolledTenants: await host.deps.enrolledTenants(founderId),

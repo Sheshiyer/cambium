@@ -270,6 +270,17 @@ test('owner snapshot takes precedence over split role and enrollment callbacks',
   assert.equal(calls.enrollment, 0);
 });
 
+test('atomic owner snapshot can bind the host without legacy split callbacks', async () => {
+  const h = await harness({
+    currentRole: undefined,
+    enrolledTenants: undefined,
+    resolveFounderAccess: async () => ({ role: 'founder', enrolledTenants: ['tenant-alpha'] }),
+  });
+  const response = await authorize(h.host);
+  assert.equal(response!.status, 200);
+  assert.match(await response!.text(), /Cambium native consent/);
+});
+
 // ── Authorize (browser GET consent form, explicit POST consent) ─────────────
 
 test('authorize GET returns 200 HTML consent form with no-store headers and sets consent cookie', async () => {
