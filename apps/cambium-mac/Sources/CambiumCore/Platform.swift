@@ -73,8 +73,21 @@ public protocol HTTPTransport: Sendable {
 
 /// Supplies authentication headers from the owner-reviewed native identity flow.
 /// The core never creates credentials.
+///
+/// `headers(for:)` is the call every authenticated request makes, so an
+/// authorizer can refuse a destination before any byte is sent. Test and demo
+/// authorizers that only know `headers()` keep working: the default ignores
+/// the URL and returns those headers. An authorizer that holds a real bearer
+/// overrides `headers(for:)` and withholds it unless the URL is its origin.
 public protocol RequestAuthorizer: Sendable {
     func headers() async throws -> [String: String]
+    func headers(for url: URL) async throws -> [String: String]
+}
+
+extension RequestAuthorizer {
+    public func headers(for url: URL) async throws -> [String: String] {
+        try await headers()
+    }
 }
 
 public struct NoAuthorizer: RequestAuthorizer {
@@ -283,7 +296,7 @@ enum HTTPJSON {
     ) async throws -> (status: Int, body: Data) {
         let data = try JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
         guard data.count <= maxRequestBytes else { throw TransportFailure.malformedResponse }
-        var headers = try await authorizer.headers()
+        var headers = try await authorizer.headers(for: url)
         headers["content-type"] = "application/json"
         headers["accept"] = "application/json"
         let response = try await transport.send(HTTPRequest(method: "POST", url: url, headers: headers, body: data))
@@ -296,7 +309,7 @@ enum HTTPJSON {
         authorizer: any RequestAuthorizer,
         url: URL
     ) async throws -> (status: Int, object: [String: Any]) {
-        var headers = try await authorizer.headers()
+        var headers = try await authorizer.headers(for: url)
         headers["accept"] = "application/json"
         let response = try await transport.send(HTTPRequest(method: "GET", url: url, headers: headers))
         return try parse(response)
