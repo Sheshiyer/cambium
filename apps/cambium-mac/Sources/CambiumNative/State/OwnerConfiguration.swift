@@ -14,6 +14,12 @@ struct OwnerConfiguration: Equatable, Sendable {
 
     /// Reviewed dev callback registered in Info.plist.in. Not a credential.
     static let reviewedRedirect = "space.thoughtseed.cambium.native.dev://oauth/callback"
+    /// Reviewed Labs owner profile for the mapped Thoughtseed projects. These
+    /// values only prefill the Connections form; they are not applied or
+    /// contacted until the founder explicitly chooses the session action.
+    static let mappedOwnerURL = "https://curious.thoughtseed.space"
+    static let mappedTenant = "cambium"
+    static let mappedClientId = "space.thoughtseed.cambium.native.dev"
 
     enum Problem: String, Equatable, Error {
         case ownerURL = "Owner URL must be an HTTPS origin with no user, password, query or fragment."

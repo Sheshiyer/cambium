@@ -69,9 +69,9 @@ final class AppModel {
     /// Work id typed in standard mode when the person is selecting one record.
     var workSelectionDraft = ""
 
-    var ownerURLDraft = ""
-    var tenantDraft = ""
-    var clientIDDraft = ""
+    var ownerURLDraft = OwnerConfiguration.mappedOwnerURL
+    var tenantDraft = OwnerConfiguration.mappedTenant
+    var clientIDDraft = OwnerConfiguration.mappedClientId
     var redirectDraft = OwnerConfiguration.reviewedRedirect
     private(set) var configuration: OwnerConfiguration?
     private(set) var configurationProblem: String?

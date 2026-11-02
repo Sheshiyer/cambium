@@ -489,7 +489,7 @@ final class OwnerIntegrationTests: XCTestCase {
         XCTAssertEqual(rows.filter(\.synthetic).count, 3)
     }
 
-    func testOwnerConfigurationValidationAndDefaultNil() {
+    func testOwnerConfigurationValidationAndMappedDefaults() {
         let reviewed = OwnerConfiguration.reviewedRedirect
         func validate(_ url: String, tenant: String = "cambium", client: String = "cambium-native", redirect: String = reviewed) -> OwnerConfiguration.Problem? {
             if case .failure(let problem) = OwnerConfiguration.validate(ownerURL: url, tenant: tenant, clientId: client, redirect: redirect) { return problem }
@@ -502,6 +502,24 @@ final class OwnerIntegrationTests: XCTestCase {
         XCTAssertEqual(validate("https://owner.example.test", tenant: "Not Valid"), .tenant)
         XCTAssertEqual(validate("https://owner.example.test", client: "short"), .clientId)
         XCTAssertEqual(validate("https://owner.example.test", redirect: "https://evil.example.test/cb"), .redirect)
+        if case .failure(let problem) = OwnerConfiguration.validate(ownerURL: OwnerConfiguration.mappedOwnerURL,
+                                                                     tenant: OwnerConfiguration.mappedTenant,
+                                                                     clientId: OwnerConfiguration.mappedClientId,
+                                                                     redirect: reviewed) {
+            XCTFail("mapped profile must validate: \(problem)")
+        }
+    }
+
+    @MainActor
+    func testStandardPrefillsMappedProfileWithoutApplyingOrContactingIt() async throws {
+        let model = AppModel(mode: .standard)
+        XCTAssertEqual(model.ownerURLDraft, OwnerConfiguration.mappedOwnerURL)
+        XCTAssertEqual(model.tenantDraft, OwnerConfiguration.mappedTenant)
+        XCTAssertEqual(model.clientIDDraft, OwnerConfiguration.mappedClientId)
+        XCTAssertEqual(model.redirectDraft, OwnerConfiguration.reviewedRedirect)
+        XCTAssertNil(model.configuration)
+        XCTAssertNil(model.session)
+        XCTAssertNil(model.fabric)
     }
 
     @MainActor
