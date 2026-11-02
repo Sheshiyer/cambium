@@ -259,6 +259,16 @@ test('authorize rejects bad shapes, unregistered callbacks and unverified browse
   assert.equal(dump(h.db), '[[],[]]');
 });
 
+test('authorize refuses an Authorization header before the browser verifier and writes nothing', async () => {
+  const h = await harness();
+  const response = await nativeSessionHttp(new Request(authorizeUrl(), { headers: { authorization: 'Bearer cns1_not-a-session' } }), h.host);
+  const body = await errorOf(response);
+  assert.equal(body.status, 400);
+  assert.equal(body.body.error, 'mixed_credentials');
+  assert.equal(h.who.browserCalls, 0);
+  assert.equal(dump(h.db), '[[],[]]');
+});
+
 test('authorize refuses duplicate parameters, userinfo callbacks and the wrong method', async () => {
   const h = await harness();
   assert.equal((await errorOf(await nativeSessionHttp(new Request(`${authorizeUrl()}&state=${STATE}`), h.host))).status, 400);
@@ -292,6 +302,26 @@ test('full authorize, exchange, session read, and logout with the exact contract
   assert.equal(out!.status, 200);
   assert.deepEqual(await out!.json(), { contractVersion: NATIVE_SESSION_CONTRACT, revoked: true });
   assert.equal((await errorOf(await sessionRead(h.host, session.token))).status, 401);
+});
+
+test('session read and logout refuse the telegram-init-data alias without a lookup', async () => {
+  const h = await harness();
+  const session = await sessionFor(h);
+  let reads = 0;
+  const original = h.deps.store.readSession.bind(h.deps.store);
+  h.deps.store.readSession = async (...args) => { reads += 1; return original(...args); };
+  const read = await nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session`, {
+    headers: { authorization: `Bearer ${session.token}`, 'telegram-init-data': 'query_id=alias' },
+  }), h.host);
+  assert.equal((await errorOf(read)).body.error, 'mixed_credentials');
+  const out = await nativeSessionHttp(new Request(`${ORIGIN}/v1/native/session/logout`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${session.token}`, 'telegram-init-data': 'query_id=alias' },
+    body: '{}',
+  }), h.host);
+  assert.equal((await errorOf(out)).status, 400);
+  assert.equal(reads, 0);
+  assert.equal((await sessionRead(h.host, session.token))!.status, 200);
 });
 
 test('exchange with the wrong verifier, client, redirect, or shape issues nothing', async () => {

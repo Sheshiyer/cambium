@@ -121,6 +121,10 @@ export function composeNativeLaunchHost(
       const authorization = request.headers.get('authorization') ?? '';
       if (!NATIVE_REALM.test(authorization)) return launch.verify(request);
       if (!session) return null;
+      // Direct callers bypass the handler Host check: the URL origin must be the reviewed owner.
+      let origin: string;
+      try { origin = new URL(request.url).origin; } catch { return null; }
+      if (origin !== session.deps.ownerOrigin) return null;
       if (nativeMixedAlias(Object.fromEntries(request.headers))) return null;
       const resolved = await resolveNativeSession(request, session);
       if (resolved.kind !== 'native') return null;

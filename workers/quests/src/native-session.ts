@@ -264,6 +264,7 @@ async function currentlyEnrolled(host: NativeSessionHost, founderId: string, ten
 const browserCredential = (request: Request) =>
   Boolean(request.headers.get('cf-access-jwt-assertion')?.trim())
   || Boolean(request.headers.get('x-telegram-init-data')?.trim())
+  || Boolean(request.headers.get('telegram-init-data')?.trim())
   || /(?:^|;\s*)CF_Authorization=/.test(request.headers.get('cookie') ?? '');
 
 async function readJson(request: Request): Promise<Record<string, unknown> | Response> {
@@ -297,6 +298,8 @@ const AUTHORIZE_REQUIRED = ['client_id', 'code_challenge', 'code_challenge_metho
 export async function nativeSessionAuthorizeHttp(request: Request, host?: NativeSessionHost): Promise<Response> {
   if (!host) return unconfigured();
   if (request.method !== 'GET') return fail(405, 'method_not_allowed', {});
+  // The browser leg never carries Authorization; refuse it before the browser verifier runs.
+  if (request.headers.has('authorization')) return fail(400, 'mixed_credentials');
   if (!sameOrigin(request, host) || request.url.length > NATIVE_SESSION_MAX_URL_BYTES) return fail(400, 'invalid_request');
   const url = new URL(request.url);
   if (url.hash) return fail(400, 'invalid_request');
