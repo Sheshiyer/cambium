@@ -38,9 +38,9 @@ current production catalog.
 
 ## Local verification
 
-- `swift test --package-path apps/cambium-mac`: 31 native and 246 Core tests
-  passed. Focused historical mapping passed 18 tests; three app integration
-  tests passed.
+- `swift test --package-path apps/cambium-mac`: 34 native and 247 Core tests
+  passed, with one existing opt-in fixture skip. Focused historical mapping
+  and app integration tests passed.
 - `node --test workers/quests/src/native-session-routes.test.ts`: 24 passed.
   The new assertion proves a scoped local founder session receives detailed
   current and historical records, classification questions, and a separate
@@ -57,6 +57,11 @@ current production catalog.
   display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`.
   This probes the current **working source**, including uncommitted catalog
   edits from another lane. It does not prove that source was deployed.
+- The opt-in current-source mapper now asserts the named project anchors
+  `sapling:cambium`, `program:cambium-operating-fabric`, and `branch:relovo`,
+  including their provenance, tenant/classification fields, and the single
+  explicit `sapling:cambium` runtime join. Aggregate counts alone are not
+  accepted as proof of project identity wiring.
 - The 2026-11-02 navigation follow-up at clean app-input revision `85068da`
   makes alias search find the mapped `DLOCK` source record through its distinct
   `Lockwell` alias, keeps filtered results and dossier aligned, and reveals
@@ -83,8 +88,10 @@ current production catalog.
   pass (the opt-in current-source probe is skipped in the default suite).
 
 These are local source, fixture, route-harness, synthetic window and bundle
-proofs. Filtering, selection and exact Work navigation still need an unlocked
-interactive walkthrough; a snapshot is not that interaction. An unauthenticated
+proofs. An unlocked interactive walkthrough on the rebuilt bundle then
+verified Connections prefill, `Cambium` search, the exact Work join, bounded
+Work navigation, and return to unconfigured standard mode; no session was
+applied. An unauthenticated
 2026-11-02 read-only probe saw health
 `200` and Mission Fabric `401` on the direct Worker origin, and `401` on the
 custom domain. The native session path returned `404` on the direct origin.

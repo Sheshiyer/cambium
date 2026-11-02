@@ -123,6 +123,31 @@ final class PortfolioProjectsTests: XCTestCase {
         XCTAssertTrue(mapped.historicalProducts.allSatisfy { historical in
             mapped.project(workId: historical.canonicalId) == nil
         })
+        let cambium = try XCTUnwrap(mapped.project(workId: "sapling:cambium"))
+        XCTAssertEqual(cambium.name, "Cambium")
+        XCTAssertEqual(cambium.classification, "sapling")
+        XCTAssertEqual(cambium.tenantStatus, "canonical")
+        XCTAssertEqual(cambium.tenantId, "cambium")
+        XCTAssertTrue(cambium.provenance.contains("vault:40-products/cambium/product-overview.md"))
+        XCTAssertTrue(cambium.linkedCanonicalIds.contains("program:cambium-operating-fabric"))
+        XCTAssertEqual(cambium.runtimeWorkId, "sapling:cambium")
+
+        let fabric = try XCTUnwrap(mapped.project(workId: "program:cambium-operating-fabric"))
+        XCTAssertEqual(fabric.name, "Cambium Operating Fabric")
+        XCTAssertEqual(fabric.classification, "internal-program")
+        XCTAssertEqual(fabric.programKind, "operations")
+        XCTAssertEqual(fabric.tenantStatus, "canonical")
+        XCTAssertEqual(fabric.tenantId, "cambium")
+        XCTAssertNil(fabric.runtimeWorkId)
+
+        let relovo = try XCTUnwrap(mapped.project(workId: "branch:relovo"))
+        XCTAssertEqual(relovo.name, "Relovo")
+        XCTAssertEqual(relovo.classification, "client-branch")
+        XCTAssertNil(relovo.runtimeWorkId)
+
+        let exactJoin = try XCTUnwrap(env.portfolioJoinReport?.matches)
+        XCTAssertEqual(exactJoin.map(\.canonicalId), ["sapling:cambium"])
+        XCTAssertEqual(exactJoin.map(\.runtimeWorkId), ["sapling:cambium"])
         XCTAssertEqual(summary.actionAdmission, "none")
         XCTAssertTrue(summary.readOnly)
     }
