@@ -152,7 +152,10 @@ struct ProjectsView: View {
         let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines)
         let active = portfolio.projects.filter { project in
             (category == "all" || project.classification == category) &&
-            (normalized.isEmpty || ([project.name, project.canonicalId, project.workId] + project.aliases)
+            (normalized.isEmpty || ([project.name, project.canonicalId, project.workId]
+                + project.aliases
+                + [project.accountId ?? ""]
+                + project.provenance)
                 .contains { $0.localizedCaseInsensitiveContains(normalized) })
         }.map(ProjectListEntry.active)
         let history = portfolio.historicalProducts.filter { product in

@@ -43,6 +43,22 @@ final class ProjectIntegrationTests: XCTestCase {
         XCTAssertNil(model.selectedProjectWork)
     }
 
+    func testAccountAndProvenanceFindTheirMappedProject() async throws {
+        let model = try await loadedDemo()
+
+        model.query = "parkarea"
+        let accountHit = try XCTUnwrap(model.searchHits.first { $0.id == "project-branch:parkarea" })
+        accountHit.apply()
+        XCTAssertEqual(model.selectedProject?.canonicalId, "branch:parkarea")
+        XCTAssertEqual(model.selectedProject?.accountId, "parkarea")
+
+        model.query = "tirak-mobile-app-v2"
+        let provenanceHit = try XCTUnwrap(model.searchHits.first { $0.id == "project-branch:tirak" })
+        provenanceHit.apply()
+        XCTAssertEqual(model.selectedProject?.canonicalId, "branch:tirak")
+        XCTAssertTrue(model.selectedProject?.provenance.contains("repo:Sheshiyer/tirak-mobile-app-v2") == true)
+    }
+
     func testOnlyServedJoinCanOpenOperationalWork() async throws {
         let model = try await loadedDemo()
         let before = model.selectedWorkID

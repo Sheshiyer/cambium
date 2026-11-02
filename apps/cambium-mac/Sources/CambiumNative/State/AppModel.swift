@@ -751,7 +751,10 @@ final class AppModel {
             })
         }
         for project in fabric?.portfolio?.projects ?? []
-        where matches([project.name, project.canonicalId, project.workId, project.runtimeWorkId ?? ""] + project.aliases) {
+        where matches([project.name, project.canonicalId, project.workId, project.runtimeWorkId ?? ""]
+            + project.aliases
+            + [project.accountId ?? ""]
+            + project.provenance) {
             hits.append(SearchHit(id: "project-\(project.id)", title: project.name,
                                   detail: "Display catalog · \(project.canonicalId)", section: .projects) { [weak self] in
                 self?.selectProject(project.id)
