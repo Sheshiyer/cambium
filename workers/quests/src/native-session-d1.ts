@@ -91,9 +91,12 @@ export function d1NativeSessionStore(db: GoalGraphD1DatabaseLike): NativeSession
  * packet. Sessions go first so a code is only removed once no session needs it.
  */
 export async function cleanupExpiredNativeSessions(db: GoalGraphD1DatabaseLike, cutoff: string): Promise<{ sessions: number; codes: number }> {
-  if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(cutoff) || new Date(cutoff).toISOString() !== cutoff) {
-    throw new Error('native_session_cleanup_cutoff_invalid');
-  }
+  if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(cutoff)) throw new Error('native_session_cleanup_cutoff_invalid');
+  const parsed = Date.parse(cutoff);
+  if (!Number.isFinite(parsed)) throw new Error('native_session_cleanup_cutoff_invalid');
+  let canonical: string;
+  try { canonical = new Date(parsed).toISOString(); } catch { throw new Error('native_session_cleanup_cutoff_invalid'); }
+  if (canonical !== cutoff) throw new Error('native_session_cleanup_cutoff_invalid');
   const sessions = await db.prepare('DELETE FROM native_sessions WHERE expires_at <= ?').bind(cutoff).run();
   const codes = await db.prepare(`
     DELETE FROM native_authorization_codes
