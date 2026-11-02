@@ -10,6 +10,7 @@ import {
   createSemanticRecall,
 } from './context-bindings.ts';
 import { createPlexusRoutineContext } from './plexus-knowledge.ts';
+import { createPlexusNativeIdentityAuthority } from './plexus-native-identity.ts';
 import { createPortfolioAdminActionQueue, createPortfolioAdminActionStore } from './portfolio-admin-actions.ts';
 import { createGithubCommandExecutor, parseAllowedRepos } from './github-command.ts';
 import { createIVerifExpleeObserver } from './iverif-explee.ts';
@@ -44,6 +45,9 @@ import type { ContextRouteDeps } from './context-routes.ts';
 import { createContextProjectionStore } from './context-projections.ts';
 import type { CortexIngestionDeps } from './cortex-ingestion.ts';
 import type { R2BucketLike, VectorizeIndexLike } from './context-bindings.ts';
+import { createNativeSessionHost, standardNativeRandom, type NativeSessionClient } from './native-session.ts';
+import { d1NativeConsentIntentStore, d1NativeSessionStore } from './native-session-d1.ts';
+import { resolvePlexusPrincipal, type PlexusGateConfig } from './lib/plexus-principal.ts';
 
 export interface D1StatementLike {
   bind(...values: unknown[]): D1StatementLike;
@@ -134,6 +138,11 @@ interface Env {
   TF_ACCESS_TEAM_DOMAIN?: string;
   TF_ACCESS_AUD?: string;
   PLEXUS_WHOAMI_URL?: string;
+  PLEXUS_NATIVE_IDENTITY_URL?: string;
+  PLEXUS_NATIVE_IDENTITY_TOKEN?: string;
+  PLEXUS_NATIVE_IDENTITY_TENANT?: string;
+  NATIVE_SESSION_OWNER_ORIGIN?: string;
+  NATIVE_SESSION_CLIENTS_JSON?: string;
   WEBSITE_ORIGINS?: string;
   WEBSITE_AI_CONSENT_VERSION?: string;
   WEBSITE_LEAD_CONSENT_VERSION?: string;
@@ -169,6 +178,20 @@ function parseAllowedUserIds(raw: string | undefined): string[] {
     .split(',')
     .map((id) => id.trim())
     .filter((id) => /^[0-9]{1,32}$/.test(id));
+}
+
+function parseNativeSessionClients(raw: string | undefined): NativeSessionClient[] {
+  if (!raw?.trim() || raw.length > 16_384) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0 || parsed.length > 16) return [];
+    return parsed.filter((entry): entry is NativeSessionClient =>
+      !!entry && typeof entry === 'object' && !Array.isArray(entry)
+      && typeof entry.clientId === 'string' && typeof entry.redirectUri === 'string',
+    );
+  } catch {
+    return [];
+  }
 }
 
 export function d1BridgeStore(db: D1DatabaseLike): BridgeStoreLike {
@@ -1412,6 +1435,40 @@ export default {
       } : undefined,
     };
     const workerFetch = fetch.bind(globalThis);
+    const nativeIdentityAuthority = createPlexusNativeIdentityAuthority({
+      url: env.PLEXUS_NATIVE_IDENTITY_URL,
+      token: env.PLEXUS_NATIVE_IDENTITY_TOKEN,
+      tenantId: env.PLEXUS_NATIVE_IDENTITY_TENANT,
+      fetchImpl: workerFetch,
+    });
+    const nativeSessionClients = parseNativeSessionClients(env.NATIVE_SESSION_CLIENTS_JSON);
+    const nativeGate: PlexusGateConfig | undefined = env.TF_ACCESS_TEAM_DOMAIN && env.TF_ACCESS_AUD
+      ? {
+        teamDomain: env.TF_ACCESS_TEAM_DOMAIN,
+        aud: env.TF_ACCESS_AUD,
+        whoamiUrl: env.PLEXUS_WHOAMI_URL,
+      }
+      : undefined;
+    const nativeSessionHost = env.BRIDGE_DB && nativeIdentityAuthority && nativeGate && env.NATIVE_SESSION_OWNER_ORIGIN
+      ? createNativeSessionHost({
+        verifyBrowserFounder: async (browserRequest) => {
+          const browserHeaders: Record<string, string> = {};
+          browserRequest.headers.forEach((value, key) => { browserHeaders[key.toLowerCase()] = value; });
+          const resolved = await resolvePlexusPrincipal(browserHeaders, nativeGate, kv, workerFetch);
+          return resolved.kind === 'principal' && resolved.principal.role === 'founder'
+            ? resolved.principal.id
+            : null;
+        },
+        currentRole: nativeIdentityAuthority.currentRole,
+        enrolledTenants: nativeIdentityAuthority.enrolledTenants,
+        clients: nativeSessionClients,
+        store: d1NativeSessionStore(env.BRIDGE_DB),
+        consent: d1NativeConsentIntentStore(env.BRIDGE_DB),
+        now: () => new Date().toISOString(),
+        randomBytes: standardNativeRandom,
+        ownerOrigin: env.NATIVE_SESSION_OWNER_ORIGIN,
+      })
+      : undefined;
     const providerBroker = env.PROVIDER_BROKER_TOKEN ? {
       token: env.PROVIDER_BROKER_TOKEN,
       providers,
@@ -1482,6 +1539,7 @@ export default {
       founderGateBindingsJson: env.FOUNDER_GATE_BINDINGS_JSON,
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
+      nativeSessionHost,
       portfolioActionStore: env.THOUGHTSEED_VAULT?.put
         ? createPortfolioAdminActionStore(env.THOUGHTSEED_VAULT)
         : undefined,
