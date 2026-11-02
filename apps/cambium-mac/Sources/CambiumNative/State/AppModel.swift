@@ -28,8 +28,12 @@ final class AppModel {
     private(set) var knowledgeIssue: String?
     private(set) var fabric: FabricDisplay?
     private(set) var review: ReviewDisplay?
+    private(set) var proposalBinding: WorkProposalBinding?
     private(set) var gate: GateDisplay?
     private(set) var pendingGate: [GateDisplay] = []
+    private(set) var admissions: [AdmissionRowDisplay] = []
+    private(set) var admissionIssue: ServiceIssue?
+    private(set) var selectedAdmissionRef: String?
     private(set) var capability: LaunchCapabilityDisplay?
     private(set) var launch: LaunchDisplay?
     private(set) var pendingLaunch: [LaunchDisplay] = []
@@ -55,6 +59,10 @@ final class AppModel {
 
     var reviewChoice: ReviewChoice = .approve
     var reviewTyped = ""
+    /// Canonical proposal reference typed when the projection has no join.
+    var proposalRefDraft = ""
+    /// Work id typed in standard mode when the person is selecting one record.
+    var workSelectionDraft = ""
 
     var ownerURLDraft = ""
     var tenantDraft = ""
@@ -80,6 +88,7 @@ final class AppModel {
         self.mode = mode
         self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: { NSApp.keyWindow }) : nil)
         snapshot = Self.emptySnapshot
+        restoreVisualPreferences()
         if let services {
             self.services = services
             adopt(services)
@@ -93,6 +102,7 @@ final class AppModel {
     var isDemo: Bool { mode == .demo }
     var supportsReject: Bool { services?.supportsReject ?? false }
     var replayClock: String? { services?.replayClock }
+    var julyProposalExampleId: String? { services?.julyProposalExampleId }
 
     var allEvidence: [EvidenceItem] { snapshot.work.flatMap(\.evidence) + unattachedEvidence }
     var selectedWork: WorkObject? { snapshot.work.first { $0.id == selectedWorkID } }
@@ -116,8 +126,65 @@ final class AppModel {
     func time(_ iso: String?) -> String { SourceTime.display(iso, utc: utcTimes) }
     func time(_ date: Date) -> String { SourceTime.display(date, utc: utcTimes) }
 
-    func open(_ section: AppSection) { self.section = section; query = "" }
-    func selectWork(_ id: String) { selectedWorkID = id; open(.work) }
+    func open(_ section: AppSection) {
+        self.section = section
+        query = ""
+        persistVisualPreferences()
+    }
+
+    func selectWork(_ id: String) {
+        guard snapshot.work.contains(where: { $0.id == id }) else {
+            feedback = "That work is not in the loaded projection."
+            return
+        }
+        let changed = selectedWorkID != id
+        selectedWorkID = id
+        if changed {
+            proposalBinding = services?.proposalBinding(workId: id)
+            proposalRefDraft = proposalBinding?.proposalId ?? ""
+            review = nil
+            gate = nil
+            admissions = []
+            admissionIssue = nil
+            selectedAdmissionRef = nil
+            capability = nil
+        }
+        open(.work)
+    }
+
+    /// Binds the typed canonical proposal reference to the selected projected work.
+    /// A work id that is not in the projection is refused. Approval is not involved.
+    func bindTypedProposal() {
+        guard let workId = selectedWorkID, snapshot.work.contains(where: { $0.id == workId }) else {
+            feedback = "Select a work item from the loaded projection first."
+            return
+        }
+        if let supplied = services?.proposalBinding(workId: workId) {
+            proposalBinding = supplied
+            feedback = "The projection names proposal \(supplied.proposalId) for this work."
+            return
+        }
+        let typed = proposalRefDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let tenant = session?.tenantId, CambiumOwnerServices.canonicalProposal(typed, tenant: tenant) else {
+            proposalBinding = nil
+            feedback = "Type a canonical proposal reference: \(session?.tenantId ?? "tenant"):sha256: and 64 hex digits."
+            return
+        }
+        proposalBinding = WorkProposalBinding(workId: workId, proposalId: typed, source: .typed)
+        feedback = "Proposal reference bound for this session. It is not an admission."
+    }
+
+    func selectAdmission(_ ref: String) {
+        guard let row = admissions.first(where: { $0.admissionRef == ref }) else { return }
+        guard row.selectable else {
+            selectedAdmissionRef = nil
+            capability = nil
+            feedback = "Admission \(row.admissionRef) is \(row.availability) (\(row.reason)). Only a supported existing reference can be resolved."
+            return
+        }
+        selectedAdmissionRef = ref
+        capability = nil
+    }
     func selectEvidence(_ id: String) { selectedEvidenceID = id; open(.evidence) }
     func clearFeedback() { feedback = nil }
 
@@ -151,9 +218,14 @@ final class AppModel {
         let previous = services
         self.mode = mode
         review = nil
+        proposalBinding = nil
+        proposalRefDraft = ""
         gate = nil
         capability = nil
         launch = nil
+        admissions = []
+        admissionIssue = nil
+        selectedAdmissionRef = nil
         pendingGate = []
         pendingLaunch = []
         fabric = nil
@@ -211,22 +283,43 @@ final class AppModel {
         let knowledge = await services.loadKnowledge()
         guard token == generation else { return }
         publishKnowledge(knowledge)
-        if case .success(let loaded) = await services.loadReview(), token == generation {
-            review = loaded
-        }
         let gates = await services.pendingGate()
         let launches = await services.pendingLaunch()
-        let stored = gates.isEmpty ? await services.storedReview() : nil
         guard token == generation else { return }
         pendingGate = gates
         pendingLaunch = launches
-        if let stored { gate = stored }
-        selectedWorkID = selectedWorkID ?? snapshot.work.first?.id
+        if let firstGate = gates.first {
+            proposalRefDraft = firstGate.proposalId
+        }
+        if let firstLaunch = launches.first {
+            selectedWorkID = firstLaunch.workId
+            selectedAdmissionRef = firstLaunch.admissionRef
+            launch = firstLaunch
+        }
+        if gates.isEmpty, let stored = await services.storedReview(), token == generation {
+            gate = stored
+        }
+        if selectedWorkID == nil || !snapshot.work.contains(where: { $0.id == selectedWorkID }) {
+            selectedWorkID = snapshot.work.first?.id
+        }
+        if let selectedWorkID {
+            proposalBinding = services.proposalBinding(workId: selectedWorkID)
+            if proposalRefDraft.isEmpty { proposalRefDraft = proposalBinding?.proposalId ?? "" }
+            if let binding = proposalBinding, case .success(let loaded) = await services.loadReview(proposalId: binding.proposalId), token == generation {
+                review = loaded
+                if let stored = await services.storedReview(), token == generation {
+                    gate = stored
+                }
+            }
+        }
         selectedEvidenceID = selectedEvidenceID ?? allEvidence.first?.id
         selectedConnectionID = selectedConnectionID ?? snapshot.connections.first?.id
         selectedStepID = selectedStepID ?? tourSteps.first?.id
         selectedTraceID = selectedTraceID ?? fabric?.trace.nodes.first?.id
         selectedKnowledgeID = selectedKnowledgeID ?? self.knowledge.first?.id
+        if gate == nil, gates.isEmpty, let stored = await services.storedReview(), token == generation {
+            gate = stored
+        }
     }
 
     private func publishKnowledge(_ display: KnowledgeDisplay) {
@@ -265,9 +358,12 @@ final class AppModel {
         generation &+= 1
         session = nil
         review = nil
+        proposalBinding = nil
         gate = nil
         capability = nil
         launch = nil
+        admissions = []
+        selectedAdmissionRef = nil
         fabric = nil
         knowledge = []
         pendingGate = []
@@ -277,6 +373,28 @@ final class AppModel {
         feedback = "Signed out. Pending results from the previous session will not be shown."
         _ = token
         Task { await services?.signOut() }
+    }
+
+    func loadSelectedReview() {
+        let proposalId = proposalBinding?.proposalId ?? proposalRefDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !proposalId.isEmpty else {
+            feedback = "Bind a canonical proposal reference for the selected work before loading the review."
+            return
+        }
+        run("Review") { services, token in
+            let result = await services.loadReview(proposalId: proposalId)
+            guard token == self.generation else { return }
+            switch result {
+            case .success(let loaded):
+                self.review = loaded
+                self.gate = await services.storedReview()
+                self.feedback = "Loaded review \(loaded.proposalId). Approval does not admit this work."
+            case .failure(let failure):
+                self.review = nil
+                self.issue = failure
+                self.feedback = failure.message
+            }
+        }
     }
 
     func confirmReview() {
@@ -304,8 +422,17 @@ final class AppModel {
     }
 
     func recoverReview() {
+        let nonce = gate?.nonce ?? pendingGate.first?.nonce
+        guard let nonce else {
+            feedback = "No saved decision attempt exists to recover."
+            return
+        }
+        recoverReview(nonce: nonce)
+    }
+
+    func recoverReview(nonce: String) {
         run("Status") { services, token in
-            let result = await services.recoverReview()
+            let result = await services.recoverReview(nonce: nonce)
             let pending = await services.pendingGate()
             guard token == self.generation else { return }
             self.pendingGate = pending
@@ -320,9 +447,39 @@ final class AppModel {
         }
     }
 
-    func inspectCapability() {
+    func listAdmissions() {
+        guard let workId = selectedWorkID else {
+            feedback = "Select a work item before listing admissions."
+            return
+        }
+        run("Admissions") { services, token in
+            let result = await services.discoverAdmissions(workId: workId)
+            guard token == self.generation else { return }
+            switch result {
+            case .success(let rows):
+                self.admissions = rows
+                self.admissionIssue = nil
+                self.selectedAdmissionRef = nil
+                self.capability = nil
+                self.feedback = rows.isEmpty
+                    ? "No already-admitted rows for this work. Approval does not create one."
+                    : "Listed \(rows.count) already-admitted rows. This listing is read only."
+            case .failure(let failure):
+                self.admissions = []
+                self.admissionIssue = failure
+                self.issue = failure
+                self.feedback = failure.message
+            }
+        }
+    }
+
+    func resolveSelectedCapability() {
+        guard let workId = selectedWorkID, let ref = selectedAdmissionRef else {
+            feedback = "Select a supported admission from the listing before resolving."
+            return
+        }
         run("Capability") { services, token in
-            let result = await services.inspectCapability()
+            let result = await services.resolveSelectedAdmission(workId: workId, admissionRef: ref)
             guard token == self.generation else { return }
             switch result {
             case .success(let display):
@@ -359,8 +516,17 @@ final class AppModel {
     }
 
     func recoverLaunch() {
+        let nonce = launch?.nonce ?? pendingLaunch.first?.nonce
+        guard let nonce else {
+            feedback = "No saved launch attempt exists to recover."
+            return
+        }
+        recoverLaunch(nonce: nonce)
+    }
+
+    func recoverLaunch(nonce: String) {
         run("Status") { services, token in
-            let result = await services.recoverLaunch()
+            let result = await services.recoverLaunch(nonce: nonce)
             let pending = await services.pendingLaunch()
             guard token == self.generation else { return }
             self.pendingLaunch = pending
@@ -387,23 +553,64 @@ final class AppModel {
         }
     }
 
+    /// Test seam. Drops the visible attempt so reset can be shown to consult the
+    /// durable store rather than these fields. It does not touch recovery files.
+    func hideVisibleAttemptsForTest() {
+        gate = nil
+        launch = nil
+        pendingGate = []
+        pendingLaunch = []
+    }
+
     func resetDemo() {
-        guard isDemo, gate?.needsStatusCheck != true, launch?.needsStatusCheck != true else {
-            feedback = "Reset is blocked while an attempt is unknown. Check status first."
-            return
-        }
-        run("Reset") { services, token in
-            await services.resetDemo()
+        guard isDemo else { return }
+        let token = generation
+        Task {
+            let blocked = await services?.hasUnresolvedAttempt() ?? false
             guard token == self.generation else { return }
-            self.review = nil
-            self.gate = nil
-            self.capability = nil
-            self.launch = nil
-            self.faultArmed = false
-            self.reviewTyped = ""
-            self.feedback = "Demo owner and recovery were cleared. Standard mode was not touched."
-            await self.refresh(token)
+            guard !blocked else {
+                self.feedback = "Reset is blocked while a saved attempt is unresolved. Check status first."
+                return
+            }
+            self.run("Reset") { services, token in
+                await services.resetDemo()
+                guard token == self.generation else { return }
+                self.review = nil
+                self.proposalBinding = nil
+                self.gate = nil
+                self.capability = nil
+                self.launch = nil
+                self.admissions = []
+                self.selectedAdmissionRef = nil
+                self.faultArmed = false
+                self.reviewTyped = ""
+                self.feedback = "Demo owner and recovery were cleared. Standard mode was not touched."
+                await self.refresh(token)
+            }
         }
+    }
+
+    // MARK: Visual preferences
+
+    /// Appearance, motion, clock display and the selected section. Never a
+    /// session, token, review body, confirmation or admission.
+    private static let visualDefaultsKey = "space.thoughtseed.cambium.native.visual.v1"
+
+    private func restoreVisualPreferences() {
+        guard let raw = UserDefaults.standard.dictionary(forKey: Self.visualDefaultsKey) else { return }
+        if let value = raw["appearance"] as? String, let choice = AppearanceChoice(rawValue: value) { appearance = choice }
+        if let value = raw["reduceMotion"] as? Bool { reduceMotion = value }
+        if let value = raw["utcTimes"] as? Bool { utcTimes = value }
+        if let value = raw["section"] as? String, let section = AppSection(rawValue: value) { self.section = section }
+    }
+
+    func persistVisualPreferences() {
+        UserDefaults.standard.set([
+            "appearance": appearance.rawValue,
+            "reduceMotion": reduceMotion,
+            "utcTimes": utcTimes,
+            "section": section.rawValue
+        ], forKey: Self.visualDefaultsKey)
     }
 
     /// Runs one action for the current scope. A completion from an older scope,

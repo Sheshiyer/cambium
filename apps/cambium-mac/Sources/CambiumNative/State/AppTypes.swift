@@ -93,10 +93,38 @@ struct TraceStep: Identifiable, Hashable {
     var position: CGPoint
 }
 
-/// Link from a work item to a reviewable proposal. The source review does not
-/// name a work item, so the demo leaves this nil rather than inventing one.
-struct ProposalLink: Equatable {
-    var workID: String
+/// How a selected work item reaches a reviewable proposal.
+///
+/// A mapping exists only when the owner projection names both sides, or when
+/// the person types a canonical proposal reference. Approval never creates one,
+/// and a missing mapping is not an admission.
+struct WorkProposalBinding: Equatable, Sendable {
+    enum Source: String, Equatable, Sendable {
+        /// The work projection carried an owner-provided proposal reference.
+        case ownerProjection
+        /// The person typed a canonical `tenant:digest` reference.
+        case typed
+    }
+    var workId: String
+    var proposalId: String
+    var source: Source
+}
+
+/// One already-admitted row from a read-only discovery listing.
+///
+/// The row is an observation. Selecting a supported reference does not resolve
+/// a capability until the capability route is called for that exact tuple.
+struct AdmissionRowDisplay: Equatable, Identifiable, Sendable {
+    var id: String { admissionRef }
+    var admissionRef: String
+    var workId: String
+    var availability: String
+    var reason: String
+    var plant: String
+    var action: String
+    var expiresAt: String
+    var existingRequestId: String?
+    var selectable: Bool
 }
 
 enum ReviewChoice: String, CaseIterable, Identifiable, Sendable {
@@ -321,6 +349,9 @@ protocol OwnerServices: AnyObject {
     var replayClock: String? { get }
     var supportsReject: Bool { get }
     var ownerDescription: String { get }
+    /// July founder-proposal fixture id, when demo mode is showing that example.
+    /// It is not a WorkObject join.
+    var julyProposalExampleId: String? { get }
 
     func session() async -> SessionDisplay?
     func signIn() async -> Result<SessionDisplay, ServiceIssue>
@@ -329,17 +360,33 @@ protocol OwnerServices: AnyObject {
     func readFabric() async -> Result<FabricDisplay, ServiceIssue>
     func loadKnowledge() async -> KnowledgeDisplay
 
-    func loadReview() async -> Result<ReviewDisplay, ServiceIssue>
+    /// Owner-proven proposal reference for `workId`. Nil: the projection does not
+    /// join this work to a proposal. The caller must not invent the join.
+    func proposalBinding(workId: String) -> WorkProposalBinding?
+    /// Work identifiers present in the loaded projection. Used to refuse a
+    /// typed selection that is not one of those records.
+    func projectedWorkIds() -> [String]
+    func loadReview(proposalId: String) async -> Result<ReviewDisplay, ServiceIssue>
     func submitReview(_ choice: ReviewChoice, typed: String) async -> Result<GateDisplay, ServiceIssue>
     func recoverReview() async -> Result<GateDisplay, ServiceIssue>
+    /// Status-only recovery of one persisted attempt, by its original nonce.
+    func recoverReview(nonce: String) async -> Result<GateDisplay, ServiceIssue>
     func pendingGate() async -> [GateDisplay]
     /// The persisted outcome for the loaded review, if one exists. It may send a
     /// status-only read and never a decision.
     func storedReview() async -> GateDisplay?
+    /// True when the durable store holds an unresolved gate or launch attempt.
+    /// Visible UI state is not enough to answer this.
+    func hasUnresolvedAttempt() async -> Bool
 
-    func inspectCapability() async -> Result<LaunchCapabilityDisplay, ServiceIssue>
+    /// Read-only list of already-admitted rows for one projected work id.
+    func discoverAdmissions(workId: String) async -> Result<[AdmissionRowDisplay], ServiceIssue>
+    /// Resolves the exact capability for a supported admission the listing returned.
+    func resolveSelectedAdmission(workId: String, admissionRef: String) async -> Result<LaunchCapabilityDisplay, ServiceIssue>
     func launch() async -> Result<LaunchDisplay, ServiceIssue>
     func recoverLaunch() async -> Result<LaunchDisplay, ServiceIssue>
+    /// Status-only recovery of one persisted launch, by its original nonce.
+    func recoverLaunch(nonce: String) async -> Result<LaunchDisplay, ServiceIssue>
     func pendingLaunch() async -> [LaunchDisplay]
 
     func armResponseLoss() async

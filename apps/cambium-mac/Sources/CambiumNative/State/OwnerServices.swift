@@ -24,10 +24,13 @@ final class CambiumOwnerServices: OwnerServices {
     private let reportExport: Data?
     private let owner: DemoOwnerSimulator?
     private let identity: NativeIdentityController?
+    private let discovery: any AdmissionDiscovering
     private var recoveryDirectory: URL?
     private var review: GateReview?
     private var capability: LaunchCapability?
     private var launchNonce: String?
+    private var listed: [String: [AdmissionDiscoveryRecord]] = [:]
+    private var projectedWork: [String] = []
     private var generation: UInt64 = 0
 
     private init(isDemo: Bool, replayClock: String?, supportsReject: Bool, ownerDescription: String,
@@ -36,7 +39,7 @@ final class CambiumOwnerServices: OwnerServices {
                  fabricStore: MissionFabricSnapshotStore, knowledgeStore: KnowledgeSnapshotStore,
                  fieldTheory: any FieldTheoryReading, fieldReport: any FieldReportReading,
                  theoryExport: Data?, reportExport: Data?, owner: DemoOwnerSimulator?,
-                 identity: NativeIdentityController?, recoveryDirectory: URL?) {
+                 identity: NativeIdentityController?, discovery: any AdmissionDiscovering, recoveryDirectory: URL?) {
         self.isDemo = isDemo
         self.replayClock = replayClock
         self.supportsReject = supportsReject
@@ -54,6 +57,7 @@ final class CambiumOwnerServices: OwnerServices {
         self.reportExport = reportExport
         self.owner = owner
         self.identity = identity
+        self.discovery = discovery
         self.recoveryDirectory = recoveryDirectory
     }
 
@@ -61,12 +65,19 @@ final class CambiumOwnerServices: OwnerServices {
 
     static let founder = "founder-1"
     static let tenant = "cambium"
+    /// Canonical id of the dated founder proposal fixture (2026-07-28). It is not
+    /// joined to a work item by that fixture. The demo binding below is explicit.
     static let proposalId = "cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847"
+    /// Work id shared by the founder envelope and the dated launch listing (2026-11-02).
     static let workId = "sapling:cambium"
-    /// From the source launch fixture. It is the only admission the demo may use.
+    /// Supported admission in the dated launch listing. Discovery must return it
+    /// before a capability resolve. Approval does not create it.
     static let admissionRef = "adm-123"
-    /// Inside the source proposal window (expires 2026-07-28T10:00:00Z) and the launch window.
+    /// Inside the source proposal window (expires 2026-07-28T10:00:00Z). The launch
+    /// listing expires later (2026-11-02T01:00:00Z). They are separate examples.
     static let replay = "2026-07-28T09:30:00.000Z"
+    static let proposalExampleAsOf = "2026-07-28T09:00:00.000Z"
+    static let launchExampleAsOf = "2026-11-02T00:00:00.000Z"
 
     static func demo(directory: URL, latency: (@Sendable (String) async -> Void)? = nil) -> CambiumOwnerServices? {
         guard let now = CanonicalTimestamp.parse(replay),
@@ -96,7 +107,9 @@ final class CambiumOwnerServices: OwnerServices {
             fieldTheory: SuppliedFieldTheoryReader(), fieldReport: SuppliedFieldReportReader(),
             theoryExport: SourceFixtures.verified("knowledge-field-theory-demo"),
             reportExport: SourceFixtures.verified("knowledge-field-report-demo"),
-            owner: owner, identity: nil, recoveryDirectory: recoveryDirectory
+            owner: owner, identity: nil,
+            discovery: AdmissionListing.discovery(baseURL: base, transport: owner, authorizer: authorizer),
+            recoveryDirectory: recoveryDirectory
         )
     }
 
@@ -112,8 +125,12 @@ final class CambiumOwnerServices: OwnerServices {
         let authorizer: any RequestAuthorizer = identity
         let gateClient: any FounderGateClient = transport.map { HTTPFounderGateClient(baseURL: base, transport: $0, authorizer: authorizer) }
             ?? RefusingGateClient()
-        let launchClient = transport.map { HTTPLaunchClient(baseURL: base, transport: $0, authorizer: authorizer) }
-            ?? HTTPLaunchClient(baseURL: base, transport: RefusingTransport(), authorizer: authorizer)
+        let refusing = RefusingTransport()
+        let launchTransport: any HTTPTransport = transport ?? refusing
+        let launchClient = HTTPLaunchClient(baseURL: base, transport: launchTransport, authorizer: authorizer)
+        let discovery: any AdmissionDiscovering = transport.map {
+            AdmissionListing.discovery(baseURL: base, transport: $0, authorizer: authorizer)
+        } ?? UnconfiguredAdmissionDiscovery()
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         let recovery = FileRecoveryStore(directory: support
@@ -135,7 +152,8 @@ final class CambiumOwnerServices: OwnerServices {
             fabricStore: MissionFabricSnapshotStore(reader: reader, sessionProvider: identity, clock: clock),
             knowledgeStore: KnowledgeSnapshotStore(sessionProvider: identity, clock: clock),
             fieldTheory: UnconfiguredFieldTheoryReader(), fieldReport: UnconfiguredFieldReportReader(),
-            theoryExport: nil, reportExport: nil, owner: nil, identity: identity, recoveryDirectory: nil
+            theoryExport: nil, reportExport: nil, owner: nil, identity: identity,
+            discovery: discovery, recoveryDirectory: nil
         )
     }
 
@@ -167,6 +185,8 @@ final class CambiumOwnerServices: OwnerServices {
         if let pinned = session as? PinnedSessionProvider { pinned.replace(.unconfigured) }
         review = nil
         capability = nil
+        launchNonce = nil
+        listed = [:]
         await fabricStore.invalidate()
         await knowledgeStore.invalidate()
     }
@@ -186,6 +206,10 @@ final class CambiumOwnerServices: OwnerServices {
             let read = try await fabricStore.refresh(tenantId: current.tenantId)
             guard stillCurrent(token), await session()?.founderId == current.founderId else {
                 return .failure(.init(kind: .unavailable, message: "The session changed before this read finished."))
+            }
+            projectedWork = read.envelope.projection.nodes.compactMap { node in
+                if case .work(let value) = node { return value.workId }
+                return nil
             }
             return .success(Self.fabric(read.envelope))
         } catch let error as MissionFabricReadError {
@@ -228,17 +252,47 @@ final class CambiumOwnerServices: OwnerServices {
         } catch { return .failure(Self.issue(error)) }
     }
 
+    // MARK: Binding
+
+    func projectedWorkIds() -> [String] { projectedWork }
+
+    /// Neither fixture joins a work item to a proposal. `founder-proposal-response`
+    /// has no WorkObject or work id. The July proposal is a labelled demo example
+    /// the founder opens from the dossier or Proposal view. A typed canonical
+    /// proposal reference is user-supplied and is not owner proof. Only owner
+    /// review validates the tuple.
+    func proposalBinding(workId: String) -> WorkProposalBinding? {
+        _ = workId
+        return nil
+    }
+
+    /// The July founder-proposal fixture, as a separate demo example. It is not
+    /// a work join and it is not owner proof of a WorkObject relationship.
+    var julyProposalExampleId: String? { isDemo ? Self.proposalId : nil }
+
     // MARK: Review
 
-    func loadReview() async -> Result<ReviewDisplay, ServiceIssue> {
+    func loadReview(proposalId: String) async -> Result<ReviewDisplay, ServiceIssue> {
         let token = current()
         guard let current = await session() else { return .failure(.init(kind: .unconfigured, message: "No verified session.")) }
+        guard Self.canonicalProposal(proposalId, tenant: current.tenantId) else {
+            return .failure(.init(kind: .invalid, message: "A proposal reference must be tenant:sha256:digest for the signed-in tenant."))
+        }
         do {
-            let loaded = try await gate.review(proposalId: Self.proposalId, tenantId: current.tenantId)
+            let loaded = try await gate.review(proposalId: proposalId, tenantId: current.tenantId)
             guard stillCurrent(token) else { return .failure(.init(kind: .unavailable, message: "The session changed.")) }
             review = loaded
             return .success(Self.reviewDisplay(loaded))
         } catch { return .failure(Self.issue(error)) }
+    }
+
+    /// `tenant:sha256:` plus 64 lowercase hex digits. Anything else is refused
+    /// before a request, including a work id or an admission reference.
+    static func canonicalProposal(_ proposalId: String, tenant: String) -> Bool {
+        let prefix = tenant + ":sha256:"
+        guard proposalId.hasPrefix(prefix) else { return false }
+        let digest = proposalId.dropFirst(prefix.count)
+        return digest.count == 64 && digest.allSatisfy { $0.isHexDigit && !$0.isUppercase }
     }
 
     func submitReview(_ choice: ReviewChoice, typed: String) async -> Result<GateDisplay, ServiceIssue> {
@@ -253,9 +307,22 @@ final class CambiumOwnerServices: OwnerServices {
     }
 
     func recoverReview() async -> Result<GateDisplay, ServiceIssue> {
-        let token = current()
         guard let review else { return .failure(.init(kind: .unavailable, message: "No review is loaded.")) }
+        return await recoverReview(nonce: review.tuple.nonce)
+    }
+
+    func recoverReview(nonce: String) async -> Result<GateDisplay, ServiceIssue> {
+        let token = current()
         do {
+            let records = try await gate.pendingRecoveries()
+            if let record = records.first(where: { $0.nonce == nonce }) {
+                let outcome = try await gate.recover(record: record)
+                guard stillCurrent(token) else { return .failure(.init(kind: .unavailable, message: "The session changed.")) }
+                return .success(Self.gateDisplay(outcome.record))
+            }
+            guard let review, review.tuple.nonce == nonce else {
+                return .failure(.init(kind: .unavailable, message: "No saved attempt matches that nonce."))
+            }
             let outcome = try await gate.recover(tuple: review.tuple)
             guard stillCurrent(token) else { return .failure(.init(kind: .unavailable, message: "The session changed.")) }
             return .success(Self.gateDisplay(outcome.record))
@@ -266,22 +333,85 @@ final class CambiumOwnerServices: OwnerServices {
         (try? await gate.pendingRecoveries())?.map(Self.gateDisplay) ?? []
     }
 
-    /// Shows a decision recorded before a restart. `recover` returns a resolved
-    /// record without an owner call; at most it sends a status-only read, never a decision.
+    /// Shows a decision recorded for the loaded review tuple. `recover` returns a
+    /// resolved record without an owner call; at most it sends a status-only read,
+    /// never a decision. A proposal the caller has not loaded is not assumed.
     func storedReview() async -> GateDisplay? {
-        guard let review, let outcome = try? await gate.recover(tuple: review.tuple) else { return nil }
-        return Self.gateDisplay(outcome.record)
+        guard let review else { return nil }
+        guard let outcome = try? await gate.recover(tuple: review.tuple) else { return nil }
+        let record = outcome.record
+        guard record.proposalId == review.tuple.proposalId,
+              record.tenantId == review.tuple.tenantId,
+              record.version == review.tuple.version,
+              record.changeDigest == review.tuple.changeDigest,
+              record.nonce == review.tuple.nonce,
+              record.expiresAt == review.tuple.expiresAt else { return nil }
+        return Self.gateDisplay(record)
+    }
+
+    /// Fail closed. A store that cannot be enumerated is treated as unresolved
+    /// so reset cannot clear an attempt the app failed to see.
+    func hasUnresolvedAttempt() async -> Bool {
+        do {
+            let gates = try await gate.pendingRecoveries()
+            if gates.contains(where: { $0.state == .submitting || $0.state == .outcomeUnknown }) { return true }
+        } catch {
+            return true
+        }
+        do {
+            let launches = try await launchCoordinator.pendingRecoveries()
+            let pending: Set<LaunchState> = [.queued, .transmitting, .transmissionFailed, .persistenceFailed, .running, .outcomeUnknown]
+            return launches.contains { pending.contains($0.state) }
+        } catch {
+            return true
+        }
     }
 
     // MARK: Launch
 
-    func inspectCapability() async -> Result<LaunchCapabilityDisplay, ServiceIssue> {
+    func discoverAdmissions(workId: String) async -> Result<[AdmissionRowDisplay], ServiceIssue> {
         let token = current()
         guard await session() != nil else { return .failure(.init(kind: .unconfigured, message: "No verified session.")) }
+        guard projectedWork.contains(workId) else {
+            return .failure(.init(kind: .refused, message: "That work is not in the loaded projection."))
+        }
+        do {
+            let result = try await discovery.discoverAdmissions(workId: workId, session: session, clock: clock)
+            guard stillCurrent(token) else { return .failure(.init(kind: .unavailable, message: "The session changed.")) }
+            guard result.workId == workId, result.readOnly else {
+                return .failure(.init(kind: .invalid, message: "The admission listing did not match the requested work."))
+            }
+            listed[workId] = result.admissions
+            return .success(result.admissions.map(Self.admissionRow))
+        } catch {
+            listed[workId] = nil
+            return .failure(Self.issue(error))
+        }
+    }
+
+    /// Resolves one supported ref the listing already returned for this work.
+    /// A typed or invented ref, and an unsupported or unavailable row, never reach
+    /// the capability route.
+    func resolveSelectedAdmission(workId: String, admissionRef: String) async -> Result<LaunchCapabilityDisplay, ServiceIssue> {
+        let token = current()
+        guard await session() != nil else { return .failure(.init(kind: .unconfigured, message: "No verified session.")) }
+        guard projectedWork.contains(workId) else {
+            return .failure(.init(kind: .refused, message: "That work is not in the loaded projection."))
+        }
+        guard let rows = listed[workId], let row = rows.first(where: { $0.admissionRef == admissionRef }) else {
+            return .failure(.init(kind: .unavailable, message: "List already-admitted work before resolving a capability."))
+        }
+        guard row.availability == .supported else {
+            return .failure(.init(kind: row.availability == .unsupported ? .unsupported : .unavailable,
+                                 message: "Admission \(row.admissionRef) is \(row.availability.rawValue) (\(row.reason)). It cannot be resolved."))
+        }
         do {
             let resolved = try await launchClient.resolveCapability(
-                workId: Self.workId, admissionRef: Self.admissionRef, session: session, clock: clock)
+                workId: workId, admissionRef: admissionRef, session: session, clock: clock)
             guard stillCurrent(token) else { return .failure(.init(kind: .unavailable, message: "The session changed.")) }
+            guard resolved.workId == workId, resolved.admissionRef == admissionRef else {
+                return .failure(.init(kind: .invalid, message: "The capability did not match the selected admission."))
+            }
             capability = resolved
             return .success(Self.capabilityDisplay(resolved))
         } catch { return .failure(Self.issue(error)) }
@@ -300,10 +430,18 @@ final class CambiumOwnerServices: OwnerServices {
     }
 
     func recoverLaunch() async -> Result<LaunchDisplay, ServiceIssue> {
-        let token = current()
         guard let nonce = launchNonce else { return .failure(.init(kind: .unavailable, message: "No launch attempt exists.")) }
+        return await recoverLaunch(nonce: nonce)
+    }
+
+    func recoverLaunch(nonce: String) async -> Result<LaunchDisplay, ServiceIssue> {
+        let token = current()
+        let records = (try? await launchCoordinator.pendingRecoveries()) ?? []
+        let workId = records.first { $0.idempotencyNonce == nonce }?.capability.workId ?? capability?.workId
+        guard let workId else { return .failure(.init(kind: .unavailable, message: "No saved launch matches that nonce.")) }
+        launchNonce = nonce
         do {
-            let outcome = try await launchCoordinator.recover(workId: Self.workId, idempotencyNonce: nonce)
+            let outcome = try await launchCoordinator.recover(workId: workId, idempotencyNonce: nonce)
             guard stillCurrent(token) else { return .failure(.init(kind: .unavailable, message: "The session changed.")) }
             return .success(Self.launchDisplay(outcome.record))
         } catch { return .failure(Self.issue(error)) }
@@ -327,6 +465,8 @@ final class CambiumOwnerServices: OwnerServices {
         review = nil
         capability = nil
         launchNonce = nil
+        listed = [:]
+        projectedWork = []
         await fabricStore.invalidate()
         await knowledgeStore.invalidate()
     }
@@ -396,6 +536,16 @@ final class CambiumOwnerServices: OwnerServices {
         case .outcomeUnknown: "Unknown until status is checked"
         case .notRecorded: "Not recorded"
         }
+    }
+
+    private static func admissionRow(_ record: AdmissionDiscoveryRecord) -> AdmissionRowDisplay {
+        AdmissionRowDisplay(
+            admissionRef: record.admissionRef, workId: record.tuple.workId,
+            availability: record.availability.rawValue, reason: record.reason,
+            plant: record.tuple.executionPlant, action: record.tuple.supportedAction,
+            expiresAt: record.tuple.expiresAt, existingRequestId: record.existingRequest?.requestId,
+            selectable: record.availability == .supported
+        )
     }
 
     private static func capabilityDisplay(_ capability: LaunchCapability) -> LaunchCapabilityDisplay {
@@ -505,6 +655,20 @@ final class CambiumOwnerServices: OwnerServices {
             return .init(kind: .unsupported, message: "The owner does not support this capability (\(reason)).")
         case let LaunchError.capabilityUnavailable(reason):
             return .init(kind: .unavailable, message: "No current admission (\(reason)). Approval is not admission.")
+        case AdmissionDiscoveryError.unconfigured:
+            return .init(kind: .unconfigured, message: "Admission discovery is not configured.")
+        case AdmissionDiscoveryError.notAdmitted, AdmissionDiscoveryError.expiredIdentity, AdmissionDiscoveryError.principalSwitched:
+            return .init(kind: .unconfigured, message: "No verified session for this listing.")
+        case AdmissionDiscoveryError.invalidWorkId:
+            return .init(kind: .invalid, message: "That work identifier is not a valid discovery subject.")
+        case AdmissionDiscoveryError.unauthorized, AdmissionDiscoveryError.forbidden:
+            return .init(kind: .refused, message: "The owner refused the admission listing.")
+        case AdmissionDiscoveryError.unavailable:
+            return .init(kind: .unavailable, message: "Admission discovery is unavailable. An empty list was not assumed.")
+        case AdmissionDiscoveryError.malformedResponse, AdmissionDiscoveryError.responseTooLarge:
+            return .init(kind: .invalid, message: "The admission listing was not usable.")
+        case AdmissionDiscoveryError.transport, AdmissionDiscoveryError.tenantMismatch:
+            return .init(kind: .unknown, message: "The admission listing did not complete.")
         case MissionFabricReadError.unconfigured, KnowledgeError.bridgeUnconfigured, NativeIdentityError.unconfigured:
             return .init(kind: .unconfigured, message: "This owner path is not configured.")
         case MissionFabricReadError.unauthorized, MissionFabricReadError.forbidden, NativeIdentityError.inspectionFailed:

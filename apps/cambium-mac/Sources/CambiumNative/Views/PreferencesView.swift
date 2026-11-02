@@ -18,8 +18,11 @@ struct PreferencesView: View {
                 .frame(maxWidth: 300)
 
                 Toggle("Reduce motion", isOn: $model.reduceMotion)
+                    .onChange(of: model.reduceMotion) { _, _ in model.persistVisualPreferences() }
                 Toggle("Display times in UTC", isOn: $model.utcTimes)
+                    .onChange(of: model.utcTimes) { _, _ in model.persistVisualPreferences() }
             }
+            .onChange(of: model.appearance) { _, _ in model.persistVisualPreferences() }
             .cambiumPanel()
 
             VStack(alignment: .leading, spacing: 10) {

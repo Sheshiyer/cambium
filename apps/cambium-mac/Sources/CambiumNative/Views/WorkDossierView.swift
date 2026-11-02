@@ -46,7 +46,11 @@ private struct Dossier: View {
                     .font(.body)
                     .foregroundStyle(Palette.ink)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("Not admitted. Admission needs a launch capability, which this build cannot obtain.")
+                Text(bindingCopy)
+                    .font(.callout)
+                    .foregroundStyle(Palette.inkMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Observed work is not admitted. An approved proposal does not create an admission.")
                     .font(.callout)
                     .foregroundStyle(Palette.hold)
                     .fixedSize(horizontal: false, vertical: true)
@@ -118,11 +122,38 @@ private struct Dossier: View {
         }
         .cambiumPanel()
 
+        VStack(alignment: .leading, spacing: 8) {
+            SectionHeader(title: "Proposal binding")
+            if let binding = model.proposalBinding, binding.workId == work.id {
+                FactRow(label: "Proposal", value: binding.proposalId, mono: true)
+                FactRow(label: "Binding", value: binding.source == .ownerProjection ? "Named by the loaded projection" : "Typed for this session")
+            } else if model.isDemo {
+                Text("This record has no proposal reference in the loaded projection. The dated founder proposal is a separate example and is not assumed.")
+                    .font(.callout).foregroundStyle(Palette.inkMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text("No owner projection joins this work to a proposal. Type the canonical proposal reference on the review page.")
+                    .font(.callout).foregroundStyle(Palette.inkMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .cambiumPanel()
+
         HStack {
             Button("See the trace") { model.open(.trace) }
             Button("Review proposal") { model.open(.proposal) }
-                .disabled(model.review == nil)
+            Button("List admissions") {
+                model.open(.launch)
+                model.listAdmissions()
+            }
             Spacer()
         }
+    }
+
+    private var bindingCopy: String {
+        if model.isDemo {
+            return "Demo projection. The founder proposal example is dated 2026-07-28. The launch admission example is dated 2026-11-02. They stay separate."
+        }
+        return "Loaded from the configured owner. Nothing here is admitted until discovery lists an existing admission."
     }
 }

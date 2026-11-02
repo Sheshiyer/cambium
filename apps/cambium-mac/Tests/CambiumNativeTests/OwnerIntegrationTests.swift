@@ -59,8 +59,30 @@ final class OwnerIntegrationTests: XCTestCase {
     }
 
     private func ready(_ model: AppModel) async throws {
-        try await until("fabric, review and pending lists") { model.review != nil && model.fabric != nil && !model.loading }
+        try await until("fabric") { model.fabric != nil && !model.loading }
         try await Task.sleep(for: .milliseconds(150))
+    }
+
+    /// Selects the projected work the dated examples share, then loads its review.
+    private func loadBoundReview(_ model: AppModel) async throws {
+        try await ready(model)
+        model.selectWork(CambiumOwnerServices.workId)
+        XCTAssertNil(model.proposalBinding, "founder-proposal-response has no WorkObject/workId join")
+        model.proposalRefDraft = model.julyProposalExampleId ?? CambiumOwnerServices.proposalId
+        model.bindTypedProposal()
+        XCTAssertEqual(model.proposalBinding?.proposalId, CambiumOwnerServices.proposalId)
+        XCTAssertEqual(model.proposalBinding?.source, .typed)
+        model.loadSelectedReview()
+        try await until("review") { model.review != nil && !model.loading }
+    }
+
+    /// Lists already-admitted rows and resolves only the supported source ref.
+    private func resolveSupported(_ model: AppModel) async throws {
+        model.listAdmissions()
+        try await until("admissions") { !model.admissions.isEmpty && !model.loading }
+        model.selectAdmission(CambiumOwnerServices.admissionRef)
+        model.resolveSelectedCapability()
+        try await until("capability") { model.capability != nil && !model.loading }
     }
 
     private func ownerWrites() async -> (decisions: Int, launches: Int) {
@@ -78,7 +100,7 @@ final class OwnerIntegrationTests: XCTestCase {
     @MainActor
     func testFullReviewShowsSourceTupleAndConfirmsExactlyOnce() async throws {
         let model = try openApp()
-        try await ready(model)
+        try await loadBoundReview(model)
 
         let review = try XCTUnwrap(model.review)
         XCTAssertEqual(review.proposalId, CambiumOwnerServices.proposalId)
@@ -119,7 +141,7 @@ final class OwnerIntegrationTests: XCTestCase {
         XCTAssertEqual(writes.decisions, 1)
 
         let reopened = try openApp()
-        try await ready(reopened)
+        try await loadBoundReview(reopened)
         try await until("stored decision after restart") { reopened.gate?.recorded == true }
         let again = await ownerWrites()
         XCTAssertEqual(again.decisions, 1)
@@ -128,7 +150,8 @@ final class OwnerIntegrationTests: XCTestCase {
     @MainActor
     func testApprovalDoesNotCreateAdmissionOrCapability() async throws {
         let model = try openApp()
-        try await ready(model)
+        try await loadBoundReview(model)
+        XCTAssertTrue(model.admissions.isEmpty)
         try await decide(model)
         try await until("recorded decision") { model.gate?.recorded == true }
         XCTAssertNil(model.capability, "approval must not produce a launch capability")
@@ -141,7 +164,7 @@ final class OwnerIntegrationTests: XCTestCase {
     @MainActor
     func testResponseLossAfterOwnerRecordedRecoversByStatusOnly() async throws {
         let model = try openApp()
-        try await ready(model)
+        try await loadBoundReview(model)
         model.armFault()
         try await until("armed fault") { model.faultArmed }
 
@@ -155,6 +178,7 @@ final class OwnerIntegrationTests: XCTestCase {
         let restarted = try openApp()
         try await ready(restarted)
         XCTAssertEqual(restarted.pendingGate.count, 1)
+        XCTAssertNil(restarted.review, "a restart shows the saved attempt before any new review load")
         XCTAssertEqual(restarted.pendingGate.first?.nonce, "nonce-1")
         restarted.recoverReview()
         try await until("status read") { restarted.gate?.recorded == true }
@@ -168,7 +192,7 @@ final class OwnerIntegrationTests: XCTestCase {
     @MainActor
     func testRecordedRecoveryRecordHoldsNoReviewOrConfirmationText() async throws {
         let model = try openApp()
-        try await ready(model)
+        try await loadBoundReview(model)
         try await decide(model)
         try await until("recorded decision") { model.gate?.recorded == true }
         let review = try XCTUnwrap(model.review)
@@ -192,9 +216,8 @@ final class OwnerIntegrationTests: XCTestCase {
     func testLaunchSeparatesTransportExecutionAndAcceptanceAndRecovers() async throws {
         let model = try openApp()
         try await ready(model)
-
-        model.inspectCapability()
-        try await until("capability") { model.capability != nil }
+        model.selectWork(CambiumOwnerServices.workId)
+        try await resolveSupported(model)
         let capability = try XCTUnwrap(model.capability)
         XCTAssertEqual(capability.workId, "sapling:cambium")
         XCTAssertEqual(capability.admissionRef, "adm-123")
@@ -251,8 +274,8 @@ final class OwnerIntegrationTests: XCTestCase {
     func testLostLaunchReplyKeepsOriginalRequestAcrossRestartWithZeroDuplicateSubmit() async throws {
         let model = try openApp()
         try await ready(model)
-        model.inspectCapability()
-        try await until("capability") { model.capability != nil }
+        model.selectWork(CambiumOwnerServices.workId)
+        try await resolveSupported(model)
         model.armFault()
         try await until("armed fault") { model.faultArmed }
 
@@ -287,7 +310,7 @@ final class OwnerIntegrationTests: XCTestCase {
     @MainActor
     func testResetIsBlockedWhileAttemptIsUnknownAndNeverSendsAnything() async throws {
         let model = try openApp()
-        try await ready(model)
+        try await loadBoundReview(model)
         model.armFault()
         try await until("armed fault") { model.faultArmed }
         try await decide(model)
@@ -311,8 +334,8 @@ final class OwnerIntegrationTests: XCTestCase {
             if path == "/v1/native/launch" { await gate.hold() }
         }
         try await ready(model)
-        model.inspectCapability()
-        try await until("capability") { model.capability != nil }
+        model.selectWork(CambiumOwnerServices.workId)
+        try await resolveSupported(model)
         model.requestLaunch()
         try await until("loading") { model.loading == true }
         for _ in 0..<100 {
@@ -338,8 +361,8 @@ final class OwnerIntegrationTests: XCTestCase {
     func testSignOutClearsDataAndActionStateImmediately() async throws {
         let model = try openApp()
         try await ready(model)
-        model.inspectCapability()
-        try await until("capability") { model.capability != nil }
+        model.selectWork(CambiumOwnerServices.workId)
+        try await resolveSupported(model)
         model.signOut()
         XCTAssertNil(model.session)
         XCTAssertNil(model.review)
@@ -370,7 +393,8 @@ final class OwnerIntegrationTests: XCTestCase {
         XCTAssertNil(model.replayClock)
 
         model.requestLaunch()
-        model.inspectCapability()
+        model.listAdmissions()
+        model.resolveSelectedCapability()
         model.signIn()
         try await Task.sleep(for: .milliseconds(300))
         XCTAssertNil(model.capability)
@@ -382,8 +406,11 @@ final class OwnerIntegrationTests: XCTestCase {
         let standard = try XCTUnwrap(CambiumOwnerServices.standard(configuration: nil, browser: nil))
         if case .success = await standard.signIn() { XCTFail("unconfigured sign-in succeeded") }
         if case .success = await standard.readFabric() { XCTFail("unconfigured fabric read succeeded") }
-        if case .success = await standard.loadReview() { XCTFail("unconfigured review succeeded") }
-        if case .success = await standard.inspectCapability() { XCTFail("unconfigured capability succeeded") }
+        if case .success = await standard.loadReview(proposalId: CambiumOwnerServices.proposalId) { XCTFail("unconfigured review succeeded") }
+        if case .success = await standard.discoverAdmissions(workId: CambiumOwnerServices.workId) { XCTFail("unconfigured discovery succeeded") }
+        if case .success = await standard.resolveSelectedAdmission(workId: CambiumOwnerServices.workId, admissionRef: CambiumOwnerServices.admissionRef) {
+            XCTFail("unconfigured capability succeeded")
+        }
         let knowledge = await standard.loadKnowledge()
         if case .success = knowledge.fieldTheory { XCTFail("unconfigured Field Theory read succeeded") }
         if case .success = knowledge.fieldReport { XCTFail("unconfigured Field Report read succeeded") }
@@ -459,7 +486,7 @@ final class OwnerIntegrationTests: XCTestCase {
         let rows = SourceFixtures.lineage()
         XCTAssertGreaterThanOrEqual(rows.count, 8)
         XCTAssertTrue(rows.allSatisfy(\.verified))
-        XCTAssertEqual(rows.filter(\.synthetic).count, 2)
+        XCTAssertEqual(rows.filter(\.synthetic).count, 3)
     }
 
     func testOwnerConfigurationValidationAndDefaultNil() {
@@ -489,6 +516,152 @@ final class OwnerIntegrationTests: XCTestCase {
         XCTAssertNil(model.session, "saving a configuration must not sign in")
         XCTAssertNil(model.fabric)
         XCTAssertNil(model.review)
+    }
+
+    // MARK: Admission selection
+
+    @MainActor
+    func testDiscoveryListsSupportedUnsupportedAndUnavailableAndResolvesOnlySupported() async throws {
+        let model = try openApp()
+        try await ready(model)
+        model.selectWork(CambiumOwnerServices.workId)
+        model.listAdmissions()
+        try await until("three admissions") { model.admissions.count == 3 && !model.loading }
+
+        let byRef = Dictionary(uniqueKeysWithValues: model.admissions.map { ($0.admissionRef, $0) })
+        XCTAssertEqual(byRef["adm-123"]?.availability, "supported")
+        XCTAssertEqual(byRef["adm-123"]?.reason, "current")
+        XCTAssertEqual(byRef["adm-123"]?.selectable, true)
+        XCTAssertEqual(byRef["adm-older"]?.availability, "unavailable")
+        XCTAssertEqual(byRef["adm-older"]?.reason, "admission_expired")
+        XCTAssertEqual(byRef["adm-hands-gap"]?.availability, "unsupported")
+        XCTAssertEqual(byRef["adm-hands-gap"]?.reason, "owner_does_not_support")
+        XCTAssertEqual(byRef["adm-hands-gap"]?.selectable, false)
+        XCTAssertTrue(model.admissions.allSatisfy { $0.workId == CambiumOwnerServices.workId })
+
+        model.selectAdmission("adm-hands-gap")
+        XCTAssertNil(model.selectedAdmissionRef)
+        model.resolveSelectedCapability()
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertNil(model.capability, "an unsupported row must not be resolved")
+
+        model.selectAdmission("adm-older")
+        XCTAssertNil(model.selectedAdmissionRef)
+        model.selectAdmission("adm-123")
+        XCTAssertEqual(model.selectedAdmissionRef, "adm-123")
+        model.resolveSelectedCapability()
+        try await until("resolved supported") { model.capability?.admissionRef == "adm-123" }
+        XCTAssertEqual(model.capability?.workId, CambiumOwnerServices.workId)
+    }
+
+    @MainActor
+    func testApprovalDoesNotInventAnAdmissionAndOtherWorkListsNone() async throws {
+        let model = try openApp()
+        try await loadBoundReview(model)
+        try await decide(model)
+        try await until("recorded") { model.gate?.recorded == true }
+
+        let other = try XCTUnwrap(model.snapshot.work.first { $0.id != CambiumOwnerServices.workId }?.id)
+        model.selectWork(other)
+        XCTAssertNil(model.proposalBinding, "a work the projection does not join stays unbound")
+        model.listAdmissions()
+        try await until("empty listing") { model.feedback?.contains("No already-admitted") == true && !model.loading }
+        XCTAssertTrue(model.admissions.isEmpty)
+        model.selectAdmission("adm-123")
+        model.resolveSelectedCapability()
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertNil(model.capability)
+        XCTAssertNil(model.launch)
+    }
+
+    @MainActor
+    func testOutOfScopeWorkIsRefusedBeforeDiscovery() async throws {
+        let model = try openApp()
+        try await ready(model)
+        model.selectWork("sapling:not-in-projection")
+        XCTAssertNotEqual(model.selectedWorkID, "sapling:not-in-projection")
+        let services = try makeServices()
+        _ = await services.readFabric()
+        if case .success = await services.discoverAdmissions(workId: "sapling:not-in-projection") {
+            XCTFail("work outside the projection was listed")
+        } else if case .failure(let issue) = await services.discoverAdmissions(workId: "sapling:not-in-projection") {
+            XCTAssertEqual(issue.kind, .refused)
+        }
+        if case .success = await services.resolveSelectedAdmission(workId: "sapling:not-in-projection", admissionRef: "adm-123") {
+            XCTFail("an out-of-scope work resolved a capability")
+        }
+    }
+
+    @MainActor
+    func testRestartRestoresPendingByOriginalNonceAndResetStaysBlockedWhenVisibleStateIsCleared() async throws {
+        let model = try openApp()
+        try await ready(model)
+        model.selectWork(CambiumOwnerServices.workId)
+        try await resolveSupported(model)
+        model.armFault()
+        try await until("armed") { model.faultArmed }
+        model.requestLaunch()
+        try await until("unknown launch") { model.launch?.needsStatusCheck == true }
+        let nonce = try XCTUnwrap(model.launch).nonce
+
+        let restarted = try openApp()
+        try await ready(restarted)
+        XCTAssertEqual(restarted.pendingLaunch.first?.nonce, nonce)
+        XCTAssertEqual(restarted.launch?.requestId, model.launch?.requestId)
+        restarted.hideVisibleAttemptsForTest()
+        XCTAssertNil(restarted.launch)
+        XCTAssertTrue(restarted.pendingLaunch.isEmpty)
+        restarted.resetDemo()
+        try await Task.sleep(for: .milliseconds(300))
+        let after = await ownerWrites()
+        XCTAssertEqual(after.launches, 1, "reset must not erase the saved attempt")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent("owner/\(DemoOwnerSimulator.fileName)").path))
+
+        restarted.recoverLaunch(nonce: nonce)
+        try await until("status") { restarted.launch?.nonce == nonce && restarted.launch?.needsStatusCheck == true || restarted.launch?.execution == "running" }
+        let writes = await ownerWrites()
+        XCTAssertEqual(writes.launches, 1)
+    }
+
+    @MainActor
+    func testStandardModeAcceptsTypedProposalAndRefusesAMissingJoin() async throws {
+        let model = AppModel(mode: .standard)
+        model.ownerURLDraft = "https://owner.example.test"
+        model.tenantDraft = "cambium"
+        model.clientIDDraft = "cambium-native"
+        model.applyConfiguration()
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertNil(model.session)
+        model.proposalRefDraft = CambiumOwnerServices.proposalId
+        model.bindTypedProposal()
+        XCTAssertNil(model.proposalBinding, "a typed ref needs a selected projected work")
+        XCTAssertFalse(CambiumOwnerServices.canonicalProposal("sapling:cambium", tenant: "cambium"))
+        XCTAssertTrue(CambiumOwnerServices.canonicalProposal(CambiumOwnerServices.proposalId, tenant: "cambium"))
+        XCTAssertFalse(CambiumOwnerServices.canonicalProposal(CambiumOwnerServices.proposalId, tenant: "other"))
+    }
+
+    @MainActor
+    func testModeSwitchDropsAStaleReviewCompletion() async throws {
+        let gate = RequestGate()
+        let model = try openApp { path in
+            if path == "/v1/founder/proposal" { await gate.hold() }
+        }
+        try await ready(model)
+        model.selectWork(CambiumOwnerServices.workId)
+        model.proposalRefDraft = model.julyProposalExampleId ?? CambiumOwnerServices.proposalId
+        model.loadSelectedReview()
+        for _ in 0..<100 {
+            if await gate.isReached() { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        let reached = await gate.isReached()
+        XCTAssertTrue(reached)
+        model.leaveDemo()
+        await gate.release()
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertNil(model.review)
+        XCTAssertNil(model.proposalBinding)
+        XCTAssertFalse(model.isDemo)
     }
 
     private func ownerDirectory() async -> DemoOwnerSimulator? {
