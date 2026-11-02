@@ -19,10 +19,11 @@ hardcoded into the standard app. The catalog remains `readOnly` with
 4. Canopy and Projects show source classifications, provenance, tenant labels,
    source account/family labels when supplied, lifecycle, promotion state,
    source links and mission-data gaps. Historical
-   products remain separate display records. Global search can select current
-   and historical records, including catalog aliases and historical source
-   links. Filtering keeps the visible dossier aligned with the results; opening
-   a linked source record reveals it even when a prior filter hid it. Viewer
+   products remain separate display records. Global search and the Projects
+   filter can select current and historical records through catalog aliases,
+   account/family labels, provenance references and historical source links.
+   Filtering keeps the visible dossier aligned with the results; opening a
+   linked source record reveals it even when a prior filter hid it. Viewer
    scope receives totals only.
 5. A project opens operational Work only if an explicit `portfolioJoinReport`
    pair names its canonical ID and an existing Work node in the served graph.
@@ -39,7 +40,7 @@ current production catalog.
 
 ## Local verification
 
-- `swift test --package-path apps/cambium-mac`: 34 native and 247 Core tests
+- `swift test --package-path apps/cambium-mac`: 35 native and 247 Core tests
   passed, with one existing opt-in fixture skip. Focused historical mapping
   and app integration tests passed.
 - `node --test workers/quests/src/native-session-routes.test.ts`: 24 passed.
@@ -92,6 +93,11 @@ current production catalog.
   false because the SwiftUI model overrode AppKit appearance; `55ca159` now
   drives both together. Four focused Projects tests and the full Swift suite
   pass (the opt-in current-source probe is skipped in the default suite).
+- Commit `3f507fb` adds account/family and provenance search coverage. The
+  rebuilt signed bundle was visually checked by searching `parkarea`, selecting
+  `ParkArea Client Delivery`, and reading `Source account: parkarea` together
+  with its mapped Vault/repository provenance. The clean-input build proof is
+  aggregate `4f0b21eb2d0fdb9570110f8ede8b36e711b9ad837bbffaf8e377bc2329517593`.
 
 These are local source, fixture, route-harness, synthetic window and bundle
 proofs. An unlocked interactive walkthrough on the rebuilt bundle then
@@ -99,7 +105,8 @@ verified Connections prefill, `Cambium` search, the exact Work join, bounded
 Work navigation, and return to unconfigured standard mode; no session was
 applied. A second spot-check searched `HeyZack`, showed 11 matching mapped
 client-branch records, and opened its provenance-bearing dossier with no
-served runtime join. An unauthenticated
+served runtime join. The rebuilt search path also resolves `parkarea` through
+its account label and displays its mapped provenance. An unauthenticated
 2026-11-02 read-only probe saw health
 `200` and Mission Fabric `401` on the direct Worker origin, and `401` on the
 custom domain. The native session path returned `404` on the direct origin.
@@ -124,6 +131,6 @@ founder list or the display catalog must not stand in for these checks.
 ## Reversal
 
 Revert the scoped implementation commits `a62955b`, `d0defc5`, `15ff5de`,
-`334c9a6`, `8a24b94`, `e5fe1f1`, `7ff409f` and `af5c636` to remove the native project
+`334c9a6`, `8a24b94`, `e5fe1f1`, `7ff409f`, `af5c636`, `277dcf8` and `3f507fb` to remove the native project
 presentation and tests without touching catalog sources, runtime
 configuration, deployment state or the other work in the shared tree.
