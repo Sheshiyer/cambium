@@ -95,15 +95,21 @@ struct ProjectsView: View {
                 .foregroundStyle(Palette.inkMuted)
                 .fixedSize(horizontal: false, vertical: true)
             FactRow(label: "Source generated", value: portfolio.sourceGeneratedAt.map(model.time))
-            FactRow(label: "Graph as of", value: model.time(portfolio.asOf))
-            FactRow(label: "Served", value: model.time(portfolio.servedAt))
-            FactRow(label: "Display digest", value: portfolio.summary.catalogDigest, mono: true)
-            FactRow(label: "Action digest", value: portfolio.summary.actionCatalogDigest, mono: true)
             if let join = portfolio.joinReport {
                 Text("\(join.matchedCount) explicit runtime join\(join.matchedCount == 1 ? "" : "s") · \(join.catalogOrphanCount) catalog records without a runtime join · \(join.runtimeOrphanCount) runtime work records without a catalog join")
                     .font(.callout)
                     .foregroundStyle(Palette.inkMuted)
             }
+            DisclosureGroup("Source dates and digests") {
+                VStack(alignment: .leading, spacing: 8) {
+                    FactRow(label: "Graph as of", value: model.time(portfolio.asOf))
+                    FactRow(label: "Served", value: model.time(portfolio.servedAt))
+                    FactRow(label: "Display digest", value: portfolio.summary.catalogDigest, mono: true)
+                    FactRow(label: "Action digest", value: portfolio.summary.actionCatalogDigest, mono: true)
+                }
+                .padding(.top, 8)
+            }
+            .accessibilityIdentifier("projects.sourceDetails")
         }
         .cambiumPanel()
     }

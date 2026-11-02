@@ -73,4 +73,12 @@ final class ProjectIntegrationTests: XCTestCase {
         XCTAssertNil(model.selectedHistoricalProduct)
         XCTAssertEqual(model.selectedWorkID, before)
     }
+
+    func testCatalogSourceTimeRendersWholeSecondPrecision() async throws {
+        let model = try await loadedDemo()
+        let generated = try XCTUnwrap(model.fabric?.portfolio?.sourceGeneratedAt)
+        XCTAssertEqual(generated, "2026-07-29T06:46:00Z")
+        XCTAssertEqual(SourceTime.display(generated, utc: true), "29 Jul 2026, 06:46 UTC")
+        XCTAssertEqual(SourceTime.display("2026-02-30T06:46:00Z", utc: true), "Unreadable time")
+    }
 }

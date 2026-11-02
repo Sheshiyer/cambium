@@ -6,7 +6,15 @@ import CambiumCore
 enum SourceTime {
     static func parse(_ iso: String?) -> Date? {
         guard let iso, !iso.isEmpty else { return nil }
-        return CanonicalTimestamp.parse(iso)
+        if let canonical = CanonicalTimestamp.parse(iso) { return canonical }
+        // Catalog provenance may be emitted at whole-second precision. Keep
+        // this display tolerance separate from receipt/expiry validation.
+        guard iso.range(of: #"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"#,
+                        options: .regularExpression) != nil else { return nil }
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        guard let date = formatter.date(from: iso), formatter.string(from: date) == iso else { return nil }
+        return date
     }
 
     static func display(_ iso: String?, utc: Bool) -> String {

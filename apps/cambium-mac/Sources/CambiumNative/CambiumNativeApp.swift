@@ -14,8 +14,9 @@ import SwiftUI
 //   CAMBIUM_NATIVE_SNAPSHOT=<dir>    capture the main window, light and dark, default and minimum
 //                                    size, write PNGs plus snapshot-manifest.json, then quit.
 //                                    Requires CAMBIUM_NATIVE_DEMO=1.
-//   CAMBIUM_NATIVE_SCREEN=<section>  demo mode only: open one AppSection (canopy, work, trace, evidence,
-//                                    proposal, launch, knowledge, connections, preferences) at launch.
+//   CAMBIUM_NATIVE_SCREEN=<section>  demo mode only: open one AppSection (canopy, projects, work,
+//                                    trace, evidence, proposal, launch, knowledge, connections,
+//                                    preferences) at launch.
 //                                    With a snapshot, files are named main-<section>-<size>-<appearance>.png
 //                                    and the manifest records the page. Unset keeps the Canopy capture.
 //   CAMBIUM_NATIVE_EXPECTED_REVISION=<rev>
@@ -241,12 +242,17 @@ enum SnapshotRun {
         }
         let sizes: [(String, CGSize)] = [("default", WindowMetrics.standard), ("minimum", WindowMetrics.minimum)]
         for appearance in ["light", "dark"] {
-            NSApp.appearance = NSAppearance(named: appearance == "light" ? .aqua : .darkAqua)
+            let requestedAppearance = NSAppearance(named: appearance == "light" ? .aqua : .darkAqua)
+            NSApp.appearance = requestedAppearance
             for (label, size) in sizes {
                 guard let window = mainWindow() else {
                     failures.append("\(appearance)-\(label): no main window")
                     continue
                 }
+                // SwiftUI color scheme follows the window's effective appearance.
+                // Changing only NSApp after the window exists can capture dark
+                // pixels under a file labelled light (or the reverse).
+                window.appearance = requestedAppearance
                 window.setContentSize(size)
                 window.center()
                 try? await Task.sleep(for: .seconds(0.8))
