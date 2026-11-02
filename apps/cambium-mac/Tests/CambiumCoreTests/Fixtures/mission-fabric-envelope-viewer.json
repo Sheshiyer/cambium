@@ -1,0 +1,263 @@
+{
+  "projection": {
+    "schema": "cambium.mission-fabric-projection.v1",
+    "projectionVersion": 1,
+    "tenantId": "cambium",
+    "graphVersion": 7,
+    "sourceOfTruth": "d1-goal-graph",
+    "readOnly": true,
+    "nodes": [
+      {
+        "kind": "agent",
+        "value": {
+          "agentId": "agent-cambium",
+          "role": "agent-cambium",
+          "runtime": "other",
+          "status": "available",
+          "activeTaskIds": [
+            "task-fabric-contract"
+          ],
+          "permissionProfile": "",
+          "lastSeenAt": "2026-07-28T09:00:00.000Z",
+          "sourceRef": "quest:agent-cambium"
+        }
+      },
+      {
+        "kind": "receipt",
+        "value": {
+          "receiptId": "receipt-fabric-contract",
+          "runId": "run-fabric-current",
+          "taskId": "task-fabric-contract",
+          "graphVersion": 0,
+          "status": "complete",
+          "inputDigest": "sha256:ee1e5f5f6fe4d7eade5909aa06cc76e1efbc9a3838b68bacb193e8e2d977f7ff",
+          "outputDigest": null,
+          "evidenceRefs": [],
+          "approvalRef": null,
+          "createdAt": "2026-07-28T09:00:00.000Z"
+        }
+      },
+      {
+        "kind": "run",
+        "value": {
+          "runId": "run-fabric-current",
+          "taskId": "task-fabric-contract",
+          "agentId": "agent-cambium",
+          "loadoutId": "loadout-a1",
+          "startedAt": "2026-07-28T09:00:00.000Z",
+          "terminalAt": "2026-07-28T09:05:00.000Z",
+          "status": "complete"
+        }
+      },
+      {
+        "kind": "skill-cluster",
+        "value": {
+          "clusterId": "cluster-fabric",
+          "name": "cluster-fabric",
+          "status": "active",
+          "skillIds": [
+            "contracts"
+          ],
+          "eligibleAgentIds": [
+            "agent-cambium"
+          ],
+          "successRate": null,
+          "sourceRef": "redacted:cluster:cluster-fabric"
+        }
+      },
+      {
+        "kind": "task",
+        "value": {
+          "taskId": "mission-fabric-foundation",
+          "missionId": "",
+          "desiredState": "state:mission-fabric-foundation",
+          "status": "ready",
+          "dependencyIds": [],
+          "assignedAgentId": null,
+          "requiredClusterIds": [],
+          "pinnedLoadoutId": null,
+          "leaseId": null,
+          "proofRequirement": "",
+          "latestReceiptId": null
+        }
+      },
+      {
+        "kind": "task",
+        "value": {
+          "taskId": "task-fabric-contract",
+          "missionId": "mission-fabric-foundation",
+          "desiredState": "state:task-fabric-contract",
+          "status": "ready",
+          "dependencyIds": [],
+          "assignedAgentId": null,
+          "requiredClusterIds": [],
+          "pinnedLoadoutId": null,
+          "leaseId": null,
+          "proofRequirement": "",
+          "latestReceiptId": null
+        }
+      },
+      {
+        "kind": "work",
+        "value": {
+          "kind": "program",
+          "workId": "branch:acme-client",
+          "tenantId": "cambium",
+          "name": "[private client]",
+          "desiredState": "",
+          "currentState": "arc-acme",
+          "status": "active",
+          "ownerId": "founder",
+          "nextAction": null,
+          "proofRequired": true,
+          "reviewAt": null,
+          "sourceRef": "branch-story:branch-acme-client",
+          "sourceDigest": "sha256:ba2ac1adb44a60e4d418815051ca7811d53bdc59d3c7393332510670b06fc405",
+          "programKind": "client",
+          "lifecycle": "executing",
+          "outcomeMetric": ""
+        }
+      },
+      {
+        "kind": "work",
+        "value": {
+          "kind": "program",
+          "workId": "cambium-operating-fabric",
+          "tenantId": "cambium",
+          "name": "Cambium Operating Fabric",
+          "desiredState": "bounded execution paths",
+          "currentState": "executing",
+          "status": "active",
+          "ownerId": "founder",
+          "nextAction": null,
+          "proofRequired": true,
+          "reviewAt": null,
+          "sourceRef": "program:cambium-operating-fabric",
+          "sourceDigest": "sha256:6604d20664cdf632a1523c28088422dc63f2d6a1d0a3ef4d4c145f93ecf73bfe",
+          "programKind": "operations",
+          "lifecycle": "executing",
+          "outcomeMetric": "bounded execution paths"
+        }
+      },
+      {
+        "kind": "work",
+        "value": {
+          "kind": "sapling",
+          "workId": "sapling:cambium",
+          "tenantId": "cambium",
+          "name": "Cambium",
+          "desiredState": "",
+          "currentState": "supervised-branch",
+          "status": "active",
+          "ownerId": "founder",
+          "nextAction": null,
+          "proofRequired": true,
+          "reviewAt": null,
+          "sourceRef": "branch-story:branch-cambium",
+          "sourceDigest": "sha256:f7d3dff14cb85bb57ec53ec49be5342e7bfc3c6c84962056fd8fe6e9e50f3d4a",
+          "branchId": "branch-cambium",
+          "branchKind": "product",
+          "promotionState": "supervised-branch",
+          "currentGate": "gate-mvp",
+          "organRoute": []
+        }
+      }
+    ],
+    "edges": [
+      {
+        "kind": "assigned-to",
+        "fromId": "task-fabric-contract",
+        "toId": "agent-cambium"
+      },
+      {
+        "kind": "executes",
+        "fromId": "agent-cambium",
+        "toId": "run-fabric-current"
+      },
+      {
+        "kind": "produces",
+        "fromId": "run-fabric-current",
+        "toId": "receipt-fabric-contract"
+      },
+      {
+        "kind": "proves",
+        "fromId": "receipt-fabric-contract",
+        "toId": "task-fabric-contract"
+      },
+      {
+        "kind": "requires-cluster",
+        "fromId": "task-fabric-contract",
+        "toId": "cluster-fabric"
+      }
+    ],
+    "gaps": [
+      {
+        "gapId": "gap-foldback-reader",
+        "kind": "accepted-result-unavailable",
+        "subjectId": null,
+        "detail": "Immutable foldback references and the trusted readback consumer are required; no semantic acceptance is inferred.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-goal-work-object-anchor-mission-fabric-foundation",
+        "kind": "missing-work-object-anchor",
+        "subjectId": "mission-fabric-foundation",
+        "detail": "Goal Graph task mission-fabric-foundation has no canonical WorkObject anchor; no contains or loadout edge was emitted.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-goal-work-object-anchor-task-fabric-contract",
+        "kind": "missing-work-object-anchor",
+        "subjectId": "task-fabric-contract",
+        "detail": "Goal Graph task task-fabric-contract has no canonical WorkObject anchor; no contains or loadout edge was emitted.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-task-overlay-reconciled-1",
+        "kind": "task-overlay-reconciled",
+        "subjectId": "task-fabric-contract",
+        "detail": "Task task-fabric-contract was emitted once from Goal Graph authority; its execution-fact copy was treated only as an edge overlay.",
+        "evidenceRef": null
+      }
+    ],
+    "graphDigest": "sha256:2fb3f1b0428b9cd8fcd3c4f0c9a7b03606a4e15076675dad36bcc48e8a78d9f5",
+    "generatedAt": "2026-07-28T09:00:00.000Z",
+    "asOf": "2026-07-28T09:00:00.000Z"
+  },
+  "delivery": {
+    "operatingFabricEnabled": true,
+    "servedAt": "2026-07-28T09:00:00.000Z",
+    "freshness": "fresh",
+    "portfolioPairDigest": "sha256:4f8cb79141592f78452c3258e7a61a5388708b05d885a2c9594f4ff198409e7d"
+  },
+  "portfolioCatalogSummary": {
+    "total": 76,
+    "saplings": 17,
+    "clientBranches": 43,
+    "internalPrograms": 16,
+    "classificationReview": 0,
+    "historicalProducts": 20,
+    "operationalGaps": 49,
+    "schema": "cambium.portfolio-display-catalog.v1",
+    "version": 1,
+    "status": "render-and-proposal-only",
+    "readOnly": true,
+    "classificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "catalogDigest": "sha256:244df7a3e4197f4f252ed021cc9d3b9815a523395ab788bfd5673b4d5d9291e5",
+    "actionClassificationDigest": "43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309",
+    "actionCatalogDigest": "sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c",
+    "actionAdmission": "none"
+  },
+  "organUpdateDeliverySummary": {
+    "schema": "cambium.organ-update-delivery-summary.v1",
+    "version": 1,
+    "readOnly": true,
+    "eventDriven": true,
+    "scheduleArmed": false,
+    "workflowCount": 5,
+    "defaultTopicCount": 5,
+    "escalationTopicCount": 1,
+    "approvalRequiredWorkflowCount": 1,
+    "planDigest": "sha256:4d6a7a1cfab84d8c00100194cff187a63e5fba8a94b04c3a9af46ef65aadb981"
+  }
+}
