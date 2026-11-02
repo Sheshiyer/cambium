@@ -633,3 +633,137 @@ test('non-canonical contract values and wrong methods on session routes return b
   assert.equal(await nativeSessionHttp(new Request(`${ORIGIN}/v1/other`), h.host), null);
   assert.equal(NATIVE_CODE_PREFIX !== NATIVE_TOKEN_PREFIX, true);
 });
+
+
+// ── Post-await expiry barriers: the clock moves after the store call returns ─
+
+const at = (iso: string, ms: number) => new Date(Date.parse(iso) + ms).toISOString();
+
+test('final session read that returns after expiry is refused', async () => {
+  const h = await harness();
+  const session = await sessionFor(h);
+  let reads = 0;
+  const real = h.deps.store;
+  const host = createNativeSessionHost({ ...h.deps, store: {
+    ...real,
+    async readSession(digest, now) {
+      const row = await real.readSession(digest, now);
+      if (++reads === 2) h.clock.now = session.expiresAt; // expires while the final read awaits
+      return row;
+    },
+  } })!;
+  assert.equal((await errorOf(await sessionRead(host, session.token))).status, 401);
+  assert.equal(reads, 2);
+});
+
+test('final session read that returns before expiry is still accepted', async () => {
+  const h = await harness();
+  const session = await sessionFor(h);
+  h.clock.now = at(session.expiresAt, -1);
+  assert.equal((await sessionRead(h.host, session.token))!.status, 200);
+});
+
+test('bad clock after the final session read refuses categorically', async () => {
+  const h = await harness();
+  const session = await sessionFor(h);
+  const real = h.deps.store;
+  let reads = 0;
+  const host = createNativeSessionHost({ ...h.deps, store: {
+    ...real,
+    async readSession(digest, now) {
+      const row = await real.readSession(digest, now);
+      if (++reads === 2) h.clock.now = 'not-a-date';
+      return row;
+    },
+  } })!;
+  const body = await errorOf(await sessionRead(host, session.token));
+  assert.equal(body.status, 503);
+  assert.equal(body.body.error, 'native_session_unavailable');
+  assert.equal(reads, 2);
+});
+
+test('code that expires while the second peek awaits is not granted', async () => {
+  const h = await harness();
+  const code = await codeOf(await authorize(h.host));
+  const real = h.deps.store;
+  let peeks = 0;
+  let grants = 0;
+  const host = createNativeSessionHost({ ...h.deps, store: {
+    ...real,
+    async peekCode(match) {
+      const row = await real.peekCode(match);
+      if (++peeks === 2) h.clock.now = at(NOW, NATIVE_CODE_TTL_MS);
+      return row;
+    },
+    async grant(input) { grants += 1; return real.grant(input); },
+  } })!;
+  assert.equal((await errorOf(await exchange(host, exchangeBody(code)))).body.error, 'invalid_grant');
+  assert.equal(grants, 0);
+  assert.equal(sessionCount(h), 0);
+});
+
+test('grant timestamp and session lifetime use the clock read after the second peek', async () => {
+  const h = await harness();
+  const code = await codeOf(await authorize(h.host));
+  const real = h.deps.store;
+  const later = at(NOW, 5_000);
+  let seen: { now: string; expiresAt: string } | undefined;
+  let peeks = 0;
+  const host = createNativeSessionHost({ ...h.deps, store: {
+    ...real,
+    async peekCode(match) {
+      const row = await real.peekCode(match);
+      if (++peeks === 2) h.clock.now = later; // advances while the second peek awaits
+      return row;
+    },
+    async grant(input) { seen = { now: input.now, expiresAt: input.expiresAt }; return real.grant(input); },
+  } })!;
+  const response = await exchange(host, exchangeBody(code));
+  assert.equal(response!.status, 200);
+  assert.deepEqual(seen, { now: later, expiresAt: at(later, NATIVE_SESSION_TTL_MS) });
+});
+
+test('session that lapses while grant awaits returns categorical restart and no token', async () => {
+  const h = await harness();
+  const code = await codeOf(await authorize(h.host));
+  const real = h.deps.store;
+  let grants = 0;
+  const host = createNativeSessionHost({ ...h.deps, store: {
+    ...real,
+    async grant(input) {
+      grants += 1;
+      const ok = await real.grant(input);
+      h.clock.now = input.expiresAt; // session lifetime elapsed during the grant await
+      return ok;
+    },
+  } })!;
+  const response = await exchange(host, exchangeBody(code));
+  const text = await response!.text();
+  assert.equal(response!.status, 503);
+  assert.equal(text.includes('cns1_'), false);
+  assert.deepEqual(JSON.parse(text), { contractVersion: NATIVE_SESSION_CONTRACT, error: 'native_session_unavailable', retry: 'restart_authorization' });
+  assert.equal(grants, 1);
+  // The code is spent; a resend mints no second session.
+  assert.equal((await errorOf(await exchange(h.host, exchangeBody(code)))).body.error, 'invalid_grant');
+  assert.equal(sessionCount(h), 1);
+});
+
+test('invalid clock after the grant await returns categorical unavailable and no token', async () => {
+  const h = await harness();
+  const code = await codeOf(await authorize(h.host));
+  const real = h.deps.store;
+  const host = createNativeSessionHost({ ...h.deps, store: {
+    ...real,
+    async grant(input) {
+      const ok = await real.grant(input);
+      h.clock.now = 'not-a-date';
+      return ok;
+    },
+  } })!;
+  const response = await exchange(host, exchangeBody(code));
+  const text = await response!.text();
+  assert.equal(response!.status, 503);
+  assert.equal(text.includes('cns1_'), false);
+  assert.equal(JSON.parse(text).error, 'native_session_unavailable');
+  assert.equal(sessionCount(h), 1);
+});
