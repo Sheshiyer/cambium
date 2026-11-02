@@ -63,10 +63,11 @@ cp "$bin" "$app/Contents/MacOS/$product"
 sed -e "s/__BUILD__/$(date -u +%Y%m%d%H%M)/" "$here/Info.plist.in" > "$app/Contents/Info.plist"
 plutil -lint -s "$app/Contents/Info.plist"
 
-# SwiftPM resource bundles (Bundle.module) live in Contents/Resources.
-for res in "$bin_dir"/*.bundle(N); do
-  cp -R "$res" "$app/Contents/Resources/"
-done
+# Only the executable target's declared resource bundle ships. A previous test
+# run may leave test bundles beside it; those are not application resources.
+resource_bundle="$bin_dir/CambiumNative_CambiumNative.bundle"
+[[ -d "$resource_bundle" ]] || { echo "build failed: application resources missing" >&2; exit 1; }
+cp -R "$resource_bundle" "$app/Contents/Resources/"
 
 # Build proof (tools/build-proof.py): source revision, dirty state and input hashes,
 # written before codesign so the signature covers it. It never holds the signed

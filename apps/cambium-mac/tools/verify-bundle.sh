@@ -11,6 +11,12 @@ app="$here/../build/Cambium Native.app"
 echo "verify-bundle: checking structure..."
 [[ -f "$app/Contents/Info.plist" ]]
 [[ -x "$app/Contents/MacOS/CambiumNative" ]]
+[[ -d "$app/Contents/Resources/CambiumNative_CambiumNative.bundle" ]]
+for resource in "$app/Contents/Resources"/*.bundle(N); do
+  [[ "${resource:t}" == "CambiumNative_CambiumNative.bundle" ]] || {
+    echo "verify-bundle: unexpected resource bundle ${resource:t}" >&2; exit 1;
+  }
+done
 
 echo "verify-bundle: checking Info.plist bundle identifier..."
 id=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$app/Contents/Info.plist")
