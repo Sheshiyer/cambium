@@ -253,6 +253,8 @@ enum SnapshotRun {
                 // Changing only NSApp after the window exists can capture dark
                 // pixels under a file labelled light (or the reverse).
                 window.appearance = requestedAppearance
+                window.contentView?.appearance = requestedAppearance
+                window.contentView?.needsDisplay = true
                 window.setContentSize(size)
                 window.center()
                 try? await Task.sleep(for: .seconds(0.8))

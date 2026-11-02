@@ -77,31 +77,36 @@ struct ProjectsView: View {
     }
 
     private func summary(_ portfolio: MappedPortfolio) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionHeader(title: "Source classification", detail: "\(portfolio.summary.total) current records")
+        VStack(alignment: .leading, spacing: 8) {
+            SectionHeader(title: "Source classification",
+                          detail: "\(portfolio.summary.total) current · \(portfolio.summary.historicalProducts) historical")
             HStack(spacing: 8) {
                 StatusChip(text: "\(portfolio.summary.saplings) saplings", tone: .evidence)
                 StatusChip(text: "\(portfolio.summary.clientBranches) client branches", tone: .rail)
                 StatusChip(text: "\(portfolio.summary.internalPrograms) internal programs", tone: .signal)
             }
-            HStack(spacing: 8) {
-                StatusChip(text: "\(portfolio.summary.historicalProducts) historical products", tone: .muted)
-                if portfolio.summary.classificationReview > 0 {
-                    StatusChip(text: "\(portfolio.summary.classificationReview) classification reviews", tone: .hold)
+            HStack(spacing: 14) {
+                Text("Read only · no action admission")
+                if let generated = portfolio.sourceGeneratedAt {
+                    Text("Source \(model.time(generated))")
                 }
             }
-            Text("Read only · \(portfolio.summary.status) · action admission: \(portfolio.summary.actionAdmission). Classification and tenant labels are source observations.")
-                .font(.callout)
-                .foregroundStyle(Palette.inkMuted)
-                .fixedSize(horizontal: false, vertical: true)
-            FactRow(label: "Source generated", value: portfolio.sourceGeneratedAt.map(model.time))
-            if let join = portfolio.joinReport {
-                Text("\(join.matchedCount) explicit runtime join\(join.matchedCount == 1 ? "" : "s") · \(join.catalogOrphanCount) catalog records without a runtime join · \(join.runtimeOrphanCount) runtime work records without a catalog join")
-                    .font(.callout)
-                    .foregroundStyle(Palette.inkMuted)
-            }
-            DisclosureGroup("Source dates and digests") {
+            .font(.caption)
+            .foregroundStyle(Palette.inkMuted)
+            DisclosureGroup("Source authority, joins and digests") {
                 VStack(alignment: .leading, spacing: 8) {
+                    Text("\(portfolio.summary.status) · action admission: \(portfolio.summary.actionAdmission). Classification and tenant labels are source observations.")
+                        .font(.callout)
+                        .foregroundStyle(Palette.inkMuted)
+                    if portfolio.summary.classificationReview > 0 {
+                        StatusChip(text: "\(portfolio.summary.classificationReview) classification reviews", tone: .hold)
+                    }
+                    if let join = portfolio.joinReport {
+                        Text("\(join.matchedCount) explicit runtime join\(join.matchedCount == 1 ? "" : "s") · \(join.catalogOrphanCount) catalog records without a runtime join · \(join.runtimeOrphanCount) runtime work records without a catalog join")
+                            .font(.callout)
+                            .foregroundStyle(Palette.inkMuted)
+                    }
+                    FactRow(label: "Source generated", value: portfolio.sourceGeneratedAt.map(model.time))
                     FactRow(label: "Graph as of", value: model.time(portfolio.asOf))
                     FactRow(label: "Served", value: model.time(portfolio.servedAt))
                     FactRow(label: "Display digest", value: portfolio.summary.catalogDigest, mono: true)
