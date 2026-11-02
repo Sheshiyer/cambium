@@ -1,0 +1,72 @@
+{
+  "note": "canonicalizeGraphContent()/projectionDigest() from workers/quests/src/mission-fabric.ts",
+  "vectors": [
+    {
+      "name": "integers",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"n\":[0,1,-1,7,9007199254740991,9007199254740993,-9007199254740993]}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"n\":[0,1,-1,7,9007199254740991,9007199254740992,-9007199254740992]}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:ddb934db52377ce495a37f9d6960aba35cadc062d4c3c27d2ad2ff272a3774b9"
+    },
+    {
+      "name": "negative-zero",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"n\":-0,\"m\":-0.0}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"m\":0,\"n\":0}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:01d32c29150135df7ee02c3931664febcb791bcf136eca5f3cb8f3212c93d55a"
+    },
+    {
+      "name": "fractions",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"n\":[1.5,0.1,0.2,-2.25,1.0,100.0,3.141592653589793]}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"n\":[1.5,0.1,0.2,-2.25,1,100,3.141592653589793]}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:d02f0d6b005604eddd045a13886839ade0363cb004cd78bed6bf69c10d22ab23"
+    },
+    {
+      "name": "exponent-thresholds",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"n\":[1e20,1e21,123456789012345680000,1e-6,1e-7,0.000001,0.0000001,1.5e-10,2e300,5e-324,1.7976931348623157e308]}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"n\":[100000000000000000000,1e+21,123456789012345680000,0.000001,1e-7,0.000001,1e-7,1.5e-10,2e+300,5e-324,1.7976931348623157e+308]}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:1bde06e6888cf6da8bda4b8adbd81320b80b8b8498fdcafb500c02126c1b8334"
+    },
+    {
+      "name": "large-integer-forms",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"n\":[1e15,1e16,12345678901234567890,4294967296,1E3]}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"n\":[1000000000000000,10000000000000000,12345678901234567000,4294967296,1000]}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:b4a28b43cde01746f0f278c46b1ba83047a8d6ade18039c33dc9dcfc3d57f919"
+    },
+    {
+      "name": "booleans-null",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"t\":true,\"f\":false,\"z\":null,\"a\":[true,false,null,0,1]}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"a\":[true,false,null,0,1],\"f\":false,\"t\":true,\"z\":null}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:8ee1b3e7aed37c2e98030d3a3a9488d2740cb8bea90b181f6129fb8f2e8e78c6"
+    },
+    {
+      "name": "string-escapes",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"s\":\"q\\\"b\\\\s/\\b\\f\\n\\r\\t\\u0000\\u001f\\u007f\"}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"s\":\"q\\\"b\\\\s/\\b\\f\\n\\r\\t\\u0000\\u001f\"}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:210a2647ff7d541b9bd7568c8091b1af419e3f7280ed300adfdae10335b41a22"
+    },
+    {
+      "name": "unicode-text",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"s\":[\"é\",\"e\\u0301\",\"\\u2028\\u2029\",\"😀\",\"\\ud83d\\ude00\",\"ſ\",\"İ\"]}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"s\":[\"é\",\"é\",\"  \",\"😀\",\"😀\",\"ſ\",\"İ\"]}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:32646a67a9bccc195ab2d576bb7ea202e85d52511f233bbf32cc3826d5b9343a"
+    },
+    {
+      "name": "utf16-key-order",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"\\uFFFD\":1,\"😀\":2,\"z\":3,\"Z\":4,\"é\":5,\"ﬁ\":6,\"a\":7}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"Z\":4,\"a\":7,\"z\":3,\"é\":5,\"😀\":2,\"ﬁ\":6,\"�\":1}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:933ddcb1f3ec9a1aed8a523a23a1f958539d6de9d7a86b3c99c47a3baa49e1b6"
+    },
+    {
+      "name": "nested-sort",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"b\":{\"y\":1,\"x\":[{\"k2\":1,\"k1\":2}]},\"a\":[]}],\"edges\":[],\"gaps\":[]}",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"a\":[],\"b\":{\"x\":[{\"k1\":2,\"k2\":1}],\"y\":1}}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:f0a2dce016b9196e8ea1b5d08dd936d795181fae29bc01045560d9db598e5cfb"
+    },
+    {
+      "name": "canonically-equivalent-keys",
+      "json": "{\"projectionVersion\":1,\"tenantId\":\"t\",\"graphVersion\":1,\"sourceOfTruth\":\"d1-goal-graph\",\"readOnly\":true,\"nodes\":[{\"é\":1,\"e\\u0301\":2}],\"edges\":[],\"gaps\":[]}",
+      "swiftRejects": "Swift String keys are canonically equivalent, so the decoder fails closed on this object.",
+      "canonical": "{\"edges\":[],\"gaps\":[],\"graphVersion\":1,\"nodes\":[{\"é\":2,\"é\":1}],\"projectionVersion\":1,\"readOnly\":true,\"sourceOfTruth\":\"d1-goal-graph\",\"tenantId\":\"t\"}",
+      "digest": "sha256:9f10bfe34715412f53da8589c04f9df13eeb5173baf4c998fcceebf5661f86a9"
+    }
+  ]
+}

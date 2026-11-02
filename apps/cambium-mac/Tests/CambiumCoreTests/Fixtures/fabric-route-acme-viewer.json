@@ -1,0 +1,240 @@
+{
+  "projection": {
+    "schema": "cambium.mission-fabric-projection.v1",
+    "projectionVersion": 1,
+    "tenantId": "acme",
+    "graphVersion": 7,
+    "sourceOfTruth": "d1-goal-graph",
+    "readOnly": true,
+    "nodes": [
+      {
+        "kind": "agent",
+        "value": {
+          "agentId": "agent-cambium",
+          "role": "agent-cambium",
+          "runtime": "other",
+          "status": "available",
+          "activeTaskIds": [
+            "task-fabric-contract"
+          ],
+          "permissionProfile": "",
+          "lastSeenAt": "2026-07-28T09:00:00.000Z",
+          "sourceRef": "quest:agent-cambium"
+        }
+      },
+      {
+        "kind": "receipt",
+        "value": {
+          "receiptId": "receipt-fabric-contract",
+          "runId": "run-fabric-current",
+          "taskId": "task-fabric-contract",
+          "graphVersion": 0,
+          "status": "complete",
+          "inputDigest": "sha256:ee1e5f5f6fe4d7eade5909aa06cc76e1efbc9a3838b68bacb193e8e2d977f7ff",
+          "outputDigest": null,
+          "evidenceRefs": [],
+          "approvalRef": null,
+          "createdAt": "2026-07-28T09:00:00.000Z"
+        }
+      },
+      {
+        "kind": "run",
+        "value": {
+          "runId": "run-fabric-current",
+          "taskId": "task-fabric-contract",
+          "agentId": "agent-cambium",
+          "loadoutId": "loadout-a1",
+          "startedAt": "2026-07-28T09:00:00.000Z",
+          "terminalAt": "2026-07-28T09:05:00.000Z",
+          "status": "complete"
+        }
+      },
+      {
+        "kind": "run",
+        "value": {
+          "runId": "run-fabric-orphan",
+          "taskId": "task-fabric-contract",
+          "agentId": "agent-ghost",
+          "loadoutId": "loadout-a1",
+          "startedAt": "2026-07-28T09:00:00.000Z",
+          "terminalAt": null,
+          "status": "reconciliation-required"
+        }
+      },
+      {
+        "kind": "skill-cluster",
+        "value": {
+          "clusterId": "cluster-fabric",
+          "name": "cluster-fabric",
+          "status": "active",
+          "skillIds": [
+            "contracts"
+          ],
+          "eligibleAgentIds": [
+            "agent-cambium"
+          ],
+          "successRate": null,
+          "sourceRef": "redacted:cluster:cluster-fabric"
+        }
+      },
+      {
+        "kind": "task",
+        "value": {
+          "taskId": "mission-fabric-foundation",
+          "missionId": "",
+          "desiredState": "state:mission-fabric-foundation",
+          "status": "ready",
+          "dependencyIds": [],
+          "assignedAgentId": null,
+          "requiredClusterIds": [],
+          "pinnedLoadoutId": null,
+          "leaseId": null,
+          "proofRequirement": "",
+          "latestReceiptId": null
+        }
+      },
+      {
+        "kind": "task",
+        "value": {
+          "taskId": "task-fabric-contract",
+          "missionId": "mission-fabric-foundation",
+          "desiredState": "state:task-fabric-contract",
+          "status": "ready",
+          "dependencyIds": [],
+          "assignedAgentId": null,
+          "requiredClusterIds": [],
+          "pinnedLoadoutId": null,
+          "leaseId": null,
+          "proofRequirement": "",
+          "latestReceiptId": null
+        }
+      },
+      {
+        "kind": "work",
+        "value": {
+          "kind": "program",
+          "workId": "branch:acme-client",
+          "tenantId": "acme",
+          "name": "[private client]",
+          "desiredState": "",
+          "currentState": "arc-acme",
+          "status": "active",
+          "ownerId": "founder",
+          "nextAction": null,
+          "proofRequired": true,
+          "reviewAt": null,
+          "sourceRef": "branch-story:branch-acme-client",
+          "sourceDigest": "sha256:ba2ac1adb44a60e4d418815051ca7811d53bdc59d3c7393332510670b06fc405",
+          "programKind": "client",
+          "lifecycle": "executing",
+          "outcomeMetric": ""
+        }
+      },
+      {
+        "kind": "work",
+        "value": {
+          "kind": "sapling",
+          "workId": "sapling:acme",
+          "tenantId": "acme",
+          "name": "acme",
+          "desiredState": "",
+          "currentState": "proof-only",
+          "status": "active",
+          "ownerId": "founder",
+          "nextAction": null,
+          "proofRequired": true,
+          "reviewAt": null,
+          "sourceRef": "branch-story:branch-acme",
+          "sourceDigest": "sha256:72067a9103c443bdca373df5af876af5f0686e418600a9eb0a27888689ece8b6",
+          "branchId": "branch-acme",
+          "branchKind": "product",
+          "promotionState": "proof-only",
+          "currentGate": "gate-mvp",
+          "organRoute": [
+            "genesis",
+            "hands"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "kind": "assigned-to",
+        "fromId": "task-fabric-contract",
+        "toId": "agent-cambium"
+      },
+      {
+        "kind": "executes",
+        "fromId": "agent-cambium",
+        "toId": "run-fabric-current"
+      },
+      {
+        "kind": "produces",
+        "fromId": "run-fabric-current",
+        "toId": "receipt-fabric-contract"
+      },
+      {
+        "kind": "proves",
+        "fromId": "receipt-fabric-contract",
+        "toId": "task-fabric-contract"
+      },
+      {
+        "kind": "requires-cluster",
+        "fromId": "task-fabric-contract",
+        "toId": "cluster-fabric"
+      }
+    ],
+    "gaps": [
+      {
+        "gapId": "gap-branch-work-identity-branch-missing-identity",
+        "kind": "missing-work-identity",
+        "subjectId": "branch-missing-identity",
+        "detail": "Branch story branch-missing-identity has no exact canonical work identity for branch kind product; it was not adapted into a WorkObject.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-executes-join-run-fabric-orphan",
+        "kind": "missing-join",
+        "subjectId": "run-fabric-orphan",
+        "detail": "Run run-fabric-orphan names executor agent agent-ghost, but no explicit agent node exists; the executes edge was not emitted.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-foldback-reader",
+        "kind": "accepted-result-unavailable",
+        "subjectId": null,
+        "detail": "Immutable foldback references and the trusted readback consumer are required; no semantic acceptance is inferred.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-goal-work-object-anchor-mission-fabric-foundation",
+        "kind": "missing-work-object-anchor",
+        "subjectId": "mission-fabric-foundation",
+        "detail": "Goal Graph task mission-fabric-foundation has no canonical WorkObject anchor; no contains or loadout edge was emitted.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-goal-work-object-anchor-task-fabric-contract",
+        "kind": "missing-work-object-anchor",
+        "subjectId": "task-fabric-contract",
+        "detail": "Goal Graph task task-fabric-contract has no canonical WorkObject anchor; no contains or loadout edge was emitted.",
+        "evidenceRef": null
+      },
+      {
+        "gapId": "gap-task-overlay-reconciled-1",
+        "kind": "task-overlay-reconciled",
+        "subjectId": "task-fabric-contract",
+        "detail": "Task task-fabric-contract was emitted once from Goal Graph authority; its execution-fact copy was treated only as an edge overlay.",
+        "evidenceRef": null
+      }
+    ],
+    "graphDigest": "sha256:da5059a71468cd01cc93a1a78211ded4dc6baa712e1023184e4b922b6bd60f27",
+    "generatedAt": "2026-07-28T09:00:00.000Z",
+    "asOf": "2026-07-27T09:00:00.000Z"
+  },
+  "delivery": {
+    "operatingFabricEnabled": true,
+    "servedAt": "2026-07-28T09:00:00.000Z",
+    "freshness": "fresh"
+  }
+}

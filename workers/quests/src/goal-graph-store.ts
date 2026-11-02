@@ -47,7 +47,7 @@ export interface GoalGraphApproval {
   /** Optional caller-supplied canonical bytes. They must match our bytes. */
   canonical?: string;
   decidedAt?: string;
-  channel?: 'plugin' | 'curious' | 'telegram';
+  channel?: 'plugin' | 'curious' | 'telegram' | 'native';
   /** Compatibility aliases used by older adapter envelopes. */
   tenant_id?: string;
   change_digest?: string;
@@ -109,7 +109,7 @@ export interface GoalGraphRejectionInput {
   changeDigest: string;
   intentVersion: number;
   rejectorId: string;
-  channel?: 'plugin' | 'curious' | 'telegram';
+  channel?: 'plugin' | 'curious' | 'telegram' | 'native';
   expiresAt: string;
   nonce: string;
   now?: string;

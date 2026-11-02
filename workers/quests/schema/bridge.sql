@@ -772,3 +772,175 @@ CREATE INDEX IF NOT EXISTS website_intake_leads_expiry_idx
 
 CREATE INDEX IF NOT EXISTS website_intake_leads_created_idx
   ON website_intake_leads (created_at DESC);
+
+-- Native-founder launch owner contract (cambium.native-launch.v1).
+-- Additive only. D1 is the sole request authority; there is no KV shadow.
+--
+-- native_launch_admissions holds server-owned admission pins. This migration
+-- installs no writer: rows come only from a separate owner-reviewed admission
+-- path. Without rows every capability reads `unavailable`.
+--
+-- native_launch_requests holds one durable reservation per scoped requestId.
+-- The adapter reserves with ONE conditional INSERT ... SELECT that joins the
+-- current active, unexpired admission and the current tenant Goal Graph head
+-- (compare-and-swap on current admission). The unique indexes below make
+-- concurrent reservations collision-safe: one admission backs at most one
+-- request, and requestId / attemptId / idempotencyNonce cannot be reused within
+-- a principal scope. Requires goal_graph_heads from 0007_goal_graph.sql.
+
+CREATE TABLE IF NOT EXISTS native_launch_admissions (
+  tenant_id TEXT NOT NULL,
+  admission_ref TEXT NOT NULL,
+  principal_id TEXT NOT NULL,
+  work_id TEXT NOT NULL,
+  graph_version INTEGER NOT NULL CHECK (graph_version >= 1),
+  loadout_id TEXT NOT NULL,
+  input_digest TEXT NOT NULL CHECK (input_digest GLOB 'sha256:*' AND length(input_digest) = 71),
+  execution_plant TEXT NOT NULL CHECK (execution_plant IN ('temperance-hands', 'hermes-remote')),
+  supported_action TEXT NOT NULL CHECK (supported_action IN ('launch')),
+  expires_at TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('active', 'revoked')),
+  recorded_at TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, admission_ref)
+);
+
+-- Pins are immutable once recorded; the only permitted change is revocation.
+CREATE TRIGGER IF NOT EXISTS native_launch_admissions_pins_immutable
+BEFORE UPDATE OF tenant_id, admission_ref, principal_id, work_id, graph_version, loadout_id,
+  input_digest, execution_plant, supported_action, expires_at, recorded_at
+ON native_launch_admissions
+BEGIN
+  SELECT RAISE(ABORT, 'native launch admission pins are immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS native_launch_admissions_revoke_only
+BEFORE UPDATE OF status ON native_launch_admissions
+WHEN NOT (OLD.status = 'active' AND NEW.status = 'revoked')
+BEGIN
+  SELECT RAISE(ABORT, 'native launch admission may only be revoked');
+END;
+
+CREATE TABLE IF NOT EXISTS native_launch_requests (
+  request_key TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  principal_id TEXT NOT NULL,
+  request_id TEXT NOT NULL,
+  attempt_id TEXT NOT NULL,
+  idempotency_nonce TEXT NOT NULL,
+  request_digest TEXT NOT NULL,
+  work_id TEXT NOT NULL,
+  admission_ref TEXT NOT NULL,
+  graph_version INTEGER NOT NULL,
+  loadout_id TEXT NOT NULL,
+  input_digest TEXT NOT NULL,
+  execution_plant TEXT NOT NULL CHECK (execution_plant IN ('temperance-hands', 'hermes-remote')),
+  supported_action TEXT NOT NULL CHECK (supported_action IN ('launch')),
+  expires_at TEXT NOT NULL,
+  dispatch TEXT NOT NULL CHECK (dispatch IN ('reserved', 'owner_answered', 'owner_unknown')),
+  execution TEXT NOT NULL CHECK (execution IN
+    ('unknown', 'accepted', 'queued', 'running', 'succeeded', 'failed', 'refused', 'busy')),
+  owner_ref TEXT,
+  reserved_at TEXT NOT NULL,
+  observed_at TEXT,
+  FOREIGN KEY (tenant_id, admission_ref) REFERENCES native_launch_admissions (tenant_id, admission_ref)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS native_launch_requests_request_unique
+ON native_launch_requests (tenant_id, principal_id, request_id);
+CREATE UNIQUE INDEX IF NOT EXISTS native_launch_requests_attempt_unique
+ON native_launch_requests (tenant_id, principal_id, attempt_id);
+CREATE UNIQUE INDEX IF NOT EXISTS native_launch_requests_nonce_unique
+ON native_launch_requests (tenant_id, principal_id, idempotency_nonce);
+CREATE UNIQUE INDEX IF NOT EXISTS native_launch_requests_admission_unique
+ON native_launch_requests (tenant_id, admission_ref);
+
+-- Identity, pins and reservation time never change after reservation.
+CREATE TRIGGER IF NOT EXISTS native_launch_requests_identity_immutable
+BEFORE UPDATE OF request_key, tenant_id, principal_id, request_id, attempt_id, idempotency_nonce,
+  request_digest, work_id, admission_ref, graph_version, loadout_id, input_digest,
+  execution_plant, supported_action, expires_at, reserved_at
+ON native_launch_requests
+BEGIN
+  SELECT RAISE(ABORT, 'native launch request identity is immutable');
+END;
+
+-- Terminal execution observations are sticky.
+CREATE TRIGGER IF NOT EXISTS native_launch_requests_terminal_sticky
+BEFORE UPDATE OF execution ON native_launch_requests
+WHEN OLD.execution IN ('succeeded', 'failed', 'refused', 'busy') AND NEW.execution <> OLD.execution
+BEGIN
+  SELECT RAISE(ABORT, 'native launch terminal execution is final');
+END;
+
+-- Durable rows are recovery evidence; retention needs a separate reviewed migration.
+CREATE TRIGGER IF NOT EXISTS native_launch_requests_no_delete
+BEFORE DELETE ON native_launch_requests
+BEGIN
+  SELECT RAISE(ABORT, 'native launch requests are retained');
+END;
+
+-- Native founder session transfer (cambium.native-session.v1).
+-- Additive only. Stores SHA-256 digests of authorization codes and session
+-- tokens. No plaintext credential columns. No scheduler is installed here.
+--
+-- Exchange is ONE conditional INSERT ... SELECT. The WHERE clause matches the
+-- code digest, client, exact redirect, computed S256 challenge, and unexpired
+-- code that has no session yet. The unique index on authorization_code_id makes a code issue at
+-- most one session even when two exchanges run together. Equality in SQL is
+-- not a cryptographic constant-time compare.
+
+CREATE TABLE IF NOT EXISTS native_authorization_codes (
+  code_digest TEXT PRIMARY KEY CHECK (length(code_digest) = 64 AND code_digest NOT GLOB '*[^0-9a-f]*'),
+  client_id TEXT NOT NULL,
+  redirect_uri TEXT NOT NULL,
+  code_challenge TEXT NOT NULL CHECK (length(code_challenge) = 43),
+  founder_id TEXT NOT NULL,
+  tenant_id TEXT NOT NULL,
+  issued_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS native_sessions (
+  token_digest TEXT PRIMARY KEY CHECK (length(token_digest) = 64 AND token_digest NOT GLOB '*[^0-9a-f]*'),
+  authorization_code_id TEXT NOT NULL UNIQUE REFERENCES native_authorization_codes (code_digest),
+  client_id TEXT NOT NULL,
+  founder_id TEXT NOT NULL,
+  tenant_id TEXT NOT NULL,
+  issued_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  revoked_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS native_sessions_founder_idx
+  ON native_sessions (founder_id, tenant_id, client_id);
+
+-- Explicit browser consent for native founder authorization (cambium.native-session.v1).
+-- Additive only. Stores SHA-256 digests of the one-time consent intent and its
+-- CSRF token. No plaintext intent, CSRF, code, or token columns. No scheduler
+-- is installed here.
+--
+-- Consent is ONE conditional UPDATE. The WHERE clause matches the intent
+-- digest, CSRF digest, founder, and the exact digest of the authorize inputs,
+-- and only while consumed_at IS NULL and expires_at is still in the future.
+-- changes = 1 is the only success. A replay, a different founder, a changed
+-- challenge, client, tenant, redirect, or state, or an expired intent updates
+-- zero rows and mints no authorization code. Equality in SQL is not a
+-- cryptographic constant-time compare.
+
+CREATE TABLE IF NOT EXISTS native_consent_intents (
+  intent_digest TEXT PRIMARY KEY CHECK (length(intent_digest) = 64 AND intent_digest NOT GLOB '*[^0-9a-f]*'),
+  csrf_digest TEXT NOT NULL CHECK (length(csrf_digest) = 64 AND csrf_digest NOT GLOB '*[^0-9a-f]*'),
+  request_digest TEXT NOT NULL CHECK (length(request_digest) = 64 AND request_digest NOT GLOB '*[^0-9a-f]*'),
+  founder_id TEXT NOT NULL,
+  client_id TEXT NOT NULL,
+  redirect_uri TEXT NOT NULL,
+  code_challenge TEXT NOT NULL CHECK (length(code_challenge) = 43),
+  state TEXT NOT NULL,
+  tenant_id TEXT NOT NULL,
+  issued_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  consumed_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS native_consent_intents_founder_idx
+  ON native_consent_intents (founder_id, expires_at);

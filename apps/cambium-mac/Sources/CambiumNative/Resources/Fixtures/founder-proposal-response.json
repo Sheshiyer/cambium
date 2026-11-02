@@ -1,0 +1,53 @@
+{
+  "status": 200,
+  "body": {
+    "status": "review",
+    "proposal": {
+      "proposalId": "cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847",
+      "tenantId": "cambium",
+      "version": 1,
+      "changeDigest": "sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847",
+      "nonce": "nonce-1",
+      "expiresAt": "2026-07-28T10:00:00.000Z",
+      "summary": "Add task-new Consequence: Creates one node Reversibility: Rejectable before commit",
+      "review": {
+        "status": "pending",
+        "summary": "Add task-new",
+        "consequence": "Creates one node",
+        "reversibility": "Rejectable before commit",
+        "founderInspect": {
+          "consistent": true,
+          "head": {
+            "version": 7
+          },
+          "note": "path a/b   ✓"
+        },
+        "fence": 8,
+        "expectedHeadVersion": 7,
+        "approvalNonce": "nonce-1",
+        "approvalExpiresAt": "2026-07-28T10:00:00.000Z",
+        "changeSet": {
+          "tenantId": "cambium",
+          "expectedHeadDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "graphVersion": 8,
+          "nodesToCreate": [
+            {
+              "nodeId": "gg-new",
+              "externalId": "task-new/ünï",
+              "desiredState": "ship \"it\""
+            }
+          ],
+          "nodesToUpdate": [],
+          "nodesToRemove": [],
+          "sourceRef": "telegram:intake/1",
+          "sourceDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "changeDigest": "sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847",
+          "isNoop": false
+        }
+      }
+    },
+    "approveConfirmation": "approved proposal cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 version 1 digest sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 expires 2026-07-28T10:00:00.000Z: Add task-new Consequence: Creates one node Reversibility: Rejectable before commit review sha256:c9899a514b8976043a29cd2c90207861be8c57909cf46473e31c48e4f724bedd",
+    "rejectConfirmation": "rejected proposal cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 version 1 digest sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 expires 2026-07-28T10:00:00.000Z: Add task-new Consequence: Creates one node Reversibility: Rejectable before commit review sha256:c9899a514b8976043a29cd2c90207861be8c57909cf46473e31c48e4f724bedd",
+    "writerAuthority": false
+  }
+}
