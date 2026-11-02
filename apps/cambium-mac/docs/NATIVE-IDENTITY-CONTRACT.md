@@ -170,9 +170,9 @@ during that wait is refused.
 valid:
 
 - `verifyBrowserFounder(request)`: the existing Access/Plexus founder verifier for browser navigation.
-- `currentRole(founderId)` and `enrolledTenants(founderId)`: owner-backed lookups for the current role and explicit enrollment.
+- `resolveFounderAccess(founderId)`: one owner-backed role + explicit-enrollment snapshot for each sensitive transition. The legacy `currentRole` / `enrolledTenants` callbacks remain only as compatibility seams.
 - `clients`: the reviewed client registry.
-- `store`: `d1NativeSessionStore(env.DB)`, after the 0100 migration has been reviewed and applied.
+- `store`: `d1NativeSessionStore(env.BRIDGE_DB)`, after the 0100 migration has been reviewed and applied.
 - `now()`, which must return canonical ISO `…sss Z`, and `randomBytes`, for example `standardNativeRandom`.
 - `ownerOrigin`: the exact HTTPS origin.
 

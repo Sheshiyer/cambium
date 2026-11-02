@@ -20,8 +20,15 @@ export interface PlexusNativeIdentity {
   enrolled: true;
 }
 
+export interface PlexusNativeIdentityAccess {
+  role: string | null;
+  enrolledTenants: readonly string[] | null;
+}
+
 export interface PlexusNativeIdentityAuthority {
   lookup(identityId: string): Promise<PlexusNativeIdentity | null>;
+  /** One TeamForge read used for an atomic role + enrollment decision. */
+  resolveFounderAccess(founderId: string): Promise<PlexusNativeIdentityAccess>;
   currentRole(founderId: string): Promise<string | null>;
   enrolledTenants(founderId: string): Promise<readonly string[] | null>;
 }
@@ -120,6 +127,13 @@ export function createPlexusNativeIdentityAuthority(
 
   return {
     lookup,
+    async resolveFounderAccess(founderId) {
+      const identity = await lookup(founderId);
+      return {
+        role: identity?.active && identity.enrolled && identity.role === 'admin' ? 'founder' : null,
+        enrolledTenants: identity?.active && identity.enrolled ? [tenantId] : [],
+      };
+    },
     async currentRole(founderId) {
       const identity = await lookup(founderId);
       return identity?.active && identity.enrolled && identity.role === 'admin' ? 'founder' : null;

@@ -1459,6 +1459,7 @@ export default {
             ? resolved.principal.id
             : null;
         },
+        resolveFounderAccess: nativeIdentityAuthority.resolveFounderAccess,
         currentRole: nativeIdentityAuthority.currentRole,
         enrolledTenants: nativeIdentityAuthority.enrolledTenants,
         clients: nativeSessionClients,

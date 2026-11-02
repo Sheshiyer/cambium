@@ -253,6 +253,23 @@ test('missing dependencies perform no database writes', async () => {
   assert.equal(dump(h.db), '[[],[]]');
 });
 
+test('owner snapshot takes precedence over split role and enrollment callbacks', async () => {
+  const calls = { snapshot: 0, role: 0, enrollment: 0 };
+  const h = await harness({
+    resolveFounderAccess: async () => {
+      calls.snapshot += 1;
+      return { role: 'founder', enrolledTenants: ['tenant-alpha'] };
+    },
+    currentRole: async () => { calls.role += 1; return null; },
+    enrolledTenants: async () => { calls.enrollment += 1; return []; },
+  });
+  const response = await authorize(h.host);
+  assert.equal(response!.status, 200);
+  assert.equal(calls.snapshot, 1);
+  assert.equal(calls.role, 0);
+  assert.equal(calls.enrollment, 0);
+});
+
 // ── Authorize (browser GET consent form, explicit POST consent) ─────────────
 
 test('authorize GET returns 200 HTML consent form with no-store headers and sets consent cookie', async () => {

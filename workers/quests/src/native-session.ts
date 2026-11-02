@@ -162,6 +162,16 @@ export interface NativeSessionStore {
 export interface NativeSessionDeps {
   /** Access/Plexus founder approver ID for a browser navigation, else null. */
   verifyBrowserFounder(request: Request): Promise<string | null>;
+  /**
+   * Optional atomic owner lookup. Production adapters should return role and
+   * enrollment from one authority snapshot so a revocation cannot be split
+   * across two awaits. The legacy callbacks remain for bounded test owners and
+   * older integrations; when this is supplied it takes precedence everywhere.
+   */
+  resolveFounderAccess?(founderId: string): Promise<{
+    role: string | null;
+    enrolledTenants: readonly string[] | null;
+  }>;
   /** Current server-owned role for a founder ID (must equal 'founder'). */
   currentRole(founderId: string): Promise<string | null>;
   /** Current explicit tenant enrollment for a founder ID. */
@@ -257,6 +267,7 @@ export function createNativeSessionHost(deps: Partial<NativeSessionDeps> | undef
   const { store, clients, consent } = deps;
   if (!isFn(deps.verifyBrowserFounder) || !isFn(deps.currentRole) || !isFn(deps.enrolledTenants)
       || !isFn(deps.now) || !isFn(deps.randomBytes) || !validOrigin(deps.ownerOrigin)) return undefined;
+  if (deps.resolveFounderAccess !== undefined && !isFn(deps.resolveFounderAccess)) return undefined;
   if (!store || !isFn(store.saveCode) || !isFn(store.peekCode) || !isFn(store.grant)
       || !isFn(store.readSession) || !isFn(store.revoke)) return undefined;
   if (!consent || !isFn(consent.save) || !isFn(consent.consume)) return undefined;
@@ -325,10 +336,21 @@ function mint(host: NativeSessionHost, prefix: string): string | null {
 }
 
 /** Current founder role plus enrollment for one tenant; null on any lookup failure. */
+type FounderAccessSnapshot = { role: string | null; enrolledTenants: readonly string[] | null };
+
+async function founderAccess(host: NativeSessionHost, founderId: string): Promise<FounderAccessSnapshot> {
+  if (host.deps.resolveFounderAccess) return host.deps.resolveFounderAccess(founderId);
+  return {
+    role: await host.deps.currentRole(founderId),
+    enrolledTenants: await host.deps.enrolledTenants(founderId),
+  };
+}
+
 async function currentlyEnrolled(host: NativeSessionHost, founderId: string, tenantId: string): Promise<boolean | null> {
   try {
-    if (await host.deps.currentRole(founderId) !== 'founder') return false;
-    const tenants = await host.deps.enrolledTenants(founderId);
+    const access = await founderAccess(host, founderId);
+    if (access.role !== 'founder') return false;
+    const tenants = access.enrolledTenants;
     return Array.isArray(tenants) && tenants.includes(tenantId);
   } catch { return null; }
 }
@@ -457,8 +479,9 @@ async function prepareAuthorize(request: Request, host: NativeSessionHost, form?
 
   let tenants: string[];
   try {
-    if (await host.deps.currentRole(founderId) !== 'founder') return fail(403, 'forbidden');
-    const listed = await host.deps.enrolledTenants(founderId);
+    const access = await founderAccess(host, founderId);
+    if (access.role !== 'founder') return fail(403, 'forbidden');
+    const listed = access.enrolledTenants;
     if (!Array.isArray(listed)) return fail(403, 'forbidden');
     tenants = [...new Set(listed.filter((t): t is string => typeof t === 'string' && TENANT.test(t)))].sort();
   } catch { return unavailable(); }

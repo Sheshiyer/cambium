@@ -43,6 +43,30 @@ test('native identity authority consumes the scoped TeamForge contract', async (
   assert.equal((requests[0].init?.headers as Record<string, string>)['cache-control'], 'no-store');
 });
 
+test('native identity authority exposes one snapshot for role and enrollment', async () => {
+  let calls = 0;
+  const authority = createPlexusNativeIdentityAuthority({
+    ...config,
+    fetchImpl: async () => {
+      calls += 1;
+      return new Response(JSON.stringify({ ok: true, data: {
+        contractVersion: PLEXUS_NATIVE_IDENTITY_CONTRACT,
+        identityId: 'pid_admin_thoughtseed_labs',
+        tenantId: 'cambium',
+        workspaceId: 'ws_thoughtseed',
+        role: 'admin',
+        active: true,
+        enrolled: true,
+      } }), { status: 200 });
+    },
+  })!;
+
+  assert.deepEqual(await authority.resolveFounderAccess('pid_admin_thoughtseed_labs'), {
+    role: 'founder', enrolledTenants: ['cambium'],
+  });
+  assert.equal(calls, 1);
+});
+
 test('missing identities floor to no role and no enrollment', async () => {
   const authority = createPlexusNativeIdentityAuthority({
     ...config,
