@@ -350,10 +350,11 @@ struct ProjectsView: View {
             if let url = reference.url {
                 Link("Open", destination: url)
                     .font(.caption)
+                    .accessibilityLabel("Open \(reference.kind.label)")
                     .accessibilityHint("Opens the declared source in the external browser")
             }
         }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
     }
 
     private func linkedRows(_ canonicalIds: [String]) -> some View {
