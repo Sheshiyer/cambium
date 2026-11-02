@@ -159,8 +159,9 @@ struct RecoveryEnvelope: Codable, Equatable {
 /// collision-safe name. The file holds an envelope with the exact opaque key and
 /// payload, which makes enumeration exact and lets `load` reject a file whose
 /// stored key does not hash to its name. The directory is `0700`, files are
-/// `0600` from creation, and writes go through a temp file, `fsync` and rename.
-/// A corrupt envelope throws; it is never reported as absent.
+/// `0600` from creation, and writes go through a temp file, a durable flush,
+/// rename, then a parent-directory sync. A symlink is never followed. A corrupt
+/// envelope throws; it is never reported as absent or deleted.
 public actor FileRecoveryStore: RecoveryStore {
     public static let maxKeyBytes = 2048
     public static let maxPayloadBytes = 1_048_576
@@ -190,13 +191,51 @@ public actor FileRecoveryStore: RecoveryStore {
         return directory.appendingPathComponent(Self.fileName(for: key), isDirectory: false)
     }
 
+    /// Open `path` without following a final symlink. `O_NOFOLLOW` refuses the
+    /// link itself; the descriptor is what later reads and writes use.
+    private static func openNoFollow(_ path: String, flags: Int32, mode: mode_t = 0) -> Int32 {
+        open(path, flags | O_NOFOLLOW, mode)
+    }
+
+    /// Read a regular file through an already-open no-follow descriptor, capped
+    /// at `maxBytes`. Size is taken from `fstat` on that descriptor so a symlink
+    /// or a swap after a path stat cannot bypass the cap.
+    private static func readBounded(descriptor: Int32, maxBytes: Int) throws -> Data {
+        var info = stat()
+        guard fstat(descriptor, &info) == 0 else { throw RecoveryStoreError.corruptEnvelope }
+        guard (info.st_mode & S_IFMT) == S_IFREG else { throw RecoveryStoreError.corruptEnvelope }
+        guard info.st_size >= 0, info.st_size <= off_t(maxBytes) else { throw RecoveryStoreError.corruptEnvelope }
+        let expected = Int(info.st_size)
+        var data = Data()
+        data.reserveCapacity(expected)
+        var buffer = [UInt8](repeating: 0, count: 64 * 1024)
+        var total = 0
+        while total <= maxBytes {
+            let count = buffer.withUnsafeMutableBytes { raw -> Int in
+                guard let base = raw.baseAddress else { return -1 }
+                return Darwin.read(descriptor, base, raw.count)
+            }
+            if count == 0 { break }
+            if count < 0 { throw RecoveryStoreError.corruptEnvelope }
+            total += count
+            guard total <= maxBytes else { throw RecoveryStoreError.corruptEnvelope }
+            data.append(buffer, count: count)
+        }
+        guard total == expected else { throw RecoveryStoreError.corruptEnvelope }
+        return data
+    }
+
     private func readEnvelope(at target: URL, expectedName: String? = nil) throws -> RecoveryEnvelope {
-        let attributes = try? FileManager.default.attributesOfItem(atPath: target.path)
-        guard let size = (attributes?[.size] as? NSNumber)?.intValue, size <= Self.maxEnvelopeBytes else {
+        let descriptor = Self.openNoFollow(target.path, flags: O_RDONLY)
+        guard descriptor >= 0 else { throw RecoveryStoreError.corruptEnvelope }
+        defer { close(descriptor) }
+        let data: Data
+        do {
+            data = try Self.readBounded(descriptor: descriptor, maxBytes: Self.maxEnvelopeBytes)
+        } catch {
             throw RecoveryStoreError.corruptEnvelope
         }
-        guard let data = try? Data(contentsOf: target),
-              let envelope = try? JSONDecoder().decode(RecoveryEnvelope.self, from: data),
+        guard let envelope = try? JSONDecoder().decode(RecoveryEnvelope.self, from: data),
               envelope.v == 1,
               !envelope.key.isEmpty, envelope.key.utf8.count <= Self.maxKeyBytes,
               envelope.payload.count <= Self.maxPayloadBytes,
@@ -206,32 +245,80 @@ public actor FileRecoveryStore: RecoveryStore {
         return envelope
     }
 
+    /// Create the store directory when missing. An existing symlink is refused
+    /// without chmod on its target. A real directory is tightened to `0700`
+    /// through a no-follow descriptor.
     private func prepareDirectory() throws {
-        let manager = FileManager.default
-        try manager.createDirectory(at: directory, withIntermediateDirectories: true,
-                                    attributes: [.posixPermissions: 0o700])
-        try manager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path)
+        let path = directory.path
+        var info = stat()
+        if lstat(path, &info) != 0 {
+            if errno != ENOENT { throw RecoveryStoreError.ioFailure }
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true,
+                                                    attributes: [.posixPermissions: 0o700])
+            guard lstat(path, &info) == 0 else { throw RecoveryStoreError.ioFailure }
+        }
+        guard (info.st_mode & S_IFMT) != S_IFLNK else { throw RecoveryStoreError.ioFailure }
+        guard (info.st_mode & S_IFMT) == S_IFDIR else { throw RecoveryStoreError.ioFailure }
+        let descriptor = Self.openNoFollow(path, flags: O_RDONLY | O_DIRECTORY)
+        guard descriptor >= 0 else { throw RecoveryStoreError.ioFailure }
+        defer { close(descriptor) }
+        var opened = stat()
+        guard fstat(descriptor, &opened) == 0, (opened.st_mode & S_IFMT) == S_IFDIR else {
+            throw RecoveryStoreError.ioFailure
+        }
+        guard fchmod(descriptor, 0o700) == 0 else { throw RecoveryStoreError.ioFailure }
+    }
+
+    /// Strongest durable file flush available, then fail closed. `F_FULLFSYNC`
+    /// asks the drive to flush its cache; `fsync` is only a fallback when that
+    /// request is unavailable, and a failed flush is never treated as success.
+    private static func durableFlush(descriptor: Int32) -> Bool {
+        if fcntl(descriptor, F_FULLFSYNC) == 0 { return true }
+        if errno == ENOTSUP || errno == EINVAL || errno == EOPNOTSUPP {
+            return fsync(descriptor) == 0
+        }
+        return false
+    }
+
+    /// Persist the directory entry created or replaced by `rename`. A missing
+    /// parent sync means the record is not yet durable across power loss.
+    private static func syncParentDirectory(_ directory: URL) -> Bool {
+        let descriptor = openNoFollow(directory.path, flags: O_RDONLY | O_DIRECTORY)
+        guard descriptor >= 0 else { return false }
+        defer { close(descriptor) }
+        return durableFlush(descriptor: descriptor)
     }
 
     private func writeAtomically(_ data: Data, to target: URL) throws {
         let temp = directory.appendingPathComponent(".tmp-" + UUID().uuidString, isDirectory: false)
-        let descriptor = open(temp.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, 0o600)
+        let descriptor = Self.openNoFollow(temp.path, flags: O_WRONLY | O_CREAT | O_EXCL, mode: 0o600)
         guard descriptor >= 0 else { throw RecoveryStoreError.ioFailure }
         var ok = fchmod(descriptor, 0o600) == 0
         if ok {
             data.withUnsafeBytes { buffer in
+                guard let base = buffer.baseAddress else {
+                    ok = data.isEmpty
+                    return
+                }
                 var offset = 0
                 while offset < buffer.count {
-                    let written = write(descriptor, buffer.baseAddress! + offset, buffer.count - offset)
+                    let written = Darwin.write(descriptor, base + offset, buffer.count - offset)
                     if written <= 0 { ok = false; return }
                     offset += written
                 }
             }
         }
-        if ok { ok = fsync(descriptor) == 0 }
+        if ok { ok = Self.durableFlush(descriptor: descriptor) }
         close(descriptor)
         guard ok, rename(temp.path, target.path) == 0 else {
             unlink(temp.path)
+            throw RecoveryStoreError.ioFailure
+        }
+        // Rename already published the name. If the parent cannot be synced,
+        // remove that name and fail closed so the caller does not treat the
+        // record as saved before the wire.
+        guard Self.syncParentDirectory(directory) else {
+            unlink(target.path)
             throw RecoveryStoreError.ioFailure
         }
     }
