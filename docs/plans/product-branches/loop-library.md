@@ -24,6 +24,7 @@ Every round changes exactly one thing or records exactly one blocked approval re
 | Vantyx | product | `vantyx-second-tenant-loop` | yellow | `.operator/branch-loops/vantyx-second-tenant-loop.md` |
 | Snow Gloves OS | internal-service | `snow-gloves-os-approval-loop` | red | `.operator/branch-loops/snow-gloves-os-approval-loop.md` |
 | IVerif | product | `iverif-claim-proof-loop` | green | `.operator/branch-loops/iverif-claim-proof-loop.md` |
+| Temperance Engine | product | `temperance-draft-proof-review` | yellow | `.operator/branch-loops/temperance-draft-proof-review.md` |
 | Client Delivery | client | `client-delivery-handoff-loop` | yellow | `.operator/branch-loops/client-delivery-handoff-loop.md` |
 
 ## Scheduling Rule

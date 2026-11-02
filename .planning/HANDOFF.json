@@ -7,7 +7,8 @@
     "updated": "2026-10-25T11:10:34.548324+00:00",
     "status": "completed",
     "active_task": "Completed scoped Founder Gate desktop renewal/approval/receipt E2E",
-    "source": "prior committed .planning/HANDOFF.json"
+    "source": "prior committed .planning/HANDOFF.json",
+    "commit": "8261d4840988e2e1c6fa6c2eb85cee96d4344b58"
   },
   "completed": [
     "Created and reopened the formal unscheduled Product Hunt draft with exact six fields and owner-approved existing media/tags",
@@ -29,7 +30,8 @@
     "Cambium owns the canonical pack; private vault sources stay referenced",
     "Review current evidence before one selected authorized step; no scheduler or runtime authority",
     "Product Hunt draft only; v1.1 clean-host and hosted-router authentication held",
-    "Owner approved existing website logo, OG artwork and matching tags"
+    "Owner approved existing website logo, OG artwork and matching tags",
+    "Reserve ISC-3200..3219 to avoid concurrently claimed native-app criteria; preserve native-app frontmatter and source work."
   ],
   "uncommitted_files": [
     ".agents/skills/sapling-lifecycle/",
@@ -41,8 +43,8 @@
   "next_action": "Finish read-only Rhai outcome, validate Temperance proof packet and frozen-source checks, then commit scoped implementation and handoff.",
   "isa": "ISA.md",
   "isc_open": [
-    "ISC-3156",
-    "ISC-3158"
+    "ISC-3216",
+    "ISC-3218"
   ],
   "isc_done_count": 18,
   "wave": "sapling-lifecycle",
