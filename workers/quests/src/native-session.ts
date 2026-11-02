@@ -424,19 +424,18 @@ async function prepareAuthorize(request: Request, host: NativeSessionHost, form?
 
   let fields: AuthorizeFields;
   if (form) {
+    if (!queryPresent) return fail(400, 'consent_required');
     fields = {
       clientId: form.client_id, redirectUri: form.redirect_uri, challenge: form.code_challenge,
       state: form.state, tenant: form.tenant,
     };
-    if (queryPresent) {
-      const same = fields.clientId === params.get('client_id')
-        && fields.redirectUri === params.get('redirect_uri')
-        && fields.challenge === params.get('code_challenge')
-        && params.get('code_challenge_method') === 'S256'
-        && fields.state === params.get('state')
-        && fields.tenant === params.get('tenant');
-      if (!same) return fail(400, 'consent_required');
-    }
+    const same = fields.clientId === params.get('client_id')
+      && fields.redirectUri === params.get('redirect_uri')
+      && fields.challenge === params.get('code_challenge')
+      && params.get('code_challenge_method') === 'S256'
+      && fields.state === params.get('state')
+      && fields.tenant === params.get('tenant');
+    if (!same) return fail(400, 'consent_required');
   } else {
     fields = {
       clientId: params.get('client_id')!, redirectUri: params.get('redirect_uri')!,
