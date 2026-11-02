@@ -21,7 +21,7 @@ public struct AuthenticatedReaderContext: Sendable, Equatable, Hashable {
         self.expiresAt = expiresAt
     }
 
-    public var scope: ReaderScope { ReaderScope(tenantId: tenantId, role: role) }
+    public var scope: ReaderScope { ReaderScope(tenantId: tenantId, role: role, principal: principal) }
 
     public static func derive(from session: NativeSession, tenantId: String, at now: Date) throws -> AuthenticatedReaderContext {
         guard case .verified(let founderId, let sessionTenant, let expiresAt) = session else {
