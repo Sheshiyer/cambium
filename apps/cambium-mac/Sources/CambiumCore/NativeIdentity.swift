@@ -293,7 +293,9 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
                 transport: transport,
                 browser: browser
             )
-            // No await between the final clock check in `complete` and this publish.
+            try ensureCurrent(transaction)
+            guard inspected.expiresAt > clock.now() else { throw NativeIdentityError.expired }
+            // No await between the checks above and this publish.
             clearIfCurrent(transaction)
             held = inspected
             return .verified(founderId: inspected.founderId, tenantId: inspected.tenantId, expiresAt: inspected.expiresAt)
@@ -372,8 +374,8 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
     }
 
     private func beginTransaction(_ configuration: NativeIdentityConfiguration) throws -> NativeTransaction {
-        let verifier = NativePKCE.base64URL(try randomness.bytes(count: NativePKCE.secretByteCount))
-        let state = NativePKCE.base64URL(try randomness.bytes(count: NativePKCE.secretByteCount))
+        let verifier = try randomURLSafeString()
+        let state = try randomURLSafeString()
         guard verifier.count == 43, (22...128).contains(state.count) else {
             throw NativeIdentityError.invalidConfiguration
         }
@@ -386,6 +388,15 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         )
         outstanding = transaction
         return transaction
+    }
+
+    /// Randomness sources may throw arbitrary errors. Map every failure to the fixed identity error.
+    private func randomURLSafeString() throws -> String {
+        do {
+            return NativePKCE.base64URL(try randomness.bytes(count: NativePKCE.secretByteCount))
+        } catch {
+            throw NativeIdentityError.randomnessUnavailable
+        }
     }
 
     private func ensureCurrent(_ transaction: NativeTransaction) throws {
@@ -478,7 +489,12 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
             "codeVerifier": verifier,
             "redirectUri": configuration.redirectURI.absoluteString
         ]
-        let payload = try JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
+        let payload: Data
+        do {
+            payload = try JSONSerialization.data(withJSONObject: body, options: [.sortedKeys])
+        } catch {
+            throw NativeIdentityError.invalidConfiguration
+        }
         guard payload.count <= 2048 else { throw NativeIdentityError.invalidConfiguration }
         let response: HTTPResponse
         do {
@@ -512,6 +528,8 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
             ))
         } catch let failure as TransportFailure {
             throw NativeIdentityError.transport(failure)
+        } catch {
+            throw NativeIdentityError.inspectionFailed
         }
         guard response.status == 200 else { throw NativeIdentityError.inspectionFailed }
         let inspected = try parseSession(response.body, configuration: configuration, requireToken: false, now: clock.now())
