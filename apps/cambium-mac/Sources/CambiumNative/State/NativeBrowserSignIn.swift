@@ -14,47 +14,65 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
 
     private let anchorProvider: @MainActor () -> ASPresentationAnchor?
     private var activeSession: ASWebAuthenticationSession?
+    private var pending: CheckedContinuation<NativeBrowserResult, Never>?
+    /// Identifies the presentation a completion belongs to, so a late handler
+    /// from an earlier session cannot resume a newer one.
+    private var presentation: UInt64 = 0
 
     init(anchorProvider: @escaping @MainActor () -> ASPresentationAnchor?) {
         self.anchorProvider = anchorProvider
     }
 
     func present(_ request: NativeAuthorizationRequest) async -> NativeBrowserResult {
-        guard activeSession == nil else { return .failed }
-        guard request.redirectURI.scheme == Self.callbackScheme else { return .failed }
+        guard activeSession == nil, pending == nil else { return .failed }
+        guard request.redirectURI.absoluteString == NativeIdentityConfiguration.reviewedRedirectURI.absoluteString,
+              request.redirectURI.scheme == Self.callbackScheme else { return .failed }
         guard anchorProvider() != nil else { return .failed }
 
+        presentation &+= 1
+        let id = presentation
         return await withCheckedContinuation { (continuation: CheckedContinuation<NativeBrowserResult, Never>) in
-            var finished = false
+            pending = continuation
+            // AuthenticationServices does not promise the queue for this handler.
+            // It is nonisolated and hops to the main actor before touching state.
+            let completion: @Sendable (URL?, (any Error)?) -> Void = { [weak self] callbackURL, error in
+                let result = NativeBrowserSignIn.map(callbackURL: callbackURL, error: error)
+                Task { @MainActor in self?.finish(id, result) }
+            }
             let session = ASWebAuthenticationSession(
                 url: request.url,
-                callbackURLScheme: Self.callbackScheme
-            ) { [weak self] callbackURL, error in
-                MainActor.assumeIsolated {
-                    guard !finished else { return }
-                    finished = true
-                    self?.activeSession = nil
-                    continuation.resume(returning: Self.map(callbackURL: callbackURL, error: error))
-                }
-            }
+                callbackURLScheme: Self.callbackScheme,
+                completionHandler: completion
+            )
             session.prefersEphemeralWebBrowserSession = true
             session.presentationContextProvider = self
             activeSession = session
             if !session.start() {
-                finished = true
-                activeSession = nil
-                continuation.resume(returning: .failed)
+                finish(id, .failed)
             }
         }
     }
 
+    /// Ends the current browser presentation as canceled. Starts nothing.
+    func cancel() {
+        activeSession?.cancel()
+        finish(presentation, .canceled)
+    }
+
+    private func finish(_ id: UInt64, _ result: NativeBrowserResult) {
+        guard id == presentation, let continuation = pending else { return }
+        pending = nil
+        activeSession = nil
+        continuation.resume(returning: result)
+    }
+
     /// Cancel from the user is not a failure. Any other error maps to `.failed`
     /// without its detail, which could carry URL text.
-    static func map(callbackURL: URL?, error: Error?) -> NativeBrowserResult {
+    nonisolated static func map(callbackURL: URL?, error: (any Error)?) -> NativeBrowserResult {
         if let error {
-            let code = (error as NSError).code
-            if (error as NSError).domain == ASWebAuthenticationSessionErrorDomain,
-               code == ASWebAuthenticationSessionError.canceledLogin.rawValue {
+            let nsError = error as NSError
+            if nsError.domain == ASWebAuthenticationSessionErrorDomain,
+               nsError.code == ASWebAuthenticationSessionError.canceledLogin.rawValue {
                 return .canceled
             }
             return .failed

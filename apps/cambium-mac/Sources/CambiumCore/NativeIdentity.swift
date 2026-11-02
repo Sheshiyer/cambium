@@ -3,7 +3,7 @@ import Foundation
 import Security
 
 // Founder sign-in through the owner-hosted native session contract
-// (cambium.native-session.v1, see .planning/native-mac/NATIVE-SESSION-CONTRACT.md).
+// (cambium.native-session.v1, workers/quests/src/native-session.ts).
 // This controller creates no identity of its own: a session exists only after
 // the owner's HTTPS responses confirm exchange and inspection. The bearer stays
 // in memory. Nothing here reads or writes recovery, keychain, environment or
@@ -55,10 +55,14 @@ extension NativeIdentityError: CustomStringConvertible {
 
 /// Pinned owner origin plus one reviewed client and its exact callback.
 public struct NativeIdentityConfiguration: Sendable, Equatable {
+    /// The only callback this client registers: reviewed reversed-domain dev
+    /// scheme, host `oauth`, path `/callback`. Matches Info.plist.in.
+    public static let reviewedRedirectURI = URL(string: "space.thoughtseed.cambium.native.dev://oauth/callback")!
+
     public let origin: HTTPOriginPolicy
     public let clientId: String
     public let redirectURI: URL
-    /// Optional tenant candidate. The owner still selects from current enrollment.
+    /// Optional tenant candidate. When set, the exchanged and inspected tenant must equal it.
     public let tenantCandidate: String?
 
     public init(owner: URL, clientId: String, redirectURI: URL, tenantCandidate: String? = nil) throws {
@@ -67,7 +71,7 @@ public struct NativeIdentityConfiguration: Sendable, Equatable {
         guard origin.scheme == "https" else { throw NativeIdentityError.invalidConfiguration }
         guard Self.isReviewedClientId(clientId) else { throw NativeIdentityError.invalidConfiguration }
         guard Self.isExactCallback(redirectURI) else { throw NativeIdentityError.invalidConfiguration }
-        if let tenantCandidate, !MissionFabricTenant.isValid(tenantCandidate) {
+        if let tenantCandidate, !Self.isNativeTenant(tenantCandidate) {
             throw NativeIdentityError.invalidConfiguration
         }
         self.origin = origin
@@ -76,23 +80,25 @@ public struct NativeIdentityConfiguration: Sendable, Equatable {
         self.tenantCandidate = tenantCandidate
     }
 
+    /// Server `CLIENT_ID`: an alphanumeric start, then 7 to 127 of `A-Za-z0-9._:-`.
     public static func isReviewedClientId(_ value: String) -> Bool {
-        (8...128).contains(value.count) && value.utf8.allSatisfy(isUnreservedASCII)
+        guard let first = value.utf8.first, isASCIIAlphanumeric(first) else { return false }
+        let rest = value.utf8.dropFirst()
+        return (7...127).contains(rest.count) && rest.allSatisfy(isClientIdByte)
     }
 
-    /// Scheme, host and a non-root path only. No user, query, fragment or port.
+    /// Exact match against the reviewed callback. No other scheme, host, path, query or fragment is admitted.
     public static func isExactCallback(_ url: URL) -> Bool {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let scheme = components.scheme?.lowercased(), !scheme.isEmpty,
-              scheme != "http", scheme != "https",
-              let host = components.host, !host.isEmpty,
-              components.user == nil, components.password == nil,
-              components.query == nil, components.fragment == nil,
-              components.port == nil else {
-            return false
+        url.absoluteString == reviewedRedirectURI.absoluteString
+    }
+
+    /// Server `TENANT`: a lowercase letter, then 1 to 63 of `a-z0-9-`.
+    public static func isNativeTenant(_ value: String) -> Bool {
+        guard let first = value.utf8.first, first >= 0x61, first <= 0x7A else { return false }
+        let rest = value.utf8.dropFirst()
+        return (1...63).contains(rest.count) && rest.allSatisfy { byte in
+            (byte >= 0x61 && byte <= 0x7A) || (byte >= 0x30 && byte <= 0x39) || byte == 0x2D
         }
-        let path = components.percentEncodedPath
-        return !path.isEmpty && path != "/"
     }
 
     var authorizeURL: URL { endpoint("/v1/native/session/authorize") }
@@ -109,9 +115,16 @@ public struct NativeIdentityConfiguration: Sendable, Equatable {
         return components.url ?? redirectURI
     }
 
+    static func isASCIIAlphanumeric(_ byte: UInt8) -> Bool {
+        (byte >= 0x30 && byte <= 0x39) || (byte >= 0x41 && byte <= 0x5A) || (byte >= 0x61 && byte <= 0x7A)
+    }
+
+    static func isClientIdByte(_ byte: UInt8) -> Bool {
+        isUnreservedASCII(byte) || byte == 0x3A
+    }
+
     static func isUnreservedASCII(_ byte: UInt8) -> Bool {
-        (byte >= 0x30 && byte <= 0x39) || (byte >= 0x41 && byte <= 0x5A) ||
-            (byte >= 0x61 && byte <= 0x7A) || byte == 0x2D || byte == 0x2E || byte == 0x5F
+        isASCIIAlphanumeric(byte) || byte == 0x2D || byte == 0x2E || byte == 0x5F
     }
 }
 
@@ -128,9 +141,12 @@ public enum NativeBrowserResult: Sendable, Equatable {
 }
 
 /// Presents the owner authorize URL in an external browser and returns the raw callback.
+/// Implementations start a browser only inside `present`.
 @MainActor
 public protocol NativeBrowserPresenting: Sendable {
     func present(_ request: NativeAuthorizationRequest) async -> NativeBrowserResult
+    /// Stops any browser presentation this adapter started. Safe when nothing is showing.
+    func cancel()
 }
 
 public struct NativeLogoutReport: Sendable, Equatable {
@@ -197,7 +213,8 @@ struct NativeTransaction: Sendable, Equatable {
 
 /// Browser sign-in, code exchange and session inspection against one pinned owner.
 /// Conforms to `SessionProvider` (what the app may claim) and `RequestAuthorizer`
-/// (the bearer for owner reads). It holds one outstanding transaction at a time.
+/// (the bearer for owner reads). One transaction stays outstanding from browser
+/// start until exchange and inspection finish, fail or are superseded.
 public actor NativeIdentityController: SessionProvider, RequestAuthorizer, CustomStringConvertible {
     private let configuration: NativeIdentityConfiguration?
     private let transport: (any HTTPTransport)?
@@ -207,8 +224,9 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
 
     private var held: NativeHeldSession?
     private var outstanding: NativeTransaction?
-    /// Bumped by every new transaction and every sign-out. A pending completion
-    /// that sees a different value is discarded.
+    /// Bumped by every new transaction, every sign-out and every cancel. A
+    /// completion that sees a different value is discarded and never clears a
+    /// newer outstanding transaction.
     private var generation: UInt64 = 0
 
     public init(
@@ -261,52 +279,46 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         return ["authorization": "Bearer \(held.token)"]
     }
 
-    /// Runs one browser sign-in. A second call while one is outstanding is refused.
+    /// Runs one browser sign-in. A second call while one is outstanding is refused
+    /// and does not disturb the first. The browser is started only by this call.
     public func signIn() async throws -> NativeSession {
         guard let configuration, let transport, let browser else { throw NativeIdentityError.unconfigured }
         guard outstanding == nil else { throw NativeIdentityError.signInInProgress }
 
         let transaction = try beginTransaction(configuration)
-        let request = try authorizationRequest(for: transaction, configuration: configuration)
-
-        let result = await browser.present(request)
-        guard generation == transaction.generation else { throw NativeIdentityError.transactionSuperseded }
-        outstanding = nil
-
-        switch result {
-        case .canceled:
-            throw NativeIdentityError.canceled
-        case .failed:
-            throw NativeIdentityError.invalidCallback
-        case .callback(let callbackURL):
-            let code = try Self.acceptCallback(callbackURL, transaction: transaction)
-            let candidate = try await Self.exchange(
-                code: code,
-                verifier: transaction.verifier,
+        do {
+            let inspected = try await complete(
+                transaction,
                 configuration: configuration,
                 transport: transport,
-                now: clock.now()
+                browser: browser
             )
-            guard generation == transaction.generation else { throw NativeIdentityError.transactionSuperseded }
-            let inspected = try await Self.inspect(
-                candidate: candidate,
-                configuration: configuration,
-                transport: transport,
-                now: clock.now()
-            )
-            guard generation == transaction.generation else { throw NativeIdentityError.transactionSuperseded }
+            // No await between the final clock check in `complete` and this publish.
+            clearIfCurrent(transaction)
             held = inspected
             return .verified(founderId: inspected.founderId, tenantId: inspected.tenantId, expiresAt: inspected.expiresAt)
+        } catch {
+            clearIfCurrent(transaction)
+            throw error
         }
     }
 
-    /// Clears the local session and invalidates pending work first. Then makes a
-    /// best-effort owner logout and reports its result separately.
+    /// Stops the browser and drops the outstanding transaction without starting
+    /// another authorization. A session already held stays in place.
+    public func cancelSignIn() async {
+        generation &+= 1
+        outstanding = nil
+        await browser?.cancel()
+    }
+
+    /// Clears the local session and invalidates pending work before any await.
+    /// Then makes a best-effort owner logout and reports its result separately.
     public func signOut() async -> NativeLogoutReport {
         let previous = held
         generation &+= 1
         outstanding = nil
         held = nil
+        await browser?.cancel()
         guard let previous, let configuration, let transport else {
             return NativeLogoutReport(localCleared: true, ownerConfirmed: false)
         }
@@ -318,10 +330,51 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
 
     // MARK: - Transaction
 
+    private func complete(
+        _ transaction: NativeTransaction,
+        configuration: NativeIdentityConfiguration,
+        transport: any HTTPTransport,
+        browser: any NativeBrowserPresenting
+    ) async throws -> NativeHeldSession {
+        let request = try authorizationRequest(for: transaction, configuration: configuration)
+        let result = await browser.present(request)
+        try ensureCurrent(transaction)
+
+        let callbackURL: URL
+        switch result {
+        case .canceled: throw NativeIdentityError.canceled
+        case .failed: throw NativeIdentityError.invalidCallback
+        case .callback(let url): callbackURL = url
+        }
+        let code = try Self.acceptCallback(callbackURL, transaction: transaction)
+
+        let candidate = try await Self.exchange(
+            code: code,
+            verifier: transaction.verifier,
+            configuration: configuration,
+            transport: transport,
+            clock: clock
+        )
+        try ensureCurrent(transaction)
+        try Self.requireTenantCandidate(candidate.tenantId, configuration: configuration)
+
+        let inspected = try await Self.inspect(
+            candidate: candidate,
+            configuration: configuration,
+            transport: transport,
+            clock: clock
+        )
+        try ensureCurrent(transaction)
+        try Self.requireTenantCandidate(inspected.tenantId, configuration: configuration)
+        // Expiry is checked against the clock after every await, not the clock read before them.
+        guard inspected.expiresAt > clock.now() else { throw NativeIdentityError.expired }
+        return inspected
+    }
+
     private func beginTransaction(_ configuration: NativeIdentityConfiguration) throws -> NativeTransaction {
         let verifier = NativePKCE.base64URL(try randomness.bytes(count: NativePKCE.secretByteCount))
         let state = NativePKCE.base64URL(try randomness.bytes(count: NativePKCE.secretByteCount))
-        guard (43...128).contains(verifier.count), (22...128).contains(state.count) else {
+        guard verifier.count == 43, (22...128).contains(state.count) else {
             throw NativeIdentityError.invalidConfiguration
         }
         generation &+= 1
@@ -333,6 +386,18 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         )
         outstanding = transaction
         return transaction
+    }
+
+    private func ensureCurrent(_ transaction: NativeTransaction) throws {
+        guard generation == transaction.generation, outstanding == transaction else {
+            throw NativeIdentityError.transactionSuperseded
+        }
+    }
+
+    /// Clears the outstanding slot only when it still belongs to this transaction.
+    private func clearIfCurrent(_ transaction: NativeTransaction) {
+        guard outstanding?.generation == transaction.generation else { return }
+        outstanding = nil
     }
 
     private func authorizationRequest(
@@ -352,40 +417,46 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         }
         components.queryItems = items
         guard let url = components.url, configuration.origin.admits(url) else {
-            outstanding = nil
             throw NativeIdentityError.invalidConfiguration
         }
         return NativeAuthorizationRequest(url: url, redirectURI: configuration.redirectURI)
     }
 
-    /// Accepts only the exact registered callback: scheme, host and path match,
-    /// no credentials or fragment, exactly the `code` and `state` keys, and a
-    /// `state` equal to the outstanding transaction. Runs before any exchange.
+    static func requireTenantCandidate(_ tenantId: String, configuration: NativeIdentityConfiguration) throws {
+        if let expected = configuration.tenantCandidate, tenantId != expected {
+            throw NativeIdentityError.scopeMismatch
+        }
+    }
+
+    // MARK: - Callback
+
+    /// Accepts only the exact reviewed callback: the same scheme, host and path
+    /// as the registered URI, no userinfo, port or fragment, exactly the `code`
+    /// and `state` keys, a `state` equal to this transaction's, and a `code`
+    /// in the owner `cnc1_` form. Runs before any exchange.
     static func acceptCallback(_ url: URL, transaction: NativeTransaction) throws -> String {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let expected = URLComponents(url: transaction.redirectURI, resolvingAgainstBaseURL: false) else {
+        let raw = url.absoluteString
+        let expected = transaction.redirectURI.absoluteString
+        guard let queryStart = raw.firstIndex(of: "?") else { throw NativeIdentityError.invalidCallback }
+        let base = String(raw[..<queryStart])
+        let query = String(raw[raw.index(after: queryStart)...])
+        guard base == expected, !query.contains("#"), !base.contains("@") else {
             throw NativeIdentityError.invalidCallback
         }
-        guard components.scheme?.lowercased() == expected.scheme?.lowercased(),
-              components.host?.lowercased() == expected.host?.lowercased(),
-              components.percentEncodedPath == expected.percentEncodedPath,
-              components.user == nil, components.password == nil,
-              components.port == nil, components.fragment == nil else {
-            throw NativeIdentityError.invalidCallback
+        let pairs = query.split(separator: "&", omittingEmptySubsequences: false).map(String.init)
+        guard pairs.count == 2 else { throw NativeIdentityError.invalidCallback }
+        var values: [String: String] = [:]
+        for pair in pairs {
+            let parts = pair.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false).map(String.init)
+            guard parts.count == 2, values[parts[0]] == nil,
+                  let value = parts[1].removingPercentEncoding else {
+                throw NativeIdentityError.invalidCallback
+            }
+            values[parts[0]] = value
         }
-        let items = components.queryItems ?? []
-        guard items.count == 2, Set(items.map(\.name)) == ["code", "state"] else {
-            throw NativeIdentityError.invalidCallback
-        }
-        guard let state = items.first(where: { $0.name == "state" })?.value,
-              state == transaction.state else {
-            throw NativeIdentityError.stateMismatch
-        }
-        guard let code = items.first(where: { $0.name == "code" })?.value,
-              (43...256).contains(code.utf8.count),
-              code.utf8.allSatisfy(NativeIdentityConfiguration.isUnreservedASCII) else {
-            throw NativeIdentityError.invalidCallback
-        }
+        guard Set(values.keys) == ["code", "state"] else { throw NativeIdentityError.invalidCallback }
+        guard values["state"] == transaction.state else { throw NativeIdentityError.stateMismatch }
+        guard let code = values["code"], isAuthorizationCode(code) else { throw NativeIdentityError.invalidCallback }
         return code
     }
 
@@ -398,7 +469,7 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         verifier: String,
         configuration: NativeIdentityConfiguration,
         transport: any HTTPTransport,
-        now: Date
+        clock: any CoreClock
     ) async throws -> NativeHeldSession {
         let body: [String: Any] = [
             "contractVersion": nativeSessionContractVersion,
@@ -421,16 +492,16 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
             throw NativeIdentityError.exchangeLost
         }
         guard response.status == 200 else { throw NativeIdentityError.exchangeRefused }
-        return try parseSession(response.body, configuration: configuration, requireToken: true, now: now)
+        return try parseSession(response.body, configuration: configuration, requireToken: true, now: clock.now())
     }
 
-    /// GET the session with the candidate bearer. The owner's answer must
-    /// match the exchanged client, founder, tenant, expiry, role and enrollment.
+    /// GET the session with the candidate bearer. The owner's answer must match
+    /// the exchanged client, founder, tenant and expiry.
     static func inspect(
         candidate: NativeHeldSession,
         configuration: NativeIdentityConfiguration,
         transport: any HTTPTransport,
-        now: Date
+        clock: any CoreClock
     ) async throws -> NativeHeldSession {
         let response: HTTPResponse
         do {
@@ -443,14 +514,13 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
             throw NativeIdentityError.transport(failure)
         }
         guard response.status == 200 else { throw NativeIdentityError.inspectionFailed }
-        let inspected = try parseSession(response.body, configuration: configuration, requireToken: false, now: now)
+        let inspected = try parseSession(response.body, configuration: configuration, requireToken: false, now: clock.now())
         guard inspected.clientId == candidate.clientId,
               inspected.founderId == candidate.founderId,
               inspected.tenantId == candidate.tenantId,
               inspected.expiresAt == candidate.expiresAt else {
             throw NativeIdentityError.scopeMismatch
         }
-        guard inspected.expiresAt > now else { throw NativeIdentityError.expired }
         return NativeHeldSession(
             token: candidate.token,
             founderId: inspected.founderId,
@@ -479,6 +549,8 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
     }
 
     /// Strict parse of the owner body. Exchange carries `token`; inspection must not.
+    /// `now` is read after the response arrives. Expiry must be in the future and
+    /// no more than the 15 minute contract lifetime away.
     static func parseSession(
         _ data: Data,
         configuration: NativeIdentityConfiguration,
@@ -496,8 +568,8 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         guard object["role"] as? String == "founder", object["enrolled"] as? Bool == true else {
             throw NativeIdentityError.scopeMismatch
         }
-        guard let founderId = object["founderId"] as? String, isOpaqueID(founderId),
-              let tenantId = object["tenantId"] as? String, MissionFabricTenant.isValid(tenantId),
+        guard let founderId = object["founderId"] as? String, isFounderID(founderId),
+              let tenantId = object["tenantId"] as? String, NativeIdentityConfiguration.isNativeTenant(tenantId),
               let expiresAt = parseExpiry(object["expiresAt"]) else {
             throw NativeIdentityError.malformedResponse
         }
@@ -509,7 +581,7 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         if requireToken {
             guard object["tokenType"] as? String == "Bearer",
                   let value = object["token"] as? String,
-                  isOpaqueCredential(value) else {
+                  isSessionToken(value) else {
                 throw NativeIdentityError.malformedResponse
             }
             token = value
@@ -526,22 +598,43 @@ public actor NativeIdentityController: SessionProvider, RequestAuthorizer, Custo
         )
     }
 
-    static func isOpaqueID(_ value: String) -> Bool {
-        (8...128).contains(value.utf8.count) && value.utf8.allSatisfy(NativeIdentityConfiguration.isUnreservedASCII)
+    /// Server `FOUNDER`: an alphanumeric start, then up to 239 of `A-Za-z0-9._:@/-`.
+    static func isFounderID(_ value: String) -> Bool {
+        guard let first = value.utf8.first, NativeIdentityConfiguration.isASCIIAlphanumeric(first) else { return false }
+        let rest = value.utf8.dropFirst()
+        guard rest.count <= 239 else { return false }
+        return rest.allSatisfy { byte in
+            NativeIdentityConfiguration.isUnreservedASCII(byte) || byte == 0x3A || byte == 0x40 || byte == 0x2F
+        }
     }
 
-    /// Opaque credential: 43 to 128 unreserved characters. A later owner prefix
-    /// can tighten this in one place.
-    static func isOpaqueCredential(_ value: String) -> Bool {
-        (43...128).contains(value.utf8.count) && value.utf8.allSatisfy(NativeIdentityConfiguration.isUnreservedASCII)
+    /// Authorization code: `cnc1_` plus 43 base64url characters.
+    static func isAuthorizationCode(_ value: String) -> Bool {
+        isPrefixedCredential(value, prefix: "cnc1_")
     }
 
-    /// Accepts only canonical `YYYY-MM-DDTHH:MM:SSZ`. Fractional seconds and offsets are refused.
+    /// Session token: `cns1_` plus 43 base64url characters.
+    static func isSessionToken(_ value: String) -> Bool {
+        isPrefixedCredential(value, prefix: "cns1_")
+    }
+
+    private static func isPrefixedCredential(_ value: String, prefix: String) -> Bool {
+        guard value.hasPrefix(prefix) else { return false }
+        let body = value.dropFirst(prefix.count)
+        guard body.utf8.count == 43 else { return false }
+        return body.utf8.allSatisfy { byte in
+            NativeIdentityConfiguration.isASCIIAlphanumeric(byte) || byte == 0x2D || byte == 0x5F
+        }
+    }
+
+    /// Owner canonical expiry: `YYYY-MM-DDTHH:mm:ss.SSSZ`. Text must round-trip
+    /// exactly through the formatter, so impossible dates and other offsets fail.
     static func parseExpiry(_ value: Any?) -> Date? {
-        guard let text = value as? String, text.utf8.count == 20 else { return nil }
+        guard let text = value as? String, text.utf8.count == 24 else { return nil }
         let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        return formatter.date(from: text)
+        guard let date = formatter.date(from: text), formatter.string(from: date) == text else { return nil }
+        return date
     }
 }
