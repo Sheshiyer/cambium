@@ -257,6 +257,17 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3450: Anti: local identity verification creates no live grant, enrollment or production configuration change.
 - [x] ISC-3451: The native interface composes a real injectable sign-in implementation and states live prerequisites honestly.
 
+### Native mapped-project integration — 2026-11-02
+
+- [x] ISC-3460: A scoped local native founder route serves portfolio detail and a separate exact join report.
+- [x] ISC-3461: Native decoder maps every served record and rejects malformed or count-mismatched detail.
+- [x] ISC-3462: The Projects screen exposes source classification, dates, provenance, tenant labels and mission-data gaps without action authority.
+- [x] ISC-3463: Global search and Canopy reach mapped project detail; viewer scope remains totals-only.
+- [x] ISC-3464: Only an explicit served join to an existing Work node enables the operational Work link.
+- [x] ISC-3465: Local Swift and native route tests, signed bundle and clean-input build proof pass.
+- [ ] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
+- [ ] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority.
+
 ### Standalone composition source slice (2026-10-05)
 
 - [x] ISC-COMPC-01: Repository-owned composition source validates boundaries and rejects unsafe inputs.
