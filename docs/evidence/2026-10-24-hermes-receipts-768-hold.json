@@ -1,0 +1,37 @@
+{
+  "schema": "thoughtseed.hermes_receipts_candidate_hold.v1",
+  "observedAt": "2026-10-24T00:02:57.951583+00:00",
+  "activeDeployment": {
+    "id": "256bd7d9-9dfe-4858-a14c-0b926d6bb19e",
+    "createdOn": "2026-10-23T19:45:59.791934Z",
+    "versions": [
+      {
+        "version_id": "b33a1a6e-6edc-412d-b974-10e437379dc0",
+        "percentage": 100
+      }
+    ]
+  },
+  "newIndex": {
+    "name": "cambium-hermes-receipts-v2",
+    "exists": false,
+    "readbackErrorCode": 3000
+  },
+  "previousCreateFailure": {
+    "errorCode": 3003,
+    "supportedDimensions": [
+      32,
+      1536
+    ]
+  },
+  "revisedCandidate": {
+    "sourceCommit": "3851c65dfaeecf3ab73756fe635f5af6dd4e7e14",
+    "bundleSha256": "88c2788e875a5fc49bd4c2ce6e265cb847ab0d924e4268b1556a32e160ad4131",
+    "model": "@cf/baai/bge-base-en-v1.5",
+    "dimensions": 768,
+    "approvalState": "held_pending_owner_approval"
+  },
+  "recoveryWorkerUploaded": false,
+  "recoveryTrafficChanged": false,
+  "runnerUrlChanged": false,
+  "modelReexecuted": false
+}
