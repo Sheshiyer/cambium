@@ -59,3 +59,25 @@ npm run test
 
 `npm run test` is the current deterministic verification
 command.
+
+## Sapling lifecycle pack
+
+The repository-owned `sapling-lifecycle` skill composes the existing product,
+delivery, launch, growth, and learning workflows. Start with its repo-local
+skill entrypoint; `references/commands.md` documents client syntax and install
+rollback. Reports are local review projections, never operational admission.
+
+```bash
+npm run sapling -- review all
+npm run sapling -- status fitcheck
+npm run sapling -- run fitcheck
+npm run sapling:adapters -- dry-run
+npm run sapling:adapters -- install
+npm run sapling:adapters -- check
+npm run sapling:test
+```
+
+Supply private vault and skill-library roots through local configuration or
+helper flags. Generated reports remain ignored. A generic run requests one
+step selection; the calling agent performs only that authorized action and
+verifies its outcome. No scheduler or external publisher is installed.

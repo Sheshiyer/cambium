@@ -205,6 +205,30 @@ For the Fitcheck founder-evidence pilot, add one exact authenticated route and o
 
 ## Criteria
 
+### Sapling lifecycle pack — 2026-11-02
+
+- [x] ISC-3140: The repository owns one discoverable sapling-lifecycle skill entrypoint.
+- [x] ISC-3141: The reviewed component catalog records owners, source digests, inputs, outputs, writes, prerequisites, stop rules, and probes.
+- [x] ISC-3142: Eight command intents have thin client adapters bound to the canonical pack.
+- [x] ISC-3143: Installation preserves conflicting unowned files and symlinks.
+- [x] ISC-3144: Reinstallation is idempotent and check detects source or installed-artifact drift.
+- [x] ISC-3145: Uninstall removes only unchanged pack-owned artifacts.
+- [x] ISC-3146: Graph validation rejects missing configured roots.
+- [x] ISC-3147: Graph validation rejects duplicate identities and dangling edges.
+- [x] ISC-3148: Graph verification distinguishes conflicting or unverified evidence from observed proof.
+- [x] ISC-3149: The read route refuses record=true and publishing output.
+- [x] ISC-3150: A generic run asks for a selected step before preparing an action.
+- [x] ISC-3151: A selected run prepares at most one step and detects completed-step replay.
+- [x] ISC-3152: Generated reports remain ignored and committed pack files contain no machine-local checkout paths or private corpora.
+- [x] ISC-3153: Reopened Product Hunt state preserves the six authorized Temperance field values.
+- [x] ISC-3154: Product Hunt formally creates an unscheduled Temperance draft, or the remaining service requirements are explicitly held.
+- [x] ISC-3155: Anti: this task changes no LumenBar field or schedule.
+- [ ] ISC-3156: The read-only Temperance Rhai run reaches a terminal outcome or explicit bounded timeout without writing a vault receipt.
+- [x] ISC-3157: The README widget is written only after a genuine stable listing slug and official widget exist.
+- [ ] ISC-3158: The conditional Temperance packet remains proof-only with v1.1 and hosted-authentication holds.
+- [x] ISC-3159: Anti: pack installation creates no scheduler, tenant admission, operational graph write, provider change, or deployment.
+
+
 ### Standalone composition source slice (2026-10-05)
 
 - [x] ISC-COMPC-01: Repository-owned composition source validates boundaries and rejects unsafe inputs.
@@ -1806,6 +1830,13 @@ this setup. These criteria accept review documents, not runtime activation.
 
 ## Test Strategy
 
+| Sapling criteria | Probe | Acceptance boundary |
+| --- | --- | --- |
+| ISC-3140..3152 | skill validator, 17 helper tests, adapter digest check, native discovery and source-path scan | local source and installed adapters only |
+| ISC-3153..3155 | authenticated IAB reopened editor and draft page | exact fields, maker, Draft and Not scheduled yet; LumenBar untouched |
+| ISC-3156 | terminal Rhai state and vault-receipt absence | read-only graph outcome only |
+| ISC-3157..3159 | remote README commit readback, packet validator and explicit holds | proof-only, no runtime admission |
+
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
   bounded source reconciliation, asset/PDF observations, link and privacy
   checks, revised diagram/design/plan readback, and original file hashes.
@@ -2138,6 +2169,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - Founder Gate CLI vertical slice | Existing Access verifier, stored intake, explicit tenant bindings and canonical D1 receipts | satisfies: ISC-3088..3099 | depends_on: merged #395 | parallelizable: bounded CLI/test ownership only.
 
 ## Decisions
+
+- 2026-11-02: Sapling lifecycle implementation uses a preserved isolated branch. Cambium owns the pack; vault workflows remain referenced knowledge. Shared client adapters review current evidence before one selected step. Product Hunt authorization covers the six supplied fields and unscheduled draft creation; missing media requirements remain distinct. Existing product/runtime approvals are not inherited.
 
 - 2026-10-01: refined: Plexus owns human identity and role ceiling; Cambium
   retains operational task authority. The growth review preserves integration
@@ -2639,6 +2672,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-2512/2513 require existing primitive reuse; ISC-2530..2532 require independent products and both profiles without Snow Gloves
 
 ## Verification
+
+- 2026-11-02 sapling checkpoint: skill validation, 17 helper tests and 28 existing packet/GTM/branch tests pass. Installed 34 owned artifacts with zero digest drift; Grok discovers eight commands and Codex skills/list discovers repo and user skill adapters. OpenCode binary is unavailable. Product Hunt IAB confirms the formal Temperance draft is not scheduled; all six fields persist, with the approved existing logo/art and matching tags. README-only commit `42b391b` is verified on Temperance remote main. Current Rhai read run and proof-only packet remain pending at this checkpoint. Full-suite results and baseline/stability reconciliation remain pending; no full-green claim.
 
 ### 2026-10-01 growth ecosystem deep review — documentation verification
 
