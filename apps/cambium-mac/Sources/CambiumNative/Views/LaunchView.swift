@@ -149,6 +149,15 @@ private struct AttemptPanel: View {
                     Button("Check status", action: model.recoverLaunch)
                         .buttonStyle(.borderedProminent)
                         .disabled(model.loading)
+                    if launch.ownerAbsent {
+                        Text("Status proved the owner has no row for these exact IDs. Retry sends that same saved request. It does not create a new request, attempt, or nonce.")
+                            .font(.callout).foregroundStyle(Palette.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                        FactRow(label: "Original capability expires", value: model.time(launch.capabilityExpiresAt))
+                        Button("Retry original request") { model.retryOriginalLaunch(nonce: launch.nonce) }
+                            .disabled(model.loading)
+                            .accessibilityHint("Resends the saved request and nonce")
+                    }
                 } else {
                     Text("This attempt is resolved. A new launch needs a new owner capability.")
                         .font(.callout).foregroundStyle(Palette.inkMuted)
@@ -178,6 +187,12 @@ private struct PendingPanel: View {
                     Button("Check status") { model.recoverLaunch(nonce: record.nonce) }
                         .disabled(model.loading)
                         .accessibilityLabel("Check status for \(record.requestId)")
+                    if record.ownerAbsent {
+                        Button("Retry original request") { model.retryOriginalLaunch(nonce: record.nonce) }
+                            .disabled(model.loading)
+                            .accessibilityLabel("Retry original request \(record.requestId)")
+                            .accessibilityHint("Resends the saved request and nonce")
+                    }
                 }
                 .cambiumPanel(padding: 10)
             }
@@ -198,10 +213,10 @@ private struct DemoPanel: View {
                 Button(model.faultArmed ? "Response loss armed" : "Simulate response loss") { model.armFault() }
                     .disabled(model.faultArmed)
                 Button("Reset demo state", role: .destructive) { model.resetDemo() }
-                    .disabled(model.gate?.needsStatusCheck == true || model.launch?.needsStatusCheck == true)
+                    .disabled(model.resetVisuallyBlocked)
                 Spacer()
             }
-            if model.gate?.needsStatusCheck == true || model.launch?.needsStatusCheck == true {
+            if model.resetVisuallyBlocked {
                 Text("Reset is blocked while an attempt is unknown.").font(.caption).foregroundStyle(Palette.hold)
             } else {
                 Text("Reset clears the demo owner and demo recovery. It cannot touch standard mode.")
