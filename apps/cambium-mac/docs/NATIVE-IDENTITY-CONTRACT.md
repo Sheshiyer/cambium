@@ -2,8 +2,8 @@
 
 Status: server source, conditional entry-point wiring and local tests exist.
 The 0100 and 0101 migration applies, client registration and any live browser
-grant have not been done. The TeamForge identity-by-ID seam is draft-only in
-PR #105 and is not a live authority. Reviewed contract:
+grant have not been done. The TeamForge identity-by-ID seam is ready for review
+in PR #105 and is not a live authority. Reviewed contract:
 `.planning/native-mac/NATIVE-SESSION-CONTRACT.md`.
 
 Source: `workers/quests/src/native-session.ts` (routes, resolver, factory),

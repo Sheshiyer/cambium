@@ -1,10 +1,10 @@
 # Native session current-identity dependency
 
-Status: source review plus owner-contract draft, 2026-11-02. Cambium native
+Status: source review plus owner-contract review, 2026-11-02. Cambium native
 session source is locally implemented and held unbound. TeamForge PR #105
-defines the missing owner interface, but it is still draft-only; this packet
-does not merge, register a client, grant authority, change live secrets, or
-activate a Worker.
+defines the missing owner interface and is ready for review; this packet does
+not merge, register a client, grant authority, change live secrets, or activate
+a Worker.
 
 ## Current source evidence
 
@@ -27,7 +27,7 @@ activate a Worker.
   Direct-origin live probes previously returned 404 for the native session
   path. Thus local route tests and a signed Mac bundle do not establish a
   usable live founder session.
-- TeamForge draft [PR #105](https://github.com/Sheshiyer/team-forge-ts/pull/105)
+- TeamForge ready-for-review [PR #105](https://github.com/Sheshiyer/team-forge-ts/pull/105)
   on `codex/cambium-native-identity-lookup-20261102` now adds the proposed
   `GET /v1/native/identity/:identityId?tenant_id=cambium` route. It reads only
   the active exact-workspace row and returns the minimal
@@ -50,7 +50,7 @@ TeamForge's workspace ID is not a Cambium tenant ID: the selected tenant must
 also be present in a separately reviewed, current founder-to-tenant enrollment
 source. Neither a role alone nor a catalog record grants that enrollment.
 Service authentication, call origin, response schema, freshness and revocation
-semantics are now pinned in the draft route and Cambium adapter
+semantics are now pinned in the ready-for-review route and Cambium adapter
 (`workers/quests/src/plexus-native-identity.ts`). The adapter accepts only the
 exact contract, maps active `admin` to founder, rechecks the current endpoint
 on every callback, and treats degraded or malformed responses as unavailable.
@@ -61,8 +61,9 @@ JWT into the Mac app.
 
 1. Review and merge the narrow TeamForge service route, then rerun its worker
    tests and Cambium's adapter tests against the pinned owner schema. Cambium
-   already injects it as `currentRole` and an independently reviewed enrollment
-   callback into `createNativeSessionHost`; fail closed on every error.
+   already injects one atomic `resolveFounderAccess` snapshot into
+   `createNativeSessionHost` (with compatibility callbacks retained); fail
+   closed on every error.
 2. Register one exact native client ID/callback and bind the browser founder
    verifier, owner origin and D1 stores. Review migrations 0100/0101 against
    the target database before applying them in an approved rollout.
@@ -74,6 +75,7 @@ JWT into the Mac app.
    route/secret/binding reversal, and run real owner Mac acceptance. A 200
    health check or local test is not this proof.
 
-The draft service route and Cambium adapter are source-only. No TeamForge merge,
-owner enrollment authority, migration apply, client registry, secret binding,
-deployment or live founder session was changed by this source review.
+The ready-for-review service route and Cambium adapter are source-only. No
+TeamForge merge, owner enrollment authority, migration apply, client registry,
+secret binding, deployment or live founder session was changed by this source
+review.

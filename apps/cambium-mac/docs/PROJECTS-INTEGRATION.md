@@ -99,7 +99,7 @@ still resolves a role only from a verified browser Access JWT forwarded to
 `/v1/whoami`; its principal has wildcard tenant scope and is not used for
 cookie-free native exchange or later bearer reads. The new
 `workers/quests/src/plexus-native-identity.ts` adapter consumes the separately
-scoped `plexus.native-identity.v1` contract from draft TeamForge PR #105,
+scoped `plexus.native-identity.v1` contract from ready-for-review TeamForge PR #105,
 mapping only active `admin` identities to native `founder` and rechecking the
 exact `cambium` enrollment on every callback. This is source wiring, not live
 authority: the PR, endpoint, dedicated token, tenant/workspace map, client,
