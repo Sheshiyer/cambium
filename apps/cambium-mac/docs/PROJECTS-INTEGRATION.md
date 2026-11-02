@@ -34,6 +34,11 @@ hardcoded into the standard app. The catalog remains `readOnly` with
    one loaded Work node; missing, summary-only, stale, future-dated or
    ambiguous data falls back to Projects. The affordance never writes,
    approves, admits or launches anything.
+7. Project dossiers parse each provenance reference without guessing authority.
+   Explicit HTTPS sites and repository-shaped `owner/name` references offer an
+   external-browser link only after the founder clicks it. Vault, Cambium,
+   repository aliases without an owner/name, and unknown references remain
+   text-only; no local path or credential-bearing URL is opened.
 
 The bundled demo is a **dated synthetic-owner replay**. Its fixture has 76
 current records, 20 historical products, 73 action records and one explicit

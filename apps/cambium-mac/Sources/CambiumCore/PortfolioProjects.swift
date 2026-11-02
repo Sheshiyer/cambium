@@ -35,6 +35,13 @@ public struct MappedProject: Identifiable, Equatable, Sendable {
 
     public var id: String { workId }
 
+    /// Provenance references remain source observations. Only references that
+    /// carry an explicit HTTPS site or a repository-shaped `owner/name` value
+    /// become openable; vault, internal and ambiguous references stay text-only.
+    public var sourceReferences: [MappedSourceReference] {
+        provenance.map(MappedSourceReference.parse)
+    }
+
     public init(
         workId: String,
         canonicalId: String,
@@ -71,6 +78,67 @@ public struct MappedProject: Identifiable, Equatable, Sendable {
         self.aliases = aliases
         self.runtimeWorkId = runtimeWorkId
         self.operationalGapMissingFields = operationalGapMissingFields
+    }
+}
+
+public enum MappedSourceKind: String, Equatable, Sendable {
+    case repository
+    case site
+    case vault
+    case internalReference
+    case reference
+
+    public var label: String {
+        switch self {
+        case .repository: "Repository"
+        case .site: "Site"
+        case .vault: "Vault reference"
+        case .internalReference: "Cambium reference"
+        case .reference: "Source reference"
+        }
+    }
+}
+
+/// One provenance value from a mapped project. Parsing is deliberately
+/// conservative: opening a source is an explicit user gesture, and no local
+/// vault path or inferred host is ever turned into a URL.
+public struct MappedSourceReference: Identifiable, Equatable, Sendable {
+    public let raw: String
+    public let kind: MappedSourceKind
+    public let url: URL?
+
+    public var id: String { raw }
+
+    public static func parse(_ raw: String) -> MappedSourceReference {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let value = trimmed.split(separator: ":", maxSplits: 1).dropFirst().first.map(String.init),
+           trimmed.hasPrefix("site:") {
+            return MappedSourceReference(raw: raw, kind: .site, url: safeHTTPSURL(value))
+        }
+        if trimmed.hasPrefix("repo:") {
+            let value = String(trimmed.dropFirst("repo:".count))
+            let repoPattern = #"^[A-Za-z0-9][A-Za-z0-9_.-]{0,99}/[A-Za-z0-9][A-Za-z0-9_.-]{0,99}$"#
+            let url = value.range(of: repoPattern, options: .regularExpression).flatMap { _ in
+                URL(string: "https://github.com/\(value)")
+            }
+            return MappedSourceReference(raw: raw, kind: .repository, url: url)
+        }
+        if trimmed.hasPrefix("vault:") {
+            return MappedSourceReference(raw: raw, kind: .vault, url: nil)
+        }
+        if trimmed.hasPrefix("cambium:") {
+            return MappedSourceReference(raw: raw, kind: .internalReference, url: nil)
+        }
+        return MappedSourceReference(raw: raw, kind: .reference, url: nil)
+    }
+
+    private static func safeHTTPSURL(_ value: String) -> URL? {
+        guard let url = URL(string: value),
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.scheme?.lowercased() == "https",
+              let host = components.host, !host.isEmpty,
+              components.user == nil, components.password == nil else { return nil }
+        return url
     }
 }
 
