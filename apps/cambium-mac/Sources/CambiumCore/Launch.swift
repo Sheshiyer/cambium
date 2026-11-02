@@ -108,6 +108,8 @@ public struct AttemptStatusResult: Sendable, Equatable {
     public var terminal: Bool? = nil
     public var acceptance: String? = nil
     public var retry: String? = nil
+    /// The owner's echo of the pinned tuple. Nil only from injected clients that do not report it.
+    public var capability: LaunchCapabilityTuple? = nil
 }
 
 public enum SemanticVerdict: String, Codable, Sendable, Equatable {
@@ -373,7 +375,7 @@ enum OwnerWire {
                 runId: nil, artifactRef: nil, receiptRef: nil, verdict: nil, detail: p.status,
                 requestKey: p.requestKey, dispatch: p.dispatch, executionState: p.executionState,
                 ownerRef: p.ownerRef, observedAt: p.observedAt, terminal: p.terminal,
-                acceptance: p.acceptance, retry: p.retry
+                acceptance: p.acceptance, retry: p.retry, capability: p.tuple
             )
         case 404 where string(o, "status") == "not_found":
             return AttemptStatusResult(
@@ -595,19 +597,35 @@ public actor LaunchCoordinator {
     private static let resolved: Set<LaunchState> = [.complete, .failed, .refused, .expired, .busy]
     private static let pending: Set<LaunchState> = [.queued, .transmitting, .transmissionFailed, .persistenceFailed, .busy, .running, .outcomeUnknown]
 
-    private func requireScope(tenantId: String, principal: String) async throws {
-        let current = await session.currentSession()
-        guard case .verified(let founderId, let sessionTenant, _) = current,
-              sessionTenant == tenantId, founderId == principal,
-              current.admits(tenantId: tenantId, at: clock.now()) else {
-            throw LaunchError.notAdmitted
-        }
+    /// The tuple the owner was asked to launch. A status readback must echo it exactly.
+    static func pinned(_ capability: LaunchCapability) -> LaunchCapabilityTuple {
+        LaunchCapabilityTuple(
+            workId: capability.workId, admissionRef: capability.admissionRef, graphVersion: capability.graphVersion,
+            loadoutId: capability.loadoutId, inputDigest: capability.inputDigest,
+            executionPlant: capability.executionPlant.rawValue, supportedAction: capability.supportedAction,
+            expiresAt: capability.expiresAt
+        )
     }
 
-    private func decode(_ data: Data?, tenantId: String, principal: String) throws -> LaunchAttemptRecord? {
+    /// Re-reads the session. Each await in this coordinator is followed by this check before a result is published.
+    private func scopeHolds(tenantId: String, principal: String) async -> Bool {
+        let current = await session.currentSession()
+        guard case .verified(let founderId, let sessionTenant, _) = current else { return false }
+        return sessionTenant == tenantId && founderId == principal && current.admits(tenantId: tenantId, at: clock.now())
+    }
+
+    private func requireScope(tenantId: String, principal: String) async throws {
+        guard await scopeHolds(tenantId: tenantId, principal: principal) else { throw LaunchError.notAdmitted }
+    }
+
+    /// A record counts only when its stored key is the key derived from its own contents.
+    /// A relocated or spliced record refuses instead of disappearing from enumeration.
+    private func decode(_ data: Data?, expectedKey: String, tenantId: String, principal: String) throws -> LaunchAttemptRecord? {
         guard let data else { return nil }
         guard let record = try? JSONDecoder().decode(LaunchAttemptRecord.self, from: data),
-              record.capability.tenantId == tenantId, record.capability.principal == principal else {
+              record.capability.tenantId == tenantId, record.capability.principal == principal,
+              Self.key(tenantId: record.capability.tenantId, principal: record.capability.principal,
+                       workId: record.capability.workId, nonce: record.idempotencyNonce) == expectedKey else {
             throw LaunchError.corruptRecord
         }
         return record
@@ -629,7 +647,8 @@ public actor LaunchCoordinator {
         let key = Self.key(tenantId: capability.tenantId, principal: capability.principal, workId: capability.workId, nonce: idempotencyNonce)
         var existing: LaunchAttemptRecord? = nil
         for other in try await store.keys(prefix: Self.scopePrefix(tenantId: capability.tenantId, principal: capability.principal)) {
-            guard let record = try decode(try await store.load(key: other), tenantId: capability.tenantId, principal: capability.principal) else { continue }
+            guard let record = try decode(try await store.load(key: other), expectedKey: other,
+                                          tenantId: capability.tenantId, principal: capability.principal) else { continue }
             if other == key {
                 existing = record
             } else if record.capability.workId == capability.workId, !Self.resolved.contains(record.state) {
@@ -638,6 +657,8 @@ public actor LaunchCoordinator {
                 throw LaunchError.refused("admission_consumed")
             }
         }
+        // The scan awaited storage. A switch during it must not publish a duplicate.
+        try await requireScope(tenantId: capability.tenantId, principal: capability.principal)
 
         if let existing {
             guard existing.capability == capability, existing.idempotencyNonce == idempotencyNonce else {
@@ -646,7 +667,6 @@ public actor LaunchCoordinator {
             return LaunchOutcome(state: existing.state, record: existing)
         }
 
-        try await requireScope(tenantId: capability.tenantId, principal: capability.principal)
         try Self.validate(capability, now: clock.now())
 
         let requestId = "req-" + UUID().uuidString.lowercased()
@@ -660,8 +680,31 @@ public actor LaunchCoordinator {
         // Original IDs are durable before any bytes leave the process.
         do { try await store.save(try encoder(record), key: key) } catch { throw LaunchError.persistenceFailed }
 
+        // The durable save is a suspension point. A switch or expiry here sends nothing,
+        // so the unsent record is removed rather than left to block later launches.
+        let stillCurrent = await scopeHolds(tenantId: capability.tenantId, principal: capability.principal)
+        let unexpired = CanonicalTimestamp.parse(capability.expiresAt).map { $0 > clock.now() } ?? false
+        guard stillCurrent, unexpired else {
+            try? await store.remove(key: key)
+            throw stillCurrent ? LaunchError.expired : LaunchError.notAdmitted
+        }
+
+        var wire: LaunchRequestWire? = nil
+        var sendError = false
         do {
-            let wire = try await client.requestLaunch(capability: capability, requestId: requestId, attemptId: attemptId, idempotencyNonce: idempotencyNonce)
+            wire = try await client.requestLaunch(capability: capability, requestId: requestId, attemptId: attemptId, idempotencyNonce: idempotencyNonce)
+        } catch {
+            sendError = true
+        }
+
+        // The owner may have accepted the request. If the session moved during the send, the attempt
+        // stays uncertain under its original scope and the owner answer is not adopted.
+        let held = await scopeHolds(tenantId: capability.tenantId, principal: capability.principal)
+        record.updatedAt = Self.stamp(clock.now())
+        if !held {
+            record.state = .outcomeUnknown
+            record.detail = "session_changed_after_send"
+        } else if let wire, !sendError {
             if wire.requestId != requestId || wire.attemptId != attemptId {
                 record.state = .outcomeUnknown
                 record.detail = "mismatched_response_ids"
@@ -675,10 +718,10 @@ public actor LaunchCoordinator {
                 record.acceptance = wire.acceptance
                 record.detail = wire.detail
             }
-        } catch {
+        } else {
             record.state = .transmissionFailed
         }
-        record.updatedAt = Self.stamp(clock.now())
+
         do {
             try await store.save(try encoder(record), key: key)
         } catch {
@@ -686,6 +729,9 @@ public actor LaunchCoordinator {
             record.state = .outcomeUnknown
             try? await store.save(try encoder(record), key: key)
         }
+
+        // The outcome is durable under its original scope. A session that moved during that save gets no publication.
+        try await requireScope(tenantId: capability.tenantId, principal: capability.principal)
         return LaunchOutcome(state: record.state, record: record)
     }
 
@@ -701,10 +747,12 @@ public actor LaunchCoordinator {
         defer { inFlight.remove(guardKey) }
 
         let key = Self.key(tenantId: sessionTenant, principal: founderId, workId: workId, nonce: idempotencyNonce)
-        guard var record = try decode(try await store.load(key: key), tenantId: sessionTenant, principal: founderId),
+        guard var record = try decode(try await store.load(key: key), expectedKey: key, tenantId: sessionTenant, principal: founderId),
               record.capability.workId == workId, record.idempotencyNonce == idempotencyNonce else {
             throw LaunchError.recoveryUnavailable
         }
+        // The load is a suspension point. A resolved record is published only while its scope still holds.
+        try await requireScope(tenantId: sessionTenant, principal: founderId)
         if Self.resolved.contains(record.state) { return LaunchOutcome(state: record.state, record: record) }
 
         var changed = false
@@ -714,6 +762,10 @@ public actor LaunchCoordinator {
             if status.requestId != record.requestId || status.attemptId != record.attemptId {
                 record.state = .outcomeUnknown
                 record.detail = "mismatched_status_ids"
+            } else if let echoed = status.capability, echoed != Self.pinned(record.capability) {
+                // Same IDs with a different work, admission, input or plant: keep the attempt unknown and apply nothing.
+                record.state = .outcomeUnknown
+                record.detail = "mismatched_status_capability"
             } else {
                 record.state = Self.state(for: status.status)
                 record.assignedRunId = status.runId ?? record.assignedRunId
@@ -740,6 +792,8 @@ public actor LaunchCoordinator {
             record.updatedAt = Self.stamp(clock.now())
             do { try await store.save(try encoder(record), key: key) } catch { throw LaunchError.persistenceFailed }
         }
+        // Recovery does not check capability expiry: the owner status is still valid while the session is.
+        try await requireScope(tenantId: sessionTenant, principal: founderId)
         return LaunchOutcome(state: record.state, record: record)
     }
 
@@ -749,7 +803,7 @@ public actor LaunchCoordinator {
               first.admits(tenantId: sessionTenant, at: clock.now()) else { return [] }
         var out: [LaunchAttemptRecord] = []
         for key in try await store.keys(prefix: Self.scopePrefix(tenantId: sessionTenant, principal: founderId)) {
-            guard let record = try decode(try await store.load(key: key), tenantId: sessionTenant, principal: founderId) else { continue }
+            guard let record = try decode(try await store.load(key: key), expectedKey: key, tenantId: sessionTenant, principal: founderId) else { continue }
             if Self.pending.contains(record.state) && record.state != .busy { out.append(record) }
         }
         let last = await session.currentSession()
