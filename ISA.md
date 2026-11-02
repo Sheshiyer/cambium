@@ -270,6 +270,7 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3468: Founder detail maps every served historical product and classification review row; viewer detail stays empty.
 - [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
 - [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.
+- [x] ISC-3471: A fresh local handler envelope from the current portfolio source decodes in Swift without replacing the dated replay fixture.
 
 ### Standalone composition source slice (2026-10-05)
 
@@ -2705,6 +2706,8 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-2512/2513 require existing primitive reuse; ISC-2530..2532 require independent products and both profiles without Snow Gloves
 
 ## Verification
+
+- ISC-3471: local cross-language probe — `./apps/cambium-mac/tools/probe-current-portfolio.sh` passed one focused Swift decode of the TypeScript handler envelope: 77 current, 20 historical, 0 review, 50 gaps, 1 exact Work join, display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`; dated replay fixture was untouched. Current source includes uncommitted concurrent catalog edits; this is not live delivery.
 
 ### 2026-10-01 growth ecosystem deep review — documentation verification
 
