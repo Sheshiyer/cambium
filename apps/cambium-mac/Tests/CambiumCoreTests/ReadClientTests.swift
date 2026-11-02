@@ -309,6 +309,38 @@ final class ReadClientTests: XCTestCase {
 
     // MARK: Snapshot store
 
+    func testSnapshotExpiresAfterCacheTTL() async throws {
+        let body = try ReaderFixtures.fabricBody()
+        let session = ReaderSession(ReaderFixtures.session("founder-1", ttl: 3600))
+        let clock = ReaderClock(ReaderFixtures.baseDate)
+        let (client, _) = try makeClient(session: session, clock: clock) { _ in HTTPResponse(status: 200, body: body) }
+        let store = MissionFabricSnapshotStore(reader: client, sessionProvider: session, clock: clock)
+
+        _ = try await store.refresh(tenantId: "cambium")
+        clock.set(ReaderFixtures.baseDate.addingTimeInterval(59))
+        let within = await store.snapshot(for: ReaderFixtures.session("founder-1", ttl: 3600))
+        XCTAssertNotNil(within)
+
+        clock.set(ReaderFixtures.baseDate.addingTimeInterval(61))
+        let expired = await store.snapshot(for: ReaderFixtures.session("founder-1", ttl: 3600))
+        XCTAssertNil(expired)
+    }
+
+    func testRenewedSessionCannotExtendOriginalContextExpiry() async throws {
+        let body = try ReaderFixtures.fabricBody()
+        let session = ReaderSession(ReaderFixtures.session("founder-1", ttl: 120))
+        let clock = ReaderClock(ReaderFixtures.baseDate)
+        let (client, _) = try makeClient(session: session, clock: clock) { _ in HTTPResponse(status: 200, body: body) }
+        let store = MissionFabricSnapshotStore(reader: client, sessionProvider: session, clock: clock, cacheTTL: 300)
+
+        _ = try await store.refresh(tenantId: "cambium")
+        let renewed = ReaderFixtures.session("founder-1", ttl: 3600, from: ReaderFixtures.baseDate.addingTimeInterval(100))
+        session.set(renewed)
+        clock.set(ReaderFixtures.baseDate.addingTimeInterval(121))
+        let held = await store.snapshot(for: renewed)
+        XCTAssertNil(held, "context expired at +120s even though the renewed session runs to +3700s")
+    }
+
     func testSnapshotStoreInvalidatedOnSwitchAndSignOut() async throws {
         let body = try ReaderFixtures.fabricBody()
         let session = ReaderSession(ReaderFixtures.session("founder-1"))
@@ -417,7 +449,7 @@ final class URLSessionTransportTests: XCTestCase {
     private func makeTransport(_ url: String? = nil, timeout: TimeInterval = 5, maxResponseBytes: Int = HTTPLimits.maxResponseBytes) throws -> URLSessionHTTPTransport {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [ReaderStubProtocol.self]
-        return URLSessionHTTPTransport(
+        return try URLSessionHTTPTransport(
             origin: try HTTPOriginPolicy(url: URL(string: url ?? origin)!), configuration: configuration,
             timeout: timeout, maxResponseBytes: maxResponseBytes
         )
@@ -490,6 +522,56 @@ final class URLSessionTransportTests: XCTestCase {
         }
         XCTAssertEqual(oversize as? TransportFailure, .malformedResponse)
         XCTAssertTrue(ReaderStubProtocol.seen.get().isEmpty)
+    }
+
+    func testDotSegmentAndEncodedRedirectsCannotEscapeScope() async throws {
+        let escapes = [
+            "https://fabric.example.invalid/api/%2e%2e/admin",
+            "https://fabric.example.invalid/api/%2E%2E/admin",
+            "https://fabric.example.invalid/api/%252e%252e/admin",
+            "https://fabric.example.invalid/api/../admin",
+            "https://fabric.example.invalid/api/x%2fadmin",
+            "https://fabric.example.invalid/api/x%5cadmin"
+        ]
+        for location in escapes {
+            ReaderStubProtocol.reset { _ in .redirect(location) }
+            let transport = try makeTransport(origin + "/api")
+            let error = await readerError { try await transport.send(HTTPRequest(method: "GET", url: URL(string: self.origin + "/api/v1/x")!, headers: ["authorization": "Bearer t"])) }
+            XCTAssertEqual(error as? TransportFailure, .unreachable, location)
+            XCTAssertEqual(ReaderStubProtocol.seen.get().count, 1, "redirect sent for \(location)")
+        }
+    }
+
+    func testEncodedOriginalRequestsAreDeniedBeforeAuth() async throws {
+        ReaderStubProtocol.reset { _ in .response(status: 200, headers: [:], body: Data()) }
+        let transport = try makeTransport(origin + "/api")
+        for path in ["/api/%2e%2e/admin", "/api/%252e%252e/admin", "/api/../admin", "/api/x%2Fadmin", "/api/%2e/x"] {
+            let error = await readerError { try await transport.send(HTTPRequest(method: "GET", url: URL(string: self.origin + path)!, headers: ["authorization": "Bearer t"])) }
+            XCTAssertEqual(error as? TransportFailure, .unreachable, path)
+        }
+        XCTAssertTrue(ReaderStubProtocol.seen.get().isEmpty)
+    }
+
+    func testBackgroundConfigurationIsRefused() {
+        let background = URLSessionConfiguration.background(withIdentifier: "com.example.invalid.bg")
+        XCTAssertThrowsError(try URLSessionHTTPTransport(origin: HTTPOriginPolicy(url: URL(string: origin)!), configuration: background)) {
+            XCTAssertEqual($0 as? HTTPOriginError, .backgroundSessionRefused)
+        }
+    }
+
+    func testCallerDiskStateIsNotCopiedIntoSession() throws {
+        let configuration = URLSessionConfiguration.default
+        configuration.urlCache = URLCache.shared
+        configuration.httpCookieStorage = HTTPCookieStorage.shared
+        configuration.httpShouldSetCookies = true
+        configuration.urlCredentialStorage = URLCredentialStorage.shared
+        let transport = try URLSessionHTTPTransport(origin: HTTPOriginPolicy(url: URL(string: origin)!), configuration: configuration)
+        let session = transport.sessionConfigurationForTesting
+        XCTAssertNil(session.urlCache)
+        XCTAssertNil(session.httpCookieStorage)
+        XCTAssertFalse(session.httpShouldSetCookies)
+        XCTAssertNil(session.urlCredentialStorage)
+        XCTAssertNil(session.identifier)
     }
 
     func testCrossOriginRedirectIsDeniedBeforeFollowing() async throws {

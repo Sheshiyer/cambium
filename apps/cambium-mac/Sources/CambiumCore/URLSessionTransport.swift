@@ -9,6 +9,8 @@ public enum HTTPOriginError: Error, Equatable, Sendable {
     case credentialsInURL
     case unsupportedScheme
     case insecureHost
+    /// Background sessions persist to disk, which the native client forbids.
+    case backgroundSessionRefused
 }
 
 /// One permitted origin plus an optional path prefix. HTTPS is required.
@@ -53,18 +55,37 @@ public struct HTTPOriginPolicy: Sendable, Equatable {
     var effectivePort: Int { explicitPort ?? (scheme == "https" ? 443 : 80) }
 
     /// True when `url` is on this exact origin, carries no credentials and sits
-    /// under the configured path prefix.
+    /// under the configured path prefix after conservative path normalization.
     public func admits(_ url: URL) -> Bool {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               components.user == nil, components.password == nil,
               components.scheme?.lowercased() == scheme,
               components.host?.lowercased() == host,
-              (components.port ?? (scheme == "https" ? 443 : 80)) == effectivePort else {
+              (components.port ?? (scheme == "https" ? 443 : 80)) == effectivePort,
+              let path = Self.normalizedPath(components) else {
             return false
         }
         if basePath.isEmpty { return true }
-        let path = components.percentEncodedPath
         return path == basePath || path.hasPrefix(basePath + "/")
+    }
+
+    /// Decode percent-encoding once, reject backslash, NUL, overlong/double
+    /// encodings and any `.` or `..` segment, then compare the cleaned path.
+    /// Returns nil when the path is ambiguous, so it cannot widen `basePath`.
+    static func normalizedPath(_ components: URLComponents) -> String? {
+        let raw = components.percentEncodedPath
+        guard !raw.contains("\\"), !raw.contains("\u{0}") else { return nil }
+        // Any percent-escape in a segment is refused. Typed endpoints use only
+        // unreserved characters, so this keeps legal routes and blocks %2e%2e,
+        // %2f, %5c and double-encoded variants.
+        var segments: [String] = []
+        for segment in raw.split(separator: "/", omittingEmptySubsequences: false).map(String.init) {
+            if segment == "." || segment == ".." || segment.contains("%") { return nil }
+            segments.append(segment)
+        }
+        var path = segments.joined(separator: "/")
+        while path.count > 1, path.hasSuffix("/") { path.removeLast() }
+        return path.isEmpty ? "/" : path
     }
 }
 
@@ -106,18 +127,22 @@ public final class URLSessionHTTPTransport: HTTPTransport {
     private let maxResponseBytes: Int
     private let maxRequestBytes: Int
 
-    /// `configuration` is copied and hardened: no URL cache, cookies or stored
-    /// credentials. Tests inject `protocolClasses` through it.
+    /// Starts from an ephemeral configuration. The only field copied from
+    /// `configuration` is `protocolClasses`, so tests can inject a URLProtocol.
+    /// A background session identifier is refused: it would persist to disk.
     public init(
         origin: HTTPOriginPolicy,
         configuration: URLSessionConfiguration = .ephemeral,
         timeout: TimeInterval = 15,
         maxResponseBytes: Int = HTTPLimits.maxResponseBytes,
         maxRequestBytes: Int = HTTPLimits.maxRequestBytes
-    ) {
-        let config = (configuration.copy() as? URLSessionConfiguration) ?? .ephemeral
+    ) throws {
+        if configuration.identifier != nil { throw HTTPOriginError.backgroundSessionRefused }
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = configuration.protocolClasses
         config.urlCache = nil
         config.httpCookieStorage = nil
+        config.httpCookieAcceptPolicy = .never
         config.httpShouldSetCookies = false
         config.urlCredentialStorage = nil
         config.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
@@ -131,6 +156,9 @@ public final class URLSessionHTTPTransport: HTTPTransport {
     }
 
     deinit { session.invalidateAndCancel() }
+
+    /// Test-only view of the effective session configuration.
+    var sessionConfigurationForTesting: URLSessionConfiguration { session.configuration }
 
     public func send(_ request: HTTPRequest) async throws -> HTTPResponse {
         // Everything below runs before any header or body leaves the process.
