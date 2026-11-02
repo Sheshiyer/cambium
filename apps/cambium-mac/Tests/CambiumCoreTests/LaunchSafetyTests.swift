@@ -392,6 +392,54 @@ final class LaunchSafetyTests: XCTestCase {
         XCTAssertEqual(loaded, Data("original-payload".utf8))
     }
 
+    func testFileStoreCrashAfterBackupPreservesCanonicalKey() async throws {
+        let dir = LaunchFixtures.tempDir()
+        defer {
+            FileRecoveryStore.mockFailAfterBackup = nil
+            try? FileManager.default.removeItem(at: dir)
+        }
+        let store = FileRecoveryStore(directory: dir)
+        try await store.save(Data("original-payload".utf8), key: "k")
+
+        FileRecoveryStore.mockFailAfterBackup = { true }
+
+        do {
+            try await store.save(Data("new-payload".utf8), key: "k")
+            XCTFail("expected ioFailure after backup")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .ioFailure)
+        }
+
+        FileRecoveryStore.mockFailAfterBackup = nil
+
+        let loaded = try await store.load(key: "k")
+        XCTAssertEqual(loaded, Data("original-payload".utf8))
+    }
+
+    func testFileStoreCrashBeforePublishPreservesCanonicalKey() async throws {
+        let dir = LaunchFixtures.tempDir()
+        defer {
+            FileRecoveryStore.mockFailBeforePublish = nil
+            try? FileManager.default.removeItem(at: dir)
+        }
+        let store = FileRecoveryStore(directory: dir)
+        try await store.save(Data("original-payload".utf8), key: "k")
+
+        FileRecoveryStore.mockFailBeforePublish = { true }
+
+        do {
+            try await store.save(Data("new-payload".utf8), key: "k")
+            XCTFail("expected ioFailure before publish")
+        } catch {
+            XCTAssertEqual(error as? RecoveryStoreError, .ioFailure)
+        }
+
+        FileRecoveryStore.mockFailBeforePublish = nil
+
+        let loaded = try await store.load(key: "k")
+        XCTAssertEqual(loaded, Data("original-payload".utf8))
+    }
+
     // MARK: Coordinator keys
 
     func testCoordinatorKeysDoNotAliasAcrossWorkAndNonce() {
