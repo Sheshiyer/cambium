@@ -49,6 +49,7 @@ deployment_json='{}'
 remote_migration_names='[]'
 remote_secret_count=0
 native_identity_secret_present=false
+native_d1_tables='[]'
 if [ "${CAMBIUM_RUN_LIVE_BINDING_READBACK:-0}" = "1" ]; then
   if npx --no-install wrangler deployments status --name cambium-quests --json \
       --profile thoughtseed-labs --config workers/quests/wrangler.labs.jsonc \
@@ -70,6 +71,13 @@ if [ "${CAMBIUM_RUN_LIVE_BINDING_READBACK:-0}" = "1" ]; then
       && jq -e 'type == "array"' "$tmp_dir/secrets.json" >/dev/null; then
     remote_secret_count=$(jq 'length' "$tmp_dir/secrets.json")
     native_identity_secret_present=$(jq 'any(.[]; .name == "PLEXUS_NATIVE_IDENTITY_TOKEN")' "$tmp_dir/secrets.json")
+  fi
+  if npx --no-install wrangler d1 execute cambium-bridge --remote \
+      --profile thoughtseed-labs --config workers/quests/wrangler.labs.jsonc \
+      --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('native_sessions','native_consent_intents','native_consent');" \
+      --json > "$tmp_dir/schema.json" 2>/dev/null \
+      && jq -e 'type == "array" and (.[0].results|type == "array")' "$tmp_dir/schema.json" >/dev/null; then
+    native_d1_tables=$(jq -c '.[0].results | map(.name) | sort' "$tmp_dir/schema.json")
   fi
   binding_status=read
 fi
@@ -94,6 +102,7 @@ jq -n \
   --arg bindingStatus "$binding_status" \
   --arg remoteSecretCount "$remote_secret_count" \
   --argjson nativeIdentitySecretPresent "$native_identity_secret_present" \
+  --argjson nativeD1Tables "$native_d1_tables" \
   --argjson remoteMigrationNames "$remote_migration_names" \
   --argjson deployment "$deployment_json" \
   --arg prStatus "$pr_status" \
@@ -124,7 +133,8 @@ jq -n \
       deployment: $deployment,
       unappliedMigrations: $remoteMigrationNames,
       remoteSecretCount: ($remoteSecretCount|tonumber),
-      dedicatedNativeIdentitySecretPresent: $nativeIdentitySecretPresent
+      dedicatedNativeIdentitySecretPresent: $nativeIdentitySecretPresent,
+      nativeD1Tables: $nativeD1Tables
     },
     teamforgePullRequest: {
       readback: $prStatus,
