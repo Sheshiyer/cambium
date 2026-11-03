@@ -1,3 +1,24 @@
+## Native Inbox live activation verified — 4 November 2026
+
+Real founder sign-in, current owner-served mapped catalog and persisted signal
+create/read/edit/project-filter readback pass in the standard Mac app. ISC-3467
+and ISC-3672 are satisfied. Evidence, exact deployed versions, clean native input
+digest, test counts and traffic-only rollback are recorded in
+`.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
+
+The owner sees 76 current and 20 historical projects. The real served join report
+has zero operational Work joins; source association grants no admission. The
+retained activation test signal is revision 3, linked to `sapling:cambium`, and
+was read from the exact project Inbox after refresh. Session tokens remain
+in-memory with a 15-minute lifetime. A copied client identifier is not a website;
+start sign-in from Connections, using the existing Curious owner profile.
+
+Backend source preserves the actual Field Atlas and TeamForge SFU deployments.
+Missing execution facts and unresolved operational edges are explicit gaps;
+server/Swift gap capacity is 256 with overflow refusal intact. No graph/ledger
+facts, roles, runtime joins or work admissions were created. Field Report peer
+integration and durable offline sync remain open.
+
 ## Native Inbox review fixes — 3 November 2026
 
 The owner authorized fixing the independent review and preparing/merging the

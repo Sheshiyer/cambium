@@ -1,14 +1,15 @@
 # Native Inbox activation — 3 November 2026
 
-Status: backend active; the actual native app is waiting at the existing
-Cloudflare Founder Gate login. Real native session, owner-served project catalog
-and persisted Inbox acceptance remain pending owner login and consent.
+Status: live native sign-in, owner-served catalog, and project-linked Inbox
+create/read/edit/filter acceptance verified on 4 November 2026 (local time).
+ISC-3467 and ISC-3672 are satisfied. Operational work admission and Field Report
+peer integration remain separate.
 
 ## Activated owners
 
 | Owner | Active version | Pinned source | Previous traffic version |
 | --- | --- | --- | --- |
-| Cambium | `323f4587-7066-4c89-b7db-d21c12493d7a` | `ab94d63c7db8572c3743c1cb8c3d69221ba0f053` | `ef6e0c74-697e-4938-9d15-e0e481c80dbe` |
+| Cambium | `7265d5e2-d531-47ef-a742-06d140b7de51` | `964a61a3` | `ef6e0c74-697e-4938-9d15-e0e481c80dbe` |
 | TeamForge | `7e4634ce-2a28-4c22-8255-30f9a2879039` | `18556245d6fc3769a869a1bdd77d1e8976b9175a` | `dd04f3dc-7cef-42f1-a376-20a0f018c2fe` |
 
 The owner explicitly requested activation in this chat. Both existing Workers
@@ -46,32 +47,85 @@ OAuth profile lacks Access-admin scopes; no alternate credential was used.
 
 ## Native candidate and evidence
 
-Native source `2c083f63a3f998b959130c7c59a78a2f906b0671` builds cleanly, with
-input aggregate `16d9da13ebc2818f87c661638f6f900b88df6b7b3fdc38c949faac0e6d09e1f5`.
-Its ad hoc bundle signature verifies. Browser presentation now retains the
+Native source `007c68aa12f51013c10b51344ce9463bea55342f` builds with clean inputs
+and its ad hoc signature verifies. Input aggregate:
+`9ae2571a92bf37be3dd8c32960504f859111e69c8f679178f394d99431c2f0c4`.
+Browser presentation retains the
 actual app window and supports a visible inactive window. Diagnostics contain
 only fixed failure categories and AuthenticationServices numeric error codes.
 
 Verification: TeamForge 218 tests and typecheck; Cambium 111 activation-boundary
 tests; protected browser-alias 90-test regression suite; Swift identity 47 and
-native 39. These local results do not establish a real founder session.
+native 39. Final consent/session/signal boundary suite: 90 passing. Updated
+native candidate: Core 261 with two opt-in skips, native 39 passing. Final Worker
+identity/signal/Mission Fabric/portfolio suite: 204 passing. Current-source
+Worker-to-Swift portfolio wire probe passes. A separate offline reconstruction
+of the current D1/KV read was accepted by the real Swift decoder, including
+strict freshness, with 130 nodes and 202 explicit gaps. This reconstruction was
+diagnosis; real native readback below establishes live delivery.
 
-Actual native standard mode now opens the Cloudflare page titled “Log in to
-Cambium Founder Gate.” The owner must complete the normal email-code login and
-explicit 15-minute app consent. No browser credential or native token is copied
-out of the normal flow. No synthetic demo or manually inserted session is used.
+The owner completed email-code login and approved the registered client and
+tenant. Live diagnosis confirmed `Origin: null` under the original no-referrer
+consent page, then Chrome's CSP refusal of the custom callback redirect. The
+consent page now uses same-origin referrers and permits the registered callback
+scheme; APIs/code redirects retain no-referrer. Exact redirect registry matching,
+origin checking, CSRF, PKCE and one-time intent/code checks remain enforced.
+Atomic consent/grant SQL now uses RETURNING rows instead of advisory metadata;
+replay and misleading-metadata regression tests pass. The consumed intent/code
+readback also clarified that later consent_required responses were replay refusals,
+not evidence that the initial database writes failed.
+
+Real native standard mode displayed the verified founder, cambium tenant and
+15-minute expiry. The signal “Native Inbox activation verification” was created,
+listed from the backend, then edited and saved as revision 2. It remains in the
+owner's Inbox; the final native session attached it to `sapling:cambium` and
+saved revision 3. Refresh and the dossier's “Open project Inbox” read the same
+signal with that exact project filter and one linked project.
+No operational work was approved or launched. No token/cookie was extracted.
+The initial app's status banner was hardcoded as signed-out; the rebuilt app
+shows session state accurately and adds an explicit catalog error/retry control.
+Restart clears its in-memory session; renewed owner login succeeded in the
+final build. Tokens remain in memory and expire after 15 minutes.
+
+## Live mapped catalog and source gaps
+
+The native app displayed 76 current records (17 saplings, 43 client branches,
+16 internal programs) and 20 historical records. The source disclosure showed
+server delivery on 4 November at 00:14 local time, graph as-of 3 November 14:50,
+and dated classification source 29 July 2026. Display digest:
+`sha256:244df7a3e4197f4f252ed021cc9d3b9815a523395ab788bfd5673b4d5d9291e5`.
+Action digest:
+`sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c`.
+
+The actual served join report has zero explicit runtime joins. The earlier
+one-join current-source probe is a local fixture, not this live portfolio.
+The Cambium dossier identifies `sapling:cambium`, canonical tenant `cambium`,
+and no served operational Work join. Source annotation is usable; this does
+not enable operational approval or launch for that project.
+
+The existing graph is version 11 with 132 stored nodes. The real ledger lacks
+execution facts. The reader now reports that missing source explicitly rather
+than failing the independent graph/catalog read. The shared server/Swift gap
+bound is 256 (previously 128); overflow still refuses and tests exercise both
+sides. Edges with absent served operational endpoints are omitted with explicit
+missing-join gaps. No catalog record is promoted into a runtime Work node and
+no source gaps are silently dropped. D1/KV graph and ledger data were not edited.
 
 Hosted `noesis-free` performed a bounded identity review. Its generic suggestions
 were checked against the dedicated service-auth boundary and exact mapping;
 no authentication defect was confirmed. Actual provider attribution is
-unavailable. No S/A fallback, provider configuration or routing write occurred.
+unavailable. A subsequent consent review disconnected before completion; its
+free-pool retry completed with no actionable findings. The gap-capacity review
+also completed: its three candidates were rejected against full source and
+passing boundary tests (execution gaps are merged; Goal Graph anchors produce
+gaps; explicit JSON null is supported). No S/A fallback,
+provider configuration or routing write occurred.
 
-## Remaining acceptance
+## Acceptance and remaining work
 
-After owner login, verify native session inspection, exact served catalog and
-digest, create a clearly labelled signal linked to `sapling:cambium`, read it
-back after refresh, edit it to a new revision and open the same project Inbox.
-Record only bounded acceptance facts. Keep ISC-3467/ISC-3672 open until that proof.
+ISC-3467/ISC-3672: real enrolled founder, scoped owner catalog/digests, native
+signal creation, revisions 2 and 3, refresh readback and exact project Inbox
+are verified. The test signal remains for owner inspection.
 Field Report peer editing, durable offline sync and admitted work stay separate.
 
 Traffic rollback uses the two previous versions above. It does not undo schema

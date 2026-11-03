@@ -1,8 +1,9 @@
 # Native identity contract (cambium.native-session.v1)
 
 Status: native backend, client registration and migrations 0100/0101 are active
-as of 3 November 2026. The actual app reaches the existing Founder Access login;
-the first real browser grant remains pending owner login and consent. The
+as of 3 November 2026. A real Founder Access login, native grant, session inspection,
+and shared-signal create/read/edit have succeeded. Real mapped-project catalog,
+signal association and project-filtered readback passed in the final native build. The
 TeamForge identity-by-ID seam is live, preserving deployed SFU behavior.
 Activation evidence and rollback: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
 Reviewed contract:
