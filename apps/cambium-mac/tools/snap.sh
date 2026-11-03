@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Renders light and dark window snapshots of Cambium Native in demo mode.
 # Usage: tools/snap.sh [output-dir] [page]
-#   page  optional AppSection to capture, one of: canopy projects work trace evidence
+#   page  optional AppSection to capture, one of: canopy projects inbox work trace evidence
 #         proposal launch knowledge connections preferences. Default keeps the Canopy capture.
 #         Filenames and snapshot-manifest.json record the page. Data is synthetic demo data.
 # Captures only the built app bundle; nothing is installed, opened or deleted.
@@ -12,7 +12,7 @@ app_bin="$app_dir/Contents/MacOS/CambiumNative"
 shots_dir="${1:-/tmp/cambium-native-shots}"
 page="${2:-}"
 
-pages=(canopy projects work trace evidence proposal launch knowledge connections preferences)
+pages=(canopy projects inbox work trace evidence proposal launch knowledge connections preferences)
 if [[ -n "$page" && ${pages[(Ie)$page]} -eq 0 ]]; then
   echo "snap: unknown page '$page'. Use one of: ${pages[*]}" >&2
   exit 2

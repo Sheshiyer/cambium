@@ -163,8 +163,18 @@ public final class URLSessionHTTPTransport: HTTPTransport {
     public func send(_ request: HTTPRequest) async throws -> HTTPResponse {
         // Everything below runs before any header or body leaves the process.
         guard origin.admits(request.url) else { throw TransportFailure.unreachable }
-        guard request.method == "GET" || request.method == "POST" else { throw TransportFailure.malformedResponse }
-        if let body = request.body, body.count > maxRequestBytes { throw TransportFailure.malformedResponse }
+        let signalPrefix = origin.basePath + "/v1/signals/"
+        let signalSuffix = request.url.path.hasPrefix(signalPrefix) ? String(request.url.path.dropFirst(signalPrefix.count)) : ""
+        let signalPath = signalSuffix.range(of: #"^[a-z0-9]+(?:-[a-z0-9]+)*(?:/[A-Za-z0-9_-]+)?$"#, options: .regularExpression) != nil
+        let signalParts = signalSuffix.split(separator: "/")
+        let signalMutation = signalPath && request.url.query == nil
+            && ((request.method == "POST" && signalParts.count == 1)
+                || (request.method == "PUT" && signalParts.count == 2))
+        guard ["GET", "POST"].contains(request.method) || (request.method == "PUT" && signalMutation) else {
+            throw TransportFailure.malformedResponse
+        }
+        let limit = signalMutation ? 65_536 : maxRequestBytes
+        if let body = request.body, body.count > limit { throw TransportFailure.malformedResponse }
 
         var urlRequest = URLRequest(url: request.url)
         urlRequest.httpMethod = request.method

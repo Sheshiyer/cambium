@@ -110,7 +110,7 @@ private struct SidebarView: View {
     @Environment(AppModel.self) private var model
 
     private let groups: [(String, [AppSection])] = [
-        ("Overview", [.canopy, .projects, .work, .trace, .evidence]),
+        ("Overview", [.canopy, .projects, .inbox, .work, .trace, .evidence]),
         ("Decide and run", [.proposal, .launch]),
         ("Sources", [.knowledge, .connections]),
         ("App", [.preferences])
@@ -236,6 +236,7 @@ private struct DetailAreaView: View {
                 switch model.section {
                 case .canopy: CanopyView()
                 case .projects: ProjectsView()
+                case .inbox: InboxView()
                 case .work: WorkDossierView()
                 case .trace: TraceView()
                 case .evidence: EvidenceView()

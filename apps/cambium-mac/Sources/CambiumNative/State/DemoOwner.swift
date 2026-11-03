@@ -119,6 +119,15 @@ actor DemoOwnerSimulator: HTTPTransport {
     private var dropNextResponse = false
     /// Requests this process received, by path. Not persisted.
     private var received: [String: Int] = [:]
+    private var signalRows: [[String: Any]] = makeSignalSeed()
+    private static func makeSignalSeed() -> [[String: Any]] { [[
+        "id": "demo-signal-1", "tenantId": "cambium", "principal": "founder-1",
+        "title": "Synthetic observation", "body": "A labelled demo observation for the Cambium project.",
+        "source": ["system": "cambium-native", "recordId": "demo-source-1", "version": "1", "reference": NSNull(), "observedAt": "2026-07-28T09:30:00.000Z"],
+        "projectIds": ["sapling:cambium"], "revision": 1,
+        "createdAt": "2026-07-28T09:30:00.000Z", "updatedAt": "2026-07-28T09:30:00.000Z"
+    ]] }
+    private var signalOperations: [String: (Data, [String: Any])] = [:]
 
     init(directory: URL, latency: (@Sendable (String) async -> Void)? = nil) {
         self.directory = directory
@@ -170,6 +179,8 @@ actor DemoOwnerSimulator: HTTPTransport {
         launchWrites = 0
         dropNextResponse = false
         received = [:]
+        signalRows = Self.makeSignalSeed()
+        signalOperations = [:]
         try? FileManager.default.removeItem(at: directory.appendingPathComponent(Self.fileName))
     }
 
@@ -183,6 +194,9 @@ actor DemoOwnerSimulator: HTTPTransport {
             return HTTPResponse(status: 401, body: Data(#"{"error":"unauthorized"}"#.utf8))
         }
         let body = (try? JSONSerialization.jsonObject(with: request.body ?? Data())) as? [String: Any] ?? [:]
+        if path == "/v1/signals/cambium" || path.hasPrefix("/v1/signals/cambium/") {
+            return try signalRequest(request, body: body)
+        }
         switch path {
         case "/v1/founder/proposal":
             guard let proposalFixture else { throw TransportFailure.ownerUnconfigured }
@@ -205,6 +219,39 @@ actor DemoOwnerSimulator: HTTPTransport {
         default:
             return HTTPResponse(status: 404, body: Data(#"{"status":"not_found"}"#.utf8))
         }
+    }
+
+    private func signalRequest(_ request: HTTPRequest, body: [String: Any]) throws -> HTTPResponse {
+        func response(_ status: Int, _ object: [String: Any]) throws -> HTTPResponse {
+            HTTPResponse(status: status, body: try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]))
+        }
+        let id = request.url.path.split(separator: "/").count == 4 ? request.url.lastPathComponent : nil
+        if request.method == "GET", id == nil {
+            let project = URLComponents(url: request.url, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "projectId" })?.value
+            let rows = signalRows.filter { project == nil || ($0["projectIds"] as? [String] ?? []).contains(project!) }
+            return try response(200, ["schema": "cambium.signal-list.v1", "tenantId": "cambium", "principal": "founder-1", "signals": rows, "nextCursor": NSNull()])
+        }
+        if request.method == "GET", let id, let row = signalRows.first(where: { $0["id"] as? String == id }) {
+            return try response(200, ["schema": "cambium.signal-result.v1", "tenantId": "cambium", "principal": "founder-1", "signal": row, "replayed": false])
+        }
+        guard let op = body["operationId"] as? String, let payload = request.body else { return try response(400, ["error": "invalid"]) }
+        if let previous = signalOperations[op] {
+            guard previous.0 == payload else { return try response(409, ["error": "conflict"]) }
+            return try response(200, ["schema": "cambium.signal-result.v1", "tenantId": "cambium", "principal": "founder-1", "signal": previous.1, "replayed": true])
+        }
+        guard let title = body["title"] as? String, let text = body["body"] as? String,
+              let projects = body["projectIds"] as? [String] else { return try response(400, ["error": "invalid"]) }
+        var row: [String: Any]
+        if request.method == "POST", let source = body["source"] as? [String: Any] {
+            row = ["id": UUID().uuidString, "tenantId": "cambium", "principal": "founder-1", "source": source,
+                   "revision": 1, "createdAt": "2026-07-28T09:30:00.000Z"]
+        } else if request.method == "PUT", let id, let index = signalRows.firstIndex(where: { $0["id"] as? String == id }),
+                  let revision = signalRows[index]["revision"] as? Int, body["expectedRevision"] as? Int == revision {
+            row = signalRows.remove(at: index); row["revision"] = revision + 1
+        } else { return try response(409, ["error": "conflict"]) }
+        row["title"] = title; row["body"] = text; row["projectIds"] = projects; row["updatedAt"] = "2026-07-28T09:30:00.000Z"
+        signalRows.insert(row, at: 0); signalOperations[op] = (payload, row)
+        return try response(request.method == "POST" ? 201 : 200, ["schema": "cambium.signal-result.v1", "tenantId": "cambium", "principal": "founder-1", "signal": row, "replayed": false])
     }
 
     // MARK: Founder gate

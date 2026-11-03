@@ -9,7 +9,7 @@ import struct CambiumCore.MappedPortfolio
 // the Observation module.
 
 enum AppSection: String, CaseIterable, Identifiable, Hashable {
-    case canopy, work, trace, evidence, proposal, launch, knowledge, connections, preferences, projects
+    case canopy, work, trace, evidence, proposal, launch, knowledge, connections, preferences, projects, inbox
 
     var id: String { rawValue }
 
@@ -17,6 +17,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .canopy: "Canopy"
         case .projects: "Projects"
+        case .inbox: "Inbox"
         case .work: "Work"
         case .trace: "Trace"
         case .evidence: "Evidence"
@@ -32,6 +33,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .canopy: "map"
         case .projects: "square.grid.2x2"
+        case .inbox: "tray"
         case .work: "doc.text"
         case .trace: "point.3.connected.trianglepath.dotted"
         case .evidence: "doc.badge.clock"

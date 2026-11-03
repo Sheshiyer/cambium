@@ -13,6 +13,31 @@ updated: 2026-10-08
 
 ## Problem
 
+### 2026-11-03 shared signal capture and native Inbox
+
+The owner authorized source implementation and review fixes. Finite contract:
+`.planning/native-mac/SHARED-SIGNALS-WAVE-1.md`; confirmed decisions:
+`apps/cambium-mac/docs/FIELD-REPORT-INTEGRATION-DECISIONS.md`.
+
+- [ ] ISC-3660: Hosted fleet attempts retain real terminal status and provider attribution; independently inspect worker output before integration.
+- [x] ISC-3661: Signal routes require verified native identity and exact tenant/principal; reject mixed credentials and cross-scope guesses.
+- [x] ISC-3662: Local signal mutations and idempotency receipts are atomic; identical retries preserve original results and changed requests conflict.
+- [x] ISC-3663: Revision races refuse overwrite; bounded pagination and exact project filters preserve scope.
+- [x] ISC-3664: Associations use the dynamic mapped catalog; an empty Inbox association grants no work admission.
+- [x] ISC-3665: Swift clients validate wire schema, source provenance, response bounds and current session scope.
+- [x] ISC-3666: Native Inbox captures, edits and lists signals through the composed owner service.
+- [x] ISC-3667: Project dossiers open the exact project Inbox; capture preselects that project.
+- [x] ISC-3668: Unknown saves preserve immutable operation identity; definitive request validation permits correction; conflicts require confirmed reload.
+- [x] ISC-3669: Synthetic capture/update/filter, actual-handler wire decoding and owner-specific recovery isolation have local regression coverage.
+- [x] ISC-3670: Native source compiles and its ad hoc bundle verifies; this is not notarized delivery or real-owner acceptance.
+- [ ] ISC-3671: A real Field Report peer uses shared records with reviewed producer authentication and source parity.
+- [ ] ISC-3672: Standard Mac app completes real founder sign-in and owner-served signal/catalog readback.
+
+The prior full fan-out was held before inference. A subsequent disposable free
+CLI build ran but was stopped without accepting its incomplete fixes; the
+native session integrated the corrections. Hosted execution attribution,
+production identity, migration and deployment gates remain distinct and open.
+
 The reviewed Curious upgrade is local while the release branch still carries unrelated planning history. Fresh main retires GitHub Actions, so release integration must preserve that policy.
 
 Cambium currently contains both a Thoughtseed Labs Wrangler configuration and

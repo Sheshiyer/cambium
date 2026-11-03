@@ -10,6 +10,31 @@ import struct CambiumCore.EvidenceItem
 import struct CambiumCore.ConnectionObservation
 import enum CambiumCore.DemoData
 import protocol CambiumCore.NativeBrowserPresenting
+import struct CambiumCore.Signal
+import struct CambiumCore.SignalCapture
+import struct CambiumCore.SignalUpdate
+import enum CambiumCore.SignalError
+
+struct InboxDraft {
+    var selected: Signal?
+    var title = ""
+    var body = ""
+    var projects: Set<String> = []
+    var sourceID = UUID().uuidString
+    var capture: SignalCapture?
+    var update: SignalUpdate?
+    var hasStarted = false
+    var conflict = false
+
+    static func isLocked(capture: SignalCapture?, update: SignalUpdate?) -> Bool {
+        capture != nil || update != nil
+    }
+
+    static func isDefinitiveRejection(_ error: Error) -> Bool {
+        guard let signalError = error as? SignalError else { return false }
+        return signalError == .invalidRequest || signalError == .status(400) || signalError == .status(409)
+    }
+}
 
 /// Application state for the ten screens.
 ///
@@ -77,6 +102,16 @@ final class AppModel {
     private(set) var configurationProblem: String?
 
     var feedback: String?
+    var inboxFilter: String?
+    var inboxVersion: UInt64 = 0
+    var signalScopeVersion: UInt64 = 0
+    var inboxDraft = InboxDraft()
+    var signalService: CambiumOwnerServices? { services as? CambiumOwnerServices }
+    func openInbox(project: String?) {
+        inboxFilter = project
+        inboxVersion &+= 1
+        open(.inbox)
+    }
 
     private var services: (any OwnerServices)?
     private var generation: UInt64 = 0
@@ -273,6 +308,10 @@ final class AppModel {
 
     private func load(_ mode: LaunchMode) {
         generation &+= 1
+        signalScopeVersion &+= 1
+        inboxDraft = InboxDraft()
+        inboxFilter = nil
+        inboxVersion &+= 1
         let previous = services
         self.mode = mode
         review = nil
@@ -432,6 +471,10 @@ final class AppModel {
     func signOut() {
         let token = generation
         generation &+= 1
+        signalScopeVersion &+= 1
+        inboxDraft = InboxDraft()
+        inboxFilter = nil
+        inboxVersion &+= 1
         session = nil
         review = nil
         proposalBinding = nil

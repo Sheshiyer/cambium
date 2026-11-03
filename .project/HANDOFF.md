@@ -1,3 +1,25 @@
+## Native Inbox review fixes — 3 November 2026
+
+The owner authorized fixing the independent review and preparing/merging the
+native app through a scoped PR. Both findings are resolved in source: local
+signal request validation is distinguished from an invalid response after
+submission; revision conflicts retain drafts and require confirmed latest-read
+recovery; standard Gate/Launch persistence is isolated by normalized owner
+endpoint and path. Unscoped legacy records remain untouched.
+
+The branch includes the existing native-app foundation plus the shared signal
+API/Inbox, their finite integration plan and tests. Concurrent product branches,
+catalog proposals, runtime configuration and owner activation work were not
+copied from the dirty primary checkout. The original checkout is preserved.
+Implementation and live limits: `apps/cambium-mac/docs/SHARED-SIGNALS.md`.
+Reusable free-pool entrypoint: `apps/cambium-mac/docs/TEMPERANCE-REVIEW.md`.
+
+Core tests pass 260 with two opt-in skips; native tests pass 39; the explicit
+Worker/SQLite-to-Swift signal probe and ad hoc bundle verification pass.
+Review/preparation receipts and complete command logs live under ignored
+`.local/` in the isolated PR checkout. Source merge grants no production
+deployment, native identity activation, schema apply or Field Report migration.
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.

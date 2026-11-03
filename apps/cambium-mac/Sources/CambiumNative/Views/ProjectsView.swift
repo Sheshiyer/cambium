@@ -243,6 +243,7 @@ struct ProjectsView: View {
                     .foregroundStyle(Palette.inkMuted)
                     .fixedSize(horizontal: false, vertical: true)
                 FactRow(label: "Canonical ID", value: project.canonicalId, mono: true)
+                Button("Open project Inbox") { model.openInbox(project: project.canonicalId) }
                 FactRow(label: "Catalog work ID", value: project.workId, mono: true)
                 FactRow(label: "Kind", value: project.kind)
                 FactRow(label: "Tenant status", value: project.tenantStatus)
