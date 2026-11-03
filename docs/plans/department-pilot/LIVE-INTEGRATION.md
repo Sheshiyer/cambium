@@ -46,3 +46,16 @@ Before upload, refresh current deployment **and latest uploaded version**, setti
 The primary rollback target for this new candidate is the currently serving `ef6e0c74-697e-4938-9d15-e0e481c80dbe` at 100%. Retain its source/config and receipt before promotion. Use the existing Labs traffic owner for an explicitly reviewed rollback; no legacy account deployment is involved. No schema or canonical data change is in this candidate, so traffic rollback has no data reversal to perform. Any future canonical bookkeeping change still requires its own exact-head review/confirmation/CAS, and cannot be reversed by traffic rollback.
 
 The full-release gate still includes the old Telegram viewport manifest and pre-existing privacy checks. Current authenticated candidate proof is separate; it must not be relabeled as that historical manifest. Any narrow release acceptance needs a fresh owner decision against the concrete candidate and exact remaining failures.
+
+
+## Upload outcome — November 3, 2026
+
+The owner explicitly approved uploading `fcbb68f9` with this exact 47-binding configuration and the documented baseline failures, with traffic held for a separate approval. The clean source/config and complete settings fingerprint matched before the operation. The rebuilt and actual-upload artifacts both matched the reviewed Worker SHA-256 `e431304a0c4863df66a29fb22df5596d9f46394e329fc080572156835031f75d` (2,570,089 bytes). Wrangler4.156.1 uploaded with strict conflict checking.
+
+Actual uploaded candidate: **version80 / `e3750ef4-86dc-4980-a5a2-1b9331120c85`**, created `2026-11-03T17:15:51.344067Z`. The Cloudflare version readback confirms the source annotation, all47 binding names/types/configurations exactly equal to serving, and identical runtime. The full prior settings fingerprint is reproduced after substituting the previous version annotations: the settings delta is upload metadata only. Sole cron, worker/preview exposure and operational settings remain unchanged.
+
+Actual version-preview GETs returned the exact generated candidate JS and CSS, no retired2D shell or Telegram SDK, health200 with Gate configured, and unauthenticated graph401. This is uploaded-version source/denial verification, not authenticated candidate runtime acceptance or production promotion. The prior authenticated temporary-document proof remains separately scoped.
+
+Deployment `d27c5b87-57ec-4774-82f8-21a518d23ccb` remains unchanged: **100% on `ef6e0c74-697e-4938-9d15-e0e481c80dbe`**. No traffic assignment, canonical graph write, migration or social action occurred. The source-pilot baseline failures remain recorded, not waived as passing tests. The upload approval is consumed by this exact version; it does not authorize another upload or traffic change.
+
+Attributable receipts: `artifact:departmental-live-integration-20261103/upload-fcbb68f9-20261103/{preflight.json,upload-command-receipt.json,uploaded-version-verification.json,version-preview-readback.json,deployment-after.log}`. A later documentation checkpoint does not change the code/config uploaded from `fcbb68f9`.

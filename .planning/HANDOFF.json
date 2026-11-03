@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T16:53:49.311324+00:00",
-  "status": "source-integration-review-held",
-  "active_task": "Department pilot authenticated founder source integration",
+  "updated": "2026-11-03T17:22:44.258646+00:00",
+  "status": "uploaded-verified-traffic-held",
+  "active_task": "Department candidate upload complete; separate traffic approval pending",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -248,7 +248,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Review the concrete department integration source/config packet; new exact upload approval precedes uploaded-version readback and a separate traffic gate. Missing accepted GSD/KPI owner sources remain visibly unavailable.",
+  "next_action": "Keep production on ef6e0c74-697e-4938-9d15-e0e481c80dbe at 100%. Candidate e3750ef4-86dc-4980-a5a2-1b9331120c85 (version 80, source fcbb68f9) is uploaded and verified. Obtain a separate exact traffic approval before any deployment assignment; do not re-upload or reuse this upload approval.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -431,7 +431,7 @@
   },
   "continuations": {
     "department_live_integration": {
-      "status": "source-implemented-promotion-held",
+      "status": "uploaded-verified-traffic-held",
       "source_branch": "codex/department-source-pilot-20261103",
       "handoff": "docs/plans/department-pilot/LIVE-INTEGRATION.md",
       "verified_live_head": 11,
@@ -439,8 +439,17 @@
       "serving_version": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
       "accepted_daily_work": "unavailable from actual owner sources",
       "kpi_measurements": "twelve unavailable; no complete owner cohort reader",
-      "gate": "new exact upload approval; separate traffic approval after readback",
-      "execution_granted": false
+      "gate": "separate exact traffic approval still required",
+      "execution_granted": false,
+      "source_commit": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
+      "uploaded_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
+      "uploaded_version_number": 80,
+      "upload_approval": "explicit owner approval, upload and verify only; consumed by this version",
+      "uploaded_binding_count": 47,
+      "uploaded_bindings_exactly_match_serving": true,
+      "traffic_unchanged": true,
+      "serving_percentage": 100,
+      "upload_receipt": "artifact:departmental-live-integration-20261103/upload-fcbb68f9-20261103/uploaded-version-verification.json"
     }
   }
 }
