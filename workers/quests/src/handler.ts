@@ -3515,6 +3515,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     }
     const sortedGaps = [...mergedGaps].sort((a, b) => (a.gapId < b.gapId ? -1 : a.gapId > b.gapId ? 1 : 0));
     if (sortedGaps.length > MISSION_FABRIC_CAPS.MAX_GAPS) {
+      console.warn('[mission-fabric] gap-overflow');
       return json(503, { error: 'mission_fabric_gap_overflow' });
     }
 
@@ -3593,6 +3594,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
           body.organUpdateDeliverySummary = ORGAN_UPDATE_SUMMARY;
         }
       } catch {
+        console.warn('[mission-fabric] portfolio-catalog');
         return json(503, { error: 'portfolio_catalog_unavailable' });
       }
     }
@@ -3628,6 +3630,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       body: JSON.stringify(body),
     };
   } catch {
+    console.warn(`[mission-fabric] authority-${authorityStage}`);
     return json(503, { error: 'mission_fabric_authority_unavailable', reason: authorityStage });
   }
 }
