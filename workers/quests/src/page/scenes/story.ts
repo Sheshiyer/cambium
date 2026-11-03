@@ -309,7 +309,7 @@ export function projectStoryEvents(input: unknown): StoryEventContract[] {
         context: 'gate',
         branchId: storyProjectionText(row.branchId, ''),
         proof: `${receiptKind} receipt`,
-        outcome: status,
+        outcome: status ?? undefined,
         actionRequestId,
       });
     }

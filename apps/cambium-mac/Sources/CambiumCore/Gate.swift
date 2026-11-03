@@ -525,7 +525,7 @@ public actor FounderGateCoordinator {
         digestInput["changeDigest"] = nil
         digestInput["isNoop"] = nil
         let digest = SHA256.hash(data: Data(GateJSON.object(digestInput).canonical().utf8)).map { String(format: "%02x", $0) }.joined()
-        guard "sha256:" + digest == tuple.changeDigest else { throw bad("changeSet.digest") }
+        guard digest == (tuple.changeDigest.hasPrefix("sha256:") ? String(tuple.changeDigest.dropFirst(7)) : tuple.changeDigest) else { throw bad("changeSet.digest") }
 
         guard review["fence"]?.integerValue == graphVersion else { throw bad("review.fence") }
         guard review["expectedHeadVersion"]?.integerValue == graphVersion - 1 else { throw bad("review.expectedHeadVersion") }
@@ -534,8 +534,7 @@ public actor FounderGateCoordinator {
     }
 
     private static func isDigest(_ value: String) -> Bool {
-        guard value.hasPrefix("sha256:") else { return false }
-        let hex = value.dropFirst(7)
+        let hex = value.hasPrefix("sha256:") ? value.dropFirst(7) : value[...]
         return hex.count == 64 && hex.allSatisfy { $0.isASCII && ($0.isNumber || ("a"..."f").contains($0)) }
     }
 

@@ -18,6 +18,7 @@ struct LaunchView: View {
                 AdmissionListPanel()
                 CapabilityPanel()
                 AttemptPanel()
+                if model.selectedWorkID == "sapling:iverif" { ClaimProofResultPanel() }
                 if !model.pendingLaunch.isEmpty { PendingPanel() }
                 if model.isDemo { DemoPanel() }
             }
@@ -224,5 +225,30 @@ private struct DemoPanel: View {
             }
         }
         .cambiumPanel()
+    }
+}
+
+private struct ClaimProofResultPanel: View {
+    @Environment(AppModel.self) private var model
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(title: "Claim-evidence result")
+            Button("Read original result") { model.readClaimProofResult() }.disabled(model.loading || model.selectedAdmissionRef == nil)
+            if let result = model.claimProofResult {
+                Text("Execution: \(result.execution)").font(.callout)
+                Text("Acceptance: \(result.acceptance)").font(.callout).foregroundStyle(Palette.inkMuted)
+                if let artifact = result.artifact {
+                    Text("\(artifact.claimCount) source-linked candidates").font(.headline)
+                    if result.acceptance != "accepted" {
+                        Button("Review result acceptance") { model.reviewClaimProofResult() }.disabled(model.loading)
+                    }
+                    FactRow(label: "Artifact", value: artifact.digest, mono: true)
+                    Text("Product promotion and publication remain held.").font(.callout).foregroundStyle(Palette.hold)
+                    DisclosureGroup("Read claim-evidence table") {
+                        ScrollView { Text(artifact.markdown).font(CambiumFont.monoSmall).textSelection(.enabled).frame(maxWidth:.infinity,alignment:.leading) }.frame(height:440)
+                    }
+                }
+            }
+        }.cambiumPanel()
     }
 }

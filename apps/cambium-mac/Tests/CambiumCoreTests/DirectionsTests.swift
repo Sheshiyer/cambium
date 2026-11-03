@@ -56,3 +56,27 @@ final class DirectionsTests: XCTestCase {
         let requests = await transport.captured(); XCTAssertTrue(requests.isEmpty)
     }
 }
+
+extension DirectionsTests {
+    func testIverifFilterKeepsScopeAndRejectsCambiumSubstitution() async throws {
+        var row = record(); row["workObjectId"] = "sapling:iverif"
+        let body: [String: Any] = ["schema":"cambium.direction-list.v1","tenantId":"cambium","principal":"founder","directions":[row],"workContext":NSNull()]
+        let transport = try DirectionTransport(body)
+        let result = try await client(transport).list(tenant:"cambium",workObjectId:"sapling:iverif")
+        XCTAssertEqual(result.directions.first?.workObjectId,"sapling:iverif")
+        let requests = await transport.captured(); XCTAssertEqual(URLComponents(url:try XCTUnwrap(requests.first?.url),resolvingAgainstBaseURL:false)?.queryItems?.first?.value,"sapling:iverif")
+        let wrong = try DirectionTransport(["schema":"cambium.direction-list.v1","tenantId":"cambium","principal":"founder","directions":[record()],"workContext":NSNull()])
+        do { _ = try await client(wrong).list(tenant:"cambium",workObjectId:"sapling:iverif"); XCTFail("other Work accepted") } catch { XCTAssertEqual(error as? SignalError,.scope) }
+    }
+    func testUpdateBindsOriginalIdExpectedRevisionAndExactReadback() async throws {
+        var row = record(); row["revision"] = 2
+        let transport = try DirectionTransport(["schema":"cambium.direction-result.v1","tenantId":"cambium","principal":"founder","direction":row,"replayed":true])
+        let draft = DirectionDraft(title:"Improve Inbox",body:"A small next step.",work:work,signalPins:[DirectionSignalPin(id:"signal-1",revision:3)])
+        let result = try await client(transport).update(tenant:"cambium",id:"direction-1",value:DirectionUpdate(operationId:"update-original",expectedRevision:1,draft:draft))
+        XCTAssertTrue(result.replayed); XCTAssertEqual(result.direction.revision,2)
+        let requests = await transport.captured(),sent = try XCTUnwrap(requests.first)
+        XCTAssertEqual(sent.method,"PUT");XCTAssertEqual(sent.url.path,"/prefix/v1/directions/cambium/direction-1")
+        let raw = try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(sent.body)) as? [String:Any])
+        XCTAssertEqual(raw["expectedRevision"] as? Int,1);XCTAssertEqual(raw["operationId"] as? String,"update-original");XCTAssertNil(raw["principal"])
+    }
+}

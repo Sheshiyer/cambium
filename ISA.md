@@ -3576,3 +3576,15 @@ This bounded implementation continues the explicitly approved LumenBar/Temperanc
 - [ ] DP-LIVE-06: A new exact source/config upload approval, uploaded-version readback, separate traffic approval and production readback are required before promotion. Historical release approvals are not reused. Historical uploads/readbacks are complete for fcbb68f9/version80 and d6bb6986/version89. Reconciled source e6c1940e incorporates native93 with the exact52-binding config and is uploaded/verified as immutable version94 after fresh drift. All52 binding configs, runtime, operational settings, schedules and exposure match preflight; its preview root and health pass and guest founder graph is denied. Native93 remains at100%; version94 is unserved. Separate traffic approval and production readback remain required; this task made no traffic write. The documented baseline failures remain.
 
 Evidence and limitations: docs/plans/department-pilot/LIVE-INTEGRATION.md; private attributable integration receipts. D1/CAS, accepted product planning, resource/permission/publication/deployment owners and runtime admission remain separate.
+
+### 2026-11-04 IVerif native finite work cycle
+
+Owner-approved implementation scope: `.planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md`. These criteria describe one internal claim-table task; they do not promote IVerif or close broader release holds.
+
+- [ ] IVC-01: Combined source preserves native Work/directions and reviewed department owner readers; full frozen suite, strict whole Worker check, release verification, bundle parity and emitted-source guards pass.
+- [ ] IVC-02: Signed-in Mac saves an IVerif observation and exact direction; founder Work/task decisions and separate governed admission agree with D1.
+- [ ] IVC-03: Hosted Hermes runs exactly one admitted directive on the refreshed pinned wiki snapshot, without paid fallback, unrelated queue consumption or automatic rerun.
+- [ ] IVC-04: Immutable claims/provenance pass validation; a separate founder verdict and existing owner signature bind the same task, attempt and artifact; graph readback agrees without product promotion.
+- [ ] IVC-05: Separately approved release/migrations preserve recovery evidence; authenticated desktop,390×844 and physical iPhone Safari results are recorded independently.
+
+Source/local evidence is recorded in the candidate receipt. Live founder/hosted/device acceptance remains open; no criterion above is marked complete by synthetic tests.

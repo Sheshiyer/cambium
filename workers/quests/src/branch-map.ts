@@ -261,9 +261,10 @@ function validateReceipt(value: unknown, expectedTenantId?: string, expectedGrap
     const graphVersion = positiveInteger(value.graphVersion, 'receipt.graphVersion');
     if (expectedTenantId !== undefined && tenantId !== expectedTenantId) errors.push('receipt tenant does not match projection tenant');
     if (expectedGraphVersion !== undefined && graphVersion !== expectedGraphVersion) errors.push('receipt graph version does not match projection graph version');
-    if (value.status !== 'verified' && value.status !== 'pending' && value.status !== 'unknown' && value.status !== 'blocked') errors.push('receipt.status is invalid');
+    const status = value.status;
+    if (status !== 'verified' && status !== 'pending' && status !== 'unknown' && status !== 'blocked') return { valid: false, errors: [...errors, 'receipt.status is invalid'] };
     if (errors.length) return { valid: false, errors };
-    return { valid: true, value: { receiptId, tenantId, branchId, organId, organName, fromNodeId, toNodeId, observedAt, evidenceRefs, sourceRef, sourceDigest, graphVersion, status: value.status }, errors: [] };
+    return { valid: true, value: { receiptId, tenantId, branchId, organId, organName, fromNodeId, toNodeId, observedAt, evidenceRefs, sourceRef, sourceDigest, graphVersion, status }, errors: [] };
   } catch (error) {
     errors.push(error instanceof Error ? error.message : 'invalid receipt');
     return { valid: false, errors };

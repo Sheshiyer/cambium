@@ -45,6 +45,15 @@ public struct DirectionCreate: Encodable, Equatable, Sendable {
     public let draft: DirectionDraft
     public init(operationId: String, draft: DirectionDraft) { self.operationId = operationId; self.draft = draft }
 }
+public struct DirectionUpdate: Encodable, Equatable, Sendable {
+    public let schema = "cambium.direction-update.v1"
+    public let operationId: String
+    public let expectedRevision: Int
+    public let draft: DirectionDraft
+    public init(operationId: String, expectedRevision: Int, draft: DirectionDraft) {
+        self.operationId = operationId; self.expectedRevision = expectedRevision; self.draft = draft
+    }
+}
 public struct DirectionList: Decodable, Sendable {
     public let schema: String
     public let tenantId: String
@@ -59,6 +68,37 @@ public struct DirectionResult: Decodable, Sendable {
     public let direction: SharedDirection
     public let replayed: Bool
 }
+public struct PreparedWork: Decodable, Sendable {
+    public let schema: String
+    public let tenantId: String
+    public let proposalId: String
+}
+public struct WorkAdmission: Decodable, Sendable {
+    public let schema: String
+    public let tenantId: String
+    public let workId: String
+    public let admissionRef: String
+}
+public struct ClaimProofResult: Decodable, Sendable {
+    public struct Artifact: Decodable, Sendable {
+        public let digest: String
+        public let markdown: String
+        public let claimCount: Int
+        public let sourceManifestDigest: String
+    }
+    public let schema: String
+    public let tenantId: String
+    public let workId: String
+    public let admissionRef: String
+    public let requestId: String
+    public let attemptId: String
+    public let taskId: String
+    public let inputDigest: String
+    public let execution: String
+    public let artifact: Artifact?
+    public let acceptance: String
+}
+
 /// Saved drafts carry exact source revisions. This client never approves or launches work.
 public struct DirectionHTTPClient: Sendable {
     private let origin: HTTPOriginPolicy
@@ -69,13 +109,14 @@ public struct DirectionHTTPClient: Sendable {
     public init(origin: HTTPOriginPolicy, transport: any HTTPTransport, authorizer: any RequestAuthorizer, sessionProvider: any SessionProvider, clock: any CoreClock = SystemCoreClock()) {
         self.origin = origin; self.transport = transport; self.authorizer = authorizer; self.sessions = sessionProvider; self.clock = clock
     }
-    public func list(tenant: String) async throws -> DirectionList {
-        let (data, context) = try await request("GET", tenant: tenant)
+    public func list(tenant: String, workObjectId: String = "sapling:cambium") async throws -> DirectionList {
+        guard ["sapling:cambium", "sapling:iverif"].contains(workObjectId) else { throw SignalError.invalidRequest }
+        let (data, context) = try await request("GET", tenant: tenant, workFilter: workObjectId == "sapling:cambium" ? nil : workObjectId)
         let result = try JSONDecoder().decode(DirectionList.self, from: data)
         guard result.schema == "cambium.direction-list.v1", result.tenantId == context.tenantId, result.principal == context.principal,
               result.directions.count <= 100, Set(result.directions.map(\.id)).count == result.directions.count else { throw SignalError.scope }
-        if let work = result.workContext { guard Self.workValid(work) else { throw SignalError.invalid } }
-        for row in result.directions { try Self.validate(row, context: context) }
+        if let work = result.workContext { guard Self.workValid(work), work.workObjectId == workObjectId else { throw SignalError.invalid } }
+        for row in result.directions { try Self.validate(row, context: context); guard row.workObjectId == workObjectId else { throw SignalError.scope } }
         return result
     }
     public func create(tenant: String, value: DirectionCreate) async throws -> DirectionResult {
@@ -89,10 +130,59 @@ public struct DirectionHTTPClient: Sendable {
               row.graphHeadDigest == draft.graphHeadDigest, row.signalPins == draft.signalPins, row.revision == 1 else { throw SignalError.invalid }
         return result
     }
-    private func request(_ method: String, tenant: String, body: Data? = nil) async throws -> (Data, AuthenticatedReaderContext) {
+    public func prepareWork(tenant: String, workObjectId: String, operationId: String) async throws -> PreparedWork {
+        guard ["sapling:cambium", "sapling:iverif"].contains(workObjectId), Self.identifier(operationId) else { throw SignalError.invalidRequest }
+        return try await prepare(tenant: tenant, path: "/v1/native/work/intake", fields: ["workObjectId":workObjectId,"operationId":operationId])
+    }
+    public func update(tenant: String, id: String, value: DirectionUpdate) async throws -> DirectionResult {
+        guard Self.identifier(id), Self.identifier(value.operationId), value.expectedRevision > 0,
+              value.expectedRevision < 9007199254740991, Self.draftValid(value.draft) else { throw SignalError.invalidRequest }
+        let (data, context) = try await request("PUT", tenant: tenant, body: JSONEncoder().encode(value), path: "/v1/directions/" + tenant + "/" + id)
+        let result = try JSONDecoder().decode(DirectionResult.self, from: data)
+        guard result.schema == "cambium.direction-result.v1", result.tenantId == context.tenantId, result.principal == context.principal else { throw SignalError.scope }
+        try Self.validate(result.direction, context: context)
+        let row = result.direction, draft = value.draft
+        guard row.id == id, row.revision == value.expectedRevision + 1, row.title == draft.title, row.body == draft.body,
+              row.workObjectId == draft.workObjectId, row.workNodeId == draft.workNodeId,
+              row.graphHeadDigest == draft.graphHeadDigest, row.signalPins == draft.signalPins else { throw SignalError.invalid }
+        return result
+    }
+    public func prepareReview(tenant: String, direction: SharedDirection, operationId: String) async throws -> PreparedWork {
+        guard Self.identifier(direction.id), direction.workObjectId == "sapling:iverif", direction.revision > 0, Self.identifier(operationId) else { throw SignalError.invalidRequest }
+        return try await prepare(tenant: tenant, path: "/v1/directions/" + tenant + "/" + direction.id + "/review", fields: ["revision":direction.revision,"operationId":operationId])
+    }
+    private func prepare(tenant: String, path: String, fields: [String: Any]) async throws -> PreparedWork {
+        let (data, context) = try await request("POST", tenant: tenant, body: JSONSerialization.data(withJSONObject: fields), path: path)
+        let result = try JSONDecoder().decode(PreparedWork.self, from: data)
+        guard result.schema == "cambium.native.work-preparation.v1", result.tenantId == context.tenantId,
+              result.proposalId.range(of: "^" + NSRegularExpression.escapedPattern(for: tenant) + ":(?:sha256:)?[a-f0-9]{64}$", options: .regularExpression) != nil else { throw SignalError.scope }
+        return result
+    }
+    public func prepareResultReview(tenant: String, admissionRef: String, operationId: String) async throws -> PreparedWork {
+        guard admissionRef.range(of: #"^claim-admission:goal_[a-f0-9]{64}$"#, options: .regularExpression) != nil, Self.identifier(operationId) else { throw SignalError.invalidRequest }
+        return try await prepare(tenant: tenant, path: "/v1/native/work/result/review", fields: ["admissionRef":admissionRef,"operationId":operationId])
+    }
+    public func admit(tenant: String, proposalId: String) async throws -> WorkAdmission {
+        let (data, context) = try await request("POST", tenant: tenant, body: JSONSerialization.data(withJSONObject: ["proposalId":proposalId]), path: "/v1/native/work/admit")
+        let result = try JSONDecoder().decode(WorkAdmission.self, from: data)
+        guard result.schema == "cambium.native.work-admission.v1", result.tenantId == context.tenantId, result.workId == "sapling:iverif",
+              result.admissionRef.range(of: #"^claim-admission:goal_[a-f0-9]{64}$"#, options: .regularExpression) != nil else { throw SignalError.scope }
+        return result
+    }
+    public func claimResult(tenant: String, admissionRef: String) async throws -> ClaimProofResult {
+        guard admissionRef.range(of: #"^claim-admission:goal_[a-f0-9]{64}$"#, options: .regularExpression) != nil else { throw SignalError.invalidRequest }
+        let (data, context) = try await request("GET", tenant: tenant, path: "/v1/native/work/result", query: [URLQueryItem(name:"admissionRef",value:admissionRef)])
+        let result = try JSONDecoder().decode(ClaimProofResult.self, from: data)
+        guard result.schema == "cambium.iverif.claim-result.v1", result.tenantId == context.tenantId, result.workId == "sapling:iverif", result.admissionRef == admissionRef,
+              ["queued","running","succeeded","failed"].contains(result.execution) else { throw SignalError.scope }
+        if let artifact = result.artifact { guard artifact.digest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil, artifact.claimCount > 0, artifact.claimCount <= 4096, artifact.markdown.utf8.count < HTTPLimits.maxResponseBytes else { throw SignalError.invalid } }
+        return result
+    }
+    private func request(_ method: String, tenant: String, body: Data? = nil, path: String? = nil, workFilter: String? = nil, query: [URLQueryItem] = []) async throws -> (Data, AuthenticatedReaderContext) {
         guard MissionFabricTenant.isValid(tenant), (body?.count ?? 0) <= 65536 else { throw SignalError.invalidRequest }
         var c = URLComponents(); c.scheme = origin.scheme; c.host = origin.host; c.port = origin.explicitPort
-        c.percentEncodedPath = origin.basePath + "/v1/directions/" + tenant
+        c.percentEncodedPath = origin.basePath + (path ?? ("/v1/directions/" + tenant))
+        if let workFilter { c.queryItems = [URLQueryItem(name:"workObjectId",value:workFilter)] } else if !query.isEmpty { c.queryItems = query }
         guard let url = c.url, origin.admits(url) else { throw SignalError.invalidRequest }
         let context = try AuthenticatedReaderContext.derive(from: await sessions.currentSession(), tenantId: tenant, at: clock.now())
         var headers = try await authorizer.headers(for: url)
@@ -110,7 +200,7 @@ public struct DirectionHTTPClient: Sendable {
     }
     private static func identifier(_ value: String) -> Bool { value.range(of: #"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"#, options: .regularExpression) != nil }
     private static func workValid(_ work: DirectionWorkContext) -> Bool {
-        work.workObjectId == "sapling:cambium" && identifier(work.workNodeId) && work.graphHeadDigest.range(of: #"^[a-f0-9]{64}$"#, options: .regularExpression) != nil
+        ["sapling:cambium", "sapling:iverif"].contains(work.workObjectId) && identifier(work.workNodeId) && work.graphHeadDigest.range(of: #"^[a-f0-9]{64}$"#, options: .regularExpression) != nil
     }
     private static func draftValid(_ draft: DirectionDraft) -> Bool {
         !draft.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && draft.title.utf16.count <= 200 && !draft.title.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) })

@@ -3,8 +3,6 @@ import { founderIntakeForm, type FounderIntakeState } from './founder-intake.ts'
 import { founderGraphView, type FounderGraphState } from './founder-graph.ts';
 import { mountDepartmentFolio, type DepartmentBridge } from './department-folio.ts';
 import { createWorld, type WorldAPI, type WorldState } from './world.ts';
-import { founderIntakeForm, type FounderIntakeState } from './founder-intake.ts';
-import { founderGraphView, type FounderGraphState } from './founder-graph.ts';
 import { DISTRICTS, WORLD_LANDMARKS, PATHS, keyboardAxis } from './world-model.ts';
 import { createNavigationChart, createInstrumentObserver } from './navigation-instrument.ts';
 import { TRAVELER_DESIGNS, type TravelerDesignId } from './character.ts';

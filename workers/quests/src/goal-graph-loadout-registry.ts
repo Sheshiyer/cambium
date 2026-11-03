@@ -1,6 +1,8 @@
+import { CLAIM_POLICY, CLAIM_POLICY_DIGEST } from '../../../shared/iverif-claim-proof.ts';
 import type { GoalGraphLoadoutAuthority, GoalGraphLoadoutAuthorityRecord } from './goal-graph/types.ts';
 
 const RECORDS: readonly GoalGraphLoadoutAuthorityRecord[] = Object.freeze([
+  Object.freeze({loadoutId:CLAIM_POLICY.loadoutId,eligibleWorkObjectIds:Object.freeze([CLAIM_POLICY.workObjectId]),authorizedClusterIds:Object.freeze([CLAIM_POLICY.clusterId]),authorityDigest:CLAIM_POLICY_DIGEST,sourceRef:'docs/project-management/iverif-claim-proof-source.v1.json'}),
   // Finite source policy only: this registry entry does not issue admission or a Gate approval.
   Object.freeze({
     loadoutId: 'loadout:wtfmedia-source-audit',

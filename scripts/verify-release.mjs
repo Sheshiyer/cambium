@@ -3,6 +3,8 @@
 import { spawnSync } from 'node:child_process';
 
 const gates = [
+  ['whole emitted Worker typecheck', 'npm', ['run', 'typecheck:worker']],
+  ['Field Atlas bundle parity', 'npm', ['--prefix','apps/cambium-r3f','run','curious:check']],
   ['retired runtime guard', 'npm', ['run', 'retired-runtime:check']],
   ['drift audit', 'npm', ['run', 'drift:audit']],
   ['core tests', 'npm', ['test']],

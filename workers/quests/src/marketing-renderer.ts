@@ -336,7 +336,8 @@ export function parseMarketingPrepareInput(raw: unknown):
   ];
   const briefExtra = ownKeysExactly(raw.brief, briefFields);
   if (briefExtra) return { ok: false, code: 'invalid_prepare_input', reason: `unknown brief field: ${briefExtra}` };
-  if (briefFields.some((field) => !(field in raw.brief))) {
+  const brief = raw.brief;
+  if (briefFields.some((field) => !(field in brief))) {
     return { ok: false, code: 'invalid_prepare_input', reason: 'brief is missing required fields' };
   }
   if (!Array.isArray(raw.brief.facts) || raw.brief.facts.length < 1 || raw.brief.facts.length > 16) {

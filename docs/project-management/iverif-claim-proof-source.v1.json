@@ -1,0 +1,217 @@
+{
+  "schema": "cambium.iverif.claim-source-manifest.v1",
+  "repository": "Sheshiyer/iverif-wiki",
+  "commit": "1cc03e62fbfb32ba21c98ba81ac5a6883d676d2a",
+  "files": [
+    {
+      "path": "public/notebooklm/flashcards-detailed.json",
+      "sha256": "00901601140be710ba35082d24cfe7f0d2edd5c31f6e9086d0a8f8646cdf3b7c",
+      "bytes": 13100,
+      "inventoryDigest": "sha256:94e415376050c89596feb56f3d5b6ac04f304a2eff7e0618fc981339a960124b",
+      "inventoryCount": 83
+    },
+    {
+      "path": "public/notebooklm/flashcards-standard.json",
+      "sha256": "aef9892e9f482badaa7f34c715014be456020d201c83990ddbfe408c4aa76f82",
+      "bytes": 11433,
+      "inventoryDigest": "sha256:5b247a379fb42d2ba6c52eb170b21e39ecbaddee64328d53fb06bab877a901fc",
+      "inventoryCount": 58
+    },
+    {
+      "path": "public/notebooklm/mind-map (2).json",
+      "sha256": "4c03e85b36b59ba548ff56ef714127bf9a3a27e27ff8732559f502efcbec4003",
+      "bytes": 2619,
+      "inventoryDigest": "sha256:a3392c65e4bb8919c9d0d9fb28a833f1c3c81c71a7d9e58ca71000b2f81f4b41",
+      "inventoryCount": 23
+    },
+    {
+      "path": "public/notebooklm/mind-map.json",
+      "sha256": "1ec8d76e138979235ae4f4ad98fcc14f26b3914ae86a6b5e2bdf58333adf2593",
+      "bytes": 2944,
+      "inventoryDigest": "sha256:3a7fae9499da1624fe5f09a9ede7c6059a79f655ec55313d0d0c208fa43b9dcc",
+      "inventoryCount": 23
+    },
+    {
+      "path": "public/notebooklm/quiz-hard.json",
+      "sha256": "9b2790d0cbce39b30f183fbca3c1bbca69260d58820d42f770f346b1a4750155",
+      "bytes": 17016,
+      "inventoryDigest": "sha256:506252575790a855d2288af868d57df8a363aa23f23a9bac682bb255a944823d",
+      "inventoryCount": 90
+    },
+    {
+      "path": "public/notebooklm/quiz-medium.json",
+      "sha256": "a47f94745f800fefb40545bd6880d1e3d3a35b05c328e0bff8d75c28973b2f51",
+      "bytes": 17131,
+      "inventoryDigest": "sha256:c98a81d9bf6b7c6b22c44162ee35f5e46b345417432072d38ea60fba7ffa0c56",
+      "inventoryCount": 89
+    },
+    {
+      "path": "public/notebooklm/report-blog.md",
+      "sha256": "480cf04561f1ff9e76208e3fe43a1414cac8ac97874eb5534668b7411bdefe01",
+      "bytes": 6574,
+      "inventoryDigest": "sha256:2f37bb31d605ec5b6b6fc2516a5eddfe91e7351b0aac32959d4978fe0b0febb9",
+      "inventoryCount": 36
+    },
+    {
+      "path": "public/notebooklm/report-briefing.md",
+      "sha256": "eccd7445f580ac97da5ea904c880841af89dd8f3547f84f002b2385d4cd02ae8",
+      "bytes": 11726,
+      "inventoryDigest": "sha256:82a4aac179b94a872c464fe982eed23689f952b6f98e006ec3a624c2d45e235d",
+      "inventoryCount": 97
+    },
+    {
+      "path": "public/notebooklm/report-study-guide.md",
+      "sha256": "8a6d4a39001131206d9c1f24ae1650f9c437f160e7b4d5a762f640b343e07345",
+      "bytes": 6606,
+      "inventoryDigest": "sha256:392137109dfc0de75f4a83801c5809d88e6ab838c19942097b14902bc66f16a2",
+      "inventoryCount": 46
+    },
+    {
+      "path": "src/content/docs/audience/primary-persona.md",
+      "sha256": "adb770a4305efbbc233466cdc75e9fe2ed645295bbc663d4fa63058694391b86",
+      "bytes": 2061,
+      "inventoryDigest": "sha256:d9cee47dfa4e1307fe775b6cd81617eb526aa6194dd65362686f3f33d9a1bae2",
+      "inventoryCount": 25
+    },
+    {
+      "path": "src/content/docs/audience/secondary-personas.md",
+      "sha256": "771e5792573207f969bed377c8f9773bbef7fb318477c693790491f8822de692",
+      "bytes": 1894,
+      "inventoryDigest": "sha256:f69a4dd23764bdca36f39afa228a1d098809fcbc336c6167a04ac668d4270ab1",
+      "inventoryCount": 20
+    },
+    {
+      "path": "src/content/docs/brand/visual-assets.md",
+      "sha256": "2da2948f1f2b0d5ab1a6e99b31a98c039b9c21d4aa2af0680bbca594c83e8a19",
+      "bytes": 795,
+      "inventoryDigest": "sha256:408a7eda6d07ce70d5d4fa88a4c69ffdd35ea90295fee26d2af02337714c5c0a",
+      "inventoryCount": 3
+    },
+    {
+      "path": "src/content/docs/brand/visual-guidelines.md",
+      "sha256": "a6a253703930bc99302297faeb8f3cd26a2aa7f17665a944c93d3383fcbfac04",
+      "bytes": 2662,
+      "inventoryDigest": "sha256:66e9193c841e3ce796d6a60e02e004ddab4a074f2cd6ad26a4ba7bc0f68768c5",
+      "inventoryCount": 29
+    },
+    {
+      "path": "src/content/docs/brand/voice-tone.md",
+      "sha256": "ebf0866099b50c4b5aae71b631614bd0a7ca8d21eaa576b1402b673b7b987a84",
+      "bytes": 2379,
+      "inventoryDigest": "sha256:c05d6064edc010ffb5a8f109be6de28d83fb89d7cb18d4750f6598f94e4fdd86",
+      "inventoryCount": 32
+    },
+    {
+      "path": "src/content/docs/getting-started/quickstart.md",
+      "sha256": "27cdd84b8a4a914d55c807d74453ed3c546aeb8bd91942a32f303dbbcfd03037",
+      "bytes": 1525,
+      "inventoryDigest": "sha256:ff4e56b7146a5ea2dded75407a55a2454cdb86cf1aada7e8168975f62c2355ef",
+      "inventoryCount": 23
+    },
+    {
+      "path": "src/content/docs/index.md",
+      "sha256": "70f7587bef19b502baf401990672639bb13c8bcdc77d0db7776ded24254012c4",
+      "bytes": 1801,
+      "inventoryDigest": "sha256:480d4b63d26b5bad7dfd7b61ebc2610a0ef48e326dbcaaae645c4f0788fd55ba",
+      "inventoryCount": 26
+    },
+    {
+      "path": "src/content/docs/market/competitive-landscape.md",
+      "sha256": "1c52557051697802974c97f1dadc531ae59baea065bef67c918ce3bbe04c21c8",
+      "bytes": 2358,
+      "inventoryDigest": "sha256:47839ebfd04ef719023c1e348b869acc3db81cf4804ee0b7189fbc6e8c57cd2b",
+      "inventoryCount": 21
+    },
+    {
+      "path": "src/content/docs/marketing/ad-creative.md",
+      "sha256": "4978a50cda6c993218af276ea35012ab1659f89780c409be93da0abc63e3e048",
+      "bytes": 365,
+      "inventoryDigest": "sha256:a4b5af8a350c9a4a7f4e7b933969e1973cb8fc68b7a6a708c97359f898c2bae2",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/content/docs/marketing/campaign-copy.md",
+      "sha256": "b82836cdee117b866c4acefeff6e28c2b2492cce97d988156ac019e3a337fc52",
+      "bytes": 2973,
+      "inventoryDigest": "sha256:2eb577bc5adc210a0ca113d55d53b8beb082918ae29d063558eddfdf78cbef08",
+      "inventoryCount": 28
+    },
+    {
+      "path": "src/content/docs/marketing/email-templates.md",
+      "sha256": "8ea620c7a99901a2e1381b2676556b87c7c7d01efc8befd591cbff7d11eca4ce",
+      "bytes": 412,
+      "inventoryDigest": "sha256:cf6f16822d6c150bfc9cd7b8d3f54376fd8d4711d2dfde649a9be1f08e0cb9d3",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/content/docs/marketing/social-content.md",
+      "sha256": "72cb210fc1464efccb5a27615e0958b10ffde1b8165a999bc5b5668b0bad4f8f",
+      "bytes": 390,
+      "inventoryDigest": "sha256:729b4e49fc41f78702893c67a1c1efa675257443f50636207c130f7f7c917e78",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/content/docs/marketing/video-scripts.md",
+      "sha256": "4aa3f0d241175061d42d2f8a3341feb9fde2b887e3739e9f4bbc6c01dccb3821",
+      "bytes": 347,
+      "inventoryDigest": "sha256:bf96c9607b2f1d0308efc8511bc04fc0452b67b79e5eff236af96a88a61bf5f3",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/content/docs/product/features.md",
+      "sha256": "e4f53c87257bd7c90ff02fd7f2d2fe29b9141caf925c8daad78afbbdc4cfcfd9",
+      "bytes": 2204,
+      "inventoryDigest": "sha256:b59144b9f60b74c8965091ac1e72444f4b9cbc41f1eb9c007cbcf5a258c03bd3",
+      "inventoryCount": 33
+    },
+    {
+      "path": "src/content/docs/product/overview.md",
+      "sha256": "75bbdf012a8b2c8b388143290c1a1dcbc5978c58cd81103fb04fcc41f257048e",
+      "bytes": 2521,
+      "inventoryDigest": "sha256:ce4b2f702d6462aae9c7961a69cd8fe30d909f94b30f2e2267471143c4505d77",
+      "inventoryCount": 23
+    },
+    {
+      "path": "src/content/docs/product/specifications.md",
+      "sha256": "82114659663597598f1eeffdb374e1bf80108643a2d6fb2833fa9e6676acf0f9",
+      "bytes": 2088,
+      "inventoryDigest": "sha256:51d4746aca2ccfde58299babc5dbc7843e295b03fcaecc08cb9e44a20d95a97a",
+      "inventoryCount": 30
+    },
+    {
+      "path": "src/content/docs/research/notebooklm-artifacts.md",
+      "sha256": "5d04859335607cb0d04387334217c795b1164b0001bf9e17314c25044dff020b",
+      "bytes": 2585,
+      "inventoryDigest": "sha256:da519f3a0c3a12f473ca70fdeafca0af9000af641c338162f641736f077f4c69",
+      "inventoryCount": 26
+    },
+    {
+      "path": "src/content/frDocs/placeholder.md",
+      "sha256": "a9a93820fa548f2e16ea4172c20349e4c3321bcf27f173d2d9d0794d40d05a5c",
+      "bytes": 202,
+      "inventoryDigest": "sha256:fbe75fc51c6b51185c05d7c7d918a38fb05b3969efa37058d9e493e208cd6507",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/data/artifacts.json",
+      "sha256": "74f84a2e430e889fdf34056bad1c4ff05fc62e2a8f55bd1e3fc4ba6e6becce91",
+      "bytes": 5211,
+      "inventoryDigest": "sha256:3a4d12b58a701ca5b82447108f67fe0d7bb5959d30c1fbde89c0a02ffd2052cf",
+      "inventoryCount": 33
+    },
+    {
+      "path": "src/data/site-data.json",
+      "sha256": "6fa992ac53fa3e8d87c0fd70060e36e6c483002140cea5e0009809869d299777",
+      "bytes": 6282,
+      "inventoryDigest": "sha256:2a42ed78ec91ebea0ee1178f8a307882a58262f50822bf4c274e3916467a591a",
+      "inventoryCount": 33
+    },
+    {
+      "path": "src/data/visual-assets.json",
+      "sha256": "0f753a5e45f2c0fb4b7fee28b51e3a36014794683cff104088b4f662b3fce428",
+      "bytes": 5192,
+      "inventoryDigest": "sha256:96e055c5183949246cb2e847dcc06d3246a9a6f4ca1b8fc8ff4bd042eecae61b",
+      "inventoryCount": 24
+    }
+  ]
+}

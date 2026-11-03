@@ -1,3 +1,7 @@
+import type { ClaimProofOwner } from './claim-proof-owner.ts';
+import { parseClaimProofInput, type ClaimProofInput } from '../../../shared/iverif-claim-proof.ts';
+import { CLAIM_POLICY, CLAIM_POLICY_DIGEST, CLAIM_SOURCE, CLAIM_ACCEPTANCE_SCHEMA, claimDigest } from '../../../shared/iverif-claim-proof.ts';
+import { DIRECTION_EXECUTION_SCHEMA, parseDirectionExecutionBoundary, parseDirectionExecutionIntent, readPinnedDirection, claimInputForDirection, parseClaimAcceptanceBoundary, parseClaimAcceptanceIntent } from './direction-execution.ts';
 import { readDepartmentSources, type DepartmentSourceReaders } from '../../../shared/department-pilot/readers.ts';
 import { MAPPING_ANNOTATIONS } from './portfolio-four-annotations.data.ts';
 import { parseAnnotations } from './portfolio-four-annotations.ts';
@@ -10,7 +14,7 @@ import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
 import { sharedSignalsHttp, type SignalStore } from './shared-signals.ts';
 import { sharedDirectionsHttp } from './shared-directions-http.ts';
 import type { DirectionStore } from './shared-directions.ts';
-import { OPERATIONAL_WORK_SCHEMA, parseOperationalWorkBoundary, parseOperationalWorkIntent, adaptOperationalWorkSources } from './operational-work-intake.ts';
+import { OPERATIONAL_WORK_SCHEMA, parseOperationalWorkBoundary, parseOperationalWorkIntent, adaptOperationalWorkSources, operationalWorkIdentity } from './operational-work-intake.ts';
 import {
   composeNativeLaunchHost,
   nativeComposedPath,
@@ -212,6 +216,12 @@ export interface KvLike {
   list(prefix: string): Promise<string[]>;   // key names under a prefix (gate queue)
 }
 
+/** Adapt the handler's key-name listing to the context owner's KV contract. */
+function proactiveKv(kv: KvLike) {
+  return { get: kv.get.bind(kv), put: kv.put.bind(kv),
+    list: async ({ prefix }: { prefix: string }) => ({ keys: (await kv.list(prefix)).map(name => ({ name })) }) };
+}
+
 export interface BridgeAssignmentRecord {
   id: string;
   memberId: string;
@@ -257,7 +267,7 @@ export interface BridgeExecutionAttestation {
   idempotencyKey: string;
   runnerId: string;
   hostIdentity: string;
-  command: 'canary.record' | 'service_agreement.draft.render' | 'source_verification.accept' | 'growth.request.draft';
+  command: 'canary.record' | 'service_agreement.draft.render' | 'source_verification.accept' | 'growth.request.draft' | 'iverif.claim-proof.review';
   status: BridgeExecutionOutcomeStatus;
   exitCode: 0 | 1 | null;
   inputDigest: string;
@@ -521,6 +531,8 @@ export interface FabricLedgerStoreLike {
 export interface HandlerDeps {
   sharedSignalStore?: SignalStore;
   sharedDirectionStore?: DirectionStore;
+  claimProofMemberId?: string;
+  claimProofOwner?: ClaimProofOwner;
   departmentReaders?: DepartmentSourceReaders; // server-owned accepted-source readers; absent stays unavailable
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
@@ -722,8 +734,8 @@ async function authenticateInitData(
   if (!authDate || now - authDate > maxAge) return { ok: false, reason: 'stale auth_date' };
   let verified = false;
   try {
-    const key = await crypto.subtle.importKey('raw', hexToBytes(cfg.pubKeyHex), { name: 'Ed25519' }, false, ['verify']);
-    verified = await crypto.subtle.verify('Ed25519', key, b64urlToBytes(fields.signature), new TextEncoder().encode(dcs));
+    const key = await crypto.subtle.importKey('raw', new Uint8Array(hexToBytes(cfg.pubKeyHex)).buffer, { name: 'Ed25519' }, false, ['verify']);
+    verified = await crypto.subtle.verify('Ed25519', key, new Uint8Array(b64urlToBytes(fields.signature)).buffer, new TextEncoder().encode(dcs));
   } catch {
     return { ok: false, reason: 'signature verification unavailable' };
   }
@@ -1236,6 +1248,7 @@ interface ServiceAgreementDraftInput {
 }
 
 type NativeExecutionContract =
+  | { command: 'iverif.claim-proof.review'; idempotencyKey: string; input: ClaimProofInput }
   | { command: 'canary.record'; idempotencyKey: string; input: { nonce: string } }
   | { command: 'service_agreement.draft.render'; idempotencyKey: string; input: ServiceAgreementDraftInput }
   | { command: 'growth.request.draft'; idempotencyKey: string; input: GrowthInput }
@@ -1526,7 +1539,7 @@ function executionText(value: unknown, pattern = EXECUTION_SAFE_ID): string | nu
   return typeof value === 'string' && pattern.test(value) ? value : null;
 }
 
-function executionClaimBody(value: unknown): Omit<BridgeExecutionClaimInput, 'claimId' | 'fencingToken' | 'claimedAt' | 'leaseExpiresAt'> | null {
+function executionClaimBody(value: unknown): Omit<BridgeExecutionClaimInput, 'inputDigest' | 'claimId' | 'fencingToken' | 'claimedAt' | 'leaseExpiresAt'> | null {
   if (!isRecord(value) || value.schema !== 'thoughtseed.hermes.execution_claim.v1') return null;
   const memberId = typeof value.memberId === 'string' && VALID_TENANT.test(value.memberId) ? value.memberId : null;
   const directiveId = executionText(value.directiveId);
@@ -1609,7 +1622,7 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
     || attestationRunnerId !== runnerId
     || attestationHostIdentity !== hostIdentity
     || (rawAttestation.command !== 'canary.record' && rawAttestation.command !== 'service_agreement.draft.render'
-      && rawAttestation.command !== 'source_verification.accept' && rawAttestation.command !== 'growth.request.draft')
+      && rawAttestation.command !== 'source_verification.accept' && rawAttestation.command !== 'growth.request.draft' && rawAttestation.command !== 'iverif.claim-proof.review')
     || rawAttestation.status !== status) return null;
   const exitCode: 0 | 1 | null = status === 'executed' ? 0 : status === 'failed' ? 1 : null;
   if (rawAttestation.exitCode !== exitCode) return null;
@@ -1684,6 +1697,10 @@ function nativeExecutionContract(
     && EXECUTION_NONCE.test(input.nonce)) {
     return { command: 'canary.record', idempotencyKey, input: { nonce: input.nonce } };
   }
+  if (payload.command === 'iverif.claim-proof.review') {
+    const input = parseClaimProofInput(payload.input);
+    if (input) return {command:'iverif.claim-proof.review',idempotencyKey,input};
+  }
   if (payload.command === 'growth.request.draft') {
     const growthInput = parseGrowthInput(input);
     if (growthInput) return { command: 'growth.request.draft', idempotencyKey, input: growthInput };
@@ -1741,6 +1758,8 @@ async function validExecutionAttestation(
       };
       const expectedOutputDigest = `sha256:${await sha256hex(canonicalJson(proof))}`;
       if (outcome.attestation.outputDigest !== expectedOutputDigest) return false;
+    } else if (contract.command === 'iverif.claim-proof.review') {
+      if (outcome.attestation.businessReceipt !== undefined || outcome.attestation.growthResult !== undefined) return false;
     } else if (contract.command === 'source_verification.accept') {
       // The output digest is bound to a signed envelope in the outcome route,
       // which needs the owner public keys; nothing else may ride along.
@@ -2133,6 +2152,7 @@ async function queueRoleTask(
     },
   }, nowIso, createId, { roleTaskProvenance: provenance });
   if (queued.status !== 200) return queued;
+  if (typeof queued.body !== 'string') return json(503, { error: 'assignment_receipt_unavailable' });
   const receipt = JSON.parse(queued.body) as Record<string, unknown>;
   return json(200, {
     ok: true,
@@ -2809,7 +2829,7 @@ function normalizeMiniAppSceneContracts(envelope: unknown): Record<string, unkno
 function sanitizeQuestEnvelope(envelope: any): any {
   const social = envelope?.social;
   if (!social || typeof social !== 'object' || Array.isArray(social)) return normalizeMiniAppSceneContracts(envelope);
-  const rows = Array.isArray(social.rows) ? social.rows : [];
+  const rows: unknown[] = Array.isArray(social.rows) ? social.rows : [];
   const safeRows = rows.filter((row) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) return false;
     const item = row as Record<string, unknown>;
@@ -3004,7 +3024,7 @@ function iverifReadCredentialReady(deps: HandlerDeps): boolean {
 }
 
 function iverifPolicyProjection(autoReplyEnabled?: boolean) {
-  const oneWriterConflict = autoReplyEnabled === true || IVERIF_GROUNDING.policy.oneWriterState !== 'proven';
+  const oneWriterConflict = autoReplyEnabled === true || !new Set<string>(['proven']).has(IVERIF_GROUNDING.policy.oneWriterState);
   return {
     mode: 'observe',
     proofState: IVERIF_GROUNDING.policy.promotionState,
@@ -3186,7 +3206,7 @@ async function handleIVerifObserverRoute(
           nextStep: IVERIF_GROUNDING.experiment.prerequisites[0],
         },
         claimStatus: {
-          verified: IVERIF_GROUNDING.claims.filter((claim) => claim.status === 'verified').length,
+          verified: IVERIF_GROUNDING.claims.filter((claim) => new Set<string>(['verified']).has(claim.status)).length,
           hypotheses: IVERIF_GROUNDING.claims.filter((claim) => claim.status === 'hypothesis').length,
           blocked: IVERIF_GROUNDING.claims
             .filter((claim) => claim.status === 'blocked')
@@ -3226,8 +3246,8 @@ export interface FabricShadowReport {
 const MISSION_FABRIC_CLOCK_SKEW_MS = 24 * 60 * 60_000;
 
 function fabricIdentityOf(node: FabricNode): string {
-  const value = node.value as Record<string, unknown>;
-  return String(value.workId ?? value.missionId ?? value.taskId ?? value.agentId ?? value.clusterId ?? value.runId ?? value.receiptId ?? '');
+  const value = { ...node.value };
+  return String('workId' in value ? value.workId : 'missionId' in value ? value.missionId : 'taskId' in value ? value.taskId : 'agentId' in value ? value.agentId : value.clusterId);
 }
 
 type FabricTaskNode = Extract<FabricNode, { kind: 'task' }>;
@@ -3404,7 +3424,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         return json(503, { error: 'goal_graph_read_unconfirmed' });
       }
     }
-    if (operationalWorks.some(work => work.kind === 'work' && entries.some(entry => 'kind' in entry && entry.kind === 'work' && entry.value.workId === work.value.workId))) {
+    if (operationalWorks.some(work => { if (work.kind !== 'work') return false; const workId = work.value.workId; return entries.some(entry => 'value' in entry && entry.kind === 'work' && entry.value.workId === workId); })) {
       return json(503, { error: 'operational_work_source_conflict' });
     }
     entries.push(...operationalWorks);
@@ -3456,6 +3476,17 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     ));
     const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
 
+    if(deps.claimProofOwner) {
+      const claimFacts=await deps.claimProofOwner.facts(tenant,nodes,head.graphVersion);
+      entries.push(...claimFacts.nodes);mergedEdges.push(...claimFacts.edges);
+      for(let index=0;index<entries.length;index++) {
+        const entry=entries[index];
+        if('value' in entry&&entry.kind==='task') {
+          const state=claimFacts.taskStates[entry.value.taskId];
+          if(state)entries[index]={kind:'task',value:{...entry.value,status:state.status,latestReceiptId:state.receiptId}};
+        }
+      }
+    }
     authorityStage = 'foldback';
     const foldbackReferences: any[] = isRecord(storedEnvelope) && Array.isArray(storedEnvelope.foldbackReceipts) ? storedEnvelope.foldbackReceipts : [];
     if (!foldbackReferences.length && deps.foldbackReader?.discover) {
@@ -3583,6 +3614,10 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       edges: sortedEdges,
       gaps: sortedGaps,
     };
+    if(deps.claimProofOwner) {
+      const confirmed=await deps.goalGraphStore.readHead(tenant);
+      if(!confirmed||confirmed.graphDigest!==head.graphDigest||confirmed.graphVersion!==head.graphVersion)return json(503,{error:'goal_graph_read_unconfirmed'});
+    }
     const projection: MissionFabricProjectionV1 = {
       schema: 'cambium.mission-fabric-projection.v1',
       ...content,
@@ -4039,6 +4074,8 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
   }
   const bookkeeping = isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA;
   const operational = isRecord(task.intent) && task.intent.schema === OPERATIONAL_WORK_SCHEMA;
+  const execution = isRecord(task.intent) && task.intent.schema === DIRECTION_EXECUTION_SCHEMA;
+  const acceptance = isRecord(task.intent) && task.intent.schema === CLAIM_ACCEPTANCE_SCHEMA;
   const changeSet = isRecord(task.changeSet) ? task.changeSet : {};
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
@@ -4051,13 +4088,15 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : operational ? 'Cambium operational Work proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
-    source: task.renewal ? 'founder-proposal-renewal@v1' : operational ? 'founder-web-operational-work@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : acceptance ? 'IVerif claim-result acceptance proposal' : execution ? 'IVerif claim-proof execution proposal' : operational ? 'Operational Work proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : acceptance ? 'founder-claim-acceptance@v1' : execution ? 'founder-direction-execution@v1' : operational ? 'founder-web-operational-work@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    ...(acceptance ? { resultAcceptanceReview: task.intent } : {}),
+    ...(execution ? { executionReview: { input: isRecord(task.intent) ? task.intent.input : null, memberId: isRecord(task.intent) ? task.intent.memberId : null, policy: CLAIM_POLICY, policyDigest: CLAIM_POLICY_DIGEST, sourceManifest: CLAIM_SOURCE }, executionChanges: changeSet } : {}),
     ...(operational ? { operationalWorkChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : operational ? 'founder signature establishes only the reviewed Cambium Work source; execution still requires a separate direction approval and admission' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : acceptance ? 'founder signature records acceptance of this exact internal evidence table; trusted owner attestation is still required, and no product promotion, publication or execution permission is added' : execution ? 'founder signature approves exactly the pinned claim-proof task; a separate governed admission and launch are required; product promotion, publication and spend remain held' : operational ? 'founder signature establishes only the reviewed operational Work source; execution still requires a separate direction approval and admission' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
     proposalId: `${tenantId}:${changeDigest}`,
@@ -4475,7 +4514,9 @@ async function intakeTelegramGoalGraphRoute(
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
   const operational = !!verifiedFounderId && isRecord(raw) && raw.schema === OPERATIONAL_WORK_SCHEMA;
-  const initial = verifiedFounderId ? operational ? parseOperationalWorkBoundary(raw, verifiedFounderId) : parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
+  const execution = !!verifiedFounderId && isRecord(raw) && raw.schema === DIRECTION_EXECUTION_SCHEMA;
+  const acceptance = !!verifiedFounderId && isRecord(raw) && raw.schema === CLAIM_ACCEPTANCE_SCHEMA;
+  const initial = verifiedFounderId ? acceptance ? parseClaimAcceptanceBoundary(raw, verifiedFounderId) : execution ? parseDirectionExecutionBoundary(raw, verifiedFounderId) : operational ? parseOperationalWorkBoundary(raw, verifiedFounderId) : parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
@@ -4515,7 +4556,7 @@ async function intakeTelegramGoalGraphRoute(
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   };
-  const pinned = verifiedFounderId ? operational ? parseOperationalWorkIntent(raw, verifiedFounderId, context) : parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
+  const pinned = verifiedFounderId ? acceptance ? parseClaimAcceptanceIntent(raw, verifiedFounderId, context) : execution ? parseDirectionExecutionIntent(raw, verifiedFounderId, context) : operational ? parseOperationalWorkIntent(raw, verifiedFounderId, context) : parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
   if (!pinned.accepted) return persistRejection(pinned);
   if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
     return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
@@ -5377,6 +5418,7 @@ async function rejectGoalGraphIntakeRoute(
     return { status: 409, body: { ok: false, error: 'goal_graph_rejection_invalid', code: decision.code, ...evidence } };
   }
   if (decision.status === 'unavailable') return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
+  if (!('decidedAt' in decision)) return { status: 503, body: { error: 'goal_graph_authority_unavailable' } };
   const rejectedAt = decision.decidedAt;
   try {
     await deps.kv.put(goalGraphIntakeTaskKey(tenant, changeDigest), JSON.stringify({
@@ -5558,6 +5600,71 @@ async function handleMcpGateAdapterRoute(req: SimpleRequest, deps: HandlerDeps, 
   return json(result.status, result.body);
 }
 
+async function existingNativePreparedProposal(deps:HandlerDeps,scope:{tenantId:string;principal:string},intent:Record<string,unknown>):Promise<string|null> {
+  if(![DIRECTION_EXECUTION_SCHEMA,CLAIM_ACCEPTANCE_SCHEMA].includes(String(intent.schema)))return null;
+  const keys=await deps.kv.list('goal-graph-intake-task:'+scope.tenantId+':');if(keys.length>256)throw new Error('proposal_read_bound');
+  for(const key of keys) {
+    const text=await deps.kv.get(key);if(!text)continue;
+    let task:any;try{task=JSON.parse(text);}catch{continue;}
+    const original=task.intent;
+    if(!original||original.schema!==intent.schema||original.source?.founderDigest!==claimDigest(scope.principal).slice(7)
+        ||!['pending','committed'].includes(task.status)||claimDigest(original.input)!==claimDigest(intent.input))continue;
+    if(intent.schema===CLAIM_ACCEPTANCE_SCHEMA&&(original.artifactDigest!==intent.artifactDigest||original.admissionRef!==intent.admissionRef))continue;
+    if(typeof task.changeDigest==='string'&&/^(?:sha256:)?[a-f0-9]{64}$/.test(task.changeDigest))return `${scope.tenantId}:${task.changeDigest}`;
+  }
+  return null;
+}
+async function nativeWorkPreparation(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  if (req.method !== 'POST') return nativeRefusal(405,'post_required');
+  if (Buffer.byteLength(req.body??'')>4096) return nativeRefusal(413,'preparation_too_large');
+  const first=await resolveComposedNativeSession(req,deps.nativeSessionHost);
+  if (first.kind==='refused') return 'status' in first?nativeRefusal(first.status,first.error):nativeHttpResponse(first.response);
+  if (first.kind!=='native' || first.scope.tenantId!=='cambium') return nativeRefusal(403,'founder_tenant_required');
+  const scope={tenantId:first.scope.tenantId,principal:first.scope.founderId};
+  try {
+    const raw:unknown=JSON.parse(req.body??'');
+    if (!isRecord(raw)) return nativeRefusal(400,'invalid_preparation');
+    const now=deps.now??(()=>new Date().toISOString());
+    let intent:unknown;
+    if (req.path==='/v1/native/work/intake') {
+      if (Object.keys(raw).sort().join(',')!=='operationId,workObjectId' || typeof raw.operationId!=='string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(raw.operationId)) return nativeRefusal(400,'invalid_work_preparation');
+      const identity=operationalWorkIdentity(raw.workObjectId);
+      if (!identity || !deps.goalGraphStore) return nativeRefusal(409,'work_source_unavailable');
+      const head=await deps.goalGraphStore.readHead(scope.tenantId),nodes=await deps.goalGraphStore.readNodes(scope.tenantId),again=await deps.goalGraphStore.readHead(scope.tenantId);
+      if (!head || !again || head.graphDigest!==again.graphDigest || head.graphVersion!==again.graphVersion || makeGoalGraphHead(scope.tenantId,nodes,head.graphVersion,head.committedAt).graphDigest!==head.graphDigest) return nativeRefusal(503,'graph_read_unconfirmed');
+      const roots=nodes.filter(node=>node.parentNodeId===null);
+      if(roots.length!==1)return nativeRefusal(409,'tenant_root_required');
+      intent={schema:OPERATIONAL_WORK_SCHEMA,version:1,tenantId:scope.tenantId,clientRequestId:raw.operationId,expectedHeadDigest:head.graphDigest,
+        goals:[{namespace:'founder-operational-work',externalId:identity.externalId,parentNodeId:roots[0].nodeId,scope:'meso',
+          desiredState:`Coordinate ${identity.name} evidence into reviewed work and attributable results.`,currentState:'Internal proof task only; product promotion remains held.',
+          owner:'founder',nextAction:'Save and review a source-linked direction.',waitCondition:null,proofRequired:true,reviewAt:null,status:'active',metadata:{},workObjectId:raw.workObjectId,workObjectKind:'sapling'}]};
+    } else if(req.path==='/v1/native/work/result/review') {
+      if(Object.keys(raw).sort().join(',')!=='admissionRef,operationId'||typeof raw.admissionRef!=='string'||typeof raw.operationId!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(raw.operationId)||!deps.claimProofOwner)return nativeRefusal(400,'invalid_result_review');
+      intent=await deps.claimProofOwner.prepareAcceptance({tenantId:scope.tenantId,principalId:scope.principal},raw.admissionRef,raw.operationId);
+    } else {
+      const match=/^\/v1\/directions\/(cambium)\/([A-Za-z0-9][A-Za-z0-9._:-]{0,127})\/review$/.exec(req.path);
+      if(!match || Object.keys(raw).sort().join(',')!=='operationId,revision' || typeof raw.operationId!=='string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(raw.operationId) || !Number.isSafeInteger(raw.revision))return nativeRefusal(400,'invalid_direction_review');
+      if(!deps.claimProofMemberId)return nativeRefusal(503,'claim_proof_owner_unconfigured');
+      const {direction,head}=await readPinnedDirection(deps,scope,match[2],Number(raw.revision));
+      intent={schema:DIRECTION_EXECUTION_SCHEMA,version:1,tenantId:scope.tenantId,clientRequestId:raw.operationId,expectedHeadDigest:head.graphDigest,
+        parentNodeId:direction.workNodeId,memberId:deps.claimProofMemberId,input:claimInputForDirection(direction)};
+    }
+    if(isRecord(intent)) {
+      const existing=await existingNativePreparedProposal(deps,scope,intent);
+      if(existing)return json(200,{schema:'cambium.native.work-preparation.v1',tenantId:scope.tenantId,proposalId:existing,accepted:true,duplicate:true,writerAuthority:false,executionGranted:false});
+      if(intent.schema===DIRECTION_EXECUTION_SCHEMA&&isRecord(intent.input)&&intent.input.graphHeadDigest!==intent.expectedHeadDigest)return nativeRefusal(409,'graph_changed');
+    }
+    const again=await resolveComposedNativeSession(req,deps.nativeSessionHost);
+    if(again.kind!=='native' || again.tokenDigest!==first.tokenDigest || again.scope.founderId!==scope.principal || again.scope.tenantId!==scope.tenantId || again.scope.clientId!==first.scope.clientId)return nativeRefusal(403,'authorization_changed');
+    const result=await intakeTelegramGoalGraphRoute(deps,intent,now,scope.principal);
+    return {...json(result.status,{...result.body,schema:'cambium.native.work-preparation.v1',tenantId:scope.tenantId,writerAuthority:false,executionGranted:false,
+      ...(result.body.accepted?{proposalId:`cambium:${result.body.changeDigest}`}:{})}),headers:{...JSON_HEADERS,'cache-control':'private, no-store'}};
+  } catch(error) {
+    const code=error instanceof Error && ['direction_changed','signal_changed','work_join_required','graph_read_unconfirmed'].includes(error.message)?error.message:'preparation_unavailable';
+    return nativeRefusal(code==='preparation_unavailable'?503:409,code);
+  }
+}
+
 const NATIVE_LAUNCH_ROUTES: ReadonlySet<string> = new Set(Object.values(NATIVE_LAUNCH_PATHS));
 
 function nativeRefusal(status: number, error: string): SimpleResponse {
@@ -5609,6 +5716,28 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const nativePath = req.path.split('?')[0];
+  if(nativePath==='/v1/native/work/admit'||nativePath==='/v1/native/work/result') {
+    const resolved=await resolveComposedNativeSession(req,deps.nativeSessionHost);
+    if(resolved.kind==='refused')return 'status' in resolved?nativeRefusal(resolved.status,resolved.error):nativeHttpResponse(resolved.response);
+    if(resolved.kind!=='native'||resolved.scope.tenantId!=='cambium')return nativeRefusal(403,'founder_tenant_required');
+    if(!deps.claimProofOwner)return nativeRefusal(503,'claim_proof_owner_unavailable');
+    const scope={tenantId:resolved.scope.tenantId,principalId:resolved.scope.founderId};
+    try {
+      if(nativePath==='/v1/native/work/admit') {
+        if(req.method!=='POST'||Buffer.byteLength(req.body??'')>2048)return nativeRefusal(400,'invalid_admission_request');
+        const raw=JSON.parse(req.body??'');if(!isRecord(raw)||Object.keys(raw).join(',')!=='proposalId'||typeof raw.proposalId!=='string')return nativeRefusal(400,'invalid_admission_request');
+        return json(200,{schema:'cambium.native.work-admission.v1',tenantId:scope.tenantId,...await deps.claimProofOwner.admit(scope,raw.proposalId,async()=>{
+          const again=await resolveComposedNativeSession(req,deps.nativeSessionHost);
+          return again.kind==='native'&&again.tokenDigest===resolved.tokenDigest&&again.scope.founderId===scope.principalId&&again.scope.tenantId===scope.tenantId&&again.scope.clientId===resolved.scope.clientId;
+        })});
+      }
+      if(req.method!=='GET')return nativeRefusal(405,'get_required');
+      const admissionRef=new URL(req.path,'https://cambium.invalid').searchParams.get('admissionRef');
+      if(!admissionRef)return nativeRefusal(400,'admission_reference_required');
+      return json(200,await deps.claimProofOwner.result(scope,admissionRef));
+    }catch{return nativeRefusal(409,'claim_proof_not_current_or_unavailable');}
+  }
+  if (nativePath === '/v1/native/work/intake' || nativePath === '/v1/native/work/result/review' || /^\/v1\/directions\/[^/]+\/[^/]+\/review$/.test(nativePath)) return nativeWorkPreparation(req,deps);
   if (nativePath === '/v1/directions' || nativePath.startsWith('/v1/directions/')) return sharedDirectionsHttp(req, deps);
   if (nativePath === '/v1/signals' || nativePath.startsWith('/v1/signals/')) {
     // Signals annotate source projects, including display proposals. This never
@@ -5651,6 +5780,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
     const bindings = founderBindings(deps.founderGateBindingsJson);
     if (!bindings?.some(row => row.founderId === signer.approverId && row.tenantId === 'cambium')) return json(403, { error: 'founder_tenant_not_enrolled' });
     if (readGraph) {
+      const graphUrl=new URL(req.path,'https://cambium.invalid');
+      const workFilter=graphUrl.searchParams.get('workObjectId');
+      if([...graphUrl.searchParams.keys()].some(key=>key!=='workObjectId')||graphUrl.searchParams.getAll('workObjectId').length>1||(workFilter!==null&&workFilter!=='sapling:iverif'))return json(400,{error:'invalid_work_filter'});
+      const operational=workFilter==='sapling:iverif';
       if (!deps.goalGraphStore?.readDecisionReceipt) return json(503, { error: 'goal_graph_authority_unavailable' });
       try {
         const head = await deps.goalGraphStore.readHead('cambium');
@@ -5661,7 +5794,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
             || makeGoalGraphHead('cambium', all, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) return json(503, { error: 'goal_graph_read_unconfirmed' });
         const roots = all.filter(node => node.parentNodeId === null);
         if (roots.length !== 1) return json(503, { error: 'goal_graph_root_ambiguous' });
-        const nodes = all.filter(node => node.namespace === 'founder-bookkeeping'
+        const nodes = operational ? all.filter(node=>node.workObjectId===workFilter&&['founder-operational-work','founder-direction-execution','founder-claim-acceptance'].includes(node.namespace)) : all.filter(node => node.namespace === 'founder-bookkeeping'
           && ['sapling:lumen-bar', 'program:temperance-hermes'].includes(node.workObjectId ?? ''));
         const ids = new Set(nodes.map(node => node.nodeId));
         const keys = await deps.kv.list('goal-graph-intake-task:cambium:');
@@ -5669,7 +5802,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         const decisions: Array<Record<string, unknown>> = [];
         for (const key of keys) {
           const task = parseJsonObject(await deps.kv.get(key));
-          if (!task || !isRecord(task.intent) || task.intent.schema !== FOUNDER_BOOKKEEPING_SCHEMA || task.tenantId !== 'cambium'
+          if (!task || !isRecord(task.intent) || !(operational?[OPERATIONAL_WORK_SCHEMA,DIRECTION_EXECUTION_SCHEMA,CLAIM_ACCEPTANCE_SCHEMA].includes(String(task.intent.schema))&&(task.intent.workObjectId===workFilter||isRecord(task.intent.input)&&task.intent.input.workObjectId===workFilter):task.intent.schema===FOUNDER_BOOKKEEPING_SCHEMA) || task.tenantId !== 'cambium'
               || !Number.isInteger(task.graphVersion)) continue;
           const decision = await projectedGoalGraphDecision(deps.goalGraphStore, task, 'cambium');
           if (decision === undefined) return json(503, { error: 'goal_graph_decision_read_unconfirmed' });
@@ -5677,13 +5810,14 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           // A rejection records a decision without advancing the graph head.
           if (decision.decision === 'approved' && Number(task.graphVersion) > head.graphVersion) continue;
           decisions.push({ ...decision, proposalId: `cambium:${task.changeDigest}`, changeDigest: task.changeDigest,
-            graphVersion: task.graphVersion, canonicalReadback: true, kind: 'd1-bookkeeping-decision' });
+            graphVersion: task.graphVersion, canonicalReadback: true, kind: operational?'d1-operational-decision':'d1-bookkeeping-decision' });
         }
         const servedAt = deps.now?.() ?? new Date().toISOString();
         const departmentSources = await readDepartmentSources({tenantId:'cambium',headDigest:head.graphDigest,observedAt:servedAt,nodes},deps.departmentReaders);
+        const executionEvidence=operational&&deps.claimProofOwner?await deps.claimProofOwner.facts('cambium',all,head.graphVersion):null;
         const finalHead = await deps.goalGraphStore.readHead('cambium');
         if (!finalHead || finalHead.graphDigest !== head.graphDigest || finalHead.graphVersion !== head.graphVersion) return json(503, { error: 'goal_graph_read_unconfirmed' });
-        return { ...json(200, { schema: 'cambium.founder.bookkeeping-graph.v1', origin: 'd1', tenantId: 'cambium',
+        return { ...json(200, { schema: operational?'cambium.founder.operational-graph.v1':'cambium.founder.bookkeeping-graph.v1', ...(operational?{workObjectId:workFilter,executionEvidence,productPromotion:false}:{}), origin: 'd1', tenantId: 'cambium',
           canonicalReadback: true, writerAuthority: false, executionGranted: false,
           head: { tenantId: head.tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest }, rootId: roots[0].nodeId,
           nodes, edges: nodes.filter(node => node.parentNodeId && (ids.has(node.parentNodeId) || node.parentNodeId === roots[0].nodeId))
@@ -6249,7 +6383,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       return json(result.status === 'conflict' ? 409 : 503, {
         ok: false,
         error: result.status === 'conflict' ? 'lead_runtime_conflict' : 'lead_runtime_failed',
-        code: result.code,
+        code: 'code' in result ? result.code : 'lead_runtime_failed',
       });
     }
 
@@ -6428,6 +6562,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if ('error' in msg) return json(400, msg);
       const response = await queueProjectTaskAssignment(bridgeStore, msg, nowIso, deps.uuid);
       if (response.status !== 200) return response;
+      if (typeof response.body !== 'string') return json(503, { error: 'assignment_receipt_unavailable' });
       const parsed = JSON.parse(response.body);
       const topicKey = String(body.topicKey ?? body.topic);
       const route = TOPIC_QUEST_ROUTES[topicKey as keyof typeof TOPIC_QUEST_ROUTES];
@@ -6508,7 +6643,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         if (!principal.admin) {
           return json(403, { error: 'founderApproved requires admin bridge credential' });
         }
-        await writeFounderApproval(deps.kv, {
+        await writeFounderApproval(proactiveKv(deps.kv), {
           tenantId,
           founderId: String(body.founderId || principal.memberId || 'founder'),
           approvedAt: nowIso(),
@@ -6516,7 +6651,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
           hermesReceipt: body.hermesReceipt === true,
         });
       }
-      const plan = await runAndStoreProactiveLoopTick(deps.kv, {
+      const plan = await runAndStoreProactiveLoopTick(proactiveKv(deps.kv), {
         tenantId,
         actor: String(body.actor || 'bridge-tick'),
         nowIso: nowIso(),
@@ -6553,7 +6688,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (tenantId !== 'cambium') {
         return json(403, { error: 'proactive founder approval is fixed to tenant cambium' });
       }
-      const approval = await writeFounderApproval(deps.kv, {
+      const approval = await writeFounderApproval(proactiveKv(deps.kv), {
         tenantId,
         founderId: String(body.founderId || principal.memberId || 'founder'),
         approvedAt: nowIso(),
@@ -6561,7 +6696,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         hermesReceipt: body.hermesReceipt === true,
       });
       // Recompile under clearance so Mini App / Hermes see quiet green ladder
-      const plan = await runAndStoreProactiveLoopTick(deps.kv, {
+      const plan = await runAndStoreProactiveLoopTick(proactiveKv(deps.kv), {
         tenantId,
         actor: 'founder-approve',
         nowIso: nowIso(),
@@ -6587,7 +6722,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       }
       const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
       const tenantId = String(params.get('tenantId') || 'cambium');
-      const approval = await readFounderApproval(deps.kv, tenantId);
+      const approval = await readFounderApproval(proactiveKv(deps.kv), tenantId);
       return json(200, { ok: true, tenantId, approval });
     }
 
@@ -6597,7 +6732,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       }
       const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
       const tenantId = String(params.get('tenantId') || params.get('tenant') || 'cambium');
-      const plan = await readProactiveLoopPlan(deps.kv, tenantId);
+      const plan = await readProactiveLoopPlan(proactiveKv(deps.kv), tenantId);
       if (!plan) {
         // Fail-open: compile ephemeral projection without store (no delivery queue)
         const ephemeral = compileProactiveLoopPlan({
@@ -6632,7 +6767,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       }
       const params = new URLSearchParams(path.includes('?') ? path.slice(path.indexOf('?') + 1) : '');
       const tenantId = String(params.get('tenantId') || params.get('tenant') || 'cambium');
-      const pending = await readPendingProactiveDeliveries(deps.kv, tenantId);
+      const pending = await readPendingProactiveDeliveries(proactiveKv(deps.kv), tenantId);
       return json(200, {
         ok: true,
         tenantId,
@@ -6657,7 +6792,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         ? body.deliveryIds.map((x) => String(x))
         : [];
       if (!ids.length) return json(400, { error: 'deliveryIds required' });
-      const result = await claimProactiveDeliveries(deps.kv, tenantId, ids, nowIso());
+      const result = await claimProactiveDeliveries(proactiveKv(deps.kv), tenantId, ids, nowIso());
       return json(200, { ok: true, ...result });
     }
 
@@ -6913,6 +7048,34 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       return artifact ? json(200, artifact) : json(404, { error: 'business artifact not found' });
     }
 
+    if((method==='POST'&&routePath==='/v1/bridge/claim-proof/acceptance')||(method==='GET'&&routePath.startsWith('/v1/bridge/claim-proof/acceptance-request/'))) {
+      if(!deps.claimProofOwner)return json(503,{error:'claim_proof_owner_unavailable'});
+      if(!principal.admin&&principal.memberId!==deps.claimProofMemberId)return json(403,{error:'claim_owner_scope_required'});
+      try {
+        if(method==='GET')return json(200,await deps.claimProofOwner.acceptancePackage(decodeURIComponent(routePath.slice('/v1/bridge/claim-proof/acceptance-request/'.length))));
+        if(Buffer.byteLength(req.body??'')>32768)return json(413,{error:'acceptance_envelope_too_large'});
+        const raw=JSON.parse(req.body??'');if(!isRecord(raw)||typeof raw.proposalId!=='string'||Object.keys(raw).sort().join(',')!=='envelope,proposalId')return json(400,{error:'invalid_acceptance_request'});
+        return json(200,await deps.claimProofOwner.recordAcceptance(raw.proposalId,raw.envelope));
+      }catch{return json(409,{error:'founder_and_signed_owner_acceptance_required'});}
+    }
+
+    if (method === 'POST' && routePath === '/v1/bridge/executions/claim-proof-artifact') {
+      if(!deps.executionStore||!deps.claimProofOwner)return json(503,{error:'claim_proof_owner_unavailable'});
+      if(Buffer.byteLength(req.body??'')>CLAIM_POLICY.maxArtifactBytes+16384)return json(413,{error:'claim_artifact_too_large'});
+      let upload:any;try{upload=JSON.parse(req.body??'');}catch{return json(400,{error:'invalid_claim_artifact'});}
+      if(!isRecord(upload)||upload.schema!=='cambium.iverif.claim-proof-upload.v1'||typeof upload.memberId!=='string'||!mayAct(upload.memberId))return json(403,{error:'claim_artifact_scope'});
+      const directive=await bridgeStore.getDirective(upload.memberId,String(upload.directiveId));
+      const contract=nativeExecutionContract(directive,upload.memberId,String(upload.directiveId));
+      if(!contract||contract.command!=='iverif.claim-proof.review'||contract.idempotencyKey!==upload.idempotencyKey||upload.memberId!==deps.claimProofMemberId)return json(409,{error:'claim_artifact_contract_mismatch'});
+      const identity=await nativeExecutionIdentity(upload.memberId,String(upload.directiveId),contract);
+      if(identity.executionId!==upload.executionId)return json(409,{error:'claim_artifact_execution_mismatch'});
+      const active=await deps.executionStore.verifyActiveClaim({memberId:upload.memberId,directiveId:String(upload.directiveId),idempotencyKey:contract.idempotencyKey,
+        executionId:identity.executionId,runnerId:String(upload.runnerId),hostIdentity:String(upload.hostIdentity),claimId:String(upload.claimId),fencingToken:String(upload.fencingToken),attempt:Number(upload.attempt),observedAt:nowIso()});
+      if(!active)return json(409,{error:'stale_fence'});
+      try{return json(200,await deps.claimProofOwner.putArtifact(String(upload.directiveId),identity.executionId,contract.input,upload.artifact));}
+      catch{return json(409,{error:'claim_artifact_invalid_or_conflicting'});}
+    }
+
     if (method === 'POST' && routePath === '/v1/bridge/executions/artifact') {
       if (!deps.executionStore || !deps.businessStore) return json(503, { error: 'durable business execution stores unavailable' });
       let raw: unknown;
@@ -6995,6 +7158,12 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (claim.idempotencyKey !== contract.idempotencyKey) {
         return json(409, { error: 'directive idempotency key mismatch' });
       }
+      if(contract.command==='iverif.claim-proof.review') {
+        if(!await deps.claimProofOwner?.verifyDirective(claim.memberId,claim.directiveId,contract.input))return json(409,{error:'claim_admission_not_current'});
+        if(!deps.executionStore.readDirectiveProgress)return json(503,{error:'claim_progress_reader_required'});
+        const progress=await deps.executionStore.readDirectiveProgress(claim.memberId,claim.directiveId);
+        if(progress?.claimed&&!progress.terminal)return json(409,{error:'claim_attempt_requires_review'});
+      }
       if (contract.command === 'growth.request.draft') {
         const task = await deps.growthStore?.get(contract.idempotencyKey);
         if (!task || task.runnerMemberId!==claim.memberId || task.directiveId!==claim.directiveId || canonicalJson(task.input)!==canonicalJson(contract.input)) return json(409,{error:'growth admission missing or mismatched'});
@@ -7039,6 +7208,10 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       }
       if (!await validExecutionAttestation(contract, outcome)) {
         return json(409, { error: 'execution attestation verification failed' });
+      }
+      if(contract.command==='iverif.claim-proof.review'&&outcome.status==='executed') {
+        const artifact=await deps.claimProofOwner?.readArtifact(outcome.directiveId);
+        if(!artifact||artifact.executionId!==outcome.executionId||artifact.artifact.inputDigest!==outcome.attestation.inputDigest||artifact.digest!==outcome.attestation.outputDigest)return json(409,{error:'claim_artifact_readback_required'});
       }
       let ingressAcceptance: unknown;
       if (contract.command === 'source_verification.accept' && outcome.status === 'executed') {
@@ -7215,6 +7388,20 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       return json(200, { ok: true, id, memberId, queued: true });
     }
 
+    const exactDirective=/^\/v1\/bridge\/directives\/([a-z][a-z0-9-]{1,63})\/([A-Za-z0-9][A-Za-z0-9._:-]{0,159})$/.exec(routePath);
+    if(method==='GET'&&exactDirective) {
+      const [,member,directiveId]=exactDirective;
+      if(!mayAct(member))return json(403,{error:'member_scope_required'});
+      const directive=await bridgeStore.getDirective(member,directiveId);
+      return json(200,{member,count:directive?1:0,skipped:0,directives:directive?[directive]:[]});
+    }
+    const claimArtifactRead=/^\/v1\/bridge\/claim-proof\/artifacts\/([a-z][a-z0-9-]{1,63})\/([A-Za-z0-9][A-Za-z0-9._:-]{0,159})$/.exec(routePath);
+    if(method==='GET'&&claimArtifactRead) {
+      const [,member,directiveId]=claimArtifactRead;
+      if(!mayAct(member)||member!==deps.claimProofMemberId)return json(403,{error:'member_scope_required'});
+      const artifact=await deps.claimProofOwner?.readArtifact(directiveId);
+      return artifact?json(200,{digest:artifact.digest}):json(404,{error:'claim_artifact_unavailable'});
+    }
     if (method === 'GET' && routePath.startsWith('/v1/bridge/directives/')) {
       const member = routePath.slice('/v1/bridge/directives/'.length).replace(/\/+$/, '');
       if (!VALID_TENANT.test(member)) return json(400, { error: 'bad member' });
@@ -7456,7 +7643,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         ok: true,
         duplicate: result.status === 'duplicate',
         requestId,
-        approvalDecisionId: result.approval.record_id,
+        approvalDecisionId: 'approval' in result ? result.approval.record_id : null,
       });
     }
     if (kind === 'confirm-action-request') {
@@ -7588,7 +7775,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     let hasInitialQuestEnvelope = false;
     try {
       const observedAt = deps.now ? deps.now() : new Date().toISOString();
-      const stored = await readProactiveLoopPlan(deps.kv, 'cambium');
+      const stored = await readProactiveLoopPlan(proactiveKv(deps.kv), 'cambium');
       const proactive = stored ?? compileProactiveLoopPlan({
         tenantId: 'cambium',
         observedAt,

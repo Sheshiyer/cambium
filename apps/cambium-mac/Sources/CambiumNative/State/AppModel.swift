@@ -16,15 +16,21 @@ import struct CambiumCore.SignalUpdate
 import enum CambiumCore.SignalError
 import enum CambiumCore.CanonicalTimestamp
 import struct CambiumCore.DirectionCreate
+import struct CambiumCore.DirectionUpdate
 import struct CambiumCore.DirectionWorkContext
 import struct CambiumCore.SharedDirection
+import struct CambiumCore.PreparedWork
+import struct CambiumCore.ClaimProofResult
 
 struct DirectionComposerState {
+    var workObjectId = "sapling:cambium"
+    var reviewOperationId = UUID().uuidString
     var signal: Signal?
     var title = ""
     var body = ""
     var work: DirectionWorkContext?
     var pending: DirectionCreate?
+    var pendingUpdate: DirectionUpdate?
     var saved: SharedDirection?
 }
 
@@ -117,6 +123,9 @@ final class AppModel {
     var feedback: String?
     var inboxFilter: String?
     var inboxVersion: UInt64 = 0
+    var resultReviewOperationId = UUID().uuidString
+    var claimProofResult: ClaimProofResult?
+    var preparedWorkOperations: [String: String] = [:]
     var directionDraft = DirectionComposerState()
     var signalScopeVersion: UInt64 = 0
     var inboxDraft = InboxDraft()
@@ -125,6 +134,83 @@ final class AppModel {
         inboxFilter = project
         inboxVersion &+= 1
         open(.inbox)
+    }
+
+    func prepareProjectWork(_ workId: String) {
+        guard !isDemo, ["sapling:cambium","sapling:iverif"].contains(workId) else { return }
+        let operation = preparedWorkOperations[workId] ?? UUID().uuidString
+        preparedWorkOperations[workId] = operation
+        run("Prepare Work") { services, token in
+            guard let owner = services as? CambiumOwnerServices else { return }
+            do {
+                let prepared = try await owner.prepareWork(workObjectId: workId, operationId: operation)
+                await self.presentPreparedReview(prepared, workId: workId, services: services, token: token)
+            } catch { guard token == self.generation else { return }; self.feedback = "Work review could not be prepared. Check the current connection and try the original request again." }
+        }
+    }
+    func reviewSavedDirection() {
+        guard let saved = directionDraft.saved, saved.workObjectId == "sapling:iverif", !isDemo else { return }
+        let operation = directionDraft.reviewOperationId
+        run("Prepare task review") { services, token in
+            guard let owner = services as? CambiumOwnerServices else { return }
+            do {
+                let prepared = try await owner.prepareDirectionReview(saved, operationId: operation)
+                await self.presentPreparedReview(prepared, workId: saved.workObjectId, services: services, token: token)
+            } catch { guard token == self.generation else { return }; self.feedback = "The task review is unavailable or its source pins changed. Refresh the direction before preparing a new review." }
+        }
+    }
+    private func presentPreparedReview(_ prepared: PreparedWork, workId: String, services: any OwnerServices, token: UInt64) async {
+        guard token == generation else { return }
+        let result = await services.loadReview(proposalId: prepared.proposalId)
+        guard token == generation else { return }
+        proposalRefDraft = prepared.proposalId
+        proposalBinding = WorkProposalBinding(workId: workId, proposalId: prepared.proposalId, source: .ownerPreparation)
+        switch result {
+        case .success(let loaded): review = loaded; gate = nil; reviewTyped = ""; open(.proposal); feedback = "Review the prepared changes and exact confirmation."
+        case .failure(let failure): issue = failure; feedback = failure.message
+        }
+    }
+    func requestReviewedAdmission() {
+        guard let gate, gate.recorded, gate.choice == "approved", proposalBinding?.workId == "sapling:iverif", !isDemo else { return }
+        let proposal = gate.proposalId
+        run("Admission") { services, token in
+            guard let owner = services as? CambiumOwnerServices else { return }
+            do {
+                let admission = try await owner.admitWork(proposalId: proposal)
+                guard token == self.generation else { return }
+                let result = await services.readFabric()
+                guard token == self.generation else { return }
+                if case .success(let fabric) = result { self.snapshot = fabric.snapshot }
+                self.selectedWorkID = admission.workId
+                self.selectedAdmissionRef = admission.admissionRef
+                self.open(.launch)
+                self.listAdmissions()
+                self.feedback = "The owner issued one admission. Resolve it before launching."
+            } catch { guard token == self.generation else { return }; self.feedback = "No current admission was issued. The approval, source pins, or expiry require review." }
+        }
+    }
+    func reviewClaimProofResult() {
+        guard !isDemo, let result = claimProofResult, result.artifact != nil, result.acceptance != "accepted" else { return }
+        let operation = resultReviewOperationId
+        run("Review result") { services, token in
+            guard let owner = services as? CambiumOwnerServices else { return }
+            do {
+                let prepared = try await owner.prepareResultReview(admissionRef: result.admissionRef, operationId: operation)
+                await self.presentPreparedReview(prepared, workId: "sapling:iverif", services: services, token: token)
+            } catch { guard token == self.generation else { return }; self.feedback = "Result review could not be confirmed. Check the original result and retry the same request." }
+        }
+    }
+    func readClaimProofResult() {
+        guard !isDemo, let admission = selectedAdmissionRef, selectedWorkID == "sapling:iverif" else { return }
+        run("Read claim result") { services, token in
+            guard let owner = services as? CambiumOwnerServices else { return }
+            do {
+                let result = try await owner.claimProofResult(admissionRef: admission)
+                guard token == self.generation else { return }
+                self.claimProofResult = result
+                self.feedback = result.artifact == nil ? "The original attempt has no confirmed result artifact yet." : "Result ready for source and semantic review."
+            } catch { guard token == self.generation else { return }; self.feedback = "The original result could not be confirmed. Refresh its status without launching again." }
+        }
     }
 
     private var services: (any OwnerServices)?
@@ -341,6 +427,8 @@ final class AppModel {
     private func load(_ mode: LaunchMode) {
         generation &+= 1
         directionDraft = DirectionComposerState()
+        claimProofResult = nil
+        preparedWorkOperations = [:]
         signalScopeVersion &+= 1
         inboxDraft = InboxDraft()
         inboxFilter = nil
@@ -519,6 +607,8 @@ final class AppModel {
         let token = generation
         generation &+= 1
         directionDraft = DirectionComposerState()
+        claimProofResult = nil
+        preparedWorkOperations = [:]
         signalScopeVersion &+= 1
         inboxDraft = InboxDraft()
         inboxFilter = nil

@@ -207,10 +207,10 @@ final class CambiumOwnerServices: OwnerServices {
         return result
     }
 
-    func directionList() async throws -> DirectionList {
+    func directionList(workObjectId: String = "sapling:cambium") async throws -> DirectionList {
         guard let directions, let current = await session() else { throw SignalError.authorization }
         let token = generation
-        let result = try await directions.list(tenant: current.tenantId)
+        let result = try await directions.list(tenant: current.tenantId, workObjectId: workObjectId)
         guard stillCurrent(token) else { throw SignalError.scope }
         return result
     }
@@ -220,6 +220,44 @@ final class CambiumOwnerServices: OwnerServices {
         let result = try await directions.create(tenant: current.tenantId, value: value)
         guard stillCurrent(token) else { throw SignalError.scope }
         return result
+    }
+    func directionUpdate(_ id: String, value: DirectionUpdate) async throws -> DirectionResult {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.update(tenant: current.tenantId, id: id, value: value)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+
+    func prepareWork(workObjectId: String, operationId: String) async throws -> PreparedWork {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.prepareWork(tenant: current.tenantId, workObjectId: workObjectId, operationId: operationId)
+        guard stillCurrent(token) else { throw SignalError.scope }; return result
+    }
+    func prepareDirectionReview(_ direction: SharedDirection, operationId: String) async throws -> PreparedWork {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.prepareReview(tenant: current.tenantId, direction: direction, operationId: operationId)
+        guard stillCurrent(token) else { throw SignalError.scope }; return result
+    }
+    func prepareResultReview(admissionRef: String, operationId: String) async throws -> PreparedWork {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.prepareResultReview(tenant: current.tenantId, admissionRef: admissionRef, operationId: operationId)
+        guard stillCurrent(token) else { throw SignalError.scope }; return result
+    }
+    func admitWork(proposalId: String) async throws -> WorkAdmission {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.admit(tenant: current.tenantId, proposalId: proposalId)
+        guard stillCurrent(token) else { throw SignalError.scope }; return result
+    }
+    func claimProofResult(admissionRef: String) async throws -> ClaimProofResult {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.claimResult(tenant: current.tenantId, admissionRef: admissionRef)
+        guard stillCurrent(token) else { throw SignalError.scope }; return result
     }
 
     // MARK: Scope
@@ -365,9 +403,10 @@ final class CambiumOwnerServices: OwnerServices {
     /// `tenant:sha256:` plus 64 lowercase hex digits. Anything else is refused
     /// before a request, including a work id or an admission reference.
     static func canonicalProposal(_ proposalId: String, tenant: String) -> Bool {
-        let prefix = tenant + ":sha256:"
+        let prefix = tenant + ":"
         guard proposalId.hasPrefix(prefix) else { return false }
-        let digest = proposalId.dropFirst(prefix.count)
+        let suffix = proposalId.dropFirst(prefix.count)
+        let digest = suffix.hasPrefix("sha256:") ? suffix.dropFirst(7) : suffix
         return digest.count == 64 && digest.allSatisfy { $0.isHexDigit && !$0.isUppercase }
     }
 
@@ -605,7 +644,7 @@ final class CambiumOwnerServices: OwnerServices {
             consequence: object?["consequence"] as? String ?? "", reversibility: object?["reversibility"] as? String ?? "",
             graphVersion: changeSet?["graphVersion"] as? Int, expectedHeadDigest: changeSet?["expectedHeadDigest"] as? String,
             sourceRef: changeSet?["sourceRef"] as? String, sourceDigest: changeSet?["sourceDigest"] as? String,
-            changes: changes, changeSetJSON: json(changeSet),
+            changes: changes, changeSetJSON: json(object),
             approveConfirmation: tuple.approveConfirmation, rejectConfirmation: tuple.rejectConfirmation, principal: review.principal
         )
     }

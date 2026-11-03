@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T11:10:34.548324+00:00",
-  "status": "completed",
-  "active_task": "Completed scoped Founder Gate desktop renewal/approval/receipt E2E",
+  "updated": "2026-11-03T22:25:03.536253+00:00",
+  "status": "in-progress",
+  "active_task": "Prepare one IVerif native claim-evidence work cycle; activation and real acceptance held",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -248,7 +248,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Continue assigned backend/UI source work in private clone; parent waits on unchanged serial release baseline, integrates generated bundles/tests, then reviews release and verified binding/3D E2E.",
+  "next_action": "Review the frozen Cambium/Hermes release packets, then obtain exact new upload approval; traffic, scoped migration and hosted one-shot execution remain separate.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -549,6 +549,34 @@
       "uploaded_version_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json",
       "preview_readback_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/version-preview-readback.json",
       "baseline_failures_documented": true
+    },
+    "iverif_native_work_cycle": {
+      "status": "source-candidate-live-acceptance-held",
+      "plan": ".planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md",
+      "source_repository": "Sheshiyer/iverif-wiki",
+      "source_commit": "1cc03e62fbfb32ba21c98ba81ac5a6883d676d2a",
+      "issue": "https://github.com/Sheshiyer/iverif-wiki/issues/91",
+      "serving_observation": {
+        "version": 98,
+        "id": "2971a905-f6af-4df4-8b1b-985d0df1af20",
+        "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+        "traffic_percent": 100
+      },
+      "decisions": [
+        "native Mac first",
+        "one real claim-table work cycle",
+        "green whole Worker check before traffic",
+        "hosted Hermes/noesis-free/no paid fallback"
+      ],
+      "remaining": [
+        "exact combined upload and separate traffic approval",
+        "scoped0099+0104 migration approval and fresh recovery check",
+        "scoped Hermes installation and one-shot execution approval",
+        "real founder Work/task/result decisions and admission",
+        "native authoritative/foldback acceptance",
+        "authenticated desktop/390x844 and physical iPhone Safari acceptance",
+        "GSD mappings and business KPI evidence remain held"
+      ]
     }
   }
 }

@@ -81,7 +81,7 @@ and never supersede the canonical parent tenant.
 | --- | --- | --- | --- | --- | --- |
 | Brandmint | Brand config and generation state | Brand/copy/visual outputs | Generated claims outpace evidence | `iverif` brand seed | Source sanitization required |
 | NotebookLM artifacts | Research/source material | Explainer and knowledge artifacts | Unsourced or stale claims | proof packet source | Sanitize source material before publication |
-| Astro wiki-site | Wiki source | Static site/routes | `dist` missing, verify scripts missing | `iverif` docs site | No sensitive source leakage |
+| Astro wiki-site | Wiki source | Static site/routes | Historical checkout lacked dist/scripts; pinned wiki source now has verification scripts, live build/route proof held | `iverif` docs site | No sensitive source leakage |
 | Inference/image providers | Prompt/config inputs | Images or generated content | Missing API tokens, unverified provider output | brand/wiki artifacts | Do not record provider keys |
 | Explee project `16763`, campaign `45711` | Fixed GET observations only | Redacted Public Agencies campaign evidence | Live campaign drift, unproven one-writer ownership, provider unavailable | `iverif` only | No credentials, lead PII, or raw message content outside provider boundary |
 | Future SaaS/API | Dossier documents and rules | Validation results and audit trail | Compliance/security/performance overclaim | future tenant/account | GDPR, residency, encryption, DPA, and audit evidence required |
@@ -98,7 +98,7 @@ and never supersede the canonical parent tenant.
 | residual | **D1 CAS / Mini App Gate still missing.** No founder-signed Mini App Gate approval and no D1 Goal Graph CAS commit for `sapling:iverif` exist in this worktree. Do not invent fake D1 evidence. `admitted.current` remains false. |
 | blocked | All 17 observed replies require classification before a qualified-reply baseline or experiment winner can be declared. |
 | blocked | Live campaign activity conflicts with the packet's blocked customer-contact gate; provider auto-reply state and one-writer ownership must be reconciled before any campaign mutation. |
-| blocked | `wiki-site/dist` is missing, and `verify:*` points at a missing `scripts/` directory, so build/route proof is not established. |
+| blocked | The older checkout lacked dist/scripts. The refreshed canonical `Sheshiyer/iverif-wiki` commit `1cc03e62` includes repaired verification scripts and `.local-jobs/verify.sh`; source presence does not establish a successful build/route run. |
 | blocked | GDPR, ISO 27001, SOC 2, EU residency, encryption, SAML/OAuth, SLA, and DPA claims are copy/spec claims unless separately evidenced. |
 | blocked | Performance and market claims need source-linked review before public use. |
 | no-signal | No live SaaS/API validation workflow proof was found in this packet pass. |
@@ -122,7 +122,7 @@ and never supersede the canonical parent tenant.
 3. Prove fixed, redacted Explee GET parity through Cambium and Hermes.
 4. Reconcile provider auto-reply state and establish one-writer ownership.
 5. Mark each claim verified, blocked, pending, or no-signal.
-6. Repair or replace missing wiki-site verification scripts.
+6. Verify the repaired scripts in canonical `Sheshiyer/iverif-wiki` at the approved pinned revision; retain the older missing-script observation as history.
 7. Run wiki build and route proof.
 8. Produce privacy/security evidence for any compliance statement.
 9. Get explicit operator approval before any product-branch promotion or campaign change.

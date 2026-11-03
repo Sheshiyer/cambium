@@ -103,10 +103,11 @@ export interface BuildNodeInput extends Omit<GoalGraphInputNode, 'nodeId' | 'cre
 }
 
 export function buildNode(input: BuildNodeInput): GoalGraphNode {
-  const now = input.now ?? new Date().toISOString();
+  const { now: inputNow, ...fields } = input;
+  const now = inputNow ?? new Date().toISOString();
   const nodeId = resolveNodeId(input);
   return {
-    ...input,
+    ...fields,
     workObjectId: input.workObjectId ?? null,
     workObjectKind: input.workObjectKind ?? null,
     pinnedLoadoutId: input.pinnedLoadoutId ?? null,
