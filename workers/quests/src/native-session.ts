@@ -467,7 +467,7 @@ async function prepareAuthorize(request: Request, host: NativeSessionHost, form?
       && params.get('code_challenge_method') === 'S256'
       && fields.state === params.get('state')
       && fields.tenant === params.get('tenant');
-    if (!same) return fail(400, 'consent_required');
+    if (!same) { console.warn('[native-consent] binding-mismatch'); return fail(400, 'consent_required'); }
   } else {
     fields = {
       clientId: params.get('client_id')!, redirectUri: params.get('redirect_uri')!,
@@ -584,8 +584,8 @@ async function readConsentForm(request: Request): Promise<Record<string, string>
   const params = new URLSearchParams(text);
   const keys = [...params.keys()];
   if (keys.some(key => !CONSENT_FIELDS.includes(key)) || new Set(keys).size !== keys.length
-      || CONSENT_FIELDS.some(key => !params.has(key))) return fail(400, 'consent_required');
-  if (params.get('decision') !== 'allow') return fail(400, 'consent_required');
+      || CONSENT_FIELDS.some(key => !params.has(key))) { console.warn('[native-consent] form-fields'); return fail(400, 'consent_required'); }
+  if (params.get('decision') !== 'allow') { console.warn('[native-consent] form-decision'); return fail(400, 'consent_required'); }
   return Object.fromEntries(CONSENT_FIELDS.map(key => [key, params.get(key)!]));
 }
 
@@ -622,13 +622,16 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
   // re-checking the current founder, role and enrollment against the fields
   // the browser actually submitted.
   const origin = request.headers.get('origin');
-  if (origin !== null && origin !== host.deps.ownerOrigin) return fail(400, 'consent_required');
+  if (origin !== null && origin !== host.deps.ownerOrigin) { console.warn('[native-consent] origin'); return fail(400, 'consent_required'); }
   const form = await readConsentForm(request);
   if (form instanceof Response) return form;
   const prepared = await prepareAuthorize(request, host, form);
   if (prepared instanceof Response) return prepared;
   const cookie = readCookie(request.headers.get('cookie'), NATIVE_CONSENT_COOKIE);
-  if (!cookie || cookie !== form.csrf || !CSRF.test(form.csrf) || !INTENT.test(form.intent)) return fail(400, 'consent_required');
+  if (!cookie || cookie !== form.csrf || !CSRF.test(form.csrf) || !INTENT.test(form.intent)) {
+    console.warn(cookie ? '[native-consent] cookie-mismatch' : '[native-consent] cookie-missing');
+    return fail(400, 'consent_required');
+  }
 
   const binding: NativeConsentBinding = {
     clientId: prepared.clientId, redirectUri: prepared.redirectUri, codeChallenge: prepared.challenge,
@@ -643,7 +646,7 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
       requestDigest: nativeConsentRequestDigest(binding), founderId: prepared.founderId, now,
     });
   } catch { return unavailable(); }
-  if (!consumed) return fail(400, 'consent_required');
+  if (!consumed) { console.warn('[native-consent] intent-not-consumed'); return fail(400, 'consent_required'); }
 
   // The intent is spent, including on refusal. Re-check the current founder
   // role, enrollment and a fresh clock after consume returns, so a revocation
