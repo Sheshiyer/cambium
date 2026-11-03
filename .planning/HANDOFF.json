@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T19:13:37.557632+00:00",
-  "status": "combined-native93-source-verified-upload-traffic-held",
-  "active_task": "Source e6c1940e reconciles department candidate with native93; exact52 config and emitted Worker preserved; no upload or traffic authority",
+  "updated": "2026-11-03T19:31:43Z",
+  "status": "combined-native93-version94-upload-verified-traffic-held",
+  "active_task": "Exact e6c1940e review upload version94 verified; serving native93 preserved at100%; traffic approval remains separate.",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -431,7 +431,7 @@
   },
   "continuations": {
     "department_live_integration": {
-      "status": "combined-native93-source-verified-upload-traffic-held",
+      "status": "combined-native93-version94-upload-verified-traffic-held",
       "source_branch": "codex/department-native-reconcile-20261103",
       "handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
       "verified_live_head": 11,
@@ -439,7 +439,7 @@
       "serving_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
       "accepted_daily_work": "unavailable from actual owner sources",
       "kpi_measurements": "twelve unavailable; no complete owner cohort reader",
-      "gate": "new exact-source/config upload approval and readback after fresh drift; later separate traffic approval",
+      "gate": "Review upload and exact version94 readback complete; separate traffic approval and production acceptance remain held.",
       "execution_granted": false,
       "serving_percentage": 100,
       "original_department_source": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
@@ -458,7 +458,7 @@
       "serving_binding_count": 52,
       "owner_choice": "preserve version82 and prepare combined source",
       "version80_promotion_superseded": true,
-      "combined_candidate_uploaded": false,
+      "combined_candidate_uploaded": true,
       "combined_candidate_upload_authorized": false,
       "local_verification": {
         "focused_node_tests": "777/777 fresh including native/department, repository/lifecycle guards and context/intake fixtures",
@@ -478,17 +478,17 @@
       "serving_deployment_id": "c89c5a4d-e149-4b5e-a242-9051b9e7b7dc",
       "latest_observation_ref": "artifact:departmental-live-integration-20261103/reconcile-native93-20261104/live-drift-after.json",
       "upload_approval_consumed": true,
-      "combined_uploaded_source_commit": "d6bb69866e50e88aa4efe8e8717d2a0360ee4979",
-      "combined_uploaded_version": "f74b004a-f50a-4976-b0ee-4c34f2c15aee",
-      "combined_uploaded_version_number": 89,
-      "uploaded_version_verified": false,
+      "combined_uploaded_source_commit": "e6c1940e5410240c0d726d0da3419b28cbbd4289",
+      "combined_uploaded_version": "c0821aa3-987a-4fc5-b2c5-380aee02fb5b",
+      "combined_uploaded_version_number": 94,
+      "uploaded_version_verified": true,
       "candidate_serving": false,
       "traffic_authorized": false,
-      "observed_at": "2026-11-03T19:12:11.313128+00:00",
+      "observed_at": "2026-11-03T19:38:24.568834+00:00",
       "deployment_changed_concurrently_since_preflight": false,
       "newer_native_source_reconciliation_required_before_traffic": false,
-      "preview_verification": "Historical version89 only; e6c1940e remains unuploaded and has no new deployed preview/production acceptance.",
-      "upload_scope": "none for e6c1940e; current authorization is source reconciliation and verification only",
+      "preview_verification": "Immutable version94 preview: root200 with complete generated JS/CSS; health200 configured; guest founder graph401. Authenticated founder graph, production and native/device acceptance not tested.",
+      "upload_scope": "exact e6c1940e immutable review upload only; no traffic/trigger/settings/credential change",
       "reviewed_native_owner_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
       "current_native_source_resolution": "All native92\u219293 delta paths match pinned b5396101; runtime inputs preserve only department additions; live remains93 with no observed source drift.",
       "previous_uploaded_candidate": {
@@ -504,15 +504,27 @@
       "requested_native90_source_commit": "0b31033b0dc3fcebc1155dba9279f91c0330bb21",
       "reconciled_native_version": 93,
       "native_source_test_files_exact": 94,
-      "latest_uploaded_version_number": 93,
-      "latest_uploaded_version_id": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
-      "new_candidate_source_verification": "complete with same three documented full-suite baseline failures; no remaining observed native93 drift",
+      "latest_uploaded_version_number": 94,
+      "latest_uploaded_version_id": "c0821aa3-987a-4fc5-b2c5-380aee02fb5b",
+      "new_candidate_source_verification": "Exact52 inherited binding configurations, runtime, operational settings, schedules, exposure and Worker artifact verified against preflight; documented baseline retained.",
       "config_sha256": "a4c3318e412997b0bb54b533ef7bb52c3f7312686e6598817c6b91c61ea9d601",
       "config_byte_identical_to_d6bb6986": true,
       "graph_verification_scope": "head11/128nodes/seven decisions is earlier authenticated proof, not a new production acceptance claim",
       "newer_native_source_reconciliation_required_before_upload": false,
       "source_verification_receipt": "artifact:departmental-live-integration-20261103/reconcile-native93-20261104/combined-source-receipt.json",
-      "requested_native93_source_commit": "b53961011e09701959d59c2bcfebb3253e138001"
+      "requested_native93_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
+      "traffic_readback": {
+        "id": "c89c5a4d-e149-4b5e-a242-9051b9e7b7dc",
+        "versions": [
+          {
+            "version_id": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+            "percentage": 100
+          }
+        ]
+      },
+      "uploaded_version_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json",
+      "preview_readback_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/version-preview-readback.json",
+      "baseline_failures_documented": true
     }
   }
 }
