@@ -224,6 +224,9 @@ function consentPost(auth: { status: number; headers: Record<string, string>; bo
   });
   return req('POST', `${authorizePath}?${query}`, {
     'content-type': 'application/x-www-form-urlencoded',
+    // Model the browser's form Origin, including an opaque origin when the
+    // consent document suppresses referrers entirely (Fetch's POST rule).
+    origin: auth.headers['referrer-policy'] === 'no-referrer' ? 'null' : ORIGIN,
     cookie: `${NATIVE_CONSENT_COOKIE}=${cookie[1]}`,
   }, body.toString());
 }
@@ -255,7 +258,7 @@ test('authorize GET renders consent form with no-store headers and POST returns 
   const getRes = await handle(req('GET', `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`), deps);
   assert.equal(getRes.status, 200);
   assert.equal(getRes.headers['cache-control'], 'no-store');
-  assert.equal(getRes.headers['referrer-policy'], 'no-referrer');
+  assert.equal(getRes.headers['referrer-policy'], 'same-origin');
   assert.ok(getRes.headers['set-cookie']?.includes(NATIVE_CONSENT_COOKIE));
   const postRes = await handle(consentPost(getRes), deps);
   assert.equal(postRes.status, 302);

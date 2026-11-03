@@ -307,6 +307,9 @@ const SECURITY_HEADERS = {
 
 const PAGE_HEADERS = {
   ...SECURITY_HEADERS,
+  // A no-referrer document makes browsers send Origin: null on form POSTs.
+  // Preserve the same-origin consent check; code redirects retain no-referrer.
+  'referrer-policy': 'same-origin',
   'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
   'content-type': 'text/html; charset=utf-8',
   'x-frame-options': 'DENY',
