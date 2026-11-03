@@ -1,5 +1,5 @@
 // T-027 — cross-scene safe-area + prefers-reduced-motion pass (frozen/03, frozen/04).
-// Static contract assertions over the served PAGE plus per-scene behavioral renders through
+// Historical contract assertions over the retired five-scene document plus per-scene behavioral renders through
 // the shared VM page harness (scripts/text-density-audit.mjs), which forces
 // prefers-reduced-motion: reduce unless told otherwise. The browser-level viewport proofs
 // (320/390/430 containment) live in the orchestrator-owned visual-viewport-proof.mjs; these
@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { PAGE } from './page.ts';
+import { RETIRED_PAGE as PAGE } from './page/retired.ts';
 import {
   mergeProductionEnvelope,
   renderPageFixtureContext,

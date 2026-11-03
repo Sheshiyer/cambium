@@ -2772,3 +2772,11 @@ Workflow source is removed in this PR. Explicit local release verification and s
 
 - Commit `85068da` keeps the Projects dossier within filtered results, reveals a linked source after filtered navigation, and searches catalog aliases plus historical source links. The distinct `Lockwell` alias now finds `DLOCK` through global search. Five focused native Projects tests pass.
 - Rebuilt signed bundle inputs are clean at `85068da`, aggregate `f069378b`; bundle verifier, strict signature and proof check pass. Four synthetic Projects snapshots at 1280×820 and 880×612 have no manifest failures, with minimum light/dark images inspected. Current-source TypeScript-to-Swift probe still passes at 77 current, 20 historical and one exact runtime join. Interactive filtering/Work navigation and real founder delivery remain ISC-3466/3467 open.
+
+### 2026-11-03 isolated live-only Field Atlas release review
+
+- Reconstructed 114 serving source inputs; baseline Worker rebuild is byte-identical to the active Labs module. Closest Git/test ancestor 67a7aee is lineage, not an invented live Git SHA.
+- Retires the served two-dimensional Mission Control shell; adds bounded Founder Access bookkeeping intake/read to existing canonical review and Gate CAS. No native-client rollout, loadout, execution admission or publishing authority is included.
+- Six actual local IAB JPEG captures bind the frozen Field Atlas PAGE. Local/synthetic evidence and real Worker entrypoint auth tests remain distinct from production acceptance.
+- The value-free 47-binding overlay is adopted for this exact one-off source candidate; original canonical config and primary dirty work remain intact. No upload or traffic assignment occurred.
+- Whole-suite inherited membership/planning/workbench and privacy/history holds remain explicit. See docs/plans/2026-11-03-live-founder-release.md; no full-release-green claim or automatic main merge.

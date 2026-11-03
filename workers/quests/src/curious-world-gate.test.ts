@@ -59,7 +59,7 @@ function harness(options: { initData?: string; founderWeb?: boolean; session?: R
     refresh: () => { refreshes += 1; },
     fetch: async (url: string, init: { method?: string; body?: string; credentials?: string; headers?: Record<string, string> }) => {
       requests.push({ url, init });
-      const reply = url.endsWith('/session') ? {status:200,body:options.session ?? {founderId:'founder:opaque',enrolled:true,canonicalReady:true,tenantIds:['cambium'],writerAuthority:false}} : options.respond ? options.respond(JSON.parse(String(init.body)), url) : { status: 200, body: { ok: true, committed: true, duplicate: false } };
+      const reply = url.endsWith('/session') ? {status:200,body:options.session ?? {founderId:'founder:opaque',enrolled:true,canonicalReady:true,tenantIds:['cambium'],writerAuthority:false}} : options.respond ? options.respond(init.body ? JSON.parse(String(init.body)) : {}, url) : { status: 200, body: { ok: true, committed: true, duplicate: false } };
       if (reply instanceof Error) throw reply;
       const { status, body } = reply as { status: number; body: unknown };
       return { ok: status >= 200 && status < 300, status, json: async () => { if (body === UNREADABLE) throw new SyntaxError('unreadable'); return body; } };
@@ -529,4 +529,68 @@ test('world gate · archived read requires enrolled current founder and tenant b
  for(const session of [{founderId:'founder',enrolled:false,canonicalReady:true,tenantIds:['cambium'],writerAuthority:false},{founderId:'founder',enrolled:true,canonicalReady:true,tenantIds:['other'],writerAuthority:false}]){
  const h=harness({initData:'',founderWeb:true,session});assert.equal((await h.readDecision()).outcome,'uncertain');assert.equal(h.requests.length,1);assert.ok(h.requests[0].url.endsWith('/session'));assert.deepEqual(h.get().decisions,[]);
  }
+});
+
+test('world intake · verified Access prepares a proposal, refreshes, and never calls decision/sign', async () => {
+  const input = {schema:'cambium.founder.goal-graph-intent.v1',version:1,tenantId:'cambium',clientRequestId:'test-001',goals:[{externalId:'test'}]};
+  const h = harness({initData:'',founderWeb:true,respond:(_body,url) => {
+    assert.equal(url,'/v1/founder/intake');
+    return {status:202,body:{accepted:true,writerAuthority:false,executionGranted:false,changeDigest:DIGEST,proposalId:'cambium:'+DIGEST}};
+  }});
+  h.quest(envelope([]));
+  const result = await h.run(`CuriousGateBridge.intake(${JSON.stringify(input)})`);
+  assert.equal(result.outcome,'prepared'); assert.equal(result.changeDigest,DIGEST);
+  assert.deepEqual(h.requests.map(r=>r.url),['/v1/founder/session','/v1/founder/intake']);
+  assert.deepEqual(JSON.parse(h.requests[1].init.body!),input);
+  assert.equal(h.requests[1].init.credentials,'same-origin');
+  assert.equal(h.requests[1].init.headers!['x-cambium-founder-web'],'1');
+  assert.equal(h.refreshes(),1);
+});
+
+test('world intake · read-only/Telegram clients do not submit; uncertain reply never means accepted', async () => {
+  for (const options of [{initData:''},{initData:INIT_DATA}]) {
+    const h=harness(options);h.quest(envelope([]));
+    assert.equal((await h.run('CuriousGateBridge.intake({})')).outcome,'blocked');assert.equal(h.requests.length,0);
+  }
+  for (const body of [{accepted:true,writerAuthority:true},{accepted:true,writerAuthority:false,executionGranted:true},{}]) {
+    const h=harness({initData:'',founderWeb:true,respond:()=>({status:200,body})});h.quest(envelope([]));
+    assert.equal((await h.run('CuriousGateBridge.intake({})')).outcome,'uncertain');
+    assert.equal(h.requests.filter(r=>r.url.includes('decision')).length,0);
+  }
+});
+
+test('world graph · current graph read uses only the verified same-origin Access GET', async () => {
+  const payload={schema:'cambium.founder.bookkeeping-graph.v1',origin:'d1',canonicalReadback:true};
+  const h=harness({initData:'',founderWeb:true,respond:(_body,url)=>{assert.equal(url,'/v1/founder/graph');return {status:200,body:payload};}});
+  assert.equal((await h.run('CuriousGateBridge.graph()')).schema,payload.schema);
+  assert.deepEqual(h.requests.map(r=>r.url),['/v1/founder/session','/v1/founder/graph']);
+  const read=h.requests[1].init;
+  assert.equal(read.method,'GET');assert.equal(read.credentials,'same-origin');assert.equal(read.headers!['x-cambium-founder-web'],'1');assert.equal(read.body,undefined);
+  const offline=harness({initData:'',founderWeb:true,respond:()=>new Error('offline')});
+  await assert.rejects(()=>offline.run('CuriousGateBridge.graph()'));
+  for(const options of [{initData:''},{initData:INIT_DATA}]) {const held=harness(options);await assert.rejects(()=>held.run('CuriousGateBridge.graph()'));assert.equal(held.requests.length,0);}
+});
+
+test('world intake · authentic bookkeeping rows remain visible and require complete review before approval', () => {
+  const h=harness({initData:'',founderWeb:true});
+  h.quest(envelope([row({source:'founder-web-bookkeeping@v1',sourceRef:'founder-web:cambium:opaque:review-001',summary:'Founder bookkeeping proposal'}, {pinnedLoadoutId:null,executionAdmission:[],admissionState:'absent'})]));
+  const snapshot=h.get();assert.equal(snapshot.proposals.length,1);
+  assert.equal(snapshot.proposals[0].inspect.pinnedLoadoutId,null);
+  assert.equal(snapshot.proposals[0].canApprove,false);
+  assert.match(snapshot.proposals[0].blockedReason,/Read the complete canonical proposal/);
+  assert.doesNotMatch(snapshot.proposals[0].sourceRef,/telegram:/);
+});
+
+test('world intake · complete bookkeeping batch is bound into canonical review before a decision', async () => {
+  const listed=row({source:'founder-web-bookkeeping@v1',version:1,sourceRef:'founder-web:cambium:opaque:batch-001'}, {pinnedLoadoutId:null,executionAdmission:[],admissionState:'absent'});
+  const full=canonicalFixture(listed);
+  const batch={nodesToCreate:[{nodeId:'first',desiredState:'Read the complete first goal'}, {nodeId:'second',desiredState:'Read the complete second goal'}],nodesToUpdate:[{nodeId:'existing',currentState:'Observed history, not execution'}],nodesToRemove:[]};
+  Object.assign(full.proposal.review,{bookkeepingChanges:batch});
+  full.approveConfirmation=reviewConfirmation(full.proposal,'approved');full.rejectConfirmation=reviewConfirmation(full.proposal,'rejected');
+  const h=harness({initData:'',founderWeb:true,respond:(body,url)=>({status:200,body:url.endsWith('/proposal')?full:settled(body)})});
+  h.quest(envelope([listed]));assert.equal(h.get().proposals[0].canApprove,false);
+  assert.equal((await h.review()).ok,true);
+  const snapshot=h.get();assert.deepEqual(JSON.parse(snapshot.proposals[0].canonicalReview).review.bookkeepingChanges,batch);
+  assert.equal(snapshot.proposals[0].canApprove,true);
+  assert.equal(h.requests.filter(r=>r.url.endsWith('/decision')).length,0);
 });
