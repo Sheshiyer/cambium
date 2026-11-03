@@ -11,6 +11,14 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-04 Department/native90 source reconciled through serving92
+
+- Source deb53e3e preserves department readers/frontend and carries committed native90 plus serving92 source964a61a; all94 native Source/Test files match that owner pin. The exact52-binding config is byte-identical to d6bb6986; no upload, migration, graph or traffic write.
+- Focused Node704/704, atlas13/13, scoped strict TypeScript, Worker dry-run/actual-sourcemap guard, Swift Core260pass/1skip and native39/39 pass. Final full suite2694/2697 on the exact commit with original history/independent refs retains only the same three baseline failures. Broader Worker typecheck retains the same69 diagnostics on both candidate and d6bb baseline; standalone retains six findings.
+- Concurrent native release advanced from serving92 to93/23cf59d1 at100%; preserve it and reconcile its source before any new exact upload and later separate traffic approval. deb53e3e remains unuploaded; version89 still means d6bb6986, and ef6e0c74 remains the recorded rollback target.
+- Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the matching structured continuation. Earlier race/history-limited runs are preserved separately; no deployed or physical-device acceptance is claimed.
+
+
 ### 2026-11-03 Exact combined version89 upload verified; traffic held
 
 - Owner-approved d6bb6986 was uploaded as version89 / f74b004a-f50a-4976-b0ee-4c34f2c15aee with the exact52-binding config and documented baseline failures. Actual full binding/runtime parity and operational settings/cron/exposure readbacks pass; public preview page200 exact JS/CSS, health200/configured, guest graph401.
