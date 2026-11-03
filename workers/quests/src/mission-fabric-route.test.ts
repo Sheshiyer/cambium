@@ -290,9 +290,12 @@ test('route resolves governed operational anchors into loadout and cluster edges
   })];
   const facts = {
     ...questFacts(), tasks: [], fences: [], runs: [], receipts: [], agents: [],
-    skillClusters: [], taskClusterAssignments: [], gaps: [],
+    skillClusters: [{ clusterId: 'cluster:fitcheck-no-spend', state: 'active', capabilities: [], eligibleAgentIds: [], sourceRef: 'quest:fitcheck-cluster' }],
+    taskClusterAssignments: [], gaps: [],
   };
-  const result = await requestFabric({ nodes, facts, receipts: [] });
+  const result = await requestFabric({ nodes, facts, receipts: [], branchStories: [
+    { branchId: 'fitcheck', branchKind: 'product', canonicalWorkId: 'sapling:fitcheck', name: 'Fitcheck', source: { tenant: TENANT } },
+  ] });
   assert.equal(result.status, 200);
   assert.ok(result.json.projection.edges.some((edge: { kind: string; fromId: string; toId: string }) => (
     edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck' && edge.toId === 'task-fitcheck-launch'
@@ -520,6 +523,17 @@ function assertAuthorityReason(result: { status: number; json: any; raw: string 
   assert.deepEqual(result.json, { error: 'mission_fabric_authority_unavailable', reason });
   assert.equal(result.raw.includes(leaked), false);
 }
+
+test('a catalog anchor cannot fabricate a missing operational work endpoint', async () => {
+  const result = await authorityFailure((deps) => {
+    deps.goalGraphStore!.readNodes = async () => [goalNode('gg-fitcheck', 'task-fitcheck', null,
+      { workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling' })];
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.json.projection.nodes.some((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck'), false);
+  assert.equal(result.json.projection.edges.some((edge: any) => edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck'), false);
+  assert.ok(result.json.projection.gaps.some((gap: any) => gap.kind === 'missing-join' && gap.subjectId === 'sapling:fitcheck'));
+});
 
 test('the read preserves more than 128 source gaps and refuses overflow at the shared bound', async () => {
   for (const [count, expected] of [[132, 200], [257, 503]]) {

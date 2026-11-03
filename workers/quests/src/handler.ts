@@ -3500,6 +3500,34 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       });
     }
 
+    // A catalog anchor does not create a served operational Work node. Keep
+    // unresolved joins as gaps rather than emitting edges a strict client
+    // cannot resolve (or fabricating nodes from the display-only sidecar).
+    const servedSubjects = new Set(composedNodes.map(node => {
+      switch (node.kind) {
+        case 'work': return node.value.workId;
+        case 'mission': return node.value.missionId;
+        case 'task': return node.value.taskId;
+        case 'agent': return node.value.agentId;
+        case 'skill-cluster': return node.value.clusterId;
+        case 'run': return node.value.runId;
+        case 'receipt': return node.value.receiptId;
+      }
+    }));
+    const knownGapIds = new Set(mergedGaps.map(gap => gap.gapId));
+    for (let index = mergedEdges.length - 1; index >= 0; index -= 1) {
+      const edge = mergedEdges[index];
+      const missing = !servedSubjects.has(edge.fromId) ? edge.fromId
+        : edge.kind !== 'pins-loadout' && !servedSubjects.has(edge.toId) ? edge.toId : null;
+      if (missing === null) continue;
+      mergedEdges.splice(index, 1);
+      const gapId = `gap-edge-endpoint-${edge.kind}-${edge.fromId}-${edge.toId}`;
+      if (knownGapIds.has(gapId)) continue;
+      knownGapIds.add(gapId);
+      mergedGaps.push({ gapId, kind: 'missing-join', subjectId: missing,
+        detail: `The ${edge.kind} edge has an endpoint absent from the served source nodes; the edge was omitted.`, evidenceRef: null });
+    }
+
     const sortedNodes = [...composedNodes].sort((a, b) => {
       const left = `${a.kind}:${fabricIdentityOf(a)}`;
       const right = `${b.kind}:${fabricIdentityOf(b)}`;
