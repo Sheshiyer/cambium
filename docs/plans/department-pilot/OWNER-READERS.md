@@ -24,7 +24,7 @@ The correctly profiled read-only Labs deployment read confirms `5f2c5dc7-e57a-47
 | LumenBar planning | Prepare the missing ISA/GSD scope in its owning repository, bounded to the next selected existing product outcome. Resolve each selected canonical task ID, original parent, owner sequence and dependency evidence. | The current root has no accepted spine/mapping. A source branch, due date or social approval cannot supply acceptance. No new objective/target is selected by this packet. |
 | Temperance planning | Continue the existing Phase 2 discuss/plan transition. Reconcile its draft orchestration and the exact engine/consumer source pins; propose a task-to-graph mapping only for owner-selected work. | Phase 1 completion and PR checks do not accept Phase 2, native callbacks or installed adoption. CI remains deferred and separate. |
 | Measurement | Ask the existing measurement owner for dated observations tied to exact approved public receipts and immutable KPI definitions. Keep other cohorts unavailable until their owners expose complete evidence. | Original graph task identities and Will desks remain. Reach, conversion, adoption and targets cannot be inferred from publication. |
-| Serving conflict | Owner must reconcile the older keep93 instruction with the subsequent owner-approved `5f2c5dc7…` rollout. Retaining the observed version requires no traffic write; any rollback/promotion needs its own exact source/configuration and rollback review. | No old upload/social approval is reusable. Current source, global settings/schedules, authenticated desktop/mobile and physical-device proof remain release gates. |
+| Serving baseline | User selected version95 (`5f2c5dc7…`) for planning. Any rollback/promotion still needs separate exact source/configuration and rollback review. | Traffic changes remain held. No old upload/social approval is reusable. Current source, global settings/schedules, authenticated desktop/mobile and physical-device proof remain release gates. |
 
 For example, the existing paused LumenBar measurement task is `goal_12f727f72b20538ac571a9cc154c13017274fff415a2220c69911c8429ca59bb`, parent `goal_3df6e9b5c69826959fd443c2fb05a8c59e2a8027423e9209b54aa825a965902e`, publication prerequisite `goal_19e7c312c81f2eee9603f64de093fd051711ea36ff92dde95fb0bac045463c40`. Temperance's paused measurement task is `goal_e3068b075c1ba23e895b62005fcc0d6f7a3cb3ca178f06d3c96e9cd41f776baa`, parent `goal_8b60cdd2a082effe119bde549186cb35033dc25dfa64398b7767ff3100eaa5d6`, publication prerequisite `goal_1793dccbbd23255f71471e3adb6ac1886e7a9e29fb08531f66dcebf04e3bc760`. These historical examples identify work for review; neither is newly selected, sequenced, completed or admitted. Re-read the current graph before any mapping decision.
 
@@ -34,8 +34,8 @@ No new hook is proposed for activation. If a later request requires one, the pac
 
 ### Expanded verification repair
 
-The existing release owner's six standalone-audit fixes were reconciled into
-this branch. Native owner-origin equality remains bound to the existing
+The existing release owner's source fixes for six standalone-audit findings were
+reconciled into this branch. Native owner-origin equality remains bound to the existing
 Cloudflare resource manifest and rejects a different valid HTTPS origin. The
 candidate's blank native owner prefill is a visible behavior delta requiring
 owner review before native installation/release; its 25 local XCTest checks do
@@ -69,6 +69,30 @@ alternate writer/read authority. The host reference audit still reports eight
 sapling wrappers absent from its global index: their repository-owned source
 is known, and this pass does not add a host registration or alter the fourteen
 managed hot capabilities. CI remains deferred and separate.
+
+### Frozen source verification
+
+Exact repair source `db97abf9` passed 2711 of 2712 declared Node tests in an
+independent Git checkout. The only failure is the unchanged canonical viewport
+PAGE digest gate. The original five privacy/safety checks, atlas fingerprints,
+concurrent publication exclusion and stale CAS checks pass. The original
+non-frozen seven-failure run and both frozen pre-repair runs are retained in the
+private disposition receipt; they are not discarded or presented as green.
+
+Standalone audit passes for 1951 publishable files. Pure owner-reader strict
+TypeScript passes. The handler closure retains 61 baseline diagnostics and the
+owner-reader plus intake closure retains 11; these scopes overlap and have no
+introduced identities. They are not globally type-clean. Sapling tests pass
+22/22 and native OwnerIntegration source tests pass 25/25. Native discovery again
+reports the same six enabled/trusted definitions and unchanged registry digest;
+actual callback/owner-result acceptance remains unobserved.
+
+The final eight diagnostic frames were captured from clean `db97abf9` source
+and pass current PAGE/helper/step/PNG validation. Original 47-frame canonical
+assets and the drift guard are byte-identical to the starting branch. The
+viewport packet preserves every original assertion identity: four proposed
+retirements, 37 retained-uncovered behaviors and six partial current-world
+mappings. This is a concrete owner contract decision, not a blanket waiver.
 
 ## Original owner-reader checkpoint
 
