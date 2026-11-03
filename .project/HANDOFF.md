@@ -11,6 +11,15 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-04 Department graph/tooling source verified; owner and viewport gates held
+
+- Reviewed source `db97abf9` follows the graph history and request-local read fixes in `f88722a7`. Existing sapling tooling and native hook discovery are reused. Independent source, capture and packet reviews are clear; callback activation is held.
+- Frozen full suite: 2711 of 2712 pass. The sole failure is the inherited 47-frame viewport manifest PAGE digest. Its guard, manifest and images stay unchanged. Original privacy/safety, atlas and publication/CAS checks pass. Standalone audit passes for 1951 publishable files. Broad strict closures retain exactly 61 and 11 baseline diagnostics with no introduced identities; pure owner readers pass.
+- Eight current 3D diagnostic frames bind exact PAGE, steps, helpers and image bytes. All 47 original assertions remain accounted for: four proposed gallery retirements, 37 retained-uncovered behaviors and six partial world-root mappings require owner review. The narrow Departments header collision remains visible.
+- The prepared blank native owner prefill requires owner review before acceptance/release; 25 OwnerIntegration source tests pass. Six trusted native hook definitions and the registry digest are unchanged, as are the 14 managed hot capabilities. Actual callbacks, installed Noesis and device/platform acceptance remain unobserved. Eight global sapling wrapper references remain unresolved.
+- User selected version 95 as the planning baseline; traffic changes are held. Last attributable graph is head 13, 132 nodes and ten decisions at 2026-11-03T20:32:22.791Z, now expired for a new reader run. Fresh Founder Access sign-in is unavailable. Separate LumenBar and Temperance GSD packets retain missing mission, accepted plan and exact task mapping fields; execution is held.
+- Pickup: `docs/plans/department-pilot/OWNER-READERS.md`, the matching structured continuation, `artifact:graph-tooling-20261104/source-verification-receipt.json`, and its six HITL packets. No graph, deployment, traffic, provider, native-store, host or CI writes. CI remains deferred to separately admitted Woodpecker on existing hardware.
+
 ### 2026-11-04 Exact e6c1940e version94 uploaded and verified; traffic held
 
 - Owner-approved e6c1940e was uploaded as immutable Worker version94 / c0821aa3-987a-4fc5-b2c5-380aee02fb5b with the exact52 inherited-binding config and documented baseline failures. Full binding and runtime parity, settings fingerprint, schedules and exposure match the fresh preflight.
