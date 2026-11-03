@@ -562,7 +562,7 @@ test('provider embedder posts to /embeddings with existing provider key and pars
   let requestInit: RequestInit | undefined;
   const embed = createProviderEmbedder({
     provider: {
-      apiKey: 'mock-key',
+      apiKey: 'mockkey',
       baseUrl: 'https://integrate.api.nvidia.com/v1/',
     },
     model: 'nvidia/nv-embedqa-e5-v5',
@@ -581,7 +581,7 @@ test('provider embedder posts to /embeddings with existing provider key and pars
 
   assert.equal(requestUrl, 'https://integrate.api.nvidia.com/v1/embeddings');
   assert.equal(requestInit?.method, 'POST');
-  assert.equal((requestInit?.headers as Record<string, string>).authorization, 'Bearer mock-key');
+  assert.equal((requestInit?.headers as Record<string, string>).authorization, 'Bearer mockkey');
   assert.deepEqual(JSON.parse(String(requestInit?.body)), {
     model: 'nvidia/nv-embedqa-e5-v5',
     input: ['bounded context query'],
