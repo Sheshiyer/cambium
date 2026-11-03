@@ -1,6 +1,7 @@
 import AuthenticationServices
 import CambiumCore
 import Foundation
+import OSLog
 
 // External-browser adapter for founder sign-in. It runs on the main actor and
 // uses an ephemeral ASWebAuthenticationSession, so no browser cookies are
@@ -9,6 +10,7 @@ import Foundation
 
 @MainActor
 final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthenticationPresentationContextProviding {
+    nonisolated private static let logger = Logger(subsystem: "space.thoughtseed.cambium.native.dev", category: "NativeBrowserSignIn")
     /// The callback scheme is the reversed-domain dev registration in Info.plist.in.
     static let callbackScheme = "space.thoughtseed.cambium.native.dev"
 
@@ -25,10 +27,16 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
     }
 
     func present(_ request: NativeAuthorizationRequest) async -> NativeBrowserResult {
-        guard activeSession == nil, pending == nil else { return .failed }
+        guard activeSession == nil, pending == nil else {
+            Self.logger.error("Browser presentation already pending")
+            return .failed
+        }
         guard request.redirectURI.absoluteString == NativeIdentityConfiguration.reviewedRedirectURI.absoluteString,
               request.redirectURI.scheme == Self.callbackScheme else { return .failed }
-        guard let anchor = anchorProvider() else { return .failed }
+        guard let anchor = anchorProvider() else {
+            Self.logger.error("Browser presentation has no app window")
+            return .failed
+        }
 
         presentation &+= 1
         let id = presentation
@@ -50,6 +58,7 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
             session.presentationContextProvider = self
             activeSession = session
             if !session.start() {
+                Self.logger.error("AuthenticationServices refused to start")
                 finish(id, .failed)
             }
         }
@@ -74,6 +83,11 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
     nonisolated static func map(callbackURL: URL?, error: (any Error)?) -> NativeBrowserResult {
         if let error {
             let nsError = error as NSError
+            if nsError.domain == ASWebAuthenticationSessionErrorDomain {
+                logger.error("AuthenticationServices completion error code: \(nsError.code, privacy: .public)")
+            } else {
+                logger.error("Browser completion failed outside AuthenticationServices")
+            }
             if nsError.domain == ASWebAuthenticationSessionErrorDomain,
                nsError.code == ASWebAuthenticationSessionError.canceledLogin.rawValue {
                 return .canceled
