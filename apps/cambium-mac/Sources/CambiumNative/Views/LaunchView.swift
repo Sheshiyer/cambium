@@ -41,6 +41,9 @@ private struct AdmissionListPanel: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             ForEach(model.admissions) { row in
+                if row.workId == "sapling:iverif", let requestId = row.existingRequestId {
+                    Button("Read original result · \(requestId)") { model.readClaimProofResult(admissionRef: row.admissionRef) }.disabled(model.loading)
+                }
                 Button {
                     model.selectAdmission(row.admissionRef)
                 } label: {
@@ -235,6 +238,10 @@ private struct ClaimProofResultPanel: View {
             SectionHeader(title: "Claim-evidence result")
             Button("Read original result") { model.readClaimProofResult() }.disabled(model.loading || model.selectedAdmissionRef == nil)
             if let result = model.claimProofResult {
+                FactRow(label: "Task", value: result.taskId, mono: true)
+                FactRow(label: "Request", value: result.requestId, mono: true)
+                FactRow(label: "Attempt", value: result.attemptId, mono: true)
+                FactRow(label: "Input", value: result.inputDigest, mono: true)
                 Text("Execution: \(result.execution)").font(.callout)
                 Text("Acceptance: \(result.acceptance)").font(.callout).foregroundStyle(Palette.inkMuted)
                 if let artifact = result.artifact {

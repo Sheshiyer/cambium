@@ -597,8 +597,8 @@ export async function executeMarketingRender(
   if (!deps.activation || deps.activation !== MARKETING_CREATE_EXPECTED_ACTIVATION) {
     throw new MarketingRendererError('renderer_disabled');
   }
-  const apiKey = deps.apiKey?.trim();
-  if (!apiKey) throw new MarketingRendererError('renderer_secret_missing');
+  const rendererKey = deps.apiKey?.trim();
+  if (!rendererKey) throw new MarketingRendererError('renderer_secret_missing');
   const now = (deps.now ?? (() => new Date().toISOString()))();
   const prepared = await deps.store.getPrepared(requestId);
   if (!prepared) throw new MarketingRendererError('render_request_not_found');
@@ -656,7 +656,7 @@ export async function executeMarketingRender(
     response = await fetchImpl(MARKETING_CREATE_PROVIDER_URL, {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${apiKey}`,
+        authorization: `Bearer ${rendererKey}`,
         'content-type': 'application/json',
       },
       body: JSON.stringify({

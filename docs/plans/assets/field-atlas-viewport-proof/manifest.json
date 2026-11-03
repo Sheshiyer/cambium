@@ -5,8 +5,8 @@
   "physicalDevice": false,
   "adapter": "codex-iab",
   "status": "passed",
-  "capturedAt": "2026-11-03T22:17:51.151Z",
-  "pageSourceSha256": "1dd70ba4611665a6b718191672bd44b5fd9c79354f45e614e2ec1997c63a15dc",
+  "capturedAt": "2026-11-03T22:44:43.356Z",
+  "pageSourceSha256": "a525b3ce65a1d7b70e4cdca64449c7eb0c6a3aa3b2a5f5c79141a72c60ec4955",
   "planSha256": "a99c0761073feb450b40341a21e426fe3da75f0304d5ade2a5a1685238989f39",
   "proofs": [
     {
@@ -42,7 +42,7 @@
         "retiredShellAbsent": true,
         "consoleClean": true
       },
-      "sha256": "d53cb0b7061e7c949fb703506535cb6948bdd73c0dbf8482932dda37dd140a36",
+      "sha256": "52805ce1cb2d1dd1524d05aacebbab48739ecc5fad56fccfd6f694a3525a6a29",
       "imageWidth": 1164,
       "imageHeight": 655
     },
@@ -62,7 +62,7 @@
         "noAutomaticPost": true,
         "consoleClean": true
       },
-      "sha256": "f9fad97e49ef9b961d73bb5b499617d654bce0d0e67be8302a4dc95aac362ccd",
+      "sha256": "7c34dbc5a3536d832e6dd2c08f9e32430e968e7d78af4f26be1c3d24b14d2d92",
       "imageWidth": 1164,
       "imageHeight": 655
     },
@@ -82,7 +82,7 @@
         "focusVisible": true,
         "consoleClean": true
       },
-      "sha256": "747afdea1a5ad795f64feb2052ba649cab9d89bf2b27b60bda15d86e0d618bff",
+      "sha256": "83f3cf578f52a6898024aeb811a38df72bd33a466a3ec4ad78fa60a0c831b4b7",
       "imageWidth": 320,
       "imageHeight": 844
     },
@@ -105,7 +105,7 @@
         "decisionsNotPublication": true,
         "consoleClean": true
       },
-      "sha256": "2fd552ed41fffc59cb149e625cadb4d4076c54f5445b2c58e77d936c9ab1dde8",
+      "sha256": "85371b4a5bf9eb6f6f4e1fac2973ce7e383e6d475b47a3a4f789e5c1f3a24149",
       "imageWidth": 320,
       "imageHeight": 844
     },

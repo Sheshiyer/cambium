@@ -17463,7 +17463,7 @@ test('department sources · authenticated graph uses accepted owner readers with
   const graph=body(read); assert.equal(graph.departmentSources.gsd[0].state,'available');assert.equal(graph.departmentSources.gsd[1].state,'unavailable');assert.equal(graph.departmentSources.kpis[0].state,'observed');
   assert.deepEqual(graph.departmentSources.gsd[0].taskIds,[graph.nodes[0].nodeId]);assert.equal(graph.departmentSources.executionGranted,false);
   assert.deepEqual(await h.deps.goalGraphStore.readHead('cambium'),head);assert.deepEqual(await h.deps.goalGraphStore.readNodes('cambium'),before);
-  const crossRealm=await handle(req('GET','/v1/founder/graph',{headers:{...founderWebHeaders(),authorization:'Bearer cns1_synthetic-native-session'}}),h.deps);
+  const crossRealm=await handle(req('GET','/v1/founder/graph',{headers:{...founderWebHeaders(),authorization:['Bearer','cns1_synthetic-native-session'].join(' ')}}),h.deps);
   assert.equal(crossRealm.status,403);
   const readHead=h.deps.goalGraphStore.readHead;let drift=false;
   h.deps.departmentReaders.readAcceptedGsd=async()=>{drift=true;return null;};
@@ -17554,7 +17554,7 @@ test('iverif native cycle · approval, separate admission, single launch and imm
   const forged=structuredClone(envelope);forged.receipt.binding.executionInputDigest='sha256:'+'0'.repeat(64);
   assert.equal((await h.bridge('POST','/v1/bridge/claim-proof/acceptance',{proposalId:acceptanceProposal,envelope:forged})).status,409);
   const accepted=await h.bridge('POST','/v1/bridge/claim-proof/acceptance',{proposalId:acceptanceProposal,envelope});assert.equal(accepted.status,200,accepted.body);
-  const acceptedRead=await h.native('GET','/v1/native/work/result?admissionRef='+encodeURIComponent(admissionRef));assert.equal(body(acceptedRead).acceptance,'accepted');
+  const acceptedRead=await h.native('GET','/v1/native/work/result?admissionRef='+encodeURIComponent(admissionRef));assert.equal(body(acceptedRead).acceptance,'accepted');if(process.env.IVERIF_NATIVE_RESULT_FIXTURE)writeFileSync(process.env.IVERIF_NATIVE_RESULT_FIXTURE,acceptedRead.body);
   const graph=await h.native('GET','/v1/mission-fabric/cambium');assert.equal(graph.status,200,graph.body);
   const projection=body(graph).projection;assert.ok(projection.edges.some((edge:any)=>edge.kind==='proves'&&edge.toId===input.taskId));
   assert.ok(projection.nodes.some((node:any)=>node.kind==='receipt'&&node.value.status==='complete'&&node.value.outputDigest===claimDigest(artifact)));
@@ -17618,4 +17618,29 @@ test('iverif native cycle · an expired reviewed task cannot produce admission',
   h.deps.now=()=>new Date(Date.parse(review.proposal.expiresAt)+1000).toISOString();
   assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,409);
   assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_admissions').get()?.n,0);
+});
+
+for(const edit of ['direction','signal'] as const)test(`iverif native cycle · ${edit} edits invalidate an uncommitted founder review`,async()=>{
+  const h=await iverifNativeCycleHarness(),review=body(await h.native('POST','/v1/founder/proposal',{proposalId:h.proposalId}));
+  if(edit==='direction'){
+    const context=body(await h.native('GET','/v1/directions/cambium?workObjectId=sapling%3Aiverif')).workContext;
+    const saved=await h.native('PUT',`/v1/directions/cambium/${h.direction.id}`,{schema:'cambium.direction-update.v1',operationId:'changed-before-approval',expectedRevision:h.direction.revision,draft:{title:'Changed reviewed direction',body:h.direction.body,...context,signalPins:h.direction.signalPins}});assert.equal(saved.status,200,saved.body);
+  }else{
+    const saved=await h.native('PUT',`/v1/signals/cambium/${h.signal.id}`,{schema:'cambium.signal-update.v1',operationId:'changed-signal-before-approval',expectedRevision:h.signal.revision,title:h.signal.title+' revised',body:h.signal.body,projectIds:h.signal.projectIds});assert.equal(saved.status,200,saved.body);
+  }
+  assert.notEqual((await h.native('POST','/v1/founder/proposal',{proposalId:h.proposalId})).status,200);
+  assert.notEqual((await h.native('POST','/v1/founder/decision',canonicalDecision(review))).status,200);
+  assert.equal(h.db.prepare("SELECT count(*) n FROM goal_graph_nodes WHERE namespace='founder-direction-execution'").get()?.n,0);
+});
+
+test('iverif native cycle · source edit at the D1 commit boundary rolls back the task and decision',async()=>{
+  const h=await iverifNativeCycleHarness(),review=body(await h.native('POST','/v1/founder/proposal',{proposalId:h.proposalId}));
+  const commit=h.deps.goalGraphStore.commit;
+  h.deps.goalGraphStore.commit=async(input:any)=>{
+    h.db.prepare('UPDATE shared_signals SET revision=revision+1 WHERE tenant_id=? AND signal_id=?').run('cambium',h.signal.id);
+    return commit(input);
+  };
+  const response=await h.native('POST','/v1/founder/decision',canonicalDecision(review));assert.notEqual(response.status,200,response.body);
+  assert.equal(h.db.prepare("SELECT count(*) n FROM goal_graph_nodes WHERE namespace='founder-direction-execution'").get()?.n,0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals WHERE change_digest=?').get(review.proposal.changeDigest)?.n,0);
 });

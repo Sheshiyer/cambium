@@ -2,7 +2,28 @@
   "schema": "cambium.iverif.claim-source-manifest.v1",
   "repository": "Sheshiyer/iverif-wiki",
   "commit": "1cc03e62fbfb32ba21c98ba81ac5a6883d676d2a",
+  "coverage": {
+    "includes": [
+      "README",
+      "public NotebookLM text",
+      "all src Markdown/JSON/Astro",
+      "localized src/i18n.ts copy"
+    ],
+    "excludes": [
+      "binary assets",
+      "CSS and executable example bodies",
+      "non-source provider or private evidence"
+    ],
+    "inventory": "conservative line-linked candidates; semantic completeness requires founder review"
+  },
   "files": [
+    {
+      "path": "README.md",
+      "sha256": "0b8fc6f66991c39af96ffc9d3077ecfbfbc9395a8ee7d33137a9519441d6c2a7",
+      "bytes": 378,
+      "inventoryDigest": "sha256:8b760225004a9cc6dc91d52d580c98e42055f47e0b1121b923e9736307768e0d",
+      "inventoryCount": 3
+    },
     {
       "path": "public/notebooklm/flashcards-detailed.json",
       "sha256": "00901601140be710ba35082d24cfe7f0d2edd5c31f6e9086d0a8f8646cdf3b7c",
@@ -14,8 +35,8 @@
       "path": "public/notebooklm/flashcards-standard.json",
       "sha256": "aef9892e9f482badaa7f34c715014be456020d201c83990ddbfe408c4aa76f82",
       "bytes": 11433,
-      "inventoryDigest": "sha256:5b247a379fb42d2ba6c52eb170b21e39ecbaddee64328d53fb06bab877a901fc",
-      "inventoryCount": 58
+      "inventoryDigest": "sha256:e51e89f1dc889df213c6ef69d6d49b7652548681796b6340a1bfde8f7464bf6f",
+      "inventoryCount": 60
     },
     {
       "path": "public/notebooklm/mind-map (2).json",
@@ -35,162 +56,218 @@
       "path": "public/notebooklm/quiz-hard.json",
       "sha256": "9b2790d0cbce39b30f183fbca3c1bbca69260d58820d42f770f346b1a4750155",
       "bytes": 17016,
-      "inventoryDigest": "sha256:506252575790a855d2288af868d57df8a363aa23f23a9bac682bb255a944823d",
+      "inventoryDigest": "sha256:ba3ca323db21a3121c9fa1308621cfcd55f9d8b0af99fbc763ea36a2e87e3662",
       "inventoryCount": 90
     },
     {
       "path": "public/notebooklm/quiz-medium.json",
       "sha256": "a47f94745f800fefb40545bd6880d1e3d3a35b05c328e0bff8d75c28973b2f51",
       "bytes": 17131,
-      "inventoryDigest": "sha256:c98a81d9bf6b7c6b22c44162ee35f5e46b345417432072d38ea60fba7ffa0c56",
+      "inventoryDigest": "sha256:3a5f2b91123a83399ffa3f85ee41535d78d5d882c84d2c4cc6dd175b09dd7831",
       "inventoryCount": 89
     },
     {
       "path": "public/notebooklm/report-blog.md",
       "sha256": "480cf04561f1ff9e76208e3fe43a1414cac8ac97874eb5534668b7411bdefe01",
       "bytes": 6574,
-      "inventoryDigest": "sha256:2f37bb31d605ec5b6b6fc2516a5eddfe91e7351b0aac32959d4978fe0b0febb9",
-      "inventoryCount": 36
+      "inventoryDigest": "sha256:7d19ee84e69ba36bb07c8a92c0b4830efece822de13db835dd01f3fcb0c9878a",
+      "inventoryCount": 44
     },
     {
       "path": "public/notebooklm/report-briefing.md",
       "sha256": "eccd7445f580ac97da5ea904c880841af89dd8f3547f84f002b2385d4cd02ae8",
       "bytes": 11726,
-      "inventoryDigest": "sha256:82a4aac179b94a872c464fe982eed23689f952b6f98e006ec3a624c2d45e235d",
-      "inventoryCount": 97
+      "inventoryDigest": "sha256:f81826a0ea2550ce5ad8d974be5614c4f1f53a376edcfafe193e97c9a0cc4b13",
+      "inventoryCount": 136
     },
     {
       "path": "public/notebooklm/report-study-guide.md",
       "sha256": "8a6d4a39001131206d9c1f24ae1650f9c437f160e7b4d5a762f640b343e07345",
       "bytes": 6606,
-      "inventoryDigest": "sha256:392137109dfc0de75f4a83801c5809d88e6ab838c19942097b14902bc66f16a2",
-      "inventoryCount": 46
+      "inventoryDigest": "sha256:aea70b2d245e6a55743c91b789db874a8d371d825887fb689202f07536c9bb9a",
+      "inventoryCount": 55
+    },
+    {
+      "path": "src/components/ArtifactCard.astro",
+      "sha256": "70ce4bc0d8aaf53335442f043aaf20882e469f826df2c7b054b14403f4b0edf2",
+      "bytes": 1186,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/components/Breadcrumb.astro",
+      "sha256": "8e38d5bf586221e64ababed0aad5569f8eb94a47286da2322c18cde9f9a361e0",
+      "bytes": 489,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/components/GlassCard.astro",
+      "sha256": "c462bf061ba16eb14f435d1791d84497124f8af31af97ad08a8a1782249843d3",
+      "bytes": 552,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/components/LanguageToggle.astro",
+      "sha256": "3e0c0ab184c50ed0bc9a9ce015c042832d3b361fabc8ed5729b5e8d9813baa12",
+      "bytes": 671,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/components/Navigation.astro",
+      "sha256": "907a9da6d59ed5318a2c886acb12dc6cb4af9f1c9a36e3ad2158f99624dc38b4",
+      "bytes": 4792,
+      "inventoryDigest": "sha256:04366e63ec723ef84c05d891c1498e33e9a0635c59763b8d43a51354d522f5ea",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/components/PortalHome.astro",
+      "sha256": "014e19339d3a3640f5c6dc771b81b65e8b0c0062f37f17d54f4b8216614e2aaf",
+      "bytes": 11734,
+      "inventoryDigest": "sha256:6b6a515022ed714d335536bd110d4981b826e56050aa32bce4c4a3e962d6aff8",
+      "inventoryCount": 3
+    },
+    {
+      "path": "src/components/TableOfContents.astro",
+      "sha256": "d2e722a77837902ae3c12f8b3c12b07ff0c48aa8fd7281493dda7692d13ff824",
+      "bytes": 1333,
+      "inventoryDigest": "sha256:ef280aec6a67817c42946af29040a4a10a72ff0b27f91545112ce43866270610",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/components/ThemeToggle.astro",
+      "sha256": "c102af6643556d913e1d82af704a0ad9fcf2e1f7a4b9a45b6372dbf1c50ead3e",
+      "bytes": 597,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
     },
     {
       "path": "src/content/docs/audience/primary-persona.md",
       "sha256": "adb770a4305efbbc233466cdc75e9fe2ed645295bbc663d4fa63058694391b86",
       "bytes": 2061,
-      "inventoryDigest": "sha256:d9cee47dfa4e1307fe775b6cd81617eb526aa6194dd65362686f3f33d9a1bae2",
-      "inventoryCount": 25
+      "inventoryDigest": "sha256:bd8d236f0ba102254c310b8b524d9a06d1a79a591d203036a56ae4d362f01cef",
+      "inventoryCount": 33
     },
     {
       "path": "src/content/docs/audience/secondary-personas.md",
       "sha256": "771e5792573207f969bed377c8f9773bbef7fb318477c693790491f8822de692",
       "bytes": 1894,
-      "inventoryDigest": "sha256:f69a4dd23764bdca36f39afa228a1d098809fcbc336c6167a04ac668d4270ab1",
-      "inventoryCount": 20
+      "inventoryDigest": "sha256:5568d4b12101c3f25d0dfb9422d915e92db69109ae64c79766e246c2e5ad4117",
+      "inventoryCount": 27
     },
     {
       "path": "src/content/docs/brand/visual-assets.md",
       "sha256": "2da2948f1f2b0d5ab1a6e99b31a98c039b9c21d4aa2af0680bbca594c83e8a19",
       "bytes": 795,
-      "inventoryDigest": "sha256:408a7eda6d07ce70d5d4fa88a4c69ffdd35ea90295fee26d2af02337714c5c0a",
-      "inventoryCount": 3
+      "inventoryDigest": "sha256:647470def56919c7f5e670e3db4a847fc5c8fe1c5bacd743a20f8f19cd1a7e3b",
+      "inventoryCount": 6
     },
     {
       "path": "src/content/docs/brand/visual-guidelines.md",
       "sha256": "a6a253703930bc99302297faeb8f3cd26a2aa7f17665a944c93d3383fcbfac04",
       "bytes": 2662,
-      "inventoryDigest": "sha256:66e9193c841e3ce796d6a60e02e004ddab4a074f2cd6ad26a4ba7bc0f68768c5",
-      "inventoryCount": 29
+      "inventoryDigest": "sha256:d5a564d1ef29a9cde0d1a0302b574eb964256a21524d29847d0599078f3bba2e",
+      "inventoryCount": 53
     },
     {
       "path": "src/content/docs/brand/voice-tone.md",
       "sha256": "ebf0866099b50c4b5aae71b631614bd0a7ca8d21eaa576b1402b673b7b987a84",
       "bytes": 2379,
-      "inventoryDigest": "sha256:c05d6064edc010ffb5a8f109be6de28d83fb89d7cb18d4750f6598f94e4fdd86",
-      "inventoryCount": 32
+      "inventoryDigest": "sha256:3ee27d3ab60fbc7531c5985b77893e7210cb9a265770eaa7bc55e586fc592586",
+      "inventoryCount": 45
     },
     {
       "path": "src/content/docs/getting-started/quickstart.md",
       "sha256": "27cdd84b8a4a914d55c807d74453ed3c546aeb8bd91942a32f303dbbcfd03037",
       "bytes": 1525,
-      "inventoryDigest": "sha256:ff4e56b7146a5ea2dded75407a55a2454cdb86cf1aada7e8168975f62c2355ef",
-      "inventoryCount": 23
+      "inventoryDigest": "sha256:02e44d18a7d9bd1437f73211ad01d103d8d4a7f1702797e66b4876ef2e0669ea",
+      "inventoryCount": 28
     },
     {
       "path": "src/content/docs/index.md",
       "sha256": "70f7587bef19b502baf401990672639bb13c8bcdc77d0db7776ded24254012c4",
       "bytes": 1801,
-      "inventoryDigest": "sha256:480d4b63d26b5bad7dfd7b61ebc2610a0ef48e326dbcaaae645c4f0788fd55ba",
-      "inventoryCount": 26
+      "inventoryDigest": "sha256:cb39ebfe4f212ba8474fd695f618c7a4632b3c54ef6788f120c692c76a5283f3",
+      "inventoryCount": 39
     },
     {
       "path": "src/content/docs/market/competitive-landscape.md",
       "sha256": "1c52557051697802974c97f1dadc531ae59baea065bef67c918ce3bbe04c21c8",
       "bytes": 2358,
-      "inventoryDigest": "sha256:47839ebfd04ef719023c1e348b869acc3db81cf4804ee0b7189fbc6e8c57cd2b",
-      "inventoryCount": 21
+      "inventoryDigest": "sha256:2b5ddc817680d6007557d21982d7d4cd7b75618bf52f36a22a7f15fe50924f9a",
+      "inventoryCount": 32
     },
     {
       "path": "src/content/docs/marketing/ad-creative.md",
       "sha256": "4978a50cda6c993218af276ea35012ab1659f89780c409be93da0abc63e3e048",
       "bytes": 365,
-      "inventoryDigest": "sha256:a4b5af8a350c9a4a7f4e7b933969e1973cb8fc68b7a6a708c97359f898c2bae2",
-      "inventoryCount": 1
+      "inventoryDigest": "sha256:c178fe705eb9f8e6df8f498cdd48b4b6f42784484d9c1e42e336961c2a6b4bc8",
+      "inventoryCount": 3
     },
     {
       "path": "src/content/docs/marketing/campaign-copy.md",
       "sha256": "b82836cdee117b866c4acefeff6e28c2b2492cce97d988156ac019e3a337fc52",
       "bytes": 2973,
-      "inventoryDigest": "sha256:2eb577bc5adc210a0ca113d55d53b8beb082918ae29d063558eddfdf78cbef08",
-      "inventoryCount": 28
+      "inventoryDigest": "sha256:d880557c89a3fe908ab0e2d212b915eba3ef2e53fbe277aa4b871fc40d6aa556",
+      "inventoryCount": 40
     },
     {
       "path": "src/content/docs/marketing/email-templates.md",
       "sha256": "8ea620c7a99901a2e1381b2676556b87c7c7d01efc8befd591cbff7d11eca4ce",
       "bytes": 412,
-      "inventoryDigest": "sha256:cf6f16822d6c150bfc9cd7b8d3f54376fd8d4711d2dfde649a9be1f08e0cb9d3",
-      "inventoryCount": 1
+      "inventoryDigest": "sha256:bf705f0747a451ac9cfbcb0d409e3be6d95ea0f7ebc6edb671f352d35326bc81",
+      "inventoryCount": 3
     },
     {
       "path": "src/content/docs/marketing/social-content.md",
       "sha256": "72cb210fc1464efccb5a27615e0958b10ffde1b8165a999bc5b5668b0bad4f8f",
       "bytes": 390,
-      "inventoryDigest": "sha256:729b4e49fc41f78702893c67a1c1efa675257443f50636207c130f7f7c917e78",
-      "inventoryCount": 1
+      "inventoryDigest": "sha256:702ed5fa873c7501a96953d6409c75ec2e30dd8d887dc1857ce5edacf0808933",
+      "inventoryCount": 3
     },
     {
       "path": "src/content/docs/marketing/video-scripts.md",
       "sha256": "4aa3f0d241175061d42d2f8a3341feb9fde2b887e3739e9f4bbc6c01dccb3821",
       "bytes": 347,
-      "inventoryDigest": "sha256:bf96c9607b2f1d0308efc8511bc04fc0452b67b79e5eff236af96a88a61bf5f3",
-      "inventoryCount": 1
+      "inventoryDigest": "sha256:4d13b9d2370c65428aefa32df688a07e00587c5eb8555c83f6004a1eddcdc05d",
+      "inventoryCount": 3
     },
     {
       "path": "src/content/docs/product/features.md",
       "sha256": "e4f53c87257bd7c90ff02fd7f2d2fe29b9141caf925c8daad78afbbdc4cfcfd9",
       "bytes": 2204,
-      "inventoryDigest": "sha256:b59144b9f60b74c8965091ac1e72444f4b9cbc41f1eb9c007cbcf5a258c03bd3",
-      "inventoryCount": 33
+      "inventoryDigest": "sha256:4be0e61aae7435738c850b366b90bb4a9c23ebd26009441b3b032076c66eac4e",
+      "inventoryCount": 41
     },
     {
       "path": "src/content/docs/product/overview.md",
       "sha256": "75bbdf012a8b2c8b388143290c1a1dcbc5978c58cd81103fb04fcc41f257048e",
       "bytes": 2521,
-      "inventoryDigest": "sha256:ce4b2f702d6462aae9c7961a69cd8fe30d909f94b30f2e2267471143c4505d77",
-      "inventoryCount": 23
+      "inventoryDigest": "sha256:815413ae0cbd7fc7575730d86139321b530684edbf11e892ffcda5335d49452d",
+      "inventoryCount": 31
     },
     {
       "path": "src/content/docs/product/specifications.md",
       "sha256": "82114659663597598f1eeffdb374e1bf80108643a2d6fb2833fa9e6676acf0f9",
       "bytes": 2088,
-      "inventoryDigest": "sha256:51d4746aca2ccfde58299babc5dbc7843e295b03fcaecc08cb9e44a20d95a97a",
-      "inventoryCount": 30
+      "inventoryDigest": "sha256:e47efbd60312ee3f229ed5d6eb19f0153234102527b3012ad5f48857af142fbd",
+      "inventoryCount": 39
     },
     {
       "path": "src/content/docs/research/notebooklm-artifacts.md",
       "sha256": "5d04859335607cb0d04387334217c795b1164b0001bf9e17314c25044dff020b",
       "bytes": 2585,
-      "inventoryDigest": "sha256:da519f3a0c3a12f473ca70fdeafca0af9000af641c338162f641736f077f4c69",
-      "inventoryCount": 26
+      "inventoryDigest": "sha256:fd9fb321f912c184d00721b0bc683a1cb4223a37a9ac4250fad20b4d512343c1",
+      "inventoryCount": 56
     },
     {
       "path": "src/content/frDocs/placeholder.md",
       "sha256": "a9a93820fa548f2e16ea4172c20349e4c3321bcf27f173d2d9d0794d40d05a5c",
       "bytes": 202,
-      "inventoryDigest": "sha256:fbe75fc51c6b51185c05d7c7d918a38fb05b3969efa37058d9e493e208cd6507",
-      "inventoryCount": 1
+      "inventoryDigest": "sha256:7d966f2fed086950ebbde1f68fc3307b271e685b1b0c21e1d8eb149031d45a23",
+      "inventoryCount": 3
     },
     {
       "path": "src/data/artifacts.json",
@@ -212,6 +289,62 @@
       "bytes": 5192,
       "inventoryDigest": "sha256:96e055c5183949246cb2e847dcc06d3246a9a6f4ca1b8fc8ff4bd042eecae61b",
       "inventoryCount": 24
+    },
+    {
+      "path": "src/layouts/BaseLayout.astro",
+      "sha256": "06990297d1856dd5efe092836037183c395711a2091d28ec8a00dbdb87c71e05",
+      "bytes": 4543,
+      "inventoryDigest": "sha256:c9f844bab45bc16176eee0893ccc6a7fe139e900cb472ff0c6362682ef45db36",
+      "inventoryCount": 1
+    },
+    {
+      "path": "src/layouts/DocLayout.astro",
+      "sha256": "551c2a00cafb393e3fa6bb6d045b23c242d31321f152a3d5b181911dff0ad1f2",
+      "bytes": 5493,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/pages/[locale]/docs/[...slug].astro",
+      "sha256": "89a977dcc57fed954b076260bbdb2b3a842d6877ae79873abb7f577dbc8d74b2",
+      "bytes": 1243,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/pages/[locale]/docs/brand/visual-assets.astro",
+      "sha256": "88febbf0e031b6a88a0d6c59cec4b2180c8f335accb5ff180718a10e5bfb761c",
+      "bytes": 9995,
+      "inventoryDigest": "sha256:ca0e99fce5421e85d773955c0ae819c23316b34d674670636a653dae6a3195a7",
+      "inventoryCount": 3
+    },
+    {
+      "path": "src/pages/[locale]/docs/research/notebooklm-artifacts.astro",
+      "sha256": "73caf3078f275f4453cd3367f1f378dabd9a0f4fae38e6cc097268a13ae291c2",
+      "bytes": 7503,
+      "inventoryDigest": "sha256:a7a0219d2eee5904a88306aa39459b5651f107a79edcae4b0918b29c60e52914",
+      "inventoryCount": 2
+    },
+    {
+      "path": "src/pages/[locale]/index.astro",
+      "sha256": "3895ac1d7b589911ff1d6db5e5cdf6909eee57bdbb59cad9cf837495de5bff05",
+      "bytes": 313,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/pages/docs/[...slug].astro",
+      "sha256": "b894ebf6246b7a0045a255d7bdce7486fdc944c4b2066c88fc15a3baab201c85",
+      "bytes": 714,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
+    },
+    {
+      "path": "src/pages/index.astro",
+      "sha256": "775d00309af2241d5e23d063a4f90d698cb1d396bb008ec747e99ee5f59eeb4c",
+      "bytes": 349,
+      "inventoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryCount": 0
     }
   ]
 }

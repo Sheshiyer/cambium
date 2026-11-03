@@ -10,6 +10,32 @@ Search a specific historical heading only to resolve a missing fact.
 ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
+## 2026-11-04 approved live rollout; canonical Work still pending
+
+Migration0103 is already applied. Active Worker5f2c5dc7 serves100%; all52bindings
+and runtime settings match retained rollback23cf59d1. See the task continuation
+and WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json. Do not repeat the migration.
+Founder requests Zen ThoughtseedLabs; authentication/direct protected read pass,
+but page ledgerfetch is canceled/offline. Reviewed timeout candidate62836c61
+(founder10s->30s only) passes44checks and awaits separate rollout approval.
+Work proposal, real native join/direction proof, admission and Hermes execution
+remain open. Installed Hermes lacks the coding command; no runner change made.
+
+
+## 2026-11-04 Work/direction source reviewed; live rollout pending
+
+PR428 merged at d571ea92. Continue codex/cambium-real-work-loop-20261104 from
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`. Explicit approved
+Cambium Work source, shared direction drafts/store/native composer and Gate
+visibility are implemented in source. Full2714 tests, Core265(two opt-in skips),
+native43 pass; final Gate delta34checks pass. No live acceptance is implied.
+Exact rollout and Work-intent JSON are prepared. Fresh head11/root and current
+52binding rollback version23cf59d1 verified after founder refreshed login.
+No migration/deployment/Work decision/admission/launch has happened. Installed
+Hermes e3387543 lacks the coding command; Docker exists. Preserve its installed
+source and prepare only the finite admitted capability. Full loop remains open.
+
+
 
 ## 2026-11-04 — IVerif native work-cycle candidate
 

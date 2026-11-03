@@ -80,3 +80,17 @@ extension DirectionsTests {
         XCTAssertEqual(raw["expectedRevision"] as? Int,1);XCTAssertEqual(raw["operationId"] as? String,"update-original");XCTAssertNil(raw["principal"])
     }
 }
+
+extension DirectionsTests {
+    func testActualIverifResultDecodesTheFullSourceLinkedTableWithinTransportBounds() async throws {
+        guard let file = ProcessInfo.processInfo.environment["IVERIF_NATIVE_RESULT_FIXTURE"] else { throw XCTSkip("Requires the TypeScript SQLite cycle result") }
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:URL(fileURLWithPath:file))) as? [String:Any])
+        let admission = try XCTUnwrap(body["admissionRef"] as? String)
+        let expectedRequest = body["requestId"] as? String, expectedAttempt = body["attemptId"] as? String
+        let transport = try DirectionTransport(body)
+        let result = try await client(transport).claimResult(tenant:"cambium",admissionRef:admission)
+        XCTAssertEqual(result.artifact?.claimCount,1192); XCTAssertEqual(result.acceptance,"accepted")
+        XCTAssertTrue(try XCTUnwrap(result.artifact?.markdown).contains("](https://github.com/Sheshiyer/iverif-wiki/blob/1cc03e62"))
+        XCTAssertEqual(result.requestId,expectedRequest);XCTAssertEqual(result.attemptId,expectedAttempt)
+    }
+}

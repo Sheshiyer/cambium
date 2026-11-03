@@ -1,8 +1,8 @@
 {
   "schema": "cambium.iverif.claim-acceptance-verifier.v1",
   "files": {
-    "shared/iverif-claim-proof.ts": "ff601bfb246acb6a52e5ff2c4dbf3a1919330405b36fd1ca1a737efe9e1aaf96",
-    "docs/project-management/iverif-claim-proof-source.v1.json": "3f7c71fecfa96a9575928975e8db5ccded61d99ec9ed89aa91417fb4fbd076fc",
+    "shared/iverif-claim-proof.ts": "1bc4111ade2afd2beb744c9c3aac209e8d845aa5b2ce3e5a9e6de2bdbb91c6bf",
+    "docs/project-management/iverif-claim-proof-source.v1.json": "b4b797e125cfcbdaa01847f781cddd809e201acd94425e6a2b2dcf2cd5461184",
     "bin/operator/quests/iverif-claim-acceptance.mjs": "9bef16b2dda1ef4b1500208fde2e1e2097b53485bee0da77f0e4f9f133943bf5",
     "scripts/iverif-claim-acceptance.test.mjs": "e78f29af179b6347ca45a0a958f982d23c679b95e7a159386306246ffb9525bb",
     "package.json": "3035b4a251bb3cb8c7f932540d5a758cf75cf9c005ceaf0ea620ed9f24196456"

@@ -76,3 +76,23 @@ BEGIN
       )
   ) THEN RAISE(ABORT, 'native_direction_terminal_pins_changed') END;
 END;
+
+-- Close the source-check/commit race for a newly approved execution node.
+-- Retained existing nodes remain historical evidence on later graph commits.
+CREATE TRIGGER IF NOT EXISTS native_iverif_new_task_source_guard
+BEFORE INSERT ON goal_graph_nodes
+WHEN NEW.namespace='founder-direction-execution'
+  AND NOT EXISTS(SELECT 1 FROM goal_graph_nodes WHERE tenant_id=NEW.tenant_id AND node_id=NEW.node_id)
+BEGIN
+  SELECT CASE WHEN NOT EXISTS (
+    SELECT 1 FROM shared_directions d
+    WHERE d.tenant_id=NEW.tenant_id AND d.direction_id=json_extract(NEW.metadata_json,'$.directionId')
+      AND d.revision=json_extract(NEW.metadata_json,'$.directionRevision')
+      AND NOT EXISTS (
+        SELECT 1 FROM json_each(d.document,'$.signalPins') pin
+        LEFT JOIN shared_signals s ON s.tenant_id=d.tenant_id AND s.principal_id=d.principal_id
+          AND s.signal_id=json_extract(pin.value,'$.id')
+        WHERE s.signal_id IS NULL OR s.revision<>json_extract(pin.value,'$.revision')
+      )
+  ) THEN RAISE(ABORT,'native_direction_task_pins_changed') END;
+END;

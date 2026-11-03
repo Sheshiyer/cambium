@@ -200,13 +200,25 @@ final class AppModel {
             } catch { guard token == self.generation else { return }; self.feedback = "Result review could not be confirmed. Check the original result and retry the same request." }
         }
     }
-    func readClaimProofResult() {
+    func readClaimProofResult(admissionRef: String? = nil) {
+        if let admissionRef {
+            guard admissions.contains(where: { $0.admissionRef == admissionRef && $0.workId == "sapling:iverif" && $0.existingRequestId != nil }) else { return }
+            if selectedAdmissionRef != admissionRef { claimProofResult = nil; resultReviewOperationId = UUID().uuidString }
+            selectedAdmissionRef = admissionRef; capability = nil
+        }
         guard !isDemo, let admission = selectedAdmissionRef, selectedWorkID == "sapling:iverif" else { return }
         run("Read claim result") { services, token in
             guard let owner = services as? CambiumOwnerServices else { return }
             do {
                 let result = try await owner.claimProofResult(admissionRef: admission)
-                guard token == self.generation else { return }
+                guard token == self.generation, self.selectedAdmissionRef == admission, self.selectedWorkID == "sapling:iverif" else { return }
+                if let original = self.launch, original.admissionRef == admission {
+                    guard result.requestId == original.requestId, result.attemptId == original.attemptId else { throw SignalError.scope }
+                }
+                if let original = self.admissions.first(where: { $0.admissionRef == admission })?.existingRequestId {
+                    guard result.requestId == original else { throw SignalError.scope }
+                }
+                if self.claimProofResult?.artifact?.digest != result.artifact?.digest { self.resultReviewOperationId = UUID().uuidString }
                 self.claimProofResult = result
                 self.feedback = result.artifact == nil ? "The original attempt has no confirmed result artifact yet." : "Result ready for source and semantic review."
             } catch { guard token == self.generation else { return }; self.feedback = "The original result could not be confirmed. Refresh its status without launching again." }
@@ -315,6 +327,8 @@ final class AppModel {
         let changed = selectedWorkID != id
         selectedWorkID = id
         if changed {
+            claimProofResult = nil
+            resultReviewOperationId = UUID().uuidString
             proposalBinding = services?.proposalBinding(workId: id)
             proposalRefDraft = proposalBinding?.proposalId ?? ""
             review = nil
@@ -393,6 +407,7 @@ final class AppModel {
             feedback = "Admission \(row.admissionRef) is \(row.availability) (\(row.reason)). Only a supported existing reference can be resolved."
             return
         }
+        if selectedAdmissionRef != ref { claimProofResult = nil; resultReviewOperationId = UUID().uuidString }
         selectedAdmissionRef = ref
         capability = nil
     }

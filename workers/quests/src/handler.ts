@@ -5680,6 +5680,14 @@ function nativeRefusal(status: number, error: string): SimpleResponse {
  * founder/tenant; an injected founderDecisionHost and body tenant are never
  * consulted. The access host re-resolves the session before every D1 write.
  */
+async function currentClaimTaskSources(deps:HandlerDeps,task:Record<string,unknown>,context:{tenantId:string;founderId:string}):Promise<boolean> {
+  if(!isRecord(task.intent)||task.intent.schema!==DIRECTION_EXECUTION_SCHEMA)return true;
+  const input=parseClaimProofInput(task.intent.input);if(!input)return false;
+  try{const pinned=await readPinnedDirection(deps,{tenantId:context.tenantId,principal:context.founderId},input.directionId,input.directionRevision);
+    return claimDigest(pinned.direction)===input.directionDigest&&pinned.head.graphDigest===task.expectedHeadDigest;
+  }catch{return false;}
+}
+
 async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const first = await resolveComposedNativeSession(req, deps.nativeSessionHost);
   if (first.kind === 'refused') {
@@ -5699,6 +5707,7 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
         && again.scope.tenantId === scope.tenantId && again.scope.clientId === scope.clientId
         && again.tokenDigest === first.tokenDigest ? scope.founderId : null;
     },
+    validateTaskSources: (task, context) => currentClaimTaskSources(deps,task,context),
     readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
     reviewTask: task => {
       const row = goalGraphIntakeGateRow(task);
@@ -5852,7 +5861,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         const signer = await resolveFounderWebSigner(req, deps);
         return signer.kind === 'founder' ? signer.approverId : null;
       },
-      readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
+      validateTaskSources: (task, context) => currentClaimTaskSources(deps,task,context),
+    readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
       reviewTask: task => {
         const row = goalGraphIntakeGateRow(task);
         return row ? { ...row, founderInspect: goalGraphFounderInspect(task) } : null;

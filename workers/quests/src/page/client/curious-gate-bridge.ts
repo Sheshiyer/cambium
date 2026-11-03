@@ -297,7 +297,7 @@ const CuriousGateBridge = (() => {
       const row = rows.find(item => item.changeDigest === changeDigest);
       if (signer() !== 'access' || state !== 'read' || !row || inflight.has(changeDigest)) return result(false,'blocked','Canonical review is unavailable.');
       try {
-        const sessionResponse = await fetch('/v1/founder/session',{signal,method:'GET',credentials:'same-origin',redirect:'error',headers:{'x-cambium-founder-web':'1'}});
+        const sessionResponse = await fetch('/v1/founder/session',{method:'GET',credentials:'same-origin',redirect:'error',headers:{'x-cambium-founder-web':'1'}});
         const session = await sessionResponse.json();
         if (!sessionResponse.ok || session.writerAuthority !== false || typeof session.founderId !== 'string' || !session.founderId || !Array.isArray(session.tenantIds)) throw new Error('Founder session unavailable. Sign in with an enrolled founder; the owner must configure tenant admission.');
         sessionLabel = 'Founder ' + session.founderId + (session.enrolled ? ' · enrolled' : ' · enrollment required') + (session.canonicalReady ? '' : ' · runtime configuration required');

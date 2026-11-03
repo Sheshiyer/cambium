@@ -14,7 +14,7 @@ export const CLAIM_POLICY = Object.freeze({
   schema: 'cambium.iverif.claim-proof-policy.v1', command: 'iverif.claim-proof.review',
   workObjectId: 'sapling:iverif', loadoutId: 'loadout:iverif-claim-proof', clusterId: 'cluster:iverif-claim-proof',
   sourceManifestDigest: claimDigest(manifest), modelPool: 'noesis-free', paidFallback: false,
-  executor: 'conservative-source-inventory-v1', timeoutMs: 120000, maxSourceBytes: 524288,
+  executor: 'conservative-source-inventory-v2', timeoutMs: 120000, maxSourceBytes: 524288,
   maxClaims: 4096, maxArtifactBytes: 2097152, attempts: 1, automaticRetries: false,
   budget: {modelCalls:0,incrementalSpend:0,currency:'USD'},
   stopConditions: ['source or manifest digest mismatch','expired or revoked admission','changed graph, direction or signal revision','lost execution fence','source or artifact byte limit','timeout','unconfirmed immutable artifact upload'],
@@ -61,33 +61,61 @@ export interface ClaimProofArtifact {
 }
 /** The reviewed task inventories source assertions; it never verifies a product claim from copy. */
 export function inventoryClaimSource(path: string, text: string): ClaimProofRow[] {
-  let frontmatter = false, fence = false;
+  let frontmatter = false, fence = false, codeStyle = false;
+  const code = /\.(?:astro|ts)$/.test(path);
+  const sensitive = /compli|certif|GDPR|SOC\s?2|ISO\s?27001|encrypt|AES.?256|secur|authenticat|SAML|OAuth|DPA|residen|SLA|uptime|24\/7|\d\s*%|\d\s*ms|processing time|audit/i;
+  const candidateText = (value:string) => value.length >= 20 && /\s/.test(value) || sensitive.test(value);
   return text.split(/\r?\n/).flatMap((line, index) => {
-    if (index === 0 && line.trim() === '---') { frontmatter = true; return []; }
-    if (frontmatter) { if (line.trim() === '---') frontmatter = false; return []; }
-    if (/^\s*```/.test(line)) { fence = !fence; return []; }
-    let claim = line.trim();
-    if (path.endsWith('.json')) {
-      const value = /^(?:"(?:[^"\\]|\\.)+"\s*:\s*)?("(?:[^"\\]|\\.)*")\s*,?$/.exec(claim);
-      if (!value) return [];
-      try { claim = JSON.parse(value[1]); } catch { return []; }
-      if (claim.length < 20 || /^https?:\/\//.test(claim) || !/\s/.test(claim) || /\?$/.test(claim)) return [];
+    let candidates: string[] = [];
+    if (code) {
+      if (/<(?:style|script)(?:\s|>)/i.test(line)) codeStyle = true;
+      const skip = codeStyle;
+      if (/<\/(?:style|script)>/i.test(line)) codeStyle = false;
+      if (skip || /^\s*(?:\/\/|<!--|\*)/.test(line)) return [];
+      for (const match of line.matchAll(/(["'`])((?:\\.|(?!\1).)*)\1/g)) {
+        const prefix = line.slice(0, match.index);
+        if (/\b(?:class|style|id|href|src|target|rel|viewBox|d|aria-controls)\s*=\s*$/.test(prefix)) continue;
+        candidates.push(match[2].replace(/\\[nrt]/g, ' ').replace(/\\(["'`\\])/g, '$1'));
+      }
+      if (path.endsWith('.astro')) for (const match of line.matchAll(/>([^<>{}]+)</g)) candidates.push(match[1]);
+      candidates = candidates.map(value => value.trim()).filter(value => candidateText(value) && !/^https?:\/\//.test(value) && !value.includes('${'));
+    } else {
+      if (index === 0 && line.trim() === '---') { frontmatter = true; return []; }
+      if (frontmatter) {
+        if (line.trim() === '---') { frontmatter = false; return []; }
+        const field = /^\s*(?:title|description|summary):\s*["']?(.+?)["']?\s*$/.exec(line);
+        if (!field || !candidateText(field[1])) return [];
+        candidates = [field[1]];
+      } else {
+        if (/^\s*```/.test(line)) { fence = !fence; return []; }
+        let claim = line.trim();
+        if (path.endsWith('.json')) {
+          const value = /^(?:"(?:[^"\\]|\\.)+"\s*:\s*)?("(?:[^"\\]|\\.)*")\s*,?$/.exec(claim);
+          if (!value) return [];
+          try { claim = JSON.parse(value[1]); } catch { return []; }
+          if (!candidateText(claim) || /^https?:\/\//.test(claim) || /\?$/.test(claim)) return [];
+        }
+        if (fence || !claim || /^(?:<!--|---+$|\|[\s:|-]+\|?$)/.test(claim)) return [];
+        claim = claim.replace(/^#{1,6}\s+/, ''); candidates = [claim];
+      }
     }
-    if (fence || !claim || /^(?:#{1,6}\s|<!--|---+$|\|[\s:|-]+\|?$)/.test(claim)) return [];
-    const refs = [...claim.matchAll(/https:\/\/[^\s<>"')\]]+/g)].map(match => match[0]);
-    const highStakes = /compli|certif|GDPR|SOC\s?2|ISO\s?27001|encrypt|residen|SLA|uptime|\d\s*%|\d\s*ms|processing time|audit/i.test(claim);
-    const sourceLine = index + 1;
-    return [{ id: `claim_${claimDigest({path,sourceLine,claim}).slice(7,31)}`, claim, sourcePath: path, sourceLine,
-      sourceRef: `https://github.com/${CLAIM_SOURCE.repository}/blob/${CLAIM_SOURCE.commit}/${path.split('/').map(encodeURIComponent).join('/')}#L${sourceLine}`,
-      evidenceRefs: refs, classification: highStakes ? 'blocked' as const : 'pending' as const,
-      rationale: highStakes ? 'Source assertion requires independent product evidence; no compliance or performance proof is established.' : 'Source-linked candidate awaiting evidence and founder review; links have not been authenticated as supporting proof.' }];
+    return [...new Set(candidates)].map(claim => {
+      const refs = [...claim.matchAll(/https:\/\/[^\s<>"')\]]+/g)].map(match => match[0]);
+      const highStakes = sensitive.test(claim);
+      const sourceLine = index + 1;
+      return { id: `claim_${claimDigest({path,sourceLine,claim}).slice(7,31)}`, claim, sourcePath: path, sourceLine,
+        sourceRef: `https://github.com/${CLAIM_SOURCE.repository}/blob/${CLAIM_SOURCE.commit}/${path.split('/').map(encodeURIComponent).join('/')}#L${sourceLine}`,
+        evidenceRefs: refs, classification: highStakes ? 'blocked' as const : 'pending' as const,
+        rationale: highStakes ? 'Source assertion requires independent product evidence; no compliance or performance proof is established.' : 'Source-linked candidate awaiting evidence and founder review; links have not been authenticated as supporting proof.' };
+    });
   });
 }
 export function renderClaimsMarkdown(rows: readonly ClaimProofRow[]): string {
   const escape = (value: string) => value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\|/g,'\\|').replace(/[\r\n]+/g,' ');
+  const url = (value: string) => value.replace(/[\\()[\]| <>]/g, character => encodeURIComponent(character));
   return '# IVerif claim-evidence review\n\nSource assertions remain candidates. Product compliance, performance, promotion and publication are not established.\n\n'
     + '| Claim | Classification | Source | Evidence and rationale |\n| --- | --- | --- | --- |\n'
-    + rows.map(row => `| ${escape(row.claim)} | ${row.classification} | ${escape(row.sourcePath)}:${row.sourceLine} | ${escape(row.rationale)} |`).join('\n')+'\n';
+    + rows.map(row => `| ${escape(row.claim)} | ${row.classification} | [${escape(row.sourcePath)}:${row.sourceLine}](${url(row.sourceRef)}) | ${row.evidenceRefs.map((ref,index)=>`[reference ${index+1}](${url(ref)})`).join(' ')} ${escape(row.rationale)} |`).join('\n')+'\n';
 }
 export function validateClaimArtifact(value: unknown, input: ClaimProofInput): value is ClaimProofArtifact {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;

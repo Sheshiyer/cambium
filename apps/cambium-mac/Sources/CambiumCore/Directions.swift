@@ -174,8 +174,13 @@ public struct DirectionHTTPClient: Sendable {
         let (data, context) = try await request("GET", tenant: tenant, path: "/v1/native/work/result", query: [URLQueryItem(name:"admissionRef",value:admissionRef)])
         let result = try JSONDecoder().decode(ClaimProofResult.self, from: data)
         guard result.schema == "cambium.iverif.claim-result.v1", result.tenantId == context.tenantId, result.workId == "sapling:iverif", result.admissionRef == admissionRef,
-              ["queued","running","succeeded","failed"].contains(result.execution) else { throw SignalError.scope }
-        if let artifact = result.artifact { guard artifact.digest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil, artifact.claimCount > 0, artifact.claimCount <= 4096, artifact.markdown.utf8.count < HTTPLimits.maxResponseBytes else { throw SignalError.invalid } }
+              ["queued","running","succeeded","failed"].contains(result.execution),
+              ["awaiting-founder-and-owner-review","accepted","review-required"].contains(result.acceptance),
+              Self.identifier(result.requestId), Self.identifier(result.attemptId), Self.identifier(result.taskId),
+              result.inputDigest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil else { throw SignalError.scope }
+        if let artifact = result.artifact { guard artifact.digest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil,
+            artifact.sourceManifestDigest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil,
+            artifact.claimCount > 0, artifact.claimCount <= 4096, artifact.markdown.utf8.count < HTTPLimits.maxResponseBytes else { throw SignalError.invalid } }
         return result
     }
     private func request(_ method: String, tenant: String, body: Data? = nil, path: String? = nil, workFilter: String? = nil, query: [URLQueryItem] = []) async throws -> (Data, AuthenticatedReaderContext) {
