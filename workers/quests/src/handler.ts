@@ -3421,7 +3421,13 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       : (typeof head.committedAt === 'string' && fabricTimestampMs(head.committedAt) !== null
         ? head.committedAt
         : '1970-01-01T00:00:00.000Z');
-    const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
+    // Older real ledgers can have a current graph/catalog without execution
+    // facts. Keep that absence visible instead of inventing an empty source or
+    // suppressing the independently authoritative graph and portfolio.
+    const execution: ReturnType<typeof adaptQuestExecutionFacts> = fabricFacts == null
+      ? { nodes: [], edges: [], gaps: [{ gapId: 'gap-execution-facts-source-missing', kind: 'missing-source',
+          subjectId: null, detail: 'Execution facts are unavailable; no execution nodes or receipts were inferred.', evidenceRef: null }] }
+      : adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
     const taskReconciliation = reconcileFabricTaskNodes(goalGraphFabricNodes, execution.nodes);
     entries.push(...taskReconciliation.nodes);
     const mergedEdges: FabricEdge[] = [...goalGraphAuthority.edges, ...execution.edges].filter((edge) => (

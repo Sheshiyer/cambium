@@ -521,6 +521,24 @@ function assertAuthorityReason(result: { status: number; json: any; raw: string 
   assert.equal(result.raw.includes(leaked), false);
 }
 
+test('a ledger without execution facts still serves its graph with an explicit source gap', async () => {
+  const result = await authorityFailure((deps) => {
+    const read = deps.kv.get.bind(deps.kv);
+    deps.kv.get = async (key) => {
+      const raw = await read(key);
+      if (typeof raw !== 'string') return raw;
+      const ledger = JSON.parse(raw);
+      delete ledger.fabricFacts;
+      return JSON.stringify(ledger);
+    };
+  });
+  assert.equal(result.status, 200);
+  assert.ok(result.json.projection.nodes.length > 0);
+  assert.ok(result.json.projection.gaps.some((gap: any) => gap.gapId === 'gap-execution-facts-source-missing' && gap.kind === 'missing-source'));
+  assert.equal(result.json.projection.nodes.some((node: any) => node.kind === 'run' || node.kind === 'receipt'), false);
+  assert.equal(result.json.projection.readOnly, true);
+});
+
 test('mission fabric authority failures name the stage and omit the exception', async () => {
   const head = await authorityFailure((deps) => {
     deps.goalGraphStore!.readHead = async () => { throw new Error('head-read-secret'); };
