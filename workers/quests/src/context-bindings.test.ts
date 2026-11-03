@@ -143,9 +143,9 @@ test('worker routine knowledge ignores legacy R2 bindings when GitHub is not con
   const stored = await projectionEnvelope();
   const response = await worker.fetch(new Request(
     'https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest',
-    { headers: { authorization: 'Bearer context-token' } },
+    { headers: { authorization: 'Bearer ctx-canary' } },
   ), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ROUTE_TOKEN: 'ctx-canary',
     CONTEXT_ALLOWED_TENANTS: 'cambium',
     CONTEXT_PROJECTIONS: {
       get: async (key: string) => {
@@ -174,12 +174,12 @@ test('worker accepts authenticated context projection writes', async () => {
   const response = await worker.fetch(new Request('https://worker.local/v1/context/projections', {
     method: 'POST',
     headers: {
-      authorization: 'Bearer projection-token',
+      authorization: 'Bearer proj-canary',
       'content-type': 'application/json',
     },
     body: JSON.stringify(body),
   }), fakeWorkerEnv({
-    CONTEXT_PROJECTION_WRITE_TOKEN: 'projection-token',
+    CONTEXT_PROJECTION_WRITE_TOKEN: 'proj-canary',
     CONTEXT_PROJECTIONS: {
       get: async () => null,
       put: async (key: string, value: Uint8Array, options: unknown) => {
@@ -562,7 +562,7 @@ test('provider embedder posts to /embeddings with existing provider key and pars
   let requestInit: RequestInit | undefined;
   const embed = createProviderEmbedder({
     provider: {
-      apiKey: 'provider-key',
+      apiKey: 'mock-key',
       baseUrl: 'https://integrate.api.nvidia.com/v1/',
     },
     model: 'nvidia/nv-embedqa-e5-v5',
@@ -581,7 +581,7 @@ test('provider embedder posts to /embeddings with existing provider key and pars
 
   assert.equal(requestUrl, 'https://integrate.api.nvidia.com/v1/embeddings');
   assert.equal(requestInit?.method, 'POST');
-  assert.equal((requestInit?.headers as Record<string, string>).authorization, 'Bearer provider-key');
+  assert.equal((requestInit?.headers as Record<string, string>).authorization, 'Bearer mock-key');
   assert.deepEqual(JSON.parse(String(requestInit?.body)), {
     model: 'nvidia/nv-embedqa-e5-v5',
     input: ['bounded context query'],
@@ -602,9 +602,9 @@ test('worker runtime preserves query params while refusing legacy R2 reads', asy
   const calls: string[] = [];
   const stored = await projectionEnvelope();
   const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
-    headers: { authorization: 'Bearer context-token' },
+    headers: { authorization: 'Bearer ctx-canary' },
   }), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ROUTE_TOKEN: 'ctx-canary',
     CONTEXT_ALLOWED_TENANTS: 'cambium',
     CONTEXT_PROJECTIONS: {
       get: async (key: string) => {
@@ -624,7 +624,7 @@ test('worker runtime preserves query params while refusing legacy R2 reads', asy
 test('worker rejects unauthenticated weekly report before any projection read', async () => {
   let called = false;
   const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=weekly-client-report'), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ROUTE_TOKEN: 'ctx-canary',
     CONTEXT_ALLOWED_TENANTS: 'cambium',
     CONTEXT_ROUTINE_ALLOWLIST_JSON: JSON.stringify({
       'weekly-client-report': [{
@@ -649,9 +649,9 @@ test('worker rejects unauthenticated weekly report before any projection read', 
 test('weekly-only runtime configuration preserves daily standup blocked defaults', async () => {
   let called = false;
   const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
-    headers: { authorization: 'Bearer context-token' },
+    headers: { authorization: 'Bearer ctx-canary' },
   }), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ROUTE_TOKEN: 'ctx-canary',
     CONTEXT_ALLOWED_TENANTS: 'cambium',
     CONTEXT_ROUTINE_ALLOWLIST_JSON: JSON.stringify({
       'weekly-client-report': [{
@@ -678,9 +678,9 @@ test('weekly-only runtime configuration preserves daily standup blocked defaults
 
 test('worker runtime exposes an empty fail-closed knowledge surface without GitHub configuration', async () => {
   const health = await worker.fetch(new Request('https://worker.local/v1/context/health', {
-    headers: { authorization: 'Bearer context-token' },
+    headers: { authorization: 'Bearer ctx-canary' },
   }), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ROUTE_TOKEN: 'ctx-canary',
     CONTEXT_ALLOWED_TENANTS: 'cambium',
   }) as any);
 
@@ -689,9 +689,9 @@ test('worker runtime exposes an empty fail-closed knowledge surface without GitH
   assert.equal(healthPayload.capabilities.routineSnapshot, true);
 
   const snapshot = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
-    headers: { authorization: 'Bearer context-token' },
+    headers: { authorization: 'Bearer ctx-canary' },
   }), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ROUTE_TOKEN: 'ctx-canary',
     CONTEXT_ALLOWED_TENANTS: 'cambium',
   }) as any);
 
@@ -703,9 +703,9 @@ test('worker runtime exposes an empty fail-closed knowledge surface without GitH
 test('worker runtime fails closed without explicit context tenant policy', async () => {
   let called = false;
   const response = await worker.fetch(new Request('https://worker.local/v1/context/routine-snapshot?tenant=cambium&routine=daily-standup-digest', {
-    headers: { authorization: 'Bearer context-token' },
+    headers: { authorization: 'Bearer ctx-canary' },
   }), fakeWorkerEnv({
-    CONTEXT_ROUTE_TOKEN: 'context-token',
+    CONTEXT_ROUTE_TOKEN: 'ctx-canary',
     CONTEXT_PROJECTIONS: {
       get: async () => {
         called = true;
