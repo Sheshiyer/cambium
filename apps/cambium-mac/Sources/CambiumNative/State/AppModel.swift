@@ -14,6 +14,7 @@ import struct CambiumCore.Signal
 import struct CambiumCore.SignalCapture
 import struct CambiumCore.SignalUpdate
 import enum CambiumCore.SignalError
+import enum CambiumCore.CanonicalTimestamp
 
 struct InboxDraft {
     var selected: Signal?
@@ -116,6 +117,7 @@ final class AppModel {
     private var services: (any OwnerServices)?
     private var generation: UInt64 = 0
     private var browser: (any NativeBrowserPresenting)?
+    private var ownerInvalidation: Task<Void, Never>?
 
     static var launchMode: LaunchMode {
         LaunchMode.current == .demo || CommandLine.arguments.contains("--demo") ? .demo : .standard
@@ -142,6 +144,21 @@ final class AppModel {
     }
 
     var isDemo: Bool { mode == .demo }
+    func hasCurrentSession(at date: Date = Date()) -> Bool {
+        guard let session, let expiry = CanonicalTimestamp.parse(session.expiresAt) else { return false }
+        return expiry > date
+    }
+
+    /// A deliberate entry point from the main app chrome. Applying the
+    /// reviewed profile alone never opens a browser; this action does.
+    func beginSignIn() {
+        open(.connections)
+        guard !isDemo, !loading else { return }
+        if configuration == nil { applyConfiguration() }
+        guard configuration != nil else { return }
+        feedback = "Opening secure browser sign-in."
+        signIn()
+    }
     var supportsReject: Bool { services?.supportsReject ?? false }
     var replayClock: String? { services?.replayClock }
     var julyProposalExampleId: String? { services?.julyProposalExampleId }
@@ -285,8 +302,8 @@ final class AppModel {
 
     // MARK: Mode
 
-    func enterDemo() { load(.demo); feedback = "Opened the demo. It replays source fixtures through the real coordinators." }
-    func leaveDemo() { load(.standard); feedback = "Left the demo. Standard mode stays unconfigured until an owner is supplied." }
+    func enterDemo() { load(.demo); feedback = "Demo opened. Using sample data." }
+    func leaveDemo() { load(.standard); feedback = "Demo closed." }
 
     func applyConfiguration() {
         switch OwnerConfiguration.validate(ownerURL: ownerURLDraft, tenant: tenantDraft, clientId: clientIDDraft, redirect: redirectDraft) {
@@ -294,7 +311,7 @@ final class AppModel {
             configuration = value
             configurationProblem = nil
             load(.standard)
-            feedback = "Owner configuration applied for this session. Sign in when you are ready. Nothing was contacted."
+            feedback = "Connection settings saved."
         case .failure(let problem):
             configuration = nil
             configurationProblem = problem.rawValue
@@ -349,7 +366,11 @@ final class AppModel {
             services = CambiumOwnerServices.standard(configuration: configuration, browser: browser)
         }
         adopt(services)
-        Task { await previous?.invalidate() }
+        let earlierInvalidation = ownerInvalidation
+        ownerInvalidation = Task {
+            await earlierInvalidation?.value
+            await previous?.invalidate()
+        }
         let token = generation
         Task { await refresh(token) }
     }
@@ -462,12 +483,16 @@ final class AppModel {
 
     func signIn() {
         run("Sign-in") { services, token in
+            // Old and new owners share one browser adapter. Finish the old
+            // owner's cancellation before starting this presentation.
+            await self.ownerInvalidation?.value
+            guard token == self.generation else { return }
             let result = await services.signIn()
             guard token == self.generation else { return }
             switch result {
             case .success(let signed):
                 self.session = signed
-                self.feedback = "Signed in as \(signed.founderId) for \(signed.tenantId)."
+                self.feedback = "Signed in."
                 await self.refresh(self.generation)
             case .failure(let failure):
                 self.issue = failure
@@ -499,7 +524,7 @@ final class AppModel {
         pendingLaunch = []
         loading = false
         snapshot = isDemo ? DemoData.snapshot : Self.emptySnapshot
-        feedback = "Signed out. Pending results from the previous session will not be shown."
+        feedback = "Signed out."
         _ = token
         Task { await services?.signOut() }
     }
