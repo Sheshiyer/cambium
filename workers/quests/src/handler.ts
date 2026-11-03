@@ -3392,14 +3392,16 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         entries.push(entry);
       }
     }
-    // A Work source must come from a coherent, committed graph, not a proposal
-    // or an interleaving of nodes from one head and the digest from another.
-    const confirmedHead = await deps.goalGraphStore.readHead(tenant);
-    if (!confirmedHead || confirmedHead.graphDigest !== head.graphDigest || confirmedHead.graphVersion !== head.graphVersion
-        || makeGoalGraphHead(tenant, nodes, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) {
-      return json(503, { error: 'goal_graph_read_unconfirmed' });
+    // The new Work source must be read from its coherent committed graph.
+    // Legacy Task projections retain their existing read contract.
+    const operationalWorks = adaptOperationalWorkSources(nodes.filter(node => node.tenantId === tenant));
+    if (operationalWorks.length) {
+      const confirmedHead = await deps.goalGraphStore.readHead(tenant);
+      if (!confirmedHead || confirmedHead.graphDigest !== head.graphDigest || confirmedHead.graphVersion !== head.graphVersion
+          || makeGoalGraphHead(tenant, nodes, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) {
+        return json(503, { error: 'goal_graph_read_unconfirmed' });
+      }
     }
-    const operationalWorks = adaptOperationalWorkSources(nodes);
     if (operationalWorks.some(work => work.kind === 'work' && entries.some(entry => 'kind' in entry && entry.kind === 'work' && entry.value.workId === work.value.workId))) {
       return json(503, { error: 'operational_work_source_conflict' });
     }

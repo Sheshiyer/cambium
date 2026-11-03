@@ -17434,6 +17434,15 @@ test('operational Work intake uses canonical approval before becoming a Work sou
   const decision=await h.call('decision',canonicalDecision(review)); assert.equal(decision.status,200,decision.body);
   const sources=adaptOperationalWorkSources(await h.deps.goalGraphStore.readNodes('cambium'));
   assert.equal(sources.length,1);assert.equal(sources[0].value.workId,'sapling:cambium');
+  const nativeSessionHost:any={deps:{ownerOrigin:'https://cambium.test',now:h.deps.now,store:{readSession:async()=>({founderId:'founder-1',tenantId:'cambium',clientId:'client-1',expiresAt:'2099-01-01T00:00:00.000Z'})},currentRole:async()=>'founder',enrolledTenants:async()=>['cambium']},client:()=>({})};
+  const fabricDeps:any={...h.deps,nativeSessionHost,missionFabricTenants:['cambium'],branchMapReceiptStore:{listReceipts:async()=>[]}};
+  const readFabric=()=>handle(req('GET','/v1/mission-fabric/cambium',{headers:{host:'cambium.test',authorization:'Bearer '+'cns1_'+'0'.repeat(43)}}),fabricDeps);
+  const fabric=await readFabric();assert.equal(fabric.status,200,fabric.body);
+  assert.ok(body(fabric).projection.nodes.some((node:any)=>node.kind==='work'&&node.value.workId==='sapling:cambium'));
+  const originalRead=fabricDeps.goalGraphStore.readHead.bind(fabricDeps.goalGraphStore);let reads=0;
+  fabricDeps.goalGraphStore={...fabricDeps.goalGraphStore,readNodes:h.deps.goalGraphStore.readNodes.bind(h.deps.goalGraphStore),readHead:async(tenant:string)=>{const head=await originalRead(tenant);return ++reads===1?head:{...head,graphDigest:'a'.repeat(64)};}};
+  assert.equal((await readFabric()).status,503,'torn operational Work authority must refuse');
+
   const replay=await h.call('intake',raw);assert.equal(body(replay).proposalId,body(intake).proposalId);
   const changed=await h.call('intake',{...raw,goals:[{...raw.goals[0],owner:'other'}]});assert.equal(changed.status,409);
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n,1);
