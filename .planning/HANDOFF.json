@@ -2,7 +2,7 @@
   "schema": "temperance.handoff.v2",
   "updated": "2026-11-03T18:05:01.205062+00:00",
   "status": "combined-source-ready-upload-held",
-  "active_task": "Combined department/native source prepared; version82 preserved",
+  "active_task": "Combined department/native source prepared through native version83 diagnostics; no traffic action",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -248,7 +248,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Review the combined source and52-binding config in docs/plans/department-pilot/NATIVE-RECONCILIATION.md. It is not uploaded. Preserve version82; a new exact upload approval and later separate traffic approval are required.",
+  "next_action": "Review the combined source and52-binding config in docs/plans/department-pilot/NATIVE-RECONCILIATION.md. No new upload is authorized. Native release advanced independently to version83; preserve current native capabilities and refresh drift before the next exact upload/traffic gates.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -436,17 +436,16 @@
       "handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
       "verified_live_head": 11,
       "live_head_digest": "68d3c34c2dd54ee2351e063bc0dd54bb468d8164550bd3af2c8cc10502d3e32f",
-      "serving_version": "323f4587-7066-4c89-b7db-d21c12493d7a",
+      "serving_version": "9b7663fe-5f6b-43d8-b74b-485a085bfbc0",
       "accepted_daily_work": "unavailable from actual owner sources",
       "kpi_measurements": "twelve unavailable; no complete owner cohort reader",
       "gate": "new exact combined-source/config upload approval; separate traffic gate after uploaded-version readback",
       "execution_granted": false,
-      "traffic_unchanged": true,
       "serving_percentage": 100,
       "original_department_source": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
       "requested_traffic_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
-      "observed_serving_version": "323f4587-7066-4c89-b7db-d21c12493d7a",
-      "observed_serving_version_number": 82,
+      "observed_serving_version": "9b7663fe-5f6b-43d8-b74b-485a085bfbc0",
+      "observed_serving_version_number": 83,
       "observed_binding_count": 52,
       "compatibility_branch": "codex/department-native-reconcile-20261103",
       "compatibility_handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
@@ -455,20 +454,24 @@
       "rollback_requested_by_owner": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
       "original_department_source_commit": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
       "original_uploaded_department_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
-      "native_owner_source_commit": "ab94d63c7db8572c3743c1cb8c3d69221ba0f053",
+      "native_owner_source_commit": "d113d8ab193e2d00aaa1a90d91682d0acaab95ea",
       "serving_binding_count": 52,
       "owner_choice": "preserve version82 and prepare combined source",
       "version80_promotion_superseded": true,
       "combined_candidate_uploaded": false,
       "combined_candidate_upload_authorized": false,
       "local_verification": {
-        "focused_node_tests": "510/510",
+        "focused_node_tests": "559/559 after version83 diagnostics",
         "native_identity_swift_tests": "47/47",
-        "full_node_tests": "2690/2693; three baseline failures",
         "typecheck": "passed",
-        "bundle_parity": "passed",
-        "dry_run": "passed; no upload"
-      }
+        "bundle_parity": "passed; department frontend unchanged",
+        "dry_run": "passed; no upload",
+        "full_node_tests": "2690/2693 after version83 diagnostic delta; same three baseline failures"
+      },
+      "native_browser_alias_owner_commit": "ab94d63c7db8572c3743c1cb8c3d69221ba0f053",
+      "serving_version_number": 83,
+      "serving_deployment_id": "1a902e7a-c1b0-4bd2-a6b8-7c1d58957516",
+      "latest_observation_ref": "artifact:departmental-live-integration-20261103/promote-version80-20261103/serving-readback-latest.json"
     }
   }
 }

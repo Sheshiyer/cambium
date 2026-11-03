@@ -1,6 +1,6 @@
 // Local combined review candidate only; no upload or traffic authority.
-// Reconciles department source fcbb68f9 with native serving source ab94d63c.
-// Inherits the 52 already-serving bindings observed on version82 / 323f4587-7066-4c89-b7db-d21c12493d7a.
+// Reconciles department source fcbb68f9 with native serving source d113d8ab.
+// Inherits the 52 already-serving bindings observed on version83 / 9b7663fe-5f6b-43d8-b74b-485a085bfbc0.
 // Re-read live parity before any separately approved upload.
 {
   "name": "cambium-quests",
