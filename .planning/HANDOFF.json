@@ -560,9 +560,11 @@
       "source_commit": "1cc03e62fbfb32ba21c98ba81ac5a6883d676d2a",
       "issue": "https://github.com/Sheshiyer/iverif-wiki/issues/91",
       "serving_observation": {
-        "version": 98,
-        "id": "2971a905-f6af-4df4-8b1b-985d0df1af20",
-        "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+        "version": 99,
+        "id": "57704696-3986-4414-ba30-4bf2afd90f9a",
+        "source_base": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+        "source_amendment": "approved Cortex J1 wrapper/reader: docs/plans/iverif-native-cycle/release/cortex-j1-preservation.json",
+        "binding_count": 53,
         "traffic_percent": 100
       },
       "decisions": [
@@ -573,7 +575,7 @@
       ],
       "remaining": [
         "exact combined upload and separate traffic approval",
-        "scoped0099+0104 migration approval and fresh recovery check",
+        "scoped0099+0105 migration approval and fresh recovery check",
         "scoped Hermes installation and one-shot execution approval",
         "real founder Work/task/result decisions and admission",
         "native authoritative/foldback acceptance",

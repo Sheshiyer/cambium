@@ -1,9 +1,9 @@
-// Combined candidate: inherit serving version98 bindings, plus one non-secret exact runner member.
+// Combined candidate: inherit serving version99 bindings, plus one non-secret exact runner member.
 // Upload and traffic require separate exact approvals. Global settings and schedules are not changed by this packet.
 {
   "name": "cambium-quests",
   "account_id": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
-  "main": "src/index.ts",
+  "main": "src/cortex-services.ts",
   "compatibility_date": "2026-05-01",
   "compatibility_flags": [
     "nodejs_compat"
@@ -137,6 +137,10 @@
       },
       {
         "name": "MARKETING_CREATE_ACTIVATION",
+        "type": "inherit"
+      },
+      {
+        "name": "MCP_GATE_ADAPTER_TOKEN",
         "type": "inherit"
       },
       {

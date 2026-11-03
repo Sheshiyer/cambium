@@ -19,6 +19,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "files": [
-    "workers/quests/src/index.ts"
+    "workers/quests/src/cloudflare-workers.d.ts",
+    "workers/quests/src/cortex-services.ts"
   ]
 }

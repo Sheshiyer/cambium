@@ -39,7 +39,7 @@ source and prepare only the finite admitted capability. Full loop remains open.
 
 ## 2026-11-04 — IVerif native work-cycle candidate
 
-Continue `iverif_native_work_cycle` in `.planning/HANDOFF.json` and `.planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md`. Combined source includes reviewed department readers, v95 native Work/directions and v98 Work-form/read fixes. Fresh serving98 supersedes the earlier95/96 observation. Strict Worker/source, native and synthetic end-to-end checks are separate from real hosted/founder/device acceptance. Upload96 approval is not reused. No traffic, migration, Hermes activation, provider or credential change was made. Local owner readers remain manual; GSD/KPI holds remain.
+Continue `iverif_native_work_cycle` in `.planning/HANDOFF.json` and `.planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md`. Combined source includes reviewed department readers, v95 native Work/directions and v98 Work-form/read fixes. Serving99 supersedes the earlier95/96/98 observations; its approved Cortex J1 private reader and added secret binding are preserved. The candidate inherits53 bindings and adds only the exact IVerif member, for54 total. Scoped schema is0099 plus0105; the concurrent code-pilot0104 is excluded. Strict Worker/source, native and synthetic end-to-end checks are separate from real hosted/founder/device acceptance. Upload96 approval is not reused. No traffic, migration, Hermes activation, provider or credential change was made. Local owner readers remain manual; GSD/KPI holds remain.
 
 
 ## 2026-11-04 native UI cleanup
