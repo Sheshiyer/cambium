@@ -67,7 +67,7 @@ export async function sharedSignalsHttp(req: SimpleRequest, deps: HandlerDeps, c
     const update = req.method === 'PUT';
     if (!object(payload) || !exact(payload, update ? ['schema', 'operationId', 'expectedRevision', 'title', 'body', 'projectIds'] : ['schema', 'operationId', 'title', 'body', 'source', 'projectIds'])
       || payload.schema !== (update ? 'cambium.signal-update.v1' : 'cambium.signal-capture.v1') || !text(payload.operationId, 128)
-      || !text(payload.title, 200) || typeof payload.body !== 'string' || payload.body.length > 16000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(payload.body)
+      || !text(payload.title, 200) || !payload.title.trim() || typeof payload.body !== 'string' || payload.body.length > 16000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(payload.body)
       || !Array.isArray(payload.projectIds) || payload.projectIds.length > 16 || new Set(payload.projectIds).size !== payload.projectIds.length
       || !payload.projectIds.every((id: unknown) => typeof id === 'string' && text(id, 128))
       || (update && (!Number.isSafeInteger(payload.expectedRevision) || payload.expectedRevision < 1))) return error(400, 'invalid_request');

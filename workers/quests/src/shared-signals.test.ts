@@ -154,3 +154,18 @@ test('missing auth/store, mixed credentials and unsupported native routes refuse
   h.deps.nativeSessionHost = undefined;
   assert.equal((await h.call('GET', '/v1/signals/cambium')).status, 503);
 });
+
+test('shared signal titles reject whitespace without persisting an operation', async () => {
+  const h=setup();
+  for(const [i,title] of [' ', '\u00a0 \u00a0'].entries()) {
+    const rejected=await h.call('POST','/v1/signals/cambium',{...h.capture('blank-'+i),title});
+    assert.equal(rejected.status,400,rejected.body);
+  }
+  assert.equal(Number((h.db.prepare('SELECT count(*) n FROM shared_signal_operations').get() as any).n),0);
+  const saved=parsed(await h.call('POST','/v1/signals/cambium',h.capture('valid'))).signal;
+  const rejected=await h.call('PUT','/v1/signals/cambium/'+saved.id,{schema:'cambium.signal-update.v1',operationId:'blank-update',expectedRevision:1,title:' ',body:'Retain the existing signal.',projectIds:['sapling:cambium']});
+  assert.equal(rejected.status,400,rejected.body);
+  const read=parsed(await h.call('GET','/v1/signals/cambium/'+saved.id)).signal;
+  assert.equal(read.revision,1);assert.equal(read.title,saved.title);
+  assert.equal(Number((h.db.prepare('SELECT count(*) n FROM shared_signal_operations').get() as any).n),1);
+});
