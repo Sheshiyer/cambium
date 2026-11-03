@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T20:18:08.374128+00:00",
-  "status": "work-direction-deployed-work-gate-read-held",
+  "updated": "2026-11-03T21:16:02.687709+00:00",
+  "status": "founder-read-recovered-work-form-rollout-pending",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -102,20 +102,43 @@
       "hermes_rollout": false,
       "hermes_execution": false,
       "full_operational_loop_accepted": false,
-      "remaining": "Use Zen Thoughtseed Labs profile as explicitly requested. Authentication and direct founder envelope read work, but page ledger fetch has been canceled/offline; current retry in progress. Do not switch browsers or weaken browser security. Work intent is not yet submitted."
+      "remaining": "Historical initial rollout receipt retained. Current live version is founder_read_retry.active_worker_version. Migration0103 already applied. Work not submitted/approved."
+    },
+    "founder_read_retry": {
+      "source": "62836c613fe1329edc634e348471b4531b50db6a",
+      "active_worker_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee",
+      "traffic_percent": 100,
+      "bindings_preserved": 52,
+      "runtime_settings_preserved": true,
+      "owner_approved": true,
+      "live_zen": "Founder signing ready; scoped world read available",
+      "rollback_version": "5f2c5dc7-e57a-47a8-89f3-0f64f6c29841"
+    },
+    "work_form_fix": {
+      "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+      "full_suite": {
+        "tests": 2717,
+        "passed": 2717,
+        "failed": 0
+      },
+      "curious_test": "passed",
+      "six_actual_iab_proofs": "passed",
+      "worker_dry_run": "passed",
+      "independent_review": "no actionable findings",
+      "deployed": false
     }
   },
   "remaining": [
-    "Separately approve/deploy reviewed Work/direction source and additive migration0103 with version23cf59d1 rollback retained",
+    "Separately approve and deploy reviewed frontend operational Work import fix c6948057; no migration; rollback e6c399ab",
     "Canonical founder review/decision on pinned Cambium Work intent; prove native join and real shared direction save",
     "Direction approval and admission producer pinned to revision/source/artifact/policy/budget",
     "Finite Docker-isolated Cambium patch verification capability on installed Hermes, without rolling unrelated newer source",
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Await explicit owner decision on reviewed founder-read timeout candidate62836c61 (10s->30s, no migration). Existing live version5f2c5dc7 and migration0103 are already applied; do not repeat. Use Zen ThoughtseedLabs only, then prepare the pinned Work proposal for a separate canonical founder decision. No Work row, admission or Hermes launch has occurred.",
+  "next_action": "Full2717 tests pass for c6948057; request scoped form-fix rollout approval. After approved deployment use Zen Thoughtseed Labs to prepare pinned Work intent, recheck head and leave canonical founder decision to the owner. Migration0103 and timeout rollout already completed; do not repeat.",
   "holds": [
-    "No graph/ledger/admission write, launch, runner rollout or deployment in this slice",
+    "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
     "Migration 0099 stays source-only until admission and execution owner contracts are ready"
   ],
@@ -138,5 +161,6 @@
     "admitted": false,
     "executed": false
   },
-  "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json"
+  "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json",
+  "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json"
 }

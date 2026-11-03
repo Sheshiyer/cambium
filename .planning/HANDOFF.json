@@ -432,7 +432,7 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "work-direction-deployed-work-gate-read-held",
+      "status": "founder-read-recovered-work-form-rollout-pending",
       "tier": "E5",
       "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
@@ -451,11 +451,12 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Await explicit owner decision on reviewed founder-read timeout candidate62836c61 (10s->30s, no migration). Existing live version5f2c5dc7 and migration0103 are already applied; do not repeat. Use Zen ThoughtseedLabs only, then prepare the pinned Work proposal for a separate canonical founder decision. No Work row, admission or Hermes launch has occurred.",
+      "next_action": "Full2717 tests pass for c6948057; request scoped form-fix rollout approval. After approved deployment use Zen Thoughtseed Labs to prepare pinned Work intent, recheck head and leave canonical founder decision to the owner. Migration0103 and timeout rollout already completed; do not repeat.",
       "ui_diagnostics": "Settings > Advanced > Diagnostics",
       "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
       "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
-      "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json"
+      "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json",
+      "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json"
     }
   }
 }

@@ -5,21 +5,23 @@ implemented, reviewed and deployed; canonical Work decision pending.
 The full signal → direction → approved work → result loop is **not accepted**. Continue this task; do not report the prior
 Inbox test as an execution-loop test.
 
-## Live checkpoint after approved rollout
+## Current live checkpoint
 
-The founder separately approved the scoped rollout. Migration0103 is applied;
-its four schema objects and empty initial store were read back. Worker version
-`5f2c5dc7-e57a-47a8-89f3-0f64f6c29841` serves100% traffic. All52binding
-identities/values and runtime settings match retained rollback23cf59d1.
-See `WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json`. No graph Work decision,
-direction save, admission, Hermes rollout or execution has occurred.
+The separately approved founder-only30second read deadline is deployed as
+`e6c399ab-f2da-479c-9b40-bce6629bdeee` at100%. All52bindings and runtime settings
+match the previous version; rollback is `5f2c5dc7-e57a-47a8-89f3-0f64f6c29841`.
+Zen Thoughtseed Labs now shows scoped source read and **Founder signing ready**.
+Browser security was not changed. Use this profile; do not switch to Chrome.
+Migration0103 was already applied during the initial5f2c rollout; do not repeat.
 
-The founder requests **Zen Thoughtseed Labs profile** for this workflow.
-Authentication and direct `/founder/api/quests/cambium` read succeed (schema1,
-tenantcambium). The world page's ledger fetch has been canceled and reports
-offline; retry is in progress. Browser protection was not changed. Do not keep
-asking for login or switch to Chrome. Submit the pinned intent only through a
-verified founder workflow; never bypass the canonical decision or seed D1 rows.
+The maintained proposal form had a separate old-schema allowlist. Reviewed fix
+`c6948057` accepts the exact operational Work intent while retaining legacy
+bookkeeping. It rebuilds the maintained world bundle and refreshes six actual
+local synthetic desktop/mobile IAB proofs. Curious tests, proof validation and
+Worker dry run pass; full2717tests pass. A separate pinned rollout packet is
+`FOUNDER-WORK-FORM-ROLLOUT-20261104.json`; owner rollout approval is pending.
+Current production still has the old form parser. No Work is submitted/approved,
+no native Work/direction live proof, and no admission or Hermes execution exists.
 
 A finite next coding input is prepared locally on branch
 `codex/cambium-code-pilot-input-20261104`, commit`c4cc221f`, base`d571ea92`:

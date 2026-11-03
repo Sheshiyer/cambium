@@ -11,6 +11,17 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 founder read recovered; Work form fix reviewed
+
+Approved timeout source62836c61 is live as e6c399ab at100%;52bindings/runtime
+preserved, rollback5f2c. Zen ThoughtseedLabs now shows Founder signing ready.
+Migration0103 is already applied. Do not repeat it or the timeout rollout.
+Reviewed form fixc6948057 handles the operational Work schema; local viewport
+proof and focused tests pass, full2717tests pass. Separate form rollout approval
+is pending. Work decision, native join/direction and Hermes execution remain open.
+Use the native_operational_loop continuation and its exact rollout packet.
+
+
 ## 2026-11-04 approved live rollout; canonical Work still pending
 
 Migration0103 is already applied. Active Worker5f2c5dc7 serves100%; all52bindings

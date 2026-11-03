@@ -1,0 +1,30 @@
+{
+  "schema": "cambium.founder-work-form-rollout.v1",
+  "status": "reviewed-awaiting-owner-rollout-approval",
+  "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+  "worker": "cambium-quests",
+  "scope": "Maintained Founder Gate JSON intake accepts exact operational Work intent schema; legacy bookkeeping stays supported. Generated world bundle refreshed.",
+  "migration": null,
+  "preserve_bindings": 52,
+  "preserve_runtime_settings": true,
+  "rollback_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee",
+  "bundle_sha256": "8e0ff70207512ffbd8fac396b5fa61268d599dc428f1ff1272f01ca6cd86d313",
+  "bundle_bytes": 2565770,
+  "review": "Same independent reviewer: no actionable findings.",
+  "verification": {
+    "curious_test": "passed",
+    "viewport": "Six fresh local synthetic IAB JPEGs validated; desktop1280x900 and mobile320x800",
+    "worker_dry_run": "passed",
+    "full_suite": {
+      "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+      "tests": 2717,
+      "passed": 2717,
+      "failed": 0
+    }
+  },
+  "work_proposal_submitted": false,
+  "work_approved": false,
+  "execution_authority_changed": false,
+  "hermes_rollout": false,
+  "recorded_at": "2026-11-03T21:16:02.687709+00:00"
+}

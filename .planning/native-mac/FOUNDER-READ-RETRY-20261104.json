@@ -1,6 +1,6 @@
 {
   "schema": "cambium.founder-read-retry-rollout.v1",
-  "status": "reviewed-awaiting-owner-rollout-approval",
+  "status": "deployed-read-recovered",
   "source": "62836c613fe1329edc634e348471b4531b50db6a",
   "rollback_version": "5f2c5dc7-e57a-47a8-89f3-0f64f6c29841",
   "worker": "cambium-quests",
@@ -14,5 +14,12 @@
   "observed_live_issue": "Zen Labs authentication and direct JSONread work; page-owned ledgerfetch canceled and offline. Root cause and live resolution not yet established.",
   "execution_authority_changed": false,
   "browser_security_changed": false,
-  "hermes_rollout": false
+  "hermes_rollout": false,
+  "owner_rollout_approved": true,
+  "active_worker_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee",
+  "traffic_percent": 100,
+  "bindings_preserved": 52,
+  "runtime_settings_preserved": true,
+  "live_verification": "Zen Thoughtseed Labs shows Source world scoped read available and Founder signing ready after rollout; no Work submitted or approved.",
+  "recorded_at": "2026-11-03T21:16:02.687709+00:00"
 }
