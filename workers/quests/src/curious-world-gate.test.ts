@@ -594,3 +594,16 @@ test('world intake · complete bookkeeping batch is bound into canonical review 
   assert.equal(snapshot.proposals[0].canApprove,true);
   assert.equal(h.requests.filter(r=>r.url.endsWith('/decision')).length,0);
 });
+
+test('world intake · operational Work is visible but cannot approve before exact canonical review', async () => {
+  const listed=row({source:'founder-web-operational-work@v1',version:1,sourceRef:'founder-operational-work:cambium:opaque:work-001'}, {pinnedLoadoutId:null,executionAdmission:[],admissionState:'absent'});
+  const full=canonicalFixture(listed);
+  const changes={nodesToCreate:[{nodeId:'work-source',workObjectId:'sapling:cambium',pinnedLoadoutId:null}],nodesToUpdate:[],nodesToRemove:[]};
+  Object.assign(full.proposal.review,{operationalWorkChanges:changes});
+  full.approveConfirmation=reviewConfirmation(full.proposal,'approved');full.rejectConfirmation=reviewConfirmation(full.proposal,'rejected');
+  const h=harness({initData:'',founderWeb:true,respond:(_body,url)=>({status:200,body:url.endsWith('/proposal')?full:{}})});
+  h.quest(envelope([listed]));assert.equal(h.get().proposals.length,1);assert.equal(h.get().proposals[0].canApprove,false);
+  assert.equal((await h.review()).ok,true);
+  assert.deepEqual(JSON.parse(h.get().proposals[0].canonicalReview).review.operationalWorkChanges,changes);
+  assert.equal(h.get().proposals[0].canApprove,true);assert.equal(h.requests.filter(r=>r.url.endsWith('/decision')).length,0);
+});
