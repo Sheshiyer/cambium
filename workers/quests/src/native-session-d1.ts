@@ -5,7 +5,7 @@
 // matches the code digest, client, exact redirect, the S256 challenge computed
 // from the presented verifier, and an unexpired code. The unique
 // authorization_code_id (migration 0100) makes parallel or replayed exchanges
-// yield at most one session; the loser sees changes = 0 or a unique violation.
+// yield at most one session; the loser sees no returned row or a unique violation.
 // There is no read-then-consume claim. SQL string equality is not described as
 // cryptographic constant-time comparison; credentials are 256-bit random values
 // stored only as SHA-256 digests.
@@ -30,8 +30,9 @@ const isUniqueViolation = (error: unknown) =>
 /**
  * Consent authority on its own table. `consume` is one conditional UPDATE:
  * the row changes only while it is unconsumed, unexpired, and bound to the
- * same intent digest, CSRF digest, founder and request digest. changes = 1 is
- * the only success. A replay or any mismatch writes nothing.
+ * same intent digest, CSRF digest, founder and request digest. Only the row
+ * returned by that UPDATE establishes success; D1 metadata is advisory.
+ * A replay or any mismatch writes nothing.
  */
 export function d1NativeConsentIntentStore(db: GoalGraphD1DatabaseLike): NativeConsentIntentStore {
   return {

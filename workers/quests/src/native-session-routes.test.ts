@@ -259,6 +259,7 @@ test('authorize GET renders consent form with no-store headers and POST returns 
   assert.equal(getRes.status, 200);
   assert.equal(getRes.headers['cache-control'], 'no-store');
   assert.equal(getRes.headers['referrer-policy'], 'same-origin');
+  assert.ok(getRes.headers['content-security-policy'].includes(`form-action 'self' ${REDIRECT};`));
   assert.ok(getRes.headers['set-cookie']?.includes(NATIVE_CONSENT_COOKIE));
   const postRes = await handle(consentPost(getRes), deps);
   assert.equal(postRes.status, 302);

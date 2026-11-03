@@ -558,7 +558,10 @@ ${hidden('tenant', prepared.tenantId)}
     `${NATIVE_CONSENT_COOKIE}=${csrf}`,
     'HttpOnly', 'Secure', 'SameSite=Strict', `Path=${new URL(request.url).pathname}`, 'Max-Age=60',
   ].join('; ');
-  return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'set-cookie': cookie } });
+  // Chrome applies form-action to the POST's redirect as well as its action.
+  // The callback has already matched the registered client URI exactly.
+  const policy = PAGE_HEADERS['content-security-policy'].replace("form-action 'self'", `form-action 'self' ${prepared.redirectUri}`);
+  return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'content-security-policy': policy, 'set-cookie': cookie } });
 }
 
 const CONSENT_FIELDS = ['client_id', 'code_challenge', 'csrf', 'decision', 'intent', 'redirect_uri', 'state', 'tenant'];
