@@ -117,6 +117,7 @@ final class AppModel {
     private var services: (any OwnerServices)?
     private var generation: UInt64 = 0
     private var browser: (any NativeBrowserPresenting)?
+    private var ownerInvalidation: Task<Void, Never>?
 
     static var launchMode: LaunchMode {
         LaunchMode.current == .demo || CommandLine.arguments.contains("--demo") ? .demo : .standard
@@ -155,6 +156,7 @@ final class AppModel {
         guard !isDemo, !loading else { return }
         if configuration == nil { applyConfiguration() }
         guard configuration != nil else { return }
+        feedback = "Opening secure browser sign-in."
         signIn()
     }
     var supportsReject: Bool { services?.supportsReject ?? false }
@@ -364,7 +366,11 @@ final class AppModel {
             services = CambiumOwnerServices.standard(configuration: configuration, browser: browser)
         }
         adopt(services)
-        Task { await previous?.invalidate() }
+        let earlierInvalidation = ownerInvalidation
+        ownerInvalidation = Task {
+            await earlierInvalidation?.value
+            await previous?.invalidate()
+        }
         let token = generation
         Task { await refresh(token) }
     }
@@ -477,6 +483,10 @@ final class AppModel {
 
     func signIn() {
         run("Sign-in") { services, token in
+            // Old and new owners share one browser adapter. Finish the old
+            // owner's cancellation before starting this presentation.
+            await self.ownerInvalidation?.value
+            guard token == self.generation else { return }
             let result = await services.signIn()
             guard token == self.generation else { return }
             switch result {

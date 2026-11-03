@@ -5,11 +5,13 @@ import XCTest
 @MainActor
 private final class CancelingEntryBrowser: NativeBrowserPresenting {
     var calls = 0
+    var events: [String] = []
     func present(_ request: NativeAuthorizationRequest) async -> NativeBrowserResult {
         calls += 1
+        events.append("present")
         return .canceled
     }
-    func cancel() {}
+    func cancel() { events.append("cancel") }
 }
 
 @MainActor
@@ -37,6 +39,7 @@ final class SignInEntryTests: XCTestCase {
         XCTAssertEqual(model.section, .connections)
         XCTAssertEqual(model.configuration?.ownerURL.absoluteString, OwnerConfiguration.mappedOwnerURL)
         XCTAssertEqual(browser.calls, 1)
+        XCTAssertEqual(browser.events.last, "present", "An old owner must not cancel the new browser presentation")
         XCTAssertNil(model.session)
         XCTAssertFalse(model.loading)
     }
