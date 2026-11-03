@@ -59,3 +59,8 @@ Actual version-preview GETs returned the exact generated candidate JS and CSS, n
 Deployment `d27c5b87-57ec-4774-82f8-21a518d23ccb` remains unchanged: **100% on `ef6e0c74-697e-4938-9d15-e0e481c80dbe`**. No traffic assignment, canonical graph write, migration or social action occurred. The source-pilot baseline failures remain recorded, not waived as passing tests. The upload approval is consumed by this exact version; it does not authorize another upload or traffic change.
 
 Attributable receipts: `artifact:departmental-live-integration-20261103/upload-fcbb68f9-20261103/{preflight.json,upload-command-receipt.json,uploaded-version-verification.json,version-preview-readback.json,deployment-after.log}`. A later documentation checkpoint does not change the code/config uploaded from `fcbb68f9`.
+
+
+## Subsequent native-release drift and compatible source
+
+The requested version80 promotion was not executed: production had independently advanced to native version82 with52 bindings, and then version83 with categorical consent diagnostics. The owner chose preserving the native release and preparing a compatible source instead. Continue on `codex/department-native-reconcile-20261103`, source `d6bb69866e50e88aa4efe8e8717d2a0360ee4979`; read that branch's `docs/plans/department-pilot/NATIVE-RECONCILIATION.md`. The concrete combined candidate is unuploaded. Actual outcome and baseline verification are in `artifact:departmental-live-integration-20261103/promote-version80-20261103/combined-source-receipt.json`. Fresh combined upload and later traffic approvals remain separate; no traffic write was made by this task.

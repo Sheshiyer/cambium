@@ -11,6 +11,13 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-03 Continue on native-compatible department branch
+
+- Version80 promotion was not executed after live drift to native52-binding releases. Owner selected preservation and combined source preparation.
+- Continue at d6bb69866e50e88aa4efe8e8717d2a0360ee4979 on codex/department-native-reconcile-20261103; that branch's NATIVE-RECONCILIATION.md and private combined-source receipt own current pickup.559 focused Node and47 Swift identity tests pass; full2690/2693 retains three baseline failures.
+- Latest observed native version83 was preserved; no upload/traffic/schema/graph action by this task. New combined upload and later traffic gates remain held. ef6e0c74 retained as requested historical rollback target.
+
+
 ### 2026-11-03 Department candidate uploaded; traffic held
 
 - Explicit owner approval uploaded source fcbb68f9e11a29922aa65b8f7dedf08601e81844 as version80 / e3750ef4-86dc-4980-a5a2-1b9331120c85, using the reviewed47-binding config and documented baseline failures.
