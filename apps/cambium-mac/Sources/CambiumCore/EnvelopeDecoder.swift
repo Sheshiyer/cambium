@@ -5,7 +5,7 @@ import CoreFoundation
 public enum MissionFabricCaps {
     public static let maxNodes = 512
     public static let maxEdges = 1024
-    public static let maxGaps = 128
+    public static let maxGaps = 256
     public static let maxDisplayChars = 512
     public static let maxCollectionItems = 256
     public static let clockSkewSeconds: TimeInterval = 120

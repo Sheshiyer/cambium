@@ -110,7 +110,7 @@ private struct SidebarView: View {
     @Environment(AppModel.self) private var model
 
     private let groups: [(String, [AppSection])] = [
-        ("Overview", [.canopy, .projects, .work, .trace, .evidence]),
+        ("Overview", [.canopy, .projects, .inbox, .work, .trace, .evidence]),
         ("Decide and run", [.proposal, .launch]),
         ("Sources", [.knowledge, .connections]),
         ("App", [.preferences])
@@ -149,6 +149,8 @@ private struct SidebarFooter: View {
                 Button("Leave demo") { model.leaveDemo() }
                     .controlSize(.small)
                     .accessibilityHint("Returns to standard mode with no data")
+            } else if let session = model.session {
+                StatusChip(text: "Signed in · \(session.tenantId)", tone: .signal)
             } else {
                 StatusChip(text: "Not signed in", tone: .hold)
                 Button("Open demo") { model.enterDemo() }
@@ -177,7 +179,8 @@ private struct ModeStrip: View {
                 Image(systemName: "person.crop.circle.badge.questionmark")
                     .foregroundStyle(Palette.hold)
                     .accessibilityHidden(true)
-                Text("Not signed in. No owner is configured, so there is no live data.")
+                Text(model.session.map { "Signed in to \($0.tenantId). Live reads come from the configured owner." }
+                     ?? (model.configuration == nil ? "No owner is configured. Sign in through Connections to read live data." : "Owner configured. Sign in through Connections to read live data."))
                     .font(.callout)
                     .foregroundStyle(Palette.ink)
                     .lineLimit(2)
@@ -236,6 +239,7 @@ private struct DetailAreaView: View {
                 switch model.section {
                 case .canopy: CanopyView()
                 case .projects: ProjectsView()
+                case .inbox: InboxView()
                 case .work: WorkDossierView()
                 case .trace: TraceView()
                 case .evidence: EvidenceView()

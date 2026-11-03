@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 import CambiumCore
 
 /// Shared Core composition for demo and standard. The demo uses the in-process
@@ -25,6 +26,7 @@ final class CambiumOwnerServices: OwnerServices {
     private let owner: DemoOwnerSimulator?
     private let identity: NativeIdentityController?
     private let discovery: any AdmissionDiscovering
+    private let signals: SignalHTTPClient?
     private var recoveryDirectory: URL?
     private var review: GateReview?
     private var capability: LaunchCapability?
@@ -39,7 +41,7 @@ final class CambiumOwnerServices: OwnerServices {
                  fabricStore: MissionFabricSnapshotStore, knowledgeStore: KnowledgeSnapshotStore,
                  fieldTheory: any FieldTheoryReading, fieldReport: any FieldReportReading,
                  theoryExport: Data?, reportExport: Data?, owner: DemoOwnerSimulator?,
-                 identity: NativeIdentityController?, discovery: any AdmissionDiscovering, recoveryDirectory: URL?) {
+                 identity: NativeIdentityController?, discovery: any AdmissionDiscovering, recoveryDirectory: URL?, signals: SignalHTTPClient?) {
         self.isDemo = isDemo
         self.replayClock = replayClock
         self.supportsReject = supportsReject
@@ -58,6 +60,7 @@ final class CambiumOwnerServices: OwnerServices {
         self.owner = owner
         self.identity = identity
         self.discovery = discovery
+        self.signals = signals
         self.recoveryDirectory = recoveryDirectory
     }
 
@@ -109,7 +112,8 @@ final class CambiumOwnerServices: OwnerServices {
             reportExport: SourceFixtures.verified("knowledge-field-report-demo"),
             owner: owner, identity: nil,
             discovery: AdmissionListing.discovery(baseURL: base, transport: owner, authorizer: authorizer),
-            recoveryDirectory: recoveryDirectory
+            recoveryDirectory: recoveryDirectory,
+            signals: SignalHTTPClient(origin: origin, transport: owner, authorizer: authorizer, sessionProvider: session, clock: clock)
         )
     }
 
@@ -133,9 +137,7 @@ final class CambiumOwnerServices: OwnerServices {
         } ?? UnconfiguredAdmissionDiscovery()
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
-        let recovery = FileRecoveryStore(directory: support
-            .appendingPathComponent("space.thoughtseed.cambium.native.dev", isDirectory: true)
-            .appendingPathComponent("standard-recovery-v1", isDirectory: true))
+        let recovery = FileRecoveryStore(directory: standardRecoveryDirectory(support: support, origin: origin))
         let reader: any MissionFabricReading = (origin.flatMap { origin in
             transport.map { MissionFabricHTTPClient(endpoint: MissionFabricEndpoint(origin: origin), transport: $0,
                                                     authorizer: authorizer, sessionProvider: identity, clock: clock) }
@@ -153,8 +155,53 @@ final class CambiumOwnerServices: OwnerServices {
             knowledgeStore: KnowledgeSnapshotStore(sessionProvider: identity, clock: clock),
             fieldTheory: UnconfiguredFieldTheoryReader(), fieldReport: UnconfiguredFieldReportReader(),
             theoryExport: nil, reportExport: nil, owner: nil, identity: identity,
-            discovery: discovery, recoveryDirectory: nil
+            discovery: discovery, recoveryDirectory: nil,
+            signals: origin.flatMap { origin in transport.map { SignalHTTPClient(origin: origin, transport: $0, authorizer: authorizer, sessionProvider: identity, clock: clock) } }
         )
+    }
+
+    /// Legacy unscoped v1 records remain untouched: their owner cannot be inferred.
+    static func standardRecoveryDirectory(support: URL, origin: HTTPOriginPolicy?) -> URL {
+        let namespace: String
+        if let origin {
+            let endpoint = [origin.scheme, origin.host,
+                            String(origin.explicitPort ?? (origin.scheme == "https" ? 443 : 80)), origin.basePath]
+            let data = try! JSONEncoder().encode(endpoint)
+            namespace = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        } else { namespace = "unconfigured" }
+        return support.appendingPathComponent("space.thoughtseed.cambium.native.dev", isDirectory: true)
+            .appendingPathComponent("standard-recovery-v2", isDirectory: true)
+            .appendingPathComponent(namespace, isDirectory: true)
+    }
+
+    func signalRead(_ id: String) async throws -> SignalResult {
+        guard let signals, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await signals.read(tenant: current.tenantId, id: id)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+
+    func signalList(project: String?, cursor: String? = nil) async throws -> SignalList {
+        guard let signals, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await signals.list(tenant: current.tenantId, projectId: project, cursor: cursor)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func signalCapture(_ value: SignalCapture) async throws -> SignalResult {
+        guard let signals, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await signals.capture(tenant: current.tenantId, value: value)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func signalUpdate(_ id: String, value: SignalUpdate) async throws -> SignalResult {
+        guard let signals, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await signals.update(tenant: current.tenantId, id: id, value: value)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
     }
 
     // MARK: Scope
@@ -711,6 +758,14 @@ final class CambiumOwnerServices: OwnerServices {
             return .init(kind: .refused, message: "The owner refused this read.")
         case MissionFabricReadError.unavailable:
             return .init(kind: .unavailable, message: "The owner is unavailable.")
+        case MissionFabricReadError.notFound:
+            return .init(kind: .unavailable, message: "The owner has no Mission Fabric graph for this tenant.")
+        case MissionFabricReadError.malformed, MissionFabricReadError.responseTooLarge:
+            return .init(kind: .invalid, message: "The owner's Mission Fabric projection failed validation.")
+        case MissionFabricReadError.stale:
+            return .init(kind: .unavailable, message: "The owner's Mission Fabric projection is stale.")
+        case MissionFabricReadError.badStatus(let status):
+            return .init(kind: .unavailable, message: "The owner returned HTTP \(status) for the Mission Fabric read.")
         default:
             return .init(kind: .unknown, message: "The owner did not complete this action.")
         }

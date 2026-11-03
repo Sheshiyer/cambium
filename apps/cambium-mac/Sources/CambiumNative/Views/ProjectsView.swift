@@ -70,10 +70,15 @@ struct ProjectsView: View {
                 }
             } else {
                 EmptyStateView(symbol: "square.grid.2x2", title: "No project catalog loaded",
-                               message: "Configure an owner in Connections and sign in to read its scoped project catalog. The demo contains a dated replay.")
+                               message: model.session == nil
+                                ? "Configure an owner in Connections and sign in to read its scoped project catalog. The demo contains a dated replay."
+                                : model.issue?.message ?? "The owner has not returned a project catalog.")
                     .cambiumPanel()
                 if !model.isDemo {
                     HStack {
+                        if model.session != nil {
+                            Button("Retry owner read") { model.retryOwnerRead() }.disabled(model.loading)
+                        }
                         Button("Connections") { model.open(.connections) }
                         Button("Open demo") { model.enterDemo() }
                     }
@@ -243,6 +248,7 @@ struct ProjectsView: View {
                     .foregroundStyle(Palette.inkMuted)
                     .fixedSize(horizontal: false, vertical: true)
                 FactRow(label: "Canonical ID", value: project.canonicalId, mono: true)
+                Button("Open project Inbox") { model.openInbox(project: project.canonicalId) }
                 FactRow(label: "Catalog work ID", value: project.workId, mono: true)
                 FactRow(label: "Kind", value: project.kind)
                 FactRow(label: "Tenant status", value: project.tenantStatus)

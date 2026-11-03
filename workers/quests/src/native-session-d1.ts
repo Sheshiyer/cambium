@@ -5,7 +5,7 @@
 // matches the code digest, client, exact redirect, the S256 challenge computed
 // from the presented verifier, and an unexpired code. The unique
 // authorization_code_id (migration 0100) makes parallel or replayed exchanges
-// yield at most one session; the loser sees changes = 0 or a unique violation.
+// yield at most one session; the loser sees no returned row or a unique violation.
 // There is no read-then-consume claim. SQL string equality is not described as
 // cryptographic constant-time comparison; credentials are 256-bit random values
 // stored only as SHA-256 digests.
@@ -30,8 +30,9 @@ const isUniqueViolation = (error: unknown) =>
 /**
  * Consent authority on its own table. `consume` is one conditional UPDATE:
  * the row changes only while it is unconsumed, unexpired, and bound to the
- * same intent digest, CSRF digest, founder and request digest. changes = 1 is
- * the only success. A replay or any mismatch writes nothing.
+ * same intent digest, CSRF digest, founder and request digest. Only the row
+ * returned by that UPDATE establishes success; D1 metadata is advisory.
+ * A replay or any mismatch writes nothing.
  */
 export function d1NativeConsentIntentStore(db: GoalGraphD1DatabaseLike): NativeConsentIntentStore {
   return {
@@ -52,8 +53,9 @@ export function d1NativeConsentIntentStore(db: GoalGraphD1DatabaseLike): NativeC
         SET consumed_at = ?
         WHERE intent_digest = ? AND csrf_digest = ? AND request_digest = ? AND founder_id = ?
           AND consumed_at IS NULL AND expires_at > ?
-      `).bind(input.now, input.intentDigest, input.csrfDigest, input.requestDigest, input.founderId, input.now).run();
-      return Number(result.meta?.changes ?? 0) === 1;
+        RETURNING 1 AS consumed
+      `).bind(input.now, input.intentDigest, input.csrfDigest, input.requestDigest, input.founderId, input.now).first<{ consumed: number }>();
+      return result?.consumed === 1;
     },
   };
 }
@@ -90,9 +92,10 @@ export function d1NativeSessionStore(db: GoalGraphD1DatabaseLike): NativeSession
           FROM native_authorization_codes c
           WHERE c.code_digest = ? AND c.client_id = ? AND c.redirect_uri = ? AND c.code_challenge = ?
             AND c.expires_at > ? AND c.founder_id = ? AND c.tenant_id = ?
+          RETURNING 1 AS granted
         `).bind(input.tokenDigest, input.now, input.expiresAt, input.codeDigest, input.clientId,
-          input.redirectUri, input.codeChallenge, input.now, input.founderId, input.tenantId).run();
-        return Number(result.meta?.changes ?? 0) === 1;
+          input.redirectUri, input.codeChallenge, input.now, input.founderId, input.tenantId).first<{ granted: number }>();
+        return result?.granted === 1;
       } catch (error) {
         if (isUniqueViolation(error)) return false;
         throw error;

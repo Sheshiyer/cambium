@@ -307,6 +307,9 @@ const SECURITY_HEADERS = {
 
 const PAGE_HEADERS = {
   ...SECURITY_HEADERS,
+  // A no-referrer document makes browsers send Origin: null on form POSTs.
+  // Preserve the same-origin consent check; code redirects retain no-referrer.
+  'referrer-policy': 'same-origin',
   'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
   'content-type': 'text/html; charset=utf-8',
   'x-frame-options': 'DENY',
@@ -555,7 +558,12 @@ ${hidden('tenant', prepared.tenantId)}
     `${NATIVE_CONSENT_COOKIE}=${csrf}`,
     'HttpOnly', 'Secure', 'SameSite=Strict', `Path=${new URL(request.url).pathname}`, 'Max-Age=60',
   ].join('; ');
-  return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'set-cookie': cookie } });
+  // Chrome applies form-action to the POST's redirect as well as its action.
+  // The callback has already matched the registered client URI exactly.
+  // Custom protocols have opaque origins in Chrome; a host-source callback
+  // does not match them. Scope the scheme-source to this registered client.
+  const policy = PAGE_HEADERS['content-security-policy'].replace("form-action 'self'", `form-action 'self' ${new URL(prepared.redirectUri).protocol}`);
+  return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'content-security-policy': policy, 'set-cookie': cookie } });
 }
 
 const CONSENT_FIELDS = ['client_id', 'code_challenge', 'csrf', 'decision', 'intent', 'redirect_uri', 'state', 'tenant'];

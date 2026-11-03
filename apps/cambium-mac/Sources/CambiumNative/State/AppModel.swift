@@ -10,6 +10,31 @@ import struct CambiumCore.EvidenceItem
 import struct CambiumCore.ConnectionObservation
 import enum CambiumCore.DemoData
 import protocol CambiumCore.NativeBrowserPresenting
+import struct CambiumCore.Signal
+import struct CambiumCore.SignalCapture
+import struct CambiumCore.SignalUpdate
+import enum CambiumCore.SignalError
+
+struct InboxDraft {
+    var selected: Signal?
+    var title = ""
+    var body = ""
+    var projects: Set<String> = []
+    var sourceID = UUID().uuidString
+    var capture: SignalCapture?
+    var update: SignalUpdate?
+    var hasStarted = false
+    var conflict = false
+
+    static func isLocked(capture: SignalCapture?, update: SignalUpdate?) -> Bool {
+        capture != nil || update != nil
+    }
+
+    static func isDefinitiveRejection(_ error: Error) -> Bool {
+        guard let signalError = error as? SignalError else { return false }
+        return signalError == .invalidRequest || signalError == .status(400) || signalError == .status(409)
+    }
+}
 
 /// Application state for the ten screens.
 ///
@@ -77,6 +102,16 @@ final class AppModel {
     private(set) var configurationProblem: String?
 
     var feedback: String?
+    var inboxFilter: String?
+    var inboxVersion: UInt64 = 0
+    var signalScopeVersion: UInt64 = 0
+    var inboxDraft = InboxDraft()
+    var signalService: CambiumOwnerServices? { services as? CambiumOwnerServices }
+    func openInbox(project: String?) {
+        inboxFilter = project
+        inboxVersion &+= 1
+        open(.inbox)
+    }
 
     private var services: (any OwnerServices)?
     private var generation: UInt64 = 0
@@ -91,7 +126,9 @@ final class AppModel {
     /// person chooses Sign in.
     init(mode: LaunchMode = AppModel.launchMode, services: (any OwnerServices)? = nil, browser: (any NativeBrowserPresenting)? = nil) {
         self.mode = mode
-        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: { NSApp.keyWindow }) : nil)
+        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: {
+            NSApp.keyWindow ?? NSApp.mainWindow ?? NSApp.windows.first(where: { $0.isVisible && $0.canBecomeKey })
+        }) : nil)
         snapshot = Self.emptySnapshot
         restoreVisualPreferences()
         if let services {
@@ -273,6 +310,10 @@ final class AppModel {
 
     private func load(_ mode: LaunchMode) {
         generation &+= 1
+        signalScopeVersion &+= 1
+        inboxDraft = InboxDraft()
+        inboxFilter = nil
+        inboxVersion &+= 1
         let previous = services
         self.mode = mode
         review = nil
@@ -322,6 +363,11 @@ final class AppModel {
         }
     }
 
+    func retryOwnerRead() {
+        guard !loading else { return }
+        run("Owner read") { _, token in await self.refresh(token) }
+    }
+
     private func refresh(_ token: UInt64) async {
         guard let services, token == generation else { return }
         session = await services.session()
@@ -331,6 +377,7 @@ final class AppModel {
         }
         switch await services.readFabric() {
         case .success(let display) where token == generation:
+            issue = nil
             fabric = display
             snapshot = display.snapshot
             unattachedEvidence = display.unattachedEvidence
@@ -432,6 +479,10 @@ final class AppModel {
     func signOut() {
         let token = generation
         generation &+= 1
+        signalScopeVersion &+= 1
+        inboxDraft = InboxDraft()
+        inboxFilter = nil
+        inboxVersion &+= 1
         session = nil
         review = nil
         proposalBinding = nil

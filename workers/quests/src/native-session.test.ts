@@ -288,7 +288,7 @@ test('authorize GET returns 200 HTML consent form with no-store headers and sets
   const response = await authorize(h.host);
   assert.equal(response!.status, 200);
   assert.equal(response!.headers.get('cache-control'), 'no-store');
-  assert.equal(response!.headers.get('referrer-policy'), 'no-referrer');
+  assert.equal(response!.headers.get('referrer-policy'), 'same-origin');
   assert.equal(response!.headers.get('content-type')?.includes('text/html'), true);
   assert.ok(response!.headers.get('set-cookie')?.includes(NATIVE_CONSENT_COOKIE));
   const html = await response!.text();

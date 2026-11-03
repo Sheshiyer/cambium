@@ -518,6 +518,14 @@ test('WTFMedia finite source-audit policy preserves exact loadout through the ac
   const graph = goalGraphFixture();
   const task = { ...graph.nodes[1], workObjectId: 'branch:wtfmedia', workObjectKind: 'branch', pinnedLoadoutId: 'loadout:wtfmedia-source-audit' };
   deps.goalGraphStore!.readNodes = async () => [graph.nodes[0], task];
+  const readLedger = deps.kv.get.bind(deps.kv);
+  deps.kv.get = async (key) => {
+    const raw = await readLedger(key);
+    if (typeof raw !== 'string') return raw;
+    const ledger = JSON.parse(raw);
+    ledger.branchStories.push({ branchId: 'wtfmedia', branchKind: 'client', canonicalWorkId: 'branch:wtfmedia', name: 'WTFMedia', source: { tenant: TENANT } });
+    return JSON.stringify(ledger);
+  };
   const response = await handle({ method: 'GET', path: `/v1/mission-fabric/${TENANT}`, headers: { 'x-telegram-init-data': auth.initData } }, deps);
   assert.equal(response.status, 200);
   const projection = JSON.parse(response.body).projection;

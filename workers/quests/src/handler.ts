@@ -3423,7 +3423,13 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       : (typeof head.committedAt === 'string' && fabricTimestampMs(head.committedAt) !== null
         ? head.committedAt
         : '1970-01-01T00:00:00.000Z');
-    const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
+    // Older real ledgers can have a current graph/catalog without execution
+    // facts. Keep that absence visible instead of inventing an empty source or
+    // suppressing the independently authoritative graph and portfolio.
+    const execution: ReturnType<typeof adaptQuestExecutionFacts> = fabricFacts == null
+      ? { nodes: [], edges: [], gaps: [{ gapId: 'gap-execution-facts-source-missing', kind: 'missing-source',
+          subjectId: null, detail: 'Execution facts are unavailable; no execution nodes or receipts were inferred.', evidenceRef: null }] }
+      : adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
     const taskReconciliation = reconcileFabricTaskNodes(goalGraphFabricNodes, execution.nodes);
     entries.push(...taskReconciliation.nodes);
     const mergedEdges: FabricEdge[] = [...goalGraphAuthority.edges, ...execution.edges].filter((edge) => (
@@ -3496,6 +3502,34 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       });
     }
 
+    // A catalog anchor does not create a served operational Work node. Keep
+    // unresolved joins as gaps rather than emitting edges a strict client
+    // cannot resolve (or fabricating nodes from the display-only sidecar).
+    const servedSubjects = new Set(composedNodes.map(node => {
+      switch (node.kind) {
+        case 'work': return node.value.workId;
+        case 'mission': return node.value.missionId;
+        case 'task': return node.value.taskId;
+        case 'agent': return node.value.agentId;
+        case 'skill-cluster': return node.value.clusterId;
+        case 'run': return node.value.runId;
+        case 'receipt': return node.value.receiptId;
+      }
+    }));
+    const knownGapIds = new Set(mergedGaps.map(gap => gap.gapId));
+    for (let index = mergedEdges.length - 1; index >= 0; index -= 1) {
+      const edge = mergedEdges[index];
+      const missing = !servedSubjects.has(edge.fromId) ? edge.fromId
+        : edge.kind !== 'pins-loadout' && !servedSubjects.has(edge.toId) ? edge.toId : null;
+      if (missing === null) continue;
+      mergedEdges.splice(index, 1);
+      const gapId = `gap-edge-endpoint-${edge.kind}-${edge.fromId}-${edge.toId}`;
+      if (knownGapIds.has(gapId)) continue;
+      knownGapIds.add(gapId);
+      mergedGaps.push({ gapId, kind: 'missing-join', subjectId: missing,
+        detail: `The ${edge.kind} edge has an endpoint absent from the served source nodes; the edge was omitted.`, evidenceRef: null });
+    }
+
     const sortedNodes = [...composedNodes].sort((a, b) => {
       const left = `${a.kind}:${fabricIdentityOf(a)}`;
       const right = `${b.kind}:${fabricIdentityOf(b)}`;
@@ -3517,6 +3551,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     }
     const sortedGaps = [...mergedGaps].sort((a, b) => (a.gapId < b.gapId ? -1 : a.gapId > b.gapId ? 1 : 0));
     if (sortedGaps.length > MISSION_FABRIC_CAPS.MAX_GAPS) {
+      console.warn('[mission-fabric] gap-overflow');
       return json(503, { error: 'mission_fabric_gap_overflow' });
     }
 
@@ -3595,6 +3630,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
           body.organUpdateDeliverySummary = ORGAN_UPDATE_SUMMARY;
         }
       } catch {
+        console.warn('[mission-fabric] portfolio-catalog');
         return json(503, { error: 'portfolio_catalog_unavailable' });
       }
     }
@@ -3630,6 +3666,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       body: JSON.stringify(body),
     };
   } catch {
+    console.warn(`[mission-fabric] authority-${authorityStage}`);
     return json(503, { error: 'mission_fabric_authority_unavailable', reason: authorityStage });
   }
 }

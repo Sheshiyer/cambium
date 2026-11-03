@@ -31,6 +31,7 @@ const CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
 
 class SqliteD1 implements GoalGraphD1DatabaseLike {
   readonly db = new DatabaseSync(':memory:');
+  reportedChanges: number | undefined;
   prepare(sql: string): GoalGraphD1StatementLike {
     const statement = this.db.prepare(sql);
     let values: unknown[] = [];
@@ -38,7 +39,7 @@ class SqliteD1 implements GoalGraphD1DatabaseLike {
       bind: (...next: unknown[]) => { values = next; return api; },
       first: async <T>() => (statement.get(...values) as T | undefined) ?? null,
       all: async <T>() => ({ results: statement.all(...values) as T[] }),
-      run: async () => ({ meta: { changes: Number(statement.run(...values).changes) } }),
+      run: async () => { const result = statement.run(...values); return { meta: { changes: this.reportedChanges ?? Number(result.changes) } }; },
     };
     return api;
   }
@@ -125,6 +126,15 @@ async function issueCode(h: Awaited<ReturnType<typeof harness>>) {
 }
 
 const bearer = (token: string) => new Request(`${ORIGIN}/v1/native/session`, { headers: { authorization: `Bearer ${token}` } });
+
+test('D1 consent and grant use returned rows even when write metadata reports zero changes', async () => {
+  const h = await harness();
+  h.db.reportedChanges = 0;
+  const code = await issueCode(h);
+  assert.equal((await nativeSessionHttp(exchangeRequest(exchangeBody(code)), h.host))!.status, 200);
+  assert.equal((await nativeSessionHttp(exchangeRequest(exchangeBody(code)), h.host))!.status, 400);
+  assert.equal((h.db.db.prepare('SELECT COUNT(*) AS n FROM native_sessions').get() as { n: number }).n, 1);
+});
 
 test('D1 exchange grants exactly one session for a code under parallel exchange', async () => {
   const h = await harness();

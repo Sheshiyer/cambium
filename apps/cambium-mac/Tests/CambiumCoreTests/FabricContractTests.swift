@@ -163,6 +163,26 @@ final class FabricContractTests: XCTestCase {
         return nil
     }
 
+    func testLiveSizedGapCollectionAndOverflowBoundary() throws {
+        for count in [132, MissionFabricCaps.maxGaps, MissionFabricCaps.maxGaps + 1] {
+            var body = try load("fabric-route-acme-founder")
+            var projection = try XCTUnwrap(body["projection"] as? [String: Any])
+            projection["gaps"] = (0..<count).map { index in
+                ["gapId": "gap-live-\(index)", "kind": "missing-source", "subjectId": NSNull(),
+                 "detail": "Source unavailable", "evidenceRef": NSNull()] as [String: Any]
+            }
+            body["projection"] = projection
+            try reseal(&body)
+            let result = try decode(body, tenant: "acme")
+            if count <= MissionFabricCaps.maxGaps {
+                guard case .success(let envelope) = result else { return XCTFail("Live-sized gap collection refused") }
+                XCTAssertEqual(envelope.projection.gaps.count, count)
+            } else {
+                XCTAssertEqual(failure(result), .capExceeded("gaps"))
+            }
+        }
+    }
+
     func testDuplicateSubjectAndDanglingEdgeRejected() throws {
         var dup = try load("fabric-route-acme-founder")
         var projection = try XCTUnwrap(dup["projection"] as? [String: Any])

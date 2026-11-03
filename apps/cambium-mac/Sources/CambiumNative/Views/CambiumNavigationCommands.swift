@@ -21,11 +21,12 @@ struct CambiumNavigationCommands: Commands {
 
     var body: some Commands {
         CommandMenu("Go") {
-            ForEach(AppSection.allCases) { section in
+            ForEach(AppSection.allCases.filter { $0 != .inbox }) { section in
                 Button(section.title) { model?.open(section) }
                     .keyboardShortcut(section.shortcut, modifiers: .command)
                     .disabled(model == nil)
             }
+            Button("Inbox") { model?.open(.inbox) }.disabled(model == nil)
             Divider()
             Button("Find") { focusSearch?.run() }
                 .keyboardShortcut("f", modifiers: .command)
