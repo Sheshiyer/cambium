@@ -311,7 +311,7 @@ final class AppModel {
             configuration = value
             configurationProblem = nil
             load(.standard)
-            feedback = "Owner configuration applied for this session. Sign in when you are ready. Nothing was contacted."
+            feedback = "Connection settings saved."
         case .failure(let problem):
             configuration = nil
             configurationProblem = problem.rawValue
@@ -492,7 +492,7 @@ final class AppModel {
             switch result {
             case .success(let signed):
                 self.session = signed
-                self.feedback = "Signed in as \(signed.founderId) for \(signed.tenantId)."
+                self.feedback = "Signed in."
                 await self.refresh(self.generation)
             case .failure(let failure):
                 self.issue = failure

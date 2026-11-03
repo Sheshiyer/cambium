@@ -2,11 +2,12 @@ import SwiftUI
 
 struct PreferencesView: View {
     @Environment(AppModel.self) private var model
+    @State private var diagnosticsPresented = false
 
     var body: some View {
         @Bindable var model = model
-        PageScaffold(eyebrow: "Preferences", title: "Preferences",
-                     subtitle: "Appearance and motion settings stored in local application state.") {
+        PageScaffold(eyebrow: "App", title: "Settings",
+                     subtitle: "Make Cambium comfortable to use.") {
             VStack(alignment: .leading, spacing: 14) {
                 SectionHeader(title: "Appearance & Motion")
                 Picker("Appearance", selection: $model.appearance) {
@@ -26,9 +27,8 @@ struct PreferencesView: View {
             .cambiumPanel()
 
             VStack(alignment: .leading, spacing: 10) {
-                SectionHeader(title: "Environment")
-                FactRow(label: "Mode", value: model.isDemo ? "Synthetic demo" : "Standard")
-                FactRow(label: "Summary", value: model.mode.summary)
+                SectionHeader(title: "Explore")
+                Text("Try Cambium with sample data.").font(.callout).foregroundStyle(Palette.inkMuted)
                 HStack {
                     if model.isDemo {
                         Button("Leave demo", action: model.leaveDemo)
@@ -39,6 +39,13 @@ struct PreferencesView: View {
                 }
             }
             .cambiumPanel()
+
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Advanced")
+                Button("Open diagnostics", systemImage: "wrench.and.screwdriver") { diagnosticsPresented = true }
+                Text("Connection settings and technical details.").font(.caption).foregroundStyle(Palette.inkMuted)
+            }.cambiumPanel()
         }
+        .sheet(isPresented: $diagnosticsPresented) { DiagnosticsView().environment(model) }
     }
 }

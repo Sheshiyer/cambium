@@ -150,11 +150,11 @@ private struct SidebarFooter: View {
                     Button("Leave demo") { model.leaveDemo() }
                         .controlSize(.small)
                         .accessibilityHint("Returns to standard mode with no data")
-                } else if let session = model.session, model.hasCurrentSession(at: context.date) {
-                    StatusChip(text: "Signed in · \(session.tenantId)", tone: .signal)
+                } else if model.hasCurrentSession(at: context.date) {
+                    StatusChip(text: "Connected", tone: .signal)
                     Button("Account") { model.open(.connections) }.controlSize(.small)
                 } else {
-                    StatusChip(text: model.session == nil ? "Not signed in" : "Session expired", tone: .hold)
+                    if model.session != nil { Text("Session expired").font(.caption).foregroundStyle(Palette.hold) }
                     Button(model.session == nil ? "Sign in" : "Sign in again", action: model.beginSignIn)
                         .controlSize(.small).disabled(model.loading)
                     Button("Open demo") { model.enterDemo() }
@@ -173,41 +173,16 @@ private struct ModeStrip: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 15)) { context in
+        if model.isDemo {
             HStack(spacing: 10) {
-                if model.isDemo {
-                    SyntheticBadge(compact: true)
-                    Text("Synthetic records. Actions stay on this Mac and change nothing live.")
-                        .font(.callout)
-                        .foregroundStyle(Palette.ink)
-                        .lineLimit(2)
-                } else {
-                    Image(systemName: "person.crop.circle.badge.questionmark")
-                        .foregroundStyle(Palette.hold)
-                        .accessibilityHidden(true)
-                    Text(model.hasCurrentSession(at: context.date)
-                         ? "Signed in to \(model.session?.tenantId ?? ""). Live reads come from the configured owner."
-                         : (model.session == nil ? "Sign in to read and save your Cambium work." : "Your session expired. Sign in again to continue."))
-                        .font(.callout)
-                        .foregroundStyle(Palette.ink)
-                        .lineLimit(2)
-                }
-                Spacer(minLength: 8)
-                if !model.isDemo {
-                    if !model.hasCurrentSession(at: context.date) {
-                        Button(model.session == nil ? "Sign in" : "Sign in again", action: model.beginSignIn)
-                            .buttonStyle(.borderedProminent).disabled(model.loading)
-                            .accessibilityHint("Opens the configured owner's secure browser sign-in. The callback returns to this app.")
-                    }
-                    Button("Open demo") { model.enterDemo() }
-                        .accessibilityHint("Shows labelled synthetic data. Nothing is live.")
-                }
+                SyntheticBadge(compact: true)
+                Text("Sample data").font(.callout).foregroundStyle(Palette.inkMuted)
+                Spacer()
+                Button("Leave demo", action: model.leaveDemo).controlSize(.small)
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 8)
-            .background(model.isDemo ? Palette.holdFill : Palette.surface)
+            .padding(.horizontal, 20).padding(.vertical, 8)
+            .background(Palette.holdFill)
             .overlay(alignment: .bottom) { Divider() }
-            .accessibilityElement(children: .contain)
         }
     }
 }

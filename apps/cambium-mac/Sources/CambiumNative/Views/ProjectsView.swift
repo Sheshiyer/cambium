@@ -31,8 +31,8 @@ struct ProjectsView: View {
     @State private var category = "all"
 
     var body: some View {
-        PageScaffold(eyebrow: "Portfolio", title: "Mapped projects",
-                     subtitle: "The projects in the owner’s display catalog, alongside their provenance and operational gaps.") {
+        PageScaffold(eyebrow: "Portfolio", title: "Projects",
+                     subtitle: "Find a project and choose what to do next.") {
             if let portfolio = model.fabric?.portfolio {
                 if model.isDemo {
                     SyntheticNotice(message: "This is a dated replay of a catalog source. Its names and counts do not prove the current live owner state.")
@@ -71,13 +71,13 @@ struct ProjectsView: View {
             } else {
                 EmptyStateView(symbol: "square.grid.2x2", title: "No project catalog loaded",
                                message: model.session == nil
-                                ? "Configure an owner in Connections and sign in to read its scoped project catalog. The demo contains a dated replay."
-                                : model.issue?.message ?? "The owner has not returned a project catalog.")
+                                ? "Sign in to see your projects."
+                                : "Your projects could not be loaded. Try again.")
                     .cambiumPanel()
                 if !model.isDemo {
                     HStack {
                         if model.session != nil {
-                            Button("Retry owner read") { model.retryOwnerRead() }.disabled(model.loading)
+                            Button("Try again") { model.retryOwnerRead() }.disabled(model.loading)
                         }
                         Button("Connections") { model.open(.connections) }
                         Button("Open demo") { model.enterDemo() }
@@ -96,45 +96,13 @@ struct ProjectsView: View {
 
     private func summary(_ portfolio: MappedPortfolio) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionHeader(title: "Source classification",
-                          detail: "\(portfolio.summary.total) current · \(portfolio.summary.historicalProducts) historical")
+            SectionHeader(title: "Your portfolio", detail: "\(portfolio.summary.total) current · \(portfolio.summary.historicalProducts) archived")
             HStack(spacing: 8) {
-                StatusChip(text: "\(portfolio.summary.saplings) saplings", tone: .evidence)
-                StatusChip(text: "\(portfolio.summary.clientBranches) client branches", tone: .rail)
-                StatusChip(text: "\(portfolio.summary.internalPrograms) internal programs", tone: .signal)
+                StatusChip(text: "\(portfolio.summary.saplings) products", tone: .evidence)
+                StatusChip(text: "\(portfolio.summary.clientBranches) client projects", tone: .rail)
+                StatusChip(text: "\(portfolio.summary.internalPrograms) programs", tone: .signal)
             }
-            HStack(spacing: 14) {
-                Text("Read only · no action admission")
-                if let generated = portfolio.sourceGeneratedAt {
-                    Text("Source \(model.time(generated))")
-                }
-            }
-            .font(.caption)
-            .foregroundStyle(Palette.inkMuted)
-            DisclosureGroup("Source authority, joins and digests") {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("\(portfolio.summary.status) · action admission: \(portfolio.summary.actionAdmission). Classification and tenant labels are source observations.")
-                        .font(.callout)
-                        .foregroundStyle(Palette.inkMuted)
-                    if portfolio.summary.classificationReview > 0 {
-                        StatusChip(text: "\(portfolio.summary.classificationReview) classification reviews", tone: .hold)
-                    }
-                    if let join = portfolio.joinReport {
-                        Text("\(join.matchedCount) explicit runtime join\(join.matchedCount == 1 ? "" : "s") · \(join.catalogOrphanCount) catalog records without a runtime join · \(join.runtimeOrphanCount) runtime work records without a catalog join")
-                            .font(.callout)
-                            .foregroundStyle(Palette.inkMuted)
-                    }
-                    FactRow(label: "Source generated", value: portfolio.sourceGeneratedAt.map(model.time))
-                    FactRow(label: "Graph as of", value: model.time(portfolio.asOf))
-                    FactRow(label: "Served", value: model.time(portfolio.servedAt))
-                    FactRow(label: "Display digest", value: portfolio.summary.catalogDigest, mono: true)
-                    FactRow(label: "Action digest", value: portfolio.summary.actionCatalogDigest, mono: true)
-                }
-                .padding(.top, 8)
-            }
-            .accessibilityIdentifier("projects.sourceDetails")
-        }
-        .cambiumPanel()
+        }.cambiumPanel()
     }
 
     private var controls: some View {
@@ -237,67 +205,31 @@ struct ProjectsView: View {
 
     private func dossier(_ project: MappedProject) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                SectionHeader(title: "Project source")
-                Text(project.name)
-                    .font(CambiumFont.display)
-                    .foregroundStyle(Palette.ink)
-                StatusChip(text: project.classification, tone: .rail)
-                Text("A source classification record. It does not grant a tenant role, approval, or launch admission.")
-                    .font(.callout)
-                    .foregroundStyle(Palette.inkMuted)
-                    .fixedSize(horizontal: false, vertical: true)
-                FactRow(label: "Canonical ID", value: project.canonicalId, mono: true)
-                Button("Open project Inbox") { model.openInbox(project: project.canonicalId) }
-                FactRow(label: "Catalog work ID", value: project.workId, mono: true)
-                FactRow(label: "Kind", value: project.kind)
-                FactRow(label: "Tenant status", value: project.tenantStatus)
-                FactRow(label: "Tenant label", value: project.tenantId)
-                FactRow(label: "Parent tenant", value: project.parentTenant)
-                FactRow(label: "Source account", value: project.accountId)
-                FactRow(label: "Lifecycle", value: project.lifecycle)
-                FactRow(label: "Promotion", value: project.promotionState)
-                FactRow(label: "Program kind", value: project.programKind)
-                FactRow(label: "Aliases", value: project.aliases.isEmpty ? nil : project.aliases.joined(separator: ", "))
-            }
-            .cambiumPanel(highlighted: true)
-
-            VStack(alignment: .leading, spacing: 8) {
-                SectionHeader(title: "Provenance and links")
-                if project.provenance.isEmpty {
-                    Text("No provenance listed.").foregroundStyle(Palette.hold)
-                } else {
-                    ForEach(project.sourceReferences) { reference in
-                        sourceReferenceRow(reference)
-                    }
-                }
-                linkedRows(project.linkedCanonicalIds)
-            }
-            .cambiumPanel()
-
-            VStack(alignment: .leading, spacing: 8) {
-                SectionHeader(title: "Operational boundary")
-                if project.operationalGapMissingFields.isEmpty {
-                    Text("No catalog operational gap is listed. This is not an admission verdict.")
-                        .font(.callout).foregroundStyle(Palette.inkMuted)
-                } else {
-                    Text("Mission data needed: \(project.operationalGapMissingFields.joined(separator: ", ")).")
-                        .font(.callout).foregroundStyle(Palette.hold)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                if let work = model.joinedWork(for: project) {
-                    FactRow(label: "Explicit join", value: work.id, mono: true)
-                    Button("Open operational Work") { model.openOperationalWork(for: project.id) }
+            VStack(alignment: .leading, spacing: 12) {
+                SectionHeader(title: "Project")
+                Text(project.name).font(CambiumFont.display).foregroundStyle(Palette.ink)
+                StatusChip(text: project.classification.replacingOccurrences(of: "-", with: " ").capitalized, tone: .rail)
+                if let lifecycle = project.lifecycle { Text(lifecycle.capitalized).font(.callout).foregroundStyle(Palette.inkMuted) }
+                Button("Open Inbox") { model.openInbox(project: project.canonicalId) }
+            }.cambiumPanel()
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Work")
+                if model.joinedWork(for: project) != nil {
+                    Button("Open work") { model.openOperationalWork(for: project.id) }
                         .accessibilityIdentifier("projects.openWork")
                 } else {
-                    Text("No served join to an operational Work node. Catalog membership cannot start a decision or launch.")
-                        .font(.callout).foregroundStyle(Palette.inkMuted)
-                        .fixedSize(horizontal: false, vertical: true)
+                    Text("Work is not connected yet.").font(.callout).foregroundStyle(Palette.inkMuted)
                 }
+            }.cambiumPanel()
+            if !project.sourceReferences.isEmpty || !project.linkedCanonicalIds.isEmpty {
+                DisclosureGroup("References and related projects") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(project.sourceReferences) { reference in sourceReferenceRow(reference) }
+                        linkedRows(project.linkedCanonicalIds)
+                    }.padding(.top, 10)
+                }.cambiumPanel()
             }
-            .cambiumPanel()
-        }
-        .accessibilityIdentifier("projects.dossier.\(project.id)")
+        }.accessibilityIdentifier("projects.dossier.\(project.id)")
     }
 
     private func historicalDossier(_ product: MappedHistoricalProject) -> some View {
@@ -308,11 +240,10 @@ struct ProjectsView: View {
                     .font(CambiumFont.display)
                     .foregroundStyle(Palette.ink)
                 StatusChip(text: product.status, tone: .muted)
-                Text("Historical classification only. This record has no runtime Work or action admission.")
+                Text("Archived project")
                     .font(.callout)
                     .foregroundStyle(Palette.inkMuted)
                     .fixedSize(horizontal: false, vertical: true)
-                FactRow(label: "Canonical ID", value: product.canonicalId, mono: true)
                 if let target = product.linkedCanonicalId {
                     linkedRows([target])
                 } else {
@@ -344,8 +275,8 @@ struct ProjectsView: View {
                 .foregroundStyle(reference.url == nil ? Palette.inkMuted : Palette.signal)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(reference.raw)
-                    .font(CambiumFont.monoSmall)
+                Text(String(reference.raw.split(separator: "/").last ?? Substring(reference.kind.label)).replacingOccurrences(of: ".md", with: "").replacingOccurrences(of: "-", with: " ").capitalized)
+                    .font(.callout)
                     .foregroundStyle(Palette.ink)
                     .textSelection(.enabled)
                 Text(reference.kind.label)
@@ -390,7 +321,7 @@ struct ProjectsView: View {
                     }
                     .accessibilityHint("Opens a linked historical source record")
                 } else {
-                    Text("\(id) · not in this served catalog")
+                    Text("Linked project unavailable")
                         .font(CambiumFont.monoSmall)
                         .foregroundStyle(Palette.hold)
                 }
