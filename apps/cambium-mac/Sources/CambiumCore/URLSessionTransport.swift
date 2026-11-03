@@ -163,8 +163,9 @@ public final class URLSessionHTTPTransport: HTTPTransport {
     public func send(_ request: HTTPRequest) async throws -> HTTPResponse {
         // Everything below runs before any header or body leaves the process.
         guard origin.admits(request.url) else { throw TransportFailure.unreachable }
-        let signalPrefix = origin.basePath + "/v1/signals/"
-        let signalSuffix = request.url.path.hasPrefix(signalPrefix) ? String(request.url.path.dropFirst(signalPrefix.count)) : ""
+        let mutationPrefix = ["/v1/signals/", "/v1/directions/"].map { origin.basePath + $0 }.first { request.url.path.hasPrefix($0) }
+        let signalPrefix = mutationPrefix ?? ""
+        let signalSuffix = mutationPrefix != nil ? String(request.url.path.dropFirst(signalPrefix.count)) : ""
         let signalPath = signalSuffix.range(of: #"^[a-z0-9]+(?:-[a-z0-9]+)*(?:/[A-Za-z0-9_-]+)?$"#, options: .regularExpression) != nil
         let signalParts = signalSuffix.split(separator: "/")
         let signalMutation = signalPath && request.url.query == nil

@@ -44,3 +44,14 @@ test('exact observed head, coherent graph and root bind the reviewed source', ()
   assert.equal(parseOperationalWorkIntent(raw,founder,{...context,currentNodes:[root],actualHead:head}).accepted,false);
   assert.equal(parseOperationalWorkIntent(raw,founder,{...context,currentNodes:[],actualHead:head}).accepted,false);
 });
+
+test('an operational tenant root can be updated without a self-parent or root replacement',()=>{
+ const raw=input();const initial=parseOperationalWorkIntent(raw,founder,context);assert.ok(initial.accepted);if(!initial.accepted)return;
+ const head=makeGoalGraphHead('cambium',initial.nodes,1,now);
+ raw.clientRequestId='work-2';raw.expectedHeadDigest=head.graphDigest;raw.goals[0].currentState='Direction drafts verified.';
+ const next=parseOperationalWorkIntent(raw,founder,{...context,currentNodes:initial.nodes,actualHead:head,graphVersion:2});
+ assert.ok(next.accepted&&next.compile.status==='compiled');
+ if(next.accepted&&next.compile.status==='compiled'){assert.equal(next.node.parentNodeId,null);assert.equal(next.compile.changeSet.nodesToUpdate.length,1);assert.equal(next.compile.changeSet.nodesToRemove.length,0);}
+ raw.goals[0].parentNodeId=initial.node.nodeId as any;
+ assert.equal(parseOperationalWorkIntent(raw,founder,{...context,currentNodes:initial.nodes,actualHead:head,graphVersion:2}).accepted,false);
+});

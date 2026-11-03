@@ -58,7 +58,7 @@ export async function sharedDirectionsHttp(req: SimpleRequest, deps: HandlerDeps
     const head=await graph.readHead(scope.tenantId);const nodes=await graph.readNodes(scope.tenantId);const again=await graph.readHead(scope.tenantId);
     if(!head || !again || head.graphDigest!==again.graphDigest || head.graphVersion!==again.graphVersion
         || makeGoalGraphHead(scope.tenantId,nodes,head.graphVersion,head.committedAt).graphDigest!==head.graphDigest)return fail(503,'graph_read_unconfirmed');
-    if(head.graphDigest!==draft.graphHeadDigest.replace(/^sha256:/,''))return fail(409,'graph_changed');
+    if(head.graphDigest!==draft.graphHeadDigest)return fail(409,'graph_changed');
     const work=nodes.find(node=>node.nodeId===draft.workNodeId);
     if(!work || !isOperationalWorkSource(work) || work.status==='retired' || work.workObjectId!==draft.workObjectId)return fail(409,'work_join_required');
     for(const pin of draft.signalPins) {

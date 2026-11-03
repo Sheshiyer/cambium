@@ -42,13 +42,18 @@ export function parseOperationalWorkIntent(input: unknown, founderId: string, co
   try {
     const current = context.currentNodes ?? [];
     const head = context.actualHead ?? null;
+    if (!head && current.length) return rejected('graph head is missing');
     if (head && makeGoalGraphHead('cambium', current, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) return rejected('graph read is inconsistent');
     const goal = boundary.value.goals[0];
     const roots = current.filter(node => node.parentNodeId === null);
-    if ((current.length && (roots.length !== 1 || goal.parentNodeId !== roots[0].nodeId)) || (!current.length && goal.parentNodeId !== null)) return rejected('Work source must be attached to the exact tenant root');
     const { now: _helper, ...node } = buildNode({ ...goal, metadata: { operationalWorkSchema: OPERATIONAL_WORK_SCHEMA, workName: 'Cambium' },
       tenantId: 'cambium', workObjectId: 'sapling:cambium', workObjectKind: 'sapling', pinnedLoadoutId: null,
       sourceRef: boundary.sourceRef, sourceDigest: boundary.contentDigest, graphVersion: context.graphVersion ?? 1, now: context.now ?? '1970-01-01T00:00:00.000Z' });
+    const parentValid = current.length === 0 ? goal.parentNodeId === null : roots.length === 1 && (
+      roots[0].nodeId === node.nodeId
+        ? isOperationalWorkSource(roots[0]) && goal.parentNodeId === null
+        : goal.parentNodeId === roots[0].nodeId);
+    if (!parentValid) return rejected('Work source must preserve or attach to the exact tenant root');
     const prior = current.find(previous => previous.nodeId === node.nodeId);
     if (prior && !isOperationalWorkSource(prior)) return rejected('existing identity has different authority');
     const compile = compileGoalGraph({ tenantId: 'cambium', expectedHeadDigest: boundary.value.expectedHeadDigest, actualHead: head,

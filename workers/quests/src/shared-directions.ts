@@ -22,7 +22,7 @@ export function validateDirectionDraft(value: unknown): value is DirectionDraft 
   if(!object(value) || !exact(value,['title','body','workObjectId','workNodeId','graphHeadDigest','signalPins']))return false;
   if(typeof value.title !== 'string' || !value.title.trim() || value.title.length>200 || /[\u0000-\u001f\u007f]/.test(value.title))return false;
   if(typeof value.body !== 'string' || value.body.length>16000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value.body))return false;
-  if(value.workObjectId!=='sapling:cambium' || !directionIdentifier(value.workNodeId) || typeof value.graphHeadDigest!=='string' || !/^(?:sha256:)?[a-f0-9]{64}$/.test(value.graphHeadDigest))return false;
+  if(value.workObjectId!=='sapling:cambium' || !directionIdentifier(value.workNodeId) || typeof value.graphHeadDigest!=='string' || !/^[a-f0-9]{64}$/.test(value.graphHeadDigest))return false;
   if(!Array.isArray(value.signalPins) || value.signalPins.length<1 || value.signalPins.length>16)return false;
   const ids=new Set<string>();
   for(const pin of value.signalPins) {
