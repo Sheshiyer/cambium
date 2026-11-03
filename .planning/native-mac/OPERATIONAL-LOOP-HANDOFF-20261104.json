@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T22:08:59.615694+00:00",
-  "status": "work-approved-native-sign-in-pending",
+  "updated": "2026-11-03T22:25:57.695Z",
+  "status": "live-work-join-and-direction-draft-save-verified",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -46,7 +46,7 @@
     },
     "bundle": "clean-input ad hoc signed build; verifier passed",
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
-    "real_work_join": "Canonical founder decision archive shows approval recorded and graph commit observed for Cambium55efd3d7; native Work join not yet verified.",
+    "real_work_join": "Verified in actual signed-in Mac: mapped Cambium explicit runtime join and Open work show approved objective, active state and next step.",
     "live_operational_loop": "Not run: canonical Work decision, native join/direction test, direction approval/admission and finite Hermes coding capability pending.",
     "installed_hermes_capability": "Live readback: installed release e3387543 supports canary and document drafts only; no source verification or Cambium code command. Docker exists; no rollout performed.",
     "ui_cleanup": {
@@ -135,17 +135,28 @@
       },
       "rollback_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee"
     },
-    "native_sign_in_current": "Built app opened Zen private AuthenticationServices window at Enter your code; founder completion pending. Do not restart or rebuild while this authentication is in flight.",
-    "management_read": "Fresh Cloudflare D1 management read rejected10000; do not infer empty graph or request another refresh for native verification."
+    "native_sign_in_current": "Founder completed actual native15minute sign-in; connected UI and owner-backed reads/create observed. Do not assume session remains valid on later pickup.",
+    "management_read": "Fresh Cloudflare D1 management read rejected10000; do not infer empty graph or request another refresh for native verification.",
+    "native_direction_save": "Actual native composer loaded Work context and saved Reject whitespace-only signal titles from retained Cambium signal; typed create response validated. Independent fresh list readback not exposed by current UI.",
+    "native_work_direction_receipt": ".planning/native-mac/NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json",
+    "free_pool_architecture_advisory": {
+      "pool": "noesis-free",
+      "status": "completed-output-rejected",
+      "read_only": true,
+      "files_modified_by_worker": false,
+      "reason": "Wrongly claimed live D1 direction store absent and inferred unknown runtime key/binding absence from source; not accepted as a plan or live evidence.",
+      "provider_attribution": "unavailable",
+      "paid_fallback": false
+    }
   },
   "remaining": [
-    "Complete existing native sign-in and verify the served Cambium Work join and real direction save",
+    "Saved-direction browser/readback, then canonical direction review and immutable approval pins",
     "Direction approval and admission producer pinned to revision/source/artifact/policy/budget",
     "Finite Docker-isolated Cambium patch verification capability on installed Hermes, without rolling unrelated newer source",
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Founder completes the already-open Zen private native email-code login and existing15minute consent. On return use actual built app to verify Projects Cambium Open Work, retained signal and direction save. Work55efd3d7 is already approved and canonical graph commit observed; do not resubmit/reapprove. Worker2971a905 remains deployed; no Hermes execution yet.",
+  "next_action": "Continue next source slice: expose saved directions and bind exact draft revision/Work/head/input/policy/budget into existing canonical founder review. Add governed admission and finite Docker-isolated installed Hermes capability, then compose native launch/results. Do not resubmit Work55efd3d7 or repeat migrations/rollouts. Live Work join and draft save are verified; direction approval/execution/result are not.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",

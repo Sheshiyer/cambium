@@ -11,6 +11,18 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 live native Work join and direction save verified
+
+Actual signed-in Mac: mapped Cambium Explicit runtime join > Open work shows
+approved objective/state/next step. From the retained Cambium signal, Draft
+direction loaded Work and one submit saved Reject whitespace-only signal titles.
+See NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json. ISC3681/3682 met within
+live/source-test bounds. Fresh persisted-list readback is not yet exposed/claimed.
+Direction execution review/admission, installed Hermes coding capability,
+launch/results and full walkthrough remain open. No execution/acceptance claimed.
+Use native_operational_loop continuation; do not repeat Work approval or rollout.
+
+
 ## 2026-11-04 Work approved; native authentication in progress
 
 Zen canonical record confirms Cambium55efd3d7 approval and graph commit.

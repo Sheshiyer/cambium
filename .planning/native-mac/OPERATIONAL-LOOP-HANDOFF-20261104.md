@@ -24,17 +24,29 @@ Execution and evidence remain not observed. This establishes the founder decisio
 the separate D1 management read returned authentication10000, so direct D1 or
 native Work readback is not yet claimed. Do not resubmit or reapprove the intent.
 
-The actual built Mac app is running with an expired session. Its Sign in again
-button opened the existing Zen private AuthenticationServices flow, now at Enter
-your code. The founder is completing email-code login and the existing15minute
-native consent. Do not restart, rebuild or replace the app during authentication.
-On return verify mapped Projects > Cambium > Open Work, then the retained Inbox
-signal and real direction draft save. Exact proposal scope is in
-`CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json`.
+The founder completed native sign-in. Actual Projects loaded76current and
+20archived records; Cambium showed Explicit runtime join and Open work.
+Open work displayed the exact approved objective, active state and next step.
+The native Work join is verified. No admission was served.
 
-Native Work/direction proof, direction admission, Hermes rollout/execution and
-the full operational loop remain unverified. Do not switch browsers or weaken
-browser security. Use the native authenticated surface for the next readback.
+From the retained Native Inbox activation verification signal associated with
+Cambium, Draft direction loaded the real canonical Work context. One submit
+saved Reject whitespace-only signal titles and the app displayed Direction
+saved / Ready for review. The typed create result validated exact source pins.
+A separate fresh persisted-list readback is not yet exposed in the UI and is
+not claimed. See NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json.
+ISC3681/3682 are met within the cited live/source-test bounds;3683..3687 stay open.
+Do not ask for the completed sign-in again unless a later session is expired.
+
+Next source boundary: saved-direction browser/readback and canonical direction
+execution review, then owner admission, finite Docker-isolated hosted Hermes
+capability, idempotent native launch and immutable result/acceptance. No direction
+approval, admission, Hermes rollout/launch, result or acceptance has happened.
+An additional hosted noesis-free read-only architecture pass completed but its
+plan was rejected: it falsely claimed the implemented/live direction store was
+missing and inferred runtime key/binding absence from optional source. No such
+claims or changes were accepted. Provider/account/model attribution is unavailable;
+configured pool is not a serving receipt. No routing change or paid fallback used.
 
 A finite next coding input is prepared locally on branch
 `codex/cambium-code-pilot-input-20261104`, commit`c4cc221f`, base`d571ea92`:
