@@ -14,10 +14,10 @@ export const CLAIM_POLICY = Object.freeze({
   schema: 'cambium.iverif.claim-proof-policy.v1', command: 'iverif.claim-proof.review',
   workObjectId: 'sapling:iverif', loadoutId: 'loadout:iverif-claim-proof', clusterId: 'cluster:iverif-claim-proof',
   sourceManifestDigest: claimDigest(manifest), modelPool: 'noesis-free', paidFallback: false,
-  executor: 'conservative-source-inventory-v2', timeoutMs: 120000, maxSourceBytes: 524288,
+  executor: 'conservative-source-inventory-v2', timeoutMs: 20000, sourceConcurrency: 4, executionLeaseMs: 60000, maxTransportRequestMs: 10000, maxSourceBytes: 524288,
   maxClaims: 4096, maxArtifactBytes: 2097152, attempts: 1, automaticRetries: false,
   budget: {modelCalls:0,incrementalSpend:0,currency:'USD'},
-  stopConditions: ['source or manifest digest mismatch','expired or revoked admission','changed graph, direction or signal revision','lost execution fence','source or artifact byte limit','timeout','unconfirmed immutable artifact upload'],
+  stopConditions: ['source or manifest digest mismatch','expired or revoked admission','changed graph, direction or signal revision','lost execution fence','insufficient execution lease budget','source or artifact byte limit','timeout','unconfirmed immutable artifact upload'],
   outputs: ['claims.json', 'claims.md', 'provenance.json'], semanticAcceptance: 'founder-and-existing-acceptance-owner',
   productPromotion: false, externalAction: 'none',
 });
