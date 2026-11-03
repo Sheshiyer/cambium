@@ -60,7 +60,7 @@
     "proactive:loop:json": "node scripts/proactive-loop-tick.mjs --json",
     "growth-index:generate": "node scripts/growth-index/generate-growth-index.mjs",
     "growth-index:test": "node --test scripts/growth-index/generate-growth-index.test.mjs",
-    "proof:field-atlas": "node workers/quests/src/field-atlas-viewport-proof.mjs",
-    "proof:field-atlas:plan": "node workers/quests/src/field-atlas-viewport-proof.mjs --plan"
+    "department:pilot": "node scripts/department-pilot.mjs",
+    "department:pilot:test": "node --test shared/department-pilot/pilot.test.ts"
   }
 }

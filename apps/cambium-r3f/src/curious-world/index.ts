@@ -1,3 +1,4 @@
+import { mountDepartmentFolio, type DepartmentBridge } from './department-folio.ts';
 import { createWorld, type WorldAPI, type WorldState } from './world.ts';
 import { founderIntakeForm, type FounderIntakeState } from './founder-intake.ts';
 import { founderGraphView, type FounderGraphState } from './founder-graph.ts';
@@ -16,7 +17,7 @@ import {
 
 type Landmark = typeof WORLD_LANDMARKS[number];
 type District = typeof DISTRICTS[number];
-export interface CuriousWorldBridge extends GateBridge {
+export interface CuriousWorldBridge extends GateBridge, DepartmentBridge {
   openWorkbench: (target: 'mission' | 'gate' | 'inspect') => void;
   onExit: (error?: string) => void;
   getReadState: () => { state: string; label: string };
@@ -57,6 +58,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   let world: WorldAPI | null = null;
   let unsubscribe: (() => void) | null = null;
   let gateUnsubscribe: (() => void) | null = null;
+  let disposeDepartment: (() => void) | null = null;
   let gate: GateSnapshot = HELD_GATE;
   const recordedDecisions=new Map<string,GateRecordedDecision>();
   const recordedPaths=new Map<string,GatePath>();
@@ -130,7 +132,11 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   travelerButton.append(toolIcon('traveler'), travelerLabel);
   travelerButton.setAttribute('aria-label', 'Choose your traveler');
   // The 3D world is the founder surface; there is no way back to the retired 2D desk.
-  topActions.append(travelerButton, mapButton);
+  const departmentsButton = button('Departments', 'cw-button', () => {
+    showPanel('Product departments');
+    disposeDepartment = mountDepartmentFolio(dialogBody, bridge);
+  });
+  topActions.append(departmentsButton, travelerButton, mapButton);
   header.append(brand, topActions);
   const location = element('div', 'cw-location');
   const districtNumber = element('span', 'cw-location-index', '00 / THE THRESHOLD');
@@ -252,6 +258,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     if (disposed) return;
     if (!modal) returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     modal = true; clearInput(); world?.setBlocked(true); syncInstrument();
+    disposeDepartment?.(); disposeDepartment = null;
     dialog.dataset.panel = 'folio';
     gateHost = null; gateDigest = null; gateScope = null; gateConfirm = null; gateMessage = null;
     dialogTitle.textContent = title;
@@ -261,6 +268,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     closeButton.focus();
   }
   function closePanel(): void {
+    disposeDepartment?.(); disposeDepartment = null;
     if (disposed || !modal) return;
     modal = false; dialog.close(); clearInput(); world?.setBlocked(!begun);
     if (begun && !document.hidden) world?.start();
@@ -833,7 +841,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   listen(dialog, 'keydown', event => {
     const key = event as KeyboardEvent;
     if (key.key !== 'Tab') return;
-    const items = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],[tabindex="0"]')).filter(item => !item.hidden);
+    const items = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex="0"]'))
+      .filter(item => item.tabIndex >= 0 && !item.closest('[hidden]') && item.getClientRects().length > 0);
     const first = items[0], last = items[items.length - 1];
     if (key.shiftKey && document.activeElement === first) { key.preventDefault(); last?.focus(); }
     else if (!key.shiftKey && document.activeElement === last) { key.preventDefault(); first?.focus(); }
@@ -918,7 +927,7 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   }
   function dispose(): void {
     if (disposed) return;
-    disposed = true; instrumentObserver.dispose(); clearInput();
+    disposed = true; disposeDepartment?.(); disposeDepartment = null; instrumentObserver.dispose(); clearInput();
     if (stickPointer !== null && joystick.hasPointerCapture(stickPointer)) joystick.releasePointerCapture(stickPointer);
     stickPointer = null;
     if (dialog.open) dialog.close();
