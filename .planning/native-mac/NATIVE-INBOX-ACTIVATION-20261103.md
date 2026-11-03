@@ -9,7 +9,7 @@ peer integration remain separate.
 
 | Owner | Active version | Pinned source | Previous traffic version |
 | --- | --- | --- | --- |
-| Cambium | `7265d5e2-d531-47ef-a742-06d140b7de51` | `964a61a3` | `ef6e0c74-697e-4938-9d15-e0e481c80dbe` |
+| Cambium | `23cf59d1-754a-4cef-be7a-f96fcc072f48` | `b53961011e09701959d59c2bcfebb3253e138001` | `ef6e0c74-697e-4938-9d15-e0e481c80dbe` |
 | TeamForge | `7e4634ce-2a28-4c22-8255-30f9a2879039` | `18556245d6fc3769a869a1bdd77d1e8976b9175a` | `dd04f3dc-7cef-42f1-a376-20a0f018c2fe` |
 
 The owner explicitly requested activation in this chat. Both existing Workers
@@ -63,6 +63,14 @@ Worker-to-Swift portfolio wire probe passes. A separate offline reconstruction
 of the current D1/KV read was accepted by the real Swift decoder, including
 strict freshness, with 130 nodes and 202 explicit gaps. This reconstruction was
 diagnosis; real native readback below establishes live delivery.
+
+Full repository check in an independent Git checkout at `b5396101`: 2,704 tests
+passed, zero failures/skips. The first full pass exposed reconciliation issues;
+the final candidate restores main's approved repository-membership/lifecycle
+guards, keeps synthetic canaries privacy-neutral and refreshes the Atlas source
+fingerprint. These corrections preserve Field Atlas/Founder bookkeeping while
+retaining existing main authority checks. The source guard regression suite
+passes 60 tests; Atlas and native/identity/signal tests remain green.
 
 The owner completed email-code login and approved the registered client and
 tenant. Live diagnosis confirmed `Origin: null` under the original no-referrer
