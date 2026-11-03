@@ -560,7 +560,9 @@ ${hidden('tenant', prepared.tenantId)}
   ].join('; ');
   // Chrome applies form-action to the POST's redirect as well as its action.
   // The callback has already matched the registered client URI exactly.
-  const policy = PAGE_HEADERS['content-security-policy'].replace("form-action 'self'", `form-action 'self' ${prepared.redirectUri}`);
+  // Custom protocols have opaque origins in Chrome; a host-source callback
+  // does not match them. Scope the scheme-source to this registered client.
+  const policy = PAGE_HEADERS['content-security-policy'].replace("form-action 'self'", `form-action 'self' ${new URL(prepared.redirectUri).protocol}`);
   return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'content-security-policy': policy, 'set-cookie': cookie } });
 }
 
