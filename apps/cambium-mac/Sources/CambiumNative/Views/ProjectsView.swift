@@ -35,7 +35,7 @@ struct ProjectsView: View {
                      subtitle: "Find a project and choose what to do next.") {
             if let portfolio = model.fabric?.portfolio {
                 if model.isDemo {
-                    SyntheticNotice(message: "This is a dated replay of a catalog source. Its names and counts do not prove the current live owner state.")
+                    SyntheticNotice(message: "Sample projects. Live changes are off.")
                 }
                 summary(portfolio)
                 if portfolio.detailAvailable {
@@ -198,7 +198,7 @@ struct ProjectsView: View {
 
     private func entrySubtitle(_ entry: ProjectListEntry) -> String {
         switch entry {
-        case .active(let project): project.classification
+        case .active(let project): project.classification.replacingOccurrences(of: "-", with: " ").capitalized
         case .historical(let product): "Historical · \(product.status)"
         }
     }

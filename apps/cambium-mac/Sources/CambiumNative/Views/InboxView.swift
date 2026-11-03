@@ -24,7 +24,7 @@ struct InboxView: View {
 
     var body: some View {
         PageScaffold(eyebrow: "Capture", title: "Inbox", subtitle: "Collect an idea, observation or next step.") {
-            if model.isDemo { SyntheticNotice(message: "Synthetic in-process owner. These observations are demo data.") }
+            if model.isDemo { SyntheticNotice(message: "Sample observations. Live changes are off.") }
             HStack {
                 Text(model.inboxFilter.map { id in model.fabric?.portfolio?.projects.first(where: { $0.canonicalId == id })?.name ?? "Project Inbox" } ?? "All observations")
                 if model.inboxFilter != nil { Button("Show all") { model.openInbox(project: nil) } }

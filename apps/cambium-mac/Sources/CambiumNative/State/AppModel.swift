@@ -302,8 +302,8 @@ final class AppModel {
 
     // MARK: Mode
 
-    func enterDemo() { load(.demo); feedback = "Opened the demo. It replays source fixtures through the real coordinators." }
-    func leaveDemo() { load(.standard); feedback = "Left the demo. Standard mode stays unconfigured until an owner is supplied." }
+    func enterDemo() { load(.demo); feedback = "Demo opened. Using sample data." }
+    func leaveDemo() { load(.standard); feedback = "Demo closed." }
 
     func applyConfiguration() {
         switch OwnerConfiguration.validate(ownerURL: ownerURLDraft, tenant: tenantDraft, clientId: clientIDDraft, redirect: redirectDraft) {
@@ -524,7 +524,7 @@ final class AppModel {
         pendingLaunch = []
         loading = false
         snapshot = isDemo ? DemoData.snapshot : Self.emptySnapshot
-        feedback = "Signed out. Pending results from the previous session will not be shown."
+        feedback = "Signed out."
         _ = token
         Task { await services?.signOut() }
     }
