@@ -363,6 +363,11 @@ final class AppModel {
         }
     }
 
+    func retryOwnerRead() {
+        guard !loading else { return }
+        run("Owner read") { _, token in await self.refresh(token) }
+    }
+
     private func refresh(_ token: UInt64) async {
         guard let services, token == generation else { return }
         session = await services.session()
@@ -372,6 +377,7 @@ final class AppModel {
         }
         switch await services.readFabric() {
         case .success(let display) where token == generation:
+            issue = nil
             fabric = display
             snapshot = display.snapshot
             unattachedEvidence = display.unattachedEvidence
