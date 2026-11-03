@@ -516,6 +516,7 @@ export interface FabricLedgerStoreLike {
 }
 
 export interface HandlerDeps {
+  sharedSignalStore?: SignalStore;
   departmentReaders?: DepartmentSourceReaders; // server-owned accepted-source readers; absent stays unavailable
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
@@ -5588,8 +5589,7 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const nativePath = req.path.split('?')[0];
   if (nativePath === '/v1/signals' || nativePath.startsWith('/v1/signals/')) {
-    // Signals annotate source projects, including display proposals. This never
-    // creates a runtime join, tenant grant or operational admission.
+    // Existing native Inbox owner; this read/write contract adds no admission.
     return sharedSignalsHttp(req, deps, new Set(PORTFOLIO_DISPLAY_CATALOG.records.map(record => record.workId)));
   }
   if (NATIVE_SESSION_ROUTES.has(nativePath)) {

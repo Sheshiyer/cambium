@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T17:22:44.258646+00:00",
-  "status": "uploaded-verified-traffic-held",
-  "active_task": "Department candidate upload complete; separate traffic approval pending",
+  "updated": "2026-11-03T18:05:01.205062+00:00",
+  "status": "combined-source-ready-upload-held",
+  "active_task": "Combined department/native source prepared; version82 preserved",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -248,7 +248,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Keep production on ef6e0c74-697e-4938-9d15-e0e481c80dbe at 100%. Candidate e3750ef4-86dc-4980-a5a2-1b9331120c85 (version 80, source fcbb68f9) is uploaded and verified. Obtain a separate exact traffic approval before any deployment assignment; do not re-upload or reuse this upload approval.",
+  "next_action": "Review the combined source and52-binding config in docs/plans/department-pilot/NATIVE-RECONCILIATION.md. It is not uploaded. Preserve version82; a new exact upload approval and later separate traffic approval are required.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -412,7 +412,7 @@
   "wave": "founder-renewal-3d-runtime-e2e-2026-10-25",
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
-  "next_command": "Read .local/runtime/rollout-handoff.json and live worker messages; do not repeat completed merge or mutate the running baseline checkout.",
+  "next_command": "Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
   "extends": "gsd.pause-work.v1",
   "accepted_limitations": [
     "Canonical mobile viewport/trustedtouch proof remains held under explicit owner exception",
@@ -431,25 +431,44 @@
   },
   "continuations": {
     "department_live_integration": {
-      "status": "uploaded-verified-traffic-held",
-      "source_branch": "codex/department-source-pilot-20261103",
-      "handoff": "docs/plans/department-pilot/LIVE-INTEGRATION.md",
+      "status": "combined-source-ready-upload-held",
+      "source_branch": "codex/department-native-reconcile-20261103",
+      "handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
       "verified_live_head": 11,
       "live_head_digest": "68d3c34c2dd54ee2351e063bc0dd54bb468d8164550bd3af2c8cc10502d3e32f",
-      "serving_version": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
+      "serving_version": "323f4587-7066-4c89-b7db-d21c12493d7a",
       "accepted_daily_work": "unavailable from actual owner sources",
       "kpi_measurements": "twelve unavailable; no complete owner cohort reader",
-      "gate": "separate exact traffic approval still required",
+      "gate": "new exact combined-source/config upload approval; separate traffic gate after uploaded-version readback",
       "execution_granted": false,
-      "source_commit": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
-      "uploaded_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
-      "uploaded_version_number": 80,
-      "upload_approval": "explicit owner approval, upload and verify only; consumed by this version",
-      "uploaded_binding_count": 47,
-      "uploaded_bindings_exactly_match_serving": true,
       "traffic_unchanged": true,
       "serving_percentage": 100,
-      "upload_receipt": "artifact:departmental-live-integration-20261103/upload-fcbb68f9-20261103/uploaded-version-verification.json"
+      "original_department_source": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
+      "requested_traffic_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
+      "observed_serving_version": "323f4587-7066-4c89-b7db-d21c12493d7a",
+      "observed_serving_version_number": 82,
+      "observed_binding_count": 52,
+      "compatibility_branch": "codex/department-native-reconcile-20261103",
+      "compatibility_handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
+      "compatibility_upload_authorized": false,
+      "traffic_changed_by_this_task": false,
+      "rollback_requested_by_owner": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
+      "original_department_source_commit": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
+      "original_uploaded_department_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
+      "native_owner_source_commit": "ab94d63c7db8572c3743c1cb8c3d69221ba0f053",
+      "serving_binding_count": 52,
+      "owner_choice": "preserve version82 and prepare combined source",
+      "version80_promotion_superseded": true,
+      "combined_candidate_uploaded": false,
+      "combined_candidate_upload_authorized": false,
+      "local_verification": {
+        "focused_node_tests": "510/510",
+        "native_identity_swift_tests": "47/47",
+        "full_node_tests": "2690/2693; three baseline failures",
+        "typecheck": "passed",
+        "bundle_parity": "passed",
+        "dry_run": "passed; no upload"
+      }
     }
   }
 }
