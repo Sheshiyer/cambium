@@ -187,7 +187,8 @@ async function surfaceScopedQuestBody(
   principal: Principal,
   founderOutcomeAuthorized = false,
 ): Promise<string> {
-  const base = await publicQuestBody(deps.kv, tenantId, stored, deps.goalGraphStore);
+  const readTasks = goalGraphTaskReader(deps.kv, tenantId);
+  const base = await publicQuestBody(deps.kv, tenantId, stored, deps.goalGraphStore, readTasks);
   try {
     const envelope = JSON.parse(base);
     envelope.surface = {
@@ -195,7 +196,7 @@ async function surfaceScopedQuestBody(
       subsections: filterSubsections(MINI_APP_MAP_SUBSECTIONS, principal),
     };
     if (founderOutcomeAuthorized) {
-      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal);
+      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal, readTasks);
     }
     return JSON.stringify(envelope);
   } catch {
@@ -2847,7 +2848,8 @@ function sanitizeQuestEnvelope(envelope: any): any {
   });
 }
 
-async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, decisionStore?: GoalGraphStoreLike): Promise<string> {
+async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, decisionStore?: GoalGraphStoreLike,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(kv, tenantId)): Promise<string> {
   let envelope: Record<string, unknown>;
   try {
     envelope = sanitizeQuestEnvelope(JSON.parse(stored));
@@ -2869,7 +2871,7 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, dec
     }
     // Pending Telegram goal-graph proposals are founder decisions too: project
     // them into the same envelope the gate scene renders (bounded rows only).
-    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false, decisionStore });
+    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false, decisionStore, readTasks });
     if (goalGraphRows.length >= 1) {
       merged.goalGraphIntake = {
         schema: GOAL_GRAPH_GATE_ROW_LIST_SCHEMA,
@@ -4175,17 +4177,34 @@ async function projectedGoalGraphDecision(
   } catch { return undefined; }
 }
 
+type GoalGraphTaskReader = () => Promise<ReadonlyArray<Record<string, unknown>>>;
+
+/** One lazy snapshot per envelope, discarded when the request finishes. Canonical
+ * decisions are still read from D1; this only shares repeated KV discovery. */
+function goalGraphTaskReader(kv: KvLike, tenantId: string): GoalGraphTaskReader {
+  let snapshot: ReturnType<GoalGraphTaskReader> | undefined;
+  return () => snapshot ??= (async () => {
+    const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
+    const tasks: Array<Record<string, unknown>> = [];
+    for (let offset = 0; offset < keys.length; offset += 8) {
+      const batch = await Promise.all(keys.slice(offset, offset + 8).map(key => kv.get(key)));
+      for (const value of batch) {
+        const task = parseJsonObject(value);
+        if (task?.schema === GOAL_GRAPH_INTAKE_TASK_SCHEMA && task.tenantId === tenantId) tasks.push(task);
+      }
+    }
+    return tasks;
+  })();
+}
+
 async function listGoalGraphIntakeGateRows(
   kv: KvLike,
   tenantId: string,
-  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike } = {},
+  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike; readTasks?: GoalGraphTaskReader } = {},
 ): Promise<Array<Record<string, unknown>>> {
-  const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
-  for (const key of keys) {
-    const task = parseJsonObject(await kv.get(key));
-    if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA) continue;
-    if (task.tenantId !== tenantId || !['pending','stale'].includes(String(task.status))) continue;
+  for (const task of await (options.readTasks ?? goalGraphTaskReader(kv, tenantId))()) {
+    if (!['pending','stale'].includes(String(task.status))) continue;
     const candidate = storedFounderOutcomeCandidate(task);
     if (candidate && task.status !== 'pending') continue;
     if (!candidate && await projectedGoalGraphDecision(options.decisionStore, task, tenantId) !== null) continue;
@@ -4213,12 +4232,10 @@ async function listGoalGraphIntakeGateRows(
 
 const GOAL_GRAPH_DECISION_PATH_LIMIT = 8;
 
-async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string): Promise<Array<Record<string, unknown>>> {
-  const keys = await deps.kv.list(`goal-graph-intake-task:${tenantId}:`);
+async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(deps.kv, tenantId)): Promise<Array<Record<string, unknown>>> {
   const decided: Array<{ task: Record<string, unknown>; decidedAt: string; decision: 'approved' | 'rejected' }> = [];
-  for (const key of keys) {
-    const task = parseJsonObject(await deps.kv.get(key));
-    if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA || task.tenantId !== tenantId) continue;
+  for (const task of await readTasks()) {
     if (storedFounderOutcomeCandidate(task)) continue;
     if (deps.goalGraphStore?.readDecisionReceipt) {
       const receipt = await projectedGoalGraphDecision(deps.goalGraphStore, task, tenantId);
@@ -4327,14 +4344,13 @@ async function listExpiredFounderOutcomeRecovery(
   tenantId: string,
   now: string,
   committedCandidateIds: ReadonlySet<string>,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(kv, tenantId),
 ): Promise<Array<Record<string, unknown>>> {
   const nowMs = Date.parse(now);
   if (!Number.isFinite(nowMs)) return [];
-  const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
-  for (const key of keys) {
-    const task = parseJsonObject(await kv.get(key));
-    if (!task || task.status !== 'pending') continue;
+  for (const task of await readTasks()) {
+    if (task.status !== 'pending') continue;
     const candidate = storedFounderOutcomeCandidate(task);
     if (!candidate || committedCandidateIds.has(String(candidate.candidateId))) continue;
     const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, String(task.changeDigest ?? ''));
@@ -4364,6 +4380,7 @@ async function appendFounderOutcomeQuestProjection(
   deps: HandlerDeps,
   tenantId: string,
   principal: Principal,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(deps.kv, tenantId),
 ): Promise<void> {
   const now = deps.now ? deps.now() : new Date().toISOString();
   if (!founderOutcomeProjectionAllowed(principal, tenantId, now)) return;
@@ -4375,6 +4392,7 @@ async function appendFounderOutcomeQuestProjection(
     now,
     committedCandidateIds,
     decisionStore: deps.goalGraphStore,
+    readTasks,
   });
   if (gateRows.length) {
     envelope.goalGraphIntake = {
@@ -4387,13 +4405,13 @@ async function appendFounderOutcomeQuestProjection(
   } else {
     delete envelope.goalGraphIntake;
   }
-  const decisionPaths = await listGoalGraphDecisionPaths(deps, tenantId);
+  const decisionPaths = await listGoalGraphDecisionPaths(deps, tenantId, readTasks);
   if (decisionPaths.length) {
     envelope.goalGraphDecisions = { schema: GOAL_GRAPH_PATH_SCHEMA, ok: true, tenantId, rows: decisionPaths };
   } else {
     delete envelope.goalGraphDecisions;
   }
-  const recoveryRows = await listExpiredFounderOutcomeRecovery(deps.kv, tenantId, now, committedCandidateIds);
+  const recoveryRows = await listExpiredFounderOutcomeRecovery(deps.kv, tenantId, now, committedCandidateIds, readTasks);
   if (recoveryRows.length) {
     envelope.founderOutcomeRecovery = {
       schema: 'cambium.founder-outcome-recovery-list.v1',

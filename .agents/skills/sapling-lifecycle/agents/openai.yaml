@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sapling Lifecycle"
+  short_description: "Review product evidence and advance one selected step"
+  default_prompt: "Use $sapling-lifecycle to review this product and handle one selected authorized next step."
+policy:
+  allow_implicit_invocation: true

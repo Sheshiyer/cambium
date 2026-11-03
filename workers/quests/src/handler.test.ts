@@ -16558,6 +16558,44 @@ function founderWebGatePost(path: string, payload: Record<string, unknown>, head
   return handle(req('POST', path, { headers, body: JSON.stringify(payload) }), deps);
 }
 
+test('founder overview reads one bounded concurrent task snapshot per request without leaking foreign rows', async () => {
+  const { kv, deps, changeDigest } = await founderWebHarness();
+  kv.store.set('ledger:cambium', ENVELOPE);
+  const prefix = 'goal-graph-intake-task:cambium:';
+  for (let i = 0; i < 24; i++) kv.store.set(`${prefix}invalid-${i}`, '{"schema":"invalid"}');
+  const real = JSON.parse(kv.store.get(`${prefix}${changeDigest}`)!);
+  kv.store.set(`${prefix}foreign`, JSON.stringify({ ...real, tenantId: 'foreign-tenant' }));
+  const graphBefore = await deps.goalGraphStore.readHead('cambium');
+  let lists = 0, active = 0, peak = 0;
+  const gets = new Map<string, number>();
+  const observedKv: KvLike = {
+    ...kv,
+    async list(p) { if (p === prefix) lists++; return kv.list(p); },
+    async get(key) {
+      if (!key.startsWith(prefix)) return kv.get(key);
+      gets.set(key, (gets.get(key) ?? 0) + 1);
+      peak = Math.max(peak, ++active);
+      await new Promise<void>(resolve => setImmediate(resolve));
+      active--;
+      return kv.get(key);
+    },
+    async put(key, value) { assert.ok(!key.startsWith(prefix), 'projection cannot write graph tasks'); return kv.put(key, value); },
+  };
+  const headers = { host: FOUNDER_WEB_HOST, 'cf-access-jwt-assertion': founderWebJwt() };
+  const read = () => handle(req('GET', '/founder/api/quests/cambium', { headers }), { ...deps, kv: observedKv });
+  const result = await read();
+  assert.equal(result.status, 200);
+  assert.deepEqual(body(result).goalGraphIntake.rows.map((row: any) => row.changeDigest), [changeDigest]);
+  assert.ok(body(result).goalGraphIntake.rows[0].founderInspect);
+  assert.equal(lists, 1);
+  assert.ok([...gets.values()].every(count => count === 1));
+  assert.ok(peak > 1 && peak <= 8, 'reads overlap within a bounded batch');
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), graphBefore);
+  kv.store.delete(`${prefix}${changeDigest}`);
+  assert.equal(body(await read()).goalGraphIntake, undefined, 'a new request must observe current sources');
+  assert.equal(lists, 2);
+});
+
 test('founder web gate · a verified Access founder approves through /founder and the goal graph commits', async () => {
   const { db, deps, changeDigest } = await founderWebHarness();
   const approved = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: changeDigest }, founderWebHeaders(), deps);
@@ -17343,6 +17381,37 @@ test('founder bookkeeping intake · real Access route stores only pending, full 
   assert.deepEqual(Object.keys(graph.head).sort(),['graphDigest','graphVersion','tenantId']);
   assert.equal(readback.headers['cache-control'],'private, no-store');
   assert.doesNotMatch(readback.body,/CF_Authorization|founder@thoughtseed/);
+});
+
+test('founder bookkeeping intake · an exact later amendment preserves original creation time through review and D1', async () => {
+  const h = await canonicalFounderHarness();
+  let clock = h.deps.now();
+  h.deps.now = () => clock;
+  const raw = founderBookkeepingInput();
+  const first = body(await h.call('intake', raw));
+  const firstReview = body(await h.call('proposal', { proposalId: first.proposalId }));
+  assert.equal(body(await h.call('decision', canonicalDecision(firstReview))).status, 'approved');
+  const [before] = await h.deps.goalGraphStore.readNodes('cambium');
+  clock = new Date(Date.parse(clock) + 3600000).toISOString();
+  raw.clientRequestId = 'launch-evidence-amended-002';
+  raw.goals[0].currentState = 'Actual owner reader completed; native acceptance held.';
+  const second = body(await h.call('intake', raw));
+  const reviewed = body(await h.call('proposal', { proposalId: second.proposalId }));
+  const changes = reviewed.proposal.review.bookkeepingChanges;
+  assert.equal(changes.nodesToCreate.length, 0);
+  assert.equal(changes.nodesToRemove.length, 0);
+  assert.equal(changes.nodesToUpdate.length, 1);
+  assert.equal(changes.nodesToUpdate[0].after.createdAt, before.createdAt);
+  assert.equal(changes.nodesToUpdate[0].after.updatedAt, clock);
+  assert.equal(body(await h.call('decision', canonicalDecision(reviewed))).status, 'approved');
+  const [after] = await h.deps.goalGraphStore.readNodes('cambium');
+  assert.equal(after.nodeId, before.nodeId);
+  assert.equal(after.createdAt, before.createdAt);
+  assert.equal(after.updatedAt, clock);
+  assert.equal(after.graphVersion, 2);
+  assert.equal(after.currentState, raw.goals[0].currentState);
+  assert.equal(after.pinnedLoadoutId, null);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 2);
 });
 
 test('founder bookkeeping intake · duplicate is one task, changed same request conflicts without graph writes', async () => {
