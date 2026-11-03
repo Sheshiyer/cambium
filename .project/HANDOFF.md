@@ -1,3 +1,34 @@
+# Handoff pickup
+
+Current pickup: `.planning/HANDOFF.json`; follow `PROJECT.md`.
+This file retains the complete historical checkpoint body below.
+
+Read only these first 12 lines during ordinary session pickup.
+Select the root summary and matching structured continuation first.
+Open only that task's cited proof or owning handoff when needed.
+Search a specific historical heading only to resolve a missing fact.
+ISA and GSD retain acceptance and planning authority.
+Historical commands and completion claims are not fresh approvals.
+<!-- cambium:handoff-history:start -->
+
+## 2026-11-04 operational-loop handoff and main-window sign-in
+
+Owner selected the existing hosted Hermes runner for the Cambium coding pilot.
+New continuation: `.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`;
+read its matching Markdown handoff and continue branch
+`codex/cambium-operational-loop-20261104`. Sign-in source `1f64c646` adds main/
+sidebar entry, expiry-aware re-entry and correct prior-owner cancellation order.
+Core261 (two opt-in skips), native43 and clean signed bundle checks pass.
+Actual buttons are visible; fresh browser-window walkthrough remains unverified.
+
+The operational Work join, shared directions, owner admission/launch composition
+and real result loop remain unimplemented. D1 readback found zero Cambium anchors
+and no native launch tables. Inspected Hermes source has no Cambium registration;
+verify the installed owner before rollout. Do not mix execution metadata into the
+bookkeeping lane, seed authority rows, replay completed migrations or claim the
+prior signal test is an execution result. The proposed sign-in patch is pinned in
+the new handoff for review; it is not admitted. Primary concurrent work is intact.
+
 ## Native Inbox live activation verified — 4 November 2026
 
 Real founder sign-in, current owner-served mapped catalog and persisted signal

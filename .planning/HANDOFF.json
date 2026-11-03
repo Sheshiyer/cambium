@@ -428,5 +428,30 @@
     "decision": "approved",
     "graphVersion": 3,
     "nodeStatus": "blocked"
+  },
+  "continuations": {
+    "native_operational_loop": {
+      "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
+      "status": "sign-in-built-operational-loop-not-wired",
+      "tier": "E5",
+      "branch": "codex/cambium-operational-loop-20261104",
+      "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
+      "selected_execution_owner": "hosted-hermes",
+      "native_source": "1f64c646cb6bac0e91919f25322f93773fefba32",
+      "isa": "ISA.md",
+      "isc_done": [
+        "ISC-3680"
+      ],
+      "isc_open": [
+        "ISC-3681",
+        "ISC-3682",
+        "ISC-3683",
+        "ISC-3684",
+        "ISC-3685",
+        "ISC-3686",
+        "ISC-3687"
+      ],
+      "next_action": "Implement the explicit approved operational Work source and exact native join, then revisioned directions and the reviewed finite hosted-Hermes capability/admission/result contract. Full loop has not run; preserve completed Inbox proof separately."
+    }
   }
 }
