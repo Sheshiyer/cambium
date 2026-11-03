@@ -57,7 +57,7 @@ function req(method: string, path: string, headers: Record<string, string> = {},
   return { method, path, headers: { host: 'cambium.test', ...headers }, body };
 }
 
-test('all four unbound native session routes return 503 native_session_unconfigured', async () => {
+test('all unbound native session routes return 503 native_session_unconfigured', async () => {
   for (const path of Object.values(NATIVE_SESSION_PATHS)) {
     const res = await handle(req('GET', path), { kv: { get: async () => null, put: async () => {} } as any });
     assert.equal(res.status, 503, path);
@@ -205,7 +205,7 @@ test('unsupported routes with native token early-refuse without global auth elev
   assert.equal(JSON.parse(res.body as string).error, 'native_route_unsupported');
 });
 
-function consentPost(auth: { status: number; headers: Record<string, string>; body?: string }) {
+function consentPost(auth: { status: number; headers: Record<string, string>; body?: string }, authorizePath: string = NATIVE_SESSION_PATHS.authorize) {
   const html = String(auth.body ?? '');
   const field = (name: string) => {
     const match = new RegExp(`name="${name}" value="([^"]*)"`).exec(html);
@@ -222,16 +222,18 @@ function consentPost(auth: { status: number; headers: Record<string, string>; bo
     client_id: field('client_id'), redirect_uri: field('redirect_uri'), code_challenge: field('code_challenge'),
     code_challenge_method: 'S256', state: field('state'), tenant: field('tenant'),
   });
-  return req('POST', `${NATIVE_SESSION_PATHS.authorize}?${query}`, {
+  return req('POST', `${authorizePath}?${query}`, {
     'content-type': 'application/x-www-form-urlencoded',
     cookie: `${NATIVE_CONSENT_COOKIE}=${cookie[1]}`,
   }, body.toString());
 }
 
-async function nativeToken(deps: HandlerDeps): Promise<string> {
-  const auth = await handle(req('GET', `${NATIVE_SESSION_PATHS.authorize}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`), deps);
+async function nativeToken(deps: HandlerDeps, authorizePath: string = NATIVE_SESSION_PATHS.authorize): Promise<string> {
+  const auth = await handle(req('GET', `${authorizePath}?client_id=${CLIENT_ID}&code_challenge=${CHALLENGE}&code_challenge_method=S256&redirect_uri=${encodeURIComponent(REDIRECT)}&state=abcdefghijklmnopqrstuvwx`), deps);
   assert.equal(auth.status, 200, auth.body);
-  const granted = await handle(consentPost(auth), deps);
+  assert.ok(auth.headers['set-cookie'].includes(`Path=${authorizePath};`));
+  assert.ok(String(auth.body).includes(`action="${authorizePath}?`));
+  const granted = await handle(consentPost(auth, authorizePath), deps);
   assert.equal(granted.status, 302, granted.body);
   const code = new URL(granted.headers.location, ORIGIN).searchParams.get('code')!;
   const ex = await handle(req('POST', NATIVE_SESSION_PATHS.exchange, { 'content-type': 'application/json', origin: ORIGIN },
@@ -239,6 +241,14 @@ async function nativeToken(deps: HandlerDeps): Promise<string> {
   assert.equal(ex.status, 200, ex.body);
   return JSON.parse(ex.body as string).token;
 }
+
+test('Founder Access browser alias completes consent and cookie-free PKCE exchange', async () => {
+  const { deps } = await nativeSessionHarness();
+  const token = await nativeToken(deps, NATIVE_SESSION_PATHS.browserAuthorize);
+  const session = await handle(req('GET', NATIVE_SESSION_PATHS.session, { authorization: `Bearer ${token}` }), deps);
+  assert.equal(session.status, 200);
+  assert.equal(JSON.parse(String(session.body)).tenantId, 'cambium');
+});
 
 test('authorize GET renders consent form with no-store headers and POST returns 302 with exact location', async () => {
   const { deps } = await nativeSessionHarness();
