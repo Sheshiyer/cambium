@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // Keep checked-in replay fixtures stable while probing the current source:
-// CAMBIUM_FABRIC_FIXTURE_DIR=/tmp/cambium-fabric-current node .../fabric-generate.mts
+// CAMBIUM_FABRIC_FIXTURE_DIR="$FIXTURE_OUTPUT" node .../fabric-generate.mts
 const outputDir = process.env.CAMBIUM_FABRIC_FIXTURE_DIR
   ? resolve(process.env.CAMBIUM_FABRIC_FIXTURE_DIR)
   : here;

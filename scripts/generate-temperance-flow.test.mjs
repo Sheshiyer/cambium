@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
+import { startFixtureChild } from './fixture-child.mjs';
 import {
   cpSync,
   existsSync,
@@ -553,10 +554,16 @@ test('FLOW-04 / WR-04: startup recovery repairs a process killed between pair re
 
 test('FLOW-04 / WR-04: concurrent publishers cannot recover or overwrite a live transaction', async (t) => {
   const fixture = makeFixture();
-  t.after(fixture.cleanup);
   runGenerator(fixture.root, outputArgs(fixture, '--write'));
   const transactionUrl = new URL('./two-file-transaction.mjs', import.meta.url).href;
   const marker = path.join(fixture.root, 'writer-paused');
+  const release = path.join(fixture.root, 'writer-release');
+  const children = [];
+  t.after(async () => {
+    if (existsSync(fixture.root)) writeFileSync(release, 'release');
+    await Promise.all(children.map(owned => owned.stop()));
+    fixture.cleanup();
+  });
   const entriesOne = [
     { target: fixture.json, bytes: '{"writer":1}\n' },
     { target: fixture.markdown, bytes: '# writer 1\n' },
@@ -566,36 +573,47 @@ test('FLOW-04 / WR-04: concurrent publishers cannot recover or overwrite a live 
     { target: fixture.markdown, bytes: '# writer 2\n' },
   ];
   const firstScript = `
-    import { renameSync, writeFileSync } from 'node:fs';
+    import { existsSync, renameSync, writeFileSync } from 'node:fs';
     const { publishFilePair } = await import(${JSON.stringify(transactionUrl)});
     let published = 0;
     publishFilePair(${JSON.stringify(entriesOne)}, { rename(from, to) {
       renameSync(from, to);
       if (from.endsWith('.stage') && ++published === 1) {
         writeFileSync(${JSON.stringify(marker)}, 'paused');
-        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500);
+        const deadline = Date.now() + 15000;
+        while (!existsSync(${JSON.stringify(release)})) {
+          if (Date.now() >= deadline) throw new Error('publication release handshake timed out');
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
+        }
       }
     }});
   `;
   const secondScript = `
-    const { publishFilePair } = await import(${JSON.stringify(transactionUrl)});
-    publishFilePair(${JSON.stringify(entriesTwo)});
+    import assert from 'node:assert/strict';
+    const { publishFilePair, recoverFilePair } = await import(${JSON.stringify(transactionUrl)});
+    for (const attempt of [recoverFilePair, publishFilePair]) {
+      assert.throws(() => attempt(${JSON.stringify(entriesTwo)}, { lockWaitMs: 0 }), /lock is busy/);
+    }
   `;
-  const runChild = (script) => new Promise((resolve) => {
-    const child = spawn(process.execPath, ['--input-type=module', '--eval', script], { encoding: 'utf8' });
-    let stderr = '';
-    child.stderr.on('data', (chunk) => { stderr += chunk; });
-    child.on('exit', (code, signal) => resolve({ code, signal, stderr }));
-  });
+  const runChild = script => {
+    const owned = startFixtureChild(process.execPath, ['--input-type=module', '--eval', script]);
+    children.push(owned);
+    return owned.done;
+  };
   const first = runChild(firstScript);
-  for (let attempt = 0; attempt < 100 && !existsSync(marker); attempt += 1) {
+  const deadline = Date.now() + 10000;
+  while (!existsSync(marker) && Date.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
   assert.equal(existsSync(marker), true, 'first writer must pause inside its live transaction');
-  const second = runChild(secondScript);
-  const [firstResult, secondResult] = await Promise.all([first, second]);
+  const secondResult = await runChild(secondScript);
+  assert.equal(secondResult.code, 0, secondResult.stderr);
+  assert.equal(readFileSync(fixture.json, 'utf8'), entriesOne[0].bytes, 'busy recovery/publish did not replace the live first output');
+  writeFileSync(release, 'release');
+  const firstResult = await first;
   assert.equal(firstResult.code, 0, firstResult.stderr);
   assert.equal(secondResult.code, 0, secondResult.stderr);
+  transactionApi.publishFilePair(entriesTwo);
   assert.equal(readFileSync(fixture.json, 'utf8'), entriesTwo[0].bytes);
   assert.equal(readFileSync(fixture.markdown, 'utf8'), entriesTwo[1].bytes);
   assert.equal(walkFiles(fixture.root).some((name) => /publication-(?:transaction\.json|transaction\.json\.lock)$|\.(?:stage|backup)$/.test(name)), false);

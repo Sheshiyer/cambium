@@ -2,6 +2,10 @@
 
 ## Graph and tooling source follow-up
 
+The user has selected version95 as the next planning baseline, with traffic
+changes held. This resolves which version planning uses; it authorizes no
+promotion, rollback, version96 reuse or deployment of this branch.
+
 The reader branch now preserves an existing bookkeeping node's `createdAt` when a later intent amends it. New nodes retain the new observation time. Canonical review and SQLite-backed D1 tests cover the exact amendment, original identity, source/version advancement and unchanged execution authority.
 
 The authenticated overview previously scanned the same intake-task keys four times per request. It now shares one lazy request-local task snapshot across public rows, founder rows, decision paths and expired-candidate recovery, with at most eight concurrent KV reads. Tenant/schema filtering and the original D1 decision checks remain in place. The regression verifies one discovery/read per key, bounded overlap, no graph write and a fresh snapshot on the next request. This removes reproduced redundant work; it does not establish that the production overview timeout is resolved.
@@ -27,6 +31,44 @@ For example, the existing paused LumenBar measurement task is `goal_12f727f72b20
 A reviewable accepted mapping must name the current head, WorkObject, original node IDs/parents, actual ISA acceptance and plan reference/digest, sequence, state, dependency satisfaction/evidence, observation time and expiry. Those values remain missing; there is no completed positive approval packet to submit. Use the existing `AcceptedGsdScope` seam rather than creating another ledger or reader authority. Taste/Cortex remain the original composition/candidate-learning owners. MISSION currency needs owner review before a new department objective or target.
 
 No new hook is proposed for activation. If a later request requires one, the packet must first identify exact callback source/definition, client/event, trust delta, harmless native canary, owner-result readback, timeout behavior and reversal. Preserve Vestibule, PromptProcessing, SecurityPipeline and Nutrix ownership. Product Hunt stays recorded as November 6 at 13:31 IST; this work changes neither copy nor schedule. Rhai/model-fence acceptance remains distinct from D1 bookkeeping.
+
+### Expanded verification repair
+
+The existing release owner's six standalone-audit fixes were reconciled into
+this branch. Native owner-origin equality remains bound to the existing
+Cloudflare resource manifest and rejects a different valid HTTPS origin. The
+candidate's blank native owner prefill is a visible behavior delta requiring
+owner review before native installation/release; its 25 local XCTest checks do
+not accept that change. Snapshot output stays under an explicit directory or
+the repository's ignored build directory.
+
+Publication/CAS fixtures now use bounded marker/release handshakes and captured
+child completion, covering live-lock refusal, stale-after-commit conflict,
+failed spawn and signal exits without deleting live fixtures. No transaction
+exclusion or recovery behavior was weakened. Phase privacy sensitivity regexes
+remain unchanged; exact per-file synthetic literals and complete reviewed
+statements have strict suffix checks. Added guards reject appended values and
+wrong-file reuse. The five source/privacy/safety assertions remain required,
+including repository/index/ref immutability in frozen verification.
+
+The inherited 47-frame viewport plan targets the retired 2D scenes. Its guard,
+manifest and images remain untouched. `npm run proof:field-atlas` creates eight
+current 3D review frames with PAGE, instruction, source-file and PNG bindings;
+it grants no canonical or live acceptance. The viewport HITL packet lists all
+47 original identities and retained/replacement intents rather than waiving
+coverage. At 390 CSS pixels, Departments text extends left of its header button
+and competes with the status line; this existing responsive finding is held.
+
+Separate LumenBar and Temperance approval-preparation packets, viewport
+coverage delta, native-prefill delta and exact verification receipts live under
+the ignored `artifact:graph-tooling-20261104/approval-packets` reference. Product
+proposal digests do not supply missing accepted ISA/GSD plan digests. Current
+graph auth requires an Access email/OTP session; the earlier head13 export is
+expired for a new owner-reader run. Do not restamp it or use D1 CLI as an
+alternate writer/read authority. The host reference audit still reports eight
+sapling wrappers absent from its global index: their repository-owned source
+is known, and this pass does not add a host registration or alter the fourteen
+managed hot capabilities. CI remains deferred and separate.
 
 ## Original owner-reader checkpoint
 

@@ -7,8 +7,13 @@
 # as observed runtime state rather than converted into a success claim.
 set -eu
 
-owner_url=${CAMBIUM_OWNER_URL:-https://curious.thoughtseed.space}
+owner_url=${CAMBIUM_OWNER_URL:-}
 teamforge_url=${CAMBIUM_TEAMFORGE_IDENTITY_URL:-https://teamforge-api.thoughtseedlabs.workers.dev/v1/native/identity/pid_admin_thoughtseed_labs?tenant_id=cambium}
+
+if [ -z "$owner_url" ]; then
+  echo 'Set CAMBIUM_OWNER_URL to the HTTPS owner origin before running this read-only probe' >&2
+  exit 2
+fi
 
 case "$owner_url" in
   https://*\?*|https://*\#*|http://*|https://) echo 'CAMBIUM_OWNER_URL must be an HTTPS origin without query or fragment' >&2; exit 2 ;;

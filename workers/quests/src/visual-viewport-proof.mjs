@@ -2075,7 +2075,9 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
   let chromeStderr = '';
   const chrome = spawn(browser, [
     ...mode.args,
-    '--disable-gpu',
+    ...(options.webgl === true
+      ? ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+      : ['--disable-gpu']),
     '--disable-background-networking',
     '--disable-dev-shm-usage',
     '--no-sandbox',
@@ -2175,14 +2177,16 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       if (options.waitAfterExpression) {
         await waitForExpression(cdp, options.waitAfterExpression);
       }
+      let assertion = null;
       if (options.assertExpression) {
-        const assertion = await evaluate(cdp, options.assertExpression);
+        assertion = await evaluate(cdp, options.assertExpression);
         if (assertion !== true && !(assertion && assertion.ok === true)) {
           throw new Error(`Browser assertion failed: ${JSON.stringify(assertion)}`);
         }
       }
       const shot = await cdp.send('Page.captureScreenshot', await screenshotParams(cdp, options));
       writeFileSync(file, Buffer.from(shot.data, 'base64'));
+      return { assertion };
     } finally {
       cdp.close();
     }
@@ -2192,7 +2196,7 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
   }
 }
 
-async function capture(url, file, options = {}) {
+export async function captureViewportProof(url, file, options = {}) {
   const candidates = activeBrowser ? [activeBrowser, ...BROWSER_CANDIDATES.filter((browser) => browser !== activeBrowser)] : BROWSER_CANDIDATES;
   const modes = activeBrowserMode
     ? [browserProbeModes.find((mode) => mode.id === activeBrowserMode), ...browserProbeModes.filter((mode) => mode.id !== activeBrowserMode)].filter(Boolean)
@@ -2201,10 +2205,10 @@ async function capture(url, file, options = {}) {
   for (const browser of candidates) {
     for (const mode of modes) {
       try {
-        await captureWithBrowser(browser, mode, url, file, options);
+        const result = await captureWithBrowser(browser, mode, url, file, options);
         activeBrowser = browser;
         activeBrowserMode = mode.id;
-        return;
+        return { ...result, browser:basename(browser), browserMode:mode.id };
       } catch (error) {
         failures.push({ browser, mode: mode.id, error: error instanceof Error ? error.message : String(error) });
       }
@@ -2277,7 +2281,7 @@ await withServer(async (base, metrics) => {
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
     try {
-      await capture(url, file, proof);
+      await captureViewportProof(url, file, proof);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Capture failed for proof.path="${proof.path}": ${message}`);

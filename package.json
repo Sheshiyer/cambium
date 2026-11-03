@@ -67,6 +67,7 @@
     "sapling": "node .agents/skills/sapling-lifecycle/scripts/lifecycle.mjs",
     "sapling:adapters": "node .agents/skills/sapling-lifecycle/scripts/install.mjs",
     "sapling:test": "node --test .agents/skills/sapling-lifecycle/scripts/*.test.mjs",
-    "sapling:hooks": "node .agents/skills/sapling-lifecycle/scripts/codex-hooks.mjs"
+    "sapling:hooks": "node .agents/skills/sapling-lifecycle/scripts/codex-hooks.mjs",
+    "proof:field-atlas": "node scripts/capture-field-atlas.mjs"
   }
 }

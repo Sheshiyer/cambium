@@ -32,7 +32,12 @@ test('Labs native Mac profile pins the reviewed Curious tenant and exact callbac
     'https://teamforge-api.thoughtseedlabs.workers.dev/v1/native/identity',
   );
   assert.equal(config.vars.PLEXUS_NATIVE_IDENTITY_TENANT, 'cambium');
-  assert.equal(config.vars.NATIVE_SESSION_OWNER_ORIGIN, 'https://curious.thoughtseed.space');
+  const resourceMap = JSON.parse(await readFile(path.resolve(questsDir, '../..',
+    'docs/architecture/contracts/cambium-cloudflare-resource-map.v1.json'), 'utf8'));
+  const reviewedOrigin = `https://${resourceMap.production.worker.custom_domain}`;
+  const assertReviewedOwner = (origin: string) => assert.equal(origin, reviewedOrigin, 'native owner must match the reviewed Labs resource contract');
+  assertReviewedOwner(config.vars.NATIVE_SESSION_OWNER_ORIGIN);
+  assert.throws(() => assertReviewedOwner('https://different-owner.example.test'), /reviewed Labs resource contract/);
   assert.deepEqual(JSON.parse(config.vars.NATIVE_SESSION_CLIENTS_JSON), [{
     clientId: 'space.thoughtseed.cambium.native.dev',
     redirectUri: 'space.thoughtseed.cambium.native.dev://oauth/callback',
