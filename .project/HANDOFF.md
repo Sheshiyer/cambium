@@ -11,6 +11,12 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-03 Combined source retains later native diagnostics
+
+- After the owner chose native preservation, that release stream advanced independently to version83/source d113d8ab, with unchanged52 bindings/runtime and categorical diagnostics only. This task made no traffic write.
+- Final combined source carries that exact delta;559 focused Node tests and47 native Swift identity tests pass. The department frontend remains byte-identical. New combined upload/traffic gates remain held; review NATIVE-RECONCILIATION.md.
+
+
 ### 2026-11-03 Concurrent native release held version80 promotion
 
 - Requested version80 traffic promotion was not executed: live version82/sourceab94d63c has52 bindings, protected native consent and Inbox routes absent from version80. Owner selected preserving version82 and preparing the combined source.
