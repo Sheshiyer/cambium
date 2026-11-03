@@ -11,6 +11,14 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-03 Department candidate uploaded; traffic held
+
+- Explicit owner approval uploaded source fcbb68f9e11a29922aa65b8f7dedf08601e81844 as version80 / e3750ef4-86dc-4980-a5a2-1b9331120c85, using the reviewed47-binding config and documented baseline failures.
+- Actual version readback:47 bindings/configurations and runtime exactly match serving; cron/exposure unchanged. Only upload annotations changed. Version preview serves exact candidateJS/CSS, health is200/configured, unauthenticated graph is401.
+- Existing deployment d27c5b87-57ec-4774-82f8-21a518d23ccb remains100% on ef6e0c74-697e-4938-9d15-e0e481c80dbe. Separate traffic approval remains required; this upload approval is consumed. No graph or social mutation.
+- Outcome/receipt: docs/plans/department-pilot/LIVE-INTEGRATION.md and the matching structured continuation. The uploaded source is fcbb68f9; this later checkpoint changes documentation only.
+
+
 ### 2026-11-03 Department authenticated source integration
 
 - Isolated department pilot continues through the existing founder graph/3D read owner; maintained native/Cortex/portfolio work preserved. Current head11 read: 128 product nodes, seven decisions.
