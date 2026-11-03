@@ -1949,6 +1949,29 @@ async function pressKeyOnSelector(cdp, selector, key) {
   await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key, code:key, windowsVirtualKeyCode:keyCode, nativeVirtualKeyCode:keyCode });
 }
 
+async function scrollSelectorWithWheel(cdp, selector) {
+  // Read geometry only; move the existing dialog with native wheel input.
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const point = await evaluate(cdp, `(() => {
+      const node=document.querySelector(${JSON.stringify(selector)}),scroller=node?.closest('.cw-dialog-body');
+      if(!node || !scroller)throw new Error('missing dialog scroll target');
+      const target=node.getBoundingClientRect(),body=scroller.getBoundingClientRect();
+      const top=Math.max(0,body.top)+8,bottom=Math.min(innerHeight,body.bottom)-8;
+      if(target.height<=0 || target.height>bottom-top)throw new Error('dialog target cannot fit in the viewport');
+      const visible=target.top>=top && target.bottom<=bottom;
+      const x=Math.max(1,Math.min(innerWidth-1,(body.left+body.right)/2)),y=(top+bottom)/2;
+      const hit=document.elementFromPoint(x,y);
+      return {visible,x,y,hittable:!!hit && scroller.contains(hit),deltaY:target.top<top ? target.top-top : target.bottom-bottom};
+    })()`);
+    if(point.visible)return;
+    if(!point.hittable)throw new Error('dialog scroll surface is not hittable');
+    await cdp.send('Input.dispatchMouseEvent', {type:'mouseMoved',x:point.x,y:point.y,button:'none'});
+    await cdp.send('Input.dispatchMouseEvent', {type:'mouseWheel',x:point.x,y:point.y,deltaX:0,deltaY:Math.max(-600,Math.min(600,point.deltaY))});
+    await new Promise(resolve=>setTimeout(resolve,150));
+  }
+  throw new Error('dialog scroll target did not become visible');
+}
+
 export function touchDragNeedsRetry(result, minimumDelta = 24) {
   const delta = Number(result?.delta);
   return !Number.isFinite(delta) || delta < minimumDelta;
@@ -2168,6 +2191,7 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
         if (input.waitFor) await waitForExpression(cdp, input.waitFor);
         if (input.kind === 'pointer') await tapSelector(cdp, input.selector);
         else if (input.kind === 'key') await pressKeyOnSelector(cdp, input.selector, input.key);
+        else if (input.kind === 'scroll') await scrollSelectorWithWheel(cdp, input.selector);
         else throw new Error('Unsupported viewport input step');
         await new Promise(resolve => setTimeout(resolve, 150));
       }
