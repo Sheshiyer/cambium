@@ -1,13 +1,13 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T19:38:30.934459+00:00",
-  "status": "sign-in-built-operational-loop-not-wired",
+  "updated": "2026-11-03T20:18:08.374128+00:00",
+  "status": "work-direction-source-ready-live-rollout-pending",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
-  "branch": "codex/cambium-operational-loop-20261104",
+  "branch": "codex/cambium-real-work-loop-20261104",
   "base_commit": "b6652fcf991eba804cffeaa38d2d265c10218532",
-  "native_source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
-  "native_input_digest": "ef3821882981aad706f637782c20797a411c3bd28186078b80e9a014561045e8",
+  "native_source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
+  "native_input_digest": "f5124f905e6089e31e5962c5cae2f43c7a17e3dd912c261417585427ff0bc4b2",
   "candidate_patch": {
     "base": "b6652fcf991eba804cffeaa38d2d265c10218532",
     "source": "1f64c646cb6bac0e91919f25322f93773fefba32",
@@ -28,7 +28,11 @@
     "Inspected Hermes finite command/source-verification contracts read-only",
     "Added main/sidebar Sign in, expiry-aware re-entry, configuration validation and prior-owner cancellation ordering",
     "Recorded the founder's explicit selection of hosted Hermes execution",
-    "Simplified Connections, Projects and Inbox; moved technical owner/session/catalog/provenance inspection to Settings > Advanced > Diagnostics"
+    "Simplified Connections, Projects and Inbox; moved technical owner/session/catalog/provenance inspection to Settings > Advanced > Diagnostics",
+    "PR428 reviewed and merged at d571ea92",
+    "Explicit Cambium operational Work intent compiled through canonical founder approval, then emitted as Work from coherent committed D1 source",
+    "Shared direction draft migration/store/HTTP/native composer added with scoped atomic replay and revision CAS",
+    "Free-pool worker candidate stopped and repaired before acceptance; static review findings fixed and regression-tested"
   ],
   "verification": {
     "core": {
@@ -42,9 +46,9 @@
     },
     "bundle": "clean-input ad hoc signed build; verifier passed",
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
-    "real_work_join": "not implemented",
-    "live_operational_loop": "not implemented",
-    "installed_hermes_capability": "not verified",
+    "real_work_join": "Source and real SQLite approval/projection tests pass; live Work proposal not submitted or approved",
+    "live_operational_loop": "Not run: Work rollout/decision, direction approval/admission and finite Hermes coding capability are pending",
+    "installed_hermes_capability": "Live readback: installed release e3387543 supports canary and document drafts only; no source verification or Cambium code command. Docker exists; no rollout performed.",
     "ui_cleanup": {
       "source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
       "core": "261 tests, two opt-in skips, zero failures",
@@ -52,23 +56,40 @@
       "bundle": "clean input provenance; ad hoc signature verified",
       "mac_walkthrough": "Compact signed-out Connections; Settings > Advanced > Diagnostics opens technical configuration; Done returns to Settings; populated demo Projects and Inbox hide raw IDs, and project disclosure exposes named searchable choices. Final copy-only build reopened successfully.",
       "live_scope": "No fresh sign-in or operational-loop execution claimed for this UI build."
-    }
+    },
+    "work_direction_source": {
+      "focused_backend": "517 passed before final compatibility fix; 501 compatibility/handler/atlas checks passed after it",
+      "swift_core": "265 tests; two opt-in skips; zero failures",
+      "native": "43 passed",
+      "native_input_digest": "f5124f905e6089e31e5962c5cae2f43c7a17e3dd912c261417585427ff0bc4b2",
+      "signed_debug_build": "clean native inputs; ad hoc signature verified",
+      "worker_dry_run": "passed; no upload or traffic change",
+      "independent_review": "Final source and rollout/intent docs rechecked with no actionable findings.",
+      "full_suite": {
+        "source": "0d51e58105615241e61acb69a6c33e99995c9dcb",
+        "passed": 2714,
+        "failed": 0,
+        "follow_up": "34 Gate tests plus atlas checks passed after source71005ef6 adds operational Work proposal visibility"
+      }
+    },
+    "cloudflare_profile": "Founder refreshed existing thoughtseed-labs profile; fresh read-only D1 head11 and52binding version23cf59d1 read succeeded"
   },
   "remaining": [
-    "Founder-approved operational Work source and actual sapling:cambium join",
-    "Revisioned shared directions pinned to exact source revisions",
-    "Finite Cambium Hermes capability and Temperance acceptance policy",
-    "Canonical direction approval and owner admission producer",
-    "Native launch composition with durable reservation, idempotent submit and status-only recovery",
-    "Artifact/test/policy-bound result and acceptance readback",
-    "Actual Mac walkthrough of the complete workflow"
+    "Separately approve/deploy reviewed Work/direction source and additive migration0103 with version23cf59d1 rollback retained",
+    "Canonical founder review/decision on pinned Cambium Work intent; prove native join and real shared direction save",
+    "Direction approval and admission producer pinned to revision/source/artifact/policy/budget",
+    "Finite Docker-isolated Cambium patch verification capability on installed Hermes, without rolling unrelated newer source",
+    "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
+    "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Revalidate installed Hermes capability and native Gate founder binding. Implement the explicit approved Work source first; keep bookkeeping non-executing. Follow the owning Markdown handoff. The previous Inbox proof does not establish Work, approval, launch or result.",
+  "next_action": "Review exact rollout manifest and Work proposal. Source is tested, not deployed. After owner rollout approval apply only0103, preserve52bindings/settings, then submit proposal for explicit founder decision. Continue Hermes finite capability/admission wiring without claiming launch readiness.",
   "holds": [
     "No graph/ledger/admission write, launch, runner rollout or deployment in this slice",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
     "Migration 0099 stays source-only until admission and execution owner contracts are ready"
   ],
   "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
-  "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md"
+  "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md",
+  "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
+  "work_intent": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json"
 }

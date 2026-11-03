@@ -11,6 +11,20 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 Work/direction source reviewed; live rollout pending
+
+PR428 merged at d571ea92. Continue codex/cambium-real-work-loop-20261104 from
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`. Explicit approved
+Cambium Work source, shared direction drafts/store/native composer and Gate
+visibility are implemented in source. Full2714 tests, Core265(two opt-in skips),
+native43 pass; final Gate delta34checks pass. No live acceptance is implied.
+Exact rollout and Work-intent JSON are prepared. Fresh head11/root and current
+52binding rollback version23cf59d1 verified after founder refreshed login.
+No migration/deployment/Work decision/admission/launch has happened. Installed
+Hermes e3387543 lacks the coding command; Docker exists. Preserve its installed
+source and prepare only the finite admitted capability. Full loop remains open.
+
+
 ## 2026-11-04 native UI cleanup
 
 Connections now presents a compact account card; Inbox and Projects use names and

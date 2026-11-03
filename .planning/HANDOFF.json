@@ -432,12 +432,12 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "sign-in-built-operational-loop-not-wired",
+      "status": "work-direction-source-ready-live-rollout-pending",
       "tier": "E5",
-      "branch": "codex/cambium-operational-loop-20261104",
+      "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
       "selected_execution_owner": "hosted-hermes",
-      "native_source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
+      "native_source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
       "isa": "ISA.md",
       "isc_done": [
         "ISC-3680"
@@ -451,8 +451,9 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Implement the explicit approved operational Work source and exact native join, then revisioned directions and the reviewed finite hosted-Hermes capability/admission/result contract. Full loop has not run; preserve completed Inbox proof separately.",
-      "ui_diagnostics": "Settings > Advanced > Diagnostics"
+      "next_action": "Review exact rollout manifest and Work proposal. Source is tested, not deployed. After owner rollout approval apply only0103, preserve52bindings/settings, then submit proposal for explicit founder decision. Continue Hermes finite capability/admission wiring without claiming launch readiness.",
+      "ui_diagnostics": "Settings > Advanced > Diagnostics",
+      "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json"
     }
   }
 }
