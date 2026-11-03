@@ -19,14 +19,13 @@ struct InboxView: View {
     @State private var hasStarted = false
     @State private var conflict = false
     @State private var confirmReload = false
-    @State private var projectQuery = ""
     private var retryLocked: Bool { InboxDraft.isLocked(capture: pendingCapture, update: pendingUpdate) }
 
     var body: some View {
-        PageScaffold(eyebrow: "Capture", title: "Inbox", subtitle: "Collect an idea, observation or next step.") {
-            if model.isDemo { SyntheticNotice(message: "Sample observations. Live changes are off.") }
+        PageScaffold(eyebrow: "Shared signals", title: "Inbox", subtitle: "Capture an observation and associate it with mapped projects.") {
+            if model.isDemo { SyntheticNotice(message: "Synthetic in-process owner. These observations are demo data.") }
             HStack {
-                Text(model.inboxFilter.map { id in model.fabric?.portfolio?.projects.first(where: { $0.canonicalId == id })?.name ?? "Project Inbox" } ?? "All observations")
+                Text(model.inboxFilter.map { "Filtered: \($0)" } ?? "All signals")
                 if model.inboxFilter != nil { Button("Show all") { model.openInbox(project: nil) } }
                 Spacer()
                 Button("Refresh") { Task { await load() } }.disabled(busy)
@@ -56,28 +55,26 @@ struct InboxView: View {
                     TextField("Title", text: $title).textFieldStyle(.roundedBorder).disabled(busy || retryLocked).onChange(of: title) { _, _ in edited() }
                     TextEditor(text: $bodyText).frame(minHeight: 120).disabled(busy || retryLocked)
                         .accessibilityLabel("Signal details").onChange(of: bodyText) { _, _ in edited() }
+                    Text("Mapped projects (optional) · \(projects.count) linked").font(.headline)
                     if let portfolio = model.fabric?.portfolio, portfolio.detailAvailable {
-                        let selectedNames = portfolio.projects.filter { projects.contains($0.canonicalId) }.map(\.name)
-                        if !selectedNames.isEmpty { Text(selectedNames.joined(separator: ", ")).font(.callout).foregroundStyle(Palette.inkMuted) }
-                        DisclosureGroup(projects.isEmpty ? "Add a project" : "Edit projects") {
-                          TextField("Find a project", text: $projectQuery).textFieldStyle(.roundedBorder)
-                          ScrollView {
+                        ScrollView {
                             VStack(alignment: .leading) {
-                                ForEach(portfolio.projects.filter { projectQuery.isEmpty || $0.name.localizedCaseInsensitiveContains(projectQuery) }) { project in
+                                ForEach(portfolio.projects) { project in
                                     Toggle(project.name, isOn: Binding(get: { projects.contains(project.canonicalId) }, set: { on in
                                         if on { projects.insert(project.canonicalId) } else { projects.remove(project.canonicalId) }
                                         edited()
                                     })).disabled(busy || retryLocked)
                                 }
                             }
-                          }.frame(maxHeight: 160)
-                        }
-                    } else { Text("Your projects will appear when connected.").font(.caption).foregroundStyle(Palette.inkMuted) }
+                        }.frame(maxHeight: 160)
+                    } else { Text("Load the scoped project catalog to select associations.") }
                     if let selected {
-                        Text("Updated \(model.time(selected.updatedAt))").font(.caption).foregroundStyle(Palette.inkMuted)
-                        if let reference = selected.source.reference, let url = URL(string: reference) { Link("Open reference", destination: url) }
+                        Text("Source: \(selected.source.system) · \(selected.source.recordId) · v\(selected.source.version)")
+                        Text("Observed: \(selected.source.observedAt) · Revision \(selected.revision)")
+                        if let reference = selected.source.reference { Text(reference).textSelection(.enabled) }
                     }
-                    if retryLocked { Text("We couldn't confirm this save. Retry to check it safely.").font(.caption).foregroundStyle(Palette.hold) }
+                    Text(retryLocked ? "Save outcome is uncertain. Editing and selection are locked; retry sends the original operation." : "Edits are kept in this window until saved.")
+                        .font(.caption).foregroundStyle(Palette.inkMuted)
                 }.frame(maxWidth: .infinity, alignment: .leading).cambiumPanel()
             }
         }
@@ -111,13 +108,13 @@ struct InboxView: View {
         guard !retryLocked else { return }
         hasStarted = true
         if let selected, selected.title == title, selected.body == bodyText, Set(selected.projectIds) == projects {
-            message = "Saved."
+            message = "Saved revision \(selected.revision)."
         } else {
             message = "Unsaved changes."
         }
     }
     private func clear() { selected = nil; title = ""; bodyText = ""; projects = Set(model.inboxFilter.map { [$0] } ?? []); sourceID = UUID().uuidString; pendingCapture = nil; pendingUpdate = nil; hasStarted = true; conflict = false; message = "New unsaved observation." }
-    private func select(_ row: Signal) { selected = row; title = row.title; bodyText = row.body; projects = Set(row.projectIds); pendingCapture = nil; pendingUpdate = nil; hasStarted = true; conflict = false; message = "Saved." }
+    private func select(_ row: Signal) { selected = row; title = row.title; bodyText = row.body; projects = Set(row.projectIds); pendingCapture = nil; pendingUpdate = nil; hasStarted = true; conflict = false; message = "Saved revision \(row.revision)." }
     @MainActor private func reloadLatest() async {
         guard let selected, let service = model.signalService else { return }
         requestGeneration += 1; let generation = requestGeneration; busy = true

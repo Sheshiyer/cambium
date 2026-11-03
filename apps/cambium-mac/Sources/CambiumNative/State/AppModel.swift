@@ -14,7 +14,6 @@ import struct CambiumCore.Signal
 import struct CambiumCore.SignalCapture
 import struct CambiumCore.SignalUpdate
 import enum CambiumCore.SignalError
-import enum CambiumCore.CanonicalTimestamp
 
 struct InboxDraft {
     var selected: Signal?
