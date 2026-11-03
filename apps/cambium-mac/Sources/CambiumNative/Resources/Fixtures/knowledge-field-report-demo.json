@@ -1,0 +1,19 @@
+{
+  "records": [
+    {
+      "id": "fr-observation-studio-desk-v3",
+      "source": "field-report",
+      "schema": "cambium.native-field-report-reference.v1",
+      "subjectId": "sapling:cambium",
+      "tenantId": "cambium",
+      "principal": "founder-1",
+      "sourceRef": "vault:field-report/studio-desk/v3",
+      "observedAt": "2026-07-27T09:30:00.000Z",
+      "freshness": "fresh",
+      "gaps": [
+        "no-live-bridge"
+      ],
+      "meaning": "observation"
+    }
+  ]
+}

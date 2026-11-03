@@ -1,0 +1,74 @@
+{
+  "schema": "cambium.native.fixture-lineage.v1",
+  "note": "Source-produced wire fixtures are byte copies. Entries marked synthetic are authored demo exports. Runtime persistence never stores these bodies.",
+  "fixtures": [
+    {
+      "name": "founder-proposal-response.json",
+      "bytes": 2592,
+      "sha256": "448c17aa3a1952aaf2e5388ba2621b48b7622c29b980f69e67945e8e495d5e48",
+      "copiedFrom": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/founder-proposal-response.json",
+      "generator": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/generate-fixtures.mts",
+      "source": "workers/quests/src/founder-decision-transport.ts"
+    },
+    {
+      "name": "founder-decision-approved.json",
+      "bytes": 694,
+      "sha256": "5c6b0d8a079a38b24b41750f0ad8e96bbe63ed2acfc9d0ece8117b2673fa5967",
+      "copiedFrom": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/founder-decision-approved.json",
+      "generator": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/generate-fixtures.mts",
+      "source": "workers/quests/src/founder-decision-transport.ts"
+    },
+    {
+      "name": "founder-status-pending.json",
+      "bytes": 122,
+      "sha256": "0f5f6fe4490e249e510fbee459a480e0760d07fcd3ed8ed6b428214ecc3d5b8a",
+      "copiedFrom": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/founder-status-pending.json",
+      "generator": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/generate-fixtures.mts",
+      "source": "workers/quests/src/founder-decision-transport.ts"
+    },
+    {
+      "name": "founder-vectors.json",
+      "bytes": 1185,
+      "sha256": "daf88e63b1b05518874ebd5811f2e01cea49c8037362dc61171755490a5502d3",
+      "copiedFrom": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/founder-vectors.json",
+      "generator": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/generate-fixtures.mts",
+      "source": "workers/quests/src/founder-decision.ts"
+    },
+    {
+      "name": "mission-fabric-envelope-founder.json",
+      "bytes": 93556,
+      "sha256": "9beea02e043df0c2611f5a309dc095bba54ae6dfaea38e39946414c24fd5f077",
+      "copiedFrom": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/mission-fabric-envelope-founder.json",
+      "generator": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/generate-fixtures.mts",
+      "source": "workers/quests/src/mission-fabric.ts"
+    },
+    {
+      "name": "native-launch-wire.v1.json",
+      "bytes": 14131,
+      "sha256": "f18fc98a21721a925c58bdb9eab8161bfe184c1c2119d05a93e5ee50adebe148",
+      "copiedFrom": null,
+      "generator": null,
+      "source": "dated demo listing derived from workers/quests/src/fixtures/native-launch-wire.v1.json admissions_current; launch samples retained",
+      "synthetic": true,
+      "note": "Separate from the 2026-07-28 founder proposal fixture. Lists already-admitted refs for sapling:cambium only."
+    },
+    {
+      "name": "knowledge-field-theory-demo.json",
+      "bytes": 965,
+      "sha256": "05bcbb9415d66d9c29aaa6a38afd3c1e824e26fb1d66973b157edfe4df5566ce",
+      "copiedFrom": null,
+      "generator": null,
+      "source": "authored for the demo; no producer export exists in this tree",
+      "synthetic": true
+    },
+    {
+      "name": "knowledge-field-report-demo.json",
+      "bytes": 484,
+      "sha256": "d8376ffe5ddfcafeb7d675dd9f85b84b84280b1e7c0be2c8a5e0fb6ecfd0abf4",
+      "copiedFrom": null,
+      "generator": null,
+      "source": "authored for the demo; no producer export exists in this tree",
+      "synthetic": true
+    }
+  ]
+}

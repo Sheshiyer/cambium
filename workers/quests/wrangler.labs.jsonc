@@ -24,6 +24,13 @@
     // plexus-api custom hostname has its own Access app, which rejects the
     // already-verified curious app JWT before TeamForge can validate it.
     "PLEXUS_WHOAMI_URL": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/whoami",
+    // Native Cambium authority is deliberately split: this URL and tenant are
+    // non-secret source configuration; the dedicated lookup bearer remains a
+    // Worker secret and keeps the host unbound until it is explicitly staged.
+    "PLEXUS_NATIVE_IDENTITY_URL": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/native/identity",
+    "PLEXUS_NATIVE_IDENTITY_TENANT": "cambium",
+    "NATIVE_SESSION_OWNER_ORIGIN": "https://curious.thoughtseed.space",
+    "NATIVE_SESSION_CLIENTS_JSON": "[{\"clientId\":\"space.thoughtseed.cambium.native.dev\",\"redirectUri\":\"space.thoughtseed.cambium.native.dev://oauth/callback\"}]",
     // Labs tenant admission and website intake remain distinct source contracts.
     "MISSION_FABRIC_TENANTS": "cambium",
     "WEBSITE_ORIGINS": "https://pro.thoughtseed.space",

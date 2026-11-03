@@ -13,6 +13,31 @@ updated: 2026-10-08
 
 ## Problem
 
+### 2026-11-03 shared signal capture and native Inbox
+
+The owner authorized source implementation and review fixes. Finite contract:
+`.planning/native-mac/SHARED-SIGNALS-WAVE-1.md`; confirmed decisions:
+`apps/cambium-mac/docs/FIELD-REPORT-INTEGRATION-DECISIONS.md`.
+
+- [ ] ISC-3660: Hosted fleet attempts retain real terminal status and provider attribution; independently inspect worker output before integration.
+- [x] ISC-3661: Signal routes require verified native identity and exact tenant/principal; reject mixed credentials and cross-scope guesses.
+- [x] ISC-3662: Local signal mutations and idempotency receipts are atomic; identical retries preserve original results and changed requests conflict.
+- [x] ISC-3663: Revision races refuse overwrite; bounded pagination and exact project filters preserve scope.
+- [x] ISC-3664: Associations use the dynamic mapped catalog; an empty Inbox association grants no work admission.
+- [x] ISC-3665: Swift clients validate wire schema, source provenance, response bounds and current session scope.
+- [x] ISC-3666: Native Inbox captures, edits and lists signals through the composed owner service.
+- [x] ISC-3667: Project dossiers open the exact project Inbox; capture preselects that project.
+- [x] ISC-3668: Unknown saves preserve immutable operation identity; definitive request validation permits correction; conflicts require confirmed reload.
+- [x] ISC-3669: Synthetic capture/update/filter, actual-handler wire decoding and owner-specific recovery isolation have local regression coverage.
+- [x] ISC-3670: Native source compiles and its ad hoc bundle verifies; this is not notarized delivery or real-owner acceptance.
+- [ ] ISC-3671: A real Field Report peer uses shared records with reviewed producer authentication and source parity.
+- [ ] ISC-3672: Standard Mac app completes real founder sign-in and owner-served signal/catalog readback.
+
+The prior full fan-out was held before inference. A subsequent disposable free
+CLI build ran but was stopped without accepting its incomplete fixes; the
+native session integrated the corrections. Hosted execution attribution,
+production identity, migration and deployment gates remain distinct and open.
+
 The reviewed Curious upgrade is local while the release branch still carries unrelated planning history. Fresh main retires GitHub Actions, so release integration must preserve that policy.
 
 Cambium currently contains both a Thoughtseed Labs Wrangler configuration and
@@ -204,6 +229,75 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 For the Fitcheck founder-evidence pilot, add one exact authenticated route and one exact Mission action space for `fitcheck-shopify-widget-qa`. Done means two bounded proof references create a replay-safe pending candidate, D1 remains unchanged until the existing Gate signs the exact server-derived proposal, the CAS commit updates one proof-scoped node, Mission and founder-only Goal Graph readback refresh from that committed head, and every Hermes, Telegram transport, deployment, and external mutation boundary remains held.
 
 ## Criteria
+
+### 2026-11-02 native implementation through hosted Phloem
+
+Local source, synthetic-owner, signed-bundle and actual macOS window evidence proves these criteria. Live owner enrollment, real admitted execution, notarization and production acceptance remain separate.
+
+- [x] ISC-3400: Hosted Phloem workers return substantive tool-verified implementation receipts.
+- [x] ISC-3401: The native Swift package builds on the installed supported Mac toolchain.
+- [x] ISC-3402: The native shell opens with the whole-system Canopy.
+- [x] ISC-3403: The app provides a focused WorkObject dossier.
+- [x] ISC-3404: Source artwork is bundled with canonical derivative lineage.
+- [x] ISC-3405: The visual theme preserves the reviewed Cambium source language.
+- [x] ISC-3406: Keyboard navigation reaches overview, dossier, review and run views.
+- [x] ISC-3407: The app exposes an accessible linear equivalent to the visual graph.
+- [x] ISC-3408: Strict domain decoding preserves tenant and exact subject boundaries.
+- [x] ISC-3409: Read clients preserve graph and portfolio sidecars separately.
+- [x] ISC-3410: Canonical digest vectors agree between Swift and the existing contract.
+- [x] ISC-3411: Native decision review displays the complete server-owned change set.
+- [x] ISC-3412: Decision confirmation binds the original version, nonce, expiry and digest.
+- [x] ISC-3413: Uncertain decision recovery performs status only without resubmission.
+- [x] ISC-3414: Native launch validates a current owner-issued capability.
+- [x] ISC-3415: Launch request identity persists before transmission.
+- [x] ISC-3416: Uncertain launch recovery queries the original request without duplicate dispatch.
+- [x] ISC-3417: Run observation separates transport, execution and semantic acceptance.
+- [x] ISC-3418: Reader changes invalidate incompatible cached context.
+- [x] ISC-3419: Fixture mode is visibly labelled and isolated from live adapters.
+- [x] ISC-3420: Live native identity prerequisites are explicit and never replaced by runner credentials.
+- [x] ISC-3421: Unsupported launch classes remain explicit without fabricated eligibility.
+- [x] ISC-3422: The app includes source-specific Field Theory and Field Report adapter boundaries.
+- [x] ISC-3423: The app preserves scoped cited-knowledge references.
+- [x] ISC-3424: Native preferences and scene restoration avoid operational authority.
+- [x] ISC-3425: The local app bundle uses a non-conflicting development identity.
+- [x] ISC-3426: Native tests cover malformed, stale and cross-scope source records.
+- [x] ISC-3427: Native tests cover lost responses and restart recovery.
+- [x] ISC-3428: Light and dark native screenshots expose actual rendered surfaces.
+- [x] ISC-3429: Reduced-motion behavior preserves complete static information.
+- [x] ISC-3430: Anti: this build changes no provider credentials or hosted router configuration.
+- [x] ISC-3431: Anti: this build performs no live business decision, admitted customer work or production deployment.
+
+### Native founder identity source continuation
+
+- [x] ISC-3440: Native sign-in uses an external browser with S256, exact callback and state binding.
+- [x] ISC-3441: Native identity factory closes without explicit client registry and verified owner dependencies.
+- [x] ISC-3442: D1 exchange admits at most one session per code without plaintext code or token at rest.
+- [x] ISC-3443: Native sessions bind client, founder and tenant with current role, enrollment, expiry and revocation checks.
+- [x] ISC-3444: Browser CSRF rules remain intact and invalid native credentials never fall back to browser identity.
+- [x] ISC-3445: Native bearer material stays in memory and is sent only to the configured owner origin.
+- [x] ISC-3446: Canceled callbacks, logout and identity changes cannot restore an obsolete native session.
+- [x] ISC-3447: Gate, Mission Fabric and launch consume one verified native owner scope without body-asserted authority.
+- [x] ISC-3448: Development callback identity is distinct and registered in the native bundle source.
+- [x] ISC-3449: Identity tests falsify replay, parallel exchange, cross-scope inputs, expiry and role drift.
+- [x] ISC-3450: Anti: local identity verification creates no live grant, enrollment or production configuration change.
+- [x] ISC-3451: The native interface composes a real injectable sign-in implementation and states live prerequisites honestly.
+
+### Native mapped-project integration — 2026-11-02
+
+- [x] ISC-3460: A scoped local native founder route serves portfolio detail and a separate exact join report.
+- [x] ISC-3461: Native decoder maps every served record and rejects malformed or count-mismatched detail.
+- [x] ISC-3462: The Projects screen exposes source classification, dates, provenance, tenant labels and mission-data gaps without action authority.
+- [x] ISC-3463: Global search and Canopy reach mapped project detail; viewer scope remains totals-only.
+- [x] ISC-3464: Only an explicit served join to an existing Work node enables the operational Work link.
+- [x] ISC-3465: Local Swift and native route tests, signed bundle and clean-input build proof pass.
+- [ ] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
+- [ ] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority.
+- [x] ISC-3468: Founder detail maps every served historical product and classification review row; viewer detail stays empty.
+- [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
+- [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.
+- [x] ISC-3471: A fresh local handler envelope from the current portfolio source decodes in Swift without replacing the dated replay fixture.
+- [x] ISC-3472: The signed synthetic Projects window shows a project row, dossier and readable source time at 880×612.
+- [x] ISC-3473: Projects snapshots at both supported sizes render distinct light and dark appearances with clean bundle provenance.
 
 ### Standalone composition source slice (2026-10-05)
 
@@ -2639,6 +2733,10 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-2512/2513 require existing primitive reuse; ISC-2530..2532 require independent products and both profiles without Snow Gloves
 
 ## Verification
+
+- ISC-3471: local cross-language probe — `./apps/cambium-mac/tools/probe-current-portfolio.sh` passed one focused Swift decode of the TypeScript handler envelope: 77 current, 20 historical, 0 review, 50 gaps, 1 exact Work join, display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`; dated replay fixture was untouched. Current source includes uncommitted concurrent catalog edits; this is not live delivery.
+- ISC-3472: signed-window screenshot inspection — `main-projects-minimum-light.png` and `main-projects-minimum-dark.png` show the first source project row and dossier at 880×612, with source time `29 Jul 2026, 12:16` instead of “Unreadable time”; the synthetic label is visible. `SourceTime` focused test passed, including invalid date refusal.
+- ISC-3473: signed-window manifest and image inspection — `snapshot-manifest.json` reports four successful 1280×820/880×612 captures from clean revision `55ca159`, no failures, separate light/dark image hashes; strict codesign, bundle verifier and embedded proof recheck passed. This is synthetic visual proof, not ISC-3466 interactive acceptance or ISC-3467 live founder delivery.
 
 ### 2026-10-01 growth ecosystem deep review — documentation verification
 
