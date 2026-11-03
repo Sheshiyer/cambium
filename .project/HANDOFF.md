@@ -11,6 +11,14 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-04 Exact e6c1940e version94 uploaded and verified; traffic held
+
+- Owner-approved e6c1940e was uploaded as immutable Worker version94 / c0821aa3-987a-4fc5-b2c5-380aee02fb5b with the exact52 inherited-binding config and documented baseline failures. Full binding and runtime parity, settings fingerprint, schedules and exposure match the fresh preflight.
+- Preview root200 includes complete generated JS/CSS; health200 reports the signed-gate capability configured; guest founder graph is401. This is preview and anonymous-boundary evidence only, not authenticated founder graph, production, or native/device acceptance.
+- Live deployment remains c89c5a4d-e149-4b5e-a242-9051b9e7b7dc,100% on native93 / 23cf59d1-754a-4cef-be7a-f96fcc072f48. Version94 receives no traffic. No traffic/trigger/settings/credential change. ef6e0c74-697e-4938-9d15-e0e481c80dbe remains rollback target.
+- Evidence: artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json and version-preview-readback.json. Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation; separate traffic approval remains held.
+
+
 ### 2026-11-04 Department source reconciled with native93; external gates held
 
 - Source e6c1940e aligns the two remaining native93 test fixtures. Repository/lifecycle production guards already match b5396101; all native92→93 delta paths now match. Department code and all94 native Source/Test files remain intact. Exact52-binding config and emitted Worker are byte-identical to deb53e3e; the contract documents the shared256-gap bound.

@@ -1,3 +1,9 @@
+## 2026-11-04 Exact e6c1940e version94 uploaded and verified; traffic held
+
+Owner-approved source `e6c1940e5410240c0d726d0da3419b28cbbd4289` was uploaded as version94 / `c0821aa3-987a-4fc5-b2c5-380aee02fb5b` with the byte-identical exact52-binding config and documented baseline failures. Cloudflare readback confirms all52 inherited binding configurations and runtime match serving version93; global operational settings, schedules and exposure match preflight. The immutable preview returns root200 with complete generated JS/CSS, health200 with the signed-gate capability configured, and guest founder graph401. This does not establish authenticated founder graph, production or native/device acceptance.
+
+The active deployment remains `c89c5a4d-e149-4b5e-a242-9051b9e7b7dc` at100% on version93 / `23cf59d1-754a-4cef-be7a-f96fcc072f48`; version94 receives no traffic. No traffic, trigger, settings or credential write occurred. The recorded rollback target remains `ef6e0c74-697e-4938-9d15-e0e481c80dbe`. The upload’s three documented full-suite baseline failures and unchanged broader typecheck baseline remain accepted for this review upload; DP-LIVE-06 stays open for separate traffic approval and production readback. Evidence: `artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json`, `.../version-preview-readback.json`, and `.../upload-preflight.json`.
+
 # Department/native compatibility candidate — source and upload checkpoints
 
 ## 2026-11-04 Version93 reconciliation verified; uploads and traffic held
