@@ -34,7 +34,7 @@ export function prepareFieldAtlasDirectory(root = FIELD_ATLAS_ROOT) {
 }
 export const FIELD_ATLAS_PAGE_DIGEST = hash(PAGE);
 export const FIELD_ATLAS_CHECK_KEYS = ['canvas','rendererAvailable','sourceEvidence','viewport','contained',
-  'headerContained','headerSeparated','headerTextInside','touchTargets','accessibleControls','state','operationalBoundary','retiredSurfaceAbsent'];
+  'headerContained','headerSeparated','headerTextInside','touchTargets','accessibleControls','state','stateVisible','operationalBoundary','retiredSurfaceAbsent'];
 
 // Serialized into the real PAGE's browser context. It observes layout and state;
 // no DOM click, mock result or change in authority is performed by this function.
@@ -58,6 +58,15 @@ export async function observeFieldAtlasViewport({state,width,height,ownerFixture
   };
   const body=rect(dialog?.open ? dialog : root), h=rect(header), s=rect(status), w=rect(wordmark);
   const viewport={left:0,top:0,right:innerWidth,bottom:innerHeight};
+  const paintedText=node=>{
+    const clip=rect(dialog?.querySelector('.cw-dialog-body'));
+    if(!node || !clip || getComputedStyle(node).visibility!=='visible' || getComputedStyle(node).opacity==='0')return false;
+    const lines=visibleTextRects(node);
+    return lines.length>0 && lines.every(line=>{
+      const hit=document.elementFromPoint((line.left+line.right)/2,(line.top+line.bottom)/2);
+      return inside(line,clip) && inside(line,viewport) && !!hit && (hit===node || node.contains(hit));
+    });
+  };
   const labels=['Open product departments',/^Choose your traveler\. Current traveler: .+\.$/,'Open district chart and local passport'];
   const dialogControls=dialog?.open ? [...dialog.querySelectorAll('button,summary,select,input:not([type="hidden"]),textarea,a[href]')].filter(c=>rect(c).width>0 && rect(c).height>0) : [];
   let stateOk=false;
@@ -119,6 +128,8 @@ export async function observeFieldAtlasViewport({state,width,height,ownerFixture
     touchTargets:controls.length===3 && [...controls,...dialogControls].every(c=>rect(c).width>=44 && rect(c).height>=44),
     accessibleControls:controls.length===3 && controls.every((c,i)=>(typeof labels[i]==='string' ? c.getAttribute('aria-label')===labels[i] : labels[i].test(c.getAttribute('aria-label') || '')) && c.querySelector('svg[aria-hidden="true"]')),
     state:stateOk,
+    stateVisible:['gate-held','gate-empty'].includes(state) ? paintedText(dialog?.querySelector('.cw-gate-empty'))
+      : state==='gate-back' ? paintedText(dialog?.querySelector('.cw-gate-row')) : true,
     operationalBoundary:ownerFixture ? !root.querySelector('.cw-decision-chamber[data-confirmed="true"]')
       && (state==='gate-preflight' || !root.querySelector('[data-cw-action="gate-sign"]:not([disabled])'))
       : status?.textContent.includes('Source')===true && !root?.querySelector('[data-cw-action="gate-sign"]:not([disabled])'),
@@ -159,6 +170,10 @@ export const FIELD_ATLAS_CAPTURE_STEPS=states.map(([state,width])=>{
     if(state==='gate-close')inputSteps.push(pointer('.cw-close'));
   }
   if(state==='local-visit' || state==='local-visit-read')inputSteps.push(pointer('[data-cw-action="travel"]'),{...chart,waitFor:"Number(document.querySelector('#curious-world')?.dataset.localDistrictVisits)>0"});
+  if(['gate-held','gate-empty','gate-back'].includes(state)){
+    const selector=state==='gate-back' ? '.cw-gate-row' : '.cw-gate-empty';
+    inputSteps.push({kind:'scroll',selector,waitFor:`document.querySelector(${JSON.stringify(selector)})`});
+  }
   const behaviorKeys=state.startsWith('local-visit') ? ['localVisitIsSeparate'] : state==='gate-empty' ? ['verifiedEmptyQueue'] : state==='gate-back' ? ['inspectionBackReturnsQueue'] : state==='gate-close' ? ['inspectionCloseRestoresWorld']
     : ['gate-reviewed','gate-preflight'].includes(state) ? ['exactCanonicalReview','exactBranchGate','consequenceAndReversal','inspectionBackAndClose',...(state==='gate-preflight'?['separateApprovalConfirmation','cancelReachable']:[])] : [];
   return {path:`field-atlas-${state}-${width}.png`,state,viewport:{width,height},webgl:true,diagnostics:true,
