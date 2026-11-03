@@ -523,12 +523,75 @@ const syntheticPrivacyFixtures = new Map([
   ]],
 ]);
 
+// Exact synthetic protocol fixtures added after the original phase corpus.
+// Per-file identities and token/path boundaries prevent prefix/suffix smuggling.
+const protocolPrivacyFixtures = new Map([
+  ["apps/cambium-mac/Sources/CambiumNative/Resources/Fixtures/native-launch-wire.v1.json", [["Bearer ", "synthetic-founder"].join('')]],
+  ["apps/cambium-mac/Sources/CambiumNative/State/DemoOwner.swift", [["Bearer ", "synthetic-founder"].join('')]],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/AdmissionDiscoveryTests.swift", [["Bearer ", "synthetic-founder"].join('')]],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/KnowledgeClientTests.swift", [['file:', "///etc/passwd"].join('')]],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/LaunchHTTPContractTests.swift", [["Bearer ", "synthetic-founder"].join('')]],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/ReadClientTests.swift", [["Bearer ", "owner-issued-test-token"].join('')]],
+  ["workers/quests/src/fixtures/native-launch-wire.v1.json", [["Bearer ", "synthetic-founder"].join('')]],
+  ["workers/quests/src/native-launch-d1.test.ts", [["Bearer ", "founder-token"].join('')]],
+  ["workers/quests/src/native-launch-route.test.ts", [["Bearer ", "synthetic-founder"].join('')]],
+  ["workers/quests/src/native-launch.test.ts", [["Bearer ", "founder-token"].join('')]],
+  ["workers/quests/src/native-session-routes.test.ts", [["Bearer ", "cns1_0123456789abcdef0123456789abcdef0123456789ab"].join(''), ["Bearer ", "cns1_notarealtoken"].join('')]],
+  ["workers/quests/src/native-session.test.ts", [["Bearer ", "cns1_not-a-session"].join('')]],
+  ["workers/quests/src/handler.test.ts", [["Bearer ", "cns1_synthetic-native-session"].join('')]],
+  ["workers/quests/src/plexus-native-identity.test.ts", [["Bearer ", "dedicated-token"].join('')]],
+  ["workers/cortex-mcp/src/gate-action.test.ts", ["not-a-secret", ['/', "Users/example/private.txt"].join('')]],
+  ["workers/cortex-mcp/src/provenance-read.test.ts", ["not-a-real-secret", ['/', "Users/example/private.txt"].join(''), ['/', "Volumes/example/project-owner/source-manifest.json"].join(''), ['/', "home/example/private.txt"].join(''), ['file:', "///private/var/db/private.txt"].join('')]],
+  ["workers/cortex-mcp/src/openai-auth.test.ts", [["Bearer ", "oauth-access-token"].join(''), ["Bearer ", "legacy-route-token"].join(''), ["bEaReR   ", "oauth-access-token  "].join('')]],
+  ["workers/cortex-mcp/src/streamable-http.test.ts", [["Bearer ", "oauth-access-token"].join(''), ["Bearer ", "test-mcp-gate-binding-token-00000001"].join('')]],
+  ["tests/openai-ecosystem/compatibility.test.mjs", [["Bearer ", "actual-token"].join('')]],
+  ["tests/openai-ecosystem/dot-runtime.test.mjs", [['/', "Users/x/secret"].join(''), "sk-live-XYZ"]],
+ ]);
+for (const [file, values] of protocolPrivacyFixtures) {
+  syntheticPrivacyFixtures.set(file, [...(syntheticPrivacyFixtures.get(file) ?? []), ...values]);
+}
+
+// Complete public type/protocol statements contain no captured user data. An
+// extension or adjacent field does not match and is scanned normally.
+const reviewedSourceStatements = new Map([
+  ["apps/cambium-mac/Sources/CambiumCore/Platform.swift", new Set([["public enum ", "NativeSession", ": Sendable, Equatable {"].join('')])],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/SignalsTests.swift", new Set([["var session: ", "NativeSession", " = .verified(founderId: \"founder\", tenantId: \"cambium\", expiresAt: .distantFuture)"].join('')])],
+  ["workers/quests/src/native-session-composition.ts", new Set([["const ", "authorization", " = request.headers.get('", "authorization", "') ?? '';"].join('')])],
+  ["workers/cortex-mcp/src/gate-action.ts", new Set([["const ", "requestBody", " = {"].join('')])],
+  ["workers/cortex-mcp/src/openai-auth.ts", new Set([["return `", "Bearer ", "resource_metadata=\"${protectedResourceMetadataUrl(requestUrl)}\", scope=\"${scopes.join(\" \")}\"`;"].join('')])],
+  ["workers/cortex-mcp/src/openai-auth.test.ts", new Set([["assert.match(denied.challenge || \"\", /^", "Bearer ", "resource_metadata=/);"].join('')])],
+  ["workers/cortex-mcp/src/streamable-http.test.ts", new Set([["assert.match(response.headers.get(\"www-authenticate\") || \"\", /^", "Bearer ", "resource_metadata=/);"].join('')])],
+]);
+
+
+for (const [file, statements] of [
+  ["scripts/documentation-inventory.test.mjs", [["secret.entries[0].presentPurpose = '", "Bearer ", "abcdefghijklmnop';"].join(''), ["open.entries[0].", "promptBody", " = 'private prompt';"].join('')]],
+  ["scripts/generate-documentation-inventory.test.mjs", [["'docs/private-shaped-body.md': '", "Bearer ", "fixture-private-value\\n", "promptBody", "=never-emit\\n", "/Users/", "example/private\\n',"].join('')]],
+  ["workers/cortex-mcp/src/streamable-http.test.ts", [["authorization", ": options.oauth ? \"", "Bearer ", "oauth-access-token\" : `", "Bearer ", "${ROUTE_TOKEN}`,"].join('')]],
+  ["workers/quests/src/handler.test.ts", [["assert.doesNotMatch(reviewJson, /", "Bearer ", "candidate-secret|raw-candidate-token|token/i);"].join('')]],
+ ]) {
+  reviewedSourceStatements.set(file, new Set([...(reviewedSourceStatements.get(file) ?? []), ...statements]));
+}
+
+
+for (const [file, statements] of [
+  ["workers/quests/src/index.ts", [["apiKey", ": env.OLLAMA_API_KEY,"].join(''), ["apiKey", ": env.NVIDIA_API_KEY,"].join(''), ["apiKey", ": env.NEBIUS_API_KEY,"].join(''), ["apiKey", ": env.COMMAND_CODE_API_KEY,"].join(''), ["apiKey", ": env.KIMI_CODING_API_KEY,"].join(''), ["apiKey", ": opencodeApiKey,"].join(''), ["apiKey", ": iverifApiKey,"].join(''), ["apiKey", ": env.NVIDIA_MARKETING_CREATE_API_KEY,"].join('')]],
+  ["workers/quests/src/handler.ts", [["secret", ": deps.inviteSecret,"].join(''), ["apiKey", ": deps.marketingRenderer?.", "apiKey", ","].join('')]],
+  ["scripts/generate-temperance-flow.test.mjs", [["assert.throws(() => api.normalizeVerifiedManifestResult({ ...base, attribution: { provider: '", "Bearer ", "top-", "secret", "-token', model: 'm' } }, expected), /redact|", "secret", "|provider/i);"].join('')]],
+  ["workers/quests/src/handler.test.ts", [["assert.doesNotMatch(taskJson, /", "Bearer ", "task-", "secret", "|raw-task-token|", "Bearer ", "candidate-", "secret", "|raw-candidate-token|payload|verified_evidence/i);"].join('')]],
+ ]) {
+  reviewedSourceStatements.set(file, new Set([...(reviewedSourceStatements.get(file) ?? []), ...statements]));
+}
+syntheticPrivacyFixtures.get('workers/cortex-mcp/src/provenance-read.test.ts').push(['[/', 'Users/example/private.txt]'].join(''));
+
 // These are exact public documentation/dependency expressions and reviewed
 // negative-test canaries, not path prefixes or general credential exceptions.
 const reviewedPrivacyExpressions = new Map([
   ['VERSIONS.md', [['--input ', '/tmp/', 'meristem-sidecar-proof', '` spawned the Meristem shim with exit 0'].join('')]],
   ['apps/cambium-r3f/package-lock.json', [['"resolved": "https://registry.npmjs.org/', 'tmp/-/tmp-0.2.7.tgz"'].join('')]],
 ]);
+
+reviewedPrivacyExpressions.set('.planning/phases/06-documentation-stewardship/06-04-PLAN.md', [['MEMORY', '/LEARNING|SIGNALS|STATE'].join('')]);
 
 const readinessRejectCanary = ['Bearer should-not-', 'be-stored'].join('');
 const readinessHeaderCanary = ['Bearer ', 'secret-token'].join('');
@@ -698,10 +761,7 @@ function privacyViolations(relativePath, source) {
   ];
   const violations = [];
   for (const [index, line] of source.split(/\r?\n/).entries()) {
-    let candidate = line;
-    if (reviewedSourceCanaryLines.get(relativePath)?.has(line.trim())) {
-      candidate = '<reviewed-source-canary>';
-    }
+    let candidate = reviewedSourceStatements.get(relativePath)?.has(line.trim()) ? '<reviewed-public-source-statement>' : line;
     // Mask only these complete reviewed negative-test statements. A token
     // extension, changed delimiter, prefix, or adjacent secret makes the line
     // ineligible; the bearer/privacy scanners then see its original bytes.
@@ -712,23 +772,40 @@ function privacyViolations(relativePath, source) {
       const escaped = literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       candidate = candidate.replace(new RegExp(`(?<![A-Za-z0-9._~+\\/-])${escaped}(?![A-Za-z0-9._~+\\/-])`, 'g'), '<reviewed-public-expression>');
     }
-    for (const literal of fixtureLiterals) candidate = candidate.replaceAll(literal, '<synthetic-sensitive-fixture>');
+    for (const literal of fixtureLiterals) {
+      const escaped = literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      candidate = candidate.replace(new RegExp(`(?<![A-Za-z0-9._~+\\/-])${escaped}(?=$|[\\s'"\x60])`, 'g'), '<synthetic-sensitive-fixture>');
+    }
     for (const pattern of patterns) {
       if (pattern.test(candidate)) violations.push(`${relativePath}:${index + 1}`);
     }
   }
-  return violations;
+  return [...new Set(violations)];
 }
 
-test('DOCS-PRIVACY: reviewed source contexts reject extensions, copies and adjacent secrets', () => {
-  const extraSecret = ['"access_', 'token": "unreviewed-private-value"'].join('');
-  for (const [relativePath, lines] of reviewedSourceCanaryLines) {
-    for (const line of lines) {
-      assert.deepEqual(privacyViolations(relativePath, line), []);
-      assert.deepEqual([...new Set(privacyViolations('unrelated.md', line))], ['unrelated.md:1']);
-      assert.deepEqual([...new Set(privacyViolations(relativePath, `${line} extra`))], [`${relativePath}:1`]);
-      assert.deepEqual([...new Set(privacyViolations(relativePath, `${line}; ${extraSecret}`))], [`${relativePath}:1`]);
+const appendedPrivacyCanary = ['api_', 'key=unreviewed-secret-value'].join('');
+
+test('DOCS-PRIVACY: protocol fixtures require exact file and token/path boundaries', () => {
+  for (const [file, literal] of [
+    ['workers/cortex-mcp/src/openai-auth.test.ts', ['Bearer ', 'oauth-access-token'].join('')],
+    ['workers/cortex-mcp/src/provenance-read.test.ts', ['/', 'Users/example/private.txt'].join('')],
+  ]) {
+    const line = `const rejected = ${JSON.stringify(literal)};`;
+    assert.deepEqual(privacyViolations(file, line), []);
+    assert.ok(privacyViolations('unreviewed.test.ts', line).length);
+    for (const suffix of ['-appended', '=unreviewed-sensitive-value', ':actual-private-source.json', '%2fprivate']) {
+      assert.ok(privacyViolations(file, `const rejected = ${JSON.stringify(literal + suffix)};`).length);
     }
+    assert.ok(privacyViolations(file, `${line} ${appendedPrivacyCanary}`).length);
+  }
+});
+
+test('DOCS-PRIVACY: complete public declarations never exempt native secrets or captured bodies', () => {
+  for (const [file, statements] of reviewedSourceStatements) for (const statement of statements) {
+    assert.deepEqual(privacyViolations(file, statement), []);
+    assert.ok(privacyViolations(file, statement + ' ' + appendedPrivacyCanary).length);
+    assert.ok(privacyViolations(file, ['native', 'Session'].join('') + ': "unreviewed-session-value"').length);
+    assert.ok(privacyViolations(file, ['request', 'Body'].join('') + ': {"text":"unreviewed"}').length);
   }
 });
 

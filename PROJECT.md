@@ -59,3 +59,21 @@ npm run test
 
 `npm run test` is the current deterministic verification
 command.
+
+## Graph and sapling tooling
+
+The repository-owned [sapling skill](.agents/skills/sapling-lifecycle/SKILL.md)
+reuses the existing workflow owners. These are manually invoked source tools:
+
+```bash
+npm run sapling -- review temperance
+npm run sapling:hooks
+npm run department:owner-read:test
+npm run proof:field-atlas
+```
+
+Use [OWNER-READERS.md](docs/plans/department-pilot/OWNER-READERS.md) for the
+explicit owner-reader inputs and held GSD/release gates. Hook discovery is not
+callback acceptance. Current Field Atlas captures are ignored review artifacts;
+they do not replace the inherited canonical viewport contract or establish
+authenticated live or physical-device acceptance. No hook or cadence is installed.
