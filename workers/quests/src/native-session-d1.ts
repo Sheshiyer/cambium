@@ -52,8 +52,9 @@ export function d1NativeConsentIntentStore(db: GoalGraphD1DatabaseLike): NativeC
         SET consumed_at = ?
         WHERE intent_digest = ? AND csrf_digest = ? AND request_digest = ? AND founder_id = ?
           AND consumed_at IS NULL AND expires_at > ?
-      `).bind(input.now, input.intentDigest, input.csrfDigest, input.requestDigest, input.founderId, input.now).run();
-      return Number(result.meta?.changes ?? 0) === 1;
+        RETURNING 1 AS consumed
+      `).bind(input.now, input.intentDigest, input.csrfDigest, input.requestDigest, input.founderId, input.now).first<{ consumed: number }>();
+      return result?.consumed === 1;
     },
   };
 }
@@ -90,9 +91,10 @@ export function d1NativeSessionStore(db: GoalGraphD1DatabaseLike): NativeSession
           FROM native_authorization_codes c
           WHERE c.code_digest = ? AND c.client_id = ? AND c.redirect_uri = ? AND c.code_challenge = ?
             AND c.expires_at > ? AND c.founder_id = ? AND c.tenant_id = ?
+          RETURNING 1 AS granted
         `).bind(input.tokenDigest, input.now, input.expiresAt, input.codeDigest, input.clientId,
-          input.redirectUri, input.codeChallenge, input.now, input.founderId, input.tenantId).run();
-        return Number(result.meta?.changes ?? 0) === 1;
+          input.redirectUri, input.codeChallenge, input.now, input.founderId, input.tenantId).first<{ granted: number }>();
+        return result?.granted === 1;
       } catch (error) {
         if (isUniqueViolation(error)) return false;
         throw error;
