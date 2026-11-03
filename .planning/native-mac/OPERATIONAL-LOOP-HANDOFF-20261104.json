@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
   "updated": "2026-11-03T20:18:08.374128+00:00",
-  "status": "work-direction-source-ready-live-rollout-pending",
+  "status": "work-direction-deployed-work-gate-read-held",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -72,7 +72,38 @@
         "follow_up": "34 Gate tests plus atlas checks passed after source71005ef6 adds operational Work proposal visibility"
       }
     },
-    "cloudflare_profile": "Founder refreshed existing thoughtseed-labs profile; fresh read-only D1 head11 and52binding version23cf59d1 read succeeded"
+    "cloudflare_profile": "Founder refreshed existing thoughtseed-labs profile; fresh read-only D1 head11 and52binding version23cf59d1 read succeeded",
+    "deployed_worker": {
+      "schema": "cambium.work-direction-rollout-receipt.v1",
+      "recorded_at": "2026-11-03T20:34:53.466486+00:00",
+      "source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
+      "owner_rollout_approved": true,
+      "migration": {
+        "path": "workers/quests/migrations/0103_shared_directions.sql",
+        "sha256": "sha256:c8e19507f579d1fc7ba44d3d6cb1188f9976e76107daab89e7a5fb442772bed4",
+        "applied": true,
+        "schema_objects_verified": 4
+      },
+      "active_worker_version": "5f2c5dc7-e57a-47a8-89f3-0f64f6c29841",
+      "traffic_percent": 100,
+      "rollback_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+      "preservation": {
+        "binding_count": 52,
+        "all_binding_identities_and_values_equal": true,
+        "runtime_settings_equal": true
+      },
+      "work_proposal": {
+        "path": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
+        "submitted": false,
+        "approved": false
+      },
+      "native_work_join_verified": false,
+      "native_direction_save_verified": false,
+      "hermes_rollout": false,
+      "hermes_execution": false,
+      "full_operational_loop_accepted": false,
+      "remaining": "Use Zen Thoughtseed Labs profile as explicitly requested. Authentication and direct founder envelope read work, but page ledger fetch has been canceled/offline; current retry in progress. Do not switch browsers or weaken browser security. Work intent is not yet submitted."
+    }
   },
   "remaining": [
     "Separately approve/deploy reviewed Work/direction source and additive migration0103 with version23cf59d1 rollback retained",
@@ -82,7 +113,7 @@
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Review exact rollout manifest and Work proposal. Source is tested, not deployed. After owner rollout approval apply only0103, preserve52bindings/settings, then submit proposal for explicit founder decision. Continue Hermes finite capability/admission wiring without claiming launch readiness.",
+  "next_action": "Use Zen Thoughtseed Labs profile as explicitly requested. Authentication and direct founder envelope read work, but page ledger fetch has been canceled/offline; current retry in progress. Do not switch browsers or weaken browser security. Work intent is not yet submitted.",
   "holds": [
     "No graph/ledger/admission write, launch, runner rollout or deployment in this slice",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
@@ -91,5 +122,20 @@
   "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
   "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md",
   "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
-  "work_intent": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json"
+  "work_intent": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
+  "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
+  "proposed_code_pilot": {
+    "base": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+    "source": "c4cc221fcf45f69c1a90fd835db6ad948e7bbb79",
+    "branch": "codex/cambium-code-pilot-input-20261104",
+    "patch_sha256": "sha256:f1f6467b4e25af3daeafae9f996a9ddf7cf368e473af1a66ca8417a51acaae35",
+    "purpose": "Reject whitespace-only shared signal titles on capture and edit",
+    "paths": [
+      "workers/quests/src/shared-signals.ts",
+      "workers/quests/src/shared-signals.test.ts"
+    ],
+    "local_checks": "Baseline RED; candidate8tests PASS; prepared locally only, not a Hermes result",
+    "admitted": false,
+    "executed": false
+  }
 }

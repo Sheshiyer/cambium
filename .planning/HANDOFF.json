@@ -432,7 +432,7 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "work-direction-source-ready-live-rollout-pending",
+      "status": "work-direction-deployed-work-gate-read-held",
       "tier": "E5",
       "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
@@ -451,9 +451,10 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Review exact rollout manifest and Work proposal. Source is tested, not deployed. After owner rollout approval apply only0103, preserve52bindings/settings, then submit proposal for explicit founder decision. Continue Hermes finite capability/admission wiring without claiming launch readiness.",
+      "next_action": "Use Zen Thoughtseed Labs profile as explicitly requested. Authentication and direct founder envelope read work, but page ledger fetch has been canceled/offline; current retry in progress. Do not switch browsers or weaken browser security. Work intent is not yet submitted.",
       "ui_diagnostics": "Settings > Advanced > Diagnostics",
-      "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json"
+      "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
+      "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json"
     }
   }
 }

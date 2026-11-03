@@ -1,11 +1,34 @@
 # Cambium operational loop — next-session handoff
 
 4 November 2026, Asia/Calcutta. Status: Work-source and shared-direction code
-implemented and reviewed; live rollout and canonical Work decision pending.
+implemented, reviewed and deployed; canonical Work decision pending.
 The full signal → direction → approved work → result loop is **not accepted**. Continue this task; do not report the prior
 Inbox test as an execution-loop test.
 
-## Current continuation after PR428 merge
+## Live checkpoint after approved rollout
+
+The founder separately approved the scoped rollout. Migration0103 is applied;
+its four schema objects and empty initial store were read back. Worker version
+`5f2c5dc7-e57a-47a8-89f3-0f64f6c29841` serves100% traffic. All52binding
+identities/values and runtime settings match retained rollback23cf59d1.
+See `WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json`. No graph Work decision,
+direction save, admission, Hermes rollout or execution has occurred.
+
+The founder requests **Zen Thoughtseed Labs profile** for this workflow.
+Authentication and direct `/founder/api/quests/cambium` read succeed (schema1,
+tenantcambium). The world page's ledger fetch has been canceled and reports
+offline; retry is in progress. Browser protection was not changed. Do not keep
+asking for login or switch to Chrome. Submit the pinned intent only through a
+verified founder workflow; never bypass the canonical decision or seed D1 rows.
+
+A finite next coding input is prepared locally on branch
+`codex/cambium-code-pilot-input-20261104`, commit`c4cc221f`, base`d571ea92`:
+reject whitespace-only shared signal titles. Exact two-file patch digest is in
+the JSON; baseline RED and candidate8checks pass. This is input preparation,
+not admission, hosted execution, a terminal result or semantic acceptance.
+
+## Source checkpoint before rollout
+
 
 PR428 merged at `d571ea92`. Continue branch
 `codex/cambium-real-work-loop-20261104`, source `71005ef6`.
