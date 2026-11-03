@@ -56,8 +56,8 @@ from these sign-in checks.
 
 The signed candidate's buttons were observed in the actual Mac window. Clicking
 the main button configured the reviewed owner and entered pending authentication.
-Founder Gate window visibility is awaiting owner readback; no fresh session or
-complete browser walkthrough is claimed for this candidate.
+The owner confirmed that a login/authentication window is visible. No fresh
+session or complete browser grant is claimed for this candidate.
 
 ## Fresh runtime facts and actual gaps
 

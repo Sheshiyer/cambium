@@ -19,7 +19,8 @@ read its matching Markdown handoff and continue branch
 `codex/cambium-operational-loop-20261104`. Sign-in source `1f64c646` adds main/
 sidebar entry, expiry-aware re-entry and correct prior-owner cancellation order.
 Core261 (two opt-in skips), native43 and clean signed bundle checks pass.
-Actual buttons are visible; fresh browser-window walkthrough remains unverified.
+Actual buttons are visible; owner confirmed the authentication window appears.
+A fresh completed grant and the operational-loop walkthrough remain unverified.
 
 The operational Work join, shared directions, owner admission/launch composition
 and real result loop remain unimplemented. D1 readback found zero Cambium anchors

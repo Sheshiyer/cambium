@@ -32,7 +32,7 @@
     "core": { "executed": 261, "skipped": 2, "failures": 0 },
     "native": { "executed": 43, "failures": 0 },
     "bundle": "clean-input ad hoc signed build; verifier passed",
-    "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts pending authentication. Founder Gate window visibility is awaiting owner readback; no new session is claimed.",
+    "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
     "real_work_join": "not implemented",
     "live_operational_loop": "not implemented",
     "installed_hermes_capability": "not verified"
@@ -52,6 +52,6 @@
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
     "Migration 0099 stays source-only until admission and execution owner contracts are ready"
   ],
-  "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Actual contracts and tests govern implementation.",
+  "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
   "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md"
 }
