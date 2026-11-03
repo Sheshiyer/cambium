@@ -48,7 +48,7 @@ async function load() {
   CuriousGateBridge.pending(revision);
   const controller = new AbortController();
   readControllers.add(controller);
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), FOUNDER_WEB ? 30000 : 10000);
   try {
     const response = await fetch(REFRESH_ROUTE, { signal:controller.signal, credentials:'same-origin', headers:initData ? {'x-telegram-init-data':initData} : {} });
     if (disposed || revision !== QUEST_READ_REVISION) return;
