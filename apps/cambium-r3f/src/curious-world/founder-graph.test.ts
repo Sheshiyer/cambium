@@ -30,3 +30,8 @@ test('canonical graph refuses misleading containment links and noncanonical deci
   const edge=fixture();edge.edges[0].fromId='temperance';assert.throws(()=>normalizeFounderGraph(edge));
   assert.throws(()=>normalizeFounderGraph({...fixture(),decisions:[{kind:'platform-published',canonicalReadback:true,decision:'approved'}]}));
 });
+
+test('canonical graph refuses incomplete or duplicate containment observations',()=>{
+ const missing=fixture();missing.edges.pop();assert.throws(()=>normalizeFounderGraph(missing));
+ const duplicate=fixture();duplicate.edges[1]=duplicate.edges[0];assert.throws(()=>normalizeFounderGraph(duplicate));
+});

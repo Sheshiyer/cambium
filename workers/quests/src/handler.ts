@@ -1,3 +1,4 @@
+import { readDepartmentSources, type DepartmentSourceReaders } from '../../../shared/department-pilot/readers.ts';
 import { MAPPING_ANNOTATIONS } from './portfolio-four-annotations.data.ts';
 import { parseAnnotations } from './portfolio-four-annotations.ts';
 import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
@@ -520,6 +521,7 @@ export interface FabricLedgerStoreLike {
 export interface HandlerDeps {
   sharedSignalStore?: SignalStore;
   sharedDirectionStore?: DirectionStore;
+  departmentReaders?: DepartmentSourceReaders; // server-owned accepted-source readers; absent stays unavailable
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
@@ -5677,6 +5679,8 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           decisions.push({ ...decision, proposalId: `cambium:${task.changeDigest}`, changeDigest: task.changeDigest,
             graphVersion: task.graphVersion, canonicalReadback: true, kind: 'd1-bookkeeping-decision' });
         }
+        const servedAt = deps.now?.() ?? new Date().toISOString();
+        const departmentSources = await readDepartmentSources({tenantId:'cambium',headDigest:head.graphDigest,observedAt:servedAt,nodes},deps.departmentReaders);
         const finalHead = await deps.goalGraphStore.readHead('cambium');
         if (!finalHead || finalHead.graphDigest !== head.graphDigest || finalHead.graphVersion !== head.graphVersion) return json(503, { error: 'goal_graph_read_unconfirmed' });
         return { ...json(200, { schema: 'cambium.founder.bookkeeping-graph.v1', origin: 'd1', tenantId: 'cambium',
@@ -5684,7 +5688,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           head: { tenantId: head.tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest }, rootId: roots[0].nodeId,
           nodes, edges: nodes.filter(node => node.parentNodeId && (ids.has(node.parentNodeId) || node.parentNodeId === roots[0].nodeId))
             .map(node => ({ kind: 'contains', fromId: node.parentNodeId, toId: node.nodeId })),
-          decisions, servedAt: deps.now?.() ?? new Date().toISOString(),
+          decisions, servedAt, departmentSources,
           evidenceTrust: 'Node evidence references are recorded observations; D1 decisions prove graph bookkeeping only, not publication or execution.' }),
           headers: { ...JSON_HEADERS, 'cache-control': 'private, no-store' } };
       } catch { return json(503, { error: 'goal_graph_authority_unavailable' }); }

@@ -86,6 +86,68 @@ Review/preparation receipts and complete command logs live under ignored
 `.local/` in the isolated PR checkout. Source merge grants no production
 deployment, native identity activation, schema apply or Field Report migration.
 
+### 2026-11-04 Exact e6c1940e version94 uploaded and verified; traffic held
+
+- Owner-approved e6c1940e was uploaded as immutable Worker version94 / c0821aa3-987a-4fc5-b2c5-380aee02fb5b with the exact52 inherited-binding config and documented baseline failures. Full binding and runtime parity, settings fingerprint, schedules and exposure match the fresh preflight.
+- Preview root200 includes complete generated JS/CSS; health200 reports the signed-gate capability configured; guest founder graph is401. This is preview and anonymous-boundary evidence only, not authenticated founder graph, production, or native/device acceptance.
+- Live deployment remains c89c5a4d-e149-4b5e-a242-9051b9e7b7dc,100% on native93 / 23cf59d1-754a-4cef-be7a-f96fcc072f48. Version94 receives no traffic. No traffic/trigger/settings/credential change. ef6e0c74-697e-4938-9d15-e0e481c80dbe remains rollback target.
+- Evidence: artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json and version-preview-readback.json. Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation; separate traffic approval remains held.
+
+
+### 2026-11-04 Department source reconciled with native93; external gates held
+
+- Source e6c1940e aligns the two remaining native93 test fixtures. Repository/lifecycle production guards already match b5396101; all native92→93 delta paths now match. Department code and all94 native Source/Test files remain intact. Exact52-binding config and emitted Worker are byte-identical to deb53e3e; the contract documents the shared256-gap bound.
+- Fresh focused777/777, full2694/2697 with only the same three baseline failures, scoped strict TypeScript, build/actual-sourcemap and Atlas checks pass. Broader Worker typing retains69 identical baseline diagnostics; standalone retains six findings. Previous native unit proof is retained for unchanged bytes, not mislabeled as a rerun.
+- Before/during/after drift reads remain native93 at100%, with the same52 full binding configurations/runtime/global operational settings/cron/exposure and no newer upload. This task made no upload, traffic, remote schema or graph write. New exact upload/readback and later separate traffic approval remain required; ef6e0c74 remains the recorded rollback target.
+- Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the matching structured continuation. No new deployed-candidate or physical-device acceptance is claimed.
+
+
+### 2026-11-04 Department/native90 source reconciled through serving92
+
+- Source deb53e3e preserves department readers/frontend and carries committed native90 plus serving92 source964a61a; all94 native Source/Test files match that owner pin. The exact52-binding config is byte-identical to d6bb6986; no upload, migration, graph or traffic write.
+- Focused Node704/704, atlas13/13, scoped strict TypeScript, Worker dry-run/actual-sourcemap guard, Swift Core260pass/1skip and native39/39 pass. Final full suite2694/2697 on the exact commit with original history/independent refs retains only the same three baseline failures. Broader Worker typecheck retains the same69 diagnostics on both candidate and d6bb baseline; standalone retains six findings.
+- Concurrent native release advanced from serving92 to93/23cf59d1 at100%; preserve it and reconcile its source before any new exact upload and later separate traffic approval. deb53e3e remains unuploaded; version89 still means d6bb6986, and ef6e0c74 remains the recorded rollback target.
+- Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the matching structured continuation. Earlier race/history-limited runs are preserved separately; no deployed or physical-device acceptance is claimed.
+
+
+### 2026-11-03 Exact combined version89 upload verified; traffic held
+
+- Owner-approved d6bb6986 was uploaded as version89 / f74b004a-f50a-4976-b0ee-4c34f2c15aee with the exact52-binding config and documented baseline failures. Actual full binding/runtime parity and operational settings/cron/exposure readbacks pass; public preview page200 exact JS/CSS, health200/configured, guest graph401.
+- Drift preflight found native version88 serving; concurrent readback then found version90 at100%. This task made no traffic write, and version89 remains unserved. Reconcile newer native source before any separate traffic approval; ef6e0c74 remains the recorded historical rollback target.
+- Uploaded source remains d6bb6986; this checkpoint changes documentation only. Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation; preserve prior source and timeout evidence.
+
+
+### 2026-11-03 Combined source retains later native diagnostics
+
+- After the owner chose native preservation, that release stream advanced independently to version83/source d113d8ab, with unchanged52 bindings/runtime and categorical diagnostics only. This task made no traffic write.
+- Final combined source carries that exact delta;559 focused Node tests and47 native Swift identity tests pass. The department frontend remains byte-identical. New combined upload/traffic gates remain held; review NATIVE-RECONCILIATION.md.
+
+
+### 2026-11-03 Concurrent native release held version80 promotion
+
+- Requested version80 traffic promotion was not executed: live version82/sourceab94d63c has52 bindings, protected native consent and Inbox routes absent from version80. Owner selected preserving version82 and preparing the combined source.
+- Isolated compatibility source retains department readers and the existing native additions;510 focused tests,47 native Swift identity tests, typecheck, bundle parity, dry-run and retired-surface checks pass; stable full suite2690/2693 retains three baseline failures. No upload, migration, graph, enrollment or traffic action.
+- Review docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation. Original version80 and primary concurrent work are preserved.
+
+
+### 2026-11-03 Department candidate uploaded; traffic held
+
+- Explicit owner approval uploaded source fcbb68f9e11a29922aa65b8f7dedf08601e81844 as version80 / e3750ef4-86dc-4980-a5a2-1b9331120c85, using the reviewed47-binding config and documented baseline failures.
+- Actual version readback:47 bindings/configurations and runtime exactly match serving; cron/exposure unchanged. Only upload annotations changed. Version preview serves exact candidateJS/CSS, health is200/configured, unauthenticated graph is401.
+- Existing deployment d27c5b87-57ec-4774-82f8-21a518d23ccb remains100% on ef6e0c74-697e-4938-9d15-e0e481c80dbe. Separate traffic approval remains required; this upload approval is consumed. No graph or social mutation.
+- Outcome/receipt: docs/plans/department-pilot/LIVE-INTEGRATION.md and the matching structured continuation. The uploaded source is fcbb68f9; this later checkpoint changes documentation only.
+
+
+### 2026-11-03 Department authenticated source integration
+
+- Isolated department pilot continues through the existing founder graph/3D read owner; maintained native/Cortex/portfolio work preserved. Current head11 read: 128 product nodes, seven decisions.
+- Actual accepted GSD mappings and complete KPI cohort readers are unavailable; daily holds and twelve unavailable measurements are explicit. Positive adapter fixtures are synthetic.
+- Authenticated candidate desktop/mobile proof, exact release/config delta and rollback: docs/plans/department-pilot/LIVE-INTEGRATION.md. No upload, traffic, graph, schedule or publication change. New exact promotion approvals remain required.
+
+Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
+
+# Project handoff
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
@@ -2846,3 +2908,4 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Six actual local IAB JPEG captures bind the frozen Field Atlas PAGE. Local/synthetic evidence and real Worker entrypoint auth tests remain distinct from production acceptance.
 - The value-free 47-binding overlay is adopted for this exact one-off source candidate; original canonical config and primary dirty work remain intact. No upload or traffic assignment occurred.
 - Whole-suite inherited membership/planning/workbench and privacy/history holds remain explicit. See docs/plans/2026-11-03-live-founder-release.md; no full-release-green claim or automatic main merge.
+
