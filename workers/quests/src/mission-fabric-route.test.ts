@@ -521,6 +521,17 @@ function assertAuthorityReason(result: { status: number; json: any; raw: string 
   assert.equal(result.raw.includes(leaked), false);
 }
 
+test('the read preserves more than 128 source gaps and refuses overflow at the shared bound', async () => {
+  for (const [count, expected] of [[132, 200], [257, 503]]) {
+    const result = await authorityFailure((deps) => {
+      deps.goalGraphStore!.readNodes = async () => Array.from({ length: count }, (_, i) => goalNode(`gg-cap-${i}`, `task-cap-${i}`, null));
+    });
+    assert.equal(result.status, expected);
+    if (expected === 200) assert.ok(result.json.projection.gaps.length > 128);
+    else assert.equal(result.json.error, 'mission_fabric_gap_overflow');
+  }
+});
+
 test('a ledger without execution facts still serves its graph with an explicit source gap', async () => {
   const result = await authorityFailure((deps) => {
     const read = deps.kv.get.bind(deps.kv);
