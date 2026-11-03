@@ -59,6 +59,27 @@ the main button configured the reviewed owner and entered pending authentication
 The owner confirmed that a login/authentication window is visible. No fresh
 session or complete browser grant is claimed for this candidate.
 
+## Native UI cleanup — current build
+
+The account screen now shows a compact sign-in/account card and named connected
+sources. Standard mode has no permanent owner/status banner. Inbox uses project
+names, an expandable searchable project picker and concise save feedback. Project
+records show their name, category and available actions; a missing runtime Work
+still visibly says it is not connected.
+
+Open **Settings → Advanced → Open diagnostics** for owner URL/client/callback,
+principal and tenant IDs, graph/catalog digests, runtime join counts, source
+provenance and selected-record identifiers. These remain inspectable without
+appearing throughout daily workflows. Done closes the separate sheet.
+
+Current UI source is `90eb3c466702a95453712df5b026fa729e1bc7d6`; the JSON records its clean
+bundle input digest. Core261 (two opt-in skips), native43, build and signature
+checks pass. Actual Mac checks covered signed-out Connections and the Diagnostics
+open/close path, plus labelled demo Projects/Inbox and named project choices.
+The final copy-only build was reopened. No fresh live session or operational-loop
+acceptance is implied. The original sign-in-only proposed patch below remains
+separately pinned; it does not include this UI cleanup.
+
 ## Fresh runtime facts and actual gaps
 
 Scoped read-only D1/control-plane checks on 4 November found:

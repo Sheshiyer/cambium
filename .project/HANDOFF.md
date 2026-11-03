@@ -11,6 +11,19 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 native UI cleanup
+
+Connections now presents a compact account card; Inbox and Projects use names and
+concise actions. Technical configuration, IDs, provenance, digests and join counts
+live in Settings → Advanced → Diagnostics. Core261 (two opt-in skips), native43,
+clean debug build/signature pass. Actual Mac account/Settings/Diagnostics checks
+and labelled demo Projects/Inbox checks pass; no fresh live sign-in is claimed.
+Current source/build proof and remaining operational-loop work are in
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json` and its Markdown.
+The real Work join, directions, admission, hosted Hermes launch and result remain
+open. This UI change does not deploy or seed authority data.
+
+
 ## 2026-11-04 operational-loop handoff and main-window sign-in
 
 Owner selected the existing hosted Hermes runner for the Cambium coding pilot.
