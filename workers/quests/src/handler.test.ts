@@ -17418,3 +17418,26 @@ test('founder bookkeeping intake · canonical rejection remains visible without 
   assert.equal(graph.decisions.length,2);
   assert.ok(graph.decisions.every((d:any)=>d.proposalId!==h.proposalId),'unrelated Telegram proposal stays excluded');
 });
+
+test('department sources · authenticated graph uses accepted owner readers without any canonical write', async () => {
+  const h=await canonicalFounderHarness(); const raw=founderBookkeepingInput();
+  raw.goals[0].metadata={facet:'task',stage:'website'};
+  const receipt=body(await h.call('intake',raw)); const review=body(await h.call('proposal',{proposalId:receipt.proposalId}));
+  assert.equal(body(await h.call('decision',canonicalDecision(review))).status,'approved');
+  const before=await h.deps.goalGraphStore.readNodes('cambium'),head=await h.deps.goalGraphStore.readHead('cambium');
+  const {KPI_DEFINITIONS}=await import('../../../shared/department-pilot/catalog.ts');
+  h.deps.departmentReaders={
+    readAcceptedGsd:async(scope,workObjectId)=>workObjectId==='sapling:lumen-bar'?{tenantId:scope.tenantId,headDigest:scope.headDigest,observedAt:scope.observedAt,expiresAt:new Date(Date.parse(scope.observedAt)+600000).toISOString(),workObjectId,sourceRef:'fixture:accepted-gsd-owner',isaAcceptanceRef:'ISA.md#accepted',planRef:'.planning/phases/01/01-PLAN.md',planDigest:'a'.repeat(64),tasks:[{nodeId:scope.nodes[0].nodeId,sequence:1,state:'pending',dependsOn:[]}]}:null,
+    readKpi:async(scope,d,window)=>d.id===KPI_DEFINITIONS[0].id?[{definition:d,observation:{definitionId:d.id,version:d.version,productId:d.productId,cohort:d.cohort,window,observedAt:scope.observedAt,sourceRef:'fixture:measurement-owner',numerator:1,denominator:2}}]:null,
+  };
+  const read=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);assert.equal(read.status,200,read.body);
+  const graph=body(read); assert.equal(graph.departmentSources.gsd[0].state,'available');assert.equal(graph.departmentSources.gsd[1].state,'unavailable');assert.equal(graph.departmentSources.kpis[0].state,'observed');
+  assert.deepEqual(graph.departmentSources.gsd[0].taskIds,[graph.nodes[0].nodeId]);assert.equal(graph.departmentSources.executionGranted,false);
+  assert.deepEqual(await h.deps.goalGraphStore.readHead('cambium'),head);assert.deepEqual(await h.deps.goalGraphStore.readNodes('cambium'),before);
+  const crossRealm=await handle(req('GET','/v1/founder/graph',{headers:{...founderWebHeaders(),authorization:'Bearer cns1_synthetic-native-session'}}),h.deps);
+  assert.equal(crossRealm.status,403);
+  const readHead=h.deps.goalGraphStore.readHead;let drift=false;
+  h.deps.departmentReaders.readAcceptedGsd=async()=>{drift=true;return null;};
+  h.deps.goalGraphStore.readHead=async(tenant)=>{const current=await readHead(tenant);return drift?{...current!,graphDigest:'b'.repeat(64)}:current;};
+  const torn=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);assert.equal(torn.status,503);assert.equal(body(torn).error,'goal_graph_read_unconfirmed');
+});

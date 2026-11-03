@@ -4,7 +4,7 @@ import { DEPARTMENTS, PRODUCTS, STAGE_BINDINGS, DESK_SKILL_REFERENCES, SKILL_REF
 
 export interface PilotInput {
   tenantId: string; now: string; expectedHeadDigest: string;
-  graph: { tenantId: string; headDigest: string; observedAt: string; nodes: GoalGraphNode[] };
+  graph: { tenantId: string; headDigest: string; observedAt: string; rootId?: string; nodes: GoalGraphNode[] };
   /** Explicit accepted-plan selection supplied by the GSD reader, not node metadata. */
   eligibility?: { sourceRef: string; taskIds: string[] };
 }
@@ -47,6 +47,7 @@ export function compileDepartmentPilot(input: PilotInput): DepartmentPilot {
   const now = time(input.now), observed = time(input.graph.observedAt);
   if (!input.tenantId || input.graph.tenantId !== input.tenantId) throw new Error('Graph tenant mismatch');
   if (!digest(input.expectedHeadDigest) || !digest(input.graph.headDigest)) throw new Error('Invalid head digest');
+  if (input.graph.rootId !== undefined && (typeof input.graph.rootId !== 'string' || !input.graph.rootId || input.graph.nodes.some(n=>n.nodeId===input.graph.rootId))) throw new Error('Invalid graph boundary root');
   if (!Array.isArray(input.graph.nodes) || input.graph.nodes.length > 512) throw new Error('Graph node budget exceeded');
   const byId = new Map<string, GoalGraphNode>();
   for (const n of input.graph.nodes) {
@@ -88,6 +89,7 @@ export function compileDepartmentPilot(input: PilotInput): DepartmentPilot {
       const binding = resolve(n);
       let containmentGap: string | null = null; let pathNode: GoalGraphNode | undefined = n;
       while(pathNode?.parentNodeId) {
+        if (input.graph.rootId && pathNode.parentNodeId === input.graph.rootId) break;
         const parent = byId.get(pathNode.parentNodeId);
         if (!parent) { containmentGap = 'Ancestor missing from supplied snapshot'; break; }
         if (parent.workObjectId !== n.workObjectId) { containmentGap = 'Parent crosses work-object scope; inheritance stopped'; break; }

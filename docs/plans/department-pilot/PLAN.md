@@ -36,3 +36,7 @@ Base: c43057f8684ca192d0fdee36630852deb0c85ce2. Primary dirty checkout and froze
 ## Release boundary
 
 No deployment or cadence activation in this slice. MISSION.md v0.4 currency remains unresolved; existing approved work may be classified, but no new departmental objective cascade is accepted. Standing-policy persistence/CAS, runtime registry resolution and authenticated founder host reader need separate integration evidence. Existing exact social schedules and receipts retain their owning consumer.
+
+## Approved live integration continuation
+
+Continue the source pilot through the existing authenticated founder/3D owner. Connect optional accepted ISA/GSD and compatible KPI readers, preserve honest unavailable states, and refresh derived views through existing read events. Reconcile maintained versus serving source narrowly; retain D1/CAS and every consequential owner gate. Scope and actual outcomes are recorded in LIVE-INTEGRATION.md. No product mission, target, launch slot or publication change is included.

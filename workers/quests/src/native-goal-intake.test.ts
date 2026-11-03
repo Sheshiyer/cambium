@@ -71,7 +71,7 @@ test('bookkeeping rejects authority grants, private transport, unsupported ident
     { ...input(), goals: [{ ...goal, namespace: 'telegram' }] },
     { ...input(), goals: [{ ...goal, pinnedLoadoutId: 'loadout:fitcheck-launch' }] },
     { ...input(), goals: [{ ...goal, metadata: { executionAdmission: 'yes' } }] },
-    { ...input(), goals: [{ ...goal, currentState: ['', 'Users', 'fixture', 'private-source'].join('/') }] },
+    { ...input(), goals: [{ ...goal, currentState: '/Users/fixture/private-source' }] },
     { ...input(), goals: [{ ...goal, metadata: { model: 'candidate' } }] },
     { ...input(), goals: [goal, goal] },
     { ...input(), goals: [{ ...goal, desiredState: 'x'.repeat(513) }] },

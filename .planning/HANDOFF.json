@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T11:10:34.548324+00:00",
-  "status": "completed",
-  "active_task": "Completed scoped Founder Gate desktop renewal/approval/receipt E2E",
+  "updated": "2026-11-03T16:53:49.311324+00:00",
+  "status": "source-integration-review-held",
+  "active_task": "Department pilot authenticated founder source integration",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -248,7 +248,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Continue assigned backend/UI source work in private clone; parent waits on unchanged serial release baseline, integrates generated bundles/tests, then reviews release and verified binding/3D E2E.",
+  "next_action": "Review the concrete department integration source/config packet; new exact upload approval precedes uploaded-version readback and a separate traffic gate. Missing accepted GSD/KPI owner sources remain visibly unavailable.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -430,29 +430,17 @@
     "nodeStatus": "blocked"
   },
   "continuations": {
-    "native_operational_loop": {
-      "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "sign-in-built-operational-loop-not-wired",
-      "tier": "E5",
-      "branch": "codex/cambium-operational-loop-20261104",
-      "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
-      "selected_execution_owner": "hosted-hermes",
-      "native_source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
-      "isa": "ISA.md",
-      "isc_done": [
-        "ISC-3680"
-      ],
-      "isc_open": [
-        "ISC-3681",
-        "ISC-3682",
-        "ISC-3683",
-        "ISC-3684",
-        "ISC-3685",
-        "ISC-3686",
-        "ISC-3687"
-      ],
-      "next_action": "Implement the explicit approved operational Work source and exact native join, then revisioned directions and the reviewed finite hosted-Hermes capability/admission/result contract. Full loop has not run; preserve completed Inbox proof separately.",
-      "ui_diagnostics": "Settings > Advanced > Diagnostics"
+    "department_live_integration": {
+      "status": "source-implemented-promotion-held",
+      "source_branch": "codex/department-source-pilot-20261103",
+      "handoff": "docs/plans/department-pilot/LIVE-INTEGRATION.md",
+      "verified_live_head": 11,
+      "live_head_digest": "68d3c34c2dd54ee2351e063bc0dd54bb468d8164550bd3af2c8cc10502d3e32f",
+      "serving_version": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
+      "accepted_daily_work": "unavailable from actual owner sources",
+      "kpi_measurements": "twelve unavailable; no complete owner cohort reader",
+      "gate": "new exact upload approval; separate traffic approval after readback",
+      "execution_granted": false
     }
   }
 }

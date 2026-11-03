@@ -3561,3 +3561,16 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3137 final: Frozen ba23d70 core2452/2453 passes0skips, only knowncanonicalviewport hold. App184/184/build/art/parity pass; PR403 mergedf23b449 has an identical tree. No equality or privacy assertion weakened.
 - ISC-3138: Worker4918ce0e serves100percent with rollbackc373b54a; rawbindingaudit47/47changed[] and before/afterglobalsettings/domain/cron match. No migration/enrollmentchange.
 - ISC-3139: Authenticated live existingreceipt6444a852 canonicalReadbacktrue, historicalrequestedDecision=null; Meso and preservedobjective with no inventedcontext. OnlyDecision/Graph observed.320px containment,45pxcontrols,focus/disclosures/reducedmotion/journal pass. D1remains4approvals/4events; no newdecision or renewal. Runtimeevidence in `docs/evidence/2026-10-25-gate-chamber-live.v1.json`.
+
+### 2026-11-03 Department live integration source acceptance
+
+This bounded implementation continues the explicitly approved LumenBar/Temperance department pilot. It creates no new product mission or target.
+
+- [x] DP-LIVE-01: Authenticated existing founder graph feeds the current 3D department view with original IDs, parents and dates.
+- [x] DP-LIVE-02: Existing read/refresh events recompute safely; out-of-order, failed and disposed reads cannot restore an old projection.
+- [x] DP-LIVE-03: Server-owned accepted GSD scope validates exact product/head, owner provenance, dependencies and sequence; absent owner sources visibly hold daily work.
+- [x] DP-LIVE-04: KPI read adapters validate the immutable definition, product/cohort/window, denominator, freshness and provenance; absent complete measurements remain unavailable.
+- [x] DP-LIVE-05: Authenticated candidate desktop/mobile readback is distinguished from production deployment. Retired 2D modules remain absent from the emitted Worker.
+- [ ] DP-LIVE-06: A new exact source/config upload approval, uploaded-version readback, separate traffic approval and production readback are required before promotion. Historical release approvals are not reused.
+
+Evidence and limitations: docs/plans/department-pilot/LIVE-INTEGRATION.md; private attributable integration receipts. D1/CAS, accepted product planning, resource/permission/publication/deployment owners and runtime admission remain separate.

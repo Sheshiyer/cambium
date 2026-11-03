@@ -11,80 +11,15 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
-## 2026-11-04 native UI cleanup
+### 2026-11-03 Department authenticated source integration
 
-Connections now presents a compact account card; Inbox and Projects use names and
-concise actions. Technical configuration, IDs, provenance, digests and join counts
-live in Settings → Advanced → Diagnostics. Core261 (two opt-in skips), native43,
-clean debug build/signature pass. Actual Mac account/Settings/Diagnostics checks
-and labelled demo Projects/Inbox checks pass; no fresh live sign-in is claimed.
-Current source/build proof and remaining operational-loop work are in
-`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json` and its Markdown.
-The real Work join, directions, admission, hosted Hermes launch and result remain
-open. This UI change does not deploy or seed authority data.
+- Isolated department pilot continues through the existing founder graph/3D read owner; maintained native/Cortex/portfolio work preserved. Current head11 read: 128 product nodes, seven decisions.
+- Actual accepted GSD mappings and complete KPI cohort readers are unavailable; daily holds and twelve unavailable measurements are explicit. Positive adapter fixtures are synthetic.
+- Authenticated candidate desktop/mobile proof, exact release/config delta and rollback: docs/plans/department-pilot/LIVE-INTEGRATION.md. No upload, traffic, graph, schedule or publication change. New exact promotion approvals remain required.
 
+Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
 
-## 2026-11-04 operational-loop handoff and main-window sign-in
-
-Owner selected the existing hosted Hermes runner for the Cambium coding pilot.
-New continuation: `.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`;
-read its matching Markdown handoff and continue branch
-`codex/cambium-operational-loop-20261104`. Sign-in source `1f64c646` adds main/
-sidebar entry, expiry-aware re-entry and correct prior-owner cancellation order.
-Core261 (two opt-in skips), native43 and clean signed bundle checks pass.
-Actual buttons are visible; owner confirmed the authentication window appears.
-A fresh completed grant and the operational-loop walkthrough remain unverified.
-
-The operational Work join, shared directions, owner admission/launch composition
-and real result loop remain unimplemented. D1 readback found zero Cambium anchors
-and no native launch tables. Inspected Hermes source has no Cambium registration;
-verify the installed owner before rollout. Do not mix execution metadata into the
-bookkeeping lane, seed authority rows, replay completed migrations or claim the
-prior signal test is an execution result. The proposed sign-in patch is pinned in
-the new handoff for review; it is not admitted. Primary concurrent work is intact.
-
-## Native Inbox live activation verified — 4 November 2026
-
-Real founder sign-in, current owner-served mapped catalog and persisted signal
-create/read/edit/project-filter readback pass in the standard Mac app. ISC-3467
-and ISC-3672 are satisfied. Evidence, exact deployed versions, clean native input
-digest, test counts and traffic-only rollback are recorded in
-`.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
-
-The owner sees 76 current and 20 historical projects. The real served join report
-has zero operational Work joins; source association grants no admission. The
-retained activation test signal is revision 3, linked to `sapling:cambium`, and
-was read from the exact project Inbox after refresh. Session tokens remain
-in-memory with a 15-minute lifetime. A copied client identifier is not a website;
-start sign-in from Connections, using the existing Curious owner profile.
-
-Backend source preserves the actual Field Atlas and TeamForge SFU deployments.
-Missing execution facts and unresolved operational edges are explicit gaps;
-server/Swift gap capacity is 256 with overflow refusal intact. No graph/ledger
-facts, roles, runtime joins or work admissions were created. Field Report peer
-integration and durable offline sync remain open.
-
-## Native Inbox review fixes — 3 November 2026
-
-The owner authorized fixing the independent review and preparing/merging the
-native app through a scoped PR. Both findings are resolved in source: local
-signal request validation is distinguished from an invalid response after
-submission; revision conflicts retain drafts and require confirmed latest-read
-recovery; standard Gate/Launch persistence is isolated by normalized owner
-endpoint and path. Unscoped legacy records remain untouched.
-
-The branch includes the existing native-app foundation plus the shared signal
-API/Inbox, their finite integration plan and tests. Concurrent product branches,
-catalog proposals, runtime configuration and owner activation work were not
-copied from the dirty primary checkout. The original checkout is preserved.
-Implementation and live limits: `apps/cambium-mac/docs/SHARED-SIGNALS.md`.
-Reusable free-pool entrypoint: `apps/cambium-mac/docs/TEMPERANCE-REVIEW.md`.
-
-Core tests pass 260 with two opt-in skips; native tests pass 39; the explicit
-Worker/SQLite-to-Swift signal probe and ad hoc bundle verification pass.
-Review/preparation receipts and complete command logs live under ignored
-`.local/` in the isolated PR checkout. Source merge grants no production
-deployment, native identity activation, schema apply or Field Report migration.
+# Project handoff
 
 ## Local cited-text integration — 26 October 2026
 
