@@ -585,7 +585,7 @@ const reviewedSourceCanaryLines = new Map([
     ["// CAMBIUM_FABRIC_FIXTURE_DIR=", "/tmp/", "cambium-fabric-current node .../fabric-generate.mts"].join(''),
   ])],
   ["apps/cambium-mac/Tests/CambiumCoreTests/KnowledgeClientTests.swift", new Set([
-    ["\"javascript:alert(1)\", \"", "file:///", "etc/passwd\", \"data:text/html,x\", \"ftp://example.invalid/x\", \"ssh://host/x\","].join(''),
+    ["\"javascript:alert(1)\", \"", "file://", "/", "etc/passwd\", \"data:text/html,x\", \"ftp://example.invalid/x\", \"ssh://host/x\","].join(''),
   ])],
   ["apps/cambium-mac/Tests/CambiumCoreTests/LaunchHTTPContractTests.swift", new Set([
     ["authorizer: HeaderAuthorizer(values: [\"authorization\": \"", "Bearer ", "synthetic-founder\"]))"].join(''),
@@ -596,7 +596,7 @@ const reviewedSourceCanaryLines = new Map([
     ["XCTAssertEqual(sent.headers[\"authorization\"], \"", "Bearer ", "owner-issued-test-token\")"].join(''),
   ])],
   ["apps/cambium-mac/Tests/CambiumCoreTests/SignalsTests.swift", new Set([
-    ["var session: NativeSession = .verified(founderId: \"founder\", tenantId: \"cambium\", expiresAt: .distantFuture)"].join(''),
+    ["var session: ", "NativeSession", " = .verified(founderId: \"founder\", tenantId: \"cambium\", expiresAt: .distantFuture)"].join(''),
   ])],
   ["apps/cambium-mac/docs/SHARED-SIGNALS.md", new Set([
     ["./apps/cambium-mac/tools/snap.sh ", "/tmp/", "cambium-inbox-review inbox"].join(''),
@@ -640,7 +640,7 @@ const reviewedSourceCanaryLines = new Map([
     ["\"evidence{", "/Users/", "example/private.txt\","].join(''),
     ["\"evidence]", "/Volumes/", "madara/private.txt\","].join(''),
     ["\"evidence|", "/home/", "example/private.txt\","].join(''),
-    ["\"", "file:///", "private/var/db/private.txt\","].join(''),
+    ["\"", "file://", "/", "private/var/db/private.txt\","].join(''),
   ])],
   ["workers/cortex-mcp/src/streamable-http.test.ts", new Set([
     ["authorization:", " options.oauth ? \"", "Bearer ", "oauth-access-token\" : `", "Bearer ", "${ROUTE_TOKEN}`,"].join(''),
