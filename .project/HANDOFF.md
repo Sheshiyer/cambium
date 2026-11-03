@@ -11,6 +11,14 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-04 Department source reconciled with native93; external gates held
+
+- Source e6c1940e aligns the two remaining native93 test fixtures. Repository/lifecycle production guards already match b5396101; all native92→93 delta paths now match. Department code and all94 native Source/Test files remain intact. Exact52-binding config and emitted Worker are byte-identical to deb53e3e; the contract documents the shared256-gap bound.
+- Fresh focused777/777, full2694/2697 with only the same three baseline failures, scoped strict TypeScript, build/actual-sourcemap and Atlas checks pass. Broader Worker typing retains69 identical baseline diagnostics; standalone retains six findings. Previous native unit proof is retained for unchanged bytes, not mislabeled as a rerun.
+- Before/during/after drift reads remain native93 at100%, with the same52 full binding configurations/runtime/global operational settings/cron/exposure and no newer upload. This task made no upload, traffic, remote schema or graph write. New exact upload/readback and later separate traffic approval remain required; ef6e0c74 remains the recorded rollback target.
+- Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the matching structured continuation. No new deployed-candidate or physical-device acceptance is claimed.
+
+
 ### 2026-11-04 Department/native90 source reconciled through serving92
 
 - Source deb53e3e preserves department readers/frontend and carries committed native90 plus serving92 source964a61a; all94 native Source/Test files match that owner pin. The exact52-binding config is byte-identical to d6bb6986; no upload, migration, graph or traffic write.
