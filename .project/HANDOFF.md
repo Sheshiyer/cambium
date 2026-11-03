@@ -11,6 +11,13 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-03 Concurrent native release held version80 promotion
+
+- Requested version80 traffic promotion was not executed: live version82/sourceab94d63c has52 bindings, protected native consent and Inbox routes absent from version80. Owner selected preserving version82 and preparing the combined source.
+- Isolated compatibility source retains department readers and the existing native additions;510 focused tests,47 native Swift identity tests, typecheck, bundle parity, dry-run and retired-surface checks pass; stable full suite2690/2693 retains three baseline failures. No upload, migration, graph, enrollment or traffic action.
+- Review docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation. Original version80 and primary concurrent work are preserved.
+
+
 ### 2026-11-03 Department candidate uploaded; traffic held
 
 - Explicit owner approval uploaded source fcbb68f9e11a29922aa65b8f7dedf08601e81844 as version80 / e3750ef4-86dc-4980-a5a2-1b9331120c85, using the reviewed47-binding config and documented baseline failures.

@@ -101,7 +101,7 @@ public struct NativeIdentityConfiguration: Sendable, Equatable {
         }
     }
 
-    var authorizeURL: URL { endpoint("/v1/native/session/authorize") }
+    var authorizeURL: URL { endpoint("/founder/native/session/authorize") }
     var exchangeURL: URL { endpoint("/v1/native/session/exchange") }
     var sessionURL: URL { endpoint("/v1/native/session") }
     var logoutURL: URL { endpoint("/v1/native/session/logout") }

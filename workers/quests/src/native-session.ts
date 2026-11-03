@@ -32,6 +32,8 @@ import { Buffer } from 'node:buffer';
 export const NATIVE_SESSION_CONTRACT = 'cambium.native-session.v1' as const;
 export const NATIVE_SESSION_PATHS = {
   authorize: '/v1/native/session/authorize',
+  // The existing Founder Access application protects this browser-only path.
+  browserAuthorize: '/founder/native/session/authorize',
   exchange: '/v1/native/session/exchange',
   session: '/v1/native/session',
   logout: '/v1/native/session/logout',
@@ -516,12 +518,12 @@ function consentAction(request: Request, host: NativeSessionHost, prepared: Prep
   let url: URL;
   try { url = new URL(request.url); } catch { return null; }
   const owner = new URL(host.deps.ownerOrigin);
-  if (url.origin !== owner.origin || url.pathname !== NATIVE_SESSION_PATHS.authorize) return null;
+  if (url.origin !== owner.origin || ![NATIVE_SESSION_PATHS.authorize, NATIVE_SESSION_PATHS.browserAuthorize].some(path => path === url.pathname)) return null;
   const params = new URLSearchParams(url.search);
   if (!params.has('code_challenge_method')) params.set('code_challenge_method', 'S256');
   if (!params.has('tenant') && prepared.tenantId) params.set('tenant', prepared.tenantId);
   const search = params.toString();
-  return `${NATIVE_SESSION_PATHS.authorize}${search ? `?${search}` : ''}`;
+  return `${url.pathname}${search ? `?${search}` : ''}`;
 }
 
 function consentPage(request: Request, host: NativeSessionHost, prepared: PreparedAuthorize, intent: string, csrf: string): Response | null {
@@ -551,7 +553,7 @@ ${hidden('tenant', prepared.tenantId)}
 </body></html>`;
   const cookie = [
     `${NATIVE_CONSENT_COOKIE}=${csrf}`,
-    'HttpOnly', 'Secure', 'SameSite=Strict', 'Path=/v1/native/session/authorize', 'Max-Age=60',
+    'HttpOnly', 'Secure', 'SameSite=Strict', `Path=${new URL(request.url).pathname}`, 'Max-Age=60',
   ].join('; ');
   return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'set-cookie': cookie } });
 }
@@ -844,7 +846,8 @@ export async function nativeSessionHttp(request: Request, host?: NativeSessionHo
   try { url = new URL(request.url); } catch { return null; }
   const pathname = url.pathname;
   switch (pathname) {
-    case NATIVE_SESSION_PATHS.authorize: return nativeSessionAuthorizeHttp(request, host);
+    case NATIVE_SESSION_PATHS.authorize:
+    case NATIVE_SESSION_PATHS.browserAuthorize: return nativeSessionAuthorizeHttp(request, host);
     case NATIVE_SESSION_PATHS.exchange: return nativeSessionExchangeHttp(request, host);
     case NATIVE_SESSION_PATHS.session: return nativeSessionReadHttp(request, host);
     case NATIVE_SESSION_PATHS.logout: return nativeSessionLogoutHttp(request, host);

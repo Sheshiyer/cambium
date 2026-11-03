@@ -7,6 +7,7 @@ import { createFounderAccessHost, founderBindings } from './founder-access-host.
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 import { nativeLaunchHttp, NATIVE_LAUNCH_PATHS, type NativeLaunchHost } from './native-launch.ts';
 import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
+import { sharedSignalsHttp, type SignalStore } from './shared-signals.ts';
 import {
   composeNativeLaunchHost,
   nativeComposedPath,
@@ -515,6 +516,7 @@ export interface FabricLedgerStoreLike {
 }
 
 export interface HandlerDeps {
+  sharedSignalStore?: SignalStore;
   departmentReaders?: DepartmentSourceReaders; // server-owned accepted-source readers; absent stays unavailable
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
@@ -5549,6 +5551,10 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const nativePath = req.path.split('?')[0];
+  if (nativePath === '/v1/signals' || nativePath.startsWith('/v1/signals/')) {
+    // Existing native Inbox owner; this read/write contract adds no admission.
+    return sharedSignalsHttp(req, deps, new Set(PORTFOLIO_DISPLAY_CATALOG.records.map(record => record.workId)));
+  }
   if (NATIVE_SESSION_ROUTES.has(nativePath)) {
     // Unbound: 503 before any lookup. Bound: the request keeps the reviewed owner origin only when Host matches it.
     if (!deps.nativeSessionHost) return nativeRefusal(503, 'native_session_unconfigured');

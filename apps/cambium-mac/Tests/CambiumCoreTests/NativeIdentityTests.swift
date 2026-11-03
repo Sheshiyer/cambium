@@ -292,7 +292,7 @@ final class NativeIdentityTests: XCTestCase {
         XCTAssertEqual(session, .verified(founderId: "founder-abc12345", tenantId: "cambium", expiresAt: NativeTestFixture.expiresDate))
 
         let authorize = try XCTUnwrap(browser.requests.first)
-        XCTAssertEqual(authorize.url.path, "/v1/native/session/authorize")
+        XCTAssertEqual(authorize.url.path, "/founder/native/session/authorize")
         let query = Dictionary(uniqueKeysWithValues: (URLComponents(url: authorize.url, resolvingAgainstBaseURL: false)?.queryItems ?? []).map { ($0.name, $0.value ?? "") })
         XCTAssertEqual(query["client_id"], NativeTestFixture.clientId)
         XCTAssertEqual(query["code_challenge_method"], "S256")
