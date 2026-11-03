@@ -17654,3 +17654,14 @@ test('iverif native cycle · source edit at the D1 commit boundary rolls back th
   assert.equal(h.db.prepare("SELECT count(*) n FROM goal_graph_nodes WHERE namespace='founder-direction-execution'").get()?.n,0);
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals WHERE change_digest=?').get(review.proposal.changeDigest)?.n,0);
 });
+
+test('iverif native cycle · database task guard preserves unrelated Work scopes',async()=>{
+  const h=await iverifNativeCycleHarness();
+  const work=h.db.prepare("SELECT * FROM goal_graph_nodes WHERE namespace='founder-operational-work' AND work_object_id='sapling:iverif'").get();
+  assert.ok(work);
+  const unrelated={...work,node_id:'goal_'+ 'c'.repeat(64),namespace:'founder-direction-execution',external_id:'unrelated-task',
+    parent_node_id:work.node_id,work_object_id:'sapling:cambium',metadata_json:'{}'};
+  const columns=Object.keys(unrelated),insert=h.db.prepare(`INSERT INTO goal_graph_nodes (${columns.join(',')}) VALUES (${columns.map(()=>'?').join(',')})`);
+  assert.doesNotThrow(()=>insert.run(...Object.values(unrelated)));
+  assert.throws(()=>insert.run(...Object.values({...unrelated,node_id:'goal_'+'d'.repeat(64),work_object_id:'sapling:iverif'})),/native_direction_task_pins_changed/);
+});

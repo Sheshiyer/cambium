@@ -82,6 +82,7 @@ END;
 CREATE TRIGGER IF NOT EXISTS native_iverif_new_task_source_guard
 BEFORE INSERT ON goal_graph_nodes
 WHEN NEW.namespace='founder-direction-execution'
+  AND NEW.work_object_id='sapling:iverif'
   AND NOT EXISTS(SELECT 1 FROM goal_graph_nodes WHERE tenant_id=NEW.tenant_id AND node_id=NEW.node_id)
 BEGIN
   SELECT CASE WHEN NOT EXISTS (
