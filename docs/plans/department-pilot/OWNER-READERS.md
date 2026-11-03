@@ -1,5 +1,35 @@
 # Actual owner readers — November 4, 2026
 
+## Graph and tooling source follow-up
+
+The reader branch now preserves an existing bookkeeping node's `createdAt` when a later intent amends it. New nodes retain the new observation time. Canonical review and SQLite-backed D1 tests cover the exact amendment, original identity, source/version advancement and unchanged execution authority.
+
+The authenticated overview previously scanned the same intake-task keys four times per request. It now shares one lazy request-local task snapshot across public rows, founder rows, decision paths and expired-candidate recovery, with at most eight concurrent KV reads. Tenant/schema filtering and the original D1 decision checks remain in place. The regression verifies one discovery/read per key, bounded overlap, no graph write and a fresh snapshot on the next request. This removes reproduced redundant work; it does not establish that the production overview timeout is resolved.
+
+The existing repository sapling-lifecycle pack is preserved in this isolated source branch and extended with operational-graph and Codex-trigger references. `npm run sapling:hooks` manually queries the installed native `hooks/list`, closes its process and emits a bounded inventory without local paths, commands or native keys. It invokes no callback and changes no hook registration, trust or hot-capability projection. The current CLI 0.166.0 discovery reports six trusted/enabled callbacks and zero errors/warnings. Portable-engine callbacks, current desktop parity and Noesis installed adoption remain separate open gates.
+
+Fresh owner-file reads retain LumenBar source `0c552cbe` as unavailable for accepted GSD selection, and Temperance source `4ca57124` as held with draft orchestration. Engine PR59 remains draft/open at `0abd183e`; Noesis PR100 remains draft/open at `89bcf488`. The supplied 285 engine and five consumer checks are retained source receipts, not tests rerun here.
+
+The correctly profiled read-only Labs deployment read confirms `5f2c5dc7-e57a-47a8-89f3-0f64f6c29841` at 100%, deployment `c353f2e4-91a6-45d2-8d95-d7dae9839693`, created November 3 at 20:26:02 UTC. No traffic write or rollback occurred. Current canonical graph readback is unavailable in this chat: its previous authenticated browser cannot be selected and the visible founder tab requires Access sign-in. Head13/132 nodes/ten decisions below remains the last attributable read, rather than a new D1 observation. The previous 2/2 LumenBar publication cohort is also historical here; no new business measurement was inferred.
+
+### Finite continuation and HITL packets
+
+| Packet | Concrete next work | Acceptance and held consequence |
+| --- | --- | --- |
+| Source integration | Review this branch's amendment/read-efficiency fixes and existing-skill extension with the integration owner. Reconcile current serving source before assembling another candidate. | Source checks cover the changed behavior. No upload, merge, traffic assignment, runtime reader binding or callback activation is included. |
+| LumenBar planning | Prepare the missing ISA/GSD scope in its owning repository, bounded to the next selected existing product outcome. Resolve each selected canonical task ID, original parent, owner sequence and dependency evidence. | The current root has no accepted spine/mapping. A source branch, due date or social approval cannot supply acceptance. No new objective/target is selected by this packet. |
+| Temperance planning | Continue the existing Phase 2 discuss/plan transition. Reconcile its draft orchestration and the exact engine/consumer source pins; propose a task-to-graph mapping only for owner-selected work. | Phase 1 completion and PR checks do not accept Phase 2, native callbacks or installed adoption. CI remains deferred and separate. |
+| Measurement | Ask the existing measurement owner for dated observations tied to exact approved public receipts and immutable KPI definitions. Keep other cohorts unavailable until their owners expose complete evidence. | Original graph task identities and Will desks remain. Reach, conversion, adoption and targets cannot be inferred from publication. |
+| Serving conflict | Owner must reconcile the older keep93 instruction with the subsequent owner-approved `5f2c5dc7…` rollout. Retaining the observed version requires no traffic write; any rollback/promotion needs its own exact source/configuration and rollback review. | No old upload/social approval is reusable. Current source, global settings/schedules, authenticated desktop/mobile and physical-device proof remain release gates. |
+
+For example, the existing paused LumenBar measurement task is `goal_12f727f72b20538ac571a9cc154c13017274fff415a2220c69911c8429ca59bb`, parent `goal_3df6e9b5c69826959fd443c2fb05a8c59e2a8027423e9209b54aa825a965902e`, publication prerequisite `goal_19e7c312c81f2eee9603f64de093fd051711ea36ff92dde95fb0bac045463c40`. Temperance's paused measurement task is `goal_e3068b075c1ba23e895b62005fcc0d6f7a3cb3ca178f06d3c96e9cd41f776baa`, parent `goal_8b60cdd2a082effe119bde549186cb35033dc25dfa64398b7767ff3100eaa5d6`, publication prerequisite `goal_1793dccbbd23255f71471e3adb6ac1886e7a9e29fb08531f66dcebf04e3bc760`. These historical examples identify work for review; neither is newly selected, sequenced, completed or admitted. Re-read the current graph before any mapping decision.
+
+A reviewable accepted mapping must name the current head, WorkObject, original node IDs/parents, actual ISA acceptance and plan reference/digest, sequence, state, dependency satisfaction/evidence, observation time and expiry. Those values remain missing; there is no completed positive approval packet to submit. Use the existing `AcceptedGsdScope` seam rather than creating another ledger or reader authority. Taste/Cortex remain the original composition/candidate-learning owners. MISSION currency needs owner review before a new department objective or target.
+
+No new hook is proposed for activation. If a later request requires one, the packet must first identify exact callback source/definition, client/event, trust delta, harmless native canary, owner-result readback, timeout behavior and reversal. Preserve Vestibule, PromptProcessing, SecurityPipeline and Nutrix ownership. Product Hunt stays recorded as November 6 at 13:31 IST; this work changes neither copy nor schedule. Rhai/model-fence acceptance remains distinct from D1 bookkeeping.
+
+## Original owner-reader checkpoint
+
 Authorized scope: finish real LumenBar/Temperance GSD and KPI reads, record attributable founder bookkeeping, keep version93 serving, hold missing plan approvals and consequential changes for HITL.
 
 This slice binds the existing readDepartmentSources interface in a manually invoked local operator over actual owner files. It does not deploy or enable new serving code. The Worker cannot read local files; automatic serving activation remains a release decision. No new scheduler, bridge, service or approval store.

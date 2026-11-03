@@ -63,6 +63,10 @@
     "department:pilot": "node scripts/department-pilot.mjs",
     "department:pilot:test": "node --test shared/department-pilot/pilot.test.ts",
     "department:owner-read": "node scripts/department-owner-reconcile.mjs",
-    "department:owner-read:test": "node --test shared/department-pilot/*.test.ts bin/operator/quests/department-owner-readers.test.ts workers/quests/src/native-goal-intake.test.ts"
+    "department:owner-read:test": "node --test shared/department-pilot/*.test.ts bin/operator/quests/department-owner-readers.test.ts workers/quests/src/native-goal-intake.test.ts",
+    "sapling": "node .agents/skills/sapling-lifecycle/scripts/lifecycle.mjs",
+    "sapling:adapters": "node .agents/skills/sapling-lifecycle/scripts/install.mjs",
+    "sapling:test": "node --test .agents/skills/sapling-lifecycle/scripts/*.test.mjs",
+    "sapling:hooks": "node .agents/skills/sapling-lifecycle/scripts/codex-hooks.mjs"
   }
 }
