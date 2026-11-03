@@ -75,6 +75,18 @@ export function isAllowedLiveDeploymentEvidencePath(file) {
     || /^(README\.md|ISA\.md|VERSIONS\.md|\.planning\/|docs\/plans\/|docs\/archive\/|docs\/diagrams\/|docs\/evidence\/|workers\/quests\/src\/(page|handler|handler\.test|live-proof-readiness|live-proof-readiness\.test|visual-fixtures)\.(ts|mjs)$|bin\/quine\/hyphae\/(quests|quests\.test|skills)\.ts$)/.test(file);
 }
 
+// Reviewed public native read-owner defaults, not a file-wide deployment exception.
+const ownerRoute=resolveQuestsWranglerProfile({profile:'labs-production',operation:'read'}).route;
+export const reviewedNativeOwnerLines=new Map([
+  ['apps/cambium-mac/Sources/CambiumNative/State/OwnerConfiguration.swift',new Set([`static let mappedOwnerURL = "https://${ownerRoute}"`])],
+  ['apps/cambium-mac/tools/probe-live-owner.sh',new Set(['owner_url=${CAMBIUM_OWNER_URL:-https://'+ownerRoute+'}'])],
+  ['docs/architecture/2026-11-02-native-cambium-sources.json',new Set([`"surface": "https://${ownerRoute}/",`])],
+]);
+export function maskReviewedNativeOwnerLines(file,text) {
+  const allowed=reviewedNativeOwnerLines.get(file);
+  return text.split(/\r?\n/).map(line=>allowed?.has(line.trim())?'[reviewed-public-native-owner]':line).join('\n');
+}
+
 const liveDefaultPatterns = [
   {
     name: 'live Thoughtseed URL in product code/config',
@@ -142,7 +154,8 @@ export function runStandaloneAudit() {
     }
     for (const rule of liveDefaultPatterns) {
       const allowed = typeof rule.allowed === 'function' ? rule.allowed(file) : (rule.allowed?.test(file) ?? false);
-      if (rule.pattern.test(text) && !allowed) failures.push(`${file}: ${rule.name}`);
+      const candidate=rule.allowed===isAllowedLiveDeploymentEvidencePath?maskReviewedNativeOwnerLines(file,text):text;
+      if (rule.pattern.test(candidate) && !allowed) failures.push(`${file}: ${rule.name}`);
     }
   }
 

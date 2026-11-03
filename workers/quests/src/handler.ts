@@ -5819,7 +5819,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
           // A rejection records a decision without advancing the graph head.
           if (decision.decision === 'approved' && Number(task.graphVersion) > head.graphVersion) continue;
           decisions.push({ ...decision, proposalId: `cambium:${task.changeDigest}`, changeDigest: task.changeDigest,
-            graphVersion: task.graphVersion, canonicalReadback: true, kind: operational?'d1-operational-decision':'d1-bookkeeping-decision' });
+            graphVersion: task.graphVersion, ...(operational&&isRecord(task.intent.input)?{workObjectId:task.intent.input.workObjectId,taskId:task.intent.input.taskId,artifactDigest:task.intent.artifactDigest??null}:{}), canonicalReadback: true, kind: operational?'d1-operational-decision':'d1-bookkeeping-decision' });
         }
         const servedAt = deps.now?.() ?? new Date().toISOString();
         const departmentSources = await readDepartmentSources({tenantId:'cambium',headDigest:head.graphDigest,observedAt:servedAt,nodes},deps.departmentReaders);

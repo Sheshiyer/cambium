@@ -244,10 +244,14 @@ private struct ClaimProofResultPanel: View {
                 FactRow(label: "Input", value: result.inputDigest, mono: true)
                 Text("Execution: \(result.execution)").font(.callout)
                 Text("Acceptance: \(result.acceptance)").font(.callout).foregroundStyle(Palette.inkMuted)
+                if let verdict = result.founderVerdict {
+                    FactRow(label: "Founder verdict", value: verdict.decision)
+                    FactRow(label: "Verdict proposal", value: verdict.proposalId, mono: true)
+                }
                 if let artifact = result.artifact {
                     Text("\(artifact.claimCount) source-linked candidates").font(.headline)
                     if result.acceptance != "accepted" {
-                        Button("Review result acceptance") { model.reviewClaimProofResult() }.disabled(model.loading)
+                        Button(result.founderVerdict == nil ? "Review result acceptance" : "Inspect founder verdict") { model.reviewClaimProofResult() }.disabled(model.loading)
                     }
                     FactRow(label: "Artifact", value: artifact.digest, mono: true)
                     Text("Product promotion and publication remain held.").font(.callout).foregroundStyle(Palette.hold)

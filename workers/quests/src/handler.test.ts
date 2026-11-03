@@ -17503,11 +17503,11 @@ async function iverifNativeCycleHarness() {
   return{...h,deps,d1,native,bridge,approve,proposalId,direction,signal,objects,other(){principal='access:other';},revoke(){authorized=false;}};
 }
 
-test('iverif native cycle · approval, separate admission, single launch and immutable source result', {skip:!process.env.IVERIF_CLAIM_ARTIFACT_FIXTURE}, async()=>{
+for(const resultDecision of ['approved','rejected'] as const)test('iverif native cycle · approval, separate admission, single launch and immutable source result · '+resultDecision, {skip:!process.env.IVERIF_CLAIM_ARTIFACT_FIXTURE}, async()=>{
   const h=await iverifNativeCycleHarness();
   const {CLAIM_POLICY,CLAIM_POLICY_DIGEST,claimDigest,canonicalClaimJson,validateClaimArtifact}=await import('../../../shared/iverif-claim-proof.ts');
   assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,409,'pending review is not admission');
-  const review=await h.approve(h.proposalId);if(process.env.IVERIF_NATIVE_WIRE_FIXTURE)writeFileSync(process.env.IVERIF_NATIVE_WIRE_FIXTURE,JSON.stringify(review));assert.equal(review.proposal.review.executionReview.policyDigest,CLAIM_POLICY_DIGEST);
+  const review=await h.approve(h.proposalId);if(process.env.IVERIF_NATIVE_WIRE_FIXTURE&&resultDecision==='approved')writeFileSync(process.env.IVERIF_NATIVE_WIRE_FIXTURE,JSON.stringify(review));assert.equal(review.proposal.review.executionReview.policyDigest,CLAIM_POLICY_DIGEST);
   assert.equal(review.proposal.review.executionReview.input.workObjectId,'sapling:iverif');
   const admitted=await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId});assert.equal(admitted.status,200,admitted.body);const admissionRef=body(admitted).admissionRef;
   assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,200,'exact admission replay');
@@ -17538,6 +17538,16 @@ test('iverif native cycle · approval, separate admission, single launch and imm
   // A second founder decision accepts this artifact; execution success alone cannot.
   const acceptance=await h.native('POST','/v1/native/work/result/review',{admissionRef,operationId:'accept-claim-result'});assert.equal(acceptance.status,200,acceptance.body);
   const acceptanceProposal=body(acceptance).proposalId;assert.ok(acceptanceProposal,acceptance.body);
+  if(resultDecision==='rejected'){
+    const review=body(await h.native('POST','/v1/founder/proposal',{proposalId:acceptanceProposal}));
+    const decision=await h.native('POST','/v1/founder/decision',canonicalDecision(review,'rejected'));assert.equal(decision.status,200,decision.body);
+    const rejected=body(await h.native('GET','/v1/native/work/result?admissionRef='+encodeURIComponent(admissionRef)));
+    assert.equal(rejected.acceptance,'rejected');assert.equal(rejected.founderVerdict.artifactDigest,claimDigest(artifact));assert.equal(rejected.productPromotion,false);
+    assert.equal((await h.bridge('GET','/v1/bridge/claim-proof/acceptance-request/'+encodeURIComponent(acceptanceProposal))).status,409);
+    const graph=body(await h.native('GET','/v1/mission-fabric/cambium')).projection;assert.ok(!graph.edges.some((edge:any)=>edge.kind==='proves'&&edge.toId===input.taskId));
+    const web=body(await handle(req('GET','/v1/founder/graph?workObjectId=sapling%3Aiverif',{headers:founderWebHeaders()}),h.deps));
+    assert.ok(web.decisions.some((row:any)=>row.decision==='rejected'&&row.artifactDigest===claimDigest(artifact)&&row.taskId===input.taskId));return;
+  }
   const {createAttestedAcceptanceStore,acceptedReceiptDigest,attestationMessage}=await import('./accepted-work-unit-attestation.ts');
   const {CLAIM_ARTIFACT_INPUT_PATH,CLAIM_FOUNDER_INPUT_PATH,claimAcceptancePolicyHash}=await import('../../../shared/iverif-claim-proof.ts');
   const {sign}=await import('node:crypto');const pair=generateKeyPairSync('ed25519'),rawKey=pair.publicKey.export({format:'der',type:'spki'}).subarray(-32);

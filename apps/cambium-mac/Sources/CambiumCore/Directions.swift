@@ -80,6 +80,15 @@ public struct WorkAdmission: Decodable, Sendable {
     public let admissionRef: String
 }
 public struct ClaimProofResult: Decodable, Sendable {
+    public struct Verdict: Decodable, Sendable {
+        public let schema: String
+        public let proposalId: String
+        public let decision: String
+        public let decidedAt: String
+        public let artifactDigest: String
+        public let inputDigest: String
+        public let canonicalReadback: Bool
+    }
     public struct Artifact: Decodable, Sendable {
         public let digest: String
         public let markdown: String
@@ -97,6 +106,7 @@ public struct ClaimProofResult: Decodable, Sendable {
     public let execution: String
     public let artifact: Artifact?
     public let acceptance: String
+    public let founderVerdict: Verdict?
 }
 
 /// Saved drafts carry exact source revisions. This client never approves or launches work.
@@ -175,12 +185,21 @@ public struct DirectionHTTPClient: Sendable {
         let result = try JSONDecoder().decode(ClaimProofResult.self, from: data)
         guard result.schema == "cambium.iverif.claim-result.v1", result.tenantId == context.tenantId, result.workId == "sapling:iverif", result.admissionRef == admissionRef,
               ["queued","running","succeeded","failed"].contains(result.execution),
-              ["awaiting-founder-and-owner-review","accepted","review-required"].contains(result.acceptance),
+              ["awaiting-founder-and-owner-review","awaiting-owner-review","accepted","rejected","review-required"].contains(result.acceptance),
               Self.identifier(result.requestId), Self.identifier(result.attemptId), Self.identifier(result.taskId),
               result.inputDigest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil else { throw SignalError.scope }
         if let artifact = result.artifact { guard artifact.digest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil,
             artifact.sourceManifestDigest.range(of: #"^sha256:[a-f0-9]{64}$"#, options: .regularExpression) != nil,
             artifact.claimCount > 0, artifact.claimCount <= 4096, artifact.markdown.utf8.count < HTTPLimits.maxResponseBytes else { throw SignalError.invalid } }
+        if let verdict = result.founderVerdict {
+            guard verdict.schema == "cambium.iverif.result-verdict.v1", verdict.canonicalReadback,
+                ["approved","rejected"].contains(verdict.decision), verdict.inputDigest == result.inputDigest,
+                verdict.artifactDigest == result.artifact?.digest,
+                verdict.proposalId.range(of: #"^cambium:(?:sha256:)?[a-f0-9]{64}$"#, options: .regularExpression) != nil,
+                CanonicalTimestamp.parse(verdict.decidedAt) != nil else { throw SignalError.invalid }
+        }
+        if ["accepted","awaiting-owner-review"].contains(result.acceptance) { guard result.founderVerdict?.decision == "approved" else { throw SignalError.invalid } }
+        if result.acceptance == "rejected" { guard result.founderVerdict?.decision == "rejected" else { throw SignalError.invalid } }
         return result
     }
     private func request(_ method: String, tenant: String, body: Data? = nil, path: String? = nil, workFilter: String? = nil, query: [URLQueryItem] = []) async throws -> (Data, AuthenticatedReaderContext) {

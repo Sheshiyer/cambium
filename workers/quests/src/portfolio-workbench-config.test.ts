@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import path from 'node:path';
+import resourceMap from '../../../docs/architecture/contracts/cambium-cloudflare-resource-map.v1.json' with {type:'json'};
 import { fileURLToPath } from 'node:url';
 
 const questsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -32,7 +33,7 @@ test('Labs native Mac profile pins the reviewed Curious tenant and exact callbac
     'https://teamforge-api.thoughtseedlabs.workers.dev/v1/native/identity',
   );
   assert.equal(config.vars.PLEXUS_NATIVE_IDENTITY_TENANT, 'cambium');
-  assert.equal(config.vars.NATIVE_SESSION_OWNER_ORIGIN, 'https://curious.thoughtseed.space');
+  assert.equal(config.vars.NATIVE_SESSION_OWNER_ORIGIN, 'https://'+resourceMap.production.worker.custom_domain);
   assert.deepEqual(JSON.parse(config.vars.NATIVE_SESSION_CLIENTS_JSON), [{
     clientId: 'space.thoughtseed.cambium.native.dev',
     redirectUri: 'space.thoughtseed.cambium.native.dev://oauth/callback',

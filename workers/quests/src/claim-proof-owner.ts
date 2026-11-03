@@ -7,6 +7,7 @@ import type { R2BucketLike } from './context-bindings.ts';
 import type { NativeLaunchHost, NativeLaunchScope } from './native-launch.ts';
 import { d1NativeLaunchStore } from './native-launch-d1.ts';
 import { claimInputFromNode, readPinnedDirection } from './direction-execution.ts';
+import { sha256 } from './goal-graph/identity.ts';
 
 const artifactKey = (directiveId: string) => `claim-proof/cambium/artifacts/${directiveId}.json`;
 const id=/^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,199}$/;
@@ -98,6 +99,23 @@ export function createClaimProofOwner(db:GoalGraphD1DatabaseLike,bucket:R2Bucket
     const value=await verifyOwnerAcceptance(raw.proposalId,raw.envelope);
     if(value.proof.artifactDigest!==artifact.digest||value.proof.inputDigest!==claimDigest(artifact.input))throw new Error('acceptance_artifact_mismatch');
     return value;
+  }
+  async function resultVerdict(scope:NativeLaunchScope,input:ClaimProofInput,artifactDigest:string) {
+    const keys=await deps.kv.list('goal-graph-intake-task:cambium:');
+    if(keys.length>256||!deps.goalGraphStore?.readDecisionReceipt)throw new Error('result_verdict_unavailable');
+    let latest:{schema:string;proposalId:string;decision:'approved'|'rejected';decidedAt:string;artifactDigest:string;inputDigest:string;canonicalReadback:true}|null=null;
+    for(const key of keys) {
+      const text=await deps.kv.get(key),task=text?JSON.parse(text):null;
+      if(task?.tenantId!==scope.tenantId||task.intent?.schema!==CLAIM_ACCEPTANCE_SCHEMA||task.intent.artifactDigest!==artifactDigest
+        ||claimDigest(task.intent.input)!==claimDigest(input)||!task.changeSet||claimDigest(task.intent)!==task.sourceDigest)continue;
+      const {changeDigest:_digest,isNoop:_noop,...signedChange}=task.changeSet;
+      if(sha256(signedChange)!==String(task.changeDigest).replace(/^sha256:/,'')||task.changeSet.sourceDigest!==task.sourceDigest)continue;
+      const decision=await deps.goalGraphStore.readDecisionReceipt(scope.tenantId,task.changeDigest,task.approvalNonce);
+      if(!decision||decision.approver_id!==scope.principalId||!['approved','rejected'].includes(decision.decision))continue;
+      if(!latest||decision.decided_at>latest.decidedAt)latest={schema:'cambium.iverif.result-verdict.v1',proposalId:`cambium:${task.changeDigest}`,
+        decision:decision.decision,decidedAt:decision.decided_at,artifactDigest,inputDigest:claimDigest(input),canonicalReadback:true};
+    }
+    return latest;
   }
   const owner:ClaimProofOwner={
     launchHost:{verify:async()=>null,store:launchStore,now,
@@ -240,11 +258,13 @@ export function createClaimProofOwner(db:GoalGraphD1DatabaseLike,bucket:R2Bucket
       const attestation=execution?JSON.parse(execution.attestation_json):null;
       const ready=!!artifact&&execution?.execution_id===artifact.executionId&&execution?.terminal===1&&execution.outcome_status==='executed'&&attestation?.outputDigest===artifact.digest;
       let acceptance='awaiting-founder-and-owner-review';
-      if(ready&&artifact){try{if(await acceptedArtifact(artifact))acceptance='accepted';}catch{acceptance='review-required';}}
+      let founderVerdict=ready&&artifact?await resultVerdict(scope,input,artifact.digest):null;
+      if(founderVerdict)acceptance=founderVerdict.decision==='rejected'?'rejected':'awaiting-owner-review';
+      if(ready&&artifact){try{const accepted=await acceptedArtifact(artifact);if(accepted){acceptance='accepted';founderVerdict={schema:'cambium.iverif.result-verdict.v1',proposalId:String(accepted.proof.proposalId),decision:'approved',decidedAt:String(accepted.proof.decidedAt),artifactDigest:artifact.digest,inputDigest:claimDigest(input),canonicalReadback:true};}}catch{acceptance='review-required';}}
       return {schema:'cambium.iverif.claim-result.v1',tenantId:scope.tenantId,workId:'sapling:iverif',admissionRef,
         requestId:reserved.request_id,attemptId:reserved.attempt_id,taskId:input.taskId,inputDigest:reserved.input_digest,
         execution:execution?.terminal?(execution.outcome_status==='executed'?'succeeded':'failed'):execution?'running':'queued',
-        artifact:ready&&artifact?{digest:artifact.digest,markdown:artifact.artifact.files['claims.md'],claimCount:JSON.parse(artifact.artifact.files['claims.json']).length,sourceManifestDigest:artifact.input.sourceManifestDigest}:null,acceptance,policyDigest:CLAIM_POLICY_DIGEST,productPromotion:false};
+        artifact:ready&&artifact?{digest:artifact.digest,markdown:artifact.artifact.files['claims.md'],claimCount:JSON.parse(artifact.artifact.files['claims.json']).length,sourceManifestDigest:artifact.input.sourceManifestDigest}:null,acceptance,founderVerdict,policyDigest:CLAIM_POLICY_DIGEST,productPromotion:false};
     },
   };
   return owner;
