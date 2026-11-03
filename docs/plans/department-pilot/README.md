@@ -56,3 +56,7 @@ MISSION.md still describes a v0.4 horizon. Existing approved product records can
 This branch does not reconcile the unmerged production founder host into maintained main. The authenticated host reader, owned persistence/CAS policy evaluation, actual runtime registry resolution, measured KPI adapters and admitted cadence activation remain separate integration work. The source pilot is locally reviewable without changing the live founder graph, retired 2D removal, social schedules or publication receipts.
 
 See [PLAN.md](PLAN.md) for acceptance criteria and [VERIFICATION.md](VERIFICATION.md) for this slice’s evidence.
+
+## Live integration continuation
+
+The optional authenticated host is now implemented as a review candidate. See [LIVE-INTEGRATION.md](LIVE-INTEGRATION.md) for maintained/serving reconciliation, owner-reader validation, actual unavailable GSD/KPI sources, authenticated candidate proof, release delta and rollback. Production promotion remains separately held. Earlier source-pilot limits above describe the original slice.

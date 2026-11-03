@@ -1,3 +1,26 @@
+# Handoff pickup
+
+Current pickup: `.planning/HANDOFF.json`; follow `PROJECT.md`.
+This file retains the complete historical checkpoint body below.
+
+Read only these first 12 lines during ordinary session pickup.
+Select the root summary and matching structured continuation first.
+Open only that task's cited proof or owning handoff when needed.
+Search a specific historical heading only to resolve a missing fact.
+ISA and GSD retain acceptance and planning authority.
+Historical commands and completion claims are not fresh approvals.
+<!-- cambium:handoff-history:start -->
+
+### 2026-11-03 Department authenticated source integration
+
+- Isolated department pilot continues through the existing founder graph/3D read owner; maintained native/Cortex/portfolio work preserved. Current head11 read: 128 product nodes, seven decisions.
+- Actual accepted GSD mappings and complete KPI cohort readers are unavailable; daily holds and twelve unavailable measurements are explicit. Positive adapter fixtures are synthetic.
+- Authenticated candidate desktop/mobile proof, exact release/config delta and rollback: docs/plans/department-pilot/LIVE-INTEGRATION.md. No upload, traffic, graph, schedule or publication change. New exact promotion approvals remain required.
+
+Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
+
+# Project handoff
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.

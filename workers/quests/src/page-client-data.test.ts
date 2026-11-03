@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import vm from 'node:vm';
-import { PAGE } from './page/index.ts';
+// Historical five-scene transport tests. Field Atlas transport has its own regression suite.
+import { RETIRED_PAGE as PAGE } from './page/retired.ts';
 import { injectInitialQuestHydration } from './page/client/data.ts';
 import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 

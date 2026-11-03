@@ -3,10 +3,14 @@ import { DEPARTMENTS, KPI_DEFINITIONS, LONG_TERM_QUESTIONS, type DepartmentId, t
 export interface DepartmentPilotReader {
   input: PilotInput;
   observations?: KpiObservation[];
+  readerStatus?: string[];
+  sourceKind?: 'authenticated-founder';
   /** Scoped Taste lineage only; host obtains it through prepareTasteContext. */
   taste?: { state: 'supplied' | 'unavailable'; lineage: Array<{ slug: string; category: string; score: number; author: string }> };
 }
 export interface DepartmentBridge {
+  getDepartmentStatus?: () => {state:string;label:string};
+  refreshDepartment?: () => Promise<void>;
   getDepartmentState?: () => DepartmentPilotReader | null;
   subscribeDepartment?: (listener: () => void) => () => void;
 }
@@ -28,24 +32,27 @@ export function mountDepartmentFolio(host: HTMLElement, bridge: DepartmentBridge
     if(disposed)return;
     const focusLabel = document.activeElement?.getAttribute('aria-label');
     host.replaceChildren(); host.classList.add('cw-departments'); host.setAttribute('aria-label','Department planning pilot');
-    host.append(text('p','SOURCE PILOT · READ-ONLY','cw-kicker'));
+    host.append(text('p','DEPARTMENT VIEW · READ-ONLY','cw-kicker'));
+    const refresh=text('button','Refresh sources','cw-button'); refresh.type='button';
+    refresh.onclick=()=>{ if(bridge.refreshDepartment) void bridge.refreshDepartment(); else render(); };
+    host.append(refresh);
     let reader: DepartmentPilotReader | null = null;
     try { reader=bridge.getDepartmentState?.()??null; } catch { /* Host reader failure stays unavailable. */ }
-    if(!reader) { host.append(text('h3','Department source reader unavailable'),text('p','The current host has not supplied this pilot’s graph reader. No tasks, measurements or agent assignments are inferred.'));return; }
+    if(!reader) { const status=bridge.getDepartmentStatus?.(); host.append(text('h3',status?.state==='checking'?'Reading department sources…':'Department source reader unavailable'),text('p',status?.label??'The current host has not supplied this pilot’s graph reader. No tasks, measurements or agent assignments are inferred.'));return; }
     let projection: ReturnType<typeof compileDepartmentPilot>;
     try { projection=compileDepartmentPilot({...reader.input,now:new Date().toISOString()}); }
     catch { host.append(text('h3','Source packet held'),text('p','The graph packet failed identity, tenant, time or containment validation. Refresh it through the existing graph owner.'));return; }
     const product=projection.products.find(p=>p.id===productId)!;
     const intro=text('div','','cw-dept-intro');
     intro.append(text('h3',product.label),text('p',`${product.sector} · ${product.nodes.length} existing nodes · ${projection.fresh?'current supplied frontier':'dated or changed frontier'}`));
-    const refresh=text('button','Refresh view','cw-button'); refresh.type='button';refresh.onclick=render;
-    intro.append(refresh);host.append(intro);
+    host.append(intro);
     const filters=text('div','','cw-dept-filters');
     filters.append(select('Product',projection.products.map(p=>[p.id,p.label]),productId,v=>{productId=v as ProductId;}),
       select('Department',[['all','All departments'],...Object.entries(DEPARTMENTS).map(([id,d]):[string,string]=>[id,d.label])],department,v=>{department=v as DepartmentId|'all';}),
       select('View',[['all','All graph nodes'],['daily',`Daily · ${projection.day}`],['monthly',`Monthly · ${projection.month}`],['quarterly',`Quarterly review · ${projection.quarter}`]],horizon,v=>{horizon=v as typeof horizon;}));
     host.append(filters);
     const gaps=text('details','','cw-dept-gaps'); gaps.append(text('summary','Source and authority limits'));
+    for(const status of reader.readerStatus??[]) gaps.append(text('p',status));
     for(const gap of projection.gaps)gaps.append(text('p',gap));
     gaps.append(text('p',`Observed ${projection.observedAt} · head ${projection.headDigest}`));host.append(gaps);
     if(department!=='all') {
@@ -59,7 +66,8 @@ export function mountDepartmentFolio(host: HTMLElement, bridge: DepartmentBridge
       const observation=matches.length===1?matches[0]:null;
       const metric=observeKpi(definition,observation,new Date().toISOString(),projection.month);
       profile.append(text('h4',definition.label),text('p',`${metric.value===null?metric.state:`${(metric.value*100).toFixed(1)}% · n=${metric.sampleSize}`} · target unset`),
-        text('p',definition.formula),text('p',`${metric.reason}. Reader: ${definition.sourceReader}. Guardrail: ${definition.guardrail}`));
+        text('p',definition.formula),text('p',`Definition v${definition.version} · ${definition.id} · cohort ${definition.cohort} · window ${projection.month} · freshness ${definition.maxAgeHours}h`),text('p',`${metric.reason}. Reader: ${definition.sourceReader}. Guardrail: ${definition.guardrail}`));
+      if(observation)profile.append(text('p',`Observed ${observation.observedAt} · ${observation.numerator}/${observation.denominator} · source ${observation.sourceRef}`));
       if(matches.length>1)profile.append(text('p','Conflicting observations: select a single applicable source revision before reporting a value.'));
       host.append(profile);
     }

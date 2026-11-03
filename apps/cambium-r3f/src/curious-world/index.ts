@@ -1,3 +1,6 @@
+export { createDepartmentReader } from './department-reader.ts';
+import { founderIntakeForm, type FounderIntakeState } from './founder-intake.ts';
+import { founderGraphView, type FounderGraphState } from './founder-graph.ts';
 import { mountDepartmentFolio, type DepartmentBridge } from './department-folio.ts';
 import { createWorld, type WorldAPI, type WorldState } from './world.ts';
 import { DISTRICTS, WORLD_LANDMARKS, PATHS, keyboardAxis } from './world-model.ts';
@@ -66,6 +69,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   const failedDecisionReads=new Set<string>();
   // The Gate lives in the Gate landmark folio. Only one Gate view is mounted
   // at a time; showPanel() clears it so stale callbacks never paint elsewhere.
+  const intakeState: FounderIntakeState = { draft: '', busy: false, message: '', uncertain: false };
+  const graphState: FounderGraphState = { data: null, selected: 'sapling:lumen-bar', busy: false, message: '' };
   let gateHost: HTMLElement | null = null;
   let gateDigest: string | null = null;
   // null = the Gate queue (every place); a landmark id = that subject landmark's decisions.
@@ -477,6 +482,8 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
       host.append(element('p', 'cw-gate-empty', gate.state === 'checking' ? 'Checking the founder read…' : 'The Gate read is held. Nothing can be signed until a verified read returns.'));
       return;
     }
+    if (gate.signer === 'access' && typeof bridge.readGraph === 'function') host.append(founderGraphView(bridge, graphState));
+    if (gate.signer === 'access' && typeof bridge.intakeGate === 'function') host.append(founderIntakeForm(bridge, intakeState));
     const queueRows=scoped ? gateProposalsAt(gate,scoped) : gate.proposals;
     const ready=queueRows.filter(proposal=>proposal.canApprove).length;
     const renew=queueRows.filter(proposal=>proposal.canRenew || proposal.expired || proposal.renewOnly).length;
