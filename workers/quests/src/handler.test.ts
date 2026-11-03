@@ -17418,3 +17418,23 @@ test('founder bookkeeping intake · canonical rejection remains visible without 
   assert.equal(graph.decisions.length,2);
   assert.ok(graph.decisions.every((d:any)=>d.proposalId!==h.proposalId),'unrelated Telegram proposal stays excluded');
 });
+
+test('operational Work intake uses canonical approval before becoming a Work source', async () => {
+  const h = await canonicalFounderHarness();
+  const raw = { schema:'cambium.founder.operational-work-intent.v1',version:1,tenantId:'cambium',clientRequestId:'cambium-work-1',expectedHeadDigest:null,
+    goals:[{namespace:'founder-operational-work',externalId:'cambium-work',parentNodeId:null,scope:'meso',desiredState:'Deliver approved Cambium changes with proof.',currentState:'Inbox ready; execution not admitted.',owner:'founder',proofRequired:true,status:'active',metadata:{},workObjectId:'sapling:cambium',workObjectKind:'sapling'}] };
+  const { adaptOperationalWorkSources } = await import('./operational-work-intake.ts');
+  const intake=await h.call('intake',raw); assert.equal(intake.status,200,intake.body);
+  assert.equal(body(intake).status,'pending'); assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n,0);
+  assert.deepEqual(adaptOperationalWorkSources(await h.deps.goalGraphStore.readNodes('cambium')),[]);
+  const review=body(await h.call('proposal',{proposalId:body(intake).proposalId}));
+  assert.equal(review.proposal.review.source,'founder-web-operational-work@v1');
+  assert.match(review.proposal.review.consequence,/separate direction approval and admission/);
+  assert.equal(review.proposal.review.operationalWorkChanges.nodesToCreate.length,1);
+  const decision=await h.call('decision',canonicalDecision(review)); assert.equal(decision.status,200,decision.body);
+  const sources=adaptOperationalWorkSources(await h.deps.goalGraphStore.readNodes('cambium'));
+  assert.equal(sources.length,1);assert.equal(sources[0].value.workId,'sapling:cambium');
+  const replay=await h.call('intake',raw);assert.equal(body(replay).proposalId,body(intake).proposalId);
+  const changed=await h.call('intake',{...raw,goals:[{...raw.goals[0],owner:'other'}]});assert.equal(changed.status,409);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n,1);
+});

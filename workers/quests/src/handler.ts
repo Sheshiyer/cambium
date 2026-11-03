@@ -7,6 +7,9 @@ import { founderDecisionHttp, type FounderTransportHost } from './founder-decisi
 import { nativeLaunchHttp, NATIVE_LAUNCH_PATHS, type NativeLaunchHost } from './native-launch.ts';
 import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
 import { sharedSignalsHttp, type SignalStore } from './shared-signals.ts';
+import { sharedDirectionsHttp } from './shared-directions-http.ts';
+import type { DirectionStore } from './shared-directions.ts';
+import { OPERATIONAL_WORK_SCHEMA, parseOperationalWorkBoundary, parseOperationalWorkIntent, adaptOperationalWorkSources } from './operational-work-intake.ts';
 import {
   composeNativeLaunchHost,
   nativeComposedPath,
@@ -516,6 +519,7 @@ export interface FabricLedgerStoreLike {
 
 export interface HandlerDeps {
   sharedSignalStore?: SignalStore;
+  sharedDirectionStore?: DirectionStore;
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
@@ -3388,6 +3392,18 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         entries.push(entry);
       }
     }
+    // A Work source must come from a coherent, committed graph, not a proposal
+    // or an interleaving of nodes from one head and the digest from another.
+    const confirmedHead = await deps.goalGraphStore.readHead(tenant);
+    if (!confirmedHead || confirmedHead.graphDigest !== head.graphDigest || confirmedHead.graphVersion !== head.graphVersion
+        || makeGoalGraphHead(tenant, nodes, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) {
+      return json(503, { error: 'goal_graph_read_unconfirmed' });
+    }
+    const operationalWorks = adaptOperationalWorkSources(nodes);
+    if (operationalWorks.some(work => work.kind === 'work' && entries.some(entry => 'kind' in entry && entry.kind === 'work' && entry.value.workId === work.value.workId))) {
+      return json(503, { error: 'operational_work_source_conflict' });
+    }
+    entries.push(...operationalWorks);
     const goalGraphAuthority = adaptGoalGraphAuthority({
       tenantId: tenant,
       graphVersion: head.graphVersion,
@@ -4018,6 +4034,7 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     };
   }
   const bookkeeping = isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA;
+  const operational = isRecord(task.intent) && task.intent.schema === OPERATIONAL_WORK_SCHEMA;
   const changeSet = isRecord(task.changeSet) ? task.changeSet : {};
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
@@ -4030,12 +4047,13 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
-    source: task.renewal ? 'founder-proposal-renewal@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : operational ? 'Cambium operational Work proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : operational ? 'founder-web-operational-work@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    ...(operational ? { operationalWorkChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : operational ? 'founder signature establishes only the reviewed Cambium Work source; execution still requires a separate direction approval and admission' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
     proposalId: `${tenantId}:${changeDigest}`,
@@ -4452,7 +4470,8 @@ async function intakeTelegramGoalGraphRoute(
   // Normalize and bind provenance before consulting D1. That boundary identity
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
-  const initial = verifiedFounderId ? parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
+  const operational = !!verifiedFounderId && isRecord(raw) && raw.schema === OPERATIONAL_WORK_SCHEMA;
+  const initial = verifiedFounderId ? operational ? parseOperationalWorkBoundary(raw, verifiedFounderId) : parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
@@ -4492,7 +4511,7 @@ async function intakeTelegramGoalGraphRoute(
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   };
-  const pinned = verifiedFounderId ? parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
+  const pinned = verifiedFounderId ? operational ? parseOperationalWorkIntent(raw, verifiedFounderId, context) : parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
   if (!pinned.accepted) return persistRejection(pinned);
   if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
     return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
@@ -5586,6 +5605,7 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const nativePath = req.path.split('?')[0];
+  if (nativePath === '/v1/directions' || nativePath.startsWith('/v1/directions/')) return sharedDirectionsHttp(req, deps);
   if (nativePath === '/v1/signals' || nativePath.startsWith('/v1/signals/')) {
     // Signals annotate source projects, including display proposals. This never
     // creates a runtime join, tenant grant or operational admission.

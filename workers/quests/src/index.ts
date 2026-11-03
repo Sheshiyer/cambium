@@ -1,3 +1,4 @@
+import { d1SharedDirectionStore } from './shared-directions-d1.ts';
 import { createHermesReceiptIngestion, createHermesReceiptAuthorizer, type HermesReceiptsAI } from './hermes-receipts-v2.ts';
 import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
 
@@ -1544,6 +1545,7 @@ export default {
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       nativeSessionHost,
       sharedSignalStore: env.BRIDGE_DB ? d1SharedSignalStore(env.BRIDGE_DB) : undefined,
+      sharedDirectionStore: env.BRIDGE_DB ? d1SharedDirectionStore(env.BRIDGE_DB) : undefined,
       portfolioActionStore: env.THOUGHTSEED_VAULT?.put
         ? createPortfolioAdminActionStore(env.THOUGHTSEED_VAULT)
         : undefined,

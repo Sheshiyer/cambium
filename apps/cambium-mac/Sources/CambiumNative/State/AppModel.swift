@@ -15,6 +15,18 @@ import struct CambiumCore.SignalCapture
 import struct CambiumCore.SignalUpdate
 import enum CambiumCore.SignalError
 import enum CambiumCore.CanonicalTimestamp
+import struct CambiumCore.DirectionCreate
+import struct CambiumCore.DirectionWorkContext
+import struct CambiumCore.SharedDirection
+
+struct DirectionComposerState {
+    var signal: Signal?
+    var title = ""
+    var body = ""
+    var work: DirectionWorkContext?
+    var pending: DirectionCreate?
+    var saved: SharedDirection?
+}
 
 struct InboxDraft {
     var selected: Signal?
@@ -105,6 +117,7 @@ final class AppModel {
     var feedback: String?
     var inboxFilter: String?
     var inboxVersion: UInt64 = 0
+    var directionDraft = DirectionComposerState()
     var signalScopeVersion: UInt64 = 0
     var inboxDraft = InboxDraft()
     var signalService: CambiumOwnerServices? { services as? CambiumOwnerServices }
@@ -327,6 +340,7 @@ final class AppModel {
 
     private func load(_ mode: LaunchMode) {
         generation &+= 1
+        directionDraft = DirectionComposerState()
         signalScopeVersion &+= 1
         inboxDraft = InboxDraft()
         inboxFilter = nil
@@ -504,6 +518,7 @@ final class AppModel {
     func signOut() {
         let token = generation
         generation &+= 1
+        directionDraft = DirectionComposerState()
         signalScopeVersion &+= 1
         inboxDraft = InboxDraft()
         inboxFilter = nil
