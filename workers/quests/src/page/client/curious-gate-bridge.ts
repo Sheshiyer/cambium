@@ -83,7 +83,7 @@ const CuriousGateBridge = (() => {
     });
   }
   function rowOf(raw) {
-    if (!raw || typeof raw !== 'object' || raw.kind !== 'goal-graph-intake' || ![SOURCE, 'founder-proposal-renewal@v1'].includes(raw.source)) return null;
+    if (!raw || typeof raw !== 'object' || raw.kind !== 'goal-graph-intake' || ![SOURCE, 'founder-proposal-renewal@v1', 'founder-web-bookkeeping@v1'].includes(raw.source)) return null;
     const renewableStale = raw.status === 'stale' && raw.renewOnly === true && raw.canRenew === true;
     if ((raw.status !== 'pending' && !renewableStale) || raw.tenantId !== TENANT || typeof raw.changeDigest !== 'string' || !DIGEST.test(raw.changeDigest)) return null;
     if (typeof raw.approvalNonce !== 'string' || !raw.approvalNonce || raw.approvalNonce.length > 240) return null;
@@ -246,6 +246,29 @@ const CuriousGateBridge = (() => {
     return outcome;
   }
   return {
+    async graph() {
+      if (signer() !== 'access') throw new Error('Founder Access is required.');
+      await verifiedSession();
+      const response = await fetch('/v1/founder/graph',{method:'GET',credentials:'same-origin',redirect:'error',cache:'no-store',headers:{'x-cambium-founder-web':'1'}});
+      if (!response.ok) throw new Error('Canonical graph read unavailable.');
+      return await response.json();
+    },
+    async intake(input) {
+      if (signer() !== 'access' || state !== 'read') return result(false,'blocked','A verified founder read is required.');
+      try {
+        await verifiedSession();
+        const data = await call('intake',input);
+        if (data.accepted !== true || data.writerAuthority !== false || data.executionGranted !== false
+          || !DIGEST.test(data.changeDigest || '') || data.proposalId !== TENANT + ':' + data.changeDigest) {
+          return result(false,'uncertain','The intake outcome is unconfirmed. Check pending proposals before trying again.');
+        }
+        return {...result(true,'prepared','Proposal prepared. Open it in the pending list and read every proposed change before confirming.'),changeDigest:data.changeDigest};
+      } catch (_) {
+        return result(false,'uncertain','The intake outcome is unconfirmed. Check pending proposals before trying again.');
+      } finally {
+        if (typeof refresh === 'function') Promise.resolve().then(() => refresh()).catch(() => {});
+      }
+    },
     async readDecision(changeDigest) {
       if (signer() !== 'access' || !DIGEST.test(changeDigest)) return result(false,'blocked','Canonical read unavailable.');
       try {
