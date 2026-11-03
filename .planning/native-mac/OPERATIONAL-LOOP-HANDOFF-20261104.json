@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T21:24:18.914Z",
-  "status": "work-proposal-awaiting-canonical-founder-decision",
+  "updated": "2026-11-03T22:08:59.615694+00:00",
+  "status": "work-approved-native-sign-in-pending",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -46,7 +46,7 @@
     },
     "bundle": "clean-input ad hoc signed build; verifier passed",
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
-    "real_work_join": "Live operational Work proposal55efd3d7 prepared and canonical review loaded. Await owner decision; real native Work join still unverified.",
+    "real_work_join": "Canonical founder decision archive shows approval recorded and graph commit observed for Cambium55efd3d7; native Work join not yet verified.",
     "live_operational_loop": "Not run: canonical Work decision, native join/direction test, direction approval/admission and finite Hermes coding capability pending.",
     "installed_hermes_capability": "Live readback: installed release e3387543 supports canary and document drafts only; no source verification or Cambium code command. Docker exists; no rollout performed.",
     "ui_cleanup": {
@@ -134,16 +134,18 @@
         "runtime_settings_equal": true
       },
       "rollback_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee"
-    }
+    },
+    "native_sign_in_current": "Built app opened Zen private AuthenticationServices window at Enter your code; founder completion pending. Do not restart or rebuild while this authentication is in flight.",
+    "management_read": "Fresh Cloudflare D1 management read rejected10000; do not infer empty graph or request another refresh for native verification."
   },
   "remaining": [
-    "Canonical founder review/decision on pinned Cambium Work intent; prove native join and real shared direction save",
+    "Complete existing native sign-in and verify the served Cambium Work join and real direction save",
     "Direction approval and admission producer pinned to revision/source/artifact/policy/budget",
     "Finite Docker-isolated Cambium patch verification capability on installed Hermes, without rolling unrelated newer source",
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Founder must decide exact proposal55efd3d72733 in the open Zen Thoughtseed Labs Gate. It creates1Cambium Work source, updates0/removes0, grants no execution. After actual approval read canonical head and native Fabric Work, then sign in to the built Mac app and verify real join/direction save. Current Worker2971a905 serves100%; rollbacke6c399ab; migration0103 already applied. Do not repeat intake or deployment.",
+  "next_action": "Founder completes the already-open Zen private native email-code login and existing15minute consent. On return use actual built app to verify Projects Cambium Open Work, retained signal and direction save. Work55efd3d7 is already approved and canonical graph commit observed; do not resubmit/reapprove. Worker2971a905 remains deployed; no Hermes execution yet.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",

@@ -1,6 +1,6 @@
 {
   "schema": "cambium.operational-work-proposal-receipt.v1",
-  "recorded_at": "2026-11-03T21:24:18.914Z",
+  "recorded_at": "2026-11-03T22:08:59.615694+00:00",
   "tenant": "cambium",
   "client_request_id": "cambium-operational-work-20261104-02",
   "intent": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
@@ -16,12 +16,21 @@
     "remove": 0
   },
   "live_browser": "Zen Thoughtseed Labs",
-  "status": "prepared-canonical-review-loaded-awaiting-founder-decision",
+  "status": "founder-approved-canonical-graph-commit-observed",
   "submitted": true,
   "canonical_review_loaded": true,
   "approve_control_enabled": true,
-  "approved": false,
+  "approved": true,
   "execution_granted": false,
   "hermes_launched": false,
-  "scope": "Establish reviewed Cambium Work source only; proof required; no pinned execution loadout or admission."
+  "scope": "Establish reviewed Cambium Work source only; proof required; no pinned execution loadout or admission.",
+  "approval_verification": {
+    "surface": "Zen Thoughtseed Labs canonical decision archive",
+    "decision": "Approval recorded",
+    "graph": "Commit observed",
+    "execution": "Not observed",
+    "evidence": "Not observed",
+    "decided_at": "2026-11-03T21:25:55.093Z",
+    "management_read": "Cloudflare API authentication10000; unavailable, no D1 readback claimed"
+  }
 }

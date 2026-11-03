@@ -18,17 +18,23 @@ Zen Thoughtseed Labs shows Founder signing ready and the new form copy.
 Fresh canonical head advanced to13/digest`2c14f77a…`, with the same root and
 zero existing Cambium Work sources. The pinned intent was refreshed to that
 observed head and new request`cambium-operational-work-20261104-02`.
-**Proposal55efd3d72733 is prepared and its complete canonical review is loaded.**
-It creates1source for`sapling:cambium`, updates0 and removes0. Proof is required;
-there is no execution loadout or admission. The enabled Approve/Reject controls
-are open in Zen for the founder's actual decision. Do not approve on their behalf
-or resubmit the intent. Exact digest and scope are in
+**Proposal55efd3d72733 is approved.** The actual Zen canonical decision archive
+shows Approval recorded and Graph Commit observed, at2026-11-03T21:25:55.093Z.
+Execution and evidence remain not observed. This establishes the founder decision;
+the separate D1 management read returned authentication10000, so direct D1 or
+native Work readback is not yet claimed. Do not resubmit or reapprove the intent.
+
+The actual built Mac app is running with an expired session. Its Sign in again
+button opened the existing Zen private AuthenticationServices flow, now at Enter
+your code. The founder is completing email-code login and the existing15minute
+native consent. Do not restart, rebuild or replace the app during authentication.
+On return verify mapped Projects > Cambium > Open Work, then the retained Inbox
+signal and real direction draft save. Exact proposal scope is in
 `CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json`.
 
-Work is not approved yet. Native Work join/direction save, direction admission,
-Hermes rollout/execution and the complete operational loop remain unverified.
-After the founder decides, read canonical D1/Fabric before starting native login.
-Keep this profile; do not switch to Chrome or weaken browser security.
+Native Work/direction proof, direction admission, Hermes rollout/execution and
+the full operational loop remain unverified. Do not switch browsers or weaken
+browser security. Use the native authenticated surface for the next readback.
 
 A finite next coding input is prepared locally on branch
 `codex/cambium-code-pilot-input-20261104`, commit`c4cc221f`, base`d571ea92`:

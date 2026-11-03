@@ -11,6 +11,16 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 Work approved; native authentication in progress
+
+Zen canonical record confirms Cambium55efd3d7 approval and graph commit.
+Do not resubmit or reapprove. Actual built Mac app opened existing native
+email-code login in Zen private; founder completion pending. Keep app running.
+Then verify real Cambium Work join and direction save. Direct D1 management
+read rejected10000; no direct readback claimed. Hermes remains unexecuted.
+Use native_operational_loop continuation and exact proposal receipt.
+
+
 ## 2026-11-04 Work proposal prepared; actual founder decision pending
 
 Approved form sourcec6948057 deployed as2971a905 at100%;52bindings/runtime
