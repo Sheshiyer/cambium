@@ -126,7 +126,7 @@ final class AppModel {
     /// person chooses Sign in.
     init(mode: LaunchMode = AppModel.launchMode, services: (any OwnerServices)? = nil, browser: (any NativeBrowserPresenting)? = nil) {
         self.mode = mode
-        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: { NSApp.keyWindow }) : nil)
+        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: { NSApp.keyWindow ?? NSApp.mainWindow }) : nil)
         snapshot = Self.emptySnapshot
         restoreVisualPreferences()
         if let services {
