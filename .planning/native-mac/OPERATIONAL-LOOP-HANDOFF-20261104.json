@@ -113,7 +113,7 @@
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Use Zen Thoughtseed Labs profile as explicitly requested. Authentication and direct founder envelope read work, but page ledger fetch has been canceled/offline; current retry in progress. Do not switch browsers or weaken browser security. Work intent is not yet submitted.",
+  "next_action": "Await explicit owner decision on reviewed founder-read timeout candidate62836c61 (10s->30s, no migration). Existing live version5f2c5dc7 and migration0103 are already applied; do not repeat. Use Zen ThoughtseedLabs only, then prepare the pinned Work proposal for a separate canonical founder decision. No Work row, admission or Hermes launch has occurred.",
   "holds": [
     "No graph/ledger/admission write, launch, runner rollout or deployment in this slice",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
@@ -137,5 +137,6 @@
     "local_checks": "Baseline RED; candidate8tests PASS; prepared locally only, not a Hermes result",
     "admitted": false,
     "executed": false
-  }
+  },
+  "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json"
 }
