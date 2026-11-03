@@ -14,6 +14,7 @@ import struct CambiumCore.Signal
 import struct CambiumCore.SignalCapture
 import struct CambiumCore.SignalUpdate
 import enum CambiumCore.SignalError
+import enum CambiumCore.CanonicalTimestamp
 
 struct InboxDraft {
     var selected: Signal?
@@ -142,6 +143,20 @@ final class AppModel {
     }
 
     var isDemo: Bool { mode == .demo }
+    func hasCurrentSession(at date: Date = Date()) -> Bool {
+        guard let session, let expiry = CanonicalTimestamp.parse(session.expiresAt) else { return false }
+        return expiry > date
+    }
+
+    /// A deliberate entry point from the main app chrome. Applying the
+    /// reviewed profile alone never opens a browser; this action does.
+    func beginSignIn() {
+        open(.connections)
+        guard !isDemo, !loading else { return }
+        if configuration == nil { applyConfiguration() }
+        guard configuration != nil else { return }
+        signIn()
+    }
     var supportsReject: Bool { services?.supportsReject ?? false }
     var replayClock: String? { services?.replayClock }
     var julyProposalExampleId: String? { services?.julyProposalExampleId }

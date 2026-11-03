@@ -77,6 +77,8 @@ private struct OwnerPanel: View {
             Text("Mapped profile: Curious · cambium. The values are prefilled only; nothing is contacted until you apply them.")
                 .font(.caption).foregroundStyle(Palette.rail)
                 .fixedSize(horizontal: false, vertical: true)
+            Text("Sign in opens Founder Gate in your browser and returns to Cambium. A session lasts 15 minutes.")
+                .font(.callout).foregroundStyle(Palette.inkMuted)
             TextField("Owner URL (https)", text: $model.ownerURLDraft).textFieldStyle(.roundedBorder).font(CambiumFont.mono)
             TextField("Tenant", text: $model.tenantDraft).textFieldStyle(.roundedBorder).font(CambiumFont.mono)
             TextField("Reviewed client ID", text: $model.clientIDDraft).textFieldStyle(.roundedBorder).font(CambiumFont.mono)
