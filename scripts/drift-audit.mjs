@@ -185,13 +185,17 @@ export async function auditRepository(rootValue = process.cwd()) {
       const actualPngs = (await readdir(proofDir)).filter((name) => name.endsWith('.png')).sort();
       if (JSON.stringify(actualPngs) !== JSON.stringify(expectedPngs)) failures.push('viewport proof PNG set does not exactly match manifest.proofs');
       for (const proof of manifest.proofs || []) failures.push(...await auditViewportProofArtifact(proofDir, proof));
-      const { PAGE } = await import(`${pathToFileURL(join(root, 'workers/quests/src/page.ts')).href}?audit=${Date.now()}`);
-      const digest = createHash('sha256').update(PAGE).digest('hex');
-      if (manifest.pageSourceSha256 !== digest) failures.push('viewport proof manifest PAGE digest is stale');
+      // The immutable 2D artifacts retain their original PAGE binding as
+      // history. Current source freshness and layout use the maintained 3D
+      // contract below; strict retained behavior qualification still blocks
+      // release independently of fresh source screenshots.
     } catch (error) {
       failures.push(`viewport proof manifest audit failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+  const { auditFieldAtlasSourceProof } = await import(`${pathToFileURL(join(root, 'scripts/field-atlas-viewport-contract.mjs')).href}?audit=${Date.now()}`);
+  failures.push(...auditFieldAtlasSourceProof(root).failures);
 
   return { ok: failures.length === 0, failures };
 }

@@ -1574,12 +1574,16 @@ function pngSize(path) {
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), bytes: statSync(path).size };
 }
 
-export async function withServer(fn) {
+export async function withServer(fn, options = {}) {
   let activeFixture = NO_FAKE_PROGRESS_VISUAL_FIXTURE;
   let gatePostCount = 0;
+  let postCount = 0;
   const server = createServer((req, res) => {
+    if(req.method==='POST')postCount++;
     const url = new URL(req.url ?? '/', 'http://127.0.0.1');
-    if (url.pathname === '/' || url.pathname === '/index.html') {
+    if (url.pathname === '/' || url.pathname === '/index.html' || options.localFounderFixture && url.pathname === '/founder') {
+      try{options.localFounderFixture?.select(url.searchParams.get('atlas-fixture'));}
+      catch{res.writeHead(400,{'content-type':'application/json'});res.end(JSON.stringify({error:'Unknown local browser fixture'}));return;}
       const fixture = url.searchParams.get('fixture');
       activeFixture = fixture === 'gate'
         ? gateFixture
@@ -1608,6 +1612,7 @@ export async function withServer(fn) {
       res.end(servedPage);
       return;
     }
+    if (options.localFounderFixture?.handle(req,res,url)) return;
     if (url.pathname === '/telegram-web-app.js') {
       res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8', 'cache-control': 'no-store' });
       // initData is served nonempty ONLY for operating-fabric captures
@@ -1673,6 +1678,8 @@ export async function withServer(fn) {
     if (!address || typeof address === 'string') throw new Error('server did not bind to a TCP port');
     await fn(`http://127.0.0.1:${address.port}`, {
       gatePostCount: () => gatePostCount,
+      postCount: () => postCount,
+      founderFixture: () => options.localFounderFixture?.snapshot() ?? null,
     });
   } finally {
     await new Promise((resolve) => server.close(resolve));
@@ -1833,6 +1840,7 @@ async function writeBrowserDiagnosticsArtifact() {
 async function cdpClient(wsUrl) {
   const ws = new WebSocket(wsUrl);
   const pending = new Map();
+  const events = new Map();
   let nextId = 1;
   await new Promise((resolve, reject) => {
     ws.addEventListener('open', resolve, { once: true });
@@ -1840,7 +1848,10 @@ async function cdpClient(wsUrl) {
   });
   ws.addEventListener('message', (event) => {
     const msg = JSON.parse(String(event.data));
-    if (!msg.id) return;
+    if (!msg.id) {
+      for (const listener of events.get(msg.method) || []) listener(msg.params);
+      return;
+    }
     const handlers = pending.get(msg.id);
     if (!handlers) return;
     pending.delete(msg.id);
@@ -1848,6 +1859,10 @@ async function cdpClient(wsUrl) {
     else handlers.resolve(msg.result);
   });
   return {
+    on(method, listener) {
+      const listeners = events.get(method) || [];
+      listeners.push(listener); events.set(method, listeners);
+    },
     send(method, params = {}) {
       const id = nextId++;
       ws.send(JSON.stringify({ id, method, params }));
@@ -1921,7 +1936,7 @@ async function tapSelector(cdp, selector) {
 }
 
 async function pressKeyOnSelector(cdp, selector, key) {
-  const keyCode = key === 'ArrowRight' ? 39 : key === 'ArrowLeft' ? 37 : key === 'Enter' ? 13 : 0;
+  const keyCode = key === 'ArrowRight' ? 39 : key === 'ArrowLeft' ? 37 : key === 'Enter' ? 13 : key === 'Escape' ? 27 : 0;
   await evaluate(cdp, `(() => {
     const node = document.querySelector(${JSON.stringify(selector)});
     if (!node) throw new Error('missing keyboard selector ${selector}');
@@ -1929,7 +1944,8 @@ async function pressKeyOnSelector(cdp, selector, key) {
     node.focus();
     if (document.activeElement !== node) throw new Error('keyboard selector did not receive focus ${selector}');
   })()`);
-  await cdp.send('Input.dispatchKeyEvent', { type:'rawKeyDown', key, code:key, windowsVirtualKeyCode:keyCode, nativeVirtualKeyCode:keyCode });
+  await cdp.send('Input.dispatchKeyEvent', { type:key === 'Enter' ? 'keyDown' : 'rawKeyDown', key, code:key,
+    ...(key === 'Enter' ? {text:'\r',unmodifiedText:'\r'} : {}),windowsVirtualKeyCode:keyCode,nativeVirtualKeyCode:keyCode });
   await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key, code:key, windowsVirtualKeyCode:keyCode, nativeVirtualKeyCode:keyCode });
 }
 
@@ -2105,6 +2121,18 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
     const cdp = await cdpClient(pageTarget.webSocketDebuggerUrl);
     try {
       await cdp.send('Page.enable');
+      const diagnostics = { uncaughtErrors:0, consoleErrors:0, failedRequests:0, badResponses:0, warnings:0 };
+      if (options.diagnostics === true) {
+        cdp.on('Runtime.exceptionThrown', () => diagnostics.uncaughtErrors++);
+        cdp.on('Runtime.consoleAPICalled', event => {
+          if (event.type === 'error') diagnostics.consoleErrors++;
+          if (event.type === 'warning' || event.type === 'warn') diagnostics.warnings++;
+        });
+        cdp.on('Network.loadingFailed', () => diagnostics.failedRequests++);
+        cdp.on('Network.responseReceived', event => { if (event.response.status >= 400) diagnostics.badResponses++; });
+        await cdp.send('Runtime.enable');
+        await cdp.send('Network.enable');
+      }
       if (options.fixture === 'fresh') {
         await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
           source: browserClockOverrideExpression(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock),
@@ -2135,6 +2163,13 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       }
       if (options.waitFor) {
         await waitForExpression(cdp, options.waitFor);
+      }
+      for (const input of options.inputSteps || []) {
+        if (input.waitFor) await waitForExpression(cdp, input.waitFor);
+        if (input.kind === 'pointer') await tapSelector(cdp, input.selector);
+        else if (input.kind === 'key') await pressKeyOnSelector(cdp, input.selector, input.key);
+        else throw new Error('Unsupported viewport input step');
+        await new Promise(resolve => setTimeout(resolve, 150));
       }
       if (options.scrollSelector) {
         const sceneIndex = Number.isFinite(options.sceneIndex) ? options.sceneIndex : 0;
@@ -2186,7 +2221,7 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       }
       const shot = await cdp.send('Page.captureScreenshot', await screenshotParams(cdp, options));
       writeFileSync(file, Buffer.from(shot.data, 'base64'));
-      return { assertion };
+      return { assertion, ...(options.diagnostics === true ? {diagnostics} : {}) };
     } finally {
       cdp.close();
     }

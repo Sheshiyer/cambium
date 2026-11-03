@@ -31,8 +31,8 @@
     "verify:production-candidate": "node scripts/verify-production-candidate.mjs",
     "standalone:audit": "node scripts/standalone-audit.mjs",
     "standalone:smoke": "node scripts/standalone-smoke.mjs",
-    "proof:tg-viewport": "node workers/quests/src/visual-viewport-proof.mjs",
-    "proof:tg-mobile-contract": "node workers/quests/src/visual-viewport-proof.mjs --mobile-contract",
+    "proof:tg-viewport": "node scripts/capture-field-atlas.mjs --write-canonical",
+    "proof:tg-mobile-contract": "node scripts/check-field-atlas-proof.mjs",
     "proof:tg-viewport:diagnose": "node workers/quests/src/visual-viewport-proof.mjs --diagnose-browser",
     "visual:capture": "node scripts/visual-regression.mjs",
     "visual:baseline": "node scripts/visual-regression.mjs --mode baseline",
@@ -68,6 +68,7 @@
     "sapling:adapters": "node .agents/skills/sapling-lifecycle/scripts/install.mjs",
     "sapling:test": "node --test .agents/skills/sapling-lifecycle/scripts/*.test.mjs",
     "sapling:hooks": "node .agents/skills/sapling-lifecycle/scripts/codex-hooks.mjs",
-    "proof:field-atlas": "node scripts/capture-field-atlas.mjs"
+    "proof:field-atlas": "node scripts/capture-field-atlas.mjs",
+    "proof:field-atlas:check": "node scripts/check-field-atlas-proof.mjs"
   }
 }

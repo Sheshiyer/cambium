@@ -3574,3 +3574,16 @@ This bounded implementation continues the explicitly approved LumenBar/Temperanc
 - [ ] DP-LIVE-06: A new exact source/config upload approval, uploaded-version readback, separate traffic approval and production readback are required before promotion. Historical release approvals are not reused. Historical uploads/readbacks are complete for fcbb68f9/version80 and d6bb6986/version89. Reconciled source e6c1940e incorporates native93 with the exact52-binding config and is uploaded/verified as immutable version94 after fresh drift. All52 binding configs, runtime, operational settings, schedules and exposure match preflight; its preview root and health pass and guest founder graph is denied. Native93 remains at100%; version94 is unserved. Separate traffic approval and production readback remain required; this task made no traffic write. The documented baseline failures remain.
 
 Evidence and limitations: docs/plans/department-pilot/LIVE-INTEGRATION.md; private attributable integration receipts. D1/CAS, accepted product planning, resource/permission/publication/deployment owners and runtime admission remain separate.
+
+### 2026-11-04 Current 3D viewport proof contract and mobile header
+
+The owner authorizes the current 3D source proof contract and the Departments
+header repair, preserving every retained assertion from the original 47-frame
+matrix. Version 95 remains the planning baseline. Deployment and traffic are held.
+
+- [ ] FA-VP-01: The current source proof binds the maintained PAGE, helpers, instructions, actual browser observations and PNG bytes; original 47-frame history remains byte-identical.
+- [ ] FA-VP-02: All original identities remain accounted for: four obsolete gallery captures are retired; the other 43 behavior intents remain required. A strict release qualification gate refuses missing or partial current equivalents and cannot accept old PNGs or metadata as current behavioral proof.
+- [ ] FA-VP-03: Actual browser checks at 320/390/430/600/601/1280px prove Departments/status/control separation, reachable controls at least44px, accessible name, keyboard opening and modal focus restoration, with browser diagnostics and local-only evidence explicit.
+- [ ] FA-VP-04: Source regression/build/bundle checks and independent browser/source review pass. Retired 2D code stays absent from the Worker. Source/layout proof does not accept retained operational coverage, physical devices, authenticated owners, GSD plans, callbacks or release.
+
+Finite source plan: `.planning/viewport-proof-20261104/PLAN.md`.

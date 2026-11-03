@@ -108,11 +108,11 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
     if (action) listen(node, 'click', () => action());
     return node;
   }
-  function toolIcon(kind: 'map' | 'traveler'): SVGSVGElement {
+  function toolIcon(kind: 'map' | 'traveler' | 'departments'): SVGSVGElement {
     const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     node.setAttribute('viewBox', '0 0 24 24'); node.setAttribute('aria-hidden', 'true'); node.setAttribute('focusable', 'false');
     const path = document.createElementNS(node.namespaceURI, 'path');
-    path.setAttribute('d', kind === 'traveler' ? 'M7 9a5 5 0 1 0 10 0 5 5 0 0 0-10 0M3 22c0-5 3-8 9-8s9 3 9 8M8 7h8M6 9h12' : kind === 'map' ? 'M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2V5zm6-2v16m6-14v16' : 'M4 4h11v16H4V4m6 8h11m-4-4 4 4-4 4');
+    path.setAttribute('d', kind === 'traveler' ? 'M7 9a5 5 0 1 0 10 0 5 5 0 0 0-10 0M3 22c0-5 3-8 9-8s9 3 9 8M8 7h8M6 9h12' : kind === 'map' ? 'M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2V5zm6-2v16m6-14v16' : 'M9 3h6v6H9V3M3 15h6v6H3v-6m12 0h6v6h-6v-6M12 9v3M6 15v-3h12v3');
     node.append(path); return node;
   }
 
@@ -135,10 +135,13 @@ export function mountCuriousWorld(root: HTMLElement, bridge: CuriousWorldBridge)
   travelerButton.append(toolIcon('traveler'), travelerLabel);
   travelerButton.setAttribute('aria-label', 'Choose your traveler');
   // The 3D world is the founder surface; there is no way back to the retired 2D desk.
-  const departmentsButton = button('Departments', 'cw-button', () => {
+  const departmentsButton = button('', 'cw-button cw-departments-button', () => {
     showPanel('Product departments');
     disposeDepartment = mountDepartmentFolio(dialogBody, bridge);
   });
+  departmentsButton.append(toolIcon('departments'), element('span', '', 'Departments'));
+  departmentsButton.setAttribute('aria-label', 'Open product departments');
+  departmentsButton.setAttribute('aria-haspopup', 'dialog');
   topActions.append(departmentsButton, travelerButton, mapButton);
   header.append(brand, topActions);
   const location = element('div', 'cw-location');
