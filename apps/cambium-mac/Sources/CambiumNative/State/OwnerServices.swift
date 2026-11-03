@@ -758,6 +758,14 @@ final class CambiumOwnerServices: OwnerServices {
             return .init(kind: .refused, message: "The owner refused this read.")
         case MissionFabricReadError.unavailable:
             return .init(kind: .unavailable, message: "The owner is unavailable.")
+        case MissionFabricReadError.notFound:
+            return .init(kind: .unavailable, message: "The owner has no Mission Fabric graph for this tenant.")
+        case MissionFabricReadError.malformed, MissionFabricReadError.responseTooLarge:
+            return .init(kind: .invalid, message: "The owner's Mission Fabric projection failed validation.")
+        case MissionFabricReadError.stale:
+            return .init(kind: .unavailable, message: "The owner's Mission Fabric projection is stale.")
+        case MissionFabricReadError.badStatus(let status):
+            return .init(kind: .unavailable, message: "The owner returned HTTP \(status) for the Mission Fabric read.")
         default:
             return .init(kind: .unknown, message: "The owner did not complete this action.")
         }

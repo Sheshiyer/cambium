@@ -126,7 +126,9 @@ final class AppModel {
     /// person chooses Sign in.
     init(mode: LaunchMode = AppModel.launchMode, services: (any OwnerServices)? = nil, browser: (any NativeBrowserPresenting)? = nil) {
         self.mode = mode
-        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: { NSApp.keyWindow }) : nil)
+        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: {
+            NSApp.keyWindow ?? NSApp.mainWindow ?? NSApp.windows.first(where: { $0.isVisible && $0.canBecomeKey })
+        }) : nil)
         snapshot = Self.emptySnapshot
         restoreVisualPreferences()
         if let services {
@@ -361,6 +363,11 @@ final class AppModel {
         }
     }
 
+    func retryOwnerRead() {
+        guard !loading else { return }
+        run("Owner read") { _, token in await self.refresh(token) }
+    }
+
     private func refresh(_ token: UInt64) async {
         guard let services, token == generation else { return }
         session = await services.session()
@@ -370,6 +377,7 @@ final class AppModel {
         }
         switch await services.readFabric() {
         case .success(let display) where token == generation:
+            issue = nil
             fabric = display
             snapshot = display.snapshot
             unattachedEvidence = display.unattachedEvidence

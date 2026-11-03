@@ -190,6 +190,18 @@
       "approvalStatus": "docs-only",
       "sizePolicy": "docs-reference-image",
       "notes": "Direction references for the constellation convergence plan; not pixel-parity gates, not runtime data."
+    },
+    {
+      "id": "field-atlas-native-viewport-proof-20261103",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/field-atlas-viewport-proof/*.jpg"
+      ],
+      "source": "Actual Codex in-app browser native JPEG captures of local Field Atlas source fixtures on 2026-11-03",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Source-bound layout and interaction evidence. Local synthetic fixtures, not live D1, platform authentication, production acceptance or execution proof. Original JPEG bytes preserved without transcoding; exact root receipt and hashes in manifest.json."
     }
   ]
 }

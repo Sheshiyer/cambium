@@ -1,6 +1,7 @@
 import AuthenticationServices
 import CambiumCore
 import Foundation
+import OSLog
 
 // External-browser adapter for founder sign-in. It runs on the main actor and
 // uses an ephemeral ASWebAuthenticationSession, so no browser cookies are
@@ -9,11 +10,13 @@ import Foundation
 
 @MainActor
 final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthenticationPresentationContextProviding {
+    nonisolated private static let logger = Logger(subsystem: "space.thoughtseed.cambium.native.dev", category: "NativeBrowserSignIn")
     /// The callback scheme is the reversed-domain dev registration in Info.plist.in.
     static let callbackScheme = "space.thoughtseed.cambium.native.dev"
 
     private let anchorProvider: @MainActor () -> ASPresentationAnchor?
     private var activeSession: ASWebAuthenticationSession?
+    private var activeAnchor: ASPresentationAnchor?
     private var pending: CheckedContinuation<NativeBrowserResult, Never>?
     /// Identifies the presentation a completion belongs to, so a late handler
     /// from an earlier session cannot resume a newer one.
@@ -24,15 +27,22 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
     }
 
     func present(_ request: NativeAuthorizationRequest) async -> NativeBrowserResult {
-        guard activeSession == nil, pending == nil else { return .failed }
+        guard activeSession == nil, pending == nil else {
+            Self.logger.error("Browser presentation already pending")
+            return .failed
+        }
         guard request.redirectURI.absoluteString == NativeIdentityConfiguration.reviewedRedirectURI.absoluteString,
               request.redirectURI.scheme == Self.callbackScheme else { return .failed }
-        guard anchorProvider() != nil else { return .failed }
+        guard let anchor = anchorProvider() else {
+            Self.logger.error("Browser presentation has no app window")
+            return .failed
+        }
 
         presentation &+= 1
         let id = presentation
         return await withCheckedContinuation { (continuation: CheckedContinuation<NativeBrowserResult, Never>) in
             pending = continuation
+            activeAnchor = anchor
             // AuthenticationServices does not promise the queue for this handler.
             // It is nonisolated and hops to the main actor before touching state.
             let completion: @Sendable (URL?, (any Error)?) -> Void = { [weak self] callbackURL, error in
@@ -48,6 +58,7 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
             session.presentationContextProvider = self
             activeSession = session
             if !session.start() {
+                Self.logger.error("AuthenticationServices refused to start")
                 finish(id, .failed)
             }
         }
@@ -63,6 +74,7 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
         guard id == presentation, let continuation = pending else { return }
         pending = nil
         activeSession = nil
+        activeAnchor = nil
         continuation.resume(returning: result)
     }
 
@@ -71,6 +83,11 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
     nonisolated static func map(callbackURL: URL?, error: (any Error)?) -> NativeBrowserResult {
         if let error {
             let nsError = error as NSError
+            if nsError.domain == ASWebAuthenticationSessionErrorDomain {
+                logger.error("AuthenticationServices completion error code: \(nsError.code, privacy: .public)")
+            } else {
+                logger.error("Browser completion failed outside AuthenticationServices")
+            }
             if nsError.domain == ASWebAuthenticationSessionErrorDomain,
                nsError.code == ASWebAuthenticationSessionError.canceledLogin.rawValue {
                 return .canceled
@@ -82,6 +99,6 @@ final class NativeBrowserSignIn: NSObject, NativeBrowserPresenting, ASWebAuthent
     }
 
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        anchorProvider() ?? ASPresentationAnchor()
+        activeAnchor ?? anchorProvider() ?? ASPresentationAnchor()
     }
 }

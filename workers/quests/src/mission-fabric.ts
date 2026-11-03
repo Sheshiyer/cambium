@@ -4,7 +4,7 @@ import type { GoalGraphLoadoutAuthority, GoalGraphLoadoutAuthorityRecord } from 
 export const MISSION_FABRIC_CAPS = {
   MAX_NODES: 512,
   MAX_EDGES: 1024,
-  MAX_GAPS: 128,
+  MAX_GAPS: 256,
   MAX_EVIDENCE_REFS_PER_NODE: 32,
   MAX_DISPLAY_CHARS: 512,
 } as const;

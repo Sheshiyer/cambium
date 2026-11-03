@@ -31,7 +31,7 @@ The owner authorized source implementation and review fixes. Finite contract:
 - [x] ISC-3669: Synthetic capture/update/filter, actual-handler wire decoding and owner-specific recovery isolation have local regression coverage.
 - [x] ISC-3670: Native source compiles and its ad hoc bundle verifies; this is not notarized delivery or real-owner acceptance.
 - [ ] ISC-3671: A real Field Report peer uses shared records with reviewed producer authentication and source parity.
-- [ ] ISC-3672: Standard Mac app completes real founder sign-in and owner-served signal/catalog readback.
+- [x] ISC-3672: Standard Mac app completes real founder sign-in and owner-served signal/catalog readback. Evidence: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
 
 The prior full fan-out was held before inference. A subsequent disposable free
 CLI build ran but was stopped without accepting its incomplete fixes; the
@@ -291,7 +291,7 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3464: Only an explicit served join to an existing Work node enables the operational Work link.
 - [x] ISC-3465: Local Swift and native route tests, signed bundle and clean-input build proof pass.
 - [ ] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
-- [ ] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority.
+- [x] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority. Evidence: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
 - [x] ISC-3468: Founder detail maps every served historical product and classification review row; viewer detail stays empty.
 - [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
 - [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.

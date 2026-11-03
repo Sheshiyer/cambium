@@ -32,6 +32,8 @@ import { Buffer } from 'node:buffer';
 export const NATIVE_SESSION_CONTRACT = 'cambium.native-session.v1' as const;
 export const NATIVE_SESSION_PATHS = {
   authorize: '/v1/native/session/authorize',
+  // The existing Founder Access application protects this browser-only path.
+  browserAuthorize: '/founder/native/session/authorize',
   exchange: '/v1/native/session/exchange',
   session: '/v1/native/session',
   logout: '/v1/native/session/logout',
@@ -305,6 +307,9 @@ const SECURITY_HEADERS = {
 
 const PAGE_HEADERS = {
   ...SECURITY_HEADERS,
+  // A no-referrer document makes browsers send Origin: null on form POSTs.
+  // Preserve the same-origin consent check; code redirects retain no-referrer.
+  'referrer-policy': 'same-origin',
   'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
   'content-type': 'text/html; charset=utf-8',
   'x-frame-options': 'DENY',
@@ -465,7 +470,7 @@ async function prepareAuthorize(request: Request, host: NativeSessionHost, form?
       && params.get('code_challenge_method') === 'S256'
       && fields.state === params.get('state')
       && fields.tenant === params.get('tenant');
-    if (!same) return fail(400, 'consent_required');
+    if (!same) { console.warn('[native-consent] binding-mismatch'); return fail(400, 'consent_required'); }
   } else {
     fields = {
       clientId: params.get('client_id')!, redirectUri: params.get('redirect_uri')!,
@@ -516,12 +521,12 @@ function consentAction(request: Request, host: NativeSessionHost, prepared: Prep
   let url: URL;
   try { url = new URL(request.url); } catch { return null; }
   const owner = new URL(host.deps.ownerOrigin);
-  if (url.origin !== owner.origin || url.pathname !== NATIVE_SESSION_PATHS.authorize) return null;
+  if (url.origin !== owner.origin || ![NATIVE_SESSION_PATHS.authorize, NATIVE_SESSION_PATHS.browserAuthorize].some(path => path === url.pathname)) return null;
   const params = new URLSearchParams(url.search);
   if (!params.has('code_challenge_method')) params.set('code_challenge_method', 'S256');
   if (!params.has('tenant') && prepared.tenantId) params.set('tenant', prepared.tenantId);
   const search = params.toString();
-  return `${NATIVE_SESSION_PATHS.authorize}${search ? `?${search}` : ''}`;
+  return `${url.pathname}${search ? `?${search}` : ''}`;
 }
 
 function consentPage(request: Request, host: NativeSessionHost, prepared: PreparedAuthorize, intent: string, csrf: string): Response | null {
@@ -551,9 +556,14 @@ ${hidden('tenant', prepared.tenantId)}
 </body></html>`;
   const cookie = [
     `${NATIVE_CONSENT_COOKIE}=${csrf}`,
-    'HttpOnly', 'Secure', 'SameSite=Strict', 'Path=/v1/native/session/authorize', 'Max-Age=60',
+    'HttpOnly', 'Secure', 'SameSite=Strict', `Path=${new URL(request.url).pathname}`, 'Max-Age=60',
   ].join('; ');
-  return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'set-cookie': cookie } });
+  // Chrome applies form-action to the POST's redirect as well as its action.
+  // The callback has already matched the registered client URI exactly.
+  // Custom protocols have opaque origins in Chrome; a host-source callback
+  // does not match them. Scope the scheme-source to this registered client.
+  const policy = PAGE_HEADERS['content-security-policy'].replace("form-action 'self'", `form-action 'self' ${new URL(prepared.redirectUri).protocol}`);
+  return new Response(html, { status: 200, headers: { ...PAGE_HEADERS, 'content-security-policy': policy, 'set-cookie': cookie } });
 }
 
 const CONSENT_FIELDS = ['client_id', 'code_challenge', 'csrf', 'decision', 'intent', 'redirect_uri', 'state', 'tenant'];
@@ -582,8 +592,8 @@ async function readConsentForm(request: Request): Promise<Record<string, string>
   const params = new URLSearchParams(text);
   const keys = [...params.keys()];
   if (keys.some(key => !CONSENT_FIELDS.includes(key)) || new Set(keys).size !== keys.length
-      || CONSENT_FIELDS.some(key => !params.has(key))) return fail(400, 'consent_required');
-  if (params.get('decision') !== 'allow') return fail(400, 'consent_required');
+      || CONSENT_FIELDS.some(key => !params.has(key))) { console.warn('[native-consent] form-fields'); return fail(400, 'consent_required'); }
+  if (params.get('decision') !== 'allow') { console.warn('[native-consent] form-decision'); return fail(400, 'consent_required'); }
   return Object.fromEntries(CONSENT_FIELDS.map(key => [key, params.get(key)!]));
 }
 
@@ -620,13 +630,16 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
   // re-checking the current founder, role and enrollment against the fields
   // the browser actually submitted.
   const origin = request.headers.get('origin');
-  if (origin !== null && origin !== host.deps.ownerOrigin) return fail(400, 'consent_required');
+  if (origin !== null && origin !== host.deps.ownerOrigin) { console.warn('[native-consent] origin'); return fail(400, 'consent_required'); }
   const form = await readConsentForm(request);
   if (form instanceof Response) return form;
   const prepared = await prepareAuthorize(request, host, form);
   if (prepared instanceof Response) return prepared;
   const cookie = readCookie(request.headers.get('cookie'), NATIVE_CONSENT_COOKIE);
-  if (!cookie || cookie !== form.csrf || !CSRF.test(form.csrf) || !INTENT.test(form.intent)) return fail(400, 'consent_required');
+  if (!cookie || cookie !== form.csrf || !CSRF.test(form.csrf) || !INTENT.test(form.intent)) {
+    console.warn(cookie ? '[native-consent] cookie-mismatch' : '[native-consent] cookie-missing');
+    return fail(400, 'consent_required');
+  }
 
   const binding: NativeConsentBinding = {
     clientId: prepared.clientId, redirectUri: prepared.redirectUri, codeChallenge: prepared.challenge,
@@ -641,7 +654,7 @@ export async function nativeSessionAuthorizeHttp(request: Request, host?: Native
       requestDigest: nativeConsentRequestDigest(binding), founderId: prepared.founderId, now,
     });
   } catch { return unavailable(); }
-  if (!consumed) return fail(400, 'consent_required');
+  if (!consumed) { console.warn('[native-consent] intent-not-consumed'); return fail(400, 'consent_required'); }
 
   // The intent is spent, including on refusal. Re-check the current founder
   // role, enrollment and a fresh clock after consume returns, so a revocation
@@ -844,7 +857,8 @@ export async function nativeSessionHttp(request: Request, host?: NativeSessionHo
   try { url = new URL(request.url); } catch { return null; }
   const pathname = url.pathname;
   switch (pathname) {
-    case NATIVE_SESSION_PATHS.authorize: return nativeSessionAuthorizeHttp(request, host);
+    case NATIVE_SESSION_PATHS.authorize:
+    case NATIVE_SESSION_PATHS.browserAuthorize: return nativeSessionAuthorizeHttp(request, host);
     case NATIVE_SESSION_PATHS.exchange: return nativeSessionExchangeHttp(request, host);
     case NATIVE_SESSION_PATHS.session: return nativeSessionReadHttp(request, host);
     case NATIVE_SESSION_PATHS.logout: return nativeSessionLogoutHttp(request, host);
