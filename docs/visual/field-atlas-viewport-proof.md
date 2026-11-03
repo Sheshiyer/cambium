@@ -31,7 +31,7 @@ are exercised. Input hashes and method counters are retained. Proposal POSTs are
 read-only; decision/renewal and unexpected requests are denied and fail evidence.
 There is no production identity, credential, D1 owner, graph mutation or execution.
 
-The current source matrix has44frames: responsive entry/world/chart/Departments,
+The current source matrix has 44frames: responsive entry/world/chart/Departments,
 source directory/folios, held and verified-empty Gate states, exact complete
 proposal reviews, separate approval preflights, inspection back/close, and local
 visits in both unavailable and available source-read contexts.
@@ -44,7 +44,7 @@ alone never makes retained operational qualification pass.
 
 ## Retained behavior coverage
 
-The original47-frame manifest and all47PNGs remain unchanged under
+The original 47-frame manifest and all47PNGs remain unchanged under
 `docs/plans/assets/tg-miniapp-viewport-proof`. The current source artifacts live
 under `docs/plans/assets/field-atlas-viewport-proof`. The complete identity/intent
 matrix is `docs/visual/field-atlas-viewport-contract.v1.json`; its retained
@@ -72,3 +72,24 @@ current equivalents or a separately reviewed product decision; none is waived.
 The JSON checker reports derived qualified/held counts and the complete missing
 requirements. A successful source test suite is not full viewport or release
 acceptance while any retained obligation is held.
+
+## Verified source checkpoint
+
+Implementation `7c8c810f` has 44 fresh canonical source frames and no source
+validation failures. Eleven retained behaviors qualify in the local browser;
+32 remain required and unqualified. The strict checker exits1 for those missing
+capabilities. All 47 historical PNGs and the original manifest are byte-identical.
+
+Independent browser QA confirms the header at 320/390/430/600/601/1280px and 189
+operational checks at 320/390/430px. Source contract regressions pass16/16; the app
+passes 95/95, strict TypeScript and generated bundle parity. The local Worker
+build excludes retired renderer exports. Two legacy-named source inputs remain
+for existing shared story/tools parsers; their unused renderer exports are absent.
+The final receipt will record frozen-source/audit results and exact implementation/
+checkpoint pins alongside the local QA receipts under `artifact:field-atlas-contract-20261104/`.
+This checkpoint grants no live, device, native owner, GSD or release acceptance.
+
+Seven held/empty/back-to-queue images now use native wheel framing. Every target
+text line must fit in both the dialog body and the actual viewport and pass
+hit-testing. An offscreen DOM state fails before PNG output. The earlier full
+run and its image-review HOLD are preserved without rebinding their hashes.

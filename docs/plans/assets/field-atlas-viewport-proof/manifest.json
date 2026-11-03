@@ -1,191 +1,2516 @@
 {
-  "schema": "cambium.field-atlas-viewport-proof.v1",
-  "capturedAt": "2026-11-03T06:23:43.705Z",
-  "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-  "scope": "local-synthetic",
-  "productionAcceptance": false,
-  "adapter": "codex-iab",
-  "physicalDevice": false,
-  "proofs": [
+  "schema": "cambium.field-atlas-viewport-source.v1",
+  "observedAt": "2026-11-03T23:42:20.605Z",
+  "sourceBaseCommit": "7c8c810f47b49fa4c6dd17d341ee4c48e68a9655",
+  "workingTreeModified": false,
+  "sourceBindings": [
     {
-      "id": "world-desktop",
-      "path": "world-desktop.jpg",
-      "viewport": {
-        "width": 1280,
-        "height": 900
-      },
-      "imageWidth": 1280,
-      "imageHeight": 900,
-      "sha256": "90fd95c0330e36403772110c33b8b718dec3dc3b8295f1f100fb72522e03cf5e",
-      "input": "native-browser-ui",
-      "checks": {
-        "retiredShellAbsent": true,
-        "telegramSdkAbsent": true,
-        "worldCanvasOne": true,
-        "worldTitle": true,
-        "consoleClean": true
-      },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-      "observations": {
-        "height": 900,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 1280,
-        "width": 1280,
-        "consoleMessages": []
-      },
-      "bytes": 92111
+      "path": "scripts/capture-field-atlas.mjs",
+      "sha256": "6f7a70beadfd5da6a4c795fc4720334169c0090ecd00ea27124b4873fe57c1a7"
     },
     {
-      "id": "chart-desktop",
-      "path": "chart-desktop.jpg",
-      "viewport": {
-        "width": 1280,
-        "height": 900
-      },
-      "imageWidth": 1280,
-      "imageHeight": 900,
-      "sha256": "dcda3b9eacd15871b9adf826463fbdc6c047e588966935e2dfa3f86981f5e97e",
-      "input": "native-browser-ui",
-      "checks": {
-        "eightDistricts": true,
-        "keyboardFocusVisible": true,
-        "retiredShellAbsent": true,
-        "consoleClean": true
-      },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-      "observations": {
-        "height": 900,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 1280,
-        "width": 1280,
-        "consoleMessages": []
-      },
-      "bytes": 80666
+      "path": "scripts/field-atlas-viewport-contract.mjs",
+      "sha256": "6fc732e498ff309bd2949479464ba0b4e03783ef6c97b31eaaeb982e4fc91fee"
     },
     {
-      "id": "gate-desktop",
-      "path": "gate-desktop.jpg",
-      "viewport": {
-        "width": 1280,
-        "height": 900
-      },
-      "imageWidth": 1280,
-      "imageHeight": 900,
-      "sha256": "b4fe78421587da1132d18ae6923c31197c318612c6cb74bd673300ecaa39d61b",
-      "input": "native-browser-ui",
-      "checks": {
-        "gateFolioVisible": true,
-        "intakeLabelPresent": true,
-        "prepareProposalControl": true,
-        "canonicalGraphReadControl": true,
-        "noAutomaticPost": true,
-        "consoleClean": true
-      },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-      "observations": {
-        "height": 900,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 1280,
-        "width": 1280,
-        "consoleMessages": []
-      },
-      "bytes": 65978
+      "path": "scripts/field-atlas-founder-fixture.mjs",
+      "sha256": "06624977a7b2a2ac091699b03405720328e39e8920e1f1c9e75e22b55466bd01"
     },
     {
-      "id": "gate-mobile-320",
-      "path": "gate-mobile-320.jpg",
-      "viewport": {
-        "width": 320,
-        "height": 800
-      },
-      "imageWidth": 320,
-      "imageHeight": 800,
-      "sha256": "7be60c13ad708749a27ac4bacd033b0dcc8a67a4e02f3e38bec8c9de371d0c41",
-      "input": "native-browser-ui",
-      "checks": {
-        "exactCssWidth": true,
-        "noHorizontalOverflow": true,
-        "gateFolioVisible": true,
-        "intakeFits": true,
-        "focusVisible": true,
-        "consoleClean": true
-      },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-      "observations": {
-        "height": 800,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 320,
-        "width": 320,
-        "consoleMessages": []
-      },
-      "bytes": 31742
+      "path": "scripts/check-field-atlas-proof.mjs",
+      "sha256": "d7599521a0700493675ee23b3a8b6d2129661adc68ed0a1a54f01d7c35994f27"
     },
     {
-      "id": "graph-mobile-320",
-      "path": "graph-mobile-320.jpg",
-      "viewport": {
-        "width": 320,
-        "height": 800
-      },
-      "imageWidth": 320,
-      "imageHeight": 800,
-      "sha256": "878d7ffca47bb190c5ad063f8fed9a5c240de59eec0a0b326f48e2dde51b93e1",
-      "input": "native-browser-ui",
-      "checks": {
-        "decisionsNotPublication": true,
-        "exactCssWidth": true,
-        "exactDataInitiallyClosed": true,
-        "fixtureCountsMatch": true,
-        "nestedBranchExpands": true,
-        "noHorizontalOverflow": true,
-        "prerequisitesLabeled": true,
-        "twoProductChoices": true,
-        "consoleClean": true
-      },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-      "observations": {
-        "height": 800,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 320,
-        "width": 320,
-        "consoleMessages": []
-      },
-      "bytes": 32751
+      "path": "scripts/drift-audit.mjs",
+      "sha256": "5cc7c4cfb3dcd84dc028fd0a810dbc7b06930f024312cb035c71e1a2d9515e9c"
     },
     {
-      "id": "legacy-query-mobile-320",
-      "path": "legacy-query-mobile-320.jpg",
-      "viewport": {
-        "width": 320,
-        "height": 800
-      },
-      "imageWidth": 320,
-      "imageHeight": 800,
-      "sha256": "043ab5b9d0a1c92a62e17e0558ba8766247f2be57ea954f824cb7180ec6ddc5b",
-      "input": "native-browser-ui",
-      "checks": {
-        "exactCssWidth": true,
-        "noHorizontalOverflow": true,
-        "retiredShellAbsent": true,
-        "telegramSdkAbsent": true,
-        "worldCanvasOne": true,
-        "consoleClean": true
-      },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-      "observations": {
-        "height": 800,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 320,
-        "width": 320,
-        "consoleMessages": []
-      },
-      "bytes": 36366
+      "path": "scripts/verify-release.mjs",
+      "sha256": "08c652ed638cc30b0dcc2a9ae048f4fe4e4c8977a64b3a6e979b220cfe1f55c9"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3a363f79004ca44cd25ca01d8a53b178c6a25572b9c0dac7ac1e595093949067"
+    },
+    {
+      "path": "docs/visual/field-atlas-viewport-contract.v1.json",
+      "sha256": "3a3a2b813d78ed722e10d326f0ec1f655cf9b54a467b0e8dcb049309a1db002f"
+    },
+    {
+      "path": "workers/quests/src/visual-viewport-proof.mjs",
+      "sha256": "200605892804f2cf4d6ad49464ad72cefe559a878fc04d363e861fcb563d292f"
+    },
+    {
+      "path": "workers/quests/src/page.ts",
+      "sha256": "295abc93ea3c3699a96dadaf6b3ed8d068da6422ab25db4c0f8314e201307bea"
+    },
+    {
+      "path": "workers/quests/src/page/index.ts",
+      "sha256": "12576f18467e1b6441b373f2fef6900dac792ce37bb959ce1faf60b79d37fe9f"
+    },
+    {
+      "path": "workers/quests/src/page/world-host.ts",
+      "sha256": "44f6b2f51f5cb993077dce99bcefafb4d7f1db19655c3235f1afd565d444eacc"
+    },
+    {
+      "path": "workers/quests/src/page/components/curious-world.ts",
+      "sha256": "8a8a10a56e5e62bef6804d5aa6cc6e1fd507cec9f80c4afc16497eacb57e075b"
+    },
+    {
+      "path": "workers/quests/src/page/components/curious-world.generated.ts",
+      "sha256": "ce98d6a5338f5e33353fc9109b23e2c5011c33e9559b5618eae2147228fc3a1d"
+    },
+    {
+      "path": "workers/quests/src/page/client/curious-read-bridge.ts",
+      "sha256": "f76b506da4f80a9a971084a79f75cdd9ec25a260e0d5b6e61751bf7d25fd526c"
+    },
+    {
+      "path": "workers/quests/src/page/client/curious-gate-bridge.ts",
+      "sha256": "452189a4c34824b9fa25974c5fb1295d1b57db95dbd96476490e04cd1e38a132"
+    },
+    {
+      "path": "workers/quests/src/page/client/curious-department-bridge.ts",
+      "sha256": "9c5ad5cbb352b0dc34d32ba101c40f920e12551844ca688e62d06ae944d33fb5"
+    },
+    {
+      "path": "apps/cambium-r3f/src/curious-world/index.ts",
+      "sha256": "e3bcc6eb427e2323a5682d1aeea92217e2a5e1c704bfe6bfc92970df589a83b6"
+    },
+    {
+      "path": "apps/cambium-r3f/src/curious-world/styles.css",
+      "sha256": "3e63d56b6d2987a0824e916af4dacc2604351ce8e29dc198c52c6d8159ff5fb1"
     }
   ],
-  "legacyQueryNote": "Fresh document navigation on the same captured preview tab; the new-tab DOM check was independently consistent but its initial background screenshot was stale and was replaced.",
-  "observationSchema": "cambium.root-native-viewport-observations.v1",
-  "status": "passed",
-  "planSha256": "35d703e1575a7399c6f89040bf91b299d58802d055ceafe3d037550f68a552ce",
-  "rootObservationSha256": "f533b7dd6e140d462076e8c9e4f13a1a74c13d7d2387bcb12f0e993ed7b285c5",
-  "invariant": "Actual local synthetic native-browser captures only; not production acceptance, platform authentication, live D1 or execution proof."
+  "pageSourceSha256": "40ca02967498382374320fcb45852621cee06f78ce65229da62ddd5cfa012741",
+  "captureStepSha256": "7f5c4d56a95c492a0f929a9fdee261092ecf7d91e5479afc37dec2bd46e1efe5",
+  "evidenceScope": "local-source-fixture",
+  "renderer": "local software WebGL",
+  "canonicalAcceptance": false,
+  "liveAcceptance": false,
+  "physicalDevice": false,
+  "trustedTouchAcceptance": false,
+  "releaseReady": false,
+  "mockGatePostCount": 0,
+  "proofs": [
+    {
+      "path": "field-atlas-entry-320.png",
+      "state": "entry",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "9b07827d6482135c1a118b67a99eb6cc65c5ac0e1dfbeef208ac5da0d30c9d45",
+      "assertionSha256": "abada22feaf0d759fba75f2e2bc039da54db4dcf81bcee6fab547d347e74a8b7",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 478202,
+      "sha256": "907b845f67ee8278042d9e15e66475d95ac4d3db28574efea17f2f4f3c2f3b93"
+    },
+    {
+      "path": "field-atlas-entry-390.png",
+      "state": "entry",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "902883add5549e1addcb5e3ac8fe33c16d687b2487b1d6d51d64598083befc62",
+      "assertionSha256": "1e0fa3665f0781ad9ac628f2e56aaca79d59cfd86a8f49fa2b5a2b62630af7d7",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 580476,
+      "sha256": "62862153d15c0abafd831a0e9a77b6d9ebac25d7ceb419cdeaa9a7a1cf72c43f"
+    },
+    {
+      "path": "field-atlas-entry-430.png",
+      "state": "entry",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "c0600c3cc08e14c832e91743e5d7482bb50d84a91cbe3335774b81ce914d68eb",
+      "assertionSha256": "1dd2176a3ebf579da8414cd79cbad6ce98ae9701fc48c6e8af0e92b480d476ee",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 671974,
+      "sha256": "064c514acc901059ffbd7ebd02b372e4b430aa93e54d2a3e180e48c99d12be54"
+    },
+    {
+      "path": "field-atlas-entry-600.png",
+      "state": "entry",
+      "viewport": {
+        "width": 600,
+        "height": 900
+      },
+      "stepSha256": "cd5a2e40530297f27952a512c39df39ac23f5d178b2405177d0306a7b4560b5e",
+      "assertionSha256": "a66d7b7c675f247423a96a29de9d14c0038f5ac78511b72093dc528e90e5e453",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 1200,
+      "height": 1800,
+      "bytes": 874743,
+      "sha256": "ed6ba910f6867b631196dd0635ce4c23d412cb5bd217497e4bdd9ba040640121"
+    },
+    {
+      "path": "field-atlas-entry-601.png",
+      "state": "entry",
+      "viewport": {
+        "width": 601,
+        "height": 900
+      },
+      "stepSha256": "be1ed7c24a6ed90ced83e72d2c4470a69d29d7eb63cca538719a285602b3b3c8",
+      "assertionSha256": "88cb15a1e8c087bee4555326fd64051f66190c96629b350f5d587c75191e4992",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 1202,
+      "height": 1800,
+      "bytes": 1424532,
+      "sha256": "2f3b6a385545e4eb09fd869beaba0ecb1468004cced9417bc5e3439db998f3eb"
+    },
+    {
+      "path": "field-atlas-entry-1280.png",
+      "state": "entry",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "stepSha256": "7b97a5c5ae101121e8a8457aaa859057bfff8789545bf98c9f5a51f614edded2",
+      "assertionSha256": "51506e5c87ae9ef283ec21a79292c5eaa5aed5f116808cc31c85aa9b2d954e85",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 2560,
+      "height": 1800,
+      "bytes": 2222196,
+      "sha256": "24ee40ef6cb5638e847dfa275301ed5ad935436c39d0e9e590883c22c1dc21dc"
+    },
+    {
+      "path": "field-atlas-world-320.png",
+      "state": "world",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "cb60d2e401fc8e2bbdbbf206c50bfb8b7c9fa91f12d6291d624cadbd4fe5f64d",
+      "assertionSha256": "2d0e332f53ba02bed67c04c9982f97ed1989601c217d79002453bf52558c0f62",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 678565,
+      "sha256": "8e5f7b0d9212e53c1644d3f4aa34ec623294aa768ef926494ebd3890f4b82330"
+    },
+    {
+      "path": "field-atlas-world-390.png",
+      "state": "world",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "42b12b18b285c45a897aafe00f1886fc76f1cf18a553e88a4de382d2a7a793d5",
+      "assertionSha256": "7869b59ab9c50560629e25fe9436df0ed8ebc307266b5efc63ff1ffe18ce2fe6",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 823219,
+      "sha256": "64a4368331dd603ecc2e4e8ac131da924d99b271c8459c677c7b692b7d0e3feb"
+    },
+    {
+      "path": "field-atlas-world-430.png",
+      "state": "world",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "b68f622942f3277b5a19296c594d9fb9b830f4a4db9261368cf6fc5f193931a8",
+      "assertionSha256": "2e1d5d8474e4893376185dc467ea7ac769f14eed2bd726b750e5361afb58ca04",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 948945,
+      "sha256": "5036dac9f88a6595cea9c88be10dea648e5b8bbfe483c51e709eea848da3d912"
+    },
+    {
+      "path": "field-atlas-world-1280.png",
+      "state": "world",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "stepSha256": "cc42eb70161efad3ac36fa9579caea1fc581ecff53cda800b9e437ae0a24a665",
+      "assertionSha256": "da63f3e9d8e01502708e7ca6ea8a2244208aeb257ac72241fa76f4a1df9e4d48",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 2560,
+      "height": 1800,
+      "bytes": 1906894,
+      "sha256": "5cfbaa63957783d22f10f7b34df25f3930197c01c3dd498ed3218bddbcb827ad"
+    },
+    {
+      "path": "field-atlas-chart-320.png",
+      "state": "chart",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "33f85bd222d8ee1d6a68f4535e8e6f7f560e3e844ca529df428dcbb861396746",
+      "assertionSha256": "03b30cb0ffbd386e5a170cb1fe221ca90e6fbefda898bf113d58b95e7a23a8d3",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 200642,
+      "sha256": "80cbeaca9f7eff6b04e09e55d25b68e27606ff9b5057f8a98166f41419f886b7"
+    },
+    {
+      "path": "field-atlas-chart-390.png",
+      "state": "chart",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "3b19d69e2d52a3b43fd1771e40d08d274b4e472324a2a2a06bd6e889a2d5c63f",
+      "assertionSha256": "2b54683c7bf9d416b173e59a30f33e4c85c0f4dfe560af66828525cc56b018a7",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 215563,
+      "sha256": "06f6dbd7661371fc0248230b397b07c6bfba4788bfde66872c9fb7ae63f41aa1"
+    },
+    {
+      "path": "field-atlas-chart-430.png",
+      "state": "chart",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "69342ee01630e236c3d30b4a3ca76e8e160f6137e2b1499374a714e9c8c19368",
+      "assertionSha256": "09130ad6405f7cd4a2cae8832f42f7d0147ac53e5ff902c2058cbb82e6dc9252",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 235962,
+      "sha256": "7769b3b23374ba61ea01cfd21d05da49b3bf8c607bf3355d4af87c45c059d8b4"
+    },
+    {
+      "path": "field-atlas-chart-1280.png",
+      "state": "chart",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "stepSha256": "d8c23a76872427243e108a327a14bbf6e7332e26cb44f945f8bda5de307c46b0",
+      "assertionSha256": "5f49d35d99d59180d811efe91e146376b32caf56f5421a9d5989dda6be87b286",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 2560,
+      "height": 1800,
+      "bytes": 498956,
+      "sha256": "1ac4c54eb5d174aa3918bf41ca1699e4916ffe157f310c6ffc5493798733e09e"
+    },
+    {
+      "path": "field-atlas-departments-320.png",
+      "state": "departments",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "57fca4da6e3d63399d2b08330d051b19758cd02346211af84c2da18c57c26835",
+      "assertionSha256": "05be1981065f51f79970690bd6ecc2e769cdb267f0ef8d2dc68c49b874484dee",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 315358,
+      "sha256": "821232666fd13fab6cff3934f9eb0bc1d46c8f1d1797bbec0b8e357249f18738"
+    },
+    {
+      "path": "field-atlas-departments-390.png",
+      "state": "departments",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "224f19096b209529bd3673a8412afd5dc8a2b2a666187833776b87ea04e67e61",
+      "assertionSha256": "b79a7bd887ddae7c6dffe7f81cc414d32abcbfda43a88be8ae1d66e455e2855b",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 352592,
+      "sha256": "8beae84654c17b7dd11d1484e8fc1a07bd3b9fae070804d290bfc936abd5bafc"
+    },
+    {
+      "path": "field-atlas-departments-430.png",
+      "state": "departments",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "4bc84fb839c0f7665e9ddfa26fa1492dcbeb172e6d7f2f9122b535df9cd720b3",
+      "assertionSha256": "fb076b9ad4a5d06011f30239ab45152e374e7e1b12bce119e9445372e431cf96",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 405295,
+      "sha256": "ebbcad9322f1b310b512bde1e046558abe3c403e60c24de6a44a471e51e794ff"
+    },
+    {
+      "path": "field-atlas-departments-1280.png",
+      "state": "departments",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "stepSha256": "e247f835693de6ed674103ba7c007a05149f6d9c8458775e25aebfd908f65c12",
+      "assertionSha256": "69e201a20151df2286c46d69505bfa31b5b0086fe120e5613e7c8e7017d8a011",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 2560,
+      "height": 1800,
+      "bytes": 648020,
+      "sha256": "6e28be4906a5399e07cee9dc6c26514d527f21084c54385835afde82f26fde24"
+    },
+    {
+      "path": "field-atlas-courier-320.png",
+      "state": "courier",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "38a0f1076f94c8658f2dcafa0580eede3323697f46769b6f84788a9a6b7e5f0b",
+      "assertionSha256": "c9f8ece2196c4878f459f802d920a13e60c3e7329339b65c340dec9c05d2bbf0",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 300323,
+      "sha256": "45d0a17d9e2cc321dfa422a47f2d36a5810d1686e5774494833c058c17228825"
+    },
+    {
+      "path": "field-atlas-courier-390.png",
+      "state": "courier",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "054d76c0bcdbe7a67e596fdc41291d4302d43f15617804cbef65340971b8c6dc",
+      "assertionSha256": "1bda5306171270dfd03419e92137ea3736f12521d5f243f8da8bfc84d82e649f",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 329329,
+      "sha256": "b63065e125431c5a56b2adf084fb266e02042b1034969601db92698aa798896e"
+    },
+    {
+      "path": "field-atlas-directory-320.png",
+      "state": "directory",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "d3b6107a03523b3bf7cc40352623ca3f9f7db6a1045e4dcc0a1a41a13cc40867",
+      "assertionSha256": "8b180dc4df7830d9390bc31b82b190e083ec0f9a0e138b99274d5cfb93ea6087",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 151640,
+      "sha256": "ef45295cb7088e05b6949136ab9c7421f753599b14783a94310c0303f28a2acd"
+    },
+    {
+      "path": "field-atlas-directory-390.png",
+      "state": "directory",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "3e79751af8591e38eb4c38253cd3ea77059aa12ed2d0efcdf42bae9a7b067adb",
+      "assertionSha256": "3e455a9e198173a17bfcc3e8a572e8f862d1176afb9d104ce1176294750bc90a",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 161728,
+      "sha256": "5f7d5f4be9ee715845e1bac49fffea66b77c3945a5f983443c1e942e5abb479a"
+    },
+    {
+      "path": "field-atlas-gate-held-320.png",
+      "state": "gate-held",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "0d133bdd1c103deeb163f8e8c7bf5a393e6c9e62d419c850babcb965ab542357",
+      "assertionSha256": "3d7ae8cc194dd610ad039e0c31eb408f2b724c215a2b78e815caddfb53217fe3",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 201065,
+      "sha256": "d6b36ac18286e7858e892ed9e3efef808715a394feb0578808e5ec07c76c15cc"
+    },
+    {
+      "path": "field-atlas-gate-held-390.png",
+      "state": "gate-held",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "5f421511c674ac3d6828f093df65331ef8a12eec326dfd1dd037d7409d24c635",
+      "assertionSha256": "5da558c68c576b1c6723245d1d9b4d20321f7768822b33a76a01ec3205cd59df",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 220864,
+      "sha256": "926e6ea7a3a2f7bfc5d4c1cb1404a72d8df016808037d67036b0fa1096c8c9ad"
+    },
+    {
+      "path": "field-atlas-source-folio-320.png",
+      "state": "source-folio",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "6a504da58fafb05178c84631231d9751587c9e68e61e6b1b1528daa6dfeca06c",
+      "assertionSha256": "4918e3606053730055164397aa551067fd1c7eb54a064515243579d558742ef9",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 338618,
+      "sha256": "9f5ea44a3f5b763eeb6e2c34a229bdc867afdf553e9924c43df6a170bead3f85"
+    },
+    {
+      "path": "field-atlas-source-folio-390.png",
+      "state": "source-folio",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "c8b946fcf1af6c30040b543eee90fd3bb3c0ecaf824be6e7198461ce16972f5f",
+      "assertionSha256": "3baba6cdb8337afad5ca7c259e71051263942767473508fbbed3aef1ea13d07f",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {},
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 361072,
+      "sha256": "09b2b1cb48bd73d29085d61fb64533478f6a8abf7e21eb39f503eb54d9067bc6"
+    },
+    {
+      "path": "field-atlas-local-visit-320.png",
+      "state": "local-visit",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "ba04cd30a10c9e5402674c36b0e789c5ba5e56d047b32bad309a2ef828d33c0a",
+      "assertionSha256": "debbcd79d54488f191d455c31dbd75c0254de74891b85d7d2dac28c0fa0e041a",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "localVisitIsSeparate": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 181437,
+      "sha256": "b149937c4349afe5e81fc24ef64a111d8e71ee6198737183d4cdb3906d9970c4"
+    },
+    {
+      "path": "field-atlas-local-visit-390.png",
+      "state": "local-visit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "194ce5816866b0d95d952002c44644a81e8f05c273c907014f0e5d733b27ed7c",
+      "assertionSha256": "140979969e8a8bb34d607c86171062b07e42135b92975099c529a005c7868a26",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "localVisitIsSeparate": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": null,
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 189264,
+      "sha256": "7d91b9a01d3607d78869e49deb3f0d3be4cbbadd1a854556dec1a741f8403a79"
+    },
+    {
+      "path": "field-atlas-local-visit-read-320.png",
+      "state": "local-visit-read",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "ad62919f24fbd7e130f3b8b6e91d2d84790ebdad94a06979a8e346ad0bb4de91",
+      "assertionSha256": "09f0bd5b2f1ac98ccef909b0c892a8d6347fd6c77f4546f50ba67d56a0bb19c2",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "localVisitIsSeparate": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "empty",
+        "observedAt": "2026-11-03T23:40:15.982Z",
+        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
+        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 0,
+        "graphReads": 1,
+        "sessionReads": 1,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 1,
+          "graphGET": 1,
+          "proposalPOST": 0,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 181437,
+      "sha256": "b149937c4349afe5e81fc24ef64a111d8e71ee6198737183d4cdb3906d9970c4"
+    },
+    {
+      "path": "field-atlas-local-visit-read-390.png",
+      "state": "local-visit-read",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "f2b8108dc64165a519b15b45cec8f1aa9762fe66647ce568e98c8f97b141ce67",
+      "assertionSha256": "30b77f17b7f779ead4f540906ddd7b677658e97316e8878dde1258bbeef9a974",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "localVisitIsSeparate": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "empty",
+        "observedAt": "2026-11-03T23:40:15.982Z",
+        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
+        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 0,
+        "graphReads": 1,
+        "sessionReads": 1,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 1,
+          "graphGET": 1,
+          "proposalPOST": 0,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 189264,
+      "sha256": "7d91b9a01d3607d78869e49deb3f0d3be4cbbadd1a854556dec1a741f8403a79"
+    },
+    {
+      "path": "field-atlas-gate-empty-320.png",
+      "state": "gate-empty",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "ba8fd7d950c985170f4abbdc282a7336fd0453c94b159acb501770e5a6453fe0",
+      "assertionSha256": "de12cca36ff60c09686b71a3eaf01149f0ef8be143049b3de309979ced8174d4",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "verifiedEmptyQueue": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "empty",
+        "observedAt": "2026-11-03T23:40:15.982Z",
+        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
+        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 0,
+        "graphReads": 1,
+        "sessionReads": 1,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 1,
+          "graphGET": 1,
+          "proposalPOST": 0,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 186630,
+      "sha256": "11a506ccb0f9d0e5a2551cb20ac5dc7ea53d7621efb3e50c22c21bcb8581f318"
+    },
+    {
+      "path": "field-atlas-gate-empty-390.png",
+      "state": "gate-empty",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "3a13d6f0068924f96c33c0c1a33bc7989599f4db154a29eef7624ff5229cd8d6",
+      "assertionSha256": "f2dfb7d23ad029940bbaec2b495e5f984760812c223c01c0cc41066c71dc2111",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "verifiedEmptyQueue": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "empty",
+        "observedAt": "2026-11-03T23:40:15.982Z",
+        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
+        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 0,
+        "graphReads": 1,
+        "sessionReads": 1,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 1,
+          "graphGET": 1,
+          "proposalPOST": 0,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 0,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 197511,
+      "sha256": "2493bfe5aa9a9cb081ea85d4f2ff3873a43159074445c3281484dc0b5194e011"
+    },
+    {
+      "path": "field-atlas-gate-reviewed-320.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "820d90708320a9098820878d5884cd35d7575613f1fc78104984ada59d26b18b",
+      "assertionSha256": "a0235fa782697d8240a7b5306adae7d1e2341f1c686f6743e87f8a26cbf46722",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true
+        },
+        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 207181,
+      "sha256": "db52930d6decbc98f644a82034113274e00b756384a6eb2a29df8e4fcc37df05"
+    },
+    {
+      "path": "field-atlas-gate-reviewed-390.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "58c97829723be03794ae4536543160711e6958bc24f67c56f3dbfcb79f2f6da9",
+      "assertionSha256": "93605b6dd9a849d3cffaf8cd49c101baf52128644c04eecc657f98219676c282",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true
+        },
+        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 235087,
+      "sha256": "b9dfcde597904048eee89f8a7dcea8b2d0f0dbce48dc5a50585991b128d2b708"
+    },
+    {
+      "path": "field-atlas-gate-reviewed-430.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "a7ee56c2078366c24af20ab42784cec7e156556bfaccc390dc2594040b4c286d",
+      "assertionSha256": "d0696193238e11c69279239431766962ef29f674e4cfb3e7bc4e896c18d720cb",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true
+        },
+        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 269484,
+      "sha256": "e47dd3a50670b1086f75c0be5f659dcaa4e8a4651d3591a67cfd2d5b7c75e855"
+    },
+    {
+      "path": "field-atlas-gate-preflight-320.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "07cd5f935c5df11c923d68b54fa56af66c554466a86443f56957acdf6e3c5311",
+      "assertionSha256": "077ccbe1f6159776aae9a3eb0a68466efdbf6650b6debe9871966a6747540d00",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true,
+          "separateApprovalConfirmation": true,
+          "cancelReachable": true
+        },
+        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 179370,
+      "sha256": "6c954c73b1d793dc978f099e2d3743914626125c83cf43021dd92d00fe2f96ff"
+    },
+    {
+      "path": "field-atlas-gate-preflight-390.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "34cef2f4f698c39a5b0fc691f346202ef343ae048cc13ba5b50203e8842e7fe8",
+      "assertionSha256": "ff471d73b077118c845b53e8ef65c5396eb43d8a5187b7e7d7dc4292b2bf7853",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true,
+          "separateApprovalConfirmation": true,
+          "cancelReachable": true
+        },
+        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 195715,
+      "sha256": "6a7d9b116cf81259a6442861b4f72b68a56c60553e4c151816b6232d06841fe3"
+    },
+    {
+      "path": "field-atlas-gate-preflight-430.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "74930fa485ac29f8b9f7c491472b20be1bd70a6a515ac8a56ba065717730fe8d",
+      "assertionSha256": "f3d18d86300b5aaf2d3679876cfcdd6730c944370ccd24df26ca056e81204be2",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true,
+          "separateApprovalConfirmation": true,
+          "cancelReachable": true
+        },
+        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 214590,
+      "sha256": "39d8df57124408f2ac61fd73a1c4207e0f87ab716285e6203221cc73b93e2430"
+    },
+    {
+      "path": "field-atlas-gate-back-320.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "6b2f1057ca04e29c1d87e65e56dc4a398104af3389350645db99bc64dbe3c210",
+      "assertionSha256": "1b7bcc3a2e5d7bbdea343f8636811763b8e77b0a438a80cacf9c68113bd59db6",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionBackReturnsQueue": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 182638,
+      "sha256": "9a5fb53db2e18a87a8d3131af7c3ad1e38e073f1722d181ab357b9a74ac083dc"
+    },
+    {
+      "path": "field-atlas-gate-back-390.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "28a76eff91ee71e8d07eab9cae5386ae911b445f4b0daef244289ca1855de87d",
+      "assertionSha256": "3806d31000f3e33532a9b71d1f7dc47fb084ab54531ebca91a97601d1317cabc",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionBackReturnsQueue": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 200023,
+      "sha256": "0faae827c9cf7668c40fd4cb8e0bd47ae6e2a1671dec1e6933a7755c93425ee2"
+    },
+    {
+      "path": "field-atlas-gate-back-430.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "0e2572f6d8e167127b5365ad9dca5b5317fea0cffa07cb0fc9fa0f23c86ad25d",
+      "assertionSha256": "c82a7595cbdc07711d0ef39576e87cb3a48c028c600e75785d8103ed09896f17",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionBackReturnsQueue": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 217611,
+      "sha256": "b06ca01700413704195c7efc258ec0c4daf81332cb30572621e6a90aa8890b6a"
+    },
+    {
+      "path": "field-atlas-gate-close-320.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "stepSha256": "67e848f01f749532aea55abce83afe42b4f7cad8cda6b2999a9136272908acc6",
+      "assertionSha256": "b24a1d6f2a3f1882ebaa9c5a162e7b663ccc9b9b119da000a237adeb1c73d488",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionCloseRestoresWorld": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 640,
+      "height": 1688,
+      "bytes": 684280,
+      "sha256": "e0d9d6ae036ec6f89afcc98ae232772f7dc240102826b4aafee775595ce5ac30"
+    },
+    {
+      "path": "field-atlas-gate-close-390.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stepSha256": "48d7cfdfb8e70e9b488832d778bda27a318ea66775874a5d135dbd78765e941c",
+      "assertionSha256": "fc635a973a693a5ad822a5895e07b9a20e252cd912ec72999369d7f84fe538d2",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionCloseRestoresWorld": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 780,
+      "height": 1688,
+      "bytes": 813000,
+      "sha256": "9f63d81321f1ee3b5e90cacf940de99a68df38f44c070e9957fa2c2953654112"
+    },
+    {
+      "path": "field-atlas-gate-close-430.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "stepSha256": "98e0363728206cef456dd9eaa69a6e2f357dfe8149446b945d6512fe1f814a5c",
+      "assertionSha256": "ee6e9885f5cd340991ad91cd69e4ca825705cc65449835e4c98f8bd3b7d719a0",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionCloseRestoresWorld": true
+        },
+        "renderedReviewSha256": null
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-03T23:40:44.799Z",
+        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
+        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1864,
+      "bytes": 932202,
+      "sha256": "0638d517990115514d60828707d52be4e58b7d87984860f78649f97cf4d6808d"
+    }
+  ]
 }

@@ -11,6 +11,17 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+
+### 2026-11-04 Current 3D source proof and Departments header verified; retained qualification held
+
+- Implementation `7c8c810f` follows the admitted viewport/header source change in `078ccfc2` and CLI-cycle repair in `805f76ca`. The header gives status its own row and uses existing accessible icon controls. Independent real-browser checks pass at 320/390/430/600/601/1280px, including 44px controls, keyboard entry and modal focus restoration.
+- Seven queue screenshots were reframed with native wheel input and complete visible-text/viewport assertions after independent image review. The previous run is retained; a negative offscreen case fails before PNG output. Fresh canonical source artifacts contain 44 real PAGE captures, exact source/instruction/assertion/PNG bindings and clean browser diagnostics. The synthetic local founder fixture proves complete review/preflight/cancel/back/close and truthful empty/local-visit states without any decision or renewal write. It is not a fresh authenticated graph or physical-device acceptance.
+- All 47 original images and their manifest remain byte-identical. Four reviewed gallery captures retire; all 43 operational intents remain required. Eleven current equivalents qualify and 32 remain explicitly held. Source drift now passes; strict retained qualification intentionally exits1 and blocks release.
+- Focused proof contracts 16/16, app 95/95, app strict TypeScript, bundle parity and local Worker dry-run pass. The Worker omits retired renderer exports; legacy-named story/tools files remain only for existing shared parsers. Exact final frozen-suite and audit results belong to `artifact:field-atlas-contract-20261104/source-verification-receipt.json`.
+- Separate finite LumenBar 1.2.0 verification and existing-publication measurement scopes share one product intake; Temperance Phase 2 Public Source Convergence has its own current-source proposal. Read `artifact:viewport-gsd-20261104/gsd-scopes/README.md`. Human intent is selected; scope/plan acceptance, task mapping, fresh canonical graph and execution admission remain held.
+- Version 95 remains the selected planning baseline. Deployment and traffic are held. The earlier head 13 graph is expired; no sign-in, graph, provider, native-store, callback, host or CI changes were made. Native-prefill/device/runtime acceptance and future Woodpecker remain separately gated.
+- Pickup: `docs/visual/field-atlas-viewport-proof.md`, the `viewport_proof` field in the matching structured continuation and its final source receipt. Prior checkpoints and original 47-frame history are preserved below.
+
 ### 2026-11-04 Department graph/tooling source verified; owner and viewport gates held
 
 - Reviewed source `db97abf9` follows the graph history and request-local read fixes in `f88722a7`. Existing sapling tooling and native hook discovery are reused. Independent source, capture and packet reviews are clear; callback activation is held.

@@ -3581,9 +3581,17 @@ The owner authorizes the current 3D source proof contract and the Departments
 header repair, preserving every retained assertion from the original 47-frame
 matrix. Version 95 remains the planning baseline. Deployment and traffic are held.
 
-- [ ] FA-VP-01: The current source proof binds the maintained PAGE, helpers, instructions, actual browser observations and PNG bytes; original 47-frame history remains byte-identical.
-- [ ] FA-VP-02: All original identities remain accounted for: four obsolete gallery captures are retired; the other 43 behavior intents remain required. A strict release qualification gate refuses missing or partial current equivalents and cannot accept old PNGs or metadata as current behavioral proof.
-- [ ] FA-VP-03: Actual browser checks at 320/390/430/600/601/1280px prove Departments/status/control separation, reachable controls at least44px, accessible name, keyboard opening and modal focus restoration, with browser diagnostics and local-only evidence explicit.
-- [ ] FA-VP-04: Source regression/build/bundle checks and independent browser/source review pass. Retired 2D code stays absent from the Worker. Source/layout proof does not accept retained operational coverage, physical devices, authenticated owners, GSD plans, callbacks or release.
+- [x] FA-VP-01: The current source proof binds the maintained PAGE, helpers, instructions, actual browser observations and PNG bytes; original 47-frame history remains byte-identical.
+- [x] FA-VP-02: All original identities remain accounted for: four obsolete gallery captures are retired; the other 43 behavior intents remain required. A strict release qualification gate refuses missing or partial current equivalents and cannot accept old PNGs or metadata as current behavioral proof.
+- [x] FA-VP-03: Actual browser checks at 320/390/430/600/601/1280px prove Departments/status/control separation, reachable controls at least44px, accessible name, keyboard opening and modal focus restoration, with browser diagnostics and local-only evidence explicit.
+- [x] FA-VP-04: Source regression/build/bundle checks and independent browser/source review pass. Retired 2D code stays absent from the Worker. Source/layout proof does not accept retained operational coverage, physical devices, authenticated owners, GSD plans, callbacks or release.
 
 Finite source plan: `.planning/viewport-proof-20261104/PLAN.md`.
+
+Source evidence: implementation `7c8c810f`; current 44-frame source manifest
+`docs/plans/assets/field-atlas-viewport-proof/manifest.json`; independent header
+and operational browser receipts plus final verification under
+`artifact:field-atlas-contract-20261104/`. These four checks accept the authorized
+source contract and header repair only. Qualification is 11/43; all 32 missing
+retained behaviors stay required and release-blocking. Physical-device, live-owner,
+native-prefill, GSD and deployment/traffic acceptance remain held.
