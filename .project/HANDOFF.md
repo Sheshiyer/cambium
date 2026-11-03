@@ -11,6 +11,13 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-03 Exact combined version89 upload verified; traffic held
+
+- Owner-approved d6bb6986 was uploaded as version89 / f74b004a-f50a-4976-b0ee-4c34f2c15aee with the exact52-binding config and documented baseline failures. Actual full binding/runtime parity and operational settings/cron/exposure readbacks pass; public preview page200 exact JS/CSS, health200/configured, guest graph401.
+- Drift preflight found native version88 serving; concurrent readback then found version90 at100%. This task made no traffic write, and version89 remains unserved. Reconcile newer native source before any separate traffic approval; ef6e0c74 remains the recorded historical rollback target.
+- Uploaded source remains d6bb6986; this checkpoint changes documentation only. Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation; preserve prior source and timeout evidence.
+
+
 ### 2026-11-03 Combined source retains later native diagnostics
 
 - After the owner chose native preservation, that release stream advanced independently to version83/source d113d8ab, with unchanged52 bindings/runtime and categorical diagnostics only. This task made no traffic write.

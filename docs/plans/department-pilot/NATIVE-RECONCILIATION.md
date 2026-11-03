@@ -1,4 +1,26 @@
-# Department/native compatibility candidate — source only
+# Department/native compatibility candidate — source and upload checkpoints
+
+## 2026-11-03 Exact combined upload verified; traffic held
+
+The owner explicitly approved uploading `d6bb69866e50e88aa4efe8e8717d2a0360ee4979` with the exact 52-binding config and documented baseline failures, after a fresh live drift check. This upload-only instruction supersedes the earlier source-preparation hold for that exact artifact. It grants no traffic assignment.
+
+Fresh reads found native source advancement beyond reviewed version83. The final upload preflight observed version88 / `3f41dd39-bba5-461a-b5e5-d4e36c1c4c29` serving100%. All52 full binding configurations, runtime/global operational settings, cron and exposure still matched the reviewed configuration. Earlier checks stopped before writes; the exact approved immutable review upload proceeded with source drift explicitly recorded as a traffic blocker. No newer native source was silently folded into d6bb6986.
+
+Cloudflare accepted version89 / `f74b004a-f50a-4976-b0ee-4c34f2c15aee`, tag `dept-native-d6bb6986`. Actual version readback confirms all52 complete binding configurations and runtime match preflight exactly; global operational settings, schedules and exposure remain unchanged. The actual local emitted upload artifact is2,582,907 bytes, SHA256 `eee74fb907c0ff1eb2ca59802b7e327d0478b88b3278fe3b624c6085d5ab3f5b`; this local artifact hash is distinct from Cloudflare's script ETag.
+
+Public immutable-version preview verification completed: page200 with the exact approved department JS/CSS, health200 with gateConfigured=true, and unauthenticated graph401. Initial transfer timeouts are preserved; a complete compressed response verified bundle parity. These are public source/denial checks, not authenticated founder graph, native device or production acceptance.
+
+During readback a concurrent owner release advanced production to version90 / `4af442f3-400b-4f86-85fd-2f2532489a7f`,100%, deployment `c819dffd-ea90-44c5-b9de-85e784d1f5d6`. Therefore production did change since upload preflight, independently of this task. This task performed no traffic write; version89 is unserved. Do not restore version88 to manufacture unchanged traffic. Reconcile the newer native source before requesting any separate traffic approval. The owner's historical rollback target `ef6e0c74-697e-4938-9d15-e0e481c80dbe` remains recorded; no rollback was performed.
+
+Accepted upload baseline:559/559 focused Node tests,47/47 Swift identity tests, typecheck and build guards pass; full root suite2690/2693 retains these same three failures:
+
+- `drift audit · current repository has one canonical operational surface`
+- `DOCS-PRIVACY / T-06-22: Phase 6 bytes and inventory stdout expose no sensitive local state`
+- `SAFE-PRIVACY / T-07: Phase 7 bytes and safety:check stdout expose no sensitive local state`
+
+The six standalone audit findings remain the documented baseline. No tests were rerun for this documentation checkpoint. Uploaded source stays d6bb6986; this subsequent checkpoint changes documentation only.
+
+Receipts: `artifact:departmental-live-integration-20261103/upload-d6bb6986-20261103/upload-preflight.json`, `upload-command-receipt.json`, `uploaded-version-verification.json`, `version-preview-retry-readback.json`, and `version-preview-source-readback.json`. Earlier source/unuploaded descriptions below are historical checkpoints.
 
 The requested version80 promotion was held before any traffic write because production had advanced to version82 / `323f4587-7066-4c89-b7db-d21c12493d7a`, source `ab94d63c`. That separately approved release adds shared Inbox endpoints, protected native browser consent and five binding configurations absent from version80. The existing serving deployment is `5097ee7b-0f01-4f37-b87e-94cc99d653db`. The owner's requested `ef6e0c74-697e-4938-9d15-e0e481c80dbe` rollback target is retained as a historical target; it does not contain those newer native capabilities.
 
