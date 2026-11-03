@@ -250,7 +250,7 @@ export async function captureFieldAtlas(){
   writeFileSync(join(directory,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
   return {directory,manifest};
 }
-if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+async function main(){
   if(process.argv.length>3 || process.argv[2] && process.argv[2]!=='--write-canonical')throw new Error('Only --write-canonical is supported');
   const {directory,manifest}=await captureFieldAtlas();
   if(process.argv[2]==='--write-canonical'){
@@ -258,4 +258,10 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
     publishFieldAtlasSourceProof(directory,manifest);
   }
   console.log(JSON.stringify({directory,proofs:manifest.proofs.length,pageSourceSha256:manifest.pageSourceSha256,canonicalAcceptance:false}));
+}
+if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+  // Finish module evaluation before publication imports the contract, which
+  // imports these capture exports. Top-level await here would deadlock that
+  // cycle after the browser run had already completed.
+  main().catch(error=>{console.error(error.message);process.exitCode=1;});
 }

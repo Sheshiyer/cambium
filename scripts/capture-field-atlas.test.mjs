@@ -60,3 +60,16 @@ test('capture output refuses symlink and non-directory roots before creating art
     assert.deepEqual(readdirSync(created),[]);
   } finally {rmSync(root,{recursive:true,force:true});rmSync(outside,{recursive:true,force:true});}
 });
+test('actual CLI publication glue finishes module evaluation before a publisher imports capture exports',()=>{
+  const root=mkdtempSync(join(tmpdir(),'field-atlas-cli-cycle-'));
+  try{
+    const source=readFileSync(new URL('./capture-field-atlas.mjs',import.meta.url),'utf8');
+    const start=source.indexOf('async function main(){');assert.ok(start>=0);
+    // Execute the actual CLI glue with only the slow browser capture stubbed.
+    // The publisher imports back into capture, exactly as the real contract does.
+    writeFileSync(join(root,'capture-field-atlas.mjs'),`import {resolve} from 'node:path';import {fileURLToPath} from 'node:url';export async function captureFieldAtlas(){return {directory:'synthetic',manifest:{proofs:[],pageSourceSha256:'synthetic'}};}\n`+source.slice(start));
+    writeFileSync(join(root,'field-atlas-viewport-contract.mjs'),`import {captureFieldAtlas} from './capture-field-atlas.mjs';import {writeFileSync} from 'node:fs';export function publishFieldAtlasSourceProof(){if(typeof captureFieldAtlas!=='function')throw Error('missing capture export');writeFileSync(new URL('./published.json',import.meta.url),'{}');}`);
+    const result=execFileSync(process.execPath,[join(realpathSync(root),'capture-field-atlas.mjs'),'--write-canonical'],{cwd:root,encoding:'utf8',timeout:5000,killSignal:'SIGKILL'});
+    assert.deepEqual(JSON.parse(readFileSync(join(root,'published.json'),'utf8')),{});assert.match(result,/"proofs":0/);
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
