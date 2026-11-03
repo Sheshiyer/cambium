@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T21:16:02.687709+00:00",
-  "status": "founder-read-recovered-work-form-rollout-pending",
+  "updated": "2026-11-03T21:24:18.914Z",
+  "status": "work-proposal-awaiting-canonical-founder-decision",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -46,8 +46,8 @@
     },
     "bundle": "clean-input ad hoc signed build; verifier passed",
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
-    "real_work_join": "Source and real SQLite approval/projection tests pass; live Work proposal not submitted or approved",
-    "live_operational_loop": "Not run: Work rollout/decision, direction approval/admission and finite Hermes coding capability are pending",
+    "real_work_join": "Live operational Work proposal55efd3d7 prepared and canonical review loaded. Await owner decision; real native Work join still unverified.",
+    "live_operational_loop": "Not run: canonical Work decision, native join/direction test, direction approval/admission and finite Hermes coding capability pending.",
     "installed_hermes_capability": "Live readback: installed release e3387543 supports canary and document drafts only; no source verification or Cambium code command. Docker exists; no rollout performed.",
     "ui_cleanup": {
       "source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
@@ -125,18 +125,25 @@
       "six_actual_iab_proofs": "passed",
       "worker_dry_run": "passed",
       "independent_review": "no actionable findings",
-      "deployed": false
+      "deployed": true,
+      "active_worker_version": "2971a905-f6af-4df4-8b1b-985d0df1af20",
+      "traffic_percent": 100,
+      "preservation": {
+        "bindings": 52,
+        "all_binding_identities_and_values_equal": true,
+        "runtime_settings_equal": true
+      },
+      "rollback_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee"
     }
   },
   "remaining": [
-    "Separately approve and deploy reviewed frontend operational Work import fix c6948057; no migration; rollback e6c399ab",
     "Canonical founder review/decision on pinned Cambium Work intent; prove native join and real shared direction save",
     "Direction approval and admission producer pinned to revision/source/artifact/policy/budget",
     "Finite Docker-isolated Cambium patch verification capability on installed Hermes, without rolling unrelated newer source",
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Full2717 tests pass for c6948057; request scoped form-fix rollout approval. After approved deployment use Zen Thoughtseed Labs to prepare pinned Work intent, recheck head and leave canonical founder decision to the owner. Migration0103 and timeout rollout already completed; do not repeat.",
+  "next_action": "Founder must decide exact proposal55efd3d72733 in the open Zen Thoughtseed Labs Gate. It creates1Cambium Work source, updates0/removes0, grants no execution. After actual approval read canonical head and native Fabric Work, then sign in to the built Mac app and verify real join/direction save. Current Worker2971a905 serves100%; rollbacke6c399ab; migration0103 already applied. Do not repeat intake or deployment.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
@@ -162,5 +169,6 @@
     "executed": false
   },
   "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json",
-  "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json"
+  "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json",
+  "work_proposal_receipt": ".planning/native-mac/CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json"
 }

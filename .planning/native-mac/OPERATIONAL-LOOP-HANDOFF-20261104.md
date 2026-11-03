@@ -7,21 +7,28 @@ Inbox test as an execution-loop test.
 
 ## Current live checkpoint
 
-The separately approved founder-only30second read deadline is deployed as
-`e6c399ab-f2da-479c-9b40-bce6629bdeee` at100%. All52bindings and runtime settings
-match the previous version; rollback is `5f2c5dc7-e57a-47a8-89f3-0f64f6c29841`.
-Zen Thoughtseed Labs now shows scoped source read and **Founder signing ready**.
-Browser security was not changed. Use this profile; do not switch to Chrome.
-Migration0103 was already applied during the initial5f2c rollout; do not repeat.
+The founder approved the reviewed form rollout. Source`c6948057` is live as
+`2971a905-f6af-4df4-8b1b-985d0df1af20` at100%. All52binding identities/values
+and runtime settings match rollback`e6c399ab-f2da-479c-9b40-bce6629bdeee`.
+No migration was applied. Migration0103 is already present; do not repeat it.
+Full2717 tests, Curious tests, six fresh local synthetic IAB proofs, Worker dry
+run and independent review pass. The earlier approved30second read fix remains.
 
-The maintained proposal form had a separate old-schema allowlist. Reviewed fix
-`c6948057` accepts the exact operational Work intent while retaining legacy
-bookkeeping. It rebuilds the maintained world bundle and refreshes six actual
-local synthetic desktop/mobile IAB proofs. Curious tests, proof validation and
-Worker dry run pass; full2717tests pass. A separate pinned rollout packet is
-`FOUNDER-WORK-FORM-ROLLOUT-20261104.json`; owner rollout approval is pending.
-Current production still has the old form parser. No Work is submitted/approved,
-no native Work/direction live proof, and no admission or Hermes execution exists.
+Zen Thoughtseed Labs shows Founder signing ready and the new form copy.
+Fresh canonical head advanced to13/digest`2c14f77a…`, with the same root and
+zero existing Cambium Work sources. The pinned intent was refreshed to that
+observed head and new request`cambium-operational-work-20261104-02`.
+**Proposal55efd3d72733 is prepared and its complete canonical review is loaded.**
+It creates1source for`sapling:cambium`, updates0 and removes0. Proof is required;
+there is no execution loadout or admission. The enabled Approve/Reject controls
+are open in Zen for the founder's actual decision. Do not approve on their behalf
+or resubmit the intent. Exact digest and scope are in
+`CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json`.
+
+Work is not approved yet. Native Work join/direction save, direction admission,
+Hermes rollout/execution and the complete operational loop remain unverified.
+After the founder decides, read canonical D1/Fabric before starting native login.
+Keep this profile; do not switch to Chrome or weaken browser security.
 
 A finite next coding input is prepared locally on branch
 `codex/cambium-code-pilot-input-20261104`, commit`c4cc221f`, base`d571ea92`:

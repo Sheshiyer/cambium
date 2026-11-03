@@ -166,7 +166,7 @@
     "Task7 parent pre-PINS R1 source protocol frozen at e4e7e125b8c677566834393549462a80fce3a1f4c91219b37af70c2a372dfdf2; eight tuples and 15 static consistency checks pass; independent audit pending; all runtime, root, receipt and PINS fields remain inert",
     "Pinned Python 3.9 tempfile source observation found underscore in its random suffix alphabet while policy-helper R3 rejects underscore; root creation remains blocked until a new reviewed/tested helper derivative resolves the grammar and validates the outer receipt envelope",
     "Task8 blank workstation/node owner packet R3 document review PASS after explicit separate configuration rollback steps; no target or physical evidence supplied, ISC-925..940 remain open",
-    "Independent Task7 parent pre-PINS R1 audit returned HOLD at 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f; all eight tuples/lineage match, but exact R4 cannot pass its pinned null internal admission and receipt root grammar accepts impossible 9\u201324 suffixes",
+    "Independent Task7 parent pre-PINS R1 audit returned HOLD at 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f; all eight tuples/lineage match, but exact R4 cannot pass its pinned null internal admission and receipt root grammar accepts impossible 9–24 suffixes",
     "Task7 materializer derivative R5 source packet created and statically frozen fae7dece01a6914425b00191ed66d92089b4ae80f705a78f56d01b1a2ba9b003; exact root-only internal admission is pinned, downstream switches false, 14 static checks pass, independent source audit pending",
     "Independent materializer R5 audit returned HOLD; exact report ac17828acb0aba0a96d263305a01b98a309dacf5e533798f24cc580aa3ff6244 confirms all 29 frozen tuples and gate pins, but top-level base runner/launcher hashes conflict with its named R4 parent",
     "Materializer R6 provenance-corrected source derivative frozen at 426ea567703892097b99cb07b1394cd037bcaa1be3ba75eac20b2909cd1cce7b; 32 member tuples, JSON, R5 parent freeze/audit bytes, immediate-parent pins and exact R6 terminal argv locally verified; candidate not run, independent audit pending",
@@ -195,7 +195,7 @@
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
     "Cambium,Temperance and connected organs form one ecosystem with distinct existing owners; vault bodies remain referenced knowledge",
-    "FullTasks1\u20138 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
+    "FullTasks1–8 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
     "Preserve Cambium savedOpenAI goal,Phase9 authenticatedinventory gate,GSDstate and all unrelatedWIP",
     "Distribution owns implementation in isolated worktrees; primary sourceWIP and hostruntime remain untouched",
     "Reuse existing OpenTUI/controller/lifecycle journal/preimage/receipts/catalog; no secondexecutor/journal/approvalledger/secretstore",
@@ -432,7 +432,7 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "founder-read-recovered-work-form-rollout-pending",
+      "status": "work-proposal-awaiting-canonical-founder-decision",
       "tier": "E5",
       "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
@@ -451,12 +451,13 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Full2717 tests pass for c6948057; request scoped form-fix rollout approval. After approved deployment use Zen Thoughtseed Labs to prepare pinned Work intent, recheck head and leave canonical founder decision to the owner. Migration0103 and timeout rollout already completed; do not repeat.",
+      "next_action": "Founder must decide exact proposal55efd3d72733 in the open Zen Thoughtseed Labs Gate. It creates1Cambium Work source, updates0/removes0, grants no execution. After actual approval read canonical head and native Fabric Work, then sign in to the built Mac app and verify real join/direction save. Current Worker2971a905 serves100%; rollbacke6c399ab; migration0103 already applied. Do not repeat intake or deployment.",
       "ui_diagnostics": "Settings > Advanced > Diagnostics",
       "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
       "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
       "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json",
-      "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json"
+      "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json",
+      "work_proposal_receipt": ".planning/native-mac/CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json"
     }
   }
 }

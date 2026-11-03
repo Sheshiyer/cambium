@@ -2,8 +2,8 @@
   "schema": "cambium.founder.operational-work-intent.v1",
   "version": 1,
   "tenantId": "cambium",
-  "clientRequestId": "cambium-operational-work-20261104-01",
-  "expectedHeadDigest": "68d3c34c2dd54ee2351e063bc0dd54bb468d8164550bd3af2c8cc10502d3e32f",
+  "clientRequestId": "cambium-operational-work-20261104-02",
+  "expectedHeadDigest": "2c14f77ac4d9a90d735d27eaf6b6ca766be02b00433cf49ae595088ce64ff99b",
   "goals": [
     {
       "namespace": "founder-operational-work",

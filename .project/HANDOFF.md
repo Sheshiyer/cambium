@@ -11,6 +11,17 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 Work proposal prepared; actual founder decision pending
+
+Approved form sourcec6948057 deployed as2971a905 at100%;52bindings/runtime
+preserved; rollbacke6c399ab; no migration. Full2717tests pass. In Zen Labs,
+proposal55efd3d72733 has complete canonical review and enabled Approve/Reject.
+It creates1Cambium Work source, updates0/removes0 and grants no execution.
+Await the actual founder decision; do not approve on their behalf or resubmit.
+Then prove native Work join/direction save. Hermes execution remains open.
+Use the native_operational_loop continuation and exact proposal receipt.
+
+
 ## 2026-11-04 founder read recovered; Work form fix reviewed
 
 Approved timeout source62836c61 is live as e6c399ab at100%;52bindings/runtime
