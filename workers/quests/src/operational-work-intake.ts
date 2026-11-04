@@ -12,7 +12,7 @@ const rejected = (message: string): TelegramGoalGraphRejected => ({ accepted: fa
 const digest = /^[a-f0-9]{64}$/;
 export const OPERATIONAL_WORKS = Object.freeze({
   'sapling:cambium': { externalId: 'cambium-work', name: 'Cambium', promotionState: 'supervised-branch' },
-  'sapling:iverif': { externalId: 'iverif-work', name: 'IVerif', promotionState: 'proof-only' },
+  'sapling:iverif': { externalId: 'iverif-work', name: 'IVerif', promotionState: 'proof-only', branchPacket: 'iverif' },
 } as const);
 export function operationalWorkIdentity(id: unknown) {
   return typeof id === 'string' && Object.hasOwn(OPERATIONAL_WORKS, id)
@@ -83,6 +83,23 @@ export function isOperationalWorkSource(node: GoalGraphNode): boolean {
     && node.metadata.operationalWorkSchema === OPERATIONAL_WORK_SCHEMA && node.metadata.workName === identity.name
     && /^founder-operational-work:cambium:[a-f0-9]{64}:[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(node.sourceRef)
     && /^sha256:[a-f0-9]{64}$/.test(node.sourceDigest);
+}
+
+/** The declared packet is narrative provenance for this D1 Work, never a second authority. */
+export function isOperationalWorkBranchReference(node: GoalGraphNode, row: unknown): boolean {
+  const identity = operationalWorkIdentity(node.workObjectId);
+  if (!isOperationalWorkSource(node) || node.status === 'retired' || !identity || !('branchPacket' in identity)
+      || !row || typeof row !== 'object' || Array.isArray(row)) return false;
+  const branch = row as Record<string, unknown>;
+  const source = branch.source as Record<string, unknown> | null;
+  const promotion = branch.promotion as Record<string, unknown> | null;
+  return branch.branchId === identity.branchPacket && branch.productId === identity.branchPacket
+    && branch.branchKind === 'product' && branch.canonicalWorkId === node.workObjectId
+    && (branch.tenantId === undefined || branch.tenantId === node.tenantId)
+    && source?.tenant === node.tenantId && source?.schema === 'cambium.product_branch_packet.v1'
+    && source?.indexFile === 'docs/plans/product-branches/index.md'
+    && source?.packetFile === `docs/plans/product-branches/${identity.branchPacket}.md`
+    && promotion?.state === identity.promotionState;
 }
 
 export function adaptOperationalWorkSources(nodes: readonly GoalGraphNode[]): FabricNode[] {

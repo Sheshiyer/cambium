@@ -16,7 +16,7 @@ import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
 import { sharedSignalsHttp, type SignalStore } from './shared-signals.ts';
 import { sharedDirectionsHttp } from './shared-directions-http.ts';
 import type { DirectionStore } from './shared-directions.ts';
-import { OPERATIONAL_WORK_SCHEMA, parseOperationalWorkBoundary, parseOperationalWorkIntent, adaptOperationalWorkSources, operationalWorkIdentity } from './operational-work-intake.ts';
+import { OPERATIONAL_WORK_SCHEMA, parseOperationalWorkBoundary, parseOperationalWorkIntent, adaptOperationalWorkSources, isOperationalWorkSource, isOperationalWorkBranchReference, operationalWorkIdentity } from './operational-work-intake.ts';
 import { directionExecutionHttp, isDirectionExecutionRoute, type CambiumPilotHost } from './direction-execution-http.ts';
 import { DIRECTION_EXECUTION_INTENT, directionExecutionIdentity, directionExecutionTaskReview, type DirectionExecutionRequest, type buildDirectionExecutionProposal } from './direction-execution-review.ts';
 import {
@@ -3429,8 +3429,10 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     const servedAt = deps.now ? deps.now() : new Date().toISOString();
     if (fabricTimestampMs(servedAt) === null) return json(503, { error: 'mission_fabric_clock_invalid' });
 
+    const branchStories = isRecord(storedEnvelope) ? storedEnvelope.branchStories : null;
+    const branchRows = isRecord(branchStories) && Array.isArray(branchStories.rows) ? branchStories.rows : branchStories;
     const entries: Array<FabricNode | FabricGap> = [];
-    for (const entry of [...adaptBranchStories(isRecord(storedEnvelope) ? storedEnvelope.branchStories : null), ...adaptCompanyPrograms(isRecord(storedEnvelope) ? storedEnvelope.companyPrograms : null)]) {
+    for (const entry of [...adaptBranchStories(branchRows), ...adaptCompanyPrograms(isRecord(storedEnvelope) ? storedEnvelope.companyPrograms : null)]) {
       if (entry.kind === 'gap') {
         entries.push({ gapId: entry.gapId, kind: entry.gapKind, subjectId: entry.subjectId, detail: entry.detail, evidenceRef: entry.evidenceRef });
       } else {
@@ -3446,6 +3448,21 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
           || makeGoalGraphHead(tenant, nodes, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) {
         return json(503, { error: 'goal_graph_read_unconfirmed' });
       }
+    }
+    const operationalSources = nodes.filter(node => node.tenantId === tenant && isOperationalWorkSource(node));
+    for (const source of operationalSources) {
+      const overlaps = entries.filter(entry => 'value' in entry && entry.kind === 'work' && entry.value.workId === source.workObjectId);
+      if (!overlaps.length) continue;
+      const packetRows = (Array.isArray(branchRows) ? branchRows : [branchRows])
+        .filter(row => isRecord(row) && row.canonicalWorkId === source.workObjectId);
+      if (!isRecord(branchStories) || branchStories.source !== 'product-branch-packets@v1'
+          || overlaps.length !== 1 || packetRows.length !== 1
+          || operationalSources.filter(node => node.workObjectId === source.workObjectId).length !== 1
+          || !isOperationalWorkBranchReference(source, packetRows[0])) {
+        return json(503, { error: 'operational_work_source_conflict' });
+      }
+      // Keep D1 authority intact; the original packet remains available in the ledger.
+      entries.splice(entries.indexOf(overlaps[0]), 1);
     }
     if (operationalWorks.some(work => { if (work.kind !== 'work') return false; const workId = work.value.workId; return entries.some(entry => 'value' in entry && entry.kind === 'work' && entry.value.workId === workId); })) {
       return json(503, { error: 'operational_work_source_conflict' });
@@ -3713,7 +3730,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
 
     const shadowRequested = queryParam(req.path, 'shadow') === '1';
     if (shadowRequested && allowlist.includes(tenant)) {
-      const branchFactIds = fabricBranchFactIds(isRecord(storedEnvelope) ? storedEnvelope.branchStories : null);
+      const branchFactIds = fabricBranchFactIds(branchRows);
       const represented = new Set(
         redacted.nodes
           .filter((node): node is Extract<FabricNode, { kind: 'work' }> => node.kind === 'work')

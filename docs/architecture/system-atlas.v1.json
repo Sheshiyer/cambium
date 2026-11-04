@@ -906,7 +906,7 @@
     },
     {
       "path": "workers/quests/src/handler.ts",
-      "sha256": "sha256:7848ba4a27557e6290861725ad64f6571cbd0519d92b768c458b675f015d85c1"
+      "sha256": "sha256:a66e266b496b69bb8ded3f922a183bdd58d153fdccb5e7e820222cc753a95eba"
     },
     {
       "path": "workers/quests/src/lib/access-jwt.ts",
