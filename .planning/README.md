@@ -39,3 +39,13 @@ temperance-next-wave --cwd .
 temperance-project-init --cwd . --check
 quine quests --tenant cambium   # evidence-derived quest ledger (no fake tracker)
 ```
+
+## Bounded viewport proposal — not an active phase
+
+[Remaining viewport behaviors](viewport-proof-20261104/remaining-behaviors/README.md)
+is the 2026-11-04 user-requested ISA/GSD proposal for 32 remaining gaps, preserving
+all 43 retained intents. Its 10 sequential packages and 28 tasks remain unadmitted;
+version 95 is the planning baseline and deployment/traffic stay held. The root
+STATE/ROADMAP Phase 9 inventory and its requirements are unchanged. Read the
+proposal content digest and separate technical review before considering any
+future source admission. This navigation entry grants no execution authority.

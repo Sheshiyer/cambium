@@ -1,0 +1,2557 @@
+{
+  "schema": "cambium.viewport-gap-plan.v1",
+  "status": "proposed-for-human-review",
+  "requestDate": "2026-11-04",
+  "sourceBaseline": "e6b28642eb79d6668c336b59cf745c5ab9581749",
+  "capturedImplementation": "7c8c810f47b49fa4c6dd17d341ee4c48e68a9655",
+  "planningBaseline": 95,
+  "deploymentApproved": false,
+  "trafficApproved": false,
+  "executionAuthorized": false,
+  "acceptedPlanDigest": null,
+  "isaAcceptanceRef": null,
+  "canonicalMapping": null,
+  "admittedTasks": [],
+  "scope": {
+    "retained": 43,
+    "baselineQualified": 11,
+    "remainingGaps": 32,
+    "retiredGallery": 4,
+    "originalHistory": 47,
+    "plannedPackages": 10,
+    "targetSourceCaptureCases": 80,
+    "protectedExistingSourceCaptureCases": 44,
+    "supplementalOriginalHeightCases": 4,
+    "newGapCases": 32,
+    "finalTargetQualified": 43,
+    "finalTargetHeld": 0
+  },
+  "serialization": "All packages sequential: shared app/bridge/capture/contract files must not be edited concurrently.",
+  "effectBoundary": "Source and loopback synthetic proof proposal only. No deployment, traffic, real signature, graph/provider/native-store writes, host changes, new scheduler or CI changes.",
+  "packages": [
+    {
+      "id": "VPG-01",
+      "title": "Freeze owner contracts and preserve proof coverage",
+      "wave": 1,
+      "dependsOn": [],
+      "gapOrdinals": [],
+      "requirements": [
+        "FA-VPG-G01"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 11,
+      "targetCaptureCases": 48,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-01-PLAN.md"
+    },
+    {
+      "id": "VPG-02",
+      "title": "Mission overview, proof navigation and branch interaction",
+      "wave": 2,
+      "dependsOn": [
+        "VPG-01"
+      ],
+      "gapOrdinals": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        11,
+        12
+      ],
+      "requirements": [
+        "FA-VPG-01",
+        "FA-VPG-02",
+        "FA-VPG-03",
+        "FA-VPG-04",
+        "FA-VPG-05",
+        "FA-VPG-11",
+        "FA-VPG-12"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 18,
+      "targetCaptureCases": 55,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-02-PLAN.md"
+    },
+    {
+      "id": "VPG-03",
+      "title": "Story signals and tool handoff review",
+      "wave": 3,
+      "dependsOn": [
+        "VPG-02"
+      ],
+      "gapOrdinals": [
+        13,
+        14,
+        15
+      ],
+      "requirements": [
+        "FA-VPG-13",
+        "FA-VPG-14",
+        "FA-VPG-15"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 21,
+      "targetCaptureCases": 58,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-03-PLAN.md"
+    },
+    {
+      "id": "VPG-04",
+      "title": "Proof, system, tapestry, policy and readiness inspection",
+      "wave": 4,
+      "dependsOn": [
+        "VPG-03"
+      ],
+      "gapOrdinals": [
+        16,
+        17,
+        18,
+        20,
+        21,
+        22
+      ],
+      "requirements": [
+        "FA-VPG-16",
+        "FA-VPG-17",
+        "FA-VPG-18",
+        "FA-VPG-20",
+        "FA-VPG-21",
+        "FA-VPG-22"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 27,
+      "targetCaptureCases": 64,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-04-PLAN.md"
+    },
+    {
+      "id": "VPG-05",
+      "title": "Skill promotion and actor relationship inspection",
+      "wave": 5,
+      "dependsOn": [
+        "VPG-04"
+      ],
+      "gapOrdinals": [
+        23,
+        24,
+        25,
+        26
+      ],
+      "requirements": [
+        "FA-VPG-23",
+        "FA-VPG-24",
+        "FA-VPG-25",
+        "FA-VPG-26"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 31,
+      "targetCaptureCases": 68,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-05-PLAN.md"
+    },
+    {
+      "id": "VPG-06",
+      "title": "ActionRequest identity across Gate, Story and Inspect",
+      "wave": 6,
+      "dependsOn": [
+        "VPG-05"
+      ],
+      "gapOrdinals": [
+        29,
+        33,
+        34
+      ],
+      "requirements": [
+        "FA-VPG-29",
+        "FA-VPG-33",
+        "FA-VPG-34"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 34,
+      "targetCaptureCases": 71,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-06-PLAN.md"
+    },
+    {
+      "id": "VPG-07",
+      "title": "ActionRequest signed preflight, sent, queued and proof journeys",
+      "wave": 7,
+      "dependsOn": [
+        "VPG-06"
+      ],
+      "gapOrdinals": [
+        30,
+        31,
+        32,
+        35,
+        36
+      ],
+      "requirements": [
+        "FA-VPG-30",
+        "FA-VPG-31",
+        "FA-VPG-32",
+        "FA-VPG-35",
+        "FA-VPG-36"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 39,
+      "targetCaptureCases": 76,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-07-PLAN.md"
+    },
+    {
+      "id": "VPG-08",
+      "title": "Explicit reroll candidate preflight",
+      "wave": 8,
+      "dependsOn": [
+        "VPG-07"
+      ],
+      "gapOrdinals": [
+        38
+      ],
+      "requirements": [
+        "FA-VPG-38"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 40,
+      "targetCaptureCases": 77,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-08-PLAN.md"
+    },
+    {
+      "id": "VPG-09",
+      "title": "Authoritative portfolio and organ-plan overview",
+      "wave": 9,
+      "dependsOn": [
+        "VPG-08"
+      ],
+      "gapOrdinals": [
+        39,
+        42,
+        45
+      ],
+      "requirements": [
+        "FA-VPG-39",
+        "FA-VPG-42",
+        "FA-VPG-45"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 43,
+      "targetCaptureCases": 80,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-09-PLAN.md"
+    },
+    {
+      "id": "VPG-10",
+      "title": "Qualify all 43 retained intents and close source evidence",
+      "wave": 10,
+      "dependsOn": [
+        "VPG-09"
+      ],
+      "gapOrdinals": [],
+      "requirements": [
+        "FA-VPG-10",
+        "FA-VPG-19",
+        "FA-VPG-27",
+        "FA-VPG-28",
+        "FA-VPG-37",
+        "FA-VPG-40",
+        "FA-VPG-41",
+        "FA-VPG-43",
+        "FA-VPG-44",
+        "FA-VPG-46",
+        "FA-VPG-47",
+        "FA-VPG-G02"
+      ],
+      "targetQualifiedAfterSuccessfulVerification": 43,
+      "targetCaptureCases": 80,
+      "status": "proposed-not-admitted",
+      "executionAuthorized": false,
+      "planFile": "plans/VPG-10-PLAN.md"
+    }
+  ],
+  "retained": [
+    {
+      "legacyOrdinal": 1,
+      "isaRequirement": "FA-VPG-01",
+      "legacyPath": "mission-control-320-mobile.png",
+      "behaviorIntent": "Responsive readable operational overview with exact source/authority identity",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current world has responsive root containment but no mission card, branch rail, proof-row list, task timeline or isolated horizontal branch-scroll equivalent.",
+      "ownerPlan": "VPG-02",
+      "originalViewport": {
+        "width": 320,
+        "height": 844
+      },
+      "originalStepSha256": "b209d926a07a32b45fc031fc8ccab0dba3b2957645af255a768e6d48624d54a5",
+      "originalPngSha256": "0f6ebe62980ce881eb193ee12714390c860fe39df0fa47d003c149071db82bea",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-01-320x844.png",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "state": "retained-gap-1",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 2,
+      "isaRequirement": "FA-VPG-02",
+      "legacyPath": "mission-control-mobile.png",
+      "behaviorIntent": "Responsive readable operational overview with exact source/authority identity",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current world lacks the original exact mission/branch/proof/task content and mission overview controls; world-root layout alone is partial.",
+      "ownerPlan": "VPG-02",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "5161a7e55c3e28ead1b0f4e6faf9e22262fde18ffdebba99e75caf01d4904cc5",
+      "originalPngSha256": "da51b390856090a55125728c54835e70835b668ae629023bc71a35da16bf54fc",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-02-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-2",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 3,
+      "isaRequirement": "FA-VPG-03",
+      "legacyPath": "mission-control-430-mobile.png",
+      "behaviorIntent": "Responsive readable operational overview with exact source/authority identity",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current430pxworld lacks original mission/branch/proof/timeline and branch-scroll isolation equivalents.",
+      "ownerPlan": "VPG-02",
+      "originalViewport": {
+        "width": 430,
+        "height": 844
+      },
+      "originalStepSha256": "c37f41f4567889dbaa7b2ccca369605c4c9379f07bdd2c6c775934af1d88ee82",
+      "originalPngSha256": "1a6d843402bf726e960cdd6acc3b239ed36f13ea667b549a4a4d4399ff176cd8",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-03-430x844.png",
+        "viewport": {
+          "width": 430,
+          "height": 844
+        },
+        "state": "retained-gap-3",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 4,
+      "isaRequirement": "FA-VPG-04",
+      "legacyPath": "mission-actions-mobile.png",
+      "behaviorIntent": "Mission state, proof list and Gate action affordances",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current mission dossier does not provide the complete original mission state stack, proof list and action-row combination.",
+      "ownerPlan": "VPG-02",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "0c5c67151f8b100fdd53c4f6b4662bbcc29c9037766fc3abcd73e31e3827c29f",
+      "originalPngSha256": "98a1f3dd74a4676557c23f75048fb86c004db544b961784e53367d49d09b7b49",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {
+          "scrollSelector": "[data-component=\"GateActionRow\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-04-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-4",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 5,
+      "isaRequirement": "FA-VPG-05",
+      "legacyPath": "mission-utilities-mobile.png",
+      "behaviorIntent": "Mission tool/loop/KPI affordances and containment",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D has no mission tool/loop-control/KPI pulse combination with its original operating semantics.",
+      "ownerPlan": "VPG-02",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "6873d4a31656c0fb6c27a6812607313253d00b710ca489ec1c783a2291d263f5",
+      "originalPngSha256": "98a1f3dd74a4676557c23f75048fb86c004db544b961784e53367d49d09b7b49",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {
+          "scrollSelector": "[data-component=\"MissionToolLink\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-05-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-5",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 10,
+      "isaRequirement": "FA-VPG-10",
+      "legacyPath": "sheet-mission-review-gate-mobile.png",
+      "behaviorIntent": "Exact branch Gate review and reachable contained sheet",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "branch-gate-review-fitcheck-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-reviewed-390.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "a607fde3fcdc4eb95cf8a4203c364c90f1f42572b058f6a99cec186ea2ab037e",
+      "originalPngSha256": "7b0a93e9b595e556b66432b3283d22324c004f9c0ee6958af103764823775a77",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-mission-action=\"gate\"]",
+          "scrollSelector": "[data-mission-action=\"gate\"]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 11,
+      "isaRequirement": "FA-VPG-11",
+      "legacyPath": "sheet-mission-open-proof-mobile.png",
+      "behaviorIntent": "Exact branch proof and proof-required contained sheet",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current source folios do not expose a branch-specific required-proof view or its exact proof receipt/evidence navigation.",
+      "ownerPlan": "VPG-02",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "aa5fc5d71758e2897809d479958d0b869db469f52d1fd03b681202d84a4ddd55",
+      "originalPngSha256": "d8d144ff2e6d2ff9a4054ffd8965d1020a2a8fc57e1f6815a7ce1f5a853efa2b",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-mission-action=\"proof\"]",
+          "scrollSelector": "[data-mission-action=\"proof\"]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-11-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-11",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 12,
+      "isaRequirement": "FA-VPG-12",
+      "legacyPath": "mission-vantyx-selected-mobile.png",
+      "behaviorIntent": "Exact branch selection, keyboard focus and horizontal drag isolation",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D has no Vantyx mission branch rail with selected state, keyboard focus and trusted horizontal drag isolation.",
+      "ownerPlan": "VPG-02",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "4701a88169792eb6beb7638ac552f87b608f09a62d25f422c845945f93bdc7f3",
+      "originalPngSha256": "6307e853747ee303eb18ce4c9e8f5d6ad29e8122f3c6d746d00e2cb166605a38",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "mission",
+        "fixture": "branch-stories",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-mission-branch=\"1\"]",
+          "touchDragTargetSelector": ".mc-branch-rail"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-12-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-12",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 13,
+      "isaRequirement": "FA-VPG-13",
+      "legacyPath": "story-feed-mobile.png",
+      "behaviorIntent": "Story signals, packet rail and visible source distinctions",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D has no equivalent story signal digest/beat/packet feed.",
+      "ownerPlan": "VPG-03",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "3ac36bcac41e3bf0c2220ffb3a2e29cb7aac83c5d928f05cbfed47cd83ad9f1a",
+      "originalPngSha256": "bb325f7f560d8ebc0ddb0a29efc0a6e615b4a2f8fe708f3126da38928f045c0f",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "story",
+        "fixture": "fresh",
+        "selectorInputs": {
+          "scrollSelector": "#beats"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-13-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-13",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 14,
+      "isaRequirement": "FA-VPG-14",
+      "legacyPath": "tools-mobile.png",
+      "behaviorIntent": "Tool handoff and organization-status affordances",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current source directory is not the original handoff tool and live organization-status interface.",
+      "ownerPlan": "VPG-03",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "40ee0069ffa8c36656016ae9cf045d5c2b3da9cf5c6a983a61f590b2ead2ba64",
+      "originalPngSha256": "7f3c4c6bca69f81030a87e9550fa7c5f2e9ef917f91e1ed7e0fce8a9c2d4116f",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "tools",
+        "fixture": "fresh",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-14-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-14",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 15,
+      "isaRequirement": "FA-VPG-15",
+      "legacyPath": "sheet-tools-handoff-action-mobile.png",
+      "behaviorIntent": "Handoff action review before signed approval",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current goal proposal approval does not implement the original signed Handoff action review owner.",
+      "ownerPlan": "VPG-03",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "5b43c6cec1cade1c834cd626ceb36fb78e982525582bf41c0f69aa0c3104da6f",
+      "originalPngSha256": "dfe73e63443e2c0e2f2fc10cddfadf04c84e6106049a3bd735c0a1a330342321",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "tools",
+        "fixture": "fresh",
+        "selectorInputs": {
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-15-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-15",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 16,
+      "isaRequirement": "FA-VPG-16",
+      "legacyPath": "inspect-proof-320-mobile.png",
+      "behaviorIntent": "Proof detail and exact 320px containment, viewport and reachable single actions",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current320pxsource folio lacks the original unique proof-summary/detail and frontier map affordances; containment alone is partial.",
+      "ownerPlan": "VPG-04",
+      "originalViewport": {
+        "width": 320,
+        "height": 844
+      },
+      "originalStepSha256": "eeb579f1d86861ea4d3ba6513b6a2840b3a5b27f7c5d9ee310693ddb0c35d896",
+      "originalPngSha256": "7b623f97be3c0afc10d3fbdbaf5d7f02fcddac12dc4918234010ca0c6beee4be",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": null,
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-16-320x844.png",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "state": "retained-gap-16",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 17,
+      "isaRequirement": "FA-VPG-17",
+      "legacyPath": "inspect-system-overview-mobile.png",
+      "behaviorIntent": "System-pane selection, focus, source labels and containment",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current directory/folio navigation does not implement the original selected system pane, proof summary and full focus/viewport assertions.",
+      "ownerPlan": "VPG-04",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "2ca19d07509f052a2e6a69b0f856f670b0c282f49889a431a8b3441e1ad4d9d9",
+      "originalPngSha256": "00d8d07a32aff8a3e45d65dc3fe438565fbac6c7c89716c36255be6c45433cb3",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": null,
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-17-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-17",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 18,
+      "isaRequirement": "FA-VPG-18",
+      "legacyPath": "inspect-tapestry-audit-mobile.png",
+      "behaviorIntent": "Runtime tools/tapestry audit affordances and 14 click targets",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current source folios do not expose the original runtime tapestry audit with its fourteen operation targets.",
+      "ownerPlan": "VPG-04",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "a844dc145bd93db34a963d74d487e503da901cb38e3f266f4e2be13460022293",
+      "originalPngSha256": "36bdabdcb086ce871aa64acfbec6d5405cf594bdd0e1f616b43c6a974e36f31d",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": null,
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-18-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-18",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 19,
+      "isaRequirement": "FA-VPG-19",
+      "legacyPath": "inspect-no-fake-progress-mobile.png",
+      "behaviorIntent": "No inferred runtime completion/progress in source inspection",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "local-visits-not-work-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-local-visit-320.png",
+        "field-atlas-local-visit-390.png",
+        "field-atlas-local-visit-read-320.png",
+        "field-atlas-local-visit-read-390.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "fb3461d0bcca293f8fbdcd6cd8a4a97ba7a101379cc3110817d5a116a8a86d1d",
+      "originalPngSha256": "817cfe2f4d5d729ea4150551f72b7ded7e37b9de019c84b0f05b76a87d129c6b",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": null,
+        "selectorInputs": {
+          "scrollSelector": "[data-wake=\"0\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 20,
+      "isaRequirement": "FA-VPG-20",
+      "legacyPath": "inspect-policy-gap-mobile.png",
+      "behaviorIntent": "Visible policy gaps and blocked status",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current generic held-read state does not supply the original specific policy-gap inspection and evidence.",
+      "ownerPlan": "VPG-04",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "02d0d7b211f4e3e7b65514fc94bf5109d6b0b6d118fc25a2014fcc8728234afb",
+      "originalPngSha256": "d3b4deda65d1670c6b62fc8264a15f9a7c3b3588d0a3d170c9c5e607448bd591",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": null,
+        "selectorInputs": {
+          "scrollSelector": "[data-policy]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-20-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-20",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 21,
+      "isaRequirement": "FA-VPG-21",
+      "legacyPath": "inspect-live-proof-mobile.png",
+      "behaviorIntent": "Live-proof readiness distinct from source/fixture evidence",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current source/held labels do not implement the original live-proof-readiness inspection.",
+      "ownerPlan": "VPG-04",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "61cff372096d7ad926cab4b87ceca834cf272615086401dc5a91dd44d9cb915d",
+      "originalPngSha256": "364863f78f92d21c3bfaa292f59395d5ce58e8d58080c495c38bf5557ce70797",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": null,
+        "selectorInputs": {
+          "scrollSelector": "[data-live-proof=\"0\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-21-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-21",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 22,
+      "isaRequirement": "FA-VPG-22",
+      "legacyPath": "inspect-gate-priority-mobile.png",
+      "behaviorIntent": "Visible Gate priority and unresolved policy state",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current Gate queue does not expose the original inspected priority/policy evidence contract.",
+      "ownerPlan": "VPG-04",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "4cc9e3958c538cd2c89cf60b460b68b1a88a141269c1fd50ead51e9a63026a71",
+      "originalPngSha256": "1c0079c7ff1f31fd9a86d98abd530bb8d605cff3c36aec0b0ca1819163bba116",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": "gate",
+        "selectorInputs": {
+          "scrollSelector": "[data-policy]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-22-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-22",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 23,
+      "isaRequirement": "FA-VPG-23",
+      "legacyPath": "inspect-skill-promotion-mobile.png",
+      "behaviorIntent": "Skill candidate promotion review state",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current source directory does not implement the original skill-candidate promotion state.",
+      "ownerPlan": "VPG-05",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "09433e4337f9ffb0c8dd6db3a51cb7404544297cc1e862cda8ce131b9a70e015",
+      "originalPngSha256": "a9c027b9ae4bf03f3ca565f68b3303e0a6e4a405fa7a8289a1dab6249119d62f",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": "skill",
+        "selectorInputs": {
+          "scrollSelector": "[data-skill=\"0\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-23-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-23",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 24,
+      "isaRequirement": "FA-VPG-24",
+      "legacyPath": "sheet-inspect-skill-promotion-mobile.png",
+      "behaviorIntent": "Reachable explicit skill promotion review; no implicit activation",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D has no explicit skill-promotion review/approval affordance.",
+      "ownerPlan": "VPG-05",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "bf4f6046fbb80df7ba9f5369f9209c2c1c843c1cb14deb510b4fe7a32d3d2678",
+      "originalPngSha256": "197144413f896ccb7c17a4e0c39472217fd92fd11ae416d134c5a03c468c51af",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": "skill",
+        "selectorInputs": {
+          "scrollSelector": "[data-skill=\"0\"]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-24-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-24",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 25,
+      "isaRequirement": "FA-VPG-25",
+      "legacyPath": "inspect-mira-relationship-mobile.png",
+      "behaviorIntent": "Actor/companion relationship and stage review",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Cosmetic Courier selection is not the original MIRA actor relationship/stage inspection.",
+      "ownerPlan": "VPG-05",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "f3be1b3cbe1b758496b1387a0c4047304f0acae48af455e515d4d26f47e82348",
+      "originalPngSha256": "0ff560986b261c04bad5a00872695961fed3b6a52a25f3e18c3284184226449f",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": "mira",
+        "selectorInputs": {
+          "scrollSelector": "[data-npc=\"0\"]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-25-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-25",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 26,
+      "isaRequirement": "FA-VPG-26",
+      "legacyPath": "inspect-companions-mobile.png",
+      "behaviorIntent": "Companion/actor inspection availability and state",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current cosmetic travelers do not implement original live companion/actor state inspection.",
+      "ownerPlan": "VPG-05",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "726e4f6abf49b3be23c309b6d317b09083631464b75a20f3044fd4157218900b",
+      "originalPngSha256": "1edb1de33d05669508f9abbb9e1fabbafd4acd1c566b95fe6bc1518901911ae2",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": "mira",
+        "selectorInputs": {
+          "scrollSelector": "[data-npc=\"0\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-26-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-26",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 27,
+      "isaRequirement": "FA-VPG-27",
+      "legacyPath": "gate-empty-mobile.png",
+      "behaviorIntent": "Truthful absence of pending founder decisions",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "verified-empty-queue-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-empty-320.png",
+        "field-atlas-gate-empty-390.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "51964c07d73cae2a059c9eaa79604c544c9eded3f63d5c295bd641b1fbc898e1",
+      "originalPngSha256": "04f7169643ad38ed742a273aff2317b1769aebc40894c50e181fe87cd1a4a3a3",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": null,
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 28,
+      "isaRequirement": "FA-VPG-28",
+      "legacyPath": "gate-consequence-mobile.png",
+      "behaviorIntent": "Consequence review before signed approval",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "complete-consequence-review-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-reviewed-320.png",
+        "field-atlas-gate-reviewed-390.png",
+        "field-atlas-gate-reviewed-430.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "1f8c3ed2146788b4a18e24858a46b6f89090ab6ffc1bfd0b82552fbdc135faed",
+      "originalPngSha256": "2e2c839c13b0640e47cd48892cf45fe66f5e708e92b682703d5ff0744a4f6f68",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "gate",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 29,
+      "isaRequirement": "FA-VPG-29",
+      "legacyPath": "gate-iverif-action-request-mobile.png",
+      "behaviorIntent": "Exact ActionRequest identity and signed-confirmation requirement",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D Gate accepts goal-graph proposals, not the original IVerif ActionRequest signed-confirmation projection.",
+      "ownerPlan": "VPG-06",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "e3a438b20f88bb4427d9a732f597aa4bc0b6cf49abda011785e23faebc56254f",
+      "originalPngSha256": "019313cdbbb8d6d5e2dcd29b2796fd83e3dfd4fd3500a666958abc3c80598df0",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "action-requests",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-29-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-29",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 30,
+      "isaRequirement": "FA-VPG-30",
+      "legacyPath": "gate-iverif-queued-proof-mobile.png",
+      "behaviorIntent": "Queued state, proof button geometry, two-line preview and truthful status",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D lacks the original queued ActionRequest proof button, preview, status and geometry.",
+      "ownerPlan": "VPG-07",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "88637a39da1533ce1a2518086803d4198e5b3bbf573e299b55b8b20af0fd01be",
+      "originalPngSha256": "31878c9f4d8e6461eaa7a5b2193fbfa74c626a8898a1ef983542e9e579a7075f",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "action-request-queued",
+        "selectorInputs": {
+          "scrollSelector": "[data-action-request-id=\"ar_iverif_w6_live_mrcwmcs3\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-30-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-30",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 31,
+      "isaRequirement": "FA-VPG-31",
+      "legacyPath": "sheet-gate-queued-result-mobile.png",
+      "behaviorIntent": "Queued receipt actions, refresh/navigation and idempotency presentation",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D goal decisions do not implement the original queued ActionRequest result actions and idempotency display.",
+      "ownerPlan": "VPG-07",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "254028d40531bb35ae78b400a0d4756c95f1f5dfa86fb11e8c33ba36b445463b",
+      "originalPngSha256": "aed2fdcac4d41159a3b3fa9f14e361d6477b906cf0eea0c51ff202c9bace5093",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "action-request-queued",
+        "selectorInputs": {
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-31-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-31",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 32,
+      "isaRequirement": "FA-VPG-32",
+      "legacyPath": "sheet-gate-queued-proof-detail-mobile.png",
+      "behaviorIntent": "Queued proof navigation and exact CSS/visual viewport",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D lacks the original queued ActionRequest proof-detail navigation and exact visual-viewport journey.",
+      "ownerPlan": "VPG-07",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "c2397bbc9cf00ffcf7275b60acdcaa93661f8cf00365b6b39bc4c40058b5e88f",
+      "originalPngSha256": "6cef8a2f714da05d727dd2d714b52c7bff57a5af8967e42efa33554ffcff66f3",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "action-request-queued",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-action-request-id=\"ar_iverif_w6_live_mrcwmcs3\"] [data-gate-proof=\"1\"]",
+          "scrollSelector": "[data-action-request-id=\"ar_iverif_w6_live_mrcwmcs3\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-32-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-32",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 33,
+      "isaRequirement": "FA-VPG-33",
+      "legacyPath": "story-iverif-action-request-mobile.png",
+      "behaviorIntent": "ActionRequest source identity in story projection",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D has no ActionRequest story projection.",
+      "ownerPlan": "VPG-06",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "85c0f7d7f0b33b360226650c53412b47b82636816bf49716380af88127590957",
+      "originalPngSha256": "f77d455b9d924c0c46ac78a9fb0095a5e2f01d103254c4acb638492fbc1c9bf6",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "story",
+        "fixture": "action-requests",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-33-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-33",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 34,
+      "isaRequirement": "FA-VPG-34",
+      "legacyPath": "inspect-iverif-action-request-mobile.png",
+      "behaviorIntent": "ActionRequest source identity in inspection projection",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D has no equivalent ActionRequest inspection projection.",
+      "ownerPlan": "VPG-06",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "e75572d691317952102a80f4822039a55df6c4d632d46fc969ab01230297ea59",
+      "originalPngSha256": "c5fad56a76310d3a3097b89c74b7f146f841967e0885e3275e34796d971b69eb",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "inspect",
+        "fixture": "action-requests",
+        "selectorInputs": {
+          "scrollSelector": "[data-action-request-id=\"ar_iverif_autogtm_followup_signed\"]"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-34-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-34",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 35,
+      "isaRequirement": "FA-VPG-35",
+      "legacyPath": "sheet-gate-confirm-action-request-preflight-mobile.png",
+      "behaviorIntent": "Contained exact ActionRequest preflight and inspection before confirmation",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current goal-graph preflight does not implement the original signed ActionRequest confirmation owner.",
+      "ownerPlan": "VPG-07",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "9eb101b7123187863db89f1a00c457585ce283a91c057a15b43210eab96752ae",
+      "originalPngSha256": "fd1888b8c9491f752fd518c7fb2d6f95d72d6cd0d75f7a9c850e2ad2392feba8",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "action-requests",
+        "selectorInputs": {
+          "scrollSelector": "[data-signed-action-entrypoint=\"confirm-action-request\"]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-35-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-35",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 36,
+      "isaRequirement": "FA-VPG-36",
+      "legacyPath": "sheet-gate-confirm-action-request-request-sent-mobile.png",
+      "behaviorIntent": "Request-sent/queueing state before actual result; no false completed state",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current3D lacks the original ActionRequest request-sent/queueing presentation; do not substitute a goal signature.",
+      "ownerPlan": "VPG-07",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "f04b6662fbc8dd5d1a52f80c713291355c3fd9f6572c000d09a461b5631f082a",
+      "originalPngSha256": "bf9a4b145767a64521dd97d13a7d905831ca1ae759b7f17cbaa995e4bbe56732",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "action-requests",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-gate-confirm=\"confirm-action-request\"]",
+          "scrollSelector": "[data-signed-action-entrypoint=\"confirm-action-request\"]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-36-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-36",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 37,
+      "isaRequirement": "FA-VPG-37",
+      "legacyPath": "sheet-gate-approve-preflight-mobile.png",
+      "behaviorIntent": "Explicit approve preflight in contained sheet",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "explicit-approve-preflight-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-preflight-390.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "753f6384abd25bf5d2a791c8bc9fe93b38f3e9f5e10db9ba08cb7e5f87fba5f7",
+      "originalPngSha256": "4b5827ad97438d15e78711a02942a97f831f35e3e0ee82f6ea7402b374d2678c",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "gate",
+        "selectorInputs": {
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 38,
+      "isaRequirement": "FA-VPG-38",
+      "legacyPath": "sheet-gate-reroll-preflight-mobile.png",
+      "behaviorIntent": "Explicit reroll preflight in contained sheet",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Rejecting a goal proposal is not the original reroll/new-candidate preflight operation.",
+      "ownerPlan": "VPG-08",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "f34d89c1795d91ee384750775bcaf85dfc2b53cba0347b63d6e2229701066954",
+      "originalPngSha256": "ca4773a2144983d6a7b3755457cd465db08b8f8e51e87688b34e168dcb9472fd",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "gate",
+        "fixture": "gate",
+        "selectorInputs": {
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-38-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-38",
+        "captureMode": "clipped-dialog",
+        "originalClipSelector": "#sheet",
+        "clipReceiptRequired": true
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 39,
+      "isaRequirement": "FA-VPG-39",
+      "legacyPath": "operating-fabric-320-mobile.png",
+      "behaviorIntent": "Responsive readable operational overview with exact source/authority identity",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current320pxworld/directory do not implement all original authoritative portfolio zones/counts, organ update plan, controls and all-scene assertions.",
+      "ownerPlan": "VPG-09",
+      "originalViewport": {
+        "width": 320,
+        "height": 844
+      },
+      "originalStepSha256": "4ee2020f6e07229d2b54a9df802606d0d9f36236fcf0024e9f8b5b47241505d8",
+      "originalPngSha256": "880a8a915169997ffadc3c8440e4eeb8116095d7190ed235e9f9005292c0512d",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-canopy",
+        "fixture": "operating-fabric",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-39-320x844.png",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "state": "retained-gap-39",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 40,
+      "isaRequirement": "FA-VPG-40",
+      "legacyPath": "operating-fabric-gate-sheet-320-mobile.png",
+      "behaviorIntent": "Mission Gate entrypoint, contained cancel/review sheet at exact original width",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "mission-gate-review-320-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-preflight-320.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 320,
+        "height": 844
+      },
+      "originalStepSha256": "cab28a0e9e66b6292d9207fffef5b7b84bd9eb7234283044c7ed8bb485d842ed",
+      "originalPngSha256": "afa35e9e71edae1021fdf403c2d9218dbfc1b1d07a956ae8f7b491071e094983",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-mission",
+        "fixture": "operating-fabric",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-of-gate-entrypoint]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 41,
+      "isaRequirement": "FA-VPG-41",
+      "legacyPath": "operating-fabric-inspect-sheet-320-mobile.png",
+      "behaviorIntent": "Mission inspection with reachable back/close and containment at exact original width",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "mission-inspection-return-320-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-reviewed-320.png",
+        "field-atlas-gate-back-320.png",
+        "field-atlas-gate-close-320.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 320,
+        "height": 844
+      },
+      "originalStepSha256": "c26f8c8734aee946f80516eb4e42708d64af4a00706e45785af65fbc57f7172e",
+      "originalPngSha256": "3df8ee8f42b6cab3be2b4346682cdb1fed24932fff16463278e631ab7798d683",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-mission",
+        "fixture": "operating-fabric",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-of-scene=\"mission\"] .of-inspect-btn",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 42,
+      "isaRequirement": "FA-VPG-42",
+      "legacyPath": "operating-fabric-390-mobile.png",
+      "behaviorIntent": "Responsive readable operational overview with exact source/authority identity",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current390pxworld/directory do not implement all original authoritative portfolio zones/counts, organ update plan, controls and all-scene assertions.",
+      "ownerPlan": "VPG-09",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "77fd527bf3281c557dd10294f11e6486ce04b06b8b3d591fa5dd97e99120ad05",
+      "originalPngSha256": "61e5d52af6e7ef44fd6e0e6ce04ed175468043191f83062545366ada41a6aa90",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-canopy",
+        "fixture": "operating-fabric",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-42-390x844.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "state": "retained-gap-42",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 43,
+      "isaRequirement": "FA-VPG-43",
+      "legacyPath": "operating-fabric-gate-sheet-390-mobile.png",
+      "behaviorIntent": "Mission Gate entrypoint, contained cancel/review sheet at exact original width",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "mission-gate-review-390-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-preflight-390.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "7668184728ed94fd88fa5982334bbbc342ff1fd96481a1c86fadd06665ba137a",
+      "originalPngSha256": "bafd3e4cb49bb0ebf8c54bf772d85ef6ad2b476c9b24dd2787dbf0621d053f78",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-mission",
+        "fixture": "operating-fabric",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-of-gate-entrypoint]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 44,
+      "isaRequirement": "FA-VPG-44",
+      "legacyPath": "operating-fabric-inspect-sheet-390-mobile.png",
+      "behaviorIntent": "Mission inspection with reachable back/close and containment at exact original width",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "mission-inspection-return-390-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-reviewed-390.png",
+        "field-atlas-gate-back-390.png",
+        "field-atlas-gate-close-390.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 390,
+        "height": 844
+      },
+      "originalStepSha256": "d5407b506273b02368e75be8db57d4ff2ca78f025440590743cb36c6d0f1f32e",
+      "originalPngSha256": "56bb986484516932cce9c27e59a6c02e8a5575ab82bc4f6840ca2b6e530dc5eb",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-mission",
+        "fixture": "operating-fabric",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-of-scene=\"mission\"] .of-inspect-btn",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 45,
+      "isaRequirement": "FA-VPG-45",
+      "legacyPath": "operating-fabric-430-mobile.png",
+      "behaviorIntent": "Responsive readable operational overview with exact source/authority identity",
+      "required": true,
+      "baselineStatus": "required-unqualified",
+      "baselineEquivalence": null,
+      "baselineCurrentFrames": [],
+      "remainingRequirement": "Current430pxworld/directory do not implement all original authoritative portfolio zones/counts, organ update plan, controls and all-scene assertions.",
+      "ownerPlan": "VPG-09",
+      "originalViewport": {
+        "width": 430,
+        "height": 844
+      },
+      "originalStepSha256": "f77a6e3e8a692f5658eb40ed2b08179dbd859d43cad10db98a012e6aa5b8d605",
+      "originalPngSha256": "962e0d3818d415de509737711382ff8f8779647eef090a34bddceed5aafee0ec",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-canopy",
+        "fixture": "operating-fabric",
+        "selectorInputs": {},
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": {
+        "path": "field-atlas-gap-45-430x844.png",
+        "viewport": {
+          "width": 430,
+          "height": 844
+        },
+        "state": "retained-gap-45",
+        "captureMode": "full-viewport",
+        "originalClipSelector": null,
+        "clipReceiptRequired": false
+      },
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 46,
+      "isaRequirement": "FA-VPG-46",
+      "legacyPath": "operating-fabric-gate-sheet-430-mobile.png",
+      "behaviorIntent": "Mission Gate entrypoint, contained cancel/review sheet at exact original width",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "mission-gate-review-430-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-preflight-430.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 430,
+        "height": 844
+      },
+      "originalStepSha256": "5f834100e876e0659dd7735b94d8e21645e5141bdce930e29def2f10b6dbbd0f",
+      "originalPngSha256": "22c3a6032401a3872b423dfc05df66b74243bc37d625cdd3a23fd019c5e9e167",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-mission",
+        "fixture": "operating-fabric",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-of-gate-entrypoint]",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    },
+    {
+      "legacyOrdinal": 47,
+      "isaRequirement": "FA-VPG-47",
+      "legacyPath": "operating-fabric-inspect-sheet-430-mobile.png",
+      "behaviorIntent": "Mission inspection with reachable back/close and containment at exact original width",
+      "required": true,
+      "baselineStatus": "qualified-local-browser",
+      "baselineEquivalence": "mission-inspection-return-430-v1",
+      "baselineCurrentFrames": [
+        "field-atlas-gate-reviewed-430.png",
+        "field-atlas-gate-back-430.png",
+        "field-atlas-gate-close-430.png"
+      ],
+      "remainingRequirement": null,
+      "ownerPlan": "VPG-10",
+      "originalViewport": {
+        "width": 430,
+        "height": 844
+      },
+      "originalStepSha256": "ee3769ef82377ebad8325662187b72eebcfb027475267d06ae5603929bd6d9db",
+      "originalPngSha256": "b42914a6b22db88e7c924884610e362079dd740b35782d38518a26c9f2879852",
+      "originalSource": {
+        "path": "workers/quests/src/visual-viewport-proof.mjs",
+        "symbol": "VIEWPORT_PROOF_CAPTURE_STEPS",
+        "scene": "operating-mission",
+        "fixture": "operating-fabric",
+        "selectorInputs": {
+          "tapTargetSelector": "[data-of-scene=\"mission\"] .of-inspect-btn",
+          "clipSelector": "#sheet"
+        },
+        "fullStepMustBeCompared": true
+      },
+      "proposedNewCapture": null,
+      "implementationComplete": false,
+      "futureAcceptance": "unchecked"
+    }
+  ],
+  "supplementalCases": [
+    {
+      "path": "field-atlas-gate-reviewed-430x844.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "ownerPlan": "VPG-01",
+      "protects": [
+        "FA-VPG-46",
+        "FA-VPG-47"
+      ],
+      "preserveExisting430x932Frames": true
+    },
+    {
+      "path": "field-atlas-gate-preflight-430x844.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "ownerPlan": "VPG-01",
+      "protects": [
+        "FA-VPG-46",
+        "FA-VPG-47"
+      ],
+      "preserveExisting430x932Frames": true
+    },
+    {
+      "path": "field-atlas-gate-back-430x844.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "ownerPlan": "VPG-01",
+      "protects": [
+        "FA-VPG-46",
+        "FA-VPG-47"
+      ],
+      "preserveExisting430x932Frames": true
+    },
+    {
+      "path": "field-atlas-gate-close-430x844.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "ownerPlan": "VPG-01",
+      "protects": [
+        "FA-VPG-46",
+        "FA-VPG-47"
+      ],
+      "preserveExisting430x932Frames": true
+    }
+  ],
+  "retired": [
+    {
+      "legacyOrdinal": 6,
+      "legacyPath": "component-glyph-state-board-mobile.png",
+      "required": false,
+      "legacyStepSha256": "9f2b0ac9acfe1b0aea705c91c7fae774a6fcb9e275013db1b8d505d2c39fd94d",
+      "legacyPngSha256": "78c6e2c2191af99562cd5a51f892fc7e6ed0516c50f1dcccd5e42b41e23661a1"
+    },
+    {
+      "legacyOrdinal": 7,
+      "legacyPath": "component-mission-components-mobile.png",
+      "required": false,
+      "legacyStepSha256": "86ab44d56e0d520332739c772659a8d65a41930d17b9b77cc99ac57eb10fd6c5",
+      "legacyPngSha256": "ee571b37386fb0e2fd126ceb4e60f0d70f6e07894ad44c94d0c6d163a6ea2ce4"
+    },
+    {
+      "legacyOrdinal": 8,
+      "legacyPath": "component-motion-legend-mobile.png",
+      "required": false,
+      "legacyStepSha256": "cfec7b758620c127280d6720d9b55b2dfe4a9cbbf592a556cb195b0ded7de3a7",
+      "legacyPngSha256": "ebbd10fb6c15b854fc3708a18ff56a1e1659c4345dbec60c22c3ffbc11e75fca"
+    },
+    {
+      "legacyOrdinal": 9,
+      "legacyPath": "component-legend-mobile.png",
+      "required": false,
+      "legacyStepSha256": "1394fe9d2f8246b5d545be0893e98353691a66bcd4d754ebb687ae184659bcea",
+      "legacyPngSha256": "b52492db5b692147ee60b39632ded5120cd2e695e3dd01b7ab891b4a8a278c1e"
+    }
+  ],
+  "baselineCurrentCaptureCases": [
+    {
+      "path": "field-atlas-entry-320.png",
+      "state": "entry",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "907b845f67ee8278042d9e15e66475d95ac4d3db28574efea17f2f4f3c2f3b93"
+    },
+    {
+      "path": "field-atlas-entry-390.png",
+      "state": "entry",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "62862153d15c0abafd831a0e9a77b6d9ebac25d7ceb419cdeaa9a7a1cf72c43f"
+    },
+    {
+      "path": "field-atlas-entry-430.png",
+      "state": "entry",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "064c514acc901059ffbd7ebd02b372e4b430aa93e54d2a3e180e48c99d12be54"
+    },
+    {
+      "path": "field-atlas-entry-600.png",
+      "state": "entry",
+      "viewport": {
+        "width": 600,
+        "height": 900
+      },
+      "sha256": "ed6ba910f6867b631196dd0635ce4c23d412cb5bd217497e4bdd9ba040640121"
+    },
+    {
+      "path": "field-atlas-entry-601.png",
+      "state": "entry",
+      "viewport": {
+        "width": 601,
+        "height": 900
+      },
+      "sha256": "2f3b6a385545e4eb09fd869beaba0ecb1468004cced9417bc5e3439db998f3eb"
+    },
+    {
+      "path": "field-atlas-entry-1280.png",
+      "state": "entry",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "sha256": "24ee40ef6cb5638e847dfa275301ed5ad935436c39d0e9e590883c22c1dc21dc"
+    },
+    {
+      "path": "field-atlas-world-320.png",
+      "state": "world",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "8e5f7b0d9212e53c1644d3f4aa34ec623294aa768ef926494ebd3890f4b82330"
+    },
+    {
+      "path": "field-atlas-world-390.png",
+      "state": "world",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "64a4368331dd603ecc2e4e8ac131da924d99b271c8459c677c7b692b7d0e3feb"
+    },
+    {
+      "path": "field-atlas-world-430.png",
+      "state": "world",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "5036dac9f88a6595cea9c88be10dea648e5b8bbfe483c51e709eea848da3d912"
+    },
+    {
+      "path": "field-atlas-world-1280.png",
+      "state": "world",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "sha256": "5cfbaa63957783d22f10f7b34df25f3930197c01c3dd498ed3218bddbcb827ad"
+    },
+    {
+      "path": "field-atlas-chart-320.png",
+      "state": "chart",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "80cbeaca9f7eff6b04e09e55d25b68e27606ff9b5057f8a98166f41419f886b7"
+    },
+    {
+      "path": "field-atlas-chart-390.png",
+      "state": "chart",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "06f6dbd7661371fc0248230b397b07c6bfba4788bfde66872c9fb7ae63f41aa1"
+    },
+    {
+      "path": "field-atlas-chart-430.png",
+      "state": "chart",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "7769b3b23374ba61ea01cfd21d05da49b3bf8c607bf3355d4af87c45c059d8b4"
+    },
+    {
+      "path": "field-atlas-chart-1280.png",
+      "state": "chart",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "sha256": "1ac4c54eb5d174aa3918bf41ca1699e4916ffe157f310c6ffc5493798733e09e"
+    },
+    {
+      "path": "field-atlas-departments-320.png",
+      "state": "departments",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "821232666fd13fab6cff3934f9eb0bc1d46c8f1d1797bbec0b8e357249f18738"
+    },
+    {
+      "path": "field-atlas-departments-390.png",
+      "state": "departments",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "8beae84654c17b7dd11d1484e8fc1a07bd3b9fae070804d290bfc936abd5bafc"
+    },
+    {
+      "path": "field-atlas-departments-430.png",
+      "state": "departments",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "ebbcad9322f1b310b512bde1e046558abe3c403e60c24de6a44a471e51e794ff"
+    },
+    {
+      "path": "field-atlas-departments-1280.png",
+      "state": "departments",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "sha256": "6e28be4906a5399e07cee9dc6c26514d527f21084c54385835afde82f26fde24"
+    },
+    {
+      "path": "field-atlas-courier-320.png",
+      "state": "courier",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "45d0a17d9e2cc321dfa422a47f2d36a5810d1686e5774494833c058c17228825"
+    },
+    {
+      "path": "field-atlas-courier-390.png",
+      "state": "courier",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "b63065e125431c5a56b2adf084fb266e02042b1034969601db92698aa798896e"
+    },
+    {
+      "path": "field-atlas-directory-320.png",
+      "state": "directory",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "ef45295cb7088e05b6949136ab9c7421f753599b14783a94310c0303f28a2acd"
+    },
+    {
+      "path": "field-atlas-directory-390.png",
+      "state": "directory",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "5f7d5f4be9ee715845e1bac49fffea66b77c3945a5f983443c1e942e5abb479a"
+    },
+    {
+      "path": "field-atlas-gate-held-320.png",
+      "state": "gate-held",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "d6b36ac18286e7858e892ed9e3efef808715a394feb0578808e5ec07c76c15cc"
+    },
+    {
+      "path": "field-atlas-gate-held-390.png",
+      "state": "gate-held",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "926e6ea7a3a2f7bfc5d4c1cb1404a72d8df016808037d67036b0fa1096c8c9ad"
+    },
+    {
+      "path": "field-atlas-source-folio-320.png",
+      "state": "source-folio",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "9f5ea44a3f5b763eeb6e2c34a229bdc867afdf553e9924c43df6a170bead3f85"
+    },
+    {
+      "path": "field-atlas-source-folio-390.png",
+      "state": "source-folio",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "09b2b1cb48bd73d29085d61fb64533478f6a8abf7e21eb39f503eb54d9067bc6"
+    },
+    {
+      "path": "field-atlas-local-visit-320.png",
+      "state": "local-visit",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "b149937c4349afe5e81fc24ef64a111d8e71ee6198737183d4cdb3906d9970c4"
+    },
+    {
+      "path": "field-atlas-local-visit-390.png",
+      "state": "local-visit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "7d91b9a01d3607d78869e49deb3f0d3be4cbbadd1a854556dec1a741f8403a79"
+    },
+    {
+      "path": "field-atlas-local-visit-read-320.png",
+      "state": "local-visit-read",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "b149937c4349afe5e81fc24ef64a111d8e71ee6198737183d4cdb3906d9970c4"
+    },
+    {
+      "path": "field-atlas-local-visit-read-390.png",
+      "state": "local-visit-read",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "7d91b9a01d3607d78869e49deb3f0d3be4cbbadd1a854556dec1a741f8403a79"
+    },
+    {
+      "path": "field-atlas-gate-empty-320.png",
+      "state": "gate-empty",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "11a506ccb0f9d0e5a2551cb20ac5dc7ea53d7621efb3e50c22c21bcb8581f318"
+    },
+    {
+      "path": "field-atlas-gate-empty-390.png",
+      "state": "gate-empty",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "2493bfe5aa9a9cb081ea85d4f2ff3873a43159074445c3281484dc0b5194e011"
+    },
+    {
+      "path": "field-atlas-gate-reviewed-320.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "db52930d6decbc98f644a82034113274e00b756384a6eb2a29df8e4fcc37df05"
+    },
+    {
+      "path": "field-atlas-gate-reviewed-390.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "b9dfcde597904048eee89f8a7dcea8b2d0f0dbce48dc5a50585991b128d2b708"
+    },
+    {
+      "path": "field-atlas-gate-reviewed-430.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "e47dd3a50670b1086f75c0be5f659dcaa4e8a4651d3591a67cfd2d5b7c75e855"
+    },
+    {
+      "path": "field-atlas-gate-preflight-320.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "6c954c73b1d793dc978f099e2d3743914626125c83cf43021dd92d00fe2f96ff"
+    },
+    {
+      "path": "field-atlas-gate-preflight-390.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "6a7d9b116cf81259a6442861b4f72b68a56c60553e4c151816b6232d06841fe3"
+    },
+    {
+      "path": "field-atlas-gate-preflight-430.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "39d8df57124408f2ac61fd73a1c4207e0f87ab716285e6203221cc73b93e2430"
+    },
+    {
+      "path": "field-atlas-gate-back-320.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "9a5fb53db2e18a87a8d3131af7c3ad1e38e073f1722d181ab357b9a74ac083dc"
+    },
+    {
+      "path": "field-atlas-gate-back-390.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "0faae827c9cf7668c40fd4cb8e0bd47ae6e2a1671dec1e6933a7755c93425ee2"
+    },
+    {
+      "path": "field-atlas-gate-back-430.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "b06ca01700413704195c7efc258ec0c4daf81332cb30572621e6a90aa8890b6a"
+    },
+    {
+      "path": "field-atlas-gate-close-320.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "sha256": "e0d9d6ae036ec6f89afcc98ae232772f7dc240102826b4aafee775595ce5ac30"
+    },
+    {
+      "path": "field-atlas-gate-close-390.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "sha256": "9f63d81321f1ee3b5e90cacf940de99a68df38f44c070e9957fa2c2953654112"
+    },
+    {
+      "path": "field-atlas-gate-close-430.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "sha256": "0638d517990115514d60828707d52be4e58b7d87984860f78649f97cf4d6808d"
+    }
+  ],
+  "baselineInputs": [
+    {
+      "path": "docs/visual/field-atlas-viewport-contract.v1.json",
+      "sha256": "3a3a2b813d78ed722e10d326f0ec1f655cf9b54a467b0e8dcb049309a1db002f"
+    },
+    {
+      "path": "docs/plans/assets/field-atlas-viewport-proof/manifest.json",
+      "sha256": "ec34e3e1ff9880c0bd86c565b2dcfb3919e6cf0b9bc4db964e08be658138512f"
+    },
+    {
+      "path": "docs/plans/assets/tg-miniapp-viewport-proof/manifest.json",
+      "sha256": "50f83cb7ac13501f073ec60dce1287e18dcc69787e70d8e7cfeb64136bf1f722"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "e0f1ed4363064ac41aa5a29edf5fe8321f005a41b7cd6c64e8352f1ffaa7aae1"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "sha256": "aed602452de59c12d29234c3c9b96f8b1b30510a8103bd2da5804a62bbc92759"
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "sha256": "dc3992aae90c83d051e20f0860912ccc359474b9a766274c149b43caa4a28e87"
+    },
+    {
+      "path": ".planning/config.json",
+      "sha256": "3085504991897cc7007f44a5a53f81b560073918c191d837f9f5d2c7fdb4010d"
+    },
+    {
+      "path": "scripts/capture-field-atlas.mjs",
+      "sha256": "6f7a70beadfd5da6a4c795fc4720334169c0090ecd00ea27124b4873fe57c1a7"
+    },
+    {
+      "path": "scripts/field-atlas-viewport-contract.mjs",
+      "sha256": "6fc732e498ff309bd2949479464ba0b4e03783ef6c97b31eaaeb982e4fc91fee"
+    },
+    {
+      "path": "scripts/field-atlas-founder-fixture.mjs",
+      "sha256": "06624977a7b2a2ac091699b03405720328e39e8920e1f1c9e75e22b55466bd01"
+    },
+    {
+      "path": "scripts/check-field-atlas-proof.mjs",
+      "sha256": "d7599521a0700493675ee23b3a8b6d2129661adc68ed0a1a54f01d7c35994f27"
+    },
+    {
+      "path": "scripts/drift-audit.mjs",
+      "sha256": "5cc7c4cfb3dcd84dc028fd0a810dbc7b06930f024312cb035c71e1a2d9515e9c"
+    },
+    {
+      "path": "scripts/verify-release.mjs",
+      "sha256": "08c652ed638cc30b0dcc2a9ae048f4fe4e4c8977a64b3a6e979b220cfe1f55c9"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3a363f79004ca44cd25ca01d8a53b178c6a25572b9c0dac7ac1e595093949067"
+    },
+    {
+      "path": "workers/quests/src/visual-viewport-proof.mjs",
+      "sha256": "200605892804f2cf4d6ad49464ad72cefe559a878fc04d363e861fcb563d292f"
+    },
+    {
+      "path": "workers/quests/src/page.ts",
+      "sha256": "295abc93ea3c3699a96dadaf6b3ed8d068da6422ab25db4c0f8314e201307bea"
+    },
+    {
+      "path": "workers/quests/src/page/index.ts",
+      "sha256": "12576f18467e1b6441b373f2fef6900dac792ce37bb959ce1faf60b79d37fe9f"
+    },
+    {
+      "path": "workers/quests/src/page/world-host.ts",
+      "sha256": "44f6b2f51f5cb993077dce99bcefafb4d7f1db19655c3235f1afd565d444eacc"
+    },
+    {
+      "path": "workers/quests/src/page/components/curious-world.ts",
+      "sha256": "8a8a10a56e5e62bef6804d5aa6cc6e1fd507cec9f80c4afc16497eacb57e075b"
+    },
+    {
+      "path": "workers/quests/src/page/components/curious-world.generated.ts",
+      "sha256": "ce98d6a5338f5e33353fc9109b23e2c5011c33e9559b5618eae2147228fc3a1d"
+    },
+    {
+      "path": "workers/quests/src/page/client/curious-read-bridge.ts",
+      "sha256": "f76b506da4f80a9a971084a79f75cdd9ec25a260e0d5b6e61751bf7d25fd526c"
+    },
+    {
+      "path": "workers/quests/src/page/client/curious-gate-bridge.ts",
+      "sha256": "452189a4c34824b9fa25974c5fb1295d1b57db95dbd96476490e04cd1e38a132"
+    },
+    {
+      "path": "workers/quests/src/page/client/curious-department-bridge.ts",
+      "sha256": "9c5ad5cbb352b0dc34d32ba101c40f920e12551844ca688e62d06ae944d33fb5"
+    },
+    {
+      "path": "apps/cambium-r3f/src/curious-world/index.ts",
+      "sha256": "e3bcc6eb427e2323a5682d1aeea92217e2a5e1c704bfe6bfc92970df589a83b6"
+    },
+    {
+      "path": "apps/cambium-r3f/src/curious-world/styles.css",
+      "sha256": "3e63d56b6d2987a0824e916af4dacc2604351ce8e29dc198c52c6d8159ff5fb1"
+    }
+  ],
+  "artifactPolicy": {
+    "existing44Frames": "unchanged full-viewport mode",
+    "supplemental4Frames": "full-viewport mode",
+    "newGapClippedCases": 8,
+    "newGapFullViewportCases": 24,
+    "clippedCaseBinding": [
+      "CSS viewport",
+      "visual viewport",
+      "observed visible dialog clip rectangle",
+      "device scale",
+      "actual PNG dimensions and hash",
+      "visible state and native input"
+    ],
+    "noHistoricalRecaptureOrRestamping": true
+  }
+}

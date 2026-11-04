@@ -1,0 +1,47 @@
+# Remaining viewport behavior proposal
+
+Status: planning requested on 2026-11-04; proposed, not accepted or admitted for implementation. Version 95 is the planning baseline. Deployment and traffic are held. Preparation of this finite ISA/GSD packet grants no runtime action.
+
+## Scope and authority
+
+Close exactly the 32 `required-unqualified` rows in the current 3D viewport contract while preserving all 43 retained intents and the 11 already qualified local-browser equivalents. Root ISA owns acceptance; this dated GSD packet owns only the proposed finite breakdown. The active root STATE/ROADMAP/REQUIREMENTS and Phase 9 inventory work stay unchanged. This packet is not an adopted milestone or an alternate task scheduler. Admission, accepted plan digest, ISA acceptance reference and graph mapping remain absent.
+
+The source baseline is `e6b28642eb79d6668c336b59cf745c5ab9581749`; the captured implementation is `7c8c810f47b49fa4c6dd17d341ee4c48e68a9655`. Current source proof validates 44 frames, 11/43 local equivalents and 32 holds. The earlier full source suite passed 2724/2724 on e6b28642; this is retained evidence, not a new test run during planning. Source version 95's commit is unestablished; this proposal does not identify the serving version with the source branch.
+
+Read `coverage.json` for every original identity, exact step/PNG hash, original viewport, missing capability and unique owner plan. The whole original step in `VIEWPORT_PROOF_CAPTURE_STEPS` is the normative comparison: prepare/wait, input sequence, state, clipping, CSS and visual viewport, geometry, text wrapping, focus, diagnostics, touch/drag and side-effect assertions all survive. A name or screenshot cannot replace these assertions. Original 47 PNGs/manifest remain byte-identical; only the same four obsolete gallery captures remain retired. No further retirement, generic world-frame substitution or metadata-only registration is proposed.
+
+## Finite delivery boundary
+
+There are ten sequential packages: owner/fixture/proof foundation, eight behavior groups totalling 32 gaps, and all 43 source qualification. `coverage.json` fixes package IDs, requirements, dependency order and capture targets. Shared UI/bridge/capture files require serial work. No parallel dispatch is admitted.
+
+The proposed finite source matrix is 80 cases: all 44 existing cases, one new complete journey/frame for each of the 32 gaps identity, and four 430×844 supplemental reviewed/preflight/back/close cases. Those supplement the original height for protected intents46/47; existing 430×932 cases remain. Port every original predicate and native input into each new journey; one screenshot is the terminal observation of a full journey, not the entirety of its proof. If an intent needs another frame or an owner capability is absent, record the exact blocker and amend/review this finite matrix before claiming completion. Do not silently relax predicates or increase scope.
+
+Preserve the maintained 3D world and current chart/dossier/modal interaction. Extend existing owner-backed read and Gate seams. Retired MissionControlShell/Story/Inspect/Tools/operating-fabric renderer modules are historical reference only; do not reimport or remount them. Existing shared data parsers in legacy-named files remain allowed. Cosmetic Courier choice and local visits cannot substitute for actor ownership or work progress.
+
+## Source and effect planes
+
+Reuse the existing ActionRequest owner (`action-requests.ts`), signed Gate handler, mission/fabric and portfolio contracts. Goal-graph approval cannot replace ActionRequest confirmation, reroll, Handoff or skill promotion. Bind exact tenant/object/version/change/receipt/idempotency/freshness and surface unavailable, denied, expired and contradictory owner reads honestly. Never infer a fresh live owner from a fixture or old graph snapshot.
+
+Future source tests may model signed-request, request-sent, queue/receipt or reroll transitions only in a loopback synthetic transport with exact request counters. Real source-owner POSTs, signatures, queueing, graph/provider/native-store writes, callback activation, permission changes and execution remain held. Keep the existing founder fixture's decision/renewal denial intact; any additional synthetic action fixture must be explicitly separate from that read-only fixture and unable to contact a non-loopback owner. No real credentials or user data enter source fixtures.
+
+The existing /founder Access signer is limited to goal approval and rejection. Non-goal ActionRequest confirmation, reroll and skill actions retain the existing Telegram-signed /api/gate owner. Handoff keeps its existing owner and signed-review contract. No new Access signing kind or auth channel is part of this proposal. Portfolio 4-zone/93-card, category17/41/15/0/20 and 5 organ-card counts refer only to the original synthetic fixture; actual owner counts remain dynamic, source-bound and freshness-gated, separate from the historical 132-node graph.
+
+The current signGate/CuriousGateBridge.sign is goal-only, the read bridge is display-only and the maintained world host omits the historical signed-action script. VPG-07 therefore assigns the separate typed ActionRequest input/capability/result adapter inside the existing page Gate transport, its component/mount wiring and focused boundary checks. Only the host retains Telegram credentials and same-origin request ownership; normal Access/guest sessions have no non-goal signer. A synthetic capability exists only in the identified loopback harness, with exact request counters and no remote override. A missing owner-backed original-status read remains a capability blocker.
+
+Original clipped-sheet gaps use a per-case observed current-dialog clip receipt: actual CSS/visual viewport, visible clip bounds, device scale, PNG geometry/hash and painted state. Existing 44 full-frame checks and 4 supplements remain full-frame. The 80-case total does not grow for a crop. The 11 existing v1 registered equivalents remain protected; original DOM selectors map to explicit current3D counterparts rather than remounting old UI.
+
+No new operational writer, auth bypass, provider, bridge service, resident hook, scheduler, CI, schema migration or deployment is part of this plan. UI adapters can extend the existing PAGE owner transport; they do not become a second owner. If the required owner contract does not exist, stop the affected package with an exact held-capability record. Do not invent successful owner state or broaden backend authority to finish a checkbox.
+
+## Verification obligations
+
+Before a package can close after separate source admission, compare its complete original steps, implement meaningful positive/negative boundary tests, exercise native browser input and obtain actual visible-state assertions before PNG output. Verify complete review content, explicit confirmation/cancel/back/close and opener focus. The VPG-01 below-fold negative must remain rejected; all named state text must be painted inside dialog/viewport bounds with hit-testing. Preserve current header behavior at320/390/430/600/601/1280px and all 44 source cases.
+
+Any capture/helper/contract/generated PAGE source change requires a clean committed source cut and a complete fresh current matrix; never relabel old PNG/source hashes. Publish with the existing staged/recovery publisher. During intermediate packages, source proof must be fresh but strict qualification may remain held; counts can increase only from real registered passing journeys, preserving the previous qualified set. At final source closure, sourceProofOk=true,43 qualified,0 held and the strict command exits0. All80 planned cases and all 47 history artifacts are accounted for. Source success does not clear live, physical-device, trusted-touch, native owner, GSD mapping or release gates.
+
+Use existing commands: `npm run proof:field-atlas`, explicit `--write-canonical` only from a clean source cut, `npm run proof:field-atlas:check -- --json`, `npm run drift:audit`, curious app tests/typecheck/bundle parity, Worker dry-run and actual sourcemap guard, and final frozen `npm test`. Retain existing broader Worker diagnostics only when their identities are unchanged; do not claim a globally clean typecheck from the narrower app check.
+
+## GSD workflow use
+
+The named planning skill resolves to gsd-plan-phase. Research is disabled in current config; source inspection and exact existing evidence supply the bounded inputs. This is a new follow-up proposal, not a replan of the completed viewport/header task or a replacement for active Phase 9. GSD-compatible plans and an independent plan-checker review are prepared here; global phase initialization, roadmap activation, execution and branch switching are not invoked. Current branch identity is retained. UI phase/safety gate flags are both false; no new mandatory UI-spec or design selection is inferred.
+
+All PLAN frontmatter must have `status: proposed`, `execution_authorized: false`, `autonomous: false`, `phase: viewport-behavior-gaps-v1`, exact VPG ID, sequential wave and explicit requirements/dependencies/files. Use inline JSON arrays for depends_on, requirements and files_modified. Each plan has 2–3 bounded tasks with unique VPG-ID-TN labels, exact files, whole-step comparisons, verification and done criteria. Include a short relevant threat_model for provenance/owner confusion, accidental effects or partial visible proof. Do not add generic compliance work.
