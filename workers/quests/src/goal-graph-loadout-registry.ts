@@ -1,6 +1,14 @@
 import type { GoalGraphLoadoutAuthority, GoalGraphLoadoutAuthorityRecord } from './goal-graph/types.ts';
 
 const RECORDS: readonly GoalGraphLoadoutAuthorityRecord[] = Object.freeze([
+  // Finite pilot source scope only; no image, policy, admission or runner is activated here.
+  Object.freeze({
+    loadoutId: 'loadout:cambium-patch-pilot',
+    eligibleWorkObjectIds: Object.freeze(['sapling:cambium']),
+    authorizedClusterIds: Object.freeze(['cluster:cambium-patch-verification']),
+    authorityDigest: 'sha256:5c4d8332f7f600efc7a41abc4ccde9d515be30c5ee59830d15dc011ac9208b10',
+    sourceRef: 'docs/project-management/cambium-patch-pilot-loadout.v1.json',
+  }),
   // Finite source policy only: this registry entry does not issue admission or a Gate approval.
   Object.freeze({
     loadoutId: 'loadout:wtfmedia-source-audit',

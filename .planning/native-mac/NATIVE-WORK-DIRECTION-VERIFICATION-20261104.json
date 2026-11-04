@@ -1,0 +1,57 @@
+{
+  "schema": "cambium.native-work-direction-verification.v1",
+  "recorded_at": "2026-11-03T22:25:57.695Z",
+  "scope": "live-native-founder-session",
+  "productionAcceptance": true,
+  "fullOperationalLoopAccepted": false,
+  "tenant": "cambium",
+  "native_source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
+  "native_input_digest": "f5124f905e6089e31e5962c5cae2f43c7a17e3dd912c261417585427ff0bc4b2",
+  "worker_version": "2971a905-f6af-4df4-8b1b-985d0df1af20",
+  "work": {
+    "object": "sapling:cambium",
+    "proposal_change_digest": "55efd3d72733ccf2669494a5e15c0bc32f3d5bdf30dcbc953abc3ffbca4acaef",
+    "canonical_founder_approval_observed": true,
+    "native_mapped_project_reports_explicit_runtime_join": true,
+    "native_open_work_control_succeeded": true,
+    "objective": "Coordinate Cambium signals into approved work and verified results.",
+    "next_step": "Draft a direction from the retained Inbox verification signal.",
+    "admission_observed": false
+  },
+  "direction": {
+    "source_signal_title": "Native Inbox activation verification",
+    "source_signal_project": "sapling:cambium",
+    "title": "Reject whitespace-only signal titles",
+    "source": "real native draft composer",
+    "work_context_loaded_from_server": true,
+    "save_control_enabled": true,
+    "save_submitted_once": true,
+    "create_response_validated_by_native_client": true,
+    "outcome": "Direction saved; ready for review; work not approved or launched",
+    "fresh_persisted_list_readback_observed": false,
+    "scope_note": "Actual create response and saved UI verified. The current UI does not expose a saved-direction browser; no independent fresh persisted-list readback claimed."
+  },
+  "local_boundary_checks": {
+    "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+    "repository_tests_passed": 2717,
+    "swift_core": "265 tests;2opt-in skips;0failures",
+    "native_tests_passed": 43,
+    "covered": "Scope, canonical Work/head and exact signal revision pins, operation replay, changed request and revision conflicts, bounded transport and response validation"
+  },
+  "management_read": "Cloudflare API authentication10000; direct D1 readback unavailable",
+  "execution": {
+    "direction_approved": false,
+    "admitted": false,
+    "hermes_capability_installed": false,
+    "launched": false,
+    "result": false,
+    "accepted": false
+  },
+  "remaining": [
+    "Real saved-direction browser/readback and direction approval UI",
+    "Pin direction revision, Work/head, artifact/base, policy and budget in canonical review",
+    "Governed admission producer and current-owner launch adapter",
+    "Installed finite Docker-isolated hosted Hermes coding capability",
+    "Immutable result, tests/diff and pinned-policy acceptance readback"
+  ]
+}

@@ -1,3 +1,5 @@
+import { parseCambiumPatchInput, parseCambiumPatchResult, patchDigest, type CambiumPatchInput, type CambiumPatchPolicy, type CambiumPatchResult } from '../../../shared/cambium-patch-contract.ts';
+import type { d1DirectionAdmissionStore } from './direction-execution-d1.ts';
 import { MAPPING_ANNOTATIONS } from './portfolio-four-annotations.data.ts';
 import { parseAnnotations } from './portfolio-four-annotations.ts';
 import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
@@ -7,6 +9,11 @@ import { founderDecisionHttp, type FounderTransportHost } from './founder-decisi
 import { nativeLaunchHttp, NATIVE_LAUNCH_PATHS, type NativeLaunchHost } from './native-launch.ts';
 import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
 import { sharedSignalsHttp, type SignalStore } from './shared-signals.ts';
+import { sharedDirectionsHttp } from './shared-directions-http.ts';
+import type { DirectionStore } from './shared-directions.ts';
+import { OPERATIONAL_WORK_SCHEMA, parseOperationalWorkBoundary, parseOperationalWorkIntent, adaptOperationalWorkSources } from './operational-work-intake.ts';
+import { directionExecutionHttp, isDirectionExecutionRoute, type CambiumPilotHost } from './direction-execution-http.ts';
+import { DIRECTION_EXECUTION_INTENT, directionExecutionIdentity, directionExecutionTaskReview, type DirectionExecutionRequest, type buildDirectionExecutionProposal } from './direction-execution-review.ts';
 import {
   composeNativeLaunchHost,
   nativeComposedPath,
@@ -253,13 +260,14 @@ export interface BridgeExecutionAttestation {
   idempotencyKey: string;
   runnerId: string;
   hostIdentity: string;
-  command: 'canary.record' | 'service_agreement.draft.render' | 'source_verification.accept' | 'growth.request.draft';
+  command: 'canary.record' | 'service_agreement.draft.render' | 'source_verification.accept' | 'growth.request.draft' | 'cambium.patch.verify';
   status: BridgeExecutionOutcomeStatus;
   exitCode: 0 | 1 | null;
   inputDigest: string;
   outputDigest?: string;
   businessReceipt?: BridgeBusinessArtifactReceipt;
   growthResult?: GrowthResult;
+  cambiumPatchResult?: CambiumPatchResult;
   errorCode?: string;
   startedAt: string;
   finishedAt: string;
@@ -364,6 +372,7 @@ export interface BridgeDirectiveProgress {
 }
 
 export interface BridgeExecutionStoreLike {
+  readTerminalAttestation?(memberId: string, directiveId: string): Promise<BridgeExecutionAttestation | null>;
   /** Read-only: the latest attempt for a directive, for the founder path projection. */
   readDirectiveProgress?(memberId: string, directiveId: string): Promise<BridgeDirectiveProgress | null>;
   claimExecution(input: BridgeExecutionClaimInput): Promise<BridgeExecutionClaimResult>;
@@ -516,9 +525,12 @@ export interface FabricLedgerStoreLike {
 
 export interface HandlerDeps {
   sharedSignalStore?: SignalStore;
+  sharedDirectionStore?: DirectionStore;
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
+  directionAdmissionStore?: ReturnType<typeof d1DirectionAdmissionStore>;
   nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
+  cambiumPilot?: CambiumPilotHost; // explicit reviewed pilot policy and D1 owner; absent by default
   nativeSessionHost?: NativeSessionHost; // absent until Access exchange, client registry, enrollment and D1 are reviewed; routes then 503
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
@@ -1230,6 +1242,7 @@ interface ServiceAgreementDraftInput {
 }
 
 type NativeExecutionContract =
+  | { command: 'cambium.patch.verify'; idempotencyKey: string; input: CambiumPatchInput; policy: CambiumPatchPolicy }
   | { command: 'canary.record'; idempotencyKey: string; input: { nonce: string } }
   | { command: 'service_agreement.draft.render'; idempotencyKey: string; input: ServiceAgreementDraftInput }
   | { command: 'growth.request.draft'; idempotencyKey: string; input: GrowthInput }
@@ -1603,7 +1616,7 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
     || attestationRunnerId !== runnerId
     || attestationHostIdentity !== hostIdentity
     || (rawAttestation.command !== 'canary.record' && rawAttestation.command !== 'service_agreement.draft.render'
-      && rawAttestation.command !== 'source_verification.accept' && rawAttestation.command !== 'growth.request.draft')
+      && rawAttestation.command !== 'source_verification.accept' && rawAttestation.command !== 'growth.request.draft' && rawAttestation.command !== 'cambium.patch.verify')
     || rawAttestation.status !== status) return null;
   const exitCode: 0 | 1 | null = status === 'executed' ? 0 : status === 'failed' ? 1 : null;
   if (rawAttestation.exitCode !== exitCode) return null;
@@ -1611,6 +1624,11 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
     ? undefined
     : parseBusinessArtifactReceipt(rawAttestation.businessReceipt);
   if (rawAttestation.businessReceipt !== undefined && !businessReceipt) return null;
+  const cambiumPatchResult = rawAttestation.cambiumPatchResult;
+  if (rawAttestation.command === 'cambium.patch.verify') {
+    if (status === 'executed' && !isRecord(cambiumPatchResult)) return null;
+    if (status !== 'executed' && cambiumPatchResult !== undefined) return null;
+  } else if (cambiumPatchResult !== undefined) return null;
   const growthResult = rawAttestation.growthResult === undefined ? undefined : parseGrowthResult(rawAttestation.growthResult);
   if (rawAttestation.growthResult !== undefined && !growthResult) return null;
   if (rawAttestation.command === 'growth.request.draft') {
@@ -1648,6 +1666,7 @@ function executionOutcomeBody(value: unknown): Omit<BridgeExecutionOutcomeInput,
       ...(outputDigest ? { outputDigest } : {}),
       ...(businessReceipt ? { businessReceipt } : {}),
       ...(growthResult ? { growthResult } : {}),
+      ...(cambiumPatchResult ? { cambiumPatchResult: cambiumPatchResult as unknown as CambiumPatchResult } : {}),
       ...(errorCode ? { errorCode } : {}),
       startedAt: startedAt!,
       finishedAt: finishedAt!,
@@ -1659,6 +1678,7 @@ function nativeExecutionContract(
   directive: Record<string, unknown> | null,
   memberId: string,
   directiveId: string,
+  policy?: CambiumPatchPolicy,
 ): NativeExecutionContract | null {
   if (!directive || (directive.memberId !== undefined && directive.memberId !== memberId)) return null;
   const payload = isRecord(directive.payload) ? directive.payload : null;
@@ -1672,6 +1692,10 @@ function nativeExecutionContract(
     ? directiveId
     : executionText(directive.idempotencyKey);
   if (!idempotencyKey) return null;
+  if (payload.command === 'cambium.patch.verify' && policy) {
+    const codeInput = parseCambiumPatchInput(input, policy);
+    if (codeInput) return { command: 'cambium.patch.verify', idempotencyKey, input: codeInput, policy };
+  }
   if (payload.command === 'canary.record'
     && Object.keys(input).length === 1
     && typeof input.nonce === 'string'
@@ -1724,7 +1748,10 @@ async function validExecutionAttestation(
   if (outcome.attestation.inputDigest !== expectedInputDigest) return false;
   if (outcome.attestation.command !== contract.command) return false;
   if (outcome.status === 'executed') {
-    if (contract.command === 'canary.record') {
+    if (contract.command === 'cambium.patch.verify') {
+      const result = parseCambiumPatchResult(outcome.attestation.cambiumPatchResult, contract.input, contract.policy, outcome.executionId);
+      if (!result || patchDigest(result) !== outcome.attestation.outputDigest) return false;
+    } else if (contract.command === 'canary.record') {
       const proof = {
         schema: 'thoughtseed.hermes.canary_proof.v1',
         directiveId: outcome.directiveId,
@@ -3388,6 +3415,20 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
         entries.push(entry);
       }
     }
+    // The new Work source must be read from its coherent committed graph.
+    // Legacy Task projections retain their existing read contract.
+    const operationalWorks = adaptOperationalWorkSources(nodes.filter(node => node.tenantId === tenant));
+    if (operationalWorks.length) {
+      const confirmedHead = await deps.goalGraphStore.readHead(tenant);
+      if (!confirmedHead || confirmedHead.graphDigest !== head.graphDigest || confirmedHead.graphVersion !== head.graphVersion
+          || makeGoalGraphHead(tenant, nodes, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) {
+        return json(503, { error: 'goal_graph_read_unconfirmed' });
+      }
+    }
+    if (operationalWorks.some(work => work.kind === 'work' && entries.some(entry => 'kind' in entry && entry.kind === 'work' && entry.value.workId === work.value.workId))) {
+      return json(503, { error: 'operational_work_source_conflict' });
+    }
+    entries.push(...operationalWorks);
     const goalGraphAuthority = adaptGoalGraphAuthority({
       tenantId: tenant,
       graphVersion: head.graphVersion,
@@ -4018,6 +4059,10 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     };
   }
   const bookkeeping = isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA;
+  const operational = isRecord(task.intent) && task.intent.schema === OPERATIONAL_WORK_SCHEMA;
+  const directionExecution = isRecord(task.intent) && task.intent.schema === DIRECTION_EXECUTION_INTENT;
+  const directionReview = directionExecution ? directionExecutionTaskReview(task) : null;
+  if (directionExecution && !directionReview) return null;
   const changeSet = isRecord(task.changeSet) ? task.changeSet : {};
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
@@ -4030,17 +4075,19 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
-    source: task.renewal ? 'founder-proposal-renewal@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : directionExecution ? 'Direction execution proposal' : operational ? 'Cambium operational Work proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : directionExecution ? 'native-direction-execution@v1' : operational ? 'founder-web-operational-work@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    ...(directionReview ? { directionExecution: directionReview } : {}),
+    ...(operational ? { operationalWorkChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : directionExecution ? 'founder signature approves this exact direction revision, source pins, patch, policy and budget; governed admission and an explicit launch remain separate' : operational ? 'founder signature establishes only the reviewed Cambium Work source; execution still requires a separate direction approval and admission' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
     proposalId: `${tenantId}:${changeDigest}`,
     version: Number.isInteger(task.intentVersion) ? task.intentVersion : 1,
-    canRenew: task.status === 'stale' || Date.parse(descriptor.approvalExpiresAt) <= Date.now(),
+    canRenew: task.intent?.schema !== DIRECTION_EXECUTION_INTENT && (task.status === 'stale' || Date.parse(descriptor.approvalExpiresAt) <= Date.now()),
     graphVersion: Number.isInteger(task.graphVersion) ? task.graphVersion : null,
     receivedAt,
     updatedAt: receivedAt,
@@ -4414,6 +4461,45 @@ async function appendFounderOutcomeQuestProjection(
   }
 }
 
+function directionProposalResponse(task: Record<string, unknown>, duplicate: boolean): SimpleResponse {
+  const review = directionExecutionTaskReview(task);
+  if (!review) return json(503, { error: 'direction_proposal_unconfirmed' });
+  return { ...json(200, { schema: 'cambium.direction-proposal.v1', tenantId: review.tenantId, principal: review.principal,
+    directionId: review.direction.id, directionRevision: review.direction.revision,
+    workObjectId: review.input.workObjectId,
+    proposalId: `${review.tenantId}:${task.changeDigest}`, changeDigest: task.changeDigest,
+    duplicate, writerAuthority: false, executionGranted: false }),
+    headers: { ...JSON_HEADERS, 'cache-control': 'private, no-store' } };
+}
+async function replayDirectionProposal(deps: HandlerDeps, scope: { tenantId: string; principal: string }, directionId: string, request: DirectionExecutionRequest): Promise<SimpleResponse | null> {
+  const identity = directionExecutionIdentity(scope, directionId, request);
+  const replay = await reconcileGoalGraphIntakePersistence(deps.kv, { tenantId: scope.tenantId,
+    idempotencyKey: identity.idempotencyKey, contentDigest: identity.contentDigest,
+    idempotencyRecordKey: `goal-graph-intake-idem:${identity.idempotencyKey}` });
+  if (replay.kind === 'conflict') return json(409, { error: 'operation_conflict' });
+  return replay.kind === 'ready' ? directionProposalResponse(replay.task, true) : null;
+}
+async function persistDirectionProposal(deps: HandlerDeps, proposal: ReturnType<typeof buildDirectionExecutionProposal>, request: DirectionExecutionRequest): Promise<SimpleResponse> {
+  const { review, node, changeSet } = proposal;
+  const receivedAt = node.createdAt;
+  const task = { schema: GOAL_GRAPH_INTAKE_TASK_SCHEMA, tenantId: review.tenantId, status: 'pending',
+    idempotencyKey: proposal.idempotencyKey, intentVersion: 1, sourceRef: proposal.sourceRef, sourceDigest: proposal.contentDigest,
+    contentDigest: proposal.contentDigest, changeDigest: changeSet.changeDigest, graphVersion: changeSet.graphVersion,
+    expectedHeadDigest: changeSet.expectedHeadDigest, nodeId: node.nodeId,
+    intent: { schema: DIRECTION_EXECUTION_INTENT, version: 1, tenantId: review.tenantId, directionId: review.direction.id, request },
+    node, changeSet, directionExecution: review, receivedAt, updatedAt: receivedAt,
+    approvalNonce: `goal-graph-approval:${review.tenantId}:${changeSet.changeDigest}`,
+    approvalExpiresAt: new Date(Date.parse(receivedAt) + GOAL_GRAPH_APPROVAL_TTL_MS).toISOString(),
+    expectedHeadVersion: review.sourceHead.graphVersion, fence: changeSet.graphVersion };
+  const persisted = await reconcileGoalGraphIntakePersistence(deps.kv, { tenantId: review.tenantId,
+    idempotencyKey: proposal.idempotencyKey, contentDigest: proposal.contentDigest,
+    idempotencyRecordKey: `goal-graph-intake-idem:${proposal.idempotencyKey}`,
+    taskKey: goalGraphIntakeTaskKey(review.tenantId, changeSet.changeDigest), task });
+  if (persisted.kind === 'conflict') return json(409, { error: 'operation_conflict' });
+  return persisted.kind === 'ready' ? directionProposalResponse(persisted.task, persisted.duplicate)
+    : json(503, { error: 'direction_proposal_unconfirmed' });
+}
+
 async function intakeTelegramGoalGraphRoute(
   deps: HandlerDeps,
   raw: unknown,
@@ -4452,7 +4538,8 @@ async function intakeTelegramGoalGraphRoute(
   // Normalize and bind provenance before consulting D1. That boundary identity
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
-  const initial = verifiedFounderId ? parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
+  const operational = !!verifiedFounderId && isRecord(raw) && raw.schema === OPERATIONAL_WORK_SCHEMA;
+  const initial = verifiedFounderId ? operational ? parseOperationalWorkBoundary(raw, verifiedFounderId) : parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
@@ -4492,7 +4579,7 @@ async function intakeTelegramGoalGraphRoute(
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   };
-  const pinned = verifiedFounderId ? parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
+  const pinned = verifiedFounderId ? operational ? parseOperationalWorkIntent(raw, verifiedFounderId, context) : parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
   if (!pinned.accepted) return persistRejection(pinned);
   if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
     return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
@@ -5586,6 +5673,12 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
 
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const nativePath = req.path.split('?')[0];
+  if (isDirectionExecutionRoute(req.path)) return directionExecutionHttp(req, deps, {
+    replay: (scope, id, input) => replayDirectionProposal(deps, scope, id, input),
+    persist: (proposal, input) => persistDirectionProposal(deps, proposal, input),
+    readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
+  });
+  if (nativePath === '/v1/directions' || nativePath.startsWith('/v1/directions/')) return sharedDirectionsHttp(req, deps);
   if (nativePath === '/v1/signals' || nativePath.startsWith('/v1/signals/')) {
     // Signals annotate source projects, including display proposals. This never
     // creates a runtime join, tenant grant or operational admission.
@@ -6962,7 +7055,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (!mayAct(claim.memberId)) return json(403, { error: 'token not scoped to this member' });
 
       const directive = await bridgeStore.getDirective(claim.memberId, claim.directiveId);
-      const contract = nativeExecutionContract(directive, claim.memberId, claim.directiveId);
+      const contract = nativeExecutionContract(directive, claim.memberId, claim.directiveId, (await deps.directionAdmissionStore?.readByDirective(claim.memberId, claim.directiveId))?.review.policy);
       if (!contract) {
         return json(409, { error: 'directive is not an executable native directive for this member' });
       }
@@ -6975,6 +7068,16 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       }
       const identity = await nativeExecutionIdentity(claim.memberId, claim.directiveId, contract);
 
+      if (contract.command === 'cambium.patch.verify') {
+        if (claim.executionId !== identity.executionId) return json(409, { error: 'execution identity mismatch' });
+        const record = await deps.directionAdmissionStore?.readByDirective(claim.memberId, claim.directiveId);
+        if (!record || record.review.idempotencyKey !== contract.idempotencyKey || record.review.inputDigest !== identity.inputDigest) return json(409, { error: 'coding admission mismatch' });
+        const terminal = await deps.executionStore.hasTerminalExecution(claim.memberId, claim.directiveId, identity);
+        if (!terminal) {
+          const admission = await deps.nativeLaunchHost?.store.readAdmission({ tenantId: record.review.tenantId, principalId: record.review.principal }, record.admissionRef, nowIso());
+          if (!admission || admission.hold !== 'admission_consumed' || !admission.consumedBy) return json(409, { error: 'coding admission is not current and reserved' });
+        }
+      }
       const claimedAt = nowIso();
       const claimedAtMs = Date.parse(claimedAt);
       if (!Number.isFinite(claimedAtMs)) return json(500, { error: 'execution clock unavailable' });
@@ -7007,7 +7110,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (!outcome) return json(400, { error: 'invalid execution outcome contract' });
       if (!mayAct(outcome.memberId)) return json(403, { error: 'token not scoped to this member' });
       const directive = await bridgeStore.getDirective(outcome.memberId, outcome.directiveId);
-      const contract = nativeExecutionContract(directive, outcome.memberId, outcome.directiveId);
+      const contract = nativeExecutionContract(directive, outcome.memberId, outcome.directiveId, (await deps.directionAdmissionStore?.readByDirective(outcome.memberId, outcome.directiveId))?.review.policy);
       if (!contract || contract.idempotencyKey !== outcome.idempotencyKey) {
         return json(409, { error: 'execution directive contract mismatch' });
       }
@@ -7210,7 +7313,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         const directive = await bridgeStore.getDirective(String(member), id);
         const payload = isRecord(directive?.payload) ? directive.payload : null;
         if (payload?.type !== 'native_execution') continue;
-        const contract = nativeExecutionContract(directive, String(member), id);
+        const contract = nativeExecutionContract(directive, String(member), id, (await deps.directionAdmissionStore?.readByDirective(String(member), id))?.review.policy);
         if (!contract) {
           return json(409, { ok: false, error: 'native directive contract is invalid', refused: [id] });
         }

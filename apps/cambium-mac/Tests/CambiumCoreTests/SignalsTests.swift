@@ -92,7 +92,15 @@ final class SignalsTests: XCTestCase {
         let signal = HTTPRequest(method: "POST", url: URL(string: "https://owner.invalid/v1/signals/cambium")!, body: medium)
         let accepted = try await transport.send(signal)
         XCTAssertEqual(accepted.status, 200)
-        for path in ["/v1/founder/decision", "/v1/native/launch", "/v1/signals/cambium/extra/path"] {
+        for route in ["/v1/directions/cambium", "/v1/signals/cambium"] {
+            let url = URL(string: "https://owner.invalid" + route)!
+            let saved = try await transport.send(HTTPRequest(method: "POST", url: url, body: medium))
+            XCTAssertEqual(saved.status, 200)
+            let changed = try await transport.send(HTTPRequest(method: "PUT", url: URL(string: url.absoluteString + "/id")!, body: medium))
+            XCTAssertEqual(changed.status, 200)
+            do { _ = try await transport.send(HTTPRequest(method: "POST", url: url, body: Data(repeating: 65, count: 65537))); XCTFail("Expected bounded draft limit") } catch { }
+        }
+        for path in ["/v1/founder/decision", "/v1/native/launch", "/v1/signals/cambium/extra/path", "/v1/directions/cambium/extra/path", "/v1/directions/cambium?unexpected=x"] {
             do { _ = try await transport.send(HTTPRequest(method: "POST", url: URL(string: "https://owner.invalid" + path)!, body: medium)); XCTFail("Expected original limit") } catch { }
         }
         do { _ = try await transport.send(HTTPRequest(method: "POST", url: signal.url, body: Data(repeating: 65, count: 65537))); XCTFail("Expected signal limit") } catch { }

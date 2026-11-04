@@ -27,6 +27,7 @@ final class CambiumOwnerServices: OwnerServices {
     private let identity: NativeIdentityController?
     private let discovery: any AdmissionDiscovering
     private let signals: SignalHTTPClient?
+    private let directions: DirectionHTTPClient?
     private var recoveryDirectory: URL?
     private var review: GateReview?
     private var capability: LaunchCapability?
@@ -41,7 +42,7 @@ final class CambiumOwnerServices: OwnerServices {
                  fabricStore: MissionFabricSnapshotStore, knowledgeStore: KnowledgeSnapshotStore,
                  fieldTheory: any FieldTheoryReading, fieldReport: any FieldReportReading,
                  theoryExport: Data?, reportExport: Data?, owner: DemoOwnerSimulator?,
-                 identity: NativeIdentityController?, discovery: any AdmissionDiscovering, recoveryDirectory: URL?, signals: SignalHTTPClient?) {
+                 identity: NativeIdentityController?, discovery: any AdmissionDiscovering, recoveryDirectory: URL?, signals: SignalHTTPClient?, directions: DirectionHTTPClient? = nil) {
         self.isDemo = isDemo
         self.replayClock = replayClock
         self.supportsReject = supportsReject
@@ -61,6 +62,7 @@ final class CambiumOwnerServices: OwnerServices {
         self.identity = identity
         self.discovery = discovery
         self.signals = signals
+        self.directions = directions
         self.recoveryDirectory = recoveryDirectory
     }
 
@@ -156,7 +158,8 @@ final class CambiumOwnerServices: OwnerServices {
             fieldTheory: UnconfiguredFieldTheoryReader(), fieldReport: UnconfiguredFieldReportReader(),
             theoryExport: nil, reportExport: nil, owner: nil, identity: identity,
             discovery: discovery, recoveryDirectory: nil,
-            signals: origin.flatMap { origin in transport.map { SignalHTTPClient(origin: origin, transport: $0, authorizer: authorizer, sessionProvider: identity, clock: clock) } }
+            signals: origin.flatMap { origin in transport.map { SignalHTTPClient(origin: origin, transport: $0, authorizer: authorizer, sessionProvider: identity, clock: clock) } },
+            directions: origin.flatMap { origin in transport.map { DirectionHTTPClient(origin: origin, transport: $0, authorizer: authorizer, sessionProvider: identity, clock: clock) } }
         )
     }
 
@@ -200,6 +203,50 @@ final class CambiumOwnerServices: OwnerServices {
         guard let signals, let current = await session() else { throw SignalError.authorization }
         let token = generation
         let result = try await signals.update(tenant: current.tenantId, id: id, value: value)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+
+    func directionList() async throws -> DirectionList {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.list(tenant: current.tenantId)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func directionCreate(_ value: DirectionCreate) async throws -> DirectionResult {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.create(tenant: current.tenantId, value: value)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func directionExecutionPreview(_ direction: SharedDirection) async throws -> DirectionExecutionPreview {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.executionPreview(tenant: current.tenantId, direction: direction)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func prepareDirectionExecution(_ directionId: String, value: DirectionExecutionPrepare) async throws -> PreparedDirectionExecution {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.prepareExecution(tenant: current.tenantId, directionId: directionId, value: value)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func admitDirectionExecution(_ proposalId: String) async throws -> DirectionAdmission {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.admitExecution(tenant: current.tenantId, proposalId: proposalId)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+
+    func directionExecutionResult(requestId: String, attemptId: String) async throws -> CambiumCore.DirectionExecutionResult {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.executionResult(tenant: current.tenantId, requestId: requestId, attemptId: attemptId)
         guard stillCurrent(token) else { throw SignalError.scope }
         return result
     }
@@ -582,6 +629,8 @@ final class CambiumOwnerServices: OwnerServices {
         rows("nodesToUpdate", "Update") { (json($0["before"]), json($0["after"])) }
         rows("nodesToRemove", "Remove") { ($0["nodeId"] as? String ?? "", "removed") }
         return ReviewDisplay(
+            isDirectionExecution: object?["source"] as? String == "native-direction-execution@v1",
+            directionExecution: DirectionReviewDisplay(object: object ?? [:], graphVersion: changeSet?["graphVersion"] as? Int),
             proposalId: tuple.proposalId, tenantId: tuple.tenantId, version: tuple.version,
             changeDigest: tuple.changeDigest, nonce: tuple.nonce, expiresAt: tuple.expiresAt, summary: tuple.summary,
             consequence: object?["consequence"] as? String ?? "", reversibility: object?["reversibility"] as? String ?? "",

@@ -56,6 +56,17 @@ export interface GoalChangeSet {
   isNoop: boolean;
   sourceRef: string;
   sourceDigest: string;
+  /** Exact owner-read direction sources, checked atomically with the founder decision. */
+  sourceFence?: GoalGraphDirectionSourceFence;
+}
+
+export interface GoalGraphDirectionSourceFence {
+  schema: 'cambium.goal-graph.direction-source-fence.v1';
+  principalId: string;
+  directionId: string;
+  directionRevision: number;
+  document: string;
+  signalPins: readonly { id: string; revision: number }[];
 }
 
 export interface GoalGraphInputNode extends Omit<GoalGraphNode, 'nodeId' | 'createdAt' | 'updatedAt'> {
@@ -76,6 +87,7 @@ export interface GoalGraphCompileInput {
   now?: string;
   /** Required whenever a proposed node pins a governed operational loadout. */
   loadoutAuthority?: GoalGraphLoadoutAuthority;
+  sourceFence?: GoalGraphDirectionSourceFence;
 }
 
 export interface GoalGraphLoadoutAuthorityRecord {

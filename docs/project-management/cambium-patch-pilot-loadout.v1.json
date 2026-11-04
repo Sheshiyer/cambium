@@ -1,0 +1,14 @@
+{
+  "schema": "cambium.goal-graph.loadout.v1",
+  "loadoutId": "loadout:cambium-patch-pilot",
+  "eligibleWorkObjectIds": [
+    "sapling:cambium"
+  ],
+  "authorizedClusterIds": [
+    "cluster:cambium-patch-verification"
+  ],
+  "command": "cambium.patch.verify",
+  "scope": "Apply only the pinned shared-signal title validation patch in an isolated container and return bounded diff/test evidence.",
+  "executionPolicy": "An explicitly reviewed owner policy pins base, patch, image digest, budget, noesis-free and review-required acceptance. No policy or image is inferred from this loadout.",
+  "externalActions": "none"
+}

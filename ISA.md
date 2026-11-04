@@ -20,13 +20,15 @@ Owning continuation: `.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.jso
 This does not reopen the completed Inbox activation or imply execution admission.
 
 - [x] ISC-3680: Standard mode exposes explicit Sign in/re-entry, validates the configured owner before browser presentation, preserves demo isolation and waits for prior owner cancellation; native regression checks pass.
-- [ ] ISC-3681: A founder-approved authoritative Work record creates the actual served `sapling:cambium` join without deriving operational authority from catalog membership.
-- [ ] ISC-3682: Shared revisioned directions retain exact signal/evidence revisions and stale-edit/replay/scope checks.
+- [x] ISC-3681: A founder-approved authoritative Work record creates the actual served `sapling:cambium` join without deriving operational authority from catalog membership.
+- [x] ISC-3682: Shared revisioned directions retain exact signal/evidence revisions and stale-edit/replay/scope checks.
 - [ ] ISC-3683: The installed hosted Hermes owner supports the finite pinned Cambium pilot and its reviewed free-pool/acceptance policies.
 - [ ] ISC-3684: Real native review/approval pins the direction, Work head, input, artifact, budget/stop conditions and acceptance policy; admission uses the governed owner path.
 - [ ] ISC-3685: Native launch reserves before idempotent Hermes submission; lost replies recover the original attempt through status only.
 - [ ] ISC-3686: The real result includes immutable artifact/diff/test evidence and a separately verified pinned-policy acceptance or review-required verdict.
 - [ ] ISC-3687: An actual signed-in Mac walkthrough proves signal → direction → approved work → result and records a truthful bounded handoff.
+
+Evidence for ISC-3681/3682: `.planning/native-mac/NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json`. Live native Work/open and one validated draft-create result are observed; an independent fresh persisted-list readback remains open.
 
 ### 2026-11-03 shared signal capture and native Inbox
 

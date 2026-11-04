@@ -1,0 +1,26 @@
+{
+  "schema": "cambium.founder.operational-work-intent.v1",
+  "version": 1,
+  "tenantId": "cambium",
+  "clientRequestId": "cambium-operational-work-20261104-02",
+  "expectedHeadDigest": "2c14f77ac4d9a90d735d27eaf6b6ca766be02b00433cf49ae595088ce64ff99b",
+  "goals": [
+    {
+      "namespace": "founder-operational-work",
+      "externalId": "cambium-work",
+      "parentNodeId": "goal_e2e36468741e8ef2dbf6db098c525ba97d0e8fb75ff1b2cc644ae47b33984811",
+      "scope": "meso",
+      "desiredState": "Coordinate Cambium signals into approved work and verified results.",
+      "currentState": "Shared Inbox live; direction and execution flow pending verification.",
+      "owner": "founder",
+      "nextAction": "Draft a direction from the retained Inbox verification signal.",
+      "waitCondition": null,
+      "proofRequired": true,
+      "reviewAt": null,
+      "status": "active",
+      "metadata": {},
+      "workObjectId": "sapling:cambium",
+      "workObjectKind": "sapling"
+    }
+  ]
+}

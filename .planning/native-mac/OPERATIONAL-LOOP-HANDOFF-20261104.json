@@ -1,13 +1,13 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T19:38:30.934459+00:00",
-  "status": "sign-in-built-operational-loop-not-wired",
+  "updated": "2026-11-03T23:28:08.952071+00:00",
+  "status": "finite-ssm-rollout-prepared-awaiting-owner-approval",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
-  "branch": "codex/cambium-operational-loop-20261104",
+  "branch": "codex/cambium-real-work-loop-20261104",
   "base_commit": "b6652fcf991eba804cffeaa38d2d265c10218532",
-  "native_source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
-  "native_input_digest": "ef3821882981aad706f637782c20797a411c3bd28186078b80e9a014561045e8",
+  "native_source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
+  "native_input_digest": "f5124f905e6089e31e5962c5cae2f43c7a17e3dd912c261417585427ff0bc4b2",
   "candidate_patch": {
     "base": "b6652fcf991eba804cffeaa38d2d265c10218532",
     "source": "1f64c646cb6bac0e91919f25322f93773fefba32",
@@ -28,7 +28,11 @@
     "Inspected Hermes finite command/source-verification contracts read-only",
     "Added main/sidebar Sign in, expiry-aware re-entry, configuration validation and prior-owner cancellation ordering",
     "Recorded the founder's explicit selection of hosted Hermes execution",
-    "Simplified Connections, Projects and Inbox; moved technical owner/session/catalog/provenance inspection to Settings > Advanced > Diagnostics"
+    "Simplified Connections, Projects and Inbox; moved technical owner/session/catalog/provenance inspection to Settings > Advanced > Diagnostics",
+    "PR428 reviewed and merged at d571ea92",
+    "Explicit Cambium operational Work intent compiled through canonical founder approval, then emitted as Work from coherent committed D1 source",
+    "Shared direction draft migration/store/HTTP/native composer added with scoped atomic replay and revision CAS",
+    "Free-pool worker candidate stopped and repaired before acceptance; static review findings fixed and regression-tested"
   ],
   "verification": {
     "core": {
@@ -42,9 +46,9 @@
     },
     "bundle": "clean-input ad hoc signed build; verifier passed",
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
-    "real_work_join": "not implemented",
-    "live_operational_loop": "not implemented",
-    "installed_hermes_capability": "not verified",
+    "real_work_join": "Verified in actual signed-in Mac: mapped Cambium explicit runtime join and Open work show approved objective, active state and next step.",
+    "live_operational_loop": "Not run: canonical Work decision, native join/direction test, direction approval/admission and finite Hermes coding capability pending.",
+    "installed_hermes_capability": "Fresh readback: deployed growth release09b3369 differs from old e338 checkpoint and Git main. Existing hardened runner has no Docker/source-store access. Preserve current behavior; finite SSM pilot vs narrow helper choice is pending. No rollout performed.",
     "ui_cleanup": {
       "source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
       "core": "261 tests, two opt-in skips, zero failures",
@@ -52,23 +56,156 @@
       "bundle": "clean input provenance; ad hoc signature verified",
       "mac_walkthrough": "Compact signed-out Connections; Settings > Advanced > Diagnostics opens technical configuration; Done returns to Settings; populated demo Projects and Inbox hide raw IDs, and project disclosure exposes named searchable choices. Final copy-only build reopened successfully.",
       "live_scope": "No fresh sign-in or operational-loop execution claimed for this UI build."
+    },
+    "work_direction_source": {
+      "focused_backend": "517 passed before final compatibility fix; 501 compatibility/handler/atlas checks passed after it",
+      "swift_core": "265 tests; two opt-in skips; zero failures",
+      "native": "43 passed",
+      "native_input_digest": "f5124f905e6089e31e5962c5cae2f43c7a17e3dd912c261417585427ff0bc4b2",
+      "signed_debug_build": "clean native inputs; ad hoc signature verified",
+      "worker_dry_run": "passed; no upload or traffic change",
+      "independent_review": "Final source and rollout/intent docs rechecked with no actionable findings.",
+      "full_suite": {
+        "source": "0d51e58105615241e61acb69a6c33e99995c9dcb",
+        "passed": 2714,
+        "failed": 0,
+        "follow_up": "34 Gate tests plus atlas checks passed after source71005ef6 adds operational Work proposal visibility"
+      }
+    },
+    "cloudflare_profile": "Founder refreshed existing thoughtseed-labs profile; fresh read-only D1 head11 and52binding version23cf59d1 read succeeded",
+    "deployed_worker": {
+      "schema": "cambium.work-direction-rollout-receipt.v1",
+      "recorded_at": "2026-11-03T20:34:53.466486+00:00",
+      "source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
+      "owner_rollout_approved": true,
+      "migration": {
+        "path": "workers/quests/migrations/0103_shared_directions.sql",
+        "sha256": "sha256:c8e19507f579d1fc7ba44d3d6cb1188f9976e76107daab89e7a5fb442772bed4",
+        "applied": true,
+        "schema_objects_verified": 4
+      },
+      "active_worker_version": "5f2c5dc7-e57a-47a8-89f3-0f64f6c29841",
+      "traffic_percent": 100,
+      "rollback_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+      "preservation": {
+        "binding_count": 52,
+        "all_binding_identities_and_values_equal": true,
+        "runtime_settings_equal": true
+      },
+      "work_proposal": {
+        "path": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
+        "submitted": false,
+        "approved": false
+      },
+      "native_work_join_verified": false,
+      "native_direction_save_verified": false,
+      "hermes_rollout": false,
+      "hermes_execution": false,
+      "full_operational_loop_accepted": false,
+      "remaining": "Historical initial rollout receipt retained. Current live version is founder_read_retry.active_worker_version. Migration0103 already applied. Work not submitted/approved."
+    },
+    "founder_read_retry": {
+      "source": "62836c613fe1329edc634e348471b4531b50db6a",
+      "active_worker_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee",
+      "traffic_percent": 100,
+      "bindings_preserved": 52,
+      "runtime_settings_preserved": true,
+      "owner_approved": true,
+      "live_zen": "Founder signing ready; scoped world read available",
+      "rollback_version": "5f2c5dc7-e57a-47a8-89f3-0f64f6c29841"
+    },
+    "work_form_fix": {
+      "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+      "full_suite": {
+        "tests": 2717,
+        "passed": 2717,
+        "failed": 0
+      },
+      "curious_test": "passed",
+      "six_actual_iab_proofs": "passed",
+      "worker_dry_run": "passed",
+      "independent_review": "no actionable findings",
+      "deployed": true,
+      "active_worker_version": "2971a905-f6af-4df4-8b1b-985d0df1af20",
+      "traffic_percent": 100,
+      "preservation": {
+        "bindings": 52,
+        "all_binding_identities_and_values_equal": true,
+        "runtime_settings_equal": true
+      },
+      "rollback_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee"
+    },
+    "native_sign_in_current": "Founder completed actual native15minute sign-in; connected UI and owner-backed reads/create observed. Do not assume session remains valid on later pickup.",
+    "management_read": "Fresh Cloudflare D1 management read rejected10000; do not infer empty graph or request another refresh for native verification.",
+    "native_direction_save": "Actual native composer loaded Work context and saved Reject whitespace-only signal titles from retained Cambium signal; typed create response validated. Independent fresh list readback not exposed by current UI.",
+    "native_work_direction_receipt": ".planning/native-mac/NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json",
+    "free_pool_architecture_advisory": {
+      "pool": "noesis-free",
+      "status": "completed-output-rejected",
+      "read_only": true,
+      "files_modified_by_worker": false,
+      "reason": "Wrongly claimed live D1 direction store absent and inferred unknown runtime key/binding absence from source; not accepted as a plan or live evidence.",
+      "provider_attribution": "unavailable",
+      "paid_fallback": false
     }
   },
   "remaining": [
-    "Founder-approved operational Work source and actual sapling:cambium join",
-    "Revisioned shared directions pinned to exact source revisions",
-    "Finite Cambium Hermes capability and Temperance acceptance policy",
-    "Canonical direction approval and owner admission producer",
-    "Native launch composition with durable reservation, idempotent submit and status-only recovery",
-    "Artifact/test/policy-bound result and acceptance readback",
-    "Actual Mac walkthrough of the complete workflow"
+    "Saved-direction browser/readback, then canonical direction review and immutable approval pins",
+    "Direction approval and admission producer pinned to revision/source/artifact/policy/budget",
+    "Finite Docker-isolated Cambium patch verification capability on installed Hermes, without rolling unrelated newer source",
+    "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
+    "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Revalidate installed Hermes capability and native Gate founder binding. Implement the explicit approved Work source first; keep bookkeeping non-executing. Follow the owning Markdown handoff. The previous Inbox proof does not establish Work, approval, launch or result.",
+  "next_action": "Start with .planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md and FINITE-SSM-ROLLOUT-20261104.json. The finite one-shot source and artifacts are reviewed/tested. Refresh read-only Worker version/bindings/migration state and host preservation baseline first;2971a905 is historical until reread. Reconcile any drift, then present the exact scoped installation/rollback for separate owner approval. Human direction approval, admission, original native launch and finite SSM job remain separate gates; no deployment or job is authorized by pickup.",
   "holds": [
-    "No graph/ledger/admission write, launch, runner rollout or deployment in this slice",
+    "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
     "Migration 0099 stays source-only until admission and execution owner contracts are ready"
   ],
   "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
-  "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md"
+  "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md",
+  "rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
+  "work_intent": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
+  "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
+  "proposed_code_pilot": {
+    "base": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+    "source": "c4cc221fcf45f69c1a90fd835db6ad948e7bbb79",
+    "branch": "codex/cambium-code-pilot-input-20261104",
+    "patch_sha256": "sha256:f1f6467b4e25af3daeafae9f996a9ddf7cf368e473af1a66ca8417a51acaae35",
+    "purpose": "Reject whitespace-only shared signal titles on capture and edit",
+    "paths": [
+      "workers/quests/src/shared-signals.ts",
+      "workers/quests/src/shared-signals.test.ts"
+    ],
+    "local_checks": "Baseline RED; candidate8tests PASS; prepared locally only, not a Hermes result",
+    "admitted": false,
+    "executed": false
+  },
+  "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json",
+  "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json",
+  "work_proposal_receipt": ".planning/native-mac/CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json",
+  "implementation_packet": ".planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md",
+  "source_in_progress": {
+    "cambium": "codex/cambium-real-work-loop-20261104",
+    "hermes": "codex/hermes-cambium-pilot-20261104",
+    "hermes_base": "e33875438aa15ba34e4c643c894a3263eb2e1aa6",
+    "migration_0104": "source-only",
+    "hosted_models": "Explicit noesis-free CLI workers; candidates failed qualification and repaired; actual provider attribution unavailable",
+    "checks": "New contract/approval/admission boundaries and legacy runner checks pass within local scope; full stack incomplete and unreviewed."
+  },
+  "direction_execution_source": {
+    "packet": ".planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md",
+    "receipt": ".planning/native-mac/DIRECTION-HERMES-SOURCE-VERIFICATION-20261104.json",
+    "review": "same sole reviewer; both recovery findings corrected and rechecked",
+    "production_deployed": false,
+    "hosted_job_launched": false,
+    "fresh_runtime_checkpoint": "hermes-aws-ts-growth-09b3369 differs from old checkpoint and current Git main; preserve it",
+    "hermes_source": "22b3e8276d3b4c2b74041920f3cd559071e16773",
+    "hermes_git_base": "09280487ca12b18448ff236d160e070b8cd5dfbd",
+    "hermes_pr": "https://github.com/Sheshiyer/hermes-aws-ts/pull/169"
+  },
+  "selected_execution": "finite operator-triggered Hermes via existing AWS SSM; preserve background runner",
+  "next_session_handoff": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md",
+  "rollout_candidate": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
+  "previous_rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json"
 }

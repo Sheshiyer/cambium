@@ -113,6 +113,8 @@ struct WorkProposalBinding: Equatable, Sendable {
         case ownerProjection
         /// The person typed a canonical `tenant:digest` reference.
         case typed
+        /// A validated direction-prepare response names this exact work and proposal.
+        case ownerPreparation
     }
     var workId: String
     var proposalId: String
@@ -196,6 +198,8 @@ struct ChangeLine: Identifiable, Hashable {
 
 /// Full owner review as decoded by the Core gate client.
 struct ReviewDisplay: Equatable {
+    var isDirectionExecution = false
+    var directionExecution: DirectionReviewDisplay? = nil
     var proposalId: String
     var tenantId: String
     var version: Int

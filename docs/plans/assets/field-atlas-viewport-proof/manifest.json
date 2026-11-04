@@ -1,11 +1,13 @@
 {
   "schema": "cambium.field-atlas-viewport-proof.v1",
-  "capturedAt": "2026-11-03T06:23:43.705Z",
-  "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+  "capturedAt": "2026-11-03T23:53:25.850Z",
+  "pageSourceSha256": "a0243b1a46b42b96cb366b7717cafd41dffe684a2c7c7ed6e7e128ba1e746dd7",
+  "planSha256": "35d703e1575a7399c6f89040bf91b299d58802d055ceafe3d037550f68a552ce",
   "scope": "local-synthetic",
   "productionAcceptance": false,
-  "adapter": "codex-iab",
   "physicalDevice": false,
+  "adapter": "codex-iab",
+  "status": "passed",
   "proofs": [
     {
       "id": "world-desktop",
@@ -16,24 +18,24 @@
       },
       "imageWidth": 1280,
       "imageHeight": 900,
-      "sha256": "90fd95c0330e36403772110c33b8b718dec3dc3b8295f1f100fb72522e03cf5e",
+      "sha256": "c4fd328b1fb587852211e7683f32acd18cfb645a92d348bb37c80f3c95d664d7",
       "input": "native-browser-ui",
       "checks": {
-        "retiredShellAbsent": true,
-        "telegramSdkAbsent": true,
         "worldCanvasOne": true,
         "worldTitle": true,
+        "retiredShellAbsent": true,
+        "telegramSdkAbsent": true,
         "consoleClean": true
       },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "pageSourceSha256": "a0243b1a46b42b96cb366b7717cafd41dffe684a2c7c7ed6e7e128ba1e746dd7",
       "observations": {
-        "height": 900,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 1280,
         "width": 1280,
-        "consoleMessages": []
+        "height": 900,
+        "scrollWidth": 1280,
+        "consoleMessages": [],
+        "note": "One canvas; Follow your curiosity heading; no retired shell or Telegram scripts. Observed CSS viewport1280x900. Recaptured current direction-review source with actual IAB actions; no proposal POST, authentication or hosted execution was performed."
       },
-      "bytes": 92111
+      "bytes": 87847
     },
     {
       "id": "chart-desktop",
@@ -44,7 +46,7 @@
       },
       "imageWidth": 1280,
       "imageHeight": 900,
-      "sha256": "dcda3b9eacd15871b9adf826463fbdc6c047e588966935e2dfa3f86981f5e97e",
+      "sha256": "4cff37f4acc5f43b009e0312c4bcc38ebdf836442b4aea7e984e71541806c6b1",
       "input": "native-browser-ui",
       "checks": {
         "eightDistricts": true,
@@ -52,15 +54,15 @@
         "retiredShellAbsent": true,
         "consoleClean": true
       },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "pageSourceSha256": "a0243b1a46b42b96cb366b7717cafd41dffe684a2c7c7ed6e7e128ba1e746dd7",
       "observations": {
-        "height": 900,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 1280,
         "width": 1280,
-        "consoleMessages": []
+        "height": 900,
+        "scrollWidth": 1280,
+        "consoleMessages": [],
+        "note": "All eight district travel controls present. Tab focused Purpose with focus-visible and solid outline. Recaptured current direction-review source with actual IAB actions; no proposal POST, authentication or hosted execution was performed."
       },
-      "bytes": 80666
+      "bytes": 81072
     },
     {
       "id": "gate-desktop",
@@ -71,7 +73,7 @@
       },
       "imageWidth": 1280,
       "imageHeight": 900,
-      "sha256": "b4fe78421587da1132d18ae6923c31197c318612c6cb74bd673300ecaa39d61b",
+      "sha256": "abd72c3f54bfc6524b8072b0f845334513e7e787079e28215ce06a5d03ee8f8c",
       "input": "native-browser-ui",
       "checks": {
         "gateFolioVisible": true,
@@ -81,15 +83,15 @@
         "noAutomaticPost": true,
         "consoleClean": true
       },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "pageSourceSha256": "a0243b1a46b42b96cb366b7717cafd41dffe684a2c7c7ed6e7e128ba1e746dd7",
       "observations": {
-        "height": 900,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 1280,
         "width": 1280,
-        "consoleMessages": []
+        "height": 900,
+        "scrollWidth": 1280,
+        "consoleMessages": [],
+        "note": "Gate folio, expanded labeled JSON intake, Prepare proposal and Read committed graph controls present. Local server logs contain GETs only. Recaptured current direction-review source with actual IAB actions; no proposal POST, authentication or hosted execution was performed."
       },
-      "bytes": 65978
+      "bytes": 66849
     },
     {
       "id": "gate-mobile-320",
@@ -100,7 +102,7 @@
       },
       "imageWidth": 320,
       "imageHeight": 800,
-      "sha256": "7be60c13ad708749a27ac4bacd033b0dcc8a67a4e02f3e38bec8c9de371d0c41",
+      "sha256": "b80ca7f78f7b01f9e768fef6db541bedefbd5280768fa90fce1d1547d53ff0fe",
       "input": "native-browser-ui",
       "checks": {
         "exactCssWidth": true,
@@ -110,15 +112,15 @@
         "focusVisible": true,
         "consoleClean": true
       },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "pageSourceSha256": "a0243b1a46b42b96cb366b7717cafd41dffe684a2c7c7ed6e7e128ba1e746dd7",
       "observations": {
-        "height": 800,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 320,
         "width": 320,
-        "consoleMessages": []
+        "height": 800,
+        "scrollWidth": 320,
+        "consoleMessages": [],
+        "note": "Fresh /founder entry at CSS320x800; entered world, chart, Gate and intake. Textarea bounds46.80..273.18; Prepare proposal keyboard focus-visible. Recaptured current direction-review source with actual IAB actions; no proposal POST, authentication or hosted execution was performed."
       },
-      "bytes": 31742
+      "bytes": 28559
     },
     {
       "id": "graph-mobile-320",
@@ -129,28 +131,28 @@
       },
       "imageWidth": 320,
       "imageHeight": 800,
-      "sha256": "878d7ffca47bb190c5ad063f8fed9a5c240de59eec0a0b326f48e2dde51b93e1",
+      "sha256": "820cc3d321902928b2c2c625dc29e6e74cb0926f79708ff0ddfc52c52cb79aac",
       "input": "native-browser-ui",
       "checks": {
-        "decisionsNotPublication": true,
         "exactCssWidth": true,
-        "exactDataInitiallyClosed": true,
+        "noHorizontalOverflow": true,
+        "twoProductChoices": true,
         "fixtureCountsMatch": true,
         "nestedBranchExpands": true,
-        "noHorizontalOverflow": true,
         "prerequisitesLabeled": true,
-        "twoProductChoices": true,
+        "exactDataInitiallyClosed": true,
+        "decisionsNotPublication": true,
         "consoleClean": true
       },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "pageSourceSha256": "a0243b1a46b42b96cb366b7717cafd41dffe684a2c7c7ed6e7e128ba1e746dd7",
       "observations": {
-        "height": 800,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 320,
         "width": 320,
-        "consoleMessages": []
+        "height": 800,
+        "scrollWidth": 320,
+        "consoleMessages": [],
+        "note": "Synthetic graph6nodes; two product options,3nodes each. Expanded nested branches for both; recorded planning prerequisites labeled no execution grant; exact data initially closed. Decisions explicitly separate from execution/publication. Recaptured current direction-review source with actual IAB actions; no proposal POST, authentication or hosted execution was performed."
       },
-      "bytes": 32751
+      "bytes": 29197
     },
     {
       "id": "legacy-query-mobile-320",
@@ -161,31 +163,26 @@
       },
       "imageWidth": 320,
       "imageHeight": 800,
-      "sha256": "043ab5b9d0a1c92a62e17e0558ba8766247f2be57ea954f824cb7180ec6ddc5b",
+      "sha256": "592955ed473873f7c215f3d576d5ad5acf06ba97a3556151ca41b00542cd90c1",
       "input": "native-browser-ui",
       "checks": {
         "exactCssWidth": true,
-        "noHorizontalOverflow": true,
+        "worldCanvasOne": true,
         "retiredShellAbsent": true,
         "telegramSdkAbsent": true,
-        "worldCanvasOne": true,
+        "noHorizontalOverflow": true,
         "consoleClean": true
       },
-      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "pageSourceSha256": "a0243b1a46b42b96cb366b7717cafd41dffe684a2c7c7ed6e7e128ba1e746dd7",
       "observations": {
-        "height": 800,
-        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
-        "scrollWidth": 320,
         "width": 320,
-        "consoleMessages": []
+        "height": 800,
+        "scrollWidth": 320,
+        "consoleMessages": [],
+        "note": "Fresh independent tab with legacy query; exact CSS320x800 after viewport override; one world canvas and intro; no retired shell or Telegram scripts. Recaptured current direction-review source with actual IAB actions; no proposal POST, authentication or hosted execution was performed."
       },
-      "bytes": 36366
+      "bytes": 32918
     }
   ],
-  "legacyQueryNote": "Fresh document navigation on the same captured preview tab; the new-tab DOM check was independently consistent but its initial background screenshot was stale and was replaced.",
-  "observationSchema": "cambium.root-native-viewport-observations.v1",
-  "status": "passed",
-  "planSha256": "35d703e1575a7399c6f89040bf91b299d58802d055ceafe3d037550f68a552ce",
-  "rootObservationSha256": "f533b7dd6e140d462076e8c9e4f13a1a74c13d7d2387bcb12f0e993ed7b285c5",
-  "invariant": "Actual local synthetic native-browser captures only; not production acceptance, platform authentication, live D1 or execution proof."
+  "invariant": "Actual local synthetic browser captures only; not production acceptance, authentication, live D1 or execution proof."
 }

@@ -160,4 +160,20 @@ final class LaunchRetryAndResetTests: XCTestCase {
         XCTAssertEqual(still, 1, "no duplicate submit")
         XCTAssertEqual(reopened.launch?.requestId, lost.requestId)
     }
+    func testResolvedDirectionPreparationCanBeReplacedButUnknownPreparationIsRetained() async throws {
+        let model = try openApp(); try await ready(model)
+        let digest = String(repeating:"a",count:64)
+        let preparedData = try JSONSerialization.data(withJSONObject:["schema":"cambium.direction-proposal.v1","tenantId":"cambium","principal":"founder","directionId":"direction-1","directionRevision":1,"workObjectId":"sapling:cambium","proposalId":"cambium:"+digest,"changeDigest":digest,"duplicate":false,"writerAuthority":false,"executionGranted":false])
+        let prepared = try JSONDecoder().decode(PreparedDirectionExecution.self,from:preparedData)
+        model.directionExecutionDraft = DirectionExecutionDraftState(directionID:"direction-1",prepared:prepared)
+        XCTAssertTrue(model.resetDirectionExecutionReview()); XCTAssertNil(model.directionExecutionDraft.prepared)
+        // A prepared reply and an uncertain original request are distinct states.
+        let previewData = try JSONSerialization.data(withJSONObject:["schema":"cambium.direction-execution-preview.v1","tenantId":"cambium","principal":"founder","directionId":"direction-1","directionRevision":1,"expectedHeadDigest":digest,"policyDigest":"sha256:"+digest,"writerAuthority":false,"executionGranted":false,"summary":["objective":"Title","artifact":"Patch","baseCommit":String(repeating:"a",count:40),"patchDigest":"sha256:"+digest,"allowedPaths":[],"check":"test","timeoutSeconds":180,"modelPool":"noesis-free","acceptance":"review-required","externalActions":"none"]])
+        let preview = try JSONDecoder().decode(DirectionExecutionPreview.self,from:previewData)
+        let pending = DirectionExecutionPrepare(operationId:"original-unknown",preview:preview)
+        model.directionExecutionDraft = DirectionExecutionDraftState(directionID:"direction-1",preview:preview,pending:pending,prepared:prepared)
+        XCTAssertFalse(model.resetDirectionExecutionReview()); XCTAssertEqual(model.directionExecutionDraft.pending,pending)
+        XCTAssertEqual(model.directionExecutionDraft.prepared,prepared)
+    }
+
 }
