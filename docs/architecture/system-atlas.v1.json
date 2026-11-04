@@ -1098,7 +1098,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "if (resolved.principal.role !== 'founder') {",
-      "sourceSha256": "sha256:7848ba4a27557e6290861725ad64f6571cbd0519d92b768c458b675f015d85c1",
+      "sourceSha256": "sha256:a66e266b496b69bb8ded3f922a183bdd58d153fdccb5e7e820222cc753a95eba",
       "basis": "implementation"
     },
     {
@@ -1107,7 +1107,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "isViewer = viewerIds.includes(auth.userId);",
-      "sourceSha256": "sha256:7848ba4a27557e6290861725ad64f6571cbd0519d92b768c458b675f015d85c1",
+      "sourceSha256": "sha256:a66e266b496b69bb8ded3f922a183bdd58d153fdccb5e7e820222cc753a95eba",
       "basis": "implementation"
     },
     {
