@@ -1,17 +1,16 @@
-# Fresh pickup: source drift held — 4 November 2026
+# Fresh pickup: reconciled rollout held — 4 November 2026
 
-Read `FINITE-SSM-SOURCE-DRIFT-20261104.md` and
-`FINITE-SSM-PREFLIGHT-20261104.json` first. Live version `fd6fe5dc` has 54 bindings, including the current iVerif member.
-Supported content ETag matches its version; the module/source-map bytes match
-the initial `57704696` snapshot. Newer Cortex/iVerif owner behavior must be
-preserved; the old `71557699` Worker bundle is unsafe
-to upload.0099 and0103 schema is already applied; skip both.0104 is absent.
-The eight-file Hermes archive still matches; the existing runner is preserved.
-No staging or pilot job occurred. One hosted comparison was rejected against
-live source/schema; provider receipts are unavailable after Cloudflare1010.
-Further hosted workers are held pending a supported receipt path. Complete the
-verified source reconciliation/review before seeking exact installation approval.
-The original reviewed packet below remains historical source and policy evidence.
+Read [FINITE-SSM-ROLLOUT-RECONCILED-20261104.md](FINITE-SSM-ROLLOUT-RECONCILED-20261104.md)
+and its exact JSON first. Candidate source144f12ff retains the latest serving
+owner ae043392,54 bindings, Cortex/iVerif/department behavior and all0105 guards.
+The1915 source packet and later670 identity fix are resolved. The existing
+Phloem receipt reader works with exact free-review attribution. Repository,
+Mac, focused owner, finite-boundary, strict type, bundle, drift and local IAB
+checks pass within their recorded limits. Existing runner/timer/runtime hashes
+match; pilot release/image remain absent. Next gate is exact upload-only
+approval and immutable0% candidate verification. Only0104 may later be applied;
+skip0099/0103. Traffic, installation, human decision and one bound job remain
+separately held. ISC-3683..3687 remain open. The original packet below is history.
 
 # Cambium finite Hermes pilot — next session
 

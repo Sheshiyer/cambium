@@ -11,6 +11,20 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 — finite SSM reconciliation reviewed; rollout held
+
+- Candidate source144f12ffe5bbffbc9dd4311200042d35f1aeaa17 retains current owner
+  ae043392 and54 bindings; recovered1915/670 source and existing Phloem reader.
+- Exact next packet: `.planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json`
+  and its Markdown review. The old preflight is historical.
+- Repository2756passed/9skipped, Mac314passed/4skipped, focused38 and finite3
+  pass; strict typecheck, dry-run, drift, atlas and6 local browser captures pass.
+- Runner/timer/runtime/source-store hashes preserved. Pilot release/image absent.
+- Next is exact upload-only approval;0104, traffic, host/native installation,
+  founder decision, admission, original launch and one job remain separately gated.
+- No production/native/hosted acceptance claimed; ISC-3683..3687 remain open.
+
+
 ## 2026-11-04 finite SSM read-only preflight: newer live source held
 
 Owned finite pilot only. Initial Quests `57704696`/53 advanced to

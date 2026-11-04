@@ -1,0 +1,522 @@
+{
+  "schema": "cambium.finite-ssm-rollout.v2",
+  "status": "reviewed-held",
+  "preparedAt": "2026-11-04T10:50:53.498631+00:00",
+  "approval": {
+    "upload": false,
+    "migration": false,
+    "traffic": false,
+    "hostInstallation": false,
+    "nativeBuildInstall": false,
+    "founderDecision": false,
+    "job": false,
+    "requestedNext": "upload-only; zero serving traffic; return immutable version, metadata and exact binding readback before any later action"
+  },
+  "supersedes": {
+    "rollout": "FINITE-SSM-ROLLOUT-20261104.json",
+    "preflight": "FINITE-SSM-PREFLIGHT-20261104.json",
+    "scope": "Current reconciliation and next approval only. Historical policy, source and host receipts remain preserved."
+  },
+  "source": {
+    "workerAndNativeCommit": "144f12ffe5bbffbc9dd4311200042d35f1aeaa17",
+    "reviewedPilotCommit": "71557699a924b896a65a4abdf7a6882472998d3f",
+    "recoveredOwnerPacketCommit": "1915a1321fe126c700094608abe4a3b76dee9fc7",
+    "ownerPacket": ".planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md",
+    "laterIdentityCommit": "670e63b2ad7e9a757c20cd15b39836b8fcdaddc0",
+    "servingOwnerDeltaVersion": "ae043392-ad9f-4ec1-878c-49d53676ea11",
+    "servingOwnerDeltaFiles": [
+      "workers/quests/src/operational-work-intake.ts",
+      "workers/quests/src/handler.ts"
+    ],
+    "scope": "Retain iVerif, departments, Cortex provenance, identity authority and the current D1 operational Work/branch-packet reconciliation; add only the finite Cambium pilot.",
+    "liveModuleSourcesCompared": 105,
+    "liveModuleSourcesUnchanged": 97,
+    "liveSourceChanges": [
+      {
+        "path": "workers/quests/src/goal-graph/compiler.ts",
+        "liveSha256": "9501d064c07794d7f2e5ce94f4c0db3efef3a08017be19118a3dc139677f551a",
+        "candidateSha256": "0b98b104a36c43cabc308c0b0e6314ed8f623fee222e39d2ed49cf47645ce488",
+        "same": false
+      },
+      {
+        "path": "workers/quests/src/goal-graph-store.ts",
+        "liveSha256": "b9e1225c648e714c6006837ccb9168c4df0c1baab5fde5db1bb80858014f2fbc",
+        "candidateSha256": "2a574f0df6684d6efd3501078a8a01d14a3ba90e59d2ba1aa75f11fe0408a520",
+        "same": false
+      },
+      {
+        "path": "workers/quests/src/native-launch-d1.ts",
+        "liveSha256": "397e2219a4c5cd0ef2cf21b1ff1c93af5d59f700d11c14f5c8137ff3750966ce",
+        "candidateSha256": "3576f8354aef8f9f5a0502c0a6911b16d56b87b38544eafd90fa1b481c5cdb78",
+        "same": false
+      },
+      {
+        "path": "workers/quests/src/goal-graph-loadout-registry.ts",
+        "liveSha256": "d034ead2649a3615774e0dc5241da74904aa21b3d7be433e43d9e2c272e9c819",
+        "candidateSha256": "aadb022a87632b749b674fe78f9b7434a4893e03877fd579e05ee48ffc389723",
+        "same": false
+      },
+      {
+        "path": "workers/quests/src/founder-access-host.ts",
+        "liveSha256": "1846c609cbd9c60e199086461216e7fdfa8f9b937a9250b1b34d9f41ab55957c",
+        "candidateSha256": "443c71044c2263b3d0938840ebf8cb3bba6cb46f21af68fadc77fa1ee85fe2a9",
+        "same": false
+      },
+      {
+        "path": "workers/quests/src/page/client/curious-gate-bridge.ts",
+        "liveSha256": "f2a06b3d22181786d398565be9d156f0604ae4f0c0f80800da4bcf13ee310546",
+        "candidateSha256": "76eb65f291d59fe3c7cfed0c2355f5c57b5a932cc62a45efcf87c1ee6d60c423",
+        "same": false
+      },
+      {
+        "path": "workers/quests/src/handler.ts",
+        "liveSha256": "61b2c4c9cdf641aca552ea31717ce0e6630309077ec70b7c9338d3f3cd74fb3c",
+        "candidateSha256": "a66e266b496b69bb8ded3f922a183bdd58d153fdccb5e7e820222cc753a95eba",
+        "same": false
+      },
+      {
+        "path": "workers/quests/src/index.ts",
+        "liveSha256": "09af3e65a17cd4cdf0081f3d07b845902631aaca0220669473c807b0b6540853",
+        "candidateSha256": "ead2ef0ccc533bf127748f126ccc4129a5884c515d0c2de7d948172f737a69cb",
+        "same": false
+      }
+    ],
+    "sourceReviewDiffSha256": "b8f1e3ca90d7e31c17825d4690b2039fdfd2788cd7b51f9cbd87d28a571d1fce"
+  },
+  "phloem": {
+    "reader": "~/.temperance_engine/router/hosted-attribution.ts",
+    "launcher": "~/.temperance_engine/bin/te-codex --pool noesis-free",
+    "gateway": "https://omniroute.thoughtseed.space/v1",
+    "readOnlyReceiptEndpoint": "/api/usage/call-logs?limit=200",
+    "existingJoinHeader": "x-omniroute-session-id",
+    "join": "bounded dispatch time, exact private session tag, combo and requested model; server correlation remains separate",
+    "observedReview": {
+      "provider": "openrouter",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "status": "200",
+      "timestamp": "2026-11-04T10:28:57.117Z",
+      "correlationSource": "dispatch-session-join",
+      "connectionRef": "unknown",
+      "receiptSha256": "51539a21ae45b09a32ced1054e647f06ead31dce62b93c5f78cb21a316667bd2"
+    },
+    "configuredFreeModels": [
+      "openrouter/nvidia/nemotron-3.5-lightning:free",
+      "openrouter/cohere/north-mini-code:free",
+      "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free"
+    ],
+    "protectedPoolIntersection": [],
+    "pricing": {
+      "checkedAt": "2026-11-04T10:32:23.596Z",
+      "source": "https://openrouter.ai/api/v1/models",
+      "proof": [
+        {
+          "id": "nvidia/nemotron-3.5-lightning:free",
+          "prompt": "0",
+          "completion": "0"
+        },
+        {
+          "id": "cohere/north-mini-code:free",
+          "prompt": "0",
+          "completion": "0"
+        },
+        {
+          "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "prompt": "0",
+          "completion": "0"
+        }
+      ]
+    },
+    "billingStatement": "Observed provider/model and zero listed input/output pricing; no billed-cost field or actual connection/account identity is claimed.",
+    "routingWrites": false,
+    "paidFallback": false
+  },
+  "worker": {
+    "name": "cambium-quests",
+    "entrypoint": "workers/quests/src/cortex-services.ts",
+    "profile": "thoughtseed-labs",
+    "baselineCheckedAt": "2026-11-04T10:45:19.499132+00:00",
+    "baselineVersion": "ae043392-ad9f-4ec1-878c-49d53676ea11",
+    "baselineTrafficPercent": 100,
+    "baselineModuleSha256": "82ab94f7d9a968706600a6aef8242dc0f0d6693f0aa074a976a0ac9a27fe3e1a",
+    "baselineVersionETag": "b85f3f1035f0e5cd83588e5cad24857e3ee63d9c77e5aefccca0eb0e92e9335c",
+    "baselineLatestUploadedVersion": "ae043392-ad9f-4ec1-878c-49d53676ea11",
+    "inheritedBindingCount": 54,
+    "proposedBindingCount": 56,
+    "bindingFingerprint": "85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e",
+    "bindingFingerprintRecipe": "sha256 UTF-8 JSON of bindings sorted by name with recursively sorted keys and compact separators",
+    "inheritedBindingNames": [
+      "ACCEPTANCE_OWNER_PUBKEYS",
+      "BRIDGE_DB",
+      "BRIDGE_TOKEN",
+      "CAMBIUM_CORTEX",
+      "CAMBIUM_HERMES_RECEIPTS_V2",
+      "COMMAND_CODE_API_KEY",
+      "COMMAND_CODE_BASE_URL",
+      "COMMAND_CODE_EGRESS_TOKEN",
+      "CONTEXT_ALLOWED_TENANTS",
+      "CONTEXT_EMBEDDING_MODEL",
+      "CONTEXT_EMBEDDING_PROVIDER",
+      "CONTEXT_PROJECTIONS",
+      "CONTEXT_PROJECTION_WRITE_TOKEN",
+      "CONTEXT_ROUTE_TOKEN",
+      "CORTEX_INGESTION_TOKEN",
+      "EXPLEE_API_KEY",
+      "FOUNDER_GATE_BINDINGS_JSON",
+      "GATE_BOT_ID",
+      "GATE_FOUNDER_IDS",
+      "GROWTH_WORKFLOW_MAX_DAILY",
+      "GROWTH_WORKFLOW_MAX_PENDING",
+      "GROWTH_WORKFLOW_RUNNER_MEMBER_ID",
+      "GROWTH_WORKFLOW_TENANTS_JSON",
+      "HANDOFF_SECRET",
+      "HERMES_ASSIGNMENT_TOKEN",
+      "HERMES_RECEIPTS_AI",
+      "HERMES_RECEIPTS_V2_ENABLED",
+      "HERMES_ROLE_TASK_BINDINGS_JSON",
+      "IVERIF_CLAIM_PROOF_MEMBER_ID",
+      "IVERIF_READ_TOKEN",
+      "KIMI_CODING_API_KEY",
+      "MARKETING_CREATE_ACTIVATION",
+      "MCP_GATE_ADAPTER_TOKEN",
+      "MISSION_FABRIC_TENANTS",
+      "NATIVE_SESSION_CLIENTS_JSON",
+      "NATIVE_SESSION_OWNER_ORIGIN",
+      "NEBIUS_API_KEY",
+      "NVIDIA_API_KEY",
+      "NVIDIA_MARKETING_CREATE_API_KEY",
+      "OLLAMA_API_KEY",
+      "OPENCODE_API_KEY",
+      "PLEXUS_KNOWLEDGE_TOKEN",
+      "PLEXUS_NATIVE_IDENTITY_TENANT",
+      "PLEXUS_NATIVE_IDENTITY_TOKEN",
+      "PLEXUS_NATIVE_IDENTITY_URL",
+      "PLEXUS_WHOAMI_URL",
+      "PROVIDER_BROKER_TOKEN",
+      "QUESTS",
+      "QUESTS_PUSH_TOKEN",
+      "SECRETS",
+      "TF_ACCESS_AUD",
+      "TF_ACCESS_TEAM_DOMAIN",
+      "THOUGHTSEED_VAULT",
+      "WAVE0_ACTIVATION_KEY"
+    ],
+    "additionalVars": {
+      "CAMBIUM_PATCH_POLICY_JSON": "{\"schema\":\"thoughtseed.cambium.patch.policy.v1\",\"id\":\"cambium.shared-signal-title.v1\",\"version\":1,\"workObjectId\":\"sapling:cambium\",\"baseCommit\":\"d571ea92f182164f90072e42a7b2e6718ea92f06\",\"patchDigest\":\"sha256:f1f6467b4e25af3daeafae9f996a9ddf7cf368e473af1a66ca8417a51acaae35\",\"allowedPaths\":[\"workers/quests/src/shared-signals.ts\",\"workers/quests/src/shared-signals.test.ts\"],\"testCommand\":[\"node\",\"--test\",\"workers/quests/src/shared-signals.test.ts\"],\"image\":\"docker.io/library/node@sha256:8544b46b91d1a8c8bf8fc0d53ae9f276ed07d0ffa9098dc4a9c2f627363a13a0\",\"modelPool\":\"noesis-free\",\"acceptance\":\"review-required\",\"externalActions\":\"none\",\"limits\":{\"timeoutSeconds\":180,\"memoryMiB\":768,\"cpus\":1,\"pids\":128,\"outputBytes\":1048576,\"archiveBytes\":33554432}}",
+      "CAMBIUM_PATCH_RUNNER_MEMBER_ID": "hermes-runner"
+    },
+    "privateConfig": {
+      "bytes": 6168,
+      "sha256": "5f254689ebd14c0a3e329bf0636da2ed037ae74087d0f574561530edd8dc4ec7"
+    },
+    "buildConfig": {
+      "bytes": 6158,
+      "sha256": "9a4fae5ec42c8f39817d41c9a6f99aef07bb97dd5d8ce9dfa001887e3add540b"
+    },
+    "noBundle": true,
+    "uploadCommand": [
+      "wrangler",
+      "versions",
+      "upload",
+      "--config",
+      ".local/finite-ssm-reconcile-20261104/candidate-upload.wrangler.json",
+      "--profile",
+      "thoughtseed-labs",
+      "--message",
+      "Finite Cambium pilot source144f12ff; upload only; traffic and job held"
+    ],
+    "bundle": {
+      "file": "cortex-services.js",
+      "bytes": 2772141,
+      "sha256": "18b43c081a6764289e32412cc744a304e9414092d69cc573d13b31c76a584e78"
+    },
+    "sourceMap": {
+      "file": "cortex-services.js.map",
+      "bytes": 4167681,
+      "sha256": "da20638dc3ab615393b94e1731ca240dbb75494d10d3d3185e51edd183802426"
+    },
+    "toolchain": "Wrangler4.156.1; dry-run only",
+    "compatibilityDate": "2026-05-01",
+    "compatibilityFlags": [
+      "nodejs_compat"
+    ],
+    "observability": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "redact_query_string": false,
+      "logs": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "persist": true,
+        "invocation_logs": true
+      },
+      "traces": {
+        "enabled": false,
+        "persist": true,
+        "head_sampling_rate": 1
+      }
+    },
+    "logpush": false,
+    "tailConsumers": [],
+    "cron": "0 */6 * * *",
+    "exposure": {
+      "enabled": true,
+      "previews_enabled": true
+    },
+    "globalSettingsWrites": false,
+    "scheduleWrites": false,
+    "uploadGate": "Before upload require both serving100% and latest-uploaded version equal the baseline; compare all54 binding identities/visible values, runtime, settings and source ETag. Any drift stops upload. Existing inherit uses latest; this is a preflight guard, not atomic CAS.",
+    "postUploadGate": "No traffic. Read the immutable version, all56 bindings, exact policy/member values, runtime, named CortexProvenanceReader export and preview. Only an unchanged verified candidate may be presented for separate traffic approval."
+  },
+  "database": {
+    "objectsFrom0099And0103Compared": 15,
+    "differences": [],
+    "skip": [
+      "0099_native_launch_requests.sql",
+      "0103_shared_directions.sql"
+    ],
+    "applyOnlyAfterSeparateApproval": {
+      "file": "0104_native_direction_admissions.sql",
+      "sha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3"
+    },
+    "pilotTablePresent": false,
+    "preserve0105": true,
+    "requiredRetainedTriggers": [
+      "native_iverif_reservation_source_guard",
+      "native_iverif_direction_edit_revokes"
+    ],
+    "seedAdmissions": false,
+    "beforeApply": "Refresh read-only schema; export and hash the current private recovery snapshot; apply only the exact0104 SQL. Never apply the full migration directory.",
+    "rollback": "Retain all additive schema, admissions, requests and receipts; no drops or destructive SQL."
+  },
+  "hermes": {
+    "sourceCommit": "22b3e8276d3b4c2b74041920f3cd559071e16773",
+    "artifact": "hermes-finite-pilot.tar.gz",
+    "artifactSha256": "f2b5ec371ee0cac4e973f27cdce92e9185f7c383aa99038a8d14787b489eed34",
+    "artifactBytes": 30299,
+    "filesSha256": {
+      "package.json": "7028644fae716ac17b2a70a8e7dd8e0a68f8ab12e387e60ac65ddf2ddee74a4a",
+      "src/cambium-patch-contract.ts": "6a0b5ee552a4b783b6d6bd63f819c4c3381b6c5270b071edfdc7fb57cef89c4b",
+      "src/cambium-patch-executor.ts": "d938ef9a2401fdbe9cb042c5da76702eff042bd3e9f6df42de23e5f696af0d16",
+      "src/cambium-pilot-once.ts": "57b98549ae8997bf563fc3cdd797e3f0f2684a04eb7cd48d8a900f41d0a81b9f",
+      "src/contracts.ts": "31cad8d636f3c59d6c67a3784e1400d96b613e11e4102246b03094f8ecaac067",
+      "src/crypto.ts": "245d1a7e4e0dc8ae107c4f22c294307539095b28fb9f22750a8dbd4bbac582bd",
+      "src/native-execution.ts": "fc3f8b508ab211771e2f7d5c2d1031226d39d4343f3ace44ba6d10589bbe5b04",
+      "src/runner.ts": "6681d827963d7ec1ba8d9f9832f42c0cc13a13ea97ba38ebcc235532ee78f74f"
+    },
+    "instance": "i-056c5f1d3a9f74190",
+    "awsProfile": "safvr",
+    "newReleaseName": "hermes-cambium-pilot-22b3e8276d3b",
+    "preserveRelease": "hermes-aws-ts-growth-09b3369",
+    "preserveService": "hermes-runner.service",
+    "preserveTimer": "hermes-runner.timer",
+    "entrypoint": "src/cambium-pilot-once.ts",
+    "effectiveMemberId": "hermes-runner",
+    "tenant": "cambium",
+    "ownerOrigin": "https://curious.thoughtseed.space",
+    "credentialHandling": "existing host EnvironmentFile plus identity override; existing two Access LoadCredential references; values never copied to operator machine, source or SSM arguments",
+    "execution": "one transient systemd unit invoked by existing SSM, root only for this fixed pilot process and Docker access; no resident helper or standing access changes",
+    "state": "separate retained pilot state directory; never background runner state",
+    "systemdProperties": {
+      "User": "root",
+      "NoNewPrivileges": "yes",
+      "PrivateTmp": "yes",
+      "ProtectSystem": "strict",
+      "ProtectHome": "read-only",
+      "TimeoutStartSec": "300",
+      "KillMode": "control-group"
+    },
+    "selectionBinding": "after canonical approval, explicit admission and native launch: exact directiveId/idempotencyKey/inputDigest/policyDigest from the retained admission and reserved request; reject missing or ambiguous pins",
+    "automaticInvocation": false,
+    "rollback": "stop only the exact pilot transient unit if required; retain its state/results/artifact and use native status readback; existing runner needs no rollback",
+    "nodeTestsPassed": null,
+    "finiteBoundaryTestsPassed": 3,
+    "independentReview": "Historical finite entrypoint review retained; archive and source are unchanged. Fresh finite-boundary3 tests pass.",
+    "environmentFiles": [
+      "existing base runner environment",
+      "existing growth identity override only"
+    ],
+    "excludedEnvironment": "growth runtime/model credentials are not loaded; only the two existing Access credentials are delegated to the transient task",
+    "archive": {
+      "bytes": 30299,
+      "sha256": "f2b5ec371ee0cac4e973f27cdce92e9185f7c383aa99038a8d14787b489eed34"
+    },
+    "baselineObservedAt": "2026-11-04T10:35:36.217333+00:00",
+    "serviceUnitSha256": "2351184d240bbe8a144b578e53accae479f10f724687ed4924f0cffcd894f153",
+    "timerUnitSha256": "e51be15a17810d1303b8b7d3b161ff3566b656206d08ae61e793447e2934a428",
+    "runtimeSourceHashes": {
+      "package.json": "7028644fae716ac17b2a70a8e7dd8e0a68f8ab12e387e60ac65ddf2ddee74a4a",
+      "src/contracts.ts": "53f752147f6a4561ffef18e6c4a217d1fb16619e78cd399e1c4a7f00b36f2360",
+      "src/native-execution.ts": "5e746f915142a7c29f459c9c8a49f51b335854fe535cebc6187107aca5dad689",
+      "src/runner.ts": "0d8c96049b0bfe00b97178446ffb3d302eb235034e5350d8c187501330faea85"
+    },
+    "sourceStore": {
+      "baseCommit": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+      "objectAlternates": false,
+      "backgroundCanReadObjects": false,
+      "boundedArchive": {
+        "bytes": 7976960,
+        "sha256": "aaac4d0cfe587742f5e3b4cff7e9d862fe96a5e337210076787c47c35ea8f346",
+        "exitCode": 0
+      }
+    },
+    "pilotInstalled": false,
+    "pinnedImagePresent": false,
+    "installationGate": "Separately approve staging into the new immutable release, exact8-file archive verification and pinned amd64 image pull. No job while staging; no npm install. Existing runner/service/timer, environment/credential files, provider settings, permissions and state remain unchanged.",
+    "jobManifest": "{selection,policy,repo,stateDir}; selection schema thoughtseed.cambium.finite-pilot.v1 with exact memberId/directiveId/idempotencyKey/inputDigest/policyDigest. Per-job pins remain unbound until actual founder decision, admission and original native reservation.",
+    "historicalNodeTestsPassed": 388,
+    "jobApproval": false,
+    "pilotJobInvoked": false
+  },
+  "policy": {
+    "schema": "thoughtseed.cambium.patch.policy.v1",
+    "id": "cambium.shared-signal-title.v1",
+    "version": 1,
+    "workObjectId": "sapling:cambium",
+    "baseCommit": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+    "patchDigest": "sha256:f1f6467b4e25af3daeafae9f996a9ddf7cf368e473af1a66ca8417a51acaae35",
+    "allowedPaths": [
+      "workers/quests/src/shared-signals.ts",
+      "workers/quests/src/shared-signals.test.ts"
+    ],
+    "testCommand": [
+      "node",
+      "--test",
+      "workers/quests/src/shared-signals.test.ts"
+    ],
+    "image": "docker.io/library/node@sha256:8544b46b91d1a8c8bf8fc0d53ae9f276ed07d0ffa9098dc4a9c2f627363a13a0",
+    "modelPool": "noesis-free",
+    "acceptance": "review-required",
+    "externalActions": "none",
+    "limits": {
+      "timeoutSeconds": 180,
+      "memoryMiB": 768,
+      "cpus": 1,
+      "pids": 128,
+      "outputBytes": 1048576,
+      "archiveBytes": 33554432
+    }
+  },
+  "policyCanonicalSha256": "9d9cf7ae64558c568493f5d81dbd48e70fdbbe7a2b49782059b273fd003fbc48",
+  "review": {
+    "disposition": "Reviewed; no unaddressed actionable integration findings after coordinator source/test triage.",
+    "hostedAdvisory": "First broad advisory rejected because it treated historical holds as current source facts. Bounded exact-diff advisory raised one supports-union claim; triaged against the capability interface and actual owner routing.",
+    "supportsFindingDisposition": "supports(plant,action) has no principal, Work or request key; both concrete owners support only hermes-remote/launch. Actual submit/read select the one original scoped reservation, reject substituted Work/token/principal and never fall through. Tests exercise those cases and selected-owner failure. Capability advertisement creates no admission or execution authority.",
+    "reviewedFiles": [
+      "workers/quests/src/direction-execution-owner.ts",
+      "workers/quests/src/direction-execution-review.ts",
+      "workers/quests/src/goal-graph-store.ts",
+      "workers/quests/src/index.ts",
+      "apps/cambium-mac/Sources/CambiumCore/Directions.swift"
+    ],
+    "limits": [
+      "Hosted advisory did not verify live state; read-only owner/host receipts provide that evidence.",
+      "Current live source outside the eight pilot-touched runtime files is retained byte-for-byte; the latest operational Work helper is unchanged.",
+      "No production, signed/installed native, founder decision, hosted pilot execution or semantic acceptance claim."
+    ]
+  },
+  "verification": {
+    "repository": {
+      "tests": 2765,
+      "passed": 2756,
+      "failed": 0,
+      "skipped": 9,
+      "sourceCommit": "144f12ffe5bbffbc9dd4311200042d35f1aeaa17",
+      "logSha256": "30ea7d0339f5b398a3995d27a627eb8082c7ec04053df8b2af254827e468c558",
+      "environment": "local disposable clone diff.autoRefreshIndex=false; all index/tree/refs equality assertions retained"
+    },
+    "mac": {
+      "tests": 318,
+      "passed": 314,
+      "failed": 0,
+      "skipped": 4,
+      "buildSystem": "SwiftPM native; test artifacts only; no signed/installed release acceptance",
+      "logSha256": "ab3cb92aa6160fd61baf22cc36ac3879a895f6c94abe96781e356526acce0c30"
+    },
+    "focusedOwnerTests": 38,
+    "hermesFiniteBoundaryTests": 3,
+    "workerTypecheck": {
+      "status": "pass",
+      "compiler": "TypeScript5.9.3",
+      "typingSource": "Existing installed @types/node25.6.0; lockfile remains24.19.2. No dependency installation performed.",
+      "logSha256": "e58da54763062da381b9264390cbe8bb31de8a9f75230b5309b84f0b4e669a97"
+    },
+    "driftAudit": "pass",
+    "atlasLiteralFingerprints": "pass",
+    "workerBundleDryRun": "pass",
+    "localBrowser": {
+      "captures": 6,
+      "pageSourceSha256": "aed8bc8af539fcb2dc661d41dedbe6b8cf8e2612efb80b57d6c08299857f48e9",
+      "manifest": "docs/plans/assets/field-atlas-viewport-proof/manifest.json",
+      "scope": "actual IAB captures using read-only synthetic local fixtures; no POST requests, production authentication, founder or physical-device acceptance"
+    }
+  },
+  "sequence": [
+    {
+      "stage": 1,
+      "approval": "Exact immutable Worker upload only",
+      "actions": [
+        "Revalidate both live and latest-uploaded baseline plus all54 bindings/settings; stop on drift.",
+        "Upload only the pinned bundle/source-map/private config through the existing version-upload path; retain54 bindings and add only2 pilot vars.",
+        "Return immutable version/metadata/binding/preview receipts at0% traffic."
+      ],
+      "stop": "No migration, traffic, host installation, native installation or job from this approval."
+    },
+    {
+      "stage": 2,
+      "approval": "Exact0104 migration, then separate verified-candidate traffic approval",
+      "actions": [
+        "Export/hash current private D1 recovery snapshot; apply only0104 after its scoped approval. Skip0099/0103 and preserve0105.",
+        "Recheck source/bindings/schema and existing owner behavior; only then request separate traffic approval for the inspected immutable version."
+      ],
+      "stop": "No founder decision or pilot invocation is implied."
+    },
+    {
+      "stage": 3,
+      "approval": "Isolated Hermes staging and pinned image only",
+      "actions": [
+        "Transfer the exact8-file archive through existing SSM; verify full hash, entry set and every file before extracting into an empty new release.",
+        "Stage exact policy and pull only the pinned amd64 image; no npm install or job.",
+        "Delegate existing base environment plus growth identity override and only the two existing Access credential references for later transient use; exclude growth runtime/model environment and growth_api_key."
+      ],
+      "stop": "No standing Docker group grant, service/timer replacement, scheduler, resident helper or background state change."
+    },
+    {
+      "stage": 4,
+      "approval": "Native rollout and human decision remain separate",
+      "actions": [
+        "Once the approved stack is ready, build/sign the native candidate once and record source/input digests before one human login.",
+        "Retain the real mapped Work and saved direction; fresh full native review; founder manually decides.",
+        "Explicit admission and original native launch reserve one original request/attempt; derive exact operator selection pins from canonical readback."
+      ],
+      "stop": "Agent never clicks founder Approve or invents per-job identifiers."
+    },
+    {
+      "stage": 5,
+      "approval": "One exact bound SSM invocation only after canonical reservation",
+      "actions": [
+        "Review the bound non-secret manifest and deterministic transient unit; no automatic invocation.",
+        "Invoke the unchanged finite entrypoint with --wait/--collect, root only for the fixed process/Docker, NoNewPrivileges, PrivateTmp, strict read-only system/home, timeout300 and KillMode control-group; write only separate retained pilot state.",
+        "Verify original status plus bound diff/digests, baselineRED/candidatePASS and review-required result; repeat status/result read without redispatch."
+      ],
+      "stop": "No merge/deploy of the patch or semantic acceptance inferred from SSM success; uncertainty recovers the original attempt."
+    }
+  ],
+  "rollback": {
+    "worker": "Restore only the freshly guarded baseline ae043392 after separately approved traffic if needed; guard the exact candidate being replaced. Re-read rollback at action time.",
+    "database": "Additive schema and durable proof retained.",
+    "host": "Existing runner requires no rollback. Stop only the exact future transient pilot unit/container if necessary; retain release, state and results; no shared Docker cleanup."
+  },
+  "acceptance": {
+    "iscOpen": [
+      "ISC-3683",
+      "ISC-3684",
+      "ISC-3685",
+      "ISC-3686",
+      "ISC-3687"
+    ],
+    "productionAcceptance": false,
+    "physicalDeviceAcceptance": false,
+    "hostedPilotAcceptance": false,
+    "semanticAcceptance": false
+  }
+}

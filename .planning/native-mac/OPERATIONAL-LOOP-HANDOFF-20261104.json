@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-04T01:03:26.376858+00:00",
-  "status": "finite-ssm-preflight-source-drift-held",
+  "updated": "2026-11-04T10:53:02.222138+00:00",
+  "status": "finite-ssm-reviewed-held",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -32,7 +32,8 @@
     "PR428 reviewed and merged at d571ea92",
     "Explicit Cambium operational Work intent compiled through canonical founder approval, then emitted as Work from coherent committed D1 source",
     "Shared direction draft migration/store/HTTP/native composer added with scoped atomic replay and revision CAS",
-    "Free-pool worker candidate stopped and repaired before acceptance; static review findings fixed and regression-tested"
+    "Free-pool worker candidate stopped and repaired before acceptance; static review findings fixed and regression-tested",
+    "Recovered1915a132 source packet, retained670e63b2 identity fix and ae043392 live owner reconciliation, verified Phloem provider receipt path and completed pinned source/local review; rollout remains held."
   ],
   "verification": {
     "core": {
@@ -47,7 +48,7 @@
     "bundle": "clean-input ad hoc signed build; verifier passed",
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
     "real_work_join": "Verified in actual signed-in Mac: mapped Cambium explicit runtime join and Open work show approved objective, active state and next step.",
-    "live_operational_loop": "Not run. Prior Work approval and native join/direction-save evidence are retained. Source reconciliation, rollout, fresh native direction review/decision, admission, original launch, finite job and immutable result remain open.",
+    "live_operational_loop": "Not run. Source reconciliation/review and current owner/runner readback are complete. Prior Work approval and saved native direction remain retained. Upload, migration, traffic, staged host/native rollout, fresh founder decision, admission, original native launch, one finite SSM job and immutable result acceptance remain open.",
     "installed_hermes_capability": "Fresh read-only preservation preflight confirms growth09b3369, existing hardened runner/timer and separate two Access references. Finite SSM approach is selected; new pilot release/image not staged. Existing runtime preserved; no installed pilot or job proof.",
     "ui_cleanup": {
       "source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
@@ -156,21 +157,60 @@
       "installation": false,
       "pilot_job_invoked": false,
       "qualified_review": false
+    },
+    "finite_ssm_reconciliation": {
+      "source": "144f12ffe5bbffbc9dd4311200042d35f1aeaa17",
+      "packet": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
+      "checks": {
+        "repository": {
+          "tests": 2765,
+          "passed": 2756,
+          "failed": 0,
+          "skipped": 9,
+          "sourceCommit": "144f12ffe5bbffbc9dd4311200042d35f1aeaa17",
+          "logSha256": "30ea7d0339f5b398a3995d27a627eb8082c7ec04053df8b2af254827e468c558",
+          "environment": "local disposable clone diff.autoRefreshIndex=false; all index/tree/refs equality assertions retained"
+        },
+        "mac": {
+          "tests": 318,
+          "passed": 314,
+          "failed": 0,
+          "skipped": 4,
+          "buildSystem": "SwiftPM native; test artifacts only; no signed/installed release acceptance",
+          "logSha256": "ab3cb92aa6160fd61baf22cc36ac3879a895f6c94abe96781e356526acce0c30"
+        },
+        "focusedOwnerTests": 38,
+        "hermesFiniteBoundaryTests": 3,
+        "workerTypecheck": {
+          "status": "pass",
+          "compiler": "TypeScript5.9.3",
+          "typingSource": "Existing installed @types/node25.6.0; lockfile remains24.19.2. No dependency installation performed.",
+          "logSha256": "e58da54763062da381b9264390cbe8bb31de8a9f75230b5309b84f0b4e669a97"
+        },
+        "driftAudit": "pass",
+        "atlasLiteralFingerprints": "pass",
+        "workerBundleDryRun": "pass",
+        "localBrowser": {
+          "captures": 6,
+          "pageSourceSha256": "aed8bc8af539fcb2dc661d41dedbe6b8cf8e2612efb80b57d6c08299857f48e9",
+          "manifest": "docs/plans/assets/field-atlas-viewport-proof/manifest.json",
+          "scope": "actual IAB captures using read-only synthetic local fixtures; no POST requests, production authentication, founder or physical-device acceptance"
+        }
+      },
+      "scope": "Source/local checks only; original installed app evidence above remains historical and was not refreshed by these checks."
     }
   },
   "remaining": [
-    "Reconcile current Cortex/iVerif owner wiring with finite Cambium source; verify exact new source/bundle and obtain qualified review",
-    "Resolve supported live provider receipt read after non-retryable Cloudflare1010; no new hosted workers or paid fallback",
-    "Owner-approved exact Worker/0104-only and isolated eight-file Hermes staging;0099/0103 already applied",
+    "Exact upload-only approval and immutable candidate verification; separate0104-only migration and traffic approval; separate isolated eight-file Hermes staging. Skip live0099/0103 and preserve0105.",
     "After approved stack, one signed native build/sign-in and saved-direction readback; founder manually decides complete fresh direction review",
     "Governed admission and original idempotent native launch, then separately admitted one finite SSM task",
     "Immutable diff/test/result readback and real complete native walkthrough; ISC-3683..3687 remain open"
   ],
-  "next_action": "Read .planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md and .planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json. Live Quests fd6fe5dc has 54 bindings; ETag-bound content matches the earlier 57704696 module and retains newer Cortex/iVerif/department owner behavior absent from the old pilot bundle. Preserve all 54 bindings; adding only the two pilot variables would yield 56. Skip already-applied 0099 and 0103; 0104 is absent. Resolve supported serving-provider receipt access after non-retryable Cloudflare 1010; further hosted workers are held with no paid fallback. The current release tag names unresolved source 1915a132; obtain its reviewed source/test packet for reconciliation. Prepare verified owner composition and qualified exact source review, refresh equality, then seek separate exact installation approval. No installation, founder decision, admission, native launch or pilot job is authorized.",
+  "next_action": "Review .planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md and its exact JSON. Source144f12ff is reconciled against current owner ae043392 with54 retained bindings; upload would add only2 for56. Phloem receipt reader is verified. Request exact upload-only approval, then inspect the immutable candidate at0% traffic. Only0104 may be applied under its separate approval; skip live0099/0103 and retain0105. Traffic, isolated Hermes staging, native rollout, founder decision, admission, original launch and one bound pilot job remain separately gated. No installation or pilot job authorized.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
-    "Migration 0099 stays source-only until admission and execution owner contracts are ready"
+    "0099/0103 are already live; only0104 may be applied under separate scoped approval; all later rollout/job gates remain held."
   ],
   "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
   "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md",
@@ -200,8 +240,8 @@
     "hermes": "codex/hermes-cambium-pilot-20261104",
     "hermes_base": "e33875438aa15ba34e4c643c894a3263eb2e1aa6",
     "migration_0104": "source-only",
-    "hosted_models": "Explicit noesis-free CLI workers; candidates failed qualification and repaired; actual provider attribution unavailable",
-    "checks": "New contract/approval/admission boundaries and legacy runner checks pass within local scope; full stack incomplete and unreviewed."
+    "hosted_models": "Existing Phloem receipt reader verified; exact session-joined free source reviews observed on OpenRouter. Account/connection identity remains unknown; no paid fallback.",
+    "checks": "Reconciled source reviewed. Repository2756pass/9skip, Mac314pass/4skip, focused38pass, finite3pass, strict typecheck/dry-run/drift/atlas and6 local browser captures pass. Runtime/acceptance remains held."
   },
   "direction_execution_source": {
     "packet": ".planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md",
@@ -216,8 +256,11 @@
   },
   "selected_execution": "finite operator-triggered Hermes via existing AWS SSM; preserve background runner",
   "next_session_handoff": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md",
-  "rollout_candidate": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
+  "rollout_candidate": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
   "previous_rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
   "finite_ssm_preflight": ".planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json",
-  "source_drift_handoff": ".planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md"
+  "source_drift_handoff": ".planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md",
+  "finite_ssm_reconciled_rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
+  "reconciled_candidate_source": "144f12ffe5bbffbc9dd4311200042d35f1aeaa17",
+  "finite_source_review": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md"
 }

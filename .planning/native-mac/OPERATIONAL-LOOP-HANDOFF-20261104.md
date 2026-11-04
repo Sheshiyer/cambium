@@ -1,3 +1,11 @@
+# Current finite pilot pickup — reviewed and held
+
+Use [FINITE-SSM-ROLLOUT-RECONCILED-20261104.md](FINITE-SSM-ROLLOUT-RECONCILED-20261104.md)
+and its JSON for candidate source144f12ff, current owner ae043392, verified
+Phloem receipts and exact upload-only approval scope. Current runner preserved;
+no installation or pilot job. ISA3683..3687 remain open. The earlier operational
+checkpoint below retains its original installed/native evidence as history.
+
 # Cambium operational loop — next-session handoff
 
 4 November 2026, Asia/Calcutta. Status: finite SSM preflight held on newer live

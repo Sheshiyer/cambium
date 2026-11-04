@@ -432,7 +432,7 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "finite-ssm-preflight-source-drift-held",
+      "status": "finite-ssm-reviewed-held",
       "tier": "E5",
       "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
@@ -451,9 +451,9 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Read .planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md and .planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json. Live Quests fd6fe5dc has 54 bindings; ETag-bound content matches the earlier 57704696 module and retains newer Cortex/iVerif/department owner behavior absent from the old pilot bundle. Preserve all 54 bindings; adding only the two pilot variables would yield 56. Skip already-applied 0099 and 0103; 0104 is absent. Resolve supported serving-provider receipt access after non-retryable Cloudflare 1010; further hosted workers are held with no paid fallback. The current release tag names unresolved source 1915a132; obtain its reviewed source/test packet for reconciliation. Prepare verified owner composition and qualified exact source review, refresh equality, then seek separate exact installation approval. No installation, founder decision, admission, native launch or pilot job is authorized.",
+      "next_action": "Review .planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md and its exact JSON. Source144f12ff is reconciled against current owner ae043392 with54 retained bindings; upload would add only2 for56. Phloem receipt reader is verified. Request exact upload-only approval, then inspect the immutable candidate at0% traffic. Only0104 may be applied under its separate approval; skip live0099/0103 and retain0105. Traffic, isolated Hermes staging, native rollout, founder decision, admission, original launch and one bound pilot job remain separately gated. No installation or pilot job authorized.",
       "ui_diagnostics": "Settings > Advanced > Diagnostics",
-      "rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
+      "rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
       "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
       "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json",
       "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json",
@@ -463,7 +463,14 @@
       "previous_rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
       "next_session_handoff": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md",
       "finite_ssm_preflight": ".planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json",
-      "source_drift_handoff": ".planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md"
+      "source_drift_handoff": ".planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md",
+      "reconciled_candidate_source": "144f12ffe5bbffbc9dd4311200042d35f1aeaa17",
+      "source_review": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md",
+      "historical_finite_ssm_rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
+      "last_verified_owner": "ae043392-ad9f-4ec1-878c-49d53676ea11",
+      "upload_approval": false,
+      "installation_approval": false,
+      "job_approval": false
     }
   }
 }
