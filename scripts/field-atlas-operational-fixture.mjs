@@ -34,7 +34,10 @@ export function createFieldAtlasOperationalFixture({now=Date.now}={}){
     select(name,read=ownerRead){
       selected=false;
       if(pending)throw new Error('Operational fixture has an unsettled response');
-      attempted=false;settled=false;counters={requests:0,gatePosts:0,acceptedPosts:0,deniedRequests:0,duplicatePosts:0};
+      // Selection resets observations, never the synthetic request's submit
+      // latch. Refresh/reselection cannot turn an uncertain or queued request
+      // into another accepted POST; a new test case gets a new fixture object.
+      counters={requests:0,gatePosts:0,acceptedPosts:0,deniedRequests:0,duplicatePosts:0};
       if(name===null || name===undefined)return;
       if(name!=='action-request-pending')throw new Error('Unknown operational fixture capability');
       if(!read || JSON.stringify(Object.keys(read).sort())!==JSON.stringify(Object.keys(ownerRead).sort()) || Object.keys(ownerRead).some(key=>read[key]!==ownerRead[key]))throw new Error('Operational owner identity/version/digest/freshness conflict');
@@ -42,7 +45,7 @@ export function createFieldAtlasOperationalFixture({now=Date.now}={}){
       selected=true;
     },
     snapshot:()=>({authority:AUTHORITY,selected,ownerRead:{...ownerRead},inputSha256:hash({ownerRead,payload}),...counters,
-      state:pending?'request-sent':settled?'queued':selected?'needs_signed_confirmation':'held',pendingResponses:pending?1:0,realOwnerWrites:0}),
+      state:pending?'request-sent':!selected?'held':settled?'queued':'needs_signed_confirmation',pendingResponses:pending?1:0,realOwnerWrites:0}),
     handle(req,res,url){
       if(!url.pathname.startsWith('/api/gate') && !url.pathname.startsWith('/founder/api/gate'))return false;
       counters.requests++;

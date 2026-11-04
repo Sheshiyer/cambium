@@ -15,6 +15,8 @@ test('synthetic confirmation exposes request-sent before settlement and never a 
   assert.equal(fixture.snapshot().acceptedPosts,1);assert.equal(fixture.snapshot().pendingResponses,1);assert.equal(fixture.release(),true);
   assert.equal(res.status,200);assert.equal(res.body.queued,fixture.ownerRead().requestId);assert.equal(res.body.realOwnerWrites,0);assert.equal(fixture.snapshot().state,'queued');
   assert.equal(send(fixture).res.status,409);assert.equal(fixture.snapshot().acceptedPosts,1);assert.equal(fixture.snapshot().duplicatePosts,1);assert.equal(fixture.release(),false);
+  fixture.select('action-request-pending');assert.equal(fixture.snapshot().state,'queued');
+  assert.equal(send(fixture).res.status,409);assert.equal(fixture.snapshot().acceptedPosts,0);assert.equal(fixture.snapshot().duplicatePosts,1);
 });
 test('wrong owner identity, local envelope version/digest/freshness and unavailable capability fail closed',()=>{
   for(const key of ['tenantId','requestId','optionId','version','digest','observedAt','expiresAt','schema','authority']){

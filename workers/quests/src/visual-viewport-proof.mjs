@@ -1578,11 +1578,18 @@ export async function withServer(fn, options = {}) {
   let activeFixture = NO_FAKE_PROGRESS_VISUAL_FIXTURE;
   let gatePostCount = 0;
   let postCount = 0;
+  let serverOrigin = null;
   const server = createServer((req, res) => {
     if(req.method==='POST')postCount++;
-    const url = new URL(req.url ?? '/', 'http://127.0.0.1');
+    const url = new URL(req.url ?? '/', serverOrigin || 'http://127.0.0.1');
+    if(options.localOperationalFixture && (url.origin!==serverOrigin || req.headers.host!==new URL(serverOrigin).host || !['127.0.0.1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress))){
+      res.writeHead(403,{'content-type':'application/json'});res.end(JSON.stringify({error:'Foreign operational fixture target refused'}));return;
+    }
     if (url.pathname === '/' || url.pathname === '/index.html' || options.localFounderFixture && url.pathname === '/founder') {
-      try{options.localFounderFixture?.select(url.searchParams.get('atlas-fixture'));}
+      try{
+        options.localFounderFixture?.select(url.searchParams.get('atlas-fixture'));
+        options.localOperationalFixture?.select(url.searchParams.get('atlas-operational-fixture'));
+      }
       catch{res.writeHead(400,{'content-type':'application/json'});res.end(JSON.stringify({error:'Unknown local browser fixture'}));return;}
       const fixture = url.searchParams.get('fixture');
       activeFixture = fixture === 'gate'
@@ -1613,6 +1620,9 @@ export async function withServer(fn, options = {}) {
       return;
     }
     if (options.localFounderFixture?.handle(req,res,url)) return;
+    // Explicit injected capability only. Without this option the normal page
+    // cannot activate the closed operational fixture through a query flag.
+    if (options.localOperationalFixture?.handle(req,res,url)) return;
     if (url.pathname === '/telegram-web-app.js') {
       res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8', 'cache-control': 'no-store' });
       // initData is served nonempty ONLY for operating-fabric captures
@@ -1676,12 +1686,16 @@ export async function withServer(fn, options = {}) {
   try {
     const address = server.address();
     if (!address || typeof address === 'string') throw new Error('server did not bind to a TCP port');
-    await fn(`http://127.0.0.1:${address.port}`, {
+    serverOrigin = `http://127.0.0.1:${address.port}`;
+    options.localOperationalFixture?.bind(serverOrigin);
+    await fn(serverOrigin, {
       gatePostCount: () => gatePostCount,
       postCount: () => postCount,
       founderFixture: () => options.localFounderFixture?.snapshot() ?? null,
+      operationalFixture: () => options.localOperationalFixture?.snapshot() ?? null,
     });
   } finally {
+    options.localOperationalFixture?.close();
     await new Promise((resolve) => server.close(resolve));
   }
 }
@@ -2071,12 +2085,42 @@ async function touchDragSelector(cdp, selector, distance = 96) {
   return result;
 }
 
-async function screenshotParams(cdp, options = {}) {
+// Serialized into the browser only for strict current-source captures. Keep
+// the immutable historical step definitions and their legacy capture unchanged.
+export function observeViewportCaptureGeometry(clipSelector = null) {
+  const cssViewport={width:innerWidth,height:innerHeight,scrollX,scrollY};
+  const view=window.visualViewport;
+  const visualViewport=view ? {width:view.width,height:view.height,offsetLeft:view.offsetLeft,offsetTop:view.offsetTop,scale:view.scale} : null;
+  const deviceScaleFactor=devicePixelRatio;
+  let observedClip=null,clip=null,clipVisible=null;
+  if(clipSelector!==null){
+    const node=document.querySelector(clipSelector),style=node && getComputedStyle(node);
+    if(!node || !node.isConnected || style.visibility!=='visible' || Number(style.opacity)===0 || ('open' in node && node.open!==true))throw new Error('Strict crop target is not painted');
+    const r=node.getBoundingClientRect();
+    if(![r.left,r.top,r.width,r.height].every(Number.isFinite) || r.width<=0 || r.height<=0 || r.left<0 || r.top<0 || r.right>innerWidth || r.bottom>innerHeight)throw new Error('Strict crop is outside the observed viewport');
+    const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+    if(!hit || hit!==node && !node.contains(hit))throw new Error('Strict crop target is obscured');
+    observedClip={selector:clipSelector,x:r.left,y:r.top,width:r.width,height:r.height};
+    // Outward physical-pixel alignment preserves every painted edge. It is
+    // derived from the observed rect, never a clamp for an offscreen target.
+    const x=Math.floor(r.left*deviceScaleFactor),y=Math.floor(r.top*deviceScaleFactor);
+    clip={selector:clipSelector,x:x/deviceScaleFactor,y:y/deviceScaleFactor,
+      width:(Math.ceil(r.right*deviceScaleFactor)-x)/deviceScaleFactor,height:(Math.ceil(r.bottom*deviceScaleFactor)-y)/deviceScaleFactor};
+    clipVisible=true;
+  }
+  return {schema:'cambium.viewport-capture-geometry.v1',cssViewport,visualViewport,deviceScaleFactor,observedClip,clip,clipVisible};
+}
+
+async function screenshotParams(cdp, options = {}, geometry = null) {
   const params = {
     format: 'png',
     fromSurface: true,
     captureBeyondViewport: false,
   };
+  if(geometry){
+    if(geometry.clip){const {x,y,width,height}=geometry.clip;params.clip={x,y,width,height,scale:1};}
+    return params;
+  }
   if (!options.clipSelector) return params;
   const rect = await evaluate(cdp, `(() => {
     const node = document.querySelector(${JSON.stringify(options.clipSelector)});
@@ -2243,9 +2287,20 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
           throw new Error(`Browser assertion failed: ${JSON.stringify(assertion)}`);
         }
       }
-      const shot = await cdp.send('Page.captureScreenshot', await screenshotParams(cdp, options));
-      writeFileSync(file, Buffer.from(shot.data, 'base64'));
-      return { assertion, ...(options.diagnostics === true ? {diagnostics} : {}) };
+      const geometry=options.captureGeometry===true ? await evaluate(cdp, `(${observeViewportCaptureGeometry.toString()})(${JSON.stringify(options.clipSelector ?? null)})`) : null;
+      if(geometry){
+        const {cssViewport:c,visualViewport:v,deviceScaleFactor:d}=geometry;
+        if(c.width!==captureViewport.width || c.height!==captureViewport.height || c.scrollX!==0 || c.scrollY!==0 || d!==2 || !v || Math.abs(v.width-c.width)>.5 || Math.abs(v.height-c.height)>.5 || v.offsetLeft!==0 || v.offsetTop!==0 || v.scale!==1)throw new Error('Strict observed viewport does not match the capture');
+      }
+      const shot = await cdp.send('Page.captureScreenshot', await screenshotParams(cdp, options, geometry));
+      const bytes=Buffer.from(shot.data, 'base64');
+      if(geometry){
+        const expected=geometry.clip || geometry.cssViewport;
+        if(bytes.length<24 || bytes.subarray(0,8).toString('hex')!=='89504e470d0a1a0a' || bytes.readUInt32BE(16)!==Math.round(expected.width*geometry.deviceScaleFactor) || bytes.readUInt32BE(20)!==Math.round(expected.height*geometry.deviceScaleFactor))throw new Error('Strict PNG does not match observed capture bounds');
+        geometry.png={width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};
+      }
+      writeFileSync(file, bytes);
+      return { assertion, ...(geometry ? {geometry} : {}), ...(options.diagnostics === true ? {diagnostics} : {}) };
     } finally {
       cdp.close();
     }
