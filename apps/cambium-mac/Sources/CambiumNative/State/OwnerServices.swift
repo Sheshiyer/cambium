@@ -221,6 +221,35 @@ final class CambiumOwnerServices: OwnerServices {
         guard stillCurrent(token) else { throw SignalError.scope }
         return result
     }
+    func directionExecutionPreview(_ direction: SharedDirection) async throws -> DirectionExecutionPreview {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.executionPreview(tenant: current.tenantId, direction: direction)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func prepareDirectionExecution(_ directionId: String, value: DirectionExecutionPrepare) async throws -> PreparedDirectionExecution {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.prepareExecution(tenant: current.tenantId, directionId: directionId, value: value)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+    func admitDirectionExecution(_ proposalId: String) async throws -> DirectionAdmission {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.admitExecution(tenant: current.tenantId, proposalId: proposalId)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
+
+    func directionExecutionResult(requestId: String, attemptId: String) async throws -> CambiumCore.DirectionExecutionResult {
+        guard let directions, let current = await session() else { throw SignalError.authorization }
+        let token = generation
+        let result = try await directions.executionResult(tenant: current.tenantId, requestId: requestId, attemptId: attemptId)
+        guard stillCurrent(token) else { throw SignalError.scope }
+        return result
+    }
 
     // MARK: Scope
 
@@ -600,6 +629,8 @@ final class CambiumOwnerServices: OwnerServices {
         rows("nodesToUpdate", "Update") { (json($0["before"]), json($0["after"])) }
         rows("nodesToRemove", "Remove") { ($0["nodeId"] as? String ?? "", "removed") }
         return ReviewDisplay(
+            isDirectionExecution: object?["source"] as? String == "native-direction-execution@v1",
+            directionExecution: DirectionReviewDisplay(object: object ?? [:], graphVersion: changeSet?["graphVersion"] as? Int),
             proposalId: tuple.proposalId, tenantId: tuple.tenantId, version: tuple.version,
             changeDigest: tuple.changeDigest, nonce: tuple.nonce, expiresAt: tuple.expiresAt, summary: tuple.summary,
             consequence: object?["consequence"] as? String ?? "", reversibility: object?["reversibility"] as? String ?? "",

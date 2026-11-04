@@ -1,3 +1,8 @@
+import { d1DirectionAdmissionStore } from './direction-execution-d1.ts';
+import { parseCambiumPilotPolicy } from './direction-execution-http.ts';
+import { createDirectionExecutionOwner } from './direction-execution-owner.ts';
+import { d1NativeLaunchStore } from './native-launch-d1.ts';
+import { patchDigest, type CambiumPatchResult } from '../../../shared/cambium-patch-contract.ts';
 import { d1SharedDirectionStore } from './shared-directions-d1.ts';
 import { createHermesReceiptIngestion, createHermesReceiptAuthorizer, type HermesReceiptsAI } from './hermes-receipts-v2.ts';
 import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
@@ -63,6 +68,8 @@ export interface D1DatabaseLike {
 }
 
 interface Env {
+  CAMBIUM_PATCH_POLICY_JSON?: string;
+  CAMBIUM_PATCH_RUNNER_MEMBER_ID?: string;
   GROWTH_WORKFLOW_TENANTS_JSON?: string;
   GROWTH_WORKFLOW_RUNNER_MEMBER_ID?: string;
   GROWTH_WORKFLOW_MAX_PENDING?: string;
@@ -462,7 +469,7 @@ function activeClaimBusy(row: BridgeExecutionRow, claimedAt: string): BridgeExec
 
 function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResult {
   const attestation = parseJsonRecord(row.attestation_json);
-  const command = attestation.command === 'canary.record' || attestation.command === 'service_agreement.draft.render' || attestation.command === 'growth.request.draft'
+  const command = attestation.command === 'canary.record' || attestation.command === 'service_agreement.draft.render' || attestation.command === 'growth.request.draft' || attestation.command === 'cambium.patch.verify'
     ? attestation.command
     : null;
   if ((row.outcome_status !== 'executed' && row.outcome_status !== 'failed')
@@ -504,6 +511,7 @@ function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResul
       ? { businessReceipt: attestation.businessReceipt as BridgeBusinessArtifactReceipt }
       : {}),
     ...(command === 'growth.request.draft' && parseGrowthResult(attestation.growthResult) ? {growthResult:parseGrowthResult(attestation.growthResult)!} : {}),
+    ...(command === 'cambium.patch.verify' && attestation.cambiumPatchResult ? {cambiumPatchResult: attestation.cambiumPatchResult as CambiumPatchResult} : {}),
     ...(typeof attestation.errorCode === 'string' ? { errorCode: attestation.errorCode } : {}),
     startedAt: attestation.startedAt,
     finishedAt: attestation.finishedAt,
@@ -552,6 +560,10 @@ function identicalOutcome(row: BridgeExecutionRow, input: BridgeExecutionOutcome
 
 export function d1BridgeExecutionStore(db: D1DatabaseLike): BridgeExecutionStoreLike {
   return {
+    async readTerminalAttestation(memberId, directiveId) {
+      const row = await executionRow(db, memberId, directiveId);
+      return row?.terminal === 1 ? terminalClaimResult(row).outcome.attestation : null;
+    },
     async claimExecution(input: BridgeExecutionClaimInput): Promise<BridgeExecutionClaimResult> {
       const current = await executionRow(db, input.memberId, input.directiveId);
       if (current?.terminal === 1) {
@@ -1514,7 +1526,21 @@ export default {
       apiKey: iverifApiKey,
       fetchImpl: workerFetch,
     }) : undefined;
+    const pilotPolicy = parseCambiumPilotPolicy(env.CAMBIUM_PATCH_POLICY_JSON);
+    const pilotRunner = env.CAMBIUM_PATCH_RUNNER_MEMBER_ID;
+    const pilot = env.BRIDGE_DB && pilotPolicy && pilotRunner && /^[a-z][a-z0-9-]{1,63}$/.test(pilotRunner)
+      ? { policy: pilotPolicy, runnerMemberId: pilotRunner, admissions: d1DirectionAdmissionStore(env.BRIDGE_DB as any) } : undefined;
+    const nativeLaunchHost = pilot && env.BRIDGE_DB && nativeSessionHost ? {
+      verify: async () => null, // Native composition replaces this verifier; never grants standalone bearer authority.
+      store: d1NativeLaunchStore(env.BRIDGE_DB as any, {directionPolicyDigest: patchDigest(pilot.policy)}),
+      owner: createDirectionExecutionOwner({db: env.BRIDGE_DB as any, policy: pilot.policy, runnerMemberId: pilot.runnerMemberId,
+        bridge: d1BridgeStore(env.BRIDGE_DB), executions: d1BridgeExecutionStore(env.BRIDGE_DB), now: () => new Date().toISOString()}),
+      now: () => new Date().toISOString(),
+    } : undefined;
     const res = await handle(simple, {
+      cambiumPilot: pilot,
+      nativeLaunchHost,
+      directionAdmissionStore: env.BRIDGE_DB && pilotRunner && /^[a-z][a-z0-9-]{1,63}$/.test(pilotRunner) ? d1DirectionAdmissionStore(env.BRIDGE_DB as any) : undefined,
       kv,
       // All-or-nothing: without D1, writable vault and owner public key this is the read-only reader.
       ...await wave0OwnerBindings(env),

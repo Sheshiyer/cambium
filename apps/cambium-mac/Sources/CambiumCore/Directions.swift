@@ -1,5 +1,22 @@
 import Foundation
 
+enum DirectionEndpoint {
+    case collection, record(String), executionReview(String), proposal(String), admission, result(String)
+    func path(tenant: String) -> String? {
+        switch self {
+        case .collection: return "/v1/directions/" + tenant
+        case .admission: return "/v1/direction-executions/" + tenant + "/admit"
+        case .result(let id):
+            guard id.range(of: #"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"#, options: .regularExpression) != nil else { return nil }
+            return "/v1/direction-executions/" + tenant + "/" + id + "/result"
+        case .record(let id), .executionReview(let id), .proposal(let id):
+            guard id.range(of: #"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"#, options: .regularExpression) != nil else { return nil }
+            let base = "/v1/directions/" + tenant + "/" + id
+            switch self { case .record: return base; case .executionReview: return base + "/execution-review"; default: return base + "/proposal" }
+        }
+    }
+}
+
 public struct DirectionSignalPin: Codable, Equatable, Sendable {
     public let id: String
     public let revision: Int
@@ -89,10 +106,11 @@ public struct DirectionHTTPClient: Sendable {
               row.graphHeadDigest == draft.graphHeadDigest, row.signalPins == draft.signalPins, row.revision == 1 else { throw SignalError.invalid }
         return result
     }
-    private func request(_ method: String, tenant: String, body: Data? = nil) async throws -> (Data, AuthenticatedReaderContext) {
+    func request(_ method: String, tenant: String, body: Data? = nil, endpoint: DirectionEndpoint = .collection) async throws -> (Data, AuthenticatedReaderContext) {
         guard MissionFabricTenant.isValid(tenant), (body?.count ?? 0) <= 65536 else { throw SignalError.invalidRequest }
+        guard let path = endpoint.path(tenant: tenant) else { throw SignalError.invalidRequest }
         var c = URLComponents(); c.scheme = origin.scheme; c.host = origin.host; c.port = origin.explicitPort
-        c.percentEncodedPath = origin.basePath + "/v1/directions/" + tenant
+        c.percentEncodedPath = origin.basePath + path
         guard let url = c.url, origin.admits(url) else { throw SignalError.invalidRequest }
         let context = try AuthenticatedReaderContext.derive(from: await sessions.currentSession(), tenantId: tenant, at: clock.now())
         var headers = try await authorizer.headers(for: url)

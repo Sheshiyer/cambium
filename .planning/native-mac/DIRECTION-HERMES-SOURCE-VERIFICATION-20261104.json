@@ -1,0 +1,36 @@
+{
+  "schema": "cambium.direction-hermes-source-verification.v1",
+  "scope": "source-and-local-container",
+  "productionAcceptance": false,
+  "hostedExecution": false,
+  "ownerApproval": false,
+  "baseCommit": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+  "patchDigest": "sha256:f1f6467b4e25af3daeafae9f996a9ddf7cf368e473af1a66ca8417a51acaae35",
+  "image": "docker.io/library/node@sha256:8544b46b91d1a8c8bf8fc0d53ae9f276ed07d0ffa9098dc4a9c2f627363a13a0",
+  "container": {
+    "architecture": "amd64",
+    "location": "local Mac Docker VM",
+    "baselineExitCode": 1,
+    "candidateExitCode": 0,
+    "candidateTests": 8,
+    "exactDiff": true
+  },
+  "held": [
+    "final-clean-checkout-tests",
+    "worker-0099-0104-policy-runner-config-rollout",
+    "hermes-minimal-source-image-policy-rollout",
+    "human-direction-approval",
+    "hosted-original-request-result-readback"
+  ],
+  "routing": {
+    "requestedPool": "noesis-free",
+    "configuredServingIdentityIsProof": false,
+    "providerReceiptObserved": false
+  },
+  "independentReview": {
+    "sameReviewer": true,
+    "findings": 2,
+    "corrected": 2,
+    "recheckActionableFindings": 0
+  }
+}

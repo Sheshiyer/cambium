@@ -1,0 +1,29 @@
+{
+  "schema": "thoughtseed.cambium.patch.policy.v1",
+  "id": "cambium.shared-signal-title.v1",
+  "version": 1,
+  "workObjectId": "sapling:cambium",
+  "baseCommit": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+  "patchDigest": "sha256:f1f6467b4e25af3daeafae9f996a9ddf7cf368e473af1a66ca8417a51acaae35",
+  "allowedPaths": [
+    "workers/quests/src/shared-signals.ts",
+    "workers/quests/src/shared-signals.test.ts"
+  ],
+  "testCommand": [
+    "node",
+    "--test",
+    "workers/quests/src/shared-signals.test.ts"
+  ],
+  "image": "docker.io/library/node@sha256:8544b46b91d1a8c8bf8fc0d53ae9f276ed07d0ffa9098dc4a9c2f627363a13a0",
+  "modelPool": "noesis-free",
+  "acceptance": "review-required",
+  "externalActions": "none",
+  "limits": {
+    "timeoutSeconds": 180,
+    "memoryMiB": 768,
+    "cpus": 1,
+    "pids": 128,
+    "outputBytes": 1048576,
+    "archiveBytes": 33554432
+  }
+}

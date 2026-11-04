@@ -11,6 +11,18 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 — Direction approval and Hermes pilot source
+
+Reviewed source adds saved-direction canonical review, explicit admission,
+existing-bridge launch and bound result readback. Actual local Docker proof is
+RED→GREEN with an exact two-file diff; hosted execution is unproven. Both review
+findings are fixed. Continue from `.planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md`
+and its source-verification receipt. Worker0099/0104 and Hermes source/image/policy
+rollouts remain separately owner-approved; do not repeat already-live0103 or the
+approved Cambium Work proposal. Preserve the running signed app until ready for
+the complete live walkthrough.
+
+
 ## 2026-11-04 live native Work join and direction save verified
 
 Actual signed-in Mac: mapped Cambium Explicit runtime join > Open work shows

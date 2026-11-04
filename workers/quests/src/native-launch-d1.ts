@@ -15,6 +15,7 @@
 // row that status reconciles through owner readback; neither re-dispatches.
 
 import type { GoalGraphD1DatabaseLike } from './goal-graph-store.ts';
+import { CURRENT_DIRECTION_ADMISSION_SQL } from './direction-execution-d1.ts';
 import {
   NATIVE_LAUNCH_ADMISSION_LIST_LIMIT,
   type NativeLaunchAdmission,
@@ -67,7 +68,13 @@ const samePins = (a: NativeLaunchCapabilityTuple, b: NativeLaunchCapabilityTuple
 
 const isUniqueViolation = (error: unknown) => /UNIQUE constraint failed|SQLITE_CONSTRAINT/i.test(String((error as Error)?.message ?? error));
 
-export function d1NativeLaunchStore(db: GoalGraphD1DatabaseLike): NativeLaunchStore {
+export function d1NativeLaunchStore(db: GoalGraphD1DatabaseLike, options: { directionPolicyDigest?: string } = {}): NativeLaunchStore {
+  const policy = options.directionPolicyDigest && /^sha256:[a-f0-9]{64}$/.test(options.directionPolicyDigest) ? options.directionPolicyDigest : null;
+  // The new pilot can never use the legacy unguarded adapter. Its source pins
+  // are checked in the actual reservation statement, not only before it.
+  const directionCurrent = policy
+    ? `(a.loadout_id <> 'loadout:cambium-patch-pilot' OR ${CURRENT_DIRECTION_ADMISSION_SQL})`
+    : `a.loadout_id <> 'loadout:cambium-patch-pilot'`;
   async function readScoped(scope: NativeLaunchScope, where: string, ...values: unknown[]) {
     const row = await db.prepare(`SELECT ${REQUEST_COLUMNS} FROM native_launch_requests
       WHERE tenant_id = ? AND principal_id = ? AND ${where} LIMIT 1`).bind(scope.tenantId, scope.principalId, ...values).first<Row>();
@@ -76,11 +83,11 @@ export function d1NativeLaunchStore(db: GoalGraphD1DatabaseLike): NativeLaunchSt
 
   async function readAdmission(scope: NativeLaunchScope, admissionRef: string, now: string): Promise<NativeLaunchAdmissionRead | null> {
     const row = await db.prepare(`
-      SELECT a.*, h.graph_version AS head_version
+      SELECT a.*, h.graph_version AS head_version, (${directionCurrent}) AS direction_current
       FROM native_launch_admissions a
       LEFT JOIN goal_graph_heads h ON h.tenant_id = a.tenant_id
       WHERE a.tenant_id = ? AND a.admission_ref = ? AND a.principal_id = ?
-    `).bind(scope.tenantId, admissionRef, scope.principalId).first<Row>();
+    `).bind(...(policy ? [policy] : []), scope.tenantId, admissionRef, scope.principalId).first<Row>();
     if (!row) return null;
     const admission = admissionOf(row);
     const consumed = await readScoped(scope, 'admission_ref = ?', admissionRef);
@@ -88,6 +95,7 @@ export function d1NativeLaunchStore(db: GoalGraphD1DatabaseLike): NativeLaunchSt
     if (admission.status !== 'active') hold = 'admission_revoked';
     else if (!(admission.expiresAt > now)) hold = 'admission_expired';
     else if (row.head_version == null || Number(row.head_version) !== admission.graphVersion) hold = 'graph_changed';
+    else if (Number(row.direction_current) !== 1) hold = 'graph_changed';
     else if (consumed) hold = 'admission_consumed';
     return { admission, hold, consumedBy: consumed ? { requestId: consumed.requestId, attemptId: consumed.attemptId } : null };
   }
@@ -151,10 +159,12 @@ export function d1NativeLaunchStore(db: GoalGraphD1DatabaseLike): NativeLaunchSt
           WHERE a.tenant_id = ? AND a.principal_id = ? AND a.admission_ref = ? AND a.status = 'active'
             AND a.expires_at > ? AND a.work_id = ? AND a.graph_version = ? AND a.loadout_id = ?
             AND a.input_digest = ? AND a.execution_plant = ? AND a.supported_action = ? AND a.expires_at = ?
+            AND (${directionCurrent})
         `).bind(
           input.requestKey, input.requestId, input.attemptId, input.idempotencyNonce, input.requestDigest, input.now,
           input.tenantId, input.principalId, c.admissionRef, input.now, c.workId, c.graphVersion, c.loadoutId,
           c.inputDigest, c.executionPlant, c.supportedAction, c.expiresAt,
+          ...(policy ? [policy] : []),
         ).run();
         changes = Number(result.meta?.changes ?? 0);
       } catch (error) {

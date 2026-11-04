@@ -5,6 +5,9 @@ struct ProposalView: View {
 
     var body: some View {
         @Bindable var model = model
+        if let review = model.review, review.isDirectionExecution {
+            DirectionApprovalView(review: review).environment(model)
+        } else {
         PageScaffold(eyebrow: "Proposal review", title: "Founder proposal review",
                      subtitle: "Review the signed change set, inspect consequence and reversibility, and type the exact source confirmation. Submissions go through the FounderGateCoordinator.") {
             if model.isDemo {
@@ -166,6 +169,7 @@ struct ProposalView: View {
                 .cambiumPanel()
             }
         }
+        }
     }
 }
 
@@ -186,7 +190,7 @@ private struct BindingPanel: View {
                 FactRow(label: "Proposal reference", value: binding.proposalId, mono: true)
                 FactRow(label: "Source", value: binding.source == .ownerProjection
                         ? "Named by the loaded projection for this work"
-                        : "Typed canonical reference for this session")
+                        : binding.source == .ownerPreparation ? "Prepared from a saved direction" : "Typed canonical reference for this session")
             } else {
                 Text("This work has no proposal join. Type the canonical reference. The app will not invent one.")
                     .font(.callout).foregroundStyle(Palette.inkMuted)

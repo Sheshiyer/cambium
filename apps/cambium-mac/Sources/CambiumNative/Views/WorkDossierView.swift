@@ -4,6 +4,8 @@ import struct CambiumCore.MappedProject
 
 struct WorkDossierView: View {
     @Environment(AppModel.self) private var model
+    @State private var directionsPresented = false
+    @State private var directionsWorkID = ""
 
     var body: some View {
         @Bindable var model = model
@@ -23,9 +25,18 @@ struct WorkDossierView: View {
                 .frame(maxWidth: 360, alignment: .leading)
 
                 if let work = model.selectedWork {
+                    if work.id == "sapling:cambium", !model.isDemo {
+                        Button("Saved directions", systemImage: "doc.on.doc") {
+                            directionsWorkID = work.id
+                            directionsPresented = true
+                        }
+                    }
                     Dossier(work: work)
                 }
             }
+        }
+        .sheet(isPresented: $directionsPresented) {
+            SavedDirectionsView(workID: directionsWorkID).environment(model)
         }
     }
 }
@@ -132,7 +143,7 @@ private struct Dossier: View {
             SectionHeader(title: "Proposal binding")
             if let binding = model.proposalBinding, binding.workId == work.id {
                 FactRow(label: "Proposal", value: binding.proposalId, mono: true)
-                FactRow(label: "Binding", value: binding.source == .ownerProjection ? "Named by the loaded projection" : "Typed for this session")
+                FactRow(label: "Binding", value: binding.source == .ownerProjection ? "Named by the loaded projection" : binding.source == .ownerPreparation ? "Prepared from a saved direction" : "Typed for this session")
             } else if model.isDemo {
                 Text("This record has no proposal reference in the loaded projection. The dated founder proposal is a separate example and is not assumed.")
                     .font(.callout).foregroundStyle(Palette.inkMuted)

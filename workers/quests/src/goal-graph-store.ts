@@ -10,6 +10,7 @@
 
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { sha256 } from './goal-graph/identity.ts';
+import { validateDirectionDraft } from './shared-directions.ts';
 import type {
   GoalChangeSet,
   GoalGraphHead,
@@ -560,6 +561,28 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
     if (suppliedApprovalDigest !== expectedApprovalDigest) return resultRejected('approval_digest_invalid', changeDigest);
     if (!DIGEST_RE.test(changeDigest)) return resultRejected('change_digest_invalid', changeDigest);
 
+    const sourceFence = changeSet.sourceFence;
+    const executionChildren = [...(changeSet.nodesToCreate ?? []), ...(changeSet.nodesToUpdate ?? []).map(row => row.after)]
+      .filter(node => node.namespace === 'founder-direction-execution' && node.status === 'active');
+    if (executionChildren.length && !sourceFence) return resultRejected('direction_source_fence_required', changeDigest);
+    if (sourceFence) {
+      try {
+        const document = JSON.parse(sourceFence.document);
+        const { title, body, workObjectId, workNodeId, graphHeadDigest, signalPins } = document;
+        if (Object.keys(sourceFence).sort().join(',') !== 'directionId,directionRevision,document,principalId,schema,signalPins'
+            || sourceFence.schema !== 'cambium.goal-graph.direction-source-fence.v1'
+            || sourceFence.principalId !== approval.approverId || sourceFence.document.length > 65536
+            || document.tenantId !== input.tenantId || document.principal !== sourceFence.principalId
+            || document.id !== sourceFence.directionId || document.revision !== sourceFence.directionRevision
+            || !Number.isSafeInteger(sourceFence.directionRevision) || sourceFence.directionRevision < 1
+            || !validateDirectionDraft({ title, body, workObjectId, workNodeId, graphHeadDigest, signalPins })
+            || stableJson(signalPins) !== stableJson(sourceFence.signalPins)
+            || executionChildren.length !== 1 || changeSet.nodesToCreate.length !== 1 || changeSet.nodesToUpdate.length || changeSet.nodesToRemove.length
+            || executionChildren[0].parentNodeId !== workNodeId || executionChildren[0].owner !== sourceFence.principalId
+            || executionChildren[0].workObjectId !== workObjectId) return resultRejected('direction_source_fence_invalid', changeDigest);
+      } catch { return resultRejected('direction_source_fence_invalid', changeDigest); }
+    }
+
     const expectedDigest = expectedHeadDigest(changeSet);
     const currentHead = await readHeadRow(input.tenantId);
     const currentRows = await readNodeRows(input.tenantId);
@@ -620,6 +643,17 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
         WHERE h.tenant_id = ? AND h.graph_digest = ?
       )`;
     const statements: GoalGraphD1StatementLike[] = [];
+    const sourceFenceSql = sourceFence ? `AND EXISTS (
+      SELECT 1 FROM shared_directions sd WHERE sd.tenant_id = ? AND sd.principal_id = ?
+        AND sd.direction_id = ? AND sd.revision = ? AND sd.document = ?
+        AND NOT EXISTS (
+          SELECT 1 FROM json_each(?) pin
+          LEFT JOIN shared_signals s ON s.tenant_id = sd.tenant_id AND s.principal_id = sd.principal_id
+            AND s.signal_id = json_extract(pin.value, '$.id')
+          WHERE s.revision IS NOT json_extract(pin.value, '$.revision')
+            OR NOT EXISTS (SELECT 1 FROM json_each(s.document, '$.projectIds') p WHERE p.value = 'sapling:cambium')
+        )
+    )` : '';
 
     // Approval is the first write and is itself conditional on the expected
     // head. This gives every later statement a durable CAS witness. A stale
@@ -636,6 +670,7 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
           SELECT 1 FROM goal_graph_heads WHERE tenant_id = ? AND graph_digest = ?
         ))
       )
+      ${sourceFenceSql}
     `).bind(
       `approval:${input.tenantId}:${changeDigest}:${approval.nonce}`,
       input.tenantId,
@@ -653,6 +688,8 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
       expectedDigest,
       input.tenantId,
       expectedDigest,
+      ...(sourceFence ? [input.tenantId, sourceFence.principalId, sourceFence.directionId,
+        sourceFence.directionRevision, sourceFence.document, JSON.stringify(sourceFence.signalPins)] : []),
     ));
 
     // Bootstrap is an INSERT; established revisions use a conditional UPDATE.

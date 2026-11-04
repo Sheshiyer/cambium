@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T22:25:57.695Z",
-  "status": "live-work-join-and-direction-draft-save-verified",
+  "updated": "2026-11-03T23:28:08.952071+00:00",
+  "status": "source-reviewed-awaiting-clean-checks-and-rollout",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -156,7 +156,7 @@
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Continue next source slice: expose saved directions and bind exact draft revision/Work/head/input/policy/budget into existing canonical founder review. Add governed admission and finite Docker-isolated installed Hermes capability, then compose native launch/results. Do not resubmit Work55efd3d7 or repeat migrations/rollouts. Live Work join and draft save are verified; direction approval/execution/result are not.",
+  "next_action": "Continue in-progress source from DIRECTION-HERMES-PILOT-20261104.md: finish native protocol/review/admit/results, production owner composition and existing bridge integration; then qualified review/tests and exact rollout packets. Current live2971a905 and Work55efd3d7/draft save are unchanged.0099/0104 remain source-only; no policy/image or runner activation.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
@@ -183,5 +183,21 @@
   },
   "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json",
   "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json",
-  "work_proposal_receipt": ".planning/native-mac/CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json"
+  "work_proposal_receipt": ".planning/native-mac/CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json",
+  "implementation_packet": ".planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md",
+  "source_in_progress": {
+    "cambium": "codex/cambium-real-work-loop-20261104",
+    "hermes": "codex/hermes-cambium-pilot-20261104",
+    "hermes_base": "e33875438aa15ba34e4c643c894a3263eb2e1aa6",
+    "migration_0104": "source-only",
+    "hosted_models": "Explicit noesis-free CLI workers; candidates failed qualification and repaired; actual provider attribution unavailable",
+    "checks": "New contract/approval/admission boundaries and legacy runner checks pass within local scope; full stack incomplete and unreviewed."
+  },
+  "direction_execution_source": {
+    "packet": ".planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md",
+    "receipt": ".planning/native-mac/DIRECTION-HERMES-SOURCE-VERIFICATION-20261104.json",
+    "review": "same sole reviewer; both recovery findings corrected and rechecked",
+    "production_deployed": false,
+    "hosted_job_launched": false
+  }
 }
