@@ -12,6 +12,16 @@ Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
 
+### 2026-11-04 Finite viewport ISA/GSD proposal prepared; implementation and release held
+
+- Planning-only proposal covers all 32 remaining behavior gaps through 10 sequential packages/28 bounded tasks. All 43 retained intents stay required; the 11 existing qualified local behaviors and four prior gallery retirements are protected. All 45 future ISA criteria remain unchecked.
+- Proposed source matrix: 80 cases = 44 existing + 32 gap journeys + 4 original 430×844 supplements, retaining 430×932 evidence. Eight new gap journeys need strict observed clip receipts; 24 remain full viewport. No capture, fixture, UI, backend or runtime behavior is implemented by this proposal.
+- Packet: `.planning/viewport-proof-20261104/remaining-behaviors/README.md`; exact identity/hash/owner traceability in coverage.json; content digest `fc450363e1d5451bc95c2557d47088095ccd50b97abe2517c81c9194edd03f5c` in PROPOSAL.json; separate technical plan review in REVIEW.md. Source basis remains e6b28642 and current proof remains 44frames/11qualified/32held.
+- Independent technical plan review passes after the explicit non-goal transport assignment. Frozen proposal validation rejects all 10 negative controls; drift and standalone audits pass. Current source qualification remains 11/43 with 32 held.
+- Root Phase 9 STATE/ROADMAP/REQUIREMENTS/config and all historical proof bytes are preserved. Goal-only Access and existing Telegram-signed non-goal Gate ownership remain distinct. Synthetic request/queue proof cannot grant real signing or execution.
+- Version 95 remains the planning baseline. Implementation/admission, accepted plan digest, canonical mapping, deployment and traffic are held. Follow the matching viewport_gap_plan continuation and its bounded verification receipt; preserve earlier viewport and owner gates.
+
+
 ### 2026-11-04 Current 3D source proof and Departments header verified; retained qualification held
 
 - Implementation `7c8c810f` follows the admitted viewport/header source change in `078ccfc2` and CLI-cycle repair in `805f76ca`. The header gives status its own row and uses existing accessible icon controls. Independent real-browser checks pass at 320/390/430/600/601/1280px, including 44px controls, keyboard entry and modal focus restoration.

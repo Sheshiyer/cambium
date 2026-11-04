@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T23:42:42.447305+00:00",
-  "status": "viewport-source-verified-retained-qualification-held",
-  "active_task": "Current 3D proof and mobile Departments header source verified at 7c8c810f: 44 source frames, 11 of 43 retained behaviors qualified, 32 held. Version 95 is the planning baseline; deployment and traffic held.",
+  "updated": "2026-11-04T10:23:47.979959+00:00",
+  "status": "viewport-gap-plan-proposed-implementation-held",
+  "active_task": "Finite viewport ISA/GSD proposal prepared for 32 remaining gaps: 10 sequential packages/28 tasks, all 43 retained intents and 11 qualified regressions protected. No implementation admission; version 95 baseline and deployment/traffic held.",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -249,7 +249,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Read docs/visual/field-atlas-viewport-proof.md and artifact:field-atlas-contract-20261104/source-verification-receipt.json. Preserve all 32 missing retained behaviors as release blockers. Review the finite LumenBar and Temperance GSD scopes; accepted plans/task mappings, fresh authenticated graph, native-prefill/callback/device acceptance and separate release approval remain held.",
+  "next_action": "Review .planning/viewport-proof-20261104/remaining-behaviors/README.md, PROPOSAL.json content digest and REVIEW.md. All 43 proposed per-intent criteria plus two global criteria remain unchecked. Accepted ISA/GSD plan digest, exact source/owner preflight and execution admission are required before implementation; deployment and traffic remain held. Existing Phase 9 inventory spine is unchanged.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -413,7 +413,7 @@
   "wave": "founder-renewal-3d-runtime-e2e-2026-10-25",
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
-  "next_command": "Read docs/visual/field-atlas-viewport-proof.md",
+  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/README.md",
   "extends": "gsd.pause-work.v1",
   "accepted_limitations": [
     "Canonical mobile viewport/trustedtouch proof remains held under explicit owner exception",
@@ -432,7 +432,7 @@
   },
   "continuations": {
     "department_live_integration": {
-      "status": "viewport-source-verified-retained-qualification-held",
+      "status": "viewport-gap-plan-proposed-implementation-held",
       "source_branch": "codex/field-atlas-proof-20261104",
       "handoff": "docs/plans/department-pilot/OWNER-READERS.md",
       "reviewed_source_commit": "db97abf9e6e73df33e707fe824f9d03a38b99503",
@@ -729,6 +729,42 @@
         "fresh_canonical_head": null,
         "execution_granted": false,
         "canonical_write_approved": false
+      },
+      "viewport_gap_plan": {
+        "status": "proposed-for-human-review",
+        "packet": ".planning/viewport-proof-20261104/remaining-behaviors/README.md",
+        "roadmap": ".planning/viewport-proof-20261104/remaining-behaviors/ROADMAP.md",
+        "traceability": ".planning/viewport-proof-20261104/remaining-behaviors/TRACEABILITY.md",
+        "coverage": ".planning/viewport-proof-20261104/remaining-behaviors/coverage.json",
+        "proposal": ".planning/viewport-proof-20261104/remaining-behaviors/PROPOSAL.json",
+        "proposal_content_digest": "fc450363e1d5451bc95c2557d47088095ccd50b97abe2517c81c9194edd03f5c",
+        "technical_review": ".planning/viewport-proof-20261104/remaining-behaviors/REVIEW.md",
+        "source_baseline": "e6b28642eb79d6668c336b59cf745c5ab9581749",
+        "retained_intents": 43,
+        "current_qualified": 11,
+        "remaining_gaps": 32,
+        "packages": 10,
+        "tasks": 28,
+        "proposed_source_cases": 80,
+        "existing_cases_preserved": 44,
+        "original_height_supplements": 4,
+        "gap_terminal_cases": 32,
+        "new_gap_clipped_cases": 8,
+        "new_gap_full_viewport_cases": 24,
+        "proposed_isa_criteria": 45,
+        "all_future_criteria_unchecked": true,
+        "plan_preparation_authorized": true,
+        "accepted_plan_digest": null,
+        "isa_acceptance_ref": null,
+        "canonical_mapping": null,
+        "admitted_tasks": [],
+        "implementation_authorized": false,
+        "deployment_authorized": false,
+        "traffic_authorized": false,
+        "active_root_phase9_unchanged": true,
+        "verification": "artifact:viewport-gap-plan-20261104/verification-receipt.json",
+        "technical_review_status": "passed",
+        "proposal_validation_status": "passed-with-10-negative-controls"
       }
     }
   }
