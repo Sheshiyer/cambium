@@ -54,7 +54,7 @@ a direction, an admission, or a job. The existing Work55efd3d7 remains approved.
 ## Workspaces and model bounds
 
 Cambium source is isolated on codex/cambium-real-work-loop-20261104. Hermes
-source is isolated on codex/hermes-cambium-pilot-20261104 from e3387543. Primary
+source is isolated on codex/hermes-cambium-pilot-20261104, initially from e3387543 and now integrated with current Git main09280487. Primary
 checkouts and concurrent work remain untouched except bounded owned handoffs.
 Temperance Build preview is advisory and defaults to A; that route was not
 executed. Explicit CLI workers used hosted noesis-free, with no routing writes
@@ -118,6 +118,12 @@ or weaken its existing containment. Do not infer a choice from elapsed time.
 Cambium commit5de4fe26: full2732tests pass. Native270Core tests pass(two skips),
 44native tests pass; five direction-wire tests pass after the fixture scrub.
 Hermes feature source7c1ad7c preserves current Git main09280487 and passes
-all384Node tests. Its source PR is#169; Cambium source remains draftPR#429.
+all385Node tests. Its source PR is#169; Cambium source remains draftPR#429.
 No merge, rollout or hosted job is claimed. Source policy and actual local
 container proof are ready; exact runtime overlay and execution approval are held.
+
+Final queue-classification review found the upstream observer omitted the pilot
+policy. The observer now receives it; a configured/unconfigured read-only poll
+regression proves classification without claim, execute or ACK effects. The same
+reviewer rechecked this third finding with no further issues. All385Node tests
+pass. The source-only branches are pushed; execution choice remains pending.

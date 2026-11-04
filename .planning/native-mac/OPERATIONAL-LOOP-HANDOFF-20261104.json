@@ -48,7 +48,7 @@
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
     "real_work_join": "Verified in actual signed-in Mac: mapped Cambium explicit runtime join and Open work show approved objective, active state and next step.",
     "live_operational_loop": "Not run: canonical Work decision, native join/direction test, direction approval/admission and finite Hermes coding capability pending.",
-    "installed_hermes_capability": "Live readback: installed release e3387543 supports canary and document drafts only; no source verification or Cambium code command. Docker exists; no rollout performed.",
+    "installed_hermes_capability": "Fresh readback: deployed growth release09b3369 differs from old e338 checkpoint and Git main. Existing hardened runner has no Docker/source-store access. Preserve current behavior; finite SSM pilot vs narrow helper choice is pending. No rollout performed.",
     "ui_cleanup": {
       "source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
       "core": "261 tests, two opt-in skips, zero failures",
@@ -199,6 +199,9 @@
     "review": "same sole reviewer; both recovery findings corrected and rechecked",
     "production_deployed": false,
     "hosted_job_launched": false,
-    "fresh_runtime_checkpoint": "hermes-aws-ts-growth-09b3369 differs from old checkpoint and current Git main; preserve it"
+    "fresh_runtime_checkpoint": "hermes-aws-ts-growth-09b3369 differs from old checkpoint and current Git main; preserve it",
+    "hermes_source": "48648a9286d6887d43df5f298acdd52cc0d4b9f0",
+    "hermes_git_base": "09280487ca12b18448ff236d160e070b8cd5dfbd",
+    "hermes_pr": "https://github.com/Sheshiyer/hermes-aws-ts/pull/169"
   }
 }

@@ -29,8 +29,8 @@
   },
   "independentReview": {
     "sameReviewer": true,
-    "findings": 2,
-    "corrected": 2,
+    "findings": 3,
+    "corrected": 3,
     "recheckActionableFindings": 0
   },
   "sourceChecks": {
@@ -43,8 +43,8 @@
     },
     "nativeTestsPassed": 44,
     "directionWireTestsPassed": 5,
-    "hermesCommit": "7c1ad7c2aa80e2bb8d49c05b18184a298d7f9afd",
-    "hermesNodeTestsPassed": 384
+    "hermesCommit": "48648a9286d6887d43df5f298acdd52cc0d4b9f0",
+    "hermesNodeTestsPassed": 385
   },
   "runtimeReadback": {
     "release": "hermes-aws-ts-growth-09b3369",
