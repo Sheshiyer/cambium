@@ -432,7 +432,7 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "source-reviewed-awaiting-clean-checks-and-rollout",
+      "status": "source-tested-execution-mechanism-decision-pending",
       "tier": "E5",
       "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",

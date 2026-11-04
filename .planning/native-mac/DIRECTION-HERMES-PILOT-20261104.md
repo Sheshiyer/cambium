@@ -24,7 +24,7 @@ a direction, an admission, or a job. The existing Work55efd3d7 remains approved.
   read-only. Actual reservation rechecks current source/policy pins. Legacy
   unguarded launch stores refuse this new loadout. No admissions are seeded.
 - Reuse existing bridge directive, claim/fencing, terminal outcome and ACK path.
-  Build against installed Hermes e3387543, not newer unrelated local source.
+  Build against the freshly verified deployed Hermes runtime; do not replace newer runtime behavior.
   Finite Docker verification only: exact two-file patch, no network, no extra
   capabilities or credentials, no automatic merge, publication or deployment.
   Record immutable diff/test result with pinned policy and review-required
@@ -99,3 +99,25 @@ now retains its validated policy, and a resolved native preparation can explicit
 start a fresh review without discarding uncertain requests/decisions. Regression
 checks:33Hermes native-execution tests,5native reset/retry tests and5Core direction
 wire tests pass. No deployment or new founder decision is implied.
+
+## Fresh runtime reconciliation and final source checks
+
+The older installed-base assumption is stale. Fresh SSM readback names the
+existing release `hermes-aws-ts-growth-09b3369`; its contracts, native execution
+and runner files differ from both e3387543 and Git main. Preserve this growth
+runtime. The existing hardened runner has NoNewPrivileges, no Docker
+supplementary group, and cannot read the proposed home-directory Git store.
+The pinned base commit exists and its bounded archive is7,976,960bytes; no
+source object alternates exist. No runtime permissions or files were changed.
+
+A real decision is pending: finite operator-triggered execution through existing
+SSM for the first pilot, or a reviewed narrow privileged helper for automatic
+background launches. Do not grant the background runner general Docker access
+or weaken its existing containment. Do not infer a choice from elapsed time.
+
+Cambium commit5de4fe26: full2732tests pass. Native270Core tests pass(two skips),
+44native tests pass; five direction-wire tests pass after the fixture scrub.
+Hermes feature source7c1ad7c preserves current Git main09280487 and passes
+all384Node tests. Its source PR is#169; Cambium source remains draftPR#429.
+No merge, rollout or hosted job is claimed. Source policy and actual local
+container proof are ready; exact runtime overlay and execution approval are held.

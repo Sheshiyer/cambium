@@ -16,7 +16,7 @@
     "exactDiff": true
   },
   "held": [
-    "final-clean-checkout-tests",
+    "execution-mechanism-decision-and-current-runtime-overlay",
     "worker-0099-0104-policy-runner-config-rollout",
     "hermes-minimal-source-image-policy-rollout",
     "human-direction-approval",
@@ -32,5 +32,34 @@
     "findings": 2,
     "corrected": 2,
     "recheckActionableFindings": 0
+  },
+  "sourceChecks": {
+    "cambiumCommit": "5de4fe2671fdef68baad2d664b9cb017e8bbb3dd",
+    "cambiumTestsPassed": 2732,
+    "swiftCore": {
+      "tests": 270,
+      "skipped": 2,
+      "failed": 0
+    },
+    "nativeTestsPassed": 44,
+    "directionWireTestsPassed": 5,
+    "hermesCommit": "7c1ad7c2aa80e2bb8d49c05b18184a298d7f9afd",
+    "hermesNodeTestsPassed": 384
+  },
+  "runtimeReadback": {
+    "release": "hermes-aws-ts-growth-09b3369",
+    "matchesOldCheckpoint": false,
+    "matchesGitMain": false,
+    "sourceArchiveBytes": 7976960,
+    "pinnedBasePresent": true,
+    "sourceAlternates": false,
+    "backgroundDockerAccess": false,
+    "backgroundSourceAccess": false,
+    "noNewPrivileges": true,
+    "sourceSha256": {
+      "contracts.ts": "53f752147f6a4561ffef18e6c4a217d1fb16619e78cd399e1c4a7f00b36f2360",
+      "native-execution.ts": "5e746f915142a7c29f459c9c8a49f51b335854fe535cebc6187107aca5dad689",
+      "runner.ts": "0d8c96049b0bfe00b97178446ffb3d302eb235034e5350d8c187501330faea85"
+    }
   }
 }

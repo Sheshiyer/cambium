@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
   "updated": "2026-11-03T23:28:08.952071+00:00",
-  "status": "source-reviewed-awaiting-clean-checks-and-rollout",
+  "status": "source-tested-execution-mechanism-decision-pending",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -198,6 +198,7 @@
     "receipt": ".planning/native-mac/DIRECTION-HERMES-SOURCE-VERIFICATION-20261104.json",
     "review": "same sole reviewer; both recovery findings corrected and rechecked",
     "production_deployed": false,
-    "hosted_job_launched": false
+    "hosted_job_launched": false,
+    "fresh_runtime_checkpoint": "hermes-aws-ts-growth-09b3369 differs from old checkpoint and current Git main; preserve it"
   }
 }
