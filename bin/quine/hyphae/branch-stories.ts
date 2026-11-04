@@ -428,6 +428,7 @@ function storyFromPacket(root: string, tenant: string, row: PacketIndexRow): Bra
   const story: BranchStoryArc = {
     branchId: productId,
     branchKind,
+    ...(branchKind === 'internal-service' && metadata.program_kind ? { programKind: clean(metadata.program_kind) } : {}),
     productId,
     ...(packetWorkId === undefined ? {} : { canonicalWorkId: packetWorkId }),
     name,

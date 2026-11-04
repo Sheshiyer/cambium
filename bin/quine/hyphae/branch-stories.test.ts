@@ -21,6 +21,11 @@ test('loads branch stories from branch packets without flattening controls', () 
   assert.ok(fitcheck.controls.dispatchHints.length);
   assert.ok(fitcheck.missions.length);
   assert.ok(fitcheck.kpis.length);
+  const snow = stories.find(story => story.productId === 'snow-gloves-os');
+  assert.ok(snow);
+  assert.equal(snow.programKind, 'capability');
+  assert.ok(snow.controls.adapterServiceMap.some(route => route.tenantMapping === 'tenant manifest and capability scope'));
+
   assert.ok(fitcheck.proofPaths.length);
   assert.match(fitcheck.controls.ui.currentFrontier, /supervised launch/i);
   assert.match(fitcheck.controls.ui.narrativeVoice, /operator voice/i);
