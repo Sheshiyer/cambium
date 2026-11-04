@@ -1,7 +1,7 @@
 # Current finite pilot pickup — reviewed and held
 
 Use [FINITE-SSM-ROLLOUT-RECONCILED-20261104.md](FINITE-SSM-ROLLOUT-RECONCILED-20261104.md)
-and its JSON for candidate source144f12ff, current owner ae043392, verified
+and its JSON for candidate source2046331c, current owner4db171c7, verified
 Phloem receipts and exact upload-only approval scope. Current runner preserved;
 no installation or pilot job. ISA3683..3687 remain open. The earlier operational
 checkpoint below retains its original installed/native evidence as history.

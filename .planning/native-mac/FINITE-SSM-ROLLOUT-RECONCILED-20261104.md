@@ -8,16 +8,16 @@ for the next approval.
 
 | Pin | Exact value |
 |---|---|
-| Worker/native candidate source | `144f12ffe5bbffbc9dd4311200042d35f1aeaa17` |
+| Worker/native candidate source | `2046331c8fd8a199e5600f2bc601c4c15bb8fff1` |
 | Recovered iVerif packet | `1915a1321fe126c700094608abe4a3b76dee9fc7` |
 | Retained later identity correction | `670e63b2ad7e9a757c20cd15b39836b8fcdaddc0` |
-| Latest serving and latest uploaded owner | `ae043392-ad9f-4ec1-878c-49d53676ea11`, 100% traffic |
-| Serving module SHA256 | `82ab94f7d9a968706600a6aef8242dc0f0d6693f0aa074a976a0ac9a27fe3e1a` |
-| Candidate module SHA256 | `18b43c081a6764289e32412cc744a304e9414092d69cc573d13b31c76a584e78` |
-| Candidate module bytes | `2772141` |
-| Candidate source map SHA256 | `da20638dc3ab615393b94e1731ca240dbb75494d10d3d3185e51edd183802426` |
-| Private inheritance config SHA256 | `5f254689ebd14c0a3e329bf0636da2ed037ae74087d0f574561530edd8dc4ec7` |
-| All54 binding fingerprint | `85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e` |
+| Latest serving and latest uploaded owner | `4db171c7-9af4-4f86-adc7-956b326f5a69`, 100% traffic |
+| Serving module SHA256 | `d4b9a82b1f6ddaa376626bb045b2f4a85f0526de975ee0cdd318ad0ee2343b0c` |
+| Candidate module SHA256 | `99e136f96b233a587d329a846da91f9746ab77c48cb35f1d2730033c47e63742` |
+| Candidate module bytes | `2772335` |
+| Candidate source map SHA256 | `d2a904d41c23f61c5952f8b988e1a0ba6a7dee1fd3261663649f0ee8797753da` |
+| Private inheritance config SHA256 | `5597a260d8d0aee3f22a1c005238a6db3221029d4c0068e947e46f3cef5b3c77` |
+| All 54 binding fingerprint | `85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e` |
 | Only migration, 0104 SHA256 | `efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3` |
 | Unchanged Hermes source | `22b3e8276d3b4c2b74041920f3cd559071e16773` |
 | Hermes8-file archive SHA256 | `f2b5ec371ee0cac4e973f27cdce92e9185f7c383aa99038a8d14787b489eed34` |
@@ -29,9 +29,11 @@ The iVerif source packet is
 [release review](../../docs/plans/iverif-native-cycle/release/REVIEW.md).
 Its historical migration and rollback statements are superseded here. The
 1915 source and later670 identity changes were recovered from actual Git
-objects. The current103 owner subsequently released an operational Work /
-branch-packet reconciliation. Its ETag-bound module/source map and reviewed
-source fingerprints establish those two later source changes. Both are retained.
+objects. Owner 103 subsequently released an operational Work / branch-packet
+reconciliation; owner 104 then released Snow Gloves explicit capability mapping.
+The ETag-bound module/source map and reviewed source fingerprints establish
+these later changes. All are retained, including the classification producer,
+packet and regression checks. This classification grants no execution authority.
 Of105 serving module sources,97 are unchanged; eight receive the declared pilot
 integration. The current Cortex provenance reader, iVerif implementation,
 identity authority, department readers and0105 guards remain present.
@@ -65,14 +67,15 @@ are retained. No actionable integration finding remains unaddressed.
 
 Verification is bound to the candidate source above:
 
-- Repository suite:2765 tests,2756 passed,9 explicit skips,0 failures. An
+- Repository suite: 2765 tests, 2756 passed, 9 explicit skips, 0 failures. An
   independent verification clone uses local `diff.autoRefreshIndex=false` so the
   test harness's own Git diff does not rewrite its index. Every byte-level
   tree/index/ref equality assertion remains enabled. Earlier failing runs and
   the trace locating the index refresh remain private evidence.
-- Mac unit suite:318 tests,314 passed,4 skips,0 failures, using SwiftPM's native
-  build system. Signed/installed app and real account interaction are separate.
-- Latest owner/pilot focused checks:38 passed. Finite Hermes boundary checks:3
+- Mac unit suite: 318 tests, 314 passed, 4 skips, 0 failures, using SwiftPM's native
+  build system. Swift source bytes are unchanged from the prior144f12ff test run.
+  Signed/installed app and real account interaction are separate.
+- Latest owner/pilot focused checks: 110 passed. Finite Hermes boundary checks:3
   passed. The unchanged Hermes artifact retains its historical388-test receipt.
 - Worker strict typecheck, bundle dry-run, drift audit and literal atlas source
   fingerprints pass. TypeScript5.9.3 reused installed typings25.6.0; the source
@@ -85,17 +88,17 @@ Verification is bound to the candidate source above:
 The exact proposed sequence is:
 
 1. **Approve immutable Worker upload only.** Re-read both serving100% and latest
-   uploaded version; both must still be `ae043392`. Compare54 bindings, source
+   uploaded version; both must still be `4db171c7`. Compare54 bindings, source
    ETag and runtime/settings. Upload the exact pinned candidate through the
-   existing version path, retaining all54 and adding only
+   existing version path, retaining all 54 and adding only
    `CAMBIUM_PATCH_POLICY_JSON` and `CAMBIUM_PATCH_RUNNER_MEMBER_ID=hermes-runner`.
    The upload configuration uses `no_bundle=true`; its dry-run emits the exact
-   module bytes above. The result has56 bindings and0% serving traffic. Return its immutable
+   module bytes above. The result has 56 bindings and0% serving traffic. Return its immutable
    metadata, binding and preview receipts. Stop before every later gate. The
    existing inheritance path resolves `latest`; the guard is not atomic CAS.
 2. **Obtain scoped0104 migration approval and later traffic approval.** First
    export/hash the current private D1 recovery snapshot. Apply only the exact
-   `0104_native_direction_admissions.sql`. All15 objects from0099 and0103 match
+   `0104_native_direction_admissions.sql`. All 15 objects from0099 and0103 match
    live; skip both migrations. Preserve0105, including reservation/source and
    direction-edit revocation guards. Seed no admissions. Inspect the exact
    immutable candidate and refreshed schema before separate traffic approval.
@@ -132,7 +135,7 @@ Keep additive schema, admissions and all durable proof. Stop only the exact
 future pilot transient unit/container if needed and retain its release/results.
 The unchanged background runner requires no rollback or shared Docker cleanup.
 
-The final read-only owner receipt is2026-11-04T10:45:19Z. The complete host receipt
+The final full owner/source receipt is2026-11-04T10:58:45Z. The complete host receipt
 is10:35:36Z: service/timer and four runtime hashes match, the base archive remains
 7976960bytes with its original digest, no object alternates exist, and the
 background account cannot read that source store. The pilot release and pinned
