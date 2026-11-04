@@ -6299,6 +6299,23 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (envelope[field] === undefined) return json(400, { error: `envelope missing "${field}"` });
     }
     if (envelope.tenant !== tenant) return json(400, { error: 'envelope tenant mismatch' });
+    // Compatibility for legacy packet publishers: classification only, never Work admission.
+    const stories = isRecord(envelope.branchStories) ? envelope.branchStories : null;
+    if (tenant === 'cambium' && stories?.source === 'product-branch-packets@v1' && Array.isArray(stories.rows)) {
+      const rows = stories.rows.filter((row: unknown) => isRecord(row) && row.canonicalWorkId === 'program:snow-gloves-os');
+      const row = rows.length === 1 ? rows[0] : null;
+      const source = isRecord(row?.source) ? row.source : null;
+      const classification = PORTFOLIO_CATALOG.records.find(record => record.workId === 'program:snow-gloves-os');
+      if (row?.programKind === undefined && row?.branchId === 'snow-gloves-os' && row?.productId === 'snow-gloves-os'
+          && row?.branchKind === 'internal-service' && source?.tenant === tenant
+          && source?.schema === 'cambium.product_branch_packet.v1'
+          && source?.indexFile === 'docs/plans/product-branches/index.md'
+          && source?.packetFile === 'docs/plans/product-branches/snow-gloves-os.md'
+          && classification?.kind === 'program' && classification.programKind === 'capability'
+          && classification.provenance.includes('cambium:docs/plans/product-branches/snow-gloves-os.md')) {
+        row.programKind = classification.programKind;
+      }
+    }
     envelope = sanitizeQuestEnvelope(envelope);
     const key = ledgerKey(tenant);
     const existingEnvelope = parseStoredEnvelope(await deps.kv.get(key));

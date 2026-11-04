@@ -704,3 +704,29 @@ test('branch packet envelope shares canonical rows with projection and shadow di
 
 
 });
+
+
+test('legacy Snow Gloves ledger pushes normalize classification without changing tenant isolation or Work state', async () => {
+  let stored: string | null = null;
+  const kv = { async get() { return stored; }, async put(_key: string, value: string) { stored = value; } };
+  const packet = { branchId: 'snow-gloves-os', productId: 'snow-gloves-os', canonicalWorkId: 'program:snow-gloves-os', branchKind: 'internal-service', source: { tenant: 'cambium', schema: 'cambium.product_branch_packet.v1', indexFile: 'docs/plans/product-branches/index.md', packetFile: 'docs/plans/product-branches/snow-gloves-os.md' }, controls: { adapterServiceMap: [{ tenantMapping: 'tenant manifest and capability scope' }] } };
+  const push = (row: unknown, token = 'push-fixture') => handle({ method: 'POST', path: '/internal/ledger/cambium', headers: { authorization: `Bearer ${token}` }, body: JSON.stringify({ schema: 1, tenant: 'cambium', derivedAt: NOW_ISO, source: 'legacy-producer', ledger: { rows: [] }, untouched: { receipt: 'retain' }, branchStories: { source: 'product-branch-packets@v1', rows: [row] } }) }, { kv, pushToken: 'push-fixture' });
+  assert.equal((await push(packet, 'wrong')).status, 401);
+  assert.equal(stored, null);
+  for (let n = 0; n < 2; n++) {
+    assert.equal((await push(packet)).status, 200);
+    const envelope = JSON.parse(stored!);
+    const row = envelope.branchStories.rows[0];
+    assert.equal(row.programKind, 'capability');
+    assert.equal(row.controls.adapterServiceMap[0].tenantMapping, packet.controls.adapterServiceMap[0].tenantMapping);
+    assert.deepEqual(envelope.untouched, { receipt: 'retain' });
+    assert.equal(envelope.derivedAt, NOW_ISO);
+    assert.equal(envelope.workExecution, undefined);
+  }
+  assert.equal((await push({ ...packet, programKind: 'company' })).status, 200);
+  assert.equal(JSON.parse(stored!).branchStories.rows[0].programKind, 'company', 'intake must not override explicit invalid classification; adapter refuses it');
+  for (const row of [{ ...packet, source: { ...packet.source, tenant: 'other' } }, { ...packet, source: { ...packet.source, packetFile: 'unreviewed.md' } }]) {
+    assert.equal((await push(row)).status, 200);
+    assert.equal(JSON.parse(stored!).branchStories.rows[0].programKind, undefined);
+  }
+});
