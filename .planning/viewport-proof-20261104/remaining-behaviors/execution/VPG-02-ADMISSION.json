@@ -1,0 +1,55 @@
+{
+  "schema": "cambium.viewport-package-admission.v1",
+  "admittedAt": "2026-11-04T11:31:11.397872+00:00",
+  "authority": "explicit-user-instruction-in-current-chat",
+  "acceptedPlanDigest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
+  "acceptedPlanningCommit": "64a6d4c552dd104cad191f173b149802c92cdb29",
+  "sourceBaseline": "7f3c779375aa1e53b392764799295a390a70995a",
+  "priorPackage": "VPG-01",
+  "priorPackageStatus": "source-verified-admission-consumed",
+  "priorVerification": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-VERIFICATION.md",
+  "isaAdmissionRef": "ISA.md#vpg-02-source-admission--2026-11-04",
+  "sourceImplementationOnly": true,
+  "admittedPlans": [
+    "VPG-02"
+  ],
+  "admittedTasks": [
+    "VPG-02-T1",
+    "VPG-02-T2",
+    "VPG-02-T3"
+  ],
+  "admittedGapOrdinals": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    11,
+    12
+  ],
+  "requiredRetainedIntents": 43,
+  "protectedQualifiedBehaviors": 11,
+  "priorSourceCasesPreserved": 48,
+  "targetSourceCases": 55,
+  "targetQualified": 18,
+  "targetHeld": 25,
+  "qualificationRequiresActualWholePredicateProof": true,
+  "heldPlans": [
+    "VPG-03",
+    "VPG-04",
+    "VPG-05",
+    "VPG-06",
+    "VPG-07",
+    "VPG-08",
+    "VPG-09",
+    "VPG-10"
+  ],
+  "planningBaseline": 95,
+  "canonicalMapping": null,
+  "swarmDispatch": false,
+  "liveOwnerWritesAuthorized": false,
+  "deploymentApproved": false,
+  "trafficApproved": false,
+  "rootPhase9Unchanged": true,
+  "reviewedSnapshotPreserved": true
+}

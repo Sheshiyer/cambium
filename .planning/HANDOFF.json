@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-04T11:23:31.225992+00:00",
-  "status": "viewport-plan-accepted-vpg01-source-verified-further-execution-held",
-  "active_task": "VPG-01 only is source-verified: closed operational fixture, observed crop receipts and fresh 48-case foundation. All 43 retained intents and 11 qualified behaviors preserved; 32 gaps held. Version 95 baseline; deployment and traffic held.",
+  "updated": "2026-11-04T11:31:11.397872+00:00",
+  "status": "viewport-vpg02-only-source-admitted",
+  "active_task": "VPG-02 only is admitted: mission owner projection, current 3D overview/branch/proof interactions and seven exact source journeys. Preserve all 43 retained intents, 11 qualified behaviors and prior 48 source cases. Version 95 baseline; deployment and traffic held.",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -249,7 +249,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Read execution/VPG-01-SUMMARY.md and VPG-01-VERIFICATION.md plus the bounded VPG-01 source verification receipt. The VPG-01 admission is consumed; VPG-02 through VPG-10 remain unadmitted. Preserve all 43 retained intents, 11 qualified behaviors and version 95/deployment/traffic holds.",
+  "next_action": "Execute only VPG-02-T1/T2/T3 against the accepted digest and execution/VPG-02-ADMISSION.json. Require complete original predicates and native browser proof before deriving the 55-case, 18-qualified target. Later packages and external effects remain held.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -413,7 +413,7 @@
   "wave": "founder-renewal-3d-runtime-e2e-2026-10-25",
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
-  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-SUMMARY.md",
+  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-02-PLAN.md",
   "extends": "gsd.pause-work.v1",
   "accepted_limitations": [
     "Canonical mobile viewport/trustedtouch proof remains held under explicit owner exception",
@@ -432,7 +432,7 @@
   },
   "continuations": {
     "department_live_integration": {
-      "status": "viewport-plan-accepted-vpg01-source-verified-further-execution-held",
+      "status": "viewport-vpg02-only-source-admitted",
       "source_branch": "codex/field-atlas-proof-20261104",
       "handoff": "docs/plans/department-pilot/OWNER-READERS.md",
       "reviewed_source_commit": "db97abf9e6e73df33e707fe824f9d03a38b99503",
@@ -733,7 +733,7 @@
         "canonical_write_approved": false
       },
       "viewport_gap_plan": {
-        "status": "accepted-vpg01-source-verified-further-packages-held",
+        "status": "accepted-vpg02-only-source-admitted",
         "packet": ".planning/viewport-proof-20261104/remaining-behaviors/README.md",
         "roadmap": ".planning/viewport-proof-20261104/remaining-behaviors/ROADMAP.md",
         "traceability": ".planning/viewport-proof-20261104/remaining-behaviors/TRACEABILITY.md",
@@ -759,8 +759,12 @@
         "accepted_plan_digest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
         "isa_acceptance_ref": "ISA.md#viewport-plan-acceptance-and-vpg-01-admission--2026-11-04",
         "canonical_mapping": null,
-        "admitted_tasks": [],
-        "implementation_authorized": false,
+        "admitted_tasks": [
+          "VPG-02-T1",
+          "VPG-02-T2",
+          "VPG-02-T3"
+        ],
+        "implementation_authorized": true,
         "deployment_authorized": false,
         "traffic_authorized": false,
         "active_root_phase9_unchanged": true,
@@ -768,8 +772,10 @@
         "technical_review_status": "passed",
         "proposal_validation_status": "passed-with-10-negative-controls",
         "acceptance": ".planning/viewport-proof-20261104/remaining-behaviors/execution/ACCEPTANCE.json",
-        "admitted_plans": [],
-        "implementation_scope": "VPG-01 completed; no further package admitted",
+        "admitted_plans": [
+          "VPG-02"
+        ],
+        "implementation_scope": "VPG-02 only local source and evidence",
         "remaining_plans_admitted": false,
         "scope_accepted": true,
         "completed_tasks": [
@@ -779,7 +785,7 @@
         "completed_plans": [
           "VPG-01"
         ],
-        "admission_consumed": true,
+        "admission_consumed": false,
         "vpg01": {
           "status": "source-verified",
           "summary": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-SUMMARY.md",
@@ -803,7 +809,9 @@
           "focused_boundary_tests": 23,
           "all48_images_independently_viewed": true,
           "prior47_history_and_founder_fixture_byte_identical": true
-        }
+        },
+        "active_admission": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-02-ADMISSION.json",
+        "active_isa_admission_ref": "ISA.md#vpg-02-source-admission--2026-11-04"
       }
     }
   }
