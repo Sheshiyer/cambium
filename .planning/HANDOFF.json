@@ -554,18 +554,18 @@
       "baseline_failures_documented": true
     },
     "iverif_native_work_cycle": {
-      "status": "uploaded-version100-unserved-activation-held",
+      "status": "version100-serving-native-intake-identity-fix-unuploaded",
       "plan": ".planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md",
       "source_repository": "Sheshiyer/iverif-wiki",
       "source_commit": "1cc03e62fbfb32ba21c98ba81ac5a6883d676d2a",
       "issue": "https://github.com/Sheshiyer/iverif-wiki/issues/91",
       "serving_observation": {
-        "version": 99,
-        "id": "57704696-3986-4414-ba30-4bf2afd90f9a",
-        "source_base": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
-        "source_amendment": "approved Cortex J1 wrapper/reader: docs/plans/iverif-native-cycle/release/cortex-j1-preservation.json",
-        "binding_count": 53,
-        "traffic_percent": 100
+        "version": 100,
+        "id": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+        "source": "1915a1321fe126c700094608abe4a3b76dee9fc7",
+        "traffic_percent": 100,
+        "binding_count": 54,
+        "verified_at": "2026-11-04T00:44:17.448Z"
       },
       "decisions": [
         "native Mac first",
@@ -574,10 +574,9 @@
         "hosted Hermes/noesis-free/no paid fallback"
       ],
       "remaining": [
-        "separate exact version100 traffic approval; upload/readback complete",
-        "scoped0099+0105 migration approval and fresh recovery check",
-        "scoped Hermes installation and one-shot execution approval",
-        "real founder Work/task/result decisions and admission",
+        "verify corrected native-identity candidate, obtain its new upload and later traffic approval",
+        "real founder Work/task/result decisions and current admission",
+        "one exact hosted claim-proof run and signed owner foldback",
         "native authoritative/foldback acceptance",
         "authenticated desktop/390x844 and physical iPhone Safari acceptance",
         "GSD mappings and business KPI evidence remain held"
@@ -593,13 +592,41 @@
         "verified_at": "2026-11-04T00:15:24.055Z",
         "approval": "Explicit owner upload-only approval; no traffic approval",
         "receipt": "artifact:iverif-native-cycle-2026-11-04-prepared/upload-100/upload-verification.json",
-        "traffic_percent": 0,
+        "traffic_percent": 100,
         "preview_health_status": 200,
         "preview_gate_status": 200,
         "gate_configured": true,
         "anonymous_founder_graph_status": 403,
         "native_preview_host_status": 400,
         "preview_page_source_parity": true
+      },
+      "activation": {
+        "approval": "Explicit owner scoped activation approval",
+        "schema": [
+          "0099_native_launch_requests.sql",
+          "0105_native_direction_admission_guards.sql"
+        ],
+        "schema_objects_verified": 16,
+        "admissions_seeded": false,
+        "hermes_source": "06d33ff5373ba9a851dc5314f04982d20c0a9586",
+        "hermes_runtime_files_installed": 9,
+        "periodic_growth_checkout_unchanged": true,
+        "timer_execution": false,
+        "rollback": "57704696-3986-4414-ba30-4bf2afd90f9a",
+        "receipt": "artifact:iverif-native-cycle-2026-11-04-prepared/activation-100/activation-complete.json"
+      },
+      "native_acceptance": {
+        "signed_in": true,
+        "catalog_read": "fresh",
+        "selected_work": "sapling:iverif",
+        "work_preparation": "rejected by Access-only actor format despite valid native session",
+        "founder_decision": false,
+        "task_executed": false
+      },
+      "next_candidate": {
+        "purpose": "Preserve verified native founder IDs at Work/task/acceptance intake boundaries using the existing session identifier contract",
+        "status": "local correction; new exact upload and later traffic approval required",
+        "review": "artifact:iverif-native-cycle-2026-11-04-prepared/native-identity-fix/REVIEW.md"
       }
     }
   }

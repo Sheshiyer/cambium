@@ -7,6 +7,7 @@ import type { HandlerDeps } from './handler.ts';
 import { isOperationalWorkSource } from './operational-work-intake.ts';
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import type { GoalGraphNode } from './goal-graph/types.ts';
+import { isNativeFounderIdentifier } from './native-session.ts';
 
 export const DIRECTION_EXECUTION_SCHEMA = 'cambium.founder.direction-execution-intent.v1';
 const reject = (message: string): TelegramGoalGraphRejected => ({accepted:false,rejected:true,status:'rejected',code:'malformed_input',errors:[message]});
@@ -15,7 +16,7 @@ export function parseDirectionExecutionBoundary(raw: unknown, founderId: string)
   const r = raw as Record<string, unknown>;
   if (Object.keys(r).sort().join(',') !== 'clientRequestId,expectedHeadDigest,input,memberId,parentNodeId,schema,tenantId,version'
       || r.schema !== DIRECTION_EXECUTION_SCHEMA || r.version !== 1 || r.tenantId !== 'cambium'
-      || !/^access:[^\s\x00-\x1f]{1,249}$/.test(founderId)
+      || (!/^access:[^\s\x00-\x1f]{1,249}$/.test(founderId) && !isNativeFounderIdentifier(founderId))
       || typeof r.clientRequestId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(r.clientRequestId)
       || typeof r.memberId !== 'string' || !/^[a-z][a-z0-9-]{1,63}$/.test(r.memberId)
       || typeof r.parentNodeId !== 'string' || !/^goal_[a-f0-9]{64}$/.test(r.parentNodeId)
@@ -88,7 +89,7 @@ export function parseClaimAcceptanceBoundary(raw:unknown, founderId:string) {
   if(!raw||typeof raw!=='object'||Array.isArray(raw))return reject('acceptance intent required');
   const r=raw as Record<string,unknown>;
   if(Object.keys(r).sort().join(',')!=='admissionRef,artifactDigest,clientRequestId,executionNodeId,expectedHeadDigest,input,schema,tenantId,version'
-      ||r.schema!==CLAIM_ACCEPTANCE_SCHEMA||r.version!==1||r.tenantId!=='cambium'||!/^access:[^\s\x00-\x1f]{1,249}$/.test(founderId)
+      ||r.schema!==CLAIM_ACCEPTANCE_SCHEMA||r.version!==1||r.tenantId!=='cambium'||(!/^access:[^\s\x00-\x1f]{1,249}$/.test(founderId)&&!isNativeFounderIdentifier(founderId))
       ||typeof r.clientRequestId!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(r.clientRequestId)
       ||typeof r.executionNodeId!=='string'||!/^goal_[a-f0-9]{64}$/.test(r.executionNodeId)
       ||r.admissionRef!==`claim-admission:${r.executionNodeId}`

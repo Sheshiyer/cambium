@@ -17473,14 +17473,14 @@ test('department sources · authenticated graph uses accepted owner readers with
 
 // Finite IVerif integration: real SQLite approval, source stores and launch CAS;
 // the source corpus/artifact is an opt-in pinned local verification fixture.
-async function iverifNativeCycleHarness() {
+async function iverifNativeCycleHarness(founderId = 'pid_founder_native') {
   const h=await canonicalFounderHarness();
   assert.equal((await h.call('decision',canonicalDecision(body(h.read)))).status,200);
   const d1=new GoalGraphBatchSqliteD1(h.db);
   const {d1SharedSignalStore}=await import('./shared-signals-d1.ts');
   const {d1SharedDirectionStore}=await import('./shared-directions-d1.ts');
   const {createClaimProofOwner}=await import('./claim-proof-owner.ts');
-  const deps:any=h.deps;let principal='access:pid_founder_web',authorized=true;
+  const deps:any=h.deps;let principal=founderId,authorized=true;
   deps.nativeSessionHost={deps:{ownerOrigin:'https://cambium.test',now:deps.now,store:{readSession:async()=>({founderId:principal,tenantId:'cambium',clientId:'client-1',expiresAt:'2099-01-01T00:00:00.000Z'})},currentRole:async()=>authorized?'founder':null,enrolledTenants:async()=>['cambium']},client:()=>({})};
   deps.sharedSignalStore=d1SharedSignalStore(d1);deps.sharedDirectionStore=d1SharedDirectionStore(d1);
   deps.missionFabricTenants=['cambium'];deps.claimProofMemberId='hermes-test';deps.bridgeStore=d1BridgeStore(d1);deps.executionStore=d1BridgeExecutionStore(d1);
@@ -17503,8 +17503,8 @@ async function iverifNativeCycleHarness() {
   return{...h,deps,d1,native,bridge,approve,proposalId,direction,signal,objects,other(){principal='access:other';},revoke(){authorized=false;}};
 }
 
-for(const resultDecision of ['approved','rejected'] as const)test('iverif native cycle · approval, separate admission, single launch and immutable source result · '+resultDecision, {skip:!process.env.IVERIF_CLAIM_ARTIFACT_FIXTURE}, async()=>{
-  const h=await iverifNativeCycleHarness();
+for(const founderId of ['pid_founder_native','access:pid_founder_web'])for(const resultDecision of ['approved','rejected'] as const)test('iverif native cycle · approval, separate admission, single launch and immutable source result · '+resultDecision+' · '+(founderId.startsWith('access:')?'access identity':'native identity'), {skip:!process.env.IVERIF_CLAIM_ARTIFACT_FIXTURE}, async()=>{
+  const h=await iverifNativeCycleHarness(founderId);
   const {CLAIM_POLICY,CLAIM_POLICY_DIGEST,claimDigest,canonicalClaimJson,validateClaimArtifact}=await import('../../../shared/iverif-claim-proof.ts');
   assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,409,'pending review is not admission');
   const review=await h.approve(h.proposalId);if(process.env.IVERIF_NATIVE_WIRE_FIXTURE&&resultDecision==='approved')writeFileSync(process.env.IVERIF_NATIVE_WIRE_FIXTURE,JSON.stringify(review));assert.equal(review.proposal.review.executionReview.policyDigest,CLAIM_POLICY_DIGEST);
@@ -17664,4 +17664,13 @@ test('iverif native cycle · database task guard preserves unrelated Work scopes
   const columns=Object.keys(unrelated),insert=h.db.prepare(`INSERT INTO goal_graph_nodes (${columns.join(',')}) VALUES (${columns.map(()=>'?').join(',')})`);
   assert.doesNotThrow(()=>insert.run(...Object.values(unrelated)));
   assert.throws(()=>insert.run(...Object.values({...unrelated,node_id:'goal_'+'d'.repeat(64),work_object_id:'sapling:iverif'})),/native_direction_task_pins_changed/);
+});
+
+test('iverif native cycle · a native founder identifier grants no authority after role revocation',async()=>{
+  const h=await iverifNativeCycleHarness();
+  const before=h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n;
+  h.revoke();
+  const result=await h.native('POST','/v1/native/work/intake',{operationId:'revoked-native-founder',workObjectId:'sapling:iverif'});
+  assert.equal(result.status,401,result.body);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n,before);
 });

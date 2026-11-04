@@ -4,6 +4,7 @@ import { buildNode, sha256 } from './goal-graph/identity.ts';
 import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import type { GoalGraphNode } from './goal-graph/types.ts';
 import type { FabricNode } from './mission-fabric.ts';
+import { isNativeFounderIdentifier } from './native-session.ts';
 
 export const OPERATIONAL_WORK_SCHEMA = 'cambium.founder.operational-work-intent.v1';
 export const OPERATIONAL_WORK_NAMESPACE = 'founder-operational-work';
@@ -26,7 +27,7 @@ export function parseOperationalWorkBoundary(input: unknown, founderId: string) 
     if (Object.keys(raw).length !== keys.length || !keys.every(key => Object.hasOwn(raw, key))) return rejected('exact operational intent fields required');
     if (Buffer.byteLength(JSON.stringify(raw), 'utf8') > 16384) return rejected('intent exceeds byte limit');
     if (raw.schema !== OPERATIONAL_WORK_SCHEMA || raw.version !== 1 || raw.tenantId !== 'cambium') return rejected('schema, version or tenant mismatch');
-    if (!/^access:[^\s\x00-\x1f]{1,249}$/.test(founderId)) return rejected('verified founder required');
+    if (!/^access:[^\s\x00-\x1f]{1,249}$/.test(founderId) && !isNativeFounderIdentifier(founderId)) return rejected('verified founder required');
     if (typeof raw.clientRequestId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(raw.clientRequestId)) return rejected('stable client request required');
     if (raw.expectedHeadDigest !== null && (typeof raw.expectedHeadDigest !== 'string' || !digest.test(raw.expectedHeadDigest))) return rejected('observed graph head required');
     if (!Array.isArray(raw.goals) || raw.goals.length !== 1) return rejected('one operational Work source required');

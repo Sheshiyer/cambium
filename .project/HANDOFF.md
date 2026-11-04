@@ -10,6 +10,12 @@ Search a specific historical heading only to resolve a missing fact.
 ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
+## 2026-11-04 — Version100 activated; native identity correction pending
+
+Owner-approved100/fd6fe5dc serves100%;54bindings/runtime/health/gate readback pass. Only0099/0105 were applied after fresh286622639byte D1 export/SHA6e3d670b…567354c1. All16 new schema objects match; no admissions were seeded. Exact Hermes06d33ff nine-file runtime is installed for the explicit one-shot path. The separate growth checkout, service, timer and environment remain unchanged with effective execution=false. No task was run; retained rollback is99/57704696.
+
+The Mac signed in and read the live IVerif catalog, but Work intake rejected the verified native principal because its parser required an Access-prefixed ID. The local correction reuses the existing native-session identifier contract at Work/task/acceptance boundaries without changing authentication, role/enrollment checks, credentials or stored identities. Full cycle coverage now includes native and Access ID forms and role revocation. This new Worker is unuploaded and needs exact new upload and later traffic approval. Continue the structured IVerif continuation; preserve the historical checkpoints below.
+
 ## 2026-11-04 — IVerif candidate100 uploaded; activation held
 
 Owner-approved upload-only source1915a132 is immutable Worker100/fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3. Emitted and remote content match2705387bytes/SHA2567ea2e444…3911760b; all53 inherited binding configurations plus the exact IVerif member are verified,54 total. Runtime and the private Cortex reader match99. Preview health/gate200, guest founder graph403 and page source/bootstrap parity pass. Native preview hostname is rejected400 before session lookup; authenticated native acceptance is open.

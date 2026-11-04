@@ -50,6 +50,11 @@ const RANDOM_BYTES = 32;
 
 const TENANT = /^[a-z][a-z0-9-]{1,63}$/;
 const FOUNDER = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,239}$/;
+
+/** Structural check only; founder role and enrollment still require the session host. */
+export function isNativeFounderIdentifier(value: unknown): value is string {
+  return typeof value === 'string' && FOUNDER.test(value);
+}
 const CLIENT_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
 const CHALLENGE = /^[A-Za-z0-9_-]{43}$/;
 const VERIFIER = /^[A-Za-z0-9._~-]{43,128}$/;
@@ -231,7 +236,7 @@ const plusMs = (iso: string, ms: number): string | null => {
 };
 
 const actorOk = (founderId: unknown, tenantId: unknown, clientId?: unknown): boolean =>
-  typeof founderId === 'string' && FOUNDER.test(founderId)
+  isNativeFounderIdentifier(founderId)
   && typeof tenantId === 'string' && TENANT.test(tenantId)
   && (clientId === undefined || (typeof clientId === 'string' && CLIENT_ID.test(clientId)));
 const sha256Hex = (value: string) => createHash('sha256').update(value, 'ascii').digest('hex');
