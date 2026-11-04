@@ -17667,10 +17667,11 @@ test('iverif native cycle · database task guard preserves unrelated Work scopes
 });
 
 test('iverif native cycle · a native founder identifier grants no authority after role revocation',async()=>{
-  const h=await iverifNativeCycleHarness();
+  const h=await iverifNativeCycleHarness('unverified');
   const before=h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n;
   h.revoke();
   const result=await h.native('POST','/v1/native/work/intake',{operationId:'revoked-native-founder',workObjectId:'sapling:iverif'});
-  assert.equal(result.status,401,result.body);
+  assert.equal(result.status,403,result.body);
+  assert.equal(body(result).error,'forbidden');
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n,before);
 });

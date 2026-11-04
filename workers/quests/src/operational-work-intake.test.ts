@@ -28,7 +28,8 @@ test('Work source cannot replace another namespace, grant a loadout, widen proje
     const raw=input(); Object.assign(raw.goals[0], patch); assert.equal(parseOperationalWorkBoundary(raw,founder).accepted,false);
   }
   for (const raw of [{...input(),unknown:true},{...input(),tenantId:'other'},{...input(),expectedHeadDigest:'bad'}, {...input(),goals:[]}]) assert.equal(parseOperationalWorkBoundary(raw,founder).accepted,false);
-  assert.equal(parseOperationalWorkBoundary(input(),'unverified').accepted,false);
+  // Native IDs are opaque. This parser checks shape; the HTTP owner verifies role.
+  assert.equal(parseOperationalWorkBoundary(input(),'unverified founder').accepted,false);
 });
 test('exact observed head, coherent graph and root bind the reviewed source', () => {
   const first=parseOperationalWorkIntent(input(),founder,context); assert.ok(first.accepted); if(!first.accepted)return;
