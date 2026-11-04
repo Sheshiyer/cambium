@@ -554,7 +554,7 @@
       "baseline_failures_documented": true
     },
     "iverif_native_work_cycle": {
-      "status": "source-candidate-live-acceptance-held",
+      "status": "uploaded-version100-unserved-activation-held",
       "plan": ".planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md",
       "source_repository": "Sheshiyer/iverif-wiki",
       "source_commit": "1cc03e62fbfb32ba21c98ba81ac5a6883d676d2a",
@@ -574,14 +574,33 @@
         "hosted Hermes/noesis-free/no paid fallback"
       ],
       "remaining": [
-        "exact combined upload and separate traffic approval",
+        "separate exact version100 traffic approval; upload/readback complete",
         "scoped0099+0105 migration approval and fresh recovery check",
         "scoped Hermes installation and one-shot execution approval",
         "real founder Work/task/result decisions and admission",
         "native authoritative/foldback acceptance",
         "authenticated desktop/390x844 and physical iPhone Safari acceptance",
         "GSD mappings and business KPI evidence remain held"
-      ]
+      ],
+      "upload": {
+        "version": 100,
+        "id": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+        "source_commit": "1915a1321fe126c700094608abe4a3b76dee9fc7",
+        "config_sha256": "507945f5e43c0476348828b7dc7ebd55e1a7c3d4e9e0eba953ebd11416889cd9",
+        "worker_bytes": 2705387,
+        "worker_sha256": "7ea2e444277af2b469f913a4b0ba548160d818393e9ce3eff059d1b93911760b",
+        "binding_count": 54,
+        "verified_at": "2026-11-04T00:15:24.055Z",
+        "approval": "Explicit owner upload-only approval; no traffic approval",
+        "receipt": "artifact:iverif-native-cycle-2026-11-04-prepared/upload-100/upload-verification.json",
+        "traffic_percent": 0,
+        "preview_health_status": 200,
+        "preview_gate_status": 200,
+        "gate_configured": true,
+        "anonymous_founder_graph_status": 403,
+        "native_preview_host_status": 400,
+        "preview_page_source_parity": true
+      }
     }
   }
 }

@@ -10,6 +10,12 @@ Search a specific historical heading only to resolve a missing fact.
 ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
+## 2026-11-04 — IVerif candidate100 uploaded; activation held
+
+Owner-approved upload-only source1915a132 is immutable Worker100/fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3. Emitted and remote content match2705387bytes/SHA2567ea2e444…3911760b; all53 inherited binding configurations plus the exact IVerif member are verified,54 total. Runtime and the private Cortex reader match99. Preview health/gate200, guest founder graph403 and page source/bootstrap parity pass. Native preview hostname is rejected400 before session lookup; authenticated native acceptance is open.
+
+Serving99/57704696 remains100%; candidate100 is0%. Global operational settings, schedules and exposure are unchanged. The unversioned settings endpoint reflects uploaded100 bindings/annotations; use version-specific metadata for serving99's53 bindings. No schema, runner installation, founder decision, admission, execution or owner signing was performed. Continue `iverif_native_work_cycle` and its upload receipt; scoped0099/0105, Hermes06d33ff and separate traffic approval remain held. Preserve the historical checkpoints below.
+
 ## 2026-11-04 approved live rollout; canonical Work still pending
 
 Migration0103 is already applied. Active Worker5f2c5dc7 serves100%; all52bindings
