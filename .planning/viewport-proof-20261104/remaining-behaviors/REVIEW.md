@@ -2,7 +2,9 @@
 
 ## VERIFICATION PASSED
 
-Reviewed proposal content digest: `fc450363e1d5451bc95c2557d47088095ccd50b97abe2517c81c9194edd03f5c`.
+Reviewed proposal content digest: `bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21`.
+
+Final formatting check against semantic review commit `345c294f` confirms all 18 content hashes: 13 Markdown files differ only by normalizing trailing LF characters to one LF, and five content files are byte-identical. The prior technical pass is retained; no semantic plan change or new authority follows from this normalization.
 
 Static, goal-backward review covers ten proposed plans and 28 tasks. The focused revision review resolves the sole initial blocker; no blocking or warning findings remain. Technical plan completeness does not grant ISA acceptance or execution admission. Human acceptance remains pending. Version 95 remains the planning baseline; deployment and traffic remain held.
 

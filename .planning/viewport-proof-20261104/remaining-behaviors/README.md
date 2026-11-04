@@ -20,4 +20,3 @@ node .planning/viewport-proof-20261104/remaining-behaviors/validate.mjs --frozen
 ```
 
 That command audits the frozen proposal/baseline, not future runtime behavior. After implementation changes the baseline, source qualification uses the runtime proof commands in VALIDATION.md. A plan validator exit 0 never authorizes a write or clears one of the 32 gaps.
-

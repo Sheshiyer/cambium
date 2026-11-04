@@ -737,7 +737,7 @@
         "traceability": ".planning/viewport-proof-20261104/remaining-behaviors/TRACEABILITY.md",
         "coverage": ".planning/viewport-proof-20261104/remaining-behaviors/coverage.json",
         "proposal": ".planning/viewport-proof-20261104/remaining-behaviors/PROPOSAL.json",
-        "proposal_content_digest": "fc450363e1d5451bc95c2557d47088095ccd50b97abe2517c81c9194edd03f5c",
+        "proposal_content_digest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
         "technical_review": ".planning/viewport-proof-20261104/remaining-behaviors/REVIEW.md",
         "source_baseline": "e6b28642eb79d6668c336b59cf745c5ab9581749",
         "retained_intents": 43,

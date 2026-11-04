@@ -107,4 +107,3 @@ Follow VALIDATION.md for the complete fresh-matrix sequence, source binding and 
 <output>
 After separate source admission and verified implementation, record exact commits, evidence, counts and unresolved gates in .planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-06-SUMMARY.md. Do not create a success summary from this plan preparation.
 </output>
-
