@@ -1,3 +1,18 @@
+# Fresh pickup: source drift held — 4 November 2026
+
+Read `FINITE-SSM-SOURCE-DRIFT-20261104.md` and
+`FINITE-SSM-PREFLIGHT-20261104.json` first. Live version `fd6fe5dc` has 54 bindings, including the current iVerif member.
+Supported content ETag matches its version; the module/source-map bytes match
+the initial `57704696` snapshot. Newer Cortex/iVerif owner behavior must be
+preserved; the old `71557699` Worker bundle is unsafe
+to upload.0099 and0103 schema is already applied; skip both.0104 is absent.
+The eight-file Hermes archive still matches; the existing runner is preserved.
+No staging or pilot job occurred. One hosted comparison was rejected against
+live source/schema; provider receipts are unavailable after Cloudflare1010.
+Further hosted workers are held pending a supported receipt path. Complete the
+verified source reconciliation/review before seeking exact installation approval.
+The original reviewed packet below remains historical source and policy evidence.
+
 # Cambium finite Hermes pilot — next session
 
 The founder selected a finite operator-triggered Hermes run through existing AWS

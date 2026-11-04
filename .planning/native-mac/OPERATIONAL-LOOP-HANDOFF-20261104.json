@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-03T23:28:08.952071+00:00",
-  "status": "finite-ssm-rollout-prepared-awaiting-owner-approval",
+  "updated": "2026-11-04T01:03:26.376858+00:00",
+  "status": "finite-ssm-preflight-source-drift-held",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -47,8 +47,8 @@
     "bundle": "clean-input ad hoc signed build; verifier passed",
     "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
     "real_work_join": "Verified in actual signed-in Mac: mapped Cambium explicit runtime join and Open work show approved objective, active state and next step.",
-    "live_operational_loop": "Not run: canonical Work decision, native join/direction test, direction approval/admission and finite Hermes coding capability pending.",
-    "installed_hermes_capability": "Fresh readback: deployed growth release09b3369 differs from old e338 checkpoint and Git main. Existing hardened runner has no Docker/source-store access. Preserve current behavior; finite SSM pilot vs narrow helper choice is pending. No rollout performed.",
+    "live_operational_loop": "Not run. Prior Work approval and native join/direction-save evidence are retained. Source reconciliation, rollout, fresh native direction review/decision, admission, original launch, finite job and immutable result remain open.",
+    "installed_hermes_capability": "Fresh read-only preservation preflight confirms growth09b3369, existing hardened runner/timer and separate two Access references. Finite SSM approach is selected; new pilot release/image not staged. Existing runtime preserved; no installed pilot or job proof.",
     "ui_cleanup": {
       "source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
       "core": "261 tests, two opt-in skips, zero failures",
@@ -136,7 +136,7 @@
       "rollback_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee"
     },
     "native_sign_in_current": "Founder completed actual native15minute sign-in; connected UI and owner-backed reads/create observed. Do not assume session remains valid on later pickup.",
-    "management_read": "Fresh Cloudflare D1 management read rejected10000; do not infer empty graph or request another refresh for native verification.",
+    "management_read": "Existing thoughtseed-labs profile succeeds. Initial 57704696/53 advanced to fd6fe5dc/54; all original52 bindings remain unchanged plus MCP_GATE_ADAPTER_TOKEN and IVERIF_CLAIM_PROOF_MEMBER_ID. Supported content ETag matches fd6fe5dc; module/source-map bytes match initial snapshot. 0099 and0103 schema matches;0104 absent. No OAuth refresh or write.",
     "native_direction_save": "Actual native composer loaded Work context and saved Reject whitespace-only signal titles from retained Cambium signal; typed create response validated. Independent fresh list readback not exposed by current UI.",
     "native_work_direction_receipt": ".planning/native-mac/NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json",
     "free_pool_architecture_advisory": {
@@ -147,16 +147,26 @@
       "reason": "Wrongly claimed live D1 direction store absent and inferred unknown runtime key/binding absence from source; not accepted as a plan or live evidence.",
       "provider_attribution": "unavailable",
       "paid_fallback": false
+    },
+    "finite_ssm_preflight": {
+      "file": ".planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json",
+      "status": "finite-ssm-preflight-source-drift-held",
+      "active_worker_version": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+      "binding_count": 54,
+      "installation": false,
+      "pilot_job_invoked": false,
+      "qualified_review": false
     }
   },
   "remaining": [
-    "Saved-direction browser/readback, then canonical direction review and immutable approval pins",
-    "Direction approval and admission producer pinned to revision/source/artifact/policy/budget",
-    "Finite Docker-isolated Cambium patch verification capability on installed Hermes, without rolling unrelated newer source",
-    "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
-    "Immutable diff/test/result readback and real complete native walkthrough"
+    "Reconcile current Cortex/iVerif owner wiring with finite Cambium source; verify exact new source/bundle and obtain qualified review",
+    "Resolve supported live provider receipt read after non-retryable Cloudflare1010; no new hosted workers or paid fallback",
+    "Owner-approved exact Worker/0104-only and isolated eight-file Hermes staging;0099/0103 already applied",
+    "After approved stack, one signed native build/sign-in and saved-direction readback; founder manually decides complete fresh direction review",
+    "Governed admission and original idempotent native launch, then separately admitted one finite SSM task",
+    "Immutable diff/test/result readback and real complete native walkthrough; ISC-3683..3687 remain open"
   ],
-  "next_action": "Start with .planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md and FINITE-SSM-ROLLOUT-20261104.json. The finite one-shot source and artifacts are reviewed/tested. Refresh read-only Worker version/bindings/migration state and host preservation baseline first;2971a905 is historical until reread. Reconcile any drift, then present the exact scoped installation/rollback for separate owner approval. Human direction approval, admission, original native launch and finite SSM job remain separate gates; no deployment or job is authorized by pickup.",
+  "next_action": "Read .planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md and .planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json. Live Quests fd6fe5dc has 54 bindings; ETag-bound content matches the earlier 57704696 module and retains newer Cortex/iVerif/department owner behavior absent from the old pilot bundle. Preserve all 54 bindings; adding only the two pilot variables would yield 56. Skip already-applied 0099 and 0103; 0104 is absent. Resolve supported serving-provider receipt access after non-retryable Cloudflare 1010; further hosted workers are held with no paid fallback. The current release tag names unresolved source 1915a132; obtain its reviewed source/test packet for reconciliation. Prepare verified owner composition and qualified exact source review, refresh equality, then seek separate exact installation approval. No installation, founder decision, admission, native launch or pilot job is authorized.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
@@ -207,5 +217,7 @@
   "selected_execution": "finite operator-triggered Hermes via existing AWS SSM; preserve background runner",
   "next_session_handoff": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md",
   "rollout_candidate": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
-  "previous_rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json"
+  "previous_rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
+  "finite_ssm_preflight": ".planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json",
+  "source_drift_handoff": ".planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md"
 }

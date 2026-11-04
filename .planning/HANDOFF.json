@@ -432,7 +432,7 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "finite-ssm-rollout-prepared-awaiting-owner-approval",
+      "status": "finite-ssm-preflight-source-drift-held",
       "tier": "E5",
       "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
@@ -451,7 +451,7 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Start with .planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md and FINITE-SSM-ROLLOUT-20261104.json. The finite one-shot source and artifacts are reviewed/tested. Refresh read-only Worker version/bindings/migration state and host preservation baseline first;2971a905 is historical until reread. Reconcile any drift, then present the exact scoped installation/rollback for separate owner approval. Human direction approval, admission, original native launch and finite SSM job remain separate gates; no deployment or job is authorized by pickup.",
+      "next_action": "Read .planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md and .planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json. Live Quests fd6fe5dc has 54 bindings; ETag-bound content matches the earlier 57704696 module and retains newer Cortex/iVerif/department owner behavior absent from the old pilot bundle. Preserve all 54 bindings; adding only the two pilot variables would yield 56. Skip already-applied 0099 and 0103; 0104 is absent. Resolve supported serving-provider receipt access after non-retryable Cloudflare 1010; further hosted workers are held with no paid fallback. The current release tag names unresolved source 1915a132; obtain its reviewed source/test packet for reconciliation. Prepare verified owner composition and qualified exact source review, refresh equality, then seek separate exact installation approval. No installation, founder decision, admission, native launch or pilot job is authorized.",
       "ui_diagnostics": "Settings > Advanced > Diagnostics",
       "rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
       "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
@@ -461,7 +461,9 @@
       "native_work_direction_receipt": ".planning/native-mac/NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json",
       "implementation_packet": ".planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md",
       "previous_rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
-      "next_session_handoff": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md"
+      "next_session_handoff": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md",
+      "finite_ssm_preflight": ".planning/native-mac/FINITE-SSM-PREFLIGHT-20261104.json",
+      "source_drift_handoff": ".planning/native-mac/FINITE-SSM-SOURCE-DRIFT-20261104.md"
     }
   }
 }

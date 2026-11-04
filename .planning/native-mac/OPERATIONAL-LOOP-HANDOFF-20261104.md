@@ -1,11 +1,23 @@
 # Cambium operational loop — next-session handoff
 
-4 November 2026, Asia/Calcutta. Status: Work-source and shared-direction code
-implemented, reviewed and deployed; canonical Work decision pending.
+4 November 2026, Asia/Calcutta. Status: finite SSM preflight held on newer live
+source and unavailable provider attribution. Prior Work approval and native
+join/direction-save evidence are retained.
 The full signal → direction → approved work → result loop is **not accepted**. Continue this task; do not report the prior
 Inbox test as an execution-loop test.
 
-## Current live checkpoint
+## Fresh finite preflight
+
+Use `FINITE-SSM-SOURCE-DRIFT-20261104.md` and
+`FINITE-SSM-PREFLIGHT-20261104.json`. Live Quests `fd6fe5dc` has 54 bindings. Its ETag-bound module bytes match the
+initial `57704696` snapshot; newer Cortex/iVerif behavior is absent from the
+reviewed pilot bundle. Adding the two pilot variables would yield 56.0099/0103
+are already applied;0104 is absent. The host and eight-file archive remain
+verified and unchanged; no pilot staging/job occurred. The unsupported hosted
+comparison was rejected; provider receipts remain unavailable after
+Cloudflare1010. Source integration and qualified review precede rollout approval.
+
+## Historical Work/native checkpoint
 
 The founder approved the reviewed form rollout. Source`c6948057` is live as
 `2971a905-f6af-4df4-8b1b-985d0df1af20` at100%. All52binding identities/values

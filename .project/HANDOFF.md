@@ -11,6 +11,23 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 finite SSM read-only preflight: newer live source held
+
+Owned finite pilot only. Initial Quests `57704696`/53 advanced to
+`fd6fe5dc`/54 at 100%; supported content ETag binds the same module bytes.
+All 52 prior bindings remain unchanged plus MCP_GATE_ADAPTER_TOKEN and
+IVERIF_CLAIM_PROOF_MEMBER_ID. The pilot would retain 54 and add only 2.
+Current Cortex/iVerif
+source is absent from the old pilot bundle; no upload/staging/job occurred.
+0099 has11matching objects and0103 has4: skip both;0104 absent. The existing
+09b3369 runner/timer/permissions and exact eight-file archive remain preserved.
+One hosted comparison was rejected against actual deployed source/schema;
+provider receipt access returned non-retryable Cloudflare1010, so further hosted
+workers remain held. No new acceptance; ISC-3683..3687 stay open. Follow
+`native_operational_loop` to `FINITE-SSM-SOURCE-DRIFT-20261104.md` and the
+matching preflight JSON. Reconcile/verify/review source before rollout approval.
+
+
 ## 2026-11-04 — Direction approval and Hermes pilot source
 
 Reviewed source adds saved-direction canonical review, explicit admission,

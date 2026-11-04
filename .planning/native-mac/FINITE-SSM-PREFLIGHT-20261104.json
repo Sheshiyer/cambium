@@ -1,0 +1,335 @@
+{
+  "schema": "cambium.finite-ssm-preflight.v1",
+  "recordedAt": "2026-11-04T01:03:26.376108+00:00",
+  "status": "held-source-drift-and-unverified-provider-receipt",
+  "scope": "Read-only live preservation preflight; no installation, founder decision, admission, native launch or pilot job",
+  "authorization": {
+    "productionInstallation": false,
+    "jobInvocation": false,
+    "founderDecision": false,
+    "sourceReconciliation": "within current owned checkout; deployment requires new reviewed candidate"
+  },
+  "sources": {
+    "reviewedRollout": "FINITE-SSM-ROLLOUT-20261104.json",
+    "reviewedWorkerCommit": "71557699a924b896a65a4abdf7a6882472998d3f",
+    "ownedHandoffHead": "7e83db5e54d2c12d8540e51d355983cc88fa6772",
+    "reviewedHermesCommit": "22b3e8276d3b4c2b74041920f3cd559071e16773",
+    "remoteCambiumMain": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+    "remoteHermesMain": "09280487ca12b18448ff236d160e070b8cd5dfbd"
+  },
+  "worker": {
+    "profile": "thoughtseed-labs",
+    "managementRead": "succeeded; no OAuth refresh",
+    "activeVersion": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+    "trafficPercent": 100,
+    "historicalVersion": "2971a905-f6af-4df4-8b1b-985d0df1af20",
+    "bindingCount": 54,
+    "retainedHistoricalBindingsUnchanged": true,
+    "addedBindingNames": [
+      "IVERIF_CLAIM_PROOF_MEMBER_ID",
+      "MCP_GATE_ADAPTER_TOKEN"
+    ],
+    "removedBindingNames": [],
+    "changedBindingNames": [],
+    "bindingSnapshotSha256": "85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e",
+    "historicalBindingSnapshotSha256": "a75c2c876ff21a820e02e77d4fb4b051a672d2080d5635117ee45f32717782ba",
+    "pilotVariablesAbsent": true,
+    "proposedBindingCount": 56,
+    "sourceEntrypoint": "workers/quests/src/cortex-services.ts",
+    "requiredNamedExport": "CortexProvenanceReader",
+    "activeModuleSha256": "7ea2e444277af2b469f913a4b0ba548160d818393e9ce3eff059d1b93911760b",
+    "activeModuleBytes": 2705387,
+    "activeSourceMapSha256": "8e3640df8c79fe62f2596e3433b12a94bb0ec1857a2348044be233f8c190510e",
+    "activeModuleContainsPilotPolicyKey": false,
+    "activeIndexContainsPilotOwnerWiring": false,
+    "activeIndexExistingLaunchOwner": "createClaimProofOwner(...).launchHost",
+    "runtime": {
+      "compatibility_date": "2026-05-01",
+      "compatibility_flags": [
+        "nodejs_compat"
+      ],
+      "usage_model": "standard"
+    },
+    "runtimeSettingsSnapshotSha256": "bfed798d48c2746866f10308e65ec846003e70a491b5537f26afbeb121d6dc13",
+    "scheduledCrons": [
+      "0 */6 * * *"
+    ],
+    "workersDev": {
+      "enabled": true,
+      "previews_enabled": true
+    },
+    "configurationAction": "inherit all54actual current version bindings and runtime settings; add only the two original non-secret pilot variables after reviewed source reconciliation; use version resources rather than the older generic settings binding list",
+    "rollbackVersionCandidate": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+    "rollbackGuard": "recapture and require equality immediately before any approved upload; current read is not deployment approval",
+    "oldBundleStatus": "unsafe to upload: would remove newer deployed source/export behavior",
+    "finalReadOnlyGuard": {
+      "observedAt": "2026-11-04T00:57:50.142371+00:00",
+      "versions": [
+        {
+          "version_id": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+          "percentage": 100
+        }
+      ],
+      "sameVersion": false,
+      "settingsIdenticalToCapturedBaseline": true
+    },
+    "initialSnapshotVersion": "57704696-3986-4414-ba30-4bf2afd90f9a",
+    "latestSnapshot": {
+      "observedAt": "2026-11-04T00:58:40.515392+00:00",
+      "version": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+      "versionsAfterRead": [
+        {
+          "version_id": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+          "percentage": 100
+        }
+      ],
+      "versionStableDuringBoundedRead": true,
+      "bindingCount": 54,
+      "annotations": {
+        "workers/message": "Owner-approved upload only: IVerif native cycle 1915a132; preserve Cortex J1;54bindings;traffic unchanged",
+        "workers/tag": "iverif-1915a132",
+        "workers/triggered_by": "version_upload"
+      },
+      "modules": [
+        {
+          "name": "cortex-services.js",
+          "bytes": 2705387,
+          "sha256": "7ea2e444277af2b469f913a4b0ba548160d818393e9ce3eff059d1b93911760b"
+        },
+        {
+          "name": "cortex-services.js.map",
+          "bytes": 4144936,
+          "sha256": "8e3640df8c79fe62f2596e3433b12a94bb0ec1857a2348044be233f8c190510e"
+        }
+      ],
+      "pilotPolicyKeyPresent": false,
+      "sourceMapChangesSince57704696": [],
+      "contentAttribution": "supported content/v2 ETag matchesfd6fe5dc version script etag; module and source-map bytes match initial57704696 snapshot"
+    },
+    "initialSourceComparisonStatus": "source comparison remains applicable: exactfd6fe5dc content is now ETag-bound and byte-identical to57704696;54binding configuration must be retained",
+    "initialBindingCount": 53,
+    "latestConfigurationComparison": {
+      "priorVersion": "57704696-3986-4414-ba30-4bf2afd90f9a",
+      "latestVersion": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+      "bindingCount": 54,
+      "addedBindingNames": [
+        "IVERIF_CLAIM_PROOF_MEMBER_ID"
+      ],
+      "removedBindingNames": [],
+      "changedBindingNames": [],
+      "scriptMetadataIdentical": false,
+      "runtimeIdentical": true,
+      "bindingSnapshotSha256": "85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e",
+      "latestScriptMetadata": {
+        "etag": "bcb1452f0bd78bcf6807229051d15da010806aaa404e4d8bbeed4724ff36f6aa",
+        "handlers": [
+          "scheduled",
+          "fetch"
+        ],
+        "named_handlers": [
+          {
+            "name": "d1BridgeBusinessTaskStore",
+            "handlers": [
+              "class"
+            ]
+          },
+          {
+            "name": "d1BridgeExecutionStore",
+            "handlers": [
+              "class"
+            ]
+          },
+          {
+            "name": "d1BridgeStore",
+            "handlers": [
+              "class"
+            ]
+          },
+          {
+            "name": "d1FabricLedgerStore",
+            "handlers": [
+              "class"
+            ]
+          },
+          {
+            "name": "CortexProvenanceReader",
+            "handlers": [
+              "fetch"
+            ]
+          }
+        ],
+        "last_deployed_from": "wrangler"
+      }
+    },
+    "supportedContentRead": {
+      "observedAt": "2026-11-04T01:01:50.110712+00:00",
+      "contentType": "multipart/form-data; boundary=9fabfad0453a4b18039537afc3f336e0cda0c9fb98a95e0ca912ec1659c2",
+      "etag": "\"bcb1452f0bd78bcf6807229051d15da010806aaa404e4d8bbeed4724ff36f6aa\"",
+      "bytes": 6850796,
+      "sha256": "72a7cdc62d6381c09c7a4b2a074040b14babadfe77050b5f914f5de53c2bd25c",
+      "modules": [
+        {
+          "name": "cortex-services.js",
+          "bytes": 2705387,
+          "sha256": "7ea2e444277af2b469f913a4b0ba548160d818393e9ce3eff059d1b93911760b",
+          "pilotPolicyKeyPresent": false
+        },
+        {
+          "name": "cortex-services.js.map",
+          "bytes": 4144936,
+          "sha256": "8e3640df8c79fe62f2596e3433b12a94bb0ec1857a2348044be233f8c190510e",
+          "pilotPolicyKeyPresent": false
+        }
+      ]
+    },
+    "supportedContentVersionEtagMatches": true
+  },
+  "database": {
+    "authority": "live D1 sqlite_master plus read-only migration-history check",
+    "migrationTrackingCaveat": "0099/0103 schema exists without corresponding names in d1_migrations; schema identity establishes already-applied state, not tracking-name absence",
+    "0099": {
+      "action": "skip; never repeat",
+      "schemaObjectsMatching": 11
+    },
+    "0103": {
+      "action": "skip; never repeat",
+      "schemaObjectsMatching": 4
+    },
+    "0104": {
+      "action": "proposed additive migration only; no write performed",
+      "tablePresent": false,
+      "sha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3"
+    },
+    "retainExistingTriggers": [
+      "native_iverif_reservation_source_guard",
+      "native_iverif_direction_edit_revokes"
+    ],
+    "seedAdmissions": false
+  },
+  "hermes": {
+    "readOnlySsmCommandIds": [
+      "dcb31265-0f34-4358-beca-60f5ef7f53e4",
+      "3674bc6b-a78c-429c-ae32-bad5211885a9"
+    ],
+    "hostObservedAt": "2026-11-04T00:42:45.791172+00:00",
+    "existingRelease": "hermes-aws-ts-growth-09b3369",
+    "existingService": "hermes-runner.service",
+    "existingTimer": "hermes-runner.timer",
+    "serviceUnitContentSha256": "2351184d240bbe8a144b578e53accae479f10f724687ed4924f0cffcd894f153",
+    "timerUnitContentSha256": "e51be15a17810d1303b8b7d3b161ff3566b656206d08ae61e793447e2934a428",
+    "runtimeSourceHashes": {
+      "package.json": "7028644fae716ac17b2a70a8e7dd8e0a68f8ab12e387e60ac65ddf2ddee74a4a",
+      "src/contracts.ts": "53f752147f6a4561ffef18e6c4a217d1fb16619e78cd399e1c4a7f00b36f2360",
+      "src/native-execution.ts": "5e746f915142a7c29f459c9c8a49f51b335854fe535cebc6187107aca5dad689",
+      "src/runner.ts": "0d8c96049b0bfe00b97178446ffb3d302eb235034e5350d8c187501330faea85"
+    },
+    "serviceUser": "hermes",
+    "supplementaryGroups": "",
+    "timerActive": true,
+    "serviceInstantaneousState": {
+      "active": "inactive",
+      "sub": "dead"
+    },
+    "serviceInstantaneousStateMeaning": "timer-driven service inactive between invocations; no health or execution acceptance inferred",
+    "servicePreserved": true,
+    "timerPreserved": true,
+    "environmentFilesAndCredentialsPreserved": true,
+    "pilotEnvironmentSelection": {
+      "include": [
+        "existing base runner environment",
+        "existing growth identity override"
+      ],
+      "exclude": [
+        "existing growth runtime environment",
+        "growth_api_key credential"
+      ],
+      "accessCredentialReferences": 2,
+      "existingTotalCredentialReferences": 3,
+      "credentialValuesExported": false
+    },
+    "nodeVersion": "v22.23.0",
+    "dockerVersion": "Docker version 29.1.3, build 29.1.3-0ubuntu3~24.04.2",
+    "systemdVersion": 255,
+    "architecture": "x86_64",
+    "sourceStore": {
+      "baseCommit": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+      "present": true,
+      "objectAlternates": false,
+      "backgroundRunnerReadable": false,
+      "boundedArchiveBytes": 7976960,
+      "boundedArchiveSha256": "aaac4d0cfe587742f5e3b4cff7e9d862fe96a5e337210076787c47c35ea8f346"
+    },
+    "pilotRelease": "hermes-cambium-pilot-22b3e8276d3b",
+    "pilotReleasePresent": false,
+    "pinnedImagePresent": false,
+    "artifact": "hermes-finite-pilot.tar.gz",
+    "artifactBytes": 30299,
+    "artifactSha256": "f2b5ec371ee0cac4e973f27cdce92e9185f7c383aa99038a8d14787b489eed34",
+    "artifactFileCount": 8,
+    "artifactFileHashesMatch": true,
+    "policyCanonicalSha256": "9d9cf7ae64558c568493f5d81dbd48e70fdbbe7a2b49782059b273fd003fbc48",
+    "effectiveIdentityMatchesReviewedManifest": true,
+    "staged": false,
+    "pilotJobInvoked": false
+  },
+  "sourceReconciliation": {
+    "status": "required against ETag-boundfd6fe5dc content and54binding owner configuration; no source integration applied",
+    "runtimeMapMatchesOwnedSourceFiles": 67,
+    "runtimeMapDifferingOrNewSourceFiles": 36,
+    "additionalMappedJsonSourceFiles": 2,
+    "threeWayConflictPaths": [
+      "workers/quests/src/goal-graph-loadout-registry.ts",
+      "workers/quests/src/page/components/curious-world.generated.ts",
+      "workers/quests/src/page/client/curious-gate-bridge.ts",
+      "workers/quests/src/handler.ts",
+      "workers/quests/src/index.ts"
+    ],
+    "preview": "ignored local candidate only; not accepted source",
+    "requiredBoundaryChecks": [
+      "retain current CortexProvenanceReader service export and Gate-channel separation",
+      "compose iVerif and Cambium launch owners by canonical work/admission scope; never overwrite current launchHost",
+      "retain current iVerif Work/direction paths and claim-acceptance source checks",
+      "explicitly fence Cambium direction validation to sapling:cambium after retaining multi-Work shared validation",
+      "combine loadout registry and Gate rendering without dropping either owner",
+      "repeat focused integration verification and one qualified source review on exact new source/bundle pins"
+    ],
+    "liveSourceChangedDuringPreflight": false,
+    "liveConfigurationChangedDuringPreflight": true,
+    "latestSourceTag": "iverif-1915a132",
+    "taggedSourceResolution": "not resolved in owned Git refs or GitHub; exact deployed runtime content is available with matching version ETag, while full source/test lineage remains requested"
+  },
+  "hostedSourceReview": {
+    "launchPool": "noesis-free",
+    "launcher": "te-codex",
+    "endpoint": "https://omniroute.thoughtseed.space",
+    "processExitCode": 0,
+    "disposition": "rejected; advisory has false deployed-wiring and migration claims",
+    "rejectedClaims": [
+      "deployed Worker already has finite Cambium owner wiring",
+      "0099 is not yet applied",
+      "two variables alone can enable pilot on current source"
+    ],
+    "reviewSha256": "85460505a73f9f8397127daab04d45368bac3eb2cf55b05cc6ac8de638d706a9",
+    "providerAttribution": "unverified",
+    "servingModel": "unknown",
+    "zeroIncrementalCost": "unverified; pool label is not billing proof",
+    "receiptRead": {
+      "status": "denied",
+      "http": 403,
+      "cloudflareCode": 1010,
+      "reason": "browser_signature_banned",
+      "retryable": false,
+      "ownerActionRequired": true
+    },
+    "additionalWorkers": "held; no paid fallback or routing/account/credential change"
+  },
+  "acceptance": {
+    "ISC-3683": "open",
+    "ISC-3684": "open",
+    "ISC-3685": "open",
+    "ISC-3686": "open",
+    "ISC-3687": "open",
+    "newAcceptanceClaim": false
+  },
+  "nextAction": "Resolve the supported serving-provider receipt path; prepare and verify the minimal source reconciliation against the captured newer live owner, then obtain qualified review and refresh equality guards before presenting exact installation/rollback for separate owner approval."
+}
