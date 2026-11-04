@@ -11,6 +11,15 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 — final owner105 source and upload pins
+
+- Sourcec2bf7775296100214f98c4a503a8d29fcac9b1f5 retains serving owner e5bfbc64, including
+  the exact authenticated legacy-publisher classification guard and its regression.
+- R2 rollout is current: full2757pass/9skip, focused111pass; same Swift/Hermes
+  source and policy. No upload, installation, founder decision or pilot job.
+- Exact upload-only approval remains next; every later gate stays held.
+
+
 ## 2026-11-04 — final owner104 pins supersede the earlier reviewed packet
 
 - Source2046331c8fd8a199e5600f2bc601c4c15bb8fff1 retains live owner4db171c7

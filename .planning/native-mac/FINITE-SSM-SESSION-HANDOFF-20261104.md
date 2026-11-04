@@ -1,8 +1,8 @@
 # Fresh pickup: reconciled rollout held — 4 November 2026
 
 Read [FINITE-SSM-ROLLOUT-RECONCILED-20261104.md](FINITE-SSM-ROLLOUT-RECONCILED-20261104.md)
-and its exact JSON first. Candidate source2046331c retains the latest serving
-owner4db171c7,54 bindings, Cortex/iVerif/department behavior and all0105 guards.
+and its exact JSON first. Candidate sourcec2bf7775 retains the latest serving
+owner e5bfbc64,54 bindings, Cortex/iVerif/department behavior and all0105 guards.
 The1915 source packet and later670 identity fix are resolved. The existing
 Phloem receipt reader works with exact free-review attribution. Repository,
 Mac, focused owner, finite-boundary, strict type, bundle, drift and local IAB
