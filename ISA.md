@@ -3704,3 +3704,24 @@ This consumes the VPG-01-only local source admission. VPG-02 through VPG-10 rema
 unadmitted. Version 95 is the planning baseline; deployment, traffic, real owner
 effects, canonical graph mapping, runtime and physical-device acceptance remain
 held. Root Phase 9 files and prior human handoff history are preserved.
+
+## VPG-02 source admission — 2026-11-04
+
+The user admits VPG-02 only against the accepted finite packet digest
+`bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21` and verified source
+checkpoint `7f3c7793`. VPG-01 is source-verified and its prior admission consumed.
+The reviewed proposal remains an immutable snapshot. Current task admission is
+`.planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-02-ADMISSION.json`.
+
+Only `VPG-02-T1`, `VPG-02-T2` and `VPG-02-T3` are admitted for local mission-owner
+projection, current 3D mission/branch/proof interaction and complete fresh source
+proof for original rows 1–5, 11 and 12. Preserve all 43 retained intents, the 11
+qualified behaviors, prior 48 source cases, original 47-image/manifest history,
+the same four retirements and all original whole-step predicates. Target 55 source
+cases and 18 qualified/25 held only after genuine complete browser proofs pass.
+No source row or plan metadata alone changes qualification.
+
+Version 95 remains the planning baseline. VPG-03 through VPG-10, deployment,
+traffic, real owner writes/signatures/queues, graph/provider/native-store effects
+and runtime admission remain held. Canonical graph mapping is absent. Root Phase
+9 STATE/ROADMAP/REQUIREMENTS/config and prior handoff history stay unchanged.
