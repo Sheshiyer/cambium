@@ -16,7 +16,7 @@
     "exactDiff": true
   },
   "held": [
-    "execution-mechanism-decision-and-current-runtime-overlay",
+    "fresh-live-baseline-and-owner-scoped-rollout-approval",
     "worker-0099-0104-policy-runner-config-rollout",
     "hermes-minimal-source-image-policy-rollout",
     "human-direction-approval",
@@ -43,8 +43,8 @@
     },
     "nativeTestsPassed": 44,
     "directionWireTestsPassed": 5,
-    "hermesCommit": "48648a9286d6887d43df5f298acdd52cc0d4b9f0",
-    "hermesNodeTestsPassed": 385
+    "hermesCommit": "22b3e8276d3b4c2b74041920f3cd559071e16773",
+    "hermesNodeTestsPassed": 388
   },
   "runtimeReadback": {
     "release": "hermes-aws-ts-growth-09b3369",
@@ -61,5 +61,9 @@
       "native-execution.ts": "5e746f915142a7c29f459c9c8a49f51b335854fe535cebc6187107aca5dad689",
       "runner.ts": "0d8c96049b0bfe00b97178446ffb3d302eb235034e5350d8c187501330faea85"
     }
-  }
+  },
+  "selectedExecution": "finite-operator-ssm",
+  "rolloutPacket": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
+  "nextSession": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md",
+  "finiteEntrypointReview": "same reviewer; no actionable findings"
 }

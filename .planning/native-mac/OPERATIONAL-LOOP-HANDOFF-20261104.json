@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
   "updated": "2026-11-03T23:28:08.952071+00:00",
-  "status": "source-tested-execution-mechanism-decision-pending",
+  "status": "finite-ssm-rollout-prepared-awaiting-owner-approval",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -156,7 +156,7 @@
     "Existing native launch composition and idempotent owner adapter; migration0099 remains unapplied",
     "Immutable diff/test/result readback and real complete native walkthrough"
   ],
-  "next_action": "Continue in-progress source from DIRECTION-HERMES-PILOT-20261104.md: finish native protocol/review/admit/results, production owner composition and existing bridge integration; then qualified review/tests and exact rollout packets. Current live2971a905 and Work55efd3d7/draft save are unchanged.0099/0104 remain source-only; no policy/image or runner activation.",
+  "next_action": "Start with .planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md and FINITE-SSM-ROLLOUT-20261104.json. The finite one-shot source and artifacts are reviewed/tested. Refresh read-only Worker version/bindings/migration state and host preservation baseline first;2971a905 is historical until reread. Reconcile any drift, then present the exact scoped installation/rollback for separate owner approval. Human direction approval, admission, original native launch and finite SSM job remain separate gates; no deployment or job is authorized by pickup.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
@@ -164,7 +164,7 @@
   ],
   "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
   "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md",
-  "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
+  "rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
   "work_intent": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
   "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
   "proposed_code_pilot": {
@@ -200,8 +200,12 @@
     "production_deployed": false,
     "hosted_job_launched": false,
     "fresh_runtime_checkpoint": "hermes-aws-ts-growth-09b3369 differs from old checkpoint and current Git main; preserve it",
-    "hermes_source": "48648a9286d6887d43df5f298acdd52cc0d4b9f0",
+    "hermes_source": "22b3e8276d3b4c2b74041920f3cd559071e16773",
     "hermes_git_base": "09280487ca12b18448ff236d160e070b8cd5dfbd",
     "hermes_pr": "https://github.com/Sheshiyer/hermes-aws-ts/pull/169"
-  }
+  },
+  "selected_execution": "finite operator-triggered Hermes via existing AWS SSM; preserve background runner",
+  "next_session_handoff": ".planning/native-mac/FINITE-SSM-SESSION-HANDOFF-20261104.md",
+  "rollout_candidate": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
+  "previous_rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json"
 }

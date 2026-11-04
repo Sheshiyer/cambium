@@ -127,3 +127,15 @@ policy. The observer now receives it; a configured/unconfigured read-only poll
 regression proves classification without claim, execute or ACK effects. The same
 reviewer rechecked this third finding with no further issues. All385Node tests
 pass. The source-only branches are pushed; execution choice remains pending.
+
+
+## Resolved finite execution choice
+
+The founder selected finite operator-triggered Hermes through existing AWS SSM
+for the first pilot, preserving the current background runner. The new standalone
+one-shot entrypoint is reviewed and all388Node tests pass. It runs from a separate
+immutable release, so no runtime overlay or standing privilege helper is needed.
+The earlier pending-choice paragraphs are historical, not current instructions.
+Continue only from `FINITE-SSM-SESSION-HANDOFF-20261104.md` and its exact rollout
+manifest. Production installation approval, human direction decision and the
+actual hosted job remain separate, unfulfilled gates.
