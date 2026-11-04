@@ -6,11 +6,13 @@ import { fileURLToPath } from 'node:url';
 import { PAGE } from '../workers/quests/src/page.ts';
 import { withServer, captureViewportProof } from '../workers/quests/src/visual-viewport-proof.mjs';
 import {createFieldAtlasFounderFixture,fieldAtlasFixtureInputDigest,fieldAtlasFixtureReviewDigest} from './field-atlas-founder-fixture.mjs';
+import {createFieldAtlasOperationalFixture} from './field-atlas-operational-fixture.mjs';
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 export const FIELD_ATLAS_ROOT = realpathSync(fileURLToPath(new URL('..',import.meta.url)));
 const sourcePaths = ['scripts/capture-field-atlas.mjs','scripts/field-atlas-viewport-contract.mjs',
   'scripts/field-atlas-founder-fixture.mjs',
+  'scripts/field-atlas-operational-fixture.mjs','docs/visual/viewport-owner-bindings.md',
   'scripts/check-field-atlas-proof.mjs','scripts/drift-audit.mjs','scripts/verify-release.mjs','package.json',
   'docs/visual/field-atlas-viewport-contract.v1.json','workers/quests/src/visual-viewport-proof.mjs',
   'workers/quests/src/page.ts','workers/quests/src/page/index.ts','workers/quests/src/page/world-host.ts',
@@ -149,9 +151,10 @@ const states=[
   ...[320,390].map(width=>['local-visit-read',width]),
   ...[320,390].map(width=>['gate-empty',width]),
   ...['gate-reviewed','gate-preflight','gate-back','gate-close'].flatMap(state=>[320,390,430].map(width=>[state,width])),
+  ...['gate-reviewed','gate-preflight','gate-back','gate-close'].map(state=>[state,430,844]),
 ];
-export const FIELD_ATLAS_CAPTURE_STEPS=states.map(([state,width])=>{
-  const height=width===430 ? 932 : width>=600 ? 900 : 844;
+export const FIELD_ATLAS_CAPTURE_STEPS=states.map(([state,width,originalHeight])=>{
+  const height=originalHeight ?? (width===430 ? 932 : width>=600 ? 900 : 844);
   const inputSteps=state==='entry' ? [] : [begin];
   const ownerFixture=['local-visit-read','gate-empty','gate-reviewed','gate-preflight','gate-back','gate-close'].includes(state);
   if(state==='departments')inputSteps.push(pointer('.cw-departments-button'));
@@ -176,7 +179,7 @@ export const FIELD_ATLAS_CAPTURE_STEPS=states.map(([state,width])=>{
   }
   const behaviorKeys=state.startsWith('local-visit') ? ['localVisitIsSeparate'] : state==='gate-empty' ? ['verifiedEmptyQueue'] : state==='gate-back' ? ['inspectionBackReturnsQueue'] : state==='gate-close' ? ['inspectionCloseRestoresWorld']
     : ['gate-reviewed','gate-preflight'].includes(state) ? ['exactCanonicalReview','exactBranchGate','consequenceAndReversal','inspectionBackAndClose',...(state==='gate-preflight'?['separateApprovalConfirmation','cancelReachable']:[])] : [];
-  return {path:`field-atlas-${state}-${width}.png`,state,viewport:{width,height},webgl:true,diagnostics:true,
+  return {path:`field-atlas-${state}-${width}${originalHeight ? 'x'+height : ''}.png`,state,viewport:{width,height},webgl:true,diagnostics:true,
     fixture:ownerFixture ? ['gate-empty','local-visit-read'].includes(state) ? 'empty' : 'pending' : null,behaviorKeys,
     desktopPageBrowser:width>=1000,exactViewport:width<1000,inputSteps,
     waitFor:"document.querySelector('#curious-world canvas') && document.getElementById('curious-world-fallback').hidden",
@@ -197,6 +200,26 @@ export const FIELD_ATLAS_BEHAVIOR_EQUIVALENTS={
   ...Object.fromEntries([320,390,430].map(w=>[`mission-gate-review-${w}-v1`,{legacyPaths:[`operating-fabric-gate-sheet-${w}-mobile.png`],proofs:[frame('gate-preflight',w,['exactCanonicalReview','separateApprovalConfirmation','cancelReachable'])],rationale:'Current mission dossier reached through the existing chart/Gate/proposal path retains exact-width review, confirmation and cancellation.'}])),
   ...Object.fromEntries([320,390,430].map(w=>[`mission-inspection-return-${w}-v1`,{legacyPaths:[`operating-fabric-inspect-sheet-${w}-mobile.png`],proofs:[frame('gate-reviewed',w,['exactCanonicalReview','inspectionBackAndClose']),frame('gate-back',w,['inspectionBackReturnsQueue']),frame('gate-close',w,['inspectionCloseRestoresWorld'])],rationale:'Current mission inspection includes exact full review, back to the pending queue and close to the world with original opener focus at the original width.'}]))
 };
+
+export function validateFieldAtlasGeometry(geometry,step,png){
+  const errors=[],fail=()=>errors.push('Observed viewport/crop/PNG binding is invalid');
+  if(!geometry || geometry.schema!=='cambium.viewport-capture-geometry.v1' || !Buffer.isBuffer(png) || png.length<24)return ['Observed viewport/crop/PNG binding is missing'];
+  const c=geometry.cssViewport,v=geometry.visualViewport,d=geometry.deviceScaleFactor;
+  if(!c || c.width!==step.viewport.width || c.height!==step.viewport.height || c.scrollX!==0 || c.scrollY!==0 || d!==2 || !v || ![v.width,v.height,v.offsetLeft,v.offsetTop,v.scale].every(Number.isFinite) || Math.abs(v.width-c.width)>.5 || Math.abs(v.height-c.height)>.5 || v.offsetLeft!==0 || v.offsetTop!==0 || v.scale!==1)fail();
+  let size=step.viewport;
+  if(step.clipSelector){
+    const r=geometry.observedClip,k=geometry.clip;
+    if(!r || !k || r.selector!==step.clipSelector || k.selector!==step.clipSelector || geometry.clipVisible!==true || ![r.x,r.y,r.width,r.height,k.x,k.y,k.width,k.height].every(Number.isFinite) || r.x<0 || r.y<0 || r.width<=0 || r.height<=0 || r.x+r.width>step.viewport.width || r.y+r.height>step.viewport.height){fail();}
+    else{
+      const x=Math.floor(r.x*d),y=Math.floor(r.y*d),expected={x:x/d,y:y/d,width:(Math.ceil((r.x+r.width)*d)-x)/d,height:(Math.ceil((r.y+r.height)*d)-y)/d};
+      if(Object.keys(expected).some(key=>Math.abs(expected[key]-k[key])>1e-6))fail();
+      size=k;
+    }
+  }else if(geometry.observedClip!==null || geometry.clip!==null || geometry.clipVisible!==null)fail();
+  const p=geometry.png;
+  if(!p || p.width!==Math.round(size.width*d) || p.height!==Math.round(size.height*d) || p.width!==png.readUInt32BE(16) || p.height!==png.readUInt32BE(20) || p.bytes!==png.length || p.sha256!==hash(png))fail();
+  return errors;
+}
 
 export function validateFieldAtlasCapture(manifest,readPng){
   const errors=[];
@@ -223,6 +246,12 @@ export function validateFieldAtlasCapture(manifest,readPng){
         || !Number.isSafeInteger(fixture.graphReads) || fixture.graphReads<1 || !Number.isSafeInteger(fixture.proposalReads) || (step.fixture==='empty' ? fixture.proposalReads!==0 : fixture.proposalReads<1 || fixture.proposalReads>4)
         || JSON.stringify(fixture.methodCounts)!==JSON.stringify({envelopeGET:fixture.envelopeReads,sessionGET:fixture.sessionReads,graphGET:fixture.graphReads,proposalPOST:fixture.proposalReads,deniedDecisionPOST:0,deniedRenewalPOST:0}))errors.push(`Local owner fixture binding is unconfirmed for ${proof.path}`);
     }else if(proof.fixtureReceipt!==null)errors.push(`Unexpected owner fixture for ${proof.path}`);
+    let idleOperational=false;
+    try{
+      const r=proof.operationalFixtureReceipt,fixture=createFieldAtlasOperationalFixture({now:Date.parse(r?.ownerRead?.observedAt)});
+      idleOperational=JSON.stringify(r)===JSON.stringify(fixture.snapshot());
+    }catch{}
+    if(!idleOperational)errors.push(`Operational fixture must remain idle for ${proof.path}`);
     let assertionMatches=false;
     try{assertionMatches=proof.assertionSha256===hash(fieldAtlasBoundAssertion(step,proof.fixtureReceipt?.reviewSha256 ?? null));}catch{}
     if(!assertionMatches)errors.push(`Executed assertion binding is invalid for ${proof.path}`);
@@ -231,10 +260,10 @@ export function validateFieldAtlasCapture(manifest,readPng){
     const diagnostics=proof.diagnostics;
     if(!diagnostics || ['uncaughtErrors','consoleErrors','failedRequests','badResponses'].some(k=>diagnostics[k]!==0) || !Number.isSafeInteger(diagnostics.warnings) || diagnostics.warnings<0)errors.push(`Browser diagnostics are unconfirmed for ${proof.path}`);
     const png=readPng(proof.path);
+    errors.push(...validateFieldAtlasGeometry(proof.geometry,step,png).map(message=>`${message} for ${proof.path}`));
     if(!/^[a-f0-9]{64}$/.test(proof.sha256) || hash(png)!==proof.sha256)errors.push(`PNG binding is invalid for ${proof.path}`);
     if(png.length<45 || png.subarray(0,8).toString('hex')!=='89504e470d0a1a0a' || png.subarray(12,16).toString()!=='IHDR'
-      || png.readUInt32BE(16)!==step.viewport.width*2 || png.readUInt32BE(20)!==step.viewport.height*2
-      || proof.width!==step.viewport.width*2 || proof.height!==step.viewport.height*2 || proof.bytes!==png.length)errors.push(`PNG viewport is invalid for ${proof.path}`);
+      || proof.width!==png.readUInt32BE(16) || proof.height!==png.readUInt32BE(20) || proof.bytes!==png.length)errors.push(`PNG viewport is invalid for ${proof.path}`);
   }
   return errors;
 }
@@ -243,19 +272,20 @@ export async function captureFieldAtlas(){
   const directory=prepareFieldAtlasDirectory(),sourceIdentity=fieldAtlasSourceIdentity(),startedBindings=fieldAtlasSourceBindings();
   const proofs=[];let mockGatePostCount=0;
   const localFounderFixture=createFieldAtlasFounderFixture();
+  const localOperationalFixture=createFieldAtlasOperationalFixture();
   await withServer(async(origin,metrics)=>{
     for(const step of FIELD_ATLAS_CAPTURE_STEPS){
       const postsBefore=metrics.postCount();
       localFounderFixture.select(step.fixture);
       const assertion=fieldAtlasBoundAssertion(step,localFounderFixture.snapshot()?.reviewSha256 ?? null);
       const route=step.fixture ? `/founder?tenant=cambium&atlas-fixture=${step.fixture}` : '/?tenant=cambium';
-      const file=join(directory,step.path),observed=await captureViewportProof(origin+route,file,{...step,assertExpression:assertion}),bytes=readFileSync(file);
+      const file=join(directory,step.path),observed=await captureViewportProof(origin+route,file,{...step,captureGeometry:true,assertExpression:assertion}),bytes=readFileSync(file);
       proofs.push({path:step.path,state:step.state,viewport:step.viewport,stepSha256:hash(JSON.stringify(step)),assertionSha256:hash(assertion),capture:observed.assertion,
-        diagnostics:observed.diagnostics,fixtureReceipt:metrics.founderFixture(),requestPosts:metrics.postCount()-postsBefore,browser:observed.browser,browserMode:observed.browserMode,width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length,sha256:hash(bytes)});
+        geometry:observed.geometry,diagnostics:observed.diagnostics,fixtureReceipt:metrics.founderFixture(),operationalFixtureReceipt:metrics.operationalFixture(),requestPosts:metrics.postCount()-postsBefore,browser:observed.browser,browserMode:observed.browserMode,width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length,sha256:hash(bytes)});
       console.log(`captured ${step.path}`);
     }
     mockGatePostCount=metrics.gatePostCount();
-  },{localFounderFixture});
+  },{localFounderFixture,localOperationalFixture});
   const manifest={schema:'cambium.field-atlas-viewport-source.v1',observedAt:new Date().toISOString(),...sourceIdentity,sourceBindings:startedBindings,
     pageSourceSha256:FIELD_ATLAS_PAGE_DIGEST,captureStepSha256:FIELD_ATLAS_STEP_DIGEST,evidenceScope:'local-source-fixture',renderer:'local software WebGL',
     canonicalAcceptance:false,liveAcceptance:false,physicalDevice:false,trustedTouchAcceptance:false,releaseReady:false,mockGatePostCount,proofs};
