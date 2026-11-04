@@ -70,4 +70,3 @@ Verify every one of 80 images independently, original47 history bytes, all 43 ex
 ## 5. Bounded closure
 
 Record exact implementation and evidence commits, tests, actual case/qualification counts, source equivalence, independent review and remaining external gates in a bounded receipt. Update only the matching structured continuation and human checkpoint; preserve human first 12 lines and complete history, unrelated planning state and dirty work. ISA criteria are accepted only from their actual verified result. Source closure never accepts live/authenticated owner, trusted touch, physical device, native-prefill/callback/installed Noesis, runtime admission, deployment or traffic. Those gates stay held even when all 43 local equivalents pass.
-

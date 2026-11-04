@@ -89,4 +89,3 @@ All ten packages are serialized because app, bridge, capture and contract files 
 | CONTEXT | Root Phase 9/other work preserved, exact admission absent, version 95/deployment/traffic holds | All plans' admission gate; VPG-10 handoff | COVERED |
 
 No source item is deferred or weakened by this plan. Unavailable owner data is an explicit execution blocker, not an omitted feature. Each PLAN has 2–3 tasks, exact files, tests, stop conditions and goal-backward evidence links. All requirement checkboxes remain unchecked until actual acceptance.
-
