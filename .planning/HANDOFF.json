@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-04T10:23:47.979959+00:00",
-  "status": "viewport-gap-plan-proposed-implementation-held",
-  "active_task": "Finite viewport ISA/GSD proposal prepared for 32 remaining gaps: 10 sequential packages/28 tasks, all 43 retained intents and 11 qualified regressions protected. No implementation admission; version 95 baseline and deployment/traffic held.",
+  "updated": "2026-11-04T10:47:34.166796+00:00",
+  "status": "viewport-plan-accepted-vpg01-source-admitted",
+  "active_task": "Accepted finite viewport ISA/GSD packet; execute VPG-01 only (T1/T2), preserving all 43 retained intents and 11 qualified behaviors. Version 95 baseline; deployment and traffic held.",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -249,7 +249,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Review .planning/viewport-proof-20261104/remaining-behaviors/README.md, PROPOSAL.json content digest and REVIEW.md. All 43 proposed per-intent criteria plus two global criteria remain unchecked. Accepted ISA/GSD plan digest, exact source/owner preflight and execution admission are required before implementation; deployment and traffic remain held. Existing Phase 9 inventory spine is unchanged.",
+  "next_action": "Execute VPG-01 only from the accepted digest and execution/ACCEPTANCE.json. Require isolated operational fixtures, strict crop receipts and fresh 48-case source evidence. Other packages and external effects remain held.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -413,7 +413,7 @@
   "wave": "founder-renewal-3d-runtime-e2e-2026-10-25",
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
-  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/README.md",
+  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-01-PLAN.md",
   "extends": "gsd.pause-work.v1",
   "accepted_limitations": [
     "Canonical mobile viewport/trustedtouch proof remains held under explicit owner exception",
@@ -432,7 +432,7 @@
   },
   "continuations": {
     "department_live_integration": {
-      "status": "viewport-gap-plan-proposed-implementation-held",
+      "status": "viewport-plan-accepted-vpg01-source-admitted",
       "source_branch": "codex/field-atlas-proof-20261104",
       "handoff": "docs/plans/department-pilot/OWNER-READERS.md",
       "reviewed_source_commit": "db97abf9e6e73df33e707fe824f9d03a38b99503",
@@ -731,7 +731,7 @@
         "canonical_write_approved": false
       },
       "viewport_gap_plan": {
-        "status": "proposed-for-human-review",
+        "status": "accepted-vpg01-only-admitted",
         "packet": ".planning/viewport-proof-20261104/remaining-behaviors/README.md",
         "roadmap": ".planning/viewport-proof-20261104/remaining-behaviors/ROADMAP.md",
         "traceability": ".planning/viewport-proof-20261104/remaining-behaviors/TRACEABILITY.md",
@@ -754,17 +754,26 @@
         "proposed_isa_criteria": 45,
         "all_future_criteria_unchecked": true,
         "plan_preparation_authorized": true,
-        "accepted_plan_digest": null,
-        "isa_acceptance_ref": null,
+        "accepted_plan_digest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
+        "isa_acceptance_ref": "ISA.md#viewport-plan-acceptance-and-vpg-01-admission--2026-11-04",
         "canonical_mapping": null,
-        "admitted_tasks": [],
-        "implementation_authorized": false,
+        "admitted_tasks": [
+          "VPG-01-T1",
+          "VPG-01-T2"
+        ],
+        "implementation_authorized": true,
         "deployment_authorized": false,
         "traffic_authorized": false,
         "active_root_phase9_unchanged": true,
         "verification": "artifact:viewport-gap-plan-20261104/verification-receipt.json",
         "technical_review_status": "passed",
-        "proposal_validation_status": "passed-with-10-negative-controls"
+        "proposal_validation_status": "passed-with-10-negative-controls",
+        "acceptance": ".planning/viewport-proof-20261104/remaining-behaviors/execution/ACCEPTANCE.json",
+        "admitted_plans": [
+          "VPG-01"
+        ],
+        "implementation_scope": "VPG-01 local source and evidence only",
+        "remaining_plans_admitted": false
       }
     }
   }

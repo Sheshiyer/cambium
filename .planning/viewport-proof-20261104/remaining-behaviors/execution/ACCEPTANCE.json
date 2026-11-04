@@ -1,0 +1,41 @@
+{
+  "schema": "cambium.viewport-plan-acceptance.v1",
+  "acceptedAt": "2026-11-04T10:47:34.166796+00:00",
+  "authority": "explicit-user-instruction-in-current-chat",
+  "acceptedPlanDigest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
+  "acceptedPlanningCommit": "64a6d4c552dd104cad191f173b149802c92cdb29",
+  "isaAcceptanceRef": "ISA.md#viewport-plan-acceptance-and-vpg-01-admission--2026-11-04",
+  "scopeAccepted": true,
+  "sourceImplementationOnly": true,
+  "admittedPlans": [
+    "VPG-01"
+  ],
+  "admittedTasks": [
+    "VPG-01-T1",
+    "VPG-01-T2"
+  ],
+  "heldPlans": [
+    "VPG-02",
+    "VPG-03",
+    "VPG-04",
+    "VPG-05",
+    "VPG-06",
+    "VPG-07",
+    "VPG-08",
+    "VPG-09",
+    "VPG-10"
+  ],
+  "planningBaseline": 95,
+  "retainedIntents": 43,
+  "protectedQualifiedBehaviors": 11,
+  "expectedSourceFramesAfterVpg01": 48,
+  "expectedQualifiedAfterVpg01": 11,
+  "expectedHeldAfterVpg01": 32,
+  "canonicalMapping": null,
+  "swarmDispatch": false,
+  "liveOwnerWritesAuthorized": false,
+  "deploymentApproved": false,
+  "trafficApproved": false,
+  "rootPhase9Unchanged": true,
+  "reviewedSnapshotPreserved": true
+}

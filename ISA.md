@@ -3660,3 +3660,23 @@ is a proposal through the existing GSD owner and does not activate a second
 roadmap, new writer, or external action.
 
 <!-- cambium:viewport-gap-proposal:end -->
+
+## Viewport plan acceptance and VPG-01 admission — 2026-11-04
+
+The user accepts the finite viewport ISA/GSD packet at planning commit `64a6d4c5`,
+content digest `bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21`. The reviewed
+proposal and its unchecked criteria above remain an immutable planning snapshot.
+Current acceptance and execution status is recorded separately in
+`.planning/viewport-proof-20261104/remaining-behaviors/execution/ACCEPTANCE.json`.
+
+Only `VPG-01-T1` and `VPG-01-T2` are admitted for local source implementation,
+meaningful boundary verification and fresh 48-case source proof. Preserve all 43
+retained intents, the 11 qualified behaviors, original 47-image/manifest history,
+the same four gallery retirements, and the existing 44 cases including 430×932.
+The four supplements are at 430×844. VPG-02 through VPG-10 remain unadmitted.
+Plan acceptance does not qualify a missing behavior or accept source results.
+
+Version 95 remains the planning baseline. Deployment, traffic, live owner writes,
+signatures, queues, graph/provider/native-store effects and fleet dispatch remain
+held. Canonical graph mapping remains absent; this admission covers only the two
+local source tasks and their evidence. Root Phase 9 planning files stay unchanged.
