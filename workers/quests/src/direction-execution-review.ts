@@ -86,7 +86,7 @@ export function buildDirectionExecutionProposal(args: {
   // Keep the draft's origin head as provenance. Every new human review pins
   // the freshly read target Work and current head; it does not edit the draft.
   const work = nodes.find(row => row.nodeId === direction.workNodeId);
-  if (!work || !isOperationalWorkSource(work) || work.status !== 'active' || direction.workObjectId !== work.workObjectId) throw Error('work_join_changed');
+  if (direction.workObjectId !== 'sapling:cambium' || !work || !isOperationalWorkSource(work) || work.status !== 'active' || direction.workObjectId !== work.workObjectId) throw Error('work_join_changed');
   if (new Set(args.signals.map(row => row.id)).size !== args.signals.length || args.signals.length !== direction.signalPins.length) throw Error('signal_set_changed');
   for (const pin of direction.signalPins) {
     const signal = args.signals.find(row => row.id === pin.id);
@@ -112,7 +112,7 @@ export function buildDirectionExecutionProposal(args: {
     directiveId: taskId, idempotencyKey: `native-cambium:${taskId}`,
     loadoutId: CAMBIUM_PATCH_LOADOUT, clusterId: CAMBIUM_PATCH_CLUSTER,
   };
-  const { now: _now, ...node } = buildNode({
+  const node = buildNode({
     tenantId: scope.tenantId, namespace: DIRECTION_EXECUTION_NAMESPACE, externalId: taskId,
     parentNodeId: work.nodeId, workObjectId: 'sapling:cambium', workObjectKind: 'sapling', pinnedLoadoutId: CAMBIUM_PATCH_LOADOUT,
     scope: 'micro', desiredState: direction.title, currentState: 'Reviewed execution input; awaiting founder decision and governed launch admission.',
@@ -162,6 +162,7 @@ export function directionExecutionTaskReview(task: Record<string, unknown>): Dir
       || review.input.directionDigest !== patchDigest(review.direction) || review.direction.principal !== review.principal
       || review.direction.tenantId !== review.tenantId || review.direction.workNodeId !== review.input.workNodeId
       || review.work.nodeId !== review.input.workNodeId || review.work.workObjectId !== review.direction.workObjectId
+      || review.direction.workObjectId !== 'sapling:cambium' || review.work.workObjectId !== 'sapling:cambium'
       || !isOperationalWorkSource(review.work) || review.work.status !== 'active') return null;
   const expected = executionAdmissionMetadata({ schema: 'cambium.goal-graph.execution-admission.v1', memberId: review.runnerMemberId,
     directiveId: review.directiveId, idempotencyKey: review.idempotencyKey, clusterId: review.clusterId, dispatchDigest: review.inputDigest });

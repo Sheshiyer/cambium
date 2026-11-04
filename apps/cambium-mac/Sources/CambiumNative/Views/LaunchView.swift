@@ -19,6 +19,7 @@ struct LaunchView: View {
                 CapabilityPanel()
                 AttemptPanel()
                 if !model.isDemo, model.launch?.workId == "sapling:cambium" { DirectionResultView() }
+                if model.selectedWorkID == "sapling:iverif" { ClaimProofResultPanel() }
                 if !model.pendingLaunch.isEmpty { PendingPanel() }
                 if model.isDemo { DemoPanel() }
             }
@@ -41,6 +42,9 @@ private struct AdmissionListPanel: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             ForEach(model.admissions) { row in
+                if row.workId == "sapling:iverif", let requestId = row.existingRequestId {
+                    Button("Read original result · \(requestId)") { model.readClaimProofResult(admissionRef: row.admissionRef) }.disabled(model.loading)
+                }
                 Button {
                     model.selectAdmission(row.admissionRef)
                 } label: {
@@ -225,5 +229,38 @@ private struct DemoPanel: View {
             }
         }
         .cambiumPanel()
+    }
+}
+
+private struct ClaimProofResultPanel: View {
+    @Environment(AppModel.self) private var model
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(title: "Claim-evidence result")
+            Button("Read original result") { model.readClaimProofResult() }.disabled(model.loading || model.selectedAdmissionRef == nil)
+            if let result = model.claimProofResult {
+                FactRow(label: "Task", value: result.taskId, mono: true)
+                FactRow(label: "Request", value: result.requestId, mono: true)
+                FactRow(label: "Attempt", value: result.attemptId, mono: true)
+                FactRow(label: "Input", value: result.inputDigest, mono: true)
+                Text("Execution: \(result.execution)").font(.callout)
+                Text("Acceptance: \(result.acceptance)").font(.callout).foregroundStyle(Palette.inkMuted)
+                if let verdict = result.founderVerdict {
+                    FactRow(label: "Founder verdict", value: verdict.decision)
+                    FactRow(label: "Verdict proposal", value: verdict.proposalId, mono: true)
+                }
+                if let artifact = result.artifact {
+                    Text("\(artifact.claimCount) source-linked candidates").font(.headline)
+                    if result.acceptance != "accepted" {
+                        Button(result.founderVerdict == nil ? "Review result acceptance" : "Inspect founder verdict") { model.reviewClaimProofResult() }.disabled(model.loading)
+                    }
+                    FactRow(label: "Artifact", value: artifact.digest, mono: true)
+                    Text("Product promotion and publication remain held.").font(.callout).foregroundStyle(Palette.hold)
+                    DisclosureGroup("Read claim-evidence table") {
+                        ScrollView { Text(artifact.markdown).font(CambiumFont.monoSmall).textSelection(.enabled).frame(maxWidth:.infinity,alignment:.leading) }.frame(height:440)
+                    }
+                }
+            }
+        }.cambiumPanel()
     }
 }

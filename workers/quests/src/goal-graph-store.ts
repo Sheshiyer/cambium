@@ -563,7 +563,7 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
 
     const sourceFence = changeSet.sourceFence;
     const executionChildren = [...(changeSet.nodesToCreate ?? []), ...(changeSet.nodesToUpdate ?? []).map(row => row.after)]
-      .filter(node => node.namespace === 'founder-direction-execution' && node.status === 'active');
+      .filter(node => node.namespace === 'founder-direction-execution' && node.workObjectId === 'sapling:cambium' && node.status === 'active');
     if (executionChildren.length && !sourceFence) return resultRejected('direction_source_fence_required', changeDigest);
     if (sourceFence) {
       try {

@@ -4,7 +4,7 @@ import { createHermesExecutionFoldbackStore } from './hermes-execution-foldback.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import { handle, TELEGRAM_PROD_PUBKEY } from './handler.ts';
@@ -17446,4 +17446,232 @@ test('operational Work intake uses canonical approval before becoming a Work sou
   const replay=await h.call('intake',raw);assert.equal(body(replay).proposalId,body(intake).proposalId);
   const changed=await h.call('intake',{...raw,goals:[{...raw.goals[0],owner:'other'}]});assert.equal(changed.status,409);
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n,1);
+});
+
+test('department sources · authenticated graph uses accepted owner readers without any canonical write', async () => {
+  const h=await canonicalFounderHarness(); const raw=founderBookkeepingInput();
+  raw.goals[0].metadata={facet:'task',stage:'website'};
+  const receipt=body(await h.call('intake',raw)); const review=body(await h.call('proposal',{proposalId:receipt.proposalId}));
+  assert.equal(body(await h.call('decision',canonicalDecision(review))).status,'approved');
+  const before=await h.deps.goalGraphStore.readNodes('cambium'),head=await h.deps.goalGraphStore.readHead('cambium');
+  const {KPI_DEFINITIONS}=await import('../../../shared/department-pilot/catalog.ts');
+  h.deps.departmentReaders={
+    readAcceptedGsd:async(scope,workObjectId)=>workObjectId==='sapling:lumen-bar'?{tenantId:scope.tenantId,headDigest:scope.headDigest,observedAt:scope.observedAt,expiresAt:new Date(Date.parse(scope.observedAt)+600000).toISOString(),workObjectId,sourceRef:'fixture:accepted-gsd-owner',isaAcceptanceRef:'ISA.md#accepted',planRef:'.planning/phases/01/01-PLAN.md',planDigest:'a'.repeat(64),tasks:[{nodeId:scope.nodes[0].nodeId,sequence:1,state:'pending',dependsOn:[]}]}:null,
+    readKpi:async(scope,d,window)=>d.id===KPI_DEFINITIONS[0].id?[{definition:d,observation:{definitionId:d.id,version:d.version,productId:d.productId,cohort:d.cohort,window,observedAt:scope.observedAt,sourceRef:'fixture:measurement-owner',numerator:1,denominator:2}}]:null,
+  };
+  const read=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);assert.equal(read.status,200,read.body);
+  const graph=body(read); assert.equal(graph.departmentSources.gsd[0].state,'available');assert.equal(graph.departmentSources.gsd[1].state,'unavailable');assert.equal(graph.departmentSources.kpis[0].state,'observed');
+  assert.deepEqual(graph.departmentSources.gsd[0].taskIds,[graph.nodes[0].nodeId]);assert.equal(graph.departmentSources.executionGranted,false);
+  assert.deepEqual(await h.deps.goalGraphStore.readHead('cambium'),head);assert.deepEqual(await h.deps.goalGraphStore.readNodes('cambium'),before);
+  const crossRealm=await handle(req('GET','/v1/founder/graph',{headers:{...founderWebHeaders(),authorization:['Bearer','cns1_synthetic-native-session'].join(' ')}}),h.deps);
+  assert.equal(crossRealm.status,403);
+  const readHead=h.deps.goalGraphStore.readHead;let drift=false;
+  h.deps.departmentReaders.readAcceptedGsd=async()=>{drift=true;return null;};
+  h.deps.goalGraphStore.readHead=async(tenant)=>{const current=await readHead(tenant);return drift?{...current!,graphDigest:'b'.repeat(64)}:current;};
+  const torn=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);assert.equal(torn.status,503);assert.equal(body(torn).error,'goal_graph_read_unconfirmed');
+});
+
+// Finite IVerif integration: real SQLite approval, source stores and launch CAS;
+// the source corpus/artifact is an opt-in pinned local verification fixture.
+async function iverifNativeCycleHarness(founderId = 'pid_founder_native') {
+  const h=await canonicalFounderHarness();
+  assert.equal((await h.call('decision',canonicalDecision(body(h.read)))).status,200);
+  const d1=new GoalGraphBatchSqliteD1(h.db);
+  const {d1SharedSignalStore}=await import('./shared-signals-d1.ts');
+  const {d1SharedDirectionStore}=await import('./shared-directions-d1.ts');
+  const {createClaimProofOwner}=await import('./claim-proof-owner.ts');
+  const deps:any=h.deps;let principal=founderId,authorized=true;
+  deps.nativeSessionHost={deps:{ownerOrigin:'https://cambium.test',now:deps.now,store:{readSession:async()=>({founderId:principal,tenantId:'cambium',clientId:'client-1',expiresAt:'2099-01-01T00:00:00.000Z'})},currentRole:async()=>authorized?'founder':null,enrolledTenants:async()=>['cambium']},client:()=>({})};
+  deps.sharedSignalStore=d1SharedSignalStore(d1);deps.sharedDirectionStore=d1SharedDirectionStore(d1);
+  deps.missionFabricTenants=['cambium'];deps.claimProofMemberId='hermes-test';deps.bridgeStore=d1BridgeStore(d1);deps.executionStore=d1BridgeExecutionStore(d1);
+  const objects=new Map<string,string>();
+  const bucket:any={get:async(key:string)=>objects.has(key)?{text:async()=>objects.get(key)!}:null,
+    put:async(key:string,bytes:Uint8Array,options:any)=>{if(options?.onlyIf?.etagDoesNotMatch==='*'&&objects.has(key))return null;objects.set(key,new TextDecoder().decode(bytes));return{key};}};
+  deps.claimProofOwner=createClaimProofOwner(d1,bucket,deps);deps.nativeLaunchHost=deps.claimProofOwner.launchHost;
+  const native=(method:string,path:string,payload?:unknown)=>handle(req(method,path,{headers:{'content-type':'application/json',host:'cambium.test',authorization:['Bearer','cns1_'+'0'.repeat(43)].join(' ')},...(payload!==undefined?{body:JSON.stringify(payload)}:{})}),deps);
+  const bridge=(method:string,path:string,payload?:unknown)=>handle(req(method,path,{headers:{'content-type':'application/json',authorization:['Bearer','bridge'].join(' ')},...(payload!==undefined?{body:JSON.stringify(payload)}:{})}),deps);
+  const approve=async(proposalId:string)=>{const r=await native('POST','/v1/founder/proposal',{proposalId});assert.equal(r.status,200,r.body);const decision=await native('POST','/v1/founder/decision',canonicalDecision(body(r)));assert.equal(decision.status,200,decision.body);return body(r);};
+  const workPrepared=await native('POST','/v1/native/work/intake',{operationId:'iverif-work-test',workObjectId:'sapling:iverif'});assert.equal(workPrepared.status,200,workPrepared.body);
+  const workProposal=body(workPrepared).proposalId;assert.ok(workProposal,workPrepared.body);await approve(workProposal);
+  const list=body(await native('GET','/v1/directions/cambium?workObjectId=sapling%3Aiverif'));assert.equal(list.workContext.workObjectId,'sapling:iverif');
+  const signalResponse=await native('POST','/v1/signals/cambium',{schema:'cambium.signal-capture.v1',operationId:'iverif-signal',title:'Review source-linked IVerif claims',body:'Internal evidence inventory for issue91.',source:{system:'cambium-native',recordId:'iverif-source',version:'1',reference:null,observedAt:deps.now()},projectIds:['sapling:iverif']});assert.equal(signalResponse.status,201,signalResponse.body);
+  const signal=body(signalResponse).signal;
+  const draft={title:'Build the source-linked claim table',body:'Keep unsupported product claims blocked.',...list.workContext,signalPins:[{id:signal.id,revision:signal.revision}]};
+  const saved=await native('POST','/v1/directions/cambium',{schema:'cambium.direction-create.v1',operationId:'iverif-direction',draft});assert.equal(saved.status,201,saved.body);const direction=body(saved).direction;
+  const prepared=await native('POST',`/v1/directions/cambium/${direction.id}/review`,{operationId:'iverif-task-review',revision:direction.revision});assert.equal(prepared.status,200,prepared.body);
+  const proposalId=body(prepared).proposalId;assert.ok(proposalId,prepared.body);
+  return{...h,deps,d1,native,bridge,approve,proposalId,direction,signal,objects,other(){principal='access:other';},revoke(){authorized=false;}};
+}
+
+for(const founderId of ['pid_founder_native','access:pid_founder_web'])for(const resultDecision of ['approved','rejected'] as const)test('iverif native cycle · approval, separate admission, single launch and immutable source result · '+resultDecision+' · '+(founderId.startsWith('access:')?'access identity':'native identity'), {skip:!process.env.IVERIF_CLAIM_ARTIFACT_FIXTURE}, async()=>{
+  const h=await iverifNativeCycleHarness(founderId);
+  const {CLAIM_POLICY,CLAIM_POLICY_DIGEST,claimDigest,canonicalClaimJson,validateClaimArtifact}=await import('../../../shared/iverif-claim-proof.ts');
+  assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,409,'pending review is not admission');
+  const review=await h.approve(h.proposalId);if(process.env.IVERIF_NATIVE_WIRE_FIXTURE&&resultDecision==='approved')writeFileSync(process.env.IVERIF_NATIVE_WIRE_FIXTURE,JSON.stringify(review));assert.equal(review.proposal.review.executionReview.policyDigest,CLAIM_POLICY_DIGEST);
+  assert.equal(review.proposal.review.executionReview.input.workObjectId,'sapling:iverif');
+  const admitted=await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId});assert.equal(admitted.status,200,admitted.body);const admissionRef=body(admitted).admissionRef;
+  assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,200,'exact admission replay');
+  const capability=await h.native('POST','/v1/native/launch/capability',{contractVersion:'cambium.native-launch.v1',admissionRef,workId:'sapling:iverif'});assert.equal(capability.status,200,capability.body);
+  const launch={contractVersion:'cambium.native-launch.v1',requestId:'iverif-request-0001',attemptId:'iverif-attempt-0001',idempotencyNonce:'iverif_nonce_abcdefghijklmnopqrst',capability:body(capability).tuple};assert.ok(launch.capability,capability.body);
+  const launched=await h.native('POST','/v1/native/launch',launch);assert.equal(launched.status,202,launched.body);
+  assert.equal((await h.native('POST','/v1/native/launch',launch)).status,200,'same request is recovered');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_requests').get()?.n,1);
+  const pending=body(await h.bridge('GET','/v1/bridge/directives/hermes-test')).directives;assert.equal(pending.length,1);
+  const directive=pending[0],input=directive.payload.input;
+  const exact=await h.bridge('GET',`/v1/bridge/directives/hermes-test/${directive.id}`);assert.equal(body(exact).count,1);
+  const claim={schema:'thoughtseed.hermes.execution_claim.v1',memberId:'hermes-test',directiveId:directive.id,idempotencyKey:directive.idempotencyKey,runnerId:'hermes-test-runner',hostIdentity:'test-host',executionId:testExecutionId('hermes-test',directive.id,directive.idempotencyKey)};
+  const claimed=await h.bridge('POST','/v1/bridge/executions/claim',claim);assert.equal(claimed.status,200,claimed.body);const fence=body(claimed);
+  const fixture=JSON.parse(readFileSync(process.env.IVERIF_CLAIM_ARTIFACT_FIXTURE!,'utf8'));
+  const artifact=structuredClone(fixture.artifact);artifact.inputDigest=claimDigest(input);const provenance=JSON.parse(artifact.files['provenance.json']);provenance.inputDigest=claimDigest(input);artifact.files['provenance.json']=JSON.stringify(provenance,null,2)+'\n';
+  assert.ok(validateClaimArtifact(artifact,input));
+  const upload={schema:'cambium.iverif.claim-proof-upload.v1',...claim,claimId:fence.claimId,fencingToken:fence.fencingToken,attempt:fence.attempt,artifact};
+  upload.schema='cambium.iverif.claim-proof-upload.v1';
+  const bad=structuredClone(upload);bad.artifact.files['claims.md']+='Tampered';assert.equal((await h.bridge('POST','/v1/bridge/executions/claim-proof-artifact',bad)).status,409);
+  const stored=await h.bridge('POST','/v1/bridge/executions/claim-proof-artifact',upload);assert.equal(stored.status,200,stored.body);assert.equal(body(stored).digest,claimDigest(artifact));
+  assert.equal(body(await h.bridge('POST','/v1/bridge/executions/claim-proof-artifact',upload)).duplicate,true);
+  const attestationIdentity={schema:'thoughtseed.hermes.execution_attestation.v1',executionId:claim.executionId,directiveId:directive.id,idempotencyKey:directive.idempotencyKey,runnerId:claim.runnerId,hostIdentity:claim.hostIdentity,command:CLAIM_POLICY.command,status:'executed',exitCode:0,inputDigest:claimDigest(input),outputDigest:claimDigest(artifact),startedAt:h.deps.now(),finishedAt:h.deps.now()};
+  const attestation={id:'att_'+createHash('sha256').update(canonicalClaimJson(attestationIdentity)).digest('hex').slice(0,32),...attestationIdentity};
+  const outcome={schema:'thoughtseed.hermes.execution_outcome.v1',...claim,claimId:fence.claimId,fencingToken:fence.fencingToken,attempt:fence.attempt,status:'executed',attestation};outcome.schema='thoughtseed.hermes.execution_outcome.v1';
+  const completed=await h.bridge('POST','/v1/bridge/executions/outcome',outcome);assert.equal(completed.status,200,completed.body);
+  const result=await h.native('GET','/v1/native/work/result?admissionRef='+encodeURIComponent(admissionRef));assert.equal(result.status,200,result.body);assert.equal(body(result).artifact.digest,claimDigest(artifact));assert.equal(body(result).execution,'succeeded');assert.equal(body(result).productPromotion,false);
+  const node=(await h.deps.goalGraphStore.readNodes('cambium')).find((n:any)=>n.workObjectId==='sapling:iverif'&&n.namespace==='founder-operational-work');const {adaptOperationalWorkSources}=await import('./operational-work-intake.ts');assert.equal(adaptOperationalWorkSources([node])[0].value.promotionState,'proof-only');
+  // A second founder decision accepts this artifact; execution success alone cannot.
+  const acceptance=await h.native('POST','/v1/native/work/result/review',{admissionRef,operationId:'accept-claim-result'});assert.equal(acceptance.status,200,acceptance.body);
+  const acceptanceProposal=body(acceptance).proposalId;assert.ok(acceptanceProposal,acceptance.body);
+  if(resultDecision==='rejected'){
+    const review=body(await h.native('POST','/v1/founder/proposal',{proposalId:acceptanceProposal}));
+    const decision=await h.native('POST','/v1/founder/decision',canonicalDecision(review,'rejected'));assert.equal(decision.status,200,decision.body);
+    const rejected=body(await h.native('GET','/v1/native/work/result?admissionRef='+encodeURIComponent(admissionRef)));
+    assert.equal(rejected.acceptance,'rejected');assert.equal(rejected.founderVerdict.artifactDigest,claimDigest(artifact));assert.equal(rejected.productPromotion,false);
+    assert.equal((await h.bridge('GET','/v1/bridge/claim-proof/acceptance-request/'+encodeURIComponent(acceptanceProposal))).status,409);
+    const graph=body(await h.native('GET','/v1/mission-fabric/cambium')).projection;assert.ok(!graph.edges.some((edge:any)=>edge.kind==='proves'&&edge.toId===input.taskId));
+    const web=body(await handle(req('GET','/v1/founder/graph?workObjectId=sapling%3Aiverif',{headers:founderWebHeaders()}),h.deps));
+    assert.ok(web.decisions.some((row:any)=>row.decision==='rejected'&&row.artifactDigest===claimDigest(artifact)&&row.taskId===input.taskId));return;
+  }
+  const {createAttestedAcceptanceStore,acceptedReceiptDigest,attestationMessage}=await import('./accepted-work-unit-attestation.ts');
+  const {CLAIM_ARTIFACT_INPUT_PATH,CLAIM_FOUNDER_INPUT_PATH,claimAcceptancePolicyHash}=await import('../../../shared/iverif-claim-proof.ts');
+  const {sign}=await import('node:crypto');const pair=generateKeyPairSync('ed25519'),rawKey=pair.publicKey.export({format:'der',type:'spki'}).subarray(-32);
+  const keyId='ed25519:'+createHash('sha256').update(rawKey).digest('hex');
+  const acceptanceBucket:any={get:async(key:string)=>h.objects.has(key)?{text:async()=>h.objects.get(key)!}:null,
+    put:async(key:string,bytes:Uint8Array,options:any)=>{if(options?.onlyIf?.etagDoesNotMatch==='*'&&h.objects.has(key))return null;h.objects.set(key,new TextDecoder().decode(bytes));return{key};}};
+  h.deps.terminalFoldback={acceptanceStore:createAttestedAcceptanceStore(acceptanceBucket,[{keyId,publicKey:rawKey.toString('base64url')}])};
+  assert.equal((await h.bridge('GET','/v1/bridge/claim-proof/acceptance-request/'+encodeURIComponent(acceptanceProposal))).status,409,'unapproved result grants no semantic proof');
+  await h.approve(acceptanceProposal);
+  const proofRead=await h.bridge('GET','/v1/bridge/claim-proof/acceptance-request/'+encodeURIComponent(acceptanceProposal));assert.equal(proofRead.status,200,proofRead.body);const proof=body(proofRead).proof;if(process.env.IVERIF_ACCEPTANCE_PACKET)writeFileSync(process.env.IVERIF_ACCEPTANCE_PACKET,JSON.stringify(body(proofRead)));
+  const receipt={schema:'temperance.accepted-work-unit.v1',contractId:'claim-proof-test-contract',binding:{taskId:input.taskId,goalId:input.goalId,workObjectId:'sapling:iverif',executionInputDigest:claimDigest(input)},domain:'local-source-verification',taskAccepted:true,wholeLifecycleAccepted:false,productionCambiumAdmission:false,
+    policyHash:claimAcceptancePolicyHash(claimDigest(artifact),claimDigest(proof)),inputHashes:{[CLAIM_ARTIFACT_INPUT_PATH]:claimDigest(artifact).slice(7),[CLAIM_FOUNDER_INPUT_PATH]:claimDigest(proof).slice(7)}};
+  const receiptDigest=await acceptedReceiptDigest(receipt),envelope={schema:'temperance.accepted-work-unit-attestation.v1',algorithm:'Ed25519',keyId,receiptDigest,signature:sign(null,attestationMessage(receiptDigest,keyId),pair.privateKey).toString('base64url'),receipt};
+  const forged=structuredClone(envelope);forged.receipt.binding.executionInputDigest='sha256:'+'0'.repeat(64);
+  assert.equal((await h.bridge('POST','/v1/bridge/claim-proof/acceptance',{proposalId:acceptanceProposal,envelope:forged})).status,409);
+  const accepted=await h.bridge('POST','/v1/bridge/claim-proof/acceptance',{proposalId:acceptanceProposal,envelope});assert.equal(accepted.status,200,accepted.body);
+  const acceptedRead=await h.native('GET','/v1/native/work/result?admissionRef='+encodeURIComponent(admissionRef));assert.equal(body(acceptedRead).acceptance,'accepted');if(process.env.IVERIF_NATIVE_RESULT_FIXTURE)writeFileSync(process.env.IVERIF_NATIVE_RESULT_FIXTURE,acceptedRead.body);
+  const graph=await h.native('GET','/v1/mission-fabric/cambium');assert.equal(graph.status,200,graph.body);
+  const projection=body(graph).projection;assert.ok(projection.edges.some((edge:any)=>edge.kind==='proves'&&edge.toId===input.taskId));
+  assert.ok(projection.nodes.some((node:any)=>node.kind==='receipt'&&node.value.status==='complete'&&node.value.outputDigest===claimDigest(artifact)));
+  const web=await handle(req('GET','/v1/founder/graph?workObjectId=sapling%3Aiverif',{headers:founderWebHeaders()}),h.deps);assert.equal(web.status,200,web.body);assert.equal(body(web).schema,'cambium.founder.operational-graph.v1');assert.equal(body(web).productPromotion,false);assert.ok(body(web).executionEvidence.edges.some((edge:any)=>edge.kind==='proves'));
+  assert.equal((await handle(req('GET','/v1/founder/graph?workObjectId=sapling%3Aunknown',{headers:founderWebHeaders()}),h.deps)).status,400);
+  h.other();assert.equal((await h.native('GET','/v1/native/work/result?admissionRef='+encodeURIComponent(admissionRef))).status,409);
+});
+
+test('iverif native cycle · stale edits, changed scope and rejection grant no launch', async()=>{
+  const h=await iverifNativeCycleHarness();
+  const review=body(await h.native('POST','/v1/founder/proposal',{proposalId:h.proposalId}));
+  const rejected=await h.native('POST','/v1/founder/decision',canonicalDecision(review,'rejected'));assert.equal(rejected.status,200,rejected.body);
+  assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,409);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_admissions').get()?.n,0);
+  assert.equal((await h.native('POST',`/v1/directions/cambium/${h.direction.id}/review`,{operationId:'second-review',revision:h.direction.revision+1})).status,409);
+  h.revoke();assert.equal((await h.native('POST','/v1/native/work/intake',{workObjectId:'sapling:iverif',operationId:'revoked-work'})).status,403);
+});
+
+for(const edit of ['direction','signal'] as const)test(`iverif native cycle · ${edit} edits revoke admission and fence terminal success`,async()=>{
+  const h=await iverifNativeCycleHarness();await h.approve(h.proposalId);
+  const admitted=body(await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId}));
+  const capability=body(await h.native('POST','/v1/native/launch/capability',{contractVersion:'cambium.native-launch.v1',admissionRef:admitted.admissionRef,workId:'sapling:iverif'}));
+  const launch={contractVersion:'cambium.native-launch.v1',requestId:'stale-request-0001',attemptId:'stale-attempt-0001',idempotencyNonce:'stale_nonce_abcdefghijklmnopqrst',capability:capability.tuple};
+  assert.equal((await h.native('POST','/v1/native/launch',launch)).status,202);
+  const directive=body(await h.bridge('GET','/v1/bridge/directives/hermes-test')).directives[0];
+  const claim={schema:'thoughtseed.hermes.execution_claim.v1',memberId:'hermes-test',directiveId:directive.id,idempotencyKey:directive.idempotencyKey,runnerId:'runner',hostIdentity:'host',executionId:testExecutionId('hermes-test',directive.id,directive.idempotencyKey)};
+  const claimed=await h.bridge('POST','/v1/bridge/executions/claim',claim);assert.equal(claimed.status,200,claimed.body);
+  if(edit==='direction'){
+    const context=body(await h.native('GET','/v1/directions/cambium?workObjectId=sapling%3Aiverif')).workContext;
+    const {title,body:detail,signalPins}=h.direction;
+    const saved=await h.native('PUT',`/v1/directions/cambium/${h.direction.id}`,{schema:'cambium.direction-update.v1',operationId:'edited-direction',expectedRevision:h.direction.revision,draft:{title:title+' revised',body:detail,...context,signalPins}});assert.equal(saved.status,200,saved.body);
+    assert.equal(body(saved).direction.createdAt,h.direction.createdAt);
+    assert.equal((await h.native('PUT',`/v1/directions/cambium/${h.direction.id}`,{schema:'cambium.direction-update.v1',operationId:'conflicting-edit',expectedRevision:h.direction.revision,draft:{title,body:detail,...context,signalPins}})).status,409);
+  }else{
+    h.db.prepare('UPDATE shared_signals SET revision=revision+1 WHERE tenant_id=? AND signal_id=?').run('cambium',h.signal.id);
+  }
+  assert.equal(h.db.prepare('SELECT status FROM native_launch_admissions WHERE admission_ref=?').get(admitted.admissionRef)?.status,'revoked');
+  assert.equal(await h.deps.claimProofOwner.verifyDirective('hermes-test',directive.id,directive.payload.input),false);
+  assert.throws(()=>h.db.prepare(`UPDATE bridge_executions SET terminal=1,outcome_status='executed',attestation_json=?,attestation_id='att_test',attestation_digest='sha256:test',outcome_recorded_at=? WHERE execution_id=?`)
+    .run(JSON.stringify({command:'iverif.claim-proof.review'}),h.deps.now(),claim.executionId),/native_direction_terminal_pins_changed/);
+  const newRequest={...launch,requestId:'stale-request-0002',attemptId:'stale-attempt-0002',idempotencyNonce:'stale_nonce_abcdefghijklmnopqrss'};
+  assert.notEqual((await h.native('POST','/v1/native/launch',newRequest)).status,202);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_requests').get()?.n,1);
+});
+
+test('iverif native cycle · lost submission response recovers the original request without another submission',async()=>{
+  const h=await iverifNativeCycleHarness();await h.approve(h.proposalId);
+  const admission=body(await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId}));
+  const cap=body(await h.native('POST','/v1/native/launch/capability',{contractVersion:'cambium.native-launch.v1',admissionRef:admission.admissionRef,workId:'sapling:iverif'}));
+  const owner=h.deps.claimProofOwner.launchHost.owner,submit=owner.submit;let calls=0;
+  owner.submit=async(value:any)=>{calls++;await submit(value);throw new Error('response lost');};
+  const request={contractVersion:'cambium.native-launch.v1',requestId:'lost-request-0001',attemptId:'lost-attempt-0001',idempotencyNonce:'lost_nonce_abcdefghijklmnopqrst',capability:cap.tuple};
+  const first=await h.native('POST','/v1/native/launch',request);assert.equal(first.status,503,first.body);assert.equal(body(first).retry,'status_only');
+  const recovered=await h.native('POST','/v1/native/launch/status',{contractVersion:'cambium.native-launch.v1',requestId:request.requestId,attemptId:request.attemptId});assert.equal(recovered.status,200,recovered.body);assert.equal(body(recovered).execution.state,'queued');
+  assert.equal(calls,1);assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_requests').get()?.n,1);
+  assert.equal(body(await h.bridge('GET','/v1/bridge/directives/hermes-test')).directives.length,1);
+});
+
+test('iverif native cycle · an expired reviewed task cannot produce admission',async()=>{
+  const h=await iverifNativeCycleHarness();const review=await h.approve(h.proposalId);
+  h.deps.now=()=>new Date(Date.parse(review.proposal.expiresAt)+1000).toISOString();
+  assert.equal((await h.native('POST','/v1/native/work/admit',{proposalId:h.proposalId})).status,409);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_admissions').get()?.n,0);
+});
+
+for(const edit of ['direction','signal'] as const)test(`iverif native cycle · ${edit} edits invalidate an uncommitted founder review`,async()=>{
+  const h=await iverifNativeCycleHarness(),review=body(await h.native('POST','/v1/founder/proposal',{proposalId:h.proposalId}));
+  if(edit==='direction'){
+    const context=body(await h.native('GET','/v1/directions/cambium?workObjectId=sapling%3Aiverif')).workContext;
+    const saved=await h.native('PUT',`/v1/directions/cambium/${h.direction.id}`,{schema:'cambium.direction-update.v1',operationId:'changed-before-approval',expectedRevision:h.direction.revision,draft:{title:'Changed reviewed direction',body:h.direction.body,...context,signalPins:h.direction.signalPins}});assert.equal(saved.status,200,saved.body);
+  }else{
+    const saved=await h.native('PUT',`/v1/signals/cambium/${h.signal.id}`,{schema:'cambium.signal-update.v1',operationId:'changed-signal-before-approval',expectedRevision:h.signal.revision,title:h.signal.title+' revised',body:h.signal.body,projectIds:h.signal.projectIds});assert.equal(saved.status,200,saved.body);
+  }
+  assert.notEqual((await h.native('POST','/v1/founder/proposal',{proposalId:h.proposalId})).status,200);
+  assert.notEqual((await h.native('POST','/v1/founder/decision',canonicalDecision(review))).status,200);
+  assert.equal(h.db.prepare("SELECT count(*) n FROM goal_graph_nodes WHERE namespace='founder-direction-execution'").get()?.n,0);
+});
+
+test('iverif native cycle · source edit at the D1 commit boundary rolls back the task and decision',async()=>{
+  const h=await iverifNativeCycleHarness(),review=body(await h.native('POST','/v1/founder/proposal',{proposalId:h.proposalId}));
+  const commit=h.deps.goalGraphStore.commit;
+  h.deps.goalGraphStore.commit=async(input:any)=>{
+    h.db.prepare('UPDATE shared_signals SET revision=revision+1 WHERE tenant_id=? AND signal_id=?').run('cambium',h.signal.id);
+    return commit(input);
+  };
+  const response=await h.native('POST','/v1/founder/decision',canonicalDecision(review));assert.notEqual(response.status,200,response.body);
+  assert.equal(h.db.prepare("SELECT count(*) n FROM goal_graph_nodes WHERE namespace='founder-direction-execution'").get()?.n,0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals WHERE change_digest=?').get(review.proposal.changeDigest)?.n,0);
+});
+
+test('iverif native cycle · database task guard preserves unrelated Work scopes',async()=>{
+  const h=await iverifNativeCycleHarness();
+  const work=h.db.prepare("SELECT * FROM goal_graph_nodes WHERE namespace='founder-operational-work' AND work_object_id='sapling:iverif'").get();
+  assert.ok(work);
+  const unrelated={...work,node_id:'goal_'+ 'c'.repeat(64),namespace:'founder-direction-execution',external_id:'unrelated-task',
+    parent_node_id:work.node_id,work_object_id:'sapling:cambium',metadata_json:'{}'};
+  const columns=Object.keys(unrelated),insert=h.db.prepare(`INSERT INTO goal_graph_nodes (${columns.join(',')}) VALUES (${columns.map(()=>'?').join(',')})`);
+  assert.doesNotThrow(()=>insert.run(...Object.values(unrelated)));
+  assert.throws(()=>insert.run(...Object.values({...unrelated,node_id:'goal_'+'d'.repeat(64),work_object_id:'sapling:iverif'})),/native_direction_task_pins_changed/);
+});
+
+test('iverif native cycle · a native founder identifier grants no authority after role revocation',async()=>{
+  const h=await iverifNativeCycleHarness('unverified');
+  const before=h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n;
+  h.revoke();
+  const result=await h.native('POST','/v1/native/work/intake',{operationId:'revoked-native-founder',workObjectId:'sapling:iverif'});
+  assert.equal(result.status,403,result.body);
+  assert.equal(body(result).error,'forbidden');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n,before);
 });

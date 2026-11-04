@@ -61,6 +61,15 @@
     "growth-index:generate": "node scripts/growth-index/generate-growth-index.mjs",
     "growth-index:test": "node --test scripts/growth-index/generate-growth-index.test.mjs",
     "proof:field-atlas": "node workers/quests/src/field-atlas-viewport-proof.mjs",
-    "proof:field-atlas:plan": "node workers/quests/src/field-atlas-viewport-proof.mjs --plan"
+    "proof:field-atlas:plan": "node workers/quests/src/field-atlas-viewport-proof.mjs --plan",
+    "department:pilot": "node scripts/department-pilot.mjs",
+    "department:pilot:test": "node --test shared/department-pilot/pilot.test.ts",
+    "department:owner-read": "node scripts/department-owner-reconcile.mjs",
+    "department:owner-read:test": "node --test shared/department-pilot/*.test.ts bin/operator/quests/department-owner-readers.test.ts workers/quests/src/native-goal-intake.test.ts",
+    "typecheck:worker": "tsc --project tsconfig.worker.json"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
   }
 }

@@ -336,7 +336,8 @@ export function parseMarketingPrepareInput(raw: unknown):
   ];
   const briefExtra = ownKeysExactly(raw.brief, briefFields);
   if (briefExtra) return { ok: false, code: 'invalid_prepare_input', reason: `unknown brief field: ${briefExtra}` };
-  if (briefFields.some((field) => !(field in raw.brief))) {
+  const brief = raw.brief;
+  if (briefFields.some((field) => !(field in brief))) {
     return { ok: false, code: 'invalid_prepare_input', reason: 'brief is missing required fields' };
   }
   if (!Array.isArray(raw.brief.facts) || raw.brief.facts.length < 1 || raw.brief.facts.length > 16) {
@@ -596,8 +597,8 @@ export async function executeMarketingRender(
   if (!deps.activation || deps.activation !== MARKETING_CREATE_EXPECTED_ACTIVATION) {
     throw new MarketingRendererError('renderer_disabled');
   }
-  const apiKey = deps.apiKey?.trim();
-  if (!apiKey) throw new MarketingRendererError('renderer_secret_missing');
+  const rendererKey = deps.apiKey?.trim();
+  if (!rendererKey) throw new MarketingRendererError('renderer_secret_missing');
   const now = (deps.now ?? (() => new Date().toISOString()))();
   const prepared = await deps.store.getPrepared(requestId);
   if (!prepared) throw new MarketingRendererError('render_request_not_found');
@@ -655,7 +656,7 @@ export async function executeMarketingRender(
     response = await fetchImpl(MARKETING_CREATE_PROVIDER_URL, {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${apiKey}`,
+        authorization: `Bearer ${rendererKey}`,
         'content-type': 'application/json',
       },
       body: JSON.stringify({

@@ -7,6 +7,8 @@ import { buildDirectionExecutionProposal, directionExecutionTaskReview, directio
 import { patchDigest, CAMBIUM_PATCH_PATHS, CAMBIUM_PATCH_TEST, CAMBIUM_PATCH_LIMITS, parseCambiumPatchInput } from '../../../shared/cambium-patch-contract.ts';
 import { CAMBIUM_CODE_PILOT_BASE, CAMBIUM_CODE_PILOT_PATCH_DIGEST, CAMBIUM_CODE_PILOT_PATCH_BASE64 } from './cambium-code-pilot-input.ts';
 import { directionExecutionFixture as fixture } from './__fixtures__/direction-execution.ts';
+import { isOperationalWorkSource } from './operational-work-intake.ts';
+import { validateDirectionDraft } from './shared-directions.ts';
 
 test('actual proposed code input is bounded and compiles only an execution child',()=>{
  const f=fixture(),r=buildDirectionExecutionProposal(f);assert.ok(parseCambiumPatchInput(r.review.input,f.policy));
@@ -37,4 +39,17 @@ test('canonical task refuses substitution of input, policy, direction and graph 
 test('fresh review preserves an older draft-origin head and explicitly pins the current Work snapshot',()=>{
  const f=fixture();f.direction.graphHeadDigest='b'.repeat(64);const r=buildDirectionExecutionProposal(f);
  assert.equal(r.review.direction.graphHeadDigest,'b'.repeat(64));assert.equal(r.review.sourceHead.graphDigest,f.head.graphDigest);assert.deepEqual(r.review.work,f.nodes[0]);
+});
+
+test('valid iVerif shared directions cannot acquire the finite Cambium patch policy',()=>{
+ const f=fixture();
+ f.direction.workObjectId='sapling:iverif';
+ f.nodes[0].workObjectId='sapling:iverif';f.nodes[0].externalId='iverif-work';f.nodes[0].metadata.workName='IVerif';
+ f.signals[0].projectIds=['sapling:iverif'];
+ f.head=makeGoalGraphHead('cambium',f.nodes,1,f.now);
+ f.request.expectedHeadDigest=f.head.graphDigest;f.direction.graphHeadDigest=f.head.graphDigest;
+ const {title,body,workObjectId,workNodeId,graphHeadDigest,signalPins}=f.direction;
+ assert.ok(isOperationalWorkSource(f.nodes[0]));
+ assert.ok(validateDirectionDraft({title,body,workObjectId,workNodeId,graphHeadDigest,signalPins}));
+ assert.throws(()=>buildDirectionExecutionProposal(f),/work_join_changed/);
 });

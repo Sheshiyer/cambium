@@ -424,7 +424,7 @@ export async function handleWebsiteIntake(
       assertOperatorConfigured(env);
       const verify = deps.verifyOperator ? deps.verifyOperator(request, env, fetchImpl) : verifyOperator(request, env, fetchImpl);
       const email = await verify;
-      if (!operatorAllowlist(env).has(email.trim().toLowerCase())) throw new WebsiteIntakeError(403, 'Access denied');
+      if (!email || !operatorAllowlist(env).has(email.trim().toLowerCase())) throw new WebsiteIntakeError(403, 'Access denied');
       const nonce = (deps.uuid?.() || crypto.randomUUID()).replace(/[^A-Za-z0-9_-]/g, '');
       return htmlResponse(opsHtml(nonce));
     }
@@ -433,7 +433,7 @@ export async function handleWebsiteIntake(
       assertOperatorConfigured(env);
       const verify = deps.verifyOperator ? deps.verifyOperator(request, env, fetchImpl) : verifyOperator(request, env, fetchImpl);
       const email = await verify;
-      if (!operatorAllowlist(env).has(email.trim().toLowerCase())) throw new WebsiteIntakeError(403, 'Access denied');
+      if (!email || !operatorAllowlist(env).has(email.trim().toLowerCase())) throw new WebsiteIntakeError(403, 'Access denied');
       if (!env.BRIDGE_DB) throw new WebsiteIntakeError(503, 'Cambium inbox is not configured');
       if (request.method === 'GET' && path === '/v1/admin/leads') {
         return json(request, env, { leads: await listWebsiteLeads(env.BRIDGE_DB, now.toISOString()) });

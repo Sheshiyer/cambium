@@ -602,3 +602,17 @@ private actor SafetyGateClient: FounderGateClient {
         return RenewalWire(status: "renewed", proposalId: tuple.proposalId)
     }
 }
+
+extension GateSafetyTests {
+    func testActualIverifServerReviewPreservesCanonicalBareDigest() async throws {
+        guard let file = ProcessInfo.processInfo.environment["IVERIF_NATIVE_WIRE_FIXTURE"] else { throw XCTSkip("Requires the real TypeScript handler's synthetic review packet") }
+        let data = try Data(contentsOf:URL(fileURLWithPath:file))
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with:data) as? [String:Any])
+        let proposal = try XCTUnwrap(body["proposal"] as? [String:Any]),id = try XCTUnwrap(proposal["proposalId"] as? String)
+        let client = HTTPFounderGateClient(baseURL:URL(string:"https://gate.test")!,transport:StubTransport(body:data),authorizer:NoAuthorizer())
+        let tuple = try await client.proposal(proposalId:id)
+        XCTAssertEqual(tuple.proposalId,id)
+        XCTAssertFalse(tuple.changeDigest.hasPrefix("sha256:")); XCTAssertEqual(tuple.changeDigest.count,64)
+        XCTAssertTrue(tuple.reviewJSON.contains("iverif.claim-proof.review")); XCTAssertTrue(tuple.reviewJSON.contains("noesis-free"))
+    }
+}

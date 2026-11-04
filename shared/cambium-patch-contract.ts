@@ -61,7 +61,8 @@ export function parseCambiumPatchPolicy(raw: unknown): CambiumPatchPolicy | null
       || !Array.isArray(raw.testCommand) || JSON.stringify(raw.testCommand) !== JSON.stringify(CAMBIUM_PATCH_TEST)) return null;
   // A repository and immutable image digest only, never a Docker option or floating tag.
   if (typeof raw.image !== 'string' || !/^[a-z0-9]+(?:[._-][a-z0-9]+)*(?:\/[a-z0-9]+(?:[._-][a-z0-9]+)*)*@sha256:[a-f0-9]{64}$/.test(raw.image)) return null;
-  if (!exact(raw.limits, Object.keys(CAMBIUM_PATCH_LIMITS)) || Object.entries(CAMBIUM_PATCH_LIMITS).some(([k,v]) => raw.limits[k] !== v)) return null;
+  const limits = raw.limits;
+  if (!exact(limits, Object.keys(CAMBIUM_PATCH_LIMITS)) || Object.entries(CAMBIUM_PATCH_LIMITS).some(([k,v]) => limits[k] !== v)) return null;
   return raw as unknown as CambiumPatchPolicy;
 }
 

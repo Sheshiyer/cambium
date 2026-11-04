@@ -43,8 +43,12 @@ export const CURIOUS_WORLD_PAGE = `<style>${CURIOUS_WORLD_CSS}</style>
         readDecision:changeDigest => CuriousGateBridge.readDecision(changeDigest),
         reviewGate:changeDigest => CuriousGateBridge.review(changeDigest),
         renewGate:changeDigest => CuriousGateBridge.renew(changeDigest),
-        readGraph:() => CuriousGateBridge.graph(),
+        readGraph:(workObjectId) => CuriousGateBridge.graph(workObjectId),
         intakeGate:input => CuriousGateBridge.intake(input),
+        getDepartmentState:() => CuriousDepartmentBridge.get(),
+        getDepartmentStatus:() => CuriousDepartmentBridge.status(),
+        subscribeDepartment:fn => CuriousDepartmentBridge.subscribe(fn),
+        refreshDepartment:() => CuriousDepartmentBridge.refresh(),
         signGate:(kind, changeDigest) => CuriousGateBridge.sign(kind, changeDigest)
       });
       if (failedDuringMount) { candidate.dispose(); return; }

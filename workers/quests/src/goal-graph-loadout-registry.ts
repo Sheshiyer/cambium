@@ -1,3 +1,4 @@
+import { CLAIM_POLICY, CLAIM_POLICY_DIGEST } from '../../../shared/iverif-claim-proof.ts';
 import type { GoalGraphLoadoutAuthority, GoalGraphLoadoutAuthorityRecord } from './goal-graph/types.ts';
 
 const RECORDS: readonly GoalGraphLoadoutAuthorityRecord[] = Object.freeze([
@@ -9,6 +10,7 @@ const RECORDS: readonly GoalGraphLoadoutAuthorityRecord[] = Object.freeze([
     authorityDigest: 'sha256:5c4d8332f7f600efc7a41abc4ccde9d515be30c5ee59830d15dc011ac9208b10',
     sourceRef: 'docs/project-management/cambium-patch-pilot-loadout.v1.json',
   }),
+  Object.freeze({loadoutId:CLAIM_POLICY.loadoutId,eligibleWorkObjectIds:Object.freeze([CLAIM_POLICY.workObjectId]),authorizedClusterIds:Object.freeze([CLAIM_POLICY.clusterId]),authorityDigest:CLAIM_POLICY_DIGEST,sourceRef:'docs/project-management/iverif-claim-proof-source.v1.json'}),
   // Finite source policy only: this registry entry does not issue admission or a Gate approval.
   Object.freeze({
     loadoutId: 'loadout:wtfmedia-source-audit',

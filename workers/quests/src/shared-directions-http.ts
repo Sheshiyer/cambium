@@ -11,8 +11,11 @@ const object = (value: unknown): value is Record<string, any> => !!value && type
 
 /** Drafts only. A saved direction is never an approval, admission or launch. */
 export async function sharedDirectionsHttp(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
-  const match = /^\/v1\/directions\/([a-z][a-z0-9-]{1,63})(?:\/([A-Za-z0-9][A-Za-z0-9._:-]{0,127}))?$/.exec(req.path);
+  const url = new URL(req.path, 'https://cambium.invalid');
+  const match = /^\/v1\/directions\/([a-z][a-z0-9-]{1,63})(?:\/([A-Za-z0-9][A-Za-z0-9._:-]{0,127}))?$/.exec(url.pathname);
   if (!match) return fail(400,'invalid_request');
+  const selectedWork = url.searchParams.get('workObjectId') ?? 'sapling:cambium';
+  if ([...url.searchParams.keys()].some(key => key !== 'workObjectId') || url.searchParams.getAll('workObjectId').length > 1 || !['sapling:cambium','sapling:iverif'].includes(selectedWork)) return fail(400,'invalid_work_filter');
   if (['cookie','x-api-key','x-auth-token','x-access-token','proxy-authorization'].some(key => (req.headers[key] ?? '').trim())) return fail(400,'mixed_credentials');
   const resolved = await resolveComposedNativeSession(req,deps.nativeSessionHost);
   if (resolved.kind === 'refused') return 'status' in resolved ? fail(resolved.status, resolved.error) : fail(resolved.response.status, 'native_session_unavailable');
@@ -30,11 +33,11 @@ export async function sharedDirectionsHttp(req: SimpleRequest, deps: HandlerDeps
           const head=await graph.readHead(scope.tenantId);const nodes=await graph.readNodes(scope.tenantId);const again=await graph.readHead(scope.tenantId);
           if(head&&again&&head.graphDigest===again.graphDigest&&head.graphVersion===again.graphVersion
               &&makeGoalGraphHead(scope.tenantId,nodes,head.graphVersion,head.committedAt).graphDigest===head.graphDigest) {
-            const sources=nodes.filter(node=>isOperationalWorkSource(node)&&node.status!=='retired');
-            if(sources.length===1)workContext={workObjectId:'sapling:cambium',workNodeId:sources[0].nodeId,graphHeadDigest:head.graphDigest};
+            const sources=nodes.filter(node=>isOperationalWorkSource(node)&&node.status!=='retired'&&node.workObjectId===selectedWork);
+            if(sources.length===1)workContext={workObjectId:selectedWork,workNodeId:sources[0].nodeId,graphHeadDigest:head.graphDigest};
           }
         }
-        return reply(200,{schema:'cambium.direction-list.v1',...scope,directions:await store.list(scope,null),workContext});
+        return reply(200,{schema:'cambium.direction-list.v1',...scope,directions:await store.list(scope,selectedWork),workContext});
       }
       const direction=await store.read(scope,match[2]);
       return direction ? reply(200,{schema:'cambium.direction-result.v1',...scope,direction,replayed:false}) : fail(404,'direction_not_found');

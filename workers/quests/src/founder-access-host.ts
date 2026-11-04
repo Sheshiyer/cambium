@@ -37,6 +37,7 @@ export function createFounderAccessHost(deps: {
   channel?: 'curious' | 'native';
   readTask(tenantId: string, digest: string): Promise<Record<string, unknown> | null>;
   reviewTask(task: Record<string, unknown>): Record<string, unknown> | null;
+  validateTaskSources?(task: Record<string, unknown>, context: FounderContext): Promise<boolean>;
   now(): string;
   loadoutAuthority?: GoalGraphLoadoutAuthority;
   persistRenewal?: Parameters<typeof renewFounderProposal>[0]['persist'];
@@ -161,6 +162,15 @@ export function createFounderAccessHost(deps: {
         };
         beforeWrite = check;
       }
+      if (deps.validateTaskSources && !await store.readDecisionReceipt(key.tenantId,key.changeDigest,review.approvalNonce as string)) {
+        const boundContext=context, check=deps.validateTaskSources, prior=beforeWrite;
+        if (!await check(task,boundContext)) return null;
+        beforeWrite=async()=>{
+          if(prior)await prior();
+          if(!await check(task,boundContext))throw new Error('proposal_sources_changed');
+          return deps.now();
+        };
+      }
       return {
         id, tenantId: key.tenantId, founderId: context.founderId, version: Number(task.intentVersion),
         changeSet, nonce: review.approvalNonce, expiresAt: review.approvalExpiresAt,
@@ -179,7 +189,7 @@ export function createFounderAccessHost(deps: {
     if (!p || !key) return { status: 'forbidden', writerAuthority: false };
     const task = await deps.readTask(key.tenantId, key.changeDigest);
     if (!task) return { status: 'forbidden', writerAuthority: false };
-    if (task.intent?.schema === 'cambium.direction-execution-intent.v1') return {status: 'stale', error: 'direction_review_required', writerAuthority: false};
+    if (typeof task.intent === 'object' && task.intent !== null && 'schema' in task.intent && task.intent.schema === 'cambium.direction-execution-intent.v1') return {status: 'stale', error: 'direction_review_required', writerAuthority: false};
     const persistRenewal = deps.persistRenewal;
     // The renewal reads await; re-resolve the native session immediately before the intake write.
     const persist: typeof persistRenewal = native

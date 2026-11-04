@@ -9,7 +9,7 @@ function harness() {
  const scope=vm.createContext({URLSearchParams,AbortController,DOMException,console,location:{search:'',pathname:'/founder',hash:''},
    window:{addEventListener:(name:string,fn:any)=>events.set(name,fn)},
    setTimeout:(fn:()=>void,ms:number)=>{const id=++next;timers.set(id,{at:clock+ms,fn});return id;},clearTimeout:(id:number)=>timers.delete(id),
-   fetch:(url:string,options:any)=>{requests.push({url,credentials:options.credentials});return new Promise((resolve,reject)=>{
+   fetch:(url:string,options:any)=>{if(url.startsWith('/v1/founder/'))return Promise.resolve({status:403,ok:false,json:async()=>({})});requests.push({url,credentials:options.credentials});return new Promise((resolve,reject)=>{
      finish=resolve;options.signal.addEventListener('abort',()=>{aborted++;reject(new DOMException('Read canceled','AbortError'));});
    });},
  });

@@ -1,8 +1,32 @@
 import type { GoalGraphD1DatabaseLike } from './goal-graph-store.ts';
-import type { NativeLaunchExecutionOwner, NativeLaunchScope } from './native-launch.ts';
+import type { NativeLaunchExecutionOwner, NativeLaunchHost, NativeLaunchScope } from './native-launch.ts';
 import type { BridgeExecutionAttestation, BridgeExecutionStoreLike, BridgeStoreLike } from './handler.ts';
 import { CURRENT_DIRECTION_ADMISSION_SQL, d1DirectionAdmissionStore } from './direction-execution-d1.ts';
 import { parseCambiumPatchInput, parseCambiumPatchResult, patchDigest, type CambiumPatchPolicy } from '../../../shared/cambium-patch-contract.ts';
+
+/** Route the original durable reservation to its Work owner; never try a second owner. */
+export function composeDirectionExecutionHost(db: GoalGraphD1DatabaseLike, pilot: NativeLaunchHost, existing?: NativeLaunchHost): NativeLaunchHost {
+  async function owner(scope: NativeLaunchScope, requestKey: string) {
+    const row = await db.prepare(`SELECT work_id FROM native_launch_requests
+      WHERE tenant_id = ? AND principal_id = ? AND request_key = ?`)
+      .bind(scope.tenantId, scope.principalId, requestKey).first<{work_id: string}>();
+    if (row?.work_id === 'sapling:cambium') return {workId: row.work_id, owner: pilot.owner};
+    if (row?.work_id === 'sapling:iverif' && existing) return {workId: row.work_id, owner: existing.owner};
+    return null;
+  }
+  return {...pilot, owner: {
+    supports: (plant, action) => pilot.owner.supports(plant, action) || !!existing?.owner.supports(plant, action),
+    async submit(input) {
+      const selected = await owner(input, input.requestKey);
+      if (!selected || selected.workId !== input.capability.workId || input.idempotencyToken !== input.requestKey) return {state: 'refused'};
+      return selected.owner.submit(input);
+    },
+    async read(input) {
+      const selected = await owner(input, input.requestKey);
+      return selected ? selected.owner.read(input) : {state: 'not_found'};
+    },
+  }};
+}
 
 /** Existing bridge queue and execution ledger; no new runner, queue or inference transport. */
 export function createDirectionExecutionOwner(args: {

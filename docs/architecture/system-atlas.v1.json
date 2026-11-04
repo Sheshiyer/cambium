@@ -9,13 +9,13 @@
       "id": "cambium",
       "name": "Cambium",
       "detail": "Finite composition",
-      "rule": "Run · verify · receipt · stop"
+      "rule": "Run \u00b7 verify \u00b7 receipt \u00b7 stop"
     },
     {
       "id": "temperance",
       "name": "Temperance",
       "detail": "Continuing stewardship",
-      "rule": "Observe · propose · return to a gate"
+      "rule": "Observe \u00b7 propose \u00b7 return to a gate"
     }
   ],
   "organs": [
@@ -310,7 +310,7 @@
       "kind": "projection",
       "label": "orientation",
       "source": "docs/explainers/system-field-guide-2026-09-27/product-sources/16-organ-vestibule.md",
-      "selector": "can feed Adytum’s contextual synthesis",
+      "selector": "can feed Adytum\u2019s contextual synthesis",
       "basis": "contract"
     },
     {
@@ -735,7 +735,7 @@
     {
       "id": "extract",
       "name": "Extract",
-      "detail": "Source → owned inbox"
+      "detail": "Source \u2192 owned inbox"
     },
     {
       "id": "feed",
@@ -760,7 +760,7 @@
     {
       "id": "observe",
       "name": "Observe",
-      "detail": "Receipt → dated learning"
+      "detail": "Receipt \u2192 dated learning"
     }
   ],
   "receiptStrata": [
@@ -768,19 +768,19 @@
       "id": "permission",
       "name": "Permission",
       "question": "Was this exact action admitted?",
-      "artifact": "Identity · scope · digest · gate"
+      "artifact": "Identity \u00b7 scope \u00b7 digest \u00b7 gate"
     },
     {
       "id": "transport",
       "name": "Transport",
       "question": "Did the attempt reach its destination?",
-      "artifact": "Attempt · handoff · response"
+      "artifact": "Attempt \u00b7 handoff \u00b7 response"
     },
     {
       "id": "semantic",
       "name": "Outcome",
       "question": "Did the result satisfy the declared test?",
-      "artifact": "Artifact hash · independent verdict"
+      "artifact": "Artifact hash \u00b7 independent verdict"
     }
   ],
   "holds": [
@@ -906,7 +906,7 @@
     },
     {
       "path": "workers/quests/src/handler.ts",
-      "sha256": "sha256:1a222cea9a50b91d43305f4c169d2ae6301a186e2e9e1bb977151fdd8b279c52"
+      "sha256": "sha256:7848ba4a27557e6290861725ad64f6571cbd0519d92b768c458b675f015d85c1"
     },
     {
       "path": "workers/quests/src/lib/access-jwt.ts",
@@ -998,7 +998,7 @@
       "from": "vestibule",
       "to": "adytum",
       "source": "docs/explainers/system-field-guide-2026-09-27/product-sources/16-organ-vestibule.md",
-      "selector": "can feed Adytum’s contextual synthesis",
+      "selector": "can feed Adytum\u2019s contextual synthesis",
       "sourceSha256": "sha256:dbcda6468deb5c932198ed6abb89f07bf06b884542cf69156f2c74d7e1102175",
       "basis": "contract"
     },
@@ -1098,7 +1098,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "if (resolved.principal.role !== 'founder') {",
-      "sourceSha256": "sha256:1a222cea9a50b91d43305f4c169d2ae6301a186e2e9e1bb977151fdd8b279c52",
+      "sourceSha256": "sha256:7848ba4a27557e6290861725ad64f6571cbd0519d92b768c458b675f015d85c1",
       "basis": "implementation"
     },
     {
@@ -1107,7 +1107,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "isViewer = viewerIds.includes(auth.userId);",
-      "sourceSha256": "sha256:1a222cea9a50b91d43305f4c169d2ae6301a186e2e9e1bb977151fdd8b279c52",
+      "sourceSha256": "sha256:7848ba4a27557e6290861725ad64f6571cbd0519d92b768c458b675f015d85c1",
       "basis": "implementation"
     },
     {

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { isAllowedLiveDeploymentEvidencePath, auditValueFreeLabsOverlay } from './standalone-audit.mjs';
+import { isAllowedLiveDeploymentEvidencePath, auditValueFreeLabsOverlay, reviewedNativeOwnerLines, maskReviewedNativeOwnerLines } from './standalone-audit.mjs';
 
 test('standalone audit · live topology is evidence-only outside explicit runtime proof code', () => {
   assert.equal(isAllowedLiveDeploymentEvidencePath('docs/evidence/tg-miniapp/2026-06-30/redacted-device-proof.json'), true);
@@ -34,4 +34,15 @@ test('standalone audit · exact Labs overlay exception refuses plaintext, new re
   }
   assert.equal(isAllowedLiveDeploymentEvidencePath('workers/quests/wrangler.labs.live-inherit.jsonc'),true);
   assert.equal(isAllowedLiveDeploymentEvidencePath('workers/quests/wrangler.labs.other.jsonc'),false);
+});
+
+
+test('standalone audit · native owner defaults allow only complete reviewed statements',()=>{
+ const route=/curious\.thoughtseed\.space/;
+ for(const [file,lines]of reviewedNativeOwnerLines)for(const line of lines){
+  assert.equal(route.test(maskReviewedNativeOwnerLines(file,line)),false);
+  assert.equal(route.test(maskReviewedNativeOwnerLines('unrelated.ts',line)),true);
+  assert.equal(route.test(maskReviewedNativeOwnerLines(file,line+' extra')),true);
+  assert.equal(route.test(maskReviewedNativeOwnerLines(file,line+'\nconst changed="https://curious.'+'thoughtseed.space";')),true);
+ }
 });

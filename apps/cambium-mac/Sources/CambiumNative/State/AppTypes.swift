@@ -111,10 +111,9 @@ struct WorkProposalBinding: Equatable, Sendable {
     enum Source: String, Equatable, Sendable {
         /// The work projection carried an owner-provided proposal reference.
         case ownerProjection
+        case ownerPreparation
         /// The person typed a canonical `tenant:digest` reference.
         case typed
-        /// A validated direction-prepare response names this exact work and proposal.
-        case ownerPreparation
     }
     var workId: String
     var proposalId: String

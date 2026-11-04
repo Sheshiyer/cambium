@@ -74,10 +74,10 @@ struct InboxView: View {
                           }.frame(maxHeight: 160)
                         }
                     } else { Text("Your projects will appear when connected.").font(.caption).foregroundStyle(Palette.inkMuted) }
-                    if let selected, selected.projectIds.contains("sapling:cambium"), !model.isDemo {
+                    if let selected, let workId = directionWork(selected), !model.isDemo {
                         Button("Draft direction", systemImage: "arrow.up.right") {
                             if model.directionDraft.pending == nil && (model.directionDraft.signal?.id != selected.id || model.directionDraft.signal?.revision != selected.revision) {
-                                model.directionDraft = DirectionComposerState(signal: selected, title: selected.title, body: selected.body)
+                                model.directionDraft = DirectionComposerState(workObjectId: workId, signal: selected, title: selected.title, body: selected.body)
                             }
                             directionPresented = true
                         }.disabled(busy || retryLocked || conflict || title != selected.title || bodyText != selected.body || projects != Set(selected.projectIds))
@@ -116,6 +116,11 @@ struct InboxView: View {
         } message: {
             Text("Your unsaved fields are replaced only if the owner's latest revision loads successfully.")
         }
+    }
+    private func directionWork(_ signal: Signal) -> String? {
+        let supported = signal.projectIds.filter { ["sapling:cambium","sapling:iverif"].contains($0) }
+        if let selected = model.inboxFilter, supported.contains(selected) { return selected }
+        return supported.count == 1 ? supported[0] : nil
     }
     private func edited() {
         guard !retryLocked else { return }

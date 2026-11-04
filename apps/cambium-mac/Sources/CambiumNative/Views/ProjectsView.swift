@@ -219,6 +219,9 @@ struct ProjectsView: View {
                         .accessibilityIdentifier("projects.openWork")
                 } else {
                     Text("Work is not connected yet.").font(.callout).foregroundStyle(Palette.inkMuted)
+                    if !model.isDemo, ["sapling:cambium","sapling:iverif"].contains(project.canonicalId) {
+                        Button("Prepare Work review") { model.prepareProjectWork(project.canonicalId) }.disabled(model.loading)
+                    }
                 }
             }.cambiumPanel()
             if !project.sourceReferences.isEmpty || !project.linkedCanonicalIds.isEmpty {
