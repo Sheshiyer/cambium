@@ -1,16 +1,15 @@
-# Fresh pickup: reconciled rollout held — 4 November 2026
+# Fresh pickup: Stage1 uploaded; source-map readback held
 
-Read [FINITE-SSM-ROLLOUT-RECONCILED-20261104.md](FINITE-SSM-ROLLOUT-RECONCILED-20261104.md)
-and its exact JSON first. Candidate sourcec2bf7775 retains the latest serving
-owner e5bfbc64,54 bindings, Cortex/iVerif/department behavior and all0105 guards.
-The1915 source packet and later670 identity fix are resolved. The existing
-Phloem receipt reader works with exact free-review attribution. Repository,
-Mac, focused owner, finite-boundary, strict type, bundle, drift and local IAB
-checks pass within their recorded limits. Existing runner/timer/runtime hashes
-match; pilot release/image remain absent. Next gate is exact upload-only
-approval and immutable0% candidate verification. Only0104 may later be applied;
-skip0099/0103. Traffic, installation, human decision and one bound job remain
-separately held. ISC-3683..3687 remain open. The original packet below is history.
+Read [FINITE-SSM-STAGE1-RECEIPT-20261104.json](FINITE-SSM-STAGE1-RECEIPT-20261104.json).
+The approved upload ran once. Candidate5a9c7565-08c6-4821-b955-e05c0352bacf is
+immutable version106 at0% traffic; serving e5bfbc64 remains100%. Code bytes,
+all56 bindings, runtime and named exports match. Operational settings, schedules
+and exposure are unchanged. The source-map byte hash and file/sourceRoot/sources
+fields differ; mappings, names and all111 source contents match. Stop-on-drift
+is in effect. Do not repeat the upload or infer migration, traffic, installation,
+founder decision or job approval. No host commands were issued. Preserve the
+original candidate and runner. The approved R2 packet stays unchanged as evidence.
+The historical finite approach below remains reference only.
 
 # Cambium finite Hermes pilot — next session
 

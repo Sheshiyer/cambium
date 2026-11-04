@@ -1,3 +1,11 @@
+# Current finite pilot pickup — Stage1 uploaded, readback held
+
+Use [FINITE-SSM-STAGE1-RECEIPT-20261104.json](FINITE-SSM-STAGE1-RECEIPT-20261104.json).
+Version5a9c7565 is at0% traffic with exact code/56 bindings. Serving e5bfbc64 is
+unchanged. Source-map byte/path-field mismatch holds qualification; stop here.
+No second upload, migration, traffic change, installation or job is approved.
+The earlier source/installation evidence below remains historical.
+
 # Current finite pilot pickup — reviewed and held
 
 Use [FINITE-SSM-ROLLOUT-RECONCILED-20261104.md](FINITE-SSM-ROLLOUT-RECONCILED-20261104.md)

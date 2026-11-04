@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-04T11:19:51.866386+00:00",
-  "status": "finite-ssm-reviewed-held",
+  "updated": "2026-11-04T11:45:29.649941+00:00",
+  "status": "finite-ssm-stage1-uploaded-source-map-drift-held",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -35,7 +35,8 @@
     "Free-pool worker candidate stopped and repaired before acceptance; static review findings fixed and regression-tested",
     "Recovered1915a132 source packet, retained670e63b2 identity fix and ae043392 live owner reconciliation, verified Phloem provider receipt path and completed pinned source/local review; rollout remains held.",
     "Retained published owner104 Snow Gloves capability mapping and exact source/producer fingerprints; repeated full repository and110 focused checks pass; refreshed immutable upload pins. No installation or job.",
-    "Retained owner105 authenticated legacy-publisher intake classification guard and regression; exact map/source fingerprint matches. Full2757pass/9skip, focused111pass; rollout held."
+    "Retained owner105 authenticated legacy-publisher intake classification guard and regression; exact map/source fingerprint matches. Full2757pass/9skip, focused111pass; rollout held.",
+    "Stage1-only approval consumed by one exact Worker module/56-binding upload. Immutable version5a9c7565 is at0%; serving e5bfbc64 remains100%. Readback stopped on source-map path/byte mismatch. No migration, traffic mutation, host/native installation or pilot job."
   ],
   "verification": {
     "core": {
@@ -202,15 +203,27 @@
         }
       },
       "scope": "Source/local checks only; Mac tests use unchanged Swift sources from144f12ff, and installed app evidence above remains historical."
+    },
+    "finite_ssm_stage1": {
+      "status": "uploaded-zero-traffic-readback-held",
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
+      "candidateVersion": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+      "candidateTrafficPercent": 0,
+      "servingVersion": "e5bfbc64-45e3-4849-a974-33d7d8f4f491",
+      "servingTrafficPercent": 100,
+      "moduleMatchesApproved": true,
+      "all56BindingsMatch": true,
+      "sourceMapBytePinMatches": false,
+      "laterGatesApproved": false
     }
   },
   "remaining": [
-    "Exact upload-only approval and immutable candidate verification; separate0104-only migration and traffic approval; separate isolated eight-file Hermes staging. Skip live0099/0103 and preserve0105.",
+    "Resolve the recorded source-map readback discrepancy only under a separately approved next action; preserve the original uploaded candidate. No repeated upload or later migration/traffic/installation/job approval exists.",
     "After approved stack, one signed native build/sign-in and saved-direction readback; founder manually decides complete fresh direction review",
     "Governed admission and original idempotent native launch, then separately admitted one finite SSM task",
     "Immutable diff/test/result readback and real complete native walkthrough; ISC-3683..3687 remain open"
   ],
-  "next_action": "Review .planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md and its exact JSON. Source144f12ff is reconciled against current owner e5bfbc64 with54 retained bindings; upload would add only2 for56. Phloem receipt reader is verified. Request exact upload-only approval, then inspect the immutable candidate at0% traffic. Only0104 may be applied under its separate approval; skip live0099/0103 and retain0105. Traffic, isolated Hermes staging, native rollout, founder decision, admission, original launch and one bound pilot job remain separately gated. No installation or pilot job authorized.",
+  "next_action": "Stage1 upload completed once as immutable version 5a9c7565-08c6-4821-b955-e05c0352bacf at0% traffic; serving e5bfbc64 stays100%. Read .planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json. Code,56 bindings, runtime, exports, schedules and exposure match. Source-map raw hash and file/sourceRoot/sources differ; mappings, names and all111 source contents match. Verification remains held under the stop-on-drift instruction. Do not upload again, migrate, change traffic, install or run a job. Recover only this original immutable version until a separately approved next action exists.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
@@ -267,5 +280,7 @@
   "finite_ssm_reconciled_rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
   "reconciled_candidate_source": "c2bf7775296100214f98c4a503a8d29fcac9b1f5",
   "finite_source_review": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md",
-  "last_verified_owner": "e5bfbc64-45e3-4849-a974-33d7d8f4f491"
+  "last_verified_owner": "e5bfbc64-45e3-4849-a974-33d7d8f4f491",
+  "stage1_receipt": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
+  "uploaded_candidate_version": "5a9c7565-08c6-4821-b955-e05c0352bacf"
 }

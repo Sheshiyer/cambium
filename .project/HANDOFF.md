@@ -11,6 +11,16 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 — Stage1 uploaded once; stopped on source-map readback drift
+
+- Immutable candidate5a9c7565-08c6-4821-b955-e05c0352bacf, version106, at0%.
+  Serving e5bfbc64 stays100%; exact module and56 bindings read back.
+- Receipt: `.planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json`.
+  Source-map raw bytes and path fields differ; mapping/names/source content match.
+- Qualification held under explicit stop-on-drift instruction. No reupload,
+  migration, traffic change, installation, host command or pilot job. Runner preserved.
+
+
 ## 2026-11-04 — final owner105 source and upload pins
 
 - Sourcec2bf7775296100214f98c4a503a8d29fcac9b1f5 retains serving owner e5bfbc64, including

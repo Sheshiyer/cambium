@@ -432,7 +432,7 @@
   "continuations": {
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "finite-ssm-reviewed-held",
+      "status": "finite-ssm-stage1-uploaded-source-map-drift-held",
       "tier": "E5",
       "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
@@ -451,7 +451,7 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Review .planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md and its exact JSON. Source144f12ff is reconciled against current owner e5bfbc64 with54 retained bindings; upload would add only2 for56. Phloem receipt reader is verified. Request exact upload-only approval, then inspect the immutable candidate at0% traffic. Only0104 may be applied under its separate approval; skip live0099/0103 and retain0105. Traffic, isolated Hermes staging, native rollout, founder decision, admission, original launch and one bound pilot job remain separately gated. No installation or pilot job authorized.",
+      "next_action": "Stage1 upload completed once as immutable version 5a9c7565-08c6-4821-b955-e05c0352bacf at0% traffic; serving e5bfbc64 stays100%. Read .planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json. Code,56 bindings, runtime, exports, schedules and exposure match. Source-map raw hash and file/sourceRoot/sources differ; mappings, names and all111 source contents match. Verification remains held under the stop-on-drift instruction. Do not upload again, migrate, change traffic, install or run a job. Recover only this original immutable version until a separately approved next action exists.",
       "ui_diagnostics": "Settings > Advanced > Diagnostics",
       "rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
       "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
@@ -468,9 +468,15 @@
       "source_review": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md",
       "historical_finite_ssm_rollout": ".planning/native-mac/FINITE-SSM-ROLLOUT-20261104.json",
       "last_verified_owner": "e5bfbc64-45e3-4849-a974-33d7d8f4f491",
-      "upload_approval": false,
+      "upload_approval": true,
       "installation_approval": false,
-      "job_approval": false
+      "job_approval": false,
+      "stage1_receipt": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
+      "uploaded_candidate_version": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+      "uploaded_candidate_traffic_percent": 0,
+      "upload_approval_consumed": true,
+      "traffic_approval": false,
+      "migration_approval": false
     }
   }
 }
