@@ -3680,3 +3680,27 @@ Version 95 remains the planning baseline. Deployment, traffic, live owner writes
 signatures, queues, graph/provider/native-store effects and fleet dispatch remain
 held. Canonical graph mapping remains absent; this admission covers only the two
 local source tasks and their evidence. Root Phase 9 planning files stay unchanged.
+
+## VPG-01 source verification — 2026-11-04
+
+The admitted foundation tasks `VPG-01-T1` and `VPG-01-T2` are source-verified.
+`FA-VPG-G01` has verified local preservation evidence in
+`.planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-VERIFICATION.md`
+and `artifact:viewport-vpg01-20261104/source-verification-receipt.json`. The
+reviewed proposal remains an immutable snapshot; this section records its
+subsequent accepted-plan/source-result state.
+
+- Source commits: T1 `d3e1f661`, T2 `9ffaf8a0`, fresh evidence `9ec9f781`.
+- Fresh proof: 48 cases, including four 430×844 supplements and retained 430×932
+  cases; all 47 original image/manifest bindings and 44 prior complete step
+  definitions remain unchanged. All 43 retained intents stay required.
+- Qualification remains 11 local equivalents and 32 held. No gap was closed by
+  foundation metadata. Strict release qualification remains exit 1.
+- Independent source/image review passes. Frozen full suite: 2734/2734, zero
+  failures/skips; focused boundaries: 23/23; app: 95/95, strict types and bundle
+  parity pass. Crop diagnostics prove actual geometry and offscreen refusal.
+
+This consumes the VPG-01-only local source admission. VPG-02 through VPG-10 remain
+unadmitted. Version 95 is the planning baseline; deployment, traffic, real owner
+effects, canonical graph mapping, runtime and physical-device acceptance remain
+held. Root Phase 9 files and prior human handoff history are preserved.

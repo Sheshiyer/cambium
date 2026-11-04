@@ -11,6 +11,15 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-04 VPG-01 source foundation verified; later packages and release held
+
+- The user accepted the finite packet digest `bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21` and admitted only VPG-01-T1/T2 in `7460d730`. Both source tasks are verified and their admission is consumed; VPG-02 through VPG-10 remain unadmitted. The reviewed proposal and root Phase 9 spine stay unchanged.
+- T1 `d3e1f661` adds the eight-group owner map and separate closed loopback fixture; T2 `9ffaf8a0` adds actual viewport/crop/PNG receipts and four 430×844 supplements. Fresh 48-case evidence `9ec9f781` retains prior 430×932 cases. All 47 historical image/manifest bytes, 44 prior complete step definitions, 43 retained intents, 11 equivalents and founder fixture bytes are preserved.
+- Independent source review and individual review of all 48 images pass. Frozen suite at `366d7617`: 2734/2734, zero failures/skips and unchanged independent head/tree/refs/tracked state. Focused boundaries 23/23; app 95/95, strict types and bundle parity pass; drift, standalone, atlas and retired-runtime checks pass. All 93 prior Worker runtime inputs remain byte-identical.
+- Current proof is sourceProofOk=true, 48 frames, 11 qualified and 32 held; strict release qualification correctly remains exit 1. Real DPR2 clipped-dialog diagnostic passes and offscreen crop rejects before PNG output. No gap, real owner, physical device or runtime result is accepted by this foundation.
+- Pickup: `.planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-SUMMARY.md`, its independent VERIFICATION and `artifact:viewport-vpg01-20261104/source-verification-receipt.json`. Prior source set remains at `artifact:field-atlas-current-pJwPlq/previous`. Version 95 remains the planning baseline; deployment, traffic and all real owner effects are held.
+
+
 
 ### 2026-11-04 Finite viewport ISA/GSD proposal prepared; implementation and release held
 
