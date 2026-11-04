@@ -1,12 +1,12 @@
 {
   "schema": "cambium.field-atlas-viewport-source.v1",
-  "observedAt": "2026-11-03T23:42:20.605Z",
-  "sourceBaseCommit": "7c8c810f47b49fa4c6dd17d341ee4c48e68a9655",
+  "observedAt": "2026-11-04T11:08:51.606Z",
+  "sourceBaseCommit": "9ffaf8a0a5c4815a4c9dc0e48bf1be152474ad4d",
   "workingTreeModified": false,
   "sourceBindings": [
     {
       "path": "scripts/capture-field-atlas.mjs",
-      "sha256": "6f7a70beadfd5da6a4c795fc4720334169c0090ecd00ea27124b4873fe57c1a7"
+      "sha256": "4be791e6fba74bd155bc86464eaefbb07049ccacc736819657464e5c04d3678f"
     },
     {
       "path": "scripts/field-atlas-viewport-contract.mjs",
@@ -15,6 +15,14 @@
     {
       "path": "scripts/field-atlas-founder-fixture.mjs",
       "sha256": "06624977a7b2a2ac091699b03405720328e39e8920e1f1c9e75e22b55466bd01"
+    },
+    {
+      "path": "scripts/field-atlas-operational-fixture.mjs",
+      "sha256": "705015cd49a3de87fee578136e62a4c5386a4b6c490b970a41557a8d32ec5505"
+    },
+    {
+      "path": "docs/visual/viewport-owner-bindings.md",
+      "sha256": "a8e0472dcffdb9c43d09e04522d8b62a81fea614c1f2884c67a0383680801f87"
     },
     {
       "path": "scripts/check-field-atlas-proof.mjs",
@@ -38,7 +46,7 @@
     },
     {
       "path": "workers/quests/src/visual-viewport-proof.mjs",
-      "sha256": "200605892804f2cf4d6ad49464ad72cefe559a878fc04d363e861fcb563d292f"
+      "sha256": "10b613c8fb780375d0578b160075e4db86b2bfaec2254b9d00495a263c9f569a"
     },
     {
       "path": "workers/quests/src/page.ts",
@@ -82,7 +90,7 @@
     }
   ],
   "pageSourceSha256": "40ca02967498382374320fcb45852621cee06f78ce65229da62ddd5cfa012741",
-  "captureStepSha256": "7f5c4d56a95c492a0f929a9fdee261092ecf7d91e5479afc37dec2bd46e1efe5",
+  "captureStepSha256": "1dc6f33ec31831b8641e3ff0f99030f3134eb5b0556f80b9cdfd9a7450bc4ed1",
   "evidenceScope": "local-source-fixture",
   "renderer": "local software WebGL",
   "canonicalAcceptance": false,
@@ -122,6 +130,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 478202,
+          "sha256": "907b845f67ee8278042d9e15e66475d95ac4d3db28574efea17f2f4f3c2f3b93"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -130,6 +164,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -168,6 +226,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 580476,
+          "sha256": "62862153d15c0abafd831a0e9a77b6d9ebac25d7ceb419cdeaa9a7a1cf72c43f"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -176,6 +260,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -214,6 +322,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 671974,
+          "sha256": "064c514acc901059ffbd7ebd02b372e4b430aa93e54d2a3e180e48c99d12be54"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -222,6 +356,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -260,6 +418,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 600,
+          "height": 900,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 600,
+          "height": 900,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 1200,
+          "height": 1800,
+          "bytes": 874743,
+          "sha256": "ed6ba910f6867b631196dd0635ce4c23d412cb5bd217497e4bdd9ba040640121"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -268,6 +452,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -306,6 +514,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 601,
+          "height": 900,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 601,
+          "height": 900,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 1202,
+          "height": 1800,
+          "bytes": 1424532,
+          "sha256": "2f3b6a385545e4eb09fd869beaba0ecb1468004cced9417bc5e3439db998f3eb"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -314,6 +548,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -352,6 +610,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 1280,
+          "height": 900,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 1280,
+          "height": 900,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 2560,
+          "height": 1800,
+          "bytes": 2222196,
+          "sha256": "24ee40ef6cb5638e847dfa275301ed5ad935436c39d0e9e590883c22c1dc21dc"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -360,6 +644,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -398,6 +706,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 678565,
+          "sha256": "8e5f7b0d9212e53c1644d3f4aa34ec623294aa768ef926494ebd3890f4b82330"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -406,6 +740,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -444,6 +802,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 819489,
+          "sha256": "cb76d4005a35728444c301ae916be60fd30dfdeb6f1d55308a80ed6ad7b82136"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -452,13 +836,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 780,
       "height": 1688,
-      "bytes": 823219,
-      "sha256": "64a4368331dd603ecc2e4e8ac131da924d99b271c8459c677c7b692b7d0e3feb"
+      "bytes": 819489,
+      "sha256": "cb76d4005a35728444c301ae916be60fd30dfdeb6f1d55308a80ed6ad7b82136"
     },
     {
       "path": "field-atlas-world-430.png",
@@ -490,6 +898,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 946579,
+          "sha256": "7da118bb3617f2fe29680df03f1ed101dd8c1ea41436d9694f106ae651760e1a"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -498,13 +932,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 860,
       "height": 1864,
-      "bytes": 948945,
-      "sha256": "5036dac9f88a6595cea9c88be10dea648e5b8bbfe483c51e709eea848da3d912"
+      "bytes": 946579,
+      "sha256": "7da118bb3617f2fe29680df03f1ed101dd8c1ea41436d9694f106ae651760e1a"
     },
     {
       "path": "field-atlas-world-1280.png",
@@ -536,6 +994,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 1280,
+          "height": 900,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 1280,
+          "height": 900,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 2560,
+          "height": 1800,
+          "bytes": 1906894,
+          "sha256": "5cfbaa63957783d22f10f7b34df25f3930197c01c3dd498ed3218bddbcb827ad"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -544,6 +1028,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -582,6 +1090,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 199277,
+          "sha256": "4f795df0682f1e50c3cbeabd248331fd4811cf6f92be0edbf82f8f12464c1192"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -590,13 +1124,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 200642,
-      "sha256": "80cbeaca9f7eff6b04e09e55d25b68e27606ff9b5057f8a98166f41419f886b7"
+      "bytes": 199277,
+      "sha256": "4f795df0682f1e50c3cbeabd248331fd4811cf6f92be0edbf82f8f12464c1192"
     },
     {
       "path": "field-atlas-chart-390.png",
@@ -628,6 +1186,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 215610,
+          "sha256": "b11bdeda0e1aab08fabfa6ade59a649e85240320909caafa1604d09fea46fe4c"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -636,13 +1220,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 780,
       "height": 1688,
-      "bytes": 215563,
-      "sha256": "06f6dbd7661371fc0248230b397b07c6bfba4788bfde66872c9fb7ae63f41aa1"
+      "bytes": 215610,
+      "sha256": "b11bdeda0e1aab08fabfa6ade59a649e85240320909caafa1604d09fea46fe4c"
     },
     {
       "path": "field-atlas-chart-430.png",
@@ -674,6 +1282,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 235962,
+          "sha256": "7769b3b23374ba61ea01cfd21d05da49b3bf8c607bf3355d4af87c45c059d8b4"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -682,6 +1316,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -720,6 +1378,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 1280,
+          "height": 900,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 1280,
+          "height": 900,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 2560,
+          "height": 1800,
+          "bytes": 498956,
+          "sha256": "1ac4c54eb5d174aa3918bf41ca1699e4916ffe157f310c6ffc5493798733e09e"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -728,6 +1412,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -766,6 +1474,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 315358,
+          "sha256": "821232666fd13fab6cff3934f9eb0bc1d46c8f1d1797bbec0b8e357249f18738"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -774,6 +1508,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -812,6 +1570,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 352592,
+          "sha256": "8beae84654c17b7dd11d1484e8fc1a07bd3b9fae070804d290bfc936abd5bafc"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -820,6 +1604,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -858,6 +1666,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 406323,
+          "sha256": "438f53bf360a104c926ef66a3040e9bb481379c473a4214e4487e8fd2c132ae1"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -866,13 +1700,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 860,
       "height": 1864,
-      "bytes": 405295,
-      "sha256": "ebbcad9322f1b310b512bde1e046558abe3c403e60c24de6a44a471e51e794ff"
+      "bytes": 406323,
+      "sha256": "438f53bf360a104c926ef66a3040e9bb481379c473a4214e4487e8fd2c132ae1"
     },
     {
       "path": "field-atlas-departments-1280.png",
@@ -904,6 +1762,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 1280,
+          "height": 900,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 1280,
+          "height": 900,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 2560,
+          "height": 1800,
+          "bytes": 648020,
+          "sha256": "6e28be4906a5399e07cee9dc6c26514d527f21084c54385835afde82f26fde24"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -912,6 +1796,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -950,6 +1858,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 301499,
+          "sha256": "e51dc182db9240d0658c9c91a76be2b55ca04b1305cc3df082f1ad8b56fbb8bb"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -958,13 +1892,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 300323,
-      "sha256": "45d0a17d9e2cc321dfa422a47f2d36a5810d1686e5774494833c058c17228825"
+      "bytes": 301499,
+      "sha256": "e51dc182db9240d0658c9c91a76be2b55ca04b1305cc3df082f1ad8b56fbb8bb"
     },
     {
       "path": "field-atlas-courier-390.png",
@@ -996,6 +1954,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 329329,
+          "sha256": "b63065e125431c5a56b2adf084fb266e02042b1034969601db92698aa798896e"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1004,6 +1988,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -1042,6 +2050,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 151640,
+          "sha256": "ef45295cb7088e05b6949136ab9c7421f753599b14783a94310c0303f28a2acd"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1050,6 +2084,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -1088,6 +2146,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 161728,
+          "sha256": "5f7d5f4be9ee715845e1bac49fffea66b77c3945a5f983443c1e942e5abb479a"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1096,6 +2180,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -1134,6 +2242,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 201106,
+          "sha256": "e44191a26dd2ae594463b6a25d487a7adae5ea44dba47393774d9758f4ef4b9f"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1142,13 +2276,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 201065,
-      "sha256": "d6b36ac18286e7858e892ed9e3efef808715a394feb0578808e5ec07c76c15cc"
+      "bytes": 201106,
+      "sha256": "e44191a26dd2ae594463b6a25d487a7adae5ea44dba47393774d9758f4ef4b9f"
     },
     {
       "path": "field-atlas-gate-held-390.png",
@@ -1180,6 +2338,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 220864,
+          "sha256": "926e6ea7a3a2f7bfc5d4c1cb1404a72d8df016808037d67036b0fa1096c8c9ad"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1188,6 +2372,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -1226,6 +2434,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 338594,
+          "sha256": "13a9d043598cf258b0069b2ecd6178cc47066a9f11df191285d3c02b76c337fe"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1234,13 +2468,37 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 338618,
-      "sha256": "9f5ea44a3f5b763eeb6e2c34a229bdc867afdf553e9924c43df6a170bead3f85"
+      "bytes": 338594,
+      "sha256": "13a9d043598cf258b0069b2ecd6178cc47066a9f11df191285d3c02b76c337fe"
     },
     {
       "path": "field-atlas-source-folio-390.png",
@@ -1272,6 +2530,32 @@
         "behaviorChecks": {},
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 361072,
+          "sha256": "09b2b1cb48bd73d29085d61fb64533478f6a8abf7e21eb39f503eb54d9067bc6"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1280,6 +2564,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -1320,6 +2628,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 181437,
+          "sha256": "b149937c4349afe5e81fc24ef64a111d8e71ee6198737183d4cdb3906d9970c4"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1328,6 +2662,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -1368,6 +2726,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 189264,
+          "sha256": "7d91b9a01d3607d78869e49deb3f0d3be4cbbadd1a854556dec1a741f8403a79"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1376,6 +2760,30 @@
         "warnings": 0
       },
       "fixtureReceipt": null,
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
@@ -1392,7 +2800,7 @@
         "height": 844
       },
       "stepSha256": "ad62919f24fbd7e130f3b8b6e91d2d84790ebdad94a06979a8e346ad0bb4de91",
-      "assertionSha256": "09f0bd5b2f1ac98ccef909b0c892a8d6347fd6c77f4546f50ba67d56a0bb19c2",
+      "assertionSha256": "c586db72d2edaceec29cd188563dfa8e0e9bea49f53e0fc75a7ec4b7866a3d3d",
       "capture": {
         "ok": true,
         "checks": {
@@ -1416,6 +2824,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 181444,
+          "sha256": "cec8351694e34eb6f500950be9ce73ac3b7cec307e0203117d45cfb04b80894a"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1425,9 +2859,9 @@
       },
       "fixtureReceipt": {
         "name": "empty",
-        "observedAt": "2026-11-03T23:40:15.982Z",
-        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
-        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "observedAt": "2026-11-04T11:06:16.546Z",
+        "inputSha256": "2dbf3f57669919790edf4de6827b2ec50ed42dd271565e146d80cc26a3be54a4",
+        "reviewSha256": "875f94f3fd4424691e8d21c9789e3a1d2166b115f91cd49beb2145b0203f4716",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 0,
@@ -1445,13 +2879,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 181437,
-      "sha256": "b149937c4349afe5e81fc24ef64a111d8e71ee6198737183d4cdb3906d9970c4"
+      "bytes": 181444,
+      "sha256": "cec8351694e34eb6f500950be9ce73ac3b7cec307e0203117d45cfb04b80894a"
     },
     {
       "path": "field-atlas-local-visit-read-390.png",
@@ -1461,7 +2919,7 @@
         "height": 844
       },
       "stepSha256": "f2b8108dc64165a519b15b45cec8f1aa9762fe66647ce568e98c8f97b141ce67",
-      "assertionSha256": "30b77f17b7f779ead4f540906ddd7b677658e97316e8878dde1258bbeef9a974",
+      "assertionSha256": "31a274eae3f1788578ebcf73bbe071099fe3189cedb5e8f17173f851efdd5360",
       "capture": {
         "ok": true,
         "checks": {
@@ -1485,6 +2943,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 189264,
+          "sha256": "7d91b9a01d3607d78869e49deb3f0d3be4cbbadd1a854556dec1a741f8403a79"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1494,9 +2978,9 @@
       },
       "fixtureReceipt": {
         "name": "empty",
-        "observedAt": "2026-11-03T23:40:15.982Z",
-        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
-        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "observedAt": "2026-11-04T11:06:16.546Z",
+        "inputSha256": "2dbf3f57669919790edf4de6827b2ec50ed42dd271565e146d80cc26a3be54a4",
+        "reviewSha256": "875f94f3fd4424691e8d21c9789e3a1d2166b115f91cd49beb2145b0203f4716",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 0,
@@ -1513,6 +2997,30 @@
           "deniedDecisionPOST": 0,
           "deniedRenewalPOST": 0
         }
+      },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
       },
       "requestPosts": 0,
       "browser": "Google Chrome",
@@ -1530,7 +3038,7 @@
         "height": 844
       },
       "stepSha256": "ba8fd7d950c985170f4abbdc282a7336fd0453c94b159acb501770e5a6453fe0",
-      "assertionSha256": "de12cca36ff60c09686b71a3eaf01149f0ef8be143049b3de309979ced8174d4",
+      "assertionSha256": "5f958151759f5348d05457365dc0349fe159ab682b1690cbb0ecc80d4414146a",
       "capture": {
         "ok": true,
         "checks": {
@@ -1554,6 +3062,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 187948,
+          "sha256": "1e02400f44284b1accc52d06157e0c201eb08d061e8c4d0f23e184fe7498662c"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1563,9 +3097,9 @@
       },
       "fixtureReceipt": {
         "name": "empty",
-        "observedAt": "2026-11-03T23:40:15.982Z",
-        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
-        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "observedAt": "2026-11-04T11:06:16.546Z",
+        "inputSha256": "2dbf3f57669919790edf4de6827b2ec50ed42dd271565e146d80cc26a3be54a4",
+        "reviewSha256": "875f94f3fd4424691e8d21c9789e3a1d2166b115f91cd49beb2145b0203f4716",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 0,
@@ -1583,13 +3117,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 0,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 186630,
-      "sha256": "11a506ccb0f9d0e5a2551cb20ac5dc7ea53d7621efb3e50c22c21bcb8581f318"
+      "bytes": 187948,
+      "sha256": "1e02400f44284b1accc52d06157e0c201eb08d061e8c4d0f23e184fe7498662c"
     },
     {
       "path": "field-atlas-gate-empty-390.png",
@@ -1599,7 +3157,7 @@
         "height": 844
       },
       "stepSha256": "3a13d6f0068924f96c33c0c1a33bc7989599f4db154a29eef7624ff5229cd8d6",
-      "assertionSha256": "f2dfb7d23ad029940bbaec2b495e5f984760812c223c01c0cc41066c71dc2111",
+      "assertionSha256": "311bea896f1c22c62d61928e24b1e3c72359a4a07802e17ace8c5777862c2cde",
       "capture": {
         "ok": true,
         "checks": {
@@ -1623,6 +3181,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 197511,
+          "sha256": "2493bfe5aa9a9cb081ea85d4f2ff3873a43159074445c3281484dc0b5194e011"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -1632,9 +3216,9 @@
       },
       "fixtureReceipt": {
         "name": "empty",
-        "observedAt": "2026-11-03T23:40:15.982Z",
-        "inputSha256": "01411fd5651187ab22122cb6d368a1ffe53d10b8bd2e203ab15615fdef168d77",
-        "reviewSha256": "053f6675c3caec80c3008c6ce70ba6163f84f7129bef2169e1bb82a0475c387a",
+        "observedAt": "2026-11-04T11:06:16.546Z",
+        "inputSha256": "2dbf3f57669919790edf4de6827b2ec50ed42dd271565e146d80cc26a3be54a4",
+        "reviewSha256": "875f94f3fd4424691e8d21c9789e3a1d2166b115f91cd49beb2145b0203f4716",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 0,
@@ -1651,6 +3235,30 @@
           "deniedDecisionPOST": 0,
           "deniedRenewalPOST": 0
         }
+      },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
       },
       "requestPosts": 0,
       "browser": "Google Chrome",
@@ -1668,7 +3276,7 @@
         "height": 844
       },
       "stepSha256": "820d90708320a9098820878d5884cd35d7575613f1fc78104984ada59d26b18b",
-      "assertionSha256": "a0235fa782697d8240a7b5306adae7d1e2341f1c686f6743e87f8a26cbf46722",
+      "assertionSha256": "bd97f877464e92df5b6698a1a5f535740b263ed783bd6b084bdfb307f19b16a8",
       "capture": {
         "ok": true,
         "checks": {
@@ -1693,7 +3301,33 @@
           "consequenceAndReversal": true,
           "inspectionBackAndClose": true
         },
-        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 209298,
+          "sha256": "1c3d6d54e86d8815d8103702207640207dc39431f7f91df5c41b0c33a4c6f185"
+        }
       },
       "diagnostics": {
         "uncaughtErrors": 0,
@@ -1704,9 +3338,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -1724,13 +3358,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 207181,
-      "sha256": "db52930d6decbc98f644a82034113274e00b756384a6eb2a29df8e4fcc37df05"
+      "bytes": 209298,
+      "sha256": "1c3d6d54e86d8815d8103702207640207dc39431f7f91df5c41b0c33a4c6f185"
     },
     {
       "path": "field-atlas-gate-reviewed-390.png",
@@ -1740,7 +3398,7 @@
         "height": 844
       },
       "stepSha256": "58c97829723be03794ae4536543160711e6958bc24f67c56f3dbfcb79f2f6da9",
-      "assertionSha256": "93605b6dd9a849d3cffaf8cd49c101baf52128644c04eecc657f98219676c282",
+      "assertionSha256": "ed26d4eb6be7df8c2c82f83eadd53713c1f9d618981c7afd919918aae223f450",
       "capture": {
         "ok": true,
         "checks": {
@@ -1765,7 +3423,33 @@
           "consequenceAndReversal": true,
           "inspectionBackAndClose": true
         },
-        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 235103,
+          "sha256": "8917291e996f078e9f7e97f842c52868e142dcbb6ec72790394b433f873076e0"
+        }
       },
       "diagnostics": {
         "uncaughtErrors": 0,
@@ -1776,9 +3460,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -1796,13 +3480,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 780,
       "height": 1688,
-      "bytes": 235087,
-      "sha256": "b9dfcde597904048eee89f8a7dcea8b2d0f0dbce48dc5a50585991b128d2b708"
+      "bytes": 235103,
+      "sha256": "8917291e996f078e9f7e97f842c52868e142dcbb6ec72790394b433f873076e0"
     },
     {
       "path": "field-atlas-gate-reviewed-430.png",
@@ -1812,7 +3520,7 @@
         "height": 932
       },
       "stepSha256": "a7ee56c2078366c24af20ab42784cec7e156556bfaccc390dc2594040b4c286d",
-      "assertionSha256": "d0696193238e11c69279239431766962ef29f674e4cfb3e7bc4e896c18d720cb",
+      "assertionSha256": "7df9c33fce73a2a6ac8acde68b4d7bdece273a29c401c671ee5f19cdd31ecc86",
       "capture": {
         "ok": true,
         "checks": {
@@ -1837,7 +3545,33 @@
           "consequenceAndReversal": true,
           "inspectionBackAndClose": true
         },
-        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 269877,
+          "sha256": "51b2cdc917ae632e96f3be3bde9f7e6a4a3f3f67160cfef0d0e9fba632f6da93"
+        }
       },
       "diagnostics": {
         "uncaughtErrors": 0,
@@ -1848,9 +3582,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -1868,13 +3602,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 860,
       "height": 1864,
-      "bytes": 269484,
-      "sha256": "e47dd3a50670b1086f75c0be5f659dcaa4e8a4651d3591a67cfd2d5b7c75e855"
+      "bytes": 269877,
+      "sha256": "51b2cdc917ae632e96f3be3bde9f7e6a4a3f3f67160cfef0d0e9fba632f6da93"
     },
     {
       "path": "field-atlas-gate-preflight-320.png",
@@ -1884,7 +3642,7 @@
         "height": 844
       },
       "stepSha256": "07cd5f935c5df11c923d68b54fa56af66c554466a86443f56957acdf6e3c5311",
-      "assertionSha256": "077ccbe1f6159776aae9a3eb0a68466efdbf6650b6debe9871966a6747540d00",
+      "assertionSha256": "881703ea92b617ba5d2a9c6586a3130262ba60afe66f16adeb4ab6e23ea6333c",
       "capture": {
         "ok": true,
         "checks": {
@@ -1911,7 +3669,33 @@
           "separateApprovalConfirmation": true,
           "cancelReachable": true
         },
-        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 179467,
+          "sha256": "63c775d13e65b18a221ac2003b4f474f3c2660246d54a9e287cd807871bfdcfb"
+        }
       },
       "diagnostics": {
         "uncaughtErrors": 0,
@@ -1922,9 +3706,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -1942,13 +3726,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 179370,
-      "sha256": "6c954c73b1d793dc978f099e2d3743914626125c83cf43021dd92d00fe2f96ff"
+      "bytes": 179467,
+      "sha256": "63c775d13e65b18a221ac2003b4f474f3c2660246d54a9e287cd807871bfdcfb"
     },
     {
       "path": "field-atlas-gate-preflight-390.png",
@@ -1958,7 +3766,7 @@
         "height": 844
       },
       "stepSha256": "34cef2f4f698c39a5b0fc691f346202ef343ae048cc13ba5b50203e8842e7fe8",
-      "assertionSha256": "ff471d73b077118c845b53e8ef65c5396eb43d8a5187b7e7d7dc4292b2bf7853",
+      "assertionSha256": "522a1ac1151a3b13e1267cc37985fb286bb3a6bba6b06f5c669a724391b9cfa2",
       "capture": {
         "ok": true,
         "checks": {
@@ -1985,7 +3793,33 @@
           "separateApprovalConfirmation": true,
           "cancelReachable": true
         },
-        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 195793,
+          "sha256": "60ff37395fc5c7234156e808dde26fb87bbe10a2fbf409d6f1819a06eaeff770"
+        }
       },
       "diagnostics": {
         "uncaughtErrors": 0,
@@ -1996,9 +3830,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2016,13 +3850,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 780,
       "height": 1688,
-      "bytes": 195715,
-      "sha256": "6a7d9b116cf81259a6442861b4f72b68a56c60553e4c151816b6232d06841fe3"
+      "bytes": 195793,
+      "sha256": "60ff37395fc5c7234156e808dde26fb87bbe10a2fbf409d6f1819a06eaeff770"
     },
     {
       "path": "field-atlas-gate-preflight-430.png",
@@ -2032,7 +3890,7 @@
         "height": 932
       },
       "stepSha256": "74930fa485ac29f8b9f7c491472b20be1bd70a6a515ac8a56ba065717730fe8d",
-      "assertionSha256": "f3d18d86300b5aaf2d3679876cfcdd6730c944370ccd24df26ca056e81204be2",
+      "assertionSha256": "509c1f74f52f4fa32b07b24d58f522e3973daed221f30e2483a5fe48303c489c",
       "capture": {
         "ok": true,
         "checks": {
@@ -2059,7 +3917,33 @@
           "separateApprovalConfirmation": true,
           "cancelReachable": true
         },
-        "renderedReviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40"
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 214504,
+          "sha256": "f92dd5c31422306bd80004002a5171b3b646c022f0bef406615824df82f81990"
+        }
       },
       "diagnostics": {
         "uncaughtErrors": 0,
@@ -2070,9 +3954,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2090,13 +3974,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 860,
       "height": 1864,
-      "bytes": 214590,
-      "sha256": "39d8df57124408f2ac61fd73a1c4207e0f87ab716285e6203221cc73b93e2430"
+      "bytes": 214504,
+      "sha256": "f92dd5c31422306bd80004002a5171b3b646c022f0bef406615824df82f81990"
     },
     {
       "path": "field-atlas-gate-back-320.png",
@@ -2106,7 +4014,7 @@
         "height": 844
       },
       "stepSha256": "6b2f1057ca04e29c1d87e65e56dc4a398104af3389350645db99bc64dbe3c210",
-      "assertionSha256": "1b7bcc3a2e5d7bbdea343f8636811763b8e77b0a438a80cacf9c68113bd59db6",
+      "assertionSha256": "9775fedca59e9ed2da4f002f1c24dd91f713a0ba4d18dc48afcbfc8d747effce",
       "capture": {
         "ok": true,
         "checks": {
@@ -2130,6 +4038,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 182675,
+          "sha256": "47d016e8a3cc12e0047e3621bec7b33862da61ba539392b6a6998c2f29126e42"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -2139,9 +4073,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2159,13 +4093,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 182638,
-      "sha256": "9a5fb53db2e18a87a8d3131af7c3ad1e38e073f1722d181ab357b9a74ac083dc"
+      "bytes": 182675,
+      "sha256": "47d016e8a3cc12e0047e3621bec7b33862da61ba539392b6a6998c2f29126e42"
     },
     {
       "path": "field-atlas-gate-back-390.png",
@@ -2175,7 +4133,7 @@
         "height": 844
       },
       "stepSha256": "28a76eff91ee71e8d07eab9cae5386ae911b445f4b0daef244289ca1855de87d",
-      "assertionSha256": "3806d31000f3e33532a9b71d1f7dc47fb084ab54531ebca91a97601d1317cabc",
+      "assertionSha256": "2e842947cb3809979b16ccf8e4ac3b94d3adbcc3ef01ddf315d429210b46bd61",
       "capture": {
         "ok": true,
         "checks": {
@@ -2199,6 +4157,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 200535,
+          "sha256": "bb86324d33c971dff79e5be5bbde466f73474503d5d07a4bf6f71f7f9ddb418a"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -2208,9 +4192,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2228,13 +4212,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 780,
       "height": 1688,
-      "bytes": 200023,
-      "sha256": "0faae827c9cf7668c40fd4cb8e0bd47ae6e2a1671dec1e6933a7755c93425ee2"
+      "bytes": 200535,
+      "sha256": "bb86324d33c971dff79e5be5bbde466f73474503d5d07a4bf6f71f7f9ddb418a"
     },
     {
       "path": "field-atlas-gate-back-430.png",
@@ -2244,7 +4252,7 @@
         "height": 932
       },
       "stepSha256": "0e2572f6d8e167127b5365ad9dca5b5317fea0cffa07cb0fc9fa0f23c86ad25d",
-      "assertionSha256": "c82a7595cbdc07711d0ef39576e87cb3a48c028c600e75785d8103ed09896f17",
+      "assertionSha256": "03c6a3d5a068e01acb9caf8c0f429451149d9e8922b459407f4d7439ab60c428",
       "capture": {
         "ok": true,
         "checks": {
@@ -2268,6 +4276,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 217883,
+          "sha256": "e0b5da73c2f42fead0266f2d9e90226b5d1e0c78e19101ec56ca926a23f99098"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -2277,9 +4311,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2297,13 +4331,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 860,
       "height": 1864,
-      "bytes": 217611,
-      "sha256": "b06ca01700413704195c7efc258ec0c4daf81332cb30572621e6a90aa8890b6a"
+      "bytes": 217883,
+      "sha256": "e0b5da73c2f42fead0266f2d9e90226b5d1e0c78e19101ec56ca926a23f99098"
     },
     {
       "path": "field-atlas-gate-close-320.png",
@@ -2313,7 +4371,7 @@
         "height": 844
       },
       "stepSha256": "67e848f01f749532aea55abce83afe42b4f7cad8cda6b2999a9136272908acc6",
-      "assertionSha256": "b24a1d6f2a3f1882ebaa9c5a162e7b663ccc9b9b119da000a237adeb1c73d488",
+      "assertionSha256": "e9dc2b39096ec8dc173cf736e08f5861905dfbc65f15f79abce127bc81a56472",
       "capture": {
         "ok": true,
         "checks": {
@@ -2337,6 +4395,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 320,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 320,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 640,
+          "height": 1688,
+          "bytes": 679593,
+          "sha256": "92e6f4fb1d723f262913829092676380af1d7a95b470d45b43432008b3f7f7dd"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -2346,9 +4430,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2366,13 +4450,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 640,
       "height": 1688,
-      "bytes": 684280,
-      "sha256": "e0d9d6ae036ec6f89afcc98ae232772f7dc240102826b4aafee775595ce5ac30"
+      "bytes": 679593,
+      "sha256": "92e6f4fb1d723f262913829092676380af1d7a95b470d45b43432008b3f7f7dd"
     },
     {
       "path": "field-atlas-gate-close-390.png",
@@ -2382,7 +4490,7 @@
         "height": 844
       },
       "stepSha256": "48d7cfdfb8e70e9b488832d778bda27a318ea66775874a5d135dbd78765e941c",
-      "assertionSha256": "fc635a973a693a5ad822a5895e07b9a20e252cd912ec72999369d7f84fe538d2",
+      "assertionSha256": "b0cdbf88143317461d464a9e7890e808b26f685ef5cc1b4aa7e2844bb9ba370d",
       "capture": {
         "ok": true,
         "checks": {
@@ -2406,6 +4514,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 390,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 390,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 780,
+          "height": 1688,
+          "bytes": 814631,
+          "sha256": "1b0a3912b3cbe36113f0c089e42c285dd933a617c110eacffb329004a4b4ad4e"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -2415,9 +4549,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2435,13 +4569,37 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 780,
       "height": 1688,
-      "bytes": 813000,
-      "sha256": "9f63d81321f1ee3b5e90cacf940de99a68df38f44c070e9957fa2c2953654112"
+      "bytes": 814631,
+      "sha256": "1b0a3912b3cbe36113f0c089e42c285dd933a617c110eacffb329004a4b4ad4e"
     },
     {
       "path": "field-atlas-gate-close-430.png",
@@ -2451,7 +4609,7 @@
         "height": 932
       },
       "stepSha256": "98e0363728206cef456dd9eaa69a6e2f357dfe8149446b945d6512fe1f814a5c",
-      "assertionSha256": "ee6e9885f5cd340991ad91cd69e4ca825705cc65449835e4c98f8bd3b7d719a0",
+      "assertionSha256": "e7442b192a22150a27b813328cafa3fed698c93a579035e56e7cce5f036b0721",
       "capture": {
         "ok": true,
         "checks": {
@@ -2475,6 +4633,32 @@
         },
         "renderedReviewSha256": null
       },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 932,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 932,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1864,
+          "bytes": 928249,
+          "sha256": "7696d4fd5f4ed34aca812eb22f84108139a05678097880577435608595031dd5"
+        }
+      },
       "diagnostics": {
         "uncaughtErrors": 0,
         "consoleErrors": 0,
@@ -2484,9 +4668,9 @@
       },
       "fixtureReceipt": {
         "name": "pending",
-        "observedAt": "2026-11-03T23:40:44.799Z",
-        "inputSha256": "f0cb4fdba47f944711fa8a0e303aab383b8ca13a6f8af0c68cade7156e07be61",
-        "reviewSha256": "d9935ecd688e770538fce9737addabf843f2b27490a900942e18adee65c48a40",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
         "authority": "synthetic-local-founder-read-fixture",
         "envelopeReads": 1,
         "proposalReads": 1,
@@ -2504,13 +4688,521 @@
           "deniedRenewalPOST": 0
         }
       },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
       "requestPosts": 1,
       "browser": "Google Chrome",
       "browserMode": "headless-new",
       "width": 860,
       "height": 1864,
-      "bytes": 932202,
-      "sha256": "0638d517990115514d60828707d52be4e58b7d87984860f78649f97cf4d6808d"
+      "bytes": 928249,
+      "sha256": "7696d4fd5f4ed34aca812eb22f84108139a05678097880577435608595031dd5"
+    },
+    {
+      "path": "field-atlas-gate-reviewed-430x844.png",
+      "state": "gate-reviewed",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "stepSha256": "f13b5758e9830f482640b7005219e9a258ad0a86dba37376449ea1a223c48dbd",
+      "assertionSha256": "53fcfb372f2df2b2806ba6db4c1b0a197323ca74c6d90387e4e017d632e61b63",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true
+        },
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1688,
+          "bytes": 248889,
+          "sha256": "1a8d40c0bc6ae9c2c1b43c05fa854cd82ebd2beb781ebf3dde0d142a20c23cf1"
+        }
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1688,
+      "bytes": 248889,
+      "sha256": "1a8d40c0bc6ae9c2c1b43c05fa854cd82ebd2beb781ebf3dde0d142a20c23cf1"
+    },
+    {
+      "path": "field-atlas-gate-preflight-430x844.png",
+      "state": "gate-preflight",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "stepSha256": "627b4c3b7b83aa71d6a8901615914a1b571dbfd640be894b248e27fe4646a87e",
+      "assertionSha256": "c70ef43a30d2ea26594e550f1576279b2fa646c218b62a298a2edc7f81ddca5c",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "exactCanonicalReview": true,
+          "exactBranchGate": true,
+          "consequenceAndReversal": true,
+          "inspectionBackAndClose": true,
+          "separateApprovalConfirmation": true,
+          "cancelReachable": true
+        },
+        "renderedReviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa"
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1688,
+          "bytes": 201886,
+          "sha256": "ee4f864c0da2ffc687780c075d289a9858ffd736ee7f118a6856d7fe936222bd"
+        }
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1688,
+      "bytes": 201886,
+      "sha256": "ee4f864c0da2ffc687780c075d289a9858ffd736ee7f118a6856d7fe936222bd"
+    },
+    {
+      "path": "field-atlas-gate-back-430x844.png",
+      "state": "gate-back",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "stepSha256": "1eeff810e35351bd46be1c06b60ce3bc93306958edd4022d4b5bc6f5a4da1442",
+      "assertionSha256": "d1d568516a6727a678424f3c6eae8f0479b1c07c5918cdca69bf6ced3b477bd8",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionBackReturnsQueue": true
+        },
+        "renderedReviewSha256": null
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1688,
+          "bytes": 203597,
+          "sha256": "f6c358fb9af7b9520cfbcda93b54d25c8c85dadd9111ba9daed8fee376a2141a"
+        }
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1688,
+      "bytes": 203597,
+      "sha256": "f6c358fb9af7b9520cfbcda93b54d25c8c85dadd9111ba9daed8fee376a2141a"
+    },
+    {
+      "path": "field-atlas-gate-close-430x844.png",
+      "state": "gate-close",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "stepSha256": "1e5218f69059db7a5a3fd96d57511da091267f6daca314229e942494da5fe45a",
+      "assertionSha256": "c72c3eacc8aeb884f6860565341bec4a33961bed332a4c36a8343c513bbc56a5",
+      "capture": {
+        "ok": true,
+        "checks": {
+          "canvas": true,
+          "rendererAvailable": true,
+          "sourceEvidence": true,
+          "viewport": true,
+          "contained": true,
+          "headerContained": true,
+          "headerSeparated": true,
+          "headerTextInside": true,
+          "touchTargets": true,
+          "accessibleControls": true,
+          "state": true,
+          "stateVisible": true,
+          "operationalBoundary": true,
+          "retiredSurfaceAbsent": true
+        },
+        "behaviorChecks": {
+          "inspectionCloseRestoresWorld": true
+        },
+        "renderedReviewSha256": null
+      },
+      "geometry": {
+        "schema": "cambium.viewport-capture-geometry.v1",
+        "cssViewport": {
+          "width": 430,
+          "height": 844,
+          "scrollX": 0,
+          "scrollY": 0
+        },
+        "visualViewport": {
+          "width": 430,
+          "height": 844,
+          "offsetLeft": 0,
+          "offsetTop": 0,
+          "scale": 1
+        },
+        "deviceScaleFactor": 2,
+        "observedClip": null,
+        "clip": null,
+        "clipVisible": null,
+        "png": {
+          "width": 860,
+          "height": 1688,
+          "bytes": 885554,
+          "sha256": "1a53babcb7e7492a5cd3d745650ddaf953f77f33ece73fd931182adf9f35810e"
+        }
+      },
+      "diagnostics": {
+        "uncaughtErrors": 0,
+        "consoleErrors": 0,
+        "failedRequests": 0,
+        "badResponses": 0,
+        "warnings": 0
+      },
+      "fixtureReceipt": {
+        "name": "pending",
+        "observedAt": "2026-11-04T11:06:44.378Z",
+        "inputSha256": "850c2e48b272166c3fc40b316d039c1a2dcaefbb1671c8d78aee7c4af71315a7",
+        "reviewSha256": "2395a0d867006d871f91c5634f26d3294ec4bf4e37afb0a72463034c994403fa",
+        "authority": "synthetic-local-founder-read-fixture",
+        "envelopeReads": 1,
+        "proposalReads": 1,
+        "graphReads": 1,
+        "sessionReads": 2,
+        "decisionPosts": 0,
+        "renewalPosts": 0,
+        "unexpectedRequests": 0,
+        "methodCounts": {
+          "envelopeGET": 1,
+          "sessionGET": 2,
+          "graphGET": 1,
+          "proposalPOST": 1,
+          "deniedDecisionPOST": 0,
+          "deniedRenewalPOST": 0
+        }
+      },
+      "operationalFixtureReceipt": {
+        "authority": "synthetic-loopback-operational-fixture",
+        "selected": false,
+        "ownerRead": {
+          "schema": "cambium.viewport-operational-owner-read.v1",
+          "authority": "synthetic-loopback-operational-fixture",
+          "tenantId": "cambium",
+          "requestId": "ar_viewport_foundation",
+          "optionId": "draft-follow-up",
+          "version": 1,
+          "digest": "30a7a52b23fc3fcc651e55063dad669225b1767f135936554f00e234a21763ed",
+          "observedAt": "2026-11-04T11:03:09.410Z",
+          "expiresAt": "2026-11-04T11:33:09.410Z"
+        },
+        "inputSha256": "26410a7b968a3c6746f821cf67afbef8453a4a36ed50315e3cd53459f2fd62bd",
+        "requests": 0,
+        "gatePosts": 0,
+        "acceptedPosts": 0,
+        "deniedRequests": 0,
+        "duplicatePosts": 0,
+        "state": "held",
+        "pendingResponses": 0,
+        "realOwnerWrites": 0
+      },
+      "requestPosts": 1,
+      "browser": "Google Chrome",
+      "browserMode": "headless-new",
+      "width": 860,
+      "height": 1688,
+      "bytes": 885554,
+      "sha256": "1a53babcb7e7492a5cd3d745650ddaf953f77f33ece73fd931182adf9f35810e"
     }
   ]
 }
