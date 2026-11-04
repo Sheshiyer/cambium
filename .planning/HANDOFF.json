@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-04T10:47:34.166796+00:00",
-  "status": "viewport-plan-accepted-vpg01-source-admitted",
-  "active_task": "Accepted finite viewport ISA/GSD packet; execute VPG-01 only (T1/T2), preserving all 43 retained intents and 11 qualified behaviors. Version 95 baseline; deployment and traffic held.",
+  "updated": "2026-11-04T11:23:31.225992+00:00",
+  "status": "viewport-plan-accepted-vpg01-source-verified-further-execution-held",
+  "active_task": "VPG-01 only is source-verified: closed operational fixture, observed crop receipts and fresh 48-case foundation. All 43 retained intents and 11 qualified behaviors preserved; 32 gaps held. Version 95 baseline; deployment and traffic held.",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -249,7 +249,7 @@
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Execute VPG-01 only from the accepted digest and execution/ACCEPTANCE.json. Require isolated operational fixtures, strict crop receipts and fresh 48-case source evidence. Other packages and external effects remain held.",
+  "next_action": "Read execution/VPG-01-SUMMARY.md and VPG-01-VERIFICATION.md plus the bounded VPG-01 source verification receipt. The VPG-01 admission is consumed; VPG-02 through VPG-10 remain unadmitted. Preserve all 43 retained intents, 11 qualified behaviors and version 95/deployment/traffic holds.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -413,7 +413,7 @@
   "wave": "founder-renewal-3d-runtime-e2e-2026-10-25",
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
-  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-01-PLAN.md",
+  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-SUMMARY.md",
   "extends": "gsd.pause-work.v1",
   "accepted_limitations": [
     "Canonical mobile viewport/trustedtouch proof remains held under explicit owner exception",
@@ -432,7 +432,7 @@
   },
   "continuations": {
     "department_live_integration": {
-      "status": "viewport-plan-accepted-vpg01-source-admitted",
+      "status": "viewport-plan-accepted-vpg01-source-verified-further-execution-held",
       "source_branch": "codex/field-atlas-proof-20261104",
       "handoff": "docs/plans/department-pilot/OWNER-READERS.md",
       "reviewed_source_commit": "db97abf9e6e73df33e707fe824f9d03a38b99503",
@@ -630,7 +630,7 @@
         "narrow_header_finding": "Departments text competes with the header/status at 320/390px; source visual hold."
       },
       "viewport_proof": {
-        "status": "source-verified-retained-operational-qualification-held",
+        "status": "historical-44-frame-source-checkpoint-superseded-by-vpg01",
         "implementation_commit": "7c8c810f47b49fa4c6dd17d341ee4c48e68a9655",
         "manifest": "docs/plans/assets/field-atlas-viewport-proof/manifest.json",
         "manifest_sha256": "ec34e3e1ff9880c0bd86c565b2dcfb3919e6cf0b9bc4db964e08be658138512f",
@@ -707,7 +707,9 @@
           "negative_offscreen_rejected_before_png": true,
           "positive_browser_cases": 7,
           "receipt": "artifact:field-atlas-contract-20261104/framing-probe.json"
-        }
+        },
+        "current_source_checkpoint": "viewport_gap_plan.vpg01",
+        "historical_manifest_git_ref": "64a6d4c5:docs/plans/assets/field-atlas-viewport-proof/manifest.json"
       },
       "gsd_scope_proposals": {
         "status": "ready-for-human-scope-review-only",
@@ -731,7 +733,7 @@
         "canonical_write_approved": false
       },
       "viewport_gap_plan": {
-        "status": "accepted-vpg01-only-admitted",
+        "status": "accepted-vpg01-source-verified-further-packages-held",
         "packet": ".planning/viewport-proof-20261104/remaining-behaviors/README.md",
         "roadmap": ".planning/viewport-proof-20261104/remaining-behaviors/ROADMAP.md",
         "traceability": ".planning/viewport-proof-20261104/remaining-behaviors/TRACEABILITY.md",
@@ -757,23 +759,51 @@
         "accepted_plan_digest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
         "isa_acceptance_ref": "ISA.md#viewport-plan-acceptance-and-vpg-01-admission--2026-11-04",
         "canonical_mapping": null,
-        "admitted_tasks": [
-          "VPG-01-T1",
-          "VPG-01-T2"
-        ],
-        "implementation_authorized": true,
+        "admitted_tasks": [],
+        "implementation_authorized": false,
         "deployment_authorized": false,
         "traffic_authorized": false,
         "active_root_phase9_unchanged": true,
-        "verification": "artifact:viewport-gap-plan-20261104/verification-receipt.json",
+        "verification": "artifact:viewport-vpg01-20261104/source-verification-receipt.json",
         "technical_review_status": "passed",
         "proposal_validation_status": "passed-with-10-negative-controls",
         "acceptance": ".planning/viewport-proof-20261104/remaining-behaviors/execution/ACCEPTANCE.json",
-        "admitted_plans": [
+        "admitted_plans": [],
+        "implementation_scope": "VPG-01 completed; no further package admitted",
+        "remaining_plans_admitted": false,
+        "scope_accepted": true,
+        "completed_tasks": [
+          "VPG-01-T1",
+          "VPG-01-T2"
+        ],
+        "completed_plans": [
           "VPG-01"
         ],
-        "implementation_scope": "VPG-01 local source and evidence only",
-        "remaining_plans_admitted": false
+        "admission_consumed": true,
+        "vpg01": {
+          "status": "source-verified",
+          "summary": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-SUMMARY.md",
+          "independent_review": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-VERIFICATION.md",
+          "source_commit": "9ffaf8a0a5c4815a4c9dc0e48bf1be152474ad4d",
+          "evidence_commit": "9ec9f781e27893be66a21134c73cf7fd7e987a61",
+          "source_frames": 48,
+          "source_bindings": 21,
+          "manifest_sha256": "18b6196b9e4d56bba02ad627f664e66fd1695a9058bea6340df1d00d89fc754d",
+          "source_proof_ok": true,
+          "retained_intents": 43,
+          "qualified": 11,
+          "held": 32,
+          "newly_qualified": 0,
+          "frozen_full_suite": {
+            "pass": 2734,
+            "fail": 0,
+            "skip": 0,
+            "source_commit": "366d7617f08d6b31addbc270302350892d9360be"
+          },
+          "focused_boundary_tests": 23,
+          "all48_images_independently_viewed": true,
+          "prior47_history_and_founder_fixture_byte_identical": true
+        }
       }
     }
   }

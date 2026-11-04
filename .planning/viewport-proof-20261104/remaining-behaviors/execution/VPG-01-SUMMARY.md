@@ -101,8 +101,8 @@ behavior equivalent or clipped matrix case was registered.
   canonical matrix and qualify no gap; receipts are under
   `artifact:viewport-vpg01-20261104/crop-diagnostic`.
 
-The independent code/image review and frozen final full suite are pending in the
-parent continuation. No full-suite result is claimed by this executor.
+At the executor checkpoint, independent code/image review and the frozen full
+suite were pending in the parent continuation; final parent results follow below.
 
 ## Deviations from plan
 
@@ -133,3 +133,18 @@ The implementation/evidence commits exist, all owned source and proof artifacts
 exist, strict source audit passes and original history/founder fixture bytes are
 preserved. This check concerns VPG-01 source delivery; independent final review
 and owner acceptance remain separate.
+
+## Parent verification and bounded closeout
+
+Independent VPG-01 verification passes with no blockers or warnings and all 48
+canonical images individually viewed. The parent frozen suite at `366d7617`
+passes 2734/2734 with zero failures/skips and unchanged independent Git metadata
+and tracked state. App 95/95, strict typecheck, bundle parity, drift/standalone,
+atlas and retired-runtime checks pass; all 93 prior Worker runtime inputs match.
+Exact results belong to `artifact:viewport-vpg01-20261104/source-verification-receipt.json`
+and `VPG-01-VERIFICATION.md`. The final checkpoint delta is documentation/status
+only; implementation, capture inputs and PNG bytes remain the reviewed cut.
+
+The two-task admission is consumed. VPG-02 onward remain unadmitted. All 43
+retained intents and 11 qualified behaviors remain required; 32 gaps remain held.
+Version 95, deployment, traffic, real owner and device/runtime holds remain.
