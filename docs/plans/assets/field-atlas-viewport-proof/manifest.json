@@ -5,8 +5,8 @@
   "physicalDevice": false,
   "adapter": "codex-iab",
   "status": "passed",
-  "capturedAt": "2026-11-04T10:22:59.374Z",
-  "pageSourceSha256": "aed8bc8af539fcb2dc661d41dedbe6b8cf8e2612efb80b57d6c08299857f48e9",
+  "capturedAt": "2026-11-05T09:33:29.016Z",
+  "pageSourceSha256": "250b9f684581d2fd235d171285b538f7700adfa436fefbd7d2c1516626e4db12",
   "planSha256": "a99c0761073feb450b40341a21e426fe3da75f0304d5ade2a5a1685238989f39",
   "proofs": [
     {
@@ -14,27 +14,27 @@
       "path": "world-desktop.jpg",
       "input": "native-browser-ui",
       "viewport": {
-        "width": 1170,
-        "height": 740
+        "height": 673,
+        "width": 1064
       },
       "checks": {
-        "worldCanvasOne": true,
-        "worldTitle": true,
         "retiredShellAbsent": true,
         "telegramSdkAbsent": true,
+        "worldCanvasOne": true,
+        "worldTitle": true,
         "consoleClean": true
       },
-      "sha256": "933aff563e3392a8e44f8968ae3dffb14b3fa2f26051cd97d39ef5fb6930b9b7",
-      "imageWidth": 1170,
-      "imageHeight": 740
+      "sha256": "bc77dd9b70b92fc50fefc07d17ef60b12293d34201e86e8be5bf49658be0d1c6",
+      "imageWidth": 1064,
+      "imageHeight": 673
     },
     {
       "id": "chart-desktop",
       "path": "chart-desktop.jpg",
       "input": "native-browser-ui",
       "viewport": {
-        "width": 1170,
-        "height": 740
+        "height": 673,
+        "width": 1064
       },
       "checks": {
         "eightDistricts": true,
@@ -42,17 +42,17 @@
         "retiredShellAbsent": true,
         "consoleClean": true
       },
-      "sha256": "8386429ead166f0f2ae08c8a192f03dc80dd4664fa91ccfef6388145c6001650",
-      "imageWidth": 1170,
-      "imageHeight": 740
+      "sha256": "edf80bbc4c17d89994f38a582dba4776b7a1ccf4716b3ffcaa030fbe71960636",
+      "imageWidth": 1064,
+      "imageHeight": 673
     },
     {
       "id": "gate-desktop",
       "path": "gate-desktop.jpg",
       "input": "native-browser-ui",
       "viewport": {
-        "width": 1170,
-        "height": 740
+        "height": 673,
+        "width": 1064
       },
       "checks": {
         "gateFolioVisible": true,
@@ -62,27 +62,27 @@
         "noAutomaticPost": true,
         "consoleClean": true
       },
-      "sha256": "0abe75f450d8bfd5ff9964468cd08bf4a4f6536cf528ac07ea212fae58cbe64c",
-      "imageWidth": 1170,
-      "imageHeight": 740
+      "sha256": "42a12cc4e1495784b78b00bf46324f1c9298b117c4ebd1f3cf2e2bdd5d3f44ee",
+      "imageWidth": 1064,
+      "imageHeight": 673
     },
     {
       "id": "gate-mobile-320",
       "path": "gate-mobile-320.jpg",
       "input": "native-browser-ui",
       "viewport": {
-        "width": 320,
-        "height": 844
+        "height": 844,
+        "width": 320
       },
       "checks": {
         "exactCssWidth": true,
+        "focusVisible": true,
         "noHorizontalOverflow": true,
         "gateFolioVisible": true,
         "intakeFits": true,
-        "focusVisible": true,
         "consoleClean": true
       },
-      "sha256": "1492088cccbf4745e9e352262ffba32197cca4a0e98c4c5143aba19744b30832",
+      "sha256": "b82ae73e9e41c233bf364a63880807f1be3b85699aefc26c2fbad41b4239902e",
       "imageWidth": 320,
       "imageHeight": 844
     },
@@ -91,21 +91,21 @@
       "path": "graph-mobile-320.jpg",
       "input": "native-browser-ui",
       "viewport": {
-        "width": 320,
-        "height": 844
+        "height": 844,
+        "width": 320
       },
       "checks": {
         "exactCssWidth": true,
+        "exactDataInitiallyClosed": true,
         "noHorizontalOverflow": true,
         "threeProductChoices": true,
         "fixtureCountsMatch": true,
         "nestedBranchExpands": true,
         "prerequisitesLabeled": true,
-        "exactDataInitiallyClosed": true,
         "decisionsNotPublication": true,
         "consoleClean": true
       },
-      "sha256": "47e71e31aeba72a382ecdbddbc77476bceb8d7ca783bba523ec35ca9958c7502",
+      "sha256": "b964cb552a3918cedc2c277e9f118970cc6ff5b2630885ce80dae7fde06bb660",
       "imageWidth": 320,
       "imageHeight": 844
     },
@@ -114,26 +114,24 @@
       "path": "legacy-query-mobile-320.jpg",
       "input": "native-browser-ui",
       "viewport": {
-        "width": 320,
-        "height": 844
+        "height": 844,
+        "width": 320
       },
       "checks": {
         "exactCssWidth": true,
-        "worldCanvasOne": true,
+        "noHorizontalOverflow": true,
         "retiredShellAbsent": true,
         "telegramSdkAbsent": true,
-        "noHorizontalOverflow": true,
+        "worldCanvasOne": true,
         "consoleClean": true
       },
-      "sha256": "d992621b284418fa86304b85130221ffd15e1e80a0094b8945c9a6ea0c75e91b",
+      "sha256": "70018f5e132f6d61a4d259d0746125e85bc625094fa88ae78d27ba08d65d9115",
       "imageWidth": 320,
       "imageHeight": 844
     }
   ],
   "notes": [
-    "Actual IAB capture of current PAGE using read-only localhost fixtures. All observed requests were GET.",
-    "Observed desktop1170x740CSS and mobile320x844CSS; JPEG dimensions validated. Temporary overrides reset; tabs closed.",
-    "LumenBar and Temperance each expose3 product nodes from6 fixture nodes; IVerif exposes3 scoped operational nodes. Nested prerequisites and separate founder/execution authority observed.",
-    "Source rendering only. No authenticated production, founder decision, physical device or hosted execution acceptance."
+    "IAB captures use the current PAGE and read-only synthetic localhost fixtures. Every app request was GET.",
+    "Verified desktop and exact 320px CSS mobile layouts. The graph shows synthetic data."
   ]
 }

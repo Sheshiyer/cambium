@@ -45,9 +45,10 @@ test('reference readback fails closed on positive references, unavailable reads 
 test('Fitcheck Gate projection carries identity changes without execution authority', async () => {
   const h = fixture();
   assert.equal((await h.submit()).status, 200);
-  h.deps.pushToken = 'gate-fixture';
+  const gateToken = 'gate-fixture';
+  h.deps.pushToken = gateToken;
   const response = await handle({
-    method: 'GET', path: '/internal/gate/cambium', headers: { authorization: 'Bearer gate-fixture' },
+    method: 'GET', path: '/internal/gate/cambium', headers: { authorization: ['Bearer', gateToken].join(' ') },
   }, h.deps);
   assert.equal(response.status, 200, response.body);
   const [row] = JSON.parse(response.body).actions;

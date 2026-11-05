@@ -29,8 +29,9 @@ test('real handler prepares a complete canonical native review, commits through 
   const preview=await h.call('GET','/v1/directions/cambium/direction-1/execution-review');assert.equal(preview.status,200,preview.body);assert.equal(body(preview).executionGranted,false);
   const request={schema:'cambium.direction-execution-intent.v1',operationId:'prepare-1',directionRevision:1,expectedHeadDigest:body(preview).expectedHeadDigest,policyDigest:body(preview).policyDigest};
   const prepared=await h.call('POST','/v1/directions/cambium/direction-1/proposal',request);assert.equal(prepared.status,200,prepared.body);const p=body(prepared);assert.equal(p.writerAuthority,false);assert.equal((await h.graph.readHead('cambium'))?.graphVersion,1);
-  h.deps.pushToken = 'gate-fixture';
-  const gate = await h.call('GET', '/internal/gate/cambium', undefined, { authorization: 'Bearer gate-fixture' });
+  const gateToken = 'gate-fixture';
+  h.deps.pushToken = gateToken;
+  const gate = await h.call('GET', '/internal/gate/cambium', undefined, { authorization: ['Bearer', gateToken].join(' ') });
   assert.equal(gate.status, 200, gate.body);
   const [row] = body(gate).actions;
   assert.equal(row.source, 'native-direction-execution@v1');
