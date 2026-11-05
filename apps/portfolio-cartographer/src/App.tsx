@@ -1,3 +1,5 @@
+import { DescriptiveMappings } from './DescriptiveMappings.ts'
+import { MappingAnnotation } from './MappingAnnotation.ts'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react'
 import { operationalPacketProjectionFor, reviewedRepositoryComponentsFor, repositoryComponentsForIntake } from '../../../shared/operational-packet-registry.ts'
@@ -1059,6 +1061,7 @@ function PlanDrawer({
         aria-labelledby={`drawer-tab-${tab}`}
         tabIndex={0}
       >
+        <MappingAnnotation workId={work.workId} />
         {tab === 'operate' && operationalProjection && <OperationalPacketOperate projection={operationalProjection} />}
         {tab === 'intake' && (
           <section className="drawer-section overview-section intake-section">
@@ -2086,6 +2089,7 @@ function App() {
           )}
         </div>
 
+        <DescriptiveMappings />
         <footer className="workspace-footer">
           <div><ShieldCheck /> <span>{CARTOGRAPHER_SCHEMA} · admin actions receipted</span></div>
           <p aria-live="polite">{notice}</p>

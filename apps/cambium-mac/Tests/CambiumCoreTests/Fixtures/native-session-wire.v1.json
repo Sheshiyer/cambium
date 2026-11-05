@@ -1,0 +1,46 @@
+{
+  "contractVersion": "cambium.native-session.v1",
+  "synthetic": "Deterministic synthetic values for wire tests. Not real credentials.",
+  "clientId": "space.thoughtseed.cambium.native.dev",
+  "redirectUri": "space.thoughtseed.cambium.native.dev://oauth/callback",
+  "authorizeQuery": {
+    "client_id": "space.thoughtseed.cambium.native.dev",
+    "redirect_uri": "space.thoughtseed.cambium.native.dev://oauth/callback",
+    "code_challenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+    "code_challenge_method": "S256",
+    "state": "abcdefghijklmnopqrstuvwx"
+  },
+  "authorizeResponseLocation": "space.thoughtseed.cambium.native.dev://oauth/callback?code=cnc1_AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI&state=abcdefghijklmnopqrstuvwx",
+  "exchangeRequest": {
+    "contractVersion": "cambium.native-session.v1",
+    "clientId": "space.thoughtseed.cambium.native.dev",
+    "code": "cnc1_AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI",
+    "codeVerifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+    "redirectUri": "space.thoughtseed.cambium.native.dev://oauth/callback"
+  },
+  "exchangeResponse": {
+    "contractVersion": "cambium.native-session.v1",
+    "token": "cns1_AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM",
+    "tokenType": "Bearer",
+    "expiresAt": "2026-11-02T00:45:00.123Z",
+    "founderId": "founder-synth-1",
+    "tenantId": "tenant-alpha",
+    "clientId": "space.thoughtseed.cambium.native.dev",
+    "role": "founder",
+    "enrolled": true
+  },
+  "sessionReadResponse": {
+    "contractVersion": "cambium.native-session.v1",
+    "tokenType": "Bearer",
+    "expiresAt": "2026-11-02T00:45:00.123Z",
+    "founderId": "founder-synth-1",
+    "tenantId": "tenant-alpha",
+    "clientId": "space.thoughtseed.cambium.native.dev",
+    "role": "founder",
+    "enrolled": true
+  },
+  "logoutResponse": {
+    "contractVersion": "cambium.native-session.v1",
+    "revoked": true
+  }
+}

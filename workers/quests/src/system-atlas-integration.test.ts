@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { PAGE, LEGACY_PAGE } from './page/index.ts';
+// Historical artifact regressions; current Field Atlas is tested separately.
+import { RETIRED_PAGE as PAGE, LEGACY_PAGE } from './page/retired.ts';
 import { SYSTEM_ATLAS_BROWSER, SYSTEM_ATLAS_CSS } from './page/components/system-atlas.ts';
 import { NO_FAKE_PROGRESS_VISUAL_FIXTURE } from './visual-fixtures.ts';
 

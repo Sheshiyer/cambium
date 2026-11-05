@@ -290,9 +290,12 @@ test('route resolves governed operational anchors into loadout and cluster edges
   })];
   const facts = {
     ...questFacts(), tasks: [], fences: [], runs: [], receipts: [], agents: [],
-    skillClusters: [], taskClusterAssignments: [], gaps: [],
+    skillClusters: [{ clusterId: 'cluster:fitcheck-no-spend', state: 'active', capabilities: [], eligibleAgentIds: [], sourceRef: 'quest:fitcheck-cluster' }],
+    taskClusterAssignments: [], gaps: [],
   };
-  const result = await requestFabric({ nodes, facts, receipts: [] });
+  const result = await requestFabric({ nodes, facts, receipts: [], branchStories: [
+    { branchId: 'fitcheck', branchKind: 'product', canonicalWorkId: 'sapling:fitcheck', name: 'Fitcheck', source: { tenant: TENANT } },
+  ] });
   assert.equal(result.status, 200);
   assert.ok(result.json.projection.edges.some((edge: { kind: string; fromId: string; toId: string }) => (
     edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck' && edge.toId === 'task-fitcheck-launch'
@@ -496,4 +499,131 @@ test('non-finite authoritative fences fail closed', async () => {
   assert.ok(gapKinds.includes('unverifiable-fence'), 'a non-finite run fence against an authoritative collection emits an unverifiable-fence gap');
   const survivingRuns = unverifiable.json.projection.nodes.filter((node: { kind: string }) => node.kind === 'run');
   assert.deepEqual(survivingRuns, []);
+});
+
+async function authorityFailure(mutate: (deps: HandlerDeps) => void): Promise<{ status: number; json: any; raw: string }> {
+  const auth = await signedInitData();
+  const { deps } = fabricDeps({
+    initData: auth.initData,
+    pubKeyHex: auth.pubKeyHex,
+    allowlist: [TENANT],
+  });
+  mutate(deps);
+  const response = await handle({
+    method: 'GET',
+    path: `/v1/mission-fabric/${TENANT}`,
+    headers: { 'x-telegram-init-data': auth.initData },
+  }, deps);
+  const raw = typeof response.body === 'string' ? response.body : '';
+  return { status: response.status, json: raw.startsWith('{') ? JSON.parse(raw) : null, raw };
+}
+
+function assertAuthorityReason(result: { status: number; json: any; raw: string }, reason: string, leaked: string) {
+  assert.equal(result.status, 503);
+  assert.deepEqual(result.json, { error: 'mission_fabric_authority_unavailable', reason });
+  assert.equal(result.raw.includes(leaked), false);
+}
+
+test('a catalog anchor cannot fabricate a missing operational work endpoint', async () => {
+  const result = await authorityFailure((deps) => {
+    deps.goalGraphStore!.readNodes = async () => [goalNode('gg-fitcheck', 'task-fitcheck', null,
+      { workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling' })];
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.json.projection.nodes.some((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck'), false);
+  assert.equal(result.json.projection.edges.some((edge: any) => edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck'), false);
+  assert.ok(result.json.projection.gaps.some((gap: any) => gap.kind === 'missing-join' && gap.subjectId === 'sapling:fitcheck'));
+});
+
+test('the read preserves more than 128 source gaps and refuses overflow at the shared bound', async () => {
+  for (const [count, expected] of [[132, 200], [257, 503]]) {
+    const result = await authorityFailure((deps) => {
+      deps.goalGraphStore!.readNodes = async () => Array.from({ length: count }, (_, i) => goalNode(`gg-cap-${i}`, `task-cap-${i}`, null));
+    });
+    assert.equal(result.status, expected);
+    if (expected === 200) assert.ok(result.json.projection.gaps.length > 128);
+    else assert.equal(result.json.error, 'mission_fabric_gap_overflow');
+  }
+});
+
+test('a ledger without execution facts still serves its graph with an explicit source gap', async () => {
+  const result = await authorityFailure((deps) => {
+    const read = deps.kv.get.bind(deps.kv);
+    deps.kv.get = async (key) => {
+      const raw = await read(key);
+      if (typeof raw !== 'string') return raw;
+      const ledger = JSON.parse(raw);
+      delete ledger.fabricFacts;
+      return JSON.stringify(ledger);
+    };
+  });
+  assert.equal(result.status, 200);
+  assert.ok(result.json.projection.nodes.length > 0);
+  assert.ok(result.json.projection.gaps.some((gap: any) => gap.gapId === 'gap-execution-facts-source-missing' && gap.kind === 'missing-source'));
+  assert.equal(result.json.projection.nodes.some((node: any) => node.kind === 'run' || node.kind === 'receipt'), false);
+  assert.equal(result.json.projection.readOnly, true);
+});
+
+test('mission fabric authority failures name the stage and omit the exception', async () => {
+  const head = await authorityFailure((deps) => {
+    deps.goalGraphStore!.readHead = async () => { throw new Error('head-read-secret'); };
+  });
+  assertAuthorityReason(head, 'store_read', 'head-read-secret');
+
+  const nodes = await authorityFailure((deps) => {
+    deps.goalGraphStore!.readNodes = async () => { throw new Error('node-read-secret'); };
+  });
+  assertAuthorityReason(nodes, 'store_read', 'node-read-secret');
+
+  const receipts = await authorityFailure((deps) => {
+    deps.branchMapReceiptStore!.listReceipts = async () => { throw new Error('receipt-list-secret'); };
+  });
+  assertAuthorityReason(receipts, 'store_read', 'receipt-list-secret');
+
+  const ledger = await authorityFailure((deps) => {
+    deps.kv.get = async () => { throw new Error('ledger-get-secret'); };
+  });
+  assertAuthorityReason(ledger, 'ledger', 'ledger-get-secret');
+
+  const projection = await authorityFailure((deps) => {
+    deps.now = () => { throw new Error('projection-clock-secret'); };
+  });
+  assertAuthorityReason(projection, 'projection', 'projection-clock-secret');
+
+  const foldback = await authorityFailure((deps) => {
+    const readEnvelope = deps.kv.get.bind(deps.kv);
+    deps.kv.get = async (key) => {
+      const raw = await readEnvelope(key);
+      if (typeof raw !== 'string') return raw;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      parsed.foldbackReceipts = [{ r2Key: 'r2://bad', binding: {} }];
+      return JSON.stringify(parsed);
+    };
+    deps.foldbackReader = {
+      async read() { return null; },
+      async discover() { return []; },
+    };
+  });
+  assertAuthorityReason(foldback, 'foldback', 'invalid foldback reference');
+
+  const discovered = await authorityFailure((deps) => {
+    const readNodes = deps.goalGraphStore!.readNodes.bind(deps.goalGraphStore);
+    deps.goalGraphStore!.readNodes = async (tenantId) => {
+      const rows = await readNodes(tenantId);
+      return rows.map((node, index) => index === 0 ? {
+        ...node,
+        workObjectId: 'work-fabric',
+        workObjectKind: 'sapling' as const,
+        pinnedLoadoutId: 'loadout-a1',
+      } : node);
+    };
+    deps.foldbackReader = {
+      async discover() { throw new Error('discover-secret'); },
+      async read() { return null; },
+    };
+  });
+  assert.equal(discovered.status, 200);
+  assert.equal(discovered.raw.includes('discover-secret'), false);
+  const gapKinds = discovered.json.projection.gaps.map((gap: { kind: string }) => gap.kind);
+  assert.ok(gapKinds.includes('foldback-discovery-held'));
 });

@@ -1,0 +1,20 @@
+{
+  "name": "thoughtseed-cambium",
+  "interface": {
+    "displayName": "Thoughtseed Cambium"
+  },
+  "plugins": [
+    {
+      "name": "cambium-infinite-game",
+      "source": {
+        "source": "local",
+        "path": "./openai/cambium-infinite-game"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

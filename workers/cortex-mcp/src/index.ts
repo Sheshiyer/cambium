@@ -13,6 +13,7 @@ import {
 } from "./taste-compose.ts";
 
 import { recallOperatorMemory } from "./semantic-recall.ts";
+import { handleCortexFetch } from "./mcp-http.ts";
 
 export interface Env {
   NVIDIA_API_KEY?: string;
@@ -515,101 +516,28 @@ export function createCortexMcpServer(env: Env) {
   return server;
 }
 
+async function listedLegacyTools(env: Env) {
+  const server = createCortexMcpServer(env);
+  const listed = await (server as any)._requestHandlers.get("tools/list")({
+    method: "tools/list",
+    params: {},
+  });
+  return listed.tools;
+}
+
+async function callLegacyTool(env: Env, name: string, args: Record<string, unknown> | undefined) {
+  const server = createCortexMcpServer(env);
+  return (server as any)._requestHandlers.get("tools/call")({
+    method: "tools/call",
+    params: { name, arguments: args },
+  });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      });
-    }
-
-    const url = new URL(request.url);
-
-    if (url.pathname === "/health" || url.pathname === "/v1/health") {
-      return new Response(JSON.stringify({ ok: true, service: "cortex-mcp" }), {
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    if (url.pathname === "/mcp" || url.pathname === "/v1/mcp" || url.pathname === "/") {
-      if (request.method !== "POST") {
-        return new Response("MCP endpoint requires POST", { status: 405 });
-      }
-      const token = env.CONTEXT_ROUTE_TOKEN;
-      if (!token || request.headers.get("authorization") !== `Bearer ${token}`) {
-        return new Response(JSON.stringify({ error: "bad or missing context route credential" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      try {
-        const body = await request.json();
-        const server = createCortexMcpServer(env);
-
-        const { id, method, params } = body as any;
-        const rpcHeaders = {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        };
-        const rpcOk = (result: unknown) =>
-          new Response(JSON.stringify({ jsonrpc: "2.0", id, result }), { headers: rpcHeaders });
-        const rpcErr = (code: number, message: string, status = 200) =>
-          new Response(JSON.stringify({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }), {
-            headers: rpcHeaders,
-            status,
-          });
-
-        // Hermes reports Method not found unless initialize is implemented.
-        if (method === "initialize") {
-          return rpcOk({
-            protocolVersion: "2025-06-18",
-            capabilities: { tools: { listChanged: false } },
-            serverInfo: { name: "cortex-mcp", version: "1.1.1" },
-            instructions:
-              "Read-only Cortex MCP. Tools: taste_cortex_query, taste_cortex_get_blob, taste_cortex_compose, semantic_recall, organ_atlas_lookup, capability_hit_evaluate, cortex_health.",
-          });
-        }
-
-        if (method === "notifications/initialized" || method === "initialized") {
-          return new Response(null, { status: 202, headers: { "Access-Control-Allow-Origin": "*" } });
-        }
-
-        if (method === "ping") {
-          return rpcOk({});
-        }
-
-        if (method === "server/discover") {
-          return rpcOk({
-            protocolVersion: "2025-06-18",
-            capabilities: { tools: { listChanged: false } },
-            serverInfo: { name: "cortex-mcp", version: "1.1.1" },
-          });
-        }
-
-        if (method === "tools/list") {
-          const res = await (server as any)._requestHandlers.get("tools/list")({ method, params });
-          return rpcOk(res);
-        }
-
-        if (method === "tools/call") {
-          const res = await (server as any)._requestHandlers.get("tools/call")({ method, params });
-          return rpcOk(res);
-        }
-
-        return rpcErr(-32601, `Method not found: ${method}`);
-      } catch (err: any) {
-        return new Response(
-          JSON.stringify({ jsonrpc: "2.0", error: { code: -32603, message: err.message || "Internal error" } }),
-          { headers: { "Content-Type": "application/json" }, status: 500 }
-        );
-      }
-    }
-
-    return new Response("Not Found", { status: 404 });
+    return handleCortexFetch(request, env, {
+      legacyTools: () => listedLegacyTools(env),
+      callTool: (name, args) => callLegacyTool(env, name, args),
+    });
   },
 };

@@ -28,10 +28,10 @@ import type { D1DatabaseLike, D1StatementLike } from './index.ts';
 import type { IVerifExpleeObserver } from './iverif-explee.ts';
 import { d1LeadRuntimeStore } from './lead-runtime-store.ts';
 import { makeGoalGraphHead } from './goal-graph/compiler.ts';
-import { PAGE } from './page.ts';
-import { LEGACY_PAGE } from './page/index.ts';
+// Legacy UI regressions use an explicit retired fixture, never the serving PAGE.
+import { RETIRED_PAGE as PAGE, LEGACY_PAGE } from './page/retired.ts';
 import { OPERATING_FABRIC_PAGE } from './page/operating-fabric/index.ts';
-import { CURIOUS_WORLD_PAGE } from './page/components/curious-world.ts';
+import { CURIOUS_WORLD_PAGE } from './page/components/retired-curious-world.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { parseToolsCommandProjection } from './page/scenes/tools.ts';
 import {
@@ -17292,4 +17292,129 @@ test('canonical renewal · stale undecided task is surfaced renew-only and read 
   assert.equal(renewal.status, 200, renewal.body);
   assert.equal(body(renewal).status, 'renewed');
   assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+});
+
+
+function founderBookkeepingInput() {
+  return { schema: 'cambium.founder.goal-graph-intent.v1', version: 1, tenantId: 'cambium',
+    clientRequestId: 'launch-evidence-001', goals: [{ namespace: 'founder-bookkeeping', externalId: 'launch-root',
+      parentNodeId: null, scope: 'meso', desiredState: 'Track verified launch evidence.',
+      currentState: 'Website and video verified; social voice revision held.', owner: 'founder', status: 'paused',
+      metadata: { publicPostsObserved: 0 }, workObjectId: 'sapling:lumen-bar', workObjectKind: 'sapling' }] };
+}
+
+test('founder bookkeeping intake · real Access route stores only pending, full review and existing exact decision commits', async () => {
+  const h = await canonicalFounderHarness();
+  const before = new Map(h.kv.store);
+  const raw = founderBookkeepingInput();
+  const { resolveNodeId } = await import('./goal-graph/identity.ts');
+  const parent = resolveNodeId({ tenantId: 'cambium', namespace: 'founder-bookkeeping', externalId: 'launch-root', sourceRef: '', sourceDigest: '' });
+  raw.goals.push({ ...raw.goals[0], externalId: 'temperance-docs', parentNodeId: parent as any,
+    workObjectId: 'program:temperance-hermes', workObjectKind: 'program' });
+  const intake = await h.call('intake', raw);
+  assert.equal(intake.status, 200, intake.body);
+  const receipt = body(intake);
+  assert.equal(receipt.status, 'pending'); assert.equal(receipt.writerAuthority, false); assert.equal(receipt.executionGranted, false);
+  assert.match(receipt.sourceRef, /^founder-web:cambium:/); assert.doesNotMatch(receipt.sourceRef, /telegram/);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n, 0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  for (const [key,value] of before) assert.equal(h.kv.store.get(key), value, 'unrelated queued proposals untouched');
+  const read = await h.call('proposal', { proposalId: receipt.proposalId });
+  assert.equal(read.status, 200, read.body);
+  const review = body(read);
+  assert.equal(review.proposal.review.source, 'founder-web-bookkeeping@v1');
+  assert.equal(review.proposal.review.bookkeepingChanges.nodesToCreate.length, 2);
+  assert.equal(review.proposal.review.bookkeepingChanges.nodesToRemove.length, 0);
+  const decision = await h.call('decision', canonicalDecision(review));
+  assert.equal(decision.status, 200, decision.body); assert.equal(body(decision).status, 'approved');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n, 2);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 1);
+  const nodes = await h.deps.goalGraphStore.readNodes('cambium');
+  assert.deepEqual(nodes.map(node => node.workObjectId).sort(), ['program:temperance-hermes','sapling:lumen-bar']);
+  assert.ok(nodes.every(node => node.pinnedLoadoutId === null));
+  const status = await h.call('status', canonicalDecision(review));
+  assert.equal(body(status).receiptDigest, body(decision).receiptDigest);
+  const readback = await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);
+  assert.equal(readback.status,200,readback.body);
+  const graph=body(readback);assert.equal(graph.nodes.length,2);assert.equal(graph.edges.length,1);
+  assert.equal(graph.decisions.length,1);assert.equal(graph.decisions[0].decision,'approved');
+  assert.equal(graph.canonicalReadback,true);assert.equal(graph.writerAuthority,false);
+  assert.equal(graph.head.graphVersion,1);assert.equal(graph.rootId,nodes.find(node=>node.parentNodeId===null)?.nodeId);
+  assert.deepEqual(Object.keys(graph.head).sort(),['graphDigest','graphVersion','tenantId']);
+  assert.equal(readback.headers['cache-control'],'private, no-store');
+  assert.doesNotMatch(readback.body,/CF_Authorization|founder@thoughtseed/);
+});
+
+test('founder bookkeeping intake · duplicate is one task, changed same request conflicts without graph writes', async () => {
+  const h = await canonicalFounderHarness(); const raw = founderBookkeepingInput();
+  const first = body(await h.call('intake',raw));
+  const count = h.kv.store.size;
+  const repeat = body(await h.call('intake',raw));
+  assert.equal(repeat.duplicate,true); assert.equal(first.changeDigest,repeat.changeDigest); assert.equal(h.kv.store.size,count);
+  raw.goals[0].currentState='Updated evidence requires a new reviewed request.';
+  const conflict = await h.call('intake',raw);assert.equal(conflict.status,409,conflict.body);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n,0);
+});
+
+test('founder bookkeeping intake · role, CSRF, enrollment and authority-field failures cannot write', async () => {
+  for (const session of [null,{ ...FOUNDER_SESSION,role:'employee' }]) {
+    const h=await canonicalFounderHarness(session); const before=h.kv.store.size;
+    assert.equal((await h.call('intake',founderBookkeepingInput())).status,401);
+    assert.equal(h.kv.store.size,before);
+  }
+  const h=await canonicalFounderHarness(); const raw=founderBookkeepingInput();
+  assert.equal((await h.call('intake',raw,{ origin:'https://other.invalid' })).status,403);
+  h.deps.founderGateBindingsJson=JSON.stringify([{founderId:'access:other',tenantId:'cambium'}]);
+  assert.equal((await h.call('intake',raw)).status,403);
+  h.deps.founderGateBindingsJson=JSON.stringify([{founderId:'access:pid_founder_web',tenantId:'cambium'}]);
+  (raw.goals[0] as any).pinnedLoadoutId='loadout:fitcheck-launch';
+  const invalid=await h.call('intake',raw);assert.equal(body(invalid).accepted,false);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n,0);
+});
+
+
+test('founder bookkeeping intake · graph read refuses nonfounder, cross-origin and torn authority', async () => {
+  const h=await canonicalFounderHarness();
+  assert.equal((await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders({origin:'https://other.invalid'})}),h.deps)).status,403);
+  assert.equal((await handle(req('POST','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps)).status,405);
+  const original=h.deps.goalGraphStore.readNodes;
+  h.deps.goalGraphStore.readNodes=async()=>{throw new Error('unavailable')};
+  // No graph exists yet, so read does not fall back to projections or local data.
+  assert.equal((await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps)).status,404);
+  h.deps.goalGraphStore.readNodes=original;
+  const receipt=body(await h.call('intake',founderBookkeepingInput()));
+  const review=body(await h.call('proposal',{proposalId:receipt.proposalId}));
+  assert.equal(body(await h.call('decision',canonicalDecision(review))).status,'approved');
+  h.deps.goalGraphStore.readNodes=async()=>[];
+  const torn=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);
+  assert.equal(torn.status,503);assert.equal(body(torn).error,'goal_graph_read_unconfirmed');
+});
+
+test('founder bookkeeping intake · canonical rejection remains visible without advancing the graph head', async () => {
+  const h=await canonicalFounderHarness();
+  const input=founderBookkeepingInput();
+  const first=body(await h.call('intake',input));
+  const firstReview=body(await h.call('proposal',{proposalId:first.proposalId}));
+  assert.equal(body(await h.call('decision',canonicalDecision(firstReview))).status,'approved');
+  const before=await h.deps.goalGraphStore.readHead('cambium');
+  const nodesBefore=await h.deps.goalGraphStore.readNodes('cambium');
+  input.clientRequestId='launch-evidence-rejected-002';
+  input.goals[0].currentState='A proposed new observation is not accepted.';
+  const proposed=body(await h.call('intake',input));
+  assert.equal(proposed.graphVersion,before!.graphVersion+1);
+  const review=body(await h.call('proposal',{proposalId:proposed.proposalId}));
+  const rejected=await h.call('decision',canonicalDecision(review,'rejected'));
+  assert.equal(rejected.status,200,rejected.body);assert.equal(body(rejected).status,'rejected');
+  assert.deepEqual(await h.deps.goalGraphStore.readHead('cambium'),before);
+  assert.deepEqual(await h.deps.goalGraphStore.readNodes('cambium'),nodesBefore);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n,2);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n,1);
+  const read=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);
+  assert.equal(read.status,200,read.body);
+  const graph=body(read);assert.equal(graph.head.graphVersion,before!.graphVersion);
+  const observed=graph.decisions.find((d:any)=>d.changeDigest===proposed.changeDigest);
+  assert.equal(observed.decision,'rejected');assert.equal(observed.canonicalReadback,true);
+  assert.equal(observed.graphVersion,before!.graphVersion+1);
+  assert.equal(graph.decisions.length,2);
+  assert.ok(graph.decisions.every((d:any)=>d.proposalId!==h.proposalId),'unrelated Telegram proposal stays excluded');
 });

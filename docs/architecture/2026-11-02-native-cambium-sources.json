@@ -1,0 +1,461 @@
+{
+  "schema": "cambium.native-discovery-source-ledger.v1",
+  "observedDate": "2026-11-02",
+  "authority": "research-only",
+  "repositoryRevision": "8261d4840988e2e1c6fa6c2eb85cee96d4344b58",
+  "workingTree": "pre-existing unrelated edits present; no clean-tree or runtime equivalence claim",
+  "claims": "hashes identify source bytes only; no deployment, admission or acceptance implied",
+  "sources": [
+    {
+      "path": "VISION.md",
+      "sha256": "7ef7ce2d7eb38d2018976175fd1c181c6dda62de74aa3dc0fe400bda19f1cbb5",
+      "bytes": 2085
+    },
+    {
+      "path": "MISSION.md",
+      "sha256": "5dd2b7dfe3bb0bfeda4cb43acaaeeb85edd9ce8eef25f36d9cf0d494fb8135b7",
+      "bytes": 2934
+    },
+    {
+      "path": "PROJECT.md",
+      "sha256": "d7d0b8f22e86ee050a80201daa96f5d4a1ae0c8cc0ca6ddb18f3d86d87d04eed",
+      "bytes": 3513,
+      "priorObservations": [
+        {
+          "sha256": "e86c6efaa99c2b57a40e6ce74af71d8c348b03c394926f0e70b9cc96c90afd03",
+          "bytes": 2640,
+          "cut": "initial discovery"
+        }
+      ],
+      "cut": "continuation after concurrent source read",
+      "changeReviewed": "Concurrent sapling-lifecycle command documentation appended; source role and separate runtime boundary preserved."
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "sha256": "2d37dd53aeda28cef1dff6dc6e503d93b2f890fce66b4bb83dafa675669839e4",
+      "bytes": 6403
+    },
+    {
+      "path": "INTEGRATION.md",
+      "sha256": "2bf838418b900a797dbdfaf2895854966631bbe60410131207ebfdf965b65041",
+      "bytes": 7942
+    },
+    {
+      "path": "HOMEOSTASIS.md",
+      "sha256": "bea1ecbe069a9fc3c2c131dbfe68e99099f7a619ae1158c341222572da2cc6fd",
+      "bytes": 6457
+    },
+    {
+      "path": "QUESTLOG.md",
+      "sha256": "cc0894de030c0746df89a7047eedecb6660962a2c1453e00fe884bc86724939f",
+      "bytes": 5064
+    },
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "e0f1ed4363064ac41aa5a29edf5fe8321f005a41b7cd6c64e8352f1ffaa7aae1",
+      "bytes": 5917
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "sha256": "aed602452de59c12d29234c3c9b96f8b1b30510a8103bd2da5804a62bbc92759",
+      "bytes": 5243
+    },
+    {
+      "path": "docs/LIFECYCLE.md",
+      "sha256": "a4a64313adcceca6e48c9e376871ecd6866ce83fc2dba0f28572dac882c9b97f",
+      "bytes": 5483
+    },
+    {
+      "path": "docs/architecture/loops-to-graphs.md",
+      "sha256": "9717766674069636dc643b155312bc8ce965ba8b827ef58b1c9061125a8e8d3c",
+      "bytes": 7474
+    },
+    {
+      "path": "docs/architecture/2026-10-01-modular-mac-system-review.md",
+      "sha256": "f9624d3f475d879233cca8dd2674f2b0fc1e7385718e93dbaca914ccf7930b8a",
+      "bytes": 17506
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-01-modular-mac-design.md",
+      "sha256": "4f36a83fdd8e5cae03a4ff181a0330536481c628351eeee27b718ee59cb033bc",
+      "bytes": 18943
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-01-modular-mac.md",
+      "sha256": "9da10f6c3bdc0033afc75feaaccd04659932248c4b014c32493a2ff2c2b201bf",
+      "bytes": 20957
+    },
+    {
+      "path": "docs/architecture/2026-10-01-growth-ecosystem-review.md",
+      "sha256": "435fc0cc9ab8a225c5529187929bd2674a2bd53d16e5829a18ea31ccdae2880d",
+      "bytes": 22819
+    },
+    {
+      "path": "docs/architecture/2026-10-07-ecosystem-visual-integration-review.md",
+      "sha256": "08d8112a2bcedb16f51ea5867f64edcd0893beccbf91cbc1902f2e6204ae2f98",
+      "bytes": 8173
+    },
+    {
+      "path": "docs/architecture/contracts/ecosystem-graph.v1.json",
+      "sha256": "0f3f49678aafb156c0c4a595e540dd1af029d42bf5fad928435afdaf00eb347b",
+      "bytes": 9358
+    },
+    {
+      "path": "docs/architecture/contracts/mission-fabric-v1.md",
+      "sha256": "c201471403c4863ab26cdb65a4c93a1ea9ec9bcbc14ff00ca46c68250299e45f",
+      "bytes": 7080
+    },
+    {
+      "path": "docs/architecture/contracts/system-atlas-v1.md",
+      "sha256": "12f663b4edad6afce83fda5cac96fef1ff5baef2e014b479aa117d22d0b40ba0",
+      "bytes": 4461
+    },
+    {
+      "path": "docs/architecture/contracts/curious-workbench-v1.md",
+      "sha256": "f69ef8d5175d7c5946df2b75995aa9c05d75895471804d4216aff9b6cd8ad824",
+      "bytes": 3213
+    },
+    {
+      "path": "docs/architecture/contracts/founder-gate-cli-v1.md",
+      "sha256": "ecc6b8ceb7147b85a7ae0bd585560fc84374a06931e5aaccc301118308af8c61",
+      "bytes": 8700
+    },
+    {
+      "path": "docs/architecture/temperance-continuous-learning-integration.md",
+      "sha256": "91bd444d080f586cc7c63679817c7b2f1badb803d18aabc237f34935742da36a",
+      "bytes": 7082
+    },
+    {
+      "path": "docs/memory/text-retrieval.md",
+      "sha256": "5fbd37ce8417767fd4c1c7802e794eefe31b0f4db0e125b9b3130e0dd7fcef6a",
+      "bytes": 2005
+    },
+    {
+      "path": "docs/assets/visual-flow/source-library/SOURCE-ASSET-MAP.v1.json",
+      "sha256": "2a684719531148d9423a03f3e415404ce960a16e311bf29ea063540a4cb22fd0",
+      "bytes": 32873
+    },
+    {
+      "path": "docs/assets/visual-flow/organ-console/ASSET-MAP.v1.json",
+      "sha256": "f3379c36076c97893afc80f277b407f1922747d0aa47cfdfb01d10216321b0b6",
+      "bytes": 108127
+    },
+    {
+      "path": "docs/assets/visual-flow/system-atlas/PORTRAITS.v1.json",
+      "sha256": "33f053505ee2f409987d23eeb85119c0e69f585c2d85428b496915e12e85e4f8",
+      "bytes": 7533
+    },
+    {
+      "path": "docs/assets/visual-flow/gate-chamber/ASSETS.v1.json",
+      "sha256": "5e855d7276688f4455664a4e0c6cd8d723161c8c4b1956ec7604fb471d04dfa9",
+      "bytes": 1390
+    },
+    {
+      "path": "docs/assets/visual-flow/source-library/telegram-mini-app/boards/cambium-atlas-source-v1.png",
+      "sha256": "71924815f4198e37bf27542441499961c710e61223d9868bf74427132d13c6b5",
+      "bytes": 2664315
+    },
+    {
+      "path": "docs/assets/visual-flow/source-library/telegram-mini-app/boards/cambium-design-system-source-v1.png",
+      "sha256": "f1ca130b98787017fe04356ab0667cb7807487717c6512dae868adfcc5a9de7b",
+      "bytes": 1872323
+    },
+    {
+      "path": "docs/assets/visual-flow/source-library/telegram-mini-app/motion/mission-control-motion-storyboard-mobile-v1.png",
+      "sha256": "a221654e0db8df5466a41085c711b1e46971ef10f2163cb12def1f7e90fb13b7",
+      "bytes": 1749553
+    },
+    {
+      "path": "docs/assets/visual-flow/organ-console/views/canopy/wide-v1.png",
+      "sha256": "0885aa3f3c97ab529f9d060c83dea573f2927fc9b460b4f6eeca9e8cd6396109",
+      "bytes": 2485812
+    },
+    {
+      "path": "docs/assets/visual-flow/organ-console/features/receipt-strata/usage-v1.png",
+      "sha256": "8fccbf63a341ad8b96dbe240f56ec8d8411a6c5aae87437590482e3ba6980228",
+      "bytes": 2197236
+    },
+    {
+      "path": "docs/evidence/2026-10-25-expedition-dossier/desktop.jpg",
+      "sha256": "47888a340b8cdfb1c242a510f32a3c6c85fb792fae3b7d54cb8f7c4a0a212860",
+      "bytes": 50332
+    },
+    {
+      "path": "docs/evidence/2026-10-25-gate-chamber/desktop.jpg",
+      "sha256": "9fc585365fcf1b8361ce56e6e30b11b3305f6884c2025b6a394d6fb86dc6a146",
+      "bytes": 62436
+    },
+    {
+      "path": "docs/evidence/2026-10-25-gate-chamber/unconfirmed.jpg",
+      "sha256": "4116f6965b9f2c632330cf6032fa73093f2e692492b3f270bbb8cbe65e0d3187",
+      "bytes": 58579
+    },
+    {
+      "path": "apps/cambium-r3f/README.md",
+      "sha256": "59c6af29c52f7b50c0b83ec65ccbab2f88016d78639f506e0c46b20c3c8bafce",
+      "bytes": 5587
+    },
+    {
+      "path": "apps/cambium-r3f/package.json",
+      "sha256": "62d925f421e6ce94a5ec41535114a6c97282c55de026a64faa7cc5be0cacbdf9",
+      "bytes": 2369
+    },
+    {
+      "path": "apps/cambium-r3f/src/curious-world/world-model.ts",
+      "sha256": "519c848eaeca596c21a709bc6e51df97dc40e7f7c76fd28bad02d06b08e853c7",
+      "bytes": 10514
+    },
+    {
+      "path": "shared/cambium-system-atlas.ts",
+      "sha256": "a043a00a973ddc73f1ec1c6156fa1d11b17eb15f4cb972302c67d91e22e3257e",
+      "bytes": 19358
+    },
+    {
+      "path": "workers/quests/src/handler.ts",
+      "sha256": "4ad9ac6768a0250d2392d65c198129b597d79db524e19648a946a6360d4d26cc",
+      "bytes": 365581
+    },
+    {
+      "path": "workers/quests/src/index.ts",
+      "sha256": "5ed07ec33431f5d3e1e9a934a94612658dc8185a35f32827e8457b1eed5f1e70",
+      "bytes": 63160
+    },
+    {
+      "path": "workers/quests/src/wave0-owner-bindings.ts",
+      "sha256": "9893e3eaef451858eb3b99d2996b08d44cf542b5fd1eac240801c1c7e15f5a35",
+      "bytes": 2830
+    },
+    {
+      "path": "workers/quests/src/mission-fabric.ts",
+      "sha256": "4d3210b63091388e021c28fe1dd14a0963c7e8143d5da1b82e40eabd51850757",
+      "bytes": 55050
+    },
+    {
+      "path": "workers/quests/src/organ-update-delivery.ts",
+      "sha256": "a7ec257cce40bd2860ef9c44378341743406f6a2ecad13468c66e054a487911b",
+      "bytes": 14780
+    },
+    {
+      "path": "workers/quests/src/founder-decision.ts",
+      "sha256": "8bc84d4338e95fc5930984210a9e5d982f6ac5c761e945f233e4fecaa28f4c52",
+      "bytes": 5508
+    },
+    {
+      "path": "workers/quests/src/founder-decision-transport.ts",
+      "sha256": "19e8f8a950542c10c43a0bce86a3aeb117e4a612982ee076976cfe07d2cbb033",
+      "bytes": 5458
+    },
+    {
+      "path": "workers/quests/src/founder-access-host.ts",
+      "sha256": "92b9e630a4fed8a6535c5c142b057438dfaaa04d2f7cef59fd8f3dc1b5dcac64",
+      "bytes": 9676
+    },
+    {
+      "path": "bin/operator/onboarding/field-observation.ts",
+      "sha256": "7e15d307b7d89b4ec429ecdea17cb4661ddbcb2460a0761b4f2e65c26cbefff1",
+      "bytes": 6508
+    },
+    {
+      "path": "docs/plans/product-branches/fitcheck.md",
+      "sha256": "6bc90471a8c4b81b39453a7e9127ee6e1599f92d18f178a9fc8a6f112dab0bf2",
+      "bytes": 22325,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/evidence/2026-10-25-founder-gate-desktop-e2e.v1.json",
+      "sha256": "b3bcedf135b00896073dc756025aaebc7a8e23704fac12656a6578411b351c7b",
+      "bytes": 2777,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/evidence/2026-10-25-gate-chamber-live.v1.json",
+      "sha256": "ae80760b1c61297981f014068214774c8811133b22eb2d52a2b7faf81ea3fc1c",
+      "bytes": 2863,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/evidence/2026-10-25-expedition-dossier-live.v1.json",
+      "sha256": "f3fe211e1841261f26abef64504f8508e01886ae989db20838ac3e4de1160ccf",
+      "bytes": 2271,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/architecture/fitcheck-golden-path.md",
+      "sha256": "358b8181e9f852dc485d9b794cc2f32e17fafe0cce99df406ea9fc70de06eb9f",
+      "bytes": 8041,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/guide/cambium-system-capability-map.md",
+      "sha256": "2176112762ed0801970ca599fd91956c31bc76f8f7c79b6ba8b17950c03ef6dc",
+      "bytes": 17742,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/guide/cambium-surface-inventory.json",
+      "sha256": "4f2697395a9db164ed4b491f7323e6a15171568e23c8b9dcde744bb99b8a38cd",
+      "bytes": 9594,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/architecture/contracts/growth-ecosystem-topology-v1.md",
+      "sha256": "e043c5b905cce4b6219cf9afeaef896e5dc0facfe7fb1b92b74098f64927f7ef",
+      "bytes": 4953,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/architecture/contracts/growth-desk-map-v1.md",
+      "sha256": "7f77e3198ad2049c237d7afe7ce0969040e09482768a08e91c363e271407e623",
+      "bytes": 2306,
+      "cut": "continuation"
+    },
+    {
+      "path": "workers/quests/src/mission-fabric-read-client.ts",
+      "sha256": "394a4bf62ed9c4f705fc095b6f6a61982abd62d8917782c3abd8e616e5884ed6",
+      "bytes": 9429,
+      "cut": "continuation"
+    },
+    {
+      "path": "workers/quests/src/foldback-mission-consumer.ts",
+      "sha256": "6e6d9526940a459040b6956be5f0a9321ac6e4e80ed3798dc38d4856585dbc13",
+      "bytes": 11730,
+      "cut": "continuation"
+    },
+    {
+      "path": "workers/quests/src/lib/plexus-principal.ts",
+      "sha256": "996780dd714a2930296a6b2f6c6602950667ce9afac06561cd926c49e20885fa",
+      "bytes": 6859,
+      "cut": "continuation"
+    },
+    {
+      "path": "docs/runbooks/goal-graph-telegram-lifecycle.md",
+      "sha256": "0c5f6a2a8cdf8b85c7447a89ad5d498c760fd742b75c7e43af75f14e59a58156",
+      "bytes": 15834,
+      "cut": "continuation"
+    },
+    {
+      "path": ".agents/skills/sapling-lifecycle/SKILL.md",
+      "sha256": "3a07b2114305e14fb5aff98cd5a1f576bad83c91a0a31e127a9d4ecd7c16b6ab",
+      "bytes": 5272,
+      "cut": "continuation"
+    },
+    {
+      "path": "workers/quests/src/founder-decision.test.ts",
+      "sha256": "ed114a65af4b30a8950cfcc697189f1d0d3e7aa9a86ec449f95034ac9c76c9c0",
+      "bytes": 12804,
+      "cut": "continuation"
+    },
+    {
+      "path": "workers/quests/src/mission-fabric-read-client.test.ts",
+      "sha256": "41b0bc09fdfe40ea2285bf2f1dffa58d1aa3fe2c47d5551c4b9042578c5a529f",
+      "bytes": 6580,
+      "cut": "continuation"
+    },
+    {
+      "path": "workers/quests/src/wave0-owner-bindings.test.ts",
+      "sha256": "6ab2649d3b0f33fbff3a7a0d2e3e41a55530f340b795d03df930329670933761",
+      "bytes": 5132,
+      "cut": "continuation"
+    },
+    {
+      "path": "bin/operator/onboarding/field-observation.test.ts",
+      "sha256": "feea8293cf4b9ca55aee81a2f6812e01991462ed11af6aa132771ae18ec5efa5",
+      "bytes": 5403,
+      "cut": "continuation"
+    }
+  ],
+  "externalSourceMetadata": [
+    {
+      "owner": "fieldtheory-cli@1.3.22",
+      "path": "package.json",
+      "sha256": "88cf4a677669dbc709851be55944c3ed895e5155ca4e77fa46c4e672e4c208f7",
+      "bytes": 1326
+    },
+    {
+      "owner": "fieldtheory-cli@1.3.22",
+      "path": "README.md",
+      "sha256": "bc1ff647f270cad68c74363067a4bfa94350aaaef6a2408b8866a97823a16ffc",
+      "bytes": 14761
+    },
+    {
+      "owner": "fieldtheory-cli@1.3.22",
+      "path": "dist/paths.js",
+      "sha256": "ce4a83cedaf8067e313f7231a0f8bafc6c0cbcdc0e269901154f1861e4d94e94",
+      "bytes": 13272
+    },
+    {
+      "owner": "fieldtheory-cli@1.3.22",
+      "path": "dist/current.js",
+      "sha256": "fac8ed11de4edb08084e63e661bd87ef62baffd9edd49cb47e96eebe72155423",
+      "bytes": 15402
+    },
+    {
+      "owner": "fieldtheory-cli@1.3.22",
+      "path": "dist/ideas.js",
+      "sha256": "f02b82491430885581f77d91998f98a92fadf5252d87033b4c1f2086d2628be4",
+      "bytes": 14244
+    },
+    {
+      "owner": "fieldtheory-cli@1.3.22",
+      "path": "dist/adjacent/pipeline.js",
+      "sha256": "08428f68a405e86c6a096f761a304611dc95757a2a2cee0efe430f14a53604da",
+      "bytes": 21647
+    },
+    {
+      "owner": "fieldtheory-cli@1.3.22",
+      "path": "dist/ideas-index.js",
+      "sha256": "61e5fa7497a4a3c2a754a0e3fffea965ff4003f371bbc155ce8a0f9b6f138fab",
+      "bytes": 1884
+    }
+  ],
+  "bama": {
+    "repository": "daveebbelaar/bama",
+    "commit": "639893c397278256f1ae204dd8f837eb82bd6527",
+    "installed": false
+  },
+  "liveObservations": [
+    {
+      "surface": "https://curious.thoughtseed.space/",
+      "method": "IAB read-only source exploration and district chart",
+      "date": "2026-11-02",
+      "authenticatedOperationalRead": false,
+      "decisionSubmitted": false
+    },
+    {
+      "surface": "Field Report connected direction context",
+      "method": "read-only connector",
+      "classification": "dated-research-snapshot",
+      "actionApproval": false,
+      "executionCompleted": false
+    }
+  ],
+  "connectedRepositorySources": [
+    {
+      "repository": "hermes-aws-ts",
+      "revision": "09280487ca12b18448ff236d160e070b8cd5dfbd",
+      "path": "docs/contracts/hermes-native-execution-proof.md",
+      "sha256": "e0d6f0f479d81bb862ca1e5d005d7b9b734f0524433355aa2b313d56325decdd",
+      "bytes": 8609,
+      "evidence": "source inspection only; live config not queried"
+    },
+    {
+      "repository": "hermes-aws-ts",
+      "revision": "09280487ca12b18448ff236d160e070b8cd5dfbd",
+      "path": "src/native-execution.ts",
+      "sha256": "1d346022d5f8f99fa7c33d47631a529949a10377f5f8d7938468dda3c178a64d",
+      "bytes": 29284,
+      "evidence": "source inspection only; live config not queried"
+    }
+  ],
+  "continuation": {
+    "scope": "decisions and launch of already-admitted work required for first usable release",
+    "localContractSuites": {
+      "command": "node --test --test-reporter=dot workers/quests/src/founder-decision.test.ts workers/quests/src/mission-fabric-read-client.test.ts workers/quests/src/wave0-owner-bindings.test.ts bin/operator/onboarding/field-observation.test.ts",
+      "passed": 49,
+      "exitCode": 0,
+      "nativeAcceptance": false
+    },
+    "appleSources": "apps/cambium-mac/docs/research/PLATFORM.md",
+    "interactionReferences": "apps/cambium-mac/docs/research/INTERACTION-REFERENCES.md"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "cambium.openai-mcp-deployment-admission.v1",
+  "scriptName": "cortex-mcp",
+  "endpoint": "https://cortex.thoughtseed.space/mcp",
+  "auth": {
+    "mode": "oauth",
+    "requiredScopes": ["cortex:read"],
+    "actionScope": "cambium:act",
+    "maxFounderSubjects": 16,
+    "maxAllowedOrigins": 8
+  },
+  "requiredServiceBindings": [
+    "MCP_TOKEN_VERIFIER",
+    "MCP_PROVENANCE_READER",
+    "MCP_GATE_ADAPTER"
+  ],
+  "requiredSecrets": [
+    "MCP_GATE_ADAPTER_TOKEN",
+    "MCP_PROFILE_ID_KEY"
+  ],
+  "forbiddenBindingTypes": [
+    "d1_database",
+    "d1_databases"
+  ],
+  "admission": {
+    "configurationDigestAlgorithm": "sha256-canonical-json-v1",
+    "reviewedRuntimeDigestAlgorithm": "sha256-sorted-worker-runtime-sources-v1",
+    "ownerApprovedConfigurationDigestRequired": true,
+    "referenceDigestsMustBeDistinct": true
+  },
+  "snapshotContract": {
+    "secrets": "Presence is represented only by configured=true and a sha256 reference; secret values are forbidden.",
+    "bindings": "Each required service binding carries only its name, type=service, and a distinct sha256 target reference.",
+    "receipts": "The deployed version must equal the digest recomputed from reviewed Worker runtime sources; rollback is a distinct sha256 reference; the full canonical snapshot must match a separately owner-approved configuration digest.",
+    "output": "The checker emits field labels and verdicts, never configuration values."
+  }
+}

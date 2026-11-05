@@ -1,0 +1,429 @@
+{
+  "contractVersion": "cambium.native-launch.v1",
+  "synthetic": true,
+  "samples": [
+    {
+      "name": "admissions_current",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium",
+          "readOnly": true,
+          "admissions": [
+            {
+              "admissionRef": "adm-123",
+              "tuple": {
+                "workId": "sapling:cambium",
+                "admissionRef": "adm-123",
+                "graphVersion": 1,
+                "loadoutId": "loadout-alpha",
+                "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "executionPlant": "temperance-hands",
+                "supportedAction": "launch",
+                "expiresAt": "2026-11-02T01:00:00.000Z"
+              },
+              "availability": "supported",
+              "reason": "current"
+            }
+          ],
+          "truncated": false
+        }
+      }
+    },
+    {
+      "name": "admissions_other_work_empty",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:other"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:other",
+          "readOnly": true,
+          "admissions": [],
+          "truncated": false
+        }
+      }
+    },
+    {
+      "name": "admissions_listing_unconfigured",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 503,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "error": "native_launch_listing_unconfigured",
+          "message": "Native launch admission discovery requires a store that can list the verified scope."
+        }
+      }
+    },
+    {
+      "name": "capability_supported",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/capability",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium",
+          "admissionRef": "adm-123"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "capability": "supported",
+          "tuple": {
+            "workId": "sapling:cambium",
+            "admissionRef": "adm-123",
+            "graphVersion": 1,
+            "loadoutId": "loadout-alpha",
+            "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "executionPlant": "temperance-hands",
+            "supportedAction": "launch",
+            "expiresAt": "2026-11-02T01:00:00.000Z"
+          },
+          "acceptance": {
+            "state": "not_evaluated"
+          }
+        }
+      }
+    },
+    {
+      "name": "capability_unavailable",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/capability",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:other",
+          "admissionRef": "adm-123"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "capability": "unavailable",
+          "reason": "no_admission"
+        }
+      }
+    },
+    {
+      "name": "capability_unsupported",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/capability",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium",
+          "admissionRef": "adm-123"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "capability": "unsupported",
+          "reason": "owner_does_not_support",
+          "tuple": {
+            "workId": "sapling:cambium",
+            "admissionRef": "adm-123",
+            "graphVersion": 1,
+            "loadoutId": "loadout-alpha",
+            "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "executionPlant": "temperance-hands",
+            "supportedAction": "launch",
+            "expiresAt": "2026-11-02T01:00:00.000Z"
+          }
+        }
+      }
+    },
+    {
+      "name": "launch_accepted_queued",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "requestId": "client-request-0001",
+          "attemptId": "client-attempt-0001",
+          "idempotencyNonce": "nonce_abcdefghijklmnopqrstuv",
+          "capability": {
+            "workId": "sapling:cambium",
+            "admissionRef": "adm-123",
+            "graphVersion": 1,
+            "loadoutId": "loadout-alpha",
+            "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "executionPlant": "temperance-hands",
+            "supportedAction": "launch",
+            "expiresAt": "2026-11-02T01:00:00.000Z"
+          }
+        }
+      },
+      "output": {
+        "status": 202,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "request": {
+            "requestId": "client-request-0001",
+            "attemptId": "client-attempt-0001",
+            "requestKey": "nlr_3dee6711ddb0adc67f7cd3576f72ec5d5665c543333b59896d52bc533ab92d6d",
+            "dispatch": "owner_answered",
+            "reservedAt": "2026-11-02T00:00:00.000Z",
+            "capability": {
+              "workId": "sapling:cambium",
+              "admissionRef": "adm-123",
+              "graphVersion": 1,
+              "loadoutId": "loadout-alpha",
+              "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "executionPlant": "temperance-hands",
+              "supportedAction": "launch",
+              "expiresAt": "2026-11-02T01:00:00.000Z"
+            }
+          },
+          "execution": {
+            "state": "queued",
+            "ownerRef": "synthetic-owner-1",
+            "observedAt": "2026-11-02T00:00:00.000Z",
+            "terminal": false
+          },
+          "acceptance": {
+            "state": "not_evaluated"
+          },
+          "retry": "status_only",
+          "status": "recorded"
+        }
+      }
+    },
+    {
+      "name": "admissions_consumed",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/admissions",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "workId": "sapling:cambium",
+          "readOnly": true,
+          "admissions": [
+            {
+              "admissionRef": "adm-123",
+              "tuple": {
+                "workId": "sapling:cambium",
+                "admissionRef": "adm-123",
+                "graphVersion": 1,
+                "loadoutId": "loadout-alpha",
+                "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "executionPlant": "temperance-hands",
+                "supportedAction": "launch",
+                "expiresAt": "2026-11-02T01:00:00.000Z"
+              },
+              "availability": "unavailable",
+              "reason": "admission_consumed",
+              "existingRequest": {
+                "requestId": "client-request-0001",
+                "attemptId": "client-attempt-0001"
+              }
+            }
+          ],
+          "truncated": false
+        }
+      }
+    },
+    {
+      "name": "launch_unknown_lost_owner_response",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "requestId": "client-request-0001",
+          "attemptId": "client-attempt-0001",
+          "idempotencyNonce": "nonce_abcdefghijklmnopqrstuv",
+          "capability": {
+            "workId": "sapling:cambium",
+            "admissionRef": "adm-123",
+            "graphVersion": 1,
+            "loadoutId": "loadout-alpha",
+            "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "executionPlant": "temperance-hands",
+            "supportedAction": "launch",
+            "expiresAt": "2026-11-02T01:00:00.000Z"
+          }
+        }
+      },
+      "output": {
+        "status": 503,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "request": {
+            "requestId": "client-request-0001",
+            "attemptId": "client-attempt-0001",
+            "requestKey": "nlr_3dee6711ddb0adc67f7cd3576f72ec5d5665c543333b59896d52bc533ab92d6d",
+            "dispatch": "owner_unknown",
+            "reservedAt": "2026-11-02T00:00:00.000Z",
+            "capability": {
+              "workId": "sapling:cambium",
+              "admissionRef": "adm-123",
+              "graphVersion": 1,
+              "loadoutId": "loadout-alpha",
+              "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "executionPlant": "temperance-hands",
+              "supportedAction": "launch",
+              "expiresAt": "2026-11-02T01:00:00.000Z"
+            }
+          },
+          "execution": {
+            "state": "unknown",
+            "ownerRef": null,
+            "observedAt": "2026-11-02T00:00:00.000Z",
+            "terminal": false
+          },
+          "acceptance": {
+            "state": "not_evaluated"
+          },
+          "retry": "status_only",
+          "status": "unknown"
+        }
+      }
+    },
+    {
+      "name": "status_unknown_request",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/status",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "requestId": "client-request-9999",
+          "attemptId": "client-attempt-9999"
+        }
+      },
+      "output": {
+        "status": 404,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "status": "not_found"
+        }
+      }
+    },
+    {
+      "name": "status_recovered_succeeded",
+      "input": {
+        "method": "POST",
+        "path": "/v1/native/launch/status",
+        "headers": {
+          "content-type": "application/json",
+          "authorization": "Bearer synthetic-founder"
+        },
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "requestId": "client-request-0001",
+          "attemptId": "client-attempt-0001"
+        }
+      },
+      "output": {
+        "status": 200,
+        "body": {
+          "contractVersion": "cambium.native-launch.v1",
+          "request": {
+            "requestId": "client-request-0001",
+            "attemptId": "client-attempt-0001",
+            "requestKey": "nlr_3dee6711ddb0adc67f7cd3576f72ec5d5665c543333b59896d52bc533ab92d6d",
+            "dispatch": "owner_answered",
+            "reservedAt": "2026-11-02T00:00:00.000Z",
+            "capability": {
+              "workId": "sapling:cambium",
+              "admissionRef": "adm-123",
+              "graphVersion": 1,
+              "loadoutId": "loadout-alpha",
+              "inputDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "executionPlant": "temperance-hands",
+              "supportedAction": "launch",
+              "expiresAt": "2026-11-02T01:00:00.000Z"
+            }
+          },
+          "execution": {
+            "state": "succeeded",
+            "ownerRef": "synthetic-owner-1",
+            "observedAt": "2026-11-02T00:00:00.000Z",
+            "terminal": true
+          },
+          "acceptance": {
+            "state": "not_evaluated"
+          },
+          "retry": "none",
+          "status": "observed"
+        }
+      }
+    }
+  ]
+}

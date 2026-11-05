@@ -1,0 +1,58 @@
+{
+  "schema": "temperance.handoff.v2",
+  "status": "discovery-complete-build-not-started",
+  "task": "Native Cambium E5 discovery and planning",
+  "completed": [
+    "All three founder decisions recorded, including required v1 decisions/admitted launch",
+    "Architecture, flow/asset/surface map, dated exact lineage and phased build plan",
+    "Primary Apple and bounded four-product interaction research",
+    "49 local contract checks;66 repository source hashes/byte counts;76 local links",
+    "Six independent native review findings corrected and re-reviewed; original-request audit written"
+  ],
+  "remaining": [
+    "Stage B/C visual studies and native identity/launch capability for exact supported work class",
+    "Native implementation and actual founder release acceptance; not performed in discovery"
+  ],
+  "blockers": [],
+  "decisions": [
+    "Whole-system-first then next meaningful action",
+    "Founder/operator first, preserve tenant/role boundaries",
+    "V1 coordinates decisions and launches already-admitted work; read-only slice is intermediate",
+    "Source-backed missing owner seam stays explicit; do not impersonate runner",
+    "Cato/routed capability failures recorded without inferred clearance"
+  ],
+  "uncommitted_files": [
+    "apps/cambium-mac/docs/ARCHITECTURE.md",
+    "apps/cambium-mac/docs/BRIEF.md",
+    "apps/cambium-mac/docs/DISCOVERY-EXIT.md",
+    "apps/cambium-mac/docs/STORIES.md",
+    "apps/cambium-mac/docs/research/DATA-FLOWS.md",
+    "apps/cambium-mac/docs/research/FOUNDATION.md",
+    "apps/cambium-mac/docs/research/INTERACTION-REFERENCES.md",
+    "apps/cambium-mac/docs/research/LINEAGE.md",
+    "apps/cambium-mac/docs/research/PLATFORM.md",
+    "apps/cambium-mac/docs/screens/INDEX.md",
+    "docs/architecture/2026-11-02-native-cambium-discovery.md",
+    "docs/architecture/2026-11-02-native-cambium-review.md",
+    "docs/architecture/2026-11-02-native-cambium-sources.json",
+    ".planning/native-mac/2026-11-02-ROADMAP.md",
+    "ISA.md (native sections; shared)",
+    ".project/HANDOFF.md (native entry; shared)"
+  ],
+  "next_action": "Use DISCOVERY-EXIT.md and roadmap Stage B/C to review full decision/admission/launch/result/recovery flow and bind native identity plus one supported launch owner contract before feature scaffolding.",
+  "isa": "ISA.md",
+  "isc_open": [],
+  "isc_done_count": 45,
+  "wave": "native-mac-discovery",
+  "tier": "E5",
+  "session_budget": {
+    "token_budget": 50000000,
+    "status": "discovery audit passed; completion accounting pending"
+  },
+  "next_command": "git status --short",
+  "preserved_concurrent_handoff": {
+    "path": ".planning/HANDOFF.json",
+    "lane": "sapling-lifecycle",
+    "rule": "Retain top-level queue; native durable state lives in this lane-specific file."
+  }
+}
