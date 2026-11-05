@@ -890,7 +890,7 @@ test('adaptQuestExecutionFacts bounds nodes, edges, and gaps with visible projec
 
 test('adaptQuestExecutionFacts fails closed when the truncation gap record itself cannot fit', () => {
   const gapsInput = [];
-  for (let index = 0; index < 200; index += 1) {
+  for (let index = 0; index <= MISSION_FABRIC_CAPS.MAX_GAPS; index += 1) {
     gapsInput.push({ gapId: `gap-flood-${String(index).padStart(4, '0')}`, kind: 'capability-gap', subjectId: 'task-alpha', detail: 'flood', evidenceRef: null });
   }
   const facts = questFacts({ gaps: gapsInput });

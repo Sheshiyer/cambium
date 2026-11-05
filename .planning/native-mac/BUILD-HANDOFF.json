@@ -1,0 +1,42 @@
+{
+  "schema": "temperance.handoff.v2",
+  "status": "local-native-build-verified-live-activation-held",
+  "task": "Build native Cambium via hosted Phloem fan-out",
+  "source_revision": "10aea47132be99bc01cdc14a66ba86c29e664886",
+  "main_merge_revision": "f700b78b2f1b15ea33a1b5eda6db0dab5fc9d434",
+  "bundle": "apps/cambium-mac/build/Cambium Native.app",
+  "bundle_proof_aggregate": "2289b6331e35508be43aa6e9f673ab173fde5c59c5d56f8d5e33840018a71223",
+  "completed": [
+    "Reviewed Bama pin, source artwork, product scope, owner and knowledge surfaces before implementation.",
+    "Fan-out through hosted Phloem produced isolated Swift core, native interface, backend identity/launch and contract packets; exact owned diffs were integrated.",
+    "Merged the clean native implementation branch into main without path overlap with the primary checkout’s unrelated dirty work.",
+    "Built a signed ad-hoc development app with a clean embedded source proof, a distinct bundle identifier and eleven source-lineaged organ portraits.",
+    "Implemented whole-system Canopy, work dossier, graph with linear equivalent, evidence, proposal review, launch, knowledge, connections and preferences.",
+    "Implemented explicit session-only owner configuration, external-browser PKCE S256, exact callback and backend one-time consent/code exchange; default remains unbound.",
+    "Implemented source-bound proposal review, exact typed decision, durable ambiguous-response recovery, read-only already-admitted discovery, owner capability, durable launch identity and status-only recovery.",
+    "Verified a lost decision reply across an actual app restart: pending status was visible without reloading the review and status returned owner-recorded without a second decision.",
+    "Verified a lost launch reply across an actual app restart: original request/attempt IDs persisted; status moved running to succeeded while semantic acceptance stayed not_evaluated.",
+    "Verified final light/dark native rendering, reduced-motion static information, keyboard routes and nine graph records with nine linear equivalents."
+  ],
+  "verification": {
+    "swift_app_tests": "28 passed, 0 failed",
+    "swift_core_tests": "228 passed, 0 failed",
+    "backend_native_tests": "218 passed, 0 failed",
+    "bundle": "codesign --verify --strict, verify-bundle and build-proof check passed",
+    "gui": "Actual signed macOS bundle exercised with synthetic owner; no live claim"
+  },
+  "remaining_owner_activation": [
+    "Review/register the exact native client ID and callback under the intended tenant and role policy.",
+    "Bind current enrollment/role verification, reachable native API paths under Access, and apply the reviewed D1 migrations in the owner environment.",
+    "Name and verify the real admitted execution owner and its status semantics before any founder/customer launch.",
+    "Run signed distribution, notarization, supported hardware and real owner end-to-end acceptance in a separately approved release task."
+  ],
+  "boundaries": [
+    "No live business decision, real admitted customer work, provider credential, hosted router configuration, production deployment or migration apply occurred.",
+    "Field Theory and Field Report are source-specific reference adapters; no private vault corpus is copied and no external bridge is asserted.",
+    "Demo proposal and admission are separately dated, unjoined examples driven by a fixed replay clock."
+  ],
+  "isa": "ISA.md",
+  "isc_local_proven": "ISC-3400..3431, ISC-3440..3451",
+  "next_action": "Owner-led live activation and release acceptance remain separate; this handoff is complete for the local native build."
+}

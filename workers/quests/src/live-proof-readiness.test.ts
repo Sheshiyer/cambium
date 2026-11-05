@@ -775,7 +775,7 @@ test('mobile contract proof is focused, noncanonical, and required by explicit l
   assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
   const localJobs = JSON.parse(readFileSync(new URL('../../../.local-jobs/jobs.json', import.meta.url), 'utf8')).jobs;
   const verifyRelease = readFileSync(new URL('../../../scripts/verify-release.mjs', import.meta.url), 'utf8');
-  assert.match(verifyRelease, /proof:tg-mobile-contract/);
+  assert.match(verifyRelease, /proof:field-atlas/);
   assert.deepEqual(localJobs.find((job: { id: string }) => job.id === 'verify').argv, ['npm', 'run', 'verify:release']);
 });
 
@@ -841,5 +841,5 @@ test('Task 13 evidence template requires the full local gate plus approval-gated
     assert.match(script, /mission-fabric-integration\.test\.ts/, 'release script wires the mission fabric integration proof');
     assert.match(script, /live-proof-readiness\.test\.ts/, 'release script wires this readiness test file');
   }
-  assert.match(verifyRelease, /proof:tg-mobile-contract/, 'verify-release explicitly requires the mobile contract proof');
+  assert.match(verifyRelease, /proof:field-atlas/, 'verify-release explicitly requires the maintained 3D viewport proof');
 });

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// T-028 automated string-count audit — frozen/05 §5 measurement method.
+// Historical T-028 five-scene string-count audit — frozen/05 §5 measurement method.
 // Renders each scene from workers/quests/src/page/scenes/fixtures/*.fixture.json (every fixture
 // state) through the same VM page-harness approach as workers/quests/src/handler.test.ts
 // (renderPageFixtureContext), walks the served HTML per scene root, and enforces:
@@ -443,12 +443,12 @@ function makeElement(id, tagName = 'div', initialAttrs = new Map()) {
 
 let PAGE_PROMISE = null;
 function loadPage() {
-  if (!PAGE_PROMISE) PAGE_PROMISE = import(pathToFileURL(join(REPO_ROOT, 'workers/quests/src/page.ts')).href);
+  if (!PAGE_PROMISE) PAGE_PROMISE = import(pathToFileURL(join(REPO_ROOT, 'workers/quests/src/page/retired.ts')).href);
   return PAGE_PROMISE;
 }
 
 export async function renderPageFixtureContext(envelope, options = {}) {
-  const { PAGE } = await loadPage();
+  const { RETIRED_PAGE: PAGE } = await loadPage();
   const scripts = [...PAGE.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
     .map((match) => match[1])
     .filter((script) => script.trim() && !script.includes('telegram-web-app'));

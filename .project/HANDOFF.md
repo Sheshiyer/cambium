@@ -1,3 +1,91 @@
+# Handoff pickup
+
+Current pickup: `.planning/HANDOFF.json`; follow `PROJECT.md`.
+This file retains the complete historical checkpoint body below.
+
+Read only these first 12 lines during ordinary session pickup.
+Select the root summary and matching structured continuation first.
+Open only that task's cited proof or owning handoff when needed.
+Search a specific historical heading only to resolve a missing fact.
+ISA and GSD retain acceptance and planning authority.
+Historical commands and completion claims are not fresh approvals.
+<!-- cambium:handoff-history:start -->
+
+## 2026-11-04 native UI cleanup
+
+Connections now presents a compact account card; Inbox and Projects use names and
+concise actions. Technical configuration, IDs, provenance, digests and join counts
+live in Settings → Advanced → Diagnostics. Core261 (two opt-in skips), native43,
+clean debug build/signature pass. Actual Mac account/Settings/Diagnostics checks
+and labelled demo Projects/Inbox checks pass; no fresh live sign-in is claimed.
+Current source/build proof and remaining operational-loop work are in
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json` and its Markdown.
+The real Work join, directions, admission, hosted Hermes launch and result remain
+open. This UI change does not deploy or seed authority data.
+
+
+## 2026-11-04 operational-loop handoff and main-window sign-in
+
+Owner selected the existing hosted Hermes runner for the Cambium coding pilot.
+New continuation: `.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`;
+read its matching Markdown handoff and continue branch
+`codex/cambium-operational-loop-20261104`. Sign-in source `1f64c646` adds main/
+sidebar entry, expiry-aware re-entry and correct prior-owner cancellation order.
+Core261 (two opt-in skips), native43 and clean signed bundle checks pass.
+Actual buttons are visible; owner confirmed the authentication window appears.
+A fresh completed grant and the operational-loop walkthrough remain unverified.
+
+The operational Work join, shared directions, owner admission/launch composition
+and real result loop remain unimplemented. D1 readback found zero Cambium anchors
+and no native launch tables. Inspected Hermes source has no Cambium registration;
+verify the installed owner before rollout. Do not mix execution metadata into the
+bookkeeping lane, seed authority rows, replay completed migrations or claim the
+prior signal test is an execution result. The proposed sign-in patch is pinned in
+the new handoff for review; it is not admitted. Primary concurrent work is intact.
+
+## Native Inbox live activation verified — 4 November 2026
+
+Real founder sign-in, current owner-served mapped catalog and persisted signal
+create/read/edit/project-filter readback pass in the standard Mac app. ISC-3467
+and ISC-3672 are satisfied. Evidence, exact deployed versions, clean native input
+digest, test counts and traffic-only rollback are recorded in
+`.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
+
+The owner sees 76 current and 20 historical projects. The real served join report
+has zero operational Work joins; source association grants no admission. The
+retained activation test signal is revision 3, linked to `sapling:cambium`, and
+was read from the exact project Inbox after refresh. Session tokens remain
+in-memory with a 15-minute lifetime. A copied client identifier is not a website;
+start sign-in from Connections, using the existing Curious owner profile.
+
+Backend source preserves the actual Field Atlas and TeamForge SFU deployments.
+Missing execution facts and unresolved operational edges are explicit gaps;
+server/Swift gap capacity is 256 with overflow refusal intact. No graph/ledger
+facts, roles, runtime joins or work admissions were created. Field Report peer
+integration and durable offline sync remain open.
+
+## Native Inbox review fixes — 3 November 2026
+
+The owner authorized fixing the independent review and preparing/merging the
+native app through a scoped PR. Both findings are resolved in source: local
+signal request validation is distinguished from an invalid response after
+submission; revision conflicts retain drafts and require confirmed latest-read
+recovery; standard Gate/Launch persistence is isolated by normalized owner
+endpoint and path. Unscoped legacy records remain untouched.
+
+The branch includes the existing native-app foundation plus the shared signal
+API/Inbox, their finite integration plan and tests. Concurrent product branches,
+catalog proposals, runtime configuration and owner activation work were not
+copied from the dirty primary checkout. The original checkout is preserved.
+Implementation and live limits: `apps/cambium-mac/docs/SHARED-SIGNALS.md`.
+Reusable free-pool entrypoint: `apps/cambium-mac/docs/TEMPERANCE-REVIEW.md`.
+
+Core tests pass 260 with two opt-in skips; native tests pass 39; the explicit
+Worker/SQLite-to-Swift signal probe and ad hoc bundle verification pass.
+Review/preparation receipts and complete command logs live under ignored
+`.local/` in the isolated PR checkout. Source merge grants no production
+deployment, native identity activation, schema apply or Field Report migration.
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
@@ -2719,3 +2807,42 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Shared identity binding checks immutable ID plus normalized qualified name and source ref, including existing legacy aliases. Unreviewed casing variants cannot bypass planning eligibility; inconsistent identity/reference claims fail before writes. Valid singular text remains unchanged.
 - Regression suite: 182 pass, one existing skip (183 total). App typecheck passes. Two untracked `App 2.tsx` / `domain 2.ts` files match clean-base copies, remain untouched/excluded, and have no import/compiler effect. Creator unknown.
 - Revised manifest/patch prepared for final independent review; no runtime/publication changes.
+
+### 2026-11-02 native Cambium local build checkpoint
+
+- Native founder/operator app was merged on main at `f700b78b`; the signed ad-hoc development bundle in `apps/cambium-mac/build/Cambium Native.app` carries clean source revision `10aea471` and embedded aggregate `2289b633`. The bundle is ignored build output. Bama is pinned and credited in the app source.
+- Actual macOS synthetic-owner walkthrough verified Canopy, Work, graph plus linear Trace, exact founder review, ambiguous decision recovery across restart, read-only admission selection, launch with persisted original IDs, and status-only recovery from running to succeeded. Semantic acceptance remained `not_evaluated`. The source producer’s dated proposal and admission examples are unjoined.
+- Local suites passed: 28 native app tests, 228 core tests, and 218 focused backend owner/route tests. `codesign --verify --strict`, bundle verification and embedded build-proof check passed. Light/dark and reduced-motion native windows were inspected; nine graph records appeared in the linear equivalent and keyboard routes reached Trace, Work and Launch. These are local proofs only.
+- Native identity and owner routes are implemented with explicit session-only configuration and unbound defaults. Live client registration/callback, current role and enrollment checks, Access reachability, reviewed D1 migration apply, concrete execution owner, signing/notarization and real end-to-end acceptance remain owner-activation work. No provider, router, credential, vault, deployment, real decision or customer job state changed.
+- Scoped acceptance and remaining prerequisites are recorded in `ISA.md` and `.planning/native-mac/BUILD-HANDOFF.json`. Shared primary checkout edits from other lanes were preserved.
+
+### 2026-11-02 native mapped-project integration checkpoint
+
+- Scoped commits `a62955b`, `d0defc5`, and `15ff5de` add founder catalog delivery assertions, a typed read-only mapped-project projection, and the native Projects page. The standard client consumes the owner-served catalog dynamically; viewer scope gets totals only. An explicit served canonical-to-Work join is required before opening operational Work. Catalog names, aliases, classifications and tenant labels confer no action authority.
+- The demo replay contains 76 display/73 action records with one exact Cambium runtime join. The concurrent working catalog source had 77/74 at review. The app uses served counts and separate digests, not a hardcoded total. `apps/cambium-mac/docs/PROJECTS-INTEGRATION.md` holds the bounded data contract and reversal.
+- Local Swift suite and 24 native route tests pass; a focused final decoder rerun passed 15/15. The release development bundle is ad hoc signed, strict codesign and embedded build proof recheck pass; app inputs were clean at revision `334c9a6` with aggregate `ec1e363f`. First Projects visual inspection was blocked because the Mac was locked; an unlocked UI walkthrough remains pending.
+- Unauthenticated live probes saw health 200 and mission route 401 on the direct origin, mission route 401 on the custom domain, and native session route 404 on the direct origin. These prove neither native session composition nor founder catalog delivery. No production deployment, native client registration, D1 migration, provider configuration, real decision or admitted work occurred.
+- Historical continuation commits `8a24b94`, `e5fe1f1`, `7ff409f` and scoped docs/ISA changes expose all served historical products, classification review rows, source links and global search without granting a Work join. The current dirty source has 77 current/20 historical/0 review/50 gap records; the bundled dated demo has 76 current/20 historical. Neither count is asserted as live production.
+- Final local evidence: 31 native and 246 Core Swift tests pass; 24 native route tests pass; ad hoc release bundle passes strict signature and build-proof check with clean app inputs at `7ff409f`, aggregate `8b2e8bd9`. The Mac remains locked for visual QA. Live native sign-in and founder catalog delivery remain unproved; production entry point still lacks a composed native session host in source.
+- Current-source probe commit `252c7e7` and ISA checkpoint `992b616` add a repeatable temporary TypeScript handler → Swift decoder check. It passed against the concurrently edited working source (77 current, 20 historical, 0 review, 50 gaps, 1 exact join; display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`) without replacing the dated fixture or changing live state. The Mac walkthrough and real founder delivery remain ISC-3466/3467 open; deploy/native authority are separate owner activation.
+- Signed synthetic Projects snapshot correction `41eb7a8`/`0020e3a`/`55ca159` fixes whole-second source-time display, exposes the first project row at the 880×612 minimum and drives SwiftUI light/dark appearance before each capture. Four image captures from clean app inputs (`e59dfd94`) have no manifest failures; strict signature/bundle/proof checks and four focused Projects tests pass. ISC-3472/3473 record this local visual proof; ISC-3466 interactive filtering/selection/Work navigation and ISC-3467 real founder delivery remain open. Current Plexus whoami is Access-JWT-bound, so a fresh identity-by-ID role lookup is the remaining native authority seam.
+
+
+### 2026-11-02 current Plexus native identity seam
+
+- GitHub TeamForge `main` at `80714a5` confirms `/v1/whoami` is Access-JWT-only; no current service-authenticated by-ID route was found in the inspected source. Its internal ID query is not a native Worker API. The exact evidence, required role/enrollment contract, denial cases and activation sequence are in `.planning/native-mac/PLEXUS-CURRENT-IDENTITY-LOOKUP.md`.
+- Cambium's existing native session host requires fresh role and exact enrollment checks on exchange and bearer reads. Production entry point remains unbound; local source review neither deployed a route nor changed Plexus, client registration, D1 or live founder authority. ISC-3467 remains open until a real owner readback.
+
+
+### 2026-11-02 mapped-project navigation follow-up
+
+- Commit `85068da` keeps the Projects dossier within filtered results, reveals a linked source after filtered navigation, and searches catalog aliases plus historical source links. The distinct `Lockwell` alias now finds `DLOCK` through global search. Five focused native Projects tests pass.
+- Rebuilt signed bundle inputs are clean at `85068da`, aggregate `f069378b`; bundle verifier, strict signature and proof check pass. Four synthetic Projects snapshots at 1280×820 and 880×612 have no manifest failures, with minimum light/dark images inspected. Current-source TypeScript-to-Swift probe still passes at 77 current, 20 historical and one exact runtime join. Interactive filtering/Work navigation and real founder delivery remain ISC-3466/3467 open.
+
+### 2026-11-03 isolated live-only Field Atlas release review
+
+- Reconstructed 114 serving source inputs; baseline Worker rebuild is byte-identical to the active Labs module. Closest Git/test ancestor 67a7aee is lineage, not an invented live Git SHA.
+- Retires the served two-dimensional Mission Control shell; adds bounded Founder Access bookkeeping intake/read to existing canonical review and Gate CAS. No native-client rollout, loadout, execution admission or publishing authority is included.
+- Six actual local IAB JPEG captures bind the frozen Field Atlas PAGE. Local/synthetic evidence and real Worker entrypoint auth tests remain distinct from production acceptance.
+- The value-free 47-binding overlay is adopted for this exact one-off source candidate; original canonical config and primary dirty work remain intact. No upload or traffic assignment occurred.
+- Whole-suite inherited membership/planning/workbench and privacy/history holds remain explicit. See docs/plans/2026-11-03-live-founder-release.md; no full-release-green claim or automatic main merge.

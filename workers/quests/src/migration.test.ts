@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { DatabaseSync } from 'node:sqlite';
 
 const migrationUrl = new URL('../migrations/0003_bridge_execution_proof.sql', import.meta.url);
 const businessArtifactsMigrationUrl = new URL('../migrations/0004_business_artifacts.sql', import.meta.url);
@@ -9,6 +10,51 @@ const leadRuntimeMigrationUrl = new URL('../migrations/0006_lead_runtime_spine.s
 const branchMapReceiptsMigrationUrl = new URL('../migrations/0008_branch_transition_receipts.sql', import.meta.url);
 const websiteIntakeMigrationUrl = new URL('../migrations/0010_website_intake.sql', import.meta.url);
 const schemaUrl = new URL('../schema/bridge.sql', import.meta.url);
+
+test('native launch migration and canonical schema create identical recovery authority', async () => {
+  const [schema, graph, launch] = await Promise.all([
+    readFile(schemaUrl, 'utf8'),
+    readFile(new URL('../migrations/0007_goal_graph.sql', import.meta.url), 'utf8'),
+    readFile(new URL('../migrations/0099_native_launch_requests.sql', import.meta.url), 'utf8'),
+  ]);
+  const canonical = new DatabaseSync(':memory:');
+  const migrated = new DatabaseSync(':memory:');
+  try {
+    canonical.exec(schema);
+    migrated.exec(graph);
+    migrated.exec(launch);
+    const definitions = (db: DatabaseSync) => db.prepare(
+      "SELECT type, name, sql FROM sqlite_master WHERE name LIKE 'native_launch_%' ORDER BY type, name",
+    ).all().map(row => ({ ...row, sql: String(row.sql).replace(/\s+/g, ' ').trim() }));
+    assert.deepEqual(definitions(canonical), definitions(migrated));
+    assert.equal(definitions(canonical).filter(row => row.type === 'table').length, 2);
+  } finally {
+    canonical.close();
+    migrated.close();
+  }
+});
+
+test('native session migration and canonical schema create identical credential-digest tables', async () => {
+  const [schema, session] = await Promise.all([
+    readFile(schemaUrl, 'utf8'),
+    readFile(new URL('../migrations/0100_native_sessions.sql', import.meta.url), 'utf8'),
+  ]);
+  const canonical = new DatabaseSync(':memory:');
+  const migrated = new DatabaseSync(':memory:');
+  try {
+    canonical.exec(schema);
+    migrated.exec(session);
+    const definitions = (db: DatabaseSync) => db.prepare(
+      "SELECT type, name, sql FROM sqlite_master WHERE name LIKE 'native_authorization_codes%' OR name LIKE 'native_sessions%' ORDER BY type, name",
+    ).all().map(row => ({ ...row, sql: String(row.sql).replace(/\s+/g, ' ').trim() }));
+    assert.deepEqual(definitions(canonical), definitions(migrated));
+    assert.equal(definitions(canonical).filter(row => row.type === 'table').length, 2);
+    assert.equal(definitions(canonical).filter(row => row.type === 'index' && row.name === 'native_sessions_founder_idx').length, 1);
+  } finally {
+    canonical.close();
+    migrated.close();
+  }
+});
 
 function triggerDefinitions(sql: string): Record<string, string> {
   const definitions: Record<string, string> = {};

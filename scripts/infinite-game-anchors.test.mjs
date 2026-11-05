@@ -564,6 +564,124 @@ function t07Allowlisted(source) {
     .replace(/sha256:[0-9a-f]{64}/gi, 'sha256:<digest>');
 }
 
+// Exact reviewed public syntax and synthetic negative-test lines. A changed
+// context, suffix, or adjacent secret is scanned normally; no path is exempt.
+const reviewedSourceCanaryLines = new Map([
+  ["apps/cambium-mac/Sources/CambiumCore/Platform.swift", new Set([
+    ["public enum ", "NativeSession:", " Sendable, Equatable {"].join(''),
+  ])],
+  ["apps/cambium-mac/Sources/CambiumNative/Resources/Fixtures/native-launch-wire.v1.json", new Set([
+    ["\"authorization\": \"", "Bearer ", "synthetic-founder\""].join(''),
+  ])],
+  ["apps/cambium-mac/Sources/CambiumNative/State/DemoOwner.swift", new Set([
+    ["func headers() async throws -> [String: String] { [\"authorization\": \"", "Bearer ", "synthetic-founder\"] }"].join(''),
+    ["guard request.headers[\"authorization\"] == \"", "Bearer ", "synthetic-founder\" else {"].join(''),
+  ])],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/AdmissionDiscoveryTests.swift", new Set([
+    ["private let auth = HeaderAuthorizer(values: [\"authorization\": \"", "Bearer ", "synthetic-founder\"])"].join(''),
+    ["XCTAssertEqual(request.headers[\"authorization\"], \"", "Bearer ", "synthetic-founder\")"].join(''),
+  ])],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/fabric-generate.mts", new Set([
+    ["// CAMBIUM_FABRIC_FIXTURE_DIR=", "/tmp/", "cambium-fabric-current node .../fabric-generate.mts"].join(''),
+  ])],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/KnowledgeClientTests.swift", new Set([
+    ["\"javascript:alert(1)\", \"", "file://", "/", "etc/passwd\", \"data:text/html,x\", \"ftp://example.invalid/x\", \"ssh://host/x\","].join(''),
+  ])],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/LaunchHTTPContractTests.swift", new Set([
+    ["authorizer: HeaderAuthorizer(values: [\"authorization\": \"", "Bearer ", "synthetic-founder\"]))"].join(''),
+    ["XCTAssertEqual(request.headers[\"authorization\"], \"", "Bearer ", "synthetic-founder\")"].join(''),
+  ])],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/ReadClientTests.swift", new Set([
+    ["var values: [String: String] = [\"authorization\": \"", "Bearer ", "owner-issued-test-token\"]"].join(''),
+    ["XCTAssertEqual(sent.headers[\"authorization\"], \"", "Bearer ", "owner-issued-test-token\")"].join(''),
+  ])],
+  ["apps/cambium-mac/Tests/CambiumCoreTests/SignalsTests.swift", new Set([
+    ["var session: ", "NativeSession", " = .verified(founderId: \"founder\", tenantId: \"cambium\", expiresAt: .distantFuture)"].join(''),
+  ])],
+  ["apps/cambium-mac/docs/SHARED-SIGNALS.md", new Set([
+    ["./apps/cambium-mac/tools/snap.sh ", "/tmp/", "cambium-inbox-review inbox"].join(''),
+  ])],
+  ["apps/cambium-mac/tools/snap.sh", new Set([
+    ["shots_dir=\"${1:-", "/tmp/", "cambium-native-shots}\""].join(''),
+  ])],
+  ["tests/openai-ecosystem/compatibility.test.mjs", new Set([
+    ["['ownerPrincipalRefDigest', '", "Bearer ", "actual-token'],"].join(''),
+    ["(r) => { r.subject.auth = '", "Bearer ", "actual-token'; return r },"].join(''),
+  ])],
+  ["tests/openai-ecosystem/dot-runtime.test.mjs", new Set([
+    ["() => compileMemoryCheckpoint(baseMemoryInput({ references: { isa_digest: '", "/Users/", "x/secret' } })),"].join(''),
+    ["baseMemoryInput({ references: { ", "api_key", ": 'sk-live-XYZ' } }),"].join(''),
+  ])],
+  ["workers/cortex-mcp/src/gate-action.test.ts", new Set([
+    ["[\"secret field\", { ...input, arguments: { ", "api_key", ": \"not-a-secret\" } }, \"sensitive_content\"],"].join(''),
+    ["[\"machine path\", { ...input, arguments: { evidence: \"", "/Users/", "example/private.txt\" } }, \"sensitive_content\"],"].join(''),
+  ])],
+  ["workers/cortex-mcp/src/gate-action.ts", new Set([
+    ["const ", "requestBody", " = {"].join(''),
+  ])],
+  ["workers/cortex-mcp/src/openai-auth.test.ts", new Set([
+    ["assert.equal(new Headers(init?.headers).get(\"authorization\"), \"", "Bearer ", "oauth-access-token\");"].join(''),
+    ["new Request(RESOURCE, { headers: { ", "authorization:", " \"", "Bearer ", "oauth-access-token\" } }),"].join(''),
+    ["new Request(RESOURCE, { headers: { ", "authorization:", " \"", "Bearer ", "legacy-route-token\" } }),"].join(''),
+    ["assert.match(denied.challenge || \"\", /^", "Bearer ", "resource_metadata=/);"].join(''),
+    ["new Request(RESOURCE, { headers: { ", "authorization:", " \"", "bEaReR   ", "oauth-access-token  \" } }),"].join(''),
+    ["authorization:", " \"", "Bearer ", "oauth-access-token\","].join(''),
+  ])],
+  ["workers/cortex-mcp/src/openai-auth.ts", new Set([
+    ["return `", "Bearer ", "resource_metadata=\"${protectedResourceMetadataUrl(requestUrl)}\", scope=\"${scopes.join(\" \")}\"`;"].join(''),
+  ])],
+  ["workers/cortex-mcp/src/provenance-read.test.ts", new Set([
+    ["const secretBody = { ", "api_key", ": \"not-a-real-secret\" };"].join(''),
+    ["const pathBody = { evidence: \"", "/Users/", "example/private.txt\" };"].join(''),
+    ["\"path:", "/Volumes/", "madara/private.txt\","].join(''),
+    ["\"see,", "/Volumes/", "madara/private.txt\","].join(''),
+    ["\"[", "/Users/", "example/private.txt]\","].join(''),
+    ["\"evidence;", "/home/", "example/private.txt\","].join(''),
+    ["\"evidence{", "/Users/", "example/private.txt\","].join(''),
+    ["\"evidence]", "/Volumes/", "madara/private.txt\","].join(''),
+    ["\"evidence|", "/home/", "example/private.txt\","].join(''),
+    ["\"", "file://", "/", "private/var/db/private.txt\","].join(''),
+  ])],
+  ["workers/cortex-mcp/src/streamable-http.test.ts", new Set([
+    ["authorization:", " options.oauth ? \"", "Bearer ", "oauth-access-token\" : `", "Bearer ", "${ROUTE_TOKEN}`,"].join(''),
+    ["assert.match(response.headers.get(\"www-authenticate\") || \"\", /^", "Bearer ", "resource_metadata=/);"].join(''),
+    ["authorization:", " \"", "Bearer ", "oauth-access-token\","].join(''),
+    ["assert.equal(new Headers(init?.headers).get(\"authorization\"), \"", "Bearer ", "test-mcp-gate-binding-token-00000001\");"].join(''),
+  ])],
+  ["workers/quests/src/fixtures/native-launch-wire.v1.json", new Set([
+    ["\"authorization\": \"", "Bearer ", "synthetic-founder\""].join(''),
+  ])],
+  ["workers/quests/src/native-launch-d1.test.ts", new Set([
+    ["verify: async req => req.headers.get('authorization') === '", "Bearer ", "founder-token' ? scope : null,"].join(''),
+    ["const post = (path: string, body: unknown, token = '", "Bearer ", "founder-token') => new Request(`http://worker.test${path}`, {"].join(''),
+  ])],
+  ["workers/quests/src/native-launch-route.test.ts", new Set([
+    ["verify: request => Promise.resolve(request.headers.get('authorization') === '", "Bearer ", "synthetic-founder' ? scope : null),"].join(''),
+    ["return { method, path, headers: { 'content-type': 'application/json', ", "authorization:", " '", "Bearer ", "synthetic-founder', ...headers },"].join(''),
+    ["assert.equal(seen[0].headers.get('authorization'), '", "Bearer ", "synthetic-founder');"].join(''),
+    ["const WIRE_HEADERS = { 'content-type': 'application/json', ", "authorization:", " '", "Bearer ", "synthetic-founder' };"].join(''),
+  ])],
+  ["workers/quests/src/native-launch.test.ts", new Set([
+    ["req.headers.get('authorization') === '", "Bearer ", "founder-token' ? scope : null;"].join(''),
+    ["headers: { 'content-type': 'application/json', ", "authorization:", " '", "Bearer ", "founder-token', ...headers },"].join(''),
+    ["assert.equal((await nativeLaunchHttp(new Request(`http://worker.test${NATIVE_LAUNCH_PATHS.launch}`, { method: 'GET', headers: { ", "authorization:", " '", "Bearer ", "founder-token' } }), host)).status, 405);"].join(''),
+    ["method: 'GET', headers: { ", "authorization:", " '", "Bearer ", "founder-token' },"].join(''),
+  ])],
+  ["workers/quests/src/native-session-composition.ts", new Set([
+    ["const ", "authorization =", " request.headers.get('authorization') ?? '';"].join(''),
+  ])],
+  ["workers/quests/src/native-session-routes.test.ts", new Set([
+    ["authorization:", " '", "Bearer ", "cns1_0123456789abcdef0123456789abcdef0123456789ab',"].join(''),
+    ["for (const authorization of ['", "Bearer ", "cns1_notarealtoken', '", "Bearer ", "ordinary', 'Basic Zm9vOmJhcg==']) {"].join(''),
+  ])],
+  ["workers/quests/src/native-session.test.ts", new Set([
+    ["const response = await nativeSessionHttp(new Request(authorizeUrl(), { headers: { ", "authorization:", " '", "Bearer ", "cns1_not-a-session' } }), h.host);"].join(''),
+  ])],
+  ["workers/quests/src/plexus-native-identity.test.ts", new Set([
+    ["assert.equal((requests[0].init?.headers as Record<string, string>).authorization, '", "Bearer ", "dedicated-token');"].join(''),
+  ])],
+]);
+
 function privacyViolations(relativePath, source) {
   const fixtureLiterals = syntheticPrivacyFixtures.get(relativePath) ?? [];
   const patterns = [
@@ -581,6 +699,9 @@ function privacyViolations(relativePath, source) {
   const violations = [];
   for (const [index, line] of source.split(/\r?\n/).entries()) {
     let candidate = line;
+    if (reviewedSourceCanaryLines.get(relativePath)?.has(line.trim())) {
+      candidate = '<reviewed-source-canary>';
+    }
     // Mask only these complete reviewed negative-test statements. A token
     // extension, changed delimiter, prefix, or adjacent secret makes the line
     // ineligible; the bearer/privacy scanners then see its original bytes.
@@ -598,6 +719,18 @@ function privacyViolations(relativePath, source) {
   }
   return violations;
 }
+
+test('DOCS-PRIVACY: reviewed source contexts reject extensions, copies and adjacent secrets', () => {
+  const extraSecret = ['"access_', 'token": "unreviewed-private-value"'].join('');
+  for (const [relativePath, lines] of reviewedSourceCanaryLines) {
+    for (const line of lines) {
+      assert.deepEqual(privacyViolations(relativePath, line), []);
+      assert.deepEqual([...new Set(privacyViolations('unrelated.md', line))], ['unrelated.md:1']);
+      assert.deepEqual([...new Set(privacyViolations(relativePath, `${line} extra`))], [`${relativePath}:1`]);
+      assert.deepEqual([...new Set(privacyViolations(relativePath, `${line}; ${extraSecret}`))], [`${relativePath}:1`]);
+    }
+  }
+});
 
 test('DOCS-PRIVACY: exact environment expressions and synthetic canaries never mask appended secrets', () => {
   const cases = [

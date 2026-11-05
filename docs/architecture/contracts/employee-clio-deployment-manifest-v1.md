@@ -77,7 +77,7 @@ identity comes from the member binding only.
 | Cloudflare account / Worker | the existing quests Worker that serves `/v1/bridge/growth/*`; name per `cambium-cloudflare-resource-map.v1.json` |
 | D1 binding | `BRIDGE_DB` with migration `0011_growth_workflow.sql` applied |
 | KV binding | `QUESTS` (existing) |
-| Vault checkout on EC2 | `/home/ubuntu/repos/thoughtseed-labs`, transport `origin` → `Sheshiyer/thoughtseed-vault` |
+| Vault checkout on EC2 | Host-local checkout path retained in the private deployment manifest; transport `origin` → `Sheshiyer/thoughtseed-vault` |
 | Relay working directory | pinned release dir `/opt/hermes-clio-relay/releases/09b3369e3723a90286bcf2f0477c79b98da91a95` via drop-in `release.conf` (observed 2026-10-27; the base unit's `/opt/hermes-aws-ts` is overridden). `ExecStart` runs that release's `src/clio-omniroute-relay.ts` |
 | Relay release id | `09b3369e3723a90286bcf2f0477c79b98da91a95` (observed 2026-10-27) |
 | Hermes source checkout | separate path, `TBD-founder` (record the exact path and commit at E2) |

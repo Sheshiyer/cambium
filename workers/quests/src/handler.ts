@@ -1,5 +1,23 @@
+import { MAPPING_ANNOTATIONS } from './portfolio-four-annotations.data.ts';
+import { parseAnnotations } from './portfolio-four-annotations.ts';
+import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
+import { descriptionResponse } from './portfolio-descriptions.ts';
 import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
+import { nativeLaunchHttp, NATIVE_LAUNCH_PATHS, type NativeLaunchHost } from './native-launch.ts';
+import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
+import { sharedSignalsHttp, type SignalStore } from './shared-signals.ts';
+import {
+  composeNativeLaunchHost,
+  nativeComposedPath,
+  nativeFounderBinding,
+  nativeHttpResponse,
+  nativeRealmPresented,
+  nativeRequestUrl,
+  nativeWebRequest,
+  NATIVE_SESSION_ROUTES,
+  resolveComposedNativeSession,
+} from './native-session-composition.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
 // Pure handler — no Workers runtime imports — so node:test covers it like every
 // other module in this repo. The thin fetch glue lives in index.ts.
@@ -18,7 +36,7 @@ import { GROWTH_REFS, GROWTH_ROLES, parseGrowthInput, parseGrowthRequest, parseG
 import type { GrowthInput, GrowthResult, GrowthRecord, GrowthStore } from './growth-workflow.ts';
 import { GROWTH_CONTEXT_PROJECTION } from './growth-context-projection.ts';
 import { PAGE } from './page.ts';
-import { injectInitialQuestHydration } from './page/client/data.ts';
+import { injectInitialQuestHydration } from './page/initial-hydration.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord, resolveActionRequestReplyRecord } from './action-requests.ts';
@@ -112,6 +130,7 @@ import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } fro
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { deriveFounderOutcomeTransition, parseFounderOutcomeIntent } from './founder-outcome-intake.ts';
 import { parseTelegramGoalGraphIntent, parseTelegramGoalGraphIntentBoundary } from './goal-graph-intake.ts';
+import { FOUNDER_BOOKKEEPING_MAX_BYTES, FOUNDER_BOOKKEEPING_SCHEMA, parseFounderBookkeepingBoundary, parseFounderBookkeepingIntent } from './native-goal-intake.ts';
 import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
@@ -496,8 +515,11 @@ export interface FabricLedgerStoreLike {
 }
 
 export interface HandlerDeps {
+  sharedSignalStore?: SignalStore;
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
+  nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
+  nativeSessionHost?: NativeSessionHost; // absent until Access exchange, client registry, enrollment and D1 are reviewed; routes then 503
   kv: KvLike;
   foldbackReader?: HermesExecutionFoldbackReaderLike;
   acceptedWorkUnitReadback?: AcceptedWorkUnitReadback;
@@ -3305,7 +3327,16 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
   const viewerIds = deps.missionFabricViewerIds ?? [];
   let isFounder = false;
   let isViewer = false;
-  if (initData) {
+  if (nativeRealmPresented(req.headers)) {
+    // A native claim is resolved or refused here; it never falls back to Telegram or Plexus.
+    const resolved = await resolveComposedNativeSession(req, deps.nativeSessionHost);
+    if (resolved.kind === 'refused') {
+      return 'status' in resolved ? json(resolved.status, { error: resolved.error }) : nativeHttpResponse(resolved.response);
+    }
+    if (resolved.kind !== 'native') return json(401, { error: 'native_session_required' });
+    if (resolved.scope.tenantId !== tenant) return json(403, { error: 'native session tenant mismatch' });
+    isFounder = true;
+  } else if (initData) {
     if (!deps.gate) return json(503, { error: 'telegram auth is not configured' });
     const auth = await authenticateInitData(initData, deps.gate);
     if (!auth.ok) return json(401, { error: 'telegram authentication failed', reason: auth.reason });
@@ -3390,7 +3421,13 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       : (typeof head.committedAt === 'string' && fabricTimestampMs(head.committedAt) !== null
         ? head.committedAt
         : '1970-01-01T00:00:00.000Z');
-    const execution = adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
+    // Older real ledgers can have a current graph/catalog without execution
+    // facts. Keep that absence visible instead of inventing an empty source or
+    // suppressing the independently authoritative graph and portfolio.
+    const execution: ReturnType<typeof adaptQuestExecutionFacts> = fabricFacts == null
+      ? { nodes: [], edges: [], gaps: [{ gapId: 'gap-execution-facts-source-missing', kind: 'missing-source',
+          subjectId: null, detail: 'Execution facts are unavailable; no execution nodes or receipts were inferred.', evidenceRef: null }] }
+      : adaptQuestExecutionFacts(fabricFacts, { tenantId: tenant, now: servedAt, contentAsOf });
     const taskReconciliation = reconcileFabricTaskNodes(goalGraphFabricNodes, execution.nodes);
     entries.push(...taskReconciliation.nodes);
     const mergedEdges: FabricEdge[] = [...goalGraphAuthority.edges, ...execution.edges].filter((edge) => (
@@ -3463,6 +3500,34 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       });
     }
 
+    // A catalog anchor does not create a served operational Work node. Keep
+    // unresolved joins as gaps rather than emitting edges a strict client
+    // cannot resolve (or fabricating nodes from the display-only sidecar).
+    const servedSubjects = new Set(composedNodes.map(node => {
+      switch (node.kind) {
+        case 'work': return node.value.workId;
+        case 'mission': return node.value.missionId;
+        case 'task': return node.value.taskId;
+        case 'agent': return node.value.agentId;
+        case 'skill-cluster': return node.value.clusterId;
+        case 'run': return node.value.runId;
+        case 'receipt': return node.value.receiptId;
+      }
+    }));
+    const knownGapIds = new Set(mergedGaps.map(gap => gap.gapId));
+    for (let index = mergedEdges.length - 1; index >= 0; index -= 1) {
+      const edge = mergedEdges[index];
+      const missing = !servedSubjects.has(edge.fromId) ? edge.fromId
+        : edge.kind !== 'pins-loadout' && !servedSubjects.has(edge.toId) ? edge.toId : null;
+      if (missing === null) continue;
+      mergedEdges.splice(index, 1);
+      const gapId = `gap-edge-endpoint-${edge.kind}-${edge.fromId}-${edge.toId}`;
+      if (knownGapIds.has(gapId)) continue;
+      knownGapIds.add(gapId);
+      mergedGaps.push({ gapId, kind: 'missing-join', subjectId: missing,
+        detail: `The ${edge.kind} edge has an endpoint absent from the served source nodes; the edge was omitted.`, evidenceRef: null });
+    }
+
     const sortedNodes = [...composedNodes].sort((a, b) => {
       const left = `${a.kind}:${fabricIdentityOf(a)}`;
       const right = `${b.kind}:${fabricIdentityOf(b)}`;
@@ -3484,6 +3549,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     }
     const sortedGaps = [...mergedGaps].sort((a, b) => (a.gapId < b.gapId ? -1 : a.gapId > b.gapId ? 1 : 0));
     if (sortedGaps.length > MISSION_FABRIC_CAPS.MAX_GAPS) {
+      console.warn('[mission-fabric] gap-overflow');
       return json(503, { error: 'mission_fabric_gap_overflow' });
     }
 
@@ -3562,6 +3628,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
           body.organUpdateDeliverySummary = ORGAN_UPDATE_SUMMARY;
         }
       } catch {
+        console.warn('[mission-fabric] portfolio-catalog');
         return json(503, { error: 'portfolio_catalog_unavailable' });
       }
     }
@@ -3597,6 +3664,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       body: JSON.stringify(body),
     };
   } catch {
+    console.warn(`[mission-fabric] authority-${authorityStage}`);
     return json(503, { error: 'mission_fabric_authority_unavailable', reason: authorityStage });
   }
 }
@@ -3949,6 +4017,8 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
       fence: descriptor.fence,
     };
   }
+  const bookkeeping = isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA;
+  const changeSet = isRecord(task.changeSet) ? task.changeSet : {};
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
     kind: 'goal-graph-intake',
@@ -3960,11 +4030,12 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
-    source: task.renewal ? 'founder-proposal-renewal@v1' : 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
     proposalId: `${tenantId}:${changeDigest}`,
@@ -4347,6 +4418,7 @@ async function intakeTelegramGoalGraphRoute(
   deps: HandlerDeps,
   raw: unknown,
   nowIso: () => string,
+  verifiedFounderId?: string,
 ): Promise<GoalGraphIntakeRouteResult> {
   const receivedAt = nowIso();
   const receiptTenant = goalGraphIntakeReceiptTenant(raw);
@@ -4380,7 +4452,7 @@ async function intakeTelegramGoalGraphRoute(
   // Normalize and bind provenance before consulting D1. That boundary identity
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
-  const initial = parseTelegramGoalGraphIntentBoundary(raw);
+  const initial = verifiedFounderId ? parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
@@ -4412,14 +4484,15 @@ async function intakeTelegramGoalGraphRoute(
   // Pin the proposal to the CURRENT head so the approval-bound commit is a
   // CAS against a known digest. The parse is deterministic, so identity,
   // content digest, and the idempotency key are unchanged by this re-parse.
-  const pinned = parseTelegramGoalGraphIntent(raw, {
+  const context = {
     expectedHeadDigest: head?.graphDigest ?? null,
     actualHead: head,
     currentNodes,
     graphVersion: (head?.graphVersion ?? 0) + 1,
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
-  });
+  };
+  const pinned = verifiedFounderId ? parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
   if (!pinned.accepted) return persistRejection(pinned);
   if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
     return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
@@ -5462,7 +5535,145 @@ async function handleMcpGateAdapterRoute(req: SimpleRequest, deps: HandlerDeps, 
   return json(result.status, result.body);
 }
 
+const NATIVE_LAUNCH_ROUTES: ReadonlySet<string> = new Set(Object.values(NATIVE_LAUNCH_PATHS));
+
+function nativeRefusal(status: number, error: string): SimpleResponse {
+  return {
+    status,
+    headers: { ...JSON_HEADERS, pragma: 'no-cache', 'referrer-policy': 'no-referrer', 'x-content-type-options': 'nosniff' },
+    body: JSON.stringify({ contractVersion: 'cambium.native-session.v1', error }),
+  };
+}
+
+/**
+ * Founder Gate for a native bearer. The binding is exactly the resolved
+ * founder/tenant; an injected founderDecisionHost and body tenant are never
+ * consulted. The access host re-resolves the session before every D1 write.
+ */
+async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  const first = await resolveComposedNativeSession(req, deps.nativeSessionHost);
+  if (first.kind === 'refused') {
+    return 'status' in first ? nativeRefusal(first.status, first.error) : nativeHttpResponse(first.response);
+  }
+  if (first.kind !== 'native') return nativeRefusal(401, 'unauthorized');
+  const scope = first.scope;
+  const built = nativeRequestUrl(req, deps.nativeSessionHost?.deps.ownerOrigin);
+  if ('error' in built) return nativeRefusal(400, built.error);
+  const host = createFounderAccessHost({
+    store: deps.goalGraphStore,
+    bindingsJson: nativeFounderBinding(scope),
+    channel: 'native',
+    verifyFounder: async () => {
+      const again = await resolveComposedNativeSession(req, deps.nativeSessionHost);
+      return again.kind === 'native' && again.scope.founderId === scope.founderId
+        && again.scope.tenantId === scope.tenantId && again.scope.clientId === scope.clientId
+        && again.tokenDigest === first.tokenDigest ? scope.founderId : null;
+    },
+    readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
+    reviewTask: task => {
+      const row = goalGraphIntakeGateRow(task);
+      return row ? { ...row, founderInspect: goalGraphFounderInspect(task) } : null;
+    },
+    now: deps.now ?? (() => new Date().toISOString()),
+    loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+    persistRenewal: input => reconcileGoalGraphIntakePersistence(deps.kv, {
+      ...input, idempotencyRecordKey: `goal-graph-intake-idem:${input.idempotencyKey}`,
+    }),
+  });
+  const response = await founderDecisionHttp(nativeWebRequest(req, built.url), host);
+  return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
+}
+
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  const nativePath = req.path.split('?')[0];
+  if (nativePath === '/v1/signals' || nativePath.startsWith('/v1/signals/')) {
+    // Signals annotate source projects, including display proposals. This never
+    // creates a runtime join, tenant grant or operational admission.
+    return sharedSignalsHttp(req, deps, new Set(PORTFOLIO_DISPLAY_CATALOG.records.map(record => record.workId)));
+  }
+  if (NATIVE_SESSION_ROUTES.has(nativePath)) {
+    // Unbound: 503 before any lookup. Bound: the request keeps the reviewed owner origin only when Host matches it.
+    if (!deps.nativeSessionHost) return nativeRefusal(503, 'native_session_unconfigured');
+    const built = nativeRequestUrl(req, deps.nativeSessionHost.deps.ownerOrigin);
+    if ('error' in built) return nativeRefusal(400, built.error);
+    const response = await nativeSessionHttp(nativeWebRequest(req, built.url), deps.nativeSessionHost);
+    return response ? nativeHttpResponse(response) : json(404, { error: 'not_found' });
+  }
+  // A native credential is accepted only on composed routes. Every other route refuses it before browser or Telegram auth.
+  if (nativeRealmPresented(req.headers) && !nativeComposedPath(req.path)) {
+    return nativeRefusal(403, 'native_route_unsupported');
+  }
+  if (NATIVE_LAUNCH_ROUTES.has(nativePath)) {
+    const native = nativeRealmPresented(req.headers);
+    if (native && !deps.nativeSessionHost) return nativeRefusal(503, 'native_session_unconfigured');
+    let url = `https://cambium.invalid${req.path}`;
+    if (native && deps.nativeSessionHost && deps.nativeLaunchHost) {
+      const built = nativeRequestUrl(req, deps.nativeSessionHost.deps.ownerOrigin);
+      if ('error' in built) return nativeRefusal(400, built.error);
+      url = built.url;
+    }
+    const host = native ? composeNativeLaunchHost(deps.nativeLaunchHost, deps.nativeSessionHost) : deps.nativeLaunchHost;
+    const response = await nativeLaunchHttp(new Request(url, {
+      method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),
+    }), host);
+    return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
+  }
+  if (['/v1/founder/intake', '/v1/founder/graph'].includes(req.path.split('?')[0])) {
+    const readGraph = req.path.split('?')[0] === '/v1/founder/graph';
+    if (req.method !== (readGraph ? 'GET' : 'POST')) return json(405, { error: readGraph ? 'get_required' : 'post_required' });
+    // This is browser Access provenance, not a native credential or bridge token.
+    const signer = await resolveFounderWebSigner(req, deps);
+    if (signer.kind !== 'founder') return json(signer.kind === 'unconfigured' ? 503 : signer.kind === 'forbidden' ? 403 : 401, { error: 'founder_identity_required' });
+    const bindings = founderBindings(deps.founderGateBindingsJson);
+    if (!bindings?.some(row => row.founderId === signer.approverId && row.tenantId === 'cambium')) return json(403, { error: 'founder_tenant_not_enrolled' });
+    if (readGraph) {
+      if (!deps.goalGraphStore?.readDecisionReceipt) return json(503, { error: 'goal_graph_authority_unavailable' });
+      try {
+        const head = await deps.goalGraphStore.readHead('cambium');
+        if (!head) return json(404, { error: 'goal_graph_not_found' });
+        const all = await deps.goalGraphStore.readNodes('cambium');
+        const again = await deps.goalGraphStore.readHead('cambium');
+        if (!again || head.graphDigest !== again.graphDigest || head.graphVersion !== again.graphVersion
+            || makeGoalGraphHead('cambium', all, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) return json(503, { error: 'goal_graph_read_unconfirmed' });
+        const roots = all.filter(node => node.parentNodeId === null);
+        if (roots.length !== 1) return json(503, { error: 'goal_graph_root_ambiguous' });
+        const nodes = all.filter(node => node.namespace === 'founder-bookkeeping'
+          && ['sapling:lumen-bar', 'program:temperance-hermes'].includes(node.workObjectId ?? ''));
+        const ids = new Set(nodes.map(node => node.nodeId));
+        const keys = await deps.kv.list('goal-graph-intake-task:cambium:');
+        if (keys.length > 256) return json(503, { error: 'goal_graph_receipt_bound_exceeded' });
+        const decisions: Array<Record<string, unknown>> = [];
+        for (const key of keys) {
+          const task = parseJsonObject(await deps.kv.get(key));
+          if (!task || !isRecord(task.intent) || task.intent.schema !== FOUNDER_BOOKKEEPING_SCHEMA || task.tenantId !== 'cambium'
+              || !Number.isInteger(task.graphVersion)) continue;
+          const decision = await projectedGoalGraphDecision(deps.goalGraphStore, task, 'cambium');
+          if (decision === undefined) return json(503, { error: 'goal_graph_decision_read_unconfirmed' });
+          if (!decision) continue;
+          // A rejection records a decision without advancing the graph head.
+          if (decision.decision === 'approved' && Number(task.graphVersion) > head.graphVersion) continue;
+          decisions.push({ ...decision, proposalId: `cambium:${task.changeDigest}`, changeDigest: task.changeDigest,
+            graphVersion: task.graphVersion, canonicalReadback: true, kind: 'd1-bookkeeping-decision' });
+        }
+        const finalHead = await deps.goalGraphStore.readHead('cambium');
+        if (!finalHead || finalHead.graphDigest !== head.graphDigest || finalHead.graphVersion !== head.graphVersion) return json(503, { error: 'goal_graph_read_unconfirmed' });
+        return { ...json(200, { schema: 'cambium.founder.bookkeeping-graph.v1', origin: 'd1', tenantId: 'cambium',
+          canonicalReadback: true, writerAuthority: false, executionGranted: false,
+          head: { tenantId: head.tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest }, rootId: roots[0].nodeId,
+          nodes, edges: nodes.filter(node => node.parentNodeId && (ids.has(node.parentNodeId) || node.parentNodeId === roots[0].nodeId))
+            .map(node => ({ kind: 'contains', fromId: node.parentNodeId, toId: node.nodeId })),
+          decisions, servedAt: deps.now?.() ?? new Date().toISOString(),
+          evidenceTrust: 'Node evidence references are recorded observations; D1 decisions prove graph bookkeeping only, not publication or execution.' }),
+          headers: { ...JSON_HEADERS, 'cache-control': 'private, no-store' } };
+      } catch { return json(503, { error: 'goal_graph_authority_unavailable' }); }
+    }
+    if (Buffer.byteLength(req.body ?? '', 'utf8') > FOUNDER_BOOKKEEPING_MAX_BYTES) return json(413, { error: 'intake_too_large' });
+    let raw: unknown;
+    try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body_is_not_json' }); }
+    const result = await intakeTelegramGoalGraphRoute(deps, raw, deps.now ?? (() => new Date().toISOString()), signer.approverId);
+    return json(result.status, { ...result.body, writerAuthority: false, executionGranted: false,
+      ...(result.body.accepted ? { proposalId: `cambium:${result.body.changeDigest}`, reviewRoute: '/v1/founder/proposal' } : {}) });
+  }
   if (req.path.split('?')[0] === '/v1/founder/session') {
     if (req.method !== 'GET') return json(405, { error: 'get_required' });
     const signer = await resolveFounderWebSigner(req, deps);
@@ -5474,6 +5685,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       tenantIds, renewalReady: await deps.goalGraphStore?.renewalFenceReady?.() ?? false, canonicalReady: tenantIds.length > 0 && !!deps.goalGraphStore?.readDecisionReceipt && !!deps.goalGraphStore?.reject, writerAuthority: false });
   }
   if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew'].includes(req.path.split('?')[0])) {
+    if (nativeRealmPresented(req.headers)) return nativeFounderGate(req, deps);
     const host = deps.founderDecisionHost ?? (deps.plexus ? createFounderAccessHost({
       store: deps.goalGraphStore, bindingsJson: deps.founderGateBindingsJson,
       verifyFounder: async () => {
@@ -5508,6 +5720,15 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
   const routePath = fabricRoutePath(path);
   if (MCP_GATE_PATHS.has(routePath)) return handleMcpGateAdapterRoute(req, deps, routePath);
 
+  if (routePath === '/v1/admin/portfolio/descriptions' || routePath === '/v1/admin/portfolio/annotations') {
+    const headers = { ...JSON_HEADERS, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff', vary: 'Cookie, CF-Access-Jwt-Assertion, X-Telegram-Init-Data' };
+    if (req.method !== 'GET') return { ...json(405, { error: 'descriptions are GET-only' }), headers: { ...headers, allow: 'GET' } };
+    const principal = await resolvePortfolioFounder(req, { ...deps, kv: { ...deps.kv, get: deps.kv.get.bind(deps.kv), put: async () => {} } });
+    if (principal.kind !== 'founder') return { ...json(principal.kind === 'unconfigured' ? 503 : 401, { error: 'founder access required' }), headers };
+    const notes = routePath.endsWith('/annotations') ? parseAnnotations(MAPPING_ANNOTATIONS) : null;
+    const body = notes ? (notes.length === 4 ? JSON.stringify({ schema: 'cambium.mapping-annotation-dtos.v1', notes }) : null) : descriptionResponse(DESCRIPTION_DATA);
+    return body === null ? { ...json(503, { error: 'descriptions unavailable' }), headers } : { status: 200, headers, body };
+  }
   if (routePath === '/v1/admin/portfolio/actions') {
     return handlePortfolioAdminActionRoute(req, deps);
   }

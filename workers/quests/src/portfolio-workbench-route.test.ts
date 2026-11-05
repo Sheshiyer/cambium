@@ -597,3 +597,38 @@ test('operating fabric exposes the Workbench link only when founder detail exist
   assert.match(OPERATING_FABRIC_BOOT, /link\.hidden = !founderDetail/);
   assert.match(OPERATING_FABRIC_BOOT, /link\.inert = !founderDetail/);
 });
+
+test('descriptive route is founder-only, no-store, no-write and GET-only', async () => {
+ const missing=deps();const unavailable=await handle(request('GET','/v1/admin/portfolio/descriptions'),missing.value);
+ assert.equal(unavailable.status,503);assert.doesNotMatch(String(unavailable.body),/snow-gloves-ops|repositoryName/);assert.equal(missing.writes(),0);
+ const denied=deps({botId:BOT_ID,pubKeyHex:'0'.repeat(64),founderIds:[FOUNDER_ID],now:()=>NOW_MS});
+ assert.equal((await handle(request('GET','/v1/admin/portfolio/descriptions'),denied.value)).status,401);
+ const viewer=await signedInitData(VIEWER_ID);const vf=deps({botId:BOT_ID,pubKeyHex:viewer.pubKeyHex,founderIds:[FOUNDER_ID],now:()=>NOW_MS});
+ const vr=await handle(request('GET','/v1/admin/portfolio/descriptions',{'x-telegram-init-data':viewer.initData}),vf.value);
+ assert.equal(vr.status,401);assert.doesNotMatch(String(vr.body),/repositoryName|snow-gloves-ops/);
+ const signed=await signedInitData(FOUNDER_ID);const founder=deps({botId:BOT_ID,pubKeyHex:signed.pubKeyHex,founderIds:[FOUNDER_ID],now:()=>NOW_MS});
+ const result=await handle(request('GET','/v1/admin/portfolio/descriptions',{'x-telegram-init-data':signed.initData}),founder.value);
+ assert.equal(result.status,200);assert.equal(result.headers['cache-control'],'private, no-store');
+ const data=JSON.parse(String(result.body));assert.equal(data.records.length,24);assert.ok(data.records.every((r:any)=>r.actionability==='none'&&r.workObjectId===null));assert.equal(founder.writes(),0);
+ assert.equal((await handle(request('POST','/v1/admin/portfolio/descriptions'),founder.value)).status,405);
+ const publicPage=await handle(request('GET','/admin/portfolio'),founder.value);assert.doesNotMatch(String(publicPage.body),/snow-gloves-ops|repositoryName/);
+});
+
+test('description metadata requires canonical Access founder role, never UI hiding',async()=>{
+ const jwt=signAccessJwt(validAccessPayload());
+ for(const [role,status] of [['admin',200],['employee',401]] as const){
+ const f=deps(undefined,{plexus:{teamDomain:TEAM_DOMAIN,aud:ACCESS_AUD,whoamiUrl:'https://plexus-api.test/v1/whoami'},plexusFetchImpl:plexusFetch(200,{ok:true,data:{email:'founder@thoughtseed.space',role,identityId:'pid_founder'}})});
+ const r=await handle(request('GET','/v1/admin/portfolio/descriptions',{'cf-access-jwt-assertion':jwt}),f.value);
+ assert.equal(r.status,status);assert.equal(f.writes(),0);if(status!==200)assert.doesNotMatch(String(r.body),/repositoryName|snow-gloves-ops/);
+ }
+});
+
+test('four private annotations are delivered only after founder auth, without raw provenance messages',async()=>{
+ const no=await handle(request('GET','/v1/admin/portfolio/annotations'),deps().value);assert.equal(no.status,503);assert.doesNotMatch(String(no.body),/Sentinel_|HDILINT|description/);
+ const viewer=await signedInitData(VIEWER_ID);const v=deps({botId:BOT_ID,pubKeyHex:viewer.pubKeyHex,founderIds:[FOUNDER_ID],now:()=>NOW_MS});
+ const denied=await handle(request('GET','/v1/admin/portfolio/annotations',{'x-telegram-init-data':viewer.initData}),v.value);assert.equal(denied.status,401);assert.doesNotMatch(String(denied.body),/HDILINT|description/);
+ const signed=await signedInitData(FOUNDER_ID);const f=deps({botId:BOT_ID,pubKeyHex:signed.pubKeyHex,founderIds:[FOUNDER_ID],now:()=>NOW_MS});
+ const r=await handle(request('GET','/v1/admin/portfolio/annotations',{'x-telegram-init-data':signed.initData}),f.value);
+ assert.equal(r.status,200);assert.equal(JSON.parse(String(r.body)).notes.length,4);assert.doesNotMatch(String(r.body),/Sentinel_/);assert.equal(r.headers['cache-control'],'private, no-store');assert.equal(f.writes(),0);
+ assert.equal((await handle(request('POST','/v1/admin/portfolio/annotations'),f.value)).status,405);
+});

@@ -14,7 +14,7 @@
     "evidence:generate": "node scripts/generate-repository-evidence.mjs",
     "build": "pnpm rootmap:generate && pnpm linkage:generate && pnpm evidence:generate && tsc -b && vite build --configLoader native",
     "lint": "oxlint src/App.tsx src/domain.ts src/drawer-tabs.ts src/linkage.ts src/main.tsx src/repository-evidence.ts",
-    "test": "node --experimental-strip-types --test src/domain.test.ts src/repository-evidence.test.ts src/github-repository-mapping-action-queue.test.ts src/portfolio-root-map.test.ts src/drawer-tabs.test.ts scripts/repository-intake.test.mjs",
+    "test": "node --experimental-strip-types --test src/domain.test.ts src/mapping-annotations.test.ts src/descriptive-mappings.test.ts src/repository-evidence.test.ts src/github-repository-mapping-action-queue.test.ts src/portfolio-root-map.test.ts src/drawer-tabs.test.ts scripts/repository-intake.test.mjs",
     "bundle": "pnpm build && node scripts/bundle.mjs",
     "standalone:audit": "node scripts/standalone-audit.mjs",
     "standalone:csp": "node scripts/standalone-csp-smoke.mjs",

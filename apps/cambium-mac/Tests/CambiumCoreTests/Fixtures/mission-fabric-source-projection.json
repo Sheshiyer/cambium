@@ -1,0 +1,301 @@
+{
+  "schema": "cambium.mission-fabric-projection.v1",
+  "projectionVersion": 1,
+  "tenantId": "cambium-synthetic",
+  "graphVersion": 1,
+  "graphDigest": "sha256:68e22706b62bb58174bb5112c44871b7a39e6ce33d056a107748e95e8c25573f",
+  "generatedAt": "2026-07-28T09:00:01.000Z",
+  "asOf": "2026-07-28T09:00:02.000Z",
+  "sourceOfTruth": "d1-goal-graph",
+  "readOnly": true,
+  "nodes": [
+    {
+      "kind": "agent",
+      "value": {
+        "agentId": "agent-cambium",
+        "role": "agent-cambium",
+        "runtime": "other",
+        "status": "available",
+        "activeTaskIds": [
+          "task-fabric-contract"
+        ],
+        "permissionProfile": "fresh",
+        "lastSeenAt": "2026-07-28T09:00:00.000Z",
+        "sourceRef": "agent:agent-cambium"
+      }
+    },
+    {
+      "kind": "agent",
+      "value": {
+        "agentId": "agent-hermes",
+        "role": "agent-hermes",
+        "runtime": "other",
+        "status": "offline",
+        "activeTaskIds": [
+          "task-fabric-proof"
+        ],
+        "permissionProfile": "unknown",
+        "lastSeenAt": "2026-07-28T09:00:00.000Z",
+        "sourceRef": "agent:agent-hermes"
+      }
+    },
+    {
+      "kind": "mission",
+      "value": {
+        "missionId": "mission-fabric-proof",
+        "workId": "cambium-operating-fabric",
+        "title": "Verify operating fabric evidence",
+        "objective": "goal-graph:mission-fabric-proof",
+        "status": "ready",
+        "gateId": null,
+        "proofRequirement": "goal-graph:mission-fabric-proof",
+        "taskIds": [
+          "task-fabric-proof"
+        ],
+        "sourceRef": "goal-graph:mission-fabric-proof"
+      }
+    },
+    {
+      "kind": "mission",
+      "value": {
+        "missionId": "mission-fabric-foundation",
+        "workId": "sapling-cambium",
+        "title": "Freeze operating fabric contracts",
+        "objective": "goal-graph:mission-fabric-foundation",
+        "status": "active",
+        "gateId": null,
+        "proofRequirement": "goal-graph:mission-fabric-foundation",
+        "taskIds": [
+          "task-fabric-contract"
+        ],
+        "sourceRef": "goal-graph:mission-fabric-foundation"
+      }
+    },
+    {
+      "kind": "receipt",
+      "value": {
+        "receiptId": "receipt-fabric-proof",
+        "runId": "",
+        "taskId": "",
+        "graphVersion": 1,
+        "status": "reconciliation-required",
+        "inputDigest": "sha256:2fc6125f556d07af0c7d5f823243ff6ce860efe68fb641eef8c7ead112c03d08",
+        "outputDigest": null,
+        "evidenceRefs": [],
+        "approvalRef": null,
+        "createdAt": "2026-07-28T09:00:00.000Z"
+      }
+    },
+    {
+      "kind": "receipt",
+      "value": {
+        "receiptId": "receipt-fabric-contract",
+        "runId": "run-fabric-current",
+        "taskId": "task-fabric-contract",
+        "graphVersion": 1,
+        "status": "complete",
+        "inputDigest": "sha256:ee1e5f5f6fe4d7eade5909aa06cc76e1efbc9a3838b68bacb193e8e2d977f7ff",
+        "outputDigest": "sha256:9450aa2245ac5ed1b865ba944bfa19788e6ab80ae3d14e2ea1cf6194542ae35b",
+        "evidenceRefs": [
+          "evidence-receipt-001"
+        ],
+        "approvalRef": null,
+        "createdAt": "2026-07-28T09:00:02.000Z"
+      }
+    },
+    {
+      "kind": "run",
+      "value": {
+        "runId": "run-fabric-current",
+        "taskId": "task-fabric-contract",
+        "agentId": "agent-cambium",
+        "loadoutId": "loadout:run-nonce-current",
+        "startedAt": "2026-07-28T09:00:00.000Z",
+        "terminalAt": "2026-07-28T09:00:02.000Z",
+        "status": "complete"
+      }
+    },
+    {
+      "kind": "skill-cluster",
+      "value": {
+        "clusterId": "cluster-fabric",
+        "name": "cluster-fabric",
+        "status": "active",
+        "skillIds": [
+          "contracts",
+          "projection"
+        ],
+        "eligibleAgentIds": [],
+        "successRate": null,
+        "sourceRef": "evidence-cluster-001"
+      }
+    },
+    {
+      "kind": "skill-cluster",
+      "value": {
+        "clusterId": "cluster-proof",
+        "name": "cluster-proof",
+        "status": "inactive",
+        "skillIds": [
+          "verification"
+        ],
+        "eligibleAgentIds": [],
+        "successRate": null,
+        "sourceRef": "evidence-cluster-002"
+      }
+    },
+    {
+      "kind": "task",
+      "value": {
+        "taskId": "task-fabric-contract",
+        "missionId": "mission-fabric-foundation",
+        "desiredState": "ready",
+        "status": "ready",
+        "dependencyIds": [],
+        "assignedAgentId": "agent-cambium",
+        "requiredClusterIds": [],
+        "pinnedLoadoutId": null,
+        "leaseId": null,
+        "proofRequirement": "",
+        "latestReceiptId": null
+      }
+    },
+    {
+      "kind": "task",
+      "value": {
+        "taskId": "task-fabric-proof",
+        "missionId": "mission-fabric-proof",
+        "desiredState": "blocked",
+        "status": "blocked",
+        "dependencyIds": [
+          "task-fabric-contract"
+        ],
+        "assignedAgentId": "agent-hermes",
+        "requiredClusterIds": [],
+        "pinnedLoadoutId": null,
+        "leaseId": null,
+        "proofRequirement": "",
+        "latestReceiptId": null
+      }
+    },
+    {
+      "kind": "work",
+      "value": {
+        "kind": "program",
+        "workId": "cambium-operating-fabric",
+        "tenantId": "cambium-synthetic",
+        "name": "Cambium Operating Fabric",
+        "desiredState": "Every approved mission has a bounded, evidence-linked execution path.",
+        "currentState": "executing",
+        "status": "active",
+        "ownerId": "founder",
+        "nextAction": null,
+        "proofRequired": true,
+        "reviewAt": null,
+        "sourceRef": "program:cambium-operating-fabric",
+        "sourceDigest": "sha256:6604d20664cdf632a1523c28088422dc63f2d6a1d0a3ef4d4c145f93ecf73bfe",
+        "programKind": "operations",
+        "lifecycle": "executing",
+        "outcomeMetric": "Every approved mission has a bounded, evidence-linked execution path."
+      }
+    },
+    {
+      "kind": "work",
+      "value": {
+        "kind": "sapling",
+        "workId": "sapling-cambium",
+        "tenantId": "cambium-synthetic",
+        "name": "branch-cambium",
+        "desiredState": "supervised-branch",
+        "currentState": "supervised-branch",
+        "status": "draft",
+        "ownerId": "founder",
+        "nextAction": null,
+        "proofRequired": true,
+        "reviewAt": null,
+        "sourceRef": "sapling:sapling-cambium",
+        "sourceDigest": "sha256:c9e7c444dabfbf716c81b6064e1d3ebd0598d0b66f9bce8beb3d437bd09f2e58",
+        "branchId": "branch-cambium",
+        "branchKind": "product",
+        "promotionState": "supervised-branch",
+        "currentGate": "mission-fabric-foundation",
+        "organRoute": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "kind": "assigned-to",
+      "fromId": "task-fabric-contract",
+      "toId": "agent-cambium"
+    },
+    {
+      "kind": "assigned-to",
+      "fromId": "task-fabric-proof",
+      "toId": "agent-hermes"
+    },
+    {
+      "kind": "contains",
+      "fromId": "cambium-operating-fabric",
+      "toId": "mission-fabric-proof"
+    },
+    {
+      "kind": "contains",
+      "fromId": "mission-fabric-foundation",
+      "toId": "task-fabric-contract"
+    },
+    {
+      "kind": "contains",
+      "fromId": "mission-fabric-proof",
+      "toId": "task-fabric-proof"
+    },
+    {
+      "kind": "contains",
+      "fromId": "sapling-cambium",
+      "toId": "mission-fabric-foundation"
+    },
+    {
+      "kind": "depends-on",
+      "fromId": "task-fabric-proof",
+      "toId": "task-fabric-contract"
+    },
+    {
+      "kind": "executes",
+      "fromId": "agent-cambium",
+      "toId": "run-fabric-current"
+    },
+    {
+      "kind": "produces",
+      "fromId": "run-fabric-current",
+      "toId": "receipt-fabric-contract"
+    },
+    {
+      "kind": "proves",
+      "fromId": "receipt-fabric-contract",
+      "toId": "task-fabric-contract"
+    }
+  ],
+  "gaps": [
+    {
+      "gapId": "gap-capability-fabric-proof",
+      "kind": "capability-gap",
+      "subjectId": "task-fabric-proof",
+      "detail": "No assigned agent has the receipt-reconciliation capability.",
+      "evidenceRef": "evidence-gap-002"
+    },
+    {
+      "gapId": "gap-receipt-fabric-proof",
+      "kind": "missing-receipt",
+      "subjectId": "task-fabric-proof",
+      "detail": "Proof receipt has not been produced.",
+      "evidenceRef": "evidence-gap-001"
+    },
+    {
+      "gapId": "gap-stale-fence-run-fabric-stale",
+      "kind": "stale-fence",
+      "subjectId": "run-fabric-stale",
+      "detail": "Run run-fabric-stale was rejected: fence 6 is below the authoritative fence 7 for task-fabric-contract.",
+      "evidenceRef": null
+    }
+  ]
+}

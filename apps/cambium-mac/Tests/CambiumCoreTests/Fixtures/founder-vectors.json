@@ -1,0 +1,8 @@
+{
+  "note": "Produced by founderConfirmation() and sha256() in workers/quests/src.",
+  "proposalId": "cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847",
+  "approveConfirmation": "approved proposal cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 version 1 digest sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 expires 2026-07-28T10:00:00.000Z: Add task-new Consequence: Creates one node Reversibility: Rejectable before commit review sha256:c9899a514b8976043a29cd2c90207861be8c57909cf46473e31c48e4f724bedd",
+  "rejectConfirmation": "rejected proposal cambium:sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 version 1 digest sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847 expires 2026-07-28T10:00:00.000Z: Add task-new Consequence: Creates one node Reversibility: Rejectable before commit review sha256:c9899a514b8976043a29cd2c90207861be8c57909cf46473e31c48e4f724bedd",
+  "reviewSha256": "c9899a514b8976043a29cd2c90207861be8c57909cf46473e31c48e4f724bedd",
+  "changeDigest": "sha256:8308316077022b85aa6e8961285751942d441b3d5129953dfebaaf13c1b05847"
+}

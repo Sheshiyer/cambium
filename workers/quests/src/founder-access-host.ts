@@ -33,6 +33,8 @@ export function createFounderAccessHost(deps: {
   store?: GoalGraphStoreLike;
   bindingsJson?: string;
   verifyFounder(request: Request): Promise<string | null>;
+  /** Server-owned channel. Browser Gate stays curious; native sessions pass native. */
+  channel?: 'curious' | 'native';
   readTask(tenantId: string, digest: string): Promise<Record<string, unknown> | null>;
   reviewTask(task: Record<string, unknown>): Record<string, unknown> | null;
   now(): string;
@@ -45,25 +47,55 @@ export function createFounderAccessHost(deps: {
   let context: FounderContext | null = null;
   let beforeWrite: (() => Promise<string>) | null = null;
   let renewalRoot: { changeDigest: string; nonce: string } | undefined;
+  let current: Request | null = null;
+  // Native sessions can be revoked mid-request: resolve again right before any D1 write.
+  const native = deps.channel === 'native';
+  const reverify = async () => {
+    const id = current && context ? await deps.verifyFounder(current) : null;
+    if (!id || id !== context?.founderId) throw new Error('native_session_revoked');
+  };
+  // Native order: renewal guard, then session, then a fresh clock against the
+  // proposal expiry. Nothing awaits between that last check and the writer.
+  const nativeWriteAt = async (guard: (() => Promise<string>) | null, expiresAt: string) => {
+    if (guard) await guard();
+    await reverify();
+    const writeAt = deps.now();
+    if (!Number.isFinite(Date.parse(writeAt)) || Date.parse(writeAt) >= Date.parse(expiresAt)) throw new Error('native_write_expired');
+    return writeAt;
+  };
   const host: FounderTransportHost = {
     store: { ...store,
       get commit() {
         const guard = beforeWrite;
-        return guard ? async (args: Parameters<FounderDecisionStore['commit']>[0]) => store.commit({ ...args, renewalRoot, now: await guard() }) : store.commit;
+        if (!guard && !native) return store.commit;
+        return async (args: Parameters<FounderDecisionStore['commit']>[0]) => {
+          if (native) {
+            const now = await nativeWriteAt(guard, args.approval.expiresAt);
+            return store.commit({ ...args, ...(guard ? { renewalRoot } : {}), now });
+          }
+          return store.commit({ ...args, renewalRoot, now: await guard!() });
+        };
       },
       get reject() {
         const guard = beforeWrite;
-        return guard ? async (args: Parameters<FounderDecisionStore['reject']>[0]) => store.reject({ ...args, renewalRoot, now: await guard() }) : store.reject;
+        if (!guard && !native) return store.reject;
+        return async (args: Parameters<FounderDecisionStore['reject']>[0]) => {
+          if (native) {
+            const now = await nativeWriteAt(guard, args.expiresAt);
+            return store.reject({ ...args, ...(guard ? { renewalRoot } : {}), now });
+          }
+          return store.reject({ ...args, renewalRoot, now: await guard!() });
+        };
       },
     }, now: deps.now,
     async authenticateRequest(request) {
-      context = null; beforeWrite = null; renewalRoot = undefined;
+      context = null; beforeWrite = null; renewalRoot = undefined; current = request.clone();
       const founderId = await deps.verifyFounder(request);
       if (!founderId) return null;
       const input = await request.clone().json() as { proposalId?: unknown };
       const key = founderProposalKey(input?.proposalId);
       if (!key || !allowed.some(row => row.founderId === founderId && row.tenantId === key.tenantId)) return null;
-      context = { founderId, tenantId: key.tenantId, channel: 'curious' };
+      context = { founderId, tenantId: key.tenantId, channel: deps.channel ?? 'curious' };
       return context;
     },
     async readProposal(id, renewal = false): Promise<FounderProposal | null> {
@@ -140,14 +172,25 @@ export function createFounderAccessHost(deps: {
   };
   host.renewProposal = async (input: FounderRenewalInput) => {
     if (!context || !deps.persistRenewal) return { status: 'unknown', writerAuthority: false };
+    if (native) { try { await reverify(); } catch { return { status: 'forbidden', writerAuthority: false }; } }
     if (!await store.renewalFenceReady?.()) return { status: 'unknown', error: 'renewal_fence_required', writerAuthority: false };
     const p = await host.readProposal(input.proposalId, true);
     const key = founderProposalKey(input.proposalId);
     if (!p || !key) return { status: 'forbidden', writerAuthority: false };
     const task = await deps.readTask(key.tenantId, key.changeDigest);
     if (!task) return { status: 'forbidden', writerAuthority: false };
-    return renewFounderProposal({ context, input, proposal: p, task, store,
-      now: deps.now, persist: deps.persistRenewal, loadoutAuthority: deps.loadoutAuthority });
+    const persistRenewal = deps.persistRenewal;
+    // The renewal reads await; re-resolve the native session immediately before the intake write.
+    const persist: typeof persistRenewal = native
+      ? async row => { await reverify(); return persistRenewal(row); }
+      : persistRenewal;
+    try {
+      return await renewFounderProposal({ context, input, proposal: p, task, store,
+        now: deps.now, persist, loadoutAuthority: deps.loadoutAuthority });
+    } catch (error) {
+      if (native && error instanceof Error && error.message === 'native_session_revoked') return { status: 'forbidden', writerAuthority: false };
+      throw error;
+    }
   };
   return host;
 }

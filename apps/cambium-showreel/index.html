@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cambium Showreel</title>
+    <style>
+      :root { color-scheme: dark; }
+      html, body { margin: 0; background: #000; color: #d6fff6; font: 12px/1.4 ui-monospace, Menlo, monospace; }
+      canvas { display: block; }
+      body.dev canvas { width: min(100vw, calc((100vh - 56px) * 16 / 9)); height: auto; margin: 0 auto; }
+      #bar { display: none; gap: 12px; align-items: center; padding: 10px 16px; }
+      body.dev #bar { display: flex; }
+      #bar input[type=range] { flex: 1; accent-color: #e0ff4f; }
+      #bar button { background: #012f34; color: #e0ff4f; border: 1px solid #e0ff4f55; border-radius: 4px; padding: 4px 10px; font: inherit; cursor: pointer; }
+      #status { min-width: 160px; text-align: right; }
+    </style>
+  </head>
+  <body>
+    <canvas id="reel"></canvas>
+    <div id="bar">
+      <button id="play">play</button>
+      <input id="scrub" type="range" min="0" max="899" value="0" />
+      <span id="status">f 0</span>
+    </div>
+    <script type="module" src="/dist/main.js"></script>
+  </body>
+</html>
