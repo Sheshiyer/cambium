@@ -233,3 +233,51 @@ test('helper rejects authority escalation even from an injected text store', asy
   assert.equal(result.availability, 'denied');
   assert.equal(result.items.length, 0);
 });
+
+test('growth recall probe: a cited labs-context card stays advisory with uri and sha256 citations', async () => {
+  const growthScope: CortexTextScope = {
+    tenantId: 'cambium',
+    projectId: 'sapling:cambium',
+    sourcePlane: 'labs-context',
+    audience: 'workspace',
+  };
+  const card = {
+    id: 'growth-card-week1-spine',
+    text: 'Week-1 spine: identity in front of Curious walk.',
+    citations: [{ uri: 'vault://thoughtseed-labs/20-operations/growth/department/02-copywriter/spines/week-1.md#L1', sha256: HASH }],
+    rank: 1,
+  };
+  const requests: CortexTextRequest[] = [];
+  const fixture = {
+    async recall(request: CortexTextRequest) {
+      requests.push(request);
+      return {
+        schema: 'cortex.text-recall.v1' as const,
+        availability: 'available' as const,
+        scope: growthScope,
+        authorityTier: 'projection' as const,
+        effectsAuthorized: false as const,
+        retrievedAt: '2026-10-27T00:00:00.000Z',
+        items: [card],
+      };
+    },
+  };
+  const result = await recallCortexText(fixture, growthScope, 'cambium', 'week-1 spine');
+  assert.equal(requests.length, 1);
+  assert.deepEqual(
+    { tenantId: requests[0].tenantId, projectId: requests[0].projectId, sourcePlane: requests[0].sourcePlane },
+    { tenantId: 'cambium', projectId: 'sapling:cambium', sourcePlane: 'labs-context' },
+  );
+  assert.equal(result.schema, 'cortex.text-recall.v1');
+  assert.equal(result.availability, 'available');
+  assert.equal(result.authorityTier, 'projection');
+  assert.equal(result.effectsAuthorized, false);
+  assert.deepEqual(result.scope, growthScope);
+  assert.equal(result.items.length, 1);
+  assert.equal(result.items[0].id, card.id);
+  for (const citation of result.items[0].citations) {
+    assert.match(citation.uri, /^vault:\/\//);
+    assert.match(citation.sha256, /^[0-9a-f]{64}$/);
+    assert.deepEqual(Object.keys(citation).sort(), ['sha256', 'uri']);
+  }
+});
