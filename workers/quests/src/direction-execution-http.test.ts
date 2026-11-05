@@ -9,6 +9,11 @@ import { directionExecutionD1Fixture } from './__fixtures__/direction-execution-
 import { d1SharedDirectionStore } from './shared-directions-d1.ts';
 import { d1SharedSignalStore } from './shared-signals-d1.ts';
 import { patchDigest } from '../../../shared/cambium-patch-contract.ts';
+import FITCHECK_POLICY from '../../../docs/project-management/fitcheck-scope-reconciliation.v1.json' with { type: 'json' };
+import { compileFitcheckScope, FITCHECK_SCOPE_SCHEMA } from './fitcheck-scope-reconciliation.ts';
+import { makeGoalGraphHead } from './goal-graph/compiler.ts';
+import type { GoalGraphNode } from './goal-graph/types.ts';
+import { GOAL_GRAPH_LOADOUT_AUTHORITY } from './goal-graph-loadout-registry.ts';
 async function setup(approved=false){
  const h=await directionExecutionD1Fixture(approved),kvRows=new Map<string,string>();let principal=h.f.scope.principal,authorized=true;
  const host:any={deps:{ownerOrigin:'https://cambium.test',now:()=>h.f.now,store:{readSession:async()=>({founderId:principal,tenantId:'cambium',clientId:'client-fixture',expiresAt:'2026-11-05T00:00:00.000Z'})},currentRole:async()=>authorized?'founder':null,enrolledTenants:async()=>['cambium']},client:()=>({})};
@@ -24,6 +29,13 @@ test('real handler prepares a complete canonical native review, commits through 
   const preview=await h.call('GET','/v1/directions/cambium/direction-1/execution-review');assert.equal(preview.status,200,preview.body);assert.equal(body(preview).executionGranted,false);
   const request={schema:'cambium.direction-execution-intent.v1',operationId:'prepare-1',directionRevision:1,expectedHeadDigest:body(preview).expectedHeadDigest,policyDigest:body(preview).policyDigest};
   const prepared=await h.call('POST','/v1/directions/cambium/direction-1/proposal',request);assert.equal(prepared.status,200,prepared.body);const p=body(prepared);assert.equal(p.writerAuthority,false);assert.equal((await h.graph.readHead('cambium'))?.graphVersion,1);
+  h.deps.pushToken = 'gate-fixture';
+  const gate = await h.call('GET', '/internal/gate/cambium', undefined, { authorization: 'Bearer gate-fixture' });
+  assert.equal(gate.status, 200, gate.body);
+  const [row] = body(gate).actions;
+  assert.equal(row.source, 'native-direction-execution@v1');
+  assert.equal(row.directionExecution.input.policyDigest, request.policyDigest);
+  assert.equal(row.identityChanges, undefined);
   const reviewed=await h.call('POST','/v1/founder/proposal',{proposalId:p.proposalId});assert.equal(reviewed.status,200,reviewed.body);const r=body(reviewed);assert.equal(r.proposal.review.directionExecution.input.policyDigest,request.policyDigest);assert.equal(r.proposal.review.changeSet.nodesToCreate.length,1);
   const tuple={...r.proposal};delete tuple.tenantId;delete tuple.summary;delete tuple.review;
   const signed=await h.call('POST','/v1/founder/decision',{...tuple,decision:'approved',confirmation:r.approveConfirmation});assert.equal(signed.status,200,signed.body);assert.equal(body(signed).status,'approved');assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_admissions').get().n,0);
@@ -31,6 +43,41 @@ test('real handler prepares a complete canonical native review, commits through 
   const replay=await h.call('POST','/v1/directions/cambium/direction-1/proposal',request);assert.equal(body(replay).proposalId,p.proposalId);assert.equal(body(replay).duplicate,true);
   assert.equal((await h.call('POST','/v1/directions/cambium/direction-1/proposal',{...request,directionRevision:2})).status,409);
  }finally{h.db.close()}
+});
+
+test('a compiled Fitcheck identity change cannot borrow a valid native execution review', async () => {
+  const h = await setup(true);
+  try {
+    const retained = FITCHECK_POLICY.retainedNode as GoalGraphNode;
+    const removed = FITCHECK_POLICY.removedNode as GoalGraphNode;
+    const root: GoalGraphNode = {
+      ...retained, nodeId: retained.parentNodeId!, namespace: 'root', externalId: 'root',
+      parentNodeId: null, scope: 'macro', workObjectId: null, workObjectKind: null, pinnedLoadoutId: null,
+    };
+    const currentNodes = [root, retained, removed];
+    const actualHead = makeGoalGraphHead('cambium', currentNodes, 18, h.f.now);
+    const { node, compile } = compileFitcheckScope({
+      currentNodes, actualHead, now: h.f.now, loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
+    }, actualHead.graphDigest);
+    assert.equal(compile.status, 'compiled');
+    if (compile.status !== 'compiled') throw new Error('Expected the Fitcheck identity change fixture');
+    const { changeSet } = compile;
+    const proposalId = `cambium:${changeSet.changeDigest}`;
+    h.kvRows.set(`goal-graph-intake-task:${proposalId}`, JSON.stringify({
+      ...h.args.task, schema: 'cambium.goal-graph-intake-task.v1',
+      intent: { schema: FITCHECK_SCOPE_SCHEMA, tenantId: 'cambium', version: 1,
+        expectedHeadDigest: actualHead.graphDigest, changeDigest: changeSet.changeDigest },
+      node, changeSet, changeDigest: changeSet.changeDigest,
+    }));
+    const refused = await h.call('POST', '/v1/direction-executions/cambium/admit', {
+      schema: 'cambium.direction-admit.v1', proposalId,
+    });
+    assert.equal(refused.status, 404, refused.body);
+    assert.equal(body(refused).error, 'proposal_not_found');
+    assert.equal(h.db.prepare('SELECT count(*) n FROM native_launch_admissions').get().n, 0);
+  } finally {
+    h.db.close();
+  }
 });
 test('unconfigured, foreign, mixed credentials and source changes do not prepare or admit work',async()=>{
  const h=await setup();try{

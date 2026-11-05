@@ -1,3 +1,4 @@
+import { fitcheckReferencesClear } from './fitcheck-scope-reconciliation.ts';
 import { d1DirectionAdmissionStore } from './direction-execution-d1.ts';
 import { parseCambiumPilotPolicy } from './direction-execution-http.ts';
 import { createDirectionExecutionOwner, composeDirectionExecutionHost } from './direction-execution-owner.ts';
@@ -1573,6 +1574,7 @@ export default {
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
       founderGateBindingsJson: env.FOUNDER_GATE_BINDINGS_JSON,
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
+      fitcheckReferenceReadback: env.BRIDGE_DB ? () => fitcheckReferencesClear(env.BRIDGE_DB!) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       nativeSessionHost,
       sharedSignalStore: env.BRIDGE_DB ? d1SharedSignalStore(env.BRIDGE_DB) : undefined,

@@ -607,3 +607,28 @@ test('world intake · operational Work is visible but cannot approve before exac
   assert.deepEqual(JSON.parse(h.get().proposals[0].canonicalReview).review.operationalWorkChanges,changes);
   assert.equal(h.get().proposals[0].canApprove,true);assert.equal(h.requests.filter(r=>r.url.endsWith('/decision')).length,0);
 });
+
+test('world gate · Fitcheck identity rows stay Access-only alongside native direction rows', () => {
+  const fitcheckDigest = 'a'.repeat(64);
+  const fitcheck = row({
+    changeDigest: fitcheckDigest,
+    source: 'fitcheck-scope-reconciliation@v1',
+    summary: 'Fitcheck scope reconciliation',
+    executionGranted: false,
+  }, null);
+  const direction = row({ source: 'native-direction-execution@v1', summary: 'Direction execution proposal' }, null);
+  const cases = [
+    { options: { initData: '', founderWeb: true }, signer: 'access', visible: [DIGEST, fitcheckDigest] },
+    { options: { initData: INIT_DATA }, signer: 'telegram', visible: [DIGEST] },
+    { options: { initData: '' }, signer: 'none', visible: [DIGEST] },
+  ];
+  for (const { options, signer, visible } of cases) {
+    const h = harness(options);
+    h.quest(envelope([fitcheck, direction]));
+    const snapshot = h.get();
+    assert.equal(snapshot.signer, signer);
+    assert.deepEqual(snapshot.proposals.map((proposal: { changeDigest: string }) => proposal.changeDigest).sort(), visible);
+    assert.ok(snapshot.proposals.every((proposal: { canApprove: boolean }) => !proposal.canApprove));
+    assert.equal(h.requests.length, 0);
+  }
+});

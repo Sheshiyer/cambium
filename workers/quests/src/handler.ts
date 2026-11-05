@@ -1,3 +1,4 @@
+import { FITCHECK_SCOPE_SCHEMA, parseFitcheckScopeBoundary, parseFitcheckScopeIntent, isFitcheckScopeTask, fitcheckScopeTaskMatches } from './fitcheck-scope-reconciliation.ts';
 import { parseCambiumPatchInput, parseCambiumPatchResult, patchDigest, type CambiumPatchInput, type CambiumPatchPolicy, type CambiumPatchResult } from '../../../shared/cambium-patch-contract.ts';
 import type { d1DirectionAdmissionStore } from './direction-execution-d1.ts';
 import type { ClaimProofOwner } from './claim-proof-owner.ts';
@@ -541,6 +542,7 @@ export interface HandlerDeps {
   claimProofOwner?: ClaimProofOwner;
   departmentReaders?: DepartmentSourceReaders; // server-owned accepted-source readers; absent stays unavailable
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
+  fitcheckReferenceReadback?: () => Promise<boolean>;
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   directionAdmissionStore?: ReturnType<typeof d1DirectionAdmissionStore>;
   nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
@@ -4112,6 +4114,7 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
       fence: descriptor.fence,
     };
   }
+  const reconciliation = isFitcheckScopeTask(task);
   const bookkeeping = isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA;
   const operational = isRecord(task.intent) && task.intent.schema === OPERATIONAL_WORK_SCHEMA;
   const directionExecution = isRecord(task.intent) && task.intent.schema === DIRECTION_EXECUTION_INTENT;
@@ -4131,8 +4134,9 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : directionExecution ? 'Direction execution proposal' : acceptance ? 'IVerif claim-result acceptance proposal' : execution ? 'IVerif claim-proof execution proposal' : operational ? 'Operational Work proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
-    source: task.renewal ? 'founder-proposal-renewal@v1' : directionExecution ? 'native-direction-execution@v1' : acceptance ? 'founder-claim-acceptance@v1' : execution ? 'founder-direction-execution@v1' : operational ? 'founder-web-operational-work@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : reconciliation ? 'Fitcheck scope reconciliation' : directionExecution ? 'Direction execution proposal' : acceptance ? 'IVerif claim-result acceptance proposal' : execution ? 'IVerif claim-proof execution proposal' : operational ? 'Operational Work proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : reconciliation ? 'fitcheck-scope-reconciliation@v1' : directionExecution ? 'native-direction-execution@v1' : acceptance ? 'founder-claim-acceptance@v1' : execution ? 'founder-direction-execution@v1' : operational ? 'founder-web-operational-work@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    ...(reconciliation ? { identityChanges: changeSet, executionGranted: false } : {}),
     ...(acceptance ? { resultAcceptanceReview: task.intent } : {}),
     ...(execution ? { executionReview: { input: isRecord(task.intent) ? task.intent.input : null, memberId: isRecord(task.intent) ? task.intent.memberId : null, policy: CLAIM_POLICY, policyDigest: CLAIM_POLICY_DIGEST, sourceManifest: CLAIM_SOURCE }, executionChanges: changeSet } : {}),
     ...(directionReview ? { directionExecution: directionReview } : {}),
@@ -4140,7 +4144,7 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : directionExecution ? 'founder signature approves this exact direction revision, source pins, patch, policy and budget; governed admission and an explicit launch remain separate' : acceptance ? 'founder signature records acceptance of this exact internal evidence table; trusted owner attestation is still required, and no product promotion, publication or execution permission is added' : execution ? 'founder signature approves exactly the pinned claim-proof task; a separate governed admission and launch are required; product promotion, publication and spend remain held' : operational ? 'founder signature establishes only the reviewed operational Work source; execution still requires a separate direction approval and admission' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: reconciliation ? 'Founder review covers the full identity replacement and parent link only; no Work execution, lease or subscription is granted' : task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : directionExecution ? 'founder signature approves this exact direction revision, source pins, patch, policy and budget; governed admission and an explicit launch remain separate' : acceptance ? 'founder signature records acceptance of this exact internal evidence table; trusted owner attestation is still required, and no product promotion, publication or execution permission is added' : execution ? 'founder signature approves exactly the pinned claim-proof task; a separate governed admission and launch are required; product promotion, publication and spend remain held' : operational ? 'founder signature establishes only the reviewed operational Work source; execution still requires a separate direction approval and admission' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
     proposalId: `${tenantId}:${changeDigest}`,
@@ -4596,10 +4600,12 @@ async function intakeTelegramGoalGraphRoute(
   // Normalize and bind provenance before consulting D1. That boundary identity
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
+  const reconciliation = isRecord(raw) && raw.schema === FITCHECK_SCOPE_SCHEMA;
+  if (reconciliation && !await deps.fitcheckReferenceReadback?.()) return { status: 503, body: { error: 'fitcheck_reference_readback_unconfirmed' } };
   const operational = !!verifiedFounderId && isRecord(raw) && raw.schema === OPERATIONAL_WORK_SCHEMA;
   const execution = !!verifiedFounderId && isRecord(raw) && raw.schema === DIRECTION_EXECUTION_SCHEMA;
   const acceptance = !!verifiedFounderId && isRecord(raw) && raw.schema === CLAIM_ACCEPTANCE_SCHEMA;
-  const initial = verifiedFounderId ? acceptance ? parseClaimAcceptanceBoundary(raw, verifiedFounderId) : execution ? parseDirectionExecutionBoundary(raw, verifiedFounderId) : operational ? parseOperationalWorkBoundary(raw, verifiedFounderId) : parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
+  const initial = reconciliation ? parseFitcheckScopeBoundary(raw) : verifiedFounderId ? acceptance ? parseClaimAcceptanceBoundary(raw, verifiedFounderId) : execution ? parseDirectionExecutionBoundary(raw, verifiedFounderId) : operational ? parseOperationalWorkBoundary(raw, verifiedFounderId) : parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
@@ -4639,7 +4645,7 @@ async function intakeTelegramGoalGraphRoute(
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   };
-  const pinned = verifiedFounderId ? acceptance ? parseClaimAcceptanceIntent(raw, verifiedFounderId, context) : execution ? parseDirectionExecutionIntent(raw, verifiedFounderId, context) : operational ? parseOperationalWorkIntent(raw, verifiedFounderId, context) : parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
+  const pinned = reconciliation ? parseFitcheckScopeIntent(raw, context) : verifiedFounderId ? acceptance ? parseClaimAcceptanceIntent(raw, verifiedFounderId, context) : execution ? parseDirectionExecutionIntent(raw, verifiedFounderId, context) : operational ? parseOperationalWorkIntent(raw, verifiedFounderId, context) : parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
   if (!pinned.accepted) return persistRejection(pinned);
   if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
     return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
@@ -5122,6 +5128,7 @@ async function approveGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (isFitcheckScopeTask(task)) return { status: 409, body: { error: 'scope_reconciliation_requires_canonical_gate' } };
   if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   const evidence = {
     kind: 'approve-goal-graph',
@@ -5422,6 +5429,7 @@ async function rejectGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (isFitcheckScopeTask(task)) return { status: 409, body: { error: 'scope_reconciliation_requires_canonical_gate' } };
   if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   const evidence = {
     approvalNonce: resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest)?.approvalNonce ?? null,
@@ -5609,6 +5617,7 @@ async function validateMcpGoalGraphTarget(
   if (!task || task.status !== 'pending') {
     return { ok: false, status: 404, error: 'mcp_action_target_not_found' };
   }
+  if (isFitcheckScopeTask(task)) return { ok: false, status: 409, error: 'scope_reconciliation_requires_canonical_gate' };
   if (task.renewal) return { ok: false, status: 409, error: 'renewed_proposal_requires_canonical_gate' };
   const descriptor = resolveGoalGraphApprovalDescriptor(task, intent.tenant, digest);
   const graphVersion = task.graphVersion;
@@ -5764,6 +5773,12 @@ function nativeRefusal(status: number, error: string): SimpleResponse {
  * consulted. The access host re-resolves the session before every D1 write.
  */
 async function currentClaimTaskSources(deps:HandlerDeps,task:Record<string,unknown>,context:{tenantId:string;founderId:string}):Promise<boolean> {
+  if (isFitcheckScopeTask(task)) {
+    if (!deps.goalGraphStore || !await deps.fitcheckReferenceReadback?.()) return false;
+    try { const head = await deps.goalGraphStore.readHead(context.tenantId); const nodes = await deps.goalGraphStore.readNodes(context.tenantId);
+      return fitcheckScopeTaskMatches(task, { actualHead: head, currentNodes: nodes, loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY });
+    } catch { return false; }
+  }
   if(!isRecord(task.intent)||task.intent.schema!==DIRECTION_EXECUTION_SCHEMA)return true;
   const input=parseClaimProofInput(task.intent.input);if(!input)return false;
   try{const pinned=await readPinnedDirection(deps,{tenantId:context.tenantId,principal:context.founderId},input.directionId,input.directionRevision);
@@ -6973,6 +6988,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may submit goal graph intents' });
       let raw: unknown;
       try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      if (isRecord(raw) && raw.schema === FITCHECK_SCOPE_SCHEMA && !principal.admin) return json(403, { error: 'canonical_owner_admin_required' });
       const result = await intakeTelegramGoalGraphRoute(deps, raw, nowIso);
       return json(result.status, result.body);
     }
