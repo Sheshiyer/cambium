@@ -1,0 +1,62 @@
+{
+  "schema": "cambium.work-direction-rollout.v1",
+  "status": "reviewable-awaiting-owner-rollout-approval",
+  "source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
+  "base": "d571ea92f182164f90072e42a7b2e6718ea92f06",
+  "worker": "cambium-quests",
+  "owner_origin": "https://curious.thoughtseed.space",
+  "rollback_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+  "expected_live_bindings": 52,
+  "live_bindings_digest": "sha256:a75c2c876ff21a820e02e77d4fb4b051a672d2080d5635117ee45f32717782ba",
+  "migration": {
+    "path": "workers/quests/migrations/0103_shared_directions.sql",
+    "sha256": "sha256:c8e19507f579d1fc7ba44d3d6cb1188f9976e76107daab89e7a5fb442772bed4",
+    "applied": false,
+    "rollback": "Retain new direction tables and data; route traffic to prior version. No DROP or DELETE."
+  },
+  "work_proposal": {
+    "path": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
+    "sha256": "sha256:386a02fd2f80afef39be23a8784891a1fdb51038f3bedf59cd66d4f8e9ad1a15",
+    "observed_graph_version": 11,
+    "expected_head_digest": "68d3c34c2dd54ee2351e063bc0dd54bb468d8164550bd3af2c8cc10502d3e32f",
+    "submitted": false,
+    "approved": false,
+    "execution_granted": false
+  },
+  "worker_bundle_sha256": "b3e458a436942615ec1407e7b688daf7e5e23e7fcef30019e2a8d84d5312c460",
+  "verification": {
+    "focused_backend": "517 passed before final compatibility fix; 501 compatibility/handler/atlas checks passed after it",
+    "swift_core": "265 tests; two opt-in skips; zero failures",
+    "native": "43 passed",
+    "native_input_digest": "f5124f905e6089e31e5962c5cae2f43c7a17e3dd912c261417585427ff0bc4b2",
+    "signed_debug_build": "clean native inputs; ad hoc signature verified",
+    "worker_dry_run": "passed; no upload or traffic change",
+    "independent_review": "All three original findings fixed and rechecked; final coherent Work guard, Gate visibility and preparation docs rechecked with no actionable findings.",
+    "full_suite": {
+      "source": "0d51e58105615241e61acb69a6c33e99995c9dcb",
+      "passed": 2714,
+      "failed": 0,
+      "follow_up": "34 Gate tests plus atlas checks passed after source71005ef6 adds operational Work proposal visibility"
+    }
+  },
+  "effects_after_separate_approval": [
+    "Apply only migration0103 after checking its absence",
+    "Upload exact reviewed Worker candidate preserving current settings and52bindings",
+    "Switch traffic with previous version retained for rollback",
+    "Submit Work intent for canonical founder review; no auto approval",
+    "Sign in native app and test actual Work join and shared direction save/readback"
+  ],
+  "excluded": [
+    "No launch admission row, no Hermes runner rollout or invocation",
+    "No new bridge, scheduler, resident organ, routing or credential change",
+    "No claim of full signal-direction-approved-work-result acceptance"
+  ],
+  "installed_hermes": {
+    "git_head": "e33875438aa15ba34e4c643c894a3263eb2e1aa6",
+    "source_verification_supported": false,
+    "cambium_coding_supported": false,
+    "source_sha256": "4ce3e1b5313453e40096155adc76e5183cfee24308a1bb16550e118bf74f8781"
+  },
+  "next": "Obtain exact rollout approval after full-suite success; then canonical founder Work decision. Prepare finite Hermes capability against installed source without rolling unrelated changes.",
+  "updated": "2026-11-03T20:18:08.374128+00:00"
+}

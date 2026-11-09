@@ -1,0 +1,386 @@
+{
+  "schema": "cambium.temperance_positioning_review.v1",
+  "observed_at": "2026-11-02T04:36:26.040444+00:00",
+  "acceptance_owner": "ISA.md",
+  "scope": "review-only website restoration and existing draft correction",
+  "positioning": {
+    "category": "AI operator system",
+    "headline": "Give your AI tools a shared way to work.",
+    "tagline": "A shared operating layer for your AI coding tools",
+    "description": "Temperance Engine brings a shared operating layer to your AI coding tools. Connect project context, reusable skills, structured workflows, model routing, and verification in one configurable local runtime. Start with guided onboarding, inspect what is enabled, and keep control of approvals and changes."
+  },
+  "sources": {
+    "application_main": "42b391b44b7655972d9322d87aa3865956a5165e",
+    "landing_base": "5c5838331b5b8d9207d0c26aeb67dce17e6fe411",
+    "recovery": "736fd13f7b92e831e7c296321b2dcdbe14a82774",
+    "replacement": "64f530f04c743add8aa6b6dd1533868f71ed2863",
+    "preview_code": "c930af92d3176e0b0a2a9ad1b382c9c6273744d9"
+  },
+  "website": {
+    "preview": "https://temperance-engine-landing-page-mitxrimmj-sheshiyers-projects.vercel.app/",
+    "deployment": "dpl_A57LdT4sTenjcaU2JcavVLhRytMP",
+    "state": "READY",
+    "target": "preview (API target null; not production)",
+    "source_provenance": "Vercel CLI source file tree: all49sha1 entries match local code/build files; API Git metadata is empty",
+    "production_unchanged": {
+      "deployment": "dpl_And7oPASgXBUTCp4asMvMdqPWc3M",
+      "source": "5c5838331b5b8d9207d0c26aeb67dce17e6fe411",
+      "domain": "https://temperance.thoughtseed.space/",
+      "aliases_read_back": true
+    },
+    "authentication": "Existing Vercel SSO preserved; owner completed normal2FA; no protection bypass/share link created",
+    "browser": {
+      "desktop1440": {
+        "width": 1440,
+        "height": 900,
+        "clientWidth": 1440,
+        "scrollWidth": 1440
+      },
+      "metadata": {
+        "assets": [
+          "/assets/index-BuZ5u-10.js",
+          "/assets/index-D1RtAKfX.css",
+          "https://vercel.live/_next-live/feedback/feedback.js"
+        ],
+        "canonical": "https://temperance.thoughtseed.space/",
+        "clientWidth": 444,
+        "headline": "Give your AI tools a shared way to work.",
+        "height": 766,
+        "og": "https://temperance.thoughtseed.space/og/temperance-engine-og.png",
+        "schema": "https://temperance.thoughtseed.space/",
+        "scrollWidth": 444,
+        "twitter": "https://temperance.thoughtseed.space/og/temperance-engine-og.png",
+        "video": [
+          {
+            "error": null,
+            "paused": false,
+            "ready": 4
+          }
+        ],
+        "width": 444
+      },
+      "mobile375": {
+        "buttons": [],
+        "clientWidth": 375,
+        "headline": "Give your AI tools a shared way to work.",
+        "height": 812,
+        "reduced": true,
+        "scrollWidth": 375,
+        "videoPaused": true,
+        "width": 375
+      },
+      "mobile320": {
+        "clientWidth": 320,
+        "hash": "#get-started",
+        "height": 812,
+        "images": [],
+        "overflowingText": [],
+        "scrollWidth": 320,
+        "startTop": 23.96875,
+        "width": 320
+      },
+      "workflow": {
+        "hash": "#workflow",
+        "overflow": false,
+        "steps": [
+          "Intent",
+          "Plan",
+          "Selected work",
+          "Verification",
+          "Learning"
+        ],
+        "top": 24.234375
+      },
+      "keyboard": {
+        "label": "Temperance Engine home",
+        "outline": "solid",
+        "outlineWidth": "3px"
+      },
+      "cleanPreviewLogs": [],
+      "sourceBytesMatched": 49,
+      "preview": "https://temperance-engine-landing-page-mitxrimmj-sheshiyers-projects.vercel.app/"
+    },
+    "social_image": {
+      "width": 1200,
+      "height": 630,
+      "verified": "direct authenticated IAB image navigation"
+    },
+    "independent_review": "PASS: independent source/evidence review recomputed49unique uploaded hashes:32tracked files atc930af9 plus17generated dist files, zero mismatches. Root performed requested IAB verification; QATester role browser gate remained unavailable under its CLI-only constraint, so no independent browser gate is claimed.",
+    "uploaded_files": [
+      {
+        "path": ".readme-gen.json",
+        "sha1": "5c0b7c0378179e315c35fab8264b8d6a240d282e"
+      },
+      {
+        "path": ".recapture.mjs",
+        "sha1": "a699236b72611415e2e7e725b41004f32cb22303"
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "sha1": "34772ed8fb21c84573cdaf3faceda9d5c2160297"
+      },
+      {
+        "path": "ISA.md",
+        "sha1": "51c48529318fd2bfe08670152496360f3e43159e"
+      },
+      {
+        "path": "LICENSE",
+        "sha1": "7c525b9214b04c5af321ca48b296c633ae0477d6"
+      },
+      {
+        "path": "README.md",
+        "sha1": "d9233bd7b384d9bbe2b931fd74f8ca2dbab579f3"
+      },
+      {
+        "path": "_PROJECT-STATUS.md",
+        "sha1": "e4b3ec6443449e6a4d5c01239ba08258b5f07e90"
+      },
+      {
+        "path": "dist/assets/fonts/Inter-Variable.woff2",
+        "sha1": "1dc044f4824fd5af6bfed67fee48be70fa069f3f"
+      },
+      {
+        "path": "dist/assets/fonts/Urbanist-Variable.woff2",
+        "sha1": "ba5c2e73488126b9499c4b69369244e3d3348496"
+      },
+      {
+        "path": "dist/assets/index-BuZ5u-10.js",
+        "sha1": "95d6db49b679419436f6e9768771562b90babf3f"
+      },
+      {
+        "path": "dist/assets/index-D1RtAKfX.css",
+        "sha1": "687c06f83af5c77b44caf1f4d16fb5b41bd6b33f"
+      },
+      {
+        "path": "dist/assets/temperance-codegraph-map.png",
+        "sha1": "2e9307867b2b6379f08bbe764ddd87ed716bb11a"
+      },
+      {
+        "path": "dist/assets/temperance-evidence-loop.png",
+        "sha1": "bfb3072b04fa22f151d94317801967dee085fd79"
+      },
+      {
+        "path": "dist/assets/temperance-guarded-runtime.png",
+        "sha1": "70d9e79a9b0a086e1d0747d3ec915d91b3d38b51"
+      },
+      {
+        "path": "dist/assets/temperance-hero-poster.png",
+        "sha1": "bd0e8f14c89db2cb8646b02b3216bd927e829e4c"
+      },
+      {
+        "path": "dist/assets/temperance-rollback-posture.png",
+        "sha1": "4c954cb47a1bce021c112a25bf8c4027cd49bc9c"
+      },
+      {
+        "path": "dist/assets/temperance-runtime-panel.png",
+        "sha1": "f04b88fa2c49393b1d9994dd4228a598568d5bc7"
+      },
+      {
+        "path": "dist/brand/te-mark.png",
+        "sha1": "9840ad44c6a44a88d152890fffa158bd9ad53353"
+      },
+      {
+        "path": "dist/brand/thoughtseed-logo-lockup.png",
+        "sha1": "557f51b45eceffcc3b1de3e4d1219f0b88245b1f"
+      },
+      {
+        "path": "dist/brand/thoughtseed-mark.png",
+        "sha1": "aad48f9d3ab3c268755ac4c4b9dbefa64532b709"
+      },
+      {
+        "path": "dist/index.html",
+        "sha1": "fc36f4df5a72d30e20f48500ef9cfe028d9df744"
+      },
+      {
+        "path": "dist/og/temperance-engine-og.png",
+        "sha1": "98c410fa4ac595653326127b44cee216ec3fcec0"
+      },
+      {
+        "path": "dist/robots.txt",
+        "sha1": "f89c27ffc1a744a999935f3f27eba1866d33829b"
+      },
+      {
+        "path": "dist/sitemap.xml",
+        "sha1": "b6448783c699f8e7a2355a4eb01a1a1be05f73a5"
+      },
+      {
+        "path": "public/assets/fonts/Inter-Variable.woff2",
+        "sha1": "1dc044f4824fd5af6bfed67fee48be70fa069f3f"
+      },
+      {
+        "path": "public/assets/fonts/Urbanist-Variable.woff2",
+        "sha1": "ba5c2e73488126b9499c4b69369244e3d3348496"
+      },
+      {
+        "path": "public/assets/temperance-codegraph-map.png",
+        "sha1": "2e9307867b2b6379f08bbe764ddd87ed716bb11a"
+      },
+      {
+        "path": "public/assets/temperance-evidence-loop.png",
+        "sha1": "bfb3072b04fa22f151d94317801967dee085fd79"
+      },
+      {
+        "path": "public/assets/temperance-guarded-runtime.png",
+        "sha1": "70d9e79a9b0a086e1d0747d3ec915d91b3d38b51"
+      },
+      {
+        "path": "public/assets/temperance-hero-poster.png",
+        "sha1": "bd0e8f14c89db2cb8646b02b3216bd927e829e4c"
+      },
+      {
+        "path": "public/assets/temperance-rollback-posture.png",
+        "sha1": "4c954cb47a1bce021c112a25bf8c4027cd49bc9c"
+      },
+      {
+        "path": "public/assets/temperance-runtime-panel.png",
+        "sha1": "f04b88fa2c49393b1d9994dd4228a598568d5bc7"
+      },
+      {
+        "path": "public/brand/te-mark.png",
+        "sha1": "9840ad44c6a44a88d152890fffa158bd9ad53353"
+      },
+      {
+        "path": "public/brand/thoughtseed-logo-lockup.png",
+        "sha1": "557f51b45eceffcc3b1de3e4d1219f0b88245b1f"
+      },
+      {
+        "path": "public/brand/thoughtseed-mark.png",
+        "sha1": "aad48f9d3ab3c268755ac4c4b9dbefa64532b709"
+      },
+      {
+        "path": "public/og/temperance-engine-og.png",
+        "sha1": "98c410fa4ac595653326127b44cee216ec3fcec0"
+      },
+      {
+        "path": "public/robots.txt",
+        "sha1": "f89c27ffc1a744a999935f3f27eba1866d33829b"
+      },
+      {
+        "path": "public/sitemap.xml",
+        "sha1": "b6448783c699f8e7a2355a4eb01a1a1be05f73a5"
+      },
+      {
+        "path": "docs/positioning.md",
+        "sha1": "bb1bddae15b287f2dd1655367a00ea540f8d4305"
+      },
+      {
+        "path": "index.html",
+        "sha1": "f4d9d8cfe30814d5b304f3da62ac5889ce707c21"
+      },
+      {
+        "path": "package-lock.json",
+        "sha1": "f6885c5f1df2c388732026f3e0a2a0c8e53d8b17"
+      },
+      {
+        "path": "package.json",
+        "sha1": "d9e63442d9febd05c0229686e3126d39ab50e1f9"
+      },
+      {
+        "path": "scripts/verify-page.mjs",
+        "sha1": "0f4b3d0eb3660c32a42538bf2cd91a2df3efd788"
+      },
+      {
+        "path": "src/App.jsx",
+        "sha1": "bc60f121d8ccac99942aaf095b7456fd632d82a5"
+      },
+      {
+        "path": "src/main.jsx",
+        "sha1": "70d808012360fe9bb982e5ba23e648b9d0502adc"
+      },
+      {
+        "path": "src/styles.css",
+        "sha1": "a01f6522254457b4da41f7e462b5ba033f509e96"
+      },
+      {
+        "path": "tasks.json",
+        "sha1": "e88083662aec4ca3d778977b243021a117665d9a"
+      },
+      {
+        "path": "tsconfig.json",
+        "sha1": "c540c13860d731858ec12e79cdfeb77f55b24b57"
+      },
+      {
+        "path": "vite.config.ts",
+        "sha1": "c74e49b37c6d8f5d2e03f538e4d8b06efeb98aad"
+      }
+    ],
+    "source_manifest_recheck": {
+      "matched": 49,
+      "mismatches": [],
+      "basis": "tracked source via git show c930af9; ignored built dist files unchanged"
+    },
+    "review_pr": "https://github.com/Sheshiyer/temperance_engine_landing_page/pull/1",
+    "review_head": "7e55a2673a01a0c9dd114b9b23bb9ca21499e91b"
+  },
+  "product_hunt": {
+    "url": "https://www.producthunt.com/products/temperance-engine?launch=temperance-engine",
+    "edit": "https://www.producthunt.com/posts/temperance-engine/edit",
+    "name": "Temperance Engine",
+    "tagline": "A shared operating layer for your AI coding tools",
+    "description": "Temperance Engine brings a shared operating layer to your AI coding tools. Connect project context, reusable skills, structured workflows, model routing, and verification in one configurable local runtime. Start with guided onboarding, inspect what is enabled, and keep control of approvals and changes.",
+    "website": "https://temperance.thoughtseed.space/",
+    "source": "https://github.com/Sheshiyer/temperance_engine",
+    "role": "Maker @shesh_iyer; original I made this preserved",
+    "state": "Draft; Not scheduled yet",
+    "verification": "Save changes followed by listing and editor reload; exact fields persisted. Name/media/tags/links/maker preserved. No new listing or scheduling action."
+  },
+  "application_readme": {
+    "branch": "codex/operator-positioning-review",
+    "base": "42b391b44b7655972d9322d87aa3865956a5165e",
+    "files": [
+      "README.md"
+    ],
+    "state": "staged only; uncommitted and unpushed",
+    "sha256": "0d021793ed1027d774a5ac899a4fa91393353793ffee9eb80dbd6f3ebed4e8d1"
+  },
+  "verification": {
+    "website_tests": {
+      "pass": 7,
+      "fail": 0
+    },
+    "sapling_helpers": {
+      "pass": 17,
+      "fail": 0
+    },
+    "packet_validator_tests": {
+      "pass": 12,
+      "fail": 0
+    },
+    "gtm_branch_tests": {
+      "pass": 9,
+      "fail": 0
+    },
+    "schema_packets": 7,
+    "baseline": "Former landing checks38fail (stale removed-source assumptions); replaced by rendered/built behavior checks. Cambium full-suite privacy/fingerprint baseline holds from prior task unchanged; broad suite not rerun for these docs-only changes.",
+    "dependency_advisories": "Two development-toolchain advisories remain in required Vite5/esbuild; no production-dependency advisory reported.",
+    "primary_schema_packets": 8,
+    "skill_validation": "Skill is valid!",
+    "adapter_refresh": {
+      "owned_wrappers_refreshed": 33,
+      "owned_artifacts_retained_total": 34,
+      "source_digest": "9e0371b5fb098269b3f03a745fd0fb1dc7a732028c5e309fba9b74c3ebd66b00",
+      "check_ok": true,
+      "drift": [],
+      "conflicts": [],
+      "scope": "Only existing pack-owned adapters; original Grok workflow retained, no client credential/session or provider setting changed."
+    }
+  },
+  "holds": [
+    "production website promotion awaits owner preview review",
+    "Product Hunt remains unscheduled",
+    "v1.1 clean-host",
+    "live hosted-router authentication",
+    "qualified long-context sessions",
+    "durable checkpoint recovery",
+    "historical product graph rejected; no vault receipt",
+    "LumenBar unchanged"
+  ],
+  "rollback": [
+    "Keep current production deployment and domain aliases unchanged.",
+    "Discard or reverse this preview branch through the website repository if rejected; do not promote it.",
+    "Unstage/discard only the prepared README diff in its isolated branch if rejected.",
+    "Revert scoped Cambium correction commit; retain dated prior observations.",
+    "Do not delete or schedule Product Hunt or rewrite graph acceptance."
+  ],
+  "routing": "Routed Build was refused at host memory-pressure queue timeout before inference. No routed provider/model result exists. Isolated in-session worker performed source changes; root verified."
+}

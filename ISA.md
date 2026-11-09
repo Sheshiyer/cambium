@@ -1,17 +1,63 @@
 ---
 project: Cambium
-task: "Qualify and deploy reviewed Curious0.4.0 to Labs Cloudflare."
-effort: E4
-effort_source: task-classification
-phase: verify
-progress: 1248/1342
+task: "E5 native Cambium discovery; prior release/consolidation acceptance retained."
+effort: E5
+effort_source: explicit
+phase: learn
+progress: 1427/1522
 mode: interactive
-iteration: 2026-08-31-thoughtseed-labs-consolidation
+iteration: 2026-11-02-native-cambium-discovery
 started: 2026-07-27T21:26:34Z
-updated: 2026-10-08
+updated: 2026-11-02
 ---
 
 ## Problem
+
+### 2026-11-04 Cambium operational loop and sign-in entry
+
+Owner selected the existing hosted Hermes runner for the first coding pilot.
+Owning continuation: `.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`.
+This does not reopen the completed Inbox activation or imply execution admission.
+
+- [x] ISC-3680: Standard mode exposes explicit Sign in/re-entry, validates the configured owner before browser presentation, preserves demo isolation and waits for prior owner cancellation; native regression checks pass.
+- [x] ISC-3681: A founder-approved authoritative Work record creates the actual served `sapling:cambium` join without deriving operational authority from catalog membership.
+- [x] ISC-3682: Shared revisioned directions retain exact signal/evidence revisions and stale-edit/replay/scope checks.
+- [ ] ISC-3683: The installed hosted Hermes owner supports the finite pinned Cambium pilot and its reviewed free-pool/acceptance policies.
+- [ ] ISC-3684: Real native review/approval pins the direction, Work head, input, artifact, budget/stop conditions and acceptance policy; admission uses the governed owner path.
+- [ ] ISC-3685: Native launch reserves before idempotent Hermes submission; lost replies recover the original attempt through status only.
+- [ ] ISC-3686: The real result includes immutable artifact/diff/test evidence and a separately verified pinned-policy acceptance or review-required verdict.
+- [ ] ISC-3687: An actual signed-in Mac walkthrough proves signal → direction → approved work → result and records a truthful bounded handoff.
+
+Evidence for ISC-3681/3682: `.planning/native-mac/NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json`. Live native Work/open and one validated draft-create result are observed; an independent fresh persisted-list readback remains open.
+
+### 2026-11-03 shared signal capture and native Inbox
+
+Owner requested source implementation and hosted Phloem fan-out. Finite contract:
+`.planning/native-mac/SHARED-SIGNALS-WAVE-1.md`. The broader integration decisions
+remain in `apps/cambium-mac/docs/FIELD-REPORT-INTEGRATION-DECISIONS.md`.
+Existing release, identity activation, migration and live acceptance remain separate.
+
+- [ ] ISC-3660: Hosted fleet attempts retain real terminal status and provider attribution; worker output is independently inspected before integration.
+- [x] ISC-3661: Capture/list/detail/update routes require current verified native identity, exact tenant/principal and reject mixed credentials and cross-scope guesses.
+- [x] ISC-3662: Signal records and idempotency receipts are atomic in local D1-compatible storage; identical retries preserve the original result and changed requests conflict.
+- [x] ISC-3663: Revision races refuse overwrite; bounded pagination and exact project filters return only scoped records.
+- [x] ISC-3664: Project associations validate against the actual dynamic catalog; empty Inbox associations are valid and no source association admits work.
+- [x] ISC-3665: Native client enforces bounded schema/time/scope validation and discards late responses after identity or tenant changes.
+- [x] ISC-3666: Native Inbox captures, lists, inspects and edits signals with provenance, dynamic project selection and explicit save/error/retry states.
+- [x] ISC-3667: Project dossier opens Inbox filtered by the selected canonical mapped project, preserving existing navigation shortcuts.
+- [x] ISC-3668: Labelled synthetic owner supports full capture/read/update round-trip; focused Worker and Swift tests cover meaningful boundary failures.
+- [x] ISC-3669: Native bundle builds and Inbox light/dark snapshots are inspected; local proof remains distinct from standard-mode live delivery.
+- [x] ISC-3670: Source changes and a bounded handoff are reviewable, preserve concurrent work and do not deploy or apply production migrations.
+- [ ] ISC-3671: Real Field Report editor captures into the shared owner and observes native edits under its reviewed authentication contract (external peer acceptance; not claimed by local fixture proof).
+- [x] ISC-3672: Standard Mac app completes real founder sign-in and owner-served signal/catalog readback (live activation acceptance). Evidence: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
+
+- 2026-11-03 evidence: shared-signal/native source acceptance only. Worker/native-session/catalog suites pass 105/105; Core suite passes 259 with one existing opt-in skip, plus explicit generated Worker/SQLite-to-Swift signal probe passes; native suite passes 37/37. Current portfolio probe remains 77 current / 20 historical / 50 gaps / one explicit Work join. Actual native synthetic UI capture, project association, revision-2 edit and project-dossier filtered Inbox were exercised. Signed working-source bundle and four light/dark captures passed; build inputs are dirty and fingerprinted, not a clean release. See `docs/evidence/2026-11-03-shared-signals-build.v1.json` and `apps/cambium-mac/docs/SHARED-SIGNALS.md`.
+- ISC-3660 remains open for verified hosted execution: batch planning was unavailable and both direct Phloem workers stopped at credit qualification (exit 125) before inference. Two isolated fallback workers and a separate review produced the local implementation. No hosted provider receipt, peer Field Report editor acceptance or live native delivery is inferred.
+
+### 2026-11-02 native product discovery
+
+The owner requests a new native Cambium Mac app using Bama, preceded by an E5 multi-day understanding pass. Existing app surfaces, visual sources, integration owners and historical planning span different horizons. This pass reconciles them before app implementation; prior release and consolidation criteria remain preserved below.
+
 
 The reviewed Curious upgrade is local while the release branch still carries unrelated planning history. Fresh main retires GitHub Actions, so release integration must preserve that policy.
 
@@ -48,6 +94,11 @@ The repository-first implementation is merged, but production still serves the v
 The Fitcheck Mission scene now names the correct authenticated Shopify QA quest and its two required proofs, while Gate already commits reviewed Goal Graph proposals through a pinned D1 CAS. The missing link is founder ingress: Mission and Inspect contain no editable evidence surface, the browser cannot create a bounded pending proposal, and a successful Gate commit does not refresh the quest projection. The founder is therefore shown the gate and proof requirements without any authority-honest way to supply the outcome that advances them.
 
 ## Vision
+
+### 2026-11-02 native experience
+
+The founder sees the whole system, then chooses the next meaningful action. The initial release serves the founder/operator while preserving tenant and role boundaries. Existing imagery, purpose, work and evidence form one legible experience without inventing progress or acquiring another system’s authority.
+
 
 Publish an inspectable source release whose version, accepted code, tag and notes refer to one reviewed main commit. The operator can distinguish release from live deployment.
 
@@ -169,6 +220,11 @@ Use the current main squash-PR ruleset without bypass. Preserve Actions retireme
 
 ## Goal
 
+### 2026-11-02 discovery checkpoint
+
+Produce a source-backed native brief, owner/graph/loop map, visual and screen inventory, Bama/platform assessment and staged roadmap. Record remaining product and live-evidence questions explicitly; this checkpoint does not complete the broader E5 horizon or the native application.
+
+
 Deploy the reviewed Curious0.4.0 visual world to its existing Labs Worker after exact-source qualification and retained rollback readback. Preserve every live binding and nonversioned setting; admit traffic only after candidate parity and record local proof limits separately from live state.
 
 Push the reviewed Curious/atlas release branch, integrate through the permitted PR route and publish0.4.0 with an exact annotated main tag after required checks. Independently read back branch, main, tag and release.
@@ -204,6 +260,53 @@ For the project-closeout iteration, add a terminal `Completed / Closed` workflow
 For the Fitcheck founder-evidence pilot, add one exact authenticated route and one exact Mission action space for `fitcheck-shopify-widget-qa`. Done means two bounded proof references create a replay-safe pending candidate, D1 remains unchanged until the existing Gate signs the exact server-derived proposal, the CAS commit updates one proof-scoped node, Mission and founder-only Goal Graph readback refresh from that committed head, and every Hermes, Telegram transport, deployment, and external mutation boundary remains held.
 
 ## Criteria
+
+### Temperance organs/Kosha integration handoff — 2026-11-02
+
+- [x] ISC-3640: Founder-selected target is portable core plus optional personal/company glove.
+- [x] ISC-3641: Public and private source revisions are pinned in the integration handoff.
+- [x] ISC-3642: Dirty private organ scripts and preserved primary work are identified.
+- [x] ISC-3643: Five Koshas and seven phases are described without access-control claims.
+- [x] ISC-3644: Six advisory organs distinguish public lifecycle contracts from private implementations.
+- [x] ISC-3645: Infrastructure modules are inventoried with ownership and optional bindings.
+- [x] ISC-3646: Organ containment historical promotion and current private delta are distinguished.
+- [x] ISC-3647: Kernel reconciliation reuses public composition and acceptance authorities.
+- [x] ISC-3648: Anti: retired Superset and Constellation are excluded from integration targets.
+- [x] ISC-3649: Current public phase/composition baseline passes85tests across6files.
+- [x] ISC-3650: Product Hunt short-description limit is verified as500characters.
+- [x] ISC-3651: Founder-confirmed November6at12:01AMPST schedule is recorded for preservation.
+- [x] ISC-3652: Historical unscheduled observations are preserved while current references supersede them.
+- [x] ISC-3653: Expanded website brief defines15sections and accessible read-only interactions under5000words.
+- [x] ISC-3654: Clean staged README prepares the approved schedule label without commit or push.
+- [x] ISC-3655: Next-chat brief sequences kernel reconciliation before one advisory organ and website claims.
+- [x] ISC-3656: Dedicated integration chat receives the current handoff and exact ownership boundaries.
+- [x] ISC-3657: Anti: discovery changes no runtime, provider, private memory, production website or PH copy.
+- [x] ISC-3658: Scoped handoff, packet and installed-adapter validation pass.
+- [x] ISC-3659: Bounded handoff is committed in isolation and reconciled without unrelated work loss.
+
+
+### Temperance operator-system preview — 2026-11-02
+
+- [x] ISC-3600: Website restoration is isolated from the dirty primary landing checkout.
+- [x] ISC-3601: Active JSX design is recovered from pinned historical source 736fd13.
+- [x] ISC-3602: Website headline matches the approved operator-system message.
+- [x] ISC-3603: Capability claims have a pinned source and optional-dependency map.
+- [x] ISC-3604: Website navigation resolves to real sections or documents.
+- [x] ISC-3605: Canonical, social metadata, robots and sitemap use the product domain.
+- [x] ISC-3606: Website production build succeeds.
+- [x] ISC-3607: Repaired website verification checks pass.
+- [x] ISC-3608: Desktop preview navigation and rendered content are verified in IAB.
+- [x] ISC-3609: Mobile preview contains content without horizontal overflow.
+- [x] ISC-3610: Reduced-motion preview preserves readable content and pauses ambient motion.
+- [x] ISC-3611: Preview browser verification observes no application console errors.
+- [x] ISC-3612: Vercel preview reaches READY and is attributable to reviewed source.
+- [x] ISC-3613: Anti: existing production deployment remains unchanged.
+- [x] ISC-3614: Existing Product Hunt draft persists the approved tagline and description.
+- [x] ISC-3615: Anti: Product Hunt remains explicitly unscheduled without a second listing.
+- [x] ISC-3616: Application README alignment is staged on a clean current-main checkout.
+- [x] ISC-3617: Cambium proof references supersede old positioning without erasing observations.
+- [x] ISC-3618: Affected Sapling and packet validators pass.
+- [x] ISC-3619: Anti: v1.1, authentication, graph acceptance and LumenBar remain unchanged.
 
 ### 2026-11-02 native implementation through hosted Phloem
 
@@ -265,14 +368,98 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3463: Global search and Canopy reach mapped project detail; viewer scope remains totals-only.
 - [x] ISC-3464: Only an explicit served join to an existing Work node enables the operational Work link.
 - [x] ISC-3465: Local Swift and native route tests, signed bundle and clean-input build proof pass.
-- [ ] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
-- [ ] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority.
+- [x] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
+- [x] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority. Evidence: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
 - [x] ISC-3468: Founder detail maps every served historical product and classification review row; viewer detail stays empty.
 - [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
 - [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.
 - [x] ISC-3471: A fresh local handler envelope from the current portfolio source decodes in Swift without replacing the dated replay fixture.
 - [x] ISC-3472: The signed synthetic Projects window shows a project row, dossier and readable source time at 880×612.
 - [x] ISC-3473: Projects snapshots at both supported sizes render distinct light and dark appearances with clean bundle provenance.
+- [x] ISC-3474: TeamForge source review confirms the current Plexus identity schema and founder seed, and draft PR #105 adds a dedicated `plexus.native-identity.v1` read-only lookup with explicit tenant-to-workspace enrollment.
+- [x] ISC-3475: Cambium's native composition consumes only the scoped identity contract, resolves role plus enrollment from one owner snapshot (with compatibility fallbacks), fences browser credential aliases on every native entry point, and remains unbound when URL, token, tenant, origin, client registry, Access or D1 bindings are absent; the real Worker entrypoint composition test passes.
+- [ ] ISC-3476: TeamForge PR #105 is merged and the owner-configured endpoint, token, tenant map, callback client, origin and D1 migration are read back from the live runtime.
+- [ ] ISC-3477: An unlocked Mac completes external-browser consent, PKCE exchange, current-catalog read, exact Work join and admitted-work coordination with live founder evidence.
+- [x] ISC-3478: Canopy derives a read-only next meaningful action from one fresh, unambiguous served catalog-to-Work join and falls back to Projects for missing, summary-only, stale, future-dated or ambiguous data.
+- [x] ISC-3479: Mapped project dossiers expose safe, explicit repository and HTTPS site references while vault, internal, ambiguous and credential-bearing references remain text-only.
+
+### 2026-11-02 native discovery continuation
+
+- [x] ISC-3172: The native architecture records decisions and admitted launch as required v1 scope.
+- [x] ISC-3173: The Fitcheck reference lineage preserves its dated decision-versus-execution evidence boundary.
+- [x] ISC-3174: The native read design accounts for freshness and portfolio sidecars outside graph nodes.
+- [x] ISC-3175: The launch design distinguishes founder coordination from runner credential and lease protocols.
+- [x] ISC-3176: The launch state machine requires original-request recovery after uncertain outcomes.
+- [x] ISC-3177: The execution plan identifies separate Hands and Hermes owner adapters.
+- [x] ISC-3178: The directional map cites the source-declared control, execution, knowledge and commercial flows.
+- [x] ISC-3179: The Apple platform matrix distinguishes documented API availability from native probe evidence.
+- [x] ISC-3180: The interaction study labels its public review evidence as bounded anecdotes.
+- [x] ISC-3181: The structured handoff preserves the concurrent sapling-lifecycle continuation.
+- [x] ISC-3182: The proposed first-release stories include admitted launch and run/result recovery.
+- [x] ISC-3183: The final discovery audit maps every original requested deliverable to current artifacts.
+- [x] ISC-3184: The independent final review findings have explicit dispositions.
+
+
+### Sapling lifecycle pack — 2026-11-02
+
+- [x] ISC-3200: The repository owns one discoverable sapling-lifecycle skill entrypoint.
+- [x] ISC-3201: The reviewed component catalog records owners, source digests, inputs, outputs, writes, prerequisites, stop rules, and probes.
+- [x] ISC-3202: Eight command intents have thin client adapters bound to the canonical pack.
+- [x] ISC-3203: Installation preserves conflicting unowned files and symlinks.
+- [x] ISC-3204: Reinstallation is idempotent and check detects source or installed-artifact drift.
+- [x] ISC-3205: Uninstall removes only unchanged pack-owned artifacts.
+- [x] ISC-3206: Graph validation rejects missing configured roots.
+- [x] ISC-3207: Graph validation rejects duplicate identities and dangling edges.
+- [x] ISC-3208: Graph verification distinguishes conflicting or unverified evidence from observed proof.
+- [x] ISC-3209: The read route refuses record=true and publishing output.
+- [x] ISC-3210: A generic run asks for a selected step before preparing an action.
+- [x] ISC-3211: A selected run prepares at most one step and detects completed-step replay.
+- [x] ISC-3212: Generated reports remain ignored and committed pack files contain no machine-local checkout paths or private corpora.
+- [x] ISC-3213: Reopened Product Hunt state preserves the six authorized Temperance field values.
+- [x] ISC-3214: Product Hunt formally creates an unscheduled Temperance draft, or the remaining service requirements are explicitly held.
+- [x] ISC-3215: Anti: this task changes no LumenBar field or schedule.
+- [x] ISC-3216: The read-only Temperance Rhai run reaches a terminal outcome or explicit bounded timeout without writing a vault receipt.
+- [x] ISC-3217: The README widget is written only after a genuine stable listing slug and official widget exist.
+- [x] ISC-3218: The conditional Temperance packet remains proof-only with v1.1 and hosted-authentication holds.
+- [x] ISC-3219: Anti: pack installation creates no scheduler, tenant admission, operational graph write, provider change, or deployment.
+
+
+### 2026-11-02 native Cambium E5 discovery
+
+- [x] ISC-3140: Antecedent: The Mac brief records the founder-selected whole-system-first opening flow.
+- [x] ISC-3141: The discovery report distinguishes the native product from the October machine-migration plan.
+- [x] ISC-3142: The discovery report cites the enduring root Vision.
+- [x] ISC-3143: The discovery report records the current Mission horizon mismatch for review.
+- [x] ISC-3144: The Bama assessment pins the inspected upstream commit.
+- [x] ISC-3145: The Bama assessment records its documented platform baseline.
+- [x] ISC-3146: The Bama assessment identifies defaults incompatible with Cambium authority.
+- [x] ISC-3147: The platform assessment records the available local Swift toolchain.
+- [x] ISC-3148: The asset ledger records the 46-image source-library provenance.
+- [x] ISC-3149: The asset ledger distinguishes selected from generated Organ Console references.
+- [x] ISC-3150: The asset ledger preserves unresolved model identities.
+- [x] ISC-3151: The screen inventory maps whole-system overview to focused work.
+- [x] ISC-3152: The screen inventory names loading, empty, denied, stale and unavailable states.
+- [x] ISC-3153: The integration map assigns the operational graph writer to D1.
+- [x] ISC-3154: The integration map distinguishes Mission Fabric from the operational writer.
+- [x] ISC-3155: The integration map distinguishes repository Intent Graph from Goal Graph.
+- [x] ISC-3156: The integration map identifies Field Theory source and handoff boundaries.
+- [x] ISC-3157: The integration map distinguishes Field Report from Field Theory.
+- [x] ISC-3158: The integration map names Curious browser and Telegram authentication boundaries.
+- [x] ISC-3159: The integration map records Temperance execution ownership.
+- [x] ISC-3160: The integration map records Hermes delivery ownership.
+- [x] ISC-3161: The integration map records sovereign knowledge-plane boundaries.
+- [x] ISC-3162: The loop review distinguishes accepted evidence from learning proposals.
+- [x] ISC-3163: The existing-plan review labels historical claims requiring current source checks.
+- [x] ISC-3164: The native architecture compares SwiftUI and web visualization responsibilities.
+- [x] ISC-3165: The multi-day roadmap supplies bounded exit evidence for each proposed stage.
+- [x] ISC-3166: The research backlog records unresolved product decisions.
+- [x] ISC-3167: The handoff supplies a concrete next read-only research step.
+- [x] ISC-3168: Anti: This discovery change does not alter existing runtime source files.
+- [x] ISC-3169: Anti: This discovery change does not claim a native build or production acceptance.
+- [x] ISC-3170: Anti: This discovery change does not rewrite cloud-consolidation planning state.
+- [x] ISC-3171: Independent review findings are recorded with their actual evidence level.
+
+
 
 ### Standalone composition source slice (2026-10-05)
 
@@ -1875,6 +2062,32 @@ this setup. These criteria accept review documents, not runtime activation.
 
 ## Test Strategy
 
+### Native continuation probes
+
+| Criteria | Probe / evidence |
+| --- | --- |
+| ISC-3172–3178 | Read architecture, exact/unmatched lineage, full envelope, launch state/owner distinctions and directional source map |
+| ISC-3179–3180 | Read primary Apple matrix and bounded interaction/review sources |
+| ISC-3181 | Parse native durable handoff and shared pointer; existing concurrent task/queue preserved |
+| ISC-3182–3184 | Read release stories, original-requirement audit and six-finding review disposition; links/hash readback |
+
+
+### Native discovery probes, 2026-11-02
+
+| Criteria | Probe | Threshold / evidence |
+| --- | --- | --- |
+| ISC-3140–3147 | Read brief, discovery and foundation; compare upstream pin and local metadata | Founder answers, product/migration distinction, root doctrine/horizon, Bama pin/default adaptation and tool metadata present |
+| ISC-3148–3152 | Read asset maps and screen index | Source counts/statuses/unresolved identities and complete proposed screen-state coverage agree |
+| ISC-3153–3162 | Read owner/graph/loop map against source ledger | D1, projection, Intent Graph, Field Theory/Report, Curious, execution/delivery/knowledge and learning ownership explicit |
+| ISC-3163–3166 | Read reconciliation, architecture options, roadmap and open register | Historical/source/live evidence separated; bounded stage exits and unknowns recorded |
+| ISC-3167 | Read new `.project/HANDOFF.md` checkpoint | Another client has concrete read-only next step |
+| ISC-3168 / ISC-3170 | Baseline-aware scoped diff | This pass changes no runtime source or active cloud-planning state; pre-existing edits retained |
+| ISC-3169 | Read bounded claim statements and review | No native build, production or device acceptance inferred |
+| ISC-3171 | Read native discovery review | Actual review findings, checked scope and failed routing/audit attempts recorded |
+| ISC-3478 | `NextMeaningfulActionSelector` unit tests, Canopy snapshots and strict bundle readback | One exact fresh join opens Work; all unsafe/ambiguous states route to Projects; no write or admission path is invoked |
+| ISC-3479 | `MappedSourceReference` parser tests, Projects snapshots and strict bundle readback | Only explicit safe source surfaces open through the external browser; no vault path, credential-bearing URL or inferred authority opens |
+
+
 - `ISC-2533..2564` | Complete-folder review | Full inventory and reading ledger,
   bounded source reconciliation, asset/PDF observations, link and privacy
   checks, revised diagram/design/plan readback, and original file hashes.
@@ -2074,6 +2287,16 @@ ISC-3040..3071 use staged-path/hash readback, canonical13release gates, affected
 
 ## Features
 
+### Native Mac discovery, 2026-11-02
+
+| Feature | Description | Satisfies | Depends on | Parallelizable |
+| --- | --- | --- | --- | --- |
+| Native discovery checkpoint | Brief, source/visual/system review, staged roadmap and handoff; runtime app remains proposed | ISC-3140–3171 | Founder interview; scoped source and independent review | Read-only specialist reviews only |
+
+- `MappedNextMeaningfulAction` | Derive one founder-first, read-only Canopy destination from an explicit fresh catalog-to-Work join with fail-closed Projects fallback | satisfies ISC-3478 | depends_on PortfolioCatalogProjection, Native mapped-project integration | parallelizable false |
+- `MappedProjectSourceLinks` | Parse mapped provenance into explicit safe browser links without widening source or authority boundaries | satisfies ISC-3479 | depends_on Native mapped-project integration | parallelizable true |
+
+
 - `GrowthEcosystemReview` | Reconcile growth architecture with modular migration | satisfies ISC-2533..2564 | depends_on source inventory | parallelizable true
 
 - `ModularMacReview` | Map current ecosystem and propose both new-Mac flows | satisfies ISC-2506..2532 | depends_on source inventory | parallelizable false
@@ -2207,6 +2430,27 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 - Founder Gate CLI vertical slice | Existing Access verifier, stored intake, explicit tenant bindings and canonical D1 receipts | satisfies: ISC-3088..3099 | depends_on: merged #395 | parallelizable: bounded CLI/test ownership only.
 
 ## Decisions
+
+- 2026-11-02: refined: Founder selected portable Temperance core plus optional personal/company glove. This task produces the source-gap and interactive-story handoff; a separate requested chat owns integration implementation.
+- 2026-11-02: refined: Live Product Hunt reviews/editor now show November6,2026,12:01AMPST. Founder confirmed preserve; this supersedes earlier unscheduled constraints while retaining ISC-3600..3619 as dated prior verification. No schedule action was performed by this task.
+
+- 2026-11-02: refined: Founder supersedes installer-led Temperance positioning with AI operator system; restores historical cinematic design in preview only. ISC-3600..3619 is reserved for this correction, independent of concurrent native-app criteria and acceptance frontmatter. Public website replacement remains owner-review gated.
+- 2026-11-02: Owner explicitly authorizes fan-out and build using hosted omniroute.thoughtseed.space Phloem. Build is isolated on codex/cambium-native-build; preserve primary dirty work. Gateway owner metadata resolves hosted Phloem; old local-only ranker cannot run without its absent SQLite store. Do not create a local plant or mutate provider policy.
+- 2026-11-02: Advisor-approved continuation adds `MappedNextMeaningfulAction`: a pure CambiumCore selector and Canopy affordance. Exactly one fresh served catalog-to-Work join opens existing Work; no detail, stale/future timestamps, missing rows, collisions or multiple joins fall back to Projects. The hosted Execute batch returned four unavailable receipts before model execution, so the slice was completed in an isolated worktree and cherry-picked as `f4e03aa`; no external state changed.
+
+
+- 2026-11-02: Native discovery original-request audit passes45/45 scoped criteria. Reviewed documentation commit1dd2c1f contains only15 native planning/research files; shared ISA/project/global handoff changes remain local alongside the concurrent lane. Finite discovery closure does not complete the app, project ledger, active Cloudflare milestone or future native acceptance.
+
+
+- 2026-11-02: Sapling lifecycle pack reserves ISC-3200..3219. The isolated provisional criterion numbers collided with the concurrent native-app discovery; no existing primary IDs or native-app fields were replaced. Cambium owns the shared pack; review then one selected authorized action, with launch and runtime holds preserved.
+
+- 2026-11-02: refined: Owner requests an E5, multi-day deep discovery before a new native Cambium Mac implementation using Bama. This research lane preserves the existing Cloudflare consolidation milestone and prior acceptance; it does not renew repository doctrine.
+- 2026-11-02: ISA Interview answer: “See the whole system, then choose the next meaningful action.” This anchors the app opening flow; platform breadth and action surfaces remain open research decisions.
+- 2026-11-02: ISA Interview answer: “Founder/operator first, while preserving tenant and role boundaries.” The initial native release targets the founder/operator; team and external distribution are later scope decisions, with existing isolation retained from the first slice.
+- 2026-11-02: refined: ISA Interview answer: “Coordinate decisions and launch already-admitted work from the Mac app.” This is the first usable release contract. A read-only orientation slice is intermediate, not a substituted v1 endpoint. Native coordination must cover canonical decisions, owner-bound launch, run observation and uncertain-outcome recovery; discovery itself performs no live launch.
+- 2026-11-02: Research granularity yields 32 bounded discovery probes, below the soft E5 count of 256; implementation criteria will follow source review and interview. Artificial check-count expansion would obscure unapproved product scope.
+- 2026-11-02: Selected thinking capabilities: ISA, FirstPrinciples, SystemsThinking, IterativeDepth, BeCreative, FeedbackMemoryConsult, Advisor and ReReadCheck. Three independent native read-only research slices substitute for routed research after noesis-observe failed before analysis on invalid context7 transport. No routed provider/model or audit verdict is inferred.
+
 
 - 2026-10-01: refined: Plexus owns human identity and role ceiling; Cambium
   retains operational task authority. The growth review preserves integration
@@ -2506,6 +2750,39 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Changelog
 
+- 2026-11-02 | conjectured: A founder-first Canopy could choose the next meaningful action by following mapped names or IDs.
+  refuted by: The served catalog, runtime graph and live owner state remain separate, and hosted Execute returned unavailable before model work.
+  learned: A pure selector is safe only when it sees one fresh explicit catalog-to-Work join; every missing, stale, future-dated or ambiguous state must route to Projects, while live deployment and founder acceptance stay owner-gated.
+  criterion now: ISC-3478 verifies the read-only Canopy affordance, its fallback matrix, clean `f4e03aa` receipt and synthetic-only claim boundary.
+- 2026-11-02 | conjectured: Mapped provenance could safely become a browser bridge for the founder.
+  refuted by: Vault and internal references do not carry a public URL, repository aliases can be ambiguous, and credential-bearing or insecure URLs would widen the source boundary.
+  learned: Parse only explicit HTTPS sites and repository-shaped `owner/name` values; preserve every other reference as text and require an explicit click for external navigation.
+  criterion now: ISC-3479 verifies source-link parsing, safe-open behavior, Projects rendering and the absence of authority or credential inference.
+
+- 2026-11-02 | conjectured: Existing website/operator copy sufficiently described the architecture already present in public Temperance.
+  refuted by: Founder request for organs/Koshas and comparison showing public lifecycle contracts versus private implementations and broader phase kernel.
+  learned: Reconcile portable kernel and adapters before presenting source presence as fully integrated infrastructure; separate architectural roles, onboarding modules and company organs.
+  criterion now: ISC-3640..3659 verify evidence-backed integration handoff, current schedule preservation and a new scoped chat.
+
+- 2026-11-02 | conjectured: Installer release notes were adequate customer positioning for the Temperance launch.
+  refuted by: Founder rejection of tagline/site positioning and recovery of the broader cinematic website/source story.
+  learned: Separate the customer promise from distribution mechanics while retaining claim-level release evidence and runtime holds.
+  criterion now: ISC-3600..3619 verify the restored review preview and coherent existing-draft correction without production promotion.
+
+- 2026-11-02 | conjectured: Later dossier/chamber records extended the exact Fitcheck chain, and read-only-first ordering described v1 sufficiently.
+  refuted by: Audit found different receipt/change identities; founder selected decisions and already-admitted launch for v1.
+  learned: Exact subject joins are required; launch/result/recovery, accessibility and minimum artifact acceptance must be included in the release plan.
+  criterion now: ISC-3172–3184 verify corrected lineage, full action scope, native boundaries and final discovery audit.
+
+
+- 2026-11-02 sapling pack: conjectured that containment and node uniqueness were sufficient for safe report/graph preparation; refuted by independent hardlink, same-repository symlink and invented traced-node probes; learned to reject linked outputs, replace reports atomically and bind supplied trace identities/evidence/status; criterion-now ISC-3207..3208 and ISC-3212 retain meaningful adversarial regressions.
+
+- 2026-11-02 | conjectured: Existing Mac plans and dated ecosystem reviews could directly specify the new native client.
+  refuted by: The Mac plan concerns host reconstruction; current owner-binding source supersedes the October foldback gap; founder interview requires whole-system orientation.
+  learned: The native product needs a new bounded experience and current typed owner joins while preserving existing systems and historical evidence.
+  criterion now: ISC-3140–3171 verify this research checkpoint; native implementation and the remaining E5 discovery retain separate future proof.
+
+
 - 2026-10-01 | conjectured: separate product ownership could be adequately represented by an installation inventory
   refuted by: growth's five operating and six cognitive organs require typed input, task, plant, artifact, consumer and verification relationships
   learned: portability must reconstruct the integrated work loop while preserving writer, memory and external-effect boundaries
@@ -2709,9 +2986,24 @@ _Last refreshed: 2026-07-22T09:00:00Z_
 
 ## Verification
 
+- ISC-3478: fresh detached clean-worktree proof at `f4e03aa96d75cbb8ebbcd834730e7344022beb8f` — the commit adds `NextMeaningfulActionSelector`, 3 Core fallback/selection tests, the Canopy read-only affordance, and bounded documentation. `swift test --package-path apps/cambium-mac` passed 35 native and 250 Core tests with one existing opt-in current-source skip; committed catalog tests passed 16/16; release `build.sh` embedded `inputsDirty=False`, aggregate `8eaa04e6c5ccc3d36ab1fd523a1136814d002987cabd9f5f69b0a12c7b0bdd74`; `verify-bundle.sh` passed strict codesign and bundle checks. The Canopy manifest is clean (`proofSha256=61c2dba823fc0f20b40c466dfaf2fd9694151291adefc8372fbba1334b76be7b`, zero failures) for light/dark 1280×820 and 880×612 captures; image hashes are `874f83909893b295dab56b3ae8894cfbd783a32c99ea2f9faa069bb45cf76ee9`, `d5d3d2c27832789e4acd2e232ebfc8009979b2882b8d9dfce8a1b4f8d3012ab3`, `1a1b8070f8ee5b05dc3e00601a7ec68e0ad11fd664a6bf03aefde2482bf24732`, `6932f02299b1ecb7da506289aac2e07f5ac23983d5e361ab8ecf140f97b855f8`. The UI visibly offers “Review joined Work” for synthetic `sapling:cambium` and states that it cannot admit or launch work. This is local synthetic proof; live founder delivery remains ISC-3467/3476/3477.
+- ISC-3479: commits `4154f16` and `a55e432` add `MappedSourceReference` parsing, dossier links, and preserved link accessibility. `swift test --package-path apps/cambium-mac` passes 35 native and 251 Core tests with one existing opt-in current-source skip; the focused safe-surface test passes. Release `build.sh` embeds `inputsDirty=False` at revision `025eebd45ccde66429b141fce95971267e2eedca` with aggregate `28169aa17cee0e8403238b2025759b6449b7ff17a8f68be11fc549759bf9a917`; strict bundle verification passes. Four Projects captures at 1280×820 and 880×612 in light/dark have zero manifest failures (`proofSha256=de9a6fa2b8514c0b183e94978214c8810abbd755d1e9800ab9892e5e5098bb86`). Only `site:https://...` and repository-shaped `repo:owner/name` references become links; vault, Cambium, alias-only and credential-bearing values remain non-openable. This is source/UI proof and does not imply live owner delivery.
+- ISC-3467 live preflight: the running standard Mac app accepted the reviewed Curious owner profile locally, then a real Sign in attempt returned the app's bounded `The owner did not complete this action` state with no session or catalog. Current GET-only runtime readback remains native session `404`, Mission Fabric `401 access_identity_required`, and TeamForge native identity `501 feature_not_ready`; no founder delivery is claimed.
+- Current-source integration rerun: `./apps/cambium-mac/tools/probe-current-portfolio.sh` passed the Swift mapper against the working TypeScript handler source with 77 current records, 20 historical products, 50 operational gaps, one explicit runtime join, and display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`; this remains uncommitted-source evidence, not live delivery.
+- Live activation preflight: commit `caae15d` adds `apps/cambium-mac/tools/probe-live-owner.sh`, which emits a read-only `cambium.live-owner-preflight.v1` receipt without credentials or redirects; current statuses are health `200`, native session `404`, Mission Fabric/quest projection `401`, TeamForge identity `501`, and `routeSurfaceReady: false`.
+- Native activation seam hardening: commit `8bc0e38` lets the host bind on the production `resolveFounderAccess` snapshot without requiring legacy split callbacks, while retaining fail-closed compatibility behavior when no snapshot exists. The focused Worker integration suite passes 101/101 across native routes, D1 stores, TeamForge identity, entrypoint composition and Mission Fabric; live route readiness remains unchanged and unproven.
+- Production composition hardening: commit `b8445af` removes the legacy split role/enrollment callbacks from `workers/quests/src/index.ts`, forcing the real Worker entrypoint through the atomic TeamForge snapshot. The focused entrypoint/native/identity suite passes 79/79; no live deployment or owner state changed.
+- Activation-readiness packet: commit `579c137` adds `apps/cambium-mac/tools/probe-activation-readiness.sh`, which emits `cambium.native-activation-readiness.v1` by joining current-source decode, scoped migration hashes, PR #105 readback and GET-only live owner status. Default and `CAMBIUM_RUN_WRANGLER_DRY_RUN=1` runs remain read-only; candidate dry-run passes while native-session `404`, Access-gated Mission Fabric `401` and TeamForge identity `501` keep live route readiness blocked.
+- Owner-runtime readback continuation: commit `210abbd` extends the packet with read-only Labs deployment, remote D1 migration and secret-name checks. Current deployment remains `cf48e6d0` at 100%; remote migrations `0010`, `0099`, `0100`, and `0101` are unapplied; `PLEXUS_NATIVE_IDENTITY_TOKEN` is absent. This proves the next gate is external owner activation, not another Mac mapping change.
+- Remote D1 schema readback confirms the hold: a SELECT-only query against `cambium-bridge` returns no `native_sessions`, `native_consent_intents`, or `native_consent` rows/tables, with `changes: 0`, `rows_written: 0`, and `changed_db: false`.
+- Commit `c43057f` records the SELECT-only schema result directly in the activation packet (`runtimeReadback.nativeD1Tables: []`), preserving a single reproducible owner-readback artifact.
 - ISC-3471: local cross-language probe — `./apps/cambium-mac/tools/probe-current-portfolio.sh` passed one focused Swift decode of the TypeScript handler envelope: 77 current, 20 historical, 0 review, 50 gaps, 1 exact Work join, display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`; dated replay fixture was untouched. Current source includes uncommitted concurrent catalog edits; this is not live delivery.
 - ISC-3472: signed-window screenshot inspection — `main-projects-minimum-light.png` and `main-projects-minimum-dark.png` show the first source project row and dossier at 880×612, with source time `29 Jul 2026, 12:16` instead of “Unreadable time”; the synthetic label is visible. `SourceTime` focused test passed, including invalid date refusal.
-- ISC-3473: signed-window manifest and image inspection — `snapshot-manifest.json` reports four successful 1280×820/880×612 captures from clean revision `55ca159`, no failures, separate light/dark image hashes; strict codesign, bundle verifier and embedded proof recheck passed. This is synthetic visual proof, not ISC-3466 interactive acceptance or ISC-3467 live founder delivery.
+- ISC-3473: signed-window manifest and image inspection — `snapshot-manifest.json` reports four successful 1280×820/880×612 captures from clean revision `55ca159`, no failures, separate light/dark image hashes; strict codesign, bundle verifier and embedded proof recheck passed. This is synthetic visual proof, not ISC-3467 live founder delivery.
+- ISC-3466: current signed bundle, unlocked macOS window — Projects opened the labelled replay; `Cambium` search produced `Cambium Operating Fabric` and `Cambium`; the sapling dossier exposed provenance, tenant, linked program and the sole explicit `sapling:cambium` runtime join; `Open operational Work` reached the bounded Cambium Work dossier, which retained the synthetic/non-admitted boundary and no fabricated next action. No live session was applied.
+- ISC-3471: opt-in current-source probe after `44f1025`/`40ad1c1` — the TypeScript handler envelope decodes in Swift and asserts exact names/provenance for Cambium, its operating fabric, Relovo, HeyZack, ParkArea, Tirak and DLOCK, with only the explicit Cambium runtime join; 77 current, 20 historical, 0 review, 50 gaps, digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`. The concurrent dirty source adds LumenBar separately and remains uncommitted.
+
+- 2026-11-02 sapling checkpoint: skill validation, 17 helper tests and 28 existing packet/GTM/branch tests pass. Installed 34 owned artifacts with zero digest drift; Grok discovers eight commands and Codex skills/list discovers repo and user skill adapters. OpenCode binary is unavailable. Product Hunt IAB confirms the formal Temperance draft is not scheduled; all six fields persist, with the approved existing logo/art and matching tags. README-only commit `42b391b` is verified on Temperance remote main. Rhai completed with confirmed=false and wrote no vault receipt; the proof-only Temperance packet validates, preserving all milestone and admission holds. The initial full suite was 2516/2526 during concurrent changes; stable full-history audit rerun is 16/18 with two unchanged privacy gates. Viewport and system-atlas fingerprints remain unchanged holds. No full-green claim. Bounded proof is recorded in docs/evidence/2026-11-02-sapling-lifecycle.v1.json.
 
 ### 2026-10-01 growth ecosystem deep review — documentation verification
 
@@ -2767,6 +3059,61 @@ _Last refreshed: 2026-07-22T09:00:00Z_
   criterion now: ISC-3072..3087 articulate exact identity, qualification, inherited bindings, inert upload, UUID promotion, live proof and separate publication scope.
 
 ## Verification
+
+### Native discovery continuation verification, 2026-11-02
+
+- ISC-3172: artifact readback plus independent native source review — `apps/cambium-mac/docs/ARCHITECTURE.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3173: artifact readback plus independent native source review — `apps/cambium-mac/docs/research/LINEAGE.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3174: artifact readback plus independent native source review — `apps/cambium-mac/docs/ARCHITECTURE.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3175: artifact readback plus independent native source review — `apps/cambium-mac/docs/ARCHITECTURE.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3176: artifact readback plus independent native source review — `apps/cambium-mac/docs/ARCHITECTURE.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3177: artifact readback plus independent native source review — `apps/cambium-mac/docs/ARCHITECTURE.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3178: artifact readback plus independent native source review — `apps/cambium-mac/docs/research/DATA-FLOWS.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3179: artifact readback plus independent native source review — `apps/cambium-mac/docs/research/PLATFORM.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3180: artifact readback plus independent native source review — `apps/cambium-mac/docs/research/INTERACTION-REFERENCES.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3181: artifact readback plus independent native source review — `.planning/native-mac/HANDOFF.json`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3182: artifact readback plus independent native source review — `apps/cambium-mac/docs/STORIES.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3183: artifact readback plus independent native source review — `apps/cambium-mac/docs/DISCOVERY-EXIT.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+- ISC-3184: artifact readback plus independent native source review — `docs/architecture/2026-11-02-native-cambium-review.md`; final ledger66/66 hashes/byte counts, links76/76 and local contract checks49/49. The review disposition and original-requirement audit bound this claim to discovery, not native/live acceptance.
+
+45/45 discovery criteria (ISC-3140–3184) pass. Original-request audit: `apps/cambium-mac/docs/DISCOVERY-EXIT.md`. All three founder decisions are retained, including v1 admitted launch; actual native/live proof and the full build horizon remain future work. Cato/routed capability failures remain explicit.
+
+### Native discovery checkpoint verification, 2026-11-02
+
+- ISC-3140: source inspection/readback — `apps/cambium-mac/docs/BRIEF.md` contains “See the whole system”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3141: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Workstation replacement”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3142: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “VISION.md”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3143: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “v0.4”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3144: source inspection/readback — `apps/cambium-mac/docs/research/FOUNDATION.md` contains “639893c397278256f1ae204dd8f837eb82bd6527”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3145: source inspection/readback — `apps/cambium-mac/docs/research/FOUNDATION.md` contains “Swift 6.2”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3146: source inspection/readback — `apps/cambium-mac/docs/research/FOUNDATION.md` contains “Strip accounts”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3147: source inspection/readback — `apps/cambium-mac/docs/research/FOUNDATION.md` contains “Swift 6.4”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3148: source inspection/readback — `apps/cambium-mac/docs/screens/INDEX.md` contains “46 records”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3149: source inspection/readback — `apps/cambium-mac/docs/screens/INDEX.md` contains “16 generated”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3150: source inspection/readback — `apps/cambium-mac/docs/screens/INDEX.md` contains “5 unresolved”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3151: source inspection/readback — `apps/cambium-mac/docs/screens/INDEX.md` contains “N01 → N02”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3152: source inspection/readback — `apps/cambium-mac/docs/screens/INDEX.md` contains “Loading, populated, empty”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3153: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Sole operational writer”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3154: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “read projection”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3155: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Repository Intent Graph”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3156: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Field Theory”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3157: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Field Report”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3158: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Telegram”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3159: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Temperance / Hands”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3160: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Telegram transport”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3161: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “Preserve plane, audience”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3162: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “bounded learning”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3163: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-discovery.md` contains “superseded”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3164: source inspection/readback — `apps/cambium-mac/docs/research/FOUNDATION.md` contains “Architecture options”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3165: source inspection/readback — `.planning/native-mac/2026-11-02-ROADMAP.md` contains “Exit:”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3166: source inspection/readback — `.planning/native-mac/2026-11-02-ROADMAP.md` contains “Open decision register”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3167: source inspection/readback — `.project/HANDOFF.md` contains “Next read-only step:”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3168: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-review.md` contains “no runtime source edit”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3169: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-review.md` contains “No compile or native launch”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3170: source inspection/readback — `.planning/native-mac/2026-11-02-ROADMAP.md` contains “active cloud”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+- ISC-3171: source inspection/readback — `docs/architecture/2026-11-02-native-cambium-review.md` contains “Independent native source review”; bounded review and integrity evidence in `docs/architecture/2026-11-02-native-cambium-review.md`.
+
+32/32 documentation checkpoint probes pass. Seven research documents have 36 resolving local links; 48 repository source hashes and byte counts match; both interview answers are recorded. This does not close Stage A, the broader E5 horizon, existing release/consolidation criteria or native app acceptance. Fixed-model audit and routed phase limitations remain explicit.
 
 Initial evidence: fresh GitHub ruleset requires a squash PR with zero mandatory approving reviews. Current main026ebf6 is the release base. Scoped91-path patch applied cleanly; version metadata is read back before local qualification.
 
@@ -3521,3 +3868,49 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3137 final: Frozen ba23d70 core2452/2453 passes0skips, only knowncanonicalviewport hold. App184/184/build/art/parity pass; PR403 mergedf23b449 has an identical tree. No equality or privacy assertion weakened.
 - ISC-3138: Worker4918ce0e serves100percent with rollbackc373b54a; rawbindingaudit47/47changed[] and before/afterglobalsettings/domain/cron match. No migration/enrollmentchange.
 - ISC-3139: Authenticated live existingreceipt6444a852 canonicalReadbacktrue, historicalrequestedDecision=null; Meso and preservedobjective with no inventedcontext. OnlyDecision/Graph observed.320px containment,45pxcontrols,focus/disclosures/reducedmotion/journal pass. D1remains4approvals/4events; no newdecision or renewal. Runtimeevidence in `docs/evidence/2026-10-25-gate-chamber-live.v1.json`.
+
+### Temperance positioning verification — 2026-11-02
+
+- ISC-3600: Landing source restored on isolated codex/operator-system-preview; original dirty checkout preserved.
+- ISC-3601: Recovery source736fd13 active main.jsx/App.jsx; unused geological TSX excluded.
+- ISC-3602: Authenticated remote IAB h1 matches “Give your AI tools a shared way to work.”
+- ISC-3603: Website docs/positioning.md maps capability claims to pinned42b391b release sources and opt-in dependencies.
+- ISC-3604: Rendered anchor test and actual workflow/get-started IAB navigation pass.
+- ISC-3605: Built tests and remote DOM metadata agree on product-domain canonical, social/schema; robots/sitemap verified.
+- ISC-3606: Vite5.4.21 production build passes.
+- ISC-3607: Website npm test passes7/7 with reduced-motion regression.
+- ISC-3608: Authenticated remote IAB1440×900 rendering inspected; source/metadata match.
+- ISC-3609: Remote375×812 and320×812 have scrollWidth equal clientWidth; no overflowing text blocks.
+- ISC-3610: Remote prefers-reduced-motion pauses video, retains readable poster and omits unavailable playback button.
+- ISC-3611: Fresh authenticated preview tab reports no warn/error logs; earlier Vercel login logs remain separate.
+- ISC-3612: Preview deployment dpl_A57LdT4sTenjcaU2JcavVLhRytMP READY; all49uploaded digests match pinned c930af9 source/build.
+- ISC-3613: Production dpl_And7oPASgXBUTCp4asMvMdqPWc3M retains source5c58383 and existing domain aliases.
+- ISC-3614: Existing Product Hunt listing and editor reload persist approved49-character tagline and303-character description.
+- ISC-3615: Reopened listing banner and editor report draft/not scheduled; existing slug retained and no schedule action.
+- ISC-3616: Application isolated branch starts42b391b; only README staged, expected SHA256 verified and no new app push.
+- ISC-3617: Pack reference and proof packet explicitly supersede old positioning; dated old copy and rejected graph remain.
+- ISC-3618: Helpers17/17, packet tests12/12, GTM/branch9/9pass; seven isolated packet records validate.
+- ISC-3619: LumenBar never opened/changed in this correction; v1.1, auth, long-context, recovery and graph holds preserved.
+
+### Temperance organs/Kosha handoff verification — 2026-11-02
+
+- ISC-3640: Founder answer explicitly selects portable core plus optional personal/company glove.
+- ISC-3641: Handoff pins public42b391b, private5e764db and website7e55a26/c930af9 sources.
+- ISC-3642: Read-only source inventory records private Vestibule/Adytum dirty state and primary checkout preservation.
+- ISC-3643: Handoff maps all5Koshas to7phases and states metadata is not access control.
+- ISC-3644: Independent audit distinguishes6public organ IDs/lifecycle contracts from private concrete scripts.
+- ISC-3645: Handoff inventories router, memory, knowledge storage/tunnels, HermesA2A, Obsidian and Mail modules.
+- ISC-3646: Independent provenance check confirms guard historical source match and later private delta.
+- ISC-3647: Integration sequence reuses public composition and ISA/GSD/provider authority boundaries.
+- ISC-3648: Retired Superset/Constellation explicitly excluded; stale prose is identified as debt.
+- ISC-3649: Bun fixtures report85pass0fail415expect calls across6files from clean application review source.
+- ISC-3650: Authenticated PHeditor focus reports303/500characters without changing content.
+- ISC-3651: Live reviews/editor showNovember6,2026,12:01AMPST; founder explicitly choosespreserve.
+- ISC-3652: Current packet/index/pack reference supersede unscheduled constraints and retain dated creation proof.
+- ISC-3653: Handoff defines15interactive sections, keyboard/reduced-motion/text equivalents and5000-word ceiling.
+- ISC-3654: Isolated README-only staged diff includesapprovedschedule; SHA256c8f928...a2330; uncommitted/unpushed.
+- ISC-3655: Handoff sequencesminimalportablekernel thenreadonlyVestibuleadapter beforeexpandedwebsite/launchclaims.
+- ISC-3656: Dedicated requested integration chatcreated; compactappstatus confirmsactive/inProgress withscopedhandoff.
+- ISC-3657: Thistaskchangedonlyownedhandoff/reference/preparedREADMEsource; no runtime/provider/memory/production/PHcopy action.
+- ISC-3658: Packetvalidator7isolated/8primary, skillvalidatorvalid and33ownedadapterrefreshcheck0drift0conflicts.
+- ISC-3659: Owned discovery files/sections reconciled into canonical workspace; isolatedreviewcommit prepared.

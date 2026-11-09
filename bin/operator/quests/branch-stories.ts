@@ -161,6 +161,8 @@ export interface BranchStoryArc {
   branchKind: BranchKind;
   productId: string;
   canonicalWorkId?: string;
+  /** Untrusted packet classification; the Fabric adapter validates the allowed service kinds. */
+  programKind?: string;
   name: string;
   role: string;
   arcId: string;

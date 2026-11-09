@@ -10,6 +10,32 @@ import struct CambiumCore.EvidenceItem
 import struct CambiumCore.ConnectionObservation
 import enum CambiumCore.DemoData
 import protocol CambiumCore.NativeBrowserPresenting
+import struct CambiumCore.Signal
+import struct CambiumCore.SignalCapture
+import struct CambiumCore.SignalUpdate
+import enum CambiumCore.SignalError
+import enum CambiumCore.CanonicalTimestamp
+
+struct InboxDraft {
+    var selected: Signal?
+    var title = ""
+    var body = ""
+    var projects: Set<String> = []
+    var sourceID = UUID().uuidString
+    var capture: SignalCapture?
+    var update: SignalUpdate?
+    var hasStarted = false
+    var conflict = false
+
+    static func isLocked(capture: SignalCapture?, update: SignalUpdate?) -> Bool {
+        capture != nil || update != nil
+    }
+
+    static func isDefinitiveRejection(_ error: Error) -> Bool {
+        guard let signalError = error as? SignalError else { return false }
+        return signalError == .invalidRequest || signalError == .status(400) || signalError == .status(409)
+    }
+}
 
 /// Application state for the ten screens.
 ///
@@ -77,10 +103,21 @@ final class AppModel {
     private(set) var configurationProblem: String?
 
     var feedback: String?
+    var inboxFilter: String?
+    var inboxVersion: UInt64 = 0
+    var signalScopeVersion: UInt64 = 0
+    var inboxDraft = InboxDraft()
+    var signalService: CambiumOwnerServices? { services as? CambiumOwnerServices }
+    func openInbox(project: String?) {
+        inboxFilter = project
+        inboxVersion &+= 1
+        open(.inbox)
+    }
 
     private var services: (any OwnerServices)?
     private var generation: UInt64 = 0
     private var browser: (any NativeBrowserPresenting)?
+    private var ownerInvalidation: Task<Void, Never>?
 
     static var launchMode: LaunchMode {
         LaunchMode.current == .demo || CommandLine.arguments.contains("--demo") ? .demo : .standard
@@ -91,7 +128,9 @@ final class AppModel {
     /// person chooses Sign in.
     init(mode: LaunchMode = AppModel.launchMode, services: (any OwnerServices)? = nil, browser: (any NativeBrowserPresenting)? = nil) {
         self.mode = mode
-        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: { NSApp.keyWindow }) : nil)
+        self.browser = browser ?? (services == nil ? NativeBrowserSignIn(anchorProvider: {
+            NSApp.keyWindow ?? NSApp.mainWindow ?? NSApp.windows.first(where: { $0.isVisible && $0.canBecomeKey })
+        }) : nil)
         snapshot = Self.emptySnapshot
         restoreVisualPreferences()
         if let services {
@@ -105,6 +144,21 @@ final class AppModel {
     }
 
     var isDemo: Bool { mode == .demo }
+    func hasCurrentSession(at date: Date = Date()) -> Bool {
+        guard let session, let expiry = CanonicalTimestamp.parse(session.expiresAt) else { return false }
+        return expiry > date
+    }
+
+    /// A deliberate entry point from the main app chrome. Applying the
+    /// reviewed profile alone never opens a browser; this action does.
+    func beginSignIn() {
+        open(.connections)
+        guard !isDemo, !loading else { return }
+        if configuration == nil { applyConfiguration() }
+        guard configuration != nil else { return }
+        feedback = "Opening secure browser sign-in."
+        signIn()
+    }
     var supportsReject: Bool { services?.supportsReject ?? false }
     var replayClock: String? { services?.replayClock }
     var julyProposalExampleId: String? { services?.julyProposalExampleId }
@@ -248,8 +302,8 @@ final class AppModel {
 
     // MARK: Mode
 
-    func enterDemo() { load(.demo); feedback = "Opened the demo. It replays source fixtures through the real coordinators." }
-    func leaveDemo() { load(.standard); feedback = "Left the demo. Standard mode stays unconfigured until an owner is supplied." }
+    func enterDemo() { load(.demo); feedback = "Demo opened. Using sample data." }
+    func leaveDemo() { load(.standard); feedback = "Demo closed." }
 
     func applyConfiguration() {
         switch OwnerConfiguration.validate(ownerURL: ownerURLDraft, tenant: tenantDraft, clientId: clientIDDraft, redirect: redirectDraft) {
@@ -257,7 +311,7 @@ final class AppModel {
             configuration = value
             configurationProblem = nil
             load(.standard)
-            feedback = "Owner configuration applied for this session. Sign in when you are ready. Nothing was contacted."
+            feedback = "Connection settings saved."
         case .failure(let problem):
             configuration = nil
             configurationProblem = problem.rawValue
@@ -273,6 +327,10 @@ final class AppModel {
 
     private func load(_ mode: LaunchMode) {
         generation &+= 1
+        signalScopeVersion &+= 1
+        inboxDraft = InboxDraft()
+        inboxFilter = nil
+        inboxVersion &+= 1
         let previous = services
         self.mode = mode
         review = nil
@@ -308,7 +366,11 @@ final class AppModel {
             services = CambiumOwnerServices.standard(configuration: configuration, browser: browser)
         }
         adopt(services)
-        Task { await previous?.invalidate() }
+        let earlierInvalidation = ownerInvalidation
+        ownerInvalidation = Task {
+            await earlierInvalidation?.value
+            await previous?.invalidate()
+        }
         let token = generation
         Task { await refresh(token) }
     }
@@ -322,6 +384,11 @@ final class AppModel {
         }
     }
 
+    func retryOwnerRead() {
+        guard !loading else { return }
+        run("Owner read") { _, token in await self.refresh(token) }
+    }
+
     private func refresh(_ token: UInt64) async {
         guard let services, token == generation else { return }
         session = await services.session()
@@ -331,6 +398,7 @@ final class AppModel {
         }
         switch await services.readFabric() {
         case .success(let display) where token == generation:
+            issue = nil
             fabric = display
             snapshot = display.snapshot
             unattachedEvidence = display.unattachedEvidence
@@ -415,12 +483,16 @@ final class AppModel {
 
     func signIn() {
         run("Sign-in") { services, token in
+            // Old and new owners share one browser adapter. Finish the old
+            // owner's cancellation before starting this presentation.
+            await self.ownerInvalidation?.value
+            guard token == self.generation else { return }
             let result = await services.signIn()
             guard token == self.generation else { return }
             switch result {
             case .success(let signed):
                 self.session = signed
-                self.feedback = "Signed in as \(signed.founderId) for \(signed.tenantId)."
+                self.feedback = "Signed in."
                 await self.refresh(self.generation)
             case .failure(let failure):
                 self.issue = failure
@@ -432,6 +504,10 @@ final class AppModel {
     func signOut() {
         let token = generation
         generation &+= 1
+        signalScopeVersion &+= 1
+        inboxDraft = InboxDraft()
+        inboxFilter = nil
+        inboxVersion &+= 1
         session = nil
         review = nil
         proposalBinding = nil
@@ -448,7 +524,7 @@ final class AppModel {
         pendingLaunch = []
         loading = false
         snapshot = isDemo ? DemoData.snapshot : Self.emptySnapshot
-        feedback = "Signed out. Pending results from the previous session will not be shown."
+        feedback = "Signed out."
         _ = token
         Task { await services?.signOut() }
     }

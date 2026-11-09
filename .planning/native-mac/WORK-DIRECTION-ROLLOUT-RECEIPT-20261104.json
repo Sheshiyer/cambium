@@ -1,0 +1,31 @@
+{
+  "schema": "cambium.work-direction-rollout-receipt.v1",
+  "recorded_at": "2026-11-03T20:34:53.466486+00:00",
+  "source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
+  "owner_rollout_approved": true,
+  "migration": {
+    "path": "workers/quests/migrations/0103_shared_directions.sql",
+    "sha256": "sha256:c8e19507f579d1fc7ba44d3d6cb1188f9976e76107daab89e7a5fb442772bed4",
+    "applied": true,
+    "schema_objects_verified": 4
+  },
+  "active_worker_version": "5f2c5dc7-e57a-47a8-89f3-0f64f6c29841",
+  "traffic_percent": 100,
+  "rollback_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+  "preservation": {
+    "binding_count": 52,
+    "all_binding_identities_and_values_equal": true,
+    "runtime_settings_equal": true
+  },
+  "work_proposal": {
+    "path": ".planning/native-mac/CAMBIUM-WORK-INTENT-20261104.json",
+    "submitted": false,
+    "approved": false
+  },
+  "native_work_join_verified": false,
+  "native_direction_save_verified": false,
+  "hermes_rollout": false,
+  "hermes_execution": false,
+  "full_operational_loop_accepted": false,
+  "remaining": "Use Zen Thoughtseed Labs profile as explicitly requested. Authentication and direct founder envelope read work, but page ledger fetch has been canceled/offline; current retry in progress. Do not switch browsers or weaken browser security. Work intent is not yet submitted."
+}

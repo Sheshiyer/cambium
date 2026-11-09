@@ -1,7 +1,7 @@
 {
   // CF-4 Labs production cutover — curious.thoughtseed.space on Labs
   "name": "cambium-quests",
-  "main": "src/index.ts",
+  "main": "src/cortex-services.ts",
   "compatibility_date": "2026-05-01",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,

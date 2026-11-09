@@ -4,6 +4,7 @@ product_id: snow-gloves-os
 canonical_work_id: program:snow-gloves-os
 identity_scope: canonical-work-object
 branch_kind: internal-service
+program_kind: capability
 name: Snow Gloves OS
 role: Will-organ service
 promotion_state: organ-service
@@ -59,6 +60,8 @@ Owning repository task: [`Sheshiyer/snow-gloves-os#8`](https://github.com/Sheshi
 | `section_plan` | Service flow, event routing, Hermes task creation | verified from inspected docs |
 | `interaction_plan` | Approval gates, event routing, queue fallback, redacted audit logs | pending live approval proof |
 | `acceptance_checks` | `make doctor`, `make smoke`, `make test`, CI smoke/test references | pending clean checkout run |
+
+Program kind is `capability`, matching the canonical portfolio classification. Tenant Mapping below describes isolation and routing; it is not a program-kind declaration. This mapping grants no task, execution or promotion authority.
 
 ## Adapter / Service Map
 

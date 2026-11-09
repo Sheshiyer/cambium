@@ -1,0 +1,228 @@
+{
+  "schema": "cambium.shared-signals-build.v1",
+  "recordedOn": "2026-11-03",
+  "status": "source-and-local-native-verified; live-integration-held",
+  "sourceRevision": "c43057f8684ca192d0fdee36630852deb0c85ce2",
+  "workingChanges": true,
+  "acceptance": "ISA.md ISC-3660..3672",
+  "hostedFleet": {
+    "origin": "https://omniroute.thoughtseed.space",
+    "catalogStatus": 200,
+    "requestedPool": "noesis-a",
+    "batchStatus": "unavailable",
+    "directWorkerExitCodes": [
+      125,
+      125
+    ],
+    "directWorkerReason": "credit-owner-qualification-held",
+    "inferenceStarted": false,
+    "providerAttribution": null,
+    "fallback": "two-isolated-non-Sol-workers-and-independent-review",
+    "routingWrites": 0
+  },
+  "verification": {
+    "workerTests": {
+      "passed": 105,
+      "failed": 0
+    },
+    "swiftCore": {
+      "executed": 259,
+      "skipped": 1,
+      "failed": 0
+    },
+    "swiftNative": {
+      "executed": 37,
+      "failed": 0
+    },
+    "currentSignalWire": {
+      "localSQLite": true,
+      "currentActionCatalog": 74,
+      "project": "sapling:cambium",
+      "capture": 201,
+      "replay": 200,
+      "update": 200,
+      "list": 200,
+      "detail": 200,
+      "foreignTenant": 403,
+      "swiftDecode": "passed"
+    },
+    "currentPortfolio": {
+      "current": 77,
+      "historical": 20,
+      "classificationReview": 0,
+      "operationalGaps": 50,
+      "explicitRuntimeJoins": 1,
+      "catalogDigest": "sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94"
+    },
+    "nativeUI": {
+      "mode": "synthetic-demo",
+      "capture": "saved",
+      "associatedProject": "sapling:cambium",
+      "updateRevision": 2,
+      "dossierToFilteredInbox": "passed",
+      "newDraftPreselectsProject": "passed",
+      "returnedTo": "standard-unconfigured"
+    },
+    "bundle": "ad-hoc-signature-and-structure-verified"
+  },
+  "sourceFiles": [
+    {
+      "path": "workers/quests/src/shared-signals.ts",
+      "sha256": "03fda811c6a83f32fa8d9c3d8848e93b22c4bfd5f2324c86d944fe09110ee4fe"
+    },
+    {
+      "path": "workers/quests/src/shared-signals-d1.ts",
+      "sha256": "44b234168891be1d0b595df8c1c9d58a59747a4f918f2695788f50c5483e80d9"
+    },
+    {
+      "path": "workers/quests/src/shared-signals.test.ts",
+      "sha256": "c4d2e9e902e805613efca11023b70b952ecd7959ba8824c3aeb93f6b4bb05256"
+    },
+    {
+      "path": "workers/quests/src/handler.ts",
+      "sha256": "43c8230048e53142f1680f46df01b195d9d675d41fb030976bc2a21080ca4895"
+    },
+    {
+      "path": "workers/quests/src/index.ts",
+      "sha256": "3d46419a9b4b5f9cba95aa2eb54fca652d7f0139030b872a470c6f7e8c9602e3"
+    },
+    {
+      "path": "workers/quests/migrations/0102_shared_signals.sql",
+      "sha256": "7445084e9d2c31c71ce649b41f8f81099e249229f16d890b26975b0e6d931705"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumCore/Signals.swift",
+      "sha256": "5b8a491fcb7db4f43b262770cc3babc1c4ccccc50b484f210ff7ee0630c5a240"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumCore/URLSessionTransport.swift",
+      "sha256": "89a95cfdfa24427d59ddb6d209abc03d1b08c23c70834289ce5b641aea53c9a4"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/State/AppModel.swift",
+      "sha256": "d05d3baf376312817a41d911eef4543ef39ad225486822be2e961fa6a9b8b377"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/State/AppTypes.swift",
+      "sha256": "5f9fc94f4484863d8351c186d0378171df641be0a41b255bc92f9f14cd40813f"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/State/DemoOwner.swift",
+      "sha256": "cb52ee6006a4759260dbcee025e0cdcfc361a0c9d7b95ca1a4f1e485d869c379"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/State/OwnerServices.swift",
+      "sha256": "d2661474530b8be0735e096f2e4fcc66828d1bcfd30609515ed8ae488021de68"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/Views/InboxView.swift",
+      "sha256": "1b4f67b9c6dd24f85a508c93a48030e6c9da995677cdd4dcb24480fefeb205fd"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/Views/ProjectsView.swift",
+      "sha256": "6cf3d633df284b1ef7c2ca8471ad2abb804cd8dd52d156fd9ba285fb0cbde15b"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/Views/CambiumNavigationCommands.swift",
+      "sha256": "caf01d8aa94892ef63fd5f17b6d45b5707275e7f07966f225f21bfe6939e1f48"
+    },
+    {
+      "path": "apps/cambium-mac/Sources/CambiumNative/Views/CambiumRootView.swift",
+      "sha256": "1ba2e520c99586cb5a3e5bff67923ff01fa47be480031674b04daeebe357ef1f"
+    },
+    {
+      "path": "apps/cambium-mac/Tests/CambiumCoreTests/SignalsTests.swift",
+      "sha256": "07b36b4a1153eb9a2f98f3231255771482df3cb93eac53605e2a409282b8e0dd"
+    },
+    {
+      "path": "apps/cambium-mac/Tests/CambiumCoreTests/SignalsWireIntegrationTests.swift",
+      "sha256": "15e64e21b3c2ef46e5a90aa3ee894dba54d4e6af3d98dc6f3d2d223e31bd0331"
+    },
+    {
+      "path": "apps/cambium-mac/Tests/CambiumCoreTests/Fixtures/signals-generate.mts",
+      "sha256": "3bb38e16bc6cefb74444fedc7b9a0dd16af201665ec32b4455fd0f9742c7955d"
+    },
+    {
+      "path": "apps/cambium-mac/Tests/CambiumNativeTests/SignalIntegrationTests.swift",
+      "sha256": "0951d0b39ab73d90684ef31f7318e73d89eae912512b9d54a038ca293757fb02"
+    },
+    {
+      "path": "apps/cambium-mac/tools/probe-current-signals.sh",
+      "sha256": "10cae628296642bec7f49b5b4fcca64c285e8ee751b0663530c55a559aa499ba"
+    },
+    {
+      "path": "apps/cambium-mac/tools/snap.sh",
+      "sha256": "43732747be81ff6151b47dc1dca2d6aaa1a03cd3902f7b70e2c1e37191ef73df"
+    }
+  ],
+  "snapshot": {
+    "schema": "cambium.native.snapshot.v2",
+    "capturedAt": "2026-11-03T09:45:33Z",
+    "manifestSha256": "93456ea04c73bf21d081584091f80c73d3e5a009d9bc81e21eed55ec60d3bf8b",
+    "executableSha256": "813060440b29c104b7d92181f8474b82915b2a8705b8e7d57770537f200dad30",
+    "buildInputsAggregateSha256": "e14c1e65601f90f23d32267ca991e1a21b2c91d4e6a146dd097705f4e96c0ee0",
+    "inputsDirty": true,
+    "failures": [],
+    "shots": [
+      {
+        "appearance": "light",
+        "file": "main-inbox-default-light.png",
+        "height": 820,
+        "method": "screencapture",
+        "page": "inbox",
+        "size": "default",
+        "width": 1280,
+        "sha256": "d99ee169aa341b9a6ff15ce93682a8212296a4fac191dd7f2cf62f8c14b14485"
+      },
+      {
+        "appearance": "light",
+        "file": "main-inbox-minimum-light.png",
+        "height": 612,
+        "method": "screencapture",
+        "page": "inbox",
+        "size": "minimum",
+        "width": 880,
+        "sha256": "d17d473bed1da5fd1a24990b4ca329801a547da29bc34c03e569b24cff5788e7"
+      },
+      {
+        "appearance": "dark",
+        "file": "main-inbox-default-dark.png",
+        "height": 820,
+        "method": "screencapture",
+        "page": "inbox",
+        "size": "default",
+        "width": 1280,
+        "sha256": "c54c471fd2eadc97da0a9a2f63d51536725359e8f457d1be758c1e04de037cf7"
+      },
+      {
+        "appearance": "dark",
+        "file": "main-inbox-minimum-dark.png",
+        "height": 612,
+        "method": "screencapture",
+        "page": "inbox",
+        "size": "minimum",
+        "width": 880,
+        "sha256": "a8354cdadd8dbd496609fcda831f86290df7812e3ae470fa549ed1281c4e508e"
+      }
+    ]
+  },
+  "liveReadback": {
+    "health": 200,
+    "nativeSession": 404,
+    "missionFabric": 401,
+    "teamforgeNativeIdentity": 501,
+    "routeSurfaceReady": false
+  },
+  "effects": {
+    "productionDeployments": 0,
+    "productionMigrations": 0,
+    "externalFieldReportSourceWrites": 0
+  },
+  "remaining": [
+    "verified-hosted-execution",
+    "native-identity-activation-and-owner-served-signals",
+    "real-Field-Report-peer-authentication-and-editor",
+    "durable-offline-outbox-and-full-conflict-review",
+    "directions-and-policy-acceptance-tranches"
+  ]
+}

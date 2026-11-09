@@ -46,16 +46,25 @@ fi
 
 binding_status=not_run
 deployment_json='{}'
-remote_migration_names='[]'
-remote_secret_count=0
-native_identity_secret_present=false
-native_d1_tables='[]'
+remote_migration_names=null
+remote_secret_count=null
+native_identity_secret_present=null
+native_d1_tables=null
+deployment_status=not_run
+migrations_status=not_run
+secrets_status=not_run
+schema_status=not_run
 if [ "${CAMBIUM_RUN_LIVE_BINDING_READBACK:-0}" = "1" ]; then
+  deployment_status=unavailable
+  migrations_status=unavailable
+  secrets_status=unavailable
+  schema_status=unavailable
   if npx --no-install wrangler deployments status --name cambium-quests --json \
       --profile thoughtseed-labs --config workers/quests/wrangler.labs.jsonc \
       > "$tmp_dir/deployment.json" 2>/dev/null \
       && jq -e 'type == "object" and (.versions|type == "array")' "$tmp_dir/deployment.json" >/dev/null; then
     deployment_json=$(cat "$tmp_dir/deployment.json")
+    deployment_status=read
   fi
 
   if npx --no-install wrangler d1 migrations list cambium-bridge --remote \
@@ -63,6 +72,7 @@ if [ "${CAMBIUM_RUN_LIVE_BINDING_READBACK:-0}" = "1" ]; then
       > "$tmp_dir/migrations.log" 2>/dev/null; then
     remote_migration_names=$(grep -Eo '[0-9]{4}_[a-z0-9_]+\.sql' "$tmp_dir/migrations.log" \
       | sort -u | jq -Rsc 'split("\n") | map(select(length > 0))')
+    migrations_status=read
   fi
 
   if npx --no-install wrangler secret list --name cambium-quests --format json \
@@ -71,15 +81,20 @@ if [ "${CAMBIUM_RUN_LIVE_BINDING_READBACK:-0}" = "1" ]; then
       && jq -e 'type == "array"' "$tmp_dir/secrets.json" >/dev/null; then
     remote_secret_count=$(jq 'length' "$tmp_dir/secrets.json")
     native_identity_secret_present=$(jq 'any(.[]; .name == "PLEXUS_NATIVE_IDENTITY_TOKEN")' "$tmp_dir/secrets.json")
+    secrets_status=read
   fi
   if npx --no-install wrangler d1 execute cambium-bridge --remote \
       --profile thoughtseed-labs --config workers/quests/wrangler.labs.jsonc \
-      --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('native_sessions','native_consent_intents','native_consent');" \
+      --command "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('native_authorization_codes','native_sessions','native_consent_intents');" \
       --json > "$tmp_dir/schema.json" 2>/dev/null \
-      && jq -e 'type == "array" and (.[0].results|type == "array")' "$tmp_dir/schema.json" >/dev/null; then
+      && jq -e 'type == "array" and (.[0].success == true) and (.[0].results|type == "array")' "$tmp_dir/schema.json" >/dev/null; then
     native_d1_tables=$(jq -c '.[0].results | map(.name) | sort' "$tmp_dir/schema.json")
+    schema_status=read
   fi
-  binding_status=read
+  binding_status=partial
+  if [ "$deployment_status/$migrations_status/$secrets_status/$schema_status" = "read/read/read/read" ]; then
+    binding_status=read
+  fi
 fi
 
 if command -v gh >/dev/null 2>&1 && gh pr view 105 --repo Sheshiyer/team-forge-ts \
@@ -100,7 +115,11 @@ jq -n \
   --arg wranglerStatus "$wrangler_status" \
   --arg wranglerTail "$wrangler_tail" \
   --arg bindingStatus "$binding_status" \
-  --arg remoteSecretCount "$remote_secret_count" \
+  --arg deploymentStatus "$deployment_status" \
+  --arg migrationsStatus "$migrations_status" \
+  --arg secretsStatus "$secrets_status" \
+  --arg schemaStatus "$schema_status" \
+  --argjson remoteSecretCount "$remote_secret_count" \
   --argjson nativeIdentitySecretPresent "$native_identity_secret_present" \
   --argjson nativeD1Tables "$native_d1_tables" \
   --argjson remoteMigrationNames "$remote_migration_names" \
@@ -130,9 +149,10 @@ jq -n \
     },
     runtimeReadback: {
       status: $bindingStatus,
+      reads: {deployment: $deploymentStatus, migrations: $migrationsStatus, secrets: $secretsStatus, schema: $schemaStatus},
       deployment: $deployment,
       unappliedMigrations: $remoteMigrationNames,
-      remoteSecretCount: ($remoteSecretCount|tonumber),
+      remoteSecretCount: $remoteSecretCount,
       dedicatedNativeIdentitySecretPresent: $nativeIdentitySecretPresent,
       nativeD1Tables: $nativeD1Tables
     },

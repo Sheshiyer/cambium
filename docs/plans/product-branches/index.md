@@ -9,6 +9,8 @@ This index lists Cambium branch packets that can enter the branch loop. A branch
 | snow-gloves-os | program:snow-gloves-os | canonical-work-object | internal-service | Snow Gloves OS | Will-organ service | organ-service | Service contract and GTM approval gate | snow-gloves-os.md |
 | iverif | sapling:iverif | canonical-work-object | product | IVerif | Compliance and proof product candidate | proof-only | Draft-only FR GTM composition may plan; D1 CAS and Mini App Gate still block execution admission | iverif.md |
 | dlock | sapling:dlock | canonical-work-object | product | DLOCK | Smart lock and self-storage software product candidate | proof-only | Map live landing, repository, hardware assets, and TUYA integration evidence before supervised launch work | dlock.md |
+| lumen-bar | sapling:lumen-bar | canonical-work-object | product | LumenBar | Shipped Mac menu-bar product, proof-only inside Cambium | proof-only | Product Hunt is scheduled for November 3, 2026 at 12:01 AM PST. Next loop is Temperance. | lumen-bar.md |
+| temperance | sapling:temperance | canonical-work-object | product | Temperance Engine | Client- and flow-agnostic AI operator system, proof-only inside Cambium | proof-only | Public-engine acceptance before launch; return existing Product Hunt launch to draft (UI blocker); personal Noesis acceptance is independent | temperance.md |
 | client-delivery | none | template | client | Client Delivery | Client delivery branch template | supervised-branch | Client scope acceptance and handoff proof | client-delivery.md |
 
 ## Branch Kinds

@@ -2,10 +2,14 @@
   "name": "cortex-mcp",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "account_id": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
-  "observability": { "enabled": true },
+  "observability": {
+    "enabled": true
+  },
   "routes": [
     {
       "pattern": "cortex.thoughtseed.space",
@@ -38,6 +42,25 @@
     {
       "binding": "TASTE_BLOBS",
       "bucket_name": "thoughtseed-context-projections"
+    }
+  ],
+  "services": [
+    {
+      "binding": "MCP_GATE_ADAPTER",
+      "service": "cambium-quests",
+      "environment": "production"
+    },
+    {
+      "binding": "MCP_PROVENANCE_READER",
+      "service": "cambium-quests",
+      "environment": "production",
+      "entrypoint": "CortexProvenanceReader"
+    },
+    {
+      "binding": "MCP_TOKEN_VERIFIER",
+      "service": "teamforge-api",
+      "environment": "production",
+      "entrypoint": "CortexTokenVerifier"
     }
   ]
 }

@@ -37,6 +37,7 @@ export function createFounderAccessHost(deps: {
   channel?: 'curious' | 'native';
   readTask(tenantId: string, digest: string): Promise<Record<string, unknown> | null>;
   reviewTask(task: Record<string, unknown>): Record<string, unknown> | null;
+  validateTaskSources?(task: Record<string, unknown>, context: FounderContext): Promise<boolean>;
   now(): string;
   loadoutAuthority?: GoalGraphLoadoutAuthority;
   persistRenewal?: Parameters<typeof renewFounderProposal>[0]['persist'];
@@ -160,6 +161,15 @@ export function createFounderAccessHost(deps: {
           return writeAt;
         };
         beforeWrite = check;
+      }
+      if (deps.validateTaskSources && !await store.readDecisionReceipt(key.tenantId,key.changeDigest,review.approvalNonce as string)) {
+        const boundContext=context, check=deps.validateTaskSources, prior=beforeWrite;
+        if (!await check(task,boundContext)) return null;
+        beforeWrite=async()=>{
+          if(prior)await prior();
+          if(!await check(task,boundContext))throw new Error('proposal_sources_changed');
+          return deps.now();
+        };
       }
       return {
         id, tenantId: key.tenantId, founderId: context.founderId, version: Number(task.intentVersion),

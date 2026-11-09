@@ -143,7 +143,7 @@ The compiler must not rename those fields or invent peer root types.
 | --- | --- |
 | nodes | 512 |
 | edges | 1,024 |
-| gaps | 128 |
+| gaps | 256 |
 | evidence references per node | 32 |
 | display string length | 512 characters |
 

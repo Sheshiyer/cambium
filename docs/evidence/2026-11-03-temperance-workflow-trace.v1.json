@@ -1,0 +1,107 @@
+{
+  "schema": "cambium.temperance_workflow_trace.v1",
+  "observed_at": "2026-11-03T14:56:40.149153+00:00",
+  "status": "completed-local-review-and-native-pickup",
+  "authority": "selected local review; no operational admission",
+  "task": {
+    "command": "/sapling-review temperance",
+    "product": "temperance",
+    "authorization": [
+      "Founder selected one already-approved task trace",
+      "Existing planning handoff next_command",
+      "ISA.md ISC-3200..3219"
+    ],
+    "execution": "Existing sapling review CLI with owner source roots supplied; semantic findings reviewed by the calling agent",
+    "external_action_performed": false
+  },
+  "artifacts": {
+    "report": ".local/sapling-lifecycle/2026-11-03-session-trace/review.json",
+    "report_sha256": "53a184397a82493d9ec3f8eec7ce7ad6c67e46237de83a70f1ba8a2251f1f5cc",
+    "findings": ".local/sapling-lifecycle/2026-11-03-session-trace/review.md",
+    "progress": ".local/sapling-lifecycle/2026-11-03-session-trace/progress.json"
+  },
+  "source_review": {
+    "components": 21,
+    "verification": {
+      "file-observed": 20,
+      "source-drift": 1
+    },
+    "drift": [
+      {
+        "id": "branch-loop-library",
+        "source": {
+          "root": "cambium",
+          "path": "docs/plans/product-branches/loop-library.md"
+        },
+        "expected_digest": "sha256:3fae87b0715593ed751193a6c439d234d98234543095475e8581dbf7dd7859ba",
+        "observed_digest": "0188eaff5a098374ae28926c499a7a44bf53c8d693945acaf0ef9e193aa663d2"
+      }
+    ],
+    "packet": "docs/plans/product-branches/temperance.md",
+    "packet_sha256": "a528b2ef74cb159804d9cff18c05ecf3b1fc47edb02fca47cdb296d494de9e42",
+    "promotion": "proof-only",
+    "schedule_policy": "Preserve November 6, 2026, 12:01 AM PST; no live external read or schedule action in this task",
+    "superseding_source": "docs/plans/2026-11-02-temperance-hand-in-glove-handoff.md"
+  },
+  "verification": {
+    "lifecycle_tests": {
+      "passed": 17,
+      "failed": 0
+    },
+    "valid_branch_packets": 8,
+    "new_tests": 0,
+    "full_suite_run": false,
+    "digest_binding": "review report, completed state, status reader and packet SHA-256 agree"
+  },
+  "handoff": {
+    "human": ".project/HANDOFF.md",
+    "structured": ".planning/HANDOFF.json",
+    "continuation": "temperance_workflow_trace",
+    "next_command": "npm run sapling -- status temperance --state .local/sapling-lifecycle/2026-11-03-session-trace/progress.json",
+    "resume_rule": "Read completed proof; do not replay or automatically dispatch another task",
+    "pickup_read_hint": "Read PROJECT.md and the relevant structured continuation first; read only the matching recent human handoff section, expanding historical evidence on demand."
+  },
+  "pickup": {
+    "status": "verified",
+    "observed_at": "2026-11-03T15:00:09.345527+00:00",
+    "surface": "Fresh ephemeral native Codex CLI; read-only sandbox; no resume",
+    "process_exit_code": 0,
+    "elapsed_seconds": 55.09,
+    "observed": [
+      "Read normal PROJECT.md and both handoffs",
+      "Read bounded trace proof, findings and local state",
+      "Recomputed review report SHA-256; matched proof reference",
+      "Ran existing status reader; completed marker returned",
+      "Correctly retained holds and refused implicit replay or dispatch"
+    ],
+    "review_report_sha256": "53a184397a82493d9ec3f8eec7ce7ad6c67e46237de83a70f1ba8a2251f1f5cc",
+    "private_event_capture_sha256": "c417fb6a353770aeba4152ab25ae51d32c11d4c7860f2f4303053c924854ffad",
+    "raw_capture_tracked": false,
+    "efficiency": {
+      "historical_handoff_read_output_bytes": 304610,
+      "aggregate_usage_over_entire_pickup_turn": {
+        "input_tokens": 305896,
+        "cached_input_tokens": 240768,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1433,
+        "reasoning_output_tokens": 143
+      },
+      "qualification": "Aggregate token usage across model calls, including cached input; not unique context, startup cost or savings.",
+      "remaining_gap": "Cold pickup read the full historical handoff. Prefer the structured continuation and bounded history slices; no hook changes in this task."
+    },
+    "known_warning": "Existing repo-local cambium skill lacks YAML frontmatter; not repaired by this trace."
+  },
+  "holds": [
+    "Rejected product graph remains rejected; no new accepted receipt",
+    "v1.1 clean-host and hosted-router product qualification",
+    "Qualified long-context and durable recovery",
+    "Tenant admission and operational dispatch",
+    "Schedule changes, publication, deployment and provider changes"
+  ],
+  "limits": [
+    "Local review execution is not Hermes/D1 dispatch acceptance",
+    "Historical external evidence was not refreshed",
+    "No hook or client configuration changes",
+    "No running session restarted, resumed or stopped"
+  ]
+}

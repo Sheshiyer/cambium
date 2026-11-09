@@ -397,6 +397,15 @@ test('adaptBranchStories maps internal-service only through an explicit capabili
   assert.equal(mappedWork.length, 1);
   assert.equal(mappedWork[0].kind, 'program');
   assert.equal(mappedWork[0].programKind, 'operations');
+  const explicit = branchStoryArc({ branchKind: 'internal-service', branchId: 'snow-gloves-os', canonicalWorkId: 'program:snow-gloves-os', programKind: 'capability' });
+  const declared = workNodes(adaptBranchStories([explicit]) as readonly { kind: string; value: unknown }[]);
+  assert.equal(declared.length, 1);
+  assert.equal(declared[0].programKind, 'capability');
+  for (const programKind of ['company', '', null]) {
+    const invalid = { ...explicit, programKind, controls: { ...explicit.controls, adapterServiceMap: [{ tenantMapping: 'operations' }] } };
+    assert.equal(workNodes(adaptBranchStories([invalid]) as readonly { kind: string; value: unknown }[]).length, 0, 'invalid explicit kind cannot fall back to tenant prose');
+  }
+
 
   const unmapped = adaptBranchStories([branchStoryArc({ branchKind: 'internal-service', branchId: 'branch-mystery', canonicalWorkId: 'program:mystery' })]);
   const unmappedWork = workNodes(unmapped as readonly { kind: string; value: unknown }[]);
@@ -890,7 +899,7 @@ test('adaptQuestExecutionFacts bounds nodes, edges, and gaps with visible projec
 
 test('adaptQuestExecutionFacts fails closed when the truncation gap record itself cannot fit', () => {
   const gapsInput = [];
-  for (let index = 0; index < 200; index += 1) {
+  for (let index = 0; index <= MISSION_FABRIC_CAPS.MAX_GAPS; index += 1) {
     gapsInput.push({ gapId: `gap-flood-${String(index).padStart(4, '0')}`, kind: 'capability-gap', subjectId: 'task-alpha', detail: 'flood', evidenceRef: null });
   }
   const facts = questFacts({ gaps: gapsInput });

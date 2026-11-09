@@ -290,9 +290,12 @@ test('route resolves governed operational anchors into loadout and cluster edges
   })];
   const facts = {
     ...questFacts(), tasks: [], fences: [], runs: [], receipts: [], agents: [],
-    skillClusters: [], taskClusterAssignments: [], gaps: [],
+    skillClusters: [{ clusterId: 'cluster:fitcheck-no-spend', state: 'active', capabilities: [], eligibleAgentIds: [], sourceRef: 'quest:fitcheck-cluster' }],
+    taskClusterAssignments: [], gaps: [],
   };
-  const result = await requestFabric({ nodes, facts, receipts: [] });
+  const result = await requestFabric({ nodes, facts, receipts: [], branchStories: [
+    { branchId: 'fitcheck', branchKind: 'product', canonicalWorkId: 'sapling:fitcheck', name: 'Fitcheck', source: { tenant: TENANT } },
+  ] });
   assert.equal(result.status, 200);
   assert.ok(result.json.projection.edges.some((edge: { kind: string; fromId: string; toId: string }) => (
     edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck' && edge.toId === 'task-fitcheck-launch'
@@ -521,6 +524,46 @@ function assertAuthorityReason(result: { status: number; json: any; raw: string 
   assert.equal(result.raw.includes(leaked), false);
 }
 
+test('a catalog anchor cannot fabricate a missing operational work endpoint', async () => {
+  const result = await authorityFailure((deps) => {
+    deps.goalGraphStore!.readNodes = async () => [goalNode('gg-fitcheck', 'task-fitcheck', null,
+      { workObjectId: 'sapling:fitcheck', workObjectKind: 'sapling' })];
+  });
+  assert.equal(result.status, 200);
+  assert.equal(result.json.projection.nodes.some((node: any) => node.kind === 'work' && node.value.workId === 'sapling:fitcheck'), false);
+  assert.equal(result.json.projection.edges.some((edge: any) => edge.kind === 'contains' && edge.fromId === 'sapling:fitcheck'), false);
+  assert.ok(result.json.projection.gaps.some((gap: any) => gap.kind === 'missing-join' && gap.subjectId === 'sapling:fitcheck'));
+});
+
+test('the read preserves more than 128 source gaps and refuses overflow at the shared bound', async () => {
+  for (const [count, expected] of [[132, 200], [257, 503]]) {
+    const result = await authorityFailure((deps) => {
+      deps.goalGraphStore!.readNodes = async () => Array.from({ length: count }, (_, i) => goalNode(`gg-cap-${i}`, `task-cap-${i}`, null));
+    });
+    assert.equal(result.status, expected);
+    if (expected === 200) assert.ok(result.json.projection.gaps.length > 128);
+    else assert.equal(result.json.error, 'mission_fabric_gap_overflow');
+  }
+});
+
+test('a ledger without execution facts still serves its graph with an explicit source gap', async () => {
+  const result = await authorityFailure((deps) => {
+    const read = deps.kv.get.bind(deps.kv);
+    deps.kv.get = async (key) => {
+      const raw = await read(key);
+      if (typeof raw !== 'string') return raw;
+      const ledger = JSON.parse(raw);
+      delete ledger.fabricFacts;
+      return JSON.stringify(ledger);
+    };
+  });
+  assert.equal(result.status, 200);
+  assert.ok(result.json.projection.nodes.length > 0);
+  assert.ok(result.json.projection.gaps.some((gap: any) => gap.gapId === 'gap-execution-facts-source-missing' && gap.kind === 'missing-source'));
+  assert.equal(result.json.projection.nodes.some((node: any) => node.kind === 'run' || node.kind === 'receipt'), false);
+  assert.equal(result.json.projection.readOnly, true);
+});
+
 test('mission fabric authority failures name the stage and omit the exception', async () => {
   const head = await authorityFailure((deps) => {
     deps.goalGraphStore!.readHead = async () => { throw new Error('head-read-secret'); };
@@ -583,4 +626,30 @@ test('mission fabric authority failures name the stage and omit the exception', 
   assert.equal(discovered.raw.includes('discover-secret'), false);
   const gapKinds = discovered.json.projection.gaps.map((gap: { kind: string }) => gap.kind);
   assert.ok(gapKinds.includes('foldback-discovery-held'));
+});
+
+
+test('legacy Snow Gloves ledger pushes normalize classification without changing tenant isolation or Work state', async () => {
+  let stored: string | null = null;
+  const kv = { async get() { return stored; }, async put(_key: string, value: string) { stored = value; } };
+  const packet = { branchId: 'snow-gloves-os', productId: 'snow-gloves-os', canonicalWorkId: 'program:snow-gloves-os', branchKind: 'internal-service', source: { tenant: 'cambium', schema: 'cambium.product_branch_packet.v1', indexFile: 'docs/plans/product-branches/index.md', packetFile: 'docs/plans/product-branches/snow-gloves-os.md' }, controls: { adapterServiceMap: [{ tenantMapping: 'tenant manifest and capability scope' }] } };
+  const push = (row: unknown, token = 'push-fixture') => handle({ method: 'POST', path: '/internal/ledger/cambium', headers: { authorization: `Bearer ${token}` }, body: JSON.stringify({ schema: 1, tenant: 'cambium', derivedAt: NOW_ISO, source: 'legacy-producer', ledger: { rows: [] }, untouched: { receipt: 'retain' }, branchStories: { source: 'product-branch-packets@v1', rows: [row] } }) }, { kv, pushToken: 'push-fixture' });
+  assert.equal((await push(packet, 'wrong')).status, 401);
+  assert.equal(stored, null);
+  for (let n = 0; n < 2; n++) {
+    assert.equal((await push(packet)).status, 200);
+    const envelope = JSON.parse(stored!);
+    const row = envelope.branchStories.rows[0];
+    assert.equal(row.programKind, 'capability');
+    assert.equal(row.controls.adapterServiceMap[0].tenantMapping, packet.controls.adapterServiceMap[0].tenantMapping);
+    assert.deepEqual(envelope.untouched, { receipt: 'retain' });
+    assert.equal(envelope.derivedAt, NOW_ISO);
+    assert.equal(envelope.workExecution, undefined);
+  }
+  assert.equal((await push({ ...packet, programKind: 'company' })).status, 200);
+  assert.equal(JSON.parse(stored!).branchStories.rows[0].programKind, 'company', 'intake must not override explicit invalid classification; adapter refuses it');
+  for (const row of [{ ...packet, source: { ...packet.source, tenant: 'other' } }, { ...packet, source: { ...packet.source, packetFile: 'unreviewed.md' } }]) {
+    assert.equal((await push(row)).status, 200);
+    assert.equal(JSON.parse(stored!).branchStories.rows[0].programKind, undefined);
+  }
 });

@@ -1,17 +1,17 @@
 {
   "schema": "temperance.project.v1",
   "name": "cambium",
-  "cwd": ".",
+  "project_id": "cambium",
+  "repository_id": "github:Sheshiyer/cambium",
+  "enrollment_id": "enr-4993574397fe774f7997",
+  "cwd": "/Volumes/madara/2026/Projects/thoughtseed/cambium",
   "github": "Sheshiyer/cambium",
-  "generated_at": "2026-08-29T11:46:40.606Z",
+  "generated_at": "2026-11-01T08:27:38.407Z",
   "host_runtime": {
-    "temperance_home": "~/.temperance_engine",
-    "opencode": "~/.config/opencode",
-    "omniroute": "http://127.0.0.1:20128",
-    "proxy": "http://127.0.0.1:20129"
+    "temperance_home": "/Users/witnessalchemist/.temperance_engine",
+    "opencode": "/Users/witnessalchemist/.config/opencode",
+    "omniroute": "https://omniroute.thoughtseed.space"
   },
-  "active_planner": "gsd",
-  "planner_note": "GSD ROADMAP is the active planning spine; ISA remains the acceptance authority.",
   "ownership": {
     "models_routing": "host",
     "credentials": "host",
@@ -28,7 +28,13 @@
     "batch": "temperance-batch"
   },
   "planning": {
-    "github_project": null,
+    "github_project": {
+      "owner": "Sheshiyer",
+      "repo": "cambium",
+      "number": 14,
+      "url": "https://github.com/users/Sheshiyer/projects/14",
+      "title": "Cambium — Repository-First Portfolio & Relocation"
+    },
     "teamforge": {
       "project_id": null,
       "client_id": null
@@ -39,15 +45,10 @@
     }
   },
   "checks": {
-    "host_ready": true,
+    "host_ready": false,
     "has_planning": true,
     "has_isa": true,
     "has_codegraph": true,
-    "github_project": false
-  },
-  "hands_init": {
-    "display": "cambium \u00b7 fabric",
-    "cloudflare_profile": "thoughtseed-labs",
-    "aws_profile": null
+    "github_project": true
   }
 }

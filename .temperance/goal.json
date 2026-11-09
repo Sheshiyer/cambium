@@ -1,5 +1,6 @@
 {
   "schema": "temperance.goal.v1",
+  "project_id": "cambium",
   "text": "Consolidate Cambium's production Cloudflare authority in the Thoughtseed Labs account, reconcile exact 9d9d source assets through provenance-bound gates, and retire the legacy source only after verified parity and a founder-approved rollback window.",
   "planner": "isa",
   "gsd_command": "plan-phase",

@@ -18,9 +18,11 @@ neither value.
 
 ## Reading order for humans / agents
 
-1. Root [PROJECT.md](../PROJECT.md) + [.project/HANDOFF.md](../.project/HANDOFF.md)
-2. This folder's live [`STATE.md`](STATE.md)
-3. Follow only the phase and transition selected there
+1. Root [PROJECT.md](../PROJECT.md), the 12-line human handoff pointer,
+   then the root summary and matching continuation in [`HANDOFF.json`](HANDOFF.json)
+2. For a GSD planning task, this folder's live [`STATE.md`](STATE.md)
+3. Follow only the selected task's phase and transition; historical handoff
+   sections are on-demand evidence, not a full pickup read
 4. Use [docs/runbooks/](../docs/runbooks/) and [ISA.md](../ISA.md) for their
    bounded current authority; use dated files here only as audit history
 

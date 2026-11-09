@@ -1,3 +1,273 @@
+# Handoff pickup
+
+Current pickup: `.planning/HANDOFF.json`; follow `PROJECT.md`.
+This file retains the complete historical checkpoint body below.
+
+Read only these first 12 lines during ordinary session pickup.
+Select the root summary and matching structured continuation first.
+Open only that task's cited proof or owning handoff when needed.
+Search a specific historical heading only to resolve a missing fact.
+ISA and GSD retain acceptance and planning authority.
+Historical commands and completion claims are not fresh approvals.
+<!-- cambium:handoff-history:start -->
+
+## 2026-11-05 Fitcheck founder decision and graph 19 verified
+
+Canonical founder status confirms revision 2 approved. Receipt digest
+`9bcb043c30849175f1cdea70e12ea9bfec539cf0540c288dfbd6ec99e589c0ea`.
+Graph 19 commit matches one create, one remove and zero updates.
+The blocked, unscheduled micro `task-fitcheck-launch-gate` is a child of
+the retained active meso `task-fitcheck-launch`. Full meso readback matches
+the reviewed record. The old micro identity is absent. Fitcheck launch
+admissions, requests, execution attestations and directives all read zero.
+Work execution, leases and subscriptions remain off.
+
+## 2026-11-05 Fitcheck Founder Gate visibility release
+
+Quests `8073b294-a75f-45b2-9e7b-7ac6380cf46a` serves the scoped founder-only Gate row
+filter. Rollback is Quests `3c2e7a10-bedf-43aa-96af-4dd2185c5131` through the
+existing release owner. Serving module bytes, 54 bindings and runtime
+settings verified. All 46 focused checks passed. Authenticated browser
+readback showed the expired original and pending revision 2, and loaded
+the complete canonical revision 2 dossier. Graph head remains at 18.
+Work execution, leases and subscriptions are off.
+
+## 2026-11-05 Fitcheck reconciliation in primary Cambium
+
+Ported the deployed Fitcheck identity intake, source validation and canonical
+Gate restrictions into the current primary handlers alongside concurrent
+edits. Focused tests passed 86/86. Full Worker typecheck still reports
+diagnostics outside the Fitcheck patch. Live graph head read back at version
+18. Canonical renewal produced pending revision 2
+`cambium:9c2ae85bca9e2097bc3964ca0e47d5bc5ab7efb8d065611cf104370a4a98c8f8`
+with expiry `2026-11-05T08:14:01.432Z`. Authenticated review and stored
+proposal readback agree. The deployed queue filters the original proposal
+source. Primary includes a founder-only visibility correction. Work execution,
+leases and subscriptions are off. See the fitcheck_scope_reconciliation continuation.
+
+## 2026-11-04 live native Work join and direction save verified
+
+Actual signed-in Mac: mapped Cambium > Open work displays approved objective
+and next step. Retained Cambium signal > Draft direction saved Reject whitespace-only
+signal titles. ISC3681/3682 verified within live/source-test bounds; fresh persisted
+list readback not yet exposed/claimed. See NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json.
+Direction approval/admission, installed Hermes coding capability, launch/results
+and full-loop acceptance remain open. Use native_operational_loop continuation.
+
+
+## 2026-11-04 Work approved; native sign-in in flight
+
+Zen canonical archive confirms approval and graph commit for55efd3d7.
+Do not resubmit/reapprove. Built Mac app native email-code login is open in
+Zen private; founder completion pending. Keep app running. Verify Work and
+direction after return. Management read10000 is unavailable; Hermes unexecuted.
+See native_operational_loop continuation.
+
+
+## 2026-11-04 Cambium Work55efd3d7 awaits actual founder decision
+
+Approved form sourcec6948057 is live as2971a905 at100%;52bindings/runtime
+preserved, rollbacke6c399ab. No migration repeated. Full2717tests pass.
+Zen ThoughtseedLabs has complete canonical review and enabled decision controls
+for Work proposal55efd3d72733: create1/update0/remove0, proof required, no execution.
+Await owner decision there. Native Work/direction and Hermes remain open.
+Use native_operational_loop and CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json.
+
+
+## 2026-11-04 approved live rollout; canonical Work still pending
+
+Migration0103 is already applied. Active Worker5f2c5dc7 serves100%; all52bindings
+and runtime settings match retained rollback23cf59d1. See the task continuation
+and WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json. Do not repeat the migration.
+Founder requests Zen ThoughtseedLabs; authentication/direct protected read pass,
+but page ledgerfetch is canceled/offline. Reviewed timeout candidate62836c61
+(founder10s->30s only) passes44checks and awaits separate rollout approval.
+Work proposal, real native join/direction proof, admission and Hermes execution
+remain open. Installed Hermes lacks the coding command; no runner change made.
+
+
+## 2026-11-04 CI deferred; manual verification continued
+
+Woodpecker on existing hardware is the future CI choice, with no new paid resources. CI setup is deferred and stays separate from the engine. The proposed GitHub workflow was removed, and manual tooling moved outside the runtime package. Public engine PR 59 and Noesis PR 100 are updated. Manual checks pass 285/285 for the engine/owners and 5/5 for the pinned Noesis consumer. A ledger directory replacement gap was reproduced and fixed; a real killed-process claim remains held for recovery.
+
+Select `continuations.temperance_architecture` and its current receipt `docs/evidence/2026-11-04-temperance-manual-verification.v1.json`. Other platform targets, real client callbacks and installed acceptance remain open. Product Hunt still shows November 6 and exposes rescheduling without return-to-draft. No runtime, CI, provider or production changes were made. The 12-line pointer and original historical bytes remain intact.
+
+## 2026-11-04 Work/direction source reviewed; live rollout pending
+
+PR428 merged at d571ea92. Continue codex/cambium-real-work-loop-20261104 from
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`. Explicit approved
+Cambium Work source, shared direction drafts/store/native composer and Gate
+visibility are implemented in source. Full2714 tests, Core265(two opt-in skips),
+native43 pass; final Gate delta34checks pass. No live acceptance is implied.
+Exact rollout and Work-intent JSON are prepared. Fresh head11/root and current
+52binding rollback version23cf59d1 verified after founder refreshed login.
+No migration/deployment/Work decision/admission/launch has happened. Installed
+Hermes e3387543 lacks the coding command; Docker exists. Preserve its installed
+source and prepare only the finite admitted capability. Full loop remains open.
+
+
+
+
+## 2026-11-04 Temperance generic glove source candidates
+
+Public engine PR 59, Noesis profile PR 100 and website PR 2 are pushed review candidates. Select `continuations.temperance_architecture` from `.planning/HANDOFF.json` and open `docs/evidence/2026-11-04-temperance-generic-glove.v1.json`. Engine source checks pass; public release, native callbacks, remaining platform evidence and Noesis installed adoption stay held. The website preview is review-only.
+
+The approved plan supersedes November 6 schedule preservation. The existing listing still shows November 6; authorised return-to-draft is blocked by the exposed UI. GitHub Actions remains disabled while an open source replacement is considered. Catalog pins now match 21/21. The fresh graph has current files and valid edges but no accepted Rhai fence.
+
+The existing 12-line pointer and complete 305,171-byte historical body are preserved byte-for-byte. Earlier output reductions remain 304,610 to 572 and 425,693 to 81,764 bytes. Overall token/latency improvement is unproven; no new benchmark was selected.
+
+## 2026-11-04 native UI cleanup
+
+Connections now presents a compact account card; Inbox and Projects use names and
+concise actions. Technical configuration, IDs, provenance, digests and join counts
+live in Settings → Advanced → Diagnostics. Core261 (two opt-in skips), native43,
+clean debug build/signature pass. Actual Mac account/Settings/Diagnostics checks
+and labelled demo Projects/Inbox checks pass; no fresh live sign-in is claimed.
+Current source/build proof and remaining operational-loop work are in
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json` and its Markdown.
+The real Work join, directions, admission, hosted Hermes launch and result remain
+open. This UI change does not deploy or seed authority data.
+
+
+
+
+## 2026-11-04 operational-loop handoff and main-window sign-in
+
+Owner selected the existing hosted Hermes runner for the Cambium coding pilot.
+New continuation: `.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`;
+read its matching Markdown handoff and continue branch
+`codex/cambium-operational-loop-20261104`. Sign-in source `1f64c646` adds main/
+sidebar entry, expiry-aware re-entry and correct prior-owner cancellation order.
+Core261 (two opt-in skips), native43 and clean signed bundle checks pass.
+Actual buttons are visible; owner confirmed the authentication window appears.
+A fresh completed grant and the operational-loop walkthrough remain unverified.
+
+The operational Work join, shared directions, owner admission/launch composition
+and real result loop remain unimplemented. D1 readback found zero Cambium anchors
+and no native launch tables. Inspected Hermes source has no Cambium registration;
+verify the installed owner before rollout. Do not mix execution metadata into the
+bookkeeping lane, seed authority rows, replay completed migrations or claim the
+prior signal test is an execution result. The proposed sign-in patch is pinned in
+the new handoff for review; it is not admitted. Primary concurrent work is intact.
+
+## 2026-11-04 native sign-in and project Inbox verified
+
+Cambium source PR427 merged as `b6652fcf991eba804cffeaa38d2d265c10218532`.
+The remote merge tree matches the reviewed PR head. Full independent repository
+suite: 2,704 passing. Primary checkout's concurrent changes remain intact.
+
+Real owner login/consent, native session inspection, served catalog (76 current,
+20 historical), signal creation, revisioned updates through revision 3 and exact
+`sapling:cambium` Inbox refresh are verified. ISC-3467 and ISC-3672 are satisfied.
+The activation receipt records source/build/deployment evidence and rollback:
+`.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
+
+The live catalog reports zero operational runtime joins. Source association
+creates no approval or launch admission. Missing execution facts and unresolved
+operational edges stay explicit gaps; bounded server/Swift capacity is 256.
+No graph/ledger data, identity memberships or runtime joins were edited. The
+activation test signal remains for inspection. Native sessions are in-memory
+and expire after 15 minutes; start sign-in from Connections when needed.
+
+Hosted noesis-free supplied bounded reviews; no paid fallback or routing writes
+were used. TeamForge SFU and Cambium Field Atlas deployed behavior/resources
+were preserved. Field Report peer source/auth parity and offline sync remain open.
+
+## 2026-11-03 review fixes merged through PR #426
+
+- Both independent findings are resolved and merged: local signal request
+  validation unlocks correction; malformed responses preserve retry identity;
+  revision conflicts retain the draft until a confirmed latest-read reload;
+  Gate/Launch recovery is isolated by normalized owner endpoint and path.
+- PR: https://github.com/Sheshiyer/cambium/pull/426 . Squash merge
+  `72fb04553015c9e03def9bd92029f757fdd05b71` exactly matches prepared/tested tree
+  `5bc17ece25c9684a976269066c5634c77ee1b733`. Required checks were unconfigured;
+  local gates passed: repository2671/2671, Core260 with two opt-in skips,
+  native39, boundary109, explicit signal wire probe, ad hoc bundle signature
+  and47 actual local browser captures. Privacy canaries have exact-context,
+  extension/copy/adjacent-secret regressions; the host checkout path was redacted.
+- Source was integrated in an isolated `codex/shared-inbox-review-fixes` checkout;
+  complete review/preparation/free-review triage and merge receipts remain under
+  its ignored `.local/`. Six source/test fixes were mirrored here only after
+  exact preimage checks. This primary checkout and its unrelated dirty work
+  were preserved; it was not reset or forced onto the squash merge.
+- Hosted `noesis-free` performed the focused follow-up review. Its candidate
+  findings were checked against source and passing counterexamples. The earlier
+  disposable free build was stopped without accepting incomplete fixes; native
+  integration completed them. Provider/model attribution remains unavailable;
+  no S/A fallback dispatch, routing write or production deployment occurred.
+- Reusable free-pool snippet is in the merged
+  `apps/cambium-mac/docs/TEMPERANCE-REVIEW.md`. Live identity/schema/Field Report
+  peer, durable offline sync and production acceptance remain open.
+
+## 2026-11-03 shared signal capture and native Inbox build
+
+- Owner requested building the shared capture API and native Inbox using hosted fan-out. Source contract is `.planning/native-mac/SHARED-SIGNALS-WAVE-1.md`; implementation/commands/remaining boundaries are `apps/cambium-mac/docs/SHARED-SIGNALS.md`. Root ISA ISC-3661–3670 records local source acceptance; ISC-3660 (verified hosted execution), ISC-3671 (real Field Report peer) and ISC-3672 (live native delivery) remain open.
+- Added scoped capture/list/detail/update routes to the existing Worker with local migration `0102_shared_signals.sql`. Receipt and create/CAS-update are atomic via a SQLite trigger. Exact retries return original snapshots even after catalog removal; changed operations/revisions conflict. Associations use the same dynamic display catalog as the native picker and grant no operational admission. No catalog lane or existing identity activation changes were replaced.
+- Native Inbox now captures/edits, shows provenance/revisions, selects actual served mapped projects, paginates and opens from each project dossier. Standard mode uses existing native identity/transport; demo uses labelled synthetic in-process signals. Unknown saves retain immutable payload/operation identity across navigation; validation-400 permits correction. In-memory drafts are not a durable offline outbox. Demo reset restores its initial signals and clears their replay receipts.
+- Verified 105 Worker/session/catalog tests; Core 259 tests with one existing opt-in skip; native 37 tests; explicit real-handler/local-SQLite-to-Swift signal probe; current-source portfolio probe 77/20/0/50/1. Actual synthetic native UI created a Cambium-linked signal, saved and edited it to revision 2, then opened the same project-filtered Inbox from the dossier. The app was returned to standard mode. Four final light/dark captures at 1280x820 and 880x612 were inspected and the ad hoc signature verified; working-source build is dirty and hash-bound in the evidence packet.
+- Hosted Phloem catalog was reachable, but legacy batch portfolio resolution refused the current pool and direct hosted launches stopped at `credit-refill-owner: qualification-held` before inference. The allowlisted Claude fallback launcher had a missing dependency. Two isolated non-Sol fallback workers plus independent review were used; no provider/routing/qualification settings were changed and no hosted execution is claimed.
+- Fresh GET-only runtime readback remains native session 404, TeamForge identity 501, protected projections 401, health 200. No live schema apply, deployment, token/configuration write, external Field Report source change or migration occurred. Next source work is the reviewed Field Report client adapter and full sync/conflict/outbox tranche; connected operation also requires the existing native activation owner packet.
+
+## 2026-11-03 Field Report integration decision checkpoint
+
+- All sixteen product choices are confirmed: the Cambium pilot delivers a small code change with tests and a reviewable diff. `.planning/native-mac/FIELD-REPORT-INTEGRATION-PLAN.md` now proposes four vertical tranches covering shared signals/project identity; directions/references/offline sync; approval/admitted launch/policy acceptance; and shared assets/remaining migration. The existing native roadmap links it; the active v0.5 Phase 9 spine and ISA acceptance remain unchanged.
+- The concrete proposed pilot exposes/validates source observation dates in the existing project-census probe, with a two-file scope and explicit check evidence. It must run through the implemented signal-to-result workflow after live activation to count as the pilot; a direct planning-time edit would not prove that flow. No pilot admission or execution is claimed. Field Report source/tenant parity, actual Field Theory collection selection and production activation remain owner/source dependencies.
+- Founder confirmed Decision 15: Cambium (`sapling:cambium`) is the first complete-workflow pilot; the full mapped portfolio stays in scope. Decision 16 asks the pilot deliverable class. Existing local joins are preparation evidence; live identity/admission/result acceptance still need proof.
+- Founder confirmed Decision 14: explicitly selected Field Theory collections with source permissions preserved. Fourteen choices are now confirmed; actual collection IDs remain to be selected. Decision 15 asks which mapped project proves the first complete workflow, with Cambium recommended on the existing explicit local Work join. Earlier pending-decision notes below are historical checkpoints, not current unanswered choices.
+- Founder subsequently confirmed Decision 13: search/attach Field Theory references from both surfaces and use selected references for requested AI drafting; keep note editing in Field Theory. The current decision record has thirteen confirmed choices. Decision 14 now asks which collections the shared workspace may search; older pending-13 notes below describe the earlier checkpoint only. No live activation or source ingestion is implied.
+- `apps/cambium-mac/docs/FIELD-REPORT-INTEGRATION-DECISIONS.md` records the founder's twelve confirmed integration decisions and pending Decision 13 (Field Theory scope). This is product direction, not deployed behavior, production migration approval, or completed ISA acceptance.
+- Confirmed changes include Field Report record consolidation into Cambium's backend, staged signal-to-result delivery, editing on both surfaces, online sync and offline drafts with conflict review, Inbox capture, on-request AI, pinned reusable automatic acceptance policies, Thoughtseed Labs first, and shared uploads with provenance-linked external sources.
+- Current source inspection still finds unconfigured native knowledge readers and memory-only reference snapshots. The checkpoint identifies the required shared editing, durable draft, sync and acceptance work, using existing mapped project identities and explicit operational joins. Source-schema inspection and the existing live identity/launch acceptance remain necessary; no external state changed.
+- Read-only Field Report producer inspection at clean local revision `1de59970cf0233d196ca5aa9d78bcf2ce8c54254` found bundled snapshot records plus D1 expedition/research/decision overlays and R2 media. The decision record now captures fallback-ID differences, compare-and-swap/replay semantics, owner-private Sites authentication, exact publication fingerprints, and the missing direction-event route in the inspected Worker. Deployed parity, identity census and connector producer ownership remain unverified. No external repository or runtime was changed.
+- Subsequent bounded source census verifies 510 bundled records with explicit unique IDs and zero fallback disagreements in that snapshot. Declared repository comparison against 74 working action catalog records yields 78 candidate source rows, three ambiguous; 432 remain unresolved by that method. Candidates are source associations only, not admitted Work joins. The decision record preserves the snapshot digest, method, source/working-state limits and plan undo requirements. Live parity and connector producer ownership remain open; Field Theory Decision 13 is still pending.
+- `scripts/probe-field-report-projects.mjs --snapshot FILE` now reproduces the census from a bounded caller-selected local snapshot and working action catalog. It emits candidate metadata and input digests without copying bodies, writing mappings or contacting services. Four focused tests pass; actual-source rerun reproduces 510/78/3/432 and catalog-input projection SHA-256 `1e5e570500fe782da1fbf41c235ff2a6b065b5262a9bbe58e50e5478fc1edf1d`. That projection fingerprint is not the owner's catalog authority digest. This remains migration preparation, not deployed integration.
+- Live GET-only refresh after that probe still reports Curious health 200, native session 404, Mission Fabric/quests 401 Access-required, and TeamForge native identity 501 feature-not-ready. PR #105 remains open/non-draft/mergeable/unmerged with no checks or reviews. Native activation is therefore still unresolved; no production mutation was performed. Decision 13 remains unanswered and is not inferred from automatic goal continuation.
+
+## 2026-11-02 native Cambium E5 discovery and planning
+
+- Source-discovery/deep-planning packet completed for a new native Cambium Mac
+  app using Bama; no native application was scaffolded or built. Root ISA
+  ISC-3140–3184 owns this discovery evidence. The future app/build horizon and
+  existing Cloudflare consolidation milestone remain separate and unfinished.
+- Founder decisions: whole-system overview then next meaningful action;
+  founder/operator first preserving tenant/roles; first usable release coordinates
+  decisions and launches already-admitted work. Read-only orientation is an
+  intermediate milestone, never the v1 completion condition.
+- Read `apps/cambium-mac/docs/DISCOVERY-EXIT.md`, `BRIEF.md`, `ARCHITECTURE.md`,
+  `STORIES.md`, `screens/INDEX.md`, and `research/` (foundation, directional flows,
+  dated lineage, Apple platform and interaction references). Build sequencing and
+  unresolved choices: `.planning/native-mac/2026-11-02-ROADMAP.md`.
+- The Fitcheck reference proves a dated decision-to-graph chain only. Expedition
+  and chamber UI records have unmatched/different subjects and are separate
+  examples. Current native eligibility, execution and acceptance are unproved.
+- Final native audit found six issues; all were corrected and re-reviewed.
+  Re-review matched all66 current repository source hashes/byte counts. Concurrent
+  PROJECT.md additions were inspected; the initial hash was retained. Four local
+  contract suites passed49 checks; these are not native or live acceptance.
+- Bama workflows pinned639893c397278256f1ae204dd8f837eb82bd6527; no plugin install
+  or template execution. Apple sources correct WebKit/API availability and
+  separate documented behavior from signed-app probes. Field Theory and Field
+  Report remain separate products/adapter schemas.
+- Existing bridge admin/member/runner endpoints are not a finished native-founder
+  launch API. V1 requires an owner-issued admission/launch capability, request
+  deduplication, original-request status/restart recovery and run/result readback.
+  No shared runner token, arbitrary shell or client-side admission is proposed.
+- Routed Observe failed before analysis on invalid context7 transport; fixed
+  gpt-5.4 reviewer was unsupported; Advisor could not inspect local artifacts.
+  Actual independent native review is recorded; no cross-vendor clearance claimed.
+- Preserve the concurrent sapling-lifecycle source and ISC-3200..3219. Its pack
+  prepares bounded reports/action briefs, not native admission or execution.
+  `.planning/HANDOFF.json` retains that lane's top-level queue and points to this
+  work under `continuations.native_mac`; durable native state is separately in
+  `.planning/native-mac/HANDOFF.json` to avoid concurrent checkpoint replacement.
+- Next: review the full Canopy→dossier→decision→admission→launch→result/recovery
+  visual flow and bind native identity plus one supported work/plant contract.
+  Then perform Stage B/C studies before feature scaffolding. Minimum founder
+  artifact/install/accessibility/recovery is required for v1; wider distribution
+  and legacy retirement follow separately. No runtime/provider/cloud change or
+  live launch was performed by this discovery.
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
@@ -2720,6 +2990,35 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Regression suite: 182 pass, one existing skip (183 total). App typecheck passes. Two untracked `App 2.tsx` / `domain 2.ts` files match clean-base copies, remain untouched/excluded, and have no import/compiler effect. Creator unknown.
 - Revised manifest/patch prepared for final independent review; no runtime/publication changes.
 
+### 2026-11-02 shared sapling lifecycle and Temperance draft
+
+- Cambium owns the `sapling-lifecycle` skill, 21-component digest catalog and eight thin command intents. Installed 34 ownership-managed artifacts (32 client commands, Codex skill adapter and the missing Grok product workflow copy); check reports zero drift. Existing workflow copies and private vault material remain intact. Grok command discovery and Codex skill discovery are verified; OpenCode is unavailable; Claude's restricted smoke did not refresh the packet and its continuation hit a prompt context limit.
+- Authenticated Codex IAB created and reopened the formal Temperance Product Hunt draft with the exact approved fields, existing logo/OG art and matching tags. Product Hunt explicitly reports it unscheduled. Public listing is `https://www.producthunt.com/products/temperance-engine?launch=temperance-engine`. The official badge was pushed as README-only Temperance commit `42b391b44b7655972d9322d87aa3865956a5165e` from clean source; remote main and exact README bytes match. The dirty app checkout and LumenBar schedule were preserved.
+- The read-only Rhai run completed with confirmed=false (stale site/Product Hunt evidence), and deterministic import also refused a dangling edge. No vault receipt exists. The separate `sapling:temperance` packet stays proof-only: v1.1 clean-host, hosted authentication, tenant admission, dispatch, deployment and launch scheduling remain held. Product draft proof does not repair graph acceptance.
+- Verification: 17 helper behavior tests and 28 packet/GTM/branch tests pass; isolated schema validates seven packets, preserved primary validates eight including LumenBar. Skill validation and diff checks pass. The initial full run was 2516/2526 during concurrent source edits; the stable full-history audit rerun passes 16/18, leaving two privacy gates against unchanged source. Exact evidence is in `docs/evidence/2026-11-02-sapling-lifecycle.v1.json`. Standalone audit retains two unchanged fixture findings; viewport and system-atlas fingerprints are unchanged baseline holds. No full-repository green is claimed.
+- Rollback: use the pack installer's uninstall command to remove only unchanged owned adapters; preserve modified artifacts. Revert README commit 42b391b through the owning repository if needed. Removing a local packet or skill does not authorize deleting or scheduling the Product Hunt draft. Native-app discovery edits and acceptance frontmatter remain separate; this task reserves ISC-3200..3219 to avoid concurrent criterion collisions.
+
+### 2026-11-02 Temperance operator-system positioning correction
+
+- Founder-selected category is AI operator system; tagline is “A shared operating layer for your AI coding tools.” Restored active cinematic React/GSAP design from736fd13 on current website base5c58383. Website code commit c930af92d3176e0b0a2a9ad1b382c9c6273744d9; final documentation/ISA checkpoint7e55a26. Claim map uses released application source42b391b and preserves optional-dependency ownership and held milestones.
+- Verified READY preview: https://temperance-engine-landing-page-mitxrimmj-sheshiyers-projects.vercel.app/ . Existing SSO retained; owner completed normal2FA. Authenticated IAB verified1440×900,375×812,320×812, section links, visible keyboard focus, reduced motion, video pause/poster, artwork/footer,1200×630 social image and metadata. Fresh preview console is clean. All49deployed file digests independently match code/build snapshot. Production remains dpl_And7oPASgXBUTCp4asMvMdqPWc3M/source5c58383 with unchanged aliases.
+- Existing Product Hunt draft saved and reopened with approved tagline/303-character description, preserved name, links, maker/media/tags, and explicit unscheduled state. No second listing or scheduling. Application codex/operator-positioning-review, based42b391b, stages only README introduction and badge alt; uncommitted/unpushed for review. Dirty primary app and landing trees are preserved.
+- Cambium pack reference/packet/index now supersede installer-led positioning while retaining historical observations. ISC-3600..3619 verified. Website tests7/7; helper17, packet12, GTM/branch9 tests pass and seven isolated packets validate. Root performed actual IAB; independent source review is separate from the QATester role's unavailable CLI browser gate. Two Vite5/esbuild development advisories and prior Cambium full-suite privacy/fingerprint holds remain; no full-repository or runtime acceptance claimed.
+- Evidence: docs/evidence/2026-11-02-temperance-positioning.v1.json. Next is owner preview review; production promotion remains held. LumenBar and v1.1/authentication/long-context/recovery holds are unchanged. Historical Rhai graph remains rejected with no receipt; no rerun or vault write occurred.
+- Rollback: leave production as-is; close/revert only the website preview branch, unstage isolated README-only diff, and revert scoped Cambium correction if rejected. Preserve earlier observations, dirty work and rejected graph state. Do not delete or schedule Product Hunt as rollback.
+
+- Review delivery: website draft PR https://github.com/Sheshiyer/temperance_engine_landing_page/pull/1 at7e55a2673a01a0c9dd114b9b23bb9ca21499e91b; verified preview code remainsc930af9. Refreshed33existing owned wrappers (34artifacts retained), adapter check has0drift/0conflicts at source digest9e0371b5fb098269b3f03a745fd0fb1dc7a732028c5e309fba9b74c3ebd66b00. Skill is valid; primary validates8packets including preserved LumenBar. Independent review recomputed32tracked+17dist file hashes with0mismatches.
+
+### 2026-11-02 Temperance organs/Kosha integration discovery
+
+- Founder chose portable Temperance core plus optional personal/company glove. New canonical handoff: docs/plans/2026-11-02-temperance-hand-in-glove-handoff.md. It distinguishes five Koshas, six advisory organs, onboarding infrastructure and company operating organs; preserves owners and evidence levels.
+- Public42b391b has phase metadata, real composition/lifecycle contracts and optional containment source. Private noesis-cambium5e764db retains broader kernel/dispatch and concrete organ scripts; current Vestibule/Adytum scripts are dirty. No private state, notes or credentials were copied. Start integration by reconciling public composition with a minimal portable kernel, then one read-only Vestibule adapter before expanding claims.
+- Executed current public phase/composition fixtures:85pass,0fail,415expect calls across6files. These are source tests, not installation, callback, hosted execution or acceptance.15-section interactive-site brief uses read-only educational projections and a5000-word editorial ceiling; Product Hunt Description is visibly303/500characters, maker-comment limit unverified.
+- Current Product Hunt launch is scheduled November6,2026,12:01AMPST; founder explicitly confirmed preserve. This supersedes old unscheduled instructions. Agent made no scheduling or copy action in this discovery. Existing website preview remains the five-section baseline; production unchanged. Prepared isolated README now includes the schedule label at SHA256c8f928091c3c19b5805afb5b9ac94f0bf5a59f06f5724cc5304f1d51f25a2330, still uncommitted/unpushed.
+- New integration chat is requested and receives this handoff, public-product ownership, private-runtime read-only boundary, exact website PR/preview and launch preservation. Runtime/provider/memory changes and production promotion are not authorized by this discovery. v1.1/auth/long-context/recovery and graph holds remain. ISC-3640..3659 owns this handoff scope; prior native-app work and acceptance frontmatter are preserved.
+
+- Handoff delivery verified: dedicated chat “Temperance portable core, organs and interactive architecture” is created and active. Native chat identifiers remain outside repository files. ISA-3640..3659 are verified for discovery/handoff only; implementation is unfinished in the new chat. Scoped packet validation passes7isolated/8primary; skill is valid. Refreshed33ownedwrappers, retained34artifacts andcheck0drift/0conflicts atsource173aabad8c0340255803031dd56b37ba0b743fa4d45b37f3e38136350e03bc6f.
+
 ### 2026-11-02 native Cambium local build checkpoint
 
 - Native founder/operator app was merged on main at `f700b78b`; the signed ad-hoc development bundle in `apps/cambium-mac/build/Cambium Native.app` carries clean source revision `10aea471` and embedded aggregate `2289b633`. The bundle is ignored build output. Bama is pinned and credited in the app source.
@@ -2739,14 +3038,198 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Current-source probe commit `252c7e7` and ISA checkpoint `992b616` add a repeatable temporary TypeScript handler → Swift decoder check. It passed against the concurrently edited working source (77 current, 20 historical, 0 review, 50 gaps, 1 exact join; display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`) without replacing the dated fixture or changing live state. The Mac walkthrough and real founder delivery remain ISC-3466/3467 open; deploy/native authority are separate owner activation.
 - Signed synthetic Projects snapshot correction `41eb7a8`/`0020e3a`/`55ca159` fixes whole-second source-time display, exposes the first project row at the 880×612 minimum and drives SwiftUI light/dark appearance before each capture. Four image captures from clean app inputs (`e59dfd94`) have no manifest failures; strict signature/bundle/proof checks and four focused Projects tests pass. ISC-3472/3473 record this local visual proof; ISC-3466 interactive filtering/selection/Work navigation and ISC-3467 real founder delivery remain open. Current Plexus whoami is Access-JWT-bound, so a fresh identity-by-ID role lookup is the remaining native authority seam.
 
-
 ### 2026-11-02 current Plexus native identity seam
 
 - GitHub TeamForge `main` at `80714a5` confirms `/v1/whoami` is Access-JWT-only; no current service-authenticated by-ID route was found in the inspected source. Its internal ID query is not a native Worker API. The exact evidence, required role/enrollment contract, denial cases and activation sequence are in `.planning/native-mac/PLEXUS-CURRENT-IDENTITY-LOOKUP.md`.
 - Cambium's existing native session host requires fresh role and exact enrollment checks on exchange and bearer reads. Production entry point remains unbound; local source review neither deployed a route nor changed Plexus, client registration, D1 or live founder authority. ISC-3467 remains open until a real owner readback.
 
-
 ### 2026-11-02 mapped-project navigation follow-up
 
 - Commit `85068da` keeps the Projects dossier within filtered results, reveals a linked source after filtered navigation, and searches catalog aliases plus historical source links. The distinct `Lockwell` alias now finds `DLOCK` through global search. Five focused native Projects tests pass.
 - Rebuilt signed bundle inputs are clean at `85068da`, aggregate `f069378b`; bundle verifier, strict signature and proof check pass. Four synthetic Projects snapshots at 1280×820 and 880×612 have no manifest failures, with minimum light/dark images inspected. Current-source TypeScript-to-Swift probe still passes at 77 current, 20 historical and one exact runtime join. Interactive filtering/Work navigation and real founder delivery remain ISC-3466/3467 open.
+
+### 2026-11-02 TeamForge/Plexus native identity wiring
+
+- Current TeamForge `main` (`80714a5`) was read through the GitHub connector. It owns `plexus_identities` with `admin|employee` roles; migration `0009_plexus_session_onboarding.sql` seeds `pid_admin_thoughtseed_labs` in `ws_thoughtseed`. Existing `/v1/whoami` remains Access-JWT-only.
+- Draft TeamForge PR [#105](https://github.com/Sheshiyer/team-forge-ts/pull/105) on `codex/cambium-native-identity-lookup-20261102` adds `GET /v1/native/identity/:identityId?tenant_id=cambium`, a dedicated `TF_NATIVE_IDENTITY_LOOKUP_TOKEN`, and explicit `TF_NATIVE_TENANT_WORKSPACE_MAP_JSON` scoping. It returns only `plexus.native-identity.v1`; it does not return email, onboarding or capabilities and does not accept the app/internal bearer.
+- Cambium commit `af5c636` adds `plexus-native-identity.ts`, focused adapter tests and conditional native-session composition. The host uses existing D1 native session/consent stores and current Access/Plexus browser verification, and stays unbound until the dedicated URL/token/tenant, owner origin, client registry, Access and D1 bindings all exist.
+- Verification: TeamForge fresh-clone worker suite 17 files / 202 tests plus `pnpm check` pass; Cambium native session/adapter tests pass 75/75; Wrangler dry-run bundles 3219.71 KiB (gzip 838.68 KiB) with no upload. No TeamForge merge, secret write, migration apply, deployment, client registration or live founder action occurred. ISC-3474/3475 are source-complete; ISC-3476/3477 remain open.
+- Resume with owner-approved review of PR #105, then separately bind and read back the endpoint/token/tenant map/client callback/origin and apply the already-present `0100_native_sessions.sql`/`0101_native_consent.sql` only under the normal deployment and rollback gates. Do not treat the draft PR, dry-run, or local signed Mac bundle as live native acceptance.
+- Follow-up commit `e6d5903` adds an atomic `resolveFounderAccess` snapshot seam; production composition now uses one TeamForge read for role plus enrollment, with legacy split callbacks retained only for compatibility/test owners. The focused native suite is 77/77, the worker dry-run is clean, and the activation document now names `env.BRIDGE_DB`. No live state changed; PR #105 remains draft and the Mac remains locked.
+- Follow-up commit `dedc8cb` extends the same mixed-credential fence to direct native session read, logout and exchange paths for `x-principal` and `x-cambium-founder-web`; the 77-test focused suite remains green.
+- Follow-up commit `36d01f5` adds an entrypoint-level composition test using the real Worker `fetch`, D1 native-session store, TeamForge contract adapter, Access gate bindings, client registry and owner-origin host check. The native integration suite is now 78/78; no live deployment or credential mutation occurred.
+- PR #105 is now marked ready for review (not draft) and carries a review comment with the 78/78 Cambium composition evidence. GitHub reports it open and mergeable with zero status checks currently reported; live TeamForge/Cambium probes remain 501/404 until reviewed deployment.
+- Commit `d1bc0ca` updates the native activation and mapped-project docs from draft-only to ready-for-review wording while preserving the source-only/live-authority boundary.
+- Commit `781d4ad` pins the non-secret Labs production profile bindings for the mapped Curious surface: TeamForge native-identity URL, `cambium` tenant, exact Curious owner origin, and the reviewed native client registry. The dedicated lookup bearer remains an unstaged Worker secret; no deployment occurred.
+- Commit `3a30e95` pre-fills the native Connections form with the reviewed Curious/cambium/client profile while keeping configuration, session and fabric nil until the founder explicitly applies it. A live local-window inspection visibly confirmed those four mapped values without applying the session; the bounded demo search found `Cambium Operating Fabric` plus the exact `Cambium` sapling with its explicit Work join, and navigation to Work preserved the non-admitted synthetic boundary before returning to standard mode. The full Swift suite passes (34 native, 247 core with one existing fixture skip), the focused Worker native integration suite passes 78/78, and the rebuilt ad-hoc bundle passes strict verification with clean inputs at `3a30e95`. Visual sign-in, live TeamForge deployment, secret binding, D1 readback and real founder acceptance remain open.
+- Commit `f87e39d` strengthens the current-source TypeScript-to-Swift probe: it now asserts the named `sapling:cambium`, `program:cambium-operating-fabric`, and `branch:relovo` records, their tenant/classification/provenance fields, and the exact single Cambium runtime join. The opt-in probe passes against the working source at 77 current records, 20 historical, zero review rows, 50 gaps and one explicit join. Release build/proof is clean at `f87e39d` with aggregate `2c3b6b16`; the strict bundle verifier passes. Existing native compiler effect-marker warnings remain non-fatal. No live authority changed.
+
+### 2026-11-02 Labs production authority reconciliation
+
+- Read-only Labs profile reconciliation accepted account `9d7cec1b5a32b2df8c6cdc1321ccd00b`, Worker `cambium-quests`, route `curious.thoughtseed.space`, and D1 `cambium-bridge` (`c0aba88a-5c83-4481-b625-50356d8c98e8`). Production is 100% on version `cf48e6d0-1721-456f-a170-ad0e2c5ca2b8` (`lan-109`, “Owner-approved six-project readiness; checkpoint109 accepted; Relovo deferred”, created 2026-10-29).
+- The authoritative deployed-version readback contains neither `PLEXUS_NATIVE_IDENTITY_URL`, `PLEXUS_NATIVE_IDENTITY_TENANT`, `NATIVE_SESSION_OWNER_ORIGIN`, nor `NATIVE_SESSION_CLIENTS_JSON`, and no `TF_NATIVE_IDENTITY_LOOKUP_TOKEN` secret is present. This confirms the native session/catalog source wiring is not deployed; the live native-session probe remains 404 while `/healthz` is 200. No production state changed.
+- A fresh Wrangler `versions upload --dry-run` against `workers/quests/wrangler.labs.jsonc` exits 0 and resolves all four reviewed non-secret native bindings in the candidate bundle. This is bundle-preparation evidence only: no upload, deployment, secret write, migration apply, client registration, or founder sign-in occurred.
+- Remote D1 readback is equally explicit: `d1_migrations` contains neither `0100_native_sessions.sql` nor `0101_native_consent.sql`, and `sqlite_master` contains none of the native session/consent tables. The read returned `changes: 0`, `rows_written: 0`; no schema mutation was attempted.
+- The next owner-gated sequence remains: review/merge TeamForge PR #105, stage the dedicated lookup secret and tenant map, upload and inspect a candidate version, apply/read back the already-present native-session D1 migrations only under rollback approval, then perform real ASWebAuthenticationSession/PKCE founder acceptance and mapped-catalog/Work/launch readback. Local source, Swift/Worker suites and the signed bundle remain green; live activation is still open.
+- Commit `82f649c` adds a repository-owned config guard: the Labs profile must retain the reviewed native identity URL, `cambium` tenant, Curious owner origin, exact development callback, `BRIDGE_DB` migration directory, and no plaintext lookup bearer. The focused config suite passes 2/2; this catches drift before any future candidate upload.
+- The combined native-session, identity, entrypoint-composition, route, and Labs-config rerun passes 80/80 after `82f649c`; this is still source proof only because the live TeamForge route, native bindings, D1 migrations and founder session remain absent.
+- Commit `44f1025` extends the opt-in TypeScript-to-Swift probe beyond Cambium/Fabric/Relovo: HeyZack, ParkArea Client Delivery, Tirak Client Partnership and DLOCK now require their exact names and provenance, with no inferred runtime joins. The concurrent dirty catalog lane also contains LumenBar, but it remains outside this commit and is not treated as committed live proof. The current-source probe passes with the same 77/20/0/50/1 counts and digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`.
+- Commit `d0e67a2` corrects the anchor documentation/test boundary so clean `HEAD` does not require the concurrent dirty LumenBar record. The committed-source anchor check passes; the current working-source probe still passes with the dirty catalog at 77/20/0/50/1.
+- Commit `277dcf8` preserves the catalog's optional `accountId`/family label through `MappedProject` and renders it as read-only `Source account` metadata in each dossier. HeyZack, ParkArea and Tirak account labels are asserted by the current-source probe; the probe and five native Projects integration tests pass.
+
+### 2026-11-02 unlocked Projects walkthrough reconciliation
+
+- Re-ran the current signed `Cambium Native` bundle in an unlocked macOS window. Projects opened the labelled synthetic replay; searching `Cambium` reduced the catalog to `Cambium Operating Fabric` and `Cambium`, selecting the sapling showed its provenance, tenant, linked program and explicit `sapling:cambium` runtime join, and `Open operational Work` reached the bounded Cambium Work dossier.
+- The Work dossier visibly retained the synthetic/non-admitted boundary and showed no fabricated next action or evidence. This closes ISC-3466 in `ISA.md`; ISC-3467 remains open because no real founder session or production catalog readback has occurred.
+- A second unlocked visual spot-check searched `HeyZack` and showed 11 matching client-branch records, including the `HeyZack` dossier with its mapped Vault/GitHub provenance and an explicit “no served join” operational boundary. The app was returned to standard unconfigured mode.
+- Rebuilt-bundle visual readback now shows the preserved `Source account` metadata in the `HeyZack` dossier (`heyzack`) after filtering the synthetic catalog. The app was returned to standard unconfigured mode; this remains local display proof, not live owner authority.
+- Commit `3f507fb` makes account/family labels and provenance references searchable from both global search and the Projects filter. The rebuilt signed bundle was visually checked by searching `parkarea`, which selected `ParkArea Client Delivery` and showed `Source account: parkarea` plus its mapped Vault/repository provenance; six ProjectIntegrationTests pass and the clean-input build proof is `4f0b21eb2d0fdb9570110f8ede8b36e711b9ad837bbffaf8e377bc2329517593`.
+- Full native verification after `3f507fb` passes: 35 CambiumNative tests, 247 CambiumCore tests with one pre-existing opt-in current-source skip, strict bundle verification, and the opt-in current-source probe at 77 current / 20 historical / 0 review / 50 gaps / 1 explicit join with the same display digest. The Mac was returned to standard unconfigured mode.
+- Fresh unauthenticated runtime readback remains unchanged: `https://curious.thoughtseed.space/healthz` is `200`, `/v1/native/session` and `/v1/native/mission-fabric/cambium` are `404`, and the proposed TeamForge native identity URL returns `501` without the deployed route/authority. Local Wrangler OAuth is authenticated only to account `41e8f2b3d33f73db6a6fe39e9da81354`, not Labs account `9d7cec1b5a32b2df8c6cdc1321ccd00b`; no control-plane mutation or deployment was attempted.
+- Fresh `npx --no-install wrangler versions upload --dry-run --profile thoughtseed-labs` exits 0 and resolves `BRIDGE_DB`, `PLEXUS_NATIVE_IDENTITY_URL`, `PLEXUS_NATIVE_IDENTITY_TENANT`, `NATIVE_SESSION_OWNER_ORIGIN`, and `NATIVE_SESSION_CLIENTS_JSON` in a 3220.60 KiB candidate. The generated bundle contains the four non-secret native names but no `TF_NATIVE_IDENTITY_LOOKUP_TOKEN`; this is candidate-preparation proof only, not an upload or deployed binding readback.
+- Catalog audit preserves the evidence classes: committed `HEAD` carries 73 reviewed action records plus three finite display proposals; the concurrent working source carries a fourth reviewed action candidate, `sapling:lumen-bar`, from `docs/plans/product-branches/lumen-bar.md`. The native app consumes whichever display catalog the owner serves, but this lane does not promote or commit LumenBar's dirty action-authority changes.
+
+### 2026-11-02 Canopy next-action continuation
+
+- The hosted `temperance-batch` fan-out was attempted with four isolated Phloem tasks (`noesis-execute`, implementation plus three audits). The gateway returned four `unavailable` receipts before model execution; no worker worktree or external effect was produced. The local-only paid-fleet ranker also remains unavailable because its SQLite store is absent; no local plant was created and provider policy was not changed.
+- The approved source slice was completed in isolated worktree branch `codex/cambium-next-action` and cherry-picked to `main` as `f4e03aa` (`feat(native): surface mapped next action`). `NextMeaningfulActionSelector` is pure CambiumCore logic: exactly one fresh served catalog-to-Work join opens existing Work; no detail, stale/future graph timestamps, missing rows, collisions or multiple joins fall back to Projects. The Canopy copy is explicitly read-only and says catalog membership cannot admit or launch work.
+- Verification from the clean isolated worktree: `swift test --package-path apps/cambium-mac` passed 35 native and 250 Core tests with one existing opt-in current-source skip; `build.sh` embedded `inputsDirty=False`, aggregate `8eaa04e6c5ccc3d36ab1fd523a1136814d002987cabd9f5f69b0a12c7b0bdd74`; strict bundle verification passed; four Canopy light/dark snapshots at 1280×820 and 880×612 report zero failures. The default capture visibly offers `Review joined Work` for synthetic `sapling:cambium` and preserves the non-admitted boundary.
+- No live state changed. TeamForge PR #105 remains unmerged/open; native session and mission-fabric routes remain unserved; the dedicated lookup secret, tenant map, client/origin registration, D1 migrations, founder browser consent, current catalog, exact Work join and admitted launch remain owner-gated. The dirty LumenBar catalog lane and all unrelated primary-checkout changes remain uncommitted and untouched by this slice.
+- Advisor evidence-linkage follow-up: a fresh detached clean worktree at `f4e03aa96d75cbb8ebbcd834730e7344022beb8f` reports `HEAD=f4e03aa`, `STATUS=clean`, 35 native + 250 Core Swift tests (one existing opt-in skip), 16/16 committed catalog tests, `inputsDirty=False` aggregate `8eaa04e6c5ccc3d36ab1fd523a1136814d002987cabd9f5f69b0a12c7b0bdd74`, strict bundle verification pass, and Canopy manifest `proofSha256=61c2dba823fc0f20b40c466dfaf2fd9694151291adefc8372fbba1334b76be7b` with zero failures. Four rendered image hashes are recorded in `ISA.md`. The primary dirty tree remains preserved and explicitly out-of-scope.
+- Reproducibility detail: `git status --porcelain --ignored` in the clean worktree shows only ignored `apps/cambium-mac/.build/` and `apps/cambium-mac/build/`; the second clean `build.sh` repeats the same aggregate `8eaa04e6c5ccc3d36ab1fd523a1136814d002987cabd9f5f69b0a12c7b0bdd74`. Toolchain readback is Swift 6.4 (`swift-driver 1.168.6`), Node `v26.10.0`, npm `11.19.1`, Darwin 27.2.0 arm64. The one skipped Swift test is the explicit opt-in `testCurrentSourceGeneratedFounderEnvelopeWhenProvided` because `CAMBIUM_FABRIC_FIXTURE_DIR` is unset; it is a local current-source probe, not a live-owner test. No committed snapshot baseline exists and `snap.sh` is capture-only (no update flag); the four captures were visually inspected, not presented as pixel-diff acceptance.
+- Scoped secret/PII scan found no token or email hits in the slice manifest or PNGs; a broad read of pre-existing `docs/evidence/` surfaced older 2026-09/2026-07 campaign examples (`wave@thoughtseed.space`, placeholder `secret@example.invalid`) outside `f4e03aa`, which were not edited or copied into the native slice. Fresh GET-only live readback observed Curious `/healthz` 200, native session and mission-fabric 404, and proposed TeamForge identity 501; Wrangler candidate upload remained dry-run only. These are observed boundaries, not inferred deployment or founder acceptance.
+
+### 2026-11-02 mapped source-link continuation
+
+- A source-only follow-up adds commits `4154f16` (`feat(native): open mapped project sources`) and `a55e432` (`fix(native): preserve source link accessibility`). `MappedSourceReference` classifies served provenance without inferring authority: explicit `site:https://...` values and repository-shaped `repo:owner/name` values render an external-browser `Open` link; vault, Cambium, alias-only repository, unknown, insecure and credential-bearing references remain text-only. The browser action is a user click and performs no Cambium write, admission, launch, or source ingestion.
+- Verification from the isolated clean branch `codex/cambium-source-links` at `025eebd45ccde66429b141fce95971267e2eedca`: full Swift suite passes 35 native and 251 Core tests with one existing opt-in current-source skip; the focused safe-source test passes; release proof reports `inputsDirty=False` and aggregate `28169aa17cee0e8403238b2025759b6449b7ff17a8f68be11fc549759bf9a917`; strict bundle verification passes; Projects snapshots at 1280×820 and 880×612 in light/dark report zero failures (`proofSha256=de9a6fa2b8514c0b183e94978214c8810abbd755d1e9800ab9892e5e5098bb86`). The primary cherry-picks are `4154f16` and `a55e432`; unrelated dirty catalog and planning lanes remain untouched.
+- Live boundaries were rechecked read-only: TeamForge PR #105 is still open/ready-for-review/mergeable with no status checks; Curious `/healthz` returns 200, `/v1/native/session` returns 404, `/v1/mission-fabric/cambium` returns 401 Access-required, and the proposed TeamForge identity route returns 501 `feature_not_ready`. No merge, secret write, D1 migration, deployment, client registration or founder sign-in occurred.
+
+### 2026-11-02 standard-mode live preflight continuation
+
+- The running Cambium Native standard window exposes the mapped Curious profile (`https://curious.thoughtseed.space`, tenant `cambium`, reviewed client `space.thoughtseed.cambium.native.dev`, reviewed callback) in Connections. Applying it is session-local, contacts nothing, and leaves the owner explicitly unsigned-in.
+- A real UI Sign in attempt then surfaced `The owner did not complete this action`; the app remained without a verified session and loaded no live project catalog. This matches the current read-only route evidence: native session `404`, Mission Fabric `401 access_identity_required`, and TeamForge native identity `501 feature_not_ready`. The local mapped catalog path remains proven; live founder delivery is still open.
+- A fresh `./apps/cambium-mac/tools/probe-current-portfolio.sh` rerun against the current working source passed the Swift mapper with 77 current records, 20 historical products, 50 operational gaps and one explicit runtime join (`catalogDigest=sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`). This is current-source evidence only; the concurrent LumenBar/catalog lane remains uncommitted and no deployed runtime claim follows.
+- Commit `caae15d` adds `apps/cambium-mac/tools/probe-live-owner.sh`, a bounded GET-only `cambium.live-owner-preflight.v1` receipt. Its current run records health `200`, native session `404`, Mission Fabric and quest projection `401 access_identity_required`, TeamForge identity `501 feature_not_ready`, and `routeSurfaceReady: false`; it sends no credentials, follows no redirects, and performs no writes.
+
+### 2026-11-02 atomic founder-access continuation
+
+- Commit `8bc0e38` makes the native-session factory accept the production `resolveFounderAccess` snapshot without requiring legacy split role/enrollment callbacks. The split callbacks remain supported only as a compatibility/test-owner path; when no atomic snapshot exists, both remain required and the factory stays fail-closed otherwise.
+- The focused Worker integration suite passes 101/101 across native-session routes, D1 stores, TeamForge identity, entrypoint composition and Mission Fabric integration, including a regression proving an atomic owner snapshot can bind without the legacy callbacks. No deployment, merge, secret write, migration apply or live founder session occurred.
+- The live preflight remains unchanged: Curious health `200`, native session `404`, Mission Fabric and quest projection `401 access_identity_required`, TeamForge identity `501 feature_not_ready`, `routeSurfaceReady: false`. The mapped catalog source remains dynamic and the dirty LumenBar authority lane remains untouched.
+- Commit `b8445af` removes the legacy split callbacks from the real Worker entrypoint, forcing production composition through the atomic TeamForge snapshot while preserving compatibility only for injected test/older owners. The entrypoint/native/identity route suite passes 79/79 after the change.
+
+### 2026-11-02 activation-readiness packet continuation
+
+- Commit `579c137` adds `apps/cambium-mac/tools/probe-activation-readiness.sh`, a bounded read-only packet generator. It joins the live owner preflight, current TypeScript-to-Swift portfolio decode, local 0100/0101 migration SHA-256s, scoped source head, and TeamForge PR #105 readback without merging, uploading, registering, migrating, or signing in.
+- A fresh packet records source `b8445af`, current working-source counts `77/20/0/50/1` with display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`, PR #105 open/non-draft/mergeable, and live health `200`, Mission Fabric/quest projection `401 access_identity_required`, native session `404`, and TeamForge identity `501 feature_not_ready`. `routeSurfaceReady` remains false.
+- `CAMBIUM_RUN_WRANGLER_DRY_RUN=1 ./apps/cambium-mac/tools/probe-activation-readiness.sh` passed candidate preparation and exposed the expected non-secret Labs bindings; this is not deployed binding readback. The dirty LumenBar/catalog lane and all other primary-checkout work remain untouched.
+
+### 2026-11-03 owner-runtime readback continuation
+
+- Fresh `CAMBIUM_RUN_LIVE_BINDING_READBACK=1 CAMBIUM_RUN_WRANGLER_DRY_RUN=1 ./apps/cambium-mac/tools/probe-activation-readiness.sh` still decodes the working mapped source as 77 current / 20 historical / 0 review / 50 gaps / 1 exact join with display digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`; candidate Wrangler preparation passes.
+- Labs Wrangler readback is authoritative and unchanged: deployment `b07e3e8d-d176-474e-a0eb-e2dd32fa5180` serves version `cf48e6d0-1721-456f-a170-ad0e2c5ca2b8` at 100%. Remote D1 reports unapplied `0010_website_intake.sql`, `0099_native_launch_requests.sql`, `0100_native_sessions.sql`, and `0101_native_consent.sql`. Secret inventory contains 24 names and no `PLEXUS_NATIVE_IDENTITY_TOKEN`.
+- TeamForge PR #105 remains open, non-draft, mergeable, with no checks and no reviews. Curious health is `200`; native session is `404`; Mission Fabric and quest projection are `401 access_identity_required`; the proposed TeamForge identity route is `501 feature_not_ready`. No merge, secret write, migration, upload, promotion, client registration, or founder session occurred.
+- A read-only remote D1 query against `cambium-bridge` returned zero rows for `native_sessions`, `native_consent_intents`, and `native_consent`; Wrangler reported `changes: 0`, `rows_written: 0`, and `changed_db: false`. The 0100/0101 migration hold is therefore confirmed by schema readback, not only the migration list.
+- Commit `c43057f` folds that schema query into `probe-activation-readiness.sh` as `runtimeReadback.nativeD1Tables`; the fresh packet records `[]` while preserving the no-write boundary.
+
+### 2026-11-03 six-session Alchemy documentation checkpoint — implementation in progress
+
+- Founder-approved growth-document reconciliation updates the existing `20-operations/growth/2026-11-02-system-points.md` locked table and session record for the full Alchemy taxonomy, exact fourteen hot capabilities, minimal automatic Vestibule/Nutrix, six overlapping-request baseline and simulated 24-request saturation. Free eligibility must protect shared S/A quota; cache-affinity readback and writer scope remain explicit. Runtime implementation and capacity acceptance are not marked complete by this checkpoint.
+- Current-facing organ/workflow/learning/whitepaper guidance now retires Superset, separates phases from routing pools and preserves historical deployment/test receipts. The existing project-map schema and identity are retained; only the unsupported Superset surface is replaced with supported Codex beside Claude. The owning parser accepts the map in parse-only mode; no automatic configuration ran.
+- Reconciled later 27 October evidence instead of repeating opening diagnoses: the relay was observed running, that day's EC2 digest check closed, Grok workflow copies were installed and a scorecard existed. Complete employee acceptance, fresh transport parity, sustained cadence and publication-adapter proof remain separate. Concurrent public portable-core source and install-fixture work is referenced, not overwritten or promoted into live acceptance.
+- Retained the sixteen Wispr prompts with stale entries corrected, added four bounded graph/loop/token/session-trace prompts, and corrected JSON import/duplicate-name behavior against official documentation. This documentation lane does not claim successful app import. Exact pre-edit files and hashes are preserved in a private local snapshot; no secrets or machine-local source paths were added to this checkpoint.
+- Documentation checks pass: exact fourteen identifiers, twenty distinct prompts, HTML parsing and historical-census preservation, private snapshot hash integrity, JSON map validation through its owning parser, and scoped whitespace checks. No cloud write, hook/skill/runtime-code edit, service start, graph submission, post, schedule or publication was performed by this lane. Parent-owned ISA and final operational receipts remain pending.
+
+### 2026-11-03 six-session Alchemy partial-outcome checkpoint — full hook review pending
+
+- The implementing owners report hosted configuration/readback through the existing resilience/settings/mapping APIs: exactly three pools, free-only fusion swarm and twenty compatibility aliases; cache affinity was already false. Selected provider caps aggregate to six (Claude one, Grok one, Codex two, Antigravity one, OpenRouter one), with selected account/model caps one. The deployed management schema does not support literal global zero; a source simulation setting must not be reported as applied production state. Opus is the independently resolved S model; requested high/max labels resolving to A base ids are not additional independent capacity.
+- Native source saturation simulation completed 24 offered requests, peak six in flight and one per account, including overflow/abort/deadline/gate-release checks. The first six-request live attempt returned 403 before upstream inference; access/allowlist remapping remains under investigation. Six successful overlapping live requests and overall rollout acceptance are still open.
+- Native managed-skill discovery canaries verified the fourteen for Codex, Grok and the existing te-claude launch path. Cursor remains projection-only and OpenCode runtime was absent. Wispr personal import/readback now verifies twenty snippets with the prior sixteen preserved; the founder returned the exact spoken session-card expansion. Parent guard checks pass 453/453 with sixteen Keychain fixtures; the restored shared Peon pack has start/end-only player-muted fixture proof, not audible playback acceptance.
+- The founder’s subsequent full hook-chain review/rebuild supersedes the interim reduced-chain approval. The owner is preparing eight functional handlers and a complete responsibility matrix; native acceptance is pending. Preserve actual security enforcement, producer-issued generations, durable occurrence/outcome handling, Nutrix-before-cleanup ordering and GSD/ISA ownership. The independent audit found optional git-add-all checkpoints, completion-on-close and ceremonial/automatic maintenance paths that must not be mistaken for acceptance gates.
+- Existing growth locked decisions/session log/map now separate these partial outcomes from pending acceptance. Cambium AGENTS project-rail wording now binds GSD workflows and bounded Alchemy orientation, without a mode quiz. Only that current-facing sentence changed; the operating contract and parallel work remain intact. No graph submission, cloud deployment, social scheduling or publication was performed by this documentation lane. Parent-owned ISA and final runtime receipts remain the acceptance owners.
+
+### 2026-11-03 six-session verified routing checkpoint — native hook review still required
+
+- The earlier pre-upstream 403 is superseded by bounded live receipts: mixed six-way routing returned HTTP 200/nonempty for one S, four A and one free request, including legacy execute/plan/free-burst aliases; the separate all-A six-way run also passed, with six distinct ephemeral relay identities and identical openings. Its 4.1–35.4-second observed latency includes queue time. The isolated 24-request saturation result remains simulation, not a 24-provider live load claim.
+- The three canonical pools now have context-cache protection true while global affinity remains false; all four explicit combos validate nonempty responses. Selected account/model caps remain one and provider capacity aggregates to six; deployed global-zero schema support remains unchanged. Provider/model follow-up continuity passed two of two, but account continuity only one of two. Keep that source investigation open; do not assert universal account pinning.
+- The full hook rebuild and responsibility matrix are source-complete: Codex native inspection reports eight enabled, zero errors and zero warnings, with five modified plus one untrusted requiring owner review and two trusted. Review all eight before a real native event canary. Codex/Claude/Grok each carry eight managed hooks; Cursor has seven user entries with activation of three cached plugin hooks unverified. Guard checks pass 453/453 and functional/generator checks 36; the generated profile is ready with no drift. The previously blocked benign quoted read now passes after the policy fix. None of those facts accepts the human-review/native-canary gate.
+- Peon title/color/desktop/update checks are off; player-muted proof records two start/end calls, no Stop call and no update file. No human audible-playback acceptance is claimed. Wispr’s twenty-snippet import and founder-spoken expansion passed. Earlier native fourteen-capability canaries remain recorded; final regeneration/resurrection-guard confirmation stays with the skill owner. Cursor/OpenCode capability limits remain explicit.
+- Owning operational report: Temperance Engine product repository, `docs/operations/2026-11-03-six-session-simplification.md`. Private evidence names include `routing/six-live-bun-http-acceptance.json` and `routing/all-a-six-continuity.json`; no raw identities or machine-local receipt paths are copied here. Existing growth decisions/log/map and the unpublished whitepaper status sentence now reflect these results. Native hook owner review/canary, account-continuity investigation and existing public-release holds remain open; ISA remains parent-owned.
+
+### 2026-11-03 final routing-affinity and hook-baseline reconciliation
+
+- Correction to the earlier six-session checkpoints: actual global concurrency remains zero. The deployed schema lacks the setter for the desired global ceiling of six; it does not reject the existing zero state. Selected provider budgets still sum to six and selected account/model caps remain one. Mixed/all-A six-request live receipts and the isolated 24-request simulation remain distinct.
+- Native session affinity is now enabled for 1800000 ms through the existing settings API, while global prompt-cache affinity stays false and canonical-pool context-cache protection stays true. The historical all-A account result (one of two, provider/model two of two) preceded repair. After repair, one direct Codex/Terra member pair returned two nonempty responses with the same provider/model/account. This is not another all-A combo proof, nor all-provider/restart/failover acceptance.
+- Existing te-codex, te-claude and worker wrappers carry explicit relay session headers. A fresh invocation receives a new UUID; raw codex --profile bypasses the wrapper. Automatic cross-launch identity recovery is not established. No raw identity or machine-local receipt path is copied into this checkpoint.
+- The full hook matrix classifies all 109 original Codex/Claude entries: original 78/31, interim 66/29 configuration entries (64 Codex hooks measured natively), then eight each. Thirty-six functional/generator checks pass. Six native entries still need owner review; review all eight and run the real native canary before acceptance. Skill durability/regeneration confirmation remains with its implementing owner. Existing growth documents and the unpublished whitepaper status now carry these bounded corrections; root runtime operations report and ISA were not edited by this lane. Public-release holds remain unchanged.
+
+### 2026-11-03 durable fourteen-capability reconciliation
+
+- Supersedes the earlier skill-durability pending lines: the sole taxonomy/profile startup projection now durably preserves the fourteen through ordinary tier apply and the legacy linker. Broad/all/cluster and legacy/archive activation refuse while the profile is active; index regeneration refreshes managed client visibility and the Claude overlay without a watcher. Four focused tests pass, including one added regression. Unmanaged direct/nested filesystem copies may still appear until regeneration; no universal wildcard control is claimed.
+- Final no-inference canaries exit zero with empty stderr: Codex fourteen managed/70 total, Grok fourteen managed/45 total and te-claude fourteen user/67 commands, with zero assistant/result events. Current 45/67 totals supersede earlier 47/83 observations. Cursor/OpenCode limits and the eight baseline reference errors remain unchanged. Six native hook trust reviews and the real native canary remain held; this bounded skill completion does not accept that gate or change public-release holds. Existing growth decisions/session log are reconciled; runtime source, operations report and ISA remain untouched by this lane.
+
+### 2026-11-03 dependency cleanup and bounded repository pickup — native acceptance held
+
+- Supersedes the earlier eight-handler minimality claims. All 109 original Codex/Claude registrations remain classified, but a deeper dependency review found retained vendor relay/process behavior, prompt veto/transcript scans, duplicate safety policy and platform-specific loading/output gaps. Current owned registries configure six callbacks per Codex/Claude Code/Grok and five Cursor callbacks. Start/end audio now uses the existing small local adapter, not the Peon vendor runtime. Lightweight prompt context retains task/pool and emits only changes; one pre-tool owner checks shared command policy, canonical protected paths, credentials and scoped PAI containment. Nutrix preserves producer generations, durable verified delivery and a bounded summary; two-second host/one-second nested budgets leave timeout pending or indeterminate, never accepted.
+- Startup offers at most three actual sourced streams from bounded repository-local handoff/planning and cached read-only issue metadata. The explicit snapshot owner fetched twelve Cambium issue headers with five-second deadline/six-hour TTL, without GitHub writes or inference. Stale/wrong-repository waves and oversized source files are visibly withheld. Speculum is projection-only; Hindsight gateway/scope acceptance is unavailable and no alternate principal or automatic memory write is used. Existing GSD/ISA, lifecycle, learning and publication authorities remain intact.
+- Source checks pass eleven prompt/startup tests, nineteen safety tests, 65 lifecycle/audio checks and five snapshot tests; the unchanged shared guard retains 453 passing cases. Native Codex discovery reports six enabled, zero errors/warnings and four review decisions pending; review all six before the real direct-client canary. Grok still reports four foreign plugin-hook sources enabled despite supported exclusion settings, so effective-source closure remains unresolved. Claude app/CLI parity and actual interception are not inferred from fixtures. Earlier routing receipts were not rerun. The running sessions, native trust/session stores, provider/routing configuration, services and publication state were preserved. Runtime operations report and private cleanup receipts own the detailed evidence; this checkpoint does not satisfy parent-owned ISA acceptance.
+
+### 2026-11-03 retired-loader discovery closure and operating-doc cleanup
+
+- The earlier Grok imported-source gap is closed at native discovery: exact retired loader-entrypoint quarantine yields zero foreign hook-file sources, zero hook-providing plugins and zero load errors, while preserving fourteen managed/45 listed capabilities and the same twelve native MCP names. Scripts/skill bodies remain at their paths; no active-session reload, runtime interception or MCP-health acceptance is inferred. Four native Codex trust decisions/all-six semantic review and the real direct-client canary remain held.
+- Current runtime guides and Context Routing now use the six-callback owner contract, bounded repository pickup and versioned retirement manifest. Old restore/mode/banner/local-plant/automatic-repair recipes were removed from living guide bodies; dated architecture, blueprint and planning records remain historical. No source/registry/native configuration, ISA, service, provider/routing or publication changes were made by this documentation lane; the running sessions remain preserved.
+
+### 2026-11-03 final retirement-policy and compatibility checkpoint
+
+- Scoped retirement policy/guards are locally committed through `cc7b3821` after `59adb1f9`, `0838b94d` and `8b1aa1b6`, with no push. Ten policy tests pass; six isolated staged legacy writer calls each refuse with exit two/zero writes even without the positive profile. The mode-map apply writer is retired, while its documentation check stays read-only and rejects old blocks. Ninety-seven compatibility tests/139 assertions pass via the existing alias resolver without deleted/skipped tests or changed product maps. Canonical lightweight prompt/Alchemy sources match installed copies; current runtime instructions replace the old generated operating survey.
+- Thirteen cached loader entrypoints are quarantined and one owned retired producer/marketplace entry removed after a private preimage; six exact loader families are denied automatic return. The 106-file inactive cohort is retained for unknown cached future callers while six sessions run; 149 ambiguous/on-demand files remain held. The inventory does not make all 287 files dead. Eight skill-reference audit hits were false positives: 33 owned adapters check correctly/no drift, with health zero errors/199 warnings and tier fourteen unchanged. Native Codex four review decisions/all-six semantic review and the direct-client canary remain held; no native reload, trust write, provider/routing change or session restart is claimed.
+
+### 2026-11-03 ISC-3467 live verification — delivery remains held
+
+- Bounded receipt: `docs/evidence/2026-11-03-isc-3467-verification.json`;
+  ordered owner work and acceptance: `.planning/native-mac/ISC-3467-CLOSURE.md`.
+  ISC-3467 stays unchecked. Local catalog decode remains 77/20/0/50/1 with
+  digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`;
+  no owner-served digest was obtained.
+- The actual standard-mode Mac app applied the reviewed owner profile in app
+  memory. Sign in returned “The owner did not complete this action”; Projects
+  showed “No project catalog loaded.” No demo was used. The receipt records
+  the actual executable hash and older embedded revision `3f507fb`; a passed
+  ad hoc bundle signature is not latest-source or delivery acceptance.
+- Fresh deployment readback supersedes earlier b07e/cf48 observations:
+  `d27c5b87-57ec-4774-82f8-21a518d23ccb` serves version
+  `ef6e0c74-697e-4938-9d15-e0e481c80dbe` at 100%. Active version read succeeds
+  but lacks five native owner/client/identity bindings. BRIDGE_DB matches the
+  declaration. Native session remains404; TeamForge identity501; unauthenticated
+  catalog/quest401 establishes the fence only. TeamForge PR105 remains open.
+- A successful exact schema SELECT proves the three native authorization,
+  session and consent-intent tables absent, with changes0/rows-written0 and
+  changed_db false. An earlier7403 failure was unavailable evidence, superseded
+  by this read. The readiness probe now records per-read status, keeps failed
+  reads null, and checks the actual authorization-code table. Two isolated
+  regression tests pass; independent scoped review found no actionable issues.
+- The reusable anatomy explorer consumes a bounded dated verification sidecar.
+  Four compact proof controls show blocked/partial observations with source
+  references; unsupported path joins remain broken.38spatial tests/17,638
+  assertions, typecheck/build and actual Chrome rendering/modal/playback checks
+  pass. The in-app browser was unavailable this turn. No cloud merge,
+  deployment, secret write, migration apply, enrollment/admission change or
+  acceptance completion occurred. Work/admitted-launch ISC3477 remains separate
+  from catalog-delivery ISC3467.
+
+
+### 2026-11-03 Temperance selected-task trace — review and native pickup complete
+
+- Current Temperance task: the existing `/sapling-review temperance` selection is complete as a local review. Evidence: `docs/evidence/2026-11-03-temperance-workflow-trace.v1.json`; generated review, findings and completed progress live under ignored `.local/sapling-lifecycle/2026-11-03-session-trace/`. No new planner, hook, code or scheduler was added.
+- All 21 workflow sources resolved; 20 match their pins and the branch-loop library remains flagged for source drift. Existing helper checks pass 17/17 and all eight branch packets validate. This does not establish full-suite, Hermes dispatch, hosted-authentication or clean-host acceptance.
+- Correction for pickup: preserve the founder-confirmed November 6, 2026, 12:01 AM PST schedule. Older unscheduled observations are historical. Product graph rejection and all runtime, tenant, deployment and publication holds remain; no external state was changed or refreshed.
+- Resume with `npm run sapling -- status temperance --state .local/sapling-lifecycle/2026-11-03-session-trace/progress.json`. Read the completed proof; do not rerun it or automatically select graph repair, pin refresh or portable-core implementation. A fresh ephemeral read-only native Codex session read the actual proof, recomputed its SHA-256 and successfully ran that status command, recognizing the completed marker without replay. Concurrent native-app work and existing sessions remain preserved.
+
+- Pickup efficiency remains bounded evidence, not an optimization claim: the cold reader returned 304610 bytes from the full historical handoff. Use PROJECT.md plus the relevant structured continuation first, then only the matching recent handoff section. Aggregate pickup usage is recorded in the trace evidence; no startup-token or RAM savings are inferred. The existing malformed repo-local cambium skill warning remains outside this task.
+
+
+### 2026-11-03 bounded structured pickup — fresh native verification passed
+
+- PROJECT, shared/Claude pickup instructions and the context manifest now use the existing structured handoff with one selected continuation. This file retains its full prior history byte-for-byte beneath the 12-line pickup pointer; historical sections are read on demand.
+- Verification receipt: `docs/evidence/2026-11-03-bounded-handoff-pickup.v1.json`. A fresh ephemeral read-only native Codex pickup read only the 572-byte pointer, selected current fields and one continuation, verified proof hashes and completed status, and stopped without replay. All-command tool output fell from 425693 to 81764 bytes in this pair of runs; aggregate input tokens and elapsed time increased, so no overall token, latency or RAM saving is claimed. No hook, provider, client/session or deployment change occurred.

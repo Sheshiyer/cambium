@@ -4,7 +4,7 @@ import type { GoalGraphLoadoutAuthority, GoalGraphLoadoutAuthorityRecord } from 
 export const MISSION_FABRIC_CAPS = {
   MAX_NODES: 512,
   MAX_EDGES: 1024,
-  MAX_GAPS: 128,
+  MAX_GAPS: 256,
   MAX_EVIDENCE_REFS_PER_NODE: 32,
   MAX_DISPLAY_CHARS: 512,
 } as const;
@@ -806,16 +806,19 @@ export function adaptBranchStories(input: unknown): readonly FabricAdaptedEntry[
     }
     if (raw.branchKind === 'internal-service') {
       const adapterMap = Array.isArray(controls.adapterServiceMap) ? controls.adapterServiceMap : [];
-      const mapping = adapterMap
+      const legacyMapping = adapterMap
         .map((entry) => (isRecord(entry) && typeof entry.tenantMapping === 'string' ? entry.tenantMapping : null))
         .filter((kind): kind is string => kind !== null && SERVICE_PROGRAM_KINDS.has(kind as ProgramWork['programKind']))
         .sort(compare)[0];
+      const mapping = raw.programKind === undefined ? legacyMapping
+        : typeof raw.programKind === 'string' && SERVICE_PROGRAM_KINDS.has(raw.programKind as ProgramWork['programKind'])
+          ? raw.programKind : undefined;
       if (mapping === undefined) {
         entries.push(gapEntry(
           `gap-branch-service-mapping-${raw.branchId}`,
           'missing-service-mapping',
           raw.branchId,
-          `Internal-service branch ${raw.branchId} has no explicit capability|operations mapping; it was not adapted into a program.`,
+          `Internal-service branch ${raw.branchId} has no valid explicit capability|operations program kind; it was not adapted into a program.`,
           null,
         ));
         continue;

@@ -1,9 +1,9 @@
 // Browser-safe action authority shared by the Workbench and Worker. The
-// Worker validator recomputes and verifies this 73-record catalog digest;
+// Worker validator recomputes and verifies this 74-record catalog digest;
 // presentation proposals must never advance it by implication.
 export const PORTFOLIO_ACTION_CLASSIFICATION_DIGEST = '43630e6e65dfa78cd5c5e486b389308a8dede9d7bda012b400f4976107cdb309' as const;
-export const PORTFOLIO_ACTION_CATALOG_VERSION = 2 as const;
-export const PORTFOLIO_ACTION_CATALOG_DIGEST = 'sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c' as const;
+export const PORTFOLIO_ACTION_CATALOG_VERSION = 3 as const;
+export const PORTFOLIO_ACTION_CATALOG_DIGEST = 'sha256:0d2a95251db5c9ae79f66044ac963343d273d20639ac7e08ab1abcc66d36ae00' as const;
 
 // Reviewed action-catalog versions, oldest first; the last entry is the
 // current action authority above. Each later version names exactly the
@@ -20,10 +20,16 @@ export const PORTFOLIO_REVIEWED_CATALOG_VERSIONS = Object.freeze([
     approvalEvidence: 'docs/evidence/2026-08-12-reviewed-pins-ledger-push.v1.json',
   }),
   Object.freeze({
-    version: PORTFOLIO_ACTION_CATALOG_VERSION,
-    catalogDigest: PORTFOLIO_ACTION_CATALOG_DIGEST,
+    version: 2,
+    catalogDigest: 'sha256:b7393ed6ad4d05ec831fc105e9519c365bde036f7e29f9002b8a8abcff95170c',
     admittedWorkIds: Object.freeze(['branch:relovo']),
     approvalEvidence: 'docs/evidence/2026-10-22-relovo-portfolio-admission.v1.json',
+  }),
+  Object.freeze({
+    version: PORTFOLIO_ACTION_CATALOG_VERSION,
+    catalogDigest: PORTFOLIO_ACTION_CATALOG_DIGEST,
+    admittedWorkIds: Object.freeze(['sapling:lumen-bar']),
+    approvalEvidence: 'docs/plans/product-branches/lumen-bar.md',
   }),
 ]);
 
@@ -34,11 +40,11 @@ export const PORTFOLIO_CLASSIFICATION_DIGEST = PORTFOLIO_ACTION_CLASSIFICATION_D
 export const PORTFOLIO_CATALOG_DIGEST = PORTFOLIO_ACTION_CATALOG_DIGEST;
 
 export const PORTFOLIO_CATALOG_COUNTS = Object.freeze({
-  total: 73,
-  saplings: 17,
+  total: 74,
+  saplings: 18,
   clientBranches: 41,
   internalPrograms: 15,
   classificationReview: 0,
   historicalProducts: 20,
-  operationalGaps: 49,
+  operationalGaps: 50,
 } as const);

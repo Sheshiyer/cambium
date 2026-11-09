@@ -59,6 +59,9 @@
     "proactive:loop": "node scripts/proactive-loop-tick.mjs",
     "proactive:loop:json": "node scripts/proactive-loop-tick.mjs --json",
     "growth-index:generate": "node scripts/growth-index/generate-growth-index.mjs",
-    "growth-index:test": "node --test scripts/growth-index/generate-growth-index.test.mjs"
+    "growth-index:test": "node --test scripts/growth-index/generate-growth-index.test.mjs",
+    "sapling": "node .agents/skills/sapling-lifecycle/scripts/lifecycle.mjs",
+    "sapling:adapters": "node .agents/skills/sapling-lifecycle/scripts/install.mjs",
+    "sapling:test": "node --test .agents/skills/sapling-lifecycle/scripts/pack.test.mjs"
   }
 }

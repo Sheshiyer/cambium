@@ -1,3 +1,4 @@
+import { fitcheckReferencesClear } from './fitcheck-scope-reconciliation.ts';
 import { createHermesReceiptIngestion, createHermesReceiptAuthorizer, type HermesReceiptsAI } from './hermes-receipts-v2.ts';
 import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
 
@@ -47,6 +48,7 @@ import type { CortexIngestionDeps } from './cortex-ingestion.ts';
 import type { R2BucketLike, VectorizeIndexLike } from './context-bindings.ts';
 import { createNativeSessionHost, standardNativeRandom, type NativeSessionClient } from './native-session.ts';
 import { d1NativeConsentIntentStore, d1NativeSessionStore } from './native-session-d1.ts';
+import { d1SharedSignalStore } from './shared-signals-d1.ts';
 import { resolvePlexusPrincipal, type PlexusGateConfig } from './lib/plexus-principal.ts';
 
 export interface D1StatementLike {
@@ -1539,9 +1541,11 @@ export default {
       leadRuntimeStore: env.BRIDGE_DB ? d1LeadRuntimeStore(env.BRIDGE_DB) : undefined,
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
       founderGateBindingsJson: env.FOUNDER_GATE_BINDINGS_JSON,
+      fitcheckReferenceReadback: env.BRIDGE_DB ? () => fitcheckReferencesClear(env.BRIDGE_DB!) : undefined,
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       nativeSessionHost,
+      sharedSignalStore: env.BRIDGE_DB ? d1SharedSignalStore(env.BRIDGE_DB) : undefined,
       portfolioActionStore: env.THOUGHTSEED_VAULT?.put
         ? createPortfolioAdminActionStore(env.THOUGHTSEED_VAULT)
         : undefined,

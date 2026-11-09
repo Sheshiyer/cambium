@@ -83,7 +83,9 @@ const CuriousGateBridge = (() => {
     });
   }
   function rowOf(raw) {
-    if (!raw || typeof raw !== 'object' || raw.kind !== 'goal-graph-intake' || ![SOURCE, 'founder-proposal-renewal@v1'].includes(raw.source)) return null;
+    if (!raw || typeof raw !== 'object' || raw.kind !== 'goal-graph-intake') return null;
+    const fitcheckScope = raw.source === 'fitcheck-scope-reconciliation@v1';
+    if (fitcheckScope ? signer() !== 'access' : ![SOURCE, 'founder-proposal-renewal@v1'].includes(raw.source)) return null;
     const renewableStale = raw.status === 'stale' && raw.renewOnly === true && raw.canRenew === true;
     if ((raw.status !== 'pending' && !renewableStale) || raw.tenantId !== TENANT || typeof raw.changeDigest !== 'string' || !DIGEST.test(raw.changeDigest)) return null;
     if (typeof raw.approvalNonce !== 'string' || !raw.approvalNonce || raw.approvalNonce.length > 240) return null;

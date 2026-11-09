@@ -93,7 +93,7 @@
     {
       "path": "scripts/probe-openai-mcp-readiness.mjs",
       "role": "credential-free-live-mcp-readiness-probe",
-      "digest": "sha256:d4f81f016116ee70337f73c7ffb215b3f75615bf824e23b261d9221732ca65a0"
+      "digest": "sha256:fa682255fe110a3801a64c7f34bafa68620aac89d25447b337d829f2c192cbb3"
     },
     {
       "path": "scripts/check-openai-mcp-deployment-admission.mjs",

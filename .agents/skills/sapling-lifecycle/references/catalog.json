@@ -1,0 +1,627 @@
+{
+  "schema": "cambium.sapling-workflow-catalog.v1",
+  "reviewed_at": "2026-11-02",
+  "scope": "The named product, delivery, growth, repetition and learning components; not a claim that every installed skill or live runtime was tested.",
+  "components": [
+    {
+      "id": "sapling-product-loop",
+      "family": "product-evidence",
+      "owner": "Thoughtseed Labs workflow source",
+      "source": {
+        "root": "vault",
+        "path": ".grok/workflows/sapling-product-loop.rhai"
+      },
+      "digest": "sha256:5c225d88b7fa858ec4ecd4e577267efd504067cbfde8b8a5a3adab9baf1a9ecf",
+      "inputs": [
+        "product slug",
+        "app and site roots",
+        "optional curated and brand roots",
+        "claim-note reference",
+        "record=false",
+        "approved=false"
+      ],
+      "outputs": [
+        "scratch graph.json",
+        "confirmed boolean and fence reason"
+      ],
+      "writes": [
+        "scratch only on read route; record=true enables a separate read-write vault receipt agent"
+      ],
+      "prerequisites": [
+        "both roots readable",
+        "read-only agents",
+        "bounded active workflow session"
+      ],
+      "stop": "Terminal result, no nodes, failed fence, or explicit timeout; never enter Record.",
+      "verify": "grok --cwd \"$THOUGHTSEED_VAULT_ROOT\" inspect",
+      "findings": [
+        "Rhai evidence_ok accepts any HTTPS URL and uses lexical path prefixes; it does not establish observation or resolve symlinks.",
+        "Packet rows and edge endpoints are model-produced without deterministic membership validation.",
+        "Status schemas accept arbitrary strings; omitted publishes fields are accepted by source filtering.",
+        "Bind/trace read working files; a dirty or behind checkout does not prove the published release.",
+        "A graph fence acceptance is not owner approval or operational admission."
+      ]
+    },
+    {
+      "id": "product-branch-packets",
+      "family": "product-evidence",
+      "owner": "Cambium packet contract",
+      "source": {
+        "root": "cambium",
+        "path": "docs/plans/product-branches/schema.json"
+      },
+      "digest": "sha256:3befce123c4764c27f45d954356097a3e61fe0ac55e86b7d039c638f5c8be3cb",
+      "inputs": [
+        "packet Markdown",
+        "index row",
+        "evidence and gate ledgers"
+      ],
+      "outputs": [
+        "schema-conforming proof-bound packet"
+      ],
+      "writes": [],
+      "prerequisites": [
+        "explicit product identity and provenance"
+      ],
+      "stop": "Missing required section, unresolved evidence, or unsupported promotion.",
+      "verify": "npm run validate:product-branches",
+      "findings": [
+        "Packet validation proves shape; it does not re-observe external product state."
+      ]
+    },
+    {
+      "id": "sapling-product-intake",
+      "family": "lifecycle",
+      "owner": "Cambium reviewed intake registry",
+      "source": {
+        "root": "cambium",
+        "path": "docs/project-management/project-intake-workflows.v1.json",
+        "selector": "workflows[id=sapling-product]"
+      },
+      "digest": "sha256:f70e295cf3eef4514b096b8b15731a35da846d1978c087f0a68e023127a28bde",
+      "inputs": [
+        "origin",
+        "canonical work identity",
+        "repository roles",
+        "approval-bound evidence"
+      ],
+      "outputs": [
+        "intake through closeout stage definitions"
+      ],
+      "writes": [],
+      "prerequisites": [
+        "compatible WorkObject kind",
+        "reviewed registry"
+      ],
+      "stop": "A stage lacks its named evidence or requested action lacks authority.",
+      "verify": "node --test scripts/thoughtseed-project-birth.test.mjs",
+      "findings": []
+    },
+    {
+      "id": "project-birth",
+      "family": "lifecycle",
+      "owner": "Cambium project birth implementation",
+      "source": {
+        "root": "cambium",
+        "path": "scripts/thoughtseed-project-birth.mjs"
+      },
+      "digest": "sha256:61284d81c33c330249a19d39e8b73ddf18d3ca08e071bb965ba618f49345e91f",
+      "inputs": [
+        "reviewed project-birth action",
+        "workflow id",
+        "pinned registry/catalog/root-map digests"
+      ],
+      "outputs": [
+        "prepared plan or birth receipt"
+      ],
+      "writes": [
+        "execute route creates approved project material; this pack uses preparation only"
+      ],
+      "prerequisites": [
+        "canonical identity reviewed",
+        "exact approved action before execute"
+      ],
+      "stop": "Digest mismatch, unreviewed kind, existing destination, or missing approval.",
+      "verify": "node --test scripts/thoughtseed-project-birth.test.mjs",
+      "findings": []
+    },
+    {
+      "id": "project-closeout",
+      "family": "lifecycle",
+      "owner": "Cambium closeout implementation",
+      "source": {
+        "root": "cambium",
+        "path": "scripts/thoughtseed-project-closeout.mjs"
+      },
+      "digest": "sha256:ab6c3b186248017fc82a6866d3bd59dc489ea25f3f1c523eb8faf48cc4204c72",
+      "inputs": [
+        "reviewed closeout action",
+        "source provenance",
+        "handoff disposition"
+      ],
+      "outputs": [
+        "prepared closeout or execution receipt"
+      ],
+      "writes": [
+        "execution may change active indexes and project state; not called by read routes"
+      ],
+      "prerequisites": [
+        "owner-reviewed disposition",
+        "preserved recovery path"
+      ],
+      "stop": "Missing evidence or a move/retirement exceeds authorization.",
+      "verify": "node --test scripts/thoughtseed-project-closeout.test.mjs",
+      "findings": []
+    },
+    {
+      "id": "website-delivery",
+      "family": "delivery",
+      "owner": "Shared skill-clusters workflow registry",
+      "source": {
+        "root": "clusters",
+        "path": "workflows/registry.json",
+        "selector": "workflows[id=website-delivery]"
+      },
+      "digest": "sha256:0c1403e062f4da09694ecc20a1f0dd5688daa35cdb18fec8a4f7bc9a9dc15f3e",
+      "inputs": [
+        "brief",
+        "brand references",
+        "composition choice"
+      ],
+      "outputs": [
+        "website implementation and review evidence"
+      ],
+      "writes": [
+        "local source/build outputs; paid media and deployment are separate actions"
+      ],
+      "prerequisites": [
+        "lock brand",
+        "choose one composition path"
+      ],
+      "stop": "One selected stage completes or an owning approval/evidence gate blocks it.",
+      "verify": "node \"$SKILL_CLUSTERS_ROOT/scripts/search-skills.mjs\" --validate-workflow website-delivery",
+      "findings": [
+        "Registry still mentions swarm execution; dispatch requires the current rail and scoped request."
+      ]
+    },
+    {
+      "id": "expo-rn-app",
+      "family": "delivery",
+      "owner": "Shared skill-clusters workflow registry",
+      "source": {
+        "root": "clusters",
+        "path": "workflows/registry.json",
+        "selector": "workflows[id=expo-rn-app]"
+      },
+      "digest": "sha256:0c1403e062f4da09694ecc20a1f0dd5688daa35cdb18fec8a4f7bc9a9dc15f3e",
+      "inputs": [
+        "mobile brief",
+        "Expo toolchain",
+        "native module requirements"
+      ],
+      "outputs": [
+        "app source, QA evidence, build/submission preparation"
+      ],
+      "writes": [
+        "local source/build outputs; EAS and store submission are external actions"
+      ],
+      "prerequisites": [
+        "confirm Expo Go versus dev client/prebuild",
+        "locked environment"
+      ],
+      "stop": "One selected stage completes or an owning approval/evidence gate blocks it.",
+      "verify": "node \"$SKILL_CLUSTERS_ROOT/scripts/search-skills.mjs\" --validate-workflow expo-rn-app",
+      "findings": [
+        "Registry intensity note uses retired te-plan/te-build names; resolve current noesis lanes from host authority."
+      ]
+    },
+    {
+      "id": "cloudflare-workers",
+      "family": "delivery",
+      "owner": "Shared skill-clusters workflow registry",
+      "source": {
+        "root": "clusters",
+        "path": "workflows/registry.json",
+        "selector": "workflows[id=cloudflare-workers]"
+      },
+      "digest": "sha256:0c1403e062f4da09694ecc20a1f0dd5688daa35cdb18fec8a4f7bc9a9dc15f3e",
+      "inputs": [
+        "edge architecture",
+        "Wrangler configuration",
+        "binding inventory"
+      ],
+      "outputs": [
+        "edge source and deployment preparation"
+      ],
+      "writes": [
+        "local source/bundles; deploy and bindings require owning authorization"
+      ],
+      "prerequisites": [
+        "locked compatibility date and bindings"
+      ],
+      "stop": "One selected stage completes or an owning approval/evidence gate blocks it.",
+      "verify": "node \"$SKILL_CLUSTERS_ROOT/scripts/search-skills.mjs\" --validate-workflow cloudflare-workers",
+      "findings": [
+        "Registry intensity note uses retired te-build/te-plan-max names; do not revive aliases."
+      ]
+    },
+    {
+      "id": "supabase-app",
+      "family": "delivery",
+      "owner": "Shared skill-clusters workflow registry",
+      "source": {
+        "root": "clusters",
+        "path": "workflows/registry.json",
+        "selector": "workflows[id=supabase-app]"
+      },
+      "digest": "sha256:0c1403e062f4da09694ecc20a1f0dd5688daa35cdb18fec8a4f7bc9a9dc15f3e",
+      "inputs": [
+        "data model",
+        "auth and tenant needs"
+      ],
+      "outputs": [
+        "schema/RLS, functions and client implementation evidence"
+      ],
+      "writes": [
+        "local source; remote migration/configuration is separately authorized"
+      ],
+      "prerequisites": [
+        "RLS and tenant boundary reviewed"
+      ],
+      "stop": "One selected stage completes or an owning approval/evidence gate blocks it.",
+      "verify": "node \"$SKILL_CLUSTERS_ROOT/scripts/search-skills.mjs\" --validate-workflow supabase-app",
+      "findings": []
+    },
+    {
+      "id": "native-macos-release",
+      "family": "delivery",
+      "owner": "Shared skill-clusters workflow registry",
+      "source": {
+        "root": "clusters",
+        "path": "workflows/registry.json",
+        "selector": "workflows[id=native-macos-release]"
+      },
+      "digest": "sha256:0c1403e062f4da09694ecc20a1f0dd5688daa35cdb18fec8a4f7bc9a9dc15f3e",
+      "inputs": [
+        "pinned source commit",
+        "release contract",
+        "artifact policy"
+      ],
+      "outputs": [
+        "local package/trust evidence and release draft preparation"
+      ],
+      "writes": [
+        "local packages; signing credentials, uploads, tags and publication are separate actions"
+      ],
+      "prerequisites": [
+        "release-contract validation",
+        "source checks",
+        "trust checks"
+      ],
+      "stop": "One selected stage completes or an owning approval/evidence gate blocks it.",
+      "verify": "node \"$SKILL_CLUSTERS_ROOT/scripts/search-skills.mjs\" --validate-workflow native-macos-release",
+      "findings": [
+        "Source registry stages include publication, but selecting this pack is not publication authorization."
+      ]
+    },
+    {
+      "id": "sapling-multi-prong-gtm",
+      "family": "growth",
+      "owner": "Cambium GTM SOP and pure contracts",
+      "source": {
+        "root": "cambium",
+        "path": "docs/runbooks/sapling-multi-prong-gtm-sop.md"
+      },
+      "digest": "sha256:982b2403766fb462f2a243492145b832565b647320d37a6a76359c7d37a103cc",
+      "inputs": [
+        "sapling identity",
+        "current brand packet",
+        "provider observations",
+        "channel-specific authority"
+      ],
+      "outputs": [
+        "routing/probe map and draft-first GTM handoff"
+      ],
+      "writes": [
+        "procedure names external provider/TG/spend actions; map/read route performs none"
+      ],
+      "prerequisites": [
+        "brand packet is authoritative",
+        "historical campaign values re-observed before use"
+      ],
+      "stop": "One mapped step or gate; a source-level procedure never proves current deployment.",
+      "verify": "node --test shared/sapling-gtm-loop-pack.test.ts shared/sapling-gtm-learning-loop.test.ts shared/sapling-gtm-tg-handoff.test.ts",
+      "findings": [
+        "SOP names retired Superset execution; use the current owning Hands rail.",
+        "Primary checkout and installed Grok carry a matching local workflow, but that .grok body is absent from this clean Git checkout. Do not treat the installed copy as versioned source.",
+        "Worked-example campaigns, topic routing, and provider posture are historical calibration, never defaults for another product."
+      ]
+    },
+    {
+      "id": "brand-case-loop",
+      "family": "growth",
+      "owner": "Thoughtseed Labs workflow source",
+      "source": {
+        "root": "vault",
+        "path": ".grok/workflows/brand-case-loop.rhai"
+      },
+      "digest": "sha256:54485c77c45c7685e510c7acf019c1858e1f8441f4ffd70e64af7388d28075d9",
+      "inputs": [
+        "pack slug",
+        "walk id",
+        "allowed platforms",
+        "existing spine"
+      ],
+      "outputs": [
+        "fenced drafts",
+        "scratch queue.md"
+      ],
+      "writes": [
+        "scratch only; explicit workflow pause precedes queued artifact"
+      ],
+      "prerequisites": [
+        "read pack and product authority",
+        "spine exists",
+        "platform permitted"
+      ],
+      "stop": "Failed bind/spine/fence, no surviving draft, or operator pause before queue.",
+      "verify": "grok --cwd \"$THOUGHTSEED_VAULT_ROOT\" inspect",
+      "findings": [
+        "Queue means an artifact, not an external publish or send."
+      ]
+    },
+    {
+      "id": "cambium-social-thread",
+      "family": "growth",
+      "owner": "Thoughtseed Labs workflow source",
+      "source": {
+        "root": "vault",
+        "path": ".grok/workflows/cambium-social-thread.rhai"
+      },
+      "digest": "sha256:e9f8d8970711194eb3804f56da4c2d0e1cdcd353f51962d038b43607dcc01685",
+      "inputs": [
+        "asset kind",
+        "community",
+        "canonical Cambium/Temperance social source"
+      ],
+      "outputs": [
+        "fenced scratch draft.md"
+      ],
+      "writes": [
+        "scratch only"
+      ],
+      "prerequisites": [
+        "supported asset/community",
+        "current source chain"
+      ],
+      "stop": "Failed Ground, Draft, or Fence; terminal scratch artifact otherwise.",
+      "verify": "grok --cwd \"$THOUGHTSEED_VAULT_ROOT\" inspect",
+      "findings": [
+        "Calibrated source is Cambium/Temperance, so this is not a generic product-context engine. Route other products through their brand pack."
+      ]
+    },
+    {
+      "id": "search-stack-run",
+      "family": "growth",
+      "owner": "Thoughtseed Labs workflow source",
+      "source": {
+        "root": "vault",
+        "path": ".grok/workflows/search-stack-run.rhai"
+      },
+      "digest": "sha256:a170e850297359a921eb3ebc9b4d5d0da343e27901cc05d5e00b0af6311f857f",
+      "inputs": [
+        "work id",
+        "optional kind",
+        "readable product and brand context"
+      ],
+      "outputs": [
+        "scratch search-stack-report.md with foundation and six-layer scorecard"
+      ],
+      "writes": [
+        "scratch only; later Feed owns canonical cell changes"
+      ],
+      "prerequisites": [
+        "exact work identity",
+        "source-supported observations"
+      ],
+      "stop": "A bind/probe/scorecard/fence failure or terminal report; missing observations remain empty.",
+      "verify": "grok --cwd \"$THOUGHTSEED_VAULT_ROOT\" inspect",
+      "findings": [
+        "A returned scorecard does not prove indexing, ranking, conversion or a live integration."
+      ]
+    },
+    {
+      "id": "branch-loop-library",
+      "family": "repetition",
+      "owner": "Cambium packet-derived loop library",
+      "source": {
+        "root": "cambium",
+        "path": "docs/plans/product-branches/loop-library.md"
+      },
+      "digest": "sha256:0188eaff5a098374ae28926c499a7a44bf53c8d693945acaf0ef9e193aa663d2",
+      "inputs": [
+        "packet objective",
+        "metric",
+        "boundary color",
+        "state file",
+        "stop and proof requirements"
+      ],
+      "outputs": [
+        "one-change routine contract"
+      ],
+      "writes": [
+        "manual round may write ignored operator state; no scheduling by this pack"
+      ],
+      "prerequisites": [
+        "readable packet",
+        "selected one-change action"
+      ],
+      "stop": "One change or one blocked request; no cadence creation.",
+      "verify": "node --test bin/operator/quests/branch-loop-library.test.ts",
+      "findings": [
+        "The existing npm branch-loops:check alias includes --write; use the direct script without --write for a read."
+      ]
+    },
+    {
+      "id": "gtm-loop-evaluator",
+      "family": "repetition",
+      "owner": "Cambium pure GTM evaluator",
+      "source": {
+        "root": "cambium",
+        "path": "shared/sapling-gtm-loop-pack.ts"
+      },
+      "digest": "sha256:516ca8f9da9c3d73ecd14b7a826d0bd9f27a784dbd2d5efd4be9ea0aee253ff7",
+      "inputs": [
+        "product-specific probe context"
+      ],
+      "outputs": [
+        "pass/fail/held per probe"
+      ],
+      "writes": [],
+      "prerequisites": [
+        "observations attributable to the selected product"
+      ],
+      "stop": "Return probe results; do not convert pass flags into authority.",
+      "verify": "node --test shared/sapling-gtm-loop-pack.test.ts",
+      "findings": [
+        "Embedded calibration context contains historical approval booleans; never reuse it as another product context."
+      ]
+    },
+    {
+      "id": "gtm-learning-compiler",
+      "family": "learning",
+      "owner": "Cambium pure learning compiler",
+      "source": {
+        "root": "cambium",
+        "path": "shared/sapling-gtm-learning-loop.ts"
+      },
+      "digest": "sha256:8de6188fba10e557ddc382f067c8896ed3d86488c4ce709f86d64e25e803207c",
+      "inputs": [
+        "separate historical lessons and current clean-provider observations",
+        "brand packet reference"
+      ],
+      "outputs": [
+        "candidate rules and hypotheses with receipt-shaped data"
+      ],
+      "writes": [],
+      "prerequisites": [
+        "distinct historical and clean identities",
+        "review product fit"
+      ],
+      "stop": "Validation error or compiled candidate; no memory/provider write.",
+      "verify": "node --test shared/sapling-gtm-learning-loop.test.ts",
+      "findings": [
+        "Compiler is calibrated to a particular market wedge; generic products need their own observations and fit review, not transplanted targeting rules."
+      ]
+    },
+    {
+      "id": "gtm-handoff-compiler",
+      "family": "learning",
+      "owner": "Cambium pure handoff compiler",
+      "source": {
+        "root": "cambium",
+        "path": "shared/sapling-gtm-tg-handoff.ts"
+      },
+      "digest": "sha256:bed3328c96db7698cd56a68e01fe3926c043b8d4228e35b55158e8035fd82a35",
+      "inputs": [
+        "product-bound loop results",
+        "learning evidence",
+        "handoff phase"
+      ],
+      "outputs": [
+        "handoff cards and topic references"
+      ],
+      "writes": [],
+      "prerequisites": [
+        "current owner/topic authority before any delivery"
+      ],
+      "stop": "Return cards; sending or folding into canonical memory requires its owning action.",
+      "verify": "node --test shared/sapling-gtm-tg-handoff.test.ts",
+      "findings": [
+        "Module contains fixed historical topic routes; compile-only output does not authorize routing or sending."
+      ]
+    },
+    {
+      "id": "grok-workflow-sync",
+      "family": "tooling",
+      "owner": "Thoughtseed Labs allowlisted sync helper",
+      "source": {
+        "root": "vault",
+        "path": "20-operations/growth/tools/grok-workflows-sync.sh"
+      },
+      "digest": "sha256:9c50b67f09af01505709d00eef736c8db6cd59af02e4580966692938a4387e93",
+      "inputs": [
+        "canonical workflow files",
+        "destination"
+      ],
+      "outputs": [
+        "provenance-marked regular copies or drift report"
+      ],
+      "writes": [
+        "sync mode writes three allowlisted user workflow files",
+        "--check still creates destination directory in the existing helper"
+      ],
+      "prerequisites": [
+        "sources readable",
+        "owned destination reviewed"
+      ],
+      "stop": "Missing source, drift, or conflict; do not invoke sync implicitly.",
+      "verify": "bash \"$THOUGHTSEED_VAULT_ROOT/20-operations/growth/tools/grok-workflows-sync.sh\" --check",
+      "findings": [
+        "Allowlist omits sapling-product-loop.",
+        "Existing helper replaces symlinks; this pack installer must preserve unowned conflicts instead."
+      ]
+    },
+    {
+      "id": "loops-to-graphs",
+      "family": "architecture",
+      "owner": "Cambium doctrine bridge",
+      "source": {
+        "root": "cambium",
+        "path": "docs/architecture/loops-to-graphs.md"
+      },
+      "digest": "sha256:9717766674069636dc643b155312bc8ce965ba8b827ef58b1c9061125a8e8d3c",
+      "inputs": [
+        "loop symptom",
+        "owning evidence and runtime layer"
+      ],
+      "outputs": [
+        "classification and next diagnostic layer"
+      ],
+      "writes": [],
+      "prerequisites": [
+        "distinguish operational D1 from read-only projection"
+      ],
+      "stop": "Choose the minimum owning loop or graph; no new runtime authority.",
+      "verify": "npm run validate:ecosystem-graph",
+      "findings": [
+        "Old article statistics are framing, not current product metrics."
+      ]
+    },
+    {
+      "id": "packet-read-model",
+      "family": "product-evidence",
+      "owner": "Cambium branch story parser",
+      "source": {
+        "root": "cambium",
+        "path": "bin/quine/hyphae/branch-stories.ts"
+      },
+      "digest": "sha256:4066b82133373140913f15c6c0a8f02737d4cfbb0d9d7f5e4a96d997f1830c88",
+      "inputs": [
+        "packet index",
+        "schema-shaped packet tables"
+      ],
+      "outputs": [
+        "read-only branch story projection"
+      ],
+      "writes": [],
+      "prerequisites": [
+        "safe relative packet path",
+        "canonical identity consistency"
+      ],
+      "stop": "Missing/invalid packet or returned projection; never infer runtime admission.",
+      "verify": "node --test bin/quine/hyphae/branch-stories.test.ts",
+      "findings": []
+    }
+  ]
+}
