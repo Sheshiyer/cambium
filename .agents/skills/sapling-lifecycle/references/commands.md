@@ -14,6 +14,22 @@ The other suffixes are `new`, `run`, `graph`, `draft`, `grow`, `learn`, and `sta
 
 These are manually invoked commands. For the existing founder graph use [operational-graph.md](operational-graph.md). To inspect current Codex hook discovery without invoking callbacks or changing registration/trust, run `npm run sapling:hooks` from the selected checkout. [codex-triggers.md](codex-triggers.md) explains the evidence limits.
 
+## Command families
+
+The installer can also write opt-in wrappers for three command families. Each wrapper opens one existing skill on demand. Wrappers are client commands, not skills, so they leave the startup skill set (`startup_projection=alchemy14`) unchanged.
+
+| Family | Commands | Skill |
+| --- | --- | --- |
+| `cambium` | `/cambium-feature`, `/cambium-r3f-feature`, `/cambium-evidence-quests` | the three `source-command-*` skills under the source root's `.agents/skills` |
+| `growth` | `/growth-content`, `/growth-seo`, `/growth-sales` | the content, SEO and sales/CRO orchestrators under the clusters root |
+| `ste` | `/ste-strict`, `/ste-flavored`, `/ste-lint` | `asd-ste100` under the clusters root, in Strict mode, STE-flavored mode, or lint-only |
+
+Select families with `--family` (repeatable). The clusters root defaults to `~/.agents/skill-clusters`; `--clusters-root` overrides it. Each wrapper records its target skill's SHA-256, so `check` reports drift when that skill changes. A missing target skill is a conflict, and install writes nothing. Uninstall removes unchanged family wrappers with the rest of the pack.
+
+```bash
+node .agents/skills/sapling-lifecycle/scripts/install.mjs dry-run --family cambium --family growth --family ste
+```
+
 ## Install and rollback
 
 Run these from the Cambium checkout that will remain the maintained source:
