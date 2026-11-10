@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync, linkSync, symlinkSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { install, COMMANDS } from './install.mjs';
+import { install, parseArgs as parseInstallArgs, COMMANDS, COMMAND_FAMILIES } from './install.mjs';
 import { lifecycle, parseArgs } from './lifecycle.mjs';
 import { validateGraph, mermaid } from './graph.mjs';
 
@@ -242,4 +242,55 @@ test('a local output symlink into the same repository cannot overwrite tracked d
   symlinkSync(docs, join(fx.sourceRoot, '.local/sapling-lifecycle'));
   assert.throws(() => lifecycle('status', 'iverif', undefined, { ...fx, out: '.local/sapling-lifecycle/README.md' }), /symlink refused/);
   assert.equal(readFileSync(join(docs, 'README.md'), 'utf8'), 'tracked docs remain intact');
+});
+
+function familyFixture(t) {
+  const fx = fixture(t);
+  const clustersRoot = join(fx.base, 'clusters');
+  for (const [family, spec] of Object.entries(COMMAND_FAMILIES)) {
+    for (const target of Object.values(spec.commands)) {
+      const path = join(spec.root === 'source' ? fx.sourceRoot : clustersRoot, target.skill);
+      mkdirSync(join(path, '..'), { recursive: true });
+      writeFileSync(path, `---\nname: ${family}\n---\n`);
+    }
+  }
+  return { ...fx, clustersRoot };
+}
+
+test('command families are opt-in and leave the default sapling plan unchanged', (t) => {
+  const fx = familyFixture(t);
+  assert.equal(install(fx).artifacts.length, COMMANDS.length * 4 + 1);
+  const result = install({ ...fx, families: ['cambium', 'growth', 'ste'] });
+  assert.equal(result.ok, true);
+  assert.equal(result.artifacts.length, COMMANDS.length * 4 + 1 + 9 * 4);
+  assert.deepEqual(parseInstallArgs(['install', '--family', 'growth', '--family', 'ste']).families, ['growth', 'ste']);
+  assert.throws(() => install({ ...fx, families: ['other'] }), /unknown command family/);
+});
+
+test('family wrappers track the target skill digest and uninstall cleanly', (t) => {
+  const fx = familyFixture(t);
+  const options = { ...fx, families: ['ste'] };
+  assert.equal(install({ ...options, mode: 'install' }).ok, true);
+  const body = readFileSync(join(fx.home, '.claude/commands/ste-lint.md'), 'utf8');
+  assert.match(body, /skill-sha256: [a-f0-9]{64}/);
+  assert.match(body, /ste-lint\.py/);
+  assert.equal(existsSync(join(fx.home, '.grok/commands/ste-strict.md')), true);
+  assert.equal(install({ ...options, mode: 'check' }).ok, true);
+  writeFileSync(join(fx.clustersRoot, 'skills/asd-ste100/SKILL.md'), 'changed skill\n');
+  const drift = install({ ...options, mode: 'check' });
+  assert.equal(drift.ok, false);
+  assert.ok(drift.drift.some((row) => row.path === '.codex/prompts/ste-strict.md' && row.state === 'update'));
+  assert.equal(install({ ...options, mode: 'install' }).ok, true);
+  const removed = install({ ...fx, mode: 'uninstall' });
+  assert.equal(removed.ok, true);
+  assert.equal(existsSync(join(fx.home, '.claude/commands/ste-lint.md')), false);
+});
+
+test('a missing family skill is a conflict and nothing is installed', (t) => {
+  const fx = familyFixture(t);
+  rmSync(join(fx.clustersRoot, 'skills/growth-seo-orchestrator/SKILL.md'));
+  const result = install({ ...fx, mode: 'install', families: ['growth'] });
+  assert.equal(result.ok, false);
+  assert.ok(result.conflicts.some((line) => line.includes('/growth-seo')));
+  assert.equal(existsSync(join(fx.home, '.claude/commands')), false);
 });
