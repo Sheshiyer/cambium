@@ -54,6 +54,30 @@ final class SignInEntryTests: XCTestCase {
         XCTAssertEqual(browser.calls, 0)
     }
 
+    func testSignInAsAnotherFounderClearsScopedInboxState() async throws {
+        let model = AppModel(mode: .demo)
+        for _ in 0..<100 {
+            if model.session != nil { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        let first = try XCTUnwrap(model.session)
+        model.inboxDraft.body = "unsaved observation"
+        model.inboxDraft.hasStarted = true
+        let scope = model.signalScopeVersion
+
+        model.acceptSignedIn(first)
+        XCTAssertEqual(model.inboxDraft.body, "unsaved observation", "Re-signing as the same founder keeps the draft")
+        XCTAssertEqual(model.signalScopeVersion, scope)
+
+        var other = first
+        other.founderId = first.founderId + "-other"
+        model.acceptSignedIn(other)
+        XCTAssertEqual(model.session, other)
+        XCTAssertEqual(model.inboxDraft.body, "")
+        XCTAssertFalse(model.inboxDraft.hasStarted)
+        XCTAssertNotEqual(model.signalScopeVersion, scope)
+    }
+
     func testExpiredSessionIsNotPresentedAsCurrent() async throws {
         let model = AppModel(mode: .demo)
         for _ in 0..<100 {
