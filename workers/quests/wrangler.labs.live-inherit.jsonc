@@ -1,0 +1,231 @@
+{
+  "name": "cambium-quests",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "routes": [
+    {
+      "pattern": "curious.thoughtseed.space",
+      "custom_domain": true
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "0 */6 * * *"
+    ]
+  },
+  "unsafe": {
+    "bindings": [
+      {
+        "name": "ACCEPTANCE_OWNER_PUBKEYS",
+        "type": "inherit"
+      },
+      {
+        "name": "BRIDGE_DB",
+        "type": "inherit"
+      },
+      {
+        "name": "BRIDGE_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "CAMBIUM_CORTEX",
+        "type": "inherit"
+      },
+      {
+        "name": "CAMBIUM_HERMES_RECEIPTS_V2",
+        "type": "inherit"
+      },
+      {
+        "name": "COMMAND_CODE_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "COMMAND_CODE_BASE_URL",
+        "type": "inherit"
+      },
+      {
+        "name": "COMMAND_CODE_EGRESS_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "CONTEXT_ALLOWED_TENANTS",
+        "type": "inherit"
+      },
+      {
+        "name": "CONTEXT_EMBEDDING_MODEL",
+        "type": "inherit"
+      },
+      {
+        "name": "CONTEXT_EMBEDDING_PROVIDER",
+        "type": "inherit"
+      },
+      {
+        "name": "CONTEXT_PROJECTIONS",
+        "type": "inherit"
+      },
+      {
+        "name": "CONTEXT_PROJECTION_WRITE_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "CONTEXT_ROUTE_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "CORTEX_INGESTION_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "EXPLEE_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "FOUNDER_GATE_BINDINGS_JSON",
+        "type": "inherit"
+      },
+      {
+        "name": "GATE_BOT_ID",
+        "type": "inherit"
+      },
+      {
+        "name": "GATE_FOUNDER_IDS",
+        "type": "inherit"
+      },
+      {
+        "name": "GROWTH_WORKFLOW_MAX_DAILY",
+        "type": "inherit"
+      },
+      {
+        "name": "GROWTH_WORKFLOW_MAX_PENDING",
+        "type": "inherit"
+      },
+      {
+        "name": "GROWTH_WORKFLOW_RUNNER_MEMBER_ID",
+        "type": "inherit"
+      },
+      {
+        "name": "GROWTH_WORKFLOW_TENANTS_JSON",
+        "type": "inherit"
+      },
+      {
+        "name": "HANDOFF_SECRET",
+        "type": "inherit"
+      },
+      {
+        "name": "HERMES_ASSIGNMENT_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "HERMES_RECEIPTS_AI",
+        "type": "inherit"
+      },
+      {
+        "name": "HERMES_RECEIPTS_V2_ENABLED",
+        "type": "inherit"
+      },
+      {
+        "name": "HERMES_ROLE_TASK_BINDINGS_JSON",
+        "type": "inherit"
+      },
+      {
+        "name": "IVERIF_READ_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "KIMI_CODING_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "MARKETING_CREATE_ACTIVATION",
+        "type": "inherit"
+      },
+      {
+        "name": "MISSION_FABRIC_TENANTS",
+        "type": "inherit"
+      },
+      {
+        "name": "NEBIUS_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "NVIDIA_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "NVIDIA_MARKETING_CREATE_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "OLLAMA_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "OPENCODE_API_KEY",
+        "type": "inherit"
+      },
+      {
+        "name": "PLEXUS_KNOWLEDGE_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "PLEXUS_WHOAMI_URL",
+        "type": "inherit"
+      },
+      {
+        "name": "PROVIDER_BROKER_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "QUESTS",
+        "type": "inherit"
+      },
+      {
+        "name": "QUESTS_PUSH_TOKEN",
+        "type": "inherit"
+      },
+      {
+        "name": "SECRETS",
+        "type": "inherit"
+      },
+      {
+        "name": "TF_ACCESS_AUD",
+        "type": "inherit"
+      },
+      {
+        "name": "TF_ACCESS_TEAM_DOMAIN",
+        "type": "inherit"
+      },
+      {
+        "name": "THOUGHTSEED_VAULT",
+        "type": "inherit"
+      },
+      {
+        "name": "WAVE0_ACTIVATION_KEY",
+        "type": "inherit"
+      }
+    ]
+  },
+  "logpush": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "redact_query_string": false,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  },
+  "account_id": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+  "workers_dev": true,
+  "preview_urls": true
+}

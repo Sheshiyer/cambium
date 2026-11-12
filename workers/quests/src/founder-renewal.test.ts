@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { buildNode } from './goal-graph/identity.ts';
 import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { renewFounderProposal } from './founder-renewal.ts';
+import { FOUNDER_BOOKKEEPING_SCHEMA } from './native-goal-intake.ts';
 import type { GoalGraphNode } from './goal-graph/types.ts';
 
 const NOW = '2026-10-25T00:00:00.000Z', EXPIRES = '2026-10-25T00:15:00.000Z';
@@ -12,7 +13,7 @@ function node(id: string, parentNodeId: string | null = null): GoalGraphNode {
     nextAction: 'review', waitCondition: null, proofRequired: true, reviewAt: null, status: 'active',
     sourceRef: 'test:real-source-fixture', sourceDigest: 'a'.repeat(64), graphVersion: 1, metadata: {}, now: NOW });
 }
-function fixture(current: 'unrelated' | 'conflict' | 'applied') {
+function fixture(current: 'unrelated' | 'conflict' | 'applied', intent?: Record<string, unknown>) {
   const root = node('root'), target = node('pending child', root.nodeId), other = node('other child', root.nodeId);
   const initialHead = makeGoalGraphHead('cambium', [root], 1, NOW);
   const original = compileGoalGraph({ tenantId: 'cambium', expectedHeadDigest: initialHead.graphDigest, actualHead: initialHead,
@@ -26,7 +27,7 @@ function fixture(current: 'unrelated' | 'conflict' | 'applied') {
   const input = { proposalId: p.id, version: p.version, nonce: p.nonce, expiresAt: p.expiresAt, changeDigest: p.changeSet.changeDigest };
   let saved: Record<string, unknown> | null = null;
   const deps = { context: { tenantId: 'cambium', founderId: 'access:test', channel: 'curious' as const }, input, proposal: p,
-    task: { status: 'stale', nodeId: target.nodeId }, now: () => EXPIRES,
+    task: { status: 'stale', nodeId: target.nodeId, ...(intent ? { intent } : {}) }, now: () => EXPIRES,
     store: { readDecisionReceipt: async () => null, readHead: async () => head, readNodes: async () => nodes,
       commit: async () => { throw Error('must never write D1'); }, reject: async () => { throw Error('must never reject'); } },
     persist: async (input: { task: Record<string, unknown> }) => { writes++; saved = input.task; return { kind: 'ready', task: input.task, duplicate: false }; },
@@ -63,4 +64,15 @@ test('renewal refuses a head that moves while reading its current nodes', async 
   h.deps.store.readHead = async () => ({ ...h.head, graphDigest: ++reads === 1 ? h.head.graphDigest : 'changed' });
   assert.equal((await renewFounderProposal(h.deps)).status, 'unknown');
   assert.equal(h.writes(), 0);
+});
+test('renewal keeps a bookkeeping intent so the renewed decision stays in graph readback', async () => {
+  const intent = { schema: FOUNDER_BOOKKEEPING_SCHEMA, version: 1 };
+  const h = fixture('unrelated', intent);
+  assert.equal((await renewFounderProposal(h.deps)).status, 'renewed');
+  assert.deepEqual((h.saved() as any).intent, intent);
+});
+test('renewal does not invent an intent for a non-bookkeeping proposal', async () => {
+  const h = fixture('unrelated', { schema: 'telegram.other-intent.v1' });
+  assert.equal((await renewFounderProposal(h.deps)).status, 'renewed');
+  assert.equal('intent' in (h.saved() as any), false);
 });

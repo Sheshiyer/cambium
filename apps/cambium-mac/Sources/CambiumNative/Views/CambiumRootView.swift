@@ -143,23 +143,28 @@ private struct SidebarFooter: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if model.isDemo {
-                SyntheticBadge()
-                Button("Leave demo") { model.leaveDemo() }
-                    .controlSize(.small)
-                    .accessibilityHint("Returns to standard mode with no data")
-            } else if let session = model.session {
-                StatusChip(text: "Signed in · \(session.tenantId)", tone: .signal)
-            } else {
-                StatusChip(text: "Not signed in", tone: .hold)
-                Button("Open demo") { model.enterDemo() }
-                    .controlSize(.small)
-                    .accessibilityHint("Shows labelled synthetic data. Nothing is live.")
+        TimelineView(.periodic(from: .now, by: 15)) { context in
+            VStack(alignment: .leading, spacing: 6) {
+                if model.isDemo {
+                    SyntheticBadge()
+                    Button("Leave demo") { model.leaveDemo() }
+                        .controlSize(.small)
+                        .accessibilityHint("Returns to standard mode with no data")
+                } else if model.hasCurrentSession(at: context.date) {
+                    StatusChip(text: "Connected", tone: .signal)
+                    Button("Account") { model.open(.connections) }.controlSize(.small)
+                } else {
+                    if model.session != nil { Text("Session expired").font(.caption).foregroundStyle(Palette.hold) }
+                    Button(model.session == nil ? "Sign in" : "Sign in again", action: model.beginSignIn)
+                        .controlSize(.small).disabled(model.loading)
+                    Button("Open demo") { model.enterDemo() }
+                        .controlSize(.small)
+                        .accessibilityHint("Shows labelled synthetic data. Nothing is live.")
+                }
             }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -168,34 +173,17 @@ private struct ModeStrip: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        HStack(spacing: 10) {
-            if model.isDemo {
+        if model.isDemo {
+            HStack(spacing: 10) {
                 SyntheticBadge(compact: true)
-                Text("Synthetic records. Actions stay on this Mac and change nothing live.")
-                    .font(.callout)
-                    .foregroundStyle(Palette.ink)
-                    .lineLimit(2)
-            } else {
-                Image(systemName: "person.crop.circle.badge.questionmark")
-                    .foregroundStyle(Palette.hold)
-                    .accessibilityHidden(true)
-                Text(model.session.map { "Signed in to \($0.tenantId). Live reads come from the configured owner." }
-                     ?? (model.configuration == nil ? "No owner is configured. Sign in through Connections to read live data." : "Owner configured. Sign in through Connections to read live data."))
-                    .font(.callout)
-                    .foregroundStyle(Palette.ink)
-                    .lineLimit(2)
+                Text("Sample data").font(.callout).foregroundStyle(Palette.inkMuted)
+                Spacer()
+                Button("Leave demo", action: model.leaveDemo).controlSize(.small)
             }
-            Spacer(minLength: 8)
-            if !model.isDemo {
-                Button("Open demo") { model.enterDemo() }
-                    .accessibilityHint("Shows labelled synthetic data. Nothing is live.")
-            }
+            .padding(.horizontal, 20).padding(.vertical, 8)
+            .background(Palette.holdFill)
+            .overlay(alignment: .bottom) { Divider() }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 8)
-        .background(model.isDemo ? Palette.holdFill : Palette.surface)
-        .overlay(alignment: .bottom) { Divider() }
-        .accessibilityElement(children: .contain)
     }
 }
 

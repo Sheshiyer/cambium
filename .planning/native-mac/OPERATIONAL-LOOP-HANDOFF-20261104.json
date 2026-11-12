@@ -1,0 +1,74 @@
+{
+  "schema": "temperance.handoff.v2",
+  "updated": "2026-11-03T19:38:30.934459+00:00",
+  "status": "sign-in-built-operational-loop-not-wired",
+  "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
+  "tier": "E5",
+  "branch": "codex/cambium-operational-loop-20261104",
+  "base_commit": "b6652fcf991eba804cffeaa38d2d265c10218532",
+  "native_source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
+  "native_input_digest": "ef3821882981aad706f637782c20797a411c3bd28186078b80e9a014561045e8",
+  "candidate_patch": {
+    "base": "b6652fcf991eba804cffeaa38d2d265c10218532",
+    "source": "1f64c646cb6bac0e91919f25322f93773fefba32",
+    "sha256": "sha256:b2a52eeb4974ed555d2d44197d50482136c93dd2f8861d0966c0660d88a3cf9f",
+    "admitted": false,
+    "reproduce": "git diff --binary b6652fcf 1f64c646 -- apps/cambium-mac",
+    "description": "Original sign-in-only pilot proposal; current UI build source is recorded separately in native_source."
+  },
+  "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
+  "isa": "ISA.md",
+  "selected_execution_owner": "hosted-hermes",
+  "model_pool": "noesis-free",
+  "inference_origin": "https://omniroute.thoughtseed.space",
+  "provider_attribution": "unavailable",
+  "completed": [
+    "Preserved dirty primary checkout; isolated branch starts at merged PR427",
+    "Read-only D1 checks found no Cambium-anchored node or native launch tables",
+    "Inspected Hermes finite command/source-verification contracts read-only",
+    "Added main/sidebar Sign in, expiry-aware re-entry, configuration validation and prior-owner cancellation ordering",
+    "Recorded the founder's explicit selection of hosted Hermes execution",
+    "Simplified Connections, Projects and Inbox; moved technical owner/session/catalog/provenance inspection to Settings > Advanced > Diagnostics"
+  ],
+  "verification": {
+    "core": {
+      "executed": 261,
+      "skipped": 2,
+      "failures": 0
+    },
+    "native": {
+      "executed": 43,
+      "failures": 0
+    },
+    "bundle": "clean-input ad hoc signed build; verifier passed",
+    "sign_in_browser_walkthrough": "Actual signed app shows main/sidebar buttons; explicit click configures owner and starts authentication. Owner confirmed a login/authentication window is visible. No fresh session or completed grant is claimed.",
+    "real_work_join": "not implemented",
+    "live_operational_loop": "not implemented",
+    "installed_hermes_capability": "not verified",
+    "ui_cleanup": {
+      "source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
+      "core": "261 tests, two opt-in skips, zero failures",
+      "native": "43 tests, zero failures",
+      "bundle": "clean input provenance; ad hoc signature verified",
+      "mac_walkthrough": "Compact signed-out Connections; Settings > Advanced > Diagnostics opens technical configuration; Done returns to Settings; populated demo Projects and Inbox hide raw IDs, and project disclosure exposes named searchable choices. Final copy-only build reopened successfully.",
+      "live_scope": "No fresh sign-in or operational-loop execution claimed for this UI build."
+    }
+  },
+  "remaining": [
+    "Founder-approved operational Work source and actual sapling:cambium join",
+    "Revisioned shared directions pinned to exact source revisions",
+    "Finite Cambium Hermes capability and Temperance acceptance policy",
+    "Canonical direction approval and owner admission producer",
+    "Native launch composition with durable reservation, idempotent submit and status-only recovery",
+    "Artifact/test/policy-bound result and acceptance readback",
+    "Actual Mac walkthrough of the complete workflow"
+  ],
+  "next_action": "Revalidate installed Hermes capability and native Gate founder binding. Implement the explicit approved Work source first; keep bookkeeping non-executing. Follow the owning Markdown handoff. The previous Inbox proof does not establish Work, approval, launch or result.",
+  "holds": [
+    "No graph/ledger/admission write, launch, runner rollout or deployment in this slice",
+    "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
+    "Migration 0099 stays source-only until admission and execution owner contracts are ready"
+  ],
+  "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
+  "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md"
+}

@@ -1,9 +1,12 @@
 # Native identity contract (cambium.native-session.v1)
 
-Status: server source, conditional entry-point wiring and local tests exist.
-The 0100 and 0101 migration applies, client registration and any live browser
-grant have not been done. The TeamForge identity-by-ID seam is ready for review
-in PR #105 and is not a live authority. Reviewed contract:
+Status: native backend, client registration and migrations 0100/0101 are active
+as of 3 November 2026. A real Founder Access login, native grant, session inspection,
+and shared-signal create/read/edit have succeeded. Real mapped-project catalog,
+signal association and project-filtered readback passed in the final native build. The
+TeamForge identity-by-ID seam is live, preserving deployed SFU behavior.
+Activation evidence and rollback: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
+Reviewed contract:
 `.planning/native-mac/NATIVE-SESSION-CONTRACT.md`.
 
 Source: `workers/quests/src/native-session.ts` (routes, resolver, factory),
@@ -61,7 +64,10 @@ with `NATIVE_SESSION_WRITE_FIXTURE=1 node --test workers/quests/src/native-sessi
 
 ### 1. Authorize: `GET /v1/native/session/authorize` and `POST /v1/native/session/authorize`
 
-Opened in `ASWebAuthenticationSession`.
+Opened in `ASWebAuthenticationSession`. The current Mac client uses the exact
+browser alias `/founder/native/session/authorize`, protected by the existing
+Founder Access application. GET/POST consent, form action and CSRF cookie stay
+on that path; this API path remains supported with verified browser identity.
 - `GET /v1/native/session/authorize`: validates existing verified founder, client, redirect, challenge, state and tenant, then stores a short-lived one-time consent intent and returns `200` with an HTML consent form and a Secure SameSite=Strict HttpOnly cookie (`cambium_native_consent`). It writes no authorization code.
 - `POST /v1/native/session/authorize`: requires the same Access founder and current role/enrollment, exact intent bound to all GET inputs, CSRF token matching the secure cookie plus hidden form field. Atomically consumes the intent in D1 once, then mints an authorization code and returns `302` with `Location: <redirect_uri>?code=cnc1_…&state=<state>`. Any replay, cross-founder, changed challenge, client, tenant, redirect or state, expired intent, missing cookie/CSRF, or direct POST returns categorical refusal (`400` `consent_required`) and zero code writes.
 

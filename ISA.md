@@ -13,6 +13,46 @@ updated: 2026-10-08
 
 ## Problem
 
+### 2026-11-04 Cambium operational loop and sign-in entry
+
+Owner selected the existing hosted Hermes runner for the first coding pilot.
+Owning continuation: `.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`.
+This does not reopen the completed Inbox activation or imply execution admission.
+
+- [x] ISC-3680: Standard mode exposes explicit Sign in/re-entry, validates the configured owner before browser presentation, preserves demo isolation and waits for prior owner cancellation; native regression checks pass.
+- [ ] ISC-3681: A founder-approved authoritative Work record creates the actual served `sapling:cambium` join without deriving operational authority from catalog membership.
+- [ ] ISC-3682: Shared revisioned directions retain exact signal/evidence revisions and stale-edit/replay/scope checks.
+- [ ] ISC-3683: The installed hosted Hermes owner supports the finite pinned Cambium pilot and its reviewed free-pool/acceptance policies.
+- [ ] ISC-3684: Real native review/approval pins the direction, Work head, input, artifact, budget/stop conditions and acceptance policy; admission uses the governed owner path.
+- [ ] ISC-3685: Native launch reserves before idempotent Hermes submission; lost replies recover the original attempt through status only.
+- [ ] ISC-3686: The real result includes immutable artifact/diff/test evidence and a separately verified pinned-policy acceptance or review-required verdict.
+- [ ] ISC-3687: An actual signed-in Mac walkthrough proves signal → direction → approved work → result and records a truthful bounded handoff.
+
+### 2026-11-03 shared signal capture and native Inbox
+
+The owner authorized source implementation and review fixes. Finite contract:
+`.planning/native-mac/SHARED-SIGNALS-WAVE-1.md`; confirmed decisions:
+`apps/cambium-mac/docs/FIELD-REPORT-INTEGRATION-DECISIONS.md`.
+
+- [ ] ISC-3660: Hosted fleet attempts retain real terminal status and provider attribution; independently inspect worker output before integration.
+- [x] ISC-3661: Signal routes require verified native identity and exact tenant/principal; reject mixed credentials and cross-scope guesses.
+- [x] ISC-3662: Local signal mutations and idempotency receipts are atomic; identical retries preserve original results and changed requests conflict.
+- [x] ISC-3663: Revision races refuse overwrite; bounded pagination and exact project filters preserve scope.
+- [x] ISC-3664: Associations use the dynamic mapped catalog; an empty Inbox association grants no work admission.
+- [x] ISC-3665: Swift clients validate wire schema, source provenance, response bounds and current session scope.
+- [x] ISC-3666: Native Inbox captures, edits and lists signals through the composed owner service.
+- [x] ISC-3667: Project dossiers open the exact project Inbox; capture preselects that project.
+- [x] ISC-3668: Unknown saves preserve immutable operation identity; definitive request validation permits correction; conflicts require confirmed reload.
+- [x] ISC-3669: Synthetic capture/update/filter, actual-handler wire decoding and owner-specific recovery isolation have local regression coverage.
+- [x] ISC-3670: Native source compiles and its ad hoc bundle verifies; this is not notarized delivery or real-owner acceptance.
+- [ ] ISC-3671: A real Field Report peer uses shared records with reviewed producer authentication and source parity.
+- [x] ISC-3672: Standard Mac app completes real founder sign-in and owner-served signal/catalog readback. Evidence: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
+
+The prior full fan-out was held before inference. A subsequent disposable free
+CLI build ran but was stopped without accepting its incomplete fixes; the
+native session integrated the corrections. Hosted execution attribution,
+production identity, migration and deployment gates remain distinct and open.
+
 The reviewed Curious upgrade is local while the release branch still carries unrelated planning history. Fresh main retires GitHub Actions, so release integration must preserve that policy.
 
 Cambium currently contains both a Thoughtseed Labs Wrangler configuration and
@@ -266,7 +306,7 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3464: Only an explicit served join to an existing Work node enables the operational Work link.
 - [x] ISC-3465: Local Swift and native route tests, signed bundle and clean-input build proof pass.
 - [ ] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
-- [ ] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority.
+- [x] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority. Evidence: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
 - [x] ISC-3468: Founder detail maps every served historical product and classification review row; viewer detail stays empty.
 - [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
 - [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.

@@ -25,7 +25,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .launch: "Launch"
         case .knowledge: "Knowledge"
         case .connections: "Connections"
-        case .preferences: "Preferences"
+        case .preferences: "Settings"
         }
     }
 

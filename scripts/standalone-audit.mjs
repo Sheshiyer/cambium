@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { resolveQuestsWranglerProfile } from './quests-wrangler-profile.mjs';
 
 const skipDirs = new Set([
   '.git',
@@ -65,6 +66,8 @@ const liveDeploymentAuthorityFiles = new Set([
   'scripts/quests-wrangler-profile.test.mjs',
   'workers/quests/DEPLOY.md',
   'workers/quests/DEPLOY-LABS.md',
+  // Exact value-free Labs reconciliation overlay; no new deployment owner.
+  'workers/quests/wrangler.labs.live-inherit.jsonc',
 ]);
 
 export function isAllowedLiveDeploymentEvidencePath(file) {
@@ -97,6 +100,21 @@ const requiredOperatingFabricFiles = [
   'workers/quests/src/live-proof-readiness.test.ts',
 ];
 
+export function auditValueFreeLabsOverlay(text) {
+  try {
+    const config=JSON.parse(text);
+    const owner=resolveQuestsWranglerProfile({profile:'labs-production',operation:'read'});
+    const bindings=config.unsafe?.bindings;
+    const allowed=new Set(['name','main','account_id','compatibility_date','compatibility_flags','routes','triggers','unsafe','logpush','observability','workers_dev','preview_urls']);
+    if (Object.keys(config).some(key=>!allowed.has(key)) || config.name!==owner.workerName || config.account_id!==owner.accountId
+      || config.main!=='src/index.ts' || config.routes?.length!==1 || config.routes[0].pattern!==owner.route || config.routes[0].custom_domain!==true
+      || Object.keys(config.unsafe || {}).some(key=>key!=='bindings') || !Array.isArray(bindings) || bindings.length!==47
+      || new Set(bindings.map(b=>b.name)).size!==47 || bindings.some(b=>b.type!=='inherit' || !/^[A-Z][A-Z0-9_]{0,100}$/.test(b.name)
+        || JSON.stringify(Object.keys(b).sort())!==JSON.stringify(['name','type']))) return ['reviewed Labs overlay must remain exact-owner and value-free with 47 unique inherited bindings'];
+    return [];
+  } catch { return ['reviewed Labs overlay is invalid or its canonical owner cannot be resolved']; }
+}
+
 export function runStandaloneAudit() {
   const files = candidateFiles()
     .filter(Boolean)
@@ -118,6 +136,7 @@ export function runStandaloneAudit() {
     } catch {
       continue;
     }
+    if (file === 'workers/quests/wrangler.labs.live-inherit.jsonc') failures.push(...auditValueFreeLabsOverlay(text));
     for (const rule of privatePatterns) {
       if (rule.pattern.test(text)) failures.push(`${file}: ${rule.name}`);
     }
