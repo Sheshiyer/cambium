@@ -11,6 +11,88 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-04 — Direction approval and Hermes pilot source
+
+Reviewed source adds saved-direction canonical review, explicit admission,
+existing-bridge launch and bound result readback. Actual local Docker proof is
+RED→GREEN with an exact two-file diff; hosted execution is unproven. Both review
+findings are fixed. Continue from `.planning/native-mac/DIRECTION-HERMES-PILOT-20261104.md`
+and its source-verification receipt. Worker0099/0104 and Hermes source/image/policy
+rollouts remain separately owner-approved; do not repeat already-live0103 or the
+approved Cambium Work proposal. Preserve the running signed app until ready for
+the complete live walkthrough.
+
+
+## 2026-11-04 live native Work join and direction save verified
+
+Actual signed-in Mac: mapped Cambium Explicit runtime join > Open work shows
+approved objective/state/next step. From the retained Cambium signal, Draft
+direction loaded Work and one submit saved Reject whitespace-only signal titles.
+See NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json. ISC3681/3682 met within
+live/source-test bounds. Fresh persisted-list readback is not yet exposed/claimed.
+Direction execution review/admission, installed Hermes coding capability,
+launch/results and full walkthrough remain open. No execution/acceptance claimed.
+Use native_operational_loop continuation; do not repeat Work approval or rollout.
+
+
+## 2026-11-04 Work approved; native authentication in progress
+
+Zen canonical record confirms Cambium55efd3d7 approval and graph commit.
+Do not resubmit or reapprove. Actual built Mac app opened existing native
+email-code login in Zen private; founder completion pending. Keep app running.
+Then verify real Cambium Work join and direction save. Direct D1 management
+read rejected10000; no direct readback claimed. Hermes remains unexecuted.
+Use native_operational_loop continuation and exact proposal receipt.
+
+
+## 2026-11-04 Work proposal prepared; actual founder decision pending
+
+Approved form sourcec6948057 deployed as2971a905 at100%;52bindings/runtime
+preserved; rollbacke6c399ab; no migration. Full2717tests pass. In Zen Labs,
+proposal55efd3d72733 has complete canonical review and enabled Approve/Reject.
+It creates1Cambium Work source, updates0/removes0 and grants no execution.
+Await the actual founder decision; do not approve on their behalf or resubmit.
+Then prove native Work join/direction save. Hermes execution remains open.
+Use the native_operational_loop continuation and exact proposal receipt.
+
+
+## 2026-11-04 founder read recovered; Work form fix reviewed
+
+Approved timeout source62836c61 is live as e6c399ab at100%;52bindings/runtime
+preserved, rollback5f2c. Zen ThoughtseedLabs now shows Founder signing ready.
+Migration0103 is already applied. Do not repeat it or the timeout rollout.
+Reviewed form fixc6948057 handles the operational Work schema; local viewport
+proof and focused tests pass, full2717tests pass. Separate form rollout approval
+is pending. Work decision, native join/direction and Hermes execution remain open.
+Use the native_operational_loop continuation and its exact rollout packet.
+
+
+## 2026-11-04 approved live rollout; canonical Work still pending
+
+Migration0103 is already applied. Active Worker5f2c5dc7 serves100%; all52bindings
+and runtime settings match retained rollback23cf59d1. See the task continuation
+and WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json. Do not repeat the migration.
+Founder requests Zen ThoughtseedLabs; authentication/direct protected read pass,
+but page ledgerfetch is canceled/offline. Reviewed timeout candidate62836c61
+(founder10s->30s only) passes44checks and awaits separate rollout approval.
+Work proposal, real native join/direction proof, admission and Hermes execution
+remain open. Installed Hermes lacks the coding command; no runner change made.
+
+
+## 2026-11-04 Work/direction source reviewed; live rollout pending
+
+PR428 merged at d571ea92. Continue codex/cambium-real-work-loop-20261104 from
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`. Explicit approved
+Cambium Work source, shared direction drafts/store/native composer and Gate
+visibility are implemented in source. Full2714 tests, Core265(two opt-in skips),
+native43 pass; final Gate delta34checks pass. No live acceptance is implied.
+Exact rollout and Work-intent JSON are prepared. Fresh head11/root and current
+52binding rollback version23cf59d1 verified after founder refreshed login.
+No migration/deployment/Work decision/admission/launch has happened. Installed
+Hermes e3387543 lacks the coding command; Docker exists. Preserve its installed
+source and prepare only the finite admitted capability. Full loop remains open.
+
+
 ## 2026-11-04 native UI cleanup
 
 Connections now presents a compact account card; Inbox and Projects use names and

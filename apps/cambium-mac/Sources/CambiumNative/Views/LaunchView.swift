@@ -18,6 +18,7 @@ struct LaunchView: View {
                 AdmissionListPanel()
                 CapabilityPanel()
                 AttemptPanel()
+                if !model.isDemo, model.launch?.workId == "sapling:cambium" { DirectionResultView() }
                 if !model.pendingLaunch.isEmpty { PendingPanel() }
                 if model.isDemo { DemoPanel() }
             }

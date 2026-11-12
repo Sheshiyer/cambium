@@ -54,8 +54,9 @@ export function compileGoalGraph(input: GoalGraphCompileInput): GoalGraphCompile
     return before && !semanticEqual(before, node);
   }).map((after) => ({ nodeId: after.nodeId, before: currentById.get(after.nodeId)!, after }));
   const orderedUpdates = nodesToUpdate.sort((a, b) => a.nodeId.localeCompare(b.nodeId));
-  const changeDigest = sha256({ tenantId: input.tenantId, expectedHeadDigest: input.expectedHeadDigest, graphVersion: input.graphVersion, nodesToCreate, nodesToUpdate: orderedUpdates, nodesToRemove, sourceRef: input.sourceRef, sourceDigest: input.sourceDigest });
-  const changeSet: GoalChangeSet = { tenantId: input.tenantId, expectedHeadDigest: input.expectedHeadDigest, graphVersion: input.graphVersion, nodesToCreate, nodesToUpdate: orderedUpdates, nodesToRemove, changeDigest, isNoop: nodesToCreate.length === 0 && orderedUpdates.length === 0 && nodesToRemove.length === 0, sourceRef: input.sourceRef, sourceDigest: input.sourceDigest };
+  const sourceFence = input.sourceFence ? { sourceFence: input.sourceFence } : {};
+  const changeDigest = sha256({ tenantId: input.tenantId, expectedHeadDigest: input.expectedHeadDigest, graphVersion: input.graphVersion, nodesToCreate, nodesToUpdate: orderedUpdates, nodesToRemove, sourceRef: input.sourceRef, sourceDigest: input.sourceDigest, ...sourceFence });
+  const changeSet: GoalChangeSet = { tenantId: input.tenantId, expectedHeadDigest: input.expectedHeadDigest, graphVersion: input.graphVersion, nodesToCreate, nodesToUpdate: orderedUpdates, nodesToRemove, changeDigest, isNoop: nodesToCreate.length === 0 && orderedUpdates.length === 0 && nodesToRemove.length === 0, sourceRef: input.sourceRef, sourceDigest: input.sourceDigest, ...sourceFence };
   return { status: 'compiled', changeSet };
 }
 

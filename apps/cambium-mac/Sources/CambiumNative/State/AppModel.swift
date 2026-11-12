@@ -15,6 +15,28 @@ import struct CambiumCore.SignalCapture
 import struct CambiumCore.SignalUpdate
 import enum CambiumCore.SignalError
 import enum CambiumCore.CanonicalTimestamp
+import struct CambiumCore.DirectionCreate
+import struct CambiumCore.DirectionWorkContext
+import struct CambiumCore.SharedDirection
+import struct CambiumCore.DirectionExecutionPreview
+import struct CambiumCore.DirectionExecutionPrepare
+import struct CambiumCore.PreparedDirectionExecution
+
+struct DirectionExecutionDraftState {
+    var directionID: String?
+    var preview: DirectionExecutionPreview?
+    var pending: DirectionExecutionPrepare?
+    var prepared: PreparedDirectionExecution?
+}
+
+struct DirectionComposerState {
+    var signal: Signal?
+    var title = ""
+    var body = ""
+    var work: DirectionWorkContext?
+    var pending: DirectionCreate?
+    var saved: SharedDirection?
+}
 
 struct InboxDraft {
     var selected: Signal?
@@ -105,6 +127,8 @@ final class AppModel {
     var feedback: String?
     var inboxFilter: String?
     var inboxVersion: UInt64 = 0
+    var directionDraft = DirectionComposerState()
+    var directionExecutionDraft = DirectionExecutionDraftState()
     var signalScopeVersion: UInt64 = 0
     var inboxDraft = InboxDraft()
     var signalService: CambiumOwnerServices? { services as? CambiumOwnerServices }
@@ -286,6 +310,26 @@ final class AppModel {
         feedback = "Proposal reference bound for this session. It is not an admission."
     }
 
+    @discardableResult
+    func resetDirectionExecutionReview() -> Bool {
+        guard !loading, directionExecutionDraft.pending == nil,
+              let prepared = directionExecutionDraft.prepared,
+              !pendingGate.contains(where: { $0.proposalId == prepared.proposalId && $0.needsStatusCheck }),
+              !(gate?.proposalId == prepared.proposalId && gate?.needsStatusCheck == true) else { return false }
+        directionExecutionDraft = DirectionExecutionDraftState()
+        return true
+    }
+
+    func openPreparedDirection(_ prepared: PreparedDirectionExecution) {
+        guard !isDemo, selectedWorkID == "sapling:cambium", let session,
+              prepared.tenantId == session.tenantId, prepared.principal == session.founderId, prepared.workObjectId == selectedWorkID else { return }
+        proposalBinding = WorkProposalBinding(workId: "sapling:cambium", proposalId: prepared.proposalId, source: .ownerPreparation)
+        proposalRefDraft = prepared.proposalId
+        review = nil; gate = nil; reviewTyped = ""
+        open(.proposal)
+        loadSelectedReview()
+    }
+
     func selectAdmission(_ ref: String) {
         guard let row = admissions.first(where: { $0.admissionRef == ref }) else { return }
         guard row.selectable else {
@@ -327,6 +371,8 @@ final class AppModel {
 
     private func load(_ mode: LaunchMode) {
         generation &+= 1
+        directionDraft = DirectionComposerState()
+        directionExecutionDraft = DirectionExecutionDraftState()
         signalScopeVersion &+= 1
         inboxDraft = InboxDraft()
         inboxFilter = nil
@@ -447,7 +493,9 @@ final class AppModel {
             }
         }
         if let selectedWorkID {
-            proposalBinding = services.proposalBinding(workId: selectedWorkID)
+            if proposalBinding?.source != .ownerPreparation || proposalBinding?.workId != selectedWorkID {
+                proposalBinding = services.proposalBinding(workId: selectedWorkID)
+            }
             if proposalRefDraft.isEmpty { proposalRefDraft = proposalBinding?.proposalId ?? "" }
             if let binding = proposalBinding, case .success(let loaded) = await services.loadReview(proposalId: binding.proposalId), token == generation {
                 review = loaded
@@ -516,6 +564,8 @@ final class AppModel {
     func signOut() {
         let token = generation
         generation &+= 1
+        directionDraft = DirectionComposerState()
+        directionExecutionDraft = DirectionExecutionDraftState()
         signalScopeVersion &+= 1
         inboxDraft = InboxDraft()
         inboxFilter = nil
@@ -547,15 +597,18 @@ final class AppModel {
             feedback = "Bind a canonical proposal reference for the selected work before loading the review."
             return
         }
+        let boundWork = selectedWorkID
         run("Review") { services, token in
             let result = await services.loadReview(proposalId: proposalId)
-            guard token == self.generation else { return }
+            guard token == self.generation, self.selectedWorkID == boundWork,
+                  (self.proposalBinding?.proposalId ?? self.proposalRefDraft.trimmingCharacters(in: .whitespacesAndNewlines)) == proposalId else { return }
             switch result {
             case .success(let loaded):
                 self.review = loaded
                 let stored = await services.storedReview()
                 let pending = await services.pendingGate()
-                guard token == self.generation else { return }
+                guard token == self.generation, self.selectedWorkID == boundWork,
+                  (self.proposalBinding?.proposalId ?? self.proposalRefDraft.trimmingCharacters(in: .whitespacesAndNewlines)) == proposalId else { return }
                 self.gate = stored
                 self.pendingGate = pending
                 self.feedback = "Loaded review \(loaded.proposalId). Approval does not admit this work."
