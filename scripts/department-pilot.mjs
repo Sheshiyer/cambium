@@ -16,7 +16,7 @@ const graph=JSON.parse(raw);
 if(graph.schema!=='cambium.founder.bookkeeping-graph.v1'||!graph.head||!Array.isArray(graph.nodes))throw new Error('Expected existing founder bookkeeping graph readback');
 const eligibility=options['--eligibility']?JSON.parse(await readFile(options['--eligibility'],'utf8')):undefined;
 const input={tenantId:graph.tenantId,now:options['--now']??new Date().toISOString(),expectedHeadDigest:options['--expected-head']??graph.head.graphDigest,
-  graph:{tenantId:graph.tenantId,headDigest:graph.head.graphDigest,observedAt:graph.servedAt,nodes:graph.nodes},eligibility};
+  graph:{tenantId:graph.tenantId,headDigest:graph.head.graphDigest,observedAt:graph.servedAt,...(graph.rootId!==undefined?{rootId:graph.rootId}:{}),nodes:graph.nodes},eligibility};
 const projection=compileDepartmentPilot(input);
 const sourceSha256=createHash('sha256').update(raw).digest('hex');
 const output={schema:'cambium.department-pilot-packet.v1',sourceSha256,sourceAuthority:'supplied-dated-readback-not-live-verification',
