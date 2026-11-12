@@ -1,0 +1,129 @@
+{
+  "schema": "thoughtseed.growth.production_rollout.v1",
+  "observedAt": "2026-10-23T19:46:49.045Z",
+  "authorization": "Explicit owner approval for exact candidate, additive migration, and live verification",
+  "accountProfile": "thoughtseed-labs",
+  "worker": "cambium-quests",
+  "bundledSourceCommit": "eb181c6c81b4cc48c0b25409e8563e0ebfad5cb2",
+  "approvedCandidateVersion": "b33a1a6e-6edc-412d-b974-10e437379dc0",
+  "rollbackVersion": "efb161d2-3dbe-439f-b1f9-c4deb49f74e9",
+  "previousDeployment": "0bae6350-237c-4f37-b8b0-68d0f7a4e2d6",
+  "deployment": {
+    "id": "256bd7d9-9dfe-4858-a14c-0b926d6bb19e",
+    "createdAt": "2026-10-23T19:45:59.791934Z",
+    "versions": [
+      {
+        "version_id": "b33a1a6e-6edc-412d-b974-10e437379dc0",
+        "percentage": 100
+      }
+    ]
+  },
+  "resourceParity": {
+    "originalBindingsPreserved": 39,
+    "totalBindings": 43,
+    "addedVars": {
+      "GROWTH_WORKFLOW_MAX_DAILY": "10",
+      "GROWTH_WORKFLOW_MAX_PENDING": "3",
+      "GROWTH_WORKFLOW_RUNNER_MEMBER_ID": "hermes-runner",
+      "GROWTH_WORKFLOW_TENANTS_JSON": "[\"cambium\"]"
+    },
+    "runtimeMatches": true,
+    "runtime": {
+      "compatibility_date": "2026-05-01",
+      "compatibility_flags": [
+        "nodejs_compat"
+      ],
+      "usage_model": "standard"
+    },
+    "freshReadbackMatchesReviewedCandidate": true
+  },
+  "migration": {
+    "file": "0011_growth_workflow.sql",
+    "sourceDigest": "sha256:430245a31dd89189a14ba500d5e50304e16c09d2710647d982f12d856681ddbd",
+    "method": "Explicit additive migration SQL plus one idempotent migration-history entry; no all-pending migration apply",
+    "originalTableSchemasPreserved": 34,
+    "originalSchemaDigest": "sha256:bb69f92e6bafbba7de0cd2f1c2dd9f8204a1bf793d6b60f170cb63f44e826cae",
+    "originalMigrationRowsPreserved": 9,
+    "originalMigrationHistoryDigest": "sha256:12a17f3d5781aa31c6455bcef2e811ae397b41d5fa7a35a2087acfd5b0617a1d",
+    "migrationRowsAfter": 10,
+    "addedMigrationName": "0011_growth_workflow.sql",
+    "newTable": "bridge_growth_requests",
+    "newTableColumns": [
+      {
+        "name": "id",
+        "type": "TEXT",
+        "notNull": false
+      },
+      {
+        "name": "tenant_id",
+        "type": "TEXT",
+        "notNull": true
+      },
+      {
+        "name": "member_id",
+        "type": "TEXT",
+        "notNull": true
+      },
+      {
+        "name": "request_id",
+        "type": "TEXT",
+        "notNull": true
+      },
+      {
+        "name": "intent_digest",
+        "type": "TEXT",
+        "notNull": true
+      },
+      {
+        "name": "record_json",
+        "type": "TEXT",
+        "notNull": true
+      },
+      {
+        "name": "status",
+        "type": "TEXT",
+        "notNull": true
+      },
+      {
+        "name": "result_json",
+        "type": "TEXT",
+        "notNull": false
+      },
+      {
+        "name": "created_at",
+        "type": "TEXT",
+        "notNull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "TEXT",
+        "notNull": true
+      }
+    ],
+    "memberIndexVerified": true,
+    "requestRowsAtSchemaReadback": 0,
+    "timeTravel": {
+      "beforeCaptured": true,
+      "beforeBookmarkDigest": "sha256:c3e15da6da74f6aa66f58bdc8d02a99cc641a154e6c692c0e25627898300bcd9",
+      "afterCaptured": true,
+      "afterBookmarkDigest": "sha256:23403f6eb7ec1929cf3e12079b83ee7814ed469953d099e8ccafe54166b7b94f",
+      "bookmarkValuesKeptOutsideRepository": true
+    }
+  },
+  "rollback": {
+    "required": false,
+    "trafficTarget": "efb161d2-3dbe-439f-b1f9-c4deb49f74e9",
+    "retainAdditiveTableAndAuditRows": true
+  },
+  "limitations": [
+    "Promotion and schema readback are not employee end-to-end acceptance",
+    "Protected member, provider, Hermes inference and returned-result verification are owned by the parent workflow"
+  ],
+  "mutations": {
+    "otherWorkers": false,
+    "routes": false,
+    "dns": false,
+    "credentials": false,
+    "unrelatedTables": false
+  }
+}
