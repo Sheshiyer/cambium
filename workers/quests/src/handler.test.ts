@@ -17510,3 +17510,31 @@ test('department sources · authenticated graph uses accepted owner readers with
   h.deps.goalGraphStore.readHead=async(tenant)=>{const current=await readHead(tenant);return drift?{...current!,graphDigest:'b'.repeat(64)}:current;};
   const torn=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);assert.equal(torn.status,503);assert.equal(body(torn).error,'goal_graph_read_unconfirmed');
 });
+
+test('founder bookkeeping · a Telegram signature cannot approve a batch; the canonical review still can', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const h = await canonicalFounderHarness();
+  const deps = { ...h.deps, gate: gateCfg(pubKeyHex) };
+  const raw = founderBookkeepingInput();
+  const { resolveNodeId } = await import('./goal-graph/identity.ts');
+  const parent = resolveNodeId({ tenantId: 'cambium', namespace: 'founder-bookkeeping', externalId: 'launch-root', sourceRef: '', sourceDigest: '' });
+  raw.goals.push({ ...raw.goals[0], externalId: 'second-goal', parentNodeId: parent as any, scope: 'micro',
+    workObjectId: 'program:temperance-hermes', workObjectKind: 'program' } as any);
+  const intake = await h.call('intake', raw);
+  assert.equal(intake.status, 200, intake.body);
+  const read = await h.call('proposal', { proposalId: body(intake).proposalId });
+  assert.equal(read.status, 200, read.body);
+  const review = body(read);
+  assert.equal(review.proposal.review.bookkeepingChanges.nodesToCreate.length, 2);
+  const changeDigest = review.proposal.changeDigest;
+  const telegram = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.equal(telegram.status, 409, telegram.body);
+  assert.equal(body(telegram).error, 'bookkeeping_proposal_requires_canonical_gate');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n, 0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  const decided = await h.call('decision', canonicalDecision(review));
+  assert.equal(decided.status, 200, decided.body);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n, 2);
+});
