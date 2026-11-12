@@ -11,6 +11,16 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-12 sapling command families rebased onto main
+
+PR 431 is linear on main `510d589`, which includes the merged #430 scope fix.
+Native sign-in and the bundled owner URL stay with main. Department readers,
+the opt-in sapling command families, and the 4 November current-3D proof stay
+with the branch. The 3 November JPEG proof stays historical. Before this
+note, the tree matched the previously reviewed head `4b513a2`. `npm test`
+passed 2749/2749. No deploy, migration, or Founder Gate action.
+
+
 ## 2026-11-04 native UI cleanup
 
 Connections now presents a compact account card; Inbox and Projects use names and
