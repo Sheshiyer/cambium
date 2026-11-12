@@ -762,6 +762,9 @@ function privacyViolations(relativePath, source) {
   const violations = [];
   for (const [index, line] of source.split(/\r?\n/).entries()) {
     let candidate = reviewedSourceStatements.get(relativePath)?.has(line.trim()) ? '<reviewed-public-source-statement>' : line;
+    if (reviewedSourceCanaryLines.get(relativePath)?.has(line.trim())) {
+      candidate = '<reviewed-source-canary>';
+    }
     // Mask only these complete reviewed negative-test statements. A token
     // extension, changed delimiter, prefix, or adjacent secret makes the line
     // ineligible; the bearer/privacy scanners then see its original bytes.
@@ -806,6 +809,19 @@ test('DOCS-PRIVACY: complete public declarations never exempt native secrets or 
     assert.ok(privacyViolations(file, statement + ' ' + appendedPrivacyCanary).length);
     assert.ok(privacyViolations(file, ['native', 'Session'].join('') + ': "unreviewed-session-value"').length);
     assert.ok(privacyViolations(file, ['request', 'Body'].join('') + ': {"text":"unreviewed"}').length);
+  }
+});
+
+test('DOCS-PRIVACY: reviewed source contexts reject extensions, copies and adjacent secrets', () => {
+  const extraSecret = ['"access_', 'token": "unreviewed-private-value"'].join('');
+  for (const [relativePath, lines] of reviewedSourceCanaryLines) {
+    for (const line of lines) {
+      assert.deepEqual(privacyViolations(relativePath, line), []);
+      assert.deepEqual([...new Set(privacyViolations('unrelated.md', line))], ['unrelated.md:1']);
+      // Files with token-level reviewed expressions accept a benign suffix; an appended secret is still rejected below.
+      if (!reviewedPrivacyExpressions.has(relativePath) && !syntheticPrivacyFixtures.has(relativePath)) assert.deepEqual([...new Set(privacyViolations(relativePath, `${line} extra`))], [`${relativePath}:1`]);
+      assert.deepEqual([...new Set(privacyViolations(relativePath, `${line}; ${extraSecret}`))], [`${relativePath}:1`]);
+    }
   }
 });
 

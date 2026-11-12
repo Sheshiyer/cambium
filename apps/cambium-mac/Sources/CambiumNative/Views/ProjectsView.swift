@@ -71,13 +71,13 @@ struct ProjectsView: View {
             } else {
                 EmptyStateView(symbol: "square.grid.2x2", title: "No project catalog loaded",
                                message: model.session == nil
-                                ? "Configure an owner in Connections and sign in to read its scoped project catalog. The demo contains a dated replay."
-                                : model.issue?.message ?? "The owner has not returned a project catalog.")
+                                ? "Sign in to see your projects."
+                                : "Your projects could not be loaded. Try again.")
                     .cambiumPanel()
                 if !model.isDemo {
                     HStack {
                         if model.session != nil {
-                            Button("Retry owner read") { model.retryOwnerRead() }.disabled(model.loading)
+                            Button("Try again") { model.retryOwnerRead() }.disabled(model.loading)
                         }
                         Button("Connections") { model.open(.connections) }
                         Button("Open demo") { model.enterDemo() }
@@ -205,57 +205,17 @@ struct ProjectsView: View {
 
     private func dossier(_ project: MappedProject) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                SectionHeader(title: "Project source")
-                Text(project.name)
-                    .font(CambiumFont.display)
-                    .foregroundStyle(Palette.ink)
-                StatusChip(text: project.classification, tone: .rail)
-                Text("A source classification record. It does not grant a tenant role, approval, or launch admission.")
-                    .font(.callout)
-                    .foregroundStyle(Palette.inkMuted)
-                    .fixedSize(horizontal: false, vertical: true)
-                FactRow(label: "Canonical ID", value: project.canonicalId, mono: true)
-                Button("Open project Inbox") { model.openInbox(project: project.canonicalId) }
-                FactRow(label: "Catalog work ID", value: project.workId, mono: true)
-                FactRow(label: "Kind", value: project.kind)
-                FactRow(label: "Tenant status", value: project.tenantStatus)
-                FactRow(label: "Tenant label", value: project.tenantId)
-                FactRow(label: "Parent tenant", value: project.parentTenant)
-                FactRow(label: "Source account", value: project.accountId)
-                FactRow(label: "Lifecycle", value: project.lifecycle)
-                FactRow(label: "Promotion", value: project.promotionState)
-                FactRow(label: "Program kind", value: project.programKind)
-                FactRow(label: "Aliases", value: project.aliases.isEmpty ? nil : project.aliases.joined(separator: ", "))
-            }
-            .cambiumPanel(highlighted: true)
-
-            VStack(alignment: .leading, spacing: 8) {
-                SectionHeader(title: "Provenance and links")
-                if project.provenance.isEmpty {
-                    Text("No provenance listed.").foregroundStyle(Palette.hold)
-                } else {
-                    ForEach(project.sourceReferences) { reference in
-                        sourceReferenceRow(reference)
-                    }
-                }
-                linkedRows(project.linkedCanonicalIds)
-            }
-            .cambiumPanel()
-
-            VStack(alignment: .leading, spacing: 8) {
-                SectionHeader(title: "Operational boundary")
-                if project.operationalGapMissingFields.isEmpty {
-                    Text("No catalog operational gap is listed. This is not an admission verdict.")
-                        .font(.callout).foregroundStyle(Palette.inkMuted)
-                } else {
-                    Text("Mission data needed: \(project.operationalGapMissingFields.joined(separator: ", ")).")
-                        .font(.callout).foregroundStyle(Palette.hold)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                if let work = model.joinedWork(for: project) {
-                    FactRow(label: "Explicit join", value: work.id, mono: true)
-                    Button("Open operational Work") { model.openOperationalWork(for: project.id) }
+            VStack(alignment: .leading, spacing: 12) {
+                SectionHeader(title: "Project")
+                Text(project.name).font(CambiumFont.display).foregroundStyle(Palette.ink)
+                StatusChip(text: project.classification.replacingOccurrences(of: "-", with: " ").capitalized, tone: .rail)
+                if let lifecycle = project.lifecycle { Text(lifecycle.capitalized).font(.callout).foregroundStyle(Palette.inkMuted) }
+                Button("Open Inbox") { model.openInbox(project: project.canonicalId) }
+            }.cambiumPanel()
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(title: "Work")
+                if model.joinedWork(for: project) != nil {
+                    Button("Open work") { model.openOperationalWork(for: project.id) }
                         .accessibilityIdentifier("projects.openWork")
                 } else {
                     Text("Work is not connected yet.").font(.callout).foregroundStyle(Palette.inkMuted)

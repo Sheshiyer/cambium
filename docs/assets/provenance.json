@@ -202,6 +202,18 @@
       "approvalStatus": "docs-only",
       "sizePolicy": "docs-reference-image",
       "notes": "Local software WebGL source proof with synthetic founder-read fixtures. No live-owner, physical-device, trusted-touch, runtime-promotion or release acceptance."
+    },
+    {
+      "id": "field-atlas-native-viewport-proof-20261103",
+      "kind": "docs-only",
+      "paths": [
+        "docs/plans/assets/field-atlas-native-proof-20261103/*.jpg"
+      ],
+      "source": "Actual Codex in-app browser native JPEG captures of local Field Atlas source fixtures on 2026-11-03",
+      "licenseStatus": "project-owned-synthetic",
+      "approvalStatus": "docs-only",
+      "sizePolicy": "docs-reference-image",
+      "notes": "Source-bound layout and interaction evidence. Local synthetic fixtures, not live D1, platform authentication, production acceptance or execution proof. Original JPEG bytes preserved without transcoding; exact root receipt and hashes in manifest.json."
     }
   ]
 }

@@ -5,7 +5,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGE } from './page.ts';
 
-export const FIELD_ATLAS_PROOF_DIRECTORY = 'docs/plans/assets/field-atlas-viewport-proof';
+// Historical 2026-11-03 native JPEG proof. The maintained current-3D proof is scripts/field-atlas-viewport-contract.mjs.
+export const FIELD_ATLAS_PROOF_DIRECTORY = 'docs/plans/assets/field-atlas-native-proof-20261103';
 export const FIELD_ATLAS_CAPTURE_STEPS = [
   { id:'world-desktop', minWidth:1024, minHeight:600, path:'world-desktop.jpg', actions:['Open /founder; wait for the world canvas'], checks:['worldCanvasOne','worldTitle','retiredShellAbsent','telegramSdkAbsent','consoleClean'] },
   { id:'chart-desktop', minWidth:1024, minHeight:600, path:'chart-desktop.jpg', actions:['Enter world','Open district chart and local passport'], checks:['eightDistricts','keyboardFocusVisible','retiredShellAbsent','consoleClean'] },

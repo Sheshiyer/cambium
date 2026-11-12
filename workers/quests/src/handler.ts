@@ -5607,7 +5607,8 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const nativePath = req.path.split('?')[0];
   if (nativePath === '/v1/signals' || nativePath.startsWith('/v1/signals/')) {
-    // Existing native Inbox owner; this read/write contract adds no admission.
+    // Signals annotate source projects, including display proposals. This never
+    // creates a runtime join, tenant grant or operational admission.
     return sharedSignalsHttp(req, deps, new Set(PORTFOLIO_DISPLAY_CATALOG.records.map(record => record.workId)));
   }
   if (NATIVE_SESSION_ROUTES.has(nativePath)) {
