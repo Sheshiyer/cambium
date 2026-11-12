@@ -4996,6 +4996,11 @@ async function approveGoalGraphIntakeRoute(
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
   if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
+  // A bookkeeping batch can create or update several nodes. Only the canonical
+  // founder review shows the complete change set, so approve it there.
+  if (isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA) {
+    return { status: 409, body: { error: 'bookkeeping_proposal_requires_canonical_gate' } };
+  }
   const evidence = {
     kind: 'approve-goal-graph',
     subject: changeDigest,
