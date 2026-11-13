@@ -125,6 +125,8 @@ export interface GoalGraphStoreLike {
   renewalFenceReady?(): Promise<boolean>;
   /** Optional for legacy adapters; D1-backed projections use this as decision authority. */
   readDecisionReceipt?(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
+  readGrowthProposalRecord?(tenantId: string, changeDigest: string): Promise<Record<string, unknown> | null>;
+  persistGrowthProposalRecord?(tenantId: string, changeDigest: string, record: Record<string, unknown>): Promise<Record<string, unknown> | null>;
   readHead(tenantId: string): Promise<GoalGraphHead | null>;
   readNodes(tenantId: string): Promise<GoalGraphNode[]>;
   commit(input: GoalGraphCommitInput): Promise<GoalGraphCommitResult>;
@@ -364,8 +366,6 @@ export interface FounderDecisionStore extends GoalGraphStoreLike {
   readDecisionReceipt(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
   /** Growth approval card receipt: one immutable row in the existing approvals table, no graph write. */
   recordGrowthDecision?(input: GrowthDecisionReceiptInput): Promise<GrowthDecisionReceiptResult>;
-  readGrowthProposalRecord?(tenantId: string, changeDigest: string): Promise<Record<string, unknown> | null>;
-  persistGrowthProposalRecord?(tenantId: string, changeDigest: string, record: Record<string, unknown>): Promise<Record<string, unknown> | null>;
 }
 /** Namespace marker inside canonical_json; a growth receipt is never a Goal Graph approval. */
 export const GROWTH_DECISION_RECEIPT_KIND = 'growth-approval';

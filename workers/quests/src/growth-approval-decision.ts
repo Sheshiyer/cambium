@@ -223,7 +223,7 @@ export async function growthApprovalDecision(deps: GrowthApprovalDecisionDeps, i
   if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length !== KEYS.length
       || Object.keys(input).some((key) => !KEYS.includes(key))) return { status: 'invalid' };
   const context = await deps.authenticate();
-  if (!context || !['plugin', 'curious', 'telegram'].includes(context.channel)) return { status: 'unauthorized' };
+  if (!context || (context.channel !== 'plugin' && context.channel !== 'curious' && context.channel !== 'telegram')) return { status: 'unauthorized' };
   const p = await deps.readGrowthProposal(input.proposalId);
   if (!p || p.tenantId !== context.tenantId || p.founderId !== context.founderId) return { status: 'forbidden' };
   if (p.id !== input.proposalId || p.version !== input.version || p.changeDigest !== input.changeDigest
