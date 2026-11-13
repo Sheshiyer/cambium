@@ -1,0 +1,229 @@
+{
+  "schema": "cambium.taste-hands.experiment-report.v0.1",
+  "ok": true,
+  "errors": [],
+  "source_sha": "8261d4840988e2e1c6fa6c2eb85cee96d4344b58",
+  "research_sha": "1a97cd396709357cffaf45f417dde40c84a50b9a",
+  "surface_id": "curious-world.location-readout",
+  "production_edited": false,
+  "gates": {
+    "claim_review": "exact",
+    "phase": "verify",
+    "viewport_hold": "explicit",
+    "screenshot_touch_hold": "explicit",
+    "marketing_create_send_spend_publish": "disabled"
+  },
+  "wcag": [
+    {
+      "pair": "signal on ink",
+      "ratio": "14.03",
+      "limit": "text",
+      "ok": true
+    },
+    {
+      "pair": "mist on ink",
+      "ratio": "14.71",
+      "limit": "text",
+      "ok": true
+    },
+    {
+      "pair": "signal on substrate",
+      "ratio": "12.75",
+      "limit": "text",
+      "ok": true
+    },
+    {
+      "pair": "mist on substrate",
+      "ratio": "13.38",
+      "limit": "text",
+      "ok": true
+    },
+    {
+      "pair": "depth on mist",
+      "ratio": "14.94",
+      "limit": "text",
+      "ok": true
+    },
+    {
+      "pair": "signal on depth",
+      "ratio": "14.24",
+      "limit": "text",
+      "ok": true
+    },
+    {
+      "pair": "substrate on ink",
+      "ratio": "1.10",
+      "limit": "fail",
+      "ok": true
+    },
+    {
+      "pair": "depth on ink",
+      "ratio": "1.02",
+      "limit": "fail",
+      "ok": true
+    },
+    {
+      "pair": "signal on mist",
+      "ratio": "1.05",
+      "limit": "fail",
+      "ok": true
+    },
+    {
+      "pair": "depth on substrate",
+      "ratio": "1.12",
+      "limit": "fail",
+      "ok": true
+    }
+  ],
+  "references": {
+    "count": 7,
+    "resolved": 7,
+    "uninspected": [
+      "docs/assets/visual-flow/0063--telegram-mini-app--cambium-design-system-source.png",
+      "docs/assets/visual-flow/0062--telegram-mini-app--cambium-atlas-source.png",
+      "apps/cambium-r3f/public/assets/meshy/islands/taste/thumbnail.png"
+    ]
+  },
+  "revision_rounds": 0,
+  "blind_owner_score": null,
+  "runs": {
+    "A": {
+      "label": "production location readout, no contract binding",
+      "color_drift": 3,
+      "effect_drift": 1,
+      "token_drift": 4,
+      "contrast_failures": 0,
+      "type_gaps": 3,
+      "adherence": 2,
+      "rows": [
+        {
+          "role": "rail",
+          "kind": "non-text",
+          "hex": "#B58B65",
+          "against": "#00272B",
+          "ratio": 5.17,
+          "ratio_needed": 3,
+          "pass": true,
+          "off_palette": true,
+          "type_gap": false
+        },
+        {
+          "role": "index",
+          "kind": "text",
+          "hex": "#FFC7A1",
+          "against": "#00272B",
+          "ratio": 10.52,
+          "ratio_needed": 4.5,
+          "pass": true,
+          "off_palette": true,
+          "type_gap": true
+        },
+        {
+          "role": "district",
+          "kind": "text",
+          "hex": "#D6FFF6",
+          "against": "#00272B",
+          "ratio": 14.71,
+          "ratio_needed": 3,
+          "pass": true,
+          "off_palette": false,
+          "type_gap": true
+        },
+        {
+          "role": "tagline",
+          "kind": "text",
+          "hex": "#D3E9E0",
+          "against": "#00272B",
+          "ratio": 12.45,
+          "ratio_needed": 4.5,
+          "pass": true,
+          "off_palette": true,
+          "type_gap": true
+        },
+        {
+          "role": "shadow",
+          "kind": "effect",
+          "hex": "#00191D",
+          "against": "#00272B",
+          "ratio": null,
+          "ratio_needed": null,
+          "pass": true,
+          "off_palette": true,
+          "type_gap": false
+        }
+      ]
+    },
+    "B": {
+      "label": "same roles bound through surface_bindings",
+      "color_drift": 0,
+      "effect_drift": 0,
+      "token_drift": 0,
+      "contrast_failures": 0,
+      "type_gaps": 1,
+      "adherence": 4,
+      "rows": [
+        {
+          "role": "index",
+          "kind": "text",
+          "hex": "#E0FF4F",
+          "against": "#00272B",
+          "ratio": 14.03,
+          "ratio_needed": 4.5,
+          "pass": true,
+          "off_palette": false,
+          "type_gap": false
+        },
+        {
+          "role": "district",
+          "kind": "text",
+          "hex": "#D6FFF6",
+          "against": "#00272B",
+          "ratio": 14.71,
+          "ratio_needed": 3,
+          "pass": true,
+          "off_palette": false,
+          "type_gap": false
+        },
+        {
+          "role": "tagline",
+          "kind": "text",
+          "hex": "#D6FFF6",
+          "against": "#00272B",
+          "ratio": 14.71,
+          "ratio_needed": 4.5,
+          "pass": true,
+          "off_palette": false,
+          "type_gap": true
+        },
+        {
+          "role": "rail",
+          "kind": "non-text",
+          "hex": "#E0FF4F",
+          "against": "#00272B",
+          "ratio": 14.03,
+          "ratio_needed": 3,
+          "pass": true,
+          "off_palette": false,
+          "type_gap": false
+        },
+        {
+          "role": "shadow",
+          "kind": "effect",
+          "hex": null,
+          "against": "#00272B",
+          "ratio": null,
+          "ratio_needed": null,
+          "pass": true,
+          "off_palette": false,
+          "type_gap": false
+        }
+      ]
+    }
+  },
+  "stop_rules": {
+    "gate_touch": false,
+    "publish_path": false,
+    "viewport_claim": false,
+    "pass": true
+  }
+}

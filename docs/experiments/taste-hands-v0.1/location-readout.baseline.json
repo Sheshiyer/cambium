@@ -1,0 +1,57 @@
+{
+  "surface_id": "curious-world.location-readout",
+  "production_edited": false,
+  "note": "Run A copies the paints already in curious-world styles. This experiment does not edit that stylesheet or the gate chamber.",
+  "background": {
+    "hex": "#00272B",
+    "why": "The location chip has no fill. Contrast uses the viewport petrol, which is the same hex as ink."
+  },
+  "markup_anchors": [
+    "const location = element('div', 'cw-location');",
+    "element('span', 'cw-location-index'",
+    "element('strong', 'cw-district'",
+    "element('span', 'cw-tagline'"
+  ],
+  "roles": [
+    {
+      "role": "rail",
+      "kind": "non-text",
+      "size_px": 1,
+      "hex": "#B58B65",
+      "anchors": [".cw .cw-location {", "var(--cw-copper)", "--cw-copper:#b58b65"]
+    },
+    {
+      "role": "index",
+      "kind": "text",
+      "size_px": 11,
+      "weight": 400,
+      "hex": "#FFC7A1",
+      "type_matches_authority": false,
+      "anchors": [".cw .cw-location-index", "font:11px/1.3 var(--cw-mono)", "color:var(--cw-peach)", "--cw-peach:#ffc7a1", "--cw-mono:var(--mono,ui-monospace,monospace)"]
+    },
+    {
+      "role": "district",
+      "kind": "text",
+      "size_px": 32,
+      "weight": 400,
+      "hex": "#D6FFF6",
+      "type_matches_authority": false,
+      "anchors": [".cw .cw-district", "font-size:32px", "font-weight:400", "color:var(--cw-mint)", "--cw-mint:#d6fff6", "--cw-display:var(--serif,Georgia,serif)"]
+    },
+    {
+      "role": "tagline",
+      "kind": "text",
+      "size_px": 12,
+      "weight": 400,
+      "hex": "#D3E9E0",
+      "type_matches_authority": false,
+      "anchors": [".cw .cw-tagline", "font-size:12px", "color:#d3e9e0", "--cw-body:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"]
+    },
+    {
+      "role": "shadow",
+      "kind": "effect",
+      "hex": "#00191D",
+      "anchors": [".cw .cw-location {", "#00191d"]
+    }
+  ]
+}
