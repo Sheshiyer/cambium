@@ -1,6 +1,9 @@
 import { validFounderRenewalInput, type FounderRenewalInput } from './founder-renewal.ts';
 import { founderDecision, founderConfirmation } from './founder-decision.ts';
 import type { FounderContext, FounderDecision, FounderDecisionDeps } from './founder-decision.ts';
+import { GROWTH_APPROVAL_INTAKE_ROUTE, growthApprovalConfirmation, growthApprovalDecision, growthApprovalProposalFresh,
+  growthApproveEnabled, validGrowthApprovalIntake } from './growth-approval-decision.ts';
+import type { GrowthApprovalIntake, GrowthApprovalProposal, stageGrowthApprovalProposal } from './growth-approval-decision.ts';
 
 const inputSchema = {
   type: 'object', additionalProperties: false,
@@ -17,14 +20,19 @@ export interface FounderTransportHost extends Omit<FounderDecisionDeps, 'authent
   authenticateRequest(request: Request): Promise<FounderContext | null>;
   readProposal(id: string, renewal?: boolean): ReturnType<FounderDecisionDeps['readProposal']>;
   renewProposal?(input: FounderRenewalInput): Promise<Record<string, unknown>>;
+  /** Growth approval card (B2): server-owned stored row proposal. Absent means the growth routes are closed. */
+  readGrowthProposal?(id: string): Promise<GrowthApprovalProposal | null>;
+  stageGrowthProposal?(input: GrowthApprovalIntake): ReturnType<typeof stageGrowthApprovalProposal>;
 }
+const FOUNDER_ROUTES = ['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew'];
+export const GROWTH_APPROVAL_ROUTES = ['/v1/founder/growth/proposal', '/v1/founder/growth/decision', '/v1/founder/growth/status', GROWTH_APPROVAL_INTAKE_ROUTE];
 const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), {
   status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
 });
 /** Canonical proposal review, decision and status routes. No binding means closed. */
 export async function founderDecisionHttp(request: Request, host?: FounderTransportHost): Promise<Response> {
   const path = new URL(request.url).pathname;
-  if (!['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew'].includes(path)) return reply(404, { error: 'not_found' });
+  if (![...FOUNDER_ROUTES, ...GROWTH_APPROVAL_ROUTES].includes(path)) return reply(404, { error: 'not_found' });
   if (!host) return reply(503, { error: 'founder_host_unconfigured', message: 'Configure verified Access/Plexus identity, explicit founder/tenant bindings and the D1 proposal host before using Founder Gate.' });
   if (request.method !== 'POST') return reply(405, { error: 'post_required' });
   if (request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') return reply(415, { error: 'json_required' });
@@ -33,6 +41,7 @@ export async function founderDecisionHttp(request: Request, host?: FounderTransp
   let input: FounderDecision;
   try { input = JSON.parse(body); } catch { return reply(400, { error: 'invalid_json' }); }
   try {
+    if (GROWTH_APPROVAL_ROUTES.includes(path)) return await growthApprovalHttp(path, input, request, host);
     if (path.endsWith('/renew')) {
       if (!validFounderRenewalInput(input)) return reply(400, { status: 'invalid', writerAuthority: false });
       const context = await host.authenticateRequest(request);
@@ -57,6 +66,59 @@ export async function founderDecisionHttp(request: Request, host?: FounderTransp
       : result.status === 'unknown' ? 503 : ['approved','rejected','pending'].includes(result.status) ? 200 : 409;
     return reply(status, result);
   } catch { return reply(503, { status: 'unknown', retry: 'status_only' }); }
+}
+/**
+ * Growth intake stages a review. Only a separate decision can write a receipt.
+ * Neither path dispatches work or writes to the vault.
+ */
+async function growthApprovalHttp(path: string, input: FounderDecision, request: Request, host: FounderTransportHost): Promise<Response> {
+  const readGrowthProposal = host.readGrowthProposal;
+  if (!readGrowthProposal) return reply(503, { error: 'growth_approval_unconfigured', message: 'Configure the growth approval proposal host before deciding a growth row.' });
+  if (path === GROWTH_APPROVAL_INTAKE_ROUTE) {
+    if (!validGrowthApprovalIntake(input)) return reply(400, { status: 'invalid', writerAuthority: false });
+    if (!host.stageGrowthProposal) return reply(503, { error: 'growth_approval_intake_unconfigured', writerAuthority: false });
+    const context = await host.authenticateRequest(request);
+    if (!context || context.channel !== 'curious') return reply(401, { status: 'unauthorized', writerAuthority: false });
+    const result = await host.stageGrowthProposal(input);
+    if (result.status === 'review') return growthApprovalReview(result.proposal, host);
+    const status = { unknown: 503, invalid: 400, forbidden: 403, changed: 409, expired: 409 }[result.status];
+    return reply(status, { status: result.status, writerAuthority: false, externalAction: 'none' });
+  }
+  if (path.endsWith('/proposal')) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)
+        || Object.keys(input).length !== 1 || typeof input.proposalId !== 'string') return reply(400, { status: 'invalid' });
+    const context = await host.authenticateRequest(request);
+    if (!context) return reply(401, { status: 'unauthorized' });
+    const p = await readGrowthProposal(input.proposalId);
+    if (!p || p.id !== input.proposalId || p.tenantId !== context.tenantId || p.founderId !== context.founderId) return reply(403, { status: 'forbidden' });
+    return growthApprovalReview(p, host);
+  }
+  const result = await growthApprovalDecision({ store: host.store, readGrowthProposal,
+    authenticate: () => host.authenticateRequest(request), now: host.now }, input, path.endsWith('/status'));
+  const status = result.status === 'unauthorized' ? 401 : result.status === 'forbidden' ? 403
+    : result.status === 'unknown' ? 503 : ['approved','rejected','pending'].includes(result.status) ? 200 : 409;
+  return reply(status, result);
+}
+
+async function growthApprovalReview(p: GrowthApprovalProposal, host: FounderTransportHost): Promise<Response> {
+  const settled = await growthApprovalDecision({
+    store: host.store, now: host.now, readGrowthProposal: async () => p,
+    authenticate: async () => ({ founderId: p.founderId, tenantId: p.tenantId, channel: 'curious' }),
+  }, { proposalId: p.id, version: p.version, changeDigest: p.changeDigest, nonce: p.nonce,
+    expiresAt: p.expiresAt, decision: 'approved', confirmation: '' }, true);
+  if (settled.status !== 'pending') {
+    const status = settled.status === 'approved' || settled.status === 'rejected' ? 200
+      : settled.status === 'conflict' || settled.status === 'expired' ? 409 : 503;
+    return reply(status, settled);
+  }
+  if (!growthApprovalProposalFresh(p, host.now()))
+    return reply(409, { status: 'expired', writerAuthority: false, externalAction: 'none' });
+  const approveEnabled = growthApproveEnabled(p.gate);
+  return reply(200, { status: 'review', proposal: { schema: p.schema, proposalId: p.id, tenantId: p.tenantId, version: p.version,
+    changeDigest: p.changeDigest, nonce: p.nonce, expiresAt: p.expiresAt, subject: p.subject, gate: p.gate, summary: p.summary, review: p.review },
+    actions: { approve: approveEnabled, revise: true, hold: true },
+    approveConfirmation: approveEnabled ? growthApprovalConfirmation(p, 'approved') : null,
+    rejectConfirmation: growthApprovalConfirmation(p, 'rejected'), writerAuthority: false, externalAction: 'none' });
 }
 /** MCP caller identity comes from the host request, never from tool arguments or a shared bearer alone. */
 export async function founderDecisionTool(name: string, args: unknown, request: Request, host?: FounderTransportHost) {

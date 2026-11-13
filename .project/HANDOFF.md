@@ -11,6 +11,14 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-14 Growth proposal intake
+
+Growth B2 stages exact draft hashes through the existing Curious Gate founder
+binding and reads status before offering a decision. Migration 0013 adds the
+proposal table; the decision remains one receipt in the existing ledger.
+Intake and review leave drafts and calendar rows untouched. See
+`docs/architecture/contracts/growth-approval-decision-v1.md`.
+
 ## 2026-11-12 sapling command families rebased onto main
 
 PR 431 is linear on main `510d589`, which includes the merged #430 scope fix.
@@ -203,6 +211,11 @@ Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsy
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
 
 # Project handoff
+
+### 2026-10-27 growth approval decision — B2 draft, source only
+
+- Growth fan-out B2: the founder approval card now has a signed Curious Gate path. `POST /v1/founder/growth/{proposal,decision,status}` reuse the seven-field envelope, bindings, identity host and D1 store; the subject is the growth row digest (cell path, calendar row id, body digest). A signed approve writes one `goal_graph_approvals` row with `kind: growth-approval` and nothing else; tests count Goal Graph commit/reject, task reads, KV writes and `fetch` at zero. No migration, no proposal creation, no Telegram render, no vault write. Contract: `docs/architecture/contracts/growth-approval-decision-v1.md`. Draft PR only; no deployment.
+
 
 ### 2026-10-26 worktree and branch reconciliation — one working head
 
