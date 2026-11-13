@@ -1,8 +1,8 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-10-25T11:10:34.548324+00:00",
-  "status": "completed",
-  "active_task": "Completed scoped Founder Gate desktop renewal/approval/receipt E2E",
+  "updated": "2026-11-04T11:31:11.397872+00:00",
+  "status": "viewport-vpg02-only-source-admitted",
+  "active_task": "VPG-02 only is admitted: mission owner projection, current 3D overview/branch/proof interactions and seven exact source journeys. Preserve all 43 retained intents, 11 qualified behaviors and prior 48 source cases. Version 95 baseline; deployment and traffic held.",
   "completed": [
     "Original deep review mapped 24 components and 51 hashed source references across 11 roots; portable review, map, design and eight-task plan delivered",
     "Completed all100growthfiles:89UTF8 and11binary/metadata, bothPDFs32pages/eightfonts identified; per-file hashes and provenance retained, vault untouched",
@@ -166,7 +166,7 @@
     "Task7 parent pre-PINS R1 source protocol frozen at e4e7e125b8c677566834393549462a80fce3a1f4c91219b37af70c2a372dfdf2; eight tuples and 15 static consistency checks pass; independent audit pending; all runtime, root, receipt and PINS fields remain inert",
     "Pinned Python 3.9 tempfile source observation found underscore in its random suffix alphabet while policy-helper R3 rejects underscore; root creation remains blocked until a new reviewed/tested helper derivative resolves the grammar and validates the outer receipt envelope",
     "Task8 blank workstation/node owner packet R3 document review PASS after explicit separate configuration rollback steps; no target or physical evidence supplied, ISC-925..940 remain open",
-    "Independent Task7 parent pre-PINS R1 audit returned HOLD at 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f; all eight tuples/lineage match, but exact R4 cannot pass its pinned null internal admission and receipt root grammar accepts impossible 9\u201324 suffixes",
+    "Independent Task7 parent pre-PINS R1 audit returned HOLD at 14af7a8d2a965127eda4e3b20ea4e84f4e0736710836356c8a37d0e8dea2778f; all eight tuples/lineage match, but exact R4 cannot pass its pinned null internal admission and receipt root grammar accepts impossible 9–24 suffixes",
     "Task7 materializer derivative R5 source packet created and statically frozen fae7dece01a6914425b00191ed66d92089b4ae80f705a78f56d01b1a2ba9b003; exact root-only internal admission is pinned, downstream switches false, 14 static checks pass, independent source audit pending",
     "Independent materializer R5 audit returned HOLD; exact report ac17828acb0aba0a96d263305a01b98a309dacf5e533798f24cc580aa3ff6244 confirms all 29 frozen tuples and gate pins, but top-level base runner/launcher hashes conflict with its named R4 parent",
     "Materializer R6 provenance-corrected source derivative frozen at 426ea567703892097b99cb07b1394cd037bcaa1be3ba75eac20b2909cd1cce7b; 32 member tuples, JSON, R5 parent freeze/audit bytes, immediate-parent pins and exact R6 terminal argv locally verified; candidate not run, independent audit pending",
@@ -195,7 +195,7 @@
   "decisions": [
     "Both Mac profiles are equally important and must operate independently of Snow Gloves; no product/runtime merge",
     "Cambium,Temperance and connected organs form one ecosystem with distinct existing owners; vault bodies remain referenced knowledge",
-    "FullTasks1\u20138 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
+    "FullTasks1–8 source execution is authorized; actualhost/service/provider/cloud/credentials/native-store effects require exactowner scope",
     "Preserve Cambium savedOpenAI goal,Phase9 authenticatedinventory gate,GSDstate and all unrelatedWIP",
     "Distribution owns implementation in isolated worktrees; primary sourceWIP and hostruntime remain untouched",
     "Reuse existing OpenTUI/controller/lifecycle journal/preimage/receipts/catalog; no secondexecutor/journal/approvalledger/secretstore",
@@ -241,14 +241,15 @@
     "User sign-in completed and founder-only projection read verified in IAB; current browser tab1 on founder/api/quests/cambium",
     "LiveD1 currently has only operating tenant cambium and2nodes; clientWorkObject mappings are not separate admitted tenant IDs",
     "Screenshot identifies reviewed ParkArea/Insight/Co.Property threeprojects/Relovo/KlearKarma, with Tirak next; no newclientIDs invented",
-    "No deployment/upload/enrollment/live decision yet; latest current live version and rollback remain d362a432-b650-451e-83e7-6bcc2121b288"
+    "No deployment/upload/enrollment/live decision yet; latest current live version and rollback remain d362a432-b650-451e-83e7-6bcc2121b288",
+    "2026-11-04 explicit user decision: use version95 as release-planning baseline; keep all traffic changes held. This does not approve upload, promotion or rollback."
   ],
   "uncommitted_files": [
     "ISA.md",
     ".planning/HANDOFF.json",
     "backend/UI worker files in progress"
   ],
-  "next_action": "Continue assigned backend/UI source work in private clone; parent waits on unchanged serial release baseline, integrates generated bundles/tests, then reviews release and verified binding/3D E2E.",
+  "next_action": "Execute only VPG-02-T1/T2/T3 against the accepted digest and execution/VPG-02-ADMISSION.json. Require complete original predicates and native browser proof before deriving the 55-case, 18-qualified target. Later packages and external effects remain held.",
   "preserved_goal": {
     "path": ".temperance/goal.json",
     "status": "active",
@@ -412,7 +413,7 @@
   "wave": "founder-renewal-3d-runtime-e2e-2026-10-25",
   "tier": "E5",
   "session_budget": "Unbounded user objective; no explicit token/time budget requested",
-  "next_command": "Read .local/runtime/rollout-handoff.json and live worker messages; do not repeat completed merge or mutate the running baseline checkout.",
+  "next_command": "Read .planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-02-PLAN.md",
   "extends": "gsd.pause-work.v1",
   "accepted_limitations": [
     "Canonical mobile viewport/trustedtouch proof remains held under explicit owner exception",
@@ -430,6 +431,389 @@
     "nodeStatus": "blocked"
   },
   "continuations": {
+    "department_live_integration": {
+      "status": "viewport-vpg02-only-source-admitted",
+      "source_branch": "codex/field-atlas-proof-20261104",
+      "handoff": "docs/plans/department-pilot/OWNER-READERS.md",
+      "reviewed_source_commit": "db97abf9e6e73df33e707fe824f9d03a38b99503",
+      "graph_tooling_commit": "f88722a75b6fefc0ee811db133cf317415022e94",
+      "source_verification_receipt": "artifact:graph-tooling-20261104/source-verification-receipt.json",
+      "full_suite": {
+        "source_commit": "db97abf9e6e73df33e707fe824f9d03a38b99503",
+        "tests": 2712,
+        "pass": 2711,
+        "fail": 1,
+        "only_failure": "canonical viewport manifest PAGE digest is stale",
+        "frozen_independent_git_metadata": true
+      },
+      "baseline_diagnostic_status": {
+        "handler_closure": 61,
+        "owner_reader_plus_intake_closure": 11,
+        "pure_owner_reader": 0,
+        "introduced_identities": 0,
+        "counts_overlap": true
+      },
+      "original_seven_failure_dispositions": "artifact:graph-tooling-20261104/final-suite-dispositions.json",
+      "standalone_audit": {
+        "pass": true,
+        "publishable_files": 1951
+      },
+      "atlas_check": "pass",
+      "native_owner_source_tests": {
+        "pass": 25,
+        "fail": 0,
+        "device_acceptance": false
+      },
+      "sapling_tests": {
+        "pass": 22,
+        "fail": 0
+      },
+      "last_attributable_graph": {
+        "served_at": "2026-11-03T20:32:22.791Z",
+        "head": 13,
+        "digest": "2c14f77ac4d9a90d735d27eaf6b6ca766be02b00433cf49ae595088ce64ff99b",
+        "nodes": 132,
+        "decisions": 10,
+        "fresh": false,
+        "expired_for_owner_reader": true
+      },
+      "fresh_graph_read": "unavailable: existing Founder Access route requires sign-in; no alternate D1 access or restamping",
+      "accepted_daily_work": "Finite LumenBar verification/measurement and Temperance Phase 2 scopes are ready for human scope review. Accepted ISA/GSD plan digests and exact task mapping remain absent; both MISSION.md files remain absent.",
+      "kpi_measurements": "Earlier LumenBar 2/2 publication cohort remains historical; no fresh measurements or inferred adoption.",
+      "serving_planning_baseline": {
+        "number": 95,
+        "version_id": "5f2c5dc7-e57a-47a8-89f3-0f64f6c29841",
+        "last_read_percentage": 100,
+        "last_read_deployment_id": "c353f2e4-91a6-45d2-8d95-d7dae9839693",
+        "deployment_created_at": "2026-11-03T20:26:02.938591Z",
+        "source_commit": "unestablished",
+        "decision": "explicit user selection; traffic changes held"
+      },
+      "traffic_changed_by_this_task": false,
+      "traffic_authorized": false,
+      "upload_authorized": false,
+      "execution_granted": false,
+      "native_hooks": {
+        "enabled_trusted": 6,
+        "definitions_and_registry_unchanged": true,
+        "callback_execution": "unobserved",
+        "registration_changed": false
+      },
+      "skill_clusters": {
+        "managed_hot": 14,
+        "health_errors": 0,
+        "health_warnings": 199,
+        "unresolved_wrapper_refs": 8,
+        "host_registration_changed": false
+      },
+      "hitl_packets": {
+        "viewport": "artifact:graph-tooling-20261104/approval-packets/viewport-contract-hitl.json",
+        "native_prefill": "artifact:graph-tooling-20261104/approval-packets/native-owner-prefill-hitl.json",
+        "lumenbar_gsd": "artifact:graph-tooling-20261104/approval-packets/lumenbar-gsd-approval-packet.json",
+        "temperance_gsd": "artifact:graph-tooling-20261104/approval-packets/temperance-gsd-approval-packet.json",
+        "type_diagnostics": "artifact:graph-tooling-20261104/approval-packets/source-diagnostics-held.json",
+        "skill_resolution": "artifact:graph-tooling-20261104/approval-packets/skill-resolution-held.json"
+      },
+      "held": [
+        "32 of43 retained operational viewport assertions have no complete current equivalent; all47 original identities and historical image/manifest bytes remain accounted for. Source proof and header repair pass.",
+        "Native blank owner-origin prefill behavior requires owner review before release.",
+        "Product mission/outcome, accepted ISA/GSD plan digest, exact task/node/parent/order/dependency evidence and fresh authenticated graph.",
+        "Native callbacks/owner-result and installed Noesis/device/platform acceptance.",
+        "Rhai/model-fence acceptance and runtime reader binding separate from D1 bookkeeping.",
+        "Fresh source/config/settings/schedules/exposure and rollback gate before any separately authorized deployment/traffic change.",
+        "CI deferred: future Woodpecker on existing hardware only; no paid resources, Actions or runner changes."
+      ],
+      "historical_native93_version94_checkpoint": {
+        "status": "combined-native93-version94-upload-verified-traffic-held",
+        "source_branch": "codex/department-native-reconcile-20261103",
+        "handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
+        "verified_live_head": 11,
+        "live_head_digest": "68d3c34c2dd54ee2351e063bc0dd54bb468d8164550bd3af2c8cc10502d3e32f",
+        "serving_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+        "accepted_daily_work": "unavailable from actual owner sources",
+        "kpi_measurements": "twelve unavailable; no complete owner cohort reader",
+        "gate": "Review upload and exact version94 readback complete; separate traffic approval and production acceptance remain held.",
+        "execution_granted": false,
+        "serving_percentage": 100,
+        "original_department_source": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
+        "requested_traffic_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
+        "observed_serving_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+        "observed_serving_version_number": 93,
+        "observed_binding_count": 52,
+        "compatibility_branch": "codex/department-native-reconcile-20261103",
+        "compatibility_handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
+        "compatibility_upload_authorized": false,
+        "traffic_changed_by_this_task": false,
+        "rollback_requested_by_owner": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
+        "original_department_source_commit": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
+        "original_uploaded_department_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
+        "native_owner_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
+        "serving_binding_count": 52,
+        "owner_choice": "preserve version82 and prepare combined source",
+        "version80_promotion_superseded": true,
+        "combined_candidate_uploaded": true,
+        "combined_candidate_upload_authorized": false,
+        "local_verification": {
+          "focused_node_tests": "777/777 fresh including native/department, repository/lifecycle guards and context/intake fixtures",
+          "atlas_tests": "existing generator --check passed; atlas included in777 focused checks",
+          "native_core_tests": "retained deb53e3e260pass/1skip proof; all94 native Source/Test bytes unchanged and match93, not rerun",
+          "native_app_tests": "retained deb53e3e39/39 native XCTest proof; unchanged native bytes, not rerun",
+          "scoped_strict_typecheck": "fresh pass",
+          "broad_worker_typecheck": "fresh69 diagnostics; exact same identities as d6bb baseline, none added",
+          "bundle_parity": "department generated source unchanged fromd6bb",
+          "dry_run": "fresh pass; actual emitted Worker byte-identical todeb53e3e2585141bytes/SHA256036a55b059111b794a6ff0a6bfd5a97f2811f95b079608bf1ebb18d6f9bb403a",
+          "retired_surface_guard": "fresh pass using actual Wrangler sourcemap inputs",
+          "full_node_tests": "2694/2697 fresh on exact e6c1940e with original history and independent refs; same three baseline failures, no new identities",
+          "standalone_audit": "fresh run retains same six findings"
+        },
+        "native_browser_alias_owner_commit": "ab94d63c7db8572c3743c1cb8c3d69221ba0f053",
+        "serving_version_number": 93,
+        "serving_deployment_id": "c89c5a4d-e149-4b5e-a242-9051b9e7b7dc",
+        "latest_observation_ref": "artifact:departmental-live-integration-20261103/reconcile-native93-20261104/live-drift-after.json",
+        "upload_approval_consumed": true,
+        "combined_uploaded_source_commit": "e6c1940e5410240c0d726d0da3419b28cbbd4289",
+        "combined_uploaded_version": "c0821aa3-987a-4fc5-b2c5-380aee02fb5b",
+        "combined_uploaded_version_number": 94,
+        "uploaded_version_verified": true,
+        "candidate_serving": false,
+        "traffic_authorized": false,
+        "observed_at": "2026-11-03T19:38:24.568834+00:00",
+        "deployment_changed_concurrently_since_preflight": false,
+        "newer_native_source_reconciliation_required_before_traffic": false,
+        "preview_verification": "Immutable version94 preview: root200 with complete generated JS/CSS; health200 configured; guest founder graph401. Authenticated founder graph, production and native/device acceptance not tested.",
+        "upload_scope": "exact e6c1940e immutable review upload only; no traffic/trigger/settings/credential change",
+        "reviewed_native_owner_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
+        "current_native_source_resolution": "All native92→93 delta paths match pinned b5396101; runtime inputs preserve only department additions; live remains93 with no observed source drift.",
+        "previous_uploaded_candidate": {
+          "source_commit": "d6bb69866e50e88aa4efe8e8717d2a0360ee4979",
+          "version_id": "f74b004a-f50a-4976-b0ee-4c34f2c15aee",
+          "version_number": 89,
+          "verified": true,
+          "serving": false
+        },
+        "combined_candidate_source_commit": "e6c1940e5410240c0d726d0da3419b28cbbd4289",
+        "source_reconciliation_authorized": true,
+        "reconciled_requested_native_version": 93,
+        "requested_native90_source_commit": "0b31033b0dc3fcebc1155dba9279f91c0330bb21",
+        "reconciled_native_version": 93,
+        "native_source_test_files_exact": 94,
+        "latest_uploaded_version_number": 94,
+        "latest_uploaded_version_id": "c0821aa3-987a-4fc5-b2c5-380aee02fb5b",
+        "new_candidate_source_verification": "Exact52 inherited binding configurations, runtime, operational settings, schedules, exposure and Worker artifact verified against preflight; documented baseline retained.",
+        "config_sha256": "a4c3318e412997b0bb54b533ef7bb52c3f7312686e6598817c6b91c61ea9d601",
+        "config_byte_identical_to_d6bb6986": true,
+        "graph_verification_scope": "head11/128nodes/seven decisions is earlier authenticated proof, not a new production acceptance claim",
+        "newer_native_source_reconciliation_required_before_upload": false,
+        "source_verification_receipt": "artifact:departmental-live-integration-20261103/reconcile-native93-20261104/combined-source-receipt.json",
+        "requested_native93_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
+        "traffic_readback": {
+          "id": "c89c5a4d-e149-4b5e-a242-9051b9e7b7dc",
+          "versions": [
+            {
+              "version_id": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+              "percentage": 100
+            }
+          ]
+        },
+        "uploaded_version_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json",
+        "preview_readback_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/version-preview-readback.json",
+        "baseline_failures_documented": true
+      },
+      "historical_3d_diagnostics": {
+        "manifest": "artifact:field-atlas-current-vf4T7m/manifest.json",
+        "frames": 8,
+        "source_commit": "db97abf9e6e73df33e707fe824f9d03a38b99503",
+        "canonical_acceptance": false,
+        "live_acceptance": false,
+        "physical_device": false,
+        "original_47_contract_unchanged": true,
+        "narrow_header_finding": "Departments text competes with the header/status at 320/390px; source visual hold."
+      },
+      "viewport_proof": {
+        "status": "historical-44-frame-source-checkpoint-superseded-by-vpg01",
+        "implementation_commit": "7c8c810f47b49fa4c6dd17d341ee4c48e68a9655",
+        "manifest": "docs/plans/assets/field-atlas-viewport-proof/manifest.json",
+        "manifest_sha256": "ec34e3e1ff9880c0bd86c565b2dcfb3919e6cf0b9bc4db964e08be658138512f",
+        "source_frames": 44,
+        "source_proof_ok": true,
+        "legacy_assertions": 47,
+        "original_manifest_and_all_pngs_byte_identical": true,
+        "retired_gallery": 4,
+        "retained_required": 43,
+        "qualified_local_browser": 11,
+        "unqualified_retained": 32,
+        "qualification_command": "npm run proof:field-atlas:check -- --json",
+        "qualification_exit": 1,
+        "qualification_failures": "32 named retained behaviors have no complete current equivalent; source failures are empty.",
+        "strict_release_gate": true,
+        "contract": "docs/visual/field-atlas-viewport-contract.v1.json",
+        "source_verification_receipt": "artifact:field-atlas-contract-20261104/source-verification-receipt.json",
+        "capture_scope": "local software WebGL; synthetic founder HTTP read fixture only",
+        "header_qa": {
+          "widths": [
+            320,
+            390,
+            430,
+            600,
+            601,
+            1280
+          ],
+          "status": "pass",
+          "minimum_control_px": 44,
+          "keyboard_and_modal_focus": "pass",
+          "receipt": "artifact:field-atlas-contract-20261104/qa/final-header-qa-receipt.json"
+        },
+        "operational_qa": {
+          "viewports": [
+            320,
+            390,
+            430
+          ],
+          "checks": 189,
+          "images": 30,
+          "status": "pass-local-synthetic-source",
+          "receipt": "artifact:field-atlas-contract-20261104/qa/operational/operational-qa-receipt.json"
+        },
+        "focused_contract_tests": {
+          "pass": 16,
+          "fail": 0
+        },
+        "app_tests": {
+          "pass": 95,
+          "fail": 0
+        },
+        "app_strict_typecheck": "pass",
+        "bundle_parity": "pass",
+        "drift_audit": "pass",
+        "frozen_full_suite": {
+          "command": "npm test",
+          "results": "artifact:field-atlas-contract-20261104/source-verification-receipt.json",
+          "independent_git_metadata": true,
+          "tested_commit": "recorded in final receipt after proof/checkpoint commit"
+        },
+        "canonical_acceptance": false,
+        "live_acceptance": false,
+        "physical_device": false,
+        "trusted_touch_acceptance": false,
+        "release_ready": false,
+        "deployment_authorized": false,
+        "traffic_authorized": false,
+        "prior_graph_tooling_verification": "Existing reviewed_source_commit, full_suite and standalone_audit fields describe the earlier db97abf9 graph/tooling checkpoint.",
+        "framing_repair": {
+          "source_commit": "7c8c810f47b49fa4c6dd17d341ee4c48e68a9655",
+          "prior_run": "artifact:field-atlas-contract-20261104/r1-framing-review/preservation.json",
+          "seven_queue_frames_reframed_with_native_wheel": true,
+          "complete_visible_text_bounds_and_hit_testing": true,
+          "negative_offscreen_rejected_before_png": true,
+          "positive_browser_cases": 7,
+          "receipt": "artifact:field-atlas-contract-20261104/framing-probe.json"
+        },
+        "current_source_checkpoint": "viewport_gap_plan.vpg01",
+        "historical_manifest_git_ref": "64a6d4c5:docs/plans/assets/field-atlas-viewport-proof/manifest.json"
+      },
+      "gsd_scope_proposals": {
+        "status": "ready-for-human-scope-review-only",
+        "readme": "artifact:viewport-gsd-20261104/gsd-scopes/README.md",
+        "lumenbar": {
+          "selected": "1.2.0 installation/onboarding/multi-display verification and separate existing-publication launch measurement under one product",
+          "proposal": "artifact:viewport-gsd-20261104/gsd-scopes/lumenbar/SCOPE.md",
+          "verification": "artifact:viewport-gsd-20261104/gsd-scopes/lumenbar/VERIFICATION-SCOPE.md",
+          "launch_measurement": "artifact:viewport-gsd-20261104/gsd-scopes/lumenbar/LAUNCH-MEASUREMENT-SCOPE.md"
+        },
+        "temperance": {
+          "selected": "Phase 2 Public Source Convergence against current source",
+          "proposal": "artifact:viewport-gsd-20261104/gsd-scopes/temperance/SCOPE.md"
+        },
+        "independent_review": "artifact:field-atlas-contract-20261104/gsd-scope-review.json",
+        "scope_accepted": false,
+        "accepted_plan_digest": null,
+        "accepted_task_mapping": null,
+        "fresh_canonical_head": null,
+        "execution_granted": false,
+        "canonical_write_approved": false
+      },
+      "viewport_gap_plan": {
+        "status": "accepted-vpg02-only-source-admitted",
+        "packet": ".planning/viewport-proof-20261104/remaining-behaviors/README.md",
+        "roadmap": ".planning/viewport-proof-20261104/remaining-behaviors/ROADMAP.md",
+        "traceability": ".planning/viewport-proof-20261104/remaining-behaviors/TRACEABILITY.md",
+        "coverage": ".planning/viewport-proof-20261104/remaining-behaviors/coverage.json",
+        "proposal": ".planning/viewport-proof-20261104/remaining-behaviors/PROPOSAL.json",
+        "proposal_content_digest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
+        "technical_review": ".planning/viewport-proof-20261104/remaining-behaviors/REVIEW.md",
+        "source_baseline": "e6b28642eb79d6668c336b59cf745c5ab9581749",
+        "retained_intents": 43,
+        "current_qualified": 11,
+        "remaining_gaps": 32,
+        "packages": 10,
+        "tasks": 28,
+        "proposed_source_cases": 80,
+        "existing_cases_preserved": 44,
+        "original_height_supplements": 4,
+        "gap_terminal_cases": 32,
+        "new_gap_clipped_cases": 8,
+        "new_gap_full_viewport_cases": 24,
+        "proposed_isa_criteria": 45,
+        "all_future_criteria_unchecked": true,
+        "plan_preparation_authorized": true,
+        "accepted_plan_digest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
+        "isa_acceptance_ref": "ISA.md#viewport-plan-acceptance-and-vpg-01-admission--2026-11-04",
+        "canonical_mapping": null,
+        "admitted_tasks": [
+          "VPG-02-T1",
+          "VPG-02-T2",
+          "VPG-02-T3"
+        ],
+        "implementation_authorized": true,
+        "deployment_authorized": false,
+        "traffic_authorized": false,
+        "active_root_phase9_unchanged": true,
+        "verification": "artifact:viewport-vpg01-20261104/source-verification-receipt.json",
+        "technical_review_status": "passed",
+        "proposal_validation_status": "passed-with-10-negative-controls",
+        "acceptance": ".planning/viewport-proof-20261104/remaining-behaviors/execution/ACCEPTANCE.json",
+        "admitted_plans": [
+          "VPG-02"
+        ],
+        "implementation_scope": "VPG-02 only local source and evidence",
+        "remaining_plans_admitted": false,
+        "scope_accepted": true,
+        "completed_tasks": [
+          "VPG-01-T1",
+          "VPG-01-T2"
+        ],
+        "completed_plans": [
+          "VPG-01"
+        ],
+        "admission_consumed": false,
+        "vpg01": {
+          "status": "source-verified",
+          "summary": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-SUMMARY.md",
+          "independent_review": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-VERIFICATION.md",
+          "source_commit": "9ffaf8a0a5c4815a4c9dc0e48bf1be152474ad4d",
+          "evidence_commit": "9ec9f781e27893be66a21134c73cf7fd7e987a61",
+          "source_frames": 48,
+          "source_bindings": 21,
+          "manifest_sha256": "18b6196b9e4d56bba02ad627f664e66fd1695a9058bea6340df1d00d89fc754d",
+          "source_proof_ok": true,
+          "retained_intents": 43,
+          "qualified": 11,
+          "held": 32,
+          "newly_qualified": 0,
+          "frozen_full_suite": {
+            "pass": 2734,
+            "fail": 0,
+            "skip": 0,
+            "source_commit": "366d7617f08d6b31addbc270302350892d9360be"
+          },
+          "focused_boundary_tests": 23,
+          "all48_images_independently_viewed": true,
+          "prior47_history_and_founder_fixture_byte_identical": true
+        },
+        "active_admission": ".planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-02-ADMISSION.json",
+        "active_isa_admission_ref": "ISA.md#vpg-02-source-admission--2026-11-04"
+      }
+    },
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
       "status": "sign-in-built-operational-loop-not-wired",

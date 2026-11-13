@@ -1,3 +1,4 @@
+import { readDepartmentSources, type DepartmentSourceReaders } from '../../../shared/department-pilot/readers.ts';
 import { MAPPING_ANNOTATIONS } from './portfolio-four-annotations.data.ts';
 import { parseAnnotations } from './portfolio-four-annotations.ts';
 import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
@@ -187,7 +188,8 @@ async function surfaceScopedQuestBody(
   principal: Principal,
   founderOutcomeAuthorized = false,
 ): Promise<string> {
-  const base = await publicQuestBody(deps.kv, tenantId, stored, deps.goalGraphStore);
+  const readTasks = goalGraphTaskReader(deps.kv, tenantId);
+  const base = await publicQuestBody(deps.kv, tenantId, stored, deps.goalGraphStore, readTasks);
   try {
     const envelope = JSON.parse(base);
     envelope.surface = {
@@ -195,7 +197,7 @@ async function surfaceScopedQuestBody(
       subsections: filterSubsections(MINI_APP_MAP_SUBSECTIONS, principal),
     };
     if (founderOutcomeAuthorized) {
-      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal);
+      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal, readTasks);
     }
     return JSON.stringify(envelope);
   } catch {
@@ -517,6 +519,7 @@ export interface FabricLedgerStoreLike {
 
 export interface HandlerDeps {
   sharedSignalStore?: SignalStore;
+  departmentReaders?: DepartmentSourceReaders; // server-owned accepted-source readers; absent stays unavailable
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
@@ -2846,7 +2849,8 @@ function sanitizeQuestEnvelope(envelope: any): any {
   });
 }
 
-async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, decisionStore?: GoalGraphStoreLike): Promise<string> {
+async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, decisionStore?: GoalGraphStoreLike,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(kv, tenantId)): Promise<string> {
   let envelope: Record<string, unknown>;
   try {
     envelope = sanitizeQuestEnvelope(JSON.parse(stored));
@@ -2868,7 +2872,7 @@ async function publicQuestBody(kv: KvLike, tenantId: string, stored: string, dec
     }
     // Pending Telegram goal-graph proposals are founder decisions too: project
     // them into the same envelope the gate scene renders (bounded rows only).
-    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false, decisionStore });
+    const goalGraphRows = await listGoalGraphIntakeGateRows(kv, tenantId, { includeFounderCandidates: false, decisionStore, readTasks });
     if (goalGraphRows.length >= 1) {
       merged.goalGraphIntake = {
         schema: GOAL_GRAPH_GATE_ROW_LIST_SCHEMA,
@@ -4183,17 +4187,34 @@ async function projectedGoalGraphDecision(
   } catch { return undefined; }
 }
 
+type GoalGraphTaskReader = () => Promise<ReadonlyArray<Record<string, unknown>>>;
+
+/** One lazy snapshot per envelope, discarded when the request finishes. Canonical
+ * decisions are still read from D1; this only shares repeated KV discovery. */
+function goalGraphTaskReader(kv: KvLike, tenantId: string): GoalGraphTaskReader {
+  let snapshot: ReturnType<GoalGraphTaskReader> | undefined;
+  return () => snapshot ??= (async () => {
+    const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
+    const tasks: Array<Record<string, unknown>> = [];
+    for (let offset = 0; offset < keys.length; offset += 8) {
+      const batch = await Promise.all(keys.slice(offset, offset + 8).map(key => kv.get(key)));
+      for (const value of batch) {
+        const task = parseJsonObject(value);
+        if (task?.schema === GOAL_GRAPH_INTAKE_TASK_SCHEMA && task.tenantId === tenantId) tasks.push(task);
+      }
+    }
+    return tasks;
+  })();
+}
+
 async function listGoalGraphIntakeGateRows(
   kv: KvLike,
   tenantId: string,
-  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike } = {},
+  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike; readTasks?: GoalGraphTaskReader } = {},
 ): Promise<Array<Record<string, unknown>>> {
-  const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
-  for (const key of keys) {
-    const task = parseJsonObject(await kv.get(key));
-    if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA) continue;
-    if (task.tenantId !== tenantId || !['pending','stale'].includes(String(task.status))) continue;
+  for (const task of await (options.readTasks ?? goalGraphTaskReader(kv, tenantId))()) {
+    if (!['pending','stale'].includes(String(task.status))) continue;
     const candidate = storedFounderOutcomeCandidate(task);
     if (candidate && task.status !== 'pending') continue;
     if (!candidate && await projectedGoalGraphDecision(options.decisionStore, task, tenantId) !== null) continue;
@@ -4221,12 +4242,10 @@ async function listGoalGraphIntakeGateRows(
 
 const GOAL_GRAPH_DECISION_PATH_LIMIT = 8;
 
-async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string): Promise<Array<Record<string, unknown>>> {
-  const keys = await deps.kv.list(`goal-graph-intake-task:${tenantId}:`);
+async function listGoalGraphDecisionPaths(deps: HandlerDeps, tenantId: string,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(deps.kv, tenantId)): Promise<Array<Record<string, unknown>>> {
   const decided: Array<{ task: Record<string, unknown>; decidedAt: string; decision: 'approved' | 'rejected' }> = [];
-  for (const key of keys) {
-    const task = parseJsonObject(await deps.kv.get(key));
-    if (!task || task.schema !== GOAL_GRAPH_INTAKE_TASK_SCHEMA || task.tenantId !== tenantId) continue;
+  for (const task of await readTasks()) {
     if (storedFounderOutcomeCandidate(task)) continue;
     if (deps.goalGraphStore?.readDecisionReceipt) {
       const receipt = await projectedGoalGraphDecision(deps.goalGraphStore, task, tenantId);
@@ -4335,14 +4354,13 @@ async function listExpiredFounderOutcomeRecovery(
   tenantId: string,
   now: string,
   committedCandidateIds: ReadonlySet<string>,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(kv, tenantId),
 ): Promise<Array<Record<string, unknown>>> {
   const nowMs = Date.parse(now);
   if (!Number.isFinite(nowMs)) return [];
-  const keys = await kv.list(`goal-graph-intake-task:${tenantId}:`);
   const rows: Array<Record<string, unknown>> = [];
-  for (const key of keys) {
-    const task = parseJsonObject(await kv.get(key));
-    if (!task || task.status !== 'pending') continue;
+  for (const task of await readTasks()) {
+    if (task.status !== 'pending') continue;
     const candidate = storedFounderOutcomeCandidate(task);
     if (!candidate || committedCandidateIds.has(String(candidate.candidateId))) continue;
     const descriptor = resolveGoalGraphApprovalDescriptor(task, tenantId, String(task.changeDigest ?? ''));
@@ -4372,6 +4390,7 @@ async function appendFounderOutcomeQuestProjection(
   deps: HandlerDeps,
   tenantId: string,
   principal: Principal,
+  readTasks: GoalGraphTaskReader = goalGraphTaskReader(deps.kv, tenantId),
 ): Promise<void> {
   const now = deps.now ? deps.now() : new Date().toISOString();
   if (!founderOutcomeProjectionAllowed(principal, tenantId, now)) return;
@@ -4383,6 +4402,7 @@ async function appendFounderOutcomeQuestProjection(
     now,
     committedCandidateIds,
     decisionStore: deps.goalGraphStore,
+    readTasks,
   });
   if (gateRows.length) {
     envelope.goalGraphIntake = {
@@ -4395,13 +4415,13 @@ async function appendFounderOutcomeQuestProjection(
   } else {
     delete envelope.goalGraphIntake;
   }
-  const decisionPaths = await listGoalGraphDecisionPaths(deps, tenantId);
+  const decisionPaths = await listGoalGraphDecisionPaths(deps, tenantId, readTasks);
   if (decisionPaths.length) {
     envelope.goalGraphDecisions = { schema: GOAL_GRAPH_PATH_SCHEMA, ok: true, tenantId, rows: decisionPaths };
   } else {
     delete envelope.goalGraphDecisions;
   }
-  const recoveryRows = await listExpiredFounderOutcomeRecovery(deps.kv, tenantId, now, committedCandidateIds);
+  const recoveryRows = await listExpiredFounderOutcomeRecovery(deps.kv, tenantId, now, committedCandidateIds, readTasks);
   if (recoveryRows.length) {
     envelope.founderOutcomeRecovery = {
       schema: 'cambium.founder-outcome-recovery-list.v1',
@@ -4986,6 +5006,11 @@ async function approveGoalGraphIntakeRoute(
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
   if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
+  // A bookkeeping batch can create or update several nodes. Only the canonical
+  // founder review shows the complete change set, so approve it there.
+  if (isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA) {
+    return { status: 409, body: { error: 'bookkeeping_proposal_requires_canonical_gate' } };
+  }
   const evidence = {
     kind: 'approve-goal-graph',
     subject: changeDigest,
@@ -5612,6 +5637,64 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   // A native credential is accepted only on composed routes. Every other route refuses it before browser or Telegram auth.
   if (nativeRealmPresented(req.headers) && !nativeComposedPath(req.path)) {
     return nativeRefusal(403, 'native_route_unsupported');
+  }
+  if (['/v1/founder/intake', '/v1/founder/graph'].includes(req.path.split('?')[0])) {
+    const readGraph = req.path.split('?')[0] === '/v1/founder/graph';
+    if (req.method !== (readGraph ? 'GET' : 'POST')) return json(405, { error: readGraph ? 'get_required' : 'post_required' });
+    // This is browser Access provenance, not a native credential or bridge token.
+    const signer = await resolveFounderWebSigner(req, deps);
+    if (signer.kind !== 'founder') return json(signer.kind === 'unconfigured' ? 503 : signer.kind === 'forbidden' ? 403 : 401, { error: 'founder_identity_required' });
+    const bindings = founderBindings(deps.founderGateBindingsJson);
+    if (!bindings?.some(row => row.founderId === signer.approverId && row.tenantId === 'cambium')) return json(403, { error: 'founder_tenant_not_enrolled' });
+    if (readGraph) {
+      if (!deps.goalGraphStore?.readDecisionReceipt) return json(503, { error: 'goal_graph_authority_unavailable' });
+      try {
+        const head = await deps.goalGraphStore.readHead('cambium');
+        if (!head) return json(404, { error: 'goal_graph_not_found' });
+        const all = await deps.goalGraphStore.readNodes('cambium');
+        const again = await deps.goalGraphStore.readHead('cambium');
+        if (!again || head.graphDigest !== again.graphDigest || head.graphVersion !== again.graphVersion
+            || makeGoalGraphHead('cambium', all, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) return json(503, { error: 'goal_graph_read_unconfirmed' });
+        const roots = all.filter(node => node.parentNodeId === null);
+        if (roots.length !== 1) return json(503, { error: 'goal_graph_root_ambiguous' });
+        const nodes = all.filter(node => node.namespace === 'founder-bookkeeping'
+          && ['sapling:lumen-bar', 'program:temperance-hermes'].includes(node.workObjectId ?? ''));
+        const ids = new Set(nodes.map(node => node.nodeId));
+        const keys = await deps.kv.list('goal-graph-intake-task:cambium:');
+        if (keys.length > 256) return json(503, { error: 'goal_graph_receipt_bound_exceeded' });
+        const decisions: Array<Record<string, unknown>> = [];
+        for (const key of keys) {
+          const task = parseJsonObject(await deps.kv.get(key));
+          if (!task || !isRecord(task.intent) || task.intent.schema !== FOUNDER_BOOKKEEPING_SCHEMA || task.tenantId !== 'cambium'
+              || !Number.isInteger(task.graphVersion)) continue;
+          const decision = await projectedGoalGraphDecision(deps.goalGraphStore, task, 'cambium');
+          if (decision === undefined) return json(503, { error: 'goal_graph_decision_read_unconfirmed' });
+          if (!decision) continue;
+          // A rejection records a decision without advancing the graph head.
+          if (decision.decision === 'approved' && Number(task.graphVersion) > head.graphVersion) continue;
+          decisions.push({ ...decision, proposalId: `cambium:${task.changeDigest}`, changeDigest: task.changeDigest,
+            graphVersion: task.graphVersion, canonicalReadback: true, kind: 'd1-bookkeeping-decision' });
+        }
+        const servedAt = deps.now?.() ?? new Date().toISOString();
+        const departmentSources = await readDepartmentSources({tenantId:'cambium',headDigest:head.graphDigest,observedAt:servedAt,nodes},deps.departmentReaders);
+        const finalHead = await deps.goalGraphStore.readHead('cambium');
+        if (!finalHead || finalHead.graphDigest !== head.graphDigest || finalHead.graphVersion !== head.graphVersion) return json(503, { error: 'goal_graph_read_unconfirmed' });
+        return { ...json(200, { schema: 'cambium.founder.bookkeeping-graph.v1', origin: 'd1', tenantId: 'cambium',
+          canonicalReadback: true, writerAuthority: false, executionGranted: false,
+          head: { tenantId: head.tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest }, rootId: roots[0].nodeId,
+          nodes, edges: nodes.filter(node => node.parentNodeId && (ids.has(node.parentNodeId) || node.parentNodeId === roots[0].nodeId))
+            .map(node => ({ kind: 'contains', fromId: node.parentNodeId, toId: node.nodeId })),
+          decisions, servedAt, departmentSources,
+          evidenceTrust: 'Node evidence references are recorded observations; D1 decisions prove graph bookkeeping only, not publication or execution.' }),
+          headers: { ...JSON_HEADERS, 'cache-control': 'private, no-store' } };
+      } catch { return json(503, { error: 'goal_graph_authority_unavailable' }); }
+    }
+    if (Buffer.byteLength(req.body ?? '', 'utf8') > FOUNDER_BOOKKEEPING_MAX_BYTES) return json(413, { error: 'intake_too_large' });
+    let raw: unknown;
+    try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body_is_not_json' }); }
+    const result = await intakeTelegramGoalGraphRoute(deps, raw, deps.now ?? (() => new Date().toISOString()), signer.approverId);
+    return json(result.status, { ...result.body, writerAuthority: false, executionGranted: false,
+      ...(result.body.accepted ? { proposalId: `cambium:${result.body.changeDigest}`, reviewRoute: '/v1/founder/proposal' } : {}) });
   }
   if (NATIVE_LAUNCH_ROUTES.has(nativePath)) {
     const native = nativeRealmPresented(req.headers);

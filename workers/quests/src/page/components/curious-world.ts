@@ -45,6 +45,10 @@ export const CURIOUS_WORLD_PAGE = `<style>${CURIOUS_WORLD_CSS}</style>
         renewGate:changeDigest => CuriousGateBridge.renew(changeDigest),
         readGraph:() => CuriousGateBridge.graph(),
         intakeGate:input => CuriousGateBridge.intake(input),
+        getDepartmentState:() => CuriousDepartmentBridge.get(),
+        getDepartmentStatus:() => CuriousDepartmentBridge.status(),
+        subscribeDepartment:fn => CuriousDepartmentBridge.subscribe(fn),
+        refreshDepartment:() => CuriousDepartmentBridge.refresh(),
         signGate:(kind, changeDigest) => CuriousGateBridge.sign(kind, changeDigest)
       });
       if (failedDuringMount) { candidate.dispose(); return; }

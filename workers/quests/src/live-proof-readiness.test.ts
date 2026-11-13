@@ -765,17 +765,18 @@ test('queued viewport fixture is redacted and filtered proofs cannot replace can
   assert.match(viewportProofArtifactDirectory({ proofPathFilter:'gate' }), /\.artifacts\/tg-miniapp-viewport\/captures$/);
 });
 
-test('mobile contract proof is focused, noncanonical, and required by explicit local release verification', () => {
+test('historical mobile fixtures remain intact while release requires the current strict3Dcontract', () => {
   const steps = selectViewportProofCaptureSteps({ proofPathFilter:'', mobileContractOnly:true });
   assert.deepEqual(steps.map((proof) => proof.path), MOBILE_CONTRACT_PROOF_PATHS);
   assert.ok(steps.some((proof) => proof.fixture === 'action-request-queued' && proof.tapTargetSelector));
   assert.ok(steps.every((proof) => Boolean(proof.assertExpression) || Boolean(proof.tapTargetSelector)));
 
   const packageJson = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'));
-  assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node workers/quests/src/visual-viewport-proof.mjs --mobile-contract');
+  assert.equal(packageJson.scripts['proof:tg-mobile-contract'], 'node scripts/check-field-atlas-proof.mjs');
+  assert.equal(packageJson.scripts['proof:field-atlas:check'], packageJson.scripts['proof:tg-mobile-contract']);
   const localJobs = JSON.parse(readFileSync(new URL('../../../.local-jobs/jobs.json', import.meta.url), 'utf8')).jobs;
   const verifyRelease = readFileSync(new URL('../../../scripts/verify-release.mjs', import.meta.url), 'utf8');
-  assert.match(verifyRelease, /proof:field-atlas/);
+  assert.match(verifyRelease, /proof:field-atlas:check/);
   assert.deepEqual(localJobs.find((job: { id: string }) => job.id === 'verify').argv, ['npm', 'run', 'verify:release']);
 });
 
@@ -841,5 +842,5 @@ test('Task 13 evidence template requires the full local gate plus approval-gated
     assert.match(script, /mission-fabric-integration\.test\.ts/, 'release script wires the mission fabric integration proof');
     assert.match(script, /live-proof-readiness\.test\.ts/, 'release script wires this readiness test file');
   }
-  assert.match(verifyRelease, /proof:field-atlas/, 'verify-release explicitly requires the maintained 3D viewport proof');
+  assert.match(verifyRelease, /proof:field-atlas:check/, 'verify-release explicitly requires the strict current3Dand retained mobile contract proof');
 });

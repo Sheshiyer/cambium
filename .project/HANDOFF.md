@@ -11,6 +11,16 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-12 sapling command families rebased onto main
+
+PR 431 is linear on main `510d589`, which includes the merged #430 scope fix.
+Native sign-in and the bundled owner URL stay with main. Department readers,
+the opt-in sapling command families, and the 4 November current-3D proof stay
+with the branch. The 3 November JPEG proof stays historical. Before this
+note, the tree matched the previously reviewed head `4b513a2`. `npm test`
+passed 2749/2749. No deploy, migration, or Founder Gate action.
+
+
 ## 2026-11-04 native UI cleanup
 
 Connections now presents a compact account card; Inbox and Projects use names and
@@ -85,6 +95,108 @@ Worker/SQLite-to-Swift signal probe and ad hoc bundle verification pass.
 Review/preparation receipts and complete command logs live under ignored
 `.local/` in the isolated PR checkout. Source merge grants no production
 deployment, native identity activation, schema apply or Field Report migration.
+
+
+### 2026-11-04 VPG-01 source foundation verified; later packages and release held
+
+- The user accepted the finite packet digest `bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21` and admitted only VPG-01-T1/T2 in `7460d730`. Both source tasks are verified and their admission is consumed; VPG-02 through VPG-10 remain unadmitted. The reviewed proposal and root Phase 9 spine stay unchanged.
+- T1 `d3e1f661` adds the eight-group owner map and separate closed loopback fixture; T2 `9ffaf8a0` adds actual viewport/crop/PNG receipts and four 430×844 supplements. Fresh 48-case evidence `9ec9f781` retains prior 430×932 cases. All 47 historical image/manifest bytes, 44 prior complete step definitions, 43 retained intents, 11 equivalents and founder fixture bytes are preserved.
+- Independent source review and individual review of all 48 images pass. Frozen suite at `366d7617`: 2734/2734, zero failures/skips and unchanged independent head/tree/refs/tracked state. Focused boundaries 23/23; app 95/95, strict types and bundle parity pass; drift, standalone, atlas and retired-runtime checks pass. All 93 prior Worker runtime inputs remain byte-identical.
+- Current proof is sourceProofOk=true, 48 frames, 11 qualified and 32 held; strict release qualification correctly remains exit 1. Real DPR2 clipped-dialog diagnostic passes and offscreen crop rejects before PNG output. No gap, real owner, physical device or runtime result is accepted by this foundation.
+- Pickup: `.planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-SUMMARY.md`, its independent VERIFICATION and `artifact:viewport-vpg01-20261104/source-verification-receipt.json`. Prior source set remains at `artifact:field-atlas-current-pJwPlq/previous`. Version 95 remains the planning baseline; deployment, traffic and all real owner effects are held.
+
+
+
+### 2026-11-04 Finite viewport ISA/GSD proposal prepared; implementation and release held
+
+- Planning-only proposal covers all 32 remaining behavior gaps through 10 sequential packages/28 bounded tasks. All 43 retained intents stay required; the 11 existing qualified local behaviors and four prior gallery retirements are protected. All 45 future ISA criteria remain unchecked.
+- Proposed source matrix: 80 cases = 44 existing + 32 gap journeys + 4 original 430×844 supplements, retaining 430×932 evidence. Eight new gap journeys need strict observed clip receipts; 24 remain full viewport. No capture, fixture, UI, backend or runtime behavior is implemented by this proposal.
+- Packet: `.planning/viewport-proof-20261104/remaining-behaviors/README.md`; exact identity/hash/owner traceability in coverage.json; content digest `bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21` in PROPOSAL.json; separate technical plan review in REVIEW.md. Source basis remains e6b28642 and current proof remains 44frames/11qualified/32held.
+- Independent technical plan review passes after the explicit non-goal transport assignment. Frozen proposal validation rejects all 10 negative controls; drift and standalone audits pass. Current source qualification remains 11/43 with 32 held.
+- Root Phase 9 STATE/ROADMAP/REQUIREMENTS/config and all historical proof bytes are preserved. Goal-only Access and existing Telegram-signed non-goal Gate ownership remain distinct. Synthetic request/queue proof cannot grant real signing or execution.
+- Version 95 remains the planning baseline. Implementation/admission, accepted plan digest, canonical mapping, deployment and traffic are held. Follow the matching viewport_gap_plan continuation and its bounded verification receipt; preserve earlier viewport and owner gates.
+
+
+### 2026-11-04 Current 3D source proof and Departments header verified; retained qualification held
+
+- Implementation `7c8c810f` follows the admitted viewport/header source change in `078ccfc2` and CLI-cycle repair in `805f76ca`. The header gives status its own row and uses existing accessible icon controls. Independent real-browser checks pass at 320/390/430/600/601/1280px, including 44px controls, keyboard entry and modal focus restoration.
+- Seven queue screenshots were reframed with native wheel input and complete visible-text/viewport assertions after independent image review. The previous run is retained; a negative offscreen case fails before PNG output. Fresh canonical source artifacts contain 44 real PAGE captures, exact source/instruction/assertion/PNG bindings and clean browser diagnostics. The synthetic local founder fixture proves complete review/preflight/cancel/back/close and truthful empty/local-visit states without any decision or renewal write. It is not a fresh authenticated graph or physical-device acceptance.
+- All 47 original images and their manifest remain byte-identical. Four reviewed gallery captures retire; all 43 operational intents remain required. Eleven current equivalents qualify and 32 remain explicitly held. Source drift now passes; strict retained qualification intentionally exits1 and blocks release.
+- Focused proof contracts 16/16, app 95/95, app strict TypeScript, bundle parity and local Worker dry-run pass. The Worker omits retired renderer exports; legacy-named story/tools files remain only for existing shared parsers. Exact final frozen-suite and audit results belong to `artifact:field-atlas-contract-20261104/source-verification-receipt.json`.
+- Separate finite LumenBar 1.2.0 verification and existing-publication measurement scopes share one product intake; Temperance Phase 2 Public Source Convergence has its own current-source proposal. Read `artifact:viewport-gsd-20261104/gsd-scopes/README.md`. Human intent is selected; scope/plan acceptance, task mapping, fresh canonical graph and execution admission remain held.
+- Version 95 remains the selected planning baseline. Deployment and traffic are held. The earlier head 13 graph is expired; no sign-in, graph, provider, native-store, callback, host or CI changes were made. Native-prefill/device/runtime acceptance and future Woodpecker remain separately gated.
+- Pickup: `docs/visual/field-atlas-viewport-proof.md`, the `viewport_proof` field in the matching structured continuation and its final source receipt. Prior checkpoints and original 47-frame history are preserved below.
+
+### 2026-11-04 Department graph/tooling source verified; owner and viewport gates held
+
+- Reviewed source `db97abf9` follows the graph history and request-local read fixes in `f88722a7`. Existing sapling tooling and native hook discovery are reused. Independent source, capture and packet reviews are clear; callback activation is held.
+- Frozen full suite: 2711 of 2712 pass. The sole failure is the inherited 47-frame viewport manifest PAGE digest. Its guard, manifest and images stay unchanged. Original privacy/safety, atlas and publication/CAS checks pass. Standalone audit passes for 1951 publishable files. Broad strict closures retain exactly 61 and 11 baseline diagnostics with no introduced identities; pure owner readers pass.
+- Eight current 3D diagnostic frames bind exact PAGE, steps, helpers and image bytes. All 47 original assertions remain accounted for: four proposed gallery retirements, 37 retained-uncovered behaviors and six partial world-root mappings require owner review. The narrow Departments header collision remains visible.
+- The prepared blank native owner prefill requires owner review before acceptance/release; 25 OwnerIntegration source tests pass. Six trusted native hook definitions and the registry digest are unchanged, as are the 14 managed hot capabilities. Actual callbacks, installed Noesis and device/platform acceptance remain unobserved. Eight global sapling wrapper references remain unresolved.
+- User selected version 95 as the planning baseline; traffic changes are held. Last attributable graph is head 13, 132 nodes and ten decisions at 2026-11-03T20:32:22.791Z, now expired for a new reader run. Fresh Founder Access sign-in is unavailable. Separate LumenBar and Temperance GSD packets retain missing mission, accepted plan and exact task mapping fields; execution is held.
+- Pickup: `docs/plans/department-pilot/OWNER-READERS.md`, the matching structured continuation, `artifact:graph-tooling-20261104/source-verification-receipt.json`, and its six HITL packets. No graph, deployment, traffic, provider, native-store, host or CI writes. CI remains deferred to separately admitted Woodpecker on existing hardware.
+
+### 2026-11-04 Exact e6c1940e version94 uploaded and verified; traffic held
+
+- Owner-approved e6c1940e was uploaded as immutable Worker version94 / c0821aa3-987a-4fc5-b2c5-380aee02fb5b with the exact52 inherited-binding config and documented baseline failures. Full binding and runtime parity, settings fingerprint, schedules and exposure match the fresh preflight.
+- Preview root200 includes complete generated JS/CSS; health200 reports the signed-gate capability configured; guest founder graph is401. This is preview and anonymous-boundary evidence only, not authenticated founder graph, production, or native/device acceptance.
+- Live deployment remains c89c5a4d-e149-4b5e-a242-9051b9e7b7dc,100% on native93 / 23cf59d1-754a-4cef-be7a-f96fcc072f48. Version94 receives no traffic. No traffic/trigger/settings/credential change. ef6e0c74-697e-4938-9d15-e0e481c80dbe remains rollback target.
+- Evidence: artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json and version-preview-readback.json. Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation; separate traffic approval remains held.
+
+
+### 2026-11-04 Department source reconciled with native93; external gates held
+
+- Source e6c1940e aligns the two remaining native93 test fixtures. Repository/lifecycle production guards already match b5396101; all native92→93 delta paths now match. Department code and all94 native Source/Test files remain intact. Exact52-binding config and emitted Worker are byte-identical to deb53e3e; the contract documents the shared256-gap bound.
+- Fresh focused777/777, full2694/2697 with only the same three baseline failures, scoped strict TypeScript, build/actual-sourcemap and Atlas checks pass. Broader Worker typing retains69 identical baseline diagnostics; standalone retains six findings. Previous native unit proof is retained for unchanged bytes, not mislabeled as a rerun.
+- Before/during/after drift reads remain native93 at100%, with the same52 full binding configurations/runtime/global operational settings/cron/exposure and no newer upload. This task made no upload, traffic, remote schema or graph write. New exact upload/readback and later separate traffic approval remain required; ef6e0c74 remains the recorded rollback target.
+- Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the matching structured continuation. No new deployed-candidate or physical-device acceptance is claimed.
+
+
+### 2026-11-04 Department/native90 source reconciled through serving92
+
+- Source deb53e3e preserves department readers/frontend and carries committed native90 plus serving92 source964a61a; all94 native Source/Test files match that owner pin. The exact52-binding config is byte-identical to d6bb6986; no upload, migration, graph or traffic write.
+- Focused Node704/704, atlas13/13, scoped strict TypeScript, Worker dry-run/actual-sourcemap guard, Swift Core260pass/1skip and native39/39 pass. Final full suite2694/2697 on the exact commit with original history/independent refs retains only the same three baseline failures. Broader Worker typecheck retains the same69 diagnostics on both candidate and d6bb baseline; standalone retains six findings.
+- Concurrent native release advanced from serving92 to93/23cf59d1 at100%; preserve it and reconcile its source before any new exact upload and later separate traffic approval. deb53e3e remains unuploaded; version89 still means d6bb6986, and ef6e0c74 remains the recorded rollback target.
+- Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the matching structured continuation. Earlier race/history-limited runs are preserved separately; no deployed or physical-device acceptance is claimed.
+
+
+### 2026-11-03 Exact combined version89 upload verified; traffic held
+
+- Owner-approved d6bb6986 was uploaded as version89 / f74b004a-f50a-4976-b0ee-4c34f2c15aee with the exact52-binding config and documented baseline failures. Actual full binding/runtime parity and operational settings/cron/exposure readbacks pass; public preview page200 exact JS/CSS, health200/configured, guest graph401.
+- Drift preflight found native version88 serving; concurrent readback then found version90 at100%. This task made no traffic write, and version89 remains unserved. Reconcile newer native source before any separate traffic approval; ef6e0c74 remains the recorded historical rollback target.
+- Uploaded source remains d6bb6986; this checkpoint changes documentation only. Read docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation; preserve prior source and timeout evidence.
+
+
+### 2026-11-03 Combined source retains later native diagnostics
+
+- After the owner chose native preservation, that release stream advanced independently to version83/source d113d8ab, with unchanged52 bindings/runtime and categorical diagnostics only. This task made no traffic write.
+- Final combined source carries that exact delta;559 focused Node tests and47 native Swift identity tests pass. The department frontend remains byte-identical. New combined upload/traffic gates remain held; review NATIVE-RECONCILIATION.md.
+
+
+### 2026-11-03 Concurrent native release held version80 promotion
+
+- Requested version80 traffic promotion was not executed: live version82/sourceab94d63c has52 bindings, protected native consent and Inbox routes absent from version80. Owner selected preserving version82 and preparing the combined source.
+- Isolated compatibility source retains department readers and the existing native additions;510 focused tests,47 native Swift identity tests, typecheck, bundle parity, dry-run and retired-surface checks pass; stable full suite2690/2693 retains three baseline failures. No upload, migration, graph, enrollment or traffic action.
+- Review docs/plans/department-pilot/NATIVE-RECONCILIATION.md and the structured continuation. Original version80 and primary concurrent work are preserved.
+
+
+### 2026-11-03 Department candidate uploaded; traffic held
+
+- Explicit owner approval uploaded source fcbb68f9e11a29922aa65b8f7dedf08601e81844 as version80 / e3750ef4-86dc-4980-a5a2-1b9331120c85, using the reviewed47-binding config and documented baseline failures.
+- Actual version readback:47 bindings/configurations and runtime exactly match serving; cron/exposure unchanged. Only upload annotations changed. Version preview serves exact candidateJS/CSS, health is200/configured, unauthenticated graph is401.
+- Existing deployment d27c5b87-57ec-4774-82f8-21a518d23ccb remains100% on ef6e0c74-697e-4938-9d15-e0e481c80dbe. Separate traffic approval remains required; this upload approval is consumed. No graph or social mutation.
+- Outcome/receipt: docs/plans/department-pilot/LIVE-INTEGRATION.md and the matching structured continuation. The uploaded source is fcbb68f9; this later checkpoint changes documentation only.
+
+
+### 2026-11-03 Department authenticated source integration
+
+- Isolated department pilot continues through the existing founder graph/3D read owner; maintained native/Cortex/portfolio work preserved. Current head11 read: 128 product nodes, seven decisions.
+- Actual accepted GSD mappings and complete KPI cohort readers are unavailable; daily holds and twelve unavailable measurements are explicit. Positive adapter fixtures are synthetic.
+- Authenticated candidate desktop/mobile proof, exact release/config delta and rollback: docs/plans/department-pilot/LIVE-INTEGRATION.md. No upload, traffic, graph, schedule or publication change. New exact promotion approvals remain required.
+
+Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.
+
+# Project handoff
 
 ## Local cited-text integration — 26 October 2026
 

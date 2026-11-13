@@ -59,3 +59,26 @@ npm run test
 
 `npm run test` is the current deterministic verification
 command.
+
+## Graph and sapling tooling
+
+The repository-owned [sapling skill](.agents/skills/sapling-lifecycle/SKILL.md)
+reuses the existing workflow owners. These are manually invoked source tools:
+
+```bash
+npm run sapling -- review temperance
+npm run sapling:hooks
+npm run department:owner-read:test
+npm run proof:field-atlas
+npm run proof:field-atlas -- --write-canonical
+npm run proof:field-atlas:check -- --json
+```
+
+Use [OWNER-READERS.md](docs/plans/department-pilot/OWNER-READERS.md) for the
+explicit owner-reader inputs and held GSD/release gates. Hook discovery is not
+callback acceptance. Field Atlas captures default to ignored review output. Explicit canonical
+source publication requires unchanged clean source and preserves the previous
+artifact directory before replacement. The [current3Dproof contract](docs/visual/field-atlas-viewport-proof.md)
+retains the original47assertion identities and a strict operational release gate.
+Source/layout evidence grants no live/device acceptance or deployment. No hook or
+cadence is installed.

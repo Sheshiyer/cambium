@@ -1,3 +1,4 @@
+import { CLIENT_CURIOUS_DEPARTMENT_BRIDGE } from './client/curious-department-bridge.ts';
 import { CLIENT_CURIOUS_READ_BRIDGE } from './client/curious-read-bridge.ts';
 import { CLIENT_CURIOUS_GATE_BRIDGE } from './client/curious-gate-bridge.ts';
 
@@ -20,6 +21,7 @@ let disposed = false;
 const readControllers = new Set();
 ${CLIENT_CURIOUS_READ_BRIDGE}
 ${CLIENT_CURIOUS_GATE_BRIDGE}
+${CLIENT_CURIOUS_DEPARTMENT_BRIDGE}
 function hold(state, revision) {
   ECOSYSTEM_ENV = null;
   CuriousReadBridge.hold(state, revision);
@@ -43,6 +45,7 @@ function paint(env) {
 }
 async function load() {
   if (disposed) return;
+  void CuriousDepartmentBridge.refresh();
   const revision = ++QUEST_READ_REVISION;
   CuriousReadBridge.pending(revision);
   CuriousGateBridge.pending(revision);
@@ -61,8 +64,8 @@ async function load() {
   finally { clearTimeout(timeout); readControllers.delete(controller); }
 }
 function refresh() { return load(); }
-window.addEventListener('pagehide', () => { disposed = true; readControllers.forEach(controller => controller.abort()); readControllers.clear(); });
-window.addEventListener('pageshow', event => { if (event.persisted) { disposed = false; refresh(); } });
+window.addEventListener('pagehide', () => { disposed = true; CuriousDepartmentBridge.dispose(); readControllers.forEach(controller => controller.abort()); readControllers.clear(); });
+window.addEventListener('pageshow', event => { if (event.persisted) { disposed = false; CuriousDepartmentBridge.resume(); refresh(); } });
 function startSession(app) {
   if (disposed) return;
   TG = app;

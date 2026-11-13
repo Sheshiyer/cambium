@@ -3,6 +3,7 @@ import { sha256 } from './goal-graph/identity.ts';
 import type { FounderContext, FounderProposal } from './founder-decision.ts';
 import type { FounderDecisionStore } from './goal-graph-store.ts';
 import type { GoalGraphNode, GoalGraphLoadoutAuthority } from './goal-graph/types.ts';
+import { FOUNDER_BOOKKEEPING_SCHEMA } from './native-goal-intake.ts';
 
 export interface FounderRenewalInput {
   proposalId: string; version: number; changeDigest: string; nonce: string; expiresAt: string;
@@ -20,6 +21,11 @@ function sameIntendedNode(a: GoalGraphNode, b: GoalGraphNode): boolean {
     return intended;
   };
   return sha256(select(a)) === sha256(select(b));
+}
+
+function isBookkeepingIntent(value: unknown): boolean {
+  return !!value && typeof value === 'object' && !Array.isArray(value)
+    && (value as Record<string, unknown>).schema === FOUNDER_BOOKKEEPING_SCHEMA;
 }
 
 /** Renewal writes only the existing pending-intake projection, never D1. */
@@ -98,6 +104,8 @@ export async function renewFounderProposal(deps: {
     approvalNonce: `founder-renewal:${p.tenantId}:${renewalId}`,
     approvalExpiresAt: new Date(nowMs + 15 * 60_000).toISOString(),
     renewal: { ...lineage, renewalId },
+    // Keep the bookkeeping classification so the renewed decision stays in founder graph readback.
+    ...(isBookkeepingIntent(deps.task.intent) ? { intent: deps.task.intent } : {}),
   };
   // A decision may win while the read-only rebase runs; never renew its expiry.
   if (await store.readDecisionReceipt(p.tenantId, input.changeDigest, p.nonce)) return refuse('already_decided');

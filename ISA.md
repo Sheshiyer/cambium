@@ -3561,3 +3561,167 @@ The owner has now explicitly requested fresh renewal of expired pending proposal
 - ISC-3137 final: Frozen ba23d70 core2452/2453 passes0skips, only knowncanonicalviewport hold. App184/184/build/art/parity pass; PR403 mergedf23b449 has an identical tree. No equality or privacy assertion weakened.
 - ISC-3138: Worker4918ce0e serves100percent with rollbackc373b54a; rawbindingaudit47/47changed[] and before/afterglobalsettings/domain/cron match. No migration/enrollmentchange.
 - ISC-3139: Authenticated live existingreceipt6444a852 canonicalReadbacktrue, historicalrequestedDecision=null; Meso and preservedobjective with no inventedcontext. OnlyDecision/Graph observed.320px containment,45pxcontrols,focus/disclosures/reducedmotion/journal pass. D1remains4approvals/4events; no newdecision or renewal. Runtimeevidence in `docs/evidence/2026-10-25-gate-chamber-live.v1.json`.
+
+### 2026-11-03 Department live integration source acceptance
+
+This bounded implementation continues the explicitly approved LumenBar/Temperance department pilot. It creates no new product mission or target.
+
+- [x] DP-LIVE-01: Authenticated existing founder graph feeds the current 3D department view with original IDs, parents and dates.
+- [x] DP-LIVE-02: Existing read/refresh events recompute safely; out-of-order, failed and disposed reads cannot restore an old projection.
+- [x] DP-LIVE-03: Server-owned accepted GSD scope validates exact product/head, owner provenance, dependencies and sequence; absent owner sources visibly hold daily work.
+- [x] DP-LIVE-04: KPI read adapters validate the immutable definition, product/cohort/window, denominator, freshness and provenance; absent complete measurements remain unavailable.
+- [x] DP-LIVE-05: Authenticated candidate desktop/mobile readback is distinguished from production deployment. Retired 2D modules remain absent from the emitted Worker.
+- [ ] DP-LIVE-06: A new exact source/config upload approval, uploaded-version readback, separate traffic approval and production readback are required before promotion. Historical release approvals are not reused. Historical uploads/readbacks are complete for fcbb68f9/version80 and d6bb6986/version89. Reconciled source e6c1940e incorporates native93 with the exact52-binding config and is uploaded/verified as immutable version94 after fresh drift. All52 binding configs, runtime, operational settings, schedules and exposure match preflight; its preview root and health pass and guest founder graph is denied. Native93 remains at100%; version94 is unserved. Separate traffic approval and production readback remain required; this task made no traffic write. The documented baseline failures remain.
+
+Evidence and limitations: docs/plans/department-pilot/LIVE-INTEGRATION.md; private attributable integration receipts. D1/CAS, accepted product planning, resource/permission/publication/deployment owners and runtime admission remain separate.
+
+### 2026-11-04 Current 3D viewport proof contract and mobile header
+
+The owner authorizes the current 3D source proof contract and the Departments
+header repair, preserving every retained assertion from the original 47-frame
+matrix. Version 95 remains the planning baseline. Deployment and traffic are held.
+
+- [x] FA-VP-01: The current source proof binds the maintained PAGE, helpers, instructions, actual browser observations and PNG bytes; original 47-frame history remains byte-identical.
+- [x] FA-VP-02: All original identities remain accounted for: four obsolete gallery captures are retired; the other 43 behavior intents remain required. A strict release qualification gate refuses missing or partial current equivalents and cannot accept old PNGs or metadata as current behavioral proof.
+- [x] FA-VP-03: Actual browser checks at 320/390/430/600/601/1280px prove Departments/status/control separation, reachable controls at least44px, accessible name, keyboard opening and modal focus restoration, with browser diagnostics and local-only evidence explicit.
+- [x] FA-VP-04: Source regression/build/bundle checks and independent browser/source review pass. Retired 2D code stays absent from the Worker. Source/layout proof does not accept retained operational coverage, physical devices, authenticated owners, GSD plans, callbacks or release.
+
+Finite source plan: `.planning/viewport-proof-20261104/PLAN.md`.
+
+Source evidence: implementation `7c8c810f`; current 44-frame source manifest
+`docs/plans/assets/field-atlas-viewport-proof/manifest.json`; independent header
+and operational browser receipts plus final verification under
+`artifact:field-atlas-contract-20261104/`. These four checks accept the authorized
+source contract and header repair only. Qualification is 11/43; all 32 missing
+retained behaviors stay required and release-blocking. Physical-device, live-owner,
+native-prefill, GSD and deployment/traffic acceptance remain held.
+
+
+## Viewport behavior gap proposal — 2026-11-04
+
+The user requests a finite ISA/GSD plan for the 32 remaining viewport gaps,
+preserving all 43 retained intents. These are proposed future acceptance criteria,
+all unchecked. The 11 currently qualified local behaviors are protected baseline
+evidence, not future implementation acceptance. Source planning baseline:
+`e6b28642`; serving planning baseline: version 95. Deployment and traffic are held.
+No implementation, canonical mapping, live-owner or release admission is granted.
+
+- [ ] FA-VPG-G01: Preserve all 47 original assertion/image/manifest identities and bytes, the same four gallery retirements, all 43 retained intents, and the 11 current qualified behaviors. Compare complete original steps; source-frame metadata cannot waive behavior.
+- [ ] FA-VPG-G02: After separately admitted implementation, all 43 exact current equivalents pass native-input, visible-state, source/fixture/PNG and diagnostic validation; the finite 80-case matrix passes and strict qualification reports 43 qualified/zero held. Source closure leaves live/device/native/owner/deployment/traffic gates held.
+
+- [ ] FA-VPG-01: Implement and prove a current 3D equivalent for `mission-control-320-mobile.png`: Responsive readable operational overview with exact source/authority identity. Retain its complete original predicates and 320×844 viewport; verify through VPG-02.
+- [ ] FA-VPG-02: Implement and prove a current 3D equivalent for `mission-control-mobile.png`: Responsive readable operational overview with exact source/authority identity. Retain its complete original predicates and 390×844 viewport; verify through VPG-02.
+- [ ] FA-VPG-03: Implement and prove a current 3D equivalent for `mission-control-430-mobile.png`: Responsive readable operational overview with exact source/authority identity. Retain its complete original predicates and 430×844 viewport; verify through VPG-02.
+- [ ] FA-VPG-04: Implement and prove a current 3D equivalent for `mission-actions-mobile.png`: Mission state, proof list and Gate action affordances. Retain its complete original predicates and 390×844 viewport; verify through VPG-02.
+- [ ] FA-VPG-05: Implement and prove a current 3D equivalent for `mission-utilities-mobile.png`: Mission tool/loop/KPI affordances and containment. Retain its complete original predicates and 390×844 viewport; verify through VPG-02.
+- [ ] FA-VPG-10: Preserve as a protected regression for `sheet-mission-review-gate-mobile.png`: Exact branch Gate review and reachable contained sheet. Retain its complete original predicates and 390×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-11: Implement and prove a current 3D equivalent for `sheet-mission-open-proof-mobile.png`: Exact branch proof and proof-required contained sheet. Retain its complete original predicates and 390×844 viewport; verify through VPG-02.
+- [ ] FA-VPG-12: Implement and prove a current 3D equivalent for `mission-vantyx-selected-mobile.png`: Exact branch selection, keyboard focus and horizontal drag isolation. Retain its complete original predicates and 390×844 viewport; verify through VPG-02.
+- [ ] FA-VPG-13: Implement and prove a current 3D equivalent for `story-feed-mobile.png`: Story signals, packet rail and visible source distinctions. Retain its complete original predicates and 390×844 viewport; verify through VPG-03.
+- [ ] FA-VPG-14: Implement and prove a current 3D equivalent for `tools-mobile.png`: Tool handoff and organization-status affordances. Retain its complete original predicates and 390×844 viewport; verify through VPG-03.
+- [ ] FA-VPG-15: Implement and prove a current 3D equivalent for `sheet-tools-handoff-action-mobile.png`: Handoff action review before signed approval. Retain its complete original predicates and 390×844 viewport; verify through VPG-03.
+- [ ] FA-VPG-16: Implement and prove a current 3D equivalent for `inspect-proof-320-mobile.png`: Proof detail and exact 320px containment, viewport and reachable single actions. Retain its complete original predicates and 320×844 viewport; verify through VPG-04.
+- [ ] FA-VPG-17: Implement and prove a current 3D equivalent for `inspect-system-overview-mobile.png`: System-pane selection, focus, source labels and containment. Retain its complete original predicates and 390×844 viewport; verify through VPG-04.
+- [ ] FA-VPG-18: Implement and prove a current 3D equivalent for `inspect-tapestry-audit-mobile.png`: Runtime tools/tapestry audit affordances and 14 click targets. Retain its complete original predicates and 390×844 viewport; verify through VPG-04.
+- [ ] FA-VPG-19: Preserve as a protected regression for `inspect-no-fake-progress-mobile.png`: No inferred runtime completion/progress in source inspection. Retain its complete original predicates and 390×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-20: Implement and prove a current 3D equivalent for `inspect-policy-gap-mobile.png`: Visible policy gaps and blocked status. Retain its complete original predicates and 390×844 viewport; verify through VPG-04.
+- [ ] FA-VPG-21: Implement and prove a current 3D equivalent for `inspect-live-proof-mobile.png`: Live-proof readiness distinct from source/fixture evidence. Retain its complete original predicates and 390×844 viewport; verify through VPG-04.
+- [ ] FA-VPG-22: Implement and prove a current 3D equivalent for `inspect-gate-priority-mobile.png`: Visible Gate priority and unresolved policy state. Retain its complete original predicates and 390×844 viewport; verify through VPG-04.
+- [ ] FA-VPG-23: Implement and prove a current 3D equivalent for `inspect-skill-promotion-mobile.png`: Skill candidate promotion review state. Retain its complete original predicates and 390×844 viewport; verify through VPG-05.
+- [ ] FA-VPG-24: Implement and prove a current 3D equivalent for `sheet-inspect-skill-promotion-mobile.png`: Reachable explicit skill promotion review; no implicit activation. Retain its complete original predicates and 390×844 viewport; verify through VPG-05.
+- [ ] FA-VPG-25: Implement and prove a current 3D equivalent for `inspect-mira-relationship-mobile.png`: Actor/companion relationship and stage review. Retain its complete original predicates and 390×844 viewport; verify through VPG-05.
+- [ ] FA-VPG-26: Implement and prove a current 3D equivalent for `inspect-companions-mobile.png`: Companion/actor inspection availability and state. Retain its complete original predicates and 390×844 viewport; verify through VPG-05.
+- [ ] FA-VPG-27: Preserve as a protected regression for `gate-empty-mobile.png`: Truthful absence of pending founder decisions. Retain its complete original predicates and 390×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-28: Preserve as a protected regression for `gate-consequence-mobile.png`: Consequence review before signed approval. Retain its complete original predicates and 390×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-29: Implement and prove a current 3D equivalent for `gate-iverif-action-request-mobile.png`: Exact ActionRequest identity and signed-confirmation requirement. Retain its complete original predicates and 390×844 viewport; verify through VPG-06.
+- [ ] FA-VPG-30: Implement and prove a current 3D equivalent for `gate-iverif-queued-proof-mobile.png`: Queued state, proof button geometry, two-line preview and truthful status. Retain its complete original predicates and 390×844 viewport; verify through VPG-07.
+- [ ] FA-VPG-31: Implement and prove a current 3D equivalent for `sheet-gate-queued-result-mobile.png`: Queued receipt actions, refresh/navigation and idempotency presentation. Retain its complete original predicates and 390×844 viewport; verify through VPG-07.
+- [ ] FA-VPG-32: Implement and prove a current 3D equivalent for `sheet-gate-queued-proof-detail-mobile.png`: Queued proof navigation and exact CSS/visual viewport. Retain its complete original predicates and 390×844 viewport; verify through VPG-07.
+- [ ] FA-VPG-33: Implement and prove a current 3D equivalent for `story-iverif-action-request-mobile.png`: ActionRequest source identity in story projection. Retain its complete original predicates and 390×844 viewport; verify through VPG-06.
+- [ ] FA-VPG-34: Implement and prove a current 3D equivalent for `inspect-iverif-action-request-mobile.png`: ActionRequest source identity in inspection projection. Retain its complete original predicates and 390×844 viewport; verify through VPG-06.
+- [ ] FA-VPG-35: Implement and prove a current 3D equivalent for `sheet-gate-confirm-action-request-preflight-mobile.png`: Contained exact ActionRequest preflight and inspection before confirmation. Retain its complete original predicates and 390×844 viewport; verify through VPG-07.
+- [ ] FA-VPG-36: Implement and prove a current 3D equivalent for `sheet-gate-confirm-action-request-request-sent-mobile.png`: Request-sent/queueing state before actual result; no false completed state. Retain its complete original predicates and 390×844 viewport; verify through VPG-07.
+- [ ] FA-VPG-37: Preserve as a protected regression for `sheet-gate-approve-preflight-mobile.png`: Explicit approve preflight in contained sheet. Retain its complete original predicates and 390×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-38: Implement and prove a current 3D equivalent for `sheet-gate-reroll-preflight-mobile.png`: Explicit reroll preflight in contained sheet. Retain its complete original predicates and 390×844 viewport; verify through VPG-08.
+- [ ] FA-VPG-39: Implement and prove a current 3D equivalent for `operating-fabric-320-mobile.png`: Responsive readable operational overview with exact source/authority identity. Retain its complete original predicates and 320×844 viewport; verify through VPG-09.
+- [ ] FA-VPG-40: Preserve as a protected regression for `operating-fabric-gate-sheet-320-mobile.png`: Mission Gate entrypoint, contained cancel/review sheet at exact original width. Retain its complete original predicates and 320×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-41: Preserve as a protected regression for `operating-fabric-inspect-sheet-320-mobile.png`: Mission inspection with reachable back/close and containment at exact original width. Retain its complete original predicates and 320×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-42: Implement and prove a current 3D equivalent for `operating-fabric-390-mobile.png`: Responsive readable operational overview with exact source/authority identity. Retain its complete original predicates and 390×844 viewport; verify through VPG-09.
+- [ ] FA-VPG-43: Preserve as a protected regression for `operating-fabric-gate-sheet-390-mobile.png`: Mission Gate entrypoint, contained cancel/review sheet at exact original width. Retain its complete original predicates and 390×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-44: Preserve as a protected regression for `operating-fabric-inspect-sheet-390-mobile.png`: Mission inspection with reachable back/close and containment at exact original width. Retain its complete original predicates and 390×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-45: Implement and prove a current 3D equivalent for `operating-fabric-430-mobile.png`: Responsive readable operational overview with exact source/authority identity. Retain its complete original predicates and 430×844 viewport; verify through VPG-09.
+- [ ] FA-VPG-46: Preserve as a protected regression for `operating-fabric-gate-sheet-430-mobile.png`: Mission Gate entrypoint, contained cancel/review sheet at exact original width. Retain its complete original predicates and 430×844 viewport; verify through VPG-10.
+- [ ] FA-VPG-47: Preserve as a protected regression for `operating-fabric-inspect-sheet-430-mobile.png`: Mission inspection with reachable back/close and containment at exact original width. Retain its complete original predicates and 430×844 viewport; verify through VPG-10.
+
+Finite proposal: `.planning/viewport-proof-20261104/remaining-behaviors/README.md`.
+Exact one-to-one identity/hash/owner traceability: `coverage.json` and
+`TRACEABILITY.md` in that packet. Acceptance remains in this ISA; the packet
+is a proposal through the existing GSD owner and does not activate a second
+roadmap, new writer, or external action.
+
+<!-- cambium:viewport-gap-proposal:end -->
+
+## Viewport plan acceptance and VPG-01 admission — 2026-11-04
+
+The user accepts the finite viewport ISA/GSD packet at planning commit `64a6d4c5`,
+content digest `bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21`. The reviewed
+proposal and its unchecked criteria above remain an immutable planning snapshot.
+Current acceptance and execution status is recorded separately in
+`.planning/viewport-proof-20261104/remaining-behaviors/execution/ACCEPTANCE.json`.
+
+Only `VPG-01-T1` and `VPG-01-T2` are admitted for local source implementation,
+meaningful boundary verification and fresh 48-case source proof. Preserve all 43
+retained intents, the 11 qualified behaviors, original 47-image/manifest history,
+the same four gallery retirements, and the existing 44 cases including 430×932.
+The four supplements are at 430×844. VPG-02 through VPG-10 remain unadmitted.
+Plan acceptance does not qualify a missing behavior or accept source results.
+
+Version 95 remains the planning baseline. Deployment, traffic, live owner writes,
+signatures, queues, graph/provider/native-store effects and fleet dispatch remain
+held. Canonical graph mapping remains absent; this admission covers only the two
+local source tasks and their evidence. Root Phase 9 planning files stay unchanged.
+
+## VPG-01 source verification — 2026-11-04
+
+The admitted foundation tasks `VPG-01-T1` and `VPG-01-T2` are source-verified.
+`FA-VPG-G01` has verified local preservation evidence in
+`.planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-01-VERIFICATION.md`
+and `artifact:viewport-vpg01-20261104/source-verification-receipt.json`. The
+reviewed proposal remains an immutable snapshot; this section records its
+subsequent accepted-plan/source-result state.
+
+- Source commits: T1 `d3e1f661`, T2 `9ffaf8a0`, fresh evidence `9ec9f781`.
+- Fresh proof: 48 cases, including four 430×844 supplements and retained 430×932
+  cases; all 47 original image/manifest bindings and 44 prior complete step
+  definitions remain unchanged. All 43 retained intents stay required.
+- Qualification remains 11 local equivalents and 32 held. No gap was closed by
+  foundation metadata. Strict release qualification remains exit 1.
+- Independent source/image review passes. Frozen full suite: 2734/2734, zero
+  failures/skips; focused boundaries: 23/23; app: 95/95, strict types and bundle
+  parity pass. Crop diagnostics prove actual geometry and offscreen refusal.
+
+This consumes the VPG-01-only local source admission. VPG-02 through VPG-10 remain
+unadmitted. Version 95 is the planning baseline; deployment, traffic, real owner
+effects, canonical graph mapping, runtime and physical-device acceptance remain
+held. Root Phase 9 files and prior human handoff history are preserved.
+
+## VPG-02 source admission — 2026-11-04
+
+The user admits VPG-02 only against the accepted finite packet digest
+`bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21` and verified source
+checkpoint `7f3c7793`. VPG-01 is source-verified and its prior admission consumed.
+The reviewed proposal remains an immutable snapshot. Current task admission is
+`.planning/viewport-proof-20261104/remaining-behaviors/execution/VPG-02-ADMISSION.json`.
+
+Only `VPG-02-T1`, `VPG-02-T2` and `VPG-02-T3` are admitted for local mission-owner
+projection, current 3D mission/branch/proof interaction and complete fresh source
+proof for original rows 1–5, 11 and 12. Preserve all 43 retained intents, the 11
+qualified behaviors, prior 48 source cases, original 47-image/manifest history,
+the same four retirements and all original whole-step predicates. Target 55 source
+cases and 18 qualified/25 held only after genuine complete browser proofs pass.
+No source row or plan metadata alone changes qualification.
+
+Version 95 remains the planning baseline. VPG-03 through VPG-10, deployment,
+traffic, real owner writes/signatures/queues, graph/provider/native-store effects
+and runtime admission remain held. Canonical graph mapping is absent. Root Phase
+9 STATE/ROADMAP/REQUIREMENTS/config and prior handoff history stay unchanged.
