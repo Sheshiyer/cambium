@@ -5,8 +5,9 @@ import type { FounderTransportHost } from './founder-decision-transport.ts';
 import type { GoalGraphStoreLike, FounderDecisionStore } from './goal-graph-store.ts';
 import type { GoalChangeSet } from './goal-graph/types.ts';
 import { sha256 } from './goal-graph/identity.ts';
-import { growthApprovalProposalFromRecord } from './growth-approval-decision.ts';
-import type { GrowthApprovalProposal } from './growth-approval-decision.ts';
+import { GROWTH_APPROVAL_INTAKE_ROUTE, growthApprovalChangeDigest, growthApprovalProposalFromRecord,
+  stageGrowthApprovalProposal, validGrowthApprovalIntake } from './growth-approval-decision.ts';
+import type { GrowthApprovalProposal, PersistGrowthProposalRecord } from './growth-approval-decision.ts';
 
 const TENANT = /^[a-z][a-z0-9-]{1,63}$/;
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,239}$/;
@@ -44,6 +45,8 @@ export function createFounderAccessHost(deps: {
   persistRenewal?: Parameters<typeof renewFounderProposal>[0]['persist'];
   /** Growth approval card (B2): read the server-owned stored row proposal. Absent keeps the growth routes closed. */
   readGrowthProposalRecord?(tenantId: string, changeDigest: string): Promise<Record<string, unknown> | null>;
+  /** Atomically stage a single immutable proposal and return the stored record. */
+  persistGrowthProposalRecord?: PersistGrowthProposalRecord;
 }): FounderTransportHost | undefined {
   const allowed = founderBindings(deps.bindingsJson);
   const store = deps.store as FounderDecisionStore | undefined;
@@ -97,7 +100,12 @@ export function createFounderAccessHost(deps: {
       const founderId = await deps.verifyFounder(request);
       if (!founderId) return null;
       const input = await request.clone().json() as { proposalId?: unknown };
-      const key = founderProposalKey(input?.proposalId);
+      let proposalId = input?.proposalId;
+      if (new URL(request.url).pathname === GROWTH_APPROVAL_INTAKE_ROUTE) {
+        if (native || request.headers.get('x-cambium-founder-web') !== '1' || !validGrowthApprovalIntake(input)) return null;
+        proposalId = `${input.tenantId}:${growthApprovalChangeDigest(input.subject)}`;
+      }
+      const key = founderProposalKey(proposalId);
       if (!key || !allowed.some(row => row.founderId === founderId && row.tenantId === key.tenantId)) return null;
       context = { founderId, tenantId: key.tenantId, channel: deps.channel ?? 'curious' };
       return context;
@@ -182,6 +190,15 @@ export function createFounderAccessHost(deps: {
       if (!context || !key || context.tenantId !== key.tenantId) return null;
       const record = await readGrowthProposalRecord(key.tenantId, key.changeDigest);
       return growthApprovalProposalFromRecord(record, key, context.founderId);
+    };
+  }
+  if (deps.persistGrowthProposalRecord && deps.readGrowthProposalRecord) {
+    const persist = deps.persistGrowthProposalRecord;
+    const read = deps.readGrowthProposalRecord;
+    host.stageGrowthProposal = async input => {
+      if (!context) return { status: 'forbidden' };
+      return stageGrowthApprovalProposal(input, context, deps.now,
+        async (tenant, digest, record) => (await read(tenant, digest)) ?? persist(tenant, digest, record));
     };
   }
   host.renewProposal = async (input: FounderRenewalInput) => {

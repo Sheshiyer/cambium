@@ -364,6 +364,8 @@ export interface FounderDecisionStore extends GoalGraphStoreLike {
   readDecisionReceipt(tenantId: string, changeDigest: string, nonce: string): Promise<GoalGraphDecisionReceiptRow | null>;
   /** Growth approval card receipt: one immutable row in the existing approvals table, no graph write. */
   recordGrowthDecision?(input: GrowthDecisionReceiptInput): Promise<GrowthDecisionReceiptResult>;
+  readGrowthProposalRecord?(tenantId: string, changeDigest: string): Promise<Record<string, unknown> | null>;
+  persistGrowthProposalRecord?(tenantId: string, changeDigest: string, record: Record<string, unknown>): Promise<Record<string, unknown> | null>;
 }
 /** Namespace marker inside canonical_json; a growth receipt is never a Goal Graph approval. */
 export const GROWTH_DECISION_RECEIPT_KIND = 'growth-approval';
@@ -904,7 +906,24 @@ export function d1GoalGraphStore(db: GoalGraphD1DatabaseLike): FounderDecisionSt
       .first<{ tenant_id: string; change_digest: string; intent_version: number; approver_id: string;
         decision: 'approved' | 'rejected'; expires_at: string; nonce: string; canonical_json: string; decided_at: string }>();
   }
-  return { readHead, readNodes, commit, reject, readDecisionReceipt, recordGrowthDecision, renewalFenceReady };
+  async function readGrowthProposalRecord(tenantId: string, changeDigest: string) {
+    const row = await db.prepare('SELECT record_json FROM growth_approval_proposals WHERE tenant_id = ? AND change_digest = ?')
+      .bind(tenantId, changeDigest).first<{ record_json: string }>();
+    return row ? JSON.parse(row.record_json) as Record<string, unknown> : null;
+  }
+
+  async function persistGrowthProposalRecord(tenantId: string, changeDigest: string, record: Record<string, unknown>) {
+    const rowId = (record.subject as { calendarRowId?: unknown } | undefined)?.calendarRowId;
+    if (typeof rowId !== 'string') return null;
+    await db.prepare(`INSERT INTO growth_approval_proposals (tenant_id, change_digest, calendar_row_id, record_json)
+      VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING`)
+      .bind(tenantId, changeDigest, rowId, stableJson(record)).run();
+    const row = await db.prepare('SELECT record_json FROM growth_approval_proposals WHERE tenant_id = ? AND calendar_row_id = ?')
+      .bind(tenantId, rowId).first<{ record_json: string }>();
+    return row ? JSON.parse(row.record_json) as Record<string, unknown> : null;
+  }
+
+  return { readHead, readNodes, commit, reject, readDecisionReceipt, recordGrowthDecision, readGrowthProposalRecord, persistGrowthProposalRecord, renewalFenceReady };
 }
 
 export const createGoalGraphStore = d1GoalGraphStore;

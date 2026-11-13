@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { sha256 } from './goal-graph/identity.ts';
 import { GROWTH_DECISION_RECEIPT_KIND } from './goal-graph-store.ts';
 import type { FounderDecisionStore, GoalGraphDecisionReceiptRow } from './goal-graph-store.ts';
@@ -19,6 +20,7 @@ import type { FounderContext, FounderDecision } from './founder-decision.ts';
  */
 export const GROWTH_APPROVAL_PROPOSAL_SCHEMA = 'thoughtseed.growth.approval-proposal.v1';
 export const GROWTH_APPROVAL_DECISION_SCHEMA = 'thoughtseed.growth.approval-decision.v1';
+export const GROWTH_APPROVAL_INTAKE_ROUTE = '/v1/founder/growth/intake';
 
 /** Growth row identity. Paths and digests only; the body copy never enters Cambium. */
 export interface GrowthApprovalSubject { cellPath: string; calendarRowId: string; bodyDigest: string }
@@ -26,7 +28,7 @@ export interface GrowthApprovalSubject { cellPath: string; calendarRowId: string
 /** Card preconditions observed at proposal time; `approve` is only offered when all three hold. */
 export interface GrowthApprovalGate { fence: 'pass' | 'fail'; grade: 'graded' | 'revise'; rowStatus: string }
 
-/** Server-owned stored proposal; argument text can never create one. */
+/** Server-owned proposal, created only through authenticated intake. */
 export interface GrowthApprovalProposal {
   schema: typeof GROWTH_APPROVAL_PROPOSAL_SCHEMA;
   /** `TENANT:CHANGE_DIGEST`, the Founder Gate proposal id form. */
@@ -49,6 +51,97 @@ const PATH = /^[A-Za-z0-9][A-Za-z0-9._/ -]{0,511}$/;
 const ROW_ID = /^[A-Za-z0-9][A-Za-z0-9._:/#-]{0,511}$/;
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
+const TENANT = /^[a-z][a-z0-9-]{1,63}$/;
+const ITEM = /^[a-z0-9][a-z0-9-]{0,127}$/;
+const SECTION = /^[a-zA-Z0-9_-]{1,128}$/;
+const GROWTH = '20-operations/growth/';
+
+/** An authenticated operator supplies review evidence, never draft text or a decision. */
+export interface GrowthApprovalIntake {
+  tenantId: string;
+  subject: GrowthApprovalSubject;
+  review: {
+    itemId: string;
+    channel: 'x' | 'linkedin';
+    body: { path: string; digest: string };
+    fence: { path: string; hits: 0; checkedAt: string };
+    grade: { path: string; rubric: string; gradedAt: string };
+    row: { path: string; id: string; status: 'queued'; reviewOnly: true };
+  };
+}
+
+export type PersistGrowthProposalRecord = (tenantId: string, changeDigest: string,
+  record: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+
+function fields(value: unknown, keys: string): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value)
+    && Object.keys(value).sort().join(',') === keys;
+}
+
+function safePath(value: unknown, section = false): value is string {
+  if (typeof value !== 'string' || value.length > 512) return false;
+  const [path, fragment, extra] = value.split('#');
+  return PATH.test(path) && !path.includes('..')
+    && path.split('/').every(part => part !== '.' && part.trim() === part && part !== '')
+    && (fragment === undefined || section && SECTION.test(fragment) && extra === undefined);
+}
+
+function canonicalDate(value: unknown, dayAllowed = false): value is string {
+  if (typeof value !== 'string') return false;
+  const day = dayAllowed && /^\d{4}-\d{2}-\d{2}$/.test(value);
+  if (!day && !ISO.test(value)) return false;
+  const time = Date.parse(value);
+  if (!Number.isFinite(time)) return false;
+  const normalized = new Date(time).toISOString();
+  return day ? normalized.slice(0, 10) === value : normalized === value || normalized.replace('.000Z', 'Z') === value;
+}
+
+export function validGrowthApprovalIntake(value: unknown): value is GrowthApprovalIntake {
+  if (!fields(value, 'review,subject,tenantId') || typeof value.tenantId !== 'string' || !TENANT.test(value.tenantId)
+      || !validGrowthApprovalSubject(value.subject) || !safePath(value.subject.cellPath)
+      || !value.subject.cellPath.startsWith(GROWTH + 'department/')) return false;
+  const { subject, review } = value;
+  if (!fields(review, 'body,channel,fence,grade,itemId,row') || typeof review.itemId !== 'string' || !ITEM.test(review.itemId)
+      || (review.channel !== 'x' && review.channel !== 'linkedin')) return false;
+  const { body, fence, grade, row } = review;
+  return fields(body, 'digest,path') && safePath(body.path, true) && body.digest === subject.bodyDigest
+    && fields(fence, 'checkedAt,hits,path') && safePath(fence.path, true) && fence.hits === 0 && canonicalDate(fence.checkedAt)
+    && fields(grade, 'gradedAt,path,rubric') && safePath(grade.path) && grade.path.startsWith(GROWTH + 'department/06-analyst/')
+    && typeof grade.rubric === 'string' && ITEM.test(grade.rubric) && canonicalDate(grade.gradedAt, true)
+    && fields(row, 'id,path,reviewOnly,status') && safePath(row.path) && row.path.startsWith(GROWTH)
+    && row.id === subject.calendarRowId && row.id === `${review.itemId}-${review.channel}`
+    && row.status === 'queued' && row.reviewOnly === true;
+}
+
+export function growthApprovalProposalFresh(proposal: GrowthApprovalProposal, now: string): boolean {
+  const nowMs = Date.parse(now);
+  return Number.isFinite(nowMs) && Date.parse(proposal.expiresAt) > nowMs;
+}
+
+export async function stageGrowthApprovalProposal(input: GrowthApprovalIntake, context: FounderContext,
+  now: () => string, persist: PersistGrowthProposalRecord) {
+  if (context.tenantId !== input.tenantId || context.channel !== 'curious') return { status: 'forbidden' } as const;
+  const observedAt = Date.parse(now());
+  if (!Number.isFinite(observedAt)) return { status: 'unknown' } as const;
+  if (Date.parse(input.review.fence.checkedAt) > observedAt || Date.parse(input.review.grade.gradedAt) > observedAt)
+    return { status: 'invalid' } as const;
+  const { tenantId, subject } = input;
+  const changeDigest = growthApprovalChangeDigest(subject);
+  const gate = { fence: 'pass', grade: 'graded', rowStatus: 'queued' } as const;
+  const review = { ...input.review, cell: subject.cellPath,
+    fence: { ...input.review.fence, result: gate.fence },
+    grade: { ...input.review.grade, verdict: gate.grade, desk: '06-analyst' } };
+  const record = { schema: GROWTH_APPROVAL_PROPOSAL_SCHEMA, tenantId, version: 1, changeDigest,
+    nonce: randomUUID(), expiresAt: new Date(observedAt + 15 * 60_000).toISOString(), subject, gate, review,
+    summary: `Approve ${input.review.channel === 'x' ? 'X' : 'LinkedIn'} draft ${input.review.itemId} for editorial use. Scheduling and publication are separate.` };
+  const stored = await persist(tenantId, changeDigest, record);
+  if (!stored) return { status: 'unknown' } as const;
+  const proposal = growthApprovalProposalFromRecord(stored, { tenantId, changeDigest }, context.founderId);
+  if (!proposal || proposal.summary !== record.summary || sha256(proposal.review) !== sha256({ ...review, subject, gate }))
+    return { status: 'changed' } as const;
+  if (!growthApprovalProposalFresh(proposal, now())) return { status: 'expired' } as const;
+  return { status: 'review', proposal } as const;
+}
 
 export function validGrowthApprovalSubject(x: unknown): x is GrowthApprovalSubject {
   if (!x || typeof x !== 'object' || Array.isArray(x)) return false;
@@ -71,12 +164,8 @@ export function growthApproveEnabled(gate: GrowthApprovalGate): boolean {
 }
 
 /** A card body is a path and digest. A review that inlines draft copy is non-conforming. */
-function reviewCarriesNoBodyCopy(review: Record<string, unknown>): boolean {
-  const body = review.body;
-  if (body === undefined) return true;
-  if (!body || typeof body !== 'object' || Array.isArray(body)) return false;
-  const keys = Object.keys(body as Record<string, unknown>).sort().join(',');
-  return keys === 'digest,path';
+function reviewBindsBody(review: Record<string, unknown>, subject: GrowthApprovalSubject): boolean {
+  return fields(review.body, 'digest,path') && safePath(review.body.path, true) && review.body.digest === subject.bodyDigest;
 }
 
 /** Validate a stored record against its key. Fail closed on any drift. */
@@ -94,7 +183,7 @@ export function growthApprovalProposalFromRecord(record: unknown, key: { tenantI
   if (!gate || typeof gate !== 'object' || Object.keys(gate).sort().join(',') !== 'fence,grade,rowStatus'
       || !['pass', 'fail'].includes(String(gate.fence)) || !['graded', 'revise'].includes(String(gate.grade))
       || typeof gate.rowStatus !== 'string' || !/^[a-z-]{1,32}$/.test(gate.rowStatus)) return null;
-  if (!r.review || typeof r.review !== 'object' || Array.isArray(r.review) || !reviewCarriesNoBodyCopy(r.review as Record<string, unknown>)) return null;
+  if (!r.review || typeof r.review !== 'object' || Array.isArray(r.review) || !reviewBindsBody(r.review as Record<string, unknown>, r.subject)) return null;
   if (typeof r.summary !== 'string' || !r.summary || r.summary.length > 512) return null;
   const subject = r.subject;
   return {
@@ -159,7 +248,8 @@ export async function growthApprovalDecision(deps: GrowthApprovalDecisionDeps, i
   try {
     const settled = await readback();
     if (settled) return settled;
-    if (statusOnly) return { status: 'pending', canonicalReadback: true, writerAuthority: false };
+    if (statusOnly) return { status: growthApprovalProposalFresh(p, deps.now()) ? 'pending' : 'expired',
+      canonicalReadback: true, writerAuthority: false, externalAction: 'none' };
     // A card whose fence failed, whose grade is not graded, or whose row is not queued cannot produce an approve.
     if (input.decision === 'approved' && !growthApproveEnabled(p.gate)) return { status: 'approve_unavailable', gate: p.gate };
     const expiresAtMs = Date.parse(p.expiresAt);

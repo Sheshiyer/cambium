@@ -28,6 +28,17 @@ const SUBJECT = {
   calendarRowId: '20-operations/growth/2026-08-24-x-linkedin-case-study-calendar.md#week-1/row-1',
   bodyDigest: `sha256:${'a'.repeat(64)}`,
 };
+const INTAKE = {
+  tenantId: TENANT,
+  subject: { ...SUBJECT, calendarRowId: 'navigation-update-x' },
+  review: {
+    itemId: 'navigation-update', channel: 'x',
+    body: { path: '01-Projects/tryambakam-noesis/content/content-engine/_processing/navigation-update.md#x-draft', digest: SUBJECT.bodyDigest },
+    fence: { path: '10869-space-v1/docs/profiles/voice-contract.md#vocabulary-restrictions', hits: 0, checkedAt: NOW },
+    grade: { path: '20-operations/growth/department/06-analyst/spotting-ai-slop/review.md', rubric: 'spotting-ai-slop', gradedAt: '2026-10-27' },
+    row: { path: '20-operations/growth/packs/tryambakam-10869/review-calendar.md', id: 'navigation-update-x', status: 'queued', reviewOnly: true },
+  },
+};
 
 class SqliteD1 implements GoalGraphD1DatabaseLike {
   readonly db = new DatabaseSync(':memory:');
@@ -70,6 +81,7 @@ async function harness(stored: Record<string, unknown> | null = record(), bindin
   const db = new SqliteD1();
   db.db.exec(await readFile(new URL('../migrations/0007_goal_graph.sql', import.meta.url), 'utf8'));
   db.db.exec(await readFile(new URL('../migrations/0009_goal_graph_operational_anchors.sql', import.meta.url), 'utf8'));
+  db.db.exec(await readFile(new URL('../migrations/0013_growth_approval_proposals.sql', import.meta.url), 'utf8'));
   const base = d1GoalGraphStore(db);
   const calls = { commit: 0, reject: 0, goalTaskReads: 0, kvWrites: 0, fetch: 0 };
   // Guard every other write path: a growth decision may only reach recordGrowthDecision.
@@ -77,14 +89,16 @@ async function harness(stored: Record<string, unknown> | null = record(), bindin
     commit: async (...args: Parameters<typeof base.commit>) => { calls.commit++; return base.commit(...args); },
     reject: async (...args: Parameters<typeof base.reject>) => { calls.reject++; return base.reject(...args); },
   };
+  let clock = NOW;
   const host = createFounderAccessHost({
     store, bindingsJson,
     verifyFounder: async (request) => request.headers.get('x-test-founder'),
     readTask: async () => { calls.goalTaskReads++; return null; },
     reviewTask: () => null,
-    now: () => NOW,
-    readGrowthProposalRecord: async (tenantId, digest) =>
-      stored && stored.tenantId === tenantId && String(stored.changeDigest).replace(/^sha256:/, '') === digest.replace(/^sha256:/, '') ? stored : null,
+    now: () => clock,
+    readGrowthProposalRecord: async (tenantId, digest) => (await store.readGrowthProposalRecord!(tenantId, digest))
+      ?? (stored && stored.tenantId === tenantId && stored.changeDigest === digest ? stored : null),
+    persistGrowthProposalRecord: store.persistGrowthProposalRecord,
   });
   assert.ok(host, 'host configured');
   const count = (table: string) => Number((db.db.prepare(`SELECT count(*) AS n FROM ${table}`).get() as { n: number }).n);
@@ -93,7 +107,8 @@ async function harness(stored: Record<string, unknown> | null = record(), bindin
     globalThis.fetch = (async () => { calls.fetch++; throw new Error('no network leaves the growth decision'); }) as typeof fetch;
     try {
       const response = await founderDecisionHttp(new Request(`https://cambium.invalid${path}`, {
-        method: 'POST', headers: { 'content-type': 'application/json', ...(founder ? { 'x-test-founder': founder } : {}) }, body: JSON.stringify(body),
+        method: 'POST', headers: { 'content-type': 'application/json', 'x-cambium-founder-web': '1',
+          ...(founder ? { 'x-test-founder': founder } : {}) }, body: JSON.stringify(body),
       }), host);
       return { status: response.status, body: await response.json() as Record<string, any> };
     } finally { globalThis.fetch = originalFetch; }
@@ -103,7 +118,7 @@ async function harness(stored: Record<string, unknown> | null = record(), bindin
   const envelope = (decision: 'approved' | 'rejected', confirmation: string, p = record()) => ({
     proposalId: id, version: p.version, changeDigest: p.changeDigest, nonce: p.nonce, expiresAt: p.expiresAt, decision, confirmation,
   });
-  return { db, store, host, calls, count, post, review, envelope, id };
+  return { db, store, host, calls, count, post, review, envelope, id, time: (value: string) => { clock = value; } };
 }
 
 function expectNoWrites(h: Awaited<ReturnType<typeof harness>>) {
@@ -129,6 +144,8 @@ test('stored record validation fails closed on drift and on inlined body copy', 
   assert.equal(growthApprovalProposalFromRecord(record({ schema: 'cambium.goal-graph-intake-task.v1' }), key, FOUNDER_A), null);
   assert.equal(growthApprovalProposalFromRecord(record({ gate: { fence: 'pass', grade: 'graded', rowStatus: 'queued', composio: true } }), key, FOUNDER_A), null);
   const inlined = record(); (inlined.review as Record<string, unknown>).body = { path: 'x.md', digest: SUBJECT.bodyDigest, text: 'Here is the whole thread...' };
+  assert.equal(growthApprovalProposalFromRecord(inlined, key, FOUNDER_A), null);
+  (inlined.review as Record<string, unknown>).body = { path: 'x.md', digest: `sha256:${'b'.repeat(64)}` };
   assert.equal(growthApprovalProposalFromRecord(inlined, key, FOUNDER_A), null);
   // The founder on the proposal is the verified caller, never a stored claim.
   assert.equal(growthApprovalProposalFromRecord(record({ founderId: OUTSIDER }), key, FOUNDER_A)?.founderId, FOUNDER_A);
@@ -248,10 +265,19 @@ test('unsigned, unbound, cross-tenant and drifted calls are denied with zero wri
 
 test('an expired or missing proposal, or a missing growth host, writes nothing', async () => {
   const expired = await harness(record({ expiresAt: NOW }));
-  const reviewed = (await expired.review()).body;
-  const late = await expired.post('/v1/founder/growth/decision', expired.envelope('approved', reviewed.approveConfirmation, record({ expiresAt: NOW })));
+  const reviewed = await expired.review();
+  assert.equal(reviewed.status, 409);
+  assert.equal(reviewed.body.status, 'expired');
+  assert.equal(reviewed.body.approveConfirmation, undefined);
+  const expiredRecord = record({ expiresAt: NOW });
+  const proposal = growthApprovalProposalFromRecord(expiredRecord, { tenantId: TENANT, changeDigest: expiredRecord.changeDigest }, FOUNDER_A)!;
+  const late = await expired.post('/v1/founder/growth/decision', expired.envelope('approved', growthApprovalConfirmation(proposal, 'approved'), expiredRecord));
   assert.equal(late.status, 409);
   assert.equal(late.body.status, 'expired');
+  const expiredStatus = await expired.post('/v1/founder/growth/status', expired.envelope('approved', '', expiredRecord));
+  assert.equal(expiredStatus.status, 409);
+  assert.equal(expiredStatus.body.status, 'expired');
+  assert.equal(expiredStatus.body.canonicalReadback, true);
   expectNoWrites(expired);
   const missing = await harness(null);
   assert.equal((await missing.review()).status, 403);
@@ -262,7 +288,44 @@ test('an expired or missing proposal, or a missing growth host, writes nothing',
     { ...missing.host, readGrowthProposal: undefined });
   assert.equal(closed.status, 503);
   assert.equal((await closed.json()).error, 'growth_approval_unconfigured');
-  assert.deepEqual(GROWTH_APPROVAL_ROUTES, ['/v1/founder/growth/proposal', '/v1/founder/growth/decision', '/v1/founder/growth/status']);
+  assert.deepEqual(GROWTH_APPROVAL_ROUTES, ['/v1/founder/growth/proposal', '/v1/founder/growth/decision',
+    '/v1/founder/growth/status', '/v1/founder/growth/intake']);
+});
+
+test('a founder can stage and review one digest without approval or external effects', async () => {
+  const h = await harness(null);
+  const route = '/v1/founder/growth/intake';
+  assert.equal((await h.post(route, INTAKE, OUTSIDER)).status, 401);
+  assert.equal((await h.post(route, { ...INTAKE, decision: 'approved' })).status, 400);
+  assert.equal((await h.post(route, { ...INTAKE, review: { ...INTAKE.review,
+    row: { ...INTAKE.review.row, publicationDate: '2026-10-28' } } })).status, 400);
+  assert.equal((await h.post(route, { ...INTAKE, review: { ...INTAKE.review,
+    body: { ...INTAKE.review.body, digest: `sha256:${'b'.repeat(64)}` } } })).status, 400);
+  assert.equal(h.count('growth_approval_proposals'), 0);
+  const staged = await h.post(route, INTAKE);
+  assert.equal(staged.status, 200);
+  assert.equal(staged.body.status, 'review');
+  assert.equal(staged.body.actions.approve, true);
+  assert.equal(staged.body.externalAction, 'none');
+  assert.equal(staged.body.writerAuthority, false);
+  assert.equal(staged.body.proposal.changeDigest, growthApprovalChangeDigest(INTAKE.subject));
+  assert.equal(staged.body.proposal.review.body.digest, INTAKE.subject.bodyDigest);
+  assert.equal(staged.body.proposal.review.row.reviewOnly, true);
+  assert.deepEqual((await h.post(route, INTAKE)).body, staged.body);
+  assert.deepEqual((await h.post('/v1/founder/growth/proposal', { proposalId: staged.body.proposal.proposalId })).body, staged.body);
+  assert.equal(h.count('growth_approval_proposals'), 1);
+  const changed = await h.post(route, { ...INTAKE, review: { ...INTAKE.review,
+    grade: { ...INTAKE.review.grade, rubric: 'replacement-rubric' } } });
+  assert.equal(changed.status, 409);
+  assert.equal(changed.body.status, 'changed');
+  const bodyDigest = `sha256:${'b'.repeat(64)}`;
+  const anotherBody = await h.post(route, { ...INTAKE, subject: { ...INTAKE.subject, bodyDigest },
+    review: { ...INTAKE.review, body: { ...INTAKE.review.body, digest: bodyDigest } } });
+  assert.equal(anotherBody.body.status, 'changed');
+  h.time(staged.body.proposal.expiresAt);
+  assert.equal((await h.post(route, INTAKE)).body.status, 'expired');
+  assert.equal(h.count('growth_approval_proposals'), 1);
+  expectNoWrites(h);
 });
 
 test('a Goal Graph receipt under the same key is a conflict, never a growth approval', async () => {

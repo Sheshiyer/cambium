@@ -11,6 +11,14 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-14 Growth proposal intake
+
+Growth B2 stages exact draft hashes through the existing Curious Gate founder
+binding and reads status before offering a decision. Migration 0013 adds the
+proposal table; the decision remains one receipt in the existing ledger.
+Intake and review leave drafts and calendar rows untouched. See
+`docs/architecture/contracts/growth-approval-decision-v1.md`.
+
 ## 2026-11-12 sapling command families rebased onto main
 
 PR 431 is linear on main `510d589`, which includes the merged #430 scope fix.

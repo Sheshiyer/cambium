@@ -5,6 +5,7 @@ import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
 import { descriptionResponse } from './portfolio-descriptions.ts';
 import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
 import { GROWTH_APPROVAL_PROPOSAL_SCHEMA } from './growth-approval-decision.ts';
+import { renderGrowthApprovalReview } from './page/growth-approval-review.ts';
 import { founderDecisionHttp, GROWTH_APPROVAL_ROUTES, type FounderTransportHost } from './founder-decision-transport.ts';
 import { nativeLaunchHttp, NATIVE_LAUNCH_PATHS, type NativeLaunchHost } from './native-launch.ts';
 import { nativeSessionHttp, type NativeSessionHost } from './native-session.ts';
@@ -5778,6 +5779,21 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       tenantIds, renewalReady: await deps.goalGraphStore?.renewalFenceReady?.() ?? false, canonicalReady: tenantIds.length > 0 && !!deps.goalGraphStore?.readDecisionReceipt && !!deps.goalGraphStore?.reject, writerAuthority: false });
   }
   const founderRoutePath = req.path.split('?')[0];
+  if (founderRoutePath === '/founder/growth') {
+    if (req.method !== 'GET') return json(405, { error: 'get_required' });
+    if (!deps.plexus) return json(503, { error: 'founder_host_unconfigured' });
+    const resolved = await resolvePlexusPrincipal(req.headers, deps.plexus, deps.kv, deps.plexusFetchImpl);
+    if (resolved.kind !== 'principal' || !founderWebPrincipal(resolved.principal)) {
+      return json(resolved.kind === 'unconfigured' ? 503 : 403, { error: 'founder_identity_required' });
+    }
+    return { status: 200, headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'private, no-store',
+      'content-security-policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      'x-content-type-options': 'nosniff',
+      'referrer-policy': 'no-referrer',
+    }, body: renderGrowthApprovalReview() };
+  }
   if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew', ...GROWTH_APPROVAL_ROUTES].includes(founderRoutePath)) {
     // The native realm gate knows the four canonical founder routes; growth approval rows stay on the web transport.
     if (!GROWTH_APPROVAL_ROUTES.includes(founderRoutePath) && nativeRealmPresented(req.headers)) return nativeFounderGate(req, deps);
@@ -5797,8 +5813,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
       persistRenewal: input => reconcileGoalGraphIntakePersistence(deps.kv, {
         ...input, idempotencyRecordKey: `goal-graph-intake-idem:${input.idempotencyKey}`,
       }),
-      // Growth approval card (B2): a server-owned stored proposal; nothing on this path creates one.
-      readGrowthProposalRecord: (tenant, digest) => readGrowthApprovalProposal(deps.kv, tenant, digest),
+      readGrowthProposalRecord: async (tenant, digest) =>
+        (await deps.goalGraphStore?.readGrowthProposalRecord?.(tenant, 'sha256:' + digest.replace(/^sha256:/, '')))
+          ?? readGrowthApprovalProposal(deps.kv, tenant, digest),
+      persistGrowthProposalRecord: deps.goalGraphStore?.persistGrowthProposalRecord?.bind(deps.goalGraphStore),
     }) : undefined);
     const response = await founderDecisionHttp(new Request(`https://cambium.invalid${req.path}`, {
       method: req.method, headers: req.headers, ...(req.method === 'POST' ? { body: req.body } : {}),

@@ -1,83 +1,57 @@
 # Growth approval decision v1
 
-Source-only draft for growth fan-out item B2. It wires the founder approval
-card (vault spec `20-operations/growth/department/approval-card-v1.md`) to
-Curious Gate as a signed founder action on one growth row. No deployment,
-binding enrollment, live decision, Telegram rendering, vault write, or
-business execution is authorized by this patch.
+Curious Gate stages and records a founder decision for one Growth review row.
+The card follows the vault spec `20-operations/growth/department/approval-card-v1.md`.
 
-## Shape
+## Stage and review
 
-The founder signs the existing closed seven-field decision envelope
-(`proposalId`, `version`, `changeDigest`, `nonce`, `expiresAt`, `decision`,
-`confirmation`). Only the subject differs:
+`GET /founder/growth` serves the protected review page. Paste the reviewed
+intake JSON to stage a proposal, or open an existing proposal with the
+`proposalId` query parameter. The four POST routes under
+`/v1/founder/growth/` are `intake`, `proposal`, `status`, and `decision`.
+They use the existing verified Access/Plexus identity and founder/tenant
+bindings. Either bound co-founder may act alone; the receipt names the signer.
 
-- `proposalId` is `TENANT:CHANGE_DIGEST`, the Founder Gate form.
-- `changeDigest` is `sha256:` of the growth row identity, computed by
-  `growthApprovalChangeDigest({ cellPath, calendarRowId, bodyDigest })`
-  under schema `thoughtseed.growth.approval-decision.v1`. The body never
-  enters Cambium; only its digest does.
-- `decision` keeps the Gate's two values. `approve` is `approved`. `revise`
-  and `hold` both arrive as `rejected`; the revise/hold distinction and the
-  dated reason are vault-side records written on the Mac in a later item.
-- `confirmation` is recomputed from the complete displayed review with a
-  `growth row` prefix, so a Goal Graph confirmation can never decide a growth
-  row and vice versa.
+Intake binds the cell and calendar row to the exact body hash and records
+references to the passed vocabulary fence, Analyst grade and queued review row.
+Verify those references in the vault before staging. The Worker validates
+their shape and consistency; it does not query the vault. The draft body stays
+in its owning store.
 
-The stored proposal (`thoughtseed.growth.approval-proposal.v1`) is server
-owned, read from the Worker's existing KV under
-`growth-approval-proposal:TENANT:DIGEST`, and validated against its key: the
-digest must equal the digest of its subject, the `gate` must be exactly
-`{fence, grade, rowStatus}`, and a `review.body` must be `{path, digest}` only.
-Nothing in this patch creates such a proposal; the card builder (B1) and the
-Mac-side vault reader own that.
+D1 migration `0013_growth_approval_proposals.sql` adds a proposal table.
+The Worker validates each proposal against its subject digest. A missing D1
+record can fall back to the legacy KV reader. The Worker generates a nonce
+and a 15-minute expiry. An exact retry returns the same proposal. Changed
+evidence cannot overwrite the row, and an expired proposal cannot be signed.
+A fresh review requires a new row identity.
 
-## Routes
+## Founder decision
 
-`POST /v1/founder/growth/proposal`, `/v1/founder/growth/decision` and
-`/v1/founder/growth/status` sit beside the canonical founder routes inside
-`founderDecisionHttp`. They use the same verified Access/Plexus identity, the
-same `FOUNDER_GATE_BINDINGS_JSON` founder/tenant bindings, and the same D1
-store. Either bound co-founder may act alone; the receipt names the signer.
-A host without a growth proposal reader answers 503
-`growth_approval_unconfigured`.
+The review page reads canonical status before offering a decision. The founder
+selects a decision and enters the exact displayed confirmation. The closed
+envelope is `proposalId`, `version`, `changeDigest`, `nonce`, `expiresAt`,
+`decision`, and `confirmation`. The ID is `TENANT:CHANGE_DIGEST`, where
+`changeDigest` is the SHA-256 of the canonical row subject under
+`thoughtseed.growth.approval-decision.v1`. The confirmation binds the full
+review and uses the prefix `growth row` to distinguish it from Goal Graph.
 
-The proposal read returns `actions: {approve, revise, hold}`. `approve` is
-computed, never asserted: `fence == pass`, `grade == graded`, `rowStatus ==
-queued`. When it is false the response carries `approveConfirmation: null`
-and a submitted `approved` envelope returns 409 `approve_unavailable` before
-any write.
+Approve requires a passed fence, a graded draft and a queued row. Revise and
+hold share the canonical `rejected` decision. Their distinction and reason
+remain vault records. Opening, staging and checking a proposal do not decide it.
+After a lost decision response, the page checks the ledger.
 
-## What a signed approve writes
+A signed decision writes one immutable receipt in `goal_graph_approvals`,
+keyed by tenant, digest and nonce, with `canonical_json.kind = "growth-approval"`.
+An exact replay returns that receipt and an opposite decision conflicts.
+The Worker does not edit the draft, vault, Goal Graph or schedule. The vault
+remains the cell and row status authority. Scheduling and publication require
+separate workflows.
 
-Exactly one row in the existing `goal_graph_approvals` table through
-`recordGrowthDecision`, keyed `approval:TENANT:DIGEST:NONCE`, with
-`canonical_json.kind = "growth-approval"` and the subject. No migration. The
-write never touches `goal_graph_heads`, `goal_graph_nodes`,
-`goal_graph_events`, a renewal root, KV, the vault, Composio, NotebookLM,
-Higgsfield, Genesis DNA, or any network. The same immutable primary key makes
-a replay return the original receipt and makes an opposite decision a
-conflict. A Goal Graph receipt under the same key reads as `conflict`.
-
-Cambium's `thoughtseed.growth.result.v1` record is unchanged: its
-`approvalState` stays `draft` and `externalAction` stays `none`. The vault is
-the status authority for the cell and calendar row; this receipt is what the
-Mac-side writer reads before it sets `approved`/`held`.
-
-## Local verification
+## Verify
 
 `node --test workers/quests/src/growth-approval-decision.test.ts`
 
-The tests use the actual `createFounderAccessHost` bindings, the real
-transport, and an in-memory SQLite D1 with migrations 0007 and 0009. They
-prove: one receipt row and zero rows elsewhere on approve, with Goal Graph
-commit/reject, task reads, KV writes and `fetch` all counted at zero; replay
-and cross-founder status equality; revise/hold then approve conflict; fence
-fail, revise grade and non-queued row refusing approve; unsigned, unbound,
-cross-tenant, drifted tuple, wrong confirmation and extra-claim denial with
-zero writes; expiry; missing host; and lost-response reconciliation.
-
-## Deliberately out of scope
-
-Telegram card rendering, the vault status write, proposal creation, a
-three-valued decision, a new table, and any OAuth or identity authority.
+The tests use the existing Access host, real transport and in-memory SQLite D1.
+They check persistence and deduplication, founder and tenant binding, immutable
+evidence, expiry, decision preconditions, receipt replay and no downstream
+effects.
