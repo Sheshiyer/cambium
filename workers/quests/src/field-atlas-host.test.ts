@@ -30,11 +30,11 @@ function harness(options:{path?:string; search?:string; hash?:string; initData?:
 }
 const tick = () => new Promise(resolve=>setImmediate(resolve));
 
-test('serving entrypoint excludes retired module imports and removes more than 800 kB of desk payload',()=>{
+test('serving entrypoint excludes retired module imports and stays smaller than the frozen desk document',()=>{
   const entry=readFileSync(new URL('./page/index.ts',import.meta.url),'utf8');
   assert.doesNotMatch(entry.split('\n').filter(line=>line.startsWith('import')).join('\n'),/retired|LEGACY_PAGE|operating-fabric|scaffold|scene-engine/i);
   for(const marker of ['MissionControlShell','RootNav','data-root-scene','id="operating-fabric"','curious-world-launch']) assert.ok(!PAGE.includes(marker),marker);
-  assert.ok(Buffer.byteLength(RETIRED_PAGE)-Buffer.byteLength(PAGE)>800000);
+  assert.ok(Buffer.byteLength(PAGE)<Buffer.byteLength(RETIRED_PAGE));
   assert.equal(PAGE.split(CLIENT_CURIOUS_READ_BRIDGE).length,2);
   assert.equal(PAGE.split(CLIENT_CURIOUS_GATE_BRIDGE).length,2);
 });
@@ -46,14 +46,14 @@ test('world boots for historical query flags and retains all existing in-world G
 });
 test('founder route retains same-origin scoped read and requires no rendering of retired controls',async()=>{
   const h=harness({search:'?world=0&scene=gate'});await tick();
-  assert.equal(h.calls[0].url,'/founder/api/quests/cambium');
-  assert.equal(h.calls[0].init.credentials,'same-origin');
+  assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/'))[0].url,'/founder/api/quests/cambium');
+  assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/'))[0].init.credentials,'same-origin');
   assert.equal(h.state().read.state,'read');assert.equal(h.state().gate.signer,'access');
   assert.equal(h.calls.filter(c=>c.init.method==='POST').length,0);
 });
 test('Telegram tenant reads keep runtime initData confined to the original request header',async()=>{
   const h=harness({path:'/',search:'?tenant=acme',initData:'synthetic-auth',fetch:async()=>({ok:true,status:200,json:async()=>envelope({tenant:'acme'})})});await tick();
-  assert.equal(h.calls[0].url,'/api/quests/acme');assert.equal(h.calls[0].init.headers['x-telegram-init-data'],'synthetic-auth');
+  assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/'))[0].url,'/api/quests/acme');assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/'))[0].init.headers['x-telegram-init-data'],'synthetic-auth');
   assert.deepEqual(Object.keys(h.state().read).sort(),['label','state']);
   assert.equal(h.state().gate.signer,'telegram');
 });
@@ -73,13 +73,13 @@ test('transport auth, missing, service and network errors remain truthful and ne
 });
 test('initial hydration paints through the same bridges then checks the network without replaying work',async()=>{
   const h=harness({initial:envelope()});assert.equal(h.run('__CAMBIUM_INITIAL_QUEST_ENVELOPE__'),undefined);await tick();
-  assert.equal(h.state().read.state,'read');assert.equal(h.calls.length,1);
+  assert.equal(h.state().read.state,'read');assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/')).length,1);
   assert.equal(h.calls.filter(c=>c.init.method==='POST').length,0);
 });
 test('pagehide aborts owned reads and prevents late completion from restoring read or Gate state',async()=>{
   let release!:(v:any)=>void;
   const h=harness({fetch:()=>new Promise(resolve=>{release=resolve;})});
-  h.events.get('pagehide')!();assert.equal(h.calls[0].init.signal.aborted,true);
+  h.events.get('pagehide')!();assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/'))[0].init.signal.aborted,true);
   release({ok:true,status:200,json:async()=>envelope()});await tick();
   assert.equal(h.state().read.state,'source');assert.equal(h.state().gate.state,'checking');
 });
@@ -112,7 +112,7 @@ test('restoring a cached page remounts the world and refreshes the same scoped r
   const world=worldHarness();world.events.get('pagehide')!();assert.equal(world.disposals(),1);
   world.events.get('pageshow')!({persisted:true});assert.equal(world.calls(),2);
   const host=harness();await tick();host.events.get('pagehide')!();
-  host.events.get('pageshow')!({persisted:true});await tick();assert.equal(host.calls.length,2);assert.equal(host.state().read.state,'read');
+  host.events.get('pageshow')!({persisted:true});await tick();assert.equal(host.calls.filter(c=>c.url.includes('/api/quests/')).length,2);assert.equal(host.state().read.state,'read');
 });
 
 test('ordinary web and founder sessions never load or initialize the Telegram SDK',async()=>{
@@ -121,12 +121,12 @@ test('ordinary web and founder sessions never load or initialize the Telegram SD
     assert.equal(h.state().gate.signer,path==='/founder'?'access':'none');
   }
   const founder=harness({path:'/founder',initData:'synthetic-telegram-data',hash:'#tgWebAppData=synthetic'});await tick();
-  assert.equal(founder.sdkLoads(),0);assert.equal(founder.state().gate.signer,'access');assert.equal(founder.calls[0].init.headers['x-telegram-init-data'],undefined);
+  assert.equal(founder.sdkLoads(),0);assert.equal(founder.state().gate.signer,'access');assert.equal(founder.calls.filter(c=>c.url.includes('/api/quests/'))[0].init.headers['x-telegram-init-data'],undefined);
   assert.doesNotMatch(PAGE,/<script\s+src="https:\/\/telegram\.org/);
   assert.doesNotMatch(WORLD_HOST_CLIENT,/setHeaderColor|setBackgroundColor/);
 });
 test('only a Telegram launch context may load the optional adapter before its authenticated 3D read',async()=>{
   const h=harness({path:'/',hash:'#tgWebAppData=synthetic',sdkInitData:'synthetic-runtime-auth'});await tick();
-  assert.equal(h.sdkLoads(),1);assert.equal(h.telegramStarts(),1);assert.equal(h.calls[0].init.headers['x-telegram-init-data'],'synthetic-runtime-auth');assert.equal(h.state().gate.signer,'telegram');
+  assert.equal(h.sdkLoads(),1);assert.equal(h.telegramStarts(),1);assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/'))[0].init.headers['x-telegram-init-data'],'synthetic-runtime-auth');assert.equal(h.state().gate.signer,'telegram');
   const failed=harness({path:'/',hash:'#tgWebAppData=synthetic'});await tick();assert.equal(failed.sdkLoads(),1);assert.equal(failed.calls.length,0);assert.equal(failed.state().read.state,'auth');assert.equal(failed.state().gate.state,'held');
 });

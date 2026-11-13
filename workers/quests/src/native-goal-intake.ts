@@ -65,6 +65,7 @@ export function parseFounderBookkeepingIntent(input: unknown, founderId: string,
     for (const prior of current.filter(node => ids.has(node.nodeId))) {
       const next = nodes.find(node => node.nodeId === prior.nodeId)!;
       if (prior.pinnedLoadoutId || prior.workObjectId !== next.workObjectId) return rejected('existing identity has different authority');
+      next.createdAt = prior.createdAt;
     }
     const compile = compileGoalGraph({ tenantId: boundary.value.tenantId,
       expectedHeadDigest: context.expectedHeadDigest ?? null, actualHead: context.actualHead ?? null,

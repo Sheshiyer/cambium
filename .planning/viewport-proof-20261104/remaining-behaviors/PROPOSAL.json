@@ -1,0 +1,106 @@
+{
+  "schema": "cambium.viewport-gap-proposal.v1",
+  "status": "proposed-for-human-review",
+  "preparedFor": "2026-11-04 user request: finite ISA/GSD plan for 32 remaining viewport behavior gaps, preserving all 43 retained intents.",
+  "planningBaseline": 95,
+  "sourceBaseline": "e6b28642eb79d6668c336b59cf745c5ab9581749",
+  "capturedImplementation": "7c8c810f47b49fa4c6dd17d341ee4c48e68a9655",
+  "planPreparationAuthorized": true,
+  "scopeAccepted": false,
+  "acceptedPlanDigest": null,
+  "isaAcceptanceRef": null,
+  "executionAuthorized": false,
+  "canonicalMapping": null,
+  "admittedTasks": [],
+  "deploymentApproved": false,
+  "trafficApproved": false,
+  "globalPhase9Unchanged": true,
+  "retainedIntents": 43,
+  "baselineQualified": 11,
+  "remainingGaps": 32,
+  "packages": 10,
+  "tasks": 28,
+  "targetSourceCaptureCases": 80,
+  "implementedNewBehaviors": 0,
+  "contentFiles": [
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/CONTEXT.md",
+      "sha256": "c28e4799ed5175de9867b6b8bd8d637c07a6ab58a613a6fa846c04d7454cff9f"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/PATTERNS.md",
+      "sha256": "43bc7cf999f64c34a215717bdc9602f6111cb3c47c99c5dddba4d31a154024b9"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/README.md",
+      "sha256": "34d93ccf8012a084c6902ec702caf9823c42780b05820f22b06d2ac88777a6f6"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/ROADMAP.md",
+      "sha256": "ebd52412f6ebb00824b2a9ce7f6e893a3abb9f8b527af57cd969274556732bb0"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/TRACEABILITY.md",
+      "sha256": "257e939bebded4ebb41fd111f343b2cd4fdffeabc5079fef6aff1822512c77c0"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/VALIDATION.md",
+      "sha256": "401a81675187a985b9d0f2854a29f7ecb7b5f8c420c59988142147e5d19fbab3"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/validate.mjs",
+      "sha256": "12223b9d6a7740a976e4cf01daf8c3f7c7ee327cbb0c845eded5e1e7fee19f00"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/coverage.json",
+      "sha256": "524cb22cdcac15aa2b8ccd988c4870babf6c2444c4a9617c03f2a4de8a2f04b2"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-01-PLAN.md",
+      "sha256": "c996b955d178295102f2f5acbb00429bf86365bd47d81ca97780a8ed35b0b326"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-02-PLAN.md",
+      "sha256": "b8243c2da359fc94b799b662dac53b8431953584dee858e7cc8c27d022d50824"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-03-PLAN.md",
+      "sha256": "fcd398e36e056f641672eeffc24f864f8aaaafdac590990daae2aa198324c250"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-04-PLAN.md",
+      "sha256": "3e2db86be82c4ffa5245bd5c71cf2cb06481b35dbe9f4a9ada23767b15793639"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-05-PLAN.md",
+      "sha256": "bfe08725d6f97615d1a05c9ffe15dc66ce79d64c5fed88e6bfbbe42ceb9d3de6"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-06-PLAN.md",
+      "sha256": "0c0c279290a4bbb8a6c4aaa90fcc4b1dd10f48db1ec71445c041dcbc38b8e4a5"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-07-PLAN.md",
+      "sha256": "9c5b54a6e0e59676f1e1f06a3bdb6447ad4386851d4ccf995098513350ef6205"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-08-PLAN.md",
+      "sha256": "da5f39869f91e405432a6a57ccd6ce0d515f08c749218e70e7cf64ddf58d5ab6"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-09-PLAN.md",
+      "sha256": "1669d79b3656d9a05d763926b275b6d47171aad8d2f1c7bf5546cd6331a59cfe"
+    },
+    {
+      "path": ".planning/viewport-proof-20261104/remaining-behaviors/plans/VPG-10-PLAN.md",
+      "sha256": "327a0f188a6c30607009e44d8206cb5b74d852eddcf3ce43975f33649aec5752"
+    }
+  ],
+  "isaSectionMarker": "## Viewport behavior gap proposal \u2014 2026-11-04",
+  "isaSectionSha256": "44ca5c569256cde6ef63d5cf787e89aaf91147a624a6810d1cc5d55a22281eda",
+  "contentDigest": "bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21",
+  "technicalReview": "REVIEW.md",
+  "reviewOutputExcludedFromContentDigest": true,
+  "pickupMetadataExcludedFromContentDigest": true,
+  "authority": "ISA accepts goals; existing GSD owns finite planning. This proposal is neither an accepted plan nor execution admission."
+}

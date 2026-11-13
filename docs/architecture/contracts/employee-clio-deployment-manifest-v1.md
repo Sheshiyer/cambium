@@ -71,7 +71,7 @@ identity comes from the member binding only.
 | Cloudflare account / Worker | the existing quests Worker that serves `/v1/bridge/growth/*`; name per `cambium-cloudflare-resource-map.v1.json` |
 | D1 binding | `BRIDGE_DB` with migration `0011_growth_workflow.sql` applied |
 | KV binding | `QUESTS` (existing) |
-| Vault checkout on EC2 | Host-local checkout path retained in the private deployment manifest; transport `origin` → `Sheshiyer/thoughtseed-vault` |
+| Vault checkout on EC2 | Operator-configured checkout root; host and transport stay in deployment-local configuration. |
 | Hermes runtime working directory | `/opt/hermes-aws-ts` (observed 2026-10-23; confirm unchanged) |
 | Hermes source checkout | separate path, `TBD-founder` (record the exact path and commit at E2) |
 | Growth context projection digest | `TBD-founder` (pinned after fan-out A1/A5 land; must equal `GET /v1/bridge/growth/context` `projectionDigest`) |

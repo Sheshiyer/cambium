@@ -148,7 +148,7 @@
     {
       "path": "workers/quests/src/handler.ts",
       "role": "founder-approval-and-goal-graph-execution-routes",
-      "digest": "sha256:6d03735d108ec6b81067a38775ffdf69ddac5a8cd5c31f5a39996e98e309c49b"
+      "digest": "sha256:22ef3589985db44a14fd1aadc52887b5f7eeff5cc4151866410b8c2cdc1b5412"
     },
     {
       "path": "workers/quests/src/mcp-gate-action.ts",

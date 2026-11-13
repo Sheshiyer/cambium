@@ -61,6 +61,35 @@ test('bookkeeping upserts preserve unrelated graph nodes and stale head refuses 
   assert.ok(stale.accepted && stale.compile.status === 'stale');
 });
 
+test('a later bookkeeping amendment preserves creation time in the exact reviewed change set', () => {
+  const first = parseFounderBookkeepingIntent(input(), founder, context);
+  assert.ok(first.accepted); if (!first.accepted) return;
+  const head = makeGoalGraphHead('cambium', first.nodes, 1, now);
+  const before = structuredClone(first.nodes);
+  const amendedAt = '2026-11-04T02:00:00.000Z';
+  const raw = input();
+  raw.clientRequestId = 'launch-evidence-amendment';
+  raw.goals[0].currentState = 'Owner read completed; runtime acceptance held.';
+  raw.goals.push({ ...goal, externalId: 'new-proof', parentNodeId: first.node.nodeId as any });
+  const result = parseFounderBookkeepingIntent(raw, founder, {
+    ...context, currentNodes: first.nodes, actualHead: head, expectedHeadDigest: head.graphDigest,
+    graphVersion: 2, now: amendedAt,
+  });
+  assert.ok(result.accepted && result.compile.status === 'compiled');
+  if (!result.accepted || result.compile.status !== 'compiled') return;
+  const { nodesToUpdate, nodesToCreate, nodesToRemove } = result.compile.changeSet;
+  assert.equal(nodesToUpdate.length, 1);
+  assert.equal(nodesToCreate.length, 1);
+  assert.equal(nodesToRemove.length, 0);
+  assert.equal(nodesToUpdate[0].after.createdAt, now);
+  assert.equal(nodesToUpdate[0].after.updatedAt, amendedAt);
+  assert.equal(nodesToUpdate[0].after.sourceRef, result.sourceRef);
+  assert.equal(nodesToUpdate[0].after.graphVersion, 2);
+  assert.equal(nodesToCreate[0].createdAt, amendedAt);
+  assert.equal(nodesToCreate[0].updatedAt, amendedAt);
+  assert.deepEqual(first.nodes, before, 'compilation never mutates the prior graph');
+});
+
 test('bookkeeping rejects authority grants, private transport, unsupported identities and unbounded input', () => {
   const variants = [
     { ...input(), source: { kind: 'telegram', chatId: 'fake', messageId: 'fake' } },

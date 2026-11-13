@@ -9,7 +9,7 @@ set -euo pipefail
 here=${0:A:h}
 app_dir="$here/../build/Cambium Native.app"
 app_bin="$app_dir/Contents/MacOS/CambiumNative"
-shots_dir="${1:-/tmp/cambium-native-shots}"
+shots_dir="${1:-${CAMBIUM_NATIVE_SNAPSHOT_DIR:-${here}/../build/snapshots}}"
 page="${2:-}"
 
 pages=(canopy projects inbox work trace evidence proposal launch knowledge connections preferences)

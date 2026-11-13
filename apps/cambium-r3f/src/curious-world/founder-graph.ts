@@ -27,6 +27,7 @@ export function normalizeFounderGraph(value: any): FounderGraph {
       seen.add(current.nodeId); current = byId.get(current.parentNodeId!);
     }
   }
+  if (value.edges.length !== nodes.length || new Set(value.edges.map((e:any)=>e?.toId)).size !== nodes.length) throw new Error('Canonical containment links are incomplete or duplicated.');
   if (value.edges.some((e: any) => !e || e.kind !== 'contains' || !ids.has(e.toId)
     || (e.fromId !== value.rootId && !ids.has(e.fromId)) || byId.get(e.toId)?.parentNodeId !== e.fromId)) throw new Error('Canonical containment links do not match the nodes.');
   if (value.decisions.some((d: any) => d?.kind !== 'd1-bookkeeping-decision' || d.canonicalReadback !== true
