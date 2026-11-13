@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 const gates = [
   ['retired runtime guard', 'npm', ['run', 'retired-runtime:check']],
   ['drift audit', 'npm', ['run', 'drift:audit']],
+  ['current3D viewport and retained operational assertions', 'npm', ['run', 'proof:field-atlas:check']],
   ['core tests', 'npm', ['test']],
   ['generated docs', 'npm', ['run', 'render-docs:check']],
   ['product branch packets', 'npm', ['run', 'validate:product-branches']],
@@ -23,7 +24,6 @@ const gates = [
   ],
   ['standalone audit', 'npm', ['run', 'standalone:audit']],
   ['standalone smoke', 'npm', ['run', 'standalone:smoke']],
-  ['Field Atlas viewport contract', 'npm', ['run', 'proof:field-atlas']],
   ['R3F tests', 'npm', ['run', 'r3f:test']],
   ['R3F build', 'npm', ['run', 'r3f:build']],
   ['Electron packaging contract', 'npm', ['run', 'desktop:test']],

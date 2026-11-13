@@ -130,7 +130,7 @@ test('MCP Gate adapter routes require the dedicated bearer and a pending goal-gr
     action_digest: intent.action_digest,
     request_digest: requestedBody.request_digest,
   }, {
-    founderId: '1371522080',
+    founderId: '123456789',
     now: NOW,
     validateTarget: async () => ({ ok: true }),
   });
@@ -153,7 +153,7 @@ test('an expired committed MCP action replays its receipt before a new goal-grap
   await kv.put(`mcp-gate-action:${APPROVAL.slice('sha256:'.length)}`, JSON.stringify({
     schema: 'cambium.gate.action_approval_record.v1',
     status: 'committed',
-    founder_id: '1371522080',
+    founder_id: '123456789',
     approved_at: NOW,
     approval_digest: APPROVAL,
     intent,
@@ -176,7 +176,7 @@ test('an expired committed MCP action replays its receipt before a new goal-grap
 
 test('approve-mcp-action is a Telegram gate kind addressed by action digest', async () => {
   const kv = memoryKv();
-  const gate = { botId: '1', pubKeyHex: 'ab'.repeat(32), founderIds: ['1371522080'] };
+  const gate = { botId: '1', pubKeyHex: 'ab'.repeat(32), founderIds: ['123456789'] };
   const unsigned = await handle(post('/api/gate/cambium', {
     kind: 'approve-mcp-action',
     action_digest: CHANGE,

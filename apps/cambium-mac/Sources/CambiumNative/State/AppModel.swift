@@ -491,7 +491,7 @@ final class AppModel {
             guard token == self.generation else { return }
             switch result {
             case .success(let signed):
-                self.session = signed
+                self.acceptSignedIn(signed)
                 self.feedback = "Signed in."
                 await self.refresh(self.generation)
             case .failure(let failure):
@@ -499,6 +499,18 @@ final class AppModel {
                 self.feedback = failure.message
             }
         }
+    }
+
+    /// A sign-in as a different founder must not inherit the previous
+    /// founder's selected signal or unsaved Inbox text.
+    func acceptSignedIn(_ signed: SessionDisplay) {
+        if let previous = session, previous.founderId != signed.founderId || previous.tenantId != signed.tenantId {
+            signalScopeVersion &+= 1
+            inboxDraft = InboxDraft()
+            inboxFilter = nil
+            inboxVersion &+= 1
+        }
+        session = signed
     }
 
     func signOut() {

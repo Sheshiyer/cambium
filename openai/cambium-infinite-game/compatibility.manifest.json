@@ -143,12 +143,12 @@
     {
       "path": "workers/quests/src/index.ts",
       "role": "gate-service-binding-runtime-glue",
-      "digest": "sha256:5ed07ec33431f5d3e1e9a934a94612658dc8185a35f32827e8457b1eed5f1e70"
+      "digest": "sha256:3d46419a9b4b5f9cba95aa2eb54fca652d7f0139030b872a470c6f7e8c9602e3"
     },
     {
       "path": "workers/quests/src/handler.ts",
       "role": "founder-approval-and-goal-graph-execution-routes",
-      "digest": "sha256:8be86bbb4e3042034e906bdc5ab81ba114d4440523828d390b4e41af60454e74"
+      "digest": "sha256:22ef3589985db44a14fd1aadc52887b5f7eeff5cc4151866410b8c2cdc1b5412"
     },
     {
       "path": "workers/quests/src/mcp-gate-action.ts",

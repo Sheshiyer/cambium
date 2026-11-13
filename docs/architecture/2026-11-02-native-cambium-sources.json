@@ -415,7 +415,7 @@
   },
   "liveObservations": [
     {
-      "surface": "https://curious.thoughtseed.space/",
+      "surface": "configured owner origin (CAMBIUM_OWNER_URL)",
       "method": "IAB read-only source exploration and district chart",
       "date": "2026-11-02",
       "authenticatedOperationalRead": false,

@@ -16558,6 +16558,44 @@ function founderWebGatePost(path: string, payload: Record<string, unknown>, head
   return handle(req('POST', path, { headers, body: JSON.stringify(payload) }), deps);
 }
 
+test('founder overview reads one bounded concurrent task snapshot per request without leaking foreign rows', async () => {
+  const { kv, deps, changeDigest } = await founderWebHarness();
+  kv.store.set('ledger:cambium', ENVELOPE);
+  const prefix = 'goal-graph-intake-task:cambium:';
+  for (let i = 0; i < 24; i++) kv.store.set(`${prefix}invalid-${i}`, '{"schema":"invalid"}');
+  const real = JSON.parse(kv.store.get(`${prefix}${changeDigest}`)!);
+  kv.store.set(`${prefix}foreign`, JSON.stringify({ ...real, tenantId: 'foreign-tenant' }));
+  const graphBefore = await deps.goalGraphStore.readHead('cambium');
+  let lists = 0, active = 0, peak = 0;
+  const gets = new Map<string, number>();
+  const observedKv: KvLike = {
+    ...kv,
+    async list(p) { if (p === prefix) lists++; return kv.list(p); },
+    async get(key) {
+      if (!key.startsWith(prefix)) return kv.get(key);
+      gets.set(key, (gets.get(key) ?? 0) + 1);
+      peak = Math.max(peak, ++active);
+      await new Promise<void>(resolve => setImmediate(resolve));
+      active--;
+      return kv.get(key);
+    },
+    async put(key, value) { assert.ok(!key.startsWith(prefix), 'projection cannot write graph tasks'); return kv.put(key, value); },
+  };
+  const headers = { host: FOUNDER_WEB_HOST, 'cf-access-jwt-assertion': founderWebJwt() };
+  const read = () => handle(req('GET', '/founder/api/quests/cambium', { headers }), { ...deps, kv: observedKv });
+  const result = await read();
+  assert.equal(result.status, 200);
+  assert.deepEqual(body(result).goalGraphIntake.rows.map((row: any) => row.changeDigest), [changeDigest]);
+  assert.ok(body(result).goalGraphIntake.rows[0].founderInspect);
+  assert.equal(lists, 1);
+  assert.ok([...gets.values()].every(count => count === 1));
+  assert.ok(peak > 1 && peak <= 8, 'reads overlap within a bounded batch');
+  assert.deepEqual(await deps.goalGraphStore.readHead('cambium'), graphBefore);
+  kv.store.delete(`${prefix}${changeDigest}`);
+  assert.equal(body(await read()).goalGraphIntake, undefined, 'a new request must observe current sources');
+  assert.equal(lists, 2);
+});
+
 test('founder web gate · a verified Access founder approves through /founder and the goal graph commits', async () => {
   const { db, deps, changeDigest } = await founderWebHarness();
   const approved = await founderWebGatePost('/founder/api/gate/cambium', { kind: 'approve-goal-graph', subject: changeDigest }, founderWebHeaders(), deps);
@@ -17345,6 +17383,37 @@ test('founder bookkeeping intake · real Access route stores only pending, full 
   assert.doesNotMatch(readback.body,/CF_Authorization|founder@thoughtseed/);
 });
 
+test('founder bookkeeping intake · an exact later amendment preserves original creation time through review and D1', async () => {
+  const h = await canonicalFounderHarness();
+  let clock = h.deps.now();
+  h.deps.now = () => clock;
+  const raw = founderBookkeepingInput();
+  const first = body(await h.call('intake', raw));
+  const firstReview = body(await h.call('proposal', { proposalId: first.proposalId }));
+  assert.equal(body(await h.call('decision', canonicalDecision(firstReview))).status, 'approved');
+  const [before] = await h.deps.goalGraphStore.readNodes('cambium');
+  clock = new Date(Date.parse(clock) + 3600000).toISOString();
+  raw.clientRequestId = 'launch-evidence-amended-002';
+  raw.goals[0].currentState = 'Actual owner reader completed; native acceptance held.';
+  const second = body(await h.call('intake', raw));
+  const reviewed = body(await h.call('proposal', { proposalId: second.proposalId }));
+  const changes = reviewed.proposal.review.bookkeepingChanges;
+  assert.equal(changes.nodesToCreate.length, 0);
+  assert.equal(changes.nodesToRemove.length, 0);
+  assert.equal(changes.nodesToUpdate.length, 1);
+  assert.equal(changes.nodesToUpdate[0].after.createdAt, before.createdAt);
+  assert.equal(changes.nodesToUpdate[0].after.updatedAt, clock);
+  assert.equal(body(await h.call('decision', canonicalDecision(reviewed))).status, 'approved');
+  const [after] = await h.deps.goalGraphStore.readNodes('cambium');
+  assert.equal(after.nodeId, before.nodeId);
+  assert.equal(after.createdAt, before.createdAt);
+  assert.equal(after.updatedAt, clock);
+  assert.equal(after.graphVersion, 2);
+  assert.equal(after.currentState, raw.goals[0].currentState);
+  assert.equal(after.pinnedLoadoutId, null);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_events').get()?.n, 2);
+});
+
 test('founder bookkeeping intake · duplicate is one task, changed same request conflicts without graph writes', async () => {
   const h = await canonicalFounderHarness(); const raw = founderBookkeepingInput();
   const first = body(await h.call('intake',raw));
@@ -17417,4 +17486,55 @@ test('founder bookkeeping intake · canonical rejection remains visible without 
   assert.equal(observed.graphVersion,before!.graphVersion+1);
   assert.equal(graph.decisions.length,2);
   assert.ok(graph.decisions.every((d:any)=>d.proposalId!==h.proposalId),'unrelated Telegram proposal stays excluded');
+});
+
+test('department sources · authenticated graph uses accepted owner readers without any canonical write', async () => {
+  const h=await canonicalFounderHarness(); const raw=founderBookkeepingInput();
+  raw.goals[0].metadata={facet:'task',stage:'website'};
+  const receipt=body(await h.call('intake',raw)); const review=body(await h.call('proposal',{proposalId:receipt.proposalId}));
+  assert.equal(body(await h.call('decision',canonicalDecision(review))).status,'approved');
+  const before=await h.deps.goalGraphStore.readNodes('cambium'),head=await h.deps.goalGraphStore.readHead('cambium');
+  const {KPI_DEFINITIONS}=await import('../../../shared/department-pilot/catalog.ts');
+  h.deps.departmentReaders={
+    readAcceptedGsd:async(scope,workObjectId)=>workObjectId==='sapling:lumen-bar'?{tenantId:scope.tenantId,headDigest:scope.headDigest,observedAt:scope.observedAt,expiresAt:new Date(Date.parse(scope.observedAt)+600000).toISOString(),workObjectId,sourceRef:'fixture:accepted-gsd-owner',isaAcceptanceRef:'ISA.md#accepted',planRef:'.planning/phases/01/01-PLAN.md',planDigest:'a'.repeat(64),tasks:[{nodeId:scope.nodes[0].nodeId,sequence:1,state:'pending',dependsOn:[]}]}:null,
+    readKpi:async(scope,d,window)=>d.id===KPI_DEFINITIONS[0].id?[{definition:d,observation:{definitionId:d.id,version:d.version,productId:d.productId,cohort:d.cohort,window,observedAt:scope.observedAt,sourceRef:'fixture:measurement-owner',numerator:1,denominator:2}}]:null,
+  };
+  const read=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);assert.equal(read.status,200,read.body);
+  const graph=body(read); assert.equal(graph.departmentSources.gsd[0].state,'available');assert.equal(graph.departmentSources.gsd[1].state,'unavailable');assert.equal(graph.departmentSources.kpis[0].state,'observed');
+  assert.deepEqual(graph.departmentSources.gsd[0].taskIds,[graph.nodes[0].nodeId]);assert.equal(graph.departmentSources.executionGranted,false);
+  assert.deepEqual(await h.deps.goalGraphStore.readHead('cambium'),head);assert.deepEqual(await h.deps.goalGraphStore.readNodes('cambium'),before);
+  const crossRealm=await handle(req('GET','/v1/founder/graph',{headers:{...founderWebHeaders(),authorization:'Bearer cns1_synthetic-native-session'}}),h.deps);
+  assert.equal(crossRealm.status,403);
+  const readHead=h.deps.goalGraphStore.readHead;let drift=false;
+  h.deps.departmentReaders.readAcceptedGsd=async()=>{drift=true;return null;};
+  h.deps.goalGraphStore.readHead=async(tenant)=>{const current=await readHead(tenant);return drift?{...current!,graphDigest:'b'.repeat(64)}:current;};
+  const torn=await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);assert.equal(torn.status,503);assert.equal(body(torn).error,'goal_graph_read_unconfirmed');
+});
+
+test('founder bookkeeping · a Telegram signature cannot approve a batch; the canonical review still can', async () => {
+  const { initData, pubKeyHex } = await makeSignedInitData({ botId: TEST_BOT_ID, userId: TEST_FOUNDER_A, authDate: NOW / 1000 - 10 });
+  const h = await canonicalFounderHarness();
+  const deps = { ...h.deps, gate: gateCfg(pubKeyHex) };
+  const raw = founderBookkeepingInput();
+  const { resolveNodeId } = await import('./goal-graph/identity.ts');
+  const parent = resolveNodeId({ tenantId: 'cambium', namespace: 'founder-bookkeeping', externalId: 'launch-root', sourceRef: '', sourceDigest: '' });
+  raw.goals.push({ ...raw.goals[0], externalId: 'second-goal', parentNodeId: parent as any, scope: 'micro',
+    workObjectId: 'program:temperance-hermes', workObjectKind: 'program' } as any);
+  const intake = await h.call('intake', raw);
+  assert.equal(intake.status, 200, intake.body);
+  const read = await h.call('proposal', { proposalId: body(intake).proposalId });
+  assert.equal(read.status, 200, read.body);
+  const review = body(read);
+  assert.equal(review.proposal.review.bookkeepingChanges.nodesToCreate.length, 2);
+  const changeDigest = review.proposal.changeDigest;
+  const telegram = await handle(req('POST', '/api/gate/cambium', {
+    body: JSON.stringify({ kind: 'approve-goal-graph', subject: changeDigest, initData }),
+  }), deps);
+  assert.equal(telegram.status, 409, telegram.body);
+  assert.equal(body(telegram).error, 'bookkeeping_proposal_requires_canonical_gate');
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n, 0);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_approvals').get()?.n, 0);
+  const decided = await h.call('decision', canonicalDecision(review));
+  assert.equal(decided.status, 200, decided.body);
+  assert.equal(h.db.prepare('SELECT count(*) n FROM goal_graph_nodes').get()?.n, 2);
 });

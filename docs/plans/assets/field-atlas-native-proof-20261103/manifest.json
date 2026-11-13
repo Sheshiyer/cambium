@@ -1,0 +1,191 @@
+{
+  "schema": "cambium.field-atlas-viewport-proof.v1",
+  "capturedAt": "2026-11-03T06:23:43.705Z",
+  "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+  "scope": "local-synthetic",
+  "productionAcceptance": false,
+  "adapter": "codex-iab",
+  "physicalDevice": false,
+  "proofs": [
+    {
+      "id": "world-desktop",
+      "path": "world-desktop.jpg",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "imageWidth": 1280,
+      "imageHeight": 900,
+      "sha256": "90fd95c0330e36403772110c33b8b718dec3dc3b8295f1f100fb72522e03cf5e",
+      "input": "native-browser-ui",
+      "checks": {
+        "retiredShellAbsent": true,
+        "telegramSdkAbsent": true,
+        "worldCanvasOne": true,
+        "worldTitle": true,
+        "consoleClean": true
+      },
+      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "observations": {
+        "height": 900,
+        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+        "scrollWidth": 1280,
+        "width": 1280,
+        "consoleMessages": []
+      },
+      "bytes": 92111
+    },
+    {
+      "id": "chart-desktop",
+      "path": "chart-desktop.jpg",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "imageWidth": 1280,
+      "imageHeight": 900,
+      "sha256": "dcda3b9eacd15871b9adf826463fbdc6c047e588966935e2dfa3f86981f5e97e",
+      "input": "native-browser-ui",
+      "checks": {
+        "eightDistricts": true,
+        "keyboardFocusVisible": true,
+        "retiredShellAbsent": true,
+        "consoleClean": true
+      },
+      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "observations": {
+        "height": 900,
+        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+        "scrollWidth": 1280,
+        "width": 1280,
+        "consoleMessages": []
+      },
+      "bytes": 80666
+    },
+    {
+      "id": "gate-desktop",
+      "path": "gate-desktop.jpg",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "imageWidth": 1280,
+      "imageHeight": 900,
+      "sha256": "b4fe78421587da1132d18ae6923c31197c318612c6cb74bd673300ecaa39d61b",
+      "input": "native-browser-ui",
+      "checks": {
+        "gateFolioVisible": true,
+        "intakeLabelPresent": true,
+        "prepareProposalControl": true,
+        "canonicalGraphReadControl": true,
+        "noAutomaticPost": true,
+        "consoleClean": true
+      },
+      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "observations": {
+        "height": 900,
+        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+        "scrollWidth": 1280,
+        "width": 1280,
+        "consoleMessages": []
+      },
+      "bytes": 65978
+    },
+    {
+      "id": "gate-mobile-320",
+      "path": "gate-mobile-320.jpg",
+      "viewport": {
+        "width": 320,
+        "height": 800
+      },
+      "imageWidth": 320,
+      "imageHeight": 800,
+      "sha256": "7be60c13ad708749a27ac4bacd033b0dcc8a67a4e02f3e38bec8c9de371d0c41",
+      "input": "native-browser-ui",
+      "checks": {
+        "exactCssWidth": true,
+        "noHorizontalOverflow": true,
+        "gateFolioVisible": true,
+        "intakeFits": true,
+        "focusVisible": true,
+        "consoleClean": true
+      },
+      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "observations": {
+        "height": 800,
+        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+        "scrollWidth": 320,
+        "width": 320,
+        "consoleMessages": []
+      },
+      "bytes": 31742
+    },
+    {
+      "id": "graph-mobile-320",
+      "path": "graph-mobile-320.jpg",
+      "viewport": {
+        "width": 320,
+        "height": 800
+      },
+      "imageWidth": 320,
+      "imageHeight": 800,
+      "sha256": "878d7ffca47bb190c5ad063f8fed9a5c240de59eec0a0b326f48e2dde51b93e1",
+      "input": "native-browser-ui",
+      "checks": {
+        "decisionsNotPublication": true,
+        "exactCssWidth": true,
+        "exactDataInitiallyClosed": true,
+        "fixtureCountsMatch": true,
+        "nestedBranchExpands": true,
+        "noHorizontalOverflow": true,
+        "prerequisitesLabeled": true,
+        "twoProductChoices": true,
+        "consoleClean": true
+      },
+      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "observations": {
+        "height": 800,
+        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+        "scrollWidth": 320,
+        "width": 320,
+        "consoleMessages": []
+      },
+      "bytes": 32751
+    },
+    {
+      "id": "legacy-query-mobile-320",
+      "path": "legacy-query-mobile-320.jpg",
+      "viewport": {
+        "width": 320,
+        "height": 800
+      },
+      "imageWidth": 320,
+      "imageHeight": 800,
+      "sha256": "043ab5b9d0a1c92a62e17e0558ba8766247f2be57ea954f824cb7180ec6ddc5b",
+      "input": "native-browser-ui",
+      "checks": {
+        "exactCssWidth": true,
+        "noHorizontalOverflow": true,
+        "retiredShellAbsent": true,
+        "telegramSdkAbsent": true,
+        "worldCanvasOne": true,
+        "consoleClean": true
+      },
+      "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+      "observations": {
+        "height": 800,
+        "pageSourceSha256": "024c0d61d56607c45b0221a97fe2b0f322ad9ad51bc2c452176058eacea7687e",
+        "scrollWidth": 320,
+        "width": 320,
+        "consoleMessages": []
+      },
+      "bytes": 36366
+    }
+  ],
+  "legacyQueryNote": "Fresh document navigation on the same captured preview tab; the new-tab DOM check was independently consistent but its initial background screenshot was stale and was replaced.",
+  "observationSchema": "cambium.root-native-viewport-observations.v1",
+  "status": "passed",
+  "planSha256": "35d703e1575a7399c6f89040bf91b299d58802d055ceafe3d037550f68a552ce",
+  "rootObservationSha256": "f533b7dd6e140d462076e8c9e4f13a1a74c13d7d2387bcb12f0e993ed7b285c5",
+  "invariant": "Actual local synthetic native-browser captures only; not production acceptance, platform authentication, live D1 or execution proof."
+}

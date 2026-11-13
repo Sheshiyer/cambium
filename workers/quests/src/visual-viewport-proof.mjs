@@ -1574,12 +1574,23 @@ function pngSize(path) {
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), bytes: statSync(path).size };
 }
 
-export async function withServer(fn) {
+export async function withServer(fn, options = {}) {
   let activeFixture = NO_FAKE_PROGRESS_VISUAL_FIXTURE;
   let gatePostCount = 0;
+  let postCount = 0;
+  let serverOrigin = null;
   const server = createServer((req, res) => {
-    const url = new URL(req.url ?? '/', 'http://127.0.0.1');
-    if (url.pathname === '/' || url.pathname === '/index.html') {
+    if(req.method==='POST')postCount++;
+    const url = new URL(req.url ?? '/', serverOrigin || 'http://127.0.0.1');
+    if(options.localOperationalFixture && (url.origin!==serverOrigin || req.headers.host!==new URL(serverOrigin).host || !['127.0.0.1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress))){
+      res.writeHead(403,{'content-type':'application/json'});res.end(JSON.stringify({error:'Foreign operational fixture target refused'}));return;
+    }
+    if (url.pathname === '/' || url.pathname === '/index.html' || options.localFounderFixture && url.pathname === '/founder') {
+      try{
+        options.localFounderFixture?.select(url.searchParams.get('atlas-fixture'));
+        options.localOperationalFixture?.select(url.searchParams.get('atlas-operational-fixture'));
+      }
+      catch{res.writeHead(400,{'content-type':'application/json'});res.end(JSON.stringify({error:'Unknown local browser fixture'}));return;}
       const fixture = url.searchParams.get('fixture');
       activeFixture = fixture === 'gate'
         ? gateFixture
@@ -1608,6 +1619,10 @@ export async function withServer(fn) {
       res.end(servedPage);
       return;
     }
+    if (options.localFounderFixture?.handle(req,res,url)) return;
+    // Explicit injected capability only. Without this option the normal page
+    // cannot activate the closed operational fixture through a query flag.
+    if (options.localOperationalFixture?.handle(req,res,url)) return;
     if (url.pathname === '/telegram-web-app.js') {
       res.writeHead(200, { 'content-type': 'application/javascript; charset=utf-8', 'cache-control': 'no-store' });
       // initData is served nonempty ONLY for operating-fabric captures
@@ -1671,10 +1686,16 @@ export async function withServer(fn) {
   try {
     const address = server.address();
     if (!address || typeof address === 'string') throw new Error('server did not bind to a TCP port');
-    await fn(`http://127.0.0.1:${address.port}`, {
+    serverOrigin = `http://127.0.0.1:${address.port}`;
+    options.localOperationalFixture?.bind(serverOrigin);
+    await fn(serverOrigin, {
       gatePostCount: () => gatePostCount,
+      postCount: () => postCount,
+      founderFixture: () => options.localFounderFixture?.snapshot() ?? null,
+      operationalFixture: () => options.localOperationalFixture?.snapshot() ?? null,
     });
   } finally {
+    options.localOperationalFixture?.close();
     await new Promise((resolve) => server.close(resolve));
   }
 }
@@ -1833,6 +1854,7 @@ async function writeBrowserDiagnosticsArtifact() {
 async function cdpClient(wsUrl) {
   const ws = new WebSocket(wsUrl);
   const pending = new Map();
+  const events = new Map();
   let nextId = 1;
   await new Promise((resolve, reject) => {
     ws.addEventListener('open', resolve, { once: true });
@@ -1840,7 +1862,10 @@ async function cdpClient(wsUrl) {
   });
   ws.addEventListener('message', (event) => {
     const msg = JSON.parse(String(event.data));
-    if (!msg.id) return;
+    if (!msg.id) {
+      for (const listener of events.get(msg.method) || []) listener(msg.params);
+      return;
+    }
     const handlers = pending.get(msg.id);
     if (!handlers) return;
     pending.delete(msg.id);
@@ -1848,6 +1873,10 @@ async function cdpClient(wsUrl) {
     else handlers.resolve(msg.result);
   });
   return {
+    on(method, listener) {
+      const listeners = events.get(method) || [];
+      listeners.push(listener); events.set(method, listeners);
+    },
     send(method, params = {}) {
       const id = nextId++;
       ws.send(JSON.stringify({ id, method, params }));
@@ -1921,7 +1950,7 @@ async function tapSelector(cdp, selector) {
 }
 
 async function pressKeyOnSelector(cdp, selector, key) {
-  const keyCode = key === 'ArrowRight' ? 39 : key === 'ArrowLeft' ? 37 : key === 'Enter' ? 13 : 0;
+  const keyCode = key === 'ArrowRight' ? 39 : key === 'ArrowLeft' ? 37 : key === 'Enter' ? 13 : key === 'Escape' ? 27 : 0;
   await evaluate(cdp, `(() => {
     const node = document.querySelector(${JSON.stringify(selector)});
     if (!node) throw new Error('missing keyboard selector ${selector}');
@@ -1929,8 +1958,32 @@ async function pressKeyOnSelector(cdp, selector, key) {
     node.focus();
     if (document.activeElement !== node) throw new Error('keyboard selector did not receive focus ${selector}');
   })()`);
-  await cdp.send('Input.dispatchKeyEvent', { type:'rawKeyDown', key, code:key, windowsVirtualKeyCode:keyCode, nativeVirtualKeyCode:keyCode });
+  await cdp.send('Input.dispatchKeyEvent', { type:key === 'Enter' ? 'keyDown' : 'rawKeyDown', key, code:key,
+    ...(key === 'Enter' ? {text:'\r',unmodifiedText:'\r'} : {}),windowsVirtualKeyCode:keyCode,nativeVirtualKeyCode:keyCode });
   await cdp.send('Input.dispatchKeyEvent', { type:'keyUp', key, code:key, windowsVirtualKeyCode:keyCode, nativeVirtualKeyCode:keyCode });
+}
+
+async function scrollSelectorWithWheel(cdp, selector) {
+  // Read geometry only; move the existing dialog with native wheel input.
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const point = await evaluate(cdp, `(() => {
+      const node=document.querySelector(${JSON.stringify(selector)}),scroller=node?.closest('.cw-dialog-body');
+      if(!node || !scroller)throw new Error('missing dialog scroll target');
+      const target=node.getBoundingClientRect(),body=scroller.getBoundingClientRect();
+      const top=Math.max(0,body.top)+8,bottom=Math.min(innerHeight,body.bottom)-8;
+      if(target.height<=0 || target.height>bottom-top)throw new Error('dialog target cannot fit in the viewport');
+      const visible=target.top>=top && target.bottom<=bottom;
+      const x=Math.max(1,Math.min(innerWidth-1,(body.left+body.right)/2)),y=(top+bottom)/2;
+      const hit=document.elementFromPoint(x,y);
+      return {visible,x,y,hittable:!!hit && scroller.contains(hit),deltaY:target.top<top ? target.top-top : target.bottom-bottom};
+    })()`);
+    if(point.visible)return;
+    if(!point.hittable)throw new Error('dialog scroll surface is not hittable');
+    await cdp.send('Input.dispatchMouseEvent', {type:'mouseMoved',x:point.x,y:point.y,button:'none'});
+    await cdp.send('Input.dispatchMouseEvent', {type:'mouseWheel',x:point.x,y:point.y,deltaX:0,deltaY:Math.max(-600,Math.min(600,point.deltaY))});
+    await new Promise(resolve=>setTimeout(resolve,150));
+  }
+  throw new Error('dialog scroll target did not become visible');
 }
 
 export function touchDragNeedsRetry(result, minimumDelta = 24) {
@@ -2032,12 +2085,42 @@ async function touchDragSelector(cdp, selector, distance = 96) {
   return result;
 }
 
-async function screenshotParams(cdp, options = {}) {
+// Serialized into the browser only for strict current-source captures. Keep
+// the immutable historical step definitions and their legacy capture unchanged.
+export function observeViewportCaptureGeometry(clipSelector = null) {
+  const cssViewport={width:innerWidth,height:innerHeight,scrollX,scrollY};
+  const view=window.visualViewport;
+  const visualViewport=view ? {width:view.width,height:view.height,offsetLeft:view.offsetLeft,offsetTop:view.offsetTop,scale:view.scale} : null;
+  const deviceScaleFactor=devicePixelRatio;
+  let observedClip=null,clip=null,clipVisible=null;
+  if(clipSelector!==null){
+    const node=document.querySelector(clipSelector),style=node && getComputedStyle(node);
+    if(!node || !node.isConnected || style.visibility!=='visible' || Number(style.opacity)===0 || ('open' in node && node.open!==true))throw new Error('Strict crop target is not painted');
+    const r=node.getBoundingClientRect();
+    if(![r.left,r.top,r.width,r.height].every(Number.isFinite) || r.width<=0 || r.height<=0 || r.left<0 || r.top<0 || r.right>innerWidth || r.bottom>innerHeight)throw new Error('Strict crop is outside the observed viewport');
+    const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+    if(!hit || hit!==node && !node.contains(hit))throw new Error('Strict crop target is obscured');
+    observedClip={selector:clipSelector,x:r.left,y:r.top,width:r.width,height:r.height};
+    // Outward physical-pixel alignment preserves every painted edge. It is
+    // derived from the observed rect, never a clamp for an offscreen target.
+    const x=Math.floor(r.left*deviceScaleFactor),y=Math.floor(r.top*deviceScaleFactor);
+    clip={selector:clipSelector,x:x/deviceScaleFactor,y:y/deviceScaleFactor,
+      width:(Math.ceil(r.right*deviceScaleFactor)-x)/deviceScaleFactor,height:(Math.ceil(r.bottom*deviceScaleFactor)-y)/deviceScaleFactor};
+    clipVisible=true;
+  }
+  return {schema:'cambium.viewport-capture-geometry.v1',cssViewport,visualViewport,deviceScaleFactor,observedClip,clip,clipVisible};
+}
+
+async function screenshotParams(cdp, options = {}, geometry = null) {
   const params = {
     format: 'png',
     fromSurface: true,
     captureBeyondViewport: false,
   };
+  if(geometry){
+    if(geometry.clip){const {x,y,width,height}=geometry.clip;params.clip={x,y,width,height,scale:1};}
+    return params;
+  }
   if (!options.clipSelector) return params;
   const rect = await evaluate(cdp, `(() => {
     const node = document.querySelector(${JSON.stringify(options.clipSelector)});
@@ -2075,7 +2158,9 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
   let chromeStderr = '';
   const chrome = spawn(browser, [
     ...mode.args,
-    '--disable-gpu',
+    ...(options.webgl === true
+      ? ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+      : ['--disable-gpu']),
     '--disable-background-networking',
     '--disable-dev-shm-usage',
     '--no-sandbox',
@@ -2103,6 +2188,18 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
     const cdp = await cdpClient(pageTarget.webSocketDebuggerUrl);
     try {
       await cdp.send('Page.enable');
+      const diagnostics = { uncaughtErrors:0, consoleErrors:0, failedRequests:0, badResponses:0, warnings:0 };
+      if (options.diagnostics === true) {
+        cdp.on('Runtime.exceptionThrown', () => diagnostics.uncaughtErrors++);
+        cdp.on('Runtime.consoleAPICalled', event => {
+          if (event.type === 'error') diagnostics.consoleErrors++;
+          if (event.type === 'warning' || event.type === 'warn') diagnostics.warnings++;
+        });
+        cdp.on('Network.loadingFailed', () => diagnostics.failedRequests++);
+        cdp.on('Network.responseReceived', event => { if (event.response.status >= 400) diagnostics.badResponses++; });
+        await cdp.send('Runtime.enable');
+        await cdp.send('Network.enable');
+      }
       if (options.fixture === 'fresh') {
         await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
           source: browserClockOverrideExpression(FRESH_ECOSYSTEM_VISUAL_FIXTURE.freshness.proofClock),
@@ -2133,6 +2230,14 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       }
       if (options.waitFor) {
         await waitForExpression(cdp, options.waitFor);
+      }
+      for (const input of options.inputSteps || []) {
+        if (input.waitFor) await waitForExpression(cdp, input.waitFor);
+        if (input.kind === 'pointer') await tapSelector(cdp, input.selector);
+        else if (input.kind === 'key') await pressKeyOnSelector(cdp, input.selector, input.key);
+        else if (input.kind === 'scroll') await scrollSelectorWithWheel(cdp, input.selector);
+        else throw new Error('Unsupported viewport input step');
+        await new Promise(resolve => setTimeout(resolve, 150));
       }
       if (options.scrollSelector) {
         const sceneIndex = Number.isFinite(options.sceneIndex) ? options.sceneIndex : 0;
@@ -2175,14 +2280,27 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
       if (options.waitAfterExpression) {
         await waitForExpression(cdp, options.waitAfterExpression);
       }
+      let assertion = null;
       if (options.assertExpression) {
-        const assertion = await evaluate(cdp, options.assertExpression);
+        assertion = await evaluate(cdp, options.assertExpression);
         if (assertion !== true && !(assertion && assertion.ok === true)) {
           throw new Error(`Browser assertion failed: ${JSON.stringify(assertion)}`);
         }
       }
-      const shot = await cdp.send('Page.captureScreenshot', await screenshotParams(cdp, options));
-      writeFileSync(file, Buffer.from(shot.data, 'base64'));
+      const geometry=options.captureGeometry===true ? await evaluate(cdp, `(${observeViewportCaptureGeometry.toString()})(${JSON.stringify(options.clipSelector ?? null)})`) : null;
+      if(geometry){
+        const {cssViewport:c,visualViewport:v,deviceScaleFactor:d}=geometry;
+        if(c.width!==captureViewport.width || c.height!==captureViewport.height || c.scrollX!==0 || c.scrollY!==0 || d!==2 || !v || Math.abs(v.width-c.width)>.5 || Math.abs(v.height-c.height)>.5 || v.offsetLeft!==0 || v.offsetTop!==0 || v.scale!==1)throw new Error('Strict observed viewport does not match the capture');
+      }
+      const shot = await cdp.send('Page.captureScreenshot', await screenshotParams(cdp, options, geometry));
+      const bytes=Buffer.from(shot.data, 'base64');
+      if(geometry){
+        const expected=geometry.clip || geometry.cssViewport;
+        if(bytes.length<24 || bytes.subarray(0,8).toString('hex')!=='89504e470d0a1a0a' || bytes.readUInt32BE(16)!==Math.round(expected.width*geometry.deviceScaleFactor) || bytes.readUInt32BE(20)!==Math.round(expected.height*geometry.deviceScaleFactor))throw new Error('Strict PNG does not match observed capture bounds');
+        geometry.png={width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20),bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};
+      }
+      writeFileSync(file, bytes);
+      return { assertion, ...(geometry ? {geometry} : {}), ...(options.diagnostics === true ? {diagnostics} : {}) };
     } finally {
       cdp.close();
     }
@@ -2192,7 +2310,7 @@ async function captureWithBrowser(browser, mode, url, file, options = {}) {
   }
 }
 
-async function capture(url, file, options = {}) {
+export async function captureViewportProof(url, file, options = {}) {
   const candidates = activeBrowser ? [activeBrowser, ...BROWSER_CANDIDATES.filter((browser) => browser !== activeBrowser)] : BROWSER_CANDIDATES;
   const modes = activeBrowserMode
     ? [browserProbeModes.find((mode) => mode.id === activeBrowserMode), ...browserProbeModes.filter((mode) => mode.id !== activeBrowserMode)].filter(Boolean)
@@ -2201,10 +2319,10 @@ async function capture(url, file, options = {}) {
   for (const browser of candidates) {
     for (const mode of modes) {
       try {
-        await captureWithBrowser(browser, mode, url, file, options);
+        const result = await captureWithBrowser(browser, mode, url, file, options);
         activeBrowser = browser;
         activeBrowserMode = mode.id;
-        return;
+        return { ...result, browser:basename(browser), browserMode:mode.id };
       } catch (error) {
         failures.push({ browser, mode: mode.id, error: error instanceof Error ? error.message : String(error) });
       }
@@ -2277,7 +2395,7 @@ await withServer(async (base, metrics) => {
     const fixture = proof.fixture ? `&fixture=${proof.fixture}` : '';
     const url = `${base}/?tenant=cambium&scene=${proof.scene}${fixture}`;
     try {
-      await capture(url, file, proof);
+      await captureViewportProof(url, file, proof);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Capture failed for proof.path="${proof.path}": ${message}`);
