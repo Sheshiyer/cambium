@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 
 // Exercise the real packet generator with an isolated owner CLI. No network,
 // Swift build, credentials or repository worktree mutations occur in fixtures.
-async function packet(mode){
+async function packet(mode, readback = '1'){
  const root=await mkdtemp(path.join(tmpdir(),'native-readback-test-'));
  try{
   const tools=path.join(root,'apps/cambium-mac/tools'),bin=path.join(root,'bin');
@@ -25,10 +25,10 @@ case "$*" in
  *'deployments status'*) echo '{"id":"fixture","versions":[]}' ;;
  *'migrations list'*) if [ "$FIXTURE_MODE" = fail ]; then exit 1; fi ;;
  *'secret list'*) if [ "$FIXTURE_MODE" = fail ]; then exit 1; fi; echo '[]' ;;
- *'d1 execute'*) if [ "$FIXTURE_MODE" = fail ]; then echo '{"error":{"code":7403}}'; exit 1; fi; echo '[{"success":true,"results":[],"meta":{"rows_written":0,"changes":0,"changed_db":false}}]' ;;
+ *'d1 execute'*) if [ "$FIXTURE_MODE" = fail ]; then echo '{"error":{"code":7403}}'; exit 1; fi; if [ "$FIXTURE_MODE" = falsesuccess ]; then echo '[{"success":false,"results":[]}]'; exit 0; fi; echo '[{"success":true,"results":[],"meta":{"rows_written":0,"changes":0,"changed_db":false}}]' ;;
  *) exit 9 ;;
 esac\n`);
-  const run=spawnSync('sh',[path.join(tools,'probe.sh')],{encoding:'utf8',env:{...process.env,PATH:bin+path.delimiter+process.env.PATH,FIXTURE_MODE:mode,CAMBIUM_RUN_LIVE_BINDING_READBACK:'1',CAMBIUM_RUN_WRANGLER_DRY_RUN:'0'}});
+  const run=spawnSync('sh',[path.join(tools,'probe.sh')],{encoding:'utf8',env:{...process.env,PATH:bin+path.delimiter+process.env.PATH,FIXTURE_MODE:mode,CAMBIUM_RUN_LIVE_BINDING_READBACK:readback,CAMBIUM_RUN_WRANGLER_DRY_RUN:'0',CAMBIUM_OWNER_URL:''}});
   assert.equal(run.status,0,run.stderr);return JSON.parse(run.stdout).runtimeReadback;
  }finally{await rm(root,{recursive:true,force:true});}
 }
@@ -42,4 +42,15 @@ test('successful empty reads can establish absence without confusing it with a f
  const r=await packet('ok');assert.equal(r.status,'read');assert.equal(r.reads.schema,'read');
  assert.deepEqual(r.nativeD1Tables,[]);assert.deepEqual(r.unappliedMigrations,[]);
  assert.equal(r.remoteSecretCount,0);assert.equal(r.dedicatedNativeIdentitySecretPresent,false);
+});
+test('a zero-exit schema body with success false stays unavailable',async()=>{
+ const r=await packet('falsesuccess');assert.equal(r.status,'partial');
+ assert.equal(r.reads.schema,'unavailable');assert.equal(r.nativeD1Tables,null);
+ assert.equal(r.reads.deployment,'read');assert.equal(r.reads.secrets,'read');
+});
+test('binding readback stays unrun unless the owner flag is set',async()=>{
+ const r=await packet('fail','0');assert.equal(r.status,'not_run');
+ assert.deepEqual(r.reads,{deployment:'not_run',migrations:'not_run',secrets:'not_run',schema:'not_run'});
+ assert.equal(r.nativeD1Tables,null);assert.equal(r.unappliedMigrations,null);
+ assert.equal(r.remoteSecretCount,null);assert.equal(r.dedicatedNativeIdentitySecretPresent,null);
 });
