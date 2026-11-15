@@ -1,3 +1,4 @@
+import { fitcheckReferencesClear } from './fitcheck-scope-reconciliation.ts';
 import { createHermesReceiptIngestion, createHermesReceiptAuthorizer, type HermesReceiptsAI } from './hermes-receipts-v2.ts';
 import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
 
@@ -1540,6 +1541,7 @@ export default {
       leadRuntimeStore: env.BRIDGE_DB ? d1LeadRuntimeStore(env.BRIDGE_DB) : undefined,
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
       founderGateBindingsJson: env.FOUNDER_GATE_BINDINGS_JSON,
+      fitcheckReferenceReadback: env.BRIDGE_DB ? () => fitcheckReferencesClear(env.BRIDGE_DB!) : undefined,
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       nativeSessionHost,

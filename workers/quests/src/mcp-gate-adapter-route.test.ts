@@ -188,3 +188,12 @@ test('approve-mcp-action is a Telegram gate kind addressed by action digest', as
   assert.equal(bare.status, 400);
   assert.equal(JSON.parse(String(bare.body)).error, 'need a supported gate kind and subject');
 });
+
+test('Fitcheck identity proposals require the canonical founder Gate, never the legacy MCP adapter', async () => {
+  const kv = memoryKv(); const { args, intent } = await compiled();
+  await kv.put(`goal-graph-intake-task:cambium:${CHANGE}`, JSON.stringify({ ...pendingTask(intent),
+    intent: { schema: 'cambium.fitcheck.scope-reconciliation.v1' } }));
+  const response = await handle(post('/mcp/actions/request-approval', { intent, arguments: args }, TOKEN), deps(kv));
+  assert.equal(response.status, 409);
+  assert.equal(JSON.parse(response.body).error, 'scope_reconciliation_requires_canonical_gate');
+});

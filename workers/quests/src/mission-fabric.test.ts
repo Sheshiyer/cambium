@@ -397,6 +397,15 @@ test('adaptBranchStories maps internal-service only through an explicit capabili
   assert.equal(mappedWork.length, 1);
   assert.equal(mappedWork[0].kind, 'program');
   assert.equal(mappedWork[0].programKind, 'operations');
+  const explicit = branchStoryArc({ branchKind: 'internal-service', branchId: 'snow-gloves-os', canonicalWorkId: 'program:snow-gloves-os', programKind: 'capability' });
+  const declared = workNodes(adaptBranchStories([explicit]) as readonly { kind: string; value: unknown }[]);
+  assert.equal(declared.length, 1);
+  assert.equal(declared[0].programKind, 'capability');
+  for (const programKind of ['company', '', null]) {
+    const invalid = { ...explicit, programKind, controls: { ...explicit.controls, adapterServiceMap: [{ tenantMapping: 'operations' }] } };
+    assert.equal(workNodes(adaptBranchStories([invalid]) as readonly { kind: string; value: unknown }[]).length, 0, 'invalid explicit kind cannot fall back to tenant prose');
+  }
+
 
   const unmapped = adaptBranchStories([branchStoryArc({ branchKind: 'internal-service', branchId: 'branch-mystery', canonicalWorkId: 'program:mystery' })]);
   const unmappedWork = workNodes(unmapped as readonly { kind: string; value: unknown }[]);

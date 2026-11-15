@@ -80,6 +80,23 @@ function harness(options: { initData?: string; founderWeb?: boolean; session?: R
   };
 }
 
+test('world gate · expired Fitcheck reconciliation is renewable only through founder Access', () => {
+  const proposal = row({
+    source: 'fitcheck-scope-reconciliation@v1',
+    approvalExpiresAt: new Date(Date.now() - 1000).toISOString(),
+    canRenew: true,
+    version: 1,
+  });
+  const access = harness({ founderWeb: true, initData: '' });
+  access.quest(envelope([proposal]));
+  assert.equal(access.get().proposals[0].canRenew, true);
+  assert.equal(access.get().proposals[0].canApprove, false);
+
+  const telegram = harness();
+  telegram.quest(envelope([proposal]));
+  assert.equal(telegram.get().proposals.length, 0);
+});
+
 test('world gate · a Telegram founder read exposes the full digest, anchors and every admission key', () => {
   const h = harness();
   h.quest(envelope([row()]));
