@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 
 const EXACT_ENDPOINT = 'https://cortex.thoughtseed.space/mcp'
 const DEFAULT_TIMEOUT_MS = 10_000
@@ -184,19 +183,22 @@ export async function probeOpenAiMcpReadiness({
 function parseArgs(argv) {
   let endpoint = EXACT_ENDPOINT
   let timeoutMs = DEFAULT_TIMEOUT_MS
+  let expectedVersion
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--endpoint') endpoint = argv[++i]
     else if (argv[i] === '--timeout-ms') timeoutMs = Number(argv[++i])
+    else if (argv[i] === '--expected-server-version') expectedVersion = argv[++i]
     else throw new Error(`unknown argument: ${argv[i]}`)
   }
-  return { endpoint, timeoutMs }
+  if (!expectedVersion) {
+    throw new Error('--expected-server-version is required; use the reviewed MCP server version, not the plugin package version')
+  }
+  return { endpoint, timeoutMs, expectedVersion }
 }
 
 async function main() {
-  const here = dirname(fileURLToPath(import.meta.url))
-  const plugin = JSON.parse(readFileSync(resolve(here, '..', 'openai', 'cambium-infinite-game', 'plugin.json'), 'utf8'))
   const args = parseArgs(process.argv.slice(2))
-  const result = await probeOpenAiMcpReadiness({ ...args, expectedVersion: plugin.version })
+  const result = await probeOpenAiMcpReadiness(args)
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
   process.exitCode = result.status === 'ready' ? 0 : 2
 }
