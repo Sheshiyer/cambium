@@ -48,6 +48,41 @@ had 77 current records, 20 historical products, zero classification reviews,
 from each served envelope; the app does not claim the older fixture is the
 current production catalog.
 
+## Current-source and live-owner continuation
+
+The current working TypeScript catalog was regenerated on 2026-11-02 and
+decoded by the Swift mapper through
+`tools/probe-current-portfolio.sh`: 77 current records, 20 historical
+products, 50 operational gaps and one explicit runtime join, with display
+digest `sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94`.
+This includes the concurrent LumenBar catalog lane and is deliberately not
+treated as committed or deployed authority.
+
+The running standard Mac app can prefill the reviewed Curious owner profile
+(`https://curious.thoughtseed.space`, tenant `cambium`, reviewed client and
+callback) without contacting the owner. A real Sign in attempt remains
+bounded: the app reports that the owner did not complete the action and keeps
+the session and project catalog empty. Read-only live probes currently show
+health `200`, native session `404`, Mission Fabric `401
+access_identity_required`, and the TeamForge native identity route `501
+feature_not_ready`. The local project path is wired; founder delivery awaits
+owner-gated runtime activation and readback.
+
+`tools/probe-live-owner.sh` packages that boundary as a read-only
+`cambium.live-owner-preflight.v1` receipt. It never sends credentials or
+follows redirects. The current receipt reports health `200`, native session
+`404`, Mission Fabric and quest projection `401 access_identity_required`,
+TeamForge identity `501 feature_not_ready`, and `routeSurfaceReady: false`.
+
+For an owner handoff, `tools/probe-activation-readiness.sh` joins that live
+receipt with the current TypeScript-to-Swift mapper result, local 0100/0101
+migration hashes, TeamForge PR #105 readback, and the scoped source head. It
+emits `cambium.native-activation-readiness.v1` and never uploads, merges,
+registers, migrates, or signs in. The default run omits the Cloudflare control
+plane; set `CAMBIUM_RUN_WRANGLER_DRY_RUN=1` only when a candidate binding
+dry-run is desired. A passing dry-run is candidate preparation, not deployed
+binding readback.
+
 ## Local verification
 
 - `swift test --package-path apps/cambium-mac`: 35 native and 247 Core tests
