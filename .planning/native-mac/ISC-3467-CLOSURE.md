@@ -1,5 +1,12 @@
 # ISC-3467 closure packet
 
+> Dated observation, not current acceptance. This packet records blockers from
+> 2026-11-03. `ISA.md` checks ISC-3467, with evidence in
+> [NATIVE-INBOX-ACTIVATION-20261103.md](NATIVE-INBOX-ACTIVATION-20261103.md).
+> The procedure below is that day's sequence. It does not reverse the later
+> acceptance and authorizes no deployment, migration, or sign-in. Limits:
+> [SNAPSHOT-LIMITS-20261109.md](SNAPSHOT-LIMITS-20261109.md).
+
 Status: **held**, 2026-11-03. No deployment, merge, secret, migration,
 enrollment or admission write is authorized by this verification packet.
 The fresh bounded observation is
