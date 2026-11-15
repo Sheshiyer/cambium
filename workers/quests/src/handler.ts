@@ -133,6 +133,10 @@ import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } fro
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { deriveFounderOutcomeTransition, parseFounderOutcomeIntent } from './founder-outcome-intake.ts';
 import { parseTelegramGoalGraphIntent, parseTelegramGoalGraphIntentBoundary } from './goal-graph-intake.ts';
+import {
+  FITCHECK_SCOPE_SCHEMA, fitcheckScopeTaskMatches, isFitcheckScopeTask,
+  parseFitcheckScopeBoundary, parseFitcheckScopeIntent,
+} from './fitcheck-scope-reconciliation.ts';
 import { FOUNDER_BOOKKEEPING_MAX_BYTES, FOUNDER_BOOKKEEPING_SCHEMA, parseFounderBookkeepingBoundary, parseFounderBookkeepingIntent } from './native-goal-intake.ts';
 import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { buildNode } from './goal-graph/identity.ts';
@@ -521,6 +525,7 @@ export interface FabricLedgerStoreLike {
 export interface HandlerDeps {
   sharedSignalStore?: SignalStore;
   departmentReaders?: DepartmentSourceReaders; // server-owned accepted-source readers; absent stays unavailable
+  fitcheckReferenceReadback?: () => Promise<boolean>; // absent or false refuses Fitcheck scope intake and approval
   founderGateBindingsJson?: string; // explicit Access approver-id / tenant pairs, no wildcard
   founderDecisionHost?: FounderTransportHost; // absent until reviewed identity/proposal host binding exists
   nativeLaunchHost?: NativeLaunchHost; // absent until verifier, D1 store and execution owner are reviewed and bound; routes then 503
@@ -4033,7 +4038,29 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     };
   }
   const bookkeeping = isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA;
+  const reconciliation = isFitcheckScopeTask(task);
   const changeSet = isRecord(task.changeSet) ? task.changeSet : {};
+  const summaryKind = task.renewal
+    ? 'Founder-renewed goal proposal'
+    : reconciliation
+      ? 'Fitcheck scope reconciliation'
+      : bookkeeping
+        ? 'Founder bookkeeping proposal'
+        : 'Telegram goal proposal';
+  const source = task.renewal
+    ? 'founder-proposal-renewal@v1'
+    : reconciliation
+      ? 'fitcheck-scope-reconciliation@v1'
+      : bookkeeping
+        ? 'founder-web-bookkeeping@v1'
+        : 'telegram-goal-graph-intake@v1';
+  const consequence = reconciliation
+    ? 'Founder review covers the full identity replacement and parent link only; no Work execution, lease or subscription is granted'
+    : task.renewal
+      ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate'
+      : bookkeeping
+        ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted'
+        : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval';
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
     kind: 'goal-graph-intake',
@@ -4045,12 +4072,13 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
-    source: task.renewal ? 'founder-proposal-renewal@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${summaryKind} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source,
     ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
+    ...(reconciliation ? { identityChanges: changeSet, executionGranted: false } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence,
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
     proposalId: `${tenantId}:${changeDigest}`,
@@ -4483,7 +4511,15 @@ async function intakeTelegramGoalGraphRoute(
   // Normalize and bind provenance before consulting D1. That boundary identity
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
-  const initial = verifiedFounderId ? parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
+  const reconciliation = isRecord(raw) && raw.schema === FITCHECK_SCOPE_SCHEMA;
+  if (reconciliation && !await deps.fitcheckReferenceReadback?.()) {
+    return { status: 503, body: { error: 'fitcheck_reference_readback_unconfirmed' } };
+  }
+  const initial = reconciliation
+    ? parseFitcheckScopeBoundary(raw)
+    : verifiedFounderId
+      ? parseFounderBookkeepingBoundary(raw, verifiedFounderId)
+      : parseTelegramGoalGraphIntentBoundary(raw);
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
@@ -4523,7 +4559,11 @@ async function intakeTelegramGoalGraphRoute(
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
   };
-  const pinned = verifiedFounderId ? parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
+  const pinned = reconciliation
+    ? parseFitcheckScopeIntent(raw, context)
+    : verifiedFounderId
+      ? parseFounderBookkeepingIntent(raw, verifiedFounderId, context)
+      : parseTelegramGoalGraphIntent(raw, context);
   if (!pinned.accepted) return persistRejection(pinned);
   if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
     return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
@@ -5006,6 +5046,7 @@ async function approveGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (isFitcheckScopeTask(task)) return { status: 409, body: { error: 'scope_reconciliation_requires_canonical_gate' } };
   if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   // A bookkeeping batch can create or update several nodes. Only the canonical
   // founder review shows the complete change set, so approve it there.
@@ -5311,6 +5352,7 @@ async function rejectGoalGraphIntakeRoute(
   }
   const task = await readGoalGraphIntakeTask(deps.kv, tenant, changeDigest);
   if (!task) return { status: 404, body: { error: 'goal graph intake task not found' } };
+  if (isFitcheckScopeTask(task)) return { status: 409, body: { error: 'scope_reconciliation_requires_canonical_gate' } };
   if (task.renewal) return { status: 409, body: { error: 'renewed_proposal_requires_canonical_gate' } };
   const evidence = {
     approvalNonce: resolveGoalGraphApprovalDescriptor(task, tenant, changeDigest)?.approvalNonce ?? null,
@@ -5497,6 +5539,7 @@ async function validateMcpGoalGraphTarget(
   if (!task || task.status !== 'pending') {
     return { ok: false, status: 404, error: 'mcp_action_target_not_found' };
   }
+  if (isFitcheckScopeTask(task)) return { ok: false, status: 409, error: 'scope_reconciliation_requires_canonical_gate' };
   if (task.renewal) return { ok: false, status: 409, error: 'renewed_proposal_requires_canonical_gate' };
   const descriptor = resolveGoalGraphApprovalDescriptor(task, intent.tenant, digest);
   const graphVersion = task.graphVersion;
@@ -5586,6 +5629,18 @@ function nativeRefusal(status: number, error: string): SimpleResponse {
  * founder/tenant; an injected founderDecisionHost and body tenant are never
  * consulted. The access host re-resolves the session before every D1 write.
  */
+async function validateFitcheckTaskSources(deps: HandlerDeps, task: Record<string, unknown>, tenantId: string): Promise<boolean> {
+  if (!isFitcheckScopeTask(task)) return true;
+  if (!deps.goalGraphStore || !await deps.fitcheckReferenceReadback?.()) return false;
+  try {
+    const head = await deps.goalGraphStore.readHead(tenantId);
+    const nodes = await deps.goalGraphStore.readNodes(tenantId);
+    return fitcheckScopeTaskMatches(task, { actualHead: head, currentNodes: nodes, loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY });
+  } catch {
+    return false;
+  }
+}
+
 async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
   const first = await resolveComposedNativeSession(req, deps.nativeSessionHost);
   if (first.kind === 'refused') {
@@ -5605,6 +5660,7 @@ async function nativeFounderGate(req: SimpleRequest, deps: HandlerDeps): Promise
         && again.scope.tenantId === scope.tenantId && again.scope.clientId === scope.clientId
         && again.tokenDigest === first.tokenDigest ? scope.founderId : null;
     },
+    validateTaskSources: (task, context) => validateFitcheckTaskSources(deps, task, context.tenantId),
     readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
     reviewTask: task => {
       const row = goalGraphIntakeGateRow(task);
@@ -5803,6 +5859,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         const signer = await resolveFounderWebSigner(req, deps);
         return signer.kind === 'founder' ? signer.approverId : null;
       },
+      validateTaskSources: (task, context) => validateFitcheckTaskSources(deps, task, context.tenantId),
       readTask: (tenant, digest) => readGoalGraphIntakeTask(deps.kv, tenant, digest),
       reviewTask: task => {
         const row = goalGraphIntakeGateRow(task);
@@ -6156,6 +6213,23 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (envelope[field] === undefined) return json(400, { error: `envelope missing "${field}"` });
     }
     if (envelope.tenant !== tenant) return json(400, { error: 'envelope tenant mismatch' });
+    // Compatibility for legacy packet publishers: classification only, never Work admission.
+    const stories = isRecord(envelope.branchStories) ? envelope.branchStories : null;
+    if (tenant === 'cambium' && stories?.source === 'product-branch-packets@v1' && Array.isArray(stories.rows)) {
+      const rows = stories.rows.filter((row: unknown) => isRecord(row) && row.canonicalWorkId === 'program:snow-gloves-os');
+      const row = rows.length === 1 ? rows[0] : null;
+      const source = isRecord(row?.source) ? row.source : null;
+      const classification = PORTFOLIO_CATALOG.records.find(record => record.workId === 'program:snow-gloves-os');
+      if (row?.programKind === undefined && row?.branchId === 'snow-gloves-os' && row?.productId === 'snow-gloves-os'
+          && row?.branchKind === 'internal-service' && source?.tenant === tenant
+          && source?.schema === 'cambium.product_branch_packet.v1'
+          && source?.indexFile === 'docs/plans/product-branches/index.md'
+          && source?.packetFile === 'docs/plans/product-branches/snow-gloves-os.md'
+          && classification?.kind === 'program' && classification.programKind === 'capability'
+          && classification.provenance.includes('cambium:docs/plans/product-branches/snow-gloves-os.md')) {
+        row.programKind = classification.programKind;
+      }
+    }
     envelope = sanitizeQuestEnvelope(envelope);
     const key = ledgerKey(tenant);
     const existingEnvelope = parseStoredEnvelope(await deps.kv.get(key));
@@ -6812,6 +6886,9 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       if (!principal.admin && !principal.assignmentOnly) return json(403, { error: 'only cofounders/Hermes may submit goal graph intents' });
       let raw: unknown;
       try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
+      if (isRecord(raw) && raw.schema === FITCHECK_SCOPE_SCHEMA && !principal.admin) {
+        return json(403, { error: 'canonical_owner_admin_required' });
+      }
       const result = await intakeTelegramGoalGraphRoute(deps, raw, nowIso);
       return json(result.status, result.body);
     }
