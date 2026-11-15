@@ -1,0 +1,44 @@
+{
+  "schema": "cambium.founder-work-form-rollout.v1",
+  "status": "deployed-work-proposal-awaiting-founder-decision",
+  "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+  "worker": "cambium-quests",
+  "scope": "Maintained Founder Gate JSON intake accepts exact operational Work intent schema; legacy bookkeeping stays supported. Generated world bundle refreshed.",
+  "migration": null,
+  "preserve_bindings": 52,
+  "preserve_runtime_settings": true,
+  "rollback_version": "e6c399ab-f2da-479c-9b40-bce6629bdeee",
+  "bundle_sha256": "8e0ff70207512ffbd8fac396b5fa61268d599dc428f1ff1272f01ca6cd86d313",
+  "bundle_bytes": 2565770,
+  "review": "Same independent reviewer: no actionable findings.",
+  "verification": {
+    "curious_test": "passed",
+    "viewport": "Six fresh local synthetic IAB JPEGs validated; desktop1280x900 and mobile320x800",
+    "worker_dry_run": "passed",
+    "full_suite": {
+      "source": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+      "tests": 2717,
+      "passed": 2717,
+      "failed": 0
+    }
+  },
+  "work_proposal_submitted": true,
+  "work_approved": false,
+  "execution_authority_changed": false,
+  "hermes_rollout": false,
+  "recorded_at": "2026-11-03T21:24:18.914Z",
+  "owner_rollout_approved": true,
+  "active_worker_version": "2971a905-f6af-4df4-8b1b-985d0df1af20",
+  "traffic_percent": 100,
+  "preservation": {
+    "bindings": 52,
+    "all_binding_identities_and_values_equal": true,
+    "runtime_settings_equal": true
+  },
+  "observed_graph_head": {
+    "version": 13,
+    "digest": "2c14f77ac4d9a90d735d27eaf6b6ca766be02b00433cf49ae595088ce64ff99b"
+  },
+  "live_zen": "New form prepares exact Work intent; refreshed pending list shows8proposals, including Cambium55efd3d7; canonical review loaded with enabled decision controls.",
+  "work_proposal_receipt": ".planning/native-mac/CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json"
+}

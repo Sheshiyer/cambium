@@ -1,0 +1,303 @@
+{
+  "schema": "cambium.temperance-generic-glove-implementation.v1",
+  "observed_at": "2026-11-03T20:07:49.612020+00:00",
+  "status": "source-candidates-ready-with-held-gates",
+  "authority": "source and review evidence only; no operational admission or public release",
+  "source_candidates": {
+    "public_engine": {
+      "repository": "Sheshiyer/temperance_engine",
+      "commit": "dac0af5b88247117bbdbeec5c9f2fa6632ba4ea7",
+      "pr": "https://github.com/Sheshiyer/temperance_engine/pull/59",
+      "draft": true,
+      "merged": false,
+      "published_version": "0.8.0",
+      "guide_sha256": "e2a0c4e8c37b6c6bc15e119204d607f50ad44e5c804ac96f28c3f5984685fa12",
+      "remote_guide_bytes_match": true
+    },
+    "noesis_profile": {
+      "repository": "Sheshiyer/noesis-cambium",
+      "commit": "be9dd051b2087d69b81cdd32daf67d9ed49d8dcb",
+      "pr": "https://github.com/Sheshiyer/noesis-cambium/pull/100",
+      "draft": true,
+      "merged": false,
+      "pinned_engine": "dac0af5b88247117bbdbeec5c9f2fa6632ba4ea7",
+      "source_pin_inspection": "passed; all six modules held without private bindings",
+      "installed_adoption": false
+    },
+    "website": {
+      "repository": "Sheshiyer/temperance_engine_landing_page",
+      "commit": "9ef4077fd80ee444611641e880c822f24168b277",
+      "pr": "https://github.com/Sheshiyer/temperance_engine_landing_page/pull/2",
+      "draft": true,
+      "merged": false,
+      "preview": "https://temperance-engine-landing-page-a11fi2yrt-sheshiyers-projects.vercel.app/",
+      "deployment_state": "READY",
+      "deployment_target": null,
+      "production_promoted": false,
+      "editorial_words": 3052
+    }
+  },
+  "implementation": {
+    "core": "Neutral versioned composition, capability/dependency inspection, caller-selected step invocation, trusted adapter and owner interfaces, immutable action plans and attributable receipts. Flow orchestration stays external.",
+    "modules": [
+      "Vestibule",
+      "Adytum",
+      "Nutrix",
+      "Auspex",
+      "Circulator",
+      "Praeceptor"
+    ],
+    "compatibility": "Explicit v1 imports and selectively reviewed four prototype source/test files from 75f3de1; neutral entry does not import them.",
+    "installation": "Official exact-version client guidance and existing onboarding executor/receipt owner bridge; target/version/preimage binding, interruption, rollback and concurrent-drift refusal.",
+    "personal_policy": "Noesis source profile owns adaptive Alchemy, selected clients, mandatory hosted Phloem/memory, one verified step, task-scoped approval, lifecycle/on-demand triggers and separate verified/provisional stores."
+  },
+  "verification": {
+    "engine_integration": {
+      "passed": 215,
+      "failed": 0,
+      "files": 12,
+      "expectations": 901
+    },
+    "typecheck": "passed",
+    "cli_bundle": "passed",
+    "documentation_gate": {
+      "files": 41,
+      "failures": 0,
+      "baseline_raised": false
+    },
+    "six_module_boundaries": [
+      "absent dependencies",
+      "stale evidence",
+      "wrong identity",
+      "caller cancellation",
+      "concurrent replay",
+      "owner refusal",
+      "persistence failure",
+      "indeterminate owner result"
+    ],
+    "noesis_boundary_tests": {
+      "passed": 2,
+      "failed": 0
+    },
+    "catalog_and_branch_loop_checks": {
+      "passed": 20,
+      "failed": 0
+    },
+    "product_packet_validation": {
+      "packets": 8,
+      "status": "passed"
+    },
+    "website_checks": {
+      "passed": 9,
+      "failed": 0,
+      "independent_copy_review": true,
+      "independent_cro_review": true
+    },
+    "website_browser": {
+      "source_commit": "9ef4077fd80ee444611641e880c822f24168b277",
+      "preview": "https://temperance-engine-landing-page-a11fi2yrt-sheshiyers-projects.vercel.app/",
+      "narrowProof": {
+        "brandRight": 117.3125,
+        "captionTracks": 1,
+        "clientWidth": 320,
+        "ctaLeft": 181.953125,
+        "filmAutoplay": false,
+        "heroDisplay": "none",
+        "heroSourceCount": 0,
+        "reduced": true,
+        "scrollWidth": 320
+      },
+      "deployedOrgans": [
+        {
+          "role": "Vestibule",
+          "visible": true
+        },
+        {
+          "role": "Adytum",
+          "visible": true
+        },
+        {
+          "role": "Nutrix",
+          "visible": true
+        },
+        {
+          "role": "Auspex",
+          "visible": true
+        },
+        {
+          "role": "Circulator",
+          "visible": true
+        },
+        {
+          "role": "Praeceptor",
+          "visible": true
+        }
+      ],
+      "browserErrors": [],
+      "keyboard": [
+        "composition right arrow",
+        "incident right arrow",
+        "native details Enter"
+      ],
+      "acceptance": "preview-only"
+    },
+    "local_client_qualification": {
+      "schema": "temperance.source-qualification.v1",
+      "recorded_at": "2026-11-03T19:51:56.733Z",
+      "source_commit": "42b391b44b7655972d9322d87aa3865956a5165e",
+      "source_dirty": true,
+      "platform": {
+        "os": "darwin",
+        "release": "27.2.0",
+        "arch": "arm64",
+        "bun": "1.3.13",
+        "node": "v24.3.0"
+      },
+      "bare_startup": "passed",
+      "clients": [
+        {
+          "client": "codex-cli",
+          "distribution": "@openai/codex",
+          "version": "0.166.0",
+          "integrity": "sha512-2Szlp1l1cz5TX1ccpX4Zok3DZrot9xeZe0km+6/1v8JmqxADwyJxKBJah4dBymkwtS25j/u6dipJusTOI97Z8Q==",
+          "observed_version": "codex-cli 0.166.0",
+          "fresh_disposable_install": "passed",
+          "native_callback": "unobserved",
+          "guidance_digest": "sha256:9db6e6d806f300271a9e84c9d9160a540a29b15350d89598d51f974e81090ff3"
+        },
+        {
+          "client": "claude-code",
+          "distribution": "@anthropic-ai/claude-code",
+          "version": "2.1.316",
+          "integrity": "sha512-i3BpzyDkcCPnsa0CSkWgxGPs7WMsyqDkxkqT0SDxyEC5XMIxEmcUmluWRHG9VSeBY8Vyv+l9X34JvJ/Bj54nBQ==",
+          "observed_version": "2.1.316 (Claude Code)",
+          "fresh_disposable_install": "passed",
+          "native_callback": "unobserved",
+          "guidance_digest": "sha256:335973b1fb5c1e0e9342eeaa4edce4d82d3135d6cb9dd20bfdc042005a34f782"
+        }
+      ],
+      "evidence_scope": "bare source startup and optional disposable official-package installation/version probes",
+      "semantic_acceptance": false,
+      "sandbox_isolation": "not-established",
+      "installed_profile": "unchanged",
+      "public_release": "held"
+    }
+  },
+  "ci": {
+    "github_actions_enabled": false,
+    "setting_changed": false,
+    "remote_matrix_executed": false,
+    "user_steering": "Asked for an open source replacement without CI billing; no approval to enable Actions.",
+    "recommendation": "Woodpecker on existing owned hardware; act/local execution for immediate checks. Neither supplies missing native target machines.",
+    "replacement_installed": false
+  },
+  "source_pin_review": {
+    "component": "branch-loop-library",
+    "previous_pin": "sha256:3fae87b0715593ed751193a6c439d234d98234543095475e8581dbf7dd7859ba",
+    "current_pin": "sha256:0188eaff5a098374ae28926c499a7a44bf53c8d693945acaf0ef9e193aa663d2",
+    "reviewed_diff": "Two additive product loop rows: LumenBar and Temperance Engine. No workflow behavior or scheduling changed.",
+    "observed_at": "2026-11-03T19:59:58.635309+00:00",
+    "matching_sources": 21,
+    "catalog_sources": 21
+  },
+  "fresh_read_only_graph": {
+    "nodes": 7,
+    "edges": 6,
+    "record": false,
+    "approved": false,
+    "publishes": false,
+    "all_evidence_files_observed": true,
+    "validation_errors": [
+      "fence did not accept this graph"
+    ],
+    "fence_accepted": false,
+    "confirmed": false,
+    "reason": "Current Grok 1.0.70 help/inspect exposes no Rhai workflow runner. Fresh traced files and edges pass structural/digest checks; existing model fence could not be rerun.",
+    "old_rejections": "preserved",
+    "vault_receipt_written": false,
+    "operational_admission": false
+  },
+  "product_hunt": {
+    "listing": "https://www.producthunt.com/products/temperance-engine?launch=temperance-engine",
+    "desired_state": "unscheduled draft after approved plan supersedes November 6 preservation",
+    "observed_state": "scheduled November 6, 2026, 12:01 AM PST",
+    "read_method": "Authenticated existing launch editor, dashboard and My Products. Reschedule modal inspected; existing date could not be cleared.",
+    "blocker": "No supported return-to-draft control exposed.",
+    "schedule_changed": false,
+    "visibility_changed": false,
+    "listing_deleted": false,
+    "new_listing_created": false,
+    "new_date_selected": false
+  },
+  "history_preservation": {
+    "pointer_bytes": 572,
+    "pointer_sha256": "41f3e28e4c63ce60c0c6070796ec6a8882388312af80ca4ebee1c09abc0e1927",
+    "original_body_bytes": 305171,
+    "original_body_sha256": "eab7e78fd831fc4f9cc8bc9b591e01985a45cddb1ac2ab08009ba40832be337f",
+    "offset_before": 5800,
+    "offset_after": 6872,
+    "prior_file_bytes_preserved": 311855,
+    "method": "Inserted one bounded checkpoint after the unchanged 12-line pointer; every prior byte retained."
+  },
+  "unrelated_continuations_preserved": {
+    "unrelated_continuations": 6,
+    "hashes": {
+      "native_mac": "c6048ea258dfe9c5aa7243dd31e305be21b36da7cc93436819ccd10944a37976",
+      "native_build": "0ed09b5139dd054b2b3ddb6fc98f240e3211035fdbc39927b464dbff045cd06d",
+      "temperance_positioning": "c35875fdd905ac85441482cdd5315b5fd7f3c0b603925611db5a31a0103c2afc",
+      "repo_anatomy_spatial": "9e06376081b55c3138cdc90dc570cb728225cc04d11884802d6a7b7f894f4f37",
+      "temperance_workflow_trace": "f4f24526e199ceefb679ee609636554bfaf819d05cf4f5152a5924a7c1a88727",
+      "native_operational_loop": "af19ab76f5b35134e7cbd1bb5ebfa33e8822fecf102c705452340243c2d86635"
+    },
+    "unchanged": true
+  },
+  "retained_measurements": {
+    "human_handoff_tool_output_bytes": {
+      "before": 304610,
+      "after": 572
+    },
+    "all_command_tool_output_bytes": {
+      "before": 425693,
+      "after": 81764
+    },
+    "overall_token_improvement": "unproven",
+    "overall_latency_improvement": "unproven",
+    "additional_benchmark_selected": false
+  },
+  "held_gates": [
+    "Public-engine full portability matrix and clean-host acceptance",
+    "Observed native client callbacks and installed owner results",
+    "Supported Product Hunt return-to-draft readback",
+    "Existing Rhai graph model fence availability",
+    "Independent Noesis installed adoption"
+  ],
+  "boundaries": {
+    "installed_personal_runtime_changed": false,
+    "hooks_changed": false,
+    "new_bridge_scheduler_resident_organ_or_hook_family": false,
+    "providers_or_credentials_changed": false,
+    "vault_or_native_client_stores_edited": false,
+    "messages_sent": false,
+    "production_promoted": false
+  },
+  "main_heads": [
+    {
+      "repository": "Sheshiyer/temperance_engine",
+      "expected_main": "42b391b44b7655972d9322d87aa3865956a5165e",
+      "observed_main": "42b391b44b7655972d9322d87aa3865956a5165e",
+      "unchanged": true
+    },
+    {
+      "repository": "Sheshiyer/noesis-cambium",
+      "expected_main": "9be4b44d1718861a7c7006af9b899879d23c7e20",
+      "observed_main": "9be4b44d1718861a7c7006af9b899879d23c7e20",
+      "unchanged": true
+    },
+    {
+      "repository": "Sheshiyer/temperance_engine_landing_page",
+      "expected_main": "5c5838331b5b8d9207d0c26aeb67dce17e6fe411",
+      "observed_main": "5c5838331b5b8d9207d0c26aeb67dce17e6fe411",
+      "unchanged": true
+    }
+  ]
+}

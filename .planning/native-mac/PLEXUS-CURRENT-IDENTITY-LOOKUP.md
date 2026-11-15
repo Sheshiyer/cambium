@@ -20,10 +20,11 @@ a Worker.
   `getIdentityById` or `/v1/identity` route; this is source evidence, not a
   claim about every deployed or private service.
 - Cambium's [`native-session.ts`](../../workers/quests/src/native-session.ts)
-  requires `currentRole(founderId)` and `enrolledTenants(founderId)` on consent,
-  code exchange and every bearer read. The production
-  [`index.ts`](../../workers/quests/src/index.ts) does not compose a
-  `NativeSessionHost`; unbound native routes return 503 in the local handler.
+  checks current founder role and explicit tenant enrollment on consent,
+  code exchange and every bearer read. Production
+  [`index.ts`](../../workers/quests/src/index.ts) now conditionally composes a
+  `NativeSessionHost` with one atomic `resolveFounderAccess` snapshot;
+  unbound native routes return 503 in the local handler.
   Direct-origin live probes previously returned 404 for the native session
   path. Thus local route tests and a signed Mac bundle do not establish a
   usable live founder session.
@@ -67,7 +68,7 @@ JWT into the Mac app.
 2. Register one exact native client ID/callback and bind the browser founder
    verifier, owner origin and D1 stores. Review migrations 0100/0101 against
    the target database before applying them in an approved rollout.
-3. Compose the native session and launch hosts in the actual Worker entry point.
+3. Verify the conditionally composed hosts in the actual deployed Worker entry point.
    Verify an enrolled founder's authorize, consent, code exchange, exact-tenant
    catalog, decision and already-admitted launch; verify role/tenant revocation,
    wrong client, replay, mixed credentials and cross-tenant denial.

@@ -1,0 +1,90 @@
+{
+  "schema": "cambium.bounded_handoff_pickup.v1",
+  "observed_at": "2026-11-03T15:07:45.700992+00:00",
+  "status": "verified-fresh-native-pickup",
+  "scope": "Repository documentation and existing structured-handoff pickup; no runtime or hook edits",
+  "method": {
+    "entrypoint": "PROJECT.md#bounded-session-pickup",
+    "current_state": ".planning/HANDOFF.json",
+    "selected_continuation": "temperance_workflow_trace",
+    "history": ".project/HANDOFF.md",
+    "history_pointer_lines": 12,
+    "new_reader_or_hook": false
+  },
+  "history_preservation": {
+    "prior_body_bytes": 305171,
+    "prior_body_sha256": "eab7e78fd831fc4f9cc8bc9b591e01985a45cddb1ac2ab08009ba40832be337f",
+    "method": "Original bytes retained contiguously after the new 12-line pointer; bounded new checkpoint appended"
+  },
+  "baseline": {
+    "source": "docs/evidence/2026-11-03-temperance-workflow-trace.v1.json",
+    "historical_handoff_tool_output_bytes": 304610,
+    "scope": "One earlier fresh native pickup; tool output bytes, not startup tokens or memory"
+  },
+  "verification": {
+    "native_pickup": "pass",
+    "surface": "Fresh ephemeral native Codex CLI, read-only, no existing session resumed",
+    "prompt_identical_to_baseline": true,
+    "process_exit_code": 0,
+    "observed_reads": {
+      "historical_handoff": "Only first 12 lines; no historical body",
+      "root_summary_output_bytes": 795,
+      "selected_continuation": "temperance_workflow_trace",
+      "selected_continuation_output_bytes": 1609,
+      "unrelated_continuation_bodies": 0
+    },
+    "observed_result": [
+      "Selected task and completion correctly recovered",
+      "Review and packet SHA-256 independently recomputed and matched",
+      "Existing status reader returned completed progress",
+      "No replay, dispatch or external write"
+    ],
+    "documented_summary_command": "Executed successfully; 795 output bytes",
+    "history_bytes_preserved": true,
+    "source_reference_check": "Context manifest references resolve; history body is not a listed preload",
+    "private_event_capture_sha256": "57f80a9b67a17683d0ffc9d056e016122efb1e92ebd981c3c42cc456db4c2e74",
+    "raw_events_tracked": false
+  },
+  "limits": [
+    "No general guarantee about every future model or client",
+    "History remains available to active sessions",
+    "No hook, native trust, provider, service, running-session or publication mutation",
+    "Shared entrypoint instructions were aligned, but this fresh-session acceptance covers native Codex only. Existing malformed-skill and experimental-feature warnings were not changed."
+  ],
+  "verified_at": "2026-11-03T15:11:27.847625+00:00",
+  "comparison": {
+    "historical_handoff_tool_output_bytes": {
+      "before": 304610,
+      "after": 572
+    },
+    "all_command_tool_output_bytes": {
+      "before": 425693,
+      "after": 81764
+    },
+    "model_command_calls": {
+      "before": 13,
+      "after": 7
+    },
+    "elapsed_seconds": {
+      "before": 55.09,
+      "after": 70.97
+    },
+    "aggregate_model_call_usage": {
+      "before": {
+        "input_tokens": 305896,
+        "cached_input_tokens": 240768,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1433,
+        "reasoning_output_tokens": 143
+      },
+      "after": {
+        "input_tokens": 366030,
+        "cached_input_tokens": 309632,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1615,
+        "reasoning_output_tokens": 142
+      }
+    },
+    "interpretation": "Observed tool-output volume decreased. Aggregate input tokens increased and elapsed time increased; no overall token, startup, latency or RAM saving is established. Cached token counts and repeated model calls are not unique context size."
+  }
+}

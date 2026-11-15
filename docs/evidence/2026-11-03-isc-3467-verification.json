@@ -1,0 +1,137 @@
+{
+  "schema": "cambium.isc-3467.verification.v1",
+  "observedAt": "2026-11-03T07:43:34Z",
+  "criterion": "ISC-3467",
+  "acceptance": "held",
+  "readOnlyRuntime": true,
+  "source": {
+    "head": "c43057f8684ca192d0fdee36630852deb0c85ce2",
+    "dirtyScopedFiles": 8,
+    "currentPortfolio": {
+      "catalogDigest": "sha256:42e1dd2b1aa672b6bb43b15c997dfb4cb1b3130181fca2e19a4a7e11c2374a94",
+      "current": 77,
+      "historical": 20,
+      "classificationReview": 0,
+      "operationalGaps": 50,
+      "explicitRuntimeJoins": 1
+    }
+  },
+  "routes": {
+    "schema": "cambium.live-owner-preflight.v1",
+    "readOnly": true,
+    "ownerOrigin": "https://curious.thoughtseed.space",
+    "tenant": "cambium",
+    "clientId": "space.thoughtseed.cambium.native.dev",
+    "probes": [
+      {
+        "name": "health",
+        "url": "https://curious.thoughtseed.space/healthz",
+        "status": 200,
+        "errorCode": null,
+        "message": null
+      },
+      {
+        "name": "missionFabric",
+        "url": "https://curious.thoughtseed.space/v1/mission-fabric/cambium",
+        "status": 401,
+        "errorCode": "access_identity_required",
+        "message": "A verified Cloudflare Access identity is required."
+      },
+      {
+        "name": "nativeSession",
+        "url": "https://curious.thoughtseed.space/v1/native/session",
+        "status": 404,
+        "errorCode": "not found",
+        "message": null
+      },
+      {
+        "name": "questProjection",
+        "url": "https://curious.thoughtseed.space/api/quests/cambium",
+        "status": 401,
+        "errorCode": "access_identity_required",
+        "message": "A verified Cloudflare Access identity is required."
+      },
+      {
+        "name": "teamforgeIdentity",
+        "url": "https://teamforge-api.thoughtseedlabs.workers.dev/v1/native/identity/pid_admin_thoughtseed_labs?tenant_id=cambium",
+        "status": 501,
+        "errorCode": "feature_not_ready",
+        "message": "GET /v1/native/identity/pid_admin_thoughtseed_labs is reserved by contract but not implemented in Phase 2 Wave 1."
+      }
+    ],
+    "routeSurfaceReady": false
+  },
+  "deployment": {
+    "id": "d27c5b87-57ec-4774-82f8-21a518d23ccb",
+    "versionId": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
+    "trafficPercent": 100,
+    "versionReadExitCode": 0,
+    "requiredBindingPresence": {
+      "NATIVE_SESSION_OWNER_ORIGIN": false,
+      "NATIVE_SESSION_CLIENTS_JSON": false,
+      "PLEXUS_NATIVE_IDENTITY_URL": false,
+      "PLEXUS_NATIVE_IDENTITY_TENANT": false,
+      "PLEXUS_NATIVE_IDENTITY_TOKEN": false
+    },
+    "bridgeDbMatchesDeclaration": true
+  },
+  "database": {
+    "queryExitCode": 0,
+    "success": true,
+    "checkedTables": [
+      "native_authorization_codes",
+      "native_sessions",
+      "native_consent_intents"
+    ],
+    "presentTables": [],
+    "changes": 0,
+    "rowsWritten": 0,
+    "changedDatabase": false,
+    "unappliedMigrations": [
+      "0010_website_intake.sql",
+      "0099_native_launch_requests.sql",
+      "0100_native_sessions.sql",
+      "0101_native_consent.sql"
+    ],
+    "migrations": [
+      {
+        "path": "workers/quests/migrations/0100_native_sessions.sql",
+        "sha256": "2cd14f24cd6d9cc46c0b2de80678d340e34de8763fc14f1fbb65dd7712731f44"
+      },
+      {
+        "path": "workers/quests/migrations/0101_native_consent.sql",
+        "sha256": "84d0ccd64159b9367329f7c7ba88084d66bf615c3eaa7a7bcd9f0a9d333bdd4a"
+      }
+    ],
+    "earlierRead": {
+      "result": "unavailable",
+      "cloudflareCode": 7403,
+      "supersededBy": "successful schema SELECT; absence established only by this later read"
+    }
+  },
+  "teamforge": {
+    "pullRequest": "https://github.com/Sheshiyer/team-forge-ts/pull/105",
+    "state": "open",
+    "head": "0613dd6b16b162f077e11a23050e5d10fc35a26e"
+  },
+  "mac": {
+    "mode": "standard",
+    "bundleIdentifier": "space.thoughtseed.cambium.native.dev",
+    "embeddedSourceRevision": "3f507fb18db9cb69cf5f229e69c404e9a0ec544e",
+    "executableSha256": "d595076b8431d78aec277886b28e199cec7ab4edb1c6da711f7535077aa5b4d7",
+    "signatureVerification": "passed; adhoc",
+    "reviewedOwnerProfileApplied": "app-memory only",
+    "signInResult": "The owner did not complete this action.",
+    "projectsResult": "No project catalog loaded",
+    "screenshotSha256": "8704cff68ef467fb2c0831fabf169249c4e1bbf85d85b45ddbc559e937b584f2",
+    "currentCatalogRendered": false
+  },
+  "ownerServedCatalogDigest": null,
+  "tenantAndAdmissionAuthority": "No authority changes made; real-session preservation proof pending",
+  "limitations": [
+    "Unauthenticated 401 establishes a fence, not founder authorization outcome.",
+    "Local source mapper digest is not an owner-served digest.",
+    "Bundle signature does not establish source freshness or delivery.",
+    "Runtime observations do not repair missing source joins or close the criterion."
+  ]
+}
