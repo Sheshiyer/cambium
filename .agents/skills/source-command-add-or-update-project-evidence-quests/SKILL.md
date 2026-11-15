@@ -1,23 +1,21 @@
 ---
 name: "source-command-add-or-update-project-evidence-quests"
-description: "Workflow command scaffold for add-or-update-project-evidence-quests in cambium."
+description: "Workflow scaffold for the opt-in /cambium-evidence-quests command. Opens the project evidence and quests workflow and grants no deployment authority."
 ---
 
 # source-command-add-or-update-project-evidence-quests
 
-Use this skill when the user asks to run the migrated source command `add-or-update-project-evidence-quests`.
+Use this skill when the installed command `/cambium-evidence-quests` asks for the migrated source workflow `add-or-update-project-evidence-quests`.
 
-## Command Template
+## Command
 
-# /add-or-update-project-evidence-quests
-
-Use this workflow when working on **add-or-update-project-evidence-quests** in `cambium`.
+`/cambium-evidence-quests` is the opt-in sapling wrapper. It opens this skill. The historical source command name is `add-or-update-project-evidence-quests`.
 
 ## Goal
 
-Implements or updates project evidence and quests logic in the quine/hyphae and operator/quests subsystems, including tests.
+Update project evidence and quests logic in the quine/hyphae and operator/quests subsystems, including tests.
 
-## Common Files
+## Common files
 
 - `bin/quine/hyphae/project-evidence.ts`
 - `bin/quine/hyphae/project-evidence.test.ts`
@@ -26,19 +24,18 @@ Implements or updates project evidence and quests logic in the quine/hyphae and 
 - `bin/operator/quests/quests.ts`
 - `bin/operator/quests/quests.test.ts`
 
-## Suggested Sequence
+Update `package.json` only when the change needs a script or dependency that those files already use.
+
+## Suggested sequence
 
 1. Understand the current state and failure mode before editing.
 2. Make the smallest coherent change that satisfies the workflow goal.
 3. Run the most relevant verification for touched files.
 4. Summarize what changed and what still needs review.
 
-## Typical Commit Signals
+## Authority
 
-- Edit or add implementation files in bin/quine/hyphae/ (e.g., project-evidence.ts, quests.ts)
-- Add or update corresponding test files (*.test.ts) in the same directories
-- Edit or add bin/operator/quests/quests.ts and its tests
-- Update package.json if needed
+This scaffold grants no publication, scheduling, spend, admission, migration, provider change, or deployment. A named command is not owner approval.
 
 ## Notes
 

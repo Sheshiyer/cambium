@@ -1,44 +1,38 @@
 ---
 name: "source-command-add-or-upgrade-r3f-feature"
-description: "Workflow command scaffold for add-or-upgrade-r3f-feature in cambium."
+description: "Workflow scaffold for the opt-in /cambium-r3f-feature command. Opens the R3F feature workflow and grants no deployment authority."
 ---
 
 # source-command-add-or-upgrade-r3f-feature
 
-Use this skill when the user asks to run the migrated source command `add-or-upgrade-r3f-feature`.
+Use this skill when the installed command `/cambium-r3f-feature` asks for the migrated source workflow `add-or-upgrade-r3f-feature`.
 
-## Command Template
+## Command
 
-# /add-or-upgrade-r3f-feature
-
-Use this workflow when working on **add-or-upgrade-r3f-feature** in `cambium`.
+`/cambium-r3f-feature` is the opt-in sapling wrapper. It opens this skill. The historical source command name is `add-or-upgrade-r3f-feature`.
 
 ## Goal
 
-Implements or upgrades a feature in the cambium-r3f visual engine, including code, tests, and documentation/artifacts.
+Add or upgrade a feature in the cambium-r3f visual engine, including the code, the tests beside it, and any existing visual notes that already cover that surface.
 
-## Common Files
+## Common files
 
-- `apps/cambium-r3f/src/scene/*.tsx`
-- `apps/cambium-r3f/src/scene/*.ts`
-- `apps/cambium-r3f/src/scene/*.test.ts`
-- `apps/cambium-r3f/src/world/*.ts`
-- `apps/cambium-r3f/src/world/*.test.ts`
-- `docs/plans/assets/cambium-r3f-game-engine-realignment/verification/*`
+- `apps/cambium-r3f/src/scene/`
+- `apps/cambium-r3f/src/world/`
+- `*.test.ts` files in those same directories
+- `docs/plans/assets/cambium-r3f-game-engine-realignment/` when the change belongs to that existing asset set
+- `tasks/lessons.md` when a lesson from the change belongs there
 
-## Suggested Sequence
+## Suggested sequence
 
 1. Understand the current state and failure mode before editing.
 2. Make the smallest coherent change that satisfies the workflow goal.
 3. Run the most relevant verification for touched files.
 4. Summarize what changed and what still needs review.
 
-## Typical Commit Signals
+## Authority
 
-- Edit or add implementation files in apps/cambium-r3f/src/scene/ and/or apps/cambium-r3f/src/world/
-- Add or update corresponding test files (*.test.ts) in the same directories
-- Update or add documentation or verification artifacts in docs/plans/assets/cambium-r3f-game-engine-realignment/verification/
-- Update tasks/todo.md or tasks/lessons.md as needed
+This scaffold grants no publication, scheduling, spend, admission, migration, provider change, or deployment. A named command is not owner approval.
 
 ## Notes
 

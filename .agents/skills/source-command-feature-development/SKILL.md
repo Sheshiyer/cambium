@@ -1,42 +1,40 @@
 ---
 name: "source-command-feature-development"
-description: "Workflow command scaffold for feature-development in cambium."
+description: "Workflow scaffold for the opt-in /cambium-feature command. Opens the feature-development workflow and grants no deployment authority."
 ---
 
 # source-command-feature-development
 
-Use this skill when the user asks to run the migrated source command `feature-development`.
+Use this skill when the installed command `/cambium-feature` asks for the migrated source workflow `feature-development`.
 
-## Command Template
+## Command
 
-# /feature-development
-
-Use this workflow when working on **feature-development** in `cambium`.
+`/cambium-feature` is the opt-in sapling wrapper. It opens this skill. The historical source command name is `feature-development`.
 
 ## Goal
 
-Standard feature implementation workflow
+Make the smallest coherent feature change in the touched Cambium subsystem, with tests beside the code.
 
-## Common Files
+## Common files
 
-- `apps/cambium-r3f/src/*`
-- `apps/cambium-r3f/src/engine/*`
-- `apps/cambium-r3f/src/generated/*`
-- `**/*.test.*`
-- `**/api/**`
+- `apps/cambium-r3f/src/scene/`
+- `apps/cambium-r3f/src/world/`
+- `apps/cambium-r3f/src/engine/`
+- `apps/cambium-r3f/src/generated/`
+- test files beside the code they cover (`*.test.ts`)
 
-## Suggested Sequence
+Stay inside the subsystem the request names. Do not treat a glob such as every API route as an edit surface.
+
+## Suggested sequence
 
 1. Understand the current state and failure mode before editing.
 2. Make the smallest coherent change that satisfies the workflow goal.
-3. Run the most relevant verification for touched files.
+3. Run the most relevant verification for touched files. `npm test` is the repository verification command.
 4. Summarize what changed and what still needs review.
 
-## Typical Commit Signals
+## Authority
 
-- Add feature implementation
-- Add tests for feature
-- Update documentation
+This scaffold grants no publication, scheduling, spend, admission, migration, provider change, or deployment. A named command is not owner approval.
 
 ## Notes
 
