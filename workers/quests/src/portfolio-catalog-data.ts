@@ -43,6 +43,7 @@ export type RawClassificationReview = readonly [
 export const RAW_SAPLINGS: readonly RawSapling[] = [
   ['sapling:cambium', 'Cambium', 'supervised-branch', 'canonical', 'cambium', ['vault:00-meta/entity-registry.md', 'vault:40-products/cambium/product-overview.md'], ['program:cambium-operating-fabric']],
   ['sapling:dlock', 'DLOCK', 'proof-only', 'canonical-parent', 'cambium', ['repo:thoughtseed-labs/lockwell-portal', 'repo-id:R_kgDOP5AZyQ', 'site:https://dlock-lp.vercel.app/', 'cambium:docs/plans/product-branches/dlock.md'], undefined, [['dlock', 'brand-alias'], ['Lockwell', 'legacy-repo-name']]],
+  ['sapling:lumen-bar', 'LumenBar', 'proof-only', 'canonical-parent', 'cambium', ['repo:Sheshiyer/lumen-bar', 'repo:Sheshiyer/lumen-bar-web', 'site:https://lumenbar.thoughtseed.space/', 'cambium:docs/plans/product-branches/lumen-bar.md']],
   ['sapling:fitcheck', 'Fitcheck', 'supervised-branch', 'canonical-parent', 'cambium', ['repo:fitcheck-landing/README.md', 'repo-id:R_kgDOSzF56w', 'repo:Sheshiyer/fitcheck-wiki/README.md', 'repo-id:R_kgDOT0IfLQ', 'cambium:docs/plans/product-branches/fitcheck.md'], ['program:hdilint'], [['FitCheck', 'legacy-product-name'], ['getfitcheck', 'brand-alias']]],
   ['sapling:iverif', 'IVerif', 'proof-only', 'canonical-parent', 'cambium', ['repo:Sheshiyer/iverif-wiki', 'repo-id:R_kgDOSwXJ7Q', 'cambium:docs/plans/product-branches/iverif.md']],
   ['sapling:vantyx', 'Vantyx', 'supervised-branch', 'unresolved', null, ['cambium:docs/plans/product-branches/vantyx.md', 'repo:Panaroma-Webapp']],
@@ -149,6 +150,7 @@ export const RAW_CLASSIFICATION_REVIEW: readonly RawClassificationReview[] = [];
 export const RAW_OPERATIONAL_GAP_WORK_IDS = [
   'sapling:cambium',
   'sapling:dlock',
+  'sapling:lumen-bar',
   'sapling:fitcheck',
   'sapling:iverif',
   'sapling:vantyx',
