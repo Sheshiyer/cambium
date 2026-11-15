@@ -192,6 +192,7 @@ async function surfaceScopedQuestBody(
   stored: string,
   principal: Principal,
   founderOutcomeAuthorized = false,
+  includeFitcheckScope = false,
 ): Promise<string> {
   const readTasks = goalGraphTaskReader(deps.kv, tenantId);
   const base = await publicQuestBody(deps.kv, tenantId, stored, deps.goalGraphStore, readTasks);
@@ -202,7 +203,7 @@ async function surfaceScopedQuestBody(
       subsections: filterSubsections(MINI_APP_MAP_SUBSECTIONS, principal),
     };
     if (founderOutcomeAuthorized) {
-      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal, readTasks);
+      await appendFounderOutcomeQuestProjection(envelope, deps, tenantId, principal, readTasks, { includeFitcheckScope });
     }
     return JSON.stringify(envelope);
   } catch {
@@ -4075,7 +4076,7 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     summary: shortText(`${summaryKind} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
     source,
     ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
-    ...(reconciliation ? { identityChanges: changeSet, executionGranted: false } : {}),
+    ...(reconciliation ? { executionGranted: false } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
     consequence,
@@ -4239,11 +4240,14 @@ function goalGraphTaskReader(kv: KvLike, tenantId: string): GoalGraphTaskReader 
 async function listGoalGraphIntakeGateRows(
   kv: KvLike,
   tenantId: string,
-  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike; readTasks?: GoalGraphTaskReader } = {},
+  options: { includeFounderCandidates?: boolean; includeFounderInspect?: boolean; includeFitcheckScope?: boolean; now?: string; committedCandidateIds?: ReadonlySet<string>; decisionStore?: GoalGraphStoreLike; readTasks?: GoalGraphTaskReader } = {},
 ): Promise<Array<Record<string, unknown>>> {
   const rows: Array<Record<string, unknown>> = [];
   for (const task of await (options.readTasks ?? goalGraphTaskReader(kv, tenantId))()) {
     if (!['pending','stale'].includes(String(task.status))) continue;
+    // Fitcheck identity repair is a Founder Access review. Public and Telegram
+    // projections must not carry its launch-gate text or change set.
+    if (isFitcheckScopeTask(task) && options.includeFitcheckScope !== true) continue;
     const candidate = storedFounderOutcomeCandidate(task);
     if (candidate && task.status !== 'pending') continue;
     if (!candidate && await projectedGoalGraphDecision(options.decisionStore, task, tenantId) !== null) continue;
@@ -4420,6 +4424,7 @@ async function appendFounderOutcomeQuestProjection(
   tenantId: string,
   principal: Principal,
   readTasks: GoalGraphTaskReader = goalGraphTaskReader(deps.kv, tenantId),
+  options: { includeFitcheckScope?: boolean } = {},
 ): Promise<void> {
   const now = deps.now ? deps.now() : new Date().toISOString();
   if (!founderOutcomeProjectionAllowed(principal, tenantId, now)) return;
@@ -4428,6 +4433,7 @@ async function appendFounderOutcomeQuestProjection(
   const gateRows = await listGoalGraphIntakeGateRows(deps.kv, tenantId, {
     includeFounderCandidates: true,
     includeFounderInspect: true,
+    includeFitcheckScope: options.includeFitcheckScope === true,
     now,
     committedCandidateIds,
     decisionStore: deps.goalGraphStore,
@@ -4512,6 +4518,11 @@ async function intakeTelegramGoalGraphRoute(
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
   const reconciliation = isRecord(raw) && raw.schema === FITCHECK_SCOPE_SCHEMA;
+  // Founder bookkeeping intake passes a verified founder id. Fitcheck submission
+  // stays on the admin bridge route; approval stays on the canonical Gate.
+  if (reconciliation && verifiedFounderId) {
+    return { status: 403, body: { error: 'canonical_owner_admin_required' } };
+  }
   if (reconciliation && !await deps.fitcheckReferenceReadback?.()) {
     return { status: 503, body: { error: 'fitcheck_reference_readback_unconfirmed' } };
   }
@@ -6196,7 +6207,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     return {
       status: 200,
       headers: { ...JSON_HEADERS },
-      body: await surfaceScopedQuestBody(deps, tenant, stored, { ...principal, tenant }, founderOutcomeAuthorized),
+      body: await surfaceScopedQuestBody(deps, tenant, stored, { ...principal, tenant }, founderOutcomeAuthorized, founderWeb && founderWebPrincipal(principal)),
     };
   }
 
