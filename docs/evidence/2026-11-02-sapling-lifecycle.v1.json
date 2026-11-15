@@ -1,0 +1,100 @@
+{
+  "schema": "cambium.sapling-lifecycle-source-evidence.v1",
+  "observed_at": "2026-11-02T03:35:18.039367+00:00",
+  "authority": "bounded task evidence; no runtime admission",
+  "product_hunt": {
+    "product": "Temperance Engine",
+    "url": "https://www.producthunt.com/products/temperance-engine?launch=temperance-engine",
+    "state": "draft",
+    "scheduled": false,
+    "six_fields_reopened": true,
+    "media": "existing website Temperance mark and OG art, owner approved",
+    "tags": [
+      "Open Source",
+      "Developer Tools"
+    ],
+    "lumenbar_changed": false
+  },
+  "readme": {
+    "repository": "Sheshiyer/temperance_engine",
+    "base": "b6d5e25700f757af69a0903bf3f896f6e8a08390",
+    "commit": "42b391b44b7655972d9322d87aa3865956a5165e",
+    "files": [
+      "README.md"
+    ],
+    "remote_main_verified": true,
+    "remote_bytes_equal_reviewed_source": true,
+    "official_badge_post_id": "1301098",
+    "dirty_checkout_preserved": true
+  },
+  "product_graph": {
+    "workflow_source": "vault:.grok/workflows/sapling-product-loop.rhai",
+    "source_sha256": "5c225d88b7fa858ec4ecd4e577267efd504067cbfde8b8a5a3adab9baf1a9ecf",
+    "record": false,
+    "approved": false,
+    "terminal_state": "complete",
+    "confirmed": false,
+    "reason_summary": "Fence rejected stale company-site evidence and unsupported Product Hunt evidence. The independently created draft is separate proof.",
+    "kept_before_merge": 17,
+    "dropped_before_merge": 2,
+    "packet_rows": 16,
+    "edges": 16,
+    "graph_sha256": "3fd82ec8fa751eec31969ec419be62ed515dab9dfb40fdc65e87738603f5181e",
+    "import": "refused: rejected fence and dangling edge; trace provenance unverified",
+    "vault_receipt_written": false
+  },
+  "pack": {
+    "components_reviewed": 21,
+    "command_intents": 8,
+    "installed_owned_artifacts": 34,
+    "install_check_drift": 0,
+    "grok_commands_discovered": 8,
+    "codex_repo_and_user_skill_enabled": true,
+    "claude_smoke": "Runtime-limited: restricted read smoke did not refresh packet; continuation hit prompt context limit. No full client acceptance.",
+    "opencode_smoke": "Unavailable: executable absent; adapters installed only.",
+    "reports": "ignored local review projections",
+    "scheduler_created": false,
+    "operational_admission": false
+  },
+  "verification": {
+    "helper_tests": {
+      "pass": 17,
+      "fail": 0
+    },
+    "packet_gtm_branch_tests": {
+      "pass": 28,
+      "fail": 0
+    },
+    "schema_packets": {
+      "isolated": 7,
+      "primary_including_existing_lumenbar": 8
+    },
+    "skill_validation": "pass",
+    "initial_full_suite": {
+      "pass": 2516,
+      "fail": 10,
+      "total": 2526,
+      "qualification": "Ran during concurrent source changes; not full green."
+    },
+    "frozen_full_history_audit": {
+      "pass": 16,
+      "fail": 2,
+      "total": 18,
+      "remaining": "Two privacy gates flag unchanged historical source/fixtures."
+    },
+    "unchanged_holds": [
+      "stale canonical viewport PAGE fingerprint",
+      "system-atlas handler source fingerprint",
+      "standalone audit fixture privacy findings"
+    ],
+    "disposable_shallow_clone_probe": "Not acceptance: historical-anchor tests require commits absent from a shallow clone."
+  },
+  "held": [
+    "v1.1 clean-host milestone",
+    "live hosted-router authentication",
+    "qualified 1M sessions",
+    "tenant admission and runtime catalog promotion",
+    "future launch scheduling/publication",
+    "deployment and provider changes"
+  ]
+}

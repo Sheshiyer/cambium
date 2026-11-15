@@ -1,0 +1,180 @@
+{
+  "schema": "cambium.temperance-manual-verification.v1",
+  "observed_at": "2026-11-03T20:24:23.000749+00:00",
+  "status": "manual-source-verification-passed-with-held-runtime-gates",
+  "previous_receipt": "docs/evidence/2026-11-04-temperance-generic-glove.v1.json",
+  "ci_decision": {
+    "future_choice": "Woodpecker",
+    "hardware": "existing owned hardware only",
+    "new_paid_resources": false,
+    "setup": "deferred",
+    "separate_from_engine_and_personal_runtime": true,
+    "github_actions_enabled": false,
+    "github_setting_changed": false,
+    "workflow_in_engine_candidate": false,
+    "service_or_runner_installed": false
+  },
+  "source_candidates": {
+    "engine": {
+      "commit": "0abd183e251ff35f27ea813bc74d0a7f245c2023",
+      "pr": "https://github.com/Sheshiyer/temperance_engine/pull/59",
+      "draft": true,
+      "merged": false
+    },
+    "noesis": {
+      "commit": "89bcf48845ea2cb32f0139b33a16c39edc4cb23d",
+      "engine_pin": "0abd183e251ff35f27ea813bc74d0a7f245c2023",
+      "pr": "https://github.com/Sheshiyer/noesis-cambium/pull/100",
+      "draft": true,
+      "merged": false
+    }
+  },
+  "engine_verification": {
+    "passed": 285,
+    "failed": 0,
+    "test_files": 17,
+    "expectations": 1242,
+    "typecheck": "passed",
+    "cli_bundle": "passed",
+    "documentation_gate": {
+      "files": 41,
+      "failures": 0
+    },
+    "regression": {
+      "observed_failure": "A receipt commit succeeded into a replacement ledger directory after claim.",
+      "fix": "Bind directory device/inode at claim and recheck before persistence. Refuse a changed directory rather than treating it as a new target.",
+      "additional_cases": [
+        "independent adapters compete for one durable claim",
+        "concurrent receipt bytes cannot be overwritten",
+        "a killed process leaves its claim held for owner recovery"
+      ]
+    },
+    "manual_tool": "verification/qualify-source.ts, outside runtime package",
+    "clean_source_startup": {
+      "schema": "temperance.source-qualification.v1",
+      "recorded_at": "2026-11-03T20:19:17.966Z",
+      "source_commit": "0abd183e251ff35f27ea813bc74d0a7f245c2023",
+      "source_dirty": false,
+      "platform": {
+        "os": "darwin",
+        "release": "27.2.0",
+        "arch": "arm64",
+        "bun": "1.3.13",
+        "node": "v24.3.0"
+      },
+      "bare_startup": "passed",
+      "clients": [
+        {
+          "client": "codex-cli",
+          "status": "not-requested",
+          "native_callback": "unobserved"
+        },
+        {
+          "client": "claude-code",
+          "status": "not-requested",
+          "native_callback": "unobserved"
+        }
+      ],
+      "evidence_scope": "bare source startup and optional disposable official-package installation/version probes",
+      "semantic_acceptance": false,
+      "sandbox_isolation": "not-established",
+      "installed_profile": "unchanged",
+      "public_release": "held"
+    }
+  },
+  "noesis_verification": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "real_source_copy_checks": [
+      "loads exact pinned source with all six modules held and no effect/installed acceptance",
+      "changed implementation bytes rejected before import",
+      "symlink escaping pinned source rejected before import"
+    ],
+    "direct_pin_inspection": "passed",
+    "installed_adoption": false
+  },
+  "hardware_observation": {
+    "local": "macOS Apple Silicon",
+    "local_docker_context": "local Colima, stopped",
+    "docker_started": false,
+    "connected_devices": 1,
+    "online_devices": 0,
+    "device_identifiers_recorded": false,
+    "other_native_targets_available": false
+  },
+  "product_hunt": {
+    "read_method": "Authenticated existing launch editor and complete supported scheduling dialog, including footer. Cancel closed the dialog and editor reported No changes.",
+    "observed_state": "scheduled November 6, 2026, 12:01 AM PST (13:31 IST)",
+    "available_schedule_actions": [
+      "Update date",
+      "Cancel dialog"
+    ],
+    "return_to_draft_control_found": false,
+    "schedule_changed": false,
+    "listing_deleted": false,
+    "copy_alignment": "Current editor description still presents a seven-phase loop and named clients as package defaults; requires neutral-positioning review before launch. No copy overwritten.",
+    "proof": ".local/sapling-lifecycle/2026-11-04-manual-verification/launch-schedule-dialog.jpg"
+  },
+  "history_preservation": {
+    "pointer_bytes": 572,
+    "pointer_sha256": "41f3e28e4c63ce60c0c6070796ec6a8882388312af80ca4ebee1c09abc0e1927",
+    "original_body_bytes": 305171,
+    "original_body_sha256": "eab7e78fd831fc4f9cc8bc9b591e01985a45cddb1ac2ab08009ba40832be337f",
+    "original_offset_before": 7730,
+    "original_offset_after": 8715,
+    "prior_file_bytes_preserved": 313785,
+    "unrelated_continuations": 6,
+    "unrelated_continuation_hashes": {
+      "native_mac": "c6048ea258dfe9c5aa7243dd31e305be21b36da7cc93436819ccd10944a37976",
+      "native_build": "0ed09b5139dd054b2b3ddb6fc98f240e3211035fdbc39927b464dbff045cd06d",
+      "temperance_positioning": "c35875fdd905ac85441482cdd5315b5fd7f3c0b603925611db5a31a0103c2afc",
+      "repo_anatomy_spatial": "9e06376081b55c3138cdc90dc570cb728225cc04d11884802d6a7b7f894f4f37",
+      "temperance_workflow_trace": "f4f24526e199ceefb679ee609636554bfaf819d05cf4f5152a5924a7c1a88727",
+      "native_operational_loop": "fb7ecc540f70a50ab0ce6c5be5c8739c643a7cbe8b086fe52b899686d3b6d73c"
+    },
+    "unchanged_across_write": true
+  },
+  "retained_measurements": {
+    "human_handoff_tool_output_bytes": {
+      "before": 304610,
+      "after": 572
+    },
+    "all_command_tool_output_bytes": {
+      "before": 425693,
+      "after": 81764
+    },
+    "overall_token_improvement": "unproven",
+    "overall_latency_improvement": "unproven",
+    "additional_benchmark_selected": false
+  },
+  "held_gates": [
+    "Observed native macOS Intel, Linux x64 and Windows x64 qualification",
+    "Actual native client callback and owner-result readback",
+    "Supported Product Hunt return-to-draft and listing-copy alignment",
+    "Owning Rhai model fence for graph acceptance",
+    "Independent Noesis installed adoption"
+  ],
+  "ci_is_acceptance_prerequisite": false,
+  "boundaries": {
+    "new_paid_resources": false,
+    "new_infrastructure_started": false,
+    "installed_personal_runtime_changed": false,
+    "hooks_or_providers_changed": false,
+    "production_changed": false,
+    "messages_sent": false
+  },
+  "graph_validation": {
+    "ok": false,
+    "errors": [
+      "fence did not accept this graph"
+    ],
+    "fence_accepted": false,
+    "confirmed": false,
+    "authority": "review-projection-only",
+    "nodes": 7,
+    "edges": 6,
+    "all_files_observed": true,
+    "accepted_vault_receipt": false
+  }
+}
