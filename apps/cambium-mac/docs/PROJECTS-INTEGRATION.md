@@ -48,6 +48,37 @@ had 77 current records, 20 historical products, zero classification reviews,
 from each served envelope; the app does not claim the older fixture is the
 current production catalog.
 
+## Activation readback
+
+The 2026-11-02 TypeScript-to-Swift catalog counts in Local verification below,
+including the concurrent LumenBar catalog lane, are working-source evidence.
+They are not committed or deployed authority. `OwnerConfiguration` can prefill
+the reviewed Curious profile (`https://curious.thoughtseed.space`, tenant
+`cambium`, reviewed client and callback) without contacting the owner. Nothing
+is contacted until Sign in.
+
+The 3 November read-only refresh recorded in
+[FIELD-REPORT-INTEGRATION-DECISIONS.md](FIELD-REPORT-INTEGRATION-DECISIONS.md)
+saw health `200`, native session `404`, Mission Fabric and quest projection
+`401 access_identity_required`, TeamForge identity `501 feature_not_ready`,
+and `routeSurfaceReady: false`. This note does not repeat that refresh.
+
+`tools/probe-live-owner.sh` packages a read-only
+`cambium.live-owner-preflight.v1` receipt. It sends no credentials and does
+not follow redirects. It does not run until `CAMBIUM_OWNER_URL` is set.
+
+`tools/probe-activation-readiness.sh` joins that receipt with the mapper
+result, local 0100/0101 migration hashes, TeamForge PR #105 readback, and the
+scoped source head. It emits `cambium.native-activation-readiness.v1` and does
+not upload, merge, register, migrate, or sign in. Wrangler stays off unless
+`CAMBIUM_RUN_LIVE_BINDING_READBACK=1`. Deployment, migrations, secrets, and
+schema are reported separately. A failed read stays null and `unavailable`,
+and the packet status is `partial` until all four reads succeed. An empty
+successful read can show absence. A schema body with `success: false` stays
+unavailable even when the command exits 0. Set
+`CAMBIUM_RUN_WRANGLER_DRY_RUN=1` only for a candidate binding dry-run. A
+passing dry-run is candidate preparation, not deployed binding readback.
+
 ## Local verification
 
 - `swift test --package-path apps/cambium-mac`: 35 native and 247 Core tests
