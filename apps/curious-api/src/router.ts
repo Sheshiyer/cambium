@@ -5,6 +5,8 @@ import { handleHealth } from "./health.ts";
 import { json } from "./http.ts";
 import type { QuestsService } from "./quests-client.ts";
 import { handleQuestsHealth } from "./quests-route.ts";
+import { handleLibraryRequest } from "./library-routes.ts";
+import { handleMcp } from "./mcp.ts";
 import { handleTokenRequest } from "./token-routes.ts";
 
 export interface WorkerEnv {
@@ -16,6 +18,7 @@ export interface WorkerEnv {
   CURIOUS_ACCESS_AUD?: string;
   ACCESS_TEAM_DOMAIN?: string;
   ACCESS_AUD?: string;
+  CURIOUS_FIELD_KEY?: string;
 }
 
 export async function route(request: Request, env: WorkerEnv, deps: Deps = defaultDeps): Promise<Response> {
@@ -23,7 +26,11 @@ export async function route(request: Request, env: WorkerEnv, deps: Deps = defau
   const db = deps.db ?? (env.CURIOUS_DB ? fromD1(env.CURIOUS_DB) : undefined);
   let response: Response;
   const tokenResponse = await handleTokenRequest(request, db, env, deps);
+  const libraryResponse = tokenResponse ? null : await handleLibraryRequest(request, db, env.CURIOUS_FIELD_KEY, deps);
+  const mcpResponse = tokenResponse || libraryResponse ? null : await handleMcp(request, db, env.CURIOUS_FIELD_KEY, deps);
   if (tokenResponse) response = tokenResponse;
+  else if (libraryResponse) response = libraryResponse;
+  else if (mcpResponse) response = mcpResponse;
   else if (request.method === "GET" && url.pathname === "/healthz") response = handleHealth(env.SERVICE_NAME);
   else if (url.pathname === "/v1/quests/health") response = await handleQuestsHealth(request, env.CAMBIUM_QUESTS, deps);
   else response = json(404, { ok: false, error: "not_found" });

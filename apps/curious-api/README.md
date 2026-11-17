@@ -20,6 +20,10 @@ Aletheios is the only issuer and holds only `tokens:issue`. It cannot mint `toke
 
 The first `tokens:issue` credential is the Wrangler secret `CURIOUS_ISSUER_TOKEN`. Mage installs it himself at deploy time. There is no HTTP install path. See `docs/issuer-credential.md`. Tests still call `installIssuerCredential`.
 
+## Library
+
+D1 is the library record. `POST /v1/library/nodes`, `GET`, and `DELETE` plus `POST /mcp` expose the same writes. Personal fields are encrypted with `CURIOUS_FIELD_KEY` before they are stored. `library:*` does not include `library:personal:*`. A deleted shared or personal node is tombstoned for 30 days and then wiped. Credentials, cookies, and birth data are rejected and are not stored. Browser storage is only a cache plus an offline queue.
+
 ## Local checks
 
 ```bash
