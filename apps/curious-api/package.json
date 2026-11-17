@@ -1,0 +1,21 @@
+{
+  "name": "curious-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local curious-api Worker. Draft source only. This package does not publish.",
+  "scripts": {
+    "test": "node --test src/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "dev": "wrangler dev --local --ip 127.0.0.1 --port 8787",
+    "d1:apply:local": "wrangler d1 migrations apply CURIOUS_DB --local",
+    "types": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20241127.0",
+    "esbuild": "0.24.2",
+    "miniflare": "3.20250718.3",
+    "typescript": "5.5.4",
+    "wrangler": "3.74.0"
+  }
+}
