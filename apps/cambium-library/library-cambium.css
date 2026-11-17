@@ -1,0 +1,181 @@
+/* Cambium visual-flow projection: interface tokens and selected organ imagery.
+   The imagery is reference art; counts and source states come only from Library data. */
+:root,
+:root[data-theme=dark]{
+  color-scheme:dark;
+  --paper:#061b1d;
+  --surface:#0d292b;
+  --surface-2:#123438;
+  --ink:#f1f6e8;
+  --muted:#a6b9ae;
+  --line:#375155;
+  --forest:#efff4f;
+  --forest-deep:#d8ec3c;
+  --accent:#ffc2a0;
+  --gold:#efff4f;
+  --on-green:#09292a;
+  --shadow:0 10px 30px #020f12a8;
+  --sage:#1b4240;
+  --sage-ink:#d9fff3;
+  --blue:#1b3b4a;
+  --blue-ink:#ceebf3;
+  --clay:#423429;
+  --clay-ink:#ffdbc5;
+  --gold-bg:#3d4323;
+  --gold-ink:#f0ff9b;
+  --rose:#422e32;
+  --rose-ink:#ffcecf;
+  font-family:"Arial Narrow","Aptos Narrow",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body{
+  background:radial-gradient(circle at 78% 13%,#18463b 0,transparent 34%),
+    linear-gradient(135deg,#081f22,#051619 70%);
+  min-height:100vh;
+}
+.app-header{max-width:none;padding-inline:clamp(16px,4vw,72px);border-bottom-color:#3b6260;background:#082124e8;backdrop-filter:blur(15px)}
+.brand svg{stroke:var(--forest);stroke-width:1.5}
+.brand>span,.welcome h1,.browse-heading h2,.form-dialog h2,.detail-body h2{
+  font-family:"Arial Narrow","Aptos Narrow","Helvetica Neue",sans-serif;
+  font-weight:700;
+  letter-spacing:-.045em;
+}
+.brand>span{text-transform:uppercase;letter-spacing:.02em;font-size:22px}
+.brand small,.eyebrow,.atlas-caption,.answer-label,.cover-caption{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-weight:650;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.brand small{color:var(--forest);letter-spacing:.06em;font-size:7px}
+.main-nav button[aria-pressed=true]{color:var(--forest)}
+.app-main{max-width:1512px;padding:28px clamp(16px,4vw,72px) 0}
+.welcome{
+  position:relative;
+  min-height:320px;
+  grid-template-columns:minmax(0,1fr) minmax(360px,.85fr);
+  gap:24px;
+  border:1px solid #51716a;
+  border-radius:18px;
+  padding:clamp(20px,3vw,42px);
+  overflow:hidden;
+  box-shadow:inset 0 0 0 1px #0d3436,0 25px 60px #0005;
+  background:linear-gradient(110deg,#0b3435 0%,#0a272a 47%,#062022 100%);
+}
+.welcome:before{
+  content:"";
+  position:absolute;inset:0;
+  opacity:.32;
+  pointer-events:none;
+  background-image:linear-gradient(#c9f5cb12 1px,transparent 1px),
+    linear-gradient(90deg,#c9f5cb12 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.welcome-copy,.atlas-wrap{position:relative;z-index:1}
+.welcome-copy{color:#f1f6e8}
+.welcome h1{font-size:clamp(34px,4.2vw,65px);line-height:1.01;margin:0 0 20px}
+.welcome h1 em{font-style:normal;color:#efff4f}
+.welcome .eyebrow{color:#efff4f}
+.welcome-path{font:600 10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d9fff3;letter-spacing:.02em;margin:0 0 22px}
+.welcome-path span{color:var(--forest);margin-inline:5px}
+.expedition .welcome{grid-template-columns:minmax(0,1fr) minmax(360px,.85fr);min-height:320px;gap:24px;margin-bottom:21px}
+.expedition .welcome h1{font-size:clamp(34px,4.2vw,65px);letter-spacing:-.045em}
+.expedition .library-stats{display:flex}
+.library-stats{gap:20px;flex-wrap:wrap;color:#bbd1c4}
+.library-stats strong{color:#f3ff74;font-size:15px}
+.atlas-wrap{padding:14px;background:linear-gradient(135deg,#09292ddc,#0b3437d4),url("visual-assets/cortex-concept-v1.png") center/cover;border:1px solid #537477;border-radius:12px;box-shadow:inset 0 0 0 1px #0a262b}
+.atlas-caption{color:#e8f3d9}
+.atlas-caption span:first-child{color:var(--forest)}
+.atlas{height:210px}
+.contours{opacity:.3}
+.atlas-topic{background:#0b2b2eee;border:1px solid #7ca29b;color:#f4f9e9;box-shadow:0 5px 15px #0008;backdrop-filter:blur(8px)}
+.atlas-topic:hover,.atlas-topic[aria-pressed=true]{border-color:var(--forest)}
+.primary,.ask-button{background:var(--forest);border-color:var(--forest);color:#072d2d;box-shadow:0 3px 0 #7d8a20;font-weight:750}
+.primary:enabled:hover,.ask-button:hover{background:#fff96d;border-color:#fff96d}
+.quiet-button,.light-button,.file-label{background:#143438;color:#f0f5e9;border:1px solid #57716b}
+.quiet-button:hover,.light-button:hover{border-color:var(--forest)}
+.saved-library{background:transparent}
+.browse-heading{border-bottom-color:#55716b}
+.browse-heading h2{font-size:clamp(28px,3vw,45px);color:#f1f5ea}
+.search-bar{box-shadow:0 8px 28px #0004}
+.resource-card,.quest,.set-card,.answer,.page-error{
+  background:linear-gradient(155deg,#123438,#0b272a);
+  border:1px solid #42615e;
+  box-shadow:0 8px 20px #00141975;
+}
+.resource-title,.quest strong,.working-set-card h3{font-family:"Arial Narrow","Aptos Narrow","Helvetica Neue",sans-serif;font-weight:700;letter-spacing:-.025em}
+.expedition .quest{background:linear-gradient(155deg,#123438,#0b272a);border:1px solid #42615e;color:#f1f6e8}
+.resource-card:hover,.quest:hover,.set-card:hover{border-color:#c9e36d}
+.resource-cover,.detail-cover{
+  background-image:linear-gradient(120deg,#0a2d30cc,#0d3138aa),url("visual-assets/taste-concept-v1.png");
+  background-position:center;
+  background-size:cover;
+}
+.resource-cover:before,.detail-cover:before{opacity:.08}
+.source-filters button[aria-pressed=true],.filter-chip[aria-pressed=true]{background:var(--forest);color:var(--on-green)}
+.selection-bar{background:#092d2f;border-top:1px solid var(--forest);color:#f4f7e9}
+.form-dialog,.detail-dialog{background:#0b292c;border:1px solid #638078;color:#f0f5e9;box-shadow:0 26px 80px #000b}
+.form-dialog::backdrop,.detail-dialog::backdrop{background:#020b0dd9}
+.fit-section{margin:18px 0 20px;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.fit-section h3{margin:0;font:700 13px/1.3 "Arial Narrow","Aptos Narrow",sans-serif;text-transform:uppercase;letter-spacing:.05em}
+.fit-section .field-help{margin:5px 0 12px}
+.fit-item{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:11px 0;border-top:1px solid var(--line)}
+.fit-item strong{font-size:12px}
+.fit-item small{display:block;color:var(--muted);font-size:10px;margin-top:4px;line-height:1.4}
+.fit-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.fit-actions button{font-size:10px;min-height:30px;padding:5px 8px}
+.fit-actions button[aria-pressed=true]{border-color:var(--forest);color:var(--forest)}
+.fit-actions a{font-size:10px;white-space:nowrap;margin-left:4px}
+@media(max-width:560px){.fit-item{display:block}.fit-actions{margin-top:9px}}
+.app-footer{border-top-color:#45605b}
+@media(max-width:820px){
+  .welcome,.expedition .welcome{grid-template-columns:1fr;min-height:0}
+  .atlas-wrap{max-width:650px}
+}
+@media(max-width:560px){
+  .welcome,.expedition .welcome{padding:20px;display:block}
+  .expedition .welcome>div:first-child{display:block}
+  .expedition .welcome h1{font-size:34px}
+  .atlas{height:175px}
+  .atlas-wrap{padding:9px}
+  .welcome-path{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.atlas-topic{transition:none}}
+
+/* The design board also includes a paper reading state; the palette switch
+   keeps its existing behavior instead of becoming a dead control. */
+:root[data-theme=light]{
+  color-scheme:light;
+  --paper:#f3f0e5;--surface:#fffdf4;--surface-2:#e7ebdb;
+  --ink:#14373a;--muted:#47615f;--line:#bdcec0;
+  --forest:#245a4d;--forest-deep:#174639;--on-green:#fffdf0;
+  --accent:#9d482c;--sage:#ddebd9;--sage-ink:#244f41;
+  --blue:#dce9e9;--blue-ink:#29545c;--clay:#eddfd1;
+  --clay-ink:#754628;--gold-bg:#ece4be;--gold-ink:#695b24;
+  --rose:#f0ded8;--rose-ink:#744540;
+}
+:root[data-theme=light] body{background:linear-gradient(145deg,#f3f0e5,#e8ede4)}
+:root[data-theme=light] .app-header{background:#f3f0e5ec;border-color:#b5cbb8}
+:root[data-theme=light] .brand>span{color:#173c3c}
+:root[data-theme=light] .brand small,
+:root[data-theme=light] .main-nav button[aria-pressed=true]{color:#245a4d}
+:root[data-theme=light] .welcome{border-color:#9abca9;background:linear-gradient(110deg,#144443,#0d3036 72%)}
+:root[data-theme=light] .welcome-copy,
+:root[data-theme=light] .welcome h1{color:#f1f6e8}
+:root[data-theme=light] .welcome h1 em,
+:root[data-theme=light] .welcome .eyebrow{color:#efff4f}
+:root[data-theme=light] .atlas-wrap{background-image:linear-gradient(135deg,#0a3131b8,#0b3437b5),url("visual-assets/cortex-concept-v1.png")}
+:root[data-theme=light] .browse-heading h2{color:#153a3d}
+:root[data-theme=light] .resource-card,
+:root[data-theme=light] .quest,
+:root[data-theme=light] .set-card,
+:root[data-theme=light] .answer,
+:root[data-theme=light] .page-error{background:#fffdf4;color:#14373a;border-color:#b8cebb;box-shadow:0 8px 20px #2c51301c}
+:root[data-theme=light] .expedition .quest{background:#fffdf4;color:#14373a;border-color:#b8cebb}
+:root[data-theme=light] .quiet-button,
+:root[data-theme=light] .light-button,
+:root[data-theme=light] .file-label{background:#fffdf4;color:#1c4543;border-color:#a8c2b3}
+:root[data-theme=light] .primary,
+:root[data-theme=light] .ask-button{background:#245a4d;border-color:#245a4d;color:#fffdf0;box-shadow:0 3px 0 #143d33}
+:root[data-theme=light] .form-dialog,
+:root[data-theme=light] .detail-dialog{background:#fffdf4;color:#14373a;border-color:#b1c8b6}
+:root[data-theme=light] .selection-bar{background:#174239;color:#fffdf4}

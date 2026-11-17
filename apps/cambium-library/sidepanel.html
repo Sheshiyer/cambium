@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Arc Sidebar</title>
+<link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+<div id="bg" class="bg"></div>
+<div id="app" class="app">
+  <header class="top">
+    <button class="icon-btn" id="back" title="Back">‹</button>
+    <button class="icon-btn" id="fwd" title="Forward">›</button>
+    <button class="icon-btn" id="reload" title="Reload">↻</button>
+    <div class="url-pill" id="urlpill" title="Search or enter URL (⌘K)">
+      <img id="url-fav" class="fav" alt="">
+      <span id="url-text">Search or type a URL…</span>
+    </div>
+    <button class="icon-btn" id="boost" title="Boost this site">✦</button>
+  </header>
+
+  <section class="favorites" id="favorites"></section>
+
+  <section class="list" id="pinned"></section>
+
+  <div class="divider"><span>Today</span><button id="clear" class="ghost" title="Archive all Today tabs">Clear</button></div>
+  <section class="list today" id="today"></section>
+
+  <button class="new-tab" id="newtab"><span class="plus">+</span> New Tab</button>
+
+  <footer class="spaces">
+    <button class="icon-btn" id="archive-btn" title="Archived tabs">🗂</button>
+    <div class="dots" id="dots"></div>
+    <button class="icon-btn" id="add-space" title="New space">+</button>
+  </footer>
+</div>
+
+<!-- Overlays -->
+<div class="sheet hidden" id="search-sheet">
+  <div class="sheet-card">
+    <input id="search" placeholder="Search tabs, history, bookmarks… or type a URL" autocomplete="off">
+    <ul id="results"></ul>
+  </div>
+</div>
+
+<div class="sheet hidden" id="space-sheet">
+  <div class="sheet-card small">
+    <h3 id="space-sheet-title">Space</h3>
+    <label>Name <input id="sp-name"></label>
+    <label>Emoji <input id="sp-emoji" maxlength="3"></label>
+    <div class="theme-grid" id="theme-grid"></div>
+    <div class="row">
+      <button class="danger" id="sp-delete">Delete</button>
+      <span class="spacer"></span>
+      <button class="ghost" id="sp-cancel">Cancel</button>
+      <button class="primary" id="sp-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet hidden" id="boost-sheet">
+  <div class="sheet-card small">
+    <h3>Boost <span id="boost-origin" class="muted"></span></h3>
+    <label>Hue <input type="range" id="b-hue" min="0" max="360" value="0"></label>
+    <label>Saturation <input type="range" id="b-sat" min="0" max="200" value="100"></label>
+    <label>Brightness <input type="range" id="b-bright" min="50" max="150" value="100"></label>
+    <label class="check"><input type="checkbox" id="b-invert"> Dark mode (invert)</label>
+    <label>Font <select id="b-font"><option value="">Site default</option><option>Inter</option><option>Georgia</option><option>Helvetica Neue</option><option>SF Mono</option><option>Comic Sans MS</option></select></label>
+    <label>Custom CSS <textarea id="b-css" rows="4" placeholder=".ads { display:none }"></textarea></label>
+    <div class="row">
+      <button class="danger" id="b-remove">Remove boost</button>
+      <span class="spacer"></span>
+      <button class="ghost" id="b-cancel">Close</button>
+      <button class="primary" id="b-save">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet hidden" id="archive-sheet">
+  <div class="sheet-card">
+    <h3>Archived tabs</h3>
+    <ul id="archive-list"></ul>
+    <div class="row"><span class="spacer"></span><button class="ghost" id="archive-close">Close</button></div>
+  </div>
+</div>
+
+<script type="module" src="sidepanel.js"></script>
+</body>
+</html>

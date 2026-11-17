@@ -1,0 +1,27 @@
+import {request,hosted} from './library-api.js';
+const dock=document.querySelector('#sync-dock');let timer;
+function node(tag,text){const e=document.createElement(tag);if(text!=null)e.textContent=text;return e;}
+function button(text,fn){const b=node('button',text);b.type='button';b.onclick=async()=>{b.disabled=true;try{await fn();}catch(e){alert(e.message);}finally{b.disabled=false;await render();}};return b;}
+function dialog(title){const d=node('dialog');d.className='sync-dialog';d.append(node('h2',title),button('Close',()=>d.close()));d.addEventListener('close',()=>d.remove(),{once:true});document.body.append(d);d.showModal();return d;}
+async function conflicts(status){const d=dialog('Review competing edits');for(const c of Object.values(status.conflicts||{})){const section=node('section');section.append(node('h3',JSON.parse(c.key).join(' · ')));for(const[k,v]of Object.entries(c.fields))section.append(node('p',k),node('pre','Your edit: '+JSON.stringify(v.local,null,2)+'\nShared edit: '+JSON.stringify(v.remote,null,2)));section.append(button('Keep my version',async()=>{await request('companion:resolve',{id:c.id,choice:'local'});section.remove();}),button('Use shared version',async()=>{await request('companion:resolve',{id:c.id,choice:'remote'});section.remove();}));d.append(section);}d.append(node('p','Both versions are retained in local resolution history.'));
+}
+async function bookmarks(){
+ const d=dialog('Original Chrome bookmarks');d.append(node('p','These actions affect bookmarks in the connected Chrome profile. Removing a Library reference does not delete its original bookmark.'));
+ const data=await request('companion:bookmarks',{payload:{action:'list'}}),selected=new Set();
+ const search=node('input');search.placeholder='Filter bookmark title or URL';search.setAttribute('aria-label','Filter original bookmarks');const list=node('div');const count=node('p');const render=()=>{list.replaceChildren();const matches=data.bindings.filter(b=>(b.title+' '+b.url).toLowerCase().includes(search.value.toLowerCase())).slice(0,100);for(const b of matches){const label=node('label'),input=node('input');input.type='checkbox';input.checked=selected.has(b);input.onchange=()=>{input.checked?selected.add(b):selected.delete(b);count.textContent=selected.size+' selected';};label.append(input,document.createTextNode(b.title+' — '+b.url));list.append(label);}count.textContent=selected.size+' selected · showing up to 100 of '+data.bindings.length;};search.oninput=render;
+ const folder=node('select');folder.setAttribute('aria-label','Destination bookmark folder');for(const f of data.folders){const o=node('option',f.title);o.value=f.id;folder.append(o);}
+ const title=node('input');title.placeholder='Bookmark title';title.setAttribute('aria-label','Bookmark title');const url=node('input');url.type='url';url.placeholder='https://…';url.setAttribute('aria-label','Bookmark URL');
+ const perform=async(action,extra={})=>{const result=await request('companion:bookmarks',{payload:{action,targets:[...selected],...extra}});if(result.failed?.length)throw Error(result.completed.length+' completed; '+result.failed.map(x=>x.error).join('; '));d.close();await bookmarks();};
+ d.append(search,count,list,node('h3','Destination and edits'),folder,title,url,
+ button('Create bookmark',()=>perform('create',{parentId:folder.value,title:title.value,url:url.value})),
+ button('Edit selected bookmark',()=>{if(selected.size!==1)throw Error('Select exactly one bookmark to edit');return perform('edit',{title:title.value||[...selected][0].title,url:url.value||[...selected][0].url});}),
+ button('Move selected',()=>perform('move',{parentId:folder.value})),
+ button('Delete originals…',async()=>{if(!selected.size)throw Error('Select original bookmarks first');const confirm=dialog('Delete '+selected.size+' original bookmarks?');for(const b of selected)confirm.append(node('p',b.title+' — '+b.url));confirm.append(node('p','Library references will remain. This deletes only the listed bookmark nodes, not folders.'),button('Confirm deletion',async()=>{await perform('delete',{confirmed:true});confirm.close();}));}));render();
+}
+async function render(){if(!dock)return;try{const s=await request('companion:status');dock.replaceChildren();dock.append(node('span',(s.connected?'Chrome companion connected':hosted?'Private Site · companion disconnected':'Offline Library · connection closed')+' · '+s.pending+' queued · '+(s.lastSync?'synced '+new Date(s.lastSync).toLocaleTimeString():'not synced yet')));
+ dock.append(button('Connect Field Report',()=>request('companion:connect')),button('Sync now',()=>request('companion:sync')),button('Original bookmarks',bookmarks));
+ if(Object.keys(s.conflicts||{}).length)dock.append(button(Object.keys(s.conflicts).length+' conflicts to review',()=>conflicts(s)));
+ dock.append(button('Download migration backup',async()=>{const backup=await request('companion:backup');const url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:'application/json'})),a=node('a');a.href=url;a.download='Field-Report-Library-migration-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}));if(s.error)dock.append(node('span',s.error));
+ }catch(e){dock.textContent='Library sync: '+e.message;}}
+function schedule(){clearTimeout(timer);timer=setTimeout(render,100);}
+window.addEventListener('library-sync-status',schedule);chrome.storage.onChanged.addListener((changes)=>{if(changes.librarySyncStatus||changes.libraryConnected)schedule();});render();
