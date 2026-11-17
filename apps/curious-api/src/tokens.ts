@@ -26,6 +26,8 @@ function bearer(request: Request): string | null {
   return match ? match[1] : null;
 }
 
+// Test-only. There is no HTTP route that installs the issuer credential.
+// Mage sets CURIOUS_ISSUER_TOKEN with wrangler secret put at deploy time.
 export async function installIssuerCredential(db: CuriousDb, rawToken: string, at: string): Promise<void> {
   const existing = await db.get("SELECT id FROM tokens WHERE id = ?1", ["issuer-aletheios"]);
   if (existing) return;
