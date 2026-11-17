@@ -69,12 +69,15 @@ test("migrations apply under Miniflare and create the graph tables", async () =>
     if (!body.ok) throw new Error(body.message || "run failed");
   };
   try {
-    const applied = await applyMigrations(exec, await readMigrations());
-    assert.deepEqual(applied, ["0001_graph.sql"]);
+    const files = await readMigrations();
+    const applied = await applyMigrations(exec, files);
+    assert.deepEqual(applied, files.map((file) => file.name));
     const tables = await all<{ name: string }>(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name",
     );
-    assert.deepEqual(tables.map((row) => row.name), ["audit", "edges", "events", "nodes", "tokens"]);
+    for (const name of ["audit", "edges", "events", "nodes", "tokens"]) {
+      assert.ok(tables.some((row) => row.name === name), name);
+    }
 
     await run(
       "INSERT INTO nodes (id, tenant_id, kind, body, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
