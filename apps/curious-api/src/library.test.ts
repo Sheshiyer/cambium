@@ -44,12 +44,12 @@ async function tokenFor(db: Awaited<ReturnType<typeof memoryDb>>, agent: string,
 test("personal fields are encrypted and library:* cannot read them", async () => {
   const db = await memoryDb();
   const key = ephemeralKey();
-  const writer = await tokenFor(db, "scribe", ["library:personal:write", "library:personal:read", "library:write"]);
+  const writer = await tokenFor(db, "aletheios", ["library:personal:write", "library:personal:read", "library:write"]);
   const broad = await tokenFor(db, "reader", ["library:*"]);
   const env: WorkerEnv = { CURIOUS_FIELD_KEY: key };
   const saved = await route(new Request("http://127.0.0.1/v1/library/nodes", {
     method: "POST",
-    headers: { authorization: `Bearer ${writer}`, "x-curious-agent": "scribe", "content-type": "application/json" },
+    headers: { authorization: `Bearer ${writer}`, "x-curious-agent": "aletheios", "content-type": "application/json" },
     body: JSON.stringify({ id: "note-1", tenantId: "thoughtseed", title: "Shared title", personal: { note: "kept private" } }),
   }), env, deps(db));
   assert.equal(saved.status, 201);
@@ -67,7 +67,7 @@ test("personal fields are encrypted and library:* cannot read them", async () =>
   assert.equal("personal" in hiddenBody, false);
 
   const shown = await route(new Request("http://127.0.0.1/v1/library/nodes/note-1", {
-    headers: { authorization: `Bearer ${writer}`, "x-curious-agent": "scribe" },
+    headers: { authorization: `Bearer ${writer}`, "x-curious-agent": "aletheios" },
   }), env, deps(db));
   assert.equal((await shown.json() as { personal: { note: string } }).personal.note, "kept private");
 });
@@ -75,9 +75,9 @@ test("personal fields are encrypted and library:* cannot read them", async () =>
 test("a personal-only token cannot tombstone a shared node", async () => {
   const db = await memoryDb();
   const writer = await tokenFor(db, "scribe", ["library:write"]);
-  const personalOnly = await tokenFor(db, "keeper", ["library:personal:write", "library:personal:read"]);
+  const personalOnly = await tokenFor(db, "aletheios", ["library:personal:write", "library:personal:read"]);
   const writerHeaders = { authorization: `Bearer ${writer}`, "x-curious-agent": "scribe", "content-type": "application/json" };
-  const personalHeaders = { authorization: `Bearer ${personalOnly}`, "x-curious-agent": "keeper", "content-type": "application/json" };
+  const personalHeaders = { authorization: `Bearer ${personalOnly}`, "x-curious-agent": "aletheios", "content-type": "application/json" };
   assert.equal((await route(new Request("http://127.0.0.1/v1/library/nodes", {
     method: "POST",
     headers: writerHeaders,
@@ -94,9 +94,9 @@ test("a personal-only token cannot tombstone a shared node", async () => {
 test("shared and personal nodes stay tombstoned for 30 days and are then wiped", async () => {
   const db = await memoryDb();
   const key = ephemeralKey();
-  const token = await tokenFor(db, "scribe", ["library:*", "library:personal:*"]);
+  const token = await tokenFor(db, "aletheios", ["library:*", "library:personal:*"]);
   const env: WorkerEnv = { CURIOUS_FIELD_KEY: key };
-  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "scribe", "content-type": "application/json" };
+  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "aletheios", "content-type": "application/json" };
   for (const item of [
     { id: "shared-1", tenantId: "thoughtseed", title: "Shared" },
     { id: "personal-1", tenantId: "thoughtseed", title: "Personal", personal: { note: "private" } },
@@ -117,8 +117,8 @@ test("shared and personal nodes stay tombstoned for 30 days and are then wiped",
 
 test("credentials, cookies, and birth data are rejected and not stored", async () => {
   const db = await memoryDb();
-  const token = await tokenFor(db, "scribe", ["library:*", "library:personal:*"]);
-  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "scribe", "content-type": "application/json" };
+  const token = await tokenFor(db, "aletheios", ["library:*", "library:personal:*"]);
+  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "aletheios", "content-type": "application/json" };
   for (const extra of [{ password: "nope" }, { cookie: "a=b" }, { birth: "1990-01-01" }, { profile: { dob: "1990-01-01" } }]) {
     const response = await route(new Request("http://127.0.0.1/v1/library/nodes", {
       method: "POST",
@@ -135,9 +135,9 @@ test("credentials, cookies, and birth data are rejected and not stored", async (
 test("MCP library_get uses the same scope split", async () => {
   const db = await memoryDb();
   const key = ephemeralKey();
-  const token = await tokenFor(db, "scribe", ["library:personal:*", "library:write"]);
+  const token = await tokenFor(db, "aletheios", ["library:personal:*", "library:write"]);
   const env: WorkerEnv = { CURIOUS_FIELD_KEY: key };
-  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "scribe", "content-type": "application/json" };
+  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "aletheios", "content-type": "application/json" };
   await route(new Request("http://127.0.0.1/v1/library/nodes", {
     method: "POST",
     headers,
