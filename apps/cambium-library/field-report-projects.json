@@ -1,0 +1,116 @@
+{
+  "schema": "field-report-product-context.v1",
+  "source": "Field Report source snapshot",
+  "site": "https://field-report.witnessalchemist.chatgpt.site",
+  "sourceCommit": "0209cfc053558c09564f51b2120e5d676603effa",
+  "sourceSha256": "791fb461e90c5c168e99b3a292535557def62e6f6ed19610f7b070ebc6507caf",
+  "observedAt": "2026-10-07",
+  "status": "dated-source-snapshot",
+  "products": [
+    {
+      "id": "temperance",
+      "name": "Temperance",
+      "brand": "thoughtseed",
+      "summary": "Local agent operation",
+      "repository": "Sheshiyer/temperance_engine",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "cambium",
+      "name": "Cambium",
+      "brand": "thoughtseed",
+      "summary": "Company operations and handoffs",
+      "repository": "Sheshiyer/cambium",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "brandmint",
+      "name": "Brandmint",
+      "brand": "thoughtseed",
+      "summary": "Brand sources and asset fidelity",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "plexus",
+      "name": "Plexus",
+      "brand": "thoughtseed",
+      "summary": "Coordination and permission boundaries",
+      "repository": "Sheshiyer/plexus-ts",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "skill-clusters",
+      "name": "Skill Clusters",
+      "brand": "thoughtseed",
+      "summary": "Capability discovery",
+      "repository": "Sheshiyer/skill-clusters",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "agentfount",
+      "name": "AgentFount",
+      "brand": "thoughtseed",
+      "summary": "Landing / beta-planning prototype",
+      "repository": "Sheshiyer/agentfount",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "selemene",
+      "name": "Selemene",
+      "brand": "tryambakam",
+      "summary": "Symbolic reflection software",
+      "repository": "Sheshiyer/Selemene-engine",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "synchronocities",
+      "name": "Synchronocities",
+      "brand": "tryambakam",
+      "summary": "Gallery, travelogue and research essays",
+      "repository": "Sheshiyer/synchronocities-blog",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "somatic",
+      "name": "Somatic Canticles",
+      "brand": "tryambakam",
+      "summary": "Fiction and visual worldbuilding",
+      "repository": "Sheshiyer/Somatic-Canticles",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "raycast",
+      "name": "Noesis Raycast",
+      "brand": "tryambakam",
+      "summary": "Native console and result flows",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "why",
+      "name": "The Why Chromosome",
+      "brand": "tryambakam",
+      "summary": "Writing, inquiry and event records",
+      "gate": "exact claim review",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    },
+    {
+      "id": "antahkarana",
+      "name": "Antahkarana",
+      "brand": "tryambakam",
+      "summary": "Private planning; public disclosure held",
+      "repository": "Sheshiyer/antahkarana",
+      "gate": "public disclosure held",
+      "mapping": "editorial affiliation; not a legal ownership assertion"
+    }
+  ]
+}
