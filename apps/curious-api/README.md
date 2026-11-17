@@ -22,7 +22,7 @@ The first `tokens:issue` credential is the Wrangler secret `CURIOUS_ISSUER_TOKEN
 
 ## Library
 
-D1 is the library record. `POST /v1/library/nodes`, `GET`, and `DELETE` plus `POST /mcp` expose the same writes. Personal fields are encrypted with `CURIOUS_FIELD_KEY` before they are stored. `library:*` does not include `library:personal:*`. A deleted shared or personal node is tombstoned for 30 days and then wiped. Credentials, cookies, and birth data are rejected and are not stored. Browser storage is only a cache plus an offline queue.
+D1 is the library record. `POST /v1/library/nodes`, `GET`, and `DELETE` plus `POST /mcp` expose the same writes. Personal fields are encrypted with `CURIOUS_FIELD_KEY` before they are stored. `library:*` does not include `library:personal:*`. A deleted shared or personal node is tombstoned for 30 days and then wiped. Tombstoning a shared node requires `library:write`. A personal-only token cannot delete a shared item. Credentials, cookies, and birth data are rejected and are not stored. Browser storage is only a cache plus an offline queue.
 
 ## Local checks
 

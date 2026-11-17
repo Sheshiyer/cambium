@@ -72,6 +72,25 @@ test("personal fields are encrypted and library:* cannot read them", async () =>
   assert.equal((await shown.json() as { personal: { note: string } }).personal.note, "kept private");
 });
 
+test("a personal-only token cannot tombstone a shared node", async () => {
+  const db = await memoryDb();
+  const writer = await tokenFor(db, "scribe", ["library:write"]);
+  const personalOnly = await tokenFor(db, "keeper", ["library:personal:write", "library:personal:read"]);
+  const writerHeaders = { authorization: `Bearer ${writer}`, "x-curious-agent": "scribe", "content-type": "application/json" };
+  const personalHeaders = { authorization: `Bearer ${personalOnly}`, "x-curious-agent": "keeper", "content-type": "application/json" };
+  assert.equal((await route(new Request("http://127.0.0.1/v1/library/nodes", {
+    method: "POST",
+    headers: writerHeaders,
+    body: JSON.stringify({ id: "shared-keep", tenantId: "thoughtseed", title: "Shared" }),
+  }), {}, deps(db))).status, 201);
+  const denied = await route(new Request("http://127.0.0.1/v1/library/nodes/shared-keep", { method: "DELETE", headers: personalHeaders }), {}, deps(db));
+  assert.equal(denied.status, 403);
+  assert.equal((await denied.json() as { error: string }).error, "library_write_required");
+  const row = await db.get<{ deleted_at: string | null }>("SELECT deleted_at FROM nodes WHERE id = ?1", ["shared-keep"]);
+  assert.equal(row?.deleted_at, null);
+  assert.equal((await route(new Request("http://127.0.0.1/v1/library/nodes/shared-keep", { method: "DELETE", headers: writerHeaders }), {}, deps(db))).status, 200);
+});
+
 test("shared and personal nodes stay tombstoned for 30 days and are then wiped", async () => {
   const db = await memoryDb();
   const key = ephemeralKey();

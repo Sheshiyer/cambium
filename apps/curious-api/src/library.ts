@@ -73,9 +73,11 @@ export async function readLibraryNode(db: CuriousDb, principal: Principal, id: s
 }
 
 export async function tombstoneLibraryNode(db: CuriousDb, principal: Principal, id: string, now: Date): Promise<Response> {
-  if (!hasScope(principal, "library:write") && !hasScope(principal, "library:personal:write")) return json(403, { ok: false, error: "denied" });
   const row = await db.get<NodeRow>("SELECT id, tenant_id, kind, body, personal_ciphertext, deleted_at, purge_after, owner_agent FROM nodes WHERE id = ?1", [id]);
   if (!row || row.deleted_at) return json(404, { ok: false, error: "not_found" });
+  const shared = row.personal_ciphertext === null;
+  if (shared && !hasScope(principal, "library:write")) return json(403, { ok: false, error: "library_write_required" });
+  if (!shared && !hasScope(principal, "library:write") && !hasScope(principal, "library:personal:write")) return json(403, { ok: false, error: "denied" });
   const deletedAt = now.toISOString();
   const purgeAfter = new Date(now.getTime() + TOMBSTONE_MS).toISOString();
   await db.run("UPDATE nodes SET deleted_at = ?1, purge_after = ?2, updated_at = ?1 WHERE id = ?3", [deletedAt, purgeAfter, id]);
