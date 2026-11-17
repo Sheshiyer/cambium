@@ -2,7 +2,7 @@
 
 Draft Worker for the Curious sprint. It lives in this repository and is not published.
 
-`curious-api-dev` is the Wrangler name. It is a non-production name. `workers_dev` is off, and there are no routes. The D1 binding `CURIOUS_DB` uses the local name `curious-api-dev` and a sentinel `database_id`. That sentinel is not a database. This package does not create a Worker, a D1 database, a KV namespace, an R2 bucket, an Access application, a zone, or a secret.
+`curious-api-dev` is the Wrangler name. It is a non-production name. `workers_dev` is off, and there are no routes. The D1 binding `CURIOUS_DB` uses the database name `curious`. Mage will create that database at deploy. The `database_id` in config is a placeholder, not a database. This package does not create a Worker, a D1 database, a KV namespace, an R2 bucket, an Access application, a zone, or a secret.
 
 Mage's live read-only check on 17 Nov 2026 places `cambium-quests` on account `9d7cec1b` (Thoughtseed Labs), the same account recorded for this Worker. The quests call is therefore a Worker service binding, `CAMBIUM_QUESTS`, with `service` set to `cambium-quests`. The binding is declared in `wrangler.jsonc` only. This package does not publish, and it does not change bindings on the live account.
 

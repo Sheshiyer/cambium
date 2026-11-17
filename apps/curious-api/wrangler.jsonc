@@ -15,9 +15,9 @@
   "d1_databases": [
     {
       "binding": "CURIOUS_DB",
-      "database_name": "curious-api-dev",
-      // Sentinel only. Not a remote database. Replace it when a database
-      // is created by a later, separate approval. Do not run a remote apply.
+      "database_name": "curious",
+      // Placeholder id only. Mage named the database `curious`.
+      // It is created at deploy, not by this draft. Do not run a remote apply.
       "database_id": "00000000-0000-4000-8000-000000000001",
       "migrations_dir": "migrations"
     }
