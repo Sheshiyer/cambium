@@ -71,3 +71,48 @@ test("library sync is a dry run by default and stores plan body and previous byt
   const again = await route(new Request("http://127.0.0.1/api/library/sync", { method: "POST", headers, body: raw }), {}, deps(db));
   assert.equal((await again.json() as { diff: { plan: string } }).diff.plan, "same");
 });
+
+test("extension sync uses schema, cursor, operations, receipts, and changes", async () => {
+  const db = await memoryDb();
+  const token = await fieldToken(db, ["field:read", "field:write"]);
+  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "archivist", "content-type": "application/json" };
+  const key = JSON.stringify(["items", "fixture-item"]);
+  const response = await route(new Request("http://127.0.0.1/api/library/sync", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      schema: "field-report-library-sync.v1",
+      cursor: 0,
+      operations: [{ id: "op-1", key, patch: { title: "Fixture item" }, base: { title: 0 } }],
+    }),
+  }), {}, deps(db));
+  assert.equal(response.status, 200);
+  const body = await response.json() as {
+    schema: string;
+    cursor: number;
+    hasMore: boolean;
+    receipts: { id: string; conflicts: Record<string, unknown>; record: { key: string; data: { title: string }; fields: { title: number }; revision: number } }[];
+    changes: { record: { key: string } }[];
+  };
+  assert.equal(body.schema, "field-report-library-sync.v1");
+  assert.equal(typeof body.cursor, "number");
+  assert.equal(body.hasMore, false);
+  assert.equal(body.receipts[0].id, "op-1");
+  assert.deepEqual(body.receipts[0].conflicts, {});
+  assert.equal(body.receipts[0].record.key, key);
+  assert.equal(body.receipts[0].record.data.title, "Fixture item");
+  assert.equal(body.receipts[0].record.fields.title, 1);
+  assert.equal(body.receipts[0].record.revision, 1);
+  assert.equal(body.changes[0].record.key, key);
+  const denied = await route(new Request("http://127.0.0.1/api/library/sync", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      schema: "field-report-library-sync.v1",
+      cursor: 0,
+      operations: [{ id: "op-2", key, patch: { password: "nope" }, base: { password: 0 } }],
+    }),
+  }), {}, deps(db));
+  assert.equal(denied.status, 400);
+  assert.equal((await denied.json() as { error: string }).error, "forbidden_field");
+});

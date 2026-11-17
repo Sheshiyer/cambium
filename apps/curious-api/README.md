@@ -26,7 +26,7 @@ D1 is the library record. `POST /v1/library/nodes`, `GET`, and `DELETE` plus `PO
 
 ## Field Report
 
-`POST /api/library/sync` accepts `field-report-library-sync.v1`. It is a dry run unless `apply` is `true`, and the response is a diff. The committed Field Report worker on main has no such route: `serve.py` answers POST with 405, and `hosting/worker/field-report.js` serves `/api/plan` rather than `/api/library/sync`. The live server of `POST /api/library/sync` is unknown. Plan rows store `body` and `previous` byte for byte. There is no `bodies` column. The bundled fixture is synthetic. Field Report's site stays an editor. This is the test import before a live export.
+`POST /api/library/sync` accepts `field-report-library-sync.v1`. The extension shape is `{ schema, cursor, operations }` and answers `{ schema, cursor, hasMore, receipts, changes }`. The earlier snapshot envelope is a dry run unless `apply` is `true`. Field names that differ are listed in `docs/field-sync-fields.md`. The committed Field Report worker on main has no such route: `serve.py` answers POST with 405, and `hosting/worker/field-report.js` serves `/api/plan` rather than `/api/library/sync`. The live server of `POST /api/library/sync` is unknown. Plan rows store `body` and `previous` byte for byte. There is no `bodies` column. The bundled fixture is synthetic. Field Report's site stays an editor. This is the test import before a live export.
 
 ## Local checks
 

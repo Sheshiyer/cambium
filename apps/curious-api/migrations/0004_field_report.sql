@@ -21,3 +21,17 @@ CREATE TABLE field_edges (
   kind TEXT NOT NULL,
   body TEXT NOT NULL
 );
+
+CREATE TABLE field_sync_records (
+  record_key TEXT PRIMARY KEY,
+  data TEXT NOT NULL,
+  fields TEXT NOT NULL,
+  revision INTEGER NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE field_sync_changes (
+  cursor INTEGER PRIMARY KEY AUTOINCREMENT,
+  record_key TEXT NOT NULL,
+  record TEXT NOT NULL
+);
