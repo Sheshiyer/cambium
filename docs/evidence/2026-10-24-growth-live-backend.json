@@ -1,0 +1,173 @@
+{
+  "schema": "thoughtseed.growth.live_employee_backend.v1",
+  "observedAt": "2026-10-23T20:07:07.505Z",
+  "workerVersion": "b33a1a6e-6edc-412d-b974-10e437379dc0",
+  "actor": {
+    "memberId": "plexus-admin-thoughtseed-labs",
+    "tenantId": "cambium",
+    "plexusPrincipalId": "pid_admin_thoughtseed_labs",
+    "employeeId": "emp_630f768292cc4b674e5ae3e3",
+    "scope": "approved admin self-test",
+    "ordinaryEmployeeAcceptance": false
+  },
+  "enrollment": {
+    "officialMemberCreate": true,
+    "officialInviteRedeem": true,
+    "activeMemberContextHttp": 200,
+    "protectedCredential": {
+      "rootOwned": true,
+      "mode": "0600"
+    },
+    "existingOtherMemberTokensRotated": false,
+    "immediateMemberListingNotUsedAsAuthority": true
+  },
+  "submittedAt": "2026-10-23T20:01:51.185Z",
+  "lastResultReadAt": "2026-10-23T20:02:44.480Z",
+  "request": {
+    "id": "growth_3180d050f36f6a535990852634c63077",
+    "requestId": "employee-growth-live-20261024-acceptance-01",
+    "status": "draft_ready",
+    "scope": "org-growth",
+    "role": "synthesist",
+    "objectiveDigest": "sha256:c0ae15c978e5454322d104731e095529d1a25fb4246decdbd4225123934e034d"
+  },
+  "context": {
+    "sourceCommit": "04df969bc93978d3820b36744fec15f76ac0fc11",
+    "projectionDigest": "sha256:00532c8959cea9b1cf43d383641255d8d29ad6ddbdcb96a7c79cde1e498e3c90",
+    "documents": [
+      {
+        "path": "20-operations/growth/README.md",
+        "sourceDigest": "sha256:e4e06687e166980b47da2de025f1d7268321375ef7643d8568fc00fff76268b7",
+        "excerptDigest": "sha256:70694c18e556d65e8dbe2a3915b9bd9c5209ea8316af68f7cd2b459217ffb727"
+      },
+      {
+        "path": "20-operations/growth/department/execution-map.md",
+        "sourceDigest": "sha256:a81ca9c584af020178168316f53d0d68890a183efc33b5e572b9a7d51baec1a3",
+        "excerptDigest": "sha256:771efbe9bd8df60546a536c034a89bf3b89fa15025be5e3c90dd3d497ad29fc2"
+      },
+      {
+        "path": "20-operations/growth/department/organ-map.md",
+        "sourceDigest": "sha256:39ed458be1a82880c15b19ae88e9671fc62295da7efeee6befdd778488372136",
+        "excerptDigest": "sha256:aa5d90a060a4186d861b0e2464a5f4a96a0a9751933d20c0b393f97d4b6b59a6"
+      },
+      {
+        "path": "20-operations/growth/department/workflows.md",
+        "sourceDigest": "sha256:cf7a06e5ab6906fb92f916f1dc8ab5e5a036145427b21368f1dae30528225b2c",
+        "excerptDigest": "sha256:0370a3a1a6bc69c90ad96b88c0ba260da6abbd5af120366aeee4fa73dcfeea7d"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "active employee context",
+      "status": 200
+    },
+    {
+      "name": "live scoped handoff",
+      "status": 200
+    },
+    {
+      "name": "exact idempotent replay",
+      "status": 200
+    },
+    {
+      "name": "changed intent conflict",
+      "status": 409
+    },
+    {
+      "name": "admin cannot impersonate requesting employee",
+      "status": 403
+    },
+    {
+      "name": "member private status read",
+      "status": 200
+    }
+  ],
+  "returnedDraft": {
+    "requestId": "employee-growth-live-20261024-acceptance-01",
+    "role": "synthesist",
+    "approvalState": "draft",
+    "externalAction": "none",
+    "contentCharacters": 1211,
+    "contentDigest": "sha256:d8e0fcd340c5f27a77e3c8c20d95994bf078b069df1d723284b772da816f4071",
+    "missingFactsAcknowledged": true,
+    "humanReviewMentioned": true,
+    "sources": [
+      {
+        "path": "20-operations/growth/README.md",
+        "digest": "sha256:e4e06687e166980b47da2de025f1d7268321375ef7643d8568fc00fff76268b7"
+      },
+      {
+        "path": "20-operations/growth/department/execution-map.md",
+        "digest": "sha256:a81ca9c584af020178168316f53d0d68890a183efc33b5e572b9a7d51baec1a3"
+      },
+      {
+        "path": "20-operations/growth/department/organ-map.md",
+        "digest": "sha256:39ed458be1a82880c15b19ae88e9671fc62295da7efeee6befdd778488372136"
+      },
+      {
+        "path": "20-operations/growth/department/workflows.md",
+        "digest": "sha256:cf7a06e5ab6906fb92f916f1dc8ab5e5a036145427b21368f1dae30528225b2c"
+      }
+    ]
+  },
+  "execution": {
+    "member_id": "hermes-runner",
+    "directive_id": "growth_3180d050f36f6a535990852634c63077-draft",
+    "idempotency_key": "growth_3180d050f36f6a535990852634c63077",
+    "execution_id": "exec_a70be697082631a6ff86300f7631a147",
+    "runner_id": "hermes-ec2-runner-01",
+    "attempt": 1,
+    "outcome_status": "executed",
+    "terminal": 1,
+    "input_digest": "sha256:f79923699c2528ac5e38ee8dbf42012e9bde46060348bf898c1b7a5f8165e2c7",
+    "attestation_id": "att_2f621532daec58ea0584f7991e5024b0",
+    "attestation_digest": "sha256:85bcaea15efe4acb3d64a356f23f56b2f95e399f8b89b9335bd2826d89cfc89f",
+    "claimed_at": "2026-10-23T20:02:15.774Z",
+    "outcome_recorded_at": "2026-10-23T20:02:39.390Z",
+    "command": "growth.request.draft",
+    "output_digest": "sha256:2f713db6ca8bae5a9c6cf3e2e0ba25a69cbd5c716f0710fd8ff4b942b6e3558d",
+    "result_characters": 1211
+  },
+  "task": {
+    "id": "growth_3180d050f36f6a535990852634c63077",
+    "tenant_id": "cambium",
+    "member_id": "plexus-admin-thoughtseed-labs",
+    "request_id": "employee-growth-live-20261024-acceptance-01",
+    "status": "draft_ready",
+    "created_at": "2026-10-23T20:01:45.282Z",
+    "updated_at": "2026-10-23T20:02:40.201Z"
+  },
+  "acknowledgement": {
+    "authority": "bridge_directives.delivered/delivered_at",
+    "delivered": false,
+    "deliveredAt": null,
+    "unusedExecutionAcknowledgedAtColumnNotUsedAsProof": true
+  },
+  "hold": {
+    "status": "open",
+    "phase": "outcome_posted",
+    "errorCode": "cortex_ingestion_failed",
+    "source": "bounded Hermes runtime follow-up audit",
+    "preserveResult": true,
+    "noManualAckOrReexecution": true
+  },
+  "verdict": {
+    "draftReturned": "PASS",
+    "durableResult": "PASS",
+    "idempotency": "PASS",
+    "adminImpersonationDenied": "PASS",
+    "executionClosure": "HELD",
+    "nativePlexusAcceptance": "NOT_VERIFIED",
+    "ordinaryEmployeeAcceptance": "NOT_VERIFIED",
+    "resolvedProviderModel": "NOT_CAPTURED"
+  },
+  "limitations": [
+    "This is the approved own-admin actor using the scoped member API, not a different ordinary employee account",
+    "The returned draft and durable terminal execution do not establish ACK/receipt closure while Cortex ingestion is held",
+    "Native Plexus UI and protected Clio conversation acceptance remain separate",
+    "The runtime attestation records the requested workflow and result, but no resolved provider/model attribution"
+  ],
+  "secretsIncluded": false,
+  "rawPromptOrResponseBodiesIncluded": false
+}

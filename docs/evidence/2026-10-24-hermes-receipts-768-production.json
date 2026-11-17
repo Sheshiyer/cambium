@@ -1,0 +1,114 @@
+{
+  "schema": "thoughtseed.hermes_receipts_rollout.v1",
+  "observedAt": "2026-10-24T00:50:50.798Z",
+  "ownerApproval": "revised native768 source/bundle/config and normal original-execution ACK retry",
+  "sourceCommit": "3851c65dfaeecf3ab73756fe635f5af6dd4e7e14",
+  "uploadedAndDownloadedBundleSha256": "88c2788e875a5fc49bd4c2ce6e265cb847ab0d924e4268b1556a32e160ad4131",
+  "version": {
+    "version_id": "15622021-5fad-48e0-a0f2-4dc6ff9b6943",
+    "percentage": 100
+  },
+  "deploymentId": "816e1e6f-03e5-4fac-aec4-2174ccf10d7a",
+  "priorVersionAndRollback": "b33a1a6e-6edc-412d-b974-10e437379dc0",
+  "preservation": {
+    "priorBindings": 43,
+    "currentBindings": 46,
+    "allPriorBindingsExact": true,
+    "runtimeExact": true,
+    "globalSettingsExact": true,
+    "legacyIndex": {
+      "dimensions": 1024,
+      "metric": "cosine"
+    },
+    "credentialRotation": false
+  },
+  "additions": [
+    "HERMES_RECEIPTS_AI",
+    "CAMBIUM_HERMES_RECEIPTS_V2",
+    "HERMES_RECEIPTS_V2_ENABLED=true"
+  ],
+  "embedding": {
+    "provider": "cloudflare-workers-ai",
+    "fixedInvocationModel": "@cf/baai/bge-base-en-v1.5",
+    "providerReportedModelIdentity": false,
+    "dimensions": 768,
+    "index": "cambium-hermes-receipts-v2",
+    "metric": "cosine"
+  },
+  "runnerChange": {
+    "only": "HERMES_CORTEX_INGESTION_URL",
+    "url": "https://curious.thoughtseed.space/v1/context/hermes-receipts",
+    "timerRestarted": false,
+    "globalExecutionEnabled": false,
+    "growthOnlyExecution": true,
+    "legacyAckEnabled": false
+  },
+  "originalRequestId": "growth_3180d050f36f6a535990852634c63077",
+  "execution": {
+    "execution_id": "exec_a70be697082631a6ff86300f7631a147",
+    "attempt": 1,
+    "terminal": 1,
+    "outcome_status": "executed",
+    "output_digest": "sha256:2f713db6ca8bae5a9c6cf3e2e0ba25a69cbd5c716f0710fd8ff4b942b6e3558d",
+    "attestation_digest": "sha256:85bcaea15efe4acb3d64a356f23f56b2f95e399f8b89b9335bd2826d89cfc89f"
+  },
+  "canonicalAcknowledgment": {
+    "delivered": 1,
+    "delivered_at": "2026-10-24T00:48:52.299Z"
+  },
+  "localPhase": {
+    "phase": "acked",
+    "updatedAt": "2026-10-24T00:48:52.589Z",
+    "executionId": "exec_a70be697082631a6ff86300f7631a147",
+    "outputDigest": "sha256:2f713db6ca8bae5a9c6cf3e2e0ba25a69cbd5c716f0710fd8ff4b942b6e3558d",
+    "receiptInputDigest": "sha256:d2c331907be80aa520e14d15dfba43899ff0d2f6a7d160c256029d8fc2614b50",
+    "expectedSingleChunkId": "cortex:d2c331907be80aa5:000:1"
+  },
+  "requestResult": {
+    "status": "draft_ready",
+    "contentCharacters": 1211,
+    "contentDigest": "sha256:d8e0fcd340c5f27a77e3c8c20d95994bf078b069df1d723284b772da816f4071",
+    "approvalState": "draft",
+    "externalAction": "none"
+  },
+  "vectorReadback": {
+    "observedAt": "2026-10-24T00:50:50.689Z",
+    "status": 200,
+    "success": true,
+    "vectors": [
+      {
+        "id": "cortex:d2c331907be80aa5:000:1",
+        "dimensions": 768,
+        "allFinite": true,
+        "nonZero": true,
+        "metadata": {
+          "chunk": 0,
+          "contentDigest": "sha256:ea4b36236d4e76a01c8739c54cabebc0baedfc016fc961d2b5c1e85a2f4d4991",
+          "embeddingDimensions": 768,
+          "embeddingIndex": "cambium-hermes-receipts-v2",
+          "embeddingModel": "@cf/baai/bge-base-en-v1.5",
+          "embeddingProvider": "cloudflare-workers-ai",
+          "embeddingSpace": "cloudflare-bge-base-en-v1.5-768-hermes-receipts-v2",
+          "ingestedAt": "2026-10-24T00:48:50.495Z",
+          "kind": "evidence",
+          "path": "executions/exec_a70be697082631a6ff86300f7631a147",
+          "section": "preamble",
+          "source": "hermes-runner",
+          "tenant": "cambium",
+          "totalChunks": 1
+        }
+      }
+    ],
+    "errors": []
+  },
+  "transientReadback": {
+    "initial502": "Vectorize receipt readback pending or mismatched",
+    "normalTimerRecovered": true,
+    "preciseMismatchCauseProven": false
+  },
+  "noDraftRegeneration": true,
+  "noManualAck": true,
+  "noLocalStateReset": true,
+  "semanticRecallInNewSpaceImplemented": false,
+  "acceptanceScope": "approved admin-self backend; ordinary employee and native UI separate"
+}

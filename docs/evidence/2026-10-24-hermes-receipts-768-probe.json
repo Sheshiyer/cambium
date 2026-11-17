@@ -1,0 +1,29 @@
+{
+  "schema": "thoughtseed.embedding_compatibility_probe.v1",
+  "observedAt": "2026-10-23T23:58:35.378Z",
+  "provider": "cloudflare-workers-ai",
+  "model": "@cf/baai/bge-base-en-v1.5",
+  "status": 200,
+  "success": true,
+  "shape": [
+    1,
+    768
+  ],
+  "dimensions": 768,
+  "allFinite": true,
+  "nonZero": true,
+  "vectorDigest": "sha256:2c0ca759ef840043141d9c50406f5c916a1dc8245b3863395ce0e6c03041361f",
+  "elapsedMs": 481,
+  "publicInputOnly": true,
+  "indexCreated": false,
+  "workerDeployed": false,
+  "errorCodes": [],
+  "previousCandidateFailure": {
+    "code": 3003,
+    "reason": "dimensions outside supported range 32\u20131536",
+    "indexCreated": false,
+    "workerUploaded": false,
+    "trafficChanged": false,
+    "runnerChanged": false
+  }
+}
