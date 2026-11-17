@@ -28,6 +28,16 @@ D1 is the library record. `POST /v1/library/nodes`, `GET`, and `DELETE` plus `PO
 
 `POST /api/library/sync` accepts `field-report-library-sync.v1`. The extension shape is `{ schema, cursor, operations }` and answers `{ schema, cursor, hasMore, receipts, changes }`. The earlier snapshot envelope is a dry run unless `apply` is `true`. Field names that differ are listed in `docs/field-sync-fields.md`. The committed Field Report worker on main has no such route: `serve.py` answers POST with 405, and `hosting/worker/field-report.js` serves `/api/plan` rather than `/api/library/sync`. The live server of `POST /api/library/sync` is unknown. Plan rows store `body` and `previous` byte for byte. There is no `bodies` column. The bundled fixture is synthetic. Field Report's site stays an editor. This is the test import before a live export.
 
+## Muse
+
+Signals, problems, drafts, gates, receipts, ledger items, and digests have tables. Approval rows are written only by `POST /v1/approve`. `POST /v1/muse/approvals` is refused. Thalia is read-only even with `muse:write`.
+
+Historical files under `pr-team/approvals` and `workspace/approvals` are imported as events with `authority` `none`. They are not inserted into the approvals table. `pr-team/ledger.md` is stored byte for byte and remains the record of truth. Parsed rows are a derived digest.
+
+File export back to those relative paths never overwrites an existing file. A different hash is reported as a conflict and skipped. This repository did not contain a `pr-team` tree, so the fixture layout is the one named by the sprint.
+
+`fixtures/muse-worked-example.json` records one draft, then a gate, then the receipt hashes.
+
 ## Local checks
 
 ```bash
