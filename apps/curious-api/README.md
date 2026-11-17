@@ -10,6 +10,8 @@ The client is a thin wrapper around that binding. Tests pass a stub. A missing b
 
 `GET /v1/quests/health` calls `/healthz` through the binding and returns 503 `fail_closed` when the binding is absent.
 
+Installed Wrangler 3.74 reads this config with `-c wrangler.jsonc -j`. It does not accept an `observability` field, so that field is omitted. The same version warns that a service binding names the deployed `cambium-quests` Worker. Do not call `/v1/quests/health` from `wrangler dev` during this sprint. Tests stub the binding. Local dev of that route can reach the deployed Worker, and this package does not change it.
+
 ## Local checks
 
 ```bash
