@@ -14,6 +14,8 @@ export interface WorkerEnv {
   MAGE_ACCESS_IDENTITY?: string;
   CURIOUS_ACCESS_HMAC_KEY?: string;
   CURIOUS_ACCESS_AUD?: string;
+  ACCESS_TEAM_DOMAIN?: string;
+  ACCESS_AUD?: string;
 }
 
 export async function route(request: Request, env: WorkerEnv, deps: Deps = defaultDeps): Promise<Response> {

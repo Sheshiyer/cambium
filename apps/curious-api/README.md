@@ -14,7 +14,7 @@ Installed Wrangler 3.74 reads this config with `-c wrangler.jsonc -j`. It does n
 
 ## Tokens
 
-Aletheios is the only issuer and holds only `tokens:issue`. It cannot mint `tokens:issue`, and it cannot grant issuing or approving rights. The catalog has no `approve` scope. A token lasts 12 hours unless a shorter or equal term is requested, and never more than 7 days. One token names one agent. Revocations are checked on every token request. Audit rows are append-only for issue, use, deny, and revoke.
+Aletheios is the only issuer and holds only `tokens:issue`. It cannot mint `tokens:issue`, and it cannot grant issuing or approving rights. The catalog has no `approve` scope. Personal-save scopes may be minted only for the agent `aletheios`. That allowlist is `PERSONAL_SCOPE_AGENTS` in `src/scopes.ts`. There is no API to add a name. A token lasts 12 hours unless a shorter or equal term is requested, and never more than 7 days. One token names one agent. Revocations are checked on every token request. Audit rows are append-only for issue, use, deny, and revoke.
 
 `POST /v1/approve` accepts Mage's Access identity from `Cf-Access-Jwt-Assertion` when `MAGE_ACCESS_IDENTITY` and `CURIOUS_ACCESS_HMAC_KEY` are set outside the repository. A bearer token is refused even if that assertion is also present. The Access policy is described in `docs/access-policy.md` and is not attached.
 

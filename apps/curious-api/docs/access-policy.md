@@ -23,4 +23,4 @@ One identity: the runtime value of `MAGE_ACCESS_IDENTITY`. The value is not stor
 
 The Worker also refuses the route when `Authorization` is present, when `MAGE_ACCESS_IDENTITY` or `CURIOUS_ACCESS_HMAC_KEY` is unset, or when the Access-shaped JWT does not verify. Those environment names are placeholders. Signature material is not committed.
 
-`CURIOUS_ACCESS_AUD`, when set, must match the JWT `aud` claim. No audience value is committed here.
+`ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` are placeholders in `wrangler.jsonc`. TODO: Mage fills both at deploy. This draft does not call the Access API, and a value that starts with `placeholder-` is not treated as a real team domain or audience. `CURIOUS_ACCESS_AUD`, when set to a non-placeholder value, must match the JWT `aud` claim. No real audience is committed here.

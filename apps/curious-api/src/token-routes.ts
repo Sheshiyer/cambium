@@ -7,6 +7,8 @@ export interface AccessEnv {
   MAGE_ACCESS_IDENTITY?: string;
   CURIOUS_ACCESS_HMAC_KEY?: string;
   CURIOUS_ACCESS_AUD?: string;
+  ACCESS_TEAM_DOMAIN?: string;
+  ACCESS_AUD?: string;
 }
 
 export async function handleTokenRequest(request: Request, db: CuriousDb | undefined, env: AccessEnv, deps: Deps): Promise<Response | null> {

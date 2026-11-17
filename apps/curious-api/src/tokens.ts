@@ -3,7 +3,7 @@ import type { Deps } from "./deps.ts";
 import type { CuriousDb } from "./db.ts";
 import { base64Url, json, sha256Hex } from "./http.ts";
 import { verifyAccessJwt } from "./access.ts";
-import { ALETHEIOS_AGENT, DEFAULT_TTL_SECONDS, isGrantableScope, MAX_TTL_SECONDS, scopeAllows } from "./scopes.ts";
+import { ALETHEIOS_AGENT, DEFAULT_TTL_SECONDS, isGrantableScope, MAX_TTL_SECONDS, personalScopeAllowed, requestsPersonalScope, scopeAllows } from "./scopes.ts";
 
 export interface Principal {
   tokenId: string;
@@ -92,6 +92,10 @@ export async function issueToken(db: CuriousDb, request: Request, principal: Pri
     await writeAudit(db, { at: deps.now().toISOString(), action: "deny", actor: principal.agent, detail: { reason: "scope_not_grantable" } });
     return json(403, { ok: false, error: "scope_not_grantable" });
   }
+  if (requestsPersonalScope(body.scopes) && !personalScopeAllowed(body.agent)) {
+    await writeAudit(db, { at: deps.now().toISOString(), action: "deny", actor: principal.agent, detail: { reason: "personal_scope_not_allowed" } });
+    return json(403, { ok: false, error: "personal_scope_not_allowed" });
+  }
   let ttl = DEFAULT_TTL_SECONDS;
   if (body.ttlSeconds !== undefined) {
     if (typeof body.ttlSeconds !== "number" || !Number.isInteger(body.ttlSeconds) || body.ttlSeconds < 1 || body.ttlSeconds > MAX_TTL_SECONDS) {
@@ -145,7 +149,13 @@ export async function revokeToken(db: CuriousDb, request: Request, principal: Pr
   return json(200, { ok: true, tokenId: row.id, revokedAt: at });
 }
 
-export async function handleApprove(db: CuriousDb, request: Request, env: { MAGE_ACCESS_IDENTITY?: string; CURIOUS_ACCESS_HMAC_KEY?: string; CURIOUS_ACCESS_AUD?: string }, deps: Deps): Promise<Response> {
+function configuredAudience(env: { ACCESS_AUD?: string; CURIOUS_ACCESS_AUD?: string }): string | undefined {
+  const value = env.ACCESS_AUD || env.CURIOUS_ACCESS_AUD;
+  if (!value || value.startsWith("placeholder-")) return undefined;
+  return value;
+}
+
+export async function handleApprove(db: CuriousDb, request: Request, env: { MAGE_ACCESS_IDENTITY?: string; CURIOUS_ACCESS_HMAC_KEY?: string; CURIOUS_ACCESS_AUD?: string; ACCESS_AUD?: string; ACCESS_TEAM_DOMAIN?: string }, deps: Deps): Promise<Response> {
   const at = deps.now().toISOString();
   if (request.headers.has("authorization")) {
     await writeAudit(db, { at, action: "deny", actor: "bearer", detail: { reason: "bearer_cannot_approve" } });
@@ -156,7 +166,7 @@ export async function handleApprove(db: CuriousDb, request: Request, env: { MAGE
     await writeAudit(db, { at, action: "deny", actor: "anonymous", detail: { reason: "access_identity_required" } });
     return json(403, { ok: false, error: "access_identity_required" });
   }
-  const claims = await verifyAccessJwt(assertion, env.CURIOUS_ACCESS_HMAC_KEY, env.CURIOUS_ACCESS_AUD);
+  const claims = await verifyAccessJwt(assertion, env.CURIOUS_ACCESS_HMAC_KEY, configuredAudience(env));
   if (!claims || claims.email !== env.MAGE_ACCESS_IDENTITY) {
     await writeAudit(db, { at, action: "deny", actor: "access", detail: { reason: "access_identity_rejected" } });
     return json(403, { ok: false, error: "access_identity_rejected" });

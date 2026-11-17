@@ -3,7 +3,7 @@ import test from "node:test";
 import { signAccessJwt } from "./access.ts";
 import type { Deps } from "./deps.ts";
 import { route, type WorkerEnv } from "./router.ts";
-import { DEFAULT_TTL_SECONDS, MAX_TTL_SECONDS, SCOPE_CATALOG } from "./scopes.ts";
+import { DEFAULT_TTL_SECONDS, MAX_TTL_SECONDS, PERSONAL_SCOPE_AGENTS, SCOPE_CATALOG } from "./scopes.ts";
 import { memoryDb } from "./testing/memory-db.ts";
 import { installIssuerCredential } from "./tokens.ts";
 
@@ -33,6 +33,20 @@ async function issued(db: Awaited<ReturnType<typeof memoryDb>>, body: unknown, n
     body: JSON.stringify(body),
   }), {}, deps(db, now));
 }
+
+test("only aletheios may hold personal-save scopes", async () => {
+  assert.deepEqual(PERSONAL_SCOPE_AGENTS, ["aletheios"]);
+  const db = await memoryDb();
+  const allowed = await issued(db, { agent: "aletheios", scopes: ["library:personal:read", "library:personal:write"] });
+  assert.equal(allowed.status, 201);
+  const refused = await issued(db, { agent: "scribe", scopes: ["library:personal:read"] });
+  assert.equal(refused.status, 403);
+  assert.equal((await refused.json() as { error: string }).error, "personal_scope_not_allowed");
+  const wildcard = await issued(db, { agent: "scribe", scopes: ["library:personal:*"] });
+  assert.equal(wildcard.status, 403);
+  assert.equal((await wildcard.json() as { error: string }).error, "personal_scope_not_allowed");
+  assert.equal(await db.get("SELECT id FROM tokens WHERE agent = ?1 AND scopes LIKE ?2", ["scribe", "%library:personal%"]), null);
+});
 
 test("the catalog has no approve scope and Aletheios cannot mint tokens:issue", async () => {
   assert.equal(SCOPE_CATALOG.some((scope) => scope.toLowerCase().includes("approv")), false);
