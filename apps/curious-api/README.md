@@ -34,7 +34,7 @@ Signals, problems, drafts, gates, receipts, ledger items, and digests have table
 
 Historical files under `pr-team/approvals` and `workspace/approvals` are imported as events with `authority` `none`. They are not inserted into the approvals table. `pr-team/ledger.md` is stored byte for byte and remains the record of truth. Parsed rows are a derived digest.
 
-File export back to those relative paths never overwrites an existing file. A different hash is reported as a conflict and skipped. This repository did not contain a `pr-team` tree, so the fixture layout is the one named by the sprint.
+File export uses `/workspace/pr-team` when no root is passed. It still never overwrites an existing file. A different hash is reported as a conflict and skipped.
 
 `fixtures/muse-worked-example.json` records one draft, then a gate, then the receipt hashes.
 

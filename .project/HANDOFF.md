@@ -15,6 +15,9 @@ Historical commands and completion claims are not fresh approvals.
 Five draft pull requests add `apps/curious-api` and do not publish.
 The stack is #442, #443, #445, #446, and #447.
 No live Cloudflare binding, database, Access policy, or secret was changed.
+The D1 name in config is `curious`, created at deploy. The id stays a placeholder.
+The first issuer credential is the deploy-time secret `CURIOUS_ISSUER_TOKEN`.
+Shared tombstones require `library:write`. Muse export defaults to `/workspace/pr-team` and does not overwrite.
 Field Report's site stays an editor. The live server of `POST /api/library/sync` is unknown.
 
 <!-- cambium:handoff-history:start -->

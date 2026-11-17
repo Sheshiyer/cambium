@@ -6,7 +6,7 @@ import test from "node:test";
 import { signAccessJwt } from "./access.ts";
 import type { Deps } from "./deps.ts";
 import { chainHashes } from "./muse.ts";
-import { exportFiles, importHistoricalFiles, parseLedger } from "./provenance.ts";
+import { DEFAULT_EXPORT_ROOT, exportFiles, importHistoricalFiles, parseLedger } from "./provenance.ts";
 import { route, type WorkerEnv } from "./router.ts";
 import { memoryDb } from "./testing/memory-db.ts";
 import { installIssuerCredential } from "./tokens.ts";
@@ -124,4 +124,6 @@ test("a worked draft, gate, and receipt keep their hashes, and historical approv
   const same = await exportFiles(root, [{ relativePath: "pr-team/signals/sig-fixture.json", contents: "{\"id\":\"sig-fixture\"}\n" }]);
   assert.deepEqual(same.unchanged, ["pr-team/signals/sig-fixture.json"]);
   assert.deepEqual(same.written, []);
+  assert.equal(DEFAULT_EXPORT_ROOT, "/workspace/pr-team");
+  assert.deepEqual(await exportFiles(undefined, []), { written: [], unchanged: [], conflicts: [] });
 });

@@ -54,13 +54,15 @@ export async function importHistoricalFiles(db: CuriousDb, files: { path: string
   return { events, derivedRows };
 }
 
+export const DEFAULT_EXPORT_ROOT = "/workspace/pr-team";
+
 export interface ExportResult {
   written: string[];
   unchanged: string[];
   conflicts: { path: string; existingHash: string; nextHash: string }[];
 }
 
-export async function exportFiles(root: string, files: { relativePath: string; contents: string }[]): Promise<ExportResult> {
+export async function exportFiles(root: string = DEFAULT_EXPORT_ROOT, files: { relativePath: string; contents: string }[]): Promise<ExportResult> {
   const result: ExportResult = { written: [], unchanged: [], conflicts: [] };
   for (const file of files) {
     if (file.relativePath.startsWith("/") || file.relativePath.split("/").includes("..")) throw new Error("refused_path");
