@@ -13,7 +13,7 @@ Historical commands and completion claims are not fresh approvals.
 ## 2026-11-17 Curious sprint 1 drafts
 
 Five draft pull requests add `apps/curious-api` and do not publish.
-The stack is #442, #443, #445, #446, and the Muse draft on top of #446.
+The stack is #442, #443, #445, #446, and #447.
 No live Cloudflare binding, database, Access policy, or secret was changed.
 Field Report's site stays an editor. The live server of `POST /api/library/sync` is unknown.
 
