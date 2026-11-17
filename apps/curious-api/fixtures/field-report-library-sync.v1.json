@@ -1,0 +1,37 @@
+{
+  "schema": "field-report-library-sync.v1",
+  "snapshot": {
+    "observedAt": "2026-11-17",
+    "products": [],
+    "drafts": [
+      {
+        "id": "fixture-draft",
+        "name": "Fixture draft"
+      }
+    ],
+    "repositories": [],
+    "hosts": [],
+    "boards": [],
+    "ideas": [
+      {
+        "id": "fixture-idea",
+        "name": "Fixture idea"
+      }
+    ],
+    "editorial": [],
+    "workItems": [],
+    "edges": [
+      {
+        "from": "idea:fixture-idea",
+        "to": "draft:fixture-draft",
+        "type": "supports"
+      }
+    ]
+  },
+  "plan": {
+    "id": "owner",
+    "revision": 2,
+    "body": "{\"revision\":2,\"missions\":{}}\n",
+    "previous": "{\"revision\":1,\"missions\":{}}\n"
+  }
+}
