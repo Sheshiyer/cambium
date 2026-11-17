@@ -10,7 +10,11 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "vars": {
-    "SERVICE_NAME": "curious-api-dev"
+    "SERVICE_NAME": "curious-api-dev",
+    // TODO: Mage fills ACCESS_TEAM_DOMAIN and ACCESS_AUD at deploy.
+    // These strings are placeholders, not a team domain or an audience.
+    "ACCESS_TEAM_DOMAIN": "placeholder-access-team-domain",
+    "ACCESS_AUD": "placeholder-access-aud"
   },
   "d1_databases": [
     {
