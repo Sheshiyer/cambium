@@ -120,6 +120,9 @@ import {
 } from './organ-update-delivery.ts';
 import { PORTFOLIO_WORKBENCH_HTML } from './portfolio-workbench.generated.ts';
 import {
+  PORTFOLIO_PROJECT_MAP,
+  PORTFOLIO_PUBLIC_CSP,
+  PORTFOLIO_PUBLIC_HTML,
   PORTFOLIO_WORKBENCH_ACCESS_DENIED,
   PORTFOLIO_WORKBENCH_CSP,
   PORTFOLIO_WORKBENCH_LOADER,
@@ -5953,6 +5956,22 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
   if (MCP_GATE_PATHS.has(routePath)) return handleMcpGateAdapterRoute(req, deps, routePath);
+
+  if (routePath === '/portfolio' || routePath === '/v1/portfolio') {
+    if (method !== 'GET') {
+      return {
+        ...json(405, { error: 'portfolio project map is GET-only' }),
+        headers: { ...JSON_HEADERS, allow: 'GET' },
+      };
+    }
+    if (routePath === '/portfolio') return portfolioHtml(200, PORTFOLIO_PUBLIC_HTML, PORTFOLIO_PUBLIC_CSP);
+    const workId = queryParam(path, 'workId');
+    if (workId == null) return json(200, PORTFOLIO_PROJECT_MAP);
+    const project = PORTFOLIO_PROJECT_MAP.projects.find((entry) => entry.workId === workId);
+    return project
+      ? json(200, { ...PORTFOLIO_PROJECT_MAP, projects: [project] })
+      : json(404, { error: 'portfolio workId not found' });
+  }
 
   if (routePath === '/v1/admin/portfolio/descriptions' || routePath === '/v1/admin/portfolio/annotations') {
     const headers = { ...JSON_HEADERS, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff', vary: 'Cookie, CF-Access-Jwt-Assertion, X-Telegram-Init-Data' };

@@ -8,8 +8,11 @@ export const CURIOUS_WORLD_PAGE = `<style>${CURIOUS_WORLD_CSS}</style>
 #curious-world-fallback{position:fixed;inset:0;display:grid;place-content:center;gap:16px;padding:32px;max-width:700px;margin:auto}
 #curious-world-fallback h1{font-size:clamp(26px,5vw,42px);line-height:1.15;margin:0;color:#e0ff4f}
 #curious-world-fallback p{margin:0}#curious-world-retry{min-height:48px;width:fit-content;padding:10px 20px;background:#00272b;color:#e0ff4f;border:1px solid #e0ff4f;border-radius:24px;cursor:pointer}
+#curious-portfolio-link{position:fixed;z-index:6;left:calc(32px + env(safe-area-inset-left));bottom:calc(76px + env(safe-area-inset-bottom));display:inline-flex;align-items:center;min-height:44px;padding:10px 16px;background:#00272b;color:#e0ff4f;border:1px solid #e0ff4f;border-radius:24px;font:12px var(--mono,monospace);text-decoration:none}
+@media (pointer:coarse){#curious-portfolio-link{left:calc(24px + env(safe-area-inset-left));bottom:calc(128px + env(safe-area-inset-bottom))}}
 </style>
 <main id="curious-world" aria-label="Cambium Field Atlas" data-component="CuriousPocketWorld" data-evidence="source"></main>
+<a id="curious-portfolio-link" href="/portfolio">Portfolio Workbench</a>
 <div id="curious-world-fallback" hidden role="status"><h1>Field Atlas needs a 3D connection.</h1><p>The world could not start. Check that WebGL is available in this browser, then try again.</p><button id="curious-world-retry" type="button">Retry Field Atlas</button></div>
 <noscript>Enable JavaScript to explore Cambium Field Atlas.</noscript>
 <script data-bundled="curious-pocket-world">${CURIOUS_WORLD_JS.replace(/<\/script/gi, '<\\/script')}</script>
