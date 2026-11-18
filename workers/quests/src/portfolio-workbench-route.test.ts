@@ -192,6 +192,10 @@ test('Curious serves the same public project map to browsers and API clients', a
   assert.equal(home.status, 200);
   assert.match(String(home.body), /href="\/portfolio">Portfolio Workbench<\/a>/);
 
+  const founderHome = await handle(request('GET', '/founder'), fixture.value);
+  assert.equal(founderHome.status, 200);
+  assert.doesNotMatch(String(founderHome.body), /id="curious-portfolio-link"/);
+
   const page = await handle(request('GET', '/portfolio'), fixture.value);
   assert.equal(page.status, 200);
   assert.match(String(page.body), /<h1>Portfolio Workbench<\/h1>/);

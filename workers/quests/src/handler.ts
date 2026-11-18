@@ -120,6 +120,7 @@ import {
 } from './organ-update-delivery.ts';
 import { PORTFOLIO_WORKBENCH_HTML } from './portfolio-workbench.generated.ts';
 import {
+  PORTFOLIO_HOME_LINK,
   PORTFOLIO_PROJECT_MAP,
   PORTFOLIO_PUBLIC_CSP,
   PORTFOLIO_PUBLIC_HTML,
@@ -7923,8 +7924,9 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         }
       } catch { /* invalid or unavailable stored envelopes retain the fetch-first shell */ }
     }
+    const page = founderWeb ? PAGE : PAGE.replace(/<\/body><\/html>$/, `${PORTFOLIO_HOME_LINK}</body></html>`);
     const pageBody = injectPageBootstrap(
-      hasInitialQuestEnvelope ? injectInitialQuestHydration(PAGE) : PAGE,
+      hasInitialQuestEnvelope ? injectInitialQuestHydration(page) : page,
       bootstrap,
     );
     return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }, body: pageBody };

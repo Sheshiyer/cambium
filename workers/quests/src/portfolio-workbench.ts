@@ -16,6 +16,21 @@ export const PORTFOLIO_PROJECT_MAP = {
   projects,
 } as const;
 
+export const PORTFOLIO_HOME_LINK = `<style>
+  #curious-portfolio-link {
+    position: fixed; z-index: 6; display: inline-flex; align-items: center;
+    left: calc(32px + env(safe-area-inset-left)); bottom: calc(76px + env(safe-area-inset-bottom));
+    min-height: 44px; padding: 10px 16px; border: 1px solid #e0ff4f; border-radius: 24px;
+    background: #00272b; color: #e0ff4f; font: 12px var(--mono, monospace); text-decoration: none;
+  }
+  @media (pointer: coarse) {
+    #curious-portfolio-link {
+      left: calc(24px + env(safe-area-inset-left)); bottom: calc(128px + env(safe-area-inset-bottom));
+    }
+  }
+</style>
+<a id="curious-portfolio-link" href="/portfolio">Portfolio Workbench</a>`;
+
 const classificationLabel = {
   'client-branch': 'Client branch',
   'internal-program': 'Internal program',
