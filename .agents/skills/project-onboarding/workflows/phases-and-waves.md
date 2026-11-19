@@ -1,0 +1,10 @@
+# Phases and waves
+
+Called by project-onboarding after project identity review. Start with the scoped repository handoff, current GSD state and roadmap, the relevant ISA criteria and reviewed Spec Kit or contract evidence. Check revision and date. Resolve superseded plans before naming an active phase. A draft roadmap stage can seed a proposed grouping. Record uncertainty when no current phase or source is established.
+
+1. Reconcile one project governor for the WorkObject. Use named phase chats under the governor and named wave chats under their phase. Use stable phase and wave IDs from GSD when present, with titles such as `Project · Phase 03 · Scoped outcome` and `Project · Phase 03 · Wave 02 · Scoped outcome`. For a project family, qualify the product where scope differs.
+2. For each wave record parent phase, accountable pillar, repo and source pin, prerequisites, outcome, acceptance evidence and handoff destination. Mark independent waves that can run concurrently and hold waves with unresolved dependencies. Preserve verified evidence and historical phase IDs. A pillar can contribute to multiple waves.
+3. Reconcile existing chats by project, purpose and current ownership. Store platform handles beside the ignored packet and portable source references in the handoff. Where the chat platform exposes flat chats, record logical parentage in the handoff and chat prompt. Reuse existing appropriate chats. Open only the specifically requested chats with the supported chat action.
+4. The governor hands off project delivery to the owning project chat. Temperance classifies, Cambium admits and pins, and Hermes executes admitted work. Return receipts and follow-up work to the wave’s phase parent. Keep the intake and review here.
+
+For a dry run, render a local proposal from the best available pinned sources with phase and wave names, blockers, one review report and candidate archive dispositions. Use `node scripts/project-onboarding/session-preview.mjs .local/project-onboarding/<label>/packet.json` for proposed roadmap stages. Label independently observed phase state and mapping gaps alongside that projection.

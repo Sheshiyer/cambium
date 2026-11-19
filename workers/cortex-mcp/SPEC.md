@@ -7,6 +7,9 @@
 **Target Repositories:** `Sheshiyer/cambium` (`workers/cortex-mcp`), `Sheshiyer/hermes-aws-ts`  
 **Date:** 2026-09-04  
 
+> Historical implementation specification. See [production connections](README.md)
+> for the deployed endpoint, authentication and release checks.
+
 ---
 
 ## 1. Specification Overview & Problem Statement
@@ -158,23 +161,15 @@ Phase 6: Hermes Native Integration & Capability Routing ─────── [ 
 - [x] **T4.5:** Write comprehensive test suite in `src/mcp.test.ts` (4/4 tests green).
 
 ### 📋 Phase 5: Deployment & DNS Routing
-- [ ] **T5.1:** Execute staging deployment:
-  ```bash
-  cd workers/cortex-mcp && npx wrangler deploy --config wrangler.jsonc
-  ```
-- [ ] **T5.2:** Bind custom domain route `cortex.thoughtseed.space` in Cloudflare DNS.
-- [ ] **T5.3:** Configure Cloudflare Access service token policy for `cortex.thoughtseed.space` (or Bearer token validation matching `CONTEXT_ROUTE_TOKEN`).
+
+The production rollout supersedes the original staging and auth setup in T5.1–T5.3. [Production connections](README.md)
+
 - [ ] **T5.4:** Probe edge health endpoint `GET https://cortex.thoughtseed.space/health` $\to$ `200 OK`.
 
 ### 📋 Phase 6: Hermes & Multi-Agent Consumption
-- [ ] **T6.1:** Register `cortex-mcp` in the Hermes profile `config.yaml`:
-  ```yaml
-  mcp_servers:
-    cortex:
-      url: https://cortex.thoughtseed.space/mcp
-      headers:
-        Authorization: Bearer ${CONTEXT_ROUTE_TOKEN}
-  ```
+
+The deployed bearer route supersedes the original client setup in T6.1. [Production connections](README.md)
+
 - [ ] **T6.2:** Verify Hermes tool discovery via `tool_search(queries=['taste_cortex_query', 'organ_atlas_lookup'])`.
 - [ ] **T6.3:** Wire capability hit evaluation into Hermes Telegram cron jobs (`digests` topic).
 - [ ] **T6.4:** Record complete execution and deployment receipt in `thoughtseed-vault`.

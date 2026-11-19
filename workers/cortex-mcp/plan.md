@@ -6,6 +6,9 @@
 **Authority Reference:** `20-operations/growth/whitepaper/` (Obsidian Vault via Local REST API / HTTPS Tunnel)  
 **Date:** 2026-09-04  
 
+> Historical build plan. Use [production connections](README.md) for the deployed
+> endpoint, authentication and release checks.
+
 ---
 
 ## 1. Deep Pass Insights from the Vault (2026-09-03 Review Cut)
@@ -120,16 +123,10 @@ The MCP server exposes 6 high-signal tools:
 3. Mount the MCP endpoints (`tools/list`, `tools/call`) handling JSON-RPC over Streamable HTTP.
 
 ### Phase 4: Staging Deployment & Hermes Verification
-1. Deploy worker to `cortex-mcp.thoughtseedlabs.workers.dev` (and custom domain `cortex.thoughtseed.space`).
-2. Add `cortex-mcp` to the Hermes profile `config.yaml` as a native MCP server:
-   ```yaml
-   mcp_servers:
-     cortex:
-       url: https://cortex.thoughtseed.space/mcp
-       headers:
-         Authorization: Bearer ${CONTEXT_ROUTE_TOKEN}
-   ```
-3. Test tool discovery and end-to-end execution from Hermes desktop.
+
+This phase's staging setup was superseded by the production rollout. Follow
+[production connections](README.md) for the current Hermes path and discovery
+check.
 
 ---
 

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Thoughtseed Project Onboarding"
+  short_description: "Review a project or one selected phase, wave or evidence workflow"
+  default_prompt: "Use $project-onboarding with one exact Thoughtseed project. Name the workflow to review, or use the default intake if none is selected."
+policy:
+  allow_implicit_invocation: false

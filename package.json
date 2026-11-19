@@ -11,6 +11,7 @@
     "liveness:ecosystem-probe": "node scripts/ecosystem-liveness-probe.mjs",
     "operator": "node bin/operator/cli.ts",
     "project:birth": "node scripts/thoughtseed-project-birth.mjs",
+    "project:onboard": "node scripts/thoughtseed-project-onboarding.mjs",
     "project:closeout": "node scripts/thoughtseed-project-closeout.mjs",
     "quine": "node bin/quine/quine.ts",
     "plan": "node bin/compose.mjs plan",

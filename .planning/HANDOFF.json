@@ -56,6 +56,158 @@
   "primary_integration": "Three isolated source candidates are pushed as draft PRs; active host and production stay unchanged. Cambium changes are scoped working edits.",
   "evidence": "docs/evidence/2026-11-04-temperance-manual-verification.v1.json",
   "continuations": {
+    "cortex_connection_audit_20261118": {
+      "status": "verified-docs-updated",
+      "source": "workers/cortex-mcp/README.md",
+      "observed_at": "2026-11-18",
+      "live_versions": {
+        "cortex_mcp": "5418ded4-d28c-41c2-ac79-39a34ceb27aa",
+        "cambium_quests": "e381ce70-4fcb-4b11-84c0-63449ca66cb6",
+        "teamforge_api": "6ed4a0af-7c0a-4ff6-b025-47111c83c144"
+      },
+      "next_action": "Use the production connection guide. Any live retirement requires a separate owner decision and current client and rollback evidence."
+    },
+    "cortex_workbench_repair_20261118": {
+      "status": "curious-project-map-cold-verified-cortex-read-complete",
+      "work_object": "branch:relovo",
+      "owner_direction": "Use the live Curious Workbench API for Relovo project mapping during Cortex triage.",
+      "connection_audit": "cortex_connection_audit_20261118",
+      "workbench": {
+        "url": "https://curious.thoughtseed.space/v1/portfolio?workId=branch%3Arelovo",
+        "owner": "cambium-quests",
+        "source": "apps/portfolio-cartographer/README.md",
+        "readback": "Live HTTP 200 without credentials. The cambium.portfolio-project-map.v1 response is read-only and returns exactly one project for the requested WorkObject.",
+        "source_record": "branch:relovo, Relovo, client-branch. The Relovo triage packet uses the live WorkObject lookup.",
+        "tenant_identity": "unresolved"
+      },
+      "cortex": {
+        "resource": "https://cortex.thoughtseed.space/mcp",
+        "live_version": "5418ded4-d28c-41c2-ac79-39a34ceb27aa",
+        "issuer": "https://forge.thoughtseed.space",
+        "token_verifier": "teamforge-api/CortexTokenVerifier",
+        "project_provenance_reader": "cambium-quests/CortexProvenanceReader",
+        "read_scope": "cortex:read",
+        "source": "workers/cortex-mcp/README.md"
+      },
+      "safari_readback_ict": {
+        "local_page_reached": "2026-11-18T16:23:51.526+07:00",
+        "code_issued": "2026-11-18T16:23:54+07:00",
+        "code_expired": "2026-11-18T16:25:24+07:00",
+        "matched_callback": false,
+        "issued_grants": 0,
+        "reported_error": "Access denied",
+        "consent_response": "HTTP status and Location were unavailable for the expired attempt.",
+        "finding": "Safari reached the listener and Forge accepted consent. A matching callback and code exchange were absent. The cause of the browser error remains open."
+      },
+      "relovo_review": ".local/project-onboarding/relovo/relovo-flow-and-taste-review-2026-11-18.md",
+      "loopback_entry_readback": "The app browser was on the proposed callback address with no local listener. A temporary listener served the verified start page and a recovery link from the old tab path on the Mac. It closed at 17:47:43 ICT without a new authorization request.",
+      "client_repair_candidate": {
+        "installed_cli": "Codex CLI 0.166.0",
+        "forge_worker_version": "6ed4a0af-7c0a-4ff6-b025-47111c83c144",
+        "client_id": "cambium-cortex-j1",
+        "registered_callback": "http://127.0.0.1:18888/callback",
+        "codex_callback": "http://127.0.0.1:18888/callback/P9PXuRuq2UXG",
+        "change": "Register the exact Codex callback in this client's redirectUris and admit that same client and URI in the loopback validator. Both registered paths serve through the existing Forge release owner.",
+        "proof": "The installed CLI generated S256 PKCE, the exact proposed callback, the exact Cortex resource once, and cortex:read. A local OAuth fixture confirmed client ID, callback, resource and PKCE verifier in the token request. The deployed Forge allowlist contains only the bare path for J1.",
+        "live_apply": "Forge serves version 2cd6f616-b77a-453d-a8fd-e4c9db0f0cf6 at 100%. The exact URI is accepted for this client in the validator and registered in the binding.",
+        "rollback": "Remove the added redirect URI through the Forge owner or restore the recorded unchanged release baseline after validating active settings."
+      },
+      "cold_pickup": {
+        "status": "passed",
+        "repo": "Sheshiyer/relovo-app",
+        "source": "relovo-app:.planning/HANDOFF.json",
+        "combined_local_review_source": "cd4a599331788fc7e0beac29037b129e637b55a5",
+        "readback": "A fresh native Vestibule orientation offered the live Curious lookup as the triage resume command. The linked endpoint returned HTTP 200 and the exact Relovo mapping."
+      },
+      "seller_voice_query": {
+        "tool": "taste_cortex_query",
+        "category": "techniques",
+        "top_k": 4,
+        "last_result": "verified-hosted-read",
+        "connection": "Existing hosted Hermes Cortex read connection",
+        "live_source_count": 4,
+        "readback": "All four live blob hashes match the index and the checked-in source manifest. The hits cover video and animation production.",
+        "taste_cortex": "draft",
+        "parkarea": "paused"
+      },
+      "forge_release": {
+        "version": "2cd6f616-b77a-453d-a8fd-e4c9db0f0cf6",
+        "deployment": "e956730f-5170-401e-b3f5-85fb0b8bfb3a",
+        "rollback_version": "6ed4a0af-7c0a-4ff6-b025-47111c83c144",
+        "receipt": ".local/project-onboarding/relovo/forge-codex-callback-release-2026-11-18.json",
+        "source": ".local/project-onboarding/relovo/forge-codex-callback-source-2026-11-18/src/cortex-services.ts",
+        "public_issuer_check": "200, correct Forge issuer, cortex:read and S256",
+        "local_regression": "The binding-only attempt returned 503 and was rolled back. The corrected compiled Worker accepts both registered callbacks and rejects an unregistered path, port, client or scope.",
+        "native_sign_in_status": "Awaiting founder consent. The launch window closed at 18:37 ICT before native authorization started."
+      },
+      "next_action": "Relovo triage is verified in continuations.relovo_triage_closeout_20261119. The hosted Cortex read passed after safvr renewal. Native Codex consent retains its separate acceptance task.",
+      "acceptance": [
+        "Read the existing Relovo project mapping through Curious.",
+        "Complete one observed browser callback and token exchange with the intended Cortex client and cortex:read.",
+        "Run the existing Relovo seller voice techniques query and record source links. If using a bounded founder grant, revoke it and verify cleanup.",
+        "Verify current clients on the proposed connection and retain the rollback path. Keep ParkArea outside this repair."
+      ]
+    },
+    "relovo_triage_closeout_20261119": {
+      "status": "closed-verified",
+      "work_object": "branch:relovo",
+      "packet": ".local/project-onboarding/relovo/packet.json",
+      "input_digest": "sha256:2a2ca3a362dfbe1f14e8f65391563fee81067c637946ce6975de1902fe40d857",
+      "receipt": ".local/project-onboarding/relovo/triage-closeout-2026-11-19.md",
+      "cold_replay": ".local/project-onboarding/relovo/cold-replay-2026-11-19.json",
+      "seller_handoff": ".local/project-onboarding/relovo/seller-handoff-2026-11-19.md",
+      "planning_repository": "Sheshiyer/relovo-app",
+      "seller_source": "cd4a599331788fc7e0beac29037b129e637b55a5",
+      "legacy_issue_links": "Sheshiyer/relovo issues 1 through 35",
+      "replay": "Cold Vestibule pickup, packet fingerprints, proposed goals, live Curious mapping and seller handoff checks passed. The held Cortex read passed after safvr AWS renewal, with four source blobs matching the search index and checked-in manifest.",
+      "cortex_read": {
+        "status": "verified-hosted-read",
+        "observed_at": "2026-11-19T08:31:19Z",
+        "receipt": ".local/project-onboarding/relovo/cortex-read-2026-11-19.json",
+        "source_count": 4,
+        "all_source_hashes_match": true,
+        "aws_profile": "safvr",
+        "expected_principal_verified": true
+      },
+      "product_holds": ["runtime tenant identity unresolved", "Workbench repository membership candidate", "GitHub Project unbound", "matching combined review package pending"],
+      "taste_cortex": "draft",
+      "parkarea": "paused",
+      "execution_admitted": false,
+      "next_action": "Triage closeout is verified. Use the prepared seller handoff in the existing Relovo combined release chat when its task is admitted."
+    },
+    "portfolio_workbench_access_20261118": {
+      "status": "live-verified",
+      "owner": "Curious / cambium-quests / Thoughtseed Labs",
+      "routes": {
+        "human": "/portfolio",
+        "api": "/v1/portfolio?workId=branch%3Arelovo",
+        "schema": "cambium.portfolio-project-map.v1",
+        "public_fields": ["workId", "name", "classification"]
+      },
+      "source": "apps/portfolio-cartographer/README.md",
+      "release_source": {
+        "growth_gate_commit": "2a7de9934dcdb621fec6ced42f84456c99f95047",
+        "workbench_commit": "116a135e71e3a50582062ce1ce2396477b40694e",
+        "local_branch": "codex/curious-portfolio-workbench-20261118",
+        "entrypoint": "workers/quests/src/cortex-services.ts"
+      },
+      "verification": "59 focused tests passed. The core suite passed 2748 tests and reproduced the same two failures as the Growth Gate baseline. The stale Field Atlas viewport proof still stops the release verifier, and the founder template hashes matched. The Labs preview and public domain returned the Workbench and Relovo mapping anonymously. The founder and Telegram reads returned 401 without credentials.",
+      "serving_release": {
+        "version": "235b0535-ec2c-4ec3-942b-b0273eae5e6f",
+        "version_number": 111,
+        "deployment": "f06dc3e9-09c9-4ecd-a0b5-eb551238c2d3",
+        "traffic_percent": 100,
+        "rollback_version": "e381ce70-4fcb-4b11-84c0-63449ca66cb6",
+        "readback": "Curious homepage links to /portfolio. The Workbench and Relovo JSON both returned 200 without credentials. Relovo resolves to branch:relovo with classification client-branch."
+      },
+      "binding_recovery": {
+        "method": "Use the Labs version readback to derive a value-free overlay from workers/quests/wrangler.labs.live-inherit.jsonc. Set the Cortex services entrypoint and inherit each serving binding by name.",
+        "binding_count": 54,
+        "additional_names": ["IVERIF_CLAIM_PROOF_MEMBER_ID", "MCP_GATE_ADAPTER_TOKEN", "NATIVE_SESSION_CLIENTS_JSON", "NATIVE_SESSION_OWNER_ORIGIN", "PLEXUS_NATIVE_IDENTITY_TENANT", "PLEXUS_NATIVE_IDENTITY_TOKEN", "PLEXUS_NATIVE_IDENTITY_URL"],
+        "parity": "The version readback matched all 54 binding definitions, runtime flags, and named and default handlers."
+      },
+      "next_action": "Use the live public project map for Cortex project lookup. Keep the signed action flow for edits. Use workers/quests/DEPLOY-LABS.md and the recorded Labs rollback version if a rollback is needed."
+    },
     "fitcheck_scope_reconciliation": {
       "status": "founder_approved_graph_19_verified",
       "source": "workers/quests/src/fitcheck-scope-reconciliation.ts",
@@ -262,6 +414,22 @@
       "work_form_candidate": ".planning/native-mac/FOUNDER-WORK-FORM-ROLLOUT-20261104.json",
       "work_proposal_receipt": ".planning/native-mac/CAMBIUM-WORK-PROPOSAL-RECEIPT-20261104.json",
       "native_work_direction_receipt": ".planning/native-mac/NATIVE-WORK-DIRECTION-VERIFICATION-20261104.json"
+    },
+    "project_onboarding": {
+      "updated": "2026-11-17",
+      "status": "verified-local-preparation-only",
+      "skill": ".agents/skills/project-onboarding/SKILL.md",
+      "runbook": ".agents/skills/project-onboarding/runbook.md",
+      "reports": ".local/project-onboarding/",
+      "klear_karma_review": ".local/project-onboarding/klear-karma/README.md",
+      "session_workflows": ".agents/skills/project-onboarding/workflows/",
+      "project_entrypoints": ".agents/skills/project-onboarding/workflows/project-entrypoints.md",
+      "entrypoint_scope": "Repo-local Codex skill card, Claude command and Grok CLI adapter share explicit phase, wave, manual review, archive eligibility and reference intents. Codex App Server returned the enabled repo skill; Grok did not list the project skill on the untrusted checkout, so host trust is unchanged and Grok menu acceptance is pending. Co.Property OS and Klear Karma reuse existing WorkObjects. No chat, schedule, graph admission or global install changed.",
+      "session_dry_runs": "session-preview.md in the Relovo, ParkArea, Klear Karma and Tirak local packets. Tirak includes the separate Plus authority hold.",
+      "workspace_map": ".local/project-onboarding/klear-karma/workspace-map.md",
+      "workspace_mapping": "All four Klear Karma Git roots and Temperance paths were verified on the MacBook Pro. The 16 November App Server readback confirms all four as separately saved Codex projects after registering wiki and landing. The desktop list confirms mobile and admin; wiki and landing still await desktop readback. The ignored workspace map records both lists, exact origins, archive pins and gaps in live mini access.",
+      "verification": "Seven onboarding tests and sixteen existing catalog tests passed. Codex app-server discovered the enabled repo-local skill. The existing project-birth catalog-pin failure was reproduced from untouched HEAD. Three delivery drafts and the separate Klear Karma Sapling proposal were prepared using GitHub readback and scoped local source.",
+      "next_action": "Review the Klear Karma draft roadmap and Spec Kit with 29 answers and one deferral for signed governing documents. The mobile and API owner confirms revision and fixture readiness and records the combined local free booking evidence for project owner sign-off. Keep the product hypothesis separate from the delivery roadmap. ParkArea and Relovo remain dry runs."
     }
   }
 }

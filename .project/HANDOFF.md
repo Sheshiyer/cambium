@@ -11,6 +11,135 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-19 Relovo Cortex read verified after AWS renewal
+
+AWS renewed safvr for the expected principal. The saved query ran through
+the existing Hermes Cortex client and returned four source blobs with
+matching hashes. The Relovo closeout now records five passed triage checks.
+The original cold replay is retained with its follow-up resolution in
+`continuations.relovo_triage_closeout_20261119`. Taste Cortex is in draft.
+ParkArea is paused. The seller task remains proposed.
+
+## 2026-11-19 Relovo triage closeout
+
+The packet records the confirmed planning owner, seller source and original
+35 issue links. One cold native replay verified pickup, matching fingerprints,
+the live Curious map and the proposed seller handoff. Its Cortex read stopped
+at the expired safvr AWS session. See
+`continuations.relovo_triage_closeout_20261119` for the receipt and named
+holds. Taste Cortex is in draft. ParkArea is paused.
+
+## 2026-11-18 Forge native Codex callback release
+
+Forge serves version `2cd6f616-b77a-453d-a8fd-e4c9db0f0cf6` at 100%.
+Issuer discovery and the existing identity route checks pass. The bounded
+native sign-in awaits founder consent. Use
+`continuations.cortex_workbench_repair_20261118` for the release receipt and rollback.
+
+## 2026-11-18 Relovo Cortex triage read
+
+Live Curious confirms `branch:relovo` for the triage packet. The serving
+catalog records the tenant identity as unresolved. The existing hosted
+Hermes connection returned four Cortex techniques hits with matching source
+hashes. See the source-linked Relovo review in
+`continuations.cortex_workbench_repair_20261118`.
+
+## 2026-11-18 Relovo Cortex triage pickup
+
+The Cortex triage lookup uses the live Curious Workbench API. A cold Relovo
+Vestibule run picked up the new URL and confirmed `branch:relovo` as a
+`client-branch`. The seller voice query returned `authentication_required`.
+Use `continuations.cortex_workbench_repair_20261118` for the live mapping and
+the pending Cortex read. Taste Cortex is in draft and ParkArea is paused.
+
+## 2026-11-18 Curious Portfolio Workbench deployed
+
+Thoughtseed Labs serves Workbench release 111 on Curious. Anonymous requests
+returned the public Workbench and the Relovo mapping for `branch:relovo`.
+The release inherited all 54 bindings and matched the previous runtime and
+handlers. See `continuations.portfolio_workbench_access_20261118` for the
+release commit, binding evidence and version 110 rollback.
+
+## 2026-11-18 Curious Portfolio Workbench access
+
+The Cambium candidate adds `/portfolio` and the public `/v1/portfolio` JSON
+project map with an optional `workId` lookup. The signed action routes retain
+their existing verification. The 42 focused tests and Thoughtseed Labs dry run
+passed. The serving Growth Gate source and binding contract are needed for
+promotion. See `continuations.portfolio_workbench_access_20261118`.
+
+## 2026-11-18 Cortex and Curious Workbench repair handoff
+
+Curious serves the Portfolio Workbench and supplies Cortex project provenance.
+The live Cortex issuer is Forge. Safari reached the local listener and Forge
+issued a code, which expired before an exchange. Use
+`continuations.cortex_workbench_repair_20261118` for the evidence and repair checks.
+
+Codex CLI 0.166.0 generates a resource-specific callback path. Live Forge policy
+currently registers the bare callback. The same continuation records the exact
+one-URI addition, verified request shape and the pending Safari redirect trace.
+
+## 2026-11-18 Cortex connection audit
+
+Live metadata and the active Labs bindings identify Forge as the Cortex OAuth
+issuer and Curious as the Quests surface. The hosted Hermes default profile
+uses `/v1/mcp` with its existing bearer. Current guidance is in
+`workers/cortex-mcp/README.md`. See `continuations.cortex_connection_audit_20261118`
+for the active versions and next owner decision.
+
+## 2026-11-18 Project workflow entrypoints
+
+The existing onboarding skill and Claude command now route named project
+workflow reviews through one entrypoint; Co.Property OS and Klear Karma use
+existing source owners and identities. See the structured onboarding
+continuation. No operational action or global install.
+
+## Project onboarding phase and wave workflows
+
+The onboarding skill now documents phase and wave chats, standing read-only
+review and archive verification. Four local dry runs cover Relovo, ParkArea,
+Klear Karma and Tirak Core and Plus. See the project onboarding continuation.
+
+## 2026-11-17 Klear Karma onboarding interview
+
+The local decision packet records 29 answers and one deferral while the owner
+checks for signed governing documents. Local delivery ends at owner sign-off
+on the free booking walkthrough after review of the combined mobile and API
+evidence. See `continuations.project_onboarding` for the draft review packet.
+
+## 2026-11-16 Klear Karma saved project registration
+
+The MacBook Pro Codex App Server saved separate Astro wiki and landing
+projects. A fresh App Server process returned all four exact Klear Karma
+roots. The desktop project list still returns mobile/API and admin. See the
+workspace map in `continuations.project_onboarding` for both readbacks.
+
+## 2026-11-16 Klear Karma Codex project readback
+
+The saved Codex list confirms the MacBook Pro mobile/API and admin Git roots.
+Astro wiki and landing exist locally and still need separate saved project
+readback. The workspace map in `continuations.project_onboarding` records
+the two verified project IDs.
+
+## 2026-11-15 Klear Karma workspace mapping
+
+The MacBook Pro has verified mobile/API, admin, Astro wiki and landing Git
+roots. The portable Temperance map resolves all four. The Codex project list
+confirms the existing mobile root. The other three await native project
+selection. The onboarding runbook now covers host inventory, retained source,
+project registration and readback. See the ignored workspace map linked in
+`continuations.project_onboarding` for the exact paths and evidence.
+
+## 2026-11-15 Project onboarding preparation and Sapling discovery
+
+The repo-local `project-onboarding` skill and `npm run project:onboard` prepare
+private, source-bound intake and discovery reports. The local runs covered
+ParkArea, Relovo and Klear Karma, plus a separate Klear Karma product hypothesis
+using the Sapling track. The Branch/Sapling distinction and existing GitHub
+bindings remain intact. No board, chat, automation, routing or operational
+registry changes were made. See `continuations.project_onboarding` for scope,
+verification and pickup.
+
 ## 2026-11-05 Fitcheck founder decision and graph 19 verified
 
 Canonical founder status confirms revision 2 approved. Receipt digest

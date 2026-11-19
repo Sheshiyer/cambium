@@ -8,12 +8,15 @@ export const CURIOUS_WORLD_PAGE = `<style>${CURIOUS_WORLD_CSS}</style>
 body.curious-world-active{overflow:hidden!important}
 #curious-world[hidden]{display:none!important}
 #curious-world{position:fixed;inset:0;z-index:60;background:#00272b}
-#curious-world-launch{position:fixed;right:14px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:45;min-height:44px;padding:10px 16px;border:1px solid #e0ff4f;border-radius:30px;background:#00272b;color:#e0ff4f;font:12px var(--mono,monospace)}
-body.curious-world-active #curious-world-launch{display:none}
+#curious-world-launch,#curious-portfolio-link{position:fixed;bottom:calc(74px + env(safe-area-inset-bottom));z-index:45;min-height:44px;padding:10px 16px;border:1px solid #e0ff4f;border-radius:30px;background:#00272b;color:#e0ff4f;font:12px var(--mono,monospace)}
+#curious-world-launch{right:14px}
+#curious-portfolio-link{left:14px;display:inline-flex;align-items:center;text-decoration:none}
+body.curious-world-active #curious-world-launch,body.curious-world-active #curious-portfolio-link{display:none}
 #curious-world-fallback{position:fixed;left:12px;right:12px;bottom:calc(124px + env(safe-area-inset-bottom));z-index:46;background:#012f34;color:#ffc7a1;border:1px solid #ffc7a1;padding:12px;font:12px var(--mono,monospace);border-radius:12px}
 #curious-world-fallback[hidden]{display:none}
 </style>
 <section id="curious-world" hidden aria-label="Curious walkable source world" data-component="CuriousPocketWorld" data-evidence="source"></section>
+<a id="curious-portfolio-link" href="/portfolio">Portfolio Workbench</a>
 <button id="curious-world-launch" type="button">Enter 3D world</button>
 <p id="curious-world-fallback" hidden role="status">The 3D view is unavailable. The 2D workbench remains ready.</p>
 <script data-bundled="curious-pocket-world">${CURIOUS_WORLD_JS.replace(/<\/script/gi, '<\\/script')}</script>

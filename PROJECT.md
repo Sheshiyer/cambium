@@ -114,3 +114,18 @@ Supply private vault and skill-library roots through local configuration or
 helper flags. Generated reports remain ignored. A generic run requests one
 step selection; the calling agent performs only that authorized action and
 verifies its outcome. No scheduler or external publisher is installed.
+
+## Project onboarding
+
+Use the repo-local [project-onboarding skill](.agents/skills/project-onboarding/SKILL.md)
+for intake from a GitHub repository, client, or WorkObject. For read-only
+preparation with a locally ignored report:
+
+```bash
+npm run project:onboard -- <target> --github --out <label>
+```
+
+The command reconciles source pins and Workbench/Vault evidence, then prepares a
+private roadmap, discovery and pillar proposal. Saplings also get a product
+research and goal-to-flow track. See the [runbook](.agents/skills/project-onboarding/runbook.md)
+for review/answer inputs and supported owner operations.
