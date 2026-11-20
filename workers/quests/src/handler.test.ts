@@ -17383,6 +17383,41 @@ test('founder bookkeeping intake · real Access route stores only pending, full 
   assert.doesNotMatch(readback.body,/CF_Authorization|founder@thoughtseed/);
 });
 
+test('founder bookkeeping export · complete D1 snapshot retains the non-product root for exact planning', async () => {
+  const h = await canonicalFounderHarness();
+  assert.equal(body(await h.call('decision', canonicalDecision(body(h.read)))).status, 'approved');
+  const [root] = await h.deps.goalGraphStore.readNodes('cambium');
+  assert.notEqual(root.namespace, 'founder-bookkeeping');
+  const raw = founderBookkeepingInput();
+  raw.goals[0].parentNodeId = root.nodeId as any;
+  raw.goals.push({ ...raw.goals[0], externalId: 'temperance-planning', workObjectId: 'program:temperance-hermes', workObjectKind: 'program' });
+  const pending = body(await h.call('intake', raw));
+  const reviewed = body(await h.call('proposal', { proposalId: pending.proposalId }));
+  assert.equal(body(await h.call('decision', canonicalDecision(reviewed))).status, 'approved');
+  const before = await h.deps.goalGraphStore.readNodes('cambium');
+  const head = await h.deps.goalGraphStore.readHead('cambium');
+  const kvBefore = new Map(h.kv.store);
+  const read = await handle(req('GET', '/v1/founder/graph', { headers: founderWebHeaders() }), h.deps);
+  assert.equal(read.status, 200, read.body);
+  const graph = body(read), snapshot = graph.canonicalGraph;
+  assert.equal(graph.nodes.length, 2, 'product UI projection stays scoped');
+  assert.ok(graph.nodes.every((n: any) => n.nodeId !== root.nodeId));
+  assert.equal(snapshot.complete, true);
+  assert.equal(snapshot.schema, 'cambium.goal-graph-canonical-snapshot.v1');
+  assert.equal(snapshot.rootId, root.nodeId);
+  assert.deepEqual(snapshot.nodes, before, 'actual root and all other D1 bytes are retained');
+  assert.deepEqual(snapshot.head, head);
+  const { compileGoalGraph, makeGoalGraphHead } = await import('./goal-graph/compiler.ts');
+  assert.equal(makeGoalGraphHead('cambium', snapshot.nodes, head!.graphVersion, head!.committedAt).graphDigest, head!.graphDigest);
+  assert.throws(() => compileGoalGraph({ tenantId: 'cambium', expectedHeadDigest: head!.graphDigest, actualHead: head!, currentNodes: graph.nodes, proposedNodes: graph.nodes, graphVersion: head!.graphVersion + 1, sourceRef: 'fixture:scoped-export', sourceDigest: 'sha256:fixture' }), /missing_parent/);
+  const preview = compileGoalGraph({ tenantId: 'cambium', expectedHeadDigest: head!.graphDigest, actualHead: snapshot.head, currentNodes: snapshot.nodes, proposedNodes: snapshot.nodes, graphVersion: head!.graphVersion + 1, sourceRef: 'fixture:canonical-export', sourceDigest: 'sha256:fixture' });
+  assert.equal(preview.status, 'compiled');
+  if (preview.status === 'compiled') assert.equal(preview.changeSet.isNoop, true);
+  assert.deepEqual(await h.deps.goalGraphStore.readNodes('cambium'), before);
+  assert.deepEqual(await h.deps.goalGraphStore.readHead('cambium'), head);
+  assert.deepEqual(h.kv.store, kvBefore, 'export makes no KV repairs or decisions');
+});
+
 test('founder bookkeeping intake · an exact later amendment preserves original creation time through review and D1', async () => {
   const h = await canonicalFounderHarness();
   let clock = h.deps.now();
@@ -17429,6 +17464,9 @@ test('founder bookkeeping intake · role, CSRF, enrollment and authority-field f
   for (const session of [null,{ ...FOUNDER_SESSION,role:'employee' }]) {
     const h=await canonicalFounderHarness(session); const before=h.kv.store.size;
     assert.equal((await h.call('intake',founderBookkeepingInput())).status,401);
+    const denied = await handle(req('GET','/v1/founder/graph',{headers:founderWebHeaders()}),h.deps);
+    assert.equal(denied.status,401);
+    assert.equal(body(denied).canonicalGraph,undefined);
     assert.equal(h.kv.store.size,before);
   }
   const h=await canonicalFounderHarness(); const raw=founderBookkeepingInput();

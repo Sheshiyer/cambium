@@ -5641,6 +5641,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
             || makeGoalGraphHead('cambium', all, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) return json(503, { error: 'goal_graph_read_unconfirmed' });
         const roots = all.filter(node => node.parentNodeId === null);
         if (roots.length !== 1) return json(503, { error: 'goal_graph_root_ambiguous' });
+        if (all.length > 1000 || all.some(node => node.tenantId !== 'cambium')) return json(503, { error: 'goal_graph_export_scope_unconfirmed' });
         const nodes = all.filter(node => node.namespace === 'founder-bookkeeping'
           && ['sapling:lumen-bar', 'program:temperance-hermes'].includes(node.workObjectId ?? ''));
         const ids = new Set(nodes.map(node => node.nodeId));
@@ -5666,6 +5667,10 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
         return { ...json(200, { schema: 'cambium.founder.bookkeeping-graph.v1', origin: 'd1', tenantId: 'cambium',
           canonicalReadback: true, writerAuthority: false, executionGranted: false,
           head: { tenantId: head.tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest }, rootId: roots[0].nodeId,
+          // The product list below is a projection, not the complete input for a CAS compiler.
+          // Export actual D1 nodes, including the root and unrelated branches, separately.
+          canonicalGraph: { schema: 'cambium.goal-graph-canonical-snapshot.v1', tenantId: 'cambium',
+            complete: true, rootId: roots[0].nodeId, head, nodes: all },
           nodes, edges: nodes.filter(node => node.parentNodeId && (ids.has(node.parentNodeId) || node.parentNodeId === roots[0].nodeId))
             .map(node => ({ kind: 'contains', fromId: node.parentNodeId, toId: node.nodeId })),
           decisions, servedAt, departmentSources,

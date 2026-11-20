@@ -11,6 +11,13 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+### 2026-11-04 Graph export source candidate and exact GSD mapping review
+
+- The additive authenticated `canonicalGraph` export retains the actual D1 root, all tenant nodes and complete head; the existing product view remains scoped. Source qualification and release remain separate. Version95 stays the planning baseline and CI stays deferred.
+- The existing Founder Gate prepared the seven-task draft mapping against head17 as proposal `cambium:08f92ad65b8d0ad2762bbf859068be633b163a8cba2c5f046f4972243fb110f1`. No approval was issued; the canonical head, nodes and decisions read back unchanged. Three existing LumenBar measurement tasks retain their identities and prerequisites.
+- Pickup: `artifact:gsd-planning-20261104/root-export-revision/REVIEW.md` and its exact mapping/source receipts. The original three plan bytes are unchanged. Exact ISA/GSD acceptance, mapping signature, native inputs, Temperance application-base/legacy-policy choices, runtime admission and deployment remain HITL-held. An expired or stale proposal needs a fresh exact-head review, never a blind decision retry.
+
+
 ### 2026-11-04 VPG-01 source foundation verified; later packages and release held
 
 - The user accepted the finite packet digest `bcde1f5d4ed3b5285bd62e4a0ce4991dfb2e6b28bde508665559a09c84fa6c21` and admitted only VPG-01-T1/T2 in `7460d730`. Both source tasks are verified and their admission is consumed; VPG-02 through VPG-10 remain unadmitted. The reviewed proposal and root Phase 9 spine stay unchanged.

@@ -6,6 +6,22 @@ The user has selected version95 as the next planning baseline, with traffic
 changes held. This resolves which version planning uses; it authorizes no
 promotion, rollback, version96 reuse or deployment of this branch.
 
+### Complete graph export candidate
+
+The authenticated graph response retains `nodes` and `edges` as the scoped
+product view. These fields must not be compiled against the whole-tenant head.
+The additive `canonicalGraph` snapshot carries the actual D1 root and every
+tenant node, the full head and `complete: true`. The existing digest and final
+head checks still bind the read; cross-tenant or over-1000-node exports fail
+closed. Consumers must verify the snapshot digest and root before using it for
+an offline change preview. A snapshot grants no write or execution authority.
+
+This is a source candidate. Version95's existing export must remain visibly
+incomplete until a separately reviewed release is admitted. An unsigned proposal
+prepared by the existing Founder Gate can instead supply a server-compiled exact
+change for HITL, using the server's complete current graph. Preparing that proposal
+does not commit nodes, accept ISA/GSD plans, satisfy dependencies or admit work.
+
 The reader branch now preserves an existing bookkeeping node's `createdAt` when a later intent amends it. New nodes retain the new observation time. Canonical review and SQLite-backed D1 tests cover the exact amendment, original identity, source/version advancement and unchanged execution authority.
 
 The authenticated overview previously scanned the same intake-task keys four times per request. It now shares one lazy request-local task snapshot across public rows, founder rows, decision paths and expired-candidate recovery, with at most eight concurrent KV reads. Tenant/schema filtering and the original D1 decision checks remain in place. The regression verifies one discovery/read per key, bounded overlap, no graph write and a fresh snapshot on the next request. This removes reproduced redundant work; it does not establish that the production overview timeout is resolved.
