@@ -321,7 +321,7 @@ test('exported fixture server serves actual PAGE and closes after callback compl
     base = url;
     const response = await fetch(`${url}/?tenant=cambium&scene=mission&fixture=branch-stories`);
     assert.equal(response.status, 200);
-    assert.match(await response.text(), /MissionControlShell/);
+    assert.match(await response.text(), /CuriousPocketWorld/);
     assert.equal(metrics.gatePostCount(), 0);
   });
   await assert.rejects(() => fetch(base));
@@ -332,7 +332,7 @@ test('fixture server pins the fresh clock before PAGE scripts and leaves other f
     const fresh = await fetch(`${url}/?tenant=cambium&scene=story&fixture=fresh`).then((response) => response.text());
     const ordinary = await fetch(`${url}/?tenant=cambium&scene=mission&fixture=branch-stories`).then((response) => response.text());
     assert.match(fresh, /<head><script data-viewport-proof-clock="fixture-only">Object\.defineProperty\(Date, 'now'/);
-    assert.ok(fresh.indexOf('data-viewport-proof-clock') < fresh.indexOf('src="/telegram-web-app.js"'));
+    assert.ok(fresh.indexOf('data-viewport-proof-clock') < fresh.indexOf("'use strict';"), 'fixture clock precedes the page-owned world host');
     assert.doesNotMatch(ordinary, /data-viewport-proof-clock/);
   });
 });

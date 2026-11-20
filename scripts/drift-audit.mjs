@@ -164,6 +164,16 @@ export async function auditRepository(rootValue = process.cwd()) {
   const qaPolicy = await readOptional(join(root, 'apps/cambium-r3f/src/scene/desktop-qa-policy.ts')) || '';
   if (/awaiting-user-flow-feedback|skipped-by-user-request/.test(qaPolicy)) failures.push('R3F QA policy contains temporal milestone status');
 
+  const { PAGE: currentPage } = await import(`${pathToFileURL(join(root, 'workers/quests/src/page.ts')).href}?viewport=${Date.now()}`);
+  const fieldAtlas = currentPage.includes('aria-label="Cambium Field Atlas"') && !currentPage.includes('MissionControlShell');
+  if (fieldAtlas) {
+    const { validateFieldAtlasViewportProof, FIELD_ATLAS_PROOF_DIRECTORY } = await import(pathToFileURL(join(root, 'workers/quests/src/field-atlas-viewport-proof.mjs')).href);
+    const directory = join(root, FIELD_ATLAS_PROOF_DIRECTORY);
+    let manifest;
+    try { manifest = JSON.parse(await readFile(join(directory, 'manifest.json'), 'utf8')); } catch {}
+    failures.push(...validateFieldAtlasViewportProof(manifest, directory));
+    return { ok: failures.length === 0, failures };
+  }
   const proofDir = join(root, 'docs/plans/assets/tg-miniapp-viewport-proof');
   const manifestText = await readOptional(join(proofDir, 'manifest.json'));
   if (!manifestText) {

@@ -37,8 +37,9 @@ import { OPERATING_FABRIC_MARKUP, OPERATING_FABRIC_SCENES } from './page/operati
 import { OPERATING_FABRIC_BOOT } from './page/operating-fabric/client.ts';
 import { OPERATING_FABRIC_STYLES } from './page/operating-fabric/styles.ts';
 import { FABRIC_SCENE_INTROS } from './page/operating-fabric/workbench.ts';
-import { LEGACY_PAGE, PAGE } from './page/index.ts';
-import { CURIOUS_WORLD_PAGE } from './page/components/curious-world.ts';
+// Historical artifact regressions; this composition is excluded from the serving build.
+import { LEGACY_PAGE, RETIRED_PAGE as PAGE } from './page/retired.ts';
+import { CURIOUS_WORLD_PAGE } from './page/components/retired-curious-world.ts';
 import { permits } from './rbac.ts';
 import { ORGAN_UPDATE_PLAN } from './organ-update-delivery.ts';
 import { PORTFOLIO_CATALOG } from './portfolio-catalog.ts';

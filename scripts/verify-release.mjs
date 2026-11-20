@@ -23,7 +23,7 @@ const gates = [
   ],
   ['standalone audit', 'npm', ['run', 'standalone:audit']],
   ['standalone smoke', 'npm', ['run', 'standalone:smoke']],
-  ['Telegram mobile contract', 'npm', ['run', 'proof:tg-mobile-contract']],
+  ['Field Atlas viewport contract', 'npm', ['run', 'proof:field-atlas']],
   ['R3F tests', 'npm', ['run', 'r3f:test']],
   ['R3F build', 'npm', ['run', 'r3f:build']],
   ['Electron packaging contract', 'npm', ['run', 'desktop:test']],

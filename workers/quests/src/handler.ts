@@ -1,7 +1,3 @@
-import { MAPPING_ANNOTATIONS } from './portfolio-four-annotations.data.ts';
-import { parseAnnotations } from './portfolio-four-annotations.ts';
-import { DESCRIPTION_DATA } from './portfolio-descriptions.data.ts';
-import { descriptionResponse } from './portfolio-descriptions.ts';
 import { createFounderAccessHost, founderBindings } from './founder-access-host.ts';
 import { founderDecisionHttp, type FounderTransportHost } from './founder-decision-transport.ts';
 // cambium-quests · the serving store for the quest ledger (Thalia wing, W1).
@@ -22,19 +18,10 @@ import { GROWTH_REFS, GROWTH_ROLES, parseGrowthInput, parseGrowthRequest, parseG
 import type { GrowthInput, GrowthResult, GrowthRecord, GrowthStore } from './growth-workflow.ts';
 import { GROWTH_CONTEXT_PROJECTION } from './growth-context-projection.ts';
 import { PAGE } from './page.ts';
-import { injectInitialQuestHydration } from './page/client/data.ts';
+import { injectInitialQuestHydration } from './page/initial-hydration.ts';
 import { parseStoryEventContract, projectStoryEvents } from './page/scenes/story.ts';
 import { normalizeToolsCommandProjection } from './page/scenes/tools.ts';
 import { confirmSignedActionRequestRecord, consumeActionRequestRecord, createActionRequestRecord, listActionRequestRecords, resolveActionRequestRecord, resolveActionRequestReplyRecord } from './action-requests.ts';
-import {
-  approveMcpGateActionRequest,
-  executeMcpGateAction,
-  readMcpGateActionApprovalStatus,
-  requestMcpGateActionApproval,
-  type McpActionIntentV1,
-  type McpGateTargetExecution,
-  type McpGateTargetValidation,
-} from './mcp-gate-action.ts';
 import { handleContextRoute } from './context-routes.ts';
 import type { ContextRouteDeps } from './context-routes.ts';
 import type { GithubCommandExecutor, GithubCommandResult } from './github-command.ts';
@@ -116,6 +103,7 @@ import type { GoalGraphApproval, GoalGraphCommitResult, GoalGraphStoreLike } fro
 import { canonicalizeGoalGraphApproval, goalGraphApprovalDigest } from './goal-graph-store.ts';
 import { deriveFounderOutcomeTransition, parseFounderOutcomeIntent } from './founder-outcome-intake.ts';
 import { parseTelegramGoalGraphIntent, parseTelegramGoalGraphIntentBoundary } from './goal-graph-intake.ts';
+import { FOUNDER_BOOKKEEPING_MAX_BYTES, FOUNDER_BOOKKEEPING_SCHEMA, parseFounderBookkeepingBoundary, parseFounderBookkeepingIntent } from './native-goal-intake.ts';
 import { compileGoalGraph, makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { buildNode } from './goal-graph/identity.ts';
 import type { GoalChangeSet, GoalGraphHead, GoalGraphNode } from './goal-graph/types.ts';
@@ -519,7 +507,6 @@ export interface HandlerDeps {
   pushToken?: string;          // Worker secret QUESTS_PUSH_TOKEN (unset → push lane 503s)
   gate?: GateConfig;           // W4 founder gate (unset → gate lane 503s)
   bridgeToken?: string;        // Worker secret BRIDGE_TOKEN — the admin/cofounder bridge token
-  mcpGateAdapterToken?: string; // Worker secret MCP_GATE_ADAPTER_TOKEN — Cortex Gate adapter only; unset → 503
   assignmentToken?: string;    // Scoped Hermes token — may enqueue project_task_assignment only
   roleTaskBindingsJson?: string; // Server-owned Hermes role -> member/project/task binding registry
   bridgeStore?: BridgeStoreLike; // Optional non-KV bridge queue store (D1 in production)
@@ -604,7 +591,7 @@ export interface GateConfig {
   now?: () => number;               // injectable clock
 }
 
-type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph' | 'reject-goal-graph' | 'approve-mcp-action';
+type GateActionKind = 'approve' | 'reroll' | 'promote-skill' | 'promote-portfolio' | 'queue-side-quest' | 'confirm-action-request' | 'approve-marketing-render' | 'approve-goal-graph' | 'reject-goal-graph';
 
 /** Telegram production public key for third-party initData validation. */
 export const TELEGRAM_PROD_PUBKEY = 'e7bf03a2fa4602af4580703d88dda5bb59f32ed8b02a56c187fe7d34caed242d';
@@ -3339,16 +3326,12 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     return json(503, { error: 'mission fabric authority is not configured' });
   }
 
-  let authorityStage: 'store_read' | 'ledger' | 'projection' | 'foldback' = 'store_read';
   try {
     const head = await deps.goalGraphStore.readHead(tenant);
     if (!head) return json(404, { error: 'mission fabric graph not found' });
     const nodes = await deps.goalGraphStore.readNodes(tenant);
-    authorityStage = 'ledger';
     const storedEnvelope = parseStoredEnvelope(await deps.kv.get(ledgerKey(tenant))) as Record<string, unknown> | null;
-    authorityStage = 'store_read';
     const receipts = await deps.branchMapReceiptStore.listReceipts(tenant, undefined, BRANCH_MAP_RECEIPT_READ_LIMIT);
-    authorityStage = 'projection';
 
     const servedAt = deps.now ? deps.now() : new Date().toISOString();
     if (fabricTimestampMs(servedAt) === null) return json(503, { error: 'mission_fabric_clock_invalid' });
@@ -3403,7 +3386,6 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
     ));
     const mergedGaps: FabricGap[] = [...goalGraphAuthority.gaps, ...execution.gaps, ...taskReconciliation.gaps];
 
-    authorityStage = 'foldback';
     const foldbackReferences: any[] = isRecord(storedEnvelope) && Array.isArray(storedEnvelope.foldbackReceipts) ? storedEnvelope.foldbackReceipts : [];
     if (!foldbackReferences.length && deps.foldbackReader?.discover) {
       const discovered = await discoverMissionFoldbackReferences({ tenantId: tenant, graphVersion: head.graphVersion, nodes, reader: deps.foldbackReader });
@@ -3420,7 +3402,6 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       mergedGaps.push({ gapId: 'gap-foldback-reader', kind: 'accepted-result-unavailable', subjectId: null,
         detail: 'Immutable foldback references and the trusted readback consumer are required; no semantic acceptance is inferred.', evidenceRef: null });
     }
-    authorityStage = 'projection';
 
     const runNodeIds = new Set(execution.nodes.filter((node) => node.kind === 'run').map((node) => node.value.runId));
     const agentNodeIds = new Set(entries.filter((node): node is FabricNode => !('gapId' in node) && node.kind === 'agent').map((node) => (node.value as { agentId: string }).agentId));
@@ -3601,7 +3582,7 @@ async function handleMissionFabricRoute(req: SimpleRequest, deps: HandlerDeps, r
       body: JSON.stringify(body),
     };
   } catch {
-    return json(503, { error: 'mission_fabric_authority_unavailable', reason: authorityStage });
+    return json(503, { error: 'mission_fabric_authority_unavailable' });
   }
 }
 
@@ -3953,6 +3934,8 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
       fence: descriptor.fence,
     };
   }
+  const bookkeeping = isRecord(task.intent) && task.intent.schema === FOUNDER_BOOKKEEPING_SCHEMA;
+  const changeSet = isRecord(task.changeSet) ? task.changeSet : {};
   return {
     schema: GOAL_GRAPH_GATE_ROW_SCHEMA,
     kind: 'goal-graph-intake',
@@ -3964,11 +3947,12 @@ function goalGraphIntakeGateRow(task: Record<string, unknown>): Record<string, u
     nodeId,
     placement: goalGraphRowPlacement(task),
     title: shortText(`Goal proposal · ${desiredState}`, 'Goal proposal', 160),
-    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
-    source: task.renewal ? 'founder-proposal-renewal@v1' : 'telegram-goal-graph-intake@v1',
+    summary: shortText(`${task.renewal ? 'Founder-renewed goal proposal' : bookkeeping ? 'Founder bookkeeping proposal' : 'Telegram goal proposal'} awaiting founder signature: ${desiredState}`, 'Goal proposal awaiting founder signature', 240),
+    source: task.renewal ? 'founder-proposal-renewal@v1' : bookkeeping ? 'founder-web-bookkeeping@v1' : 'telegram-goal-graph-intake@v1',
+    ...(bookkeeping ? { bookkeepingChanges: { nodesToCreate: changeSet.nodesToCreate, nodesToUpdate: changeSet.nodesToUpdate, nodesToRemove: changeSet.nodesToRemove } } : {}),
     sourceRef: shortText(task.sourceRef, 'sourceRef not served', 160),
     evidence: shortText(`goal graph intake ${nodeId} pinned at intake; commit is a CAS against the pinned head`, 'goal graph intake evidence missing', 300),
-    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
+    consequence: task.renewal ? 'founder signature commits this renewed proposal to the goal graph; original source and renewal lineage remain separate' : bookkeeping ? 'founder signature commits only the reviewed bookkeeping nodes to D1; no loadout, admission, publication or execution is granted' : 'founder signature commits this Telegram goal proposal to the goal graph; no graph write happens before approval',
     reversibility: 'reversible until signed: an unsigned proposal never mutates the goal graph; a stale head is refused without a write',
     idempotencyHint: changeDigest,
     proposalId: `${tenantId}:${changeDigest}`,
@@ -4351,6 +4335,7 @@ async function intakeTelegramGoalGraphRoute(
   deps: HandlerDeps,
   raw: unknown,
   nowIso: () => string,
+  verifiedFounderId?: string,
 ): Promise<GoalGraphIntakeRouteResult> {
   const receivedAt = nowIso();
   const receiptTenant = goalGraphIntakeReceiptTenant(raw);
@@ -4384,7 +4369,7 @@ async function intakeTelegramGoalGraphRoute(
   // Normalize and bind provenance before consulting D1. That boundary identity
   // is enough to collapse an already-accepted Telegram redelivery even when
   // the graph has since drifted or its authority is temporarily unavailable.
-  const initial = parseTelegramGoalGraphIntentBoundary(raw);
+  const initial = verifiedFounderId ? parseFounderBookkeepingBoundary(raw, verifiedFounderId) : parseTelegramGoalGraphIntentBoundary(raw);
   if (!initial.accepted) return persistRejection(initial);
   const tenantId = initial.value.tenantId;
   const idempotencyRecordKey = `goal-graph-intake-idem:${initial.idempotencyKey}`;
@@ -4416,14 +4401,15 @@ async function intakeTelegramGoalGraphRoute(
   // Pin the proposal to the CURRENT head so the approval-bound commit is a
   // CAS against a known digest. The parse is deterministic, so identity,
   // content digest, and the idempotency key are unchanged by this re-parse.
-  const pinned = parseTelegramGoalGraphIntent(raw, {
+  const context = {
     expectedHeadDigest: head?.graphDigest ?? null,
     actualHead: head,
     currentNodes,
     graphVersion: (head?.graphVersion ?? 0) + 1,
     now: receivedAt,
     loadoutAuthority: GOAL_GRAPH_LOADOUT_AUTHORITY,
-  });
+  };
+  const pinned = verifiedFounderId ? parseFounderBookkeepingIntent(raw, verifiedFounderId, context) : parseTelegramGoalGraphIntent(raw, context);
   if (!pinned.accepted) return persistRejection(pinned);
   if (pinned.idempotencyKey !== initial.idempotencyKey || pinned.contentDigest !== initial.contentDigest) {
     return { status: 500, body: { error: 'goal_graph_intake_boundary_drift' } };
@@ -5366,107 +5352,63 @@ async function resolveFounderWebSigner(
   return { kind: 'founder', approverId };
 }
 
-const MCP_GATE_PATHS = new Set([
-  '/mcp/actions/request-approval',
-  '/mcp/actions/approval-status',
-  '/mcp/actions/execute',
-]);
-const MCP_GOAL_GRAPH_ACTION = 'goal-graph.apply-approved-change';
-const MCP_CHANGE_DIGEST_RE = /^sha256:[a-f0-9]{64}$/;
-
-function mcpGoalGraphChangeDigest(intent: McpActionIntentV1, args: Record<string, unknown>): string | null {
-  if (intent.action_kind !== MCP_GOAL_GRAPH_ACTION) return null;
-  const keys = Object.keys(args);
-  if (keys.length !== 1 || keys[0] !== 'change_digest' || typeof args.change_digest !== 'string') return null;
-  return MCP_CHANGE_DIGEST_RE.test(args.change_digest) ? args.change_digest : null;
-}
-
-async function validateMcpGoalGraphTarget(
-  deps: HandlerDeps,
-  intent: McpActionIntentV1,
-  args: Record<string, unknown>,
-): Promise<McpGateTargetValidation> {
-  const digest = mcpGoalGraphChangeDigest(intent, args);
-  if (!digest) return { ok: false, status: 400, error: 'mcp_action_target_rejected' };
-  const task = await readGoalGraphIntakeTask(deps.kv, intent.tenant, digest);
-  if (!task || task.status !== 'pending') {
-    return { ok: false, status: 404, error: 'mcp_action_target_not_found' };
-  }
-  if (task.renewal) return { ok: false, status: 409, error: 'renewed_proposal_requires_canonical_gate' };
-  const descriptor = resolveGoalGraphApprovalDescriptor(task, intent.tenant, digest);
-  const graphVersion = task.graphVersion;
-  if (!descriptor
-      || intent.nonce !== descriptor.approvalNonce
-      || intent.expiry !== descriptor.approvalExpiresAt
-      || !Number.isInteger(graphVersion)
-      || intent.graph_version !== Number(graphVersion)
-      || intent.idempotency_key !== String(task.idempotencyKey ?? '')) {
-    return { ok: false, status: 409, error: 'mcp_action_target_mismatch' };
-  }
-  return { ok: true };
-}
-
-async function executeMcpGoalGraphTarget(
-  deps: HandlerDeps,
-  intent: McpActionIntentV1,
-  args: Record<string, unknown>,
-  founderId: string,
-): Promise<McpGateTargetExecution> {
-  const digest = mcpGoalGraphChangeDigest(intent, args);
-  if (!digest) return { ok: false, status: 400, error: 'mcp_action_target_rejected' };
-  const result = await approveGoalGraphIntakeRoute(deps, intent.tenant, { changeDigest: digest, subject: digest }, founderId);
-  if (result.status >= 400) {
-    return {
-      ok: false,
-      status: result.status,
-      error: typeof result.body.error === 'string' ? result.body.error : 'mcp_action_target_rejected',
-    };
-  }
-  return {
-    ok: true,
-    status: result.body.duplicate === true ? 'duplicate' : 'committed',
-    terminalOutcome: MCP_GOAL_GRAPH_ACTION,
-  };
-}
-
-function mcpGateAdapterDenial(req: SimpleRequest, deps: HandlerDeps): SimpleResponse | null {
-  if (!deps.mcpGateAdapterToken) return json(503, { error: 'mcp_gate_adapter_unconfigured' });
-  if (req.headers.authorization !== `Bearer ${deps.mcpGateAdapterToken}`) {
-    return json(401, { error: 'mcp_gate_adapter_unauthorized' });
-  }
-  return null;
-}
-
-async function handleMcpGateAdapterRoute(req: SimpleRequest, deps: HandlerDeps, routePath: string): Promise<SimpleResponse> {
-  if (req.method !== 'POST') return json(405, { error: 'post_required' });
-  const denied = mcpGateAdapterDenial(req, deps);
-  if (denied) return denied;
-  let body: unknown;
-  try {
-    body = JSON.parse(req.body ?? '');
-  } catch {
-    return json(400, { error: 'body is not JSON' });
-  }
-  const now = deps.now ? deps.now() : new Date().toISOString();
-  if (routePath === '/mcp/actions/request-approval') {
-    const result = await requestMcpGateActionApproval(deps.kv, body, {
-      now,
-      validateTarget: (intent, args) => validateMcpGoalGraphTarget(deps, intent, args),
-    });
-    return json(result.status, result.body);
-  }
-  if (routePath === '/mcp/actions/approval-status') {
-    const result = await readMcpGateActionApprovalStatus(deps.kv, body, now);
-    return json(result.status, result.body);
-  }
-  const result = await executeMcpGateAction(deps.kv, body, {
-    now,
-    executeTarget: (intent, args, founderId) => executeMcpGoalGraphTarget(deps, intent, args, founderId),
-  });
-  return json(result.status, result.body);
-}
-
 export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<SimpleResponse> {
+  if (['/v1/founder/intake', '/v1/founder/graph'].includes(req.path.split('?')[0])) {
+    const readGraph = req.path.split('?')[0] === '/v1/founder/graph';
+    if (req.method !== (readGraph ? 'GET' : 'POST')) return json(405, { error: readGraph ? 'get_required' : 'post_required' });
+    // This is browser Access provenance, not a native credential or bridge token.
+    const signer = await resolveFounderWebSigner(req, deps);
+    if (signer.kind !== 'founder') return json(signer.kind === 'unconfigured' ? 503 : signer.kind === 'forbidden' ? 403 : 401, { error: 'founder_identity_required' });
+    const bindings = founderBindings(deps.founderGateBindingsJson);
+    if (!bindings?.some(row => row.founderId === signer.approverId && row.tenantId === 'cambium')) return json(403, { error: 'founder_tenant_not_enrolled' });
+    if (readGraph) {
+      if (!deps.goalGraphStore?.readDecisionReceipt) return json(503, { error: 'goal_graph_authority_unavailable' });
+      try {
+        const head = await deps.goalGraphStore.readHead('cambium');
+        if (!head) return json(404, { error: 'goal_graph_not_found' });
+        const all = await deps.goalGraphStore.readNodes('cambium');
+        const again = await deps.goalGraphStore.readHead('cambium');
+        if (!again || head.graphDigest !== again.graphDigest || head.graphVersion !== again.graphVersion
+            || makeGoalGraphHead('cambium', all, head.graphVersion, head.committedAt).graphDigest !== head.graphDigest) return json(503, { error: 'goal_graph_read_unconfirmed' });
+        const roots = all.filter(node => node.parentNodeId === null);
+        if (roots.length !== 1) return json(503, { error: 'goal_graph_root_ambiguous' });
+        const nodes = all.filter(node => node.namespace === 'founder-bookkeeping'
+          && ['sapling:lumen-bar', 'program:temperance-hermes'].includes(node.workObjectId ?? ''));
+        const ids = new Set(nodes.map(node => node.nodeId));
+        const keys = await deps.kv.list('goal-graph-intake-task:cambium:');
+        if (keys.length > 256) return json(503, { error: 'goal_graph_receipt_bound_exceeded' });
+        const decisions: Array<Record<string, unknown>> = [];
+        for (const key of keys) {
+          const task = parseJsonObject(await deps.kv.get(key));
+          if (!task || !isRecord(task.intent) || task.intent.schema !== FOUNDER_BOOKKEEPING_SCHEMA || task.tenantId !== 'cambium'
+              || !Number.isInteger(task.graphVersion)) continue;
+          const decision = await projectedGoalGraphDecision(deps.goalGraphStore, task, 'cambium');
+          if (decision === undefined) return json(503, { error: 'goal_graph_decision_read_unconfirmed' });
+          if (!decision) continue;
+          // A rejection records a decision without advancing the graph head.
+          if (decision.decision === 'approved' && Number(task.graphVersion) > head.graphVersion) continue;
+          decisions.push({ ...decision, proposalId: `cambium:${task.changeDigest}`, changeDigest: task.changeDigest,
+            graphVersion: task.graphVersion, canonicalReadback: true, kind: 'd1-bookkeeping-decision' });
+        }
+        const finalHead = await deps.goalGraphStore.readHead('cambium');
+        if (!finalHead || finalHead.graphDigest !== head.graphDigest || finalHead.graphVersion !== head.graphVersion) return json(503, { error: 'goal_graph_read_unconfirmed' });
+        return { ...json(200, { schema: 'cambium.founder.bookkeeping-graph.v1', origin: 'd1', tenantId: 'cambium',
+          canonicalReadback: true, writerAuthority: false, executionGranted: false,
+          head: { tenantId: head.tenantId, graphVersion: head.graphVersion, graphDigest: head.graphDigest }, rootId: roots[0].nodeId,
+          nodes, edges: nodes.filter(node => node.parentNodeId && (ids.has(node.parentNodeId) || node.parentNodeId === roots[0].nodeId))
+            .map(node => ({ kind: 'contains', fromId: node.parentNodeId, toId: node.nodeId })),
+          decisions, servedAt: deps.now?.() ?? new Date().toISOString(),
+          evidenceTrust: 'Node evidence references are recorded observations; D1 decisions prove graph bookkeeping only, not publication or execution.' }),
+          headers: { ...JSON_HEADERS, 'cache-control': 'private, no-store' } };
+      } catch { return json(503, { error: 'goal_graph_authority_unavailable' }); }
+    }
+    if (Buffer.byteLength(req.body ?? '', 'utf8') > FOUNDER_BOOKKEEPING_MAX_BYTES) return json(413, { error: 'intake_too_large' });
+    let raw: unknown;
+    try { raw = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body_is_not_json' }); }
+    const result = await intakeTelegramGoalGraphRoute(deps, raw, deps.now ?? (() => new Date().toISOString()), signer.approverId);
+    return json(result.status, { ...result.body, writerAuthority: false, executionGranted: false,
+      ...(result.body.accepted ? { proposalId: `cambium:${result.body.changeDigest}`, reviewRoute: '/v1/founder/proposal' } : {}) });
+  }
   if (req.path.split('?')[0] === '/v1/founder/session') {
     if (req.method !== 'GET') return json(405, { error: 'get_required' });
     const signer = await resolveFounderWebSigner(req, deps);
@@ -5510,17 +5452,7 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
 async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: boolean): Promise<SimpleResponse> {
   const { method, path } = req;
   const routePath = fabricRoutePath(path);
-  if (MCP_GATE_PATHS.has(routePath)) return handleMcpGateAdapterRoute(req, deps, routePath);
 
-  if (routePath === '/v1/admin/portfolio/descriptions' || routePath === '/v1/admin/portfolio/annotations') {
-    const headers = { ...JSON_HEADERS, 'cache-control': 'private, no-store', 'x-content-type-options': 'nosniff', vary: 'Cookie, CF-Access-Jwt-Assertion, X-Telegram-Init-Data' };
-    if (req.method !== 'GET') return { ...json(405, { error: 'descriptions are GET-only' }), headers: { ...headers, allow: 'GET' } };
-    const principal = await resolvePortfolioFounder(req, { ...deps, kv: { ...deps.kv, get: deps.kv.get.bind(deps.kv), put: async () => {} } });
-    if (principal.kind !== 'founder') return { ...json(principal.kind === 'unconfigured' ? 503 : 401, { error: 'founder access required' }), headers };
-    const notes = routePath.endsWith('/annotations') ? parseAnnotations(MAPPING_ANNOTATIONS) : null;
-    const body = notes ? (notes.length === 4 ? JSON.stringify({ schema: 'cambium.mapping-annotation-dtos.v1', notes }) : null) : descriptionResponse(DESCRIPTION_DATA);
-    return body === null ? { ...json(503, { error: 'descriptions unavailable' }), headers } : { status: 200, headers, body };
-  }
   if (routePath === '/v1/admin/portfolio/actions') {
     return handlePortfolioAdminActionRoute(req, deps);
   }
@@ -7152,7 +7084,7 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     if (!deps.gate) return json(503, { error: 'gate not configured' });
     let body: any;
     try { body = JSON.parse(req.body ?? ''); } catch { return json(400, { error: 'body is not JSON' }); }
-    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph', 'reject-goal-graph', 'approve-mcp-action'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId || body.action_digest)) {
+    if (!['approve', 'reroll', 'promote-skill', 'promote-portfolio', 'queue-side-quest', 'confirm-action-request', 'approve-marketing-render', 'approve-goal-graph', 'reject-goal-graph'].includes(body.kind) || !(body.subject || body.actionRequestId || body.requestId)) {
       return json(400, { error: 'need a supported gate kind and subject' });
     }
     // Founder web Gate: only through /founder, only for goal-graph decisions,
@@ -7177,17 +7109,6 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
     }
     if (kind === 'reject-goal-graph') {
       const result = await rejectGoalGraphIntakeRoute(deps, tenant, body, verdict.userId);
-      return json(result.status, result.body);
-    }
-    if (kind === 'approve-mcp-action') {
-      const result = await approveMcpGateActionRequest(deps.kv, {
-        action_digest: body.action_digest,
-        request_digest: body.request_digest,
-      }, {
-        founderId: verdict.userId,
-        now: deps.now ? deps.now() : new Date().toISOString(),
-        validateTarget: (intent, args) => validateMcpGoalGraphTarget(deps, intent, args),
-      });
       return json(result.status, result.body);
     }
     if (kind === 'approve-marketing-render') {

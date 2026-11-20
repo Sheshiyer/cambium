@@ -36,6 +36,8 @@ export interface GateSnapshot {
 }
 export interface GateSignResult { ok: boolean; outcome: string; message: string; decision?: GateRecordedDecision }
 export interface GateBridge {
+  readGraph?: () => Promise<unknown>;
+  intakeGate?: (input: unknown) => Promise<GateSignResult & { changeDigest?: string }>;
   getGateState?: () => unknown;
   subscribeGate?: (listener: (snapshot: unknown) => void) => () => void;
   readDecision?: (changeDigest: string) => Promise<GateSignResult>;
