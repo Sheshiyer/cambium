@@ -1,3 +1,11 @@
+## 2026-11-03 founder bookkeeping intake — isolated source checkpoint
+
+This worktree adds a bounded founder-web proposal adapter for LumenBar and the existing Temperance program. It reuses current Access/tenant verification, pending proposal persistence, exact Gate review/decision/status and D1 CAS. A separate read route serves only product bookkeeping nodes and a minimized tenant/version/digest head; no execution or publication authority is added.
+
+Owned portable changes are handler.ts, goal-graph-intake.ts and their focused tests, plus native-goal-intake.ts and its tests. The final portable patch is rooted at8261 and is being integrated by the UI owner into the exact-live-reconciled candidate; unrelated primary native changes must not be promoted. Local45 pure/store/decision/renewal tests and52 selected handler checks pass; final four route regressions include head minimization. No source merge, deployment, proposal submission, D1 write or business action was performed by this child.
+
+The prepared lifecycle packet has128 nested goals in four serial32-goal batches,64 per product, depth5. A fresh SELECT-only D1 read confirms head4 and the actual tenant root. Local compilation preserves the four existing nodes and adds128 without updates/removals. Both historical X schedules are withdrawn to unsent drafts; four Reddit runs are paused; six prior social rows are held and v5a needs human review. Evidence and exact artifact hashes are in the task workspace outputs/live-founder-20261103/intake. These are local preparation receipts, not live acceptance.
+
 ## Local cited-text integration — 26 October 2026
 
 Added provider-neutral Cortex text HTTP/CLI retrieval, optional separate wakeAsync textContext, and terminal receipt text projection through the existing admission-verifying Hermes reader. Company Hindsight/runtime configuration stays outside Cambium. Focused61 tests and direct client/CLI strict check pass. Full suite2484/2492 passed; stable audit rerun10/12 clears concurrent snapshot failures but retains two privacy scans against unrelated OpenAI compatibility files. Stale viewport proof and a Git promisor-fetch failure also remain outside this change. No full-repository green, remote deployment, native acceptance or production claim. See docs/memory/text-retrieval.md.

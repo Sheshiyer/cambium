@@ -290,6 +290,18 @@ function normalizeInput(input: unknown): TelegramGoalGraphIntent {
   if (updateId !== undefined) source.updateId = updateId;
   if (threadId !== undefined) source.threadId = threadId;
 
+  const goal = normalizeGoalGraphFields(goalInput);
+  return { schema: TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA, version: TELEGRAM_GOAL_GRAPH_INTENT_VERSION, tenantId, source, goal };
+}
+
+/** Shared bounded goal fields. WorkObject-only bookkeeping adds no execution loadout. */
+export function normalizeGoalGraphFields(input: unknown, requireLoadout = true): TelegramGoalGraphFields {
+  if (!isRecord(input)) throw new Error('goal must be an object');
+  const goalInput = input;
+  const errors: string[] = [];
+  rejectUnknownKeys(goalInput, GOAL_KEYS, 'goal', errors);
+  collectForbidden(goalInput, 'goal', errors);
+  if (errors.length) throw new Error(errors.join('; '));
   const scope = goalInput.scope === undefined ? 'macro' : goalInput.scope;
   if (scope !== 'macro' && scope !== 'meso' && scope !== 'micro' && scope !== 'proof') throw new Error('goal.scope is invalid');
   const status = goalInput.status === undefined ? 'draft' : goalInput.status;
@@ -317,18 +329,18 @@ function normalizeInput(input: unknown): TelegramGoalGraphIntent {
   const workObjectKind = optionalNullableString(goalInput.workObjectKind, 'goal.workObjectKind', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
   const pinnedLoadoutId = optionalNullableString(goalInput.pinnedLoadoutId, 'goal.pinnedLoadoutId', TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
   const anchorFieldsPresent = workObjectId !== null || workObjectKind !== null || pinnedLoadoutId !== null;
-  if (anchorFieldsPresent && (workObjectId === null || workObjectKind === null || pinnedLoadoutId === null)) {
+  if (anchorFieldsPresent && (workObjectId === null || workObjectKind === null || (requireLoadout && pinnedLoadoutId === null))) {
     throw new Error('goal operational anchor fields must be supplied together');
   }
   if (workObjectKind !== null && workObjectKind !== 'sapling' && workObjectKind !== 'branch' && workObjectKind !== 'program') {
     throw new Error('goal.workObjectKind is invalid');
   }
-  if (workObjectId !== null && workObjectKind !== null && pinnedLoadoutId !== null) {
+  if (workObjectId !== null && workObjectKind !== null) {
     goal.workObjectId = workObjectId;
     goal.workObjectKind = workObjectKind as GoalGraphNode['workObjectKind'];
-    goal.pinnedLoadoutId = pinnedLoadoutId;
+    if (pinnedLoadoutId !== null) goal.pinnedLoadoutId = pinnedLoadoutId;
   }
-  return { schema: TELEGRAM_GOAL_GRAPH_INTENT_SCHEMA, version: TELEGRAM_GOAL_GRAPH_INTENT_VERSION, tenantId, source, goal };
+  return goal;
 }
 
 /** Canonical serializer for an already-normalized intent. */
