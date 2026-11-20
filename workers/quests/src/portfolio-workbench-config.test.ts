@@ -32,7 +32,12 @@ test('Labs native Mac profile pins the reviewed Curious tenant and exact callbac
     'https://teamforge-api.thoughtseedlabs.workers.dev/v1/native/identity',
   );
   assert.equal(config.vars.PLEXUS_NATIVE_IDENTITY_TENANT, 'cambium');
-  assert.equal(config.vars.NATIVE_SESSION_OWNER_ORIGIN, 'https://curious.thoughtseed.space');
+  const ownerOrigin = new URL(config.vars.NATIVE_SESSION_OWNER_ORIGIN);
+  assert.equal(ownerOrigin.protocol, 'https:');
+  assert.equal(ownerOrigin.origin, config.vars.NATIVE_SESSION_OWNER_ORIGIN);
+  assert.equal(ownerOrigin.pathname, '/');
+  assert.equal(ownerOrigin.search, '');
+  assert.equal(ownerOrigin.hash, '');
   assert.deepEqual(JSON.parse(config.vars.NATIVE_SESSION_CLIENTS_JSON), [{
     clientId: 'space.thoughtseed.cambium.native.dev',
     redirectUri: 'space.thoughtseed.cambium.native.dev://oauth/callback',

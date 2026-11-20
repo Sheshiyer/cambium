@@ -11,11 +11,12 @@ export interface AcceptedGsdScope {
   /** Owner order, never inferred from a date, graph approval, or model recommendation. */
   tasks: Array<{ nodeId: string; sequence: number; state: 'pending' | 'complete' | 'blocked'; dependsOn: Array<{ nodeId: string; satisfied: boolean; evidenceRef: string }> }>;
 }
+export interface GsdSourceHold { kind: 'owner-hold'; state: 'held' | 'unavailable'; sourceRef: string; reason: string }
 export interface KpiSourceReadback { definition: KpiDefinition; observation: KpiObservation }
 /** Server-only composition seams. Implementations must reread accepted owner sources.
  * These are not request-body fields, persisted approvals, or an admission API. */
 export interface DepartmentSourceReaders {
-  readAcceptedGsd?: (scope: DepartmentReadScope, workObjectId: string) => Promise<AcceptedGsdScope | null>;
+  readAcceptedGsd?: (scope: DepartmentReadScope, workObjectId: string) => Promise<AcceptedGsdScope | GsdSourceHold | null>;
   readKpi?: (scope: DepartmentReadScope, definition: KpiDefinition, window: string) => Promise<KpiSourceReadback[] | null>;
 }
 export interface DepartmentSources {
@@ -77,7 +78,10 @@ export async function readDepartmentSources(scope: DepartmentReadScope, readers?
     const row: DepartmentSources['gsd'][number] = {productId:product.id,state:'unavailable',sourceRef:null,taskIds:[],reason:'Accepted ISA/GSD owner reader unavailable for this WorkObject; no daily work selected'};
     if (readers?.readAcceptedGsd) try {
       const result = await readers.readAcceptedGsd(structuredClone(scope), product.workObjectId);
-      if (result) { row.taskIds=acceptedGsdSelection(scope,product.workObjectId,result); row.sourceRef=result.sourceRef; row.state='available'; row.reason='Accepted owner scope and dependency-ready sequence; display only, execution still requires admission'; }
+      if (result && 'kind' in result && result.kind === 'owner-hold') {
+        if (!nonempty(result.sourceRef) || !nonempty(result.reason) || !['held','unavailable'].includes(result.state)) throw new Error('Invalid owner hold');
+        row.state=result.state; row.sourceRef=result.sourceRef; row.reason=result.reason;
+      } else if (result) { row.taskIds=acceptedGsdSelection(scope,product.workObjectId,result as AcceptedGsdScope); row.sourceRef=result.sourceRef; row.state='available'; row.reason='Accepted owner scope and dependency-ready sequence; display only, execution still requires admission'; }
     } catch { row.state='held'; row.reason='ISA/GSD reader failed scope, dependency, sequence, frontier or freshness validation'; }
     gsd.push(row);
   }

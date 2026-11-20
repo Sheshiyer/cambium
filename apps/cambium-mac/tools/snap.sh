@@ -9,7 +9,8 @@ set -euo pipefail
 here=${0:A:h}
 app_dir="$here/../build/Cambium Native.app"
 app_bin="$app_dir/Contents/MacOS/CambiumNative"
-shots_dir="${1:-/tmp/cambium-native-shots}"
+repo_root="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
+shots_dir="${CAMBIUM_NATIVE_SNAPSHOT_DIR:-${repo_root}/build/snapshots}"
 page="${2:-}"
 
 pages=(canopy projects work trace evidence proposal launch knowledge connections preferences)

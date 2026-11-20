@@ -61,6 +61,8 @@
     "growth-index:generate": "node scripts/growth-index/generate-growth-index.mjs",
     "growth-index:test": "node --test scripts/growth-index/generate-growth-index.test.mjs",
     "department:pilot": "node scripts/department-pilot.mjs",
-    "department:pilot:test": "node --test shared/department-pilot/pilot.test.ts"
+    "department:pilot:test": "node --test shared/department-pilot/pilot.test.ts",
+    "department:owner-read": "node scripts/department-owner-reconcile.mjs",
+    "department:owner-read:test": "node --test shared/department-pilot/*.test.ts bin/operator/quests/department-owner-readers.test.ts workers/quests/src/native-goal-intake.test.ts"
   }
 }

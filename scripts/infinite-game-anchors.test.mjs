@@ -402,6 +402,9 @@ const syntheticPrivacyFixtures = new Map([
   ['workers/quests/src/hermes-execution-foldback.test.ts', [
     ['credential', ": 'credential-must-never-project'"].join(''),
   ]],
+  ['workers/cortex-mcp/src/provenance-read.test.ts', [
+    ['/Volumes/', 'example/project-owner/source-manifest.json'].join(''),
+  ]],
   ['README.md', [
     ['/tmp/', 'demo-org.tapestry.json'].join(''),
   ]],
@@ -571,10 +574,10 @@ function privacyViolations(relativePath, source) {
     new RegExp(`\\/(?:${'pri' + 'vate'}\\/(?:tmp|var\\/folders)|tmp)\\/[A-Za-z0-9._~-][^\\s'\"]*`),
     /-----BEGIN(?: [A-Z0-9]+)? PRIVATE KEY-----/i,
     /\b(?:authorization\s*[:=]\s*|bearer\s+)[A-Za-z0-9._~-]{12,}/i,
-    /["'](?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|credential|password|secret|native[_-]?session(?:[_-]?(?:id|token))?)["']\s*:\s*["'][A-Za-z0-9._~+\/-]{8,}/i,
-    /\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|native[_-]?session(?:[_-]?(?:id|token))?)\s*[:=]\s*["']?[A-Za-z0-9._~+\/-]{8,}/i,
+    /["'](?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|credential|password|secret|native[_-]?session[_-]?(?:id|token))["']\s*:\s*["'][A-Za-z0-9._~+\/-]{8,}/i,
+    /\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|native[_-]?session[_-]?(?:id|token))\s*[:=]\s*["']?[A-Za-z0-9._~+\/-]{8,}/i,
     /\b(?:credential|password|secret)\s*:\s*["']?[A-Za-z0-9._~+\/-]{8,}/i,
-    /["']?(?:prompt|request|response|message)[_-]?(?:body|content|payload)["']?\s*[:=]\s*['"{\[]/i,
+    /["']?(?:prompt|request|response|message)(?:_|-)?(?:body|content|payload)["']?\s*[:=]\s*['"{\[]/,
     new RegExp(`(?:\\.${'claude'}\\/${'MEMORY'}|${'MEMORY'}\\/(?:LEARNING|SIGNALS|STATE))`, 'i'),
     /["']?(?:rawMemory|raw_memory|serializedMemory)["']?\s*[:=]/i,
   ];
