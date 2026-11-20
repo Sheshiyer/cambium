@@ -1,0 +1,233 @@
+{
+  "schema": "cambium.finite-ssm-d1-0104-apply-receipt.v1",
+  "status": "0104-applied-schema-readback-verified",
+  "approval": {
+    "granted": true,
+    "scope": "Exact 0104 SQL once on Labs cambium-bridge",
+    "packetPath": ".planning/native-mac/FINITE-SSM-STAGE2-D1-0104-PROPOSED-20261105.json",
+    "packetSha256": "682543eaf5df3393ea52d046f053094f370b569f7a2e3fd308375ba7d41ed6b0"
+  },
+  "applyInvocations": 1,
+  "migrationPerformed": true,
+  "recoveryExportRepeated": false,
+  "trafficChangedByOperator": false,
+  "previewInvoked": false,
+  "runnerContacted": false,
+  "installationPerformed": false,
+  "jobInvoked": false,
+  "preflightReceipt": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE2-D1-PREFLIGHT-RECEIPT-20261105.json",
+    "sha256": "c3bbfb841ffb2383b9f44d2ab3ad4ff8a5a7acbc56ceaee8fe2b8b857b67a578"
+  },
+  "target": {
+    "profile": "thoughtseed-labs",
+    "database": "cambium-bridge",
+    "binding": "BRIDGE_DB",
+    "databaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8"
+  },
+  "recoveryExportVerified": {
+    "sha256": "c9e179394cad87cac675c56348f53c097d51c51535ffb5baad506f9058998065",
+    "bytes": 289888938,
+    "bookmarkVerified": true
+  },
+  "migration": {
+    "sourceCommit": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+    "path": "workers/quests/migrations/0104_native_direction_admissions.sql",
+    "sha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3",
+    "configPath": "workers/quests/wrangler.labs.jsonc",
+    "configSha256": "f2afa6d8cddfe9c6b59d447a2288ca7fd4f19adda3d374dd6a19af72e95b058c"
+  },
+  "preApplyStartedAt": "2026-11-05T11:08:36.629560+00:00",
+  "preApplyPointersBefore": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "preApplyPointersAfter": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "liveDatabaseIdentityMatched": true,
+  "preApplyPinsMatch": true,
+  "preApplyPinsCheckedAt": "2026-11-05T11:08:46.925428+00:00",
+  "beforeMigrationObjectsPresent": [],
+  "beforeRelevantLedgerNames": [],
+  "beforePinnedSchemaDifferences": [],
+  "schemaBefore": {
+    "schemaAndRelevantLedgerSha256": "645aa369c8af0d0412f4930d05afba8849766a91781ad84ca6be89888ec7e380",
+    "schemaObjectsObserved": 121,
+    "dependencyObjectsMatched": 15,
+    "retained0105TriggersMatched": 5,
+    "absent0104Objects": [
+      "native_direction_admission_apply",
+      "native_direction_admissions",
+      "native_direction_admissions_immutable",
+      "native_direction_admissions_retained"
+    ],
+    "no0104LedgerEntry": true,
+    "metadata": {
+      "queriesFromPrimary": true,
+      "changedDatabase": false,
+      "rowsWritten": 0,
+      "sizeBytes": 312070144
+    },
+    "checkedAt": "2026-11-05T11:08:47.651452+00:00"
+  },
+  "immediatePreApplyPointers": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "invokedAt": "2026-11-05T11:08:48.953568+00:00",
+  "applyExitCode": 0,
+  "applyFinishedAt": "2026-11-05T11:08:52.248299+00:00",
+  "schemaDifference": {
+    "added": [
+      "native_direction_admission_apply",
+      "native_direction_admissions",
+      "native_direction_admissions_immutable",
+      "native_direction_admissions_retained"
+    ],
+    "removed": [],
+    "changed": []
+  },
+  "addedSchemaObjects": [
+    {
+      "name": "native_direction_admission_apply",
+      "type": "trigger",
+      "table": "native_direction_admissions",
+      "normalizedSqlSha256": "5e48b1bf7c78c7ffbee68f1b5cf4632878f5022806bf2692772d52106db9cbb3"
+    },
+    {
+      "name": "native_direction_admissions",
+      "type": "table",
+      "table": "native_direction_admissions",
+      "normalizedSqlSha256": "6be78f2ff01971c66bb781f581442c641b73c1981240e0a4cf2ce80ba2cec2fe"
+    },
+    {
+      "name": "native_direction_admissions_immutable",
+      "type": "trigger",
+      "table": "native_direction_admissions",
+      "normalizedSqlSha256": "d29b24f7b8a446c313ad38eb7d470282042e4b0eb8dd17fc8285b0d15637ece1"
+    },
+    {
+      "name": "native_direction_admissions_retained",
+      "type": "trigger",
+      "table": "native_direction_admissions",
+      "normalizedSqlSha256": "7cca5c49792f3d7aacf84cd032babc27c373185962c48a5fafabfca59e607122"
+    }
+  ],
+  "admissionRows": 0,
+  "schemaReadback": {
+    "existingDefinitionsByteExact": 121,
+    "newDefinitionsExact": 4,
+    "dependencyObjectsPreserved": 15,
+    "retained0105Triggers": 5,
+    "migrationLedgerPreserved": true,
+    "schemaReadsFromPrimary": true,
+    "readbackRowsWritten": 0,
+    "schemaSha256": "dc1849dc6cd41c2570f12b408359ff64fa9161087dd5b0cf79a88aafcfa5577e",
+    "checkedAt": "2026-11-05T11:08:52.874728+00:00",
+    "migrationLedgerSha256": "80b6d7daf35181965f0dc04ad2902a3883ce349c808641a7b308674595ed2fbd"
+  },
+  "postApplyStartedAt": "2026-11-05T11:08:52.874768+00:00",
+  "postApplyPointersBefore": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "postApplyPointersAfter": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "postApplyPinsMatch": true,
+  "postApplyPinsCheckedAt": "2026-11-05T11:09:02.624343+00:00",
+  "workerPins": {
+    "activeDeployment": {
+      "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+      "traffic": [
+        {
+          "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+          "percentage": 100
+        }
+      ],
+      "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+      "latestNumber": 109
+    },
+    "servingV108": {
+      "id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+      "number": 108,
+      "trafficPercent": 100,
+      "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+      "moduleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a"
+    },
+    "latestV109": {
+      "id": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+      "trafficPercent": 0,
+      "bindingCount": 56,
+      "moduleSha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86",
+      "mapSha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+      "contentETag": "b77ef5fdbefea8a3a946e06b18d97e4f5b21fcab725dc690d16e640bab20b986"
+    },
+    "preservedV106": {
+      "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+      "number": 106,
+      "trafficPercent": 0,
+      "bindingCount": 56,
+      "moduleSha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298"
+    }
+  },
+  "checkedAt": "2026-11-05T11:09:02.624622+00:00",
+  "providerImport": {
+    "bookmarkPresent": true,
+    "reportedSqlStatementsExecuted": 4,
+    "bookmarkSha256": "c5eca3051f59dee629f2085750c5788a69c924d01c0751b8049d8c97ada5d9ee"
+  },
+  "localPreflightCorrection": "An initial config check stopped before invocation due to a malformed whitespace pattern. The corrected check validated the exact configuration, and the full live preflight passed before the sole import.",
+  "privateEvidenceSha256": {
+    "after-schema.private.json": "d77506ecc1ca33341f16f84fafa1f6843439cf2dbb68a83c387221f1675945c4",
+    "apply-bookmark.private.json": "0feefd77cde1d85016439179cc6e612e342a6a0ad178456aef3a520b0a4399c9",
+    "apply-exit.json": "1c32067b7b120b3e233ea0f9ec2683ce171417d86dce696c590762b1412dae53",
+    "apply-invoked.json": "e4e34827f1892b90e97e44798aeff367f2d453382107168516c7c0ff7d6d059b",
+    "apply-stderr.private.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "apply-stdout.private.log": "c1bf574e8b380ab979611306b8da914ac692dcf9ed0893eb90cbaa217ed10571",
+    "apply.py": "3316b721fbe0a8fbc132b77221ab2ac4b9fe78b53ad612b8b397b22317eb10c7",
+    "before-ledger.private.json": "2f3d5387a7481722db32f4d5c460f923d12f5f32fd9e3ca87eccc308be5ebc5f",
+    "before-schema.private.json": "490428cf60e911d9da3534e0103c15712f539498cca10f0b5e2e0d9ea6526f84",
+    "preflight-local-check-held.json": "f7a4a73bcb231680a11b9ffcc54c356366d2c9b0f5b3653cfa4c5da96b82ca87",
+    "provider-readback.json": "c334ad228a7f39e84d9b50cc9f8e61192b1199ea1ca7cb3e223e7851155fa7bd",
+    "result.json": "b7480d09215188b9b8a7fbb5448b13d1d19ae1f8ffe8af0e97b13d735cdd46b9"
+  }
+}

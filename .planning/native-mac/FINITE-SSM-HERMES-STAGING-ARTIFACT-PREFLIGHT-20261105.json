@@ -1,0 +1,70 @@
+{
+  "schema": "cambium.finite-ssm-hermes-staging-artifact-preflight.v1",
+  "status": "artifact-pins-verified-awaiting-later-host-approval",
+  "checkedAt": "2026-11-05T11:54:55.397995+00:00",
+  "rollout": {
+    "path": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
+    "sha256": "19feb9c0d3f527427c7b6a76e75e1b6bc92eeed00c96f79cc6959a0f34ae7118"
+  },
+  "candidateUpload": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-UPLOAD-RECEIPT-20261105.json",
+    "sha256": "e3d5b6277f70de1760e3d107ff1fd255de9de81254a9e582e9044a944321dd53"
+  },
+  "currentTrafficApprovalPacket": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-V2-20261105.json",
+    "sha256": "b12214d940a2104c00eda2977cb94fc9094577f4e662e55bc4e05a930cc2953d"
+  },
+  "archive": {
+    "name": "hermes-finite-pilot.tar.gz",
+    "relativePrivatePath": ".local/finite-ssm-reconcile-20261104/hermes-finite-pilot.tar.gz",
+    "bytes": 30299,
+    "sha256": "f2b5ec371ee0cac4e973f27cdce92e9185f7c383aa99038a8d14787b489eed34",
+    "sourceCommit": "22b3e8276d3b4c2b74041920f3cd559071e16773",
+    "fileCount": 8,
+    "allFileHashesMatch": true,
+    "allFilesByteExactToPinnedGitBlobs": true,
+    "regularFilesAndExpectedDirectoriesOnly": true,
+    "release": "hermes-cambium-pilot-22b3e8276d3b",
+    "entrypoint": "src/cambium-pilot-once.ts"
+  },
+  "localSourceReview": {
+    "typescriptFilesParsed": 7,
+    "typescriptVersion": "5.9.3",
+    "localNodeVersion": "26.10.0",
+    "runtimeImportGraphFiles": 7,
+    "unresolvedOrThirdPartyImports": 0,
+    "scope": "Static import graph and strip-only syntax validation for the archive"
+  },
+  "policyParity": {
+    "v109": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "canonicalSha256": "9d9cf7ae64558c568493f5d81dbd48e70fdbbe7a2b49782059b273fd003fbc48",
+    "matchesV109Binding": true,
+    "bothValidatorsAcceptedPinnedPolicy": true,
+    "invalidPolicyCasesRejectedByBoth": 6,
+    "contractDifference": "The Worker uses a local limits alias for TypeScript narrowing.",
+    "runnerMember": "hermes-runner"
+  },
+  "registryMetadata": {
+    "reference": "docker.io/library/node@sha256:8544b46b91d1a8c8bf8fc0d53ae9f276ed07d0ffa9098dc4a9c2f627363a13a0",
+    "manifestDigestVerified": true,
+    "platform": "linux/amd64",
+    "configurationDigest": "sha256:9214e73b07d3828f371e8d5d8bfebdfa1b0625c3c82253a4cbd09d9c00e20b4a",
+    "configurationDigestVerified": true,
+    "nodeVersion": "24.22.2",
+    "layerDescriptorCount": 8,
+    "layerRequests": 0
+  },
+  "historicalRunnerBaseline": {
+    "observedAt": "2026-11-04T10:35:36.217333+00:00",
+    "release": "hermes-aws-ts-growth-09b3369",
+    "service": "hermes-runner.service",
+    "timer": "hermes-runner.timer",
+    "nextGate": "Refresh the preserved host baseline under the later approved staging scope."
+  },
+  "trafficChanged": false,
+  "runnerContacted": false,
+  "stagingAuthorized": false,
+  "installationPerformed": false,
+  "runtimeEntrypointInvoked": false,
+  "jobInvoked": false
+}

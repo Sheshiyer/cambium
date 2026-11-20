@@ -1,0 +1,297 @@
+{
+  "schema": "cambium.finite-ssm-revised-stage1-proposal.v1",
+  "status": "finite-ssm-owner108-source-verified-awaiting-upload-approval",
+  "verifiedAt": "2026-11-05T09:38:09.204607+00:00",
+  "sourceApproval": {
+    "granted": true,
+    "scope": "isolated local v108 source reconciliation and verification",
+    "proposalPath": ".planning/native-mac/FINITE-SSM-OWNER108-SOURCE-RECONCILIATION-20261105.md",
+    "proposalSha256": "8d80187fb72f8f4f561bdd060d1d86bf097a72b9d21f7ea30848ab2c73b3c2cf"
+  },
+  "stage1Approval": {
+    "granted": false,
+    "requestedScope": "one new immutable Worker upload at 0% traffic plus management readback",
+    "previewAuthorized": false,
+    "migrationAuthorized": false,
+    "trafficAuthorized": false,
+    "hostOrNativeInstallationAuthorized": false,
+    "jobAuthorized": false
+  },
+  "source": {
+    "commit": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+    "tree": "6ed27588e920e3d11d9cbc11332b09fcc3d64b09",
+    "branch": "codex/cambium-finite-ssm-owner108-20261105",
+    "base": "c2bf7775296100214f98c4a503a8d29fcac9b1f5",
+    "bundleBuiltFrom": "55daa8b3c755851923eb2e44f564ee90c1a3dd72",
+    "changedPaths": [
+      "docs/architecture/system-atlas.v1.json",
+      "docs/plans/assets/field-atlas-viewport-proof/chart-desktop.jpg",
+      "docs/plans/assets/field-atlas-viewport-proof/gate-desktop.jpg",
+      "docs/plans/assets/field-atlas-viewport-proof/gate-mobile-320.jpg",
+      "docs/plans/assets/field-atlas-viewport-proof/graph-mobile-320.jpg",
+      "docs/plans/assets/field-atlas-viewport-proof/legacy-query-mobile-320.jpg",
+      "docs/plans/assets/field-atlas-viewport-proof/manifest.json",
+      "docs/plans/assets/field-atlas-viewport-proof/world-desktop.jpg",
+      "docs/project-management/fitcheck-scope-reconciliation.v1.json",
+      "workers/quests/src/curious-world-gate.test.ts",
+      "workers/quests/src/direction-execution-http.test.ts",
+      "workers/quests/src/fitcheck-scope-reconciliation.test.ts",
+      "workers/quests/src/fitcheck-scope-reconciliation.ts",
+      "workers/quests/src/handler.ts",
+      "workers/quests/src/index.ts",
+      "workers/quests/src/page/client/curious-gate-bridge.ts"
+    ],
+    "nativeInputsUnchanged": true,
+    "resolvedConflicts": [
+      {
+        "path": "workers/quests/src/handler.ts",
+        "resolved": 3
+      },
+      {
+        "path": "workers/quests/src/index.ts",
+        "resolved": 1
+      },
+      {
+        "path": "workers/quests/src/page/client/curious-gate-bridge.ts",
+        "resolved": 1
+      }
+    ]
+  },
+  "owner": {
+    "phase": "final",
+    "checkedAt": "2026-11-05T09:38:09.204607+00:00",
+    "status": "pins-match",
+    "ownerVersion": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "ownerNumber": 108,
+    "ownerTraffic": 100,
+    "ownerModuleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a",
+    "ownerModuleFetched": true,
+    "ownerContentETag": "0230cc9e27374552beef988a3265616500991902d37597959c6d4e856b99317f",
+    "retainedBindingCount": 54,
+    "bindingFingerprint": "85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e",
+    "preservedCandidate": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "preservedCandidateTraffic": 0,
+    "preservedCandidateBindings": 56,
+    "runtimeSettingsSchedulesExposureExact": true,
+    "managementHttpMethods": [
+      "GET"
+    ]
+  },
+  "worker": {
+    "name": "cambium-quests",
+    "profile": "thoughtseed-labs",
+    "expectedCandidateTrafficPercent": 0,
+    "inheritBindings": 54,
+    "expectedCandidateBindings": 56,
+    "addedBindings": [
+      {
+        "name": "CAMBIUM_PATCH_POLICY_JSON",
+        "type": "plain_text",
+        "valueSha256": "cd706bf060c167fb2adb4f6e9e7c8ce88823f25726326efe34813879d069872b"
+      },
+      {
+        "name": "CAMBIUM_PATCH_RUNNER_MEMBER_ID",
+        "type": "plain_text",
+        "valueSha256": "3bba479c913311b47c1d871bcbc0a1a88662de1205f9c42b101c4500045067ae"
+      }
+    ],
+    "runnerMemberId": "hermes-runner",
+    "policyCanonicalSha256": "9d9cf7ae64558c568493f5d81dbd48e70fdbbe7a2b49782059b273fd003fbc48",
+    "rollbackBaseline": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "settingsOrScheduleWrites": false,
+    "artifacts": {
+      "module": {
+        "path": ".local/finite-ssm-owner108-20261105/worker-owner108-verified/cortex-services.js",
+        "bytes": 2787571,
+        "sha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86"
+      },
+      "buildMap": {
+        "path": ".local/finite-ssm-owner108-20261105/worker-owner108-verified/cortex-services.js.map",
+        "bytes": 4191749,
+        "sha256": "3bcfc15cc668500d66b10292b943bf3e1daa4974a6ef7b570a61d6397a2dc126"
+      },
+      "wranglerPreparedMap": {
+        "path": ".local/finite-ssm-owner108-20261105/expected-wrangler-map.private.json",
+        "bytes": 4185863,
+        "sha256": "f8813a92b9143ce942c8f4a75d3d73ee40b45eeef386406465428c5c6e2f5a69"
+      },
+      "predictedCloudflareReadbackMap": {
+        "path": ".local/finite-ssm-owner108-20261105/expected-returned-map.private.json",
+        "bytes": 4278872,
+        "sha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3"
+      },
+      "uploadConfig": {
+        "path": ".local/finite-ssm-owner108-20261105/candidate-upload-owner108.wrangler.json",
+        "bytes": 6180,
+        "sha256": "a3732fe46adf008383eadc87434e6b2b4e7781957b4ff47ade2a8381aa20e7cf"
+      },
+      "buildConfig": {
+        "path": ".local/finite-ssm-owner108-20261105/candidate.wrangler.json",
+        "bytes": 6158,
+        "sha256": "9a4fae5ec42c8f39817d41c9a6f99aef07bb97dd5d8ce9dfa001887e3add540b"
+      }
+    }
+  },
+  "verification": {
+    "focused": {
+      "tests": 107,
+      "pass": 107,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "repository": {
+      "tests": 2772,
+      "pass": 2763,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 9
+    },
+    "workerTypecheck": "passed",
+    "noBundleLocalDryRun": {
+      "exitCode": 0,
+      "noBundle": true,
+      "moduleByteIdentical": true,
+      "moduleSha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86",
+      "configSha256": "a3732fe46adf008383eadc87434e6b2b4e7781957b4ff47ade2a8381aa20e7cf"
+    },
+    "sourceInventory": {
+      "sources": 113,
+      "embeddedSourceContentsMatchCommit": true,
+      "ownerSources": 107,
+      "ownerSourcesExact": 99,
+      "ownerSourcesModifiedByPilot": [
+        "workers/quests/src/founder-access-host.ts",
+        "workers/quests/src/goal-graph-loadout-registry.ts",
+        "workers/quests/src/goal-graph-store.ts",
+        "workers/quests/src/goal-graph/compiler.ts",
+        "workers/quests/src/handler.ts",
+        "workers/quests/src/index.ts",
+        "workers/quests/src/native-launch-d1.ts",
+        "workers/quests/src/page/client/curious-gate-bridge.ts"
+      ],
+      "pilotSourcesAdded": [
+        "shared/cambium-patch-contract.ts",
+        "workers/quests/src/cambium-code-pilot-input.ts",
+        "workers/quests/src/direction-execution-d1.ts",
+        "workers/quests/src/direction-execution-http.ts",
+        "workers/quests/src/direction-execution-owner.ts",
+        "workers/quests/src/direction-execution-review.ts"
+      ],
+      "ownerSourcesRemoved": 0
+    },
+    "sourceMap": {
+      "wranglerVersion": "4.156.1",
+      "cliSha256": "47fe4b6ddacd2a5861bd5f6957217718a48b106f208b2dc21546bbee51a0cb8b",
+      "helperSha256": "c73248ba2393b0111d4280041e9b3ff30c08535c950fa5b4805e7413f47cbeea",
+      "allSourcePathsAndIndicesMatch": true,
+      "sourceContentsNamesAndMappingsPreserved": true,
+      "cloudReadbackObserved": false
+    },
+    "localIabEvidence": {
+      "fieldAtlasCaptureManifestSha256": "93093e9782a289177f71c657d8feb765c9b82d9dd2e692d823fffd358934e022",
+      "fieldAtlasPageSha256": "250b9f684581d2fd235d171285b538f7700adfa436fefbd7d2c1516626e4db12",
+      "fieldAtlasCaptures": 6,
+      "fixtureAppMethods": [
+        "GET"
+      ],
+      "viewportOverridesReset": true
+    },
+    "verificationScope": "local source, build and browser fixtures plus Cloudflare management GETs",
+    "productionAcceptance": false,
+    "physicalDeviceAcceptance": false,
+    "hostedPilotAcceptance": false
+  },
+  "plannedUpload": {
+    "workingDirectory": "the isolated worktree at the source branch and commit above",
+    "command": [
+      "env",
+      "-u",
+      "CLOUDFLARE_API_TOKEN",
+      "-u",
+      "CLOUDFLARE_API_KEY",
+      "-u",
+      "CLOUDFLARE_EMAIL",
+      "-u",
+      "CLOUDFLARE_ACCOUNT_ID",
+      "wrangler",
+      "versions",
+      "upload",
+      "--config",
+      ".local/finite-ssm-owner108-20261105/candidate-upload-owner108.wrangler.json",
+      "--profile",
+      "thoughtseed-labs",
+      "--message",
+      "Finite Cambium pilot 6b6bcd12 reconciled with v108. Zero traffic upload only."
+    ],
+    "before": "Require fresh serving deployment, latest uploaded version, immutable v108 code and ETag, all 54 binding identities and values, runtime, settings, schedules and exposure. Verify source and artifact digests. Stop on drift.",
+    "inheritanceLimit": "The existing inherit mode resolves latest. The live precheck is not atomic with upload.",
+    "after": "Recover the single immutable candidate identity. Verify exact module bytes, 54 retained and two pinned new bindings, runtime and exports, v108 still at 100%, and the new candidate at 0%. Bind any returned map to the candidate ETag before comparison.",
+    "sourceMapGate": "The Wrangler-prepared map is an exact offline transform. The predicted readback hash uses the v106 API representation. Require presence-sensitive key and byte verification, same ordered paths and embedded source contents, names and mappings. Hold if the map is absent or any unexplained difference remains.",
+    "onUncertainReply": "Recover the same version by management readback before considering any new approval. A readback failure does not authorize another upload.",
+    "invoked": false
+  },
+  "followingGates": [
+    "If separately authorized, check only GET /healthz on the verified candidate version URL.",
+    "Refresh D1 state and recovery evidence, then obtain approval for the exact 0104 migration if still absent.",
+    "Obtain a distinct traffic allocation and rollback approval after schema and candidate checks.",
+    "Obtain isolated Hermes staging and signed native rollout approvals. Preserve the existing runner.",
+    "In the signed-in Mac app, the founder decides the exact saved direction. Governed admission and native launch reserve one request and attempt.",
+    "Approve one finite SSM invocation for that reservation. Read back the diff, tests and result for human review."
+  ],
+  "preservation": {
+    "previousCandidate": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "previousCandidateTrafficPercent": 0,
+    "previousMapAttestationApplication": "held by earlier owner drift",
+    "runnerContacted": false,
+    "externalWrites": false,
+    "previewInvoked": false,
+    "uploadInvoked": false,
+    "migrationPerformed": false,
+    "trafficChanged": false,
+    "installationPerformed": false,
+    "jobInvoked": false,
+    "openAcceptance": [
+      "ISC-3683",
+      "ISC-3684",
+      "ISC-3685",
+      "ISC-3686",
+      "ISC-3687"
+    ]
+  },
+  "historicalEvidence": {
+    "approvedPacket": {
+      "path": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
+      "sha256": "19feb9c0d3f527427c7b6a76e75e1b6bc92eeed00c96f79cc6959a0f34ae7118",
+      "unchanged": true
+    },
+    "heldStage1Receipt": {
+      "path": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
+      "sha256": "b595ad1fd8f6a73c7241f81e1020a16f96336f4cfa49c33514e534f1f2cca3cc",
+      "unchanged": true,
+      "rawBuildMapBytePinStillMatches": false
+    },
+    "diagnosisProposal": {
+      "path": ".planning/native-mac/FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.json",
+      "sha256": "a818fabcb5696634f46a8f98919d381d8621a1b3e9f9099e85a8eff10f531851",
+      "unchanged": true
+    },
+    "owner108Readback": {
+      "path": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-READBACK-20261105.json",
+      "sha256": "8541deadded11eb8cfe28c31b1e9a3b1e2b10eea68c8fe134880c66fa31aff2a"
+    }
+  },
+  "privateEvidenceSha256": {
+    "initial-pins.json": "cc7f6846b34b26c3702bd7d8209ca9998207a4aeccff8c87b0b35aacb933a4af",
+    "preverification-pins.json": "c3f2a95cbe20e28b18168fb07a5c292a5568154da7871edd470d31e71219a700",
+    "repair-pins.json": "d1a4f43a81865c6deaf561812a130e57856ba1cccf9f4598e6b8c1812a17a1b7",
+    "final-pins.json": "ddbe34f0849264f00d72d43427f2765a31695e88086858ee694b7f49808dce2e",
+    "merge-proof.json": "753cc07d3a5177ef55d52174343e296350bc0a5173f2db899560c8ba5d1be1bd",
+    "bundle-proof.json": "f78b65fb5ba2917216b74ad82a80738703c31e6dab920f725c63445cf676c3b0",
+    "final-source-proof.json": "4a32609c3476a646bb4ffd2bb4a16e49507e0574c4265bea22c5145f767f3629",
+    "upload-config-dry-run.json": "fc1831a89d8bd3b2bd531fd9645e98ddeb750944aec360f317c86b6d7549ed4a",
+    "focused-tests-final.log": "c739bf92a0c880eb94605309cfb3bbadc8c60f03e7a5574974ca44aa71a7892d",
+    "worker-typecheck.log": "e58da54763062da381b9264390cbe8bb31de8a9f75230b5309b84f0b4e669a97",
+    "repository-tests-final.log": "23a0527f1ad49b714a6fa82d88a28320911832462c9446b3fdf79b01114b487f"
+  }
+}

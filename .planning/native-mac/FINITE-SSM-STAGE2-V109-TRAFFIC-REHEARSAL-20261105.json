@@ -1,0 +1,81 @@
+{
+  "schema": "cambium.finite-ssm-v109-traffic-rehearsal.v1",
+  "status": "offline-rehearsal-passed-awaiting-traffic-approval",
+  "packet": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-V2-20261105.json",
+    "sha256": "b12214d940a2104c00eda2977cb94fc9094577f4e662e55bc4e05a930cc2953d"
+  },
+  "tests": {
+    "fixtureCasesPassed": 10,
+    "fixtureCasesFailed": 0,
+    "priorLoopbackCasesPassed": 7
+  },
+  "checks": [
+    "Exact packet hash and approval scope are required before a simulated provider effect.",
+    "Tail handshake, v108 control probe and pinned live state precede the single forward request.",
+    "An uncertain provider reply triggers a readback with no repeat request or unowned inverse.",
+    "The rollback guard requires the exact deployment ID even when the competing deployment has the same allocation.",
+    "The monitoring-loss rollback waits 120 seconds or until the observation deadline.",
+    "Cleanup addresses only the one simulated tail returned by the create request."
+  ],
+  "correction": "The first fixture runner could choose rollback on early monitor exhaustion. The verified run enforces the 120-second loss interval or the 45-minute deadline.",
+  "qualification": "The simulated transport and journal exercise control flow only. The packet still requires separate owner approval and live provider checks.",
+  "liveRecheck": {
+    "checkedAt": "2026-11-05T11:44:52.362829+00:00",
+    "pointers": {
+      "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+      "traffic": [
+        {
+          "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+          "percentage": 100
+        }
+      ],
+      "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+      "latestNumber": 109
+    },
+    "d1": {
+      "target": {
+        "profile": "thoughtseed-labs",
+        "database": "cambium-bridge",
+        "binding": "BRIDGE_DB",
+        "databaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8"
+      },
+      "schemaSha256": "dc1849dc6cd41c2570f12b408359ff64fa9161087dd5b0cf79a88aafcfa5577e",
+      "ledgerSha256": "80b6d7daf35181965f0dc04ad2902a3883ce349c808641a7b308674595ed2fbd",
+      "schemaObjects": 125,
+      "admissions": 0,
+      "readFromPrimary": true
+    }
+  },
+  "liveTailOpened": false,
+  "trafficChanged": false,
+  "runnerContacted": false,
+  "installationPerformed": false,
+  "jobInvoked": false,
+  "evidence": [
+    {
+      "path": ".local/finite-ssm-stage2-v109-traffic-rehearsal-b12214d9/recheck.py",
+      "sha256": "6ee23bbe0b64f3b5e06c4cf2cf51b099557bd19250909fb943fb1a7501acfe6d"
+    },
+    {
+      "path": ".local/finite-ssm-stage2-v109-traffic-rehearsal-b12214d9/rehearsal-test.log",
+      "sha256": "cb1e388d8e8cf88b4ee16fde7aa59679fd3c164a2a5f8b653ea41754f30ed65c"
+    },
+    {
+      "path": ".local/finite-ssm-stage2-v109-traffic-rehearsal-b12214d9/rehearsal-verified.log",
+      "sha256": "4723d16c3257f25e949f1ceed14391f185089a385bc061e8e0b24c575274e885"
+    },
+    {
+      "path": ".local/finite-ssm-stage2-v109-traffic-rehearsal-b12214d9/rehearse.mjs",
+      "sha256": "000855cf6dfdb10587c6f1b8736e8cc998ccd38cb86ae1efd910ac1ed2caedd7"
+    },
+    {
+      "path": ".local/finite-ssm-stage2-v109-traffic-rehearsal-b12214d9/rehearse.test.mjs",
+      "sha256": "b37d12511b1cbda5bab51c0b1b6f91926d72c53f8c4922be947e1c971766184a"
+    },
+    {
+      "path": ".local/finite-ssm-stage2-v109-traffic-rehearsal-b12214d9/result.json",
+      "sha256": "74c1fb7663d7b899b01aff89a39c8ebc09e52a1edbe09123c732227b5ab3c23a"
+    }
+  ]
+}

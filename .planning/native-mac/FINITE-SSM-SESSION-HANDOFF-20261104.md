@@ -1,3 +1,57 @@
+# Current finite pilot pickup — 0104 verified, traffic held
+
+Read [FINITE-SSM-STAGE2-D1-0104-APPLY-RECEIPT-20261105.json](FINITE-SSM-STAGE2-D1-0104-APPLY-RECEIPT-20261105.json). Packet 682543ea was consumed once on Labs cambium-bridge. The primary shows exactly the approved table and three triggers, zero admissions, and all 121 prior schema definitions and the migration ledger intact. v108 serves 100%, and v106 and v109 are at 0%. The runner was untouched. Traffic allocation, installation and the job remain held.
+
+# Current finite pilot pickup — D1 preflight verified, 0104 held
+
+Read [FINITE-SSM-STAGE2-D1-0104-PROPOSED-20261105.json](FINITE-SSM-STAGE2-D1-0104-PROPOSED-20261105.json). The primary D1 schema and ledger show 0104 absent. All 15 prerequisite objects and five 0105 guards match. One full private recovery export completed and its SHA-256 was verified. The exact 0104 packet awaits separate approval. v108 serves 100%, and v106 and v109 are at 0%. The runner was untouched. Traffic, installation and the job remain held.
+
+# Current finite pilot pickup — v109 preview verified
+
+Read [FINITE-SSM-STAGE1-V109-PREVIEW-RECEIPT-20261105.json](FINITE-SSM-STAGE1-V109-PREVIEW-RECEIPT-20261105.json). One approved GET /healthz on v109 (ad1871d3-eaad-4a84-bfbd-a28c2997ef39) returned HTTP 200 and the expected health payload. The artifact and serving pins matched. v108 serves 100%, and v106 and v109 are at 0%. The runner was untouched. The next decision is D1 preflight and private recovery export. Migration, traffic allocation, installation and the pilot job remain held.
+
+# Current finite pilot pickup — Stage 1 verified, preview held
+
+Read [FINITE-SSM-STAGE1-OWNER108-UPLOAD-RECEIPT-20261105.json](FINITE-SSM-STAGE1-OWNER108-UPLOAD-RECEIPT-20261105.json). Packet 5ee26b5f was consumed once. Cloudflare v109 (ad1871d3-eaad-4a84-bfbd-a28c2997ef39) is at 0% traffic with the exact 56 bindings, module and returned source map. v108 still serves 100%, and v106 remains intact at 0%. The runner was untouched. Preview, migration, traffic allocation, installation and the pilot job remain held.
+
+# Current finite pilot pickup — v108 source verified, upload approval pending
+
+Read [FINITE-SSM-STAGE1-OWNER108-PROPOSED-20261105.json](FINITE-SSM-STAGE1-OWNER108-PROPOSED-20261105.json). Source 6b6bcd12 is verified in the isolated branch. Live v108 serves 100% and existing v106 remains at 0%. The proposed next action is one new immutable 56-binding upload at 0%. Refresh the live pins immediately before any separately approved upload. Earlier checkpoints below retain their original evidence.
+
+# Current finite pilot pickup — held on owner v108 drift
+
+Read [FINITE-SSM-STAGE1-OWNER108-READBACK-20261105.json](FINITE-SSM-STAGE1-OWNER108-READBACK-20261105.json) and the [FINITE-SSM-OWNER108-SOURCE-RECONCILIATION-20261105.md](FINITE-SSM-OWNER108-SOURCE-RECONCILIATION-20261105.md).
+Version 108 (`8073b294`) is latest uploaded and serves 100%. Existing version
+106 (`5a9c7565`) retains exact code and all 56 bindings at 0%. The readback
+reconstructs the 107 owner sources and isolates five overlaps, including the
+Access signer restriction on tagged Fitcheck Gate rows. The v106 map approval
+is recorded with application held. The next decision is the isolated source
+reconciliation. Preserve the candidate, runner and original evidence.
+
+# Current finite pilot pickup — held on owner v107 drift
+
+Read [FINITE-SSM-STAGE1-OWNER-DRIFT-20261105.json](FINITE-SSM-STAGE1-OWNER-DRIFT-20261105.json).
+The v106 map attestation approval was received. The fresh pin check found v107
+(`3c2e7a10`) serving 100% and latest uploaded, so the attestation and preview
+remain held. Existing v106 (`5a9c7565`) retains exact code and 56 bindings at 0%.
+The v107 Fitcheck scope change has two added files and overlaps the pilot in
+`handler.ts` and `index.ts`. Preserve the candidate, original evidence and
+runner. Source reconciliation is the next decision. Earlier checkpoints below
+retain their historical status.
+
+# Current finite pilot pickup — source map diagnosed; approval pending
+
+Read [FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.md](FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.md)
+and its JSON. Wrangler 4.156.1 deliberately normalizes the 111 paths. Exact local
+reconstruction matches all returned bytes; all 111 source files match c2bf7775 and
+156,755 mapping segments validate. Fresh GET readback preserves 5a9c7565/v106 at 0%,
+e5bfbc64/v105 at 100%, exact code/56 bindings and unchanged settings. The proposed
+version-specific attestation is NOT approved; the source-map hold stays active.
+Original approved packet and held Stage1 receipt remain byte-identical. Preview
+and hosted symbolication are unperformed. Preserve the candidate and runner;
+no reupload, migration, traffic change, installation or job. Earlier checkpoints
+below remain historical.
+
 # Fresh pickup: Stage1 uploaded; source-map readback held
 
 Read [FINITE-SSM-STAGE1-RECEIPT-20261104.json](FINITE-SSM-STAGE1-RECEIPT-20261104.json).

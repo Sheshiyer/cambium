@@ -1,0 +1,210 @@
+{
+  "schema": "cambium.finite-ssm-d1-recovery-preflight-receipt.v1",
+  "status": "d1-preflight-and-private-recovery-export-verified",
+  "authorizationScope": "Labs cambium-bridge read-only schema preflight and one private recovery export",
+  "previewReceipt": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE1-V109-PREVIEW-RECEIPT-20261105.json",
+    "sha256": "8ae6abf648d6d2d21f03eb4cf36e5e634b6710e863cc7c9171de9316e099bc9d"
+  },
+  "exportInvocations": 1,
+  "previewInvoked": false,
+  "uploadPerformed": false,
+  "migrationPerformed": false,
+  "trafficChangedByOperator": false,
+  "runnerContacted": false,
+  "installationPerformed": false,
+  "jobInvoked": false,
+  "target": {
+    "profile": "thoughtseed-labs",
+    "database": "cambium-bridge",
+    "binding": "BRIDGE_DB",
+    "databaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8"
+  },
+  "migrationCandidate": {
+    "sourceCommit": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+    "path": "workers/quests/migrations/0104_native_direction_admissions.sql",
+    "sha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3",
+    "configPath": "workers/quests/wrangler.labs.jsonc",
+    "configSha256": "f2afa6d8cddfe9c6b59d447a2288ca7fd4f19adda3d374dd6a19af72e95b058c"
+  },
+  "expectedNewSchemaObjects": [
+    {
+      "name": "native_direction_admissions",
+      "type": "table",
+      "normalizedSqlSha256": "6be78f2ff01971c66bb781f581442c641b73c1981240e0a4cf2ce80ba2cec2fe"
+    },
+    {
+      "name": "native_direction_admission_apply",
+      "type": "trigger",
+      "normalizedSqlSha256": "5e48b1bf7c78c7ffbee68f1b5cf4632878f5022806bf2692772d52106db9cbb3"
+    },
+    {
+      "name": "native_direction_admissions_immutable",
+      "type": "trigger",
+      "normalizedSqlSha256": "d29b24f7b8a446c313ad38eb7d470282042e4b0eb8dd17fc8285b0d15637ece1"
+    },
+    {
+      "name": "native_direction_admissions_retained",
+      "type": "trigger",
+      "normalizedSqlSha256": "7cca5c49792f3d7aacf84cd032babc27c373185962c48a5fafabfca59e607122"
+    }
+  ],
+  "preflightStartedAt": "2026-11-05T10:57:29.891870+00:00",
+  "preflightBefore": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "preflightAfter": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "pinsCheckedAt": "2026-11-05T10:57:39.199685+00:00",
+  "livePinsMatch": true,
+  "v109": {
+    "id": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "trafficPercent": 0,
+    "bindingCount": 56,
+    "moduleSha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86",
+    "mapSha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+    "contentETag": "b77ef5fdbefea8a3a946e06b18d97e4f5b21fcab725dc690d16e640bab20b986"
+  },
+  "v108": {
+    "id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "number": 108,
+    "trafficPercent": 100,
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "moduleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a"
+  },
+  "v106": {
+    "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "number": 106,
+    "trafficPercent": 0,
+    "bindingCount": 56,
+    "moduleSha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298"
+  },
+  "liveDatabaseIdentityMatched": true,
+  "beforeMigrationObjectsPresent": [],
+  "beforeRelevantLedgerNames": [],
+  "beforePinnedSchemaDifferences": [],
+  "schemaBefore": {
+    "schemaAndRelevantLedgerSha256": "645aa369c8af0d0412f4930d05afba8849766a91781ad84ca6be89888ec7e380",
+    "schemaObjectsObserved": 121,
+    "dependencyObjectsMatched": 15,
+    "retained0105TriggersMatched": 5,
+    "absent0104Objects": [
+      "native_direction_admission_apply",
+      "native_direction_admissions",
+      "native_direction_admissions_immutable",
+      "native_direction_admissions_retained"
+    ],
+    "no0104LedgerEntry": true,
+    "metadata": {
+      "queriesFromPrimary": true,
+      "changedDatabase": false,
+      "rowsWritten": 0,
+      "sizeBytes": 312049664
+    },
+    "checkedAt": "2026-11-05T10:57:40.506967+00:00"
+  },
+  "preExportPointers": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "exportStartedAt": "2026-11-05T10:57:41.621367+00:00",
+  "exportCompletedAt": "2026-11-05T10:57:57.822286+00:00",
+  "exportPolls": 10,
+  "exportBookmarkRecorded": true,
+  "export": {
+    "format": "D1 SQL, schema and data, all tables",
+    "bytes": 289888938,
+    "sha256": "c9e179394cad87cac675c56348f53c097d51c51535ffb5baad506f9058998065",
+    "downloadContentLengthMatched": true,
+    "downloadedAt": "2026-11-05T10:59:53.324937+00:00",
+    "localMode": "0o600",
+    "relativePrivatePath": ".local/finite-ssm-stage2-d1-preflight-ad1871d3/cambium-bridge.recovery.private.sql",
+    "localSha256Rechecked": true,
+    "bookmarkPrivateArtifact": "export-bookmark.private.json",
+    "source": "One Cloudflare D1 export in d1 format, polled by the original bookmark"
+  },
+  "afterMigrationObjectsPresent": [],
+  "afterRelevantLedgerNames": [],
+  "afterPinnedSchemaDifferences": [],
+  "schemaAfter": {
+    "schemaAndRelevantLedgerSha256": "645aa369c8af0d0412f4930d05afba8849766a91781ad84ca6be89888ec7e380",
+    "schemaObjectsObserved": 121,
+    "dependencyObjectsMatched": 15,
+    "retained0105TriggersMatched": 5,
+    "absent0104Objects": [
+      "native_direction_admission_apply",
+      "native_direction_admissions",
+      "native_direction_admissions_immutable",
+      "native_direction_admissions_retained"
+    ],
+    "no0104LedgerEntry": true,
+    "metadata": {
+      "queriesFromPrimary": true,
+      "changedDatabase": false,
+      "rowsWritten": 0,
+      "sizeBytes": 312053760
+    },
+    "checkedAt": "2026-11-05T10:59:54.120132+00:00"
+  },
+  "postExportPointers": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "checkedAt": "2026-11-05T10:59:55.251381+00:00",
+  "schemaRehearsal": {
+    "sqliteVersion": "3.53.4",
+    "inputScope": "live schema definitions only in private in-memory SQLite",
+    "priorPinnedDefinitionsByteExact": 20,
+    "newObjects": [
+      "native_direction_admission_apply",
+      "native_direction_admissions",
+      "native_direction_admissions_immutable",
+      "native_direction_admissions_retained"
+    ],
+    "existingObjectsPreserved": 120,
+    "emptyAdmissions": true,
+    "insertTriggerPathCompiled": true,
+    "liveSqlExecuted": false,
+    "migrationSha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3"
+  },
+  "privateEvidenceSha256": {
+    "d1-preflight.py": "2d203dacb5493f5dce5b2d3cf11b1d6eaee69cc71ab598b054be57775aa01190",
+    "result.json": "ab891c6ab6d88f2e9177008899fd5b943f5375ed070759480561e9c96c00669a",
+    "before-schema.private.json": "1028aafd9c993fe7366a8a929bd2b1c28ec30b72582ef55badab5f5efc624714",
+    "after-schema.private.json": "07922d1b2eb8acd8b20efca7ebb24a9187ab99d6ab3b5deaf9532fb04dcae969",
+    "export-invoked.json": "07f4325c811f36ff46c3242911d2f7f459197d08387b63bf4a547ff7853a84ab",
+    "export-bookmark.private.json": "e5b2eba88d2fd5473724145385bef5c98d057155f033d33b017241d0e8a1e71e",
+    "schema-rehearsal.json": "b0edeb6b9ea3bdab3ff5153d0da424fa83022016a0cf829f14f45dfaa2817244"
+  }
+}

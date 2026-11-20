@@ -1,7 +1,7 @@
 {
   "schema": "temperance.handoff.v2",
-  "updated": "2026-11-04T11:45:29.649941+00:00",
-  "status": "finite-ssm-stage1-uploaded-source-map-drift-held",
+  "updated": "2026-11-05T11:54:55.397995+00:00",
+  "status": "finite-ssm-v109-canary-ready-awaiting-traffic-approval",
   "task": "Real Cambium Work join and signal-direction-approved-work-result pilot",
   "tier": "E5",
   "branch": "codex/cambium-real-work-loop-20261104",
@@ -36,7 +36,8 @@
     "Recovered1915a132 source packet, retained670e63b2 identity fix and ae043392 live owner reconciliation, verified Phloem provider receipt path and completed pinned source/local review; rollout remains held.",
     "Retained published owner104 Snow Gloves capability mapping and exact source/producer fingerprints; repeated full repository and110 focused checks pass; refreshed immutable upload pins. No installation or job.",
     "Retained owner105 authenticated legacy-publisher intake classification guard and regression; exact map/source fingerprint matches. Full2757pass/9skip, focused111pass; rollout held.",
-    "Stage1-only approval consumed by one exact Worker module/56-binding upload. Immutable version5a9c7565 is at0%; serving e5bfbc64 remains100%. Readback stopped on source-map path/byte mismatch. No migration, traffic mutation, host/native installation or pilot job."
+    "Stage1-only approval consumed by one exact Worker module/56-binding upload. Immutable version5a9c7565 is at0%; serving e5bfbc64 remains100%. Readback stopped on source-map path/byte mismatch. No migration, traffic mutation, host/native installation or pilot job.",
+    "Read-only source-map diagnosis proves expected Wrangler path normalization, exact returned-map reconstruction,111 pinned source contents and156755 valid mapping segments. Fresh immutable5a9c7565/v106 remains0%; servinge5bfbc64 remains100%. Resolution proposed, not approved; candidate and runner preserved."
   ],
   "verification": {
     "core": {
@@ -215,19 +216,148 @@
       "all56BindingsMatch": true,
       "sourceMapBytePinMatches": false,
       "laterGatesApproved": false
+    },
+    "finite_ssm_source_map_diagnosis": {
+      "status": "finite-ssm-stage1-source-map-diagnosed-awaiting-approval",
+      "receipt": ".planning/native-mac/FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.json",
+      "pathChangesExpected": true,
+      "exactReturnedBytesReconstructed": true,
+      "pinnedSourceContentsExact": 111,
+      "validMappingSegments": 156755,
+      "approvalGranted": false,
+      "sourceMapHoldCleared": false,
+      "previewInvoked": false,
+      "liveWrites": false
+    },
+    "finite_ssm_stage1_owner_drift": {
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER-DRIFT-20261105.json",
+      "status": "finite-ssm-stage1-held-owner107-drift",
+      "candidateVersion": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+      "candidateTrafficPercent": 0,
+      "servingVersion": "3c2e7a10-bedf-43aa-96af-4dd2185c5131",
+      "servingTrafficPercent": 100,
+      "approvalReceived": true,
+      "attestationApplied": false,
+      "previewInvoked": false,
+      "runtimeSourceChanged": false
+    },
+    "finite_ssm_stage1_owner108_refresh": {
+      "status": "finite-ssm-stage1-held-owner108-drift",
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-READBACK-20261105.json",
+      "sourceProposal": ".planning/native-mac/FINITE-SSM-OWNER108-SOURCE-RECONCILIATION-20261105.md",
+      "verifiedOwnerSources": 107,
+      "mergeConflictGroups": 5,
+      "fitcheckFixtureTestsPassed": 3,
+      "sourceReconciliationApproved": false
+    },
+    "finite_ssm_v108_source_reconciled": {
+      "proposal": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-PROPOSED-20261105.json",
+      "sourceCommit": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+      "conflictsResolved": 5,
+      "focused": {
+        "tests": 107,
+        "pass": 107,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "repository": {
+        "tests": 2772,
+        "pass": 2763,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 9
+      },
+      "uploadApproved": true
+    },
+    "finite_ssm_owner108_stage1_upload": {
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-UPLOAD-RECEIPT-20261105.json",
+      "receiptSha256": "e3d5b6277f70de1760e3d107ff1fd255de9de81254a9e582e9044a944321dd53",
+      "version": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+      "number": 109,
+      "trafficPercent": 0,
+      "immutableModuleSha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86",
+      "cloudflareReadbackMapSha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+      "bindingCount": 56,
+      "servingOwnerPreserved": true,
+      "v106Preserved": true,
+      "previewInvoked": false
+    },
+    "finite_ssm_v109_preview": {
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE1-V109-PREVIEW-RECEIPT-20261105.json",
+      "receiptSha256": "8ae6abf648d6d2d21f03eb4cf36e5e634b6710e863cc7c9171de9316e099bc9d",
+      "candidateVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+      "httpStatus": 200,
+      "previewInvocations": 1,
+      "candidateTrafficPercent": 0,
+      "servingV108TrafficPercent": 100,
+      "v106Preserved": true
+    },
+    "finite_ssm_d1_preflight": {
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE2-D1-PREFLIGHT-RECEIPT-20261105.json",
+      "receiptSha256": "c3bbfb841ffb2383b9f44d2ab3ad4ff8a5a7acbc56ceaee8fe2b8b857b67a578",
+      "migration0104Absent": true,
+      "dependencyObjectsMatched": 15,
+      "retained0105TriggersMatched": 5,
+      "exportBytes": 289888938,
+      "exportSha256": "c9e179394cad87cac675c56348f53c097d51c51535ffb5baad506f9058998065",
+      "migrationPerformed": false
+    },
+    "finite_ssm_d1_0104_applied": {
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE2-D1-0104-APPLY-RECEIPT-20261105.json",
+      "receiptSha256": "73600ea221f17eedee301a107a46782ca58f9a24beca68cd869385cdc08db309",
+      "sqlSha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3",
+      "applyInvocations": 1,
+      "newDefinitionsExact": 4,
+      "existingDefinitionsByteExact": 121,
+      "admissionRows": 0,
+      "servingV108TrafficPercent": 100,
+      "candidateV109TrafficPercent": 0,
+      "v106Preserved": true
+    },
+    "finite_ssm_v109_traffic_preflight": {
+      "proposal": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-20261105.json",
+      "proposalSha256": "1d5eed18cd862375f00226c63daff3589eedc33aee768b41ea50e767f726c7fe",
+      "preflightMatched": true,
+      "v108TrafficPercent": 100,
+      "v109TrafficPercent": 0,
+      "d1AdmissionRows": 0,
+      "trafficChanged": false
+    },
+    "finite_ssm_v109_traffic_readiness": {
+      "proposal": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-V2-20261105.json",
+      "proposalSha256": "b12214d940a2104c00eda2977cb94fc9094577f4e662e55bc4e05a930cc2953d",
+      "loopbackTestsPassed": 7,
+      "freshWorkerAndD1PinsMatch": true,
+      "liveTailOpened": false,
+      "trafficChanged": false
+    },
+    "finite_ssm_v109_traffic_orchestration_rehearsal": {
+      "receipt": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-REHEARSAL-20261105.json",
+      "receiptSha256": "da892815c50b47d4fb0d79a07ac2d91088807f16cc3143ce62db8f5c202e490e",
+      "fixtureCasesPassed": 10,
+      "trafficChanged": false
+    },
+    "finite_ssm_hermes_staging_artifact_preflight": {
+      "receipt": ".planning/native-mac/FINITE-SSM-HERMES-STAGING-ARTIFACT-PREFLIGHT-20261105.json",
+      "receiptSha256": "db98efabb3a9639b9a0eb3d200ccc6005e22e94492295231c4d8910abde26ae7",
+      "fileCount": 8,
+      "gitBlobBytesMatch": true,
+      "imagePlatform": "linux/amd64",
+      "runnerContacted": false
     }
   },
   "remaining": [
-    "Resolve the recorded source-map readback discrepancy only under a separately approved next action; preserve the original uploaded candidate. No repeated upload or later migration/traffic/installation/job approval exists.",
+    "Separate approval for the revised 5% v109 canary, single-session monitoring and conditional rollback to v108.",
     "After approved stack, one signed native build/sign-in and saved-direction readback; founder manually decides complete fresh direction review",
     "Governed admission and original idempotent native launch, then separately admitted one finite SSM task",
     "Immutable diff/test/result readback and real complete native walkthrough; ISC-3683..3687 remain open"
   ],
-  "next_action": "Stage1 upload completed once as immutable version 5a9c7565-08c6-4821-b955-e05c0352bacf at0% traffic; serving e5bfbc64 stays100%. Read .planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json. Code,56 bindings, runtime, exports, schedules and exposure match. Source-map raw hash and file/sourceRoot/sources differ; mappings, names and all111 source contents match. Verification remains held under the stop-on-drift instruction. Do not upload again, migrate, change traffic, install or run a job. Recover only this original immutable version until a separately approved next action exists.",
+  "next_action": "Review .planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-V2-20261105.json at SHA-256 b12214d940a2104c00eda2977cb94fc9094577f4e662e55bc4e05a930cc2953d. The split remains 95% v108 and 5% v109 with a 45-minute window and guarded rollback to v108 at 100%. The revised packet verifies one Tail API WebSocket handshake before any forward write. Traffic, promotion, installation and the pilot job remain held.",
   "holds": [
     "No Work approval, admission, launch or runner rollout without applicable owner gates",
     "No new bridge, resident organ, scheduler, routing change or private key in the Mac",
-    "0099/0103 are already live; only0104 may be applied under separate scoped approval; all later rollout/job gates remain held."
+    "0104 is verified. Traffic, installation and the pilot job require separate owner approval."
   ],
   "review_disposition": "Rejected free advisory suggestions to mix execution metadata into bookkeeping or couple sign-in to signal admission. Sign-in review candidates were checked against the full source: the unconfigured identity retains its shared browser, the generation guard already precedes owner sign-in, configuration/mode changes replace feedback, and the deployed session contract is 15 minutes. Actual contracts and tests govern implementation.",
   "prior_acceptance": ".planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md",
@@ -282,5 +412,46 @@
   "finite_source_review": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.md",
   "last_verified_owner": "e5bfbc64-45e3-4849-a974-33d7d8f4f491",
   "stage1_receipt": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
-  "uploaded_candidate_version": "5a9c7565-08c6-4821-b955-e05c0352bacf"
+  "uploaded_candidate_version": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+  "source_map_diagnosis": ".planning/native-mac/FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.json",
+  "stage1_owner_drift_receipt": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-READBACK-20261105.json",
+  "latest_observed_serving_owner": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+  "source_reconciliation_proposal": ".planning/native-mac/FINITE-SSM-OWNER108-SOURCE-RECONCILIATION-20261105.md",
+  "revised_stage1_proposal": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-PROPOSED-20261105.json",
+  "revised_candidate_source": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+  "revised_stage1_upload_approval": true,
+  "latest_observed_uploaded_version": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+  "revised_stage1_upload_approval_consumed": true,
+  "revised_stage1_upload_receipt": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-UPLOAD-RECEIPT-20261105.json",
+  "revised_stage1_upload_receipt_sha256": "e3d5b6277f70de1760e3d107ff1fd255de9de81254a9e582e9044a944321dd53",
+  "revised_uploaded_candidate_version": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+  "revised_uploaded_candidate_number": 109,
+  "revised_uploaded_candidate_traffic_percent": 0,
+  "revised_stage1_immutable_readback_verified": true,
+  "revised_stage1_preview_approval": true,
+  "revised_stage1_preview_approval_consumed": true,
+  "revised_stage1_preview_verified": true,
+  "revised_stage1_preview_receipt": ".planning/native-mac/FINITE-SSM-STAGE1-V109-PREVIEW-RECEIPT-20261105.json",
+  "revised_stage1_preview_receipt_sha256": "8ae6abf648d6d2d21f03eb4cf36e5e634b6710e863cc7c9171de9316e099bc9d",
+  "d1_preflight_approval": true,
+  "d1_preflight_approval_consumed": true,
+  "d1_preflight_receipt": ".planning/native-mac/FINITE-SSM-STAGE2-D1-PREFLIGHT-RECEIPT-20261105.json",
+  "d1_preflight_receipt_sha256": "c3bbfb841ffb2383b9f44d2ab3ad4ff8a5a7acbc56ceaee8fe2b8b857b67a578",
+  "migration_0104_proposal": ".planning/native-mac/FINITE-SSM-STAGE2-D1-0104-PROPOSED-20261105.json",
+  "migration_0104_proposal_sha256": "682543eaf5df3393ea52d046f053094f370b569f7a2e3fd308375ba7d41ed6b0",
+  "migration_approval": true,
+  "migration_approval_consumed": true,
+  "migration_0104_applied": true,
+  "migration_0104_receipt": ".planning/native-mac/FINITE-SSM-STAGE2-D1-0104-APPLY-RECEIPT-20261105.json",
+  "migration_0104_receipt_sha256": "73600ea221f17eedee301a107a46782ca58f9a24beca68cd869385cdc08db309",
+  "migration_0104_live_schema_sha256": "dc1849dc6cd41c2570f12b408359ff64fa9161087dd5b0cf79a88aafcfa5577e",
+  "traffic_approval": false,
+  "traffic_v109_proposal": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-V2-20261105.json",
+  "traffic_v109_proposal_sha256": "b12214d940a2104c00eda2977cb94fc9094577f4e662e55bc4e05a930cc2953d",
+  "prior_traffic_v109_proposal": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-20261105.json",
+  "prior_traffic_v109_proposal_sha256": "1d5eed18cd862375f00226c63daff3589eedc33aee768b41ea50e767f726c7fe",
+  "traffic_v109_rehearsal_receipt": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-REHEARSAL-20261105.json",
+  "traffic_v109_rehearsal_receipt_sha256": "da892815c50b47d4fb0d79a07ac2d91088807f16cc3143ce62db8f5c202e490e",
+  "hermes_staging_artifact_preflight": ".planning/native-mac/FINITE-SSM-HERMES-STAGING-ARTIFACT-PREFLIGHT-20261105.json",
+  "hermes_staging_artifact_preflight_sha256": "db98efabb3a9639b9a0eb3d200ccc6005e22e94492295231c4d8910abde26ae7"
 }

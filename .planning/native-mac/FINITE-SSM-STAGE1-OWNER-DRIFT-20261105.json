@@ -1,0 +1,233 @@
+{
+  "schema": "cambium.finite-ssm-stage1-owner-drift.v1",
+  "status": "finite-ssm-stage1-held-owner107-drift",
+  "checkedAt": "2026-11-05T07:57:20.266527+00:00",
+  "scope": "Approved existing-v106 source-map attestation subject to fresh live pins, then bounded health readback",
+  "approval": {
+    "received": true,
+    "source": "explicit user approval in the active conversation",
+    "scope": "existing-v106 source-map attestation only",
+    "approvedProposalSha256": "a818fabcb5696634f46a8f98919d381d8621a1b3e9f9099e85a8eff10f531851",
+    "applicationStatus": "held-by-live-owner-drift",
+    "acceptedAttestationWritten": false,
+    "sourceMapHoldCleared": false,
+    "laterGateApprovalGranted": false
+  },
+  "stopReason": "Both the active serving owner and latest upload moved from the pinned Stage 1 control-plane state",
+  "expectedLatestUploadedVersion": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+  "expectedServing": {
+    "id": "e5bfbc64-45e3-4849-a974-33d7d8f4f491",
+    "number": 105,
+    "trafficPercent": 100
+  },
+  "observedServing": {
+    "id": "3c2e7a10-bedf-43aa-96af-4dd2185c5131",
+    "number": 107,
+    "trafficPercent": 100,
+    "deploymentCreatedAt": "2026-11-04T12:25:41.841154Z",
+    "versionCreatedAt": "2026-11-04T12:22:22.078Z",
+    "latestUploaded": true,
+    "bindings": 54
+  },
+  "preservedCandidate": {
+    "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "number": 106,
+    "trafficPercent": 0,
+    "bindings": 56,
+    "resourcesMatchStage1": true,
+    "codeSha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298",
+    "codeMatchesStage1": true,
+    "sourceMapAttribution": "Stage1 ETag-bound historical bytes; latest content now belongs to v107"
+  },
+  "ownerCode": {
+    "moduleSha256": "4ee150ae30138d65eca116035a5184457a0391a3518a9a5fe6d0db1b73549ecf",
+    "moduleBytes": 2723015,
+    "matchesV105": false,
+    "matchesV106": false,
+    "latestContentETagMatchesV107": true,
+    "sourceMapSha256": "bff2c49c247fce2aeb10220df6fd880f88a1064dfd853606867df52315b0d7f4",
+    "versionTagCommitHint": null
+  },
+  "retainedBindings": {
+    "count": 54,
+    "exactVsV105": true,
+    "fingerprint": "85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e",
+    "pilotVarsAbsentOnV107": [
+      "CAMBIUM_PATCH_POLICY_JSON",
+      "CAMBIUM_PATCH_RUNNER_MEMBER_ID"
+    ]
+  },
+  "ownerOperationalParityVsV105": {
+    "runtimeMatchesV105": true,
+    "exportsMatchV105": true,
+    "settingsChangedKeys": [],
+    "schedulesMatchV105": true,
+    "exposureMatchesV105": true
+  },
+  "sourceComparison": {
+    "status": "etag-bound-source-diff",
+    "removedBuildRoot": "quests-reconcile-source/",
+    "v105MapSha256": "53e9967c790be912171d1b62d75d2b4f84e35a495dfd324969d055ad2a794c2c",
+    "v107MapSha256": "bff2c49c247fce2aeb10220df6fd880f88a1064dfd853606867df52315b0d7f4",
+    "v105ToV107": {
+      "prior": 105,
+      "current": 107,
+      "identicalCommon": 103,
+      "added": [
+        "docs/project-management/fitcheck-scope-reconciliation.v1.json",
+        "workers/quests/src/fitcheck-scope-reconciliation.ts"
+      ],
+      "removed": [],
+      "changed": [
+        "workers/quests/src/handler.ts",
+        "workers/quests/src/index.ts"
+      ]
+    },
+    "v106ToV107": {
+      "prior": 111,
+      "current": 107,
+      "identicalCommon": 97,
+      "added": [
+        "docs/project-management/fitcheck-scope-reconciliation.v1.json",
+        "workers/quests/src/fitcheck-scope-reconciliation.ts"
+      ],
+      "removed": [
+        "shared/cambium-patch-contract.ts",
+        "workers/quests/src/cambium-code-pilot-input.ts",
+        "workers/quests/src/direction-execution-d1.ts",
+        "workers/quests/src/direction-execution-http.ts",
+        "workers/quests/src/direction-execution-owner.ts",
+        "workers/quests/src/direction-execution-review.ts"
+      ],
+      "changed": [
+        "workers/quests/src/founder-access-host.ts",
+        "workers/quests/src/goal-graph-loadout-registry.ts",
+        "workers/quests/src/goal-graph-store.ts",
+        "workers/quests/src/goal-graph/compiler.ts",
+        "workers/quests/src/handler.ts",
+        "workers/quests/src/index.ts",
+        "workers/quests/src/native-launch-d1.ts",
+        "workers/quests/src/page/client/curious-gate-bridge.ts"
+      ]
+    },
+    "ownerSourceCheckout": {
+      "branch": "codex/iverif-fabric-reconcile-20261104",
+      "head": "670e63b2ad7e9a757c20cd15b39836b8fcdaddc0",
+      "headExactCount": 101,
+      "headDifferentOrMissing": [
+        "docs/project-management/fitcheck-scope-reconciliation.v1.json",
+        "workers/quests/src/fitcheck-scope-reconciliation.ts",
+        "workers/quests/src/operational-work-intake.ts",
+        "workers/quests/src/handler.ts",
+        "workers/quests/src/mission-fabric.ts",
+        "workers/quests/src/index.ts"
+      ],
+      "worktreeExactCount": 107,
+      "worktreeDifferentOrMissing": []
+    },
+    "sourceCodeChanged": false,
+    "externalWrites": false
+  },
+  "reconciliationFeasibility": {
+    "readOnlyThreeWay": [
+      {
+        "file": "workers/quests/src/handler.ts",
+        "mergeClean": false,
+        "conflictGroups": 3,
+        "mergedSha256": null
+      },
+      {
+        "file": "workers/quests/src/index.ts",
+        "mergeClean": false,
+        "conflictGroups": 1,
+        "mergedSha256": null
+      }
+    ],
+    "liveOwnerAddedFiles": [
+      "docs/project-management/fitcheck-scope-reconciliation.v1.json",
+      "workers/quests/src/fitcheck-scope-reconciliation.ts"
+    ],
+    "runtimeFilesWritten": false,
+    "candidateArtifactBuilt": false
+  },
+  "sourceMapProof": {
+    "offlineReconstructionReproduced": true,
+    "maps": {
+      "local": {
+        "bytes": 4170146,
+        "sha256": "1af713f8a624f89d9bbb49d6d650c9f508c36bb9280c179343c30d556fac635a"
+      },
+      "wranglerPrepared": {
+        "bytes": 4164293,
+        "sha256": "21396c7920512ac005cc8a63562e2b12d37b9609bfd0ba684ba5b7bafb695d75"
+      },
+      "expectedReturned": {
+        "bytes": 4257118,
+        "sha256": "b9c1c3835c4b2e620cdacf532d57c7855b71bc285d925ea5dd068e3a262c0ae3"
+      },
+      "observed": {
+        "bytes": 4257118,
+        "sha256": "b9c1c3835c4b2e620cdacf532d57c7855b71bc285d925ea5dd068e3a262c0ae3"
+      }
+    },
+    "pinnedSourceContentsExact": 111,
+    "mappedSegmentsVerified": 156755,
+    "latestContentReadbackAttribution": "v107 only, verified by its immutable version ETag",
+    "v106MapEvidence": "Historical Stage 1 ETag-bound bytes and exact offline reconstruction"
+  },
+  "verification": {
+    "managementHttpMethods": [
+      "GET"
+    ],
+    "previewStatus": "held-by-live-owner-drift",
+    "previewInvoked": false,
+    "hostedSymbolicationObserved": false
+  },
+  "historicalEvidence": {
+    "approvedPacket": {
+      "path": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
+      "sha256": "19feb9c0d3f527427c7b6a76e75e1b6bc92eeed00c96f79cc6959a0f34ae7118",
+      "unchanged": true
+    },
+    "heldStage1Receipt": {
+      "path": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
+      "sha256": "b595ad1fd8f6a73c7241f81e1020a16f96336f4cfa49c33514e534f1f2cca3cc",
+      "unchanged": true,
+      "rawBuildMapBytePinStillMatches": false
+    },
+    "diagnosisProposal": {
+      "path": ".planning/native-mac/FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.json",
+      "sha256": "a818fabcb5696634f46a8f98919d381d8621a1b3e9f9099e85a8eff10f531851",
+      "unchanged": true
+    }
+  },
+  "nextDecision": {
+    "recommendedScope": "source-only reconciliation against immutable owner v107, preserving the exact v106 candidate and existing runner",
+    "requiredResolution": [
+      "Retain both v107 Fitcheck scope reconciliation files and the corresponding handler and entry-point integration.",
+      "Resolve the three handler and one entry-point overlap while retaining the reviewed finite pilot changes.",
+      "Reverify both capability paths, the owner bindings and retained settings before any revised rollout proposal."
+    ],
+    "sourceChangesAuthorizedByAttestationApproval": false,
+    "newUploadAuthorized": false
+  },
+  "preservation": {
+    "candidateVersionRetained": true,
+    "candidateTrafficPercent": 0,
+    "runnerContacted": false,
+    "awsOrSsmCommandsIssued": false,
+    "runtimeSourceChanged": false,
+    "uploadInvoked": false,
+    "migrationPerformed": false,
+    "trafficMutationPerformed": false,
+    "installationPerformed": false,
+    "pilotJobInvoked": false
+  },
+  "privateEvidenceHashes": {
+    "readback-hold.json": "8e3cff50055702037301d417c3d917103b670d0efca49325b522dbed73f1820e",
+    "drift-summary.json": "99d96cd99b1aa07dabcbf994f7881ac8e54f58d2a97b0e15e4e13b364a7db7f9",
+    "drift-source-comparison.json": "2c386363d1f06ba743f387d9586dc120cd13f482ad4fdde08eb1369f69293d75",
+    "reconciliation-feasibility.json": "a56091202987bcd2e136951c8ae9a4ec91f5066c97246e3d8523ed150ed59298",
+    "diagnosis.private.json": "87d5795de535bb01ccbb0a9a696fc0377f5466a6ab2b371aa29dc47fb3a74f62"
+  }
+}

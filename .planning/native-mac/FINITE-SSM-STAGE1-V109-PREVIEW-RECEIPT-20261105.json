@@ -1,0 +1,127 @@
+{
+  "schema": "cambium.finite-ssm-v109-preview-receipt.v1",
+  "status": "v109-preview-healthz-verified",
+  "authorizationScope": "One read-only GET /healthz on the pinned v109 version URL",
+  "stage1Receipt": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-UPLOAD-RECEIPT-20261105.json",
+    "sha256": "e3d5b6277f70de1760e3d107ff1fd255de9de81254a9e582e9044a944321dd53"
+  },
+  "candidateVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+  "candidateNumber": 109,
+  "previewUrl": "https://ad1871d3-cambium-quests.thoughtseedlabs.workers.dev/healthz",
+  "previewMethod": "GET",
+  "previewInvocations": 1,
+  "managementHttpMethods": [
+    "GET"
+  ],
+  "uploadPerformed": false,
+  "migrationPerformed": false,
+  "trafficChangedByOperator": false,
+  "runnerContacted": false,
+  "installationPerformed": false,
+  "jobInvoked": false,
+  "preflightStartedAt": "2026-11-05T10:48:37.339718+00:00",
+  "preflightBefore": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "preflightAfter": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "pinsCheckedAt": "2026-11-05T10:48:46.418762+00:00",
+  "livePinsMatch": true,
+  "v109": {
+    "id": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "trafficPercent": 0,
+    "bindingCount": 56,
+    "moduleSha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86",
+    "mapSha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+    "contentETag": "b77ef5fdbefea8a3a946e06b18d97e4f5b21fcab725dc690d16e640bab20b986"
+  },
+  "v108": {
+    "id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "number": 108,
+    "trafficPercent": 100,
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "moduleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a"
+  },
+  "v106": {
+    "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "number": 106,
+    "trafficPercent": 0,
+    "bindingCount": 56,
+    "moduleSha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298"
+  },
+  "previewStartedAt": "2026-11-05T10:48:46.418779+00:00",
+  "previewReceivedAt": "2026-11-05T10:48:47.354683+00:00",
+  "response": {
+    "httpStatus": 200,
+    "contentType": "application/json; charset=utf-8",
+    "cloudflareRay": "a55b49bc3e8ab698-MRS",
+    "cloudflareCacheStatus": null,
+    "bytesReceived": 37,
+    "bodySha256": "97c166cbf5a83f38be0ed99af0888f0da6b19626d231d609806af18724738b4c",
+    "bodyComplete": true,
+    "expectedHealthPayloadMatched": true
+  },
+  "postPreview": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "postPreviewPinsMatch": true,
+  "checkedAt": "2026-11-05T10:48:48.478509+00:00",
+  "scopeOfProof": "One version-specific liveness request plus Cloudflare management readback. Schema, admissions, native and runner acceptance are separate gates.",
+  "nextGateProposal": {
+    "status": "awaiting-approval-for-d1-preflight-and-recovery-export",
+    "target": {
+      "profile": "thoughtseed-labs",
+      "database": "cambium-bridge",
+      "binding": "BRIDGE_DB",
+      "databaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8"
+    },
+    "preflight": [
+      "Refresh Worker and D1 binding identity pins.",
+      "Check 0104 object presence, 0099 and 0103 dependencies, and retained 0105 triggers.",
+      "Export a private recovery snapshot and record its SHA-256.",
+      "Return the exact 0104-only approval packet if the migration remains absent and prerequisites match."
+    ],
+    "migrationCandidate": {
+      "sourceCommit": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+      "path": "workers/quests/migrations/0104_native_direction_admissions.sql",
+      "sha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3"
+    },
+    "approved": false,
+    "migrationAuthorized": false,
+    "trafficAuthorized": false,
+    "hostOrNativeInstallationAuthorized": false,
+    "jobAuthorized": false
+  },
+  "privateEvidenceSha256": {
+    "preview-invoked.json": "5e51a1a8ba0362c149a1c25cc23debceb018150ea0a2d27cbc9382d078b22d32",
+    "preview-response.private": "97c166cbf5a83f38be0ed99af0888f0da6b19626d231d609806af18724738b4c",
+    "preview.py": "f56883b0b5301485e9ea71aaeb0d3b7430b1be6880d188184e00819b8064c5e8",
+    "result.json": "bd79eaf53b3f797cae68eb7e978eea6bc7a280afed8f1842e652931c8189cf1f"
+  }
+}

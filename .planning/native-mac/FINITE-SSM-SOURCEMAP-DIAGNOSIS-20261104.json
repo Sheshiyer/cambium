@@ -1,0 +1,248 @@
+{
+  "schema": "cambium.finite-ssm-sourcemap-diagnosis.v1",
+  "status": "finite-ssm-stage1-source-map-diagnosed-awaiting-approval",
+  "diagnosisCompletedAt": "2026-11-04T12:10:02.616973+00:00",
+  "liveCheckedAt": "2026-11-04T12:06:27.134274+00:00",
+  "scope": "read-only diagnosis; local evidence and handoff only",
+  "candidateVersion": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+  "candidateVersionNumber": 106,
+  "sourceCommit": "c2bf7775296100214f98c4a503a8d29fcac9b1f5",
+  "historicalEvidence": {
+    "approvedPacket": {
+      "path": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
+      "sha256": "19feb9c0d3f527427c7b6a76e75e1b6bc92eeed00c96f79cc6959a0f34ae7118",
+      "unchanged": true
+    },
+    "heldStage1Receipt": {
+      "path": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
+      "sha256": "b595ad1fd8f6a73c7241f81e1020a16f96336f4cfa49c33514e534f1f2cca3cc",
+      "unchanged": true,
+      "rawBuildMapBytePinStillMatches": false
+    }
+  },
+  "conclusion": {
+    "pathChangesExpected": true,
+    "pathCause": "Wrangler4.156.1 no_bundle scanSourceMaps/sourceMapForModule/cleanPathPrefix",
+    "readbackByteDifferenceFullyAccountedFor": true,
+    "sourceOrMappingDriftFound": false,
+    "readbackMetadataCause": "Observed Cloudflare content/v2 representation: field ordering, absent sourceRoot, sourcesRoot:null and HTML-safe JSON escaping",
+    "metadataAttributionLimit": "Wrangler does not produce sourcesRoot:null or remove the absolute sourceRoot in this no_bundle branch. Upload multipart was not captured; server storage versus readback serialization cannot be distinguished. The proposed attestation is specific to this immutable candidate, not a general API contract."
+  },
+  "tool": {
+    "wranglerVersion": "4.156.1",
+    "cliSha256": "47fe4b6ddacd2a5861bd5f6957217718a48b106f208b2dc21546bbee51a0cb8b",
+    "executedHelperSha256": "c73248ba2393b0111d4280041e9b3ff30c08535c950fa5b4805e7413f47cbeea",
+    "upstream": {
+      "wranglerTag": "wrangler@4.156.1",
+      "commit": "ca55031d783d1c062c9d2437f3be39addab235ec",
+      "sourceSha256": "f468fc10effdb34dd683d0d44c0154632b66b5202c8fd59e152294b5ffec9b34",
+      "sourceUrl": "https://github.com/cloudflare/workers-sdk/blob/ca55031d783d1c062c9d2437f3be39addab235ec/packages/wrangler/src/deployment-bundle/source-maps.ts#L173-L225",
+      "retrievedReadOnly": true
+    }
+  },
+  "maps": {
+    "local": {
+      "bytes": 4170146,
+      "sha256": "1af713f8a624f89d9bbb49d6d650c9f508c36bb9280c179343c30d556fac635a"
+    },
+    "wranglerPrepared": {
+      "bytes": 4164293,
+      "sha256": "21396c7920512ac005cc8a63562e2b12d37b9609bfd0ba684ba5b7bafb695d75"
+    },
+    "expectedReturned": {
+      "bytes": 4257118,
+      "sha256": "b9c1c3835c4b2e620cdacf532d57c7855b71bc285d925ea5dd068e3a262c0ae3"
+    },
+    "observed": {
+      "bytes": 4257118,
+      "sha256": "b9c1c3835c4b2e620cdacf532d57c7855b71bc285d925ea5dd068e3a262c0ae3"
+    }
+  },
+  "transformation": {
+    "wrangler": {
+      "sourcePaths": "remove all leading ../ segments (the installed helper also handles ./ and Windows equivalents)",
+      "file": "cortex-services.js",
+      "sourceRoot": "absolute build directory retained by the no_bundle helper",
+      "json": "JSON.stringify(map)"
+    },
+    "returnedRepresentation": {
+      "orderedKeys": [
+        "version",
+        "file",
+        "sourcesRoot",
+        "sources",
+        "sourcesContent",
+        "names",
+        "mappings"
+      ],
+      "sourceRoot": "absent",
+      "sourcesRoot": null,
+      "sourceRootPresenceCheckedSeparatelyFromNull": true,
+      "escapes": {
+        "<": "\\u003c",
+        ">": "\\u003e",
+        "&": "\\u0026",
+        "U+2028": "\\u2028",
+        "U+2029": "\\u2029"
+      }
+    },
+    "example": {
+      "before": "../../../workers/quests/src/goal-graph/identity.ts",
+      "after": "workers/quests/src/goal-graph/identity.ts"
+    },
+    "byteAccounting": {
+      "buildToWranglerPrepared": -5853,
+      "preparedToReturnedFieldShape": -135,
+      "htmlEscaping": 92960,
+      "netBuildToReturned": 86972
+    },
+    "wranglerPreparedHashIsLocallyReconstructed": true,
+    "returnedHashIsFreshlyReadBackAndExactlyReconstructed": true
+  },
+  "offlineVerification": {
+    "exactReturnedBytes": true,
+    "sourceCount": 111,
+    "pinnedSourceContentsExact": 111,
+    "uniqueReturnedPaths": 111,
+    "sourcesByRoot": {
+      "workers": 94,
+      "shared": 15,
+      "docs": 2
+    },
+    "mappingsExact": true,
+    "namesExact": true,
+    "sourcesContentExact": true,
+    "pathResolutionExact": true,
+    "sourceIndicesPreserved": true,
+    "schema": {
+      "localKeys": [
+        "version",
+        "sources",
+        "sourceRoot",
+        "sourcesContent",
+        "mappings",
+        "names"
+      ],
+      "returnedKeys": [
+        "version",
+        "file",
+        "sourcesRoot",
+        "sources",
+        "sourcesContent",
+        "names",
+        "mappings"
+      ],
+      "returnedSourcesRoot": null,
+      "returnedSourceRootAbsent": true,
+      "uploadSourceRootStillAbsolute": true,
+      "noUnknownFields": true
+    },
+    "vlq": {
+      "mappedSegments": 156755,
+      "unmappedSegments": 0,
+      "maxGeneratedLine": 29537,
+      "allSourceAndNameIndicesInBounds": true,
+      "allOriginalCoordinatesInBounds": true,
+      "allGeneratedColumnsInBounds": true
+    }
+  },
+  "liveReadback": {
+    "checkedAt": "2026-11-04T12:06:27.134274+00:00",
+    "status": "preserved-pins-match",
+    "candidateVersion": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "candidateNumber": 106,
+    "candidateTrafficPercent": 0,
+    "servingVersion": "e5bfbc64-45e3-4849-a974-33d7d8f4f491",
+    "servingNumber": 105,
+    "servingTrafficPercent": 100,
+    "latestUploadedVersion": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "deploymentIdUnchanged": true,
+    "servingResourcesUnchanged": true,
+    "candidateResourcesUnchanged": true,
+    "candidateBindingCount": 56,
+    "retainedBindingCount": 54,
+    "retainedBindingValuesExact": true,
+    "addedBindingNames": [
+      "CAMBIUM_PATCH_POLICY_JSON",
+      "CAMBIUM_PATCH_RUNNER_MEMBER_ID"
+    ],
+    "pilotValuesExact": true,
+    "runtimeExact": true,
+    "exportsExact": true,
+    "immutableModule": {
+      "name": "cortex-services.js",
+      "bytes": 2773537,
+      "sha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298"
+    },
+    "sourceMapReadback": {
+      "bytes": 4257118,
+      "sha256": "b9c1c3835c4b2e620cdacf532d57c7855b71bc285d925ea5dd068e3a262c0ae3",
+      "matchesStage1Bytes": true
+    },
+    "contentETagMatchesImmutableCandidate": true,
+    "bracketedPointersMatch": true,
+    "operationalSettingsUnchanged": true,
+    "schedulesUnchanged": true,
+    "exposureUnchanged": true,
+    "httpMethodsUsed": [
+      "GET"
+    ],
+    "runnerContacted": false,
+    "awsOrSsmCommandsIssued": false,
+    "workerPreviewInvoked": false,
+    "uploadInvoked": false,
+    "migrationPerformed": false,
+    "trafficMutationPerformed": false,
+    "installationPerformed": false,
+    "pilotJobInvoked": false,
+    "approvedPacketUnchanged": true,
+    "historicalStage1ReceiptUnchanged": true
+  },
+  "resolutionForApproval": {
+    "status": "proposed-not-approved",
+    "approvalGranted": false,
+    "sourceMapHoldCleared": false,
+    "action": "Accept a version-specific normalized-map attestation for existing5a9c7565; no Worker operation",
+    "onApproval": [
+      "Append a separate accepted-map attestation binding immutable5a9c7565/v106, approved source c2bf7775, original build-map SHA1af713f8, reconstructed Wrangler map SHA21396c79, and exact returned map SHAb9c1c383.",
+      "Retain both original approved packet and held Stage1 receipt byte-for-byte; qualify the raw-map mismatch through the new attestation and clear only that discrepancy hold in the matching continuation.",
+      "Require the same immutable identity, ETag-bound content, module/56-binding/runtime/settings equality and the complete presence-sensitive source-map checks on any later readback; stop on any additional difference."
+    ],
+    "approvalDoesNotComplete": [
+      "Worker preview health",
+      "hosted exception symbolication",
+      "Stage2 migration",
+      "traffic deployment",
+      "host or native installation",
+      "founder direction decision",
+      "admission or native launch",
+      "finite SSM job",
+      "ISC-3683 through ISC-3687"
+    ],
+    "reuploadRequired": false,
+    "runtimeSourceChangeRequired": false,
+    "previewProbeAuthorized": false,
+    "liveWritesAuthorized": false
+  },
+  "preservation": {
+    "candidatePreserved": true,
+    "runnerContacted": false,
+    "awsOrSsmCommandsIssued": false,
+    "reuploadInvoked": false,
+    "migrationPerformed": false,
+    "trafficMutationPerformed": false,
+    "installationPerformed": false,
+    "pilotJobInvoked": false,
+    "previewInvoked": false,
+    "historicalPacketAndReceiptUnchanged": true,
+    "runtimeSourcesUnchanged": true
+  },
+  "privateEvidence": {
+    "directoryRole": "ignored local source-map diagnosis evidence",
+    "offlineCheckerSha256": "a7ad3c9a1a860bdc15d1f6be0116eb121ff8d977876b984579372265bfedea0a",
+    "getOnlyReaderSha256": "da94386b71767c7a05d698d467161a5799961b928a05382c25fa10c533c88c9f",
+    "offlineProofSha256": "0602ac49cf419895c2d05a069d6873e8e967c80bed29f90e97eb2c85806b9aee",
+    "liveSummarySha256": "45b0ccfe55f14f2283fa2db7297cb9f5ed683c13427bd0bd577bd70505ea5fa6",
+    "rawMapsAndManagementBodiesCommitted": false
+  }
+}

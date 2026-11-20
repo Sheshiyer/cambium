@@ -1,0 +1,127 @@
+{
+  "schema": "cambium.finite-ssm-stage1-owner-refresh.v1",
+  "status": "finite-ssm-stage1-held-owner108-drift",
+  "checkedAt": "2026-11-05T08:12:41.538747+00:00",
+  "servingOwner": {
+    "id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "version": 108,
+    "trafficPercent": 100,
+    "latestUploaded": true,
+    "moduleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a",
+    "moduleBytes": 2723151,
+    "versionContentETagMatches": true,
+    "deploymentCreatedAt": "2026-11-05T08:02:25.452188Z"
+  },
+  "preservedCandidate": {
+    "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "version": 106,
+    "trafficPercent": 0,
+    "bindingCount": 56,
+    "immutableModuleMatches": true,
+    "immutableResourcesMatch": true
+  },
+  "ownerBindings": {
+    "count": 54,
+    "exactVsV105": true
+  },
+  "runtimeMatchesV105": true,
+  "namedHandlersMatchV105": true,
+  "settingsMatchV105": true,
+  "schedulesMatchV105": true,
+  "exposureMatchesV105": true,
+  "sourceEvidence": {
+    "v108ReadbackHasMap": false,
+    "exactV107ToV108ModuleSubstitution": true,
+    "changedBytes": 136,
+    "localUploadArtifactMatches": true,
+    "sourceAnchor": "workers/quests/src/page/client/curious-gate-bridge.ts",
+    "reconstructedOwnerSources": 107,
+    "currentOwnerCheckoutMatches": 107,
+    "changedVsV105": [
+      "workers/quests/src/handler.ts",
+      "workers/quests/src/index.ts",
+      "workers/quests/src/page/client/curious-gate-bridge.ts"
+    ],
+    "addedVsV105": [
+      "docs/project-management/fitcheck-scope-reconciliation.v1.json",
+      "workers/quests/src/fitcheck-scope-reconciliation.ts"
+    ],
+    "removedVsV105": [],
+    "overlaps": [
+      {
+        "path": "workers/quests/src/handler.ts",
+        "conflictGroups": 3
+      },
+      {
+        "path": "workers/quests/src/index.ts",
+        "conflictGroups": 1
+      },
+      {
+        "path": "workers/quests/src/page/client/curious-gate-bridge.ts",
+        "conflictGroups": 1
+      }
+    ]
+  },
+  "readOnly": true,
+  "previewInvoked": false,
+  "runnerContacted": false,
+  "externalWrites": false,
+  "runtimeSourceChangesMade": false,
+  "approval": {
+    "received": true,
+    "source": "explicit user approval in the active conversation",
+    "scope": "existing-v106 source-map attestation only",
+    "approvedProposalSha256": "a818fabcb5696634f46a8f98919d381d8621a1b3e9f9099e85a8eff10f531851",
+    "applicationStatus": "held-by-live-owner-drift",
+    "acceptedAttestationWritten": false,
+    "sourceMapHoldCleared": false,
+    "laterGateApprovalGranted": false
+  },
+  "priorOwnerDriftReceipt": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER-DRIFT-20261105.json",
+    "sha256": "eb36339fb057f597c04a5656bcd31bee133f4f409793ca79eddb681ff54752d2"
+  },
+  "historicalEvidence": {
+    "approvedPacket": {
+      "path": ".planning/native-mac/FINITE-SSM-ROLLOUT-RECONCILED-20261104.json",
+      "sha256": "19feb9c0d3f527427c7b6a76e75e1b6bc92eeed00c96f79cc6959a0f34ae7118",
+      "unchanged": true
+    },
+    "heldStage1Receipt": {
+      "path": ".planning/native-mac/FINITE-SSM-STAGE1-RECEIPT-20261104.json",
+      "sha256": "b595ad1fd8f6a73c7241f81e1020a16f96336f4cfa49c33514e534f1f2cca3cc",
+      "unchanged": true,
+      "rawBuildMapBytePinStillMatches": false
+    },
+    "diagnosisProposal": {
+      "path": ".planning/native-mac/FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.json",
+      "sha256": "a818fabcb5696634f46a8f98919d381d8621a1b3e9f9099e85a8eff10f531851",
+      "unchanged": true
+    }
+  },
+  "sourceWorkProposal": {
+    "path": ".planning/native-mac/FINITE-SSM-OWNER108-SOURCE-RECONCILIATION-20261105.md",
+    "sha256": "8d80187fb72f8f4f561bdd060d1d86bf097a72b9d21f7ea30848ab2c73b3c2cf",
+    "scope": "isolated local source reconciliation and verification",
+    "approved": false
+  },
+  "verification": {
+    "currentOwnerFitcheckTests": {
+      "suite": "workers/quests/src/fitcheck-scope-reconciliation.test.ts",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "local fixtures on verified owner checkout"
+    },
+    "combinedReconciliationVerified": false,
+    "stage1MapAttestationApplied": false,
+    "previewInvoked": false,
+    "laterGatesApproved": false
+  },
+  "privateEvidenceSha256": {
+    "owner108-readback-summary.json": "406abeff04177a0d4657707c37cf41f5d7d0d1aa9f8839fecebdb9804e7645e6",
+    "owner108-source-fingerprints.private.json": "859d07311e734de6d5f8be7279b0b65b4a33694ad16616ab7a4ba3a90762ee52",
+    "content.private.multipart": "109a7f094ec093e1505abf0e6bb07fecb60e5b42d7215b73380eced35da2bf54",
+    "content-headers.private.json": "509bd1abd12a18fd8f54dc72efc3e4f722904f99d53f4d5a05ffebcbc474cf98"
+  }
+}

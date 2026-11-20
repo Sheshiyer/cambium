@@ -1,0 +1,323 @@
+{
+  "schema": "cambium.finite-ssm-v109-traffic-proposal.v2",
+  "status": "ready-for-separate-traffic-canary-approval",
+  "approval": {
+    "granted": false,
+    "requestedScope": [
+      "One 95% v108 and 5% v109 deployment.",
+      "One version-filtered Tail API session, one trace-v1 WebSocket connection and matching cleanup. Two read-only production health checks plus analytics and management readback.",
+      "At most one conditional deployment restoring 100% v108 under the exact rollback guard."
+    ]
+  },
+  "migrationReceipt": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE2-D1-0104-APPLY-RECEIPT-20261105.json",
+    "sha256": "73600ea221f17eedee301a107a46782ca58f9a24beca68cd869385cdc08db309"
+  },
+  "readOnlyPreflight": {
+    "checkedAt": "2026-11-05T11:14:51.840269+00:00",
+    "workerPins": {
+      "activeDeployment": {
+        "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+        "traffic": [
+          {
+            "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+            "percentage": 100
+          }
+        ],
+        "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+        "latestNumber": 109
+      },
+      "servingV108": {
+        "id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "number": 108,
+        "trafficPercent": 100,
+        "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+        "moduleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a"
+      },
+      "latestV109": {
+        "id": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+        "trafficPercent": 0,
+        "bindingCount": 56,
+        "moduleSha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86",
+        "mapSha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+        "contentETag": "b77ef5fdbefea8a3a946e06b18d97e4f5b21fcab725dc690d16e640bab20b986"
+      },
+      "preservedV106": {
+        "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+        "number": 106,
+        "trafficPercent": 0,
+        "bindingCount": 56,
+        "moduleSha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298"
+      }
+    },
+    "d1": {
+      "target": {
+        "profile": "thoughtseed-labs",
+        "database": "cambium-bridge",
+        "binding": "BRIDGE_DB",
+        "databaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8"
+      },
+      "schemaSha256": "dc1849dc6cd41c2570f12b408359ff64fa9161087dd5b0cf79a88aafcfa5577e",
+      "ledgerSha256": "80b6d7daf35181965f0dc04ad2902a3883ce349c808641a7b308674595ed2fbd",
+      "schemaObjects": 125,
+      "admissions": 0,
+      "readFromPrimary": true
+    },
+    "deployability": {
+      "rollbackTargetListedDeployable": true,
+      "candidateListedDeployable": true
+    },
+    "customDomains": [
+      {
+        "hostname": "curious.thoughtseed.space",
+        "service": "cambium-quests",
+        "environment": "production",
+        "enabled": true
+      }
+    ],
+    "workersDevHostname": "cambium-quests.thoughtseedlabs.workers.dev",
+    "schedules": [
+      "0 */6 * * *"
+    ],
+    "observability": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "logs": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "persist": true,
+        "invocation_logs": true
+      }
+    },
+    "evidenceSha256": {
+      "deployable-versions.json": "3a56cef104d8e34e2a74202916f66dff49b1f517a06d426c660bf1c9f3eac63d",
+      "domains.json": "6742d653b529d3f6035e68c801c2ca1b4b46628fafd4dfce5c912d7ef4802198",
+      "graphql-baseline.json": "f200ebac59f71a5458caef543b698166e51f9d473dbae6c3477226c3f7d69134",
+      "graphql-query.json": "f22df326e64f00bba94b9b4523532229138f77203cc103dfc103a0f54f9685d4",
+      "monitoring-capabilities.json": "ebec3ee01a544775b0df5abbbbdc5ce512e106e22ece84ccd007170c9fc259df",
+      "result.json": "4330737654a020109ff0e37b0d9afc86d0c67d09080042b28faf4d509e1164b1",
+      "telemetry-query.json": "a23bdf948bdddf6016627e6d76d9385b7286ce8c41c46643aa388100a43b3f2b",
+      "traffic-preflight.py": "0068da3cc9a6a77ae413445df479a37c9d9190149331c0553e8290b1a783032f"
+    }
+  },
+  "selection": {
+    "firstCandidatePercent": 5,
+    "rationale": "Limit first exposure while gathering version-attributed production evidence. At the observed hourly rate, 5% over 45 minutes corresponds to about 14 invocations. Actual volume can vary.",
+    "baseline": {
+      "windowUtc": [
+        "2026-11-05T10:15:12Z",
+        "2026-11-05T11:15:12Z"
+      ],
+      "v108Invocations": 364,
+      "v108ByOutcome": {
+        "success": 363,
+        "scriptThrewException": 1
+      }
+    }
+  },
+  "authority": {
+    "profile": "thoughtseed-labs",
+    "worker": "cambium-quests",
+    "account": "Resolve only from the verified Labs config pinned in the migration receipt and compare the Stage 1 config.",
+    "allowedTrafficMutationEndpoint": "https://api.cloudflare.com/client/v4/accounts/{pinnedLabsAccountId}/workers/scripts/cambium-quests/deployments",
+    "force": false
+  },
+  "preWriteGuards": [
+    "Verify this packet and linked migration and upload receipts by full SHA-256.",
+    "Recheck v108 at 100% on the exact pinned deployment, v109 latest and at 0%, v106 preserved at 0%, and both traffic versions listed deployable.",
+    "Check immutable modules, version-bound v109 map, all binding identities and values, runtime, exports, Worker settings, cron, exposure and exact production hostnames.",
+    "Read the exact Labs BRIDGE_DB on the primary and verify the post-0104 schema, ledger and zero admissions.",
+    "Confirm authenticated GraphQL returns current v108. Create at most one v109-filtered tail, verify its expiry and actual trace-v1 WebSocket readiness, and require the v108 control probe to pass before the deployment POST.",
+    "Re-read the deployment and latest version immediately before the single POST. The Cloudflare deployment endpoint provides no compare-and-swap guard in this procedure."
+  ],
+  "forward": {
+    "method": "POST",
+    "path": "/accounts/{pinnedLabsAccountId}/workers/scripts/cambium-quests/deployments",
+    "body": {
+      "strategy": "percentage",
+      "versions": [
+        {
+          "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+          "percentage": 95
+        },
+        {
+          "version_id": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+          "percentage": 5
+        }
+      ],
+      "annotations": {
+        "workers/message": "Finite Cambium pilot v109 canary 5 percent with v108 at 95 percent."
+      }
+    },
+    "maxInvocations": 1,
+    "readback": "Record the returned deployment ID. Require that ID active and exact 95/5 assignment by independent deployment GET."
+  },
+  "productionHealth": {
+    "method": "GET",
+    "timeoutSeconds": 20,
+    "redirects": false,
+    "retries": 0,
+    "expectedStatus": 200,
+    "expectedJson": {
+      "ok": true,
+      "worker": "cambium-quests"
+    },
+    "control": {
+      "count": 1,
+      "timing": "Before the traffic POST while the pinned v108 deployment serves 100%",
+      "url": "https://cambium-quests.thoughtseedlabs.workers.dev/healthz?rollout_probe=cambium-v109-canary-control"
+    },
+    "candidate": {
+      "count": 1,
+      "timing": "After the exact split is active",
+      "url": "https://cambium-quests.thoughtseedlabs.workers.dev/healthz?rollout_probe=cambium-v109-canary-candidate",
+      "headers": {
+        "Cloudflare-Workers-Version-Overrides": "cambium-quests=\"ad1871d3-eaad-4a84-bfbd-a28c2997ef39\"",
+        "X-Cambium-Canary-Probe": "cambium-v109-canary-candidate"
+      },
+      "attestation": "Require a matching GET /healthz from the v109-filtered tail on the exact production host. Match the query marker or the exact X-Cambium-Canary-Probe header if the URL is redacted. Require status 200 and outcome ok."
+    }
+  },
+  "monitoring": {
+    "windowMinutes": 45,
+    "startsAt": "Cloudflare forward deployment created_on",
+    "pollIntervalSeconds": 120,
+    "minimumObservedCandidateNonProbeProductionInvocations": 8,
+    "eligibleTailHosts": [
+      "curious.thoughtseed.space",
+      "cambium-quests.thoughtseedlabs.workers.dev"
+    ],
+    "tail": {
+      "status": "Loopback rehearsal passed. Live creation and handshake remain subject to this packet approval.",
+      "create": {
+        "method": "POST",
+        "path": "/accounts/{pinnedLabsAccountId}/workers/scripts/cambium-quests/tails",
+        "body": {
+          "filters": [
+            {
+              "scriptVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39"
+            }
+          ]
+        },
+        "maxInvocations": 1
+      },
+      "guard": "Record and validate the returned tail ID, signed wss URL and expiry. Require expiry to cover the observation window plus 120 seconds at the immediate pre-write check.",
+      "connection": {
+        "negotiatedProtocol": "trace-v1",
+        "setupFrame": {
+          "debug": false
+        },
+        "handshakeTimeoutSeconds": 10,
+        "pingIntervalSeconds": 10,
+        "followRedirects": false,
+        "maxConnections": 1,
+        "readiness": "Require WebSocket open with trace-v1 and successful setup-frame send. Connection loss ends this session."
+      },
+      "cleanup": {
+        "method": "DELETE",
+        "path": "/accounts/{pinnedLabsAccountId}/workers/scripts/cambium-quests/tails/{returnedTailId}",
+        "maxInvocations": 1,
+        "guard": "Delete only the validated ID returned by this create request. Close only this socket."
+      },
+      "uncertainty": "If creation has an uncertain reply, hold the deployment. Do not retry or delete an unattributed session.",
+      "output": "Project events in memory to version, host, marker match, HTTP status, outcome and deduplication hash. Discard the raw logs."
+    },
+    "analytics": {
+      "method": "POST",
+      "endpoint": "https://api.cloudflare.com/client/v4/graphql",
+      "query": "query WorkerVersionOutcomes($account: String!, $start: Time!, $end: Time!) {\n  viewer {\n    accounts(filter: {accountTag: $account}) {\n      workersInvocationsAdaptive(limit: 100, filter: {\n        scriptName: \"cambium-quests\", datetime_geq: $start, datetime_lt: $end\n      }) {\n        dimensions { scriptVersion status isPreview }\n        sum { requests }\n      }\n    }\n  }\n}",
+      "purpose": "Version-attributed invocation outcomes for the matching interval.",
+      "qualification": "The earlier candidate preview also appeared with isPreview=0. Use the version-filtered tail and hostname allowlist for production attribution."
+    },
+    "acceptance": "Exact active split, both health checks, exact candidate probe attestation, at least eight other observed eligible v109 production invocations, a matching version outcome in GraphQL, and no rollback trigger throughout the 45-minute window.",
+    "onPass": "Keep the approved 95/5 split. A promotion or larger allocation requires a new approval before the native workflow uses v109.",
+    "eligibleEvidence": "Count unique fetch traces from the candidate-filtered connection on the two pinned production hosts during the window. Exclude health paths, tagged probes, previews, duplicates, client disconnects and events without a successful runtime outcome and HTTP status below 500."
+  },
+  "conditionalRollback": {
+    "approved": false,
+    "method": "POST",
+    "path": "/accounts/{pinnedLabsAccountId}/workers/scripts/cambium-quests/deployments",
+    "body": {
+      "strategy": "percentage",
+      "versions": [
+        {
+          "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+          "percentage": 100
+        }
+      ],
+      "annotations": {
+        "workers/message": "Finite Cambium pilot canary rollback to v108 at 100 percent."
+      }
+    },
+    "maxInvocations": 1,
+    "triggers": [
+      "After the forward deployment, the candidate health probe fails or lacks the matching v109 tail event within 120 seconds.",
+      "Any v109 production invocation shows an HTTP 5xx or a runtime failure such as an exception, CPU or memory limit, or internal error.",
+      "Loss of required monitoring for 120 seconds, a trace contradicting the version filter, or failure to meet the observation minimum by 45 minutes."
+    ],
+    "guard": "Require the active deployment ID equals the deployment created by this canary and its allocations still match 95/5. Recheck the v108 rollback pin and shared live pins. Stop on drift.",
+    "readback": "Record the inverse deployment ID and verify that deployment is active at v108 100%. Verify v106 and v109 at 0% and the retained D1 schema, bindings, settings, exposure, and cron.",
+    "uncertainty": "Resolve the original request with management reads. Never repeat either POST based only on a timeout. A superseding deployment requires a new decision."
+  },
+  "holds": {
+    "trafficAuthorized": false,
+    "promotionAuthorized": false,
+    "uploadAuthorized": false,
+    "previewAuthorized": false,
+    "migrationAuthorized": false,
+    "hostOrNativeInstallationAuthorized": false,
+    "pilotJobAuthorized": false
+  },
+  "sources": [
+    "https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/deployments/methods/create/",
+    "https://developers.cloudflare.com/workers/versions-and-deployments/version-overrides/",
+    "https://developers.cloudflare.com/workers/wrangler/commands/workers/#tail",
+    "https://developers.cloudflare.com/analytics/graphql-api/tutorials/querying-workers-metrics/",
+    "https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/tail/methods/create/",
+    "https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/tail/methods/delete/",
+    "https://developers.cloudflare.com/workers/runtime-apis/handlers/tail/"
+  ],
+  "supersedes": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-20261105.json",
+    "sha256": "1d5eed18cd862375f00226c63daff3589eedc33aee768b41ea50e767f726c7fe",
+    "reason": "Pinned Wrangler JSON tail omits the socket-ready message and reconnects by creating additional sessions."
+  },
+  "freshPins": {
+    "checkedAt": "2026-11-05T11:32:04.843208+00:00",
+    "readbackPath": ".local/finite-ssm-stage2-v109-traffic-readiness-ad1871d3/result.json",
+    "readbackSha256": "9b4675dfc51b8243a76f801b1a5e6a7b3a1ffd97609eb652885a030a103c4394",
+    "workerAndD1Match": true
+  },
+  "localRehearsal": {
+    "scope": "Loopback WebSocket and synthetic event and rollback fixtures",
+    "testsPassed": 7,
+    "testsFailed": 0,
+    "nodeVersion": "26.10.0",
+    "wsVersion": "8.21.0",
+    "wsPackageCodeFingerprint": "cb7c23a70ae5d9f3fadd24e4a1590d2f7fa397c4019b9955bcfa5ca0d35f1837",
+    "wranglerCliSha256": "47fe4b6ddacd2a5861bd5f6957217718a48b106f208b2dc21546bbee51a0cb8b",
+    "evidence": [
+      {
+        "path": ".local/finite-ssm-stage2-v109-traffic-readiness-ad1871d3/monitor-test.log",
+        "sha256": "9db4f0fa2fbfb3199af85df6ed0775f8fd13a1bd08501997c6119030794d45ad"
+      },
+      {
+        "path": ".local/finite-ssm-stage2-v109-traffic-readiness-ad1871d3/monitor.mjs",
+        "sha256": "f5d45d9d1cede1033e87c98508ce602fbe2aa1904967e96d8bd2900cfc0ab600"
+      },
+      {
+        "path": ".local/finite-ssm-stage2-v109-traffic-readiness-ad1871d3/monitor.test.mjs",
+        "sha256": "18a74d52ab6374f1aa329afa11c02e0721e6ec0fed02eb802538f14dbe3128b0"
+      },
+      {
+        "path": ".local/finite-ssm-stage2-v109-traffic-readiness-ad1871d3/recheck.py",
+        "sha256": "6ee23bbe0b64f3b5e06c4cf2cf51b099557bd19250909fb943fb1a7501acfe6d"
+      },
+      {
+        "path": ".local/finite-ssm-stage2-v109-traffic-readiness-ad1871d3/result.json",
+        "sha256": "9b4675dfc51b8243a76f801b1a5e6a7b3a1ffd97609eb652885a030a103c4394"
+      }
+    ],
+    "cloudflareTailOpened": false
+  }
+}

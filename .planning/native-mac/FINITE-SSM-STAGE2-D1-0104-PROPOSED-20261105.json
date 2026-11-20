@@ -1,0 +1,159 @@
+{
+  "schema": "cambium.finite-ssm-d1-0104-proposal.v1",
+  "status": "ready-for-separate-0104-only-approval",
+  "approval": {
+    "granted": false,
+    "scope": "One application of the exact 0104 SQL to Labs cambium-bridge"
+  },
+  "preflightReceipt": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE2-D1-PREFLIGHT-RECEIPT-20261105.json",
+    "sha256": "c3bbfb841ffb2383b9f44d2ab3ad4ff8a5a7acbc56ceaee8fe2b8b857b67a578"
+  },
+  "target": {
+    "profile": "thoughtseed-labs",
+    "database": "cambium-bridge",
+    "binding": "BRIDGE_DB",
+    "databaseId": "c0aba88a-5c83-4481-b625-50356d8c98e8"
+  },
+  "migration": {
+    "sourceCommit": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+    "path": "workers/quests/migrations/0104_native_direction_admissions.sql",
+    "sha256": "efbb30f1680d442d8ac916d77a780671bba26d396d74e0b18bb184335cd594a3",
+    "configPath": "workers/quests/wrangler.labs.jsonc",
+    "configSha256": "f2afa6d8cddfe9c6b59d447a2288ca7fd4f19adda3d374dd6a19af72e95b058c"
+  },
+  "recoveryExport": {
+    "format": "D1 SQL, schema and data, all tables",
+    "bytes": 289888938,
+    "sha256": "c9e179394cad87cac675c56348f53c097d51c51535ffb5baad506f9058998065",
+    "downloadContentLengthMatched": true,
+    "downloadedAt": "2026-11-05T10:59:53.324937+00:00",
+    "localMode": "0o600",
+    "relativePrivatePath": ".local/finite-ssm-stage2-d1-preflight-ad1871d3/cambium-bridge.recovery.private.sql",
+    "localSha256Rechecked": true,
+    "bookmarkPrivateArtifact": "export-bookmark.private.json",
+    "source": "One Cloudflare D1 export in d1 format, polled by the original bookmark"
+  },
+  "workerPins": {
+    "activeDeployment": {
+      "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+      "traffic": [
+        {
+          "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+          "percentage": 100
+        }
+      ],
+      "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+      "latestNumber": 109
+    },
+    "servingV108": {
+      "id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+      "number": 108,
+      "trafficPercent": 100,
+      "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+      "moduleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a"
+    },
+    "latestV109": {
+      "id": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+      "trafficPercent": 0,
+      "bindingCount": 56,
+      "moduleSha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86",
+      "mapSha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+      "contentETag": "b77ef5fdbefea8a3a946e06b18d97e4f5b21fcab725dc690d16e640bab20b986"
+    },
+    "preservedV106": {
+      "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+      "number": 106,
+      "trafficPercent": 0,
+      "bindingCount": 56,
+      "moduleSha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298"
+    }
+  },
+  "preApply": {
+    "d1SchemaAndRelevantLedgerSha256": "645aa369c8af0d0412f4930d05afba8849766a91781ad84ca6be89888ec7e380",
+    "freshGuards": [
+      "Recheck the serving deployment, latest version, immutable artifacts, settings and exact BRIDGE_DB UUID.",
+      "Read the D1 primary and require the pinned schema and relevant ledger. The 0104 table, three triggers and ledger entry must still be absent.",
+      "Verify all 15 0099 and 0103 objects and all five 0105 guards. Rehash the private export and verify its recorded bookmark and permissions.",
+      "Verify the source commit, SQL bytes, Labs config bytes, named profile and Wrangler toolchain. Stop before invocation on any pin drift."
+    ]
+  },
+  "plannedApply": {
+    "workingDirectory": "The isolated source checkout at the pinned migration source commit",
+    "wranglerVersion": "4.156.1",
+    "wranglerCliSha256": "47fe4b6ddacd2a5861bd5f6957217718a48b106f208b2dc21546bbee51a0cb8b",
+    "command": [
+      "env",
+      "-u",
+      "CLOUDFLARE_API_TOKEN",
+      "-u",
+      "CLOUDFLARE_API_KEY",
+      "-u",
+      "CLOUDFLARE_EMAIL",
+      "-u",
+      "CLOUDFLARE_ACCOUNT_ID",
+      "WRANGLER_SEND_METRICS=false",
+      "CI=1",
+      "wrangler",
+      "d1",
+      "execute",
+      "BRIDGE_DB",
+      "--remote",
+      "--file",
+      "workers/quests/migrations/0104_native_direction_admissions.sql",
+      "--config",
+      "workers/quests/wrangler.labs.jsonc",
+      "--profile",
+      "thoughtseed-labs",
+      "--yes",
+      "--json"
+    ],
+    "invoked": false,
+    "mode": "Direct single-file SQL import. SQLite schema readback establishes application. Keep the migration ledger as observed.",
+    "availability": "Cloudflare D1 pauses database requests while SQL import runs.",
+    "documentation": "https://developers.cloudflare.com/api/resources/d1/subresources/database/methods/import/",
+    "skipMigrations": [
+      "0099_native_launch_requests.sql",
+      "0103_shared_directions.sql"
+    ],
+    "preserveMigration": "0105_native_direction_admission_guards.sql",
+    "seedAdmissions": false
+  },
+  "postApply": {
+    "expectedNewObjects": [
+      {
+        "name": "native_direction_admissions",
+        "type": "table",
+        "normalizedSqlSha256": "6be78f2ff01971c66bb781f581442c641b73c1981240e0a4cf2ce80ba2cec2fe"
+      },
+      {
+        "name": "native_direction_admission_apply",
+        "type": "trigger",
+        "normalizedSqlSha256": "5e48b1bf7c78c7ffbee68f1b5cf4632878f5022806bf2692772d52106db9cbb3"
+      },
+      {
+        "name": "native_direction_admissions_immutable",
+        "type": "trigger",
+        "normalizedSqlSha256": "d29b24f7b8a446c313ad38eb7d470282042e4b0eb8dd17fc8285b0d15637ece1"
+      },
+      {
+        "name": "native_direction_admissions_retained",
+        "type": "trigger",
+        "normalizedSqlSha256": "7cca5c49792f3d7aacf84cd032babc27c373185962c48a5fafabfca59e607122"
+      }
+    ],
+    "expectedAdmissionRows": 0,
+    "schemaComparison": "Compare SQL definitions by object identity. Ignore automatic SQLite indexes with null SQL. Require all existing definitions and migration history to match the pre-apply readback.",
+    "workerTraffic": "v108 remains at 100%. v106 and v109 remain at 0%.",
+    "receipt": "Record the exact SQL hash, invocation exit and provider bookmark if returned, plus primary schema readback and Worker pins.",
+    "uncertainReply": "Read the original outcome from schema and provider evidence. Hold on partial results or drift and preserve the recovery export. A readback failure grants no retry.",
+    "recovery": "Retain the additive schema and all durable proof. A restore requires separate approval."
+  },
+  "holds": {
+    "trafficAuthorized": false,
+    "hostOrNativeInstallationAuthorized": false,
+    "jobAuthorized": false,
+    "runnerContacted": false,
+    "previewAuthorized": false
+  }
+}

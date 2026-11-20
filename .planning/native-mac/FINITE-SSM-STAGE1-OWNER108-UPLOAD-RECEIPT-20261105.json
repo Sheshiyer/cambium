@@ -1,0 +1,180 @@
+{
+  "schema": "cambium.finite-ssm-owner108-stage1-receipt.v1",
+  "status": "uploaded-zero-traffic-immutable-readback-verified",
+  "approvedPacket": {
+    "path": ".planning/native-mac/FINITE-SSM-STAGE1-OWNER108-PROPOSED-20261105.json",
+    "sha256": "5ee26b5f6cf3d787e82affe50b2f3360e1f75f2c8f30d2b2e1a872ee5e3d2e80"
+  },
+  "authorizationScope": "Stage 1 single immutable Worker upload at 0% and management readback",
+  "uploadInvocations": 1,
+  "previewInvoked": false,
+  "trafficChangedByOperator": false,
+  "migrationPerformed": false,
+  "runnerContacted": false,
+  "installationPerformed": false,
+  "jobInvoked": false,
+  "laterStagesAuthorized": false,
+  "managementHttpMethods": [
+    "GET"
+  ],
+  "source": {
+    "commit": "6b6bcd121d1dd22412a78a683a0e6f73e6c4d82b",
+    "tree": "6ed27588e920e3d11d9cbc11332b09fcc3d64b09"
+  },
+  "preflightStartedAt": "2026-11-05T10:21:24.540519+00:00",
+  "preflightBefore": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "latestNumber": 108
+  },
+  "preflightAfter": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "latestNumber": 108
+  },
+  "preflightCheckedAt": "2026-11-05T10:21:30.518358+00:00",
+  "preflightOwnerPinsMatch": true,
+  "invokedAt": "2026-11-05T10:21:30.519465+00:00",
+  "uploadExitCode": 0,
+  "uploadFinishedAt": "2026-11-05T10:21:43.281861+00:00",
+  "identitySource": "Wrangler upload response",
+  "candidateVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+  "postUploadBefore": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "candidateNumber": 109,
+  "candidateTrafficPercent": 0,
+  "candidateModule": {
+    "name": "cortex-services.js",
+    "bytes": 2787571,
+    "sha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86"
+  },
+  "candidateETag": "b77ef5fdbefea8a3a946e06b18d97e4f5b21fcab725dc690d16e640bab20b986",
+  "candidateBindingCount": 56,
+  "retainedBindingCount": 54,
+  "retainedBindingFingerprint": "85e74159af796db0ffb2ccfafa031f3c30f347eacebc0a24f9c0b9abfe05c40e",
+  "addedBindings": [
+    {
+      "name": "CAMBIUM_PATCH_POLICY_JSON",
+      "type": "plain_text",
+      "valueSha256": "cd706bf060c167fb2adb4f6e9e7c8ce88823f25726326efe34813879d069872b"
+    },
+    {
+      "name": "CAMBIUM_PATCH_RUNNER_MEMBER_ID",
+      "type": "plain_text",
+      "valueSha256": "3bba479c913311b47c1d871bcbc0a1a88662de1205f9c42b101c4500045067ae"
+    }
+  ],
+  "candidateBindingFingerprint": "60465ba42409ab96f5846216eb55062109a3f666aba6c6c7dd2425eedad4c5ba",
+  "runtimeAndHandlersMatchV108": true,
+  "postUploadBaselineMatches": true,
+  "preservedV106": {
+    "id": "5a9c7565-08c6-4821-b955-e05c0352bacf",
+    "number": 106,
+    "trafficPercent": 0,
+    "bindingCount": 56,
+    "moduleSha256": "bf6780959d3fa36a462f8dfcd910e914ab21ef8ab0435ddcbaa473c35ca98298"
+  },
+  "servingV108": {
+    "id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+    "number": 108,
+    "trafficPercent": 100,
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "moduleSha256": "20428486b7dc2ab9a21074a8b6754d7e4950af909cc0470aa28d13b2e4ecaf3a"
+  },
+  "mapPointerBefore": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "mapPointerAfter": {
+    "deploymentId": "1b29cd99-5c0c-42d3-af4c-8487d11ec62e",
+    "traffic": [
+      {
+        "version_id": "8073b294-a75f-45b2-9e7b-7ac6380cf46a",
+        "percentage": 100
+      }
+    ],
+    "latestVersion": "ad1871d3-eaad-4a84-bfbd-a28c2997ef39",
+    "latestNumber": 109
+  },
+  "contentParts": {
+    "cortex-services.js": {
+      "bytes": 2787571,
+      "sha256": "1f63cba54021653115262f8abb2fa0696f9ba7f3ad530be6b02d2d23db1a4d86"
+    },
+    "cortex-services.js.map": {
+      "bytes": 4278872,
+      "sha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3"
+    }
+  },
+  "sourceMap": {
+    "bytes": 4278872,
+    "sha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+    "expectedBytes": 4278872,
+    "expectedSha256": "5c0843065fc259224aa07ec241af2b15605231af2563100c67783e205e2ba4f3",
+    "buildSha256": "3bcfc15cc668500d66b10292b943bf3e1daa4974a6ef7b570a61d6397a2dc126",
+    "wranglerPreparedSha256": "f8813a92b9143ce942c8f4a75d3d73ee40b45eeef386406465428c5c6e2f5a69",
+    "contentETagMatchesCandidate": true,
+    "keysExact": true,
+    "sources": 113,
+    "orderedSourcesExact": true,
+    "embeddedContentsExact": true,
+    "namesExact": true,
+    "mappingsExact": true,
+    "decodedMapExact": true,
+    "predictedReadbackBytesExact": true
+  },
+  "checkedAt": "2026-11-05T10:21:55.269657+00:00",
+  "toolchain": {
+    "wranglerVersion": "4.156.1",
+    "cliSha256": "47fe4b6ddacd2a5861bd5f6957217718a48b106f208b2dc21546bbee51a0cb8b",
+    "uploadConfigSha256": "a3732fe46adf008383eadc87434e6b2b4e7781957b4ff47ade2a8381aa20e7cf",
+    "warning": "Wrangler flags unsafe.bindings as experimental. All 54 inherited bindings matched v108."
+  },
+  "readbackMethod": {
+    "codeAndBindings": "Cloudflare management GETs scoped to the candidate version ID",
+    "map": "Management content/v2 multipart bracketed by matching latest and serving pointers and matched to the candidate ETag",
+    "baseline": "v108 and v106 immutable modules and resources, along with serving deployment, Worker settings, schedules and exposure checked before and after",
+    "qualification": "Management readback only. Preview and runtime acceptance remain held."
+  },
+  "privateEvidenceSha256": {
+    "candidate-content.private.multipart": "42b191f40cea9a56f3d8c37628571f5b072b0ffc603093ab9587cd36b81e13fb",
+    "candidate-id.json": "ffe6a4061e17f694315671c2411fe3147e45bff7d661402b1a19870dd012a821",
+    "candidate-immutable.private.json": "8546b8cb533819d57f6c5a6ca85b4c5e89161af6ded23f4bf528cb24bdff39ff",
+    "candidate-version.private.json": "b818aad80d267a4324cdce5b41cc47212d4d621521fe6ee81a9cca20c3cb7ffc",
+    "preflight.json": "4674e4c592d5ff39c2086675999d1abfdfdb16e0fd9f7962117042845432ad81",
+    "result.json": "198164dd5ce1a91dd6ec8a466ade50d3dd520cf4d00e6d315d13c8fbee8cd692",
+    "stage1.py": "9b6d950eb8cc3728acd320d4b4d9bc258e62fe87f3c658b30c68f628a4311b8f",
+    "upload-exit.json": "2e183ae1ca1b4e8b9e0c672ad8796c903561bb7da776b2e25fe1771e841875e5",
+    "upload-invoked.json": "6d6ad953093ebe6b6b3776499f5c9bedaf6d262676dc4ce7c13b2edf1d66ffcc",
+    "upload-stderr.private.log": "b579c001143cbfbcc5e558f75017a4879e0189abb709dc88f4e10997365d1729",
+    "upload-stdout.private.log": "45f49687124b049c57641281aea046ba37f15b85279947868ba52df65a4a0f95"
+  }
+}

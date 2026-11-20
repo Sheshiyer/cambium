@@ -11,6 +11,77 @@ ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
 
+## 2026-11-05 — Hermes staging inputs verified
+
+Read .planning/native-mac/FINITE-SSM-HERMES-STAGING-ARTIFACT-PREFLIGHT-20261105.json. The eight-file Hermes archive matches the pinned source blobs and v109 policy. Registry metadata verifies the pinned Linux amd64 Node image. The runner was untouched. Traffic approval remains the next gate. Staging, installation and the pilot job remain held.
+
+## 2026-11-05 — v109 deployment sequence rehearsed offline
+
+Read .planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-REHEARSAL-20261105.json. Ten simulated cases verified sequencing, single invocation limits, lost reply handling, monitoring cutoff and rollback ownership checks. Read-only Worker and D1 pins match. The approval packet b12214d9 is unchanged. Traffic, installation and the job remain held.
+
+## 2026-11-05 — v109 monitoring guard rehearsed
+
+Read .planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-V2-20261105.json. The revised packet keeps the 5% v109 canary and v108 rollback. It uses one Tail API session with a verified WebSocket handshake before deployment. Seven loopback and fixture checks passed. Live Worker and D1 pins match. Traffic, installation and the job remain held.
+
+## 2026-11-05 — v109 traffic decision prepared
+
+Read `.planning/native-mac/FINITE-SSM-STAGE2-V109-TRAFFIC-PROPOSED-20261105.json`. Fresh readback matched the immutable Worker and D1 pins. v108 serves 100%, and v106 and v109 are at 0%. The proposed next stage is 5% v109 for a 45-minute supervised observation window with a guarded inverse to v108 at 100%. The split, installation and the job remain held.
+
+## 2026-11-05 — 0104 schema readback verified
+
+Read `.planning/native-mac/FINITE-SSM-STAGE2-D1-0104-APPLY-RECEIPT-20261105.json`. Packet 682543ea was consumed once on Labs cambium-bridge. The primary shows exactly the approved table and three triggers, zero admissions, and all 121 prior schema definitions and the migration ledger intact. v108 serves 100%, and v106 and v109 are at 0%. The runner was untouched. Traffic allocation, installation and the job remain held.
+
+## 2026-11-05 — D1 recovery export verified, 0104 held
+
+Read `.planning/native-mac/FINITE-SSM-STAGE2-D1-0104-PROPOSED-20261105.json`. The primary D1 schema and ledger show 0104 absent. All 15 prerequisite objects and five 0105 guards match. One full private recovery export completed and its SHA-256 was verified. The exact 0104 packet awaits separate approval. v108 serves 100%, and v106 and v109 are at 0%. The runner was untouched. Traffic, installation and the job remain held.
+
+## 2026-11-05 — v109 health preview verified
+
+Read `.planning/native-mac/FINITE-SSM-STAGE1-V109-PREVIEW-RECEIPT-20261105.json`. One approved GET /healthz on v109 (ad1871d3-eaad-4a84-bfbd-a28c2997ef39) returned HTTP 200 and the expected health payload. The artifact and serving pins matched. v108 serves 100%, and v106 and v109 are at 0%. The runner was untouched. The next decision is D1 preflight and private recovery export. Migration, traffic allocation, installation and the pilot job remain held.
+
+## 2026-11-05 — Stage 1 immutable readback verified
+
+Read `.planning/native-mac/FINITE-SSM-STAGE1-OWNER108-UPLOAD-RECEIPT-20261105.json`. Packet 5ee26b5f was consumed once. Cloudflare v109 (ad1871d3-eaad-4a84-bfbd-a28c2997ef39) is at 0% traffic with the exact 56 bindings, module and returned source map. v108 still serves 100%, and v106 remains intact at 0%. The runner was untouched. Preview, migration, traffic allocation, installation and the pilot job remain held.
+
+## 2026-11-05 — v108 source verified, revised upload held
+
+Read .planning/native-mac/FINITE-SSM-STAGE1-OWNER108-PROPOSED-20261105.json. The isolated source at 6b6bcd12 resolves five overlaps and preserves the Fitcheck and finite pilot paths. Focused tests, repository tests, Worker typecheck and local IAB captures pass. v108 is the pinned serving owner at 100%. Existing v106 is preserved at 0%. The next approval covers one new 56-binding Worker version at 0% and immutable readback. The runner and the later rollout gates are held.
+
+
+## 2026-11-05 — Stage 1 held on owner v108 drift
+
+Read `.planning/native-mac/FINITE-SSM-STAGE1-OWNER108-READBACK-20261105.json` and `.planning/native-mac/FINITE-SSM-OWNER108-SOURCE-RECONCILIATION-20261105.md`.
+v108 is latest and serves 100%. Existing v106 retains exact code and 56 bindings
+at 0%. ETag-bound module proof recovers the single v108 Gate change over v107.
+The 107 recovered sources match the owner checkout. Five overlap groups are
+mapped for a proposed isolated reconciliation. The map attestation and preview
+remain held. The original candidate, runner and evidence are preserved.
+
+
+## 2026-11-05 — Stage 1 held on owner v107 drift
+
+Read `.planning/native-mac/FINITE-SSM-STAGE1-OWNER-DRIFT-20261105.json`.
+Fresh readback confirms v107 at 100% and latest uploaded. Existing v106 is
+unchanged at 0% with all 56 bindings. The v106 attestation approval is recorded
+and held under the live pin check. Preview remains unperformed. Read-only
+comparison identifies the four-file Fitcheck scope change and four merge
+conflicts across handler and entry point. The candidate, runner and original
+evidence are preserved. ISC-3683 through ISC-3687 remain open.
+
+
+## 2026-11-04 — Stage1 source-map diagnosis; resolution awaiting approval
+
+Read `.planning/native-mac/FINITE-SSM-SOURCEMAP-DIAGNOSIS-20261104.md` and its JSON.
+Expected Wrangler 4.156.1 path normalization; all 111 pinned source contents and
+156,755 mapped segments verified. Exact reconstruction matches the returned
+b9c1c383 map. Fresh immutable 5a9c7565/v106 is at 0%; serving e5bfbc64/v105 remains at 100%.
+All 56 bindings/code/settings match. Version-specific attestation is proposed,
+not approved; source-map hold remains active. Original approved packet and held
+receipt are unchanged. Preserve candidate and runner; no preview, reupload,
+migration, traffic change, installation or job. Follow the matching structured
+native_operational_loop continuation; ISC-3683 through ISC-3687 remain open.
+
+
 ## 2026-11-04 — Stage1 uploaded once; stopped on source-map readback drift
 
 - Immutable candidate5a9c7565-08c6-4821-b955-e05c0352bacf, version106, at0%.
