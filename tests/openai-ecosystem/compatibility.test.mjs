@@ -1027,6 +1027,8 @@ test('compatibility manifest digest-binds the exact Cortex and Quests Gate runti
     'workers/cortex-mcp/package.json',
     'workers/cortex-mcp/package-lock.json',
     'workers/quests/src/index.ts',
+  'workers/quests/src/cortex-services.ts',
+  'workers/quests/src/cortex-provenance-reader.ts',
     'workers/quests/src/handler.ts',
     'workers/quests/src/mcp-gate-action.ts',
   ]

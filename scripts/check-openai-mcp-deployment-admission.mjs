@@ -43,6 +43,7 @@ const SNAPSHOT_KEYS = new Set([
   'rollbackReferenceDigest',
 ])
 const VAR_KEYS = new Set([
+  'MCP_LEGACY_PATH',
   'MCP_AUTH_MODE',
   'MCP_RESOURCE_URL',
   'MCP_AUTHORIZATION_SERVER',
@@ -232,8 +233,9 @@ export function validateSnapshot(snapshot, policy, options = {}) {
 
   if (closedKeys(snapshot.vars, VAR_KEYS, 'snapshot.vars', errors)) {
     for (const key of VAR_KEYS) {
-      if (!Object.prototype.hasOwnProperty.call(snapshot.vars, key)) errors.push(`snapshot.vars.${key}:required`)
+      if (key !== 'MCP_LEGACY_PATH' && !Object.prototype.hasOwnProperty.call(snapshot.vars, key)) errors.push(`snapshot.vars.${key}:required`)
     }
+    if ('MCP_LEGACY_PATH' in snapshot.vars && snapshot.vars.MCP_LEGACY_PATH !== '/v1/mcp') errors.push('snapshot.vars.MCP_LEGACY_PATH:exact_legacy_alias_required')
     if (snapshot.vars.MCP_AUTH_MODE !== policy.auth.mode) errors.push('snapshot.vars.MCP_AUTH_MODE:mismatch')
     if (snapshot.vars.MCP_RESOURCE_URL !== policy.endpoint) errors.push('snapshot.vars.MCP_RESOURCE_URL:mismatch')
     exactHttpsIdentifier(snapshot.vars.MCP_AUTHORIZATION_SERVER, 'snapshot.vars.MCP_AUTHORIZATION_SERVER', errors)

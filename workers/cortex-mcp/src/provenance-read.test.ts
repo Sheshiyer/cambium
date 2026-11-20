@@ -316,3 +316,14 @@ test("provenance read hides upstream failures and malformed JSON", async () => {
     (error: any) => error?.code === "malformed_source"
   );
 });
+
+test('live reader observations are checked after the response, without admitting future sources', async (t) => {
+  let clock = NOW;
+  t.mock.method(Date, 'now', () => clock);
+  const payload = await sourceRecord({ observed_at: new Date(NOW + 100).toISOString(), stale_after: new Date(NOW + 60_000).toISOString() });
+  const reader: ProvenanceReaderBinding = { async fetch() { clock = NOW + 200; return Response.json(payload); } };
+  const result = await readInfiniteGameNode(reader, input);
+  assert.equal(result.freshness.status, 'fresh');
+  const future = { ...payload, observed_at: new Date(NOW + 1000).toISOString() };
+  await assert.rejects(readInfiniteGameNode(bindingFor(future), input), (e: any) => e?.code === 'future_source');
+});

@@ -2872,3 +2872,8 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - Six actual local IAB JPEG captures bind the frozen Field Atlas PAGE. Local/synthetic evidence and real Worker entrypoint auth tests remain distinct from production acceptance.
 - The value-free 47-binding overlay is adopted for this exact one-off source candidate; original canonical config and primary dirty work remain intact. No upload or traffic assignment occurred.
 - Whole-suite inherited membership/planning/workbench and privacy/history holds remain explicit. See docs/plans/2026-11-03-live-founder-release.md; no full-release-green claim or automatic main merge.
+
+
+### 2026-11-04 approved Fabric/Gate scoped follow-up
+
+Cortex Gate scope metadata repair deployed5418ded4; all24bindings/runtime and exact module readback pass.40focused checks and observed Anthropic cross-family review pass. Issuer, enforcement and bearer route unchanged. Rollbackf8d42e49 retained. No Work execution, leases, subscriptions or grants.

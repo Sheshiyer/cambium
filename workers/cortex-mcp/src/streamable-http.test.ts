@@ -778,8 +778,10 @@ test("OAuth discovery exposes compile, review, status, and execute with distinct
   assert.equal(execute.annotations.readOnlyHint, false);
   assert.equal(execute.annotations.destructiveHint, true);
   assert.equal(execute.annotations.idempotentHint, true);
-  assert.deepEqual(execute.securitySchemes, [{ type: "oauth2", scopes: ["cortex:read", ACTION_SCOPE] }]);
-  assert.deepEqual(execute._meta.securitySchemes, execute.securitySchemes);
+  for (const tool of [compile, requestApproval, approvalStatus, execute]) {
+    assert.deepEqual(tool.securitySchemes, [{ type: "oauth2", scopes: ["cortex:read", ACTION_SCOPE] }]);
+    assert.deepEqual(tool._meta.securitySchemes, tool.securitySchemes);
+  }
   assert.equal(execute.inputSchema.additionalProperties, false);
   assert.equal(execute.inputSchema.properties.actor, undefined);
   assert.equal(execute.inputSchema.properties.argument_digest, undefined);

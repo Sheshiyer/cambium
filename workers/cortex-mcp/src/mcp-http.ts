@@ -50,6 +50,7 @@ export interface CortexHttpEnv extends AuthEnv {
   MCP_PLUGIN_CLIENT_ID?: string;
   MCP_FOUNDER_SUBJECTS?: string;
   MCP_PROFILE_ID_KEY?: string;
+  MCP_LEGACY_PATH?: "/v1/mcp";
   MCP_GATE_ADAPTER?: GateActionBinding;
   MCP_GATE_ADAPTER_TOKEN?: string;
   MCP_PROVENANCE_READER?: ProvenanceReaderBinding;
@@ -346,12 +347,11 @@ function profileTool(config: Extract<AuthConfig, { mode: "oauth" }>) {
 }
 
 function actionTools(config: Extract<AuthConfig, { mode: "oauth" }>) {
-  const readSchemes = [{ type: "oauth2" as const, scopes: config.requiredScopes }];
   const actionSchemes = [{ type: "oauth2" as const, scopes: config.supportedScopes }];
   const specs = [
-    ["compile_action_intent", "Compile action intent", "Compile one founder-bound action without executing it.", READ_ANNOTATIONS, readSchemes, "founder-oauth-action-scope", "replay-stable", "none:compiled-intent", ACTION_INPUT],
-    ["request_action_approval", "Request action approval", "Submit one compiled action for founder review.", { readOnlyHint: false, destructiveHint: false, openWorldHint: false }, readSchemes, "founder-review-request", "exact-replay", "none:review-request", ACTION_INPUT],
-    ["get_action_approval_status", "Read action approval", "Read the founder review state for one compiled action.", READ_ANNOTATIONS, readSchemes, "founder-review-status", "status-replay", "none:status", ACTION_INPUT],
+    ["compile_action_intent", "Compile action intent", "Compile one founder-bound action without executing it.", READ_ANNOTATIONS, actionSchemes, "founder-oauth-action-scope", "replay-stable", "none:compiled-intent", ACTION_INPUT],
+    ["request_action_approval", "Request action approval", "Submit one compiled action for founder review.", { readOnlyHint: false, destructiveHint: false, openWorldHint: false }, actionSchemes, "founder-review-request", "exact-replay", "none:review-request", ACTION_INPUT],
+    ["get_action_approval_status", "Read action approval", "Read the founder review state for one compiled action.", READ_ANNOTATIONS, actionSchemes, "founder-review-status", "status-replay", "none:status", ACTION_INPUT],
     ["execute_approved_action", "Execute approved action", "Execute one founder-approved action through Gate readback.", { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false }, actionSchemes, "exact-founder-gate-approval", "replay-safe", "required:authoritative-readback", EXECUTE_INPUT],
   ] as const;
   return specs.map(([name, title, description, annotations, schemes, approval, idempotency, receipt, inputSchema]) => ({
@@ -573,6 +573,16 @@ export async function handleCortexFetch(request: Request, env: CortexHttpEnv, de
       return jsonResponse(protectedResourceMetadata(config), 200);
     }
     return new Response("Not Found", { status: 404 });
+  }
+
+  // Preserve the installed Hermes contract on one separate, exact path.
+  // Resolve OAuth configuration first: a broken OAuth owner must never fall
+  // back to a shared credential on the OAuth resource itself.
+  if (config.mode === "oauth" && env.MCP_LEGACY_PATH === "/v1/mcp" && url.pathname === "/v1/mcp"
+    && url.origin === new URL(config.resource).origin
+    && `${url.origin}${url.pathname}` !== config.resource) {
+    if (!env.CONTEXT_ROUTE_TOKEN) return jsonResponse({ error: "Legacy MCP authentication is not configured" }, 503);
+    config = { mode: "legacy", routeToken: env.CONTEXT_ROUTE_TOKEN };
   }
 
   const mcpPath = config.mode === "oauth"

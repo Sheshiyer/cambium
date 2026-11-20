@@ -93,12 +93,12 @@
     {
       "path": "scripts/probe-openai-mcp-readiness.mjs",
       "role": "credential-free-live-mcp-readiness-probe",
-      "digest": "sha256:d4f81f016116ee70337f73c7ffb215b3f75615bf824e23b261d9221732ca65a0"
+      "digest": "sha256:fa682255fe110a3801a64c7f34bafa68620aac89d25447b337d829f2c192cbb3"
     },
     {
       "path": "scripts/check-openai-mcp-deployment-admission.mjs",
       "role": "redacted-deployment-snapshot-admission-checker",
-      "digest": "sha256:67fd2252a6638794623ea3ff5dc0186208d7e6f901047f725ecd935f0f3aa0ae"
+      "digest": "sha256:01a80967e312e88afbcbfb95e1de20f8579c5769f829fdde8ff2c8a20445d64b"
     },
     {
       "path": "workers/cortex-mcp/src/index.ts",
@@ -108,7 +108,7 @@
     {
       "path": "workers/cortex-mcp/src/mcp-http.ts",
       "role": "mcp-streamable-http-transport",
-      "digest": "sha256:ed4f2414b4b39984834f57ba919860fa4f104f43f6c741720a65e685cde47db9"
+      "digest": "sha256:bac66e19d13353d8f7fa5d1f252fd3a6a29308d010c145ca23bf8e53f2bad7bf"
     },
     {
       "path": "workers/cortex-mcp/src/openai-auth.ts",
@@ -123,7 +123,7 @@
     {
       "path": "workers/cortex-mcp/src/provenance-read.ts",
       "role": "mcp-provenance-envelope-validator",
-      "digest": "sha256:06f81db0ce74b97251dd5c48f7d23fc710bd2ad3e53b5a6f4e42fa18b135a2b4"
+      "digest": "sha256:92e47f9b47e639e8f4622d1756898d4e73c604b3f67e79d9e535a2e0a9ba8375"
     },
     {
       "path": "workers/cortex-mcp/src/gate-action.ts",
@@ -143,17 +143,27 @@
     {
       "path": "workers/quests/src/index.ts",
       "role": "gate-service-binding-runtime-glue",
-      "digest": "sha256:5ed07ec33431f5d3e1e9a934a94612658dc8185a35f32827e8457b1eed5f1e70"
+      "digest": "sha256:1035f83cc9c5bcf0d9dc5f2f5df5b7dbdb99afbfc1eec05388ec5f32b01cedaa"
     },
     {
       "path": "workers/quests/src/handler.ts",
       "role": "founder-approval-and-goal-graph-execution-routes",
-      "digest": "sha256:8be86bbb4e3042034e906bdc5ab81ba114d4440523828d390b4e41af60454e74"
+      "digest": "sha256:bb074e818109f88d662cb2980306ee9f5f86bb6eebfb44db09d6e10a1efa79c9"
     },
     {
       "path": "workers/quests/src/mcp-gate-action.ts",
       "role": "immutable-mcp-approval-and-receipt-core",
       "digest": "sha256:7db5c8ecd5bafcdc4dce97096ce8f625639b7e686c1aa24371375d4ea865c4da"
+    },
+    {
+      "path": "workers/quests/src/cortex-services.ts",
+      "role": "private-provenance-service-entrypoint",
+      "digest": "sha256:804d1d666e4a88430facf6e8a85da2e16dd3eeca2b136bb4c8d31e4b5e6e4ad1"
+    },
+    {
+      "path": "workers/quests/src/cortex-provenance-reader.ts",
+      "role": "bounded-authoritative-d1-provenance-reader",
+      "digest": "sha256:b78ce97a2649298c94b833e3c89d6a801cd50979b082fdc6b5527e5f883cf787"
     }
   ],
   "payload_digest": {

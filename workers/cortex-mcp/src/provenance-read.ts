@@ -234,7 +234,7 @@ function validateOmissions(value: unknown): Array<{ field: string; reason: strin
 export async function readInfiniteGameNode(
   binding: ProvenanceReaderBinding,
   rawInput: InfiniteGameReadInput,
-  nowEpochMs = Date.now(),
+  nowEpochMs?: number,
   readerTimeoutMs = DEFAULT_READER_TIMEOUT_MS
 ) {
   if (!binding || typeof binding.fetch !== "function") fail("read_plane_unavailable", "provenance reader binding is unavailable");
@@ -305,6 +305,9 @@ export async function readInfiniteGameNode(
     fail("graph_version_mismatch", "source graph version does not match the requested version");
   }
 
+  // A live reader observes its source during the awaited request. Compare its
+  // observation with validation time, not the earlier request-start time.
+  nowEpochMs ??= Date.now();
   const observedAt = parseTimestamp(source.observed_at, "observed_at");
   const staleAfter = parseTimestamp(source.stale_after, "stale_after");
   if (observedAt > nowEpochMs) fail("future_source", "source observation is in the future");
