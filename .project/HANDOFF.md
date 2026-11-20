@@ -2952,3 +2952,29 @@ Workflow source is removed in this PR. Explicit local release verification and s
 - The value-free 47-binding overlay is adopted for this exact one-off source candidate; original canonical config and primary dirty work remain intact. No upload or traffic assignment occurred.
 - Whole-suite inherited membership/planning/workbench and privacy/history holds remain explicit. See docs/plans/2026-11-03-live-founder-release.md; no full-release-green claim or automatic main merge.
 
+
+
+### 2026-11-04 approved IVerif source reconciliation
+
+The exact IVerif proof-only packet is declared as a narrative reference by the existing operational Work owner. Quests retains coherent D1 authority once and fails closed on undeclared, mismatched, duplicate or retired overlaps. Branch-envelope normalization and shared shadow rows are included.39 focused route/Work/Gate checks, whole Worker typecheck and one observed Anthropic cross-family review pass. Serving versionae043392 has54exact bindings/runtime and module82ab94f7; rollbackeb807821 remains available. Founder graph16 readback has145nodes/8edges/210explicit gaps and4/4branch facts, with one D1 IVerif Work. D1 head and Fitcheck record fingerprints are unchanged. Original ledger remains intact; it updated independently during readback. No Work execution, leases, subscriptions, grants, migrations, data writes or automatic commits.
+
+
+### 2026-11-04 Snow Gloves mapping and next sapling planning
+
+Servinge5bfbc64 preserves54bindings/runtime and prior owner repairs. Existing Snow Gloves packet explicitly declares capability; loader/adapter validate it separately from tenant mapping. A demonstrated old-publisher omission is handled at the authenticated ledger intake only for the exact reviewed Snow Gloves provenance and existing canonical classification.85 focused checks,6 packet validations, whole Worker typecheck and two observed Anthropic review rounds pass. Legacy-format owner canary and founder readback show the capability, zero mapping gaps, graph17/209remaining gaps and4/4 product branch facts. No D1 writes or Work execution. Rollback4db171c7/fullSnowae043392 retained.
+
+Planning coverage is indexed in docs/plans/product-branches/loop-library.md:25 sourced identities,6 existing disabled unfinished-product candidates and additional source questions. Fitcheck canonical source identity is the next bounded owner proposal. Catalog81-vs73 drift and later founder lifecycle decisions require reconciliation before publication/enrollment. No leases, subscriptions, schedules, new chat fleet, source winner or automatic commit.
+
+
+### 2026-11-04 Fitcheck proposal and catalog lifecycle review
+
+Read-only source review establishes two approved Fitcheck scopes, not supersession. The existing proposal client locally compiles graph17→18 digest29738777: retain meso/legacy task, replace micro identity with task-fitcheck-launch-gate as its child,1create/1remove/0update, all138 other nodes unchanged.18 owner tests and one observed Anthropic review pass. Local preview removes collision and exposes two truthful missing cluster joins. No hosted registration, approval, D1/KV write, Work execution, lease or subscription. Exact artifact/owner reference holds are in the existing Temperance quick-task handoff.
+
+Catalog review:81 registry/73 action/76 display; six founder lifecycle conflicts. Current Worker and two reviewed Swift decoder paths reject non-active Sapling statuses. Versioned owner/consumer compatibility must precede publication or broad membership changes. No code/deployment/catalog mutation occurred.
+
+
+## 4 November — Fitcheck pending canonical identity repair
+
+Approved registration completed: digest `272b8a1181ccdc46726054c5a655d0af1f49e24fb45c978da6eda8f7d1710717`, graph18→19, one create/remove and zero updates. Pending founder decision only; D1 head/nodes unchanged. Source reference and date holds resolved; new blocked micro unscheduled, historical proof/admission metadata not reused. Quests serving `3c2e7a10-bedf-43aa-96af-4dd2185c5131`,54 active bindings/runtime unchanged, rollback `e5bfbc64-45e3-4849-a974-33d7d8f4f491`.32 focused checks, Worker typecheck and one observed Anthropic review pass.
+
+Exact deployed source stays on reconciliation worktree `codex/iverif-fabric-reconcile-20261104`; primary checkout patch preflight fails on concurrent handler/index divergence. Do not overwrite primary or claim source integration completed. Preserve pending proposal/history; use canonical renewal if window/head expires. No founder decision, Work execution, leases, subscriptions or builds. Current13-lane founder map preserves seven existing Saplings, separate productization/free/tool lanes, Skill Clusters organ and shared Will flow; Meristem primary repo and Raycast selection remain open.

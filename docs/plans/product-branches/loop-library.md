@@ -29,3 +29,18 @@ Every round changes exactly one thing or records exactly one blocked approval re
 ## Scheduling Rule
 
 Do not schedule any loop until it has passed one manual run with a readable state file and a reviewer accepts the stop rule.
+
+
+## 4 November2026 unfinished-product graph planning
+
+The current source review links25 sourced Sapling identities and six existing disabled nightly candidates to owner readiness and canonical review. It also retains separate ParkArea/Tirak/LumenBar/Relovo source questions. Fitcheck's existing launch-gate loop remains linked while its duplicate task identity is held. Use the single plan at `temperance:.planning/quick/261104-30y-implement-approved-j1-readiness-and-lean/NEXT-FABRIC-SAPLING-BATCH.md`. “Nightly builds” is the unfinished-product cohort here, not an enabled schedule. No loop invocation, state write, build, Work execution, lease or subscription is authorized by this planning index.
+
+
+### Fitcheck identity proposal — 4 November2026
+
+The existing loop’s future micro target is proposed as `task-fitcheck-launch-gate`, beneath retained meso `task-fitcheck-launch`. This is a reviewed local canonical proposal, not an active target or loop-state update. See `temperance:.planning/quick/261104-30y-implement-approved-j1-readiness-and-lean/FITCHECK-IDENTITY-RECONCILIATION.md`. Reference/date review, full owner registration and a fresh founder decision remain required. No loop invocation, Work execution, lease or subscription.
+
+
+### 4 November planning amendment — unfinished-product cohort
+
+Founder supplied thirteen product/capability lanes, not nightly timers: Vantyx/Rasa first, VirtualTryOn/glam-cli/AgentFount next, then free skills/Meristem/DLOCK/HostScale/Effort Glyph/generic Snow Gloves framework. Skill Clusters supplies capabilities as an organ; independent products are not its children. Shared Thoughtseed Labs business-engine remains a Will flow. Existing loop references remain planning-only; no state file, run, packet enrollment, cadence, lease or subscription is enabled. Current source mapping is the project-repo context library; Meristem primary repository and Raycast extension remain unresolved. Fitcheck identity proposal is separately pending founder review and does not authorize its launch loop.

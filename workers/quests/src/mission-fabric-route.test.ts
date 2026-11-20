@@ -10,6 +10,8 @@ import type { GoalGraphStoreLike } from './goal-graph-store.ts';
 import type { BranchMapReceipt } from './branch-map.ts';
 import type { BranchMapReceiptStoreLike } from './branch-map-receipt-store.ts';
 import { adaptQuestExecutionFacts, projectionDigest } from './mission-fabric.ts';
+import { parseOperationalWorkIntent, OPERATIONAL_WORK_SCHEMA } from './operational-work-intake.ts';
+import { makeGoalGraphHead } from './goal-graph/compiler.ts';
 import { FABRIC_SOURCE_FIXTURE } from './mission-fabric-fixture.ts';
 
 const subtle = (globalThis.crypto ?? webcrypto).subtle;
@@ -128,7 +130,7 @@ function fabricDeps(options: {
   nodes?: GoalGraphNode[];
   head?: GoalGraphHead | null;
   receipts?: BranchMapReceipt[];
-  branchStories?: unknown[];
+  branchStories?: unknown;
   now?: string;
   viewerIds?: string[];
 }): { deps: HandlerDeps; spies: FabricSpies } {
@@ -144,7 +146,7 @@ function fabricDeps(options: {
   }];
   const spies: FabricSpies = { d1Writes: 0, kvWrites: 0, d1Reads: 0, kvReads: 0 };
   const envelope = questEnvelope(facts);
-  if (options.branchStories !== undefined) envelope.branchStories = options.branchStories;
+  if (options.branchStories !== undefined) (envelope as Record<string, unknown>).branchStories = options.branchStories;
   const kvStore = new Map<string, string>([[`ledger:${TENANT}`, JSON.stringify(envelope)]]);
   const rawFabricFacts = facts;
   const gate: GateConfig = { botId: BOT_ID, pubKeyHex: options.pubKeyHex, founderIds: [FOUNDER_ID], now: () => NOW_MS };
@@ -193,7 +195,7 @@ interface FabricRequestOptions {
   storeHead?: GoalGraphHead | null;
   query?: string;
   receipts?: import('./branch-map.ts').BranchMapReceipt[];
-  branchStories?: unknown[];
+  branchStories?: unknown;
   now?: string;
   userId?: string;
   viewerIds?: string[];
@@ -626,4 +628,105 @@ test('mission fabric authority failures name the stage and omit the exception', 
   assert.equal(discovered.raw.includes('discover-secret'), false);
   const gapKinds = discovered.json.projection.gaps.map((gap: { kind: string }) => gap.kind);
   assert.ok(gapKinds.includes('foldback-discovery-held'));
+});
+
+
+test('branch packet envelope shares canonical rows with projection and shadow diagnostics', async () => {
+  const ids = ['sapling:fitcheck', 'sapling:vantyx', 'program:snow-gloves-os', 'sapling:iverif', 'sapling:dlock'];
+  const rows = ids.map((canonicalWorkId, i) => ({ branchId: `branch-${i}`, branchKind: i === 2 ? 'internal-service' : 'product', canonicalWorkId, name: `Branch ${i}`, controls: i === 2 ? { adapterServiceMap: [{ tenantMapping: 'operations' }] } : {}, source: { tenant: TENANT } }));
+  const result = await requestFabric({ query: '?shadow=1', branchStories: { source: 'product-branch-packets@v1', status: 'partial', rows } });
+  assert.equal(result.status, 200);
+  for (const id of ids) assert.equal(result.json.projection.nodes.filter((node: any) => node.kind === 'work' && node.value.workId === id).length, 1);
+  assert.equal(result.json.shadow.branchFacts, 4);
+  assert.equal(result.json.shadow.representedFacts, 4);
+  assert.deepEqual(result.json.shadow.missingIds, []);
+  assert.equal(result.spies.d1Writes + result.spies.kvWrites, 0);
+  const malformed = await requestFabric({ query: '?shadow=1', branchStories: { source: 'product-branch-packets@v1', status: 'partial', rows: 'invalid' } });
+  assert.equal(malformed.status, 200);
+  assert.ok(malformed.json.projection.gaps.some((gap: any) => gap.gapId === 'gap-branch-story-invalid-0'));
+  const invalidRow = await requestFabric({ branchStories: { rows: [{ branchKind: 'product' }] } });
+  assert.ok(invalidRow.json.projection.gaps.some((gap: any) => gap.gapId === 'gap-branch-story-invalid-0'));
+  const compiled = parseOperationalWorkIntent({ schema: OPERATIONAL_WORK_SCHEMA, version: 1, tenantId: 'cambium', clientRequestId: 'work-1', expectedHeadDigest: null, goals: [{ namespace: 'founder-operational-work', externalId: 'iverif-work', parentNodeId: null, scope: 'meso', desiredState: 'Deliver verified changes.', currentState: 'Connected.', owner: 'founder', proofRequired: true, status: 'active', metadata: {}, workObjectId: 'sapling:iverif', workObjectKind: 'sapling' }] }, 'access:fixture', { now: NOW_ISO, graphVersion: 1 });
+  assert.ok(compiled.accepted);
+  if (!compiled.accepted) throw new Error('fixture compile');
+  const auth = await signedInitData();
+  const { deps, spies } = fabricDeps({ ...auth, allowlist: ['cambium'] });
+  deps.goalGraphStore = { async readHead() { return makeGoalGraphHead('cambium', compiled.nodes, 1, NOW_ISO); }, async readNodes() { return compiled.nodes; }, async commit() { throw new Error('read only'); } };
+  deps.kv.get = async () => JSON.stringify({ branchStories: { source: 'product-branch-packets@v1', status: 'partial', rows: [{ branchId: 'iverif', branchKind: 'product', canonicalWorkId: 'sapling:iverif', source: { tenant: 'cambium' } }] } });
+  const conflict = await handle({ method: 'GET', path: '/v1/mission-fabric/cambium', headers: { 'x-telegram-init-data': auth.initData } }, deps);
+  assert.equal(conflict.status, 503);
+  assert.equal(JSON.parse(conflict.body).error, 'operational_work_source_conflict');
+  assert.equal(spies.d1Writes + spies.kvWrites, 0);
+  const packet = { branchId: 'iverif', productId: 'iverif', branchKind: 'product', canonicalWorkId: 'sapling:iverif', name: 'Narrative title is not operational authority', promotion: { state: 'proof-only' }, source: { tenant: 'cambium', schema: 'cambium.product_branch_packet.v1', indexFile: 'docs/plans/product-branches/index.md', packetFile: 'docs/plans/product-branches/iverif.md' } };
+  let sourceNodes = compiled.nodes;
+  let sourceRows: unknown[] = [packet];
+  const ledger = () => JSON.stringify({ branchStories: { source: 'product-branch-packets@v1', status: 'partial', rows: sourceRows } });
+  deps.goalGraphStore = { async readHead() { return makeGoalGraphHead('cambium', sourceNodes, 1, NOW_ISO); }, async readNodes() { return sourceNodes; }, async commit() { throw new Error('read only'); } };
+  deps.kv.get = async () => ledger();
+  const read = () => handle({ method: 'GET', path: '/v1/mission-fabric/cambium?shadow=1', headers: { 'x-telegram-init-data': auth.initData } }, deps);
+  const before = ledger();
+  const joined = await read();
+  assert.equal(joined.status, 200, joined.body);
+  const body = JSON.parse(joined.body);
+  const work = body.projection.nodes.filter((node: any) => node.kind === 'work' && node.value.workId === 'sapling:iverif');
+  assert.equal(work.length, 1);
+  assert.equal(work[0].value.sourceRef, compiled.node.sourceRef);
+  assert.equal(work[0].value.sourceDigest, compiled.node.sourceDigest);
+  assert.equal(work[0].value.branchId, compiled.node.nodeId);
+  assert.equal(work[0].value.name, 'IVerif');
+  assert.equal(work[0].value.promotionState, 'proof-only');
+  assert.equal(body.shadow.branchFacts, 1);
+  assert.equal(body.shadow.representedFacts, 1);
+  assert.deepEqual(body.shadow.missingIds, []);
+  assert.equal(ledger(), before);
+  const mismatches = [
+    { ...packet, branchId: 'other' },
+    { ...packet, tenantId: 'other' },
+    { ...packet, source: { ...packet.source, tenant: 'other' } },
+    { ...packet, source: { ...packet.source, schema: 'unknown' } },
+    { ...packet, source: { ...packet.source, packetFile: 'docs/plans/product-branches/other.md' } },
+    { ...packet, promotion: { state: 'autonomous-branch' } },
+  ];
+  for (const mismatch of mismatches) {
+    sourceRows = [mismatch];
+    const refused = await read();
+    assert.equal(refused.status, 503);
+    assert.equal(JSON.parse(refused.body).error, 'operational_work_source_conflict');
+  }
+  sourceRows = [packet, packet];
+  assert.equal((await read()).status, 503);
+  sourceRows = [packet];
+  sourceNodes = [compiled.node, { ...compiled.node, nodeId: 'second-source' }];
+  assert.equal((await read()).status, 503);
+  sourceNodes = [{ ...compiled.node, status: 'retired' }];
+  assert.equal((await read()).status, 503);
+  assert.equal(spies.d1Writes + spies.kvWrites, 0);
+
+
+});
+
+
+test('legacy Snow Gloves ledger pushes normalize classification without changing tenant isolation or Work state', async () => {
+  let stored: string | null = null;
+  const kv = { async get() { return stored; }, async put(_key: string, value: string) { stored = value; } };
+  const packet = { branchId: 'snow-gloves-os', productId: 'snow-gloves-os', canonicalWorkId: 'program:snow-gloves-os', branchKind: 'internal-service', source: { tenant: 'cambium', schema: 'cambium.product_branch_packet.v1', indexFile: 'docs/plans/product-branches/index.md', packetFile: 'docs/plans/product-branches/snow-gloves-os.md' }, controls: { adapterServiceMap: [{ tenantMapping: 'tenant manifest and capability scope' }] } };
+  const push = (row: unknown, token = 'push-fixture') => handle({ method: 'POST', path: '/internal/ledger/cambium', headers: { authorization: `Bearer ${token}` }, body: JSON.stringify({ schema: 1, tenant: 'cambium', derivedAt: NOW_ISO, source: 'legacy-producer', ledger: { rows: [] }, untouched: { receipt: 'retain' }, branchStories: { source: 'product-branch-packets@v1', rows: [row] } }) }, { kv, pushToken: 'push-fixture' });
+  assert.equal((await push(packet, 'wrong')).status, 401);
+  assert.equal(stored, null);
+  for (let n = 0; n < 2; n++) {
+    assert.equal((await push(packet)).status, 200);
+    const envelope = JSON.parse(stored!);
+    const row = envelope.branchStories.rows[0];
+    assert.equal(row.programKind, 'capability');
+    assert.equal(row.controls.adapterServiceMap[0].tenantMapping, packet.controls.adapterServiceMap[0].tenantMapping);
+    assert.deepEqual(envelope.untouched, { receipt: 'retain' });
+    assert.equal(envelope.derivedAt, NOW_ISO);
+    assert.equal(envelope.workExecution, undefined);
+  }
+  assert.equal((await push({ ...packet, programKind: 'company' })).status, 200);
+  assert.equal(JSON.parse(stored!).branchStories.rows[0].programKind, 'company', 'intake must not override explicit invalid classification; adapter refuses it');
+  for (const row of [{ ...packet, source: { ...packet.source, tenant: 'other' } }, { ...packet, source: { ...packet.source, packetFile: 'unreviewed.md' } }]) {
+    assert.equal((await push(row)).status, 200);
+    assert.equal(JSON.parse(stored!).branchStories.rows[0].programKind, undefined);
+  }
 });
