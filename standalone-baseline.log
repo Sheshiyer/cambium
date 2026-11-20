@@ -1,0 +1,7 @@
+standalone audit failed:
+- apps/cambium-mac/Sources/CambiumNative/State/OwnerConfiguration.swift: live Thoughtseed URL in product code/config
+- apps/cambium-mac/tools/probe-live-owner.sh: live Thoughtseed URL in product code/config
+- docs/architecture/2026-11-02-native-cambium-sources.json: live Thoughtseed URL in product code/config
+- workers/cortex-mcp/src/provenance-read.test.ts: private project volume path
+- workers/quests/src/mcp-gate-adapter-route.test.ts: checked-in founder Telegram ids
+- workers/quests/src/portfolio-workbench-config.test.ts: live Thoughtseed URL in product code/config
