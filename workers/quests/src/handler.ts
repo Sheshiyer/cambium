@@ -147,15 +147,22 @@ import { parseExecutionAdmission } from './terminal-admission.ts';
 import { buildCommandCodeBody, commandCodeHeaders, translateStream, translateToCompletion } from './command-code-adapter.ts';
 import { recordWorkflowLearningEvent, summarizeWorkflowLearningMonth } from './workflow-learning.ts';
 
-const FOUNDER_FALLBACK_PRINCIPAL: Principal = {
-  id: 'anonymous-founder',
-  tenant: '*',
-  role: 'founder',
-  allow: [],
-  createdBy: 'system',
-};
+// A malformed caller principal used to resolve to this founder id. Nothing
+// issues it any more; the founder-outcome guard still refuses it by name.
+const RETIRED_FALLBACK_PRINCIPAL_ID = 'anonymous-founder';
 
-function resolveSurfacePrincipal(req: SimpleRequest): Principal | null {
+/**
+ * Caller-supplied surface principal (`x-principal` header or `?principal=`).
+ * The value is unauthenticated, so it is read only when the Worker runs with
+ * the explicit local-development flag and without the Plexus/Access gate.
+ * Absent, malformed or wrongly shaped values resolve to no principal (the
+ * public envelope), never to a founder.
+ */
+function resolveSurfacePrincipal(
+  req: SimpleRequest,
+  deps: Pick<HandlerDeps, 'devSurfacePrincipal' | 'plexus'>,
+): Principal | null {
+  if (deps.devSurfacePrincipal !== true || deps.plexus) return null;
   let fromQuery: string | undefined;
   const queryStart = req.path.indexOf('?');
   if (queryStart >= 0) {
@@ -182,8 +189,8 @@ function resolveSurfacePrincipal(req: SimpleRequest): Principal | null {
         ...(typeof parsed.expiresAt === 'string' ? { expiresAt: parsed.expiresAt } : {}),
       };
     }
-  } catch { /* fall through to founder default */ }
-  return FOUNDER_FALLBACK_PRINCIPAL;
+  } catch { /* malformed JSON: no principal */ }
+  return null;
 }
 
 async function surfaceScopedQuestBody(
@@ -584,7 +591,8 @@ export interface HandlerDeps {
   missionFabricViewerIds?: string[]; // server-owned non-founder viewer allowlist for /v1/mission-fabric only; absent/empty authorizes founders only
   portfolioActionStore?: PortfolioAdminActionStoreLike; // Immutable R2 action evidence; never operational authority.
   portfolioActionQueue?: PortfolioAdminActionQueueLike; // Bounded pending-intake trigger; Goal Graph remains the sole operational writer.
-  plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → dev founder fallback)
+  plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → no Access gate; caller principals stay ignored)
+  devSurfacePrincipal?: boolean; // local development only: read caller x-principal / ?principal= when plexus is unset
   plexusFetchImpl?: typeof fetch; // test-only fetch injection for Access JWKS + whoami probes
 }
 
@@ -4410,7 +4418,7 @@ async function listExpiredFounderOutcomeRecovery(
 }
 
 function founderOutcomeProjectionAllowed(principal: Principal, tenantId: string, now: string): boolean {
-  if (principal.role !== 'founder' || principal.id === FOUNDER_FALLBACK_PRINCIPAL.id) return false;
+  if (principal.role !== 'founder' || principal.id === RETIRED_FALLBACK_PRINCIPAL_ID) return false;
   if (principal.tenant !== tenantId && principal.tenant !== '*') return false;
   if (!principal.expiresAt) return true;
   const expiresAt = Date.parse(principal.expiresAt);
@@ -6174,8 +6182,9 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
       const verdict = await validateInitData(telegramInitData, deps.gate);
       if (verdict.ok) {
         founderOutcomeAuthorized = true;
-        // Preserve explicit legacy projection scope and expiry; Plexus ignores caller-supplied principals.
-        principal = (!deps.plexus ? resolveSurfacePrincipal(req) : null) ?? {
+        // Local development may still narrow the verified founder with an explicit
+        // caller principal; production and Plexus ignore caller-supplied principals.
+        principal = resolveSurfacePrincipal(req, deps) ?? {
           id: `telegram:${verdict.userId}`,
           tenant,
           role: 'founder',
@@ -6196,11 +6205,11 @@ async function handleRoutes(req: SimpleRequest, deps: HandlerDeps, founderWeb: b
         if (founderWeb && founderWebPrincipal(principal)) founderOutcomeAuthorized = true;
       } else {
         // 'unconfigured': deps.plexus was provided but env is partial — fail closed,
-        // never silently promote to the dev founder fallback.
+        // never silently fall back to a caller-supplied principal.
         return json(503, { error: 'plexus_gate_misconfigured', message: 'Plexus gate is enabled but Access env is incomplete.' });
       }
     }
-    if (!principal) principal = resolveSurfacePrincipal(req);
+    if (!principal) principal = resolveSurfacePrincipal(req, deps);
     if (!principal) {
       return { status: 200, headers: { ...JSON_HEADERS }, body: await publicQuestBody(deps.kv, tenant, stored, deps.goalGraphStore) };
     }
