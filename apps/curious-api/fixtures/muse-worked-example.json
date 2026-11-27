@@ -1,0 +1,26 @@
+{
+  "schema": "curious-muse-worked-example.v1",
+  "order": ["draft", "gate", "approval", "receipt"],
+  "draft": {
+    "id": "draft-fixture",
+    "body": "Fixture draft body"
+  },
+  "gate": {
+    "id": "gate-fixture",
+    "draftId": "draft-fixture",
+    "checks": ["reviewed"]
+  },
+  "approval": {
+    "id": "apr_6err7O3u7_Dx",
+    "decision": "approve",
+    "actor": "mage@example.invalid",
+    "writtenBy": "POST /v1/approve"
+  },
+  "receipt": {
+    "id": "receipt-fixture",
+    "draftHash": "e88423625c5a9eddd30e70ec1685f906e9566d8660c5c5b6592c38f90fcb7a91",
+    "gateHash": "6ad70a9b62111b3961949847fdd266632cf6f1a4d6f6baed2c8f815151c2e649",
+    "approvalHash": "e7e997138a15f012031a34440357e20fc16a21a7408af9e15be15a1d2c22b6d7",
+    "receiptHash": "a9817f24e697e22d67b7eaef119a5c6744176db7b8eeccdc5a392f51fab2e779"
+  }
+}

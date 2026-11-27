@@ -8,6 +8,7 @@ import { handleQuestsHealth } from "./quests-route.ts";
 import { handleFieldRequest } from "./field-routes.ts";
 import { handleLibraryRequest } from "./library-routes.ts";
 import { handleMcp } from "./mcp.ts";
+import { handleMuseRequest } from "./muse-routes.ts";
 import { handleTokenRequest } from "./token-routes.ts";
 
 export interface WorkerEnv {
@@ -29,10 +30,12 @@ export async function route(request: Request, env: WorkerEnv, deps: Deps = defau
   const tokenResponse = await handleTokenRequest(request, db, env, deps);
   const libraryResponse = tokenResponse ? null : await handleLibraryRequest(request, db, env.CURIOUS_FIELD_KEY, deps);
   const fieldResponse = tokenResponse || libraryResponse ? null : await handleFieldRequest(request, db, deps);
-  const mcpResponse = tokenResponse || libraryResponse || fieldResponse ? null : await handleMcp(request, db, env.CURIOUS_FIELD_KEY, deps);
+  const museResponse = tokenResponse || libraryResponse || fieldResponse ? null : await handleMuseRequest(request, db, deps);
+  const mcpResponse = tokenResponse || libraryResponse || fieldResponse || museResponse ? null : await handleMcp(request, db, env.CURIOUS_FIELD_KEY, deps);
   if (tokenResponse) response = tokenResponse;
   else if (libraryResponse) response = libraryResponse;
   else if (fieldResponse) response = fieldResponse;
+  else if (museResponse) response = museResponse;
   else if (mcpResponse) response = mcpResponse;
   else if (request.method === "GET" && url.pathname === "/healthz") response = handleHealth(env.SERVICE_NAME);
   else if (url.pathname === "/v1/quests/health") response = await handleQuestsHealth(request, env.CAMBIUM_QUESTS, deps);
