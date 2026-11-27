@@ -16,6 +16,7 @@ export interface WorkerEnv {
   CURIOUS_ACCESS_AUD?: string;
   ACCESS_TEAM_DOMAIN?: string;
   ACCESS_AUD?: string;
+  CURIOUS_ISSUER_TOKEN?: string;
 }
 
 export async function route(request: Request, env: WorkerEnv, deps: Deps = defaultDeps): Promise<Response> {

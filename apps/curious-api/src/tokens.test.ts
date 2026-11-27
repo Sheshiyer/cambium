@@ -125,3 +125,28 @@ test("a revoked token is denied and audit records issue, use, deny, and revoke",
   const actions = (await db.all<{ action: string }>("SELECT action FROM audit ORDER BY id")).map((row) => row.action);
   for (const action of ["issue", "use", "revoke", "deny"]) assert.ok(actions.includes(action), action);
 });
+
+test("the deploy-time CURIOUS_ISSUER_TOKEN secret can issue tokens without a D1 row and does not expire after 12 hours", async () => {
+  const db = await memoryDb();
+  const later = new Date(NOW.getTime() + (DEFAULT_TTL_SECONDS + 60) * 1000);
+  const env: WorkerEnv = { CURIOUS_ISSUER_TOKEN: ISSUER };
+  const minted = await route(new Request("http://127.0.0.1/v1/tokens/issue", {
+    method: "POST",
+    headers: { authorization: `Bearer ${ISSUER}`, "x-curious-agent": "aletheios", "content-type": "application/json" },
+    body: JSON.stringify({ agent: "scribe", scopes: ["library:read"] }),
+  }), env, deps(db, later));
+  assert.equal(minted.status, 201);
+  assert.equal(await db.get("SELECT id FROM tokens WHERE id = ?1", ["issuer-aletheios"]), null);
+  const mismatch = await route(new Request("http://127.0.0.1/v1/tokens/issue", {
+    method: "POST",
+    headers: { authorization: `Bearer ${ISSUER}`, "x-curious-agent": "scribe", "content-type": "application/json" },
+    body: JSON.stringify({ agent: "scribe", scopes: ["library:read"] }),
+  }), env, deps(db, later));
+  assert.equal(mismatch.status, 403);
+  const missing = await route(new Request("http://127.0.0.1/v1/tokens/issue", {
+    method: "POST",
+    headers: { authorization: `Bearer ${ISSUER}`, "x-curious-agent": "aletheios", "content-type": "application/json" },
+    body: JSON.stringify({ agent: "scribe", scopes: ["library:read"] }),
+  }), {}, deps(db, later));
+  assert.equal(missing.status, 401);
+});

@@ -9,6 +9,7 @@ export interface AccessEnv {
   CURIOUS_ACCESS_AUD?: string;
   ACCESS_TEAM_DOMAIN?: string;
   ACCESS_AUD?: string;
+  CURIOUS_ISSUER_TOKEN?: string;
 }
 
 export async function handleTokenRequest(request: Request, db: CuriousDb | undefined, env: AccessEnv, deps: Deps): Promise<Response | null> {
@@ -19,7 +20,7 @@ export async function handleTokenRequest(request: Request, db: CuriousDb | undef
   if (!db) return json(503, { ok: false, error: "store_unavailable" });
   if (request.method === "POST" && path === "/v1/approve") return handleApprove(db, request, env, deps);
   if (request.method !== "POST" && !(request.method === "GET" && path === "/v1/session")) return json(405, { ok: false, error: "method_not_allowed" });
-  const auth = await authenticate(db, request, deps.now());
+  const auth = await authenticate(db, request, deps.now(), env.CURIOUS_ISSUER_TOKEN);
   if ("error" in auth) return auth.error;
   if (request.method === "GET" && path === "/v1/session") return sessionResponse(auth.principal);
   if (request.method === "POST" && path === "/v1/tokens/issue") return issueToken(db, request, auth.principal, deps);
