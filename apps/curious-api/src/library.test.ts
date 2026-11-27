@@ -157,3 +157,30 @@ test("MCP library_get uses the same scope split", async () => {
   const payload = await called.json() as { result: { structuredContent: { personal: { note: string } } } };
   assert.equal(payload.result.structuredContent.personal.note, "secret-note");
 });
+
+test("a public-field update does not wipe existing personal ciphertext", async () => {
+  const db = await memoryDb();
+  const key = ephemeralKey();
+  const token = await tokenFor(db, "aletheios", ["library:personal:write", "library:personal:read", "library:write"]);
+  const env: WorkerEnv = { CURIOUS_FIELD_KEY: key };
+  const headers = { authorization: `Bearer ${token}`, "x-curious-agent": "aletheios", "content-type": "application/json" };
+  const saved = await route(new Request("http://127.0.0.1/v1/library/nodes", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ id: "note-keep", tenantId: "thoughtseed", title: "First", personal: { note: "kept private" } }),
+  }), env, deps(db));
+  assert.equal(saved.status, 201);
+  const before = await db.get<{ personal_ciphertext: string | null }>("SELECT personal_ciphertext FROM nodes WHERE id = ?1", ["note-keep"]);
+  assert.ok(before?.personal_ciphertext);
+  const updated = await route(new Request("http://127.0.0.1/v1/library/nodes", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ id: "note-keep", tenantId: "thoughtseed", title: "Second" }),
+  }), env, deps(db));
+  assert.equal(updated.status, 200);
+  const after = await db.get<{ body: string; personal_ciphertext: string | null }>("SELECT body, personal_ciphertext FROM nodes WHERE id = ?1", ["note-keep"]);
+  assert.equal(after?.personal_ciphertext, before?.personal_ciphertext);
+  assert.equal((JSON.parse(after?.body ?? "{}") as { title: string }).title, "Second");
+  const shown = await route(new Request("http://127.0.0.1/v1/library/nodes/note-keep", { headers }), env, deps(db));
+  assert.equal((await shown.json() as { personal: { note: string }; title: string }).personal.note, "kept private");
+});
