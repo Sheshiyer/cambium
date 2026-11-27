@@ -1,0 +1,31 @@
+{
+  // Non-production name. Do not publish this Worker.
+  // Account prefix 9d7cec1b is the Thoughtseed Labs account already recorded
+  // on workers/cortex-mcp. This file does not create the account, the Worker,
+  // or a D1 database.
+  "name": "curious-api-dev",
+  "account_id": "9d7cec1b5a32b2df8c6cdc1321ccd00b",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "vars": {
+    "SERVICE_NAME": "curious-api-dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "CURIOUS_DB",
+      "database_name": "curious",
+      // Placeholder id only. Mage named the database `curious`.
+      // It is created at deploy, not by this draft. Do not run a remote apply.
+      "database_id": "00000000-0000-4000-8000-000000000001",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "services": [
+    {
+      "binding": "CAMBIUM_QUESTS",
+      "service": "cambium-quests"
+    }
+  ]
+}
