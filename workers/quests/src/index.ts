@@ -146,6 +146,7 @@ interface Env {
   TF_ACCESS_TEAM_DOMAIN?: string;
   TF_ACCESS_AUD?: string;
   PLEXUS_WHOAMI_URL?: string;
+  CAMBIUM_DEV_SURFACE_PRINCIPAL?: string; // '1' = local dev only: honour caller x-principal on a loopback host without Access
   PLEXUS_NATIVE_IDENTITY_URL?: string;
   PLEXUS_NATIVE_IDENTITY_TOKEN?: string;
   PLEXUS_NATIVE_IDENTITY_TENANT?: string;
@@ -186,6 +187,20 @@ function parseAllowedUserIds(raw: string | undefined): string[] {
     .split(',')
     .map((id) => id.trim())
     .filter((id) => /^[0-9]{1,32}$/.test(id));
+}
+
+const LOCAL_DEV_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+/**
+ * Caller-chosen surface principals are a local-development aid. They need the
+ * explicit flag, no Access configuration at all, and a loopback request host,
+ * so a flag copied into a deployed environment still has no effect.
+ */
+function devSurfacePrincipalEnabled(env: Env, requestUrl: string): boolean {
+  if (env.CAMBIUM_DEV_SURFACE_PRINCIPAL !== '1') return false;
+  if (env.TF_ACCESS_TEAM_DOMAIN || env.TF_ACCESS_AUD) return false;
+  const hostname = new URL(requestUrl).hostname.toLowerCase();
+  return LOCAL_DEV_HOSTNAMES.has(hostname) || hostname.endsWith('.localhost');
 }
 
 function parseNativeSessionClients(raw: string | undefined): NativeSessionClient[] {
@@ -1566,6 +1581,7 @@ export default {
         aud: env.TF_ACCESS_AUD,
         whoamiUrl: env.PLEXUS_WHOAMI_URL,
       } : undefined,
+      devSurfacePrincipal: devSurfacePrincipalEnabled(env, request.url),
       marketingRenderer: {
         activation: env.MARKETING_CREATE_ACTIVATION,
         apiKey: env.NVIDIA_MARKETING_CREATE_API_KEY,

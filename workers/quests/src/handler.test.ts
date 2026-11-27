@@ -13814,7 +13814,7 @@ test('rbac · no principal keeps the founder envelope byte-verbatim and surface-
 
 test('rbac · consultant principal receives filtered surface — no signed-action, no sheet-primary subsections', async () => {
   const kv = fakeKv();
-  const deps = { kv, pushToken: 't' };
+  const deps = { kv, pushToken: 't', devSurfacePrincipal: true };
   await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
   const consultant = encodeURIComponent(JSON.stringify({
     id: 'c1', tenant: 'cambium', role: 'consultant', allow: ['tapestry', 'wake'], createdBy: 'founder-1',
@@ -13835,7 +13835,7 @@ test('rbac · consultant principal receives filtered surface — no signed-actio
 
 test('rbac · team principal keeps chat-command but loses signed-action controls', async () => {
   const kv = fakeKv();
-  const deps = { kv, pushToken: 't' };
+  const deps = { kv, pushToken: 't', devSurfacePrincipal: true };
   await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
   const team = JSON.stringify({ id: 't1', tenant: 'cambium', role: 'team', allow: [], createdBy: 'founder-1' });
   const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': team } }), deps);
@@ -13850,7 +13850,7 @@ test('rbac · team principal keeps chat-command but loses signed-action controls
 
 test('rbac · expired principal receives empty surface', async () => {
   const kv = fakeKv();
-  const deps = { kv, pushToken: 't' };
+  const deps = { kv, pushToken: 't', devSurfacePrincipal: true };
   await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
   const expired = JSON.stringify({
     id: 'c2', tenant: 'cambium', role: 'consultant', allow: ['tapestry'], createdBy: 'founder-1',
@@ -13861,6 +13861,127 @@ test('rbac · expired principal receives empty surface', async () => {
   const surface = body(get).surface;
   assert.deepEqual(surface.sections, []);
   assert.deepEqual(surface.subsections, []);
+});
+
+const FORGED_FOUNDER_PRINCIPAL = JSON.stringify({
+  id: 'forged-founder', tenant: '*', role: 'founder', allow: [], createdBy: 'caller',
+});
+
+async function publishedLedgerDeps(extra: Record<string, unknown> = {}) {
+  const kv = fakeKv();
+  const deps = { kv, pushToken: 't', ...extra };
+  await handle(req('POST', '/internal/ledger/cambium', { body: ENVELOPE, headers: { authorization: 'Bearer t' } }), deps);
+  return deps;
+}
+
+test('surface principal · caller x-principal and ?principal= are ignored without the dev flag', async () => {
+  const deps = await publishedLedgerDeps();
+  const viaHeader = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': FORGED_FOUNDER_PRINCIPAL } }), deps);
+  const viaQuery = await handle(req('GET', `/api/quests/cambium?principal=${encodeURIComponent(FORGED_FOUNDER_PRINCIPAL)}`), deps);
+  for (const get of [viaHeader, viaQuery]) {
+    assert.equal(get.status, 200);
+    assert.equal(get.body, ENVELOPE, 'public envelope, byte-verbatim');
+    assert.equal(body(get).surface, undefined, 'no founder surface for a caller-chosen principal');
+  }
+});
+
+test('surface principal · malformed or wrongly shaped values never resolve to a founder', async () => {
+  const malformed = [
+    'not-json',
+    '{"role":"founder"',
+    'null',
+    '[]',
+    '"founder"',
+    JSON.stringify({ role: 'founder' }),
+    JSON.stringify({ id: 'x', tenant: '*', role: 'admin', allow: [], createdBy: 'caller' }),
+    JSON.stringify({ id: 'x', tenant: '*', role: 'founder', allow: 'all', createdBy: 'caller' }),
+  ];
+  for (const devSurfacePrincipal of [false, true]) {
+    const deps = await publishedLedgerDeps({ devSurfacePrincipal });
+    for (const raw of malformed) {
+      const viaHeader = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': raw } }), deps);
+      const viaQuery = await handle(req('GET', `/api/quests/cambium?principal=${encodeURIComponent(raw)}`), deps);
+      for (const get of [viaHeader, viaQuery]) {
+        assert.equal(get.status, 200, `${raw} (dev=${devSurfacePrincipal})`);
+        assert.equal(get.body, ENVELOPE, `${raw} (dev=${devSurfacePrincipal}) falls back to the public envelope`);
+        assert.doesNotMatch(get.body, /anonymous-founder|founder-gate/);
+      }
+    }
+  }
+});
+
+test('surface principal · dev flag never bypasses the Plexus Access gate', async () => {
+  let fetched = 0;
+  const deps = await publishedLedgerDeps({
+    devSurfacePrincipal: true,
+    plexus: { teamDomain: 'team.cloudflareaccess.com', aud: 'aud-1' },
+    plexusFetchImpl: (async () => { fetched += 1; throw new Error('no network in this test'); }) as typeof fetch,
+  });
+  const get = await handle(req('GET', '/api/quests/cambium', { headers: { 'x-principal': FORGED_FOUNDER_PRINCIPAL } }), deps);
+  assert.equal(get.status, 401);
+  assert.equal(body(get).error, 'access_identity_required');
+  assert.equal(fetched, 0, 'no Access lookup without a JWT');
+});
+
+function questsWorkerEnv(extra: Record<string, unknown> = {}) {
+  const rows = new Map<string, string>([['ledger:cambium', ENVELOPE]]);
+  return {
+    QUESTS: {
+      async get(key: string) { return rows.get(key) ?? null; },
+      async put(key: string, value: string) { rows.set(key, value); },
+      async list({ prefix }: { prefix: string }) {
+        return { keys: [...rows.keys()].filter((key) => key.startsWith(prefix)).map((name) => ({ name })) };
+      },
+    },
+    ...extra,
+  };
+}
+
+async function workerQuestRead(origin: string, env: Record<string, unknown>) {
+  const team = JSON.stringify({ id: 't1', tenant: 'cambium', role: 'team', allow: [], createdBy: 'founder-1' });
+  const response = await worker.fetch(new Request(`${origin}/api/quests/cambium`, {
+    headers: { 'x-principal': team },
+  }), env as never);
+  return { status: response.status, text: await response.text() };
+}
+
+test('surface principal · Worker honours caller principals only for flagged loopback dev without Access', async () => {
+  const dev = await workerQuestRead('http://localhost:8787', questsWorkerEnv({ CAMBIUM_DEV_SURFACE_PRINCIPAL: '1' }));
+  assert.equal(dev.status, 200);
+  assert.ok(JSON.parse(dev.text).surface, 'local dev with the flag keeps the scoped surface');
+
+  const loopbackIp = await workerQuestRead('http://127.0.0.1:8787', questsWorkerEnv({ CAMBIUM_DEV_SURFACE_PRINCIPAL: '1' }));
+  assert.ok(JSON.parse(loopbackIp.text).surface);
+
+  const unflagged = await workerQuestRead('http://localhost:8787', questsWorkerEnv());
+  assert.equal(unflagged.status, 200);
+  assert.equal(unflagged.text, ENVELOPE, 'no flag: caller principal ignored');
+
+  const notExactlyOne = await workerQuestRead('http://localhost:8787', questsWorkerEnv({ CAMBIUM_DEV_SURFACE_PRINCIPAL: 'true' }));
+  assert.equal(notExactlyOne.text, ENVELOPE, 'only the literal "1" enables the flag');
+
+  const deployedHost = await workerQuestRead('https://curious.thoughtseed.space', questsWorkerEnv({ CAMBIUM_DEV_SURFACE_PRINCIPAL: '1' }));
+  assert.equal(deployedHost.status, 200);
+  assert.equal(deployedHost.text, ENVELOPE, 'flag copied to a deployed host has no effect');
+
+  const lookalikeHost = await workerQuestRead('https://localhost.example.com', questsWorkerEnv({ CAMBIUM_DEV_SURFACE_PRINCIPAL: '1' }));
+  assert.equal(lookalikeHost.text, ENVELOPE);
+
+  for (const access of [
+    { TF_ACCESS_TEAM_DOMAIN: 'team.cloudflareaccess.com' },
+    { TF_ACCESS_AUD: 'aud-1' },
+  ]) {
+    const partial = await workerQuestRead('http://localhost:8787', questsWorkerEnv({ CAMBIUM_DEV_SURFACE_PRINCIPAL: '1', ...access }));
+    assert.equal(partial.text, ENVELOPE, `any Access setting disables the flag (${Object.keys(access)[0]})`);
+  }
+
+  const gated = await workerQuestRead('http://localhost:8787', questsWorkerEnv({
+    CAMBIUM_DEV_SURFACE_PRINCIPAL: '1',
+    TF_ACCESS_TEAM_DOMAIN: 'team.cloudflareaccess.com',
+    TF_ACCESS_AUD: 'aud-1',
+  }));
+  assert.equal(gated.status, 401);
+  assert.equal(JSON.parse(gated.text).error, 'access_identity_required');
 });
 
 test('invites · founder issues an invite and verification round-trips', async () => {
@@ -15863,6 +15984,7 @@ async function founderOutcomeHarness(options: {
   tamper?: boolean;
   commit?: 'committed' | 'unavailable';
   pushToken?: string;
+  devSurfacePrincipal?: boolean;
 } = {}) {
   const signed = await makeSignedInitData({
     botId: TEST_BOT_ID,
@@ -15922,6 +16044,7 @@ async function founderOutcomeHarness(options: {
     goalGraphStore,
     now: () => FOUNDER_OUTCOME_NOW,
     ...(options.pushToken ? { pushToken: options.pushToken } : {}),
+    ...(options.devSurfacePrincipal ? { devSurfacePrincipal: true } : {}),
   };
   return {
     deps,
@@ -16434,8 +16557,30 @@ test('forged principal query founder cannot reveal committed founder outcomes', 
   assert.doesNotMatch(JSON.stringify(envelope), /fitcheck-shopify-widget-qa|cambium.goal-graph-outcomes.v1/);
 });
 
-test('Goal Graph readback hides pending candidate existence from every non-founder projection', async () => {
+test('Telegram founder keeps its verified identity when a caller principal rides along without the dev flag', async () => {
   const harness = await founderOutcomeHarness();
+  const intake = await postFounderOutcome(validFounderOutcomeBody(harness.initData), harness.deps);
+  assert.equal(intake.status, 200);
+  const candidateId = body(intake).candidate.candidateId;
+
+  for (const principal of [
+    founderOutcomePrincipal('team'),
+    founderOutcomePrincipal('founder', { tenant: '*', expiresAt: '2020-01-01T00:00:00.000Z' }),
+  ]) {
+    const envelope = await founderOutcomeQuestEnvelope(harness, principal, { authenticateFounder: true });
+    assert.equal(envelope.goalGraphIntake.count, 1, 'verified founder projection, not the caller-chosen scope');
+    assert.equal(envelope.goalGraphIntake.rows[0].candidateId, candidateId);
+    assert.ok(envelope.surface.sections.some((section: { id: string }) => section.id === 'founder-gate'));
+  }
+
+  const forged = await founderOutcomeQuestEnvelope(harness, founderOutcomePrincipal('founder'), { authenticateFounder: false });
+  assert.equal(forged.goalGraphIntake, undefined);
+  assert.equal(forged.surface, undefined, 'without initData the caller principal is ignored');
+});
+
+test('Goal Graph readback hides pending candidate existence from every non-founder projection', async () => {
+  // Local development flag on, so caller principals may narrow a verified founder.
+  const harness = await founderOutcomeHarness({ devSurfacePrincipal: true });
   const requestBody = validFounderOutcomeBody(harness.initData);
   const intake = await postFounderOutcome(requestBody, harness.deps);
   assert.equal(intake.status, 200);
