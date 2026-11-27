@@ -18,7 +18,7 @@ Aletheios is the only issuer and holds only `tokens:issue`. It cannot mint `toke
 
 `POST /v1/approve` accepts Mage's Access identity from `Cf-Access-Jwt-Assertion` when `MAGE_ACCESS_IDENTITY` and `CURIOUS_ACCESS_HMAC_KEY` are set outside the repository. A bearer token is refused even if that assertion is also present. The Access policy is described in `docs/access-policy.md` and is not attached.
 
-The first `tokens:issue` credential is the Wrangler secret `CURIOUS_ISSUER_TOKEN`. Mage installs it himself at deploy time. There is no HTTP install path. See `docs/issuer-credential.md`. Tests still call `installIssuerCredential`.
+The first `tokens:issue` credential is the Wrangler secret `CURIOUS_ISSUER_TOKEN`. Mage installs it himself at deploy time. The Worker authenticates that secret directly; there is no HTTP install path. See `docs/issuer-credential.md`. Tests may still call `installIssuerCredential`.
 
 ## Library
 
