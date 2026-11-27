@@ -1,0 +1,5 @@
+ALTER TABLE nodes ADD COLUMN personal_ciphertext TEXT;
+ALTER TABLE nodes ADD COLUMN deleted_at TEXT;
+ALTER TABLE nodes ADD COLUMN purge_after TEXT;
+ALTER TABLE nodes ADD COLUMN revision INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE nodes ADD COLUMN owner_agent TEXT;
