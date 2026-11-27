@@ -42,10 +42,17 @@ export async function putLibraryNode(db: CuriousDb, principal: Principal, payloa
   const body = JSON.stringify({ title: record.title, body: record.body ?? null });
   const existing = await db.get<{ id: string }>("SELECT id FROM nodes WHERE id = ?1 AND deleted_at IS NULL", [record.id]);
   if (existing) {
-    await db.run(
-      "UPDATE nodes SET body = ?1, personal_ciphertext = ?2, updated_at = ?3, revision = revision + 1, owner_agent = ?4 WHERE id = ?5",
-      [body, ciphertext, at, principal.agent, record.id],
-    );
+    if (personal !== undefined) {
+      await db.run(
+        "UPDATE nodes SET body = ?1, personal_ciphertext = ?2, updated_at = ?3, revision = revision + 1, owner_agent = ?4 WHERE id = ?5",
+        [body, ciphertext, at, principal.agent, record.id],
+      );
+    } else {
+      await db.run(
+        "UPDATE nodes SET body = ?1, updated_at = ?2, revision = revision + 1, owner_agent = ?3 WHERE id = ?4",
+        [body, at, principal.agent, record.id],
+      );
+    }
   } else {
     await db.run(
       "INSERT INTO nodes (id, tenant_id, kind, body, created_at, updated_at, personal_ciphertext, owner_agent) VALUES (?1, ?2, 'library', ?3, ?4, ?4, ?5, ?6)",
