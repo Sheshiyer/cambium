@@ -38,7 +38,14 @@ export async function installIssuerCredential(db: CuriousDb, rawToken: string, a
   );
 }
 
-export async function authenticate(db: CuriousDb, request: Request, now: Date): Promise<{ principal: Principal } | { error: Response }> {
+function timingSafeEqualHex(left: string, right: string): boolean {
+  if (left.length !== right.length) return false;
+  let diff = 0;
+  for (let index = 0; index < left.length; index += 1) diff |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  return diff === 0;
+}
+
+export async function authenticate(db: CuriousDb, request: Request, now: Date, issuerToken?: string): Promise<{ principal: Principal } | { error: Response }> {
   const raw = bearer(request);
   const at = now.toISOString();
   if (!raw) {
@@ -50,6 +57,18 @@ export async function authenticate(db: CuriousDb, request: Request, now: Date): 
   if (revoked) {
     await writeAudit(db, { at, action: "deny", actor: "revoked", detail: { reason: "revoked" } });
     return { error: json(403, { ok: false, error: "denied" }) };
+  }
+  if (issuerToken) {
+    const issuerHash = await sha256Hex(issuerToken);
+    if (timingSafeEqualHex(tokenHash, issuerHash)) {
+      const presentedAgent = request.headers.get("x-curious-agent");
+      if (presentedAgent !== ALETHEIOS_AGENT) {
+        await writeAudit(db, { at, action: "deny", actor: presentedAgent || ALETHEIOS_AGENT, subject: "issuer-aletheios", detail: { reason: "agent_mismatch" } });
+        return { error: json(403, { ok: false, error: "denied" }) };
+      }
+      await writeAudit(db, { at, action: "use", actor: ALETHEIOS_AGENT, subject: "issuer-aletheios", detail: { path: new URL(request.url).pathname, source: "env" } });
+      return { principal: { tokenId: "issuer-aletheios", agent: ALETHEIOS_AGENT, scopes: ["tokens:issue"] } };
+    }
   }
   const row = await db.get<TokenRow>("SELECT id, token_hash, agent, scopes, expires_at FROM tokens WHERE token_hash = ?1", [tokenHash]);
   if (!row) {
