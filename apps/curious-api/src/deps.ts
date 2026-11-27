@@ -2,6 +2,7 @@ export interface Deps {
   now(): Date;
   fetch: typeof fetch;
   randomBytes(size: number): Uint8Array;
+  db?: import("./db.ts").CuriousDb;
 }
 
 export const defaultDeps: Deps = {
