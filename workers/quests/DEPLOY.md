@@ -61,6 +61,24 @@ curl -sS -H 'content-type: application/json' \
 
 The expected response is HTTP 401 with `missing initData`. Never put real `initData`, tokens, founder ids, or bot ids in deployment logs or proof artifacts.
 
+## Surface principals (local development only)
+
+`GET /api/quests/<tenant>` resolves its reader from Telegram `initData` or a
+verified Cloudflare Access identity. A caller-supplied `x-principal` header or
+`?principal=` query is ignored, and a malformed one never becomes a founder.
+
+To try scoped surfaces locally (for example from the R3F app), set
+`CAMBIUM_DEV_SURFACE_PRINCIPAL=1` and leave `TF_ACCESS_TEAM_DOMAIN` and
+`TF_ACCESS_AUD` empty, for example in `.dev.vars`. The Worker honours the flag
+only for `localhost`, `127.0.0.1`, `[::1]` or `*.localhost` requests, so the
+flag has no effect on a deployed host. Never add it to a deployed config.
+
+After a production deploy, an unauthenticated read must still be refused:
+
+```bash
+curl -sS "$CAMBIUM_QUESTS_BASE_URL/api/quests/cambium" | jq -e '.error == "access_identity_required"'
+```
+
 ## Marketing Create: Fail-Closed Installation
 
 This installation adds the fixed-tenant renderer code and its additive D1
