@@ -13971,8 +13971,11 @@ test('surface principal · Worker honours caller principals only for flagged loo
     { TF_ACCESS_TEAM_DOMAIN: 'team.cloudflareaccess.com' },
     { TF_ACCESS_AUD: 'aud-1' },
   ]) {
+    // Any Access setting disables the flag, and one var alone fails the gate closed.
     const partial = await workerQuestRead('http://localhost:8787', questsWorkerEnv({ CAMBIUM_DEV_SURFACE_PRINCIPAL: '1', ...access }));
-    assert.equal(partial.text, ENVELOPE, `any Access setting disables the flag (${Object.keys(access)[0]})`);
+    assert.equal(partial.status, 503, `partial Access fails closed (${Object.keys(access)[0]})`);
+    assert.equal(JSON.parse(partial.text).error, 'plexus_gate_misconfigured');
+    assert.equal(JSON.parse(partial.text).surface, undefined, 'no caller-chosen surface');
   }
 
   const gated = await workerQuestRead('http://localhost:8787', questsWorkerEnv({

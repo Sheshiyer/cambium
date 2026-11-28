@@ -31,7 +31,7 @@ const CACHE_SCHEMA_VERSION = 2;
 export type PlexusResolveResult =
   | { kind: 'principal'; principal: Principal }
   | { kind: 'unauthenticated' } // Access configured but no/invalid JWT
-  | { kind: 'unconfigured' };   // Plexus env unset → caller uses dev fallback
+  | { kind: 'unconfigured' };   // Access env incomplete → caller refuses (503), never a dev or anonymous fallback
 
 async function sha256Hex(input: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));
@@ -128,7 +128,7 @@ function cachedPrincipal(value: unknown, accessEmail: string, nowMs: number): Pr
 
 /**
  * Resolve the request's principal from Plexus. Returns 'unconfigured' when the
- * gate env is unset (dev founder-fallback path), 'unauthenticated' when Access
+ * gate env is incomplete (callers refuse with 503), 'unauthenticated' when Access
  * is configured but the JWT is missing/invalid (caller should 401), otherwise a
  * role-mapped Principal (never worse than consultant on downstream failures).
  */

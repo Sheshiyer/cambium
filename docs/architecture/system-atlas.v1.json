@@ -906,7 +906,7 @@
     },
     {
       "path": "workers/quests/src/handler.ts",
-      "sha256": "sha256:07d8c5ce983cb038a4bb55fc3c69eceb2417348c74bd59e26a00802ecedb44c7"
+      "sha256": "sha256:3ac720cd9d6b350d6cd31afaeaa61f55ffd4b09897311c6945ac9705f095e483"
     },
     {
       "path": "workers/quests/src/lib/access-jwt.ts",
@@ -914,7 +914,7 @@
     },
     {
       "path": "workers/quests/src/lib/plexus-principal.ts",
-      "sha256": "sha256:996780dd714a2930296a6b2f6c6602950667ce9afac06561cd926c49e20885fa"
+      "sha256": "sha256:aaf71d61548272e64b25cc93b926aa46bfcbced4569f5fecad3d801e1e6795e9"
     },
     {
       "path": "workers/quests/src/page/client/signed-action.ts",
@@ -1089,7 +1089,7 @@
       "to": "plexus",
       "source": "workers/quests/src/lib/plexus-principal.ts",
       "selector": "const identity = await verifyAccessJwt(headers, cfg, fetchImpl);",
-      "sourceSha256": "sha256:996780dd714a2930296a6b2f6c6602950667ce9afac06561cd926c49e20885fa",
+      "sourceSha256": "sha256:aaf71d61548272e64b25cc93b926aa46bfcbced4569f5fecad3d801e1e6795e9",
       "basis": "implementation"
     },
     {
@@ -1098,7 +1098,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "if (resolved.principal.role !== 'founder') {",
-      "sourceSha256": "sha256:07d8c5ce983cb038a4bb55fc3c69eceb2417348c74bd59e26a00802ecedb44c7",
+      "sourceSha256": "sha256:3ac720cd9d6b350d6cd31afaeaa61f55ffd4b09897311c6945ac9705f095e483",
       "basis": "implementation"
     },
     {
@@ -1107,7 +1107,7 @@
       "to": "fabric",
       "source": "workers/quests/src/handler.ts",
       "selector": "isViewer = viewerIds.includes(auth.userId);",
-      "sourceSha256": "sha256:07d8c5ce983cb038a4bb55fc3c69eceb2417348c74bd59e26a00802ecedb44c7",
+      "sourceSha256": "sha256:3ac720cd9d6b350d6cd31afaeaa61f55ffd4b09897311c6945ac9705f095e483",
       "basis": "implementation"
     },
     {

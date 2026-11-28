@@ -92,6 +92,7 @@ import { MINI_APP_SECTIONS, MINI_APP_MAP_SUBSECTIONS } from './mini-app-surface-
 import { filterSections, filterSubsections, type Principal } from './rbac.ts';
 import { createInvite as createConsultantInvite, verifyInvite as verifyConsultantInvite } from './invites.ts';
 import { resolvePlexusPrincipal, type PlexusGateConfig } from './lib/plexus-principal.ts';
+import { accessConfigured } from './lib/access-jwt.ts';
 import { buildBranchMapProjection, projectionDigest } from './branch-map.ts';
 import {
   MISSION_FABRIC_CAPS,
@@ -606,7 +607,7 @@ export interface HandlerDeps {
   missionFabricViewerIds?: string[]; // server-owned non-founder viewer allowlist for /v1/mission-fabric only; absent/empty authorizes founders only
   portfolioActionStore?: PortfolioAdminActionStoreLike; // Immutable R2 action evidence; never operational authority.
   portfolioActionQueue?: PortfolioAdminActionQueueLike; // Bounded pending-intake trigger; Goal Graph remains the sole operational writer.
-  plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → no Access gate; caller principals stay ignored)
+  plexus?: PlexusGateConfig;   // CF Access + whoami role gate (unset → no Access gate; partial → Plexus routes refuse with 503; caller principals stay ignored)
   devSurfacePrincipal?: boolean; // local development only: read caller x-principal / ?principal= when plexus is unset
   plexusFetchImpl?: typeof fetch; // test-only fetch injection for Access JWKS + whoami probes
 }
@@ -5927,7 +5928,9 @@ export async function handle(req: SimpleRequest, deps: HandlerDeps): Promise<Sim
   if (['/v1/founder/proposal', '/v1/founder/decision', '/v1/founder/status', '/v1/founder/renew', ...GROWTH_APPROVAL_ROUTES].includes(founderRoutePath)) {
     // The native realm gate knows the four canonical founder routes; growth approval rows stay on the web transport.
     if (!GROWTH_APPROVAL_ROUTES.includes(founderRoutePath) && nativeRealmPresented(req.headers)) return nativeFounderGate(req, deps);
-    const host = deps.founderDecisionHost ?? (deps.plexus ? createFounderAccessHost({
+    // An incomplete Access gate leaves the host unbound (503 founder_host_unconfigured)
+    // rather than looking like a founder who failed to authenticate.
+    const host = deps.founderDecisionHost ?? (deps.plexus && accessConfigured(deps.plexus) ? createFounderAccessHost({
       store: deps.goalGraphStore, bindingsJson: deps.founderGateBindingsJson,
       verifyFounder: async () => {
         const signer = await resolveFounderWebSigner(req, deps);
