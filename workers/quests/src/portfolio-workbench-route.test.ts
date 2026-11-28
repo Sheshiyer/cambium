@@ -170,7 +170,7 @@ test('public portfolio route preserves Telegram initData flow, falls back with l
   assert.match(String(response.body), /WebApp/);
   assert.match(String(response.body), /x-telegram-init-data/);
   assert.match(String(response.body), /fetch\('\/v1\/admin\/portfolio'/);
-  assert.match(String(response.body), /location\.replace\('\/admin\/portfolio\/web'\)/);
+  assert.match(String(response.body), /location\.replace\('\/portfolio'\)/);
   assert.doesNotMatch(String(response.body), /location\.replace\('\/admin\/portfolio'\)/);
   assert.doesNotMatch(String(response.body), /sapling:|client-branch|internal-program|portfolio-workbench\.v[23]/);
   assert.doesNotMatch(String(response.body), /localStorage|sessionStorage|console\./);
@@ -183,6 +183,48 @@ test('public portfolio route preserves Telegram initData flow, falls back with l
   const actionRead = await handle(request('GET', '/v1/admin/portfolio/actions'), fixture.value);
   assert.equal(actionRead.status, 405);
   assert.equal(actionRead.headers.allow, 'POST');
+  assert.equal(fixture.writes(), 0);
+});
+
+test('Curious serves the same public project map to browsers and API clients', async () => {
+  const fixture = deps();
+  const home = await handle(request('GET', '/'), fixture.value);
+  assert.equal(home.status, 200);
+  assert.match(String(home.body), /href="\/portfolio">Portfolio Workbench<\/a>/);
+
+  const founderHome = await handle(request('GET', '/founder'), fixture.value);
+  assert.equal(founderHome.status, 200);
+  assert.doesNotMatch(String(founderHome.body), /id="curious-portfolio-link"/);
+
+  const page = await handle(request('GET', '/portfolio'), fixture.value);
+  assert.equal(page.status, 200);
+  assert.match(String(page.body), /<h1>Portfolio Workbench<\/h1>/);
+  assert.match(String(page.body), /Relovo<code>branch:relovo<\/code>/);
+  assert.match(String(page.body), /type="application\/json" href="\/v1\/portfolio"/);
+  assert.doesNotMatch(String(page.body), PORTFOLIO_BYTES_RE);
+
+  const response = await handle(request('GET', '/v1/portfolio'), fixture.value);
+  assert.equal(response.status, 200);
+  const map = JSON.parse(String(response.body));
+  assert.equal(map.schema, 'cambium.portfolio-project-map.v1');
+  assert.equal(map.readOnly, true);
+  assert.ok(map.projects.length > 0);
+  for (const project of map.projects) {
+    assert.deepEqual(Object.keys(project).sort(), ['classification', 'name', 'workId']);
+    assert.ok(String(page.body).includes(`<code>${project.workId}</code>`));
+  }
+
+  const selected = await handle(request('GET', '/v1/portfolio?workId=branch%3Arelovo'), fixture.value);
+  assert.equal(selected.status, 200);
+  assert.deepEqual(JSON.parse(String(selected.body)).projects, [
+    { workId: 'branch:relovo', name: 'Relovo', classification: 'client-branch' },
+  ]);
+  assert.equal((await handle(request('GET', '/v1/portfolio?workId=branch:missing'), fixture.value)).status, 404);
+  for (const path of ['/portfolio', '/v1/portfolio']) {
+    const response = await handle(request('POST', path), fixture.value);
+    assert.equal(response.status, 405);
+    assert.equal(response.headers.allow, 'GET');
+  }
   assert.equal(fixture.writes(), 0);
 });
 

@@ -19,6 +19,10 @@ export const NATIVE_SESSION_ROUTES: ReadonlySet<string> = new Set(Object.values(
 export const NATIVE_COMPOSED_ROUTES: ReadonlySet<string> = new Set([
   ...NATIVE_SESSION_ROUTES,
   ...Object.values(NATIVE_LAUNCH_PATHS),
+  '/v1/native/work/intake',
+  '/v1/native/work/admit',
+  '/v1/native/work/result',
+  '/v1/native/work/result/review',
   '/v1/founder/proposal',
   '/v1/founder/decision',
   '/v1/founder/status',

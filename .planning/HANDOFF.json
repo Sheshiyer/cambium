@@ -816,12 +816,12 @@
     },
     "native_operational_loop": {
       "file": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json",
-      "status": "sign-in-built-operational-loop-not-wired",
+      "status": "work-direction-deployed-work-gate-read-held",
       "tier": "E5",
-      "branch": "codex/cambium-operational-loop-20261104",
+      "branch": "codex/cambium-real-work-loop-20261104",
       "handoff": ".planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.md",
       "selected_execution_owner": "hosted-hermes",
-      "native_source": "90eb3c466702a95453712df5b026fa729e1bc7d6",
+      "native_source": "71005ef65ca90e43acd2d8bfefe582df81eff1ce",
       "isa": "ISA.md",
       "isc_done": [
         "ISC-3680"
@@ -835,8 +835,183 @@
         "ISC-3686",
         "ISC-3687"
       ],
-      "next_action": "Implement the explicit approved operational Work source and exact native join, then revisioned directions and the reviewed finite hosted-Hermes capability/admission/result contract. Full loop has not run; preserve completed Inbox proof separately.",
-      "ui_diagnostics": "Settings > Advanced > Diagnostics"
+      "next_action": "Await explicit owner decision on reviewed founder-read timeout candidate62836c61 (10s->30s, no migration). Existing live version5f2c5dc7 and migration0103 are already applied; do not repeat. Use Zen ThoughtseedLabs only, then prepare the pinned Work proposal for a separate canonical founder decision. No Work row, admission or Hermes launch has occurred.",
+      "ui_diagnostics": "Settings > Advanced > Diagnostics",
+      "rollout": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json",
+      "rollout_receipt": ".planning/native-mac/WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json",
+      "retry_candidate": ".planning/native-mac/FOUNDER-READ-RETRY-20261104.json"
+    },
+    "department_live_integration": {
+      "status": "combined-native93-version94-upload-verified-traffic-held",
+      "source_branch": "codex/department-native-reconcile-20261103",
+      "handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
+      "verified_live_head": 11,
+      "live_head_digest": "68d3c34c2dd54ee2351e063bc0dd54bb468d8164550bd3af2c8cc10502d3e32f",
+      "serving_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+      "accepted_daily_work": "unavailable from actual owner sources",
+      "kpi_measurements": "twelve unavailable; no complete owner cohort reader",
+      "gate": "Review upload and exact version94 readback complete; separate traffic approval and production acceptance remain held.",
+      "execution_granted": false,
+      "serving_percentage": 100,
+      "original_department_source": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
+      "requested_traffic_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
+      "observed_serving_version": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+      "observed_serving_version_number": 93,
+      "observed_binding_count": 52,
+      "compatibility_branch": "codex/department-native-reconcile-20261103",
+      "compatibility_handoff": "docs/plans/department-pilot/NATIVE-RECONCILIATION.md",
+      "compatibility_upload_authorized": false,
+      "traffic_changed_by_this_task": false,
+      "rollback_requested_by_owner": "ef6e0c74-697e-4938-9d15-e0e481c80dbe",
+      "original_department_source_commit": "fcbb68f9e11a29922aa65b8f7dedf08601e81844",
+      "original_uploaded_department_version": "e3750ef4-86dc-4980-a5a2-1b9331120c85",
+      "native_owner_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
+      "serving_binding_count": 52,
+      "owner_choice": "preserve version82 and prepare combined source",
+      "version80_promotion_superseded": true,
+      "combined_candidate_uploaded": true,
+      "combined_candidate_upload_authorized": false,
+      "local_verification": {
+        "focused_node_tests": "777/777 fresh including native/department, repository/lifecycle guards and context/intake fixtures",
+        "atlas_tests": "existing generator --check passed; atlas included in777 focused checks",
+        "native_core_tests": "retained deb53e3e260pass/1skip proof; all94 native Source/Test bytes unchanged and match93, not rerun",
+        "native_app_tests": "retained deb53e3e39/39 native XCTest proof; unchanged native bytes, not rerun",
+        "scoped_strict_typecheck": "fresh pass",
+        "broad_worker_typecheck": "fresh69 diagnostics; exact same identities as d6bb baseline, none added",
+        "bundle_parity": "department generated source unchanged fromd6bb",
+        "dry_run": "fresh pass; actual emitted Worker byte-identical todeb53e3e2585141bytes/SHA256036a55b059111b794a6ff0a6bfd5a97f2811f95b079608bf1ebb18d6f9bb403a",
+        "retired_surface_guard": "fresh pass using actual Wrangler sourcemap inputs",
+        "full_node_tests": "2694/2697 fresh on exact e6c1940e with original history and independent refs; same three baseline failures, no new identities",
+        "standalone_audit": "fresh run retains same six findings"
+      },
+      "native_browser_alias_owner_commit": "ab94d63c7db8572c3743c1cb8c3d69221ba0f053",
+      "serving_version_number": 93,
+      "serving_deployment_id": "c89c5a4d-e149-4b5e-a242-9051b9e7b7dc",
+      "latest_observation_ref": "artifact:departmental-live-integration-20261103/reconcile-native93-20261104/live-drift-after.json",
+      "upload_approval_consumed": true,
+      "combined_uploaded_source_commit": "e6c1940e5410240c0d726d0da3419b28cbbd4289",
+      "combined_uploaded_version": "c0821aa3-987a-4fc5-b2c5-380aee02fb5b",
+      "combined_uploaded_version_number": 94,
+      "uploaded_version_verified": true,
+      "candidate_serving": false,
+      "traffic_authorized": false,
+      "observed_at": "2026-11-03T19:38:24.568834+00:00",
+      "deployment_changed_concurrently_since_preflight": false,
+      "newer_native_source_reconciliation_required_before_traffic": false,
+      "preview_verification": "Immutable version94 preview: root200 with complete generated JS/CSS; health200 configured; guest founder graph401. Authenticated founder graph, production and native/device acceptance not tested.",
+      "upload_scope": "exact e6c1940e immutable review upload only; no traffic/trigger/settings/credential change",
+      "reviewed_native_owner_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
+      "current_native_source_resolution": "All native92\u219293 delta paths match pinned b5396101; runtime inputs preserve only department additions; live remains93 with no observed source drift.",
+      "previous_uploaded_candidate": {
+        "source_commit": "d6bb69866e50e88aa4efe8e8717d2a0360ee4979",
+        "version_id": "f74b004a-f50a-4976-b0ee-4c34f2c15aee",
+        "version_number": 89,
+        "verified": true,
+        "serving": false
+      },
+      "combined_candidate_source_commit": "e6c1940e5410240c0d726d0da3419b28cbbd4289",
+      "source_reconciliation_authorized": true,
+      "reconciled_requested_native_version": 93,
+      "requested_native90_source_commit": "0b31033b0dc3fcebc1155dba9279f91c0330bb21",
+      "reconciled_native_version": 93,
+      "native_source_test_files_exact": 94,
+      "latest_uploaded_version_number": 94,
+      "latest_uploaded_version_id": "c0821aa3-987a-4fc5-b2c5-380aee02fb5b",
+      "new_candidate_source_verification": "Exact52 inherited binding configurations, runtime, operational settings, schedules, exposure and Worker artifact verified against preflight; documented baseline retained.",
+      "config_sha256": "a4c3318e412997b0bb54b533ef7bb52c3f7312686e6598817c6b91c61ea9d601",
+      "config_byte_identical_to_d6bb6986": true,
+      "graph_verification_scope": "head11/128nodes/seven decisions is earlier authenticated proof, not a new production acceptance claim",
+      "newer_native_source_reconciliation_required_before_upload": false,
+      "source_verification_receipt": "artifact:departmental-live-integration-20261103/reconcile-native93-20261104/combined-source-receipt.json",
+      "requested_native93_source_commit": "b53961011e09701959d59c2bcfebb3253e138001",
+      "traffic_readback": {
+        "id": "c89c5a4d-e149-4b5e-a242-9051b9e7b7dc",
+        "versions": [
+          {
+            "version_id": "23cf59d1-754a-4cef-be7a-f96fcc072f48",
+            "percentage": 100
+          }
+        ]
+      },
+      "uploaded_version_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/uploaded-version-verification.json",
+      "preview_readback_receipt": "artifact:departmental-live-integration-20261103/upload-e6c1940e-20261104/version-preview-readback.json",
+      "baseline_failures_documented": true
+    },
+    "iverif_native_work_cycle": {
+      "status": "version100-serving-native-intake-identity-fix-unuploaded",
+      "plan": ".planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md",
+      "source_repository": "Sheshiyer/iverif-wiki",
+      "source_commit": "1cc03e62fbfb32ba21c98ba81ac5a6883d676d2a",
+      "issue": "https://github.com/Sheshiyer/iverif-wiki/issues/91",
+      "serving_observation": {
+        "version": 100,
+        "id": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+        "source": "1915a1321fe126c700094608abe4a3b76dee9fc7",
+        "traffic_percent": 100,
+        "binding_count": 54,
+        "verified_at": "2026-11-04T00:44:17.448Z"
+      },
+      "decisions": [
+        "native Mac first",
+        "one real claim-table work cycle",
+        "green whole Worker check before traffic",
+        "hosted Hermes/noesis-free/no paid fallback"
+      ],
+      "remaining": [
+        "verify corrected native-identity candidate, obtain its new upload and later traffic approval",
+        "real founder Work/task/result decisions and current admission",
+        "one exact hosted claim-proof run and signed owner foldback",
+        "native authoritative/foldback acceptance",
+        "authenticated desktop/390x844 and physical iPhone Safari acceptance",
+        "GSD mappings and business KPI evidence remain held"
+      ],
+      "upload": {
+        "version": 100,
+        "id": "fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3",
+        "source_commit": "1915a1321fe126c700094608abe4a3b76dee9fc7",
+        "config_sha256": "507945f5e43c0476348828b7dc7ebd55e1a7c3d4e9e0eba953ebd11416889cd9",
+        "worker_bytes": 2705387,
+        "worker_sha256": "7ea2e444277af2b469f913a4b0ba548160d818393e9ce3eff059d1b93911760b",
+        "binding_count": 54,
+        "verified_at": "2026-11-04T00:15:24.055Z",
+        "approval": "Explicit owner upload-only approval; no traffic approval",
+        "receipt": "artifact:iverif-native-cycle-2026-11-04-prepared/upload-100/upload-verification.json",
+        "traffic_percent": 100,
+        "preview_health_status": 200,
+        "preview_gate_status": 200,
+        "gate_configured": true,
+        "anonymous_founder_graph_status": 403,
+        "native_preview_host_status": 400,
+        "preview_page_source_parity": true
+      },
+      "activation": {
+        "approval": "Explicit owner scoped activation approval",
+        "schema": [
+          "0099_native_launch_requests.sql",
+          "0105_native_direction_admission_guards.sql"
+        ],
+        "schema_objects_verified": 16,
+        "admissions_seeded": false,
+        "hermes_source": "06d33ff5373ba9a851dc5314f04982d20c0a9586",
+        "hermes_runtime_files_installed": 9,
+        "periodic_growth_checkout_unchanged": true,
+        "timer_execution": false,
+        "rollback": "57704696-3986-4414-ba30-4bf2afd90f9a",
+        "receipt": "artifact:iverif-native-cycle-2026-11-04-prepared/activation-100/activation-complete.json"
+      },
+      "native_acceptance": {
+        "signed_in": true,
+        "catalog_read": "fresh",
+        "selected_work": "sapling:iverif",
+        "work_preparation": "rejected by Access-only actor format despite valid native session",
+        "founder_decision": false,
+        "task_executed": false
+      },
+      "next_candidate": {
+        "purpose": "Preserve verified native founder IDs at Work/task/acceptance intake boundaries using the existing session identifier contract",
+        "status": "local correction; new exact upload and later traffic approval required",
+        "review": "artifact:iverif-native-cycle-2026-11-04-prepared/native-identity-fix/REVIEW.md"
+      }
     }
   }
 }

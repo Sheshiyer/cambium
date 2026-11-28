@@ -228,7 +228,7 @@ function organRows(projection: BranchMapProjection): BranchMapSheetRow[] {
   };
 
   for (const node of projection.nodes) {
-    const metadata = isRecord(node.metadata) ? node.metadata : {};
+    const metadata = 'metadata' in node && isRecord(node.metadata) ? node.metadata : {};
     const metadataOrgan = nonEmpty(metadata.organ) ? metadata.organ : null;
     if (!metadataOrgan) continue;
     const organId = nonEmpty(metadata.organId) ? metadata.organId : `organ:${metadataOrgan.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;

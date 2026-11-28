@@ -69,6 +69,11 @@
     "sapling:test": "node --test .agents/skills/sapling-lifecycle/scripts/*.test.mjs",
     "sapling:hooks": "node .agents/skills/sapling-lifecycle/scripts/codex-hooks.mjs",
     "proof:field-atlas": "node scripts/capture-field-atlas.mjs",
-    "proof:field-atlas:check": "node scripts/check-field-atlas-proof.mjs"
+    "proof:field-atlas:check": "node scripts/check-field-atlas-proof.mjs",
+    "typecheck:worker": "tsc --project tsconfig.worker.json"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
   }
 }

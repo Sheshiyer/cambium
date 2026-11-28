@@ -307,6 +307,8 @@ Local source, synthetic-owner, signed-bundle and actual macOS window evidence pr
 - [x] ISC-3465: Local Swift and native route tests, signed bundle and clean-input build proof pass.
 - [ ] ISC-3466: An unlocked Mac walkthrough verifies Projects filtering, detail and exact Work navigation in the built app.
 - [x] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority. Evidence: `.planning/native-mac/NATIVE-INBOX-ACTIVATION-20261103.md`.
+
+- [ ] ISC-3467: A real enrolled founder session receives the current owner-served catalog on the Mac without changing tenant or admission authority.
 - [x] ISC-3468: Founder detail maps every served historical product and classification review row; viewer detail stays empty.
 - [x] ISC-3469: Historical records and source links are searchable and navigable without creating runtime joins.
 - [x] ISC-3470: The expanded native and Core suites, scoped route test, signed bundle and clean-input proof pass.
@@ -3725,3 +3727,14 @@ Version 95 remains the planning baseline. VPG-03 through VPG-10, deployment,
 traffic, real owner writes/signatures/queues, graph/provider/native-store effects
 and runtime admission remain held. Canonical graph mapping is absent. Root Phase
 9 STATE/ROADMAP/REQUIREMENTS/config and prior handoff history stay unchanged.
+### 2026-11-04 IVerif native finite work cycle
+
+Owner-approved implementation scope: `.planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md`. These criteria describe one internal claim-table task; they do not promote IVerif or close broader release holds.
+
+- [ ] IVC-01: Combined source preserves native Work/directions and reviewed department owner readers; full frozen suite, strict whole Worker check, release verification, bundle parity and emitted-source guards pass.
+- [ ] IVC-02: Signed-in Mac saves an IVerif observation and exact direction; founder Work/task decisions and separate governed admission agree with D1.
+- [ ] IVC-03: Hosted Hermes runs exactly one admitted directive on the refreshed pinned wiki snapshot, without paid fallback, unrelated queue consumption or automatic rerun.
+- [ ] IVC-04: Immutable claims/provenance pass validation; a separate founder verdict and existing owner signature bind the same task, attempt and artifact; graph readback agrees without product promotion.
+- [ ] IVC-05: Separately approved release/migrations preserve recovery evidence; authenticated desktop,390×844 and physical iPhone Safari results are recorded independently.
+
+Source/local evidence is recorded in the candidate receipt. Live founder/hosted/device acceptance remains open; no criterion above is marked complete by synthetic tests.

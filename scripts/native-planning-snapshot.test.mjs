@@ -19,7 +19,10 @@ test('ISC-3467 snapshot stays dated behind the checked ISA evidence', () => {
   assert.match(activation, /Only migrations 0100, 0101 and 0102 were applied/);
   assert.match(limits, /0103_shared_directions\.sql/);
   assert.match(limits, /not a reversal/);
-  assert.equal(readdirSync(path.join(root, 'workers/quests/migrations')).some((name) => name.startsWith('0103_')), false);
+  // The 9 November snapshot predates the serving-line merge; its addendum names the change.
+  assert.equal(readdirSync(path.join(root, 'workers/quests/migrations')).some((name) => name.startsWith('0103_')), true);
+  assert.match(limits, /### 28 November addendum/);
+  assert.match(limits, /does not record which\s+migrations the remote D1 database has applied/);
 });
 
 test('native roadmap does not claim all sixteen decisions are implemented', () => {

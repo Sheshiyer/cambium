@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { CLIENT_CURIOUS_DEPARTMENT_BRIDGE } from './page/client/curious-department-bridge.ts';
 function setup(founder=true) {
  const pending:Array<{resolve:(v:any)=>void;reject:(e:any)=>void}>=[];
- const context:any={FOUNDER_WEB:founder,TENANT:'cambium',CuriousGateBridge:{graph:()=>new Promise((resolve,reject)=>pending.push({resolve,reject}))},CuriousPocketWorld:{createDepartmentReader:(raw:any)=>({input:raw})}};
+ const context:any={AbortController,setTimeout,clearTimeout,FOUNDER_WEB:founder,TENANT:'cambium',CuriousGateBridge:{graph:()=>new Promise((resolve,reject)=>pending.push({resolve,reject}))},CuriousPocketWorld:{createDepartmentReader:(raw:any)=>({input:raw})}};
  vm.runInNewContext(CLIENT_CURIOUS_DEPARTMENT_BRIDGE+'\nthis.bridge=CuriousDepartmentBridge;',context);return {bridge:context.bridge,pending};
 }
 test('out-of-order graph reads cannot replace a newer frontier or recover after disposal',async()=>{

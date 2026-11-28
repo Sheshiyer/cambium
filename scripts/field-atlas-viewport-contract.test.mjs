@@ -33,7 +33,7 @@ test('release entrypoint stops at strict retained qualification before later che
     writeFileSync(npm,`#!${process.execPath}\nconst fs=require('node:fs');const a=process.argv.slice(2);fs.appendFileSync(process.env.FIELD_ATLAS_GATE_LOG,JSON.stringify(a)+'\\n');process.exit(a.join(' ')==='run proof:field-atlas:check'?1:0);\n`);chmodSync(npm,0o700);
     const result=spawnSync(process.execPath,['scripts/verify-release.mjs'],{cwd:FIELD_ATLAS_ROOT,env:{...process.env,PATH:root+':'+process.env.PATH,FIELD_ATLAS_GATE_LOG:log},encoding:'utf8'});
     assert.equal(result.status,1,result.stdout+result.stderr);
-    assert.deepEqual(readFileSync(log,'utf8').trim().split('\n').map(line=>JSON.parse(line)),[['run','retired-runtime:check'],['run','drift:audit'],['run','proof:field-atlas:check']]);
+    assert.deepEqual(readFileSync(log,'utf8').trim().split('\n').map(line=>JSON.parse(line)),[['run','typecheck:worker'],['--prefix','apps/cambium-r3f','run','curious:check'],['run','retired-runtime:check'],['run','drift:audit'],['run','proof:field-atlas:check']]);
     assert.match(result.stderr,/Release verification failed at: current3D viewport and retained operational assertions/);
   }finally{rmSync(root,{recursive:true,force:true});}
 });

@@ -25,6 +25,9 @@ struct ProposalView: View {
                 .cambiumPanel()
             }
             BindingPanel()
+            if model.review?.sourceRef?.hasPrefix("founder-direction-execution:") == true, model.proposalBinding?.workId == "sapling:iverif", model.gate?.recorded == true, model.gate?.choice == "approved" {
+                Button("Request task admission") { model.requestReviewedAdmission() }.disabled(model.loading)
+            }
 
             if let review = model.review {
                 VStack(alignment: .leading, spacing: 12) {
@@ -44,6 +47,9 @@ struct ProposalView: View {
                 }
                 .cambiumPanel(highlighted: true)
 
+                DisclosureGroup("Review pins and changes") {
+                    Text(review.changeSetJSON).font(CambiumFont.monoSmall).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                }.cambiumPanel()
                 if !review.changes.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         SectionHeader(title: "Changes (\(review.changes.count))")
@@ -186,7 +192,7 @@ private struct BindingPanel: View {
                 FactRow(label: "Proposal reference", value: binding.proposalId, mono: true)
                 FactRow(label: "Source", value: binding.source == .ownerProjection
                         ? "Named by the loaded projection for this work"
-                        : "Typed canonical reference for this session")
+                        : model.proposalBinding?.source == .ownerPreparation ? "Prepared by the authenticated owner" : "Typed canonical reference for this session")
             } else {
                 Text("This work has no proposal join. Type the canonical reference. The app will not invent one.")
                     .font(.callout).foregroundStyle(Palette.inkMuted)

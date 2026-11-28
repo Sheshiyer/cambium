@@ -1,9 +1,18 @@
 # Thoughtseed Portfolio Workbench
 
-A founder-only hosted admin workbench for mapping the Thoughtseed portfolio,
-reconciling repository identity, origin, WorkObject grammar, and planning
-authority, then saving bounded intake and project-creation intents through the
-Cambium Worker.
+The Curious portfolio view is available at `/portfolio`. Agents can read the
+same project map through `GET /v1/portfolio`. The
+`cambium.portfolio-project-map.v1` response includes each project’s work ID,
+display name, and classification. Pass `workId` to look up one project.
+
+```sh
+curl -fsS "${CURIOUS_ORIGIN}/v1/portfolio?workId=branch%3Arelovo"
+```
+
+The founder workbench at `/admin/portfolio/web` provides repository identity
+review, project mapping, and intake actions. Telegram opens it through the
+signed Workbench launcher. Agents with founder authority can use the existing
+`/v1/admin/portfolio/actions` API for intake and project-creation intents.
 
 The artifact contains the verified 72-object Thoughtseed catalog snapshot, a
 privacy-safe 44-reference repository-evidence snapshot, and the five canonical

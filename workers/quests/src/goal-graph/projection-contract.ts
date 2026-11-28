@@ -266,12 +266,12 @@ export function reconcileNodeMapping(
   mappingOrFrom: GoalGraphNodeMapping | readonly string[],
   maybeTo?: readonly string[],
 ): NodeReconciliationResult {
-  const from = Array.isArray(mappingOrFrom)
-    ? normalizeNodeIds(mappingOrFrom, 'from')
-    : normalizeNodeIds(mappingOrFrom.from, 'from');
-  const to = Array.isArray(mappingOrFrom)
-    ? normalizeNodeIds(maybeTo ?? [], 'to')
-    : normalizeNodeIds(mappingOrFrom.to, 'to');
+  const from = 'from' in mappingOrFrom
+    ? normalizeNodeIds(mappingOrFrom.from, 'from')
+    : normalizeNodeIds(mappingOrFrom, 'from');
+  const to = 'to' in mappingOrFrom
+    ? normalizeNodeIds(mappingOrFrom.to, 'to')
+    : normalizeNodeIds(maybeTo ?? [], 'to');
   const classification = classify(from, to);
 
   switch (classification) {

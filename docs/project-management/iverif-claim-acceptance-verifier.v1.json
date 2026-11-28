@@ -1,0 +1,16 @@
+{
+  "schema": "cambium.iverif.claim-acceptance-verifier.v1",
+  "files": {
+    "shared/iverif-claim-proof.ts": "33b8045460144c0a6691089a6d4a3848df709b436120800784b32a799c0d7b49",
+    "docs/project-management/iverif-claim-proof-source.v1.json": "b4b797e125cfcbdaa01847f781cddd809e201acd94425e6a2b2dcf2cd5461184",
+    "bin/operator/quests/iverif-claim-acceptance.mjs": "9bef16b2dda1ef4b1500208fde2e1e2097b53485bee0da77f0e4f9f133943bf5",
+    "scripts/iverif-claim-acceptance.test.mjs": "e78f29af179b6347ca45a0a958f982d23c679b95e7a159386306246ffb9525bb",
+    "package.json": "3035b4a251bb3cb8c7f932540d5a758cf75cf9c005ceaf0ea620ed9f24196456"
+  },
+  "ownerModules": {
+    "wtfmedia-accepted-work-unit.v1.ts": "97bb01827881933a1d67bd8e84ec52b3e88b2a1fa22b9c5416781f061ba254f3",
+    "accepted-work-unit-policies.v1.ts": "416080d60d55a8d8c162d13ed9e3f26932e903719820e1a32f9d6239e66e65d7",
+    "isa-artifact-policy.v4.ts": "9c493f0a95d1f1eb9ccda8b791613b055462a13e9049e2830e5486a587a21b5d",
+    "result-capture.v4.ts": "2472753cc5afa098e49a4a1d8d2ce4e5cc2a2897f35a3dcd9003c3796863ec6a"
+  }
+}

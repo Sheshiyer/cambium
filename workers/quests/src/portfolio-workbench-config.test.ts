@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import path from 'node:path';
+import resourceMap from '../../../docs/architecture/contracts/cambium-cloudflare-resource-map.v1.json' with {type:'json'};
 import { fileURLToPath } from 'node:url';
 
 const questsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
