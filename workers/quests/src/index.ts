@@ -1568,7 +1568,10 @@ export default {
       branchMapTenants: parseAllowedTenants(env.GATE_BRANCH_MAP_TENANTS),
       missionFabricTenants: parseAllowedTenants(env.MISSION_FABRIC_TENANTS),
       missionFabricViewerIds: parseAllowedUserIds(env.MISSION_FABRIC_VIEWER_IDS),
-      plexus: env.TF_ACCESS_TEAM_DOMAIN && env.TF_ACCESS_AUD ? {
+      // Either Access var alone still builds the gate, so a half-configured
+      // deployment refuses Plexus routes ('unconfigured', 503) instead of
+      // silently running with the Access gate off.
+      plexus: env.TF_ACCESS_TEAM_DOMAIN || env.TF_ACCESS_AUD ? {
         teamDomain: env.TF_ACCESS_TEAM_DOMAIN,
         aud: env.TF_ACCESS_AUD,
         whoamiUrl: env.PLEXUS_WHOAMI_URL,

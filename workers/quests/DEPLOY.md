@@ -79,6 +79,11 @@ After a production deploy, an unauthenticated read must still be refused:
 curl -sS "$CAMBIUM_QUESTS_BASE_URL/api/quests/cambium" | jq -e '.error == "access_identity_required"'
 ```
 
+Set `TF_ACCESS_TEAM_DOMAIN` and `TF_ACCESS_AUD` together or not at all. With
+only one of them set, the Access gate fails closed: every Access-gated route
+answers 503 (`plexus_gate_misconfigured` or `founder_host_unconfigured`) until
+both are present.
+
 ## Marketing Create: Fail-Closed Installation
 
 This installation adds the fixed-tenant renderer code and its additive D1
