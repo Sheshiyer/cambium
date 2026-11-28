@@ -3,11 +3,12 @@ import type { GateBridge } from './gate-folio.ts';
 type GraphNode = Record<string, any> & { nodeId: string; parentNodeId: string | null; workObjectId: string };
 export interface FounderGraph { head: { graphVersion: number; graphDigest: string }; rootId: string; nodes: GraphNode[]; edges: Array<{ kind: string; fromId: string; toId: string }>; decisions: Record<string, any>[]; servedAt: string; evidenceTrust: string }
 export interface FounderGraphState { data: FounderGraph | null; selected: string; busy: boolean; message: string }
-export const FOUNDER_PRODUCTS = [ ['sapling:lumen-bar', 'LumenBar'], ['program:temperance-hermes', 'Temperance Engine'] ] as const;
+export const FOUNDER_PRODUCTS = [ ['sapling:lumen-bar', 'LumenBar'], ['program:temperance-hermes', 'Temperance Engine'], ['sapling:iverif','IVerif'] ] as const;
 
 /** Validate the served read boundary; never substitute local/demo nodes. */
 export function normalizeFounderGraph(value: any): FounderGraph {
-  if (!value || value.schema !== 'cambium.founder.bookkeeping-graph.v1' || value.origin !== 'd1'
+  const operational=value?.schema==='cambium.founder.operational-graph.v1'&&value.workObjectId==='sapling:iverif'&&value.productPromotion===false;
+  if (!value || (!operational&&value.schema !== 'cambium.founder.bookkeeping-graph.v1') || value.origin !== 'd1'
     || value.tenantId !== 'cambium' || value.canonicalReadback !== true || value.writerAuthority !== false
     || value.executionGranted !== false || !Number.isInteger(value.head?.graphVersion)
     || typeof value.head?.graphDigest !== 'string' || typeof value.rootId !== 'string'
@@ -16,8 +17,9 @@ export function normalizeFounderGraph(value: any): FounderGraph {
   const nodes = value.nodes as GraphNode[];
   const ids = new Set(nodes.map(n => n?.nodeId));
   if (ids.size !== nodes.length || nodes.some(n => !n || typeof n.nodeId !== 'string' || !n.nodeId
-    || n.tenantId !== 'cambium' || n.namespace !== 'founder-bookkeeping' || n.pinnedLoadoutId !== null
-    || !FOUNDER_PRODUCTS.some(([id]) => id === n.workObjectId)
+    || n.tenantId !== 'cambium'
+    || (operational ? n.workObjectId!=='sapling:iverif'||!['founder-operational-work','founder-direction-execution','founder-claim-acceptance'].includes(n.namespace)
+      ||n.pinnedLoadoutId!==(n.namespace==='founder-direction-execution'?'loadout:iverif-claim-proof':null) : n.namespace!=='founder-bookkeeping'||n.pinnedLoadoutId!==null||!['sapling:lumen-bar','program:temperance-hermes'].includes(n.workObjectId))
     || (n.parentNodeId !== value.rootId && (typeof n.parentNodeId !== 'string' || !ids.has(n.parentNodeId))))) throw new Error('Canonical graph contains an invalid bookkeeping branch.');
   const byId = new Map(nodes.map(n => [n.nodeId, n]));
   for (const node of nodes) {
@@ -30,7 +32,7 @@ export function normalizeFounderGraph(value: any): FounderGraph {
   if (value.edges.length !== nodes.length || new Set(value.edges.map((e:any)=>e?.toId)).size !== nodes.length) throw new Error('Canonical containment links are incomplete or duplicated.');
   if (value.edges.some((e: any) => !e || e.kind !== 'contains' || !ids.has(e.toId)
     || (e.fromId !== value.rootId && !ids.has(e.fromId)) || byId.get(e.toId)?.parentNodeId !== e.fromId)) throw new Error('Canonical containment links do not match the nodes.');
-  if (value.decisions.some((d: any) => d?.kind !== 'd1-bookkeeping-decision' || d.canonicalReadback !== true
+  if (value.decisions.some((d: any) => d?.kind !== (operational?'d1-operational-decision':'d1-bookkeeping-decision') || d.canonicalReadback !== true
     || !['approved', 'rejected'].includes(d.decision))) throw new Error('Canonical decision read is unconfirmed.');
   return value as FounderGraph;
 }
@@ -45,27 +47,28 @@ function node<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string): HTM
 /** Display only: the bridge performs the existing authenticated GET. */
 export function founderGraphView(bridge: GateBridge, state: FounderGraphState): HTMLElement {
   const section = node('section'); section.className = 'cw-founder-graph'; section.setAttribute('aria-label', 'Committed lifecycle graph');
+  async function refresh() {
+    if(state.busy||!bridge.readGraph)return;
+    state.busy=true;state.message='Reading the current canonical head…';render();
+    try{state.data=normalizeFounderGraph(await bridge.readGraph(state.selected==='sapling:iverif'?'sapling:iverif':undefined));state.message='Current D1 read. Execution evidence and semantic acceptance are separate records.';}
+    catch{state.data=null;state.message='The canonical graph read is held.';}
+    finally{state.busy=false;render();}
+  }
   function render() {
     section.replaceChildren(node('h3', 'Committed lifecycle graph'));
     const read = node('button', state.busy ? 'Reading canonical graph…' : state.data ? 'Refresh committed graph' : 'Read committed graph');
     read.type = 'button'; read.className = 'cw-link'; read.disabled = state.busy;
     const status = node('p', state.message); status.setAttribute('role', 'status');
-    read.addEventListener('click', async () => {
-      if (state.busy || !bridge.readGraph) return;
-      state.busy = true; state.message = 'Reading the current canonical head…'; render();
-      try { state.data = normalizeFounderGraph(await bridge.readGraph()); state.message = 'Current D1 graph read. Founder decisions are shown separately from execution or publication.'; }
-      catch { state.data = null; state.message = 'The canonical graph read is held. No cached or local graph is being shown.'; }
-      finally { state.busy = false; render(); }
-    });
+    read.addEventListener('click', refresh);
     section.append(read, status);
-    const graph = state.data; if (!graph) return;
-    section.append(node('p', `Head ${graph.head.graphVersion} · read ${graph.servedAt} · ${graph.nodes.length} bookkeeping nodes`));
-    if (graph.evidenceTrust) section.append(node('p', String(graph.evidenceTrust)));
     const label = node('label', 'Product lifecycle'); const select = node('select'); select.id = 'cw-founder-graph-product'; label.htmlFor = select.id;
     for (const [id, name] of FOUNDER_PRODUCTS) { const option = node('option', name); option.value = id; select.append(option); }
-    select.value = state.selected;
-    select.addEventListener('change', () => { state.selected = select.value; render(); section.querySelector('select')?.focus(); });
+    select.value = state.selected; select.disabled=state.busy;
+    select.addEventListener('change', () => { const previous=state.selected; state.selected=select.value; if(previous==='sapling:iverif'||state.selected==='sapling:iverif'){state.data=null;void refresh();}else render(); });
     section.append(label, select);
+    const graph=state.data;if(!graph)return;
+    section.append(node('p', `Head ${graph.head.graphVersion} · read ${graph.servedAt} · ${graph.nodes.length} committed nodes`));
+    if (graph.evidenceTrust) section.append(node('p', String(graph.evidenceTrust)));
     const visible = founderProductNodes(graph, state.selected); const selectedIds = new Set(visible.map(n => n.nodeId));
     const all = new Map(graph.nodes.map(n => [n.nodeId, n]));
     section.append(node('p', `${visible.length} nodes in this product. Expand a branch to follow its work and recorded planning prerequisites.`));
@@ -93,10 +96,10 @@ export function founderGraphView(bridge: GateBridge, state: FounderGraphState): 
       return details;
     }
     for (const item of visible.filter(n => !selectedIds.has(n.parentNodeId!))) section.append(branch(item));
-    if (!visible.length) section.append(node('p', 'No committed bookkeeping nodes for this product in the served head.'));
+    if (!visible.length) section.append(node('p', 'No committed nodes for this product in the served head.'));
     const decisions = node('details'); decisions.dataset.cwDisclosure = 'graph-decisions';
     decisions.append(node('summary', `Recorded founder decisions (${graph.decisions.length})`));
-    decisions.append(node('p', 'These are graph bookkeeping decisions, not platform publishing or execution receipts.'));
+    decisions.append(node('p', 'Founder decisions and execution receipts carry separate authority. IVerif remains proof-only.'));
     for (const d of graph.decisions) decisions.append(node('p', `${d.decision} · ${d.decidedAt} · graph ${d.graphVersion} · ${d.changeDigest}`));
     section.append(decisions);
     const exact = node('details'); exact.dataset.cwDisclosure = 'graph-exact'; exact.append(node('summary', 'Exact canonical graph data'));

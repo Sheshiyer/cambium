@@ -267,7 +267,7 @@ for (const access of ACCESS_ALONE) {
       const env = workerEnv(access.env);
       // Loopback is the only host where the dev flag could ever apply; the
       // deployed host is where a half-set env would actually ship.
-      for (const origin of ['http://localhost:8787', 'https://curious.thoughtseed.space']) {
+      for (const origin of ['http://localhost:8787', 'https://curious.example']) {
         for (const probe of PLEXUS_ROUTES) {
           const res = await workerFetch(origin, probe, env);
           assertRefused(probe, res.status, res.text, `${access.name} @ ${origin}`);
@@ -295,16 +295,16 @@ test('partial Access · Worker entrypoint · contrast: no Access keeps the publi
   await withNoNetwork(async () => {
     const questRead: Probe = { label: 'quests GET', method: 'GET', path: '/api/quests/cambium',
       headers: { 'x-principal': FORGED_FOUNDER }, expect: { status: 503, error: '' } };
-    const deployedNoAccess = await workerFetch('https://curious.thoughtseed.space', questRead, workerEnv({}));
+    const deployedNoAccess = await workerFetch('https://curious.example', questRead, workerEnv({}));
     assert.equal(deployedNoAccess.status, 200);
     assert.equal(deployedNoAccess.text, ENVELOPE, 'no Access at all: public envelope, caller principal ignored');
 
     const complete = workerEnv({ TF_ACCESS_TEAM_DOMAIN: TEAM_DOMAIN, TF_ACCESS_AUD: AUD });
-    const gated = await workerFetch('https://curious.thoughtseed.space', questRead, complete);
+    const gated = await workerFetch('https://curious.example', questRead, complete);
     assert.equal(gated.status, 401);
     assert.equal(responseError(gated.status, gated.text), 'access_identity_required');
 
-    const proposal = await workerFetch('https://curious.thoughtseed.space',
+    const proposal = await workerFetch('https://curious.example',
       PLEXUS_ROUTES.find((probe) => probe.path === '/v1/founder/proposal')!, complete);
     assert.equal(proposal.status, 401, proposal.text);
   });

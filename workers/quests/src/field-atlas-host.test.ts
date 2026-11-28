@@ -15,26 +15,30 @@ const envelope = (extra = {}) => ({schema:1, tenant:'cambium', derivedAt:new Dat
 const scripts = (html:string) => [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(s=>s.trim());
 function harness(options:{path?:string; search?:string; hash?:string; initData?:string; sdkInitData?:string; fetch?: (url:string,init:any)=>Promise<any>; initial?:unknown} = {}) {
   const calls:Array<{url:string;init:any}> = [];
+  const departmentCalls:Array<{url:string;init:any}> = [];
   const events = new Map<string,Function>();
   let sdkLoads = 0; let telegramStarts = 0; let scope:any;
   scope = vm.createContext({console, URLSearchParams, AbortController, setTimeout, clearTimeout,
     location:{pathname:options.path ?? '/founder',search:options.search ?? '',hash:options.hash ?? ''},
     window:{addEventListener:(name:string,fn:Function)=>events.set(name,fn), ...(options.initData ? {Telegram:{WebApp:{initData:options.initData,ready(){},expand(){},setHeaderColor(){},setBackgroundColor(){}}}} : {})},
     document:{createElement(){return {src:'',onload:null,onerror:null,remove(){}};},head:{append(sdk:any){sdkLoads++; if(options.sdkInitData){scope.window.Telegram={WebApp:{initData:options.sdkInitData,ready(){telegramStarts++;},expand(){}}}; sdk.onload();}else sdk.onerror();}}},
-    fetch:async (url:string,init:any)=>{calls.push({url,init});return options.fetch ? options.fetch(url,init) : {status:200,ok:true,json:async()=>envelope()};},
+    fetch:async (url:string,init:any)=>{if(url.startsWith('/v1/founder/')){departmentCalls.push({url,init});return{status:403,ok:false,json:async()=>({})};}calls.push({url,init});return options.fetch ? options.fetch(url,init) : {status:200,ok:true,json:async()=>envelope()};},
     __CAMBIUM_INITIAL_QUEST_ENVELOPE__:options.initial,
   });
   const page = options.initial ? injectInitialQuestHydration(WORLD_HOST_CLIENT) : WORLD_HOST_CLIENT;
   vm.runInContext(scripts(page)[0],scope);
-  return {scope,calls,events,sdkLoads:()=>sdkLoads,telegramStarts:()=>telegramStarts,run:(code:string)=>vm.runInContext(code,scope), state:()=>JSON.parse(vm.runInContext('JSON.stringify({read:CuriousReadBridge.get(),gate:CuriousGateBridge.get()})',scope))};
+  return {scope,calls,departmentCalls,events,sdkLoads:()=>sdkLoads,telegramStarts:()=>telegramStarts,run:(code:string)=>vm.runInContext(code,scope), state:()=>JSON.parse(vm.runInContext('JSON.stringify({read:CuriousReadBridge.get(),gate:CuriousGateBridge.get()})',scope))};
 }
 const tick = () => new Promise(resolve=>setImmediate(resolve));
 
-test('serving entrypoint excludes retired module imports and stays smaller than the frozen desk document',()=>{
+test('serving entrypoint excludes retired modules and bounds the combined Field Atlas page to 860 kB',()=>{
   const entry=readFileSync(new URL('./page/index.ts',import.meta.url),'utf8');
   assert.doesNotMatch(entry.split('\n').filter(line=>line.startsWith('import')).join('\n'),/retired|LEGACY_PAGE|operating-fabric|scaffold|scene-engine/i);
   for(const marker of ['MissionControlShell','RootNav','data-root-scene','id="operating-fabric"','curious-world-launch']) assert.ok(!PAGE.includes(marker),marker);
-  assert.ok(Buffer.byteLength(PAGE)<Buffer.byteLength(RETIRED_PAGE));
+  // The combined owner-reader and operational graph add source-backed controls.
+  // Keep an absolute budget; the retired desk remains excluded structurally.
+  assert.ok(Buffer.byteLength(PAGE)<860000);
+  assert.ok(Buffer.byteLength(RETIRED_PAGE)-Buffer.byteLength(PAGE)>780000);
   assert.equal(PAGE.split(CLIENT_CURIOUS_READ_BRIDGE).length,2);
   assert.equal(PAGE.split(CLIENT_CURIOUS_GATE_BRIDGE).length,2);
 });
@@ -50,6 +54,7 @@ test('founder route retains same-origin scoped read and requires no rendering of
   assert.equal(h.calls.filter(c=>c.url.includes('/api/quests/'))[0].init.credentials,'same-origin');
   assert.equal(h.state().read.state,'read');assert.equal(h.state().gate.signer,'access');
   assert.equal(h.calls.filter(c=>c.init.method==='POST').length,0);
+  assert.equal(h.departmentCalls.length,1);assert.equal(h.departmentCalls[0].url,'/v1/founder/session');assert.equal(h.departmentCalls[0].init.method,'GET');
 });
 test('Telegram tenant reads keep runtime initData confined to the original request header',async()=>{
   const h=harness({path:'/',search:'?tenant=acme',initData:'synthetic-auth',fetch:async()=>({ok:true,status:200,json:async()=>envelope({tenant:'acme'})})});await tick();

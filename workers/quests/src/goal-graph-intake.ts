@@ -167,7 +167,7 @@ function safeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function boundedString(value: unknown, field: string, limit = TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.fieldBytes): string {
+function boundedString(value: unknown, field: string, limit: number = TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.fieldBytes): string {
   if (typeof value !== 'string' || value.trim().length === 0) throw new Error(`${field} must be a non-empty string`);
   const normalized = value.trim();
   if (byteLength(normalized) > limit) throw new Error(`${field} exceeds ${limit} bytes`);
@@ -179,7 +179,7 @@ function boundedIdentifier(value: unknown, field: string): string {
   return boundedString(value, field, TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.identifierBytes);
 }
 
-function optionalNullableString(value: unknown, field: string, limit = TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.fieldBytes): string | null {
+function optionalNullableString(value: unknown, field: string, limit: number = TELEGRAM_GOAL_GRAPH_INTAKE_LIMITS.fieldBytes): string | null {
   if (value === undefined || value === null) return null;
   return boundedString(value, field, limit);
 }
@@ -445,7 +445,7 @@ export function parseTelegramGoalGraphIntent(input: unknown, context?: TelegramG
     // `buildNode` is the identity primitive used by every Goal Graph lane. Its
     // convenience `now` argument is not part of the durable node, so discard
     // the helper-only property before returning/compiling the proposal.
-    const { now: _helperNow, ...node } = buildNode({ ...nodeInput, now: compileInput.now });
+    const node = buildNode({ ...nodeInput, now: compileInput.now });
     // A Telegram intent is an additive/upsert proposal, not a full graph
     // replacement. Preserve every current node except an exact same-ID node
     // that this intent intentionally supersedes. Passing only `[node]` here

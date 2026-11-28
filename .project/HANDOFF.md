@@ -10,6 +10,53 @@ Search a specific historical heading only to resolve a missing fact.
 ISA and GSD retain acceptance and planning authority.
 Historical commands and completion claims are not fresh approvals.
 <!-- cambium:handoff-history:start -->
+## 2026-11-28 — Serving Worker line reconciled into main
+
+`main` now carries the serving Worker line: `116a135e` plus the #448 and #449 fixes, serving as version `da72c850` (rollback `235b0535`). Decisions, known gaps and verification are in `.planning/native-mac/SERVING-LINE-RECONCILIATION-20261128.md`. Before any release from `main`: rebuild the Curious world bundle, recapture the current-3D Field Atlas proof, read the remote D1 migrations and run the Worker typecheck. No deployment, migration or traffic change was made by the merge.
+
+## 2026-11-04 — Version100 activated; native identity correction pending
+
+Owner-approved100/fd6fe5dc serves100%;54bindings/runtime/health/gate readback pass. Only0099/0105 were applied after fresh286622639byte D1 export/SHA6e3d670b…567354c1. All16 new schema objects match; no admissions were seeded. Exact Hermes06d33ff nine-file runtime is installed for the explicit one-shot path. The separate growth checkout, service, timer and environment remain unchanged with effective execution=false. No task was run; retained rollback is99/57704696.
+
+The Mac signed in and read the live IVerif catalog, but Work intake rejected the verified native principal because its parser required an Access-prefixed ID. The local correction reuses the existing native-session identifier contract at Work/task/acceptance boundaries without changing authentication, role/enrollment checks, credentials or stored identities. Full cycle coverage now includes native and Access ID forms and role revocation. This new Worker is unuploaded and needs exact new upload and later traffic approval. Continue the structured IVerif continuation; preserve the historical checkpoints below.
+
+## 2026-11-04 — IVerif candidate100 uploaded; activation held
+
+Owner-approved upload-only source1915a132 is immutable Worker100/fd6fe5dc-5ba8-45fb-8fe4-c8ee6c2c45c3. Emitted and remote content match2705387bytes/SHA2567ea2e444…3911760b; all53 inherited binding configurations plus the exact IVerif member are verified,54 total. Runtime and the private Cortex reader match99. Preview health/gate200, guest founder graph403 and page source/bootstrap parity pass. Native preview hostname is rejected400 before session lookup; authenticated native acceptance is open.
+
+Serving99/57704696 remains100%; candidate100 is0%. Global operational settings, schedules and exposure are unchanged. The unversioned settings endpoint reflects uploaded100 bindings/annotations; use version-specific metadata for serving99's53 bindings. No schema, runner installation, founder decision, admission, execution or owner signing was performed. Continue `iverif_native_work_cycle` and its upload receipt; scoped0099/0105, Hermes06d33ff and separate traffic approval remain held. Preserve the historical checkpoints below.
+
+## 2026-11-04 approved live rollout; canonical Work still pending
+
+Migration0103 is already applied. Active Worker5f2c5dc7 serves100%; all52bindings
+and runtime settings match retained rollback23cf59d1. See the task continuation
+and WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json. Do not repeat the migration.
+Founder requests Zen ThoughtseedLabs; authentication/direct protected read pass,
+but page ledgerfetch is canceled/offline. Reviewed timeout candidate62836c61
+(founder10s->30s only) passes44checks and awaits separate rollout approval.
+Work proposal, real native join/direction proof, admission and Hermes execution
+remain open. Installed Hermes lacks the coding command; no runner change made.
+
+
+## 2026-11-04 Work/direction source reviewed; live rollout pending
+
+PR428 merged at d571ea92. Continue codex/cambium-real-work-loop-20261104 from
+`.planning/native-mac/OPERATIONAL-LOOP-HANDOFF-20261104.json`. Explicit approved
+Cambium Work source, shared direction drafts/store/native composer and Gate
+visibility are implemented in source. Full2714 tests, Core265(two opt-in skips),
+native43 pass; final Gate delta34checks pass. No live acceptance is implied.
+Exact rollout and Work-intent JSON are prepared. Fresh head11/root and current
+52binding rollback version23cf59d1 verified after founder refreshed login.
+No migration/deployment/Work decision/admission/launch has happened. Installed
+Hermes e3387543 lacks the coding command; Docker exists. Preserve its installed
+source and prepare only the finite admitted capability. Full loop remains open.
+
+
+
+## 2026-11-04 — IVerif native work-cycle candidate
+
+Continue `iverif_native_work_cycle` in `.planning/HANDOFF.json` and `.planning/native-mac/IVERIF-NATIVE-CYCLE-20261104.md`. Combined source includes reviewed department readers, v95 native Work/directions and v98 Work-form/read fixes. Serving99 supersedes the earlier95/96/98 observations; its approved Cortex J1 private reader and added secret binding are preserved. The candidate inherits53 bindings and adds only the exact IVerif member, for54 total. Scoped schema is0099 plus0105; the concurrent code-pilot0104 is excluded. Strict Worker/source, native and synthetic end-to-end checks are separate from real hosted/founder/device acceptance. Upload96 approval is not reused. No traffic, migration, Hermes activation, provider or credential change was made. Local owner readers remain manual; GSD/KPI holds remain.
+
 
 ## 2026-11-14 Growth proposal intake
 

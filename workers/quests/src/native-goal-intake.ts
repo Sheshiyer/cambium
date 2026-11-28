@@ -54,7 +54,7 @@ export function parseFounderBookkeepingIntent(input: unknown, founderId: string,
   try {
     const now = context.now ?? '1970-01-01T00:00:00.000Z';
     const nodes = boundary.value.goals.map((goal: TelegramGoalGraphFields) => {
-      const { now: _helper, ...node } = buildNode({ ...goal, tenantId: boundary.value.tenantId,
+      const node = buildNode({ ...goal, tenantId: boundary.value.tenantId,
         workObjectId: goal.workObjectId!, workObjectKind: goal.workObjectKind!, pinnedLoadoutId: null,
         sourceRef: boundary.sourceRef, sourceDigest: boundary.contentDigest, graphVersion: context.graphVersion ?? 1, now });
       return node;

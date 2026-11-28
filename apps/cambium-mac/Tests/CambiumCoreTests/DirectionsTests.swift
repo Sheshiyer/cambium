@@ -1,0 +1,96 @@
+import XCTest
+@testable import CambiumCore
+
+private struct DirectionSession: SessionProvider {
+    func currentSession() async -> NativeSession { .verified(founderId: "founder", tenantId: "cambium", expiresAt: .distantFuture) }
+}
+private struct DirectionAuth: RequestAuthorizer {
+    func headers() async throws -> [String: String] { ["authorization": "Bearer fixture"] }
+}
+private actor DirectionTransport: HTTPTransport {
+    let response: HTTPResponse
+    var requests: [HTTPRequest] = []
+    init(_ object: [String: Any], status: Int = 200) throws { response = HTTPResponse(status: status, body: try JSONSerialization.data(withJSONObject: object)) }
+    func send(_ request: HTTPRequest) async throws -> HTTPResponse { requests.append(request); return response }
+    func captured() -> [HTTPRequest] { requests }
+}
+final class DirectionsTests: XCTestCase {
+    private let work = DirectionWorkContext(workObjectId: "sapling:cambium", workNodeId: "goal_" + String(repeating: "a", count: 64), graphHeadDigest: String(repeating: "b", count: 64))
+    private func client(_ transport: DirectionTransport) throws -> DirectionHTTPClient {
+        DirectionHTTPClient(origin: try HTTPOriginPolicy(url: XCTUnwrap(URL(string: "https://owner.invalid/prefix"))), transport: transport, authorizer: DirectionAuth(), sessionProvider: DirectionSession())
+    }
+    private func record(principal: String = "founder", title: String = "Improve Inbox") -> [String: Any] {
+        ["id": "direction-1", "tenantId": "cambium", "principal": principal, "title": title, "body": "A small next step.",
+         "workObjectId": work.workObjectId, "workNodeId": work.workNodeId, "graphHeadDigest": work.graphHeadDigest,
+         "signalPins": [["id": "signal-1", "revision": 3]], "revision": 1, "createdAt": "2026-11-04T00:00:00.000Z", "updatedAt": "2026-11-04T00:00:00.000Z"]
+    }
+    func testReadsCanonicalWorkContextFromOwnerAndKeepsBasePath() async throws {
+        let transport = try DirectionTransport(["schema": "cambium.direction-list.v1", "tenantId": "cambium", "principal": "founder", "directions": [record()],
+            "workContext": ["workObjectId": work.workObjectId, "workNodeId": work.workNodeId, "graphHeadDigest": work.graphHeadDigest]])
+        let result = try await client(transport).list(tenant: "cambium")
+        XCTAssertEqual(result.workContext, work); XCTAssertEqual(result.directions.first?.signalPins.first?.revision, 3)
+        let requests = await transport.captured(); XCTAssertEqual(requests.first?.url.path, "/prefix/v1/directions/cambium")
+        XCTAssertEqual(requests.first?.headers["authorization"], "Bearer fixture")
+    }
+    func testCreatePinsExactPayloadAndRefusesChangedOwnerResult() async throws {
+        let draft = DirectionDraft(title: "Improve Inbox", body: "A small next step.", work: work, signalPins: [DirectionSignalPin(id: "signal-1", revision: 3)])
+        let value = DirectionCreate(operationId: "create-1", draft: draft)
+        for title in ["Improve Inbox", "Substituted direction"] {
+            let transport = try DirectionTransport(["schema": "cambium.direction-result.v1", "tenantId": "cambium", "principal": "founder", "direction": record(title: title), "replayed": false], status: 201)
+            do { let saved = try await client(transport).create(tenant: "cambium", value: value); XCTAssertEqual(saved.direction.title, title); XCTAssertEqual(title, draft.title) }
+            catch { XCTAssertNotEqual(title, draft.title); XCTAssertEqual(error as? SignalError, .invalid) }
+            let requests = await transport.captured(); let body = try XCTUnwrap(requests.first?.body)
+            let sent = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
+            XCTAssertEqual(sent["operationId"] as? String, "create-1")
+            XCTAssertNil(sent["principal"])
+        }
+    }
+    func testForeignPrincipalInARecordIsRejected() async throws {
+        let transport = try DirectionTransport(["schema": "cambium.direction-list.v1", "tenantId": "cambium", "principal": "founder", "directions": [record(principal: "other")], "workContext": NSNull()])
+        do { _ = try await client(transport).list(tenant: "cambium"); XCTFail("foreign record accepted") } catch { XCTAssertEqual(error as? SignalError, .scope) }
+    }
+    func testInvalidPinsAreRefusedBeforeTransport() async throws {
+        let transport = try DirectionTransport([:])
+        let draft = DirectionDraft(title: "Improve Inbox", body: "", work: work, signalPins: [DirectionSignalPin(id: "signal-1", revision: 0)])
+        do { _ = try await client(transport).create(tenant: "cambium", value: DirectionCreate(operationId: "create-1", draft: draft)); XCTFail("invalid pin accepted") } catch { XCTAssertEqual(error as? SignalError, .invalidRequest) }
+        let requests = await transport.captured(); XCTAssertTrue(requests.isEmpty)
+    }
+}
+
+extension DirectionsTests {
+    func testIverifFilterKeepsScopeAndRejectsCambiumSubstitution() async throws {
+        var row = record(); row["workObjectId"] = "sapling:iverif"
+        let body: [String: Any] = ["schema":"cambium.direction-list.v1","tenantId":"cambium","principal":"founder","directions":[row],"workContext":NSNull()]
+        let transport = try DirectionTransport(body)
+        let result = try await client(transport).list(tenant:"cambium",workObjectId:"sapling:iverif")
+        XCTAssertEqual(result.directions.first?.workObjectId,"sapling:iverif")
+        let requests = await transport.captured(); XCTAssertEqual(URLComponents(url:try XCTUnwrap(requests.first?.url),resolvingAgainstBaseURL:false)?.queryItems?.first?.value,"sapling:iverif")
+        let wrong = try DirectionTransport(["schema":"cambium.direction-list.v1","tenantId":"cambium","principal":"founder","directions":[record()],"workContext":NSNull()])
+        do { _ = try await client(wrong).list(tenant:"cambium",workObjectId:"sapling:iverif"); XCTFail("other Work accepted") } catch { XCTAssertEqual(error as? SignalError,.scope) }
+    }
+    func testUpdateBindsOriginalIdExpectedRevisionAndExactReadback() async throws {
+        var row = record(); row["revision"] = 2
+        let transport = try DirectionTransport(["schema":"cambium.direction-result.v1","tenantId":"cambium","principal":"founder","direction":row,"replayed":true])
+        let draft = DirectionDraft(title:"Improve Inbox",body:"A small next step.",work:work,signalPins:[DirectionSignalPin(id:"signal-1",revision:3)])
+        let result = try await client(transport).update(tenant:"cambium",id:"direction-1",value:DirectionUpdate(operationId:"update-original",expectedRevision:1,draft:draft))
+        XCTAssertTrue(result.replayed); XCTAssertEqual(result.direction.revision,2)
+        let requests = await transport.captured(),sent = try XCTUnwrap(requests.first)
+        XCTAssertEqual(sent.method,"PUT");XCTAssertEqual(sent.url.path,"/prefix/v1/directions/cambium/direction-1")
+        let raw = try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(sent.body)) as? [String:Any])
+        XCTAssertEqual(raw["expectedRevision"] as? Int,1);XCTAssertEqual(raw["operationId"] as? String,"update-original");XCTAssertNil(raw["principal"])
+    }
+}
+
+extension DirectionsTests {
+    func testActualIverifResultDecodesTheFullSourceLinkedTableWithinTransportBounds() async throws {
+        guard let file = ProcessInfo.processInfo.environment["IVERIF_NATIVE_RESULT_FIXTURE"] else { throw XCTSkip("Requires the TypeScript SQLite cycle result") }
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:URL(fileURLWithPath:file))) as? [String:Any])
+        let admission = try XCTUnwrap(body["admissionRef"] as? String)
+        let expectedRequest = body["requestId"] as? String, expectedAttempt = body["attemptId"] as? String
+        let transport = try DirectionTransport(body)
+        let result = try await client(transport).claimResult(tenant:"cambium",admissionRef:admission)
+        XCTAssertEqual(result.artifact?.claimCount,1192); XCTAssertEqual(result.acceptance,"accepted")
+        XCTAssertTrue(try XCTUnwrap(result.artifact?.markdown).contains("](https://github.com/Sheshiyer/iverif-wiki/blob/1cc03e62"))
+        XCTAssertEqual(result.requestId,expectedRequest);XCTAssertEqual(result.attemptId,expectedAttempt)
+    }
+}

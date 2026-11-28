@@ -1,4 +1,7 @@
 import { fitcheckReferencesClear } from './fitcheck-scope-reconciliation.ts';
+import { createClaimProofOwner } from './claim-proof-owner.ts';
+import type { HandlerDeps } from './handler.ts';
+import { d1SharedDirectionStore } from './shared-directions-d1.ts';
 import { createHermesReceiptIngestion, createHermesReceiptAuthorizer, type HermesReceiptsAI } from './hermes-receipts-v2.ts';
 import { wave0OwnerBindings } from './wave0-owner-bindings.ts';
 
@@ -27,6 +30,7 @@ import type {
   BridgeBusinessTaskRecord,
   BridgeBusinessTaskStoreLike,
   BridgeExecutionClaimInput,
+  BridgeExecutionAttestation,
   BridgeExecutionClaimResult,
   BridgeExecutionContractIdentity,
   BridgeExecutionOutcomeInput,
@@ -63,6 +67,7 @@ export interface D1DatabaseLike {
 }
 
 interface Env {
+  IVERIF_CLAIM_PROOF_MEMBER_ID?: string;
   GROWTH_WORKFLOW_TENANTS_JSON?: string;
   GROWTH_WORKFLOW_RUNNER_MEMBER_ID?: string;
   GROWTH_WORKFLOW_MAX_PENDING?: string;
@@ -82,6 +87,7 @@ interface Env {
   };
   BRIDGE_DB?: D1DatabaseLike;
   THOUGHTSEED_VAULT?: R2BucketLike;
+  CONTEXT_PROJECTIONS?: R2BucketLike;
   /** Wave0 Route B: JSON [{keyId, publicKey}] of the Temperance acceptance owner's Ed25519 public key(s). Not a secret. */
   ACCEPTANCE_OWNER_PUBKEYS?: string;
   /** Wave0 secret (>= 32 bytes) keying the activation digest so vault writers cannot forge admission. */
@@ -477,7 +483,7 @@ function activeClaimBusy(row: BridgeExecutionRow, claimedAt: string): BridgeExec
 
 function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResult {
   const attestation = parseJsonRecord(row.attestation_json);
-  const command = attestation.command === 'canary.record' || attestation.command === 'service_agreement.draft.render' || attestation.command === 'growth.request.draft'
+  const command = attestation.command === 'canary.record' || attestation.command === 'service_agreement.draft.render' || attestation.command === 'growth.request.draft' || attestation.command === 'source_verification.accept' || attestation.command === 'iverif.claim-proof.review'
     ? attestation.command
     : null;
   if ((row.outcome_status !== 'executed' && row.outcome_status !== 'failed')
@@ -502,7 +508,7 @@ function terminalClaimResult(row: BridgeExecutionRow): BridgeExecutionClaimResul
     || (row.outcome_status === 'failed' && (attestation.exitCode !== 1 || typeof attestation.errorCode !== 'string'))) {
     throw new Error('terminal execution row is missing its redacted attestation');
   }
-  const storedAttestation = {
+  const storedAttestation: BridgeExecutionAttestation = {
     schema: 'thoughtseed.hermes.execution_attestation.v1' as const,
     id: attestation.id,
     executionId: attestation.executionId,
@@ -1338,7 +1344,7 @@ export default {
    * Cloudflare Cron: run Fitcheck L4 + quest template tick, store Mini App projection
    * and Hermes delivery intents. Does not send Telegram or write D1.
    */
-  async scheduled(event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
+  async scheduled(event: { cron: string }, env: Env, _ctx: { waitUntil(promise: Promise<unknown>): void }): Promise<void> {
     if (event.cron === '0 0 * * *') {
       if (env.BRIDGE_DB) await purgeExpiredWebsiteLeads(env.BRIDGE_DB);
       return;
@@ -1529,7 +1535,8 @@ export default {
       apiKey: iverifApiKey,
       fetchImpl: workerFetch,
     }) : undefined;
-    const res = await handle(simple, {
+    const handlerDeps: HandlerDeps = {
+      claimProofMemberId: env.IVERIF_CLAIM_PROOF_MEMBER_ID,
       kv,
       // All-or-nothing: without D1, writable vault and owner public key this is the read-only reader.
       ...await wave0OwnerBindings(env),
@@ -1556,11 +1563,12 @@ export default {
       leadRuntimeStore: env.BRIDGE_DB ? d1LeadRuntimeStore(env.BRIDGE_DB) : undefined,
       marketingRenderStore: env.BRIDGE_DB ? d1MarketingRenderStore(env.BRIDGE_DB) : undefined,
       founderGateBindingsJson: env.FOUNDER_GATE_BINDINGS_JSON,
-      fitcheckReferenceReadback: env.BRIDGE_DB ? () => fitcheckReferencesClear(env.BRIDGE_DB!) : undefined,
       goalGraphStore: env.BRIDGE_DB ? d1GoalGraphStore(env.BRIDGE_DB) : undefined,
+      fitcheckReferenceReadback: env.BRIDGE_DB ? () => fitcheckReferencesClear(env.BRIDGE_DB!) : undefined,
       branchMapReceiptStore: env.BRIDGE_DB ? d1BranchMapReceiptStore(env.BRIDGE_DB) : undefined,
       nativeSessionHost,
       sharedSignalStore: env.BRIDGE_DB ? d1SharedSignalStore(env.BRIDGE_DB) : undefined,
+      sharedDirectionStore: env.BRIDGE_DB ? d1SharedDirectionStore(env.BRIDGE_DB) : undefined,
       portfolioActionStore: env.THOUGHTSEED_VAULT?.put
         ? createPortfolioAdminActionStore(env.THOUGHTSEED_VAULT)
         : undefined,
@@ -1589,7 +1597,12 @@ export default {
       }) : undefined,
       githubAllowedRepos,
       publicBaseUrl: new URL(request.url).origin,
-    });
+    };
+    if(env.BRIDGE_DB && env.THOUGHTSEED_VAULT?.put && env.IVERIF_CLAIM_PROOF_MEMBER_ID) {
+      handlerDeps.claimProofOwner=createClaimProofOwner(env.BRIDGE_DB,env.THOUGHTSEED_VAULT,handlerDeps);
+      handlerDeps.nativeLaunchHost=handlerDeps.claimProofOwner.launchHost;
+    }
+    const res = await handle(simple, handlerDeps);
     return new Response(res.body, { status: res.status, headers: res.headers });
   },
 };

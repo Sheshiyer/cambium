@@ -2,6 +2,88 @@
 // Portfolio Workbench. The bootstrap carries no catalog bytes and keeps the
 // signed Telegram initData in one local variable for the single authenticated
 // fetch. Authorization remains entirely server-side.
+import { PORTFOLIO_DISPLAY_CATALOG } from './portfolio-catalog.ts';
+
+const projects = PORTFOLIO_DISPLAY_CATALOG.records.map(({ workId, name, classification }) => ({
+  workId,
+  name,
+  classification,
+}));
+
+export const PORTFOLIO_PROJECT_MAP = {
+  schema: 'cambium.portfolio-project-map.v1',
+  readOnly: true,
+  projects,
+} as const;
+
+export const PORTFOLIO_HOME_LINK = `<style>
+  #curious-portfolio-link {
+    position: fixed; z-index: 6; display: inline-flex; align-items: center;
+    left: calc(32px + env(safe-area-inset-left)); bottom: calc(76px + env(safe-area-inset-bottom));
+    min-height: 44px; padding: 10px 16px; border: 1px solid #e0ff4f; border-radius: 24px;
+    background: #00272b; color: #e0ff4f; font: 12px var(--mono, monospace); text-decoration: none;
+  }
+  @media (pointer: coarse) {
+    #curious-portfolio-link {
+      left: calc(24px + env(safe-area-inset-left)); bottom: calc(128px + env(safe-area-inset-bottom));
+    }
+  }
+</style>
+<a id="curious-portfolio-link" href="/portfolio">Portfolio Workbench</a>`;
+
+const classificationLabel = {
+  'client-branch': 'Client branch',
+  'internal-program': 'Internal program',
+  sapling: 'Sapling',
+};
+const escapeText = (value: string): string =>
+  value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+export const PORTFOLIO_PUBLIC_CSP = [
+  "default-src 'none'",
+  "style-src 'unsafe-inline'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "frame-ancestors 'none'",
+].join('; ');
+
+export const PORTFOLIO_PUBLIC_HTML = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thoughtseed Portfolio Workbench</title>
+  <link rel="alternate" type="application/json" href="/v1/portfolio">
+  <style>
+    :root { color-scheme: dark; background: #071410; color: #f2ecd8; font-family: system-ui, sans-serif; }
+    body { max-width: 68rem; margin: 0 auto; padding: clamp(1rem, 4vw, 3rem); }
+    nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+    a { color: #e0ff4f; display: inline-flex; align-items: center; min-height: 44px; }
+    a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 3rem); margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .75rem .5rem; border-bottom: 1px solid #2b4038; text-align: left; vertical-align: top; }
+    thead th { color: #b8c6bd; font-weight: 500; }
+    code { display: block; margin-top: .2rem; color: #b8c6bd; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <nav aria-label="Portfolio links">
+    <a href="/">Curious</a>
+    <a href="/v1/portfolio">Project map JSON</a>
+    <a href="/admin/portfolio/web">Manage portfolio</a>
+  </nav>
+  <main>
+    <h1>Portfolio Workbench</h1>
+    <table aria-label="Portfolio projects">
+      <thead><tr><th scope="col">Project</th><th scope="col">Type</th></tr></thead>
+      <tbody>${projects.map(({ workId, name, classification }) =>
+        `<tr><th scope="row">${escapeText(name)}<code>${escapeText(workId)}</code></th><td>${classificationLabel[classification]}</td></tr>`,
+      ).join('')}</tbody>
+    </table>
+  </main>
+</body>
+</html>`;
 
 export const PORTFOLIO_WORKBENCH_LOADER_CSP = [
   "default-src 'none'",
@@ -54,7 +136,7 @@ export const PORTFOLIO_WORKBENCH_LOADER = `<!doctype html>
       var status = document.getElementById('portfolioLoaderStatus');
       if (webApp && typeof webApp.ready === 'function') webApp.ready();
       if (!initData) {
-        window.location.replace('/admin/portfolio/web');
+        window.location.replace('/portfolio');
         return;
       }
       fetch('/v1/admin/portfolio', {

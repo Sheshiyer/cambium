@@ -15,3 +15,9 @@ test('intake draft enforces UTF8 byte bound and readable malformed JSON errors',
   assert.throws(() => parseFounderIntake(JSON.stringify({ ...draft, extra: '界'.repeat(22_000) })), /64 KB/);
   assert.throws(() => parseFounderIntake('{'), /valid JSON/);
 });
+
+test('intake draft accepts exact operational Work intent while preserving the server-owned boundary',()=>{
+ const work={schema:'cambium.founder.operational-work-intent.v1',version:1,tenantId:'cambium',clientRequestId:'work-001',expectedHeadDigest:'a'.repeat(64),goals:[{namespace:'founder-operational-work',externalId:'cambium-work',workObjectId:'sapling:cambium'}]};
+ assert.deepEqual(parseFounderIntake(JSON.stringify(work)),work);
+ for(const change of [{expectedHeadDigest:'not-a-head'},{goals:[{},{}]},{tenantId:'other'},{schema:'cambium.founder.unreviewed-intent.v1'}])assert.throws(()=>parseFounderIntake(JSON.stringify({...work,...change})));
+});

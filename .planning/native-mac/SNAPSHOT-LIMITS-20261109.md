@@ -31,6 +31,16 @@ That receipt sets `native_work_join_verified` and
 [OPERATIONAL-LOOP-HANDOFF-20261104.md](OPERATIONAL-LOOP-HANDOFF-20261104.md):
 the operational Work join is not wired.
 
+### 28 November addendum
+
+The statement above that this repository has no `0103_shared_directions.sql`
+was true on 9 November. On 28 November the serving Worker line was merged into
+`main`, which brought `0103_shared_directions.sql` and
+`0105_native_direction_admission_guards.sql` with the code that uses them. The
+serving Worker already runs that code. This addendum does not record which
+migrations the remote D1 database has applied; read them before any migration
+step. Do not reapply a migration or move traffic from this note.
+
 ## Temperance records
 
 Temperance "glove" and "hand" in

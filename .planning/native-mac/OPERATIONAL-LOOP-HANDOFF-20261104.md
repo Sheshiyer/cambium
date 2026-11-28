@@ -1,9 +1,65 @@
 # Cambium operational loop — next-session handoff
 
-4 November 2026, Asia/Calcutta. Status: sign-in entry implemented; real
-operational Work join and live signal → direction → approved work → result
-are **not yet wired or accepted**. Continue this task; do not report the prior
+4 November 2026, Asia/Calcutta. Status: Work-source and shared-direction code
+implemented, reviewed and deployed; canonical Work decision pending.
+The full signal → direction → approved work → result loop is **not accepted**. Continue this task; do not report the prior
 Inbox test as an execution-loop test.
+
+## Live checkpoint after approved rollout
+
+The founder separately approved the scoped rollout. Migration0103 is applied;
+its four schema objects and empty initial store were read back. Worker version
+`5f2c5dc7-e57a-47a8-89f3-0f64f6c29841` serves100% traffic. All52binding
+identities/values and runtime settings match retained rollback23cf59d1.
+See `WORK-DIRECTION-ROLLOUT-RECEIPT-20261104.json`. No graph Work decision,
+direction save, admission, Hermes rollout or execution has occurred.
+
+The founder requests **Zen Thoughtseed Labs profile** for this workflow.
+Authentication and direct `/founder/api/quests/cambium` read succeed (schema1,
+tenantcambium). The world page's ledger fetch has been canceled and reports
+offline; retry is in progress. Browser protection was not changed. Do not keep
+asking for login or switch to Chrome. Submit the pinned intent only through a
+verified founder workflow; never bypass the canonical decision or seed D1 rows.
+
+A finite next coding input is prepared locally on branch
+`codex/cambium-code-pilot-input-20261104`, commit`c4cc221f`, base`d571ea92`:
+reject whitespace-only shared signal titles. Exact two-file patch digest is in
+the JSON; baseline RED and candidate8checks pass. This is input preparation,
+not admission, hosted execution, a terminal result or semantic acceptance.
+
+## Source checkpoint before rollout
+
+
+PR428 merged at `d571ea92`. Continue branch
+`codex/cambium-real-work-loop-20261104`, source `71005ef6`.
+The explicit operational Work schema remains separate from founder bookkeeping.
+It compiles against the observed head and uses the existing canonical Gate/D1
+approval path. Only its coherent committed source emits Cambium Work; catalog
+membership still grants nothing. The web Gate now displays these proposals.
+
+Shared direction drafts have a real D1 store/migration, revision CAS, exact
+operation receipts, scoped HTTP route and native composer. The saved draft pins
+signal revisions and canonical D1 Work/head. The native button is available for
+saved Cambium signals; no direction approval, admission or launch is implied.
+Three review findings were fixed: transport size limit, canonical digest spelling
+and updates to a Work that is the tenant root. Compatibility/torn-read and privacy
+regressions are resolved. The full suite passed2714 at `0d51e581`; all34 Gate
+checks cover the final proposal-list delta. Core265 (two opt-in skips), native43,
+Worker dry run and clean signed native bundle pass. Real native direction UI and
+save/readback still await deployment and sign-in.
+
+Review `.planning/native-mac/WORK-DIRECTION-ROLLOUT-20261104.json` and
+`CAMBIUM-WORK-INTENT-20261104.json`. The founder refreshed Cloudflare login;
+fresh read-only head11/root and52binding Worker version23cf59d1 read succeeded.
+No new migration, traffic change, graph write, admission, runner invocation or
+rollout has occurred. Keep original migration0099 source-only. Production rollout
+and the exact canonical Work decision are separate owner gates.
+
+Actual Hermes release is `e3387543` (not local source09280487); installed code
+has canary/document draft only and no Cambium/source-verification command.
+Docker is available. Prepare the finite isolated coding capability against that
+installed baseline; do not deploy unrelated newer Hermes features or use the
+ordinary runner as a diagnostic.
 
 ## Owner request and settled choices
 
@@ -25,7 +81,7 @@ separate. Do not reopen these choices.
 ## Source and preservation
 
 - Base: merged Cambium PR427, `b6652fcf991eba804cffeaa38d2d265c10218532`.
-- Working branch: `codex/cambium-operational-loop-20261104`.
+- Current branch: `codex/cambium-real-work-loop-20261104`; prior sign-in branch retained.
 - The primary checkout is divergent and heavily dirty with concurrent catalog,
   planning and native work. Preserve it. This branch starts from remote main.
 - Prior acceptance/rollback: `NATIVE-INBOX-ACTIVATION-20261103.md`.

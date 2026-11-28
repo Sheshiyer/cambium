@@ -12,7 +12,7 @@ export const FIELD_ATLAS_CAPTURE_STEPS = [
   { id:'chart-desktop', minWidth:1024, minHeight:600, path:'chart-desktop.jpg', actions:['Enter world','Open district chart and local passport'], checks:['eightDistricts','keyboardFocusVisible','retiredShellAbsent','consoleClean'] },
   { id:'gate-desktop', minWidth:1024, minHeight:600, path:'gate-desktop.jpg', actions:['Open Founder Gate from the chart','Open Propose a graph update'], checks:['gateFolioVisible','intakeLabelPresent','prepareProposalControl','canonicalGraphReadControl','noAutomaticPost','consoleClean'] },
   { id:'gate-mobile-320', width:320, minHeight:600, path:'gate-mobile-320.jpg', actions:['Open /founder at exact CSS width320','Enter world; chart; Founder Gate; open intake'], checks:['exactCssWidth','noHorizontalOverflow','gateFolioVisible','intakeFits','focusVisible','consoleClean'] },
-  { id:'graph-mobile-320', width:320, minHeight:600, path:'graph-mobile-320.jpg', actions:['Read committed graph using the explicitly synthetic local read fixture','Select LumenBar and expand a branch','Select Temperance Engine and expand a branch'], checks:['exactCssWidth','noHorizontalOverflow','twoProductChoices','fixtureCountsMatch','nestedBranchExpands','prerequisitesLabeled','exactDataInitiallyClosed','decisionsNotPublication','consoleClean'] },
+  { id:'graph-mobile-320', width:320, minHeight:600, path:'graph-mobile-320.jpg', actions:['Read committed graph using the explicitly synthetic local read fixture','Select LumenBar and expand a branch','Select Temperance Engine and expand a branch','Select IVerif and expand the scoped operational branch'], checks:['exactCssWidth','noHorizontalOverflow','threeProductChoices','fixtureCountsMatch','nestedBranchExpands','prerequisitesLabeled','exactDataInitiallyClosed','decisionsNotPublication','consoleClean'] },
   { id:'legacy-query-mobile-320', width:320, minHeight:600, path:'legacy-query-mobile-320.jpg', actions:['Open /founder?world=0&scene=gate in a fresh tab'], checks:['exactCssWidth','worldCanvasOne','retiredShellAbsent','telegramSdkAbsent','noHorizontalOverflow','consoleClean'] },
 ];
 export const FIELD_ATLAS_SOURCE_SHA256 = createHash('sha256').update(PAGE).digest('hex');
@@ -21,7 +21,7 @@ export const FIELD_ATLAS_PLAN_SHA256 = createHash('sha256').update(JSON.stringif
 export function fieldAtlasCapturePlan() {
   return { schema:'cambium.field-atlas-capture-plan.v1', scope:'local-synthetic', productionAcceptance:false,
     pageSourceSha256:FIELD_ATLAS_SOURCE_SHA256, planSha256:FIELD_ATLAS_PLAN_SHA256,
-    baseUrl:'http://127.0.0.1:5193/founder', steps:FIELD_ATLAS_CAPTURE_STEPS,
+    baseUrl:'http://127.0.0.1:5194/founder', steps:FIELD_ATLAS_CAPTURE_STEPS,
     invariants:'Actual browser observations and JPEGs only. Local fixtures are not live D1, platform authentication, founder acceptance or execution proof.' };
 }
 

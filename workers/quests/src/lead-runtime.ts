@@ -362,7 +362,8 @@ export async function runIverifCaptureEnrich({
       });
       return { status: 'failed', code };
     }
-    if (!inbox || !selected || !thread || !leadId) {
+    const observed = (() : { inbox: IVerifInboxObservation | null; selected: IVerifInboxContact | null; thread: IVerifThreadObservation | null } => ({ inbox, selected, thread }))();
+    if (!observed.inbox || !observed.selected || !observed.thread || !leadId) {
       await store.failTask({
         taskId,
         claimId: claim.claimId,
@@ -375,33 +376,33 @@ export async function runIverifCaptureEnrich({
 
     observationDigest = await sha256({
       provider: IVERIF_PROVIDER_ID,
-      sourceId: selected.personId,
+      sourceId: observed.selected.personId,
       inbox: {
-        tab: inbox.tab,
-        total: inbox.total,
-        omittedContacts: inbox.omittedContacts,
-        pageCount: inbox.pageCount,
-        truncated: inbox.truncated,
+        tab: observed.inbox.tab,
+        total: observed.inbox.total,
+        omittedContacts: observed.inbox.omittedContacts,
+        pageCount: observed.inbox.pageCount,
+        truncated: observed.inbox.truncated,
         selected: {
-          latestIntent: selected.latestIntent,
-          sentCount: selected.sentCount,
-          replyCount: selected.replyCount,
-          latestSentAt: selected.latestSentAt,
-          latestReplyAt: selected.latestReplyAt,
+          latestIntent: observed.selected.latestIntent,
+          sentCount: observed.selected.sentCount,
+          replyCount: observed.selected.replyCount,
+          latestSentAt: observed.selected.latestSentAt,
+          latestReplyAt: observed.selected.latestReplyAt,
         },
       },
-      thread,
+      thread: observed.thread,
     });
     const observation = await store.recordObservation({
       observationReceiptId: uuid(),
       tenantId,
       leadId,
       providerId: IVERIF_PROVIDER_ID,
-      sourceId: selected.personId,
+      sourceId: observed.selected.personId,
       method: 'GET',
       idempotencyKey: observationKey,
       observationDigest,
-      observedAt: inbox.source.observedAt,
+      observedAt: observed.inbox.source.observedAt,
       recordedAt: now(),
     });
     if (observation.status === 'conflict') {

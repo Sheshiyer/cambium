@@ -1,6 +1,7 @@
 import type {
   ContextProviderMetadata,
   RoutineContextLike,
+  RoutineContextItem,
   RoutineContextSection,
   SemanticRecallHit,
   SemanticRecallLike,
@@ -298,7 +299,7 @@ export function createRoutineContext({
           continue;
         }
 
-        const items = [];
+        const items: RoutineContextItem[] = [];
         let staleKeyCount = 0;
         let missingKeyCount = 0;
         let invalidKeyCount = 0;

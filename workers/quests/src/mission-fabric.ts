@@ -339,8 +339,8 @@ export function projectionDigest(projection: Pick<MissionFabricProjectionV1, 'pr
 }
 
 function nodeIdentity(node: FabricNode): string {
-  const value = node.value as Record<string, unknown>;
-  const id = (value.workId ?? value.missionId ?? value.taskId ?? value.agentId ?? value.clusterId ?? value.runId ?? value.receiptId) as string;
+  const value = { ...node.value };
+  const id = ('workId' in value ? value.workId : 'missionId' in value ? value.missionId : 'taskId' in value ? value.taskId : 'agentId' in value ? value.agentId : value.clusterId);
   return `${node.kind}:${id}`;
 }
 

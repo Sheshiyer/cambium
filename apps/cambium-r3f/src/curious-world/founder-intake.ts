@@ -5,11 +5,13 @@ export function parseFounderIntake(text: string): Record<string, unknown> {
   if (new TextEncoder().encode(text).length > 65_536) throw new Error('Keep the draft within 64 KB.');
   let value: any;
   try { value = JSON.parse(text); } catch { throw new Error('Enter a valid JSON goal graph draft.'); }
-  if (!value || Array.isArray(value) || value.schema !== 'cambium.founder.goal-graph-intent.v1'
+  const operational = value?.schema === 'cambium.founder.operational-work-intent.v1';
+  if (!value || Array.isArray(value) || (!operational && value.schema !== 'cambium.founder.goal-graph-intent.v1')
     || value.version !== 1 || value.tenantId !== 'cambium'
     || typeof value.clientRequestId !== 'string' || !/^[A-Za-z0-9._:-]{1,128}$/.test(value.clientRequestId)
-    || !Array.isArray(value.goals) || value.goals.length < 1 || value.goals.length > 32) {
-    throw new Error('Use the Cambium founder intent schema with a stable request ID and 1–32 goals.');
+    || !Array.isArray(value.goals) || value.goals.length < 1 || value.goals.length > (operational ? 1 : 32)
+    || (operational && value.expectedHeadDigest !== null && (typeof value.expectedHeadDigest !== 'string' || !/^[a-f0-9]{64}$/.test(value.expectedHeadDigest)))) {
+    throw new Error('Use a supported Cambium founder intent, a stable request ID and the observed graph head for operational Work.');
   }
   return value;
 }
@@ -21,7 +23,7 @@ export function founderIntakeForm(bridge: GateBridge, state: FounderIntakeState)
   details.dataset.cwDisclosure = 'founder-intake';
   const summary = document.createElement('summary'); summary.textContent = 'Propose a graph update';
   const note = document.createElement('p');
-  note.textContent = 'Prepare an additive bookkeeping proposal for Cambium. This does not authorize execution. Read all proposed changes in the Gate before confirming.';
+  note.textContent = 'Prepare an additive graph proposal. This does not authorize execution. Review the exact changes in the Gate before confirming.';
   const form = document.createElement('form');
   const label = document.createElement('label'); label.htmlFor = 'cw-founder-intake-draft'; label.textContent = 'Goal graph draft (JSON)';
   const draft = document.createElement('textarea'); draft.id = label.htmlFor; draft.value = state.draft;

@@ -85,8 +85,7 @@ const CuriousGateBridge = (() => {
   function rowOf(raw) {
     if (!raw || typeof raw !== 'object' || raw.kind !== 'goal-graph-intake') return null;
     const fitcheckScope = raw.source === 'fitcheck-scope-reconciliation@v1';
-    const allowed = [SOURCE, 'founder-proposal-renewal@v1', 'founder-web-bookkeeping@v1'];
-    if (fitcheckScope ? signer() !== 'access' : !allowed.includes(raw.source)) return null;
+    if (fitcheckScope ? signer() !== 'access' : ![SOURCE, 'founder-proposal-renewal@v1', 'founder-web-bookkeeping@v1', 'founder-web-operational-work@v1'].includes(raw.source)) return null;
     const renewableStale = raw.status === 'stale' && raw.renewOnly === true && raw.canRenew === true;
     if ((raw.status !== 'pending' && !renewableStale) || raw.tenantId !== TENANT || typeof raw.changeDigest !== 'string' || !DIGEST.test(raw.changeDigest)) return null;
     if (typeof raw.approvalNonce !== 'string' || !raw.approvalNonce || raw.approvalNonce.length > 240) return null;
@@ -152,8 +151,8 @@ const CuriousGateBridge = (() => {
   function result(ok, outcome, message, decision) { return Object.freeze({ ok, outcome, message, ...(decision ? {decision} : {}) }); }
   function deepFreeze(value) { if (value && typeof value === 'object' && !Object.isFrozen(value)) { Object.values(value).forEach(deepFreeze); Object.freeze(value); } return value; }
   function remember(map,key,value) { map.delete(key); map.set(key,value); while(map.size > 8) map.delete(map.keys().next().value); }
-  async function verifiedSession() {
-    const response = await fetch('/v1/founder/session',{method:'GET',credentials:'same-origin',redirect:'error',headers:{'x-cambium-founder-web':'1'}});
+  async function verifiedSession(signal) {
+    const response = await fetch('/v1/founder/session',{signal,method:'GET',credentials:'same-origin',redirect:'error',headers:{'x-cambium-founder-web':'1'}});
     const session = await response.json();
     if (!response.ok || session.writerAuthority !== false || typeof session.founderId !== 'string' || !session.founderId || session.enrolled !== true || session.canonicalReady !== true || !Array.isArray(session.tenantIds) || !session.tenantIds.includes(TENANT)) throw new Error('Founder session or tenant admission unavailable.');
     return session;
@@ -249,10 +248,12 @@ const CuriousGateBridge = (() => {
     return outcome;
   }
   return {
-    async graph() {
+    async graph(workObjectId, signal) {
       if (signer() !== 'access') throw new Error('Founder Access is required.');
-      await verifiedSession();
-      const response = await fetch('/v1/founder/graph',{method:'GET',credentials:'same-origin',redirect:'error',cache:'no-store',headers:{'x-cambium-founder-web':'1'}});
+      await verifiedSession(signal);
+      if(signal?.aborted)throw new Error('Graph read closed.');
+      if(workObjectId!==undefined&&workObjectId!=='sapling:iverif')throw new Error('Unknown operational Work scope.');
+      const response = await fetch('/v1/founder/graph'+(workObjectId?'?workObjectId='+encodeURIComponent(workObjectId):''),{signal,method:'GET',credentials:'same-origin',redirect:'error',cache:'no-store',headers:{'x-cambium-founder-web':'1'}});
       if (!response.ok) throw new Error('Canonical graph read unavailable.');
       return await response.json();
     },

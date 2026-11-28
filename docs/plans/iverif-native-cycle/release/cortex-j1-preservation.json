@@ -1,0 +1,39 @@
+{
+  "schema": "cambium.cortex-j1.quests-preservation.v1",
+  "servingVersion": "57704696-3986-4414-ba30-4bf2afd90f9a",
+  "versionNumber": 99,
+  "approvedReleaseManifestSha256": "29b7a1b17d75f4c2f3af6a683193663d600af4eda1a96694747777ff8d1eded6",
+  "baseCommit": "c694805745adcc80f6e5e72fa590fdba8e81d8d7",
+  "entrypoint": "workers/quests/src/cortex-services.ts",
+  "files": [
+    {
+      "path": "workers/quests/src/cortex-provenance-reader.ts",
+      "sha256": "b78ce97a2649298c94b833e3c89d6a801cd50979b082fdc6b5527e5f883cf787"
+    },
+    {
+      "path": "workers/quests/src/cortex-provenance-reader.test.ts",
+      "sha256": "16ffde63b1b572bb5f2f8393d7ee0b89c7663f6ee32b2d3d9c56046a2b79104d"
+    },
+    {
+      "path": "workers/quests/src/cortex-services.ts",
+      "sha256": "804d1d666e4a88430facf6e8a85da2e16dd3eeca2b136bb4c8d31e4b5e6e4ad1"
+    },
+    {
+      "path": "workers/quests/src/cloudflare-workers.d.ts",
+      "sha256": "6b122c32654a42f8070d4a39de7ef21f9b12a136b781cb19db3c8c3c5a0f45a7"
+    }
+  ],
+  "bindings": {
+    "serving": 53,
+    "newServingSecretInherited": "MCP_GATE_ADAPTER_TOKEN",
+    "newNonSecret": "IVERIF_CLAIM_PROOF_MEMBER_ID",
+    "candidate": 54
+  },
+  "unchangedCortexPolicy": {
+    "workExecution": false,
+    "leases": false,
+    "subscriptions": false
+  },
+  "ownerWorktreeModified": false,
+  "remoteMutation": false
+}
